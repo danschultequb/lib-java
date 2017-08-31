@@ -31,6 +31,17 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     boolean next();
 
     /**
+     * Get whether or not this Iterator contains any values. This function may move this Iterator
+     * forward one position, but it can be called multiple times without consuming any of the
+     * values in this Iterator.
+     * @return Whether or not this Iterator contains any values.
+     */
+    default boolean any()
+    {
+        return hasCurrent() || next();
+    }
+
+    /**
      * Get the number of values that are in this Iterator. This will iterate through all of the
      * values in this Iterator. Use this method only if you care how many values are in the
      * Iterator, not what the values actually are.

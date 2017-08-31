@@ -69,4 +69,10 @@ public class Array<T> implements Iterable<T>
     {
         return new ArrayIterator<>(this);
     }
+
+    @Override
+    public boolean any()
+    {
+        return 1 <= getCount();
+    }
 }

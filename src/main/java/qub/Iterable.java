@@ -13,6 +13,12 @@ public interface Iterable<T> extends java.lang.Iterable<T>
     Iterator<T> iterate();
 
     /**
+     * Get whether or not this Iterable contains any values.
+     * @return Whether or not this Iterable contains any values.
+     */
+    boolean any();
+
+    /**
      * Create a java.util.Iterator that will iterate over this Iterable.
      * @return A java.util.Iterator that will iterate over this Iterable.
      */

@@ -60,4 +60,92 @@ public class ArrayTest
             assertEquals(i, a.get(i).intValue());
         }
     }
+
+    @Test
+    public void iterateWithEmpty()
+    {
+        final Array<Integer> a = new Array<>(0);
+        final Iterator<Integer> i = a.iterate();
+        assertNotNull(i);
+        assertFalse(i.hasStarted());
+        assertFalse(i.hasCurrent());
+        assertNull(i.getCurrent());
+
+        assertFalse(i.next());
+        assertTrue(i.hasStarted());
+        assertFalse(i.hasCurrent());
+        assertNull(i.getCurrent());
+    }
+
+    public void iterateWithNonEmpty()
+    {
+        final Array<Integer> a = new Array<>(5);
+        for (int i = 0; i < a.getCount(); ++i) {
+            a.set(i, i);
+        }
+
+        final Iterator<Integer> iterator = a.iterate();
+        assertNotNull(iterator);
+        assertFalse(iterator.hasStarted());
+        assertFalse(iterator.hasCurrent());
+        assertNull(iterator.getCurrent());
+
+        for (int i = 0; i < a.getCount(); ++i) {
+            assertTrue(iterator.next());
+            assertTrue(iterator.hasStarted());
+            assertTrue(iterator.hasCurrent());
+            assertEquals(i, iterator.getCurrent().intValue());
+        }
+
+        assertFalse(iterator.next());
+        assertTrue(iterator.hasStarted());
+        assertFalse(iterator.hasCurrent());
+        assertNull(iterator.getCurrent());
+    }
+
+    @Test
+    public void forEachWithEmptyArray()
+    {
+        final Array<Integer> a = new Array<>(0);
+
+        int elementCount = 0;
+        for (final Integer i : a)
+        {
+            ++elementCount;
+        }
+
+        assertEquals(0, elementCount);
+    }
+
+    @Test
+    public void forEachWithNonEmptyArray()
+    {
+        final Array<Integer> a = new Array<>(10);
+        for (int i = 0; i < a.getCount(); ++i) {
+            a.set(i, i);
+        }
+
+        int i = 0;
+        for (final Integer element : a)
+        {
+            assertEquals(i, element.intValue());
+            ++i;
+        }
+
+        assertEquals(a.getCount(), i);
+    }
+
+    @Test
+    public void anyWithEmptyArray()
+    {
+        final Array<Integer> array = new Array<>(0);
+        assertFalse(array.any());
+    }
+
+    @Test
+    public void anyWithNonEmptyArray()
+    {
+        final Array<Integer> array = new Array<>(110);
+        assertTrue(array.any());
+    }
 }
