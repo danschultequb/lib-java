@@ -1,0 +1,6 @@
+language: java
+script: mvn clean test jacoco:report coveralls:report
+git:
+  depth: 1
+notifications:
+  email: false

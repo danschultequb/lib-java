@@ -88,6 +88,18 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     }
 
     /**
+     * Create a new Iterator that will iterate over no more than the provided number of values from
+     * this Iterator.
+     * @param toTake The number of values to take from this Iterator.
+     * @return A new Iterator that will iterate over no more than the provided number of values from
+     * this Iterator.
+     */
+    default Iterator<T> take(int toTake)
+    {
+        return new TakeIterator<>(this, toTake);
+    }
+
+    /**
      * Create a java.util.Iterator that will iterate over this Iterator.
      * @return A java.util.Iterator that will iterate over this Iterator.
      */

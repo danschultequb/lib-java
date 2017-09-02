@@ -4,8 +4,19 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class ArrayTests
+public class ArrayTests extends IterableTests
 {
+    @Override
+    public Iterable<Integer> createIterable(int count)
+    {
+        final Array<Integer> result = new Array<>(count);
+        for (int i = 0; i < count; ++i)
+        {
+            result.set(i, i);
+        }
+        return result;
+    }
+
     @Test
     public void constructorWith0Length()
     {
@@ -59,138 +70,5 @@ public class ArrayTests
             a.set(i, i);
             assertEquals(i, a.get(i).intValue());
         }
-    }
-
-    @Test
-    public void iterateWithEmpty()
-    {
-        final Array<Integer> a = new Array<>(0);
-        final Iterator<Integer> i = a.iterate();
-        assertNotNull(i);
-        assertFalse(i.hasStarted());
-        assertFalse(i.hasCurrent());
-        assertNull(i.getCurrent());
-
-        assertFalse(i.next());
-        assertTrue(i.hasStarted());
-        assertFalse(i.hasCurrent());
-        assertNull(i.getCurrent());
-    }
-
-    @Test
-    public void iterateWithNonEmpty()
-    {
-        final Array<Integer> a = new Array<>(5);
-        for (int i = 0; i < a.getCount(); ++i) {
-            a.set(i, i);
-        }
-
-        final Iterator<Integer> iterator = a.iterate();
-        assertNotNull(iterator);
-        assertFalse(iterator.hasStarted());
-        assertFalse(iterator.hasCurrent());
-        assertNull(iterator.getCurrent());
-
-        for (int i = 0; i < a.getCount(); ++i) {
-            assertTrue(iterator.next());
-            assertTrue(iterator.hasStarted());
-            assertTrue(iterator.hasCurrent());
-            assertEquals(i, iterator.getCurrent().intValue());
-        }
-
-        assertFalse(iterator.next());
-        assertTrue(iterator.hasStarted());
-        assertFalse(iterator.hasCurrent());
-        assertNull(iterator.getCurrent());
-    }
-
-    @Test
-    public void forEachWithEmptyArray()
-    {
-        final Array<Integer> a = new Array<>(0);
-
-        int elementCount = 0;
-        for (final Integer i : a)
-        {
-            ++elementCount;
-        }
-
-        assertEquals(0, elementCount);
-    }
-
-    @Test
-    public void forEachWithNonEmptyArray()
-    {
-        final Array<Integer> a = new Array<>(10);
-        for (int i = 0; i < a.getCount(); ++i) {
-            a.set(i, i);
-        }
-
-        int i = 0;
-        for (final Integer element : a)
-        {
-            assertEquals(i, element.intValue());
-            ++i;
-        }
-
-        assertEquals(a.getCount(), i);
-    }
-
-    @Test
-    public void anyWithEmptyArray()
-    {
-        final Array<Integer> array = new Array<>(0);
-        assertFalse(array.any());
-    }
-
-    @Test
-    public void anyWithNonEmptyArray()
-    {
-        final Array<Integer> array = new Array<>(110);
-        assertTrue(array.any());
-    }
-
-    @Test
-    public void anyWithEmptyAndNullCondition()
-    {
-        final Array<Integer> a = new Array<>(0);
-        assertFalse(a.any(null));
-    }
-
-    @Test
-    public void anyWithNonEmptyAndNullCondition()
-    {
-        final Array<Integer> a = new Array<>(5);
-        for (int i = 0; i < a.getCount(); ++i) {
-            a.set(i, i);
-        }
-        assertFalse(a.any(null));
-    }
-
-    @Test
-    public void anyWithEmptyAndCondition()
-    {
-        final Array<Integer> a = new Array<>(0);
-        assertFalse(a.any(Math.isEven));
-    }
-
-    @Test
-    public void anyWithNonEmptyAndNonMatchingCondition()
-    {
-        final Array<Integer> a = new Array<>(5);
-        for (int i = 0; i < a.getCount(); ++i) {
-            a.set(i, i * 2);
-        }
-        assertFalse(a.any(Math.isOdd));
-    }
-
-    @Test
-    public void anyWithNonEmptyAndMatchingCondition()
-    {
-        final Array<Integer> a = new Array<>(5);
-        for (int i = 0; i < a.getCount(); ++i) {
-            a.set(i, i);
-        }
-        assertTrue(a.any(Math.isOdd));
     }
 }
