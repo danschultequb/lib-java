@@ -77,6 +77,7 @@ public class ArrayTests
         assertNull(i.getCurrent());
     }
 
+    @Test
     public void iterateWithNonEmpty()
     {
         final Array<Integer> a = new Array<>(5);
@@ -147,5 +148,49 @@ public class ArrayTests
     {
         final Array<Integer> array = new Array<>(110);
         assertTrue(array.any());
+    }
+
+    @Test
+    public void anyWithEmptyAndNullCondition()
+    {
+        final Array<Integer> a = new Array<>(0);
+        assertFalse(a.any(null));
+    }
+
+    @Test
+    public void anyWithNonEmptyAndNullCondition()
+    {
+        final Array<Integer> a = new Array<>(5);
+        for (int i = 0; i < a.getCount(); ++i) {
+            a.set(i, i);
+        }
+        assertFalse(a.any(null));
+    }
+
+    @Test
+    public void anyWithEmptyAndCondition()
+    {
+        final Array<Integer> a = new Array<>(0);
+        assertFalse(a.any(Math.isEven));
+    }
+
+    @Test
+    public void anyWithNonEmptyAndNonMatchingCondition()
+    {
+        final Array<Integer> a = new Array<>(5);
+        for (int i = 0; i < a.getCount(); ++i) {
+            a.set(i, i * 2);
+        }
+        assertFalse(a.any(Math.isOdd));
+    }
+
+    @Test
+    public void anyWithNonEmptyAndMatchingCondition()
+    {
+        final Array<Integer> a = new Array<>(5);
+        for (int i = 0; i < a.getCount(); ++i) {
+            a.set(i, i);
+        }
+        assertTrue(a.any(Math.isOdd));
     }
 }

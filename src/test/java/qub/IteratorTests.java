@@ -60,6 +60,60 @@ public class IteratorTests
     }
 
     @Test
+    public void anyWithEmptyAndNullCondition()
+    {
+        final Array<Integer> a = new Array<>(0);
+        final Iterator<Integer> i = new ArrayIterator<>(a);
+        assertFalse(i.any(null));
+    }
+
+    @Test
+    public void anyWithNonEmptyAndNullCondition()
+    {
+        final Array<Integer> a = new Array<>(5);
+        for (int i = 0; i < a.getCount(); ++i) {
+            a.set(i, i);
+        }
+        final Iterator<Integer> i = new ArrayIterator<>(a);
+        assertFalse(i.any(null));
+    }
+
+    @Test
+    public void anyWithEmptyAndCondition()
+    {
+        final Array<Integer> a = new Array<>(0);
+        final Iterator<Integer> i = new ArrayIterator<>(a);
+        assertFalse(i.any(Math.isEven));
+    }
+
+    @Test
+    public void anyWithNonEmptyAndNonMatchingCondition()
+    {
+        final Array<Integer> a = new Array<>(5);
+        for (int i = 0; i < a.getCount(); ++i) {
+            a.set(i, i * 2);
+        }
+        final Iterator<Integer> i = new ArrayIterator<>(a);
+        assertFalse(i.any(Math.isOdd));
+        assertTrue(i.hasStarted());
+        assertFalse(i.hasCurrent());
+    }
+
+    @Test
+    public void anyWithNonEmptyAndMatchingCondition()
+    {
+        final Array<Integer> a = new Array<>(5);
+        for (int i = 0; i < a.getCount(); ++i) {
+            a.set(i, i);
+        }
+        final Iterator<Integer> i = new ArrayIterator<>(a);
+        assertTrue(i.any(Math.isOdd));
+        assertTrue(i.hasStarted());
+        assertTrue(i.hasCurrent());
+        assertEquals(1, i.getCurrent().intValue());
+    }
+
+    @Test
     public void getCountWithNonStartedEmptyIterator()
     {
         final Array<Integer> array = new Array<>(0);

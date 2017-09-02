@@ -19,6 +19,15 @@ public interface Iterable<T> extends java.lang.Iterable<T>
     boolean any();
 
     /**
+     * Get whether or not this Iterable contains any values that satisfy the provided condition.
+     * @return Whether or not this Iterable contains any values that satisfy the provided condition.
+     */
+    default boolean any(Function1<T,Boolean> condition)
+    {
+        return iterate().any(condition);
+    }
+
+    /**
      * Create a java.util.Iterator that will iterate over this Iterable.
      * @return A java.util.Iterator that will iterate over this Iterable.
      */

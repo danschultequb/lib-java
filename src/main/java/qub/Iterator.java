@@ -42,6 +42,37 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     }
 
     /**
+     * Get whether or not this Iterator contains any values that satisfy the provided condition.
+     * This function will consume as many values of this Iterator as it takes to find a value that
+     * satisfies the condition.
+     * @return Whether or not this Iterator contains any values that satisfy the provided condition.
+     */
+    default boolean any(Function1<T,Boolean> condition)
+    {
+        boolean result = false;
+
+        if (condition != null)
+        {
+            if (!hasStarted())
+            {
+                next();
+            }
+
+            while (hasCurrent())
+            {
+                if (condition.run(getCurrent()))
+                {
+                    result = true;
+                    break;
+                }
+                next();
+            }
+        }
+
+        return result;
+    }
+
+    /**
      * Get the number of values that are in this Iterator. This will iterate through all of the
      * values in this Iterator. Use this method only if you care how many values are in the
      * Iterator, not what the values actually are.
