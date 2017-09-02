@@ -24,6 +24,7 @@ public class Array<T> implements Iterable<T>
      * @return The number of elements in this Array.
      * @promise 0 <= result
      */
+    @Override
     public int getCount()
     {
         return data.length;
@@ -68,5 +69,11 @@ public class Array<T> implements Iterable<T>
     public Iterator<T> iterate()
     {
         return new ArrayIterator<>(this);
+    }
+
+    @Override
+    public boolean any()
+    {
+        return 1 <= getCount();
     }
 }

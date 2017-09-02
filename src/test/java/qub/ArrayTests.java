@@ -4,8 +4,19 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class ArrayTest
+public class ArrayTests extends IterableTests
 {
+    @Override
+    public Iterable<Integer> createIterable(int count)
+    {
+        final Array<Integer> result = new Array<>(count);
+        for (int i = 0; i < count; ++i)
+        {
+            result.set(i, i);
+        }
+        return result;
+    }
+
     @Test
     public void constructorWith0Length()
     {
