@@ -4,7 +4,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class JavaIteratorTest
+public class JavaIteratorTests
 {
     @Test
     public void hasNextWithNonStartedEmpty()
@@ -72,21 +72,23 @@ public class JavaIteratorTest
     }
 
     @Test
-    public void hasNextWithNonStartedEmpty()
+    public void nextWithNonStartedEmpty()
     {
         final Array<Integer> array = new Array<>(0);
         final Iterator<Integer> iterator = new ArrayIterator<>(array);
+        assertFalse(iterator.hasStarted());
+
         final JavaIterator<Integer> javaIterator = new JavaIterator<>(iterator);
         assertFalse(iterator.hasStarted());
 
         for (int i = 0; i < 10; ++i)
         {
-            assertFalse(javaIterator.hasNext());
+            assertNull(javaIterator.next());
         }
     }
 
     @Test
-    public void hasNextWithStartedEmpty()
+    public void nextWithStartedEmpty()
     {
         final Array<Integer> array = new Array<>(0);
         final Iterator<Integer> iterator = new ArrayIterator<>(array);
@@ -98,24 +100,31 @@ public class JavaIteratorTest
 
         for (int i = 0; i < 10; ++i)
         {
-            assertFalse(javaIterator.hasNext());
-            assertTrue(iterator.hasStarted());
+            assertNull(javaIterator.next());
         }
     }
 
     @Test
-    public void hasNextWithNonStartedNonEmpty()
+    public void nextWithNonStartedNonEmpty()
     {
         final Array<Integer> array = new Array<>(5);
+        for (int i = 0; i < array.getCount(); ++i)
+        {
+            array.set(i, i);
+        }
+
         final Iterator<Integer> iterator = new ArrayIterator<>(array);
+        assertFalse(iterator.hasStarted());
+
         final JavaIterator<Integer> javaIterator = new JavaIterator<>(iterator);
         assertFalse(iterator.hasStarted());
 
-        for (int i = 0; i < 10; ++i)
+        for (int i = 0; i < 5; ++i)
         {
-            assertTrue(javaIterator.hasNext());
-            assertTrue(iterator.hasStarted());
+            assertEquals(i, javaIterator.next().intValue());
         }
+
+        assertNull(javaIterator.next());
     }
 
     @Test
@@ -136,8 +145,9 @@ public class JavaIteratorTest
 
         for (int i = 0; i < 5; ++i)
         {
-            final Integer value = java
             assertEquals(i, javaIterator.next().intValue());
         }
+
+        assertNull(javaIterator.next());
     }
 }

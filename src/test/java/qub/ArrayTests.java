@@ -4,7 +4,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class ArrayTest
+public class ArrayTests
 {
     @Test
     public void constructorWith0Length()

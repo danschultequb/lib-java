@@ -4,7 +4,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class IteratorTest
+public class IteratorTests
 {
     @Test
     public void anyWithEmptyNonStartedIterator()
