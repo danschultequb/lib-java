@@ -86,4 +86,30 @@ public class ArrayListTests extends IterableTests
             assertEquals(-i, arrayList.get(i).intValue());
         }
     }
+
+    @Test
+    public void removeAt()
+    {
+        final ArrayList<Integer> arrayList = new ArrayList<>();
+        for (int i = -1; i <= 1; ++i)
+        {
+            assertNull(arrayList.removeAt(i));
+        }
+        assertEquals(0, arrayList.getCount());
+
+        for (int i = 0; i < 10; ++i)
+        {
+            arrayList.add(i);
+        }
+        assertEquals(10, arrayList.getCount());
+
+        assertEquals(0, arrayList.removeAt(0).intValue());
+        assertEquals(9, arrayList.getCount());
+
+        assertEquals(9, arrayList.removeAt(8).intValue());
+        assertEquals(8, arrayList.getCount());
+
+        assertEquals(5, arrayList.removeAt(4).intValue());
+        assertEquals(7, arrayList.getCount());
+    }
 }
