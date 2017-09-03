@@ -58,6 +58,18 @@ public class ArrayList<T> implements Iterable<T>
         ++elementCount;
     }
 
+    /**
+     * Add the provided values at the end of this ArrayList.
+     * @param values The values to add.
+     */
+    public void addAll(T... values)
+    {
+        for (T value : values)
+        {
+            add(value);
+        }
+    }
+
     @Override
     public Iterator<T> iterate()
     {
