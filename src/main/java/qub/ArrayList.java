@@ -14,6 +14,11 @@ public class ArrayList<T> implements Iterable<T>
         array = new Array<>(0);
     }
 
+    private boolean inBounds(int index)
+    {
+        return 0 <= index && index < elementCount;
+    }
+
     /**
      * Get the value at the provided index. If the index is not in the bounds of this ArrayList,
      * then null will be returned.
@@ -22,7 +27,7 @@ public class ArrayList<T> implements Iterable<T>
      */
     public T get(int index)
     {
-        return (0 <= index && index < elementCount) ? array.get(index) : null;
+        return inBounds(index) ? array.get(index) : null;
     }
 
     /**
@@ -32,7 +37,7 @@ public class ArrayList<T> implements Iterable<T>
      */
     public void set(int index, T value)
     {
-        if (0 < index && index < elementCount)
+        if (inBounds(index))
         {
             array.set(index, value);
         }
@@ -68,6 +73,29 @@ public class ArrayList<T> implements Iterable<T>
         {
             add(value);
         }
+    }
+
+    /**
+     * Remove and return the value at the provided index. If the index is not in the bounds of this
+     * ArrayList, then no values will be removed and null will be returned.
+     * @param index The index to remove from.
+     * @return The value that was removed or null if the index is out of bounds.
+     */
+    public T removeAt(int index)
+    {
+        T result = null;
+
+        if (inBounds(index))
+        {
+            result = get(index);
+            for (int i = index; i < getCount() - 1; ++i)
+            {
+                set(i, get(i + 1));
+            }
+            --elementCount;
+        }
+
+        return result;
     }
 
     @Override
