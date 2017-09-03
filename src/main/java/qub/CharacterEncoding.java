@@ -43,5 +43,5 @@ public interface CharacterEncoding
      * @param bytes The byte array to decode.
      * @return The decoded String.
      */
-    String decodeString(byte[] bytes);
+    String decode(byte[] bytes);
 }

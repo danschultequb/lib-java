@@ -16,11 +16,7 @@ public class StandardOutputWriteStream implements WriteStream
     @Override
     public void write(byte[] toWrite)
     {
-        try {
-            System.out.write(toWrite);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        System.out.write(toWrite, 0, toWrite.length);
     }
 
     @Override

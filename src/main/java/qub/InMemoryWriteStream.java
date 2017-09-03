@@ -9,6 +9,16 @@ public class InMemoryWriteStream implements WriteStream
         bytes = new ArrayList<Byte>();
     }
 
+    public byte[] getBytes()
+    {
+        final byte[] result = new byte[bytes.getCount()];
+        for (int i = 0; i < result.length; ++i)
+        {
+            result[i] = bytes.get(i);
+        }
+        return result;
+    }
+
     @Override
     public void write(byte toWrite)
     {

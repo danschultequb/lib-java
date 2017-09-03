@@ -2,39 +2,54 @@ package qub;
 
 public class Console implements WriteStream
 {
-    private WriteStream writeStream;
+    final Value<WriteStream> writeStream;
 
     public Console()
     {
-        writeStream = new StandardOutputWriteStream();
+        writeStream = new Value<>();
     }
 
     public void setWriteStream(WriteStream writeStream)
     {
-        this.writeStream = writeStream;
+        this.writeStream.set(writeStream);
+    }
+
+    WriteStream getWriteStream()
+    {
+        if (!writeStream.hasValue())
+        {
+            writeStream.set(new StandardOutputWriteStream());
+        }
+        return writeStream.get();
     }
 
     @Override
     public void write(byte toWrite)
     {
-        writeStream.write(toWrite);
+        final WriteStream writeStream = getWriteStream();
+        if (writeStream != null)
+        {
+            writeStream.write(toWrite);
+        }
     }
 
     @Override
     public void write(byte[] toWrite)
     {
-        writeStream.write(toWrite);
+        final WriteStream writeStream = getWriteStream();
+        if (writeStream != null)
+        {
+            writeStream.write(toWrite);
+        }
     }
 
     @Override
     public void write(byte[] toWrite, int startIndex, int length)
     {
-        writeStream.write(toWrite, startIndex, length);
-    }
-
-    public static void main(String[] args)
-    {
-        final Console console = new Console();
-        console.writeLine("Hello world!");
+        final WriteStream writeStream = getWriteStream();
+        if (writeStream != null)
+        {
+            writeStream.write(toWrite, startIndex, length);
+        }
     }
 }

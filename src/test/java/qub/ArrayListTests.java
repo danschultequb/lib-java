@@ -35,6 +35,33 @@ public class ArrayListTests extends IterableTests
     }
 
     @Test
+    public void addAll()
+    {
+        final ArrayList<Integer> arrayList = new ArrayList<>();
+        assertEquals(0, arrayList.getCount());
+        assertFalse(arrayList.any());
+        assertEquals(null, arrayList.get(0));
+
+        arrayList.addAll();
+        assertEquals(0, arrayList.getCount());
+        assertFalse(arrayList.any());
+        assertEquals(null, arrayList.get(0));
+
+        arrayList.addAll(0);
+        assertEquals(1, arrayList.getCount());
+        assertTrue(arrayList.any());
+        assertEquals(0, arrayList.get(0).intValue());
+
+        arrayList.addAll(1, 2, 3, 4, 5);
+        assertEquals(6, arrayList.getCount());
+        assertTrue(arrayList.any());
+        for (int i = 0; i < arrayList.getCount(); ++i)
+        {
+            assertEquals(i, arrayList.get(i).intValue());
+        }
+    }
+
+    @Test
     public void set()
     {
         final ArrayList<Integer> arrayList = new ArrayList<>();
