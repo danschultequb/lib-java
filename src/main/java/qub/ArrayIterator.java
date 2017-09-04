@@ -8,6 +8,9 @@ class ArrayIterator<T> implements qub.Iterator<T>
 {
     private final Array<T> array;
     private int currentIndex;
+    private boolean hasStarted;
+    private final int endIndex;
+    private final int step;
 
     /**
      * Create a new Iterator that will iterate over the provided Array.
@@ -15,20 +18,28 @@ class ArrayIterator<T> implements qub.Iterator<T>
      */
     ArrayIterator(Array<T> array)
     {
+        this(array, 0, array.getCount());
+    }
+
+    ArrayIterator(Array<T> array, int startIndex, int endIndex)
+    {
         this.array = array;
-        currentIndex = -1;
+        currentIndex = startIndex;
+        hasStarted = false;
+        this.endIndex = endIndex;
+        step = startIndex <= endIndex ? 1 : -1;
     }
 
     @Override
     public boolean hasStarted()
     {
-        return 0 <= currentIndex;
+        return hasStarted;
     }
 
     @Override
     public boolean hasCurrent()
     {
-        return hasStarted() && currentIndex < array.getCount();
+        return hasStarted() && currentIndex != endIndex;
     }
 
     @Override
@@ -38,8 +49,13 @@ class ArrayIterator<T> implements qub.Iterator<T>
 
     @Override
     public boolean next() {
-        if (currentIndex < array.getCount()) {
-            ++currentIndex;
+        if (!hasStarted)
+        {
+            hasStarted = true;
+        }
+        else if (currentIndex != endIndex)
+        {
+            currentIndex += step;
         }
         return hasCurrent();
     }
