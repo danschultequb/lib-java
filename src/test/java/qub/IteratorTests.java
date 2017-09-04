@@ -410,6 +410,272 @@ public class IteratorTests
     }
 
     @Test
+    public void skipWithNonStartedEmptyIteratorAndNegativeToSkip()
+    {
+        final Array<Integer> array = new Array<>(0);
+        final Iterator<Integer> iterator = new ArrayIterator<>(array);
+        final Iterator<Integer> skipIterator = iterator.skip(-3);
+        assertFalse(skipIterator.hasStarted());
+        assertFalse(skipIterator.hasCurrent());
+        assertNull(skipIterator.getCurrent());
+
+        assertFalse(skipIterator.next());
+        assertTrue(skipIterator.hasStarted());
+        assertFalse(skipIterator.hasCurrent());
+        assertNull(skipIterator.getCurrent());
+    }
+
+    @Test
+    public void skipWithNonStartedEmptyIteratorAndZeroToSkip()
+    {
+        final Array<Integer> array = new Array<>(0);
+        final Iterator<Integer> iterator = new ArrayIterator<>(array);
+        final Iterator<Integer> skipIterator = iterator.skip(0);
+        assertFalse(skipIterator.hasStarted());
+        assertFalse(skipIterator.hasCurrent());
+        assertNull(skipIterator.getCurrent());
+
+        assertFalse(skipIterator.next());
+        assertTrue(skipIterator.hasStarted());
+        assertFalse(skipIterator.hasCurrent());
+        assertNull(skipIterator.getCurrent());
+    }
+
+    @Test
+    public void skipWithNonStartedEmptyIteratorAndPositiveToSkip()
+    {
+        final Array<Integer> array = new Array<>(0);
+        final Iterator<Integer> iterator = new ArrayIterator<>(array);
+        final Iterator<Integer> skipIterator = iterator.skip(2);
+        assertFalse(skipIterator.hasStarted());
+        assertFalse(skipIterator.hasCurrent());
+        assertNull(skipIterator.getCurrent());
+
+        assertFalse(skipIterator.next());
+        assertTrue(skipIterator.hasStarted());
+        assertFalse(skipIterator.hasCurrent());
+        assertNull(skipIterator.getCurrent());
+    }
+
+    @Test
+    public void skipWithNonStartedNonEmptyIteratorAndNegativeToSkip()
+    {
+        final Array<Integer> array = new Array<>(5);
+        for (int i = 0; i < 5; ++i)
+        {
+            array.set(i, i);
+        }
+        final Iterator<Integer> iterator = new ArrayIterator<>(array);
+        final Iterator<Integer> skipIterator = iterator.skip(-3);
+        assertFalse(skipIterator.hasStarted());
+        assertFalse(skipIterator.hasCurrent());
+        assertNull(skipIterator.getCurrent());
+
+        for (int i = 0; i < array.getCount(); ++i)
+        {
+            assertTrue(skipIterator.next());
+            assertTrue(skipIterator.hasStarted());
+            assertTrue(skipIterator.hasCurrent());
+            assertEquals(i, skipIterator.getCurrent().intValue());
+        }
+
+        assertFalse(skipIterator.next());
+        assertTrue(skipIterator.hasStarted());
+        assertFalse(skipIterator.hasCurrent());
+        assertNull(skipIterator.getCurrent());
+    }
+
+    @Test
+    public void skipWithNonStartedNonEmptyIteratorAndZeroToSkip()
+    {
+        final Array<Integer> array = new Array<>(5);
+        for (int i = 0; i < 5; ++i)
+        {
+            array.set(i, i);
+        }
+        final Iterator<Integer> iterator = new ArrayIterator<>(array);
+        final Iterator<Integer> skipIterator = iterator.skip(0);
+        assertFalse(skipIterator.hasStarted());
+        assertFalse(skipIterator.hasCurrent());
+        assertNull(skipIterator.getCurrent());
+
+        for (int i = 0; i < array.getCount(); ++i)
+        {
+            assertTrue(skipIterator.next());
+            assertTrue(skipIterator.hasStarted());
+            assertTrue(skipIterator.hasCurrent());
+            assertEquals(i, skipIterator.getCurrent().intValue());
+        }
+
+        assertFalse(skipIterator.next());
+        assertTrue(skipIterator.hasStarted());
+        assertFalse(skipIterator.hasCurrent());
+        assertNull(skipIterator.getCurrent());
+    }
+
+    @Test
+    public void skipWithNonStartedNonEmptyIteratorAndPositiveToSkip()
+    {
+        final Array<Integer> array = new Array<>(5);
+        for (int i = 0; i < 5; ++i)
+        {
+            array.set(i, i);
+        }
+        final Iterator<Integer> iterator = new ArrayIterator<>(array);
+        final Iterator<Integer> skipIterator = iterator.skip(2);
+        assertFalse(skipIterator.hasStarted());
+        assertFalse(skipIterator.hasCurrent());
+        assertNull(skipIterator.getCurrent());
+
+        for (int i = 2; i < array.getCount(); ++i)
+        {
+            assertTrue(skipIterator.next());
+            assertTrue(skipIterator.hasStarted());
+            assertTrue(skipIterator.hasCurrent());
+            assertEquals(i, skipIterator.getCurrent().intValue());
+        }
+
+        assertFalse(skipIterator.next());
+        assertTrue(skipIterator.hasStarted());
+        assertFalse(skipIterator.hasCurrent());
+        assertNull(skipIterator.getCurrent());
+    }
+
+    @Test
+    public void skipWithStartedNonEmptyIteratorAndNegativeToSkip()
+    {
+        final Array<Integer> array = new Array<>(5);
+        for (int i = 0; i < 5; ++i)
+        {
+            array.set(i, i);
+        }
+        final Iterator<Integer> iterator = new ArrayIterator<>(array);
+        assertTrue(iterator.next());
+
+        final Iterator<Integer> skipIterator = iterator.skip(-3);
+        assertTrue(skipIterator.hasStarted());
+        assertTrue(skipIterator.hasCurrent());
+        assertEquals(0, skipIterator.getCurrent().intValue());
+
+        for (int i = 1; i < array.getCount(); ++i)
+        {
+            assertTrue(skipIterator.next());
+            assertTrue(skipIterator.hasStarted());
+            assertTrue(skipIterator.hasCurrent());
+            assertEquals(i, skipIterator.getCurrent().intValue());
+        }
+
+        assertFalse(skipIterator.next());
+        assertTrue(skipIterator.hasStarted());
+        assertFalse(skipIterator.hasCurrent());
+        assertNull(skipIterator.getCurrent());
+    }
+
+    @Test
+    public void skipWithStartedNonEmptyIteratorAndZeroToSkip()
+    {
+        final Array<Integer> array = new Array<>(5);
+        for (int i = 0; i < 5; ++i)
+        {
+            array.set(i, i);
+        }
+        final Iterator<Integer> iterator = new ArrayIterator<>(array);
+        iterator.next();
+
+        final Iterator<Integer> skipIterator = iterator.skip(0);
+        assertTrue(skipIterator.hasStarted());
+        assertTrue(skipIterator.hasCurrent());
+        assertEquals(0, skipIterator.getCurrent().intValue());
+
+        for (int i = 1; i < array.getCount(); ++i)
+        {
+            assertTrue(skipIterator.next());
+            assertTrue(skipIterator.hasStarted());
+            assertTrue(skipIterator.hasCurrent());
+            assertEquals(i, skipIterator.getCurrent().intValue());
+        }
+
+        assertFalse(skipIterator.next());
+        assertTrue(skipIterator.hasStarted());
+        assertFalse(skipIterator.hasCurrent());
+        assertNull(skipIterator.getCurrent());
+    }
+
+    @Test
+    public void skipWithStartedNonEmptyIteratorAndPositiveToSkipLessThanCount()
+    {
+        final Array<Integer> array = new Array<>(5);
+        for (int i = 0; i < 5; ++i)
+        {
+            array.set(i, i);
+        }
+        final Iterator<Integer> iterator = new ArrayIterator<>(array);
+        assertTrue(iterator.next());
+
+        final Iterator<Integer> skipIterator = iterator.skip(2);
+        assertTrue(skipIterator.hasStarted());
+        assertTrue(skipIterator.hasCurrent());
+        assertEquals(2, skipIterator.getCurrent().intValue());
+
+        for (int i = 3; i < array.getCount(); ++i)
+        {
+            assertTrue(skipIterator.next());
+            assertTrue(skipIterator.hasStarted());
+            assertTrue(skipIterator.hasCurrent());
+            assertEquals(i, skipIterator.getCurrent().intValue());
+        }
+
+        assertFalse(skipIterator.next());
+        assertTrue(skipIterator.hasStarted());
+        assertFalse(skipIterator.hasCurrent());
+        assertNull(skipIterator.getCurrent());
+    }
+
+    @Test
+    public void skipWithStartedNonEmptyIteratorAndPositiveToSkipEqualToCount()
+    {
+        final Array<Integer> array = new Array<>(5);
+        for (int i = 0; i < 5; ++i)
+        {
+            array.set(i, i);
+        }
+        final Iterator<Integer> iterator = new ArrayIterator<>(array);
+        assertTrue(iterator.next());
+
+        final Iterator<Integer> skipIterator = iterator.skip(array.getCount());
+        assertTrue(skipIterator.hasStarted());
+        assertFalse(skipIterator.hasCurrent());
+        assertNull(skipIterator.getCurrent());
+
+        assertFalse(skipIterator.next());
+        assertTrue(skipIterator.hasStarted());
+        assertFalse(skipIterator.hasCurrent());
+        assertNull(skipIterator.getCurrent());
+    }
+
+    @Test
+    public void skipWithStartedNonEmptyIteratorAndPositiveToSkipGreaterThanCount()
+    {
+        final Array<Integer> array = new Array<>(5);
+        for (int i = 0; i < 5; ++i)
+        {
+            array.set(i, i);
+        }
+        final Iterator<Integer> iterator = new ArrayIterator<>(array);
+        assertTrue(iterator.next());
+
+        final Iterator<Integer> skipIterator = iterator.skip(100);
+        assertTrue(skipIterator.hasStarted());
+        assertFalse(skipIterator.hasCurrent());
+        assertNull(skipIterator.getCurrent());
+
+        assertFalse(skipIterator.next());
+        assertTrue(skipIterator.hasStarted());
+        assertFalse(skipIterator.hasCurrent());
+        assertNull(skipIterator.getCurrent());
+    }
+
+    @Test
     public void forEachWithEmptyNonStartedIterator()
     {
         final Array<Integer> a = new Array<>(0);

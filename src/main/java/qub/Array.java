@@ -71,6 +71,12 @@ public class Array<T> implements Iterable<T>
         return new ArrayIterator<>(this);
     }
 
+    /**
+     * Get an Iterator that will iterate over the contents of this Array in reverse.
+     * @return An Iterator that will iterate over the contents of this Array in reverse.
+     */
+    public Iterator<T> iterateReverse() { return new ArrayIterator<>(this, getCount() - 1, -1); }
+
     @Override
     public boolean any()
     {

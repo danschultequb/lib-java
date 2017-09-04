@@ -104,6 +104,15 @@ public class ArrayList<T> implements Iterable<T>
         return array.iterate().take(elementCount);
     }
 
+    /**
+     * Get an Iterator that will iterate over the contents of this ArrayList in reverse.
+     * @return An Iterator that will iterate over the contents of this ArrayList in reverse.
+     */
+    public Iterator<T> iterateReverse()
+    {
+        return array.iterateReverse().skip(array.getCount() - elementCount);
+    }
+
     @Override
     public boolean any()
     {
