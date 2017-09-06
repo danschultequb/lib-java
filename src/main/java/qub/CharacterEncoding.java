@@ -3,9 +3,9 @@ package qub;
 /**
  * An encoding that converts between Strings and bytes.
  */
-public interface CharacterEncoding
+public abstract class CharacterEncoding
 {
-    ASCII ASCII = new ASCII();
+    public static final ASCII ASCII = new ASCII();
 
     /**
      * Get the encoded bytes for the provided String in the provided byte[]. This function returns
@@ -14,7 +14,7 @@ public interface CharacterEncoding
      * @param output The byte array where the encoded bytes will be written.
      * @return The number of encoded bytes that were written.
      */
-    int encode(String value, byte[] output);
+    public abstract int encode(String value, byte[] output);
 
     /**
      * Get the encoded bytes for the provided character in the provided byte[]. This function
@@ -23,14 +23,14 @@ public interface CharacterEncoding
      * @param output The byte array where the encoded bytes will be written.
      * @return The number of encoded bytes that were written.
      */
-    int encode(char value, byte[] output);
+    public abstract int encode(char value, byte[] output);
 
     /**
      * Get the encoded bytes for the provided character in the provided byte[].
      * @param value The String value to encode.
      * @return The encoded bytes from the provided String.
      */
-    default byte[] encode(String value)
+    public byte[] encode(String value)
     {
         int requiredBytes = encode(value, null);
         final byte[] result = new byte[requiredBytes];
@@ -43,5 +43,5 @@ public interface CharacterEncoding
      * @param bytes The byte array to decode.
      * @return The decoded String.
      */
-    String decode(byte[] bytes);
+    public abstract String decode(byte[] bytes);
 }

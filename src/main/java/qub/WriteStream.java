@@ -27,20 +27,20 @@ public interface WriteStream
      * convert the String to bytes.
      * @param toWrite The String to write.
      */
-    default void write(String toWrite)
-    {
-        write(toWrite, CharacterEncoding.ASCII);
-    }
+    void write(String toWrite);
+
+    /**
+     * Write a newline character to this WriteStream using the default (ASCII) CharacterEncoding to
+     * convert the String to bytes.
+     */
+    void writeLine();
 
     /**
      * Write the provided String with an appended newline character to this WriteStream using the
-     * default (ASCII) CharacterEncoding to convert the Stream to bytes.
+     * default (ASCII) CharacterEncoding to convert the String to bytes.
      * @param toWrite The String to write to this WriteStream.
      */
-    default void writeLine(String toWrite)
-    {
-        write(toWrite + '\n');
-    }
+    void writeLine(String toWrite);
 
     /**
      * Write the provided String to this WriteStream using the provided CharacterEncoding to convert
@@ -48,8 +48,5 @@ public interface WriteStream
      * @param toWrite The String to write.
      * @param encoding The encoding to use to convert the String to bytes.
      */
-    default void write(String toWrite, CharacterEncoding encoding)
-    {
-        write(encoding.encode(toWrite));
-    }
+    void write(String toWrite, CharacterEncoding encoding);
 }

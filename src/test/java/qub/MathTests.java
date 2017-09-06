@@ -7,6 +7,24 @@ import static org.junit.Assert.*;
 public class MathTests
 {
     @Test
+    public void constructor()
+    {
+        new Math();
+    }
+
+    @Test
+    public void minimum()
+    {
+        assertEquals(-10, Math.minimum(-10, -5));
+        assertEquals(-10, Math.minimum(-5, -10));
+
+        assertEquals(-3, Math.minimum(-3, -3));
+
+        assertEquals(-1, Math.minimum(-1, 0));
+        assertEquals(-1, Math.minimum(0, -1));
+    }
+
+    @Test
     public void isOdd() {
         assertTrue(Math.isOdd(1));
         assertTrue(Math.isOdd(3));

@@ -5,7 +5,7 @@ package qub;
  * iterate over the remaining elements.
  * @param <T> The type of value that this Iterator returns.
  */
-class SkipIterator<T> implements Iterator<T>
+class SkipIterator<T> extends IteratorBase<T>
 {
     private final Iterator<T> innerIterator;
     private final int toSkip;

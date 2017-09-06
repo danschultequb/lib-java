@@ -28,27 +28,18 @@ public interface Iterable<T> extends java.lang.Iterable<T>
      * Get whether or not this Iterable contains any values that satisfy the provided condition.
      * @return Whether or not this Iterable contains any values that satisfy the provided condition.
      */
-    default boolean any(Function1<T,Boolean> condition)
-    {
-        return iterate().any(condition);
-    }
+    boolean any(Function1<T,Boolean> condition);
 
     /**
      * Create a new Iterable that restricts this Iterable to a fixed number of values.
      * @param toTake The number of values to constrain this Iterable to.
      * @return A new Iterable that restricts this Iterable to a fixed number of values.
      */
-    default Iterable<T> take(int toTake)
-    {
-        return new TakeIterable<>(this, toTake);
-    }
+    Iterable<T> take(int toTake);
 
     /**
      * Create a java.util.Iterator that will iterate over this Iterable.
      * @return A java.util.Iterator that will iterate over this Iterable.
      */
-    default java.util.Iterator<T> iterator()
-    {
-        return iterate().iterator();
-    }
+    java.util.Iterator<T> iterator();
 }

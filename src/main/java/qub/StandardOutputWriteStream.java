@@ -5,7 +5,7 @@ import java.io.IOException;
 /**
  * A WriteStream that writes bytes to the StandardOutput stream of the process.
  */
-public class StandardOutputWriteStream implements WriteStream
+public class StandardOutputWriteStream extends WriteStreamBase
 {
     @Override
     public void write(byte toWrite)

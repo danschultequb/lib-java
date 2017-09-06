@@ -122,7 +122,12 @@ public abstract class IterableTests
     public void anyWithNonEmptyAndNonMatchingCondition()
     {
         final Iterable<Integer> iterable = createIterable(5);
-        assertFalse(iterable.any((Integer element) -> element > 10));
+        assertFalse(iterable.any(new Function1<Integer,Boolean>() {
+            @Override
+            public Boolean run(Integer element) {
+                return element > 10;
+            }
+        }));
     }
 
     @Test
