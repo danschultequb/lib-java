@@ -64,7 +64,10 @@ public class ConsoleTests
         console.write("hello");
         assertArrayEquals(new byte[]{50, 51, 52, 104, 101, 108, 108, 111}, writeStream.getBytes());
 
+        console.writeLine();
+        assertArrayEquals(new byte[]{50, 51, 52, 104, 101, 108, 108, 111, 10 }, writeStream.getBytes());
+
         console.writeLine("there!");
-        assertArrayEquals(new byte[]{50, 51, 52, 104, 101, 108, 108, 111, 116, 104, 101, 114, 101, 33, 10}, writeStream.getBytes());
+        assertArrayEquals(new byte[]{50, 51, 52, 104, 101, 108, 108, 111, 10, 116, 104, 101, 114, 101, 33, 10}, writeStream.getBytes());
     }
 }

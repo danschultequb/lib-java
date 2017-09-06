@@ -52,4 +52,28 @@ public class Console implements WriteStream
             writeStream.write(toWrite, startIndex, length);
         }
     }
+
+    @Override
+    public void write(String toWrite)
+    {
+        WriteStreamBase.write(this, toWrite);
+    }
+
+    @Override
+    public void writeLine()
+    {
+        WriteStreamBase.writeLine(this);
+    }
+
+    @Override
+    public void writeLine(String toWrite)
+    {
+        WriteStreamBase.writeLine(this, toWrite);
+    }
+
+    @Override
+    public void write(String toWrite, CharacterEncoding encoding)
+    {
+        WriteStreamBase.write(this, toWrite, encoding);
+    }
 }

@@ -1,6 +1,6 @@
 package qub;
 
-public class ASCII implements CharacterEncoding
+public class ASCII extends CharacterEncoding
 {
     @Override
     public int encode(char value, byte[] output)

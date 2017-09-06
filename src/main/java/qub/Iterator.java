@@ -36,10 +36,7 @@ public interface Iterator<T> extends java.lang.Iterable<T>
      * values in this Iterator.
      * @return Whether or not this Iterator contains any values.
      */
-    default boolean any()
-    {
-        return hasCurrent() || next();
-    }
+    boolean any();
 
     /**
      * Get whether or not this Iterator contains any values that satisfy the provided condition.
@@ -47,30 +44,7 @@ public interface Iterator<T> extends java.lang.Iterable<T>
      * satisfies the condition.
      * @return Whether or not this Iterator contains any values that satisfy the provided condition.
      */
-    default boolean any(Function1<T,Boolean> condition)
-    {
-        boolean result = false;
-
-        if (condition != null)
-        {
-            if (!hasStarted())
-            {
-                next();
-            }
-
-            while (hasCurrent())
-            {
-                if (condition.run(getCurrent()))
-                {
-                    result = true;
-                    break;
-                }
-                next();
-            }
-        }
-
-        return result;
-    }
+    boolean any(Function1<T,Boolean> condition);
 
     /**
      * Get the number of values that are in this Iterator. This will iterate through all of the
@@ -78,14 +52,7 @@ public interface Iterator<T> extends java.lang.Iterable<T>
      * Iterator, not what the values actually are.
      * @return The number of values that are in this Iterator.
      */
-    default int getCount()
-    {
-        int result = hasCurrent() ? 1 : 0;
-        while (next()) {
-            ++result;
-        }
-        return result;
-    }
+    int getCount();
 
     /**
      * Create a new Iterator that will iterate over no more than the provided number of values from
@@ -94,10 +61,7 @@ public interface Iterator<T> extends java.lang.Iterable<T>
      * @return A new Iterator that will iterate over no more than the provided number of values from
      * this Iterator.
      */
-    default Iterator<T> take(int toTake)
-    {
-        return new TakeIterator<>(this, toTake);
-    }
+    Iterator<T> take(int toTake);
 
     /**
      * Create a new Iterator that will skip over the first toSkip number of elements in this
@@ -106,17 +70,11 @@ public interface Iterator<T> extends java.lang.Iterable<T>
      * @return A new Iterator that will skip over the first toSkip number of elements in this
      * Iterator and then iterate over the remaining elements.
      */
-    default Iterator<T> skip(int toSkip)
-    {
-        return new SkipIterator<>(this, toSkip);
-    }
+    Iterator<T> skip(int toSkip);
 
     /**
      * Create a java.util.Iterator that will iterate over this Iterator.
      * @return A java.util.Iterator that will iterate over this Iterator.
      */
-    default java.util.Iterator<T> iterator()
-    {
-        return new JavaIterator<>(this);
-    }
+    java.util.Iterator<T> iterator();
 }

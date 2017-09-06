@@ -1,6 +1,6 @@
 package qub;
 
-public class InMemoryWriteStream implements WriteStream
+public class InMemoryWriteStream extends WriteStreamBase
 {
     private final ArrayList<Byte> bytes;
 
@@ -34,7 +34,8 @@ public class InMemoryWriteStream implements WriteStream
     @Override
     public void write(byte[] toWrite, int startIndex, int length)
     {
-        for (int i = startIndex; i < toWrite.length && i < length; ++i)
+        final int endIndex = Math.minimum(toWrite.length, startIndex + length);
+        for (int i = startIndex; i < endIndex; ++i)
         {
             write(toWrite[i]);
         }
