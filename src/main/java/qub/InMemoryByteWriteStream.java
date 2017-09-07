@@ -1,10 +1,10 @@
 package qub;
 
-public class InMemoryWriteStream extends WriteStreamBase
+public class InMemoryByteWriteStream extends ByteWriteStreamBase
 {
     private ArrayList<Byte> bytes;
 
-    public InMemoryWriteStream()
+    public InMemoryByteWriteStream()
     {
         bytes = new ArrayList<Byte>();
     }
