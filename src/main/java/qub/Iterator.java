@@ -1,5 +1,7 @@
 package qub;
 
+import java.util.function.Function;
+
 /**
  * The Iterator interface defines a type that can synchronously iterate over a collection of values.
  * @param <T> The type of value that the Iterator returns.
@@ -71,6 +73,15 @@ public interface Iterator<T> extends java.lang.Iterable<T>
      * Iterator and then iterate over the remaining elements.
      */
     Iterator<T> skip(int toSkip);
+
+    /**
+     * Create a new Iterator that only returns the values from this Iterator that satisfy the given
+     * condition.
+     * @param condition The condition values must satisfy to be returned from the created Iterator.
+     * @return An Iterator that only returns the values from this Iterator that satisfy the given
+     * condition.
+     */
+    Iterator<T> where(Function1<T,Boolean> condition);
 
     /**
      * Create a java.util.Iterator that will iterate over this Iterator.

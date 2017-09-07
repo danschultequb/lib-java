@@ -38,6 +38,24 @@ public interface Iterable<T> extends java.lang.Iterable<T>
     Iterable<T> take(int toTake);
 
     /**
+     * Create a new Iterable that will skip over the first toSkip number of elements in this
+     * Iterable and then return the remaining elements.
+     * @param toSkip The number of elements to skip.
+     * @return A new Iterable that will skip over the first toSkip number of elements in this
+     * Iterable and then return the remaining elements.
+     */
+    Iterable<T> skip(int toSkip);
+
+    /**
+     * Create a new Iterable that only returns the values from this Iterable that satisfy the given
+     * condition.
+     * @param condition The condition values must satisfy to be returned from the created Iterable.
+     * @return An Iterable that only returns the values from this Iterator that satisfy the given
+     * condition.
+     */
+    Iterable<T> where(Function1<T,Boolean> condition);
+
+    /**
      * Create a java.util.Iterator that will iterate over this Iterable.
      * @return A java.util.Iterator that will iterate over this Iterable.
      */

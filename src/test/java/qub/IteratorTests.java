@@ -676,6 +676,158 @@ public class IteratorTests
     }
 
     @Test
+    public void whereWithNonStartedEmptyIteratorAndNullCondition()
+    {
+        final Array<Integer> array = new Array<>(0);
+        final Iterator<Integer> iterator = new ArrayIterator<>(array);
+        final Iterator<Integer> whereIterator = iterator.where(null);
+        assertSame(iterator, whereIterator);
+    }
+
+    @Test
+    public void whereWithNonStartedEmptyIteratorAndCondition()
+    {
+        final Array<Integer> array = new Array<>(0);
+        final Iterator<Integer> iterator = new ArrayIterator<>(array);
+        final Iterator<Integer> whereIterator = iterator.where(Math.isOdd);
+        assertFalse(whereIterator.hasStarted());
+        assertFalse(whereIterator.hasCurrent());
+        assertNull(whereIterator.getCurrent());
+
+        assertFalse(whereIterator.next());
+        assertTrue(whereIterator.hasStarted());
+        assertFalse(whereIterator.hasCurrent());
+        assertNull(whereIterator.getCurrent());
+    }
+
+    @Test
+    public void whereWithNonStartedNonEmptyIteratorAndNullCondition()
+    {
+        final Array<Integer> array = new Array<>(5);
+        for (int i = 0; i < 5; ++i)
+        {
+            array.set(i, i);
+        }
+
+        final Iterator<Integer> iterator = new ArrayIterator<>(array);
+        final Iterator<Integer> whereIterator = iterator.where(null);
+        assertSame(iterator, whereIterator);
+    }
+
+    @Test
+    public void whereWithNonStartedNonEmptyIteratorAndNonMatchingCondition()
+    {
+        final Array<Integer> array = new Array<>(5);
+        for (int i = 0; i < 5; ++i)
+        {
+            array.set(i, i * 2);
+        }
+
+        final Iterator<Integer> iterator = new ArrayIterator<>(array);
+        final Iterator<Integer> whereIterator = iterator.where(Math.isOdd);
+        assertFalse(whereIterator.hasStarted());
+        assertFalse(whereIterator.hasCurrent());
+        assertNull(whereIterator.getCurrent());
+
+        assertFalse(whereIterator.next());
+        assertTrue(whereIterator.hasStarted());
+        assertFalse(whereIterator.hasCurrent());
+        assertNull(whereIterator.getCurrent());
+    }
+
+    @Test
+    public void whereWithNonStartedNonEmptyIteratorAndMatchingCondition()
+    {
+        final Array<Integer> array = new Array<>(5);
+        for (int i = 0; i < 5; ++i)
+        {
+            array.set(i, i);
+        }
+        final Iterator<Integer> iterator = new ArrayIterator<>(array);
+        final Iterator<Integer> whereIterator = iterator.where(Math.isOdd);
+        assertFalse(whereIterator.hasStarted());
+        assertFalse(whereIterator.hasCurrent());
+        assertNull(whereIterator.getCurrent());
+
+        for (int i = 1; i < 5; i += 2)
+        {
+            assertTrue(whereIterator.next());
+            assertTrue(whereIterator.hasStarted());
+            assertTrue(whereIterator.hasCurrent());
+            assertEquals(i, whereIterator.getCurrent().intValue());
+        }
+
+        assertFalse(whereIterator.next());
+        assertTrue(whereIterator.hasStarted());
+        assertFalse(whereIterator.hasCurrent());
+        assertNull(whereIterator.getCurrent());
+    }
+
+    @Test
+    public void whereWithStartedNonEmptyIteratorAndNullCondition()
+    {
+        final Array<Integer> array = new Array<>(5);
+        for (int i = 0; i < 5; ++i)
+        {
+            array.set(i, i);
+        }
+        final Iterator<Integer> iterator = new ArrayIterator<>(array);
+        assertTrue(iterator.next());
+
+        final Iterator<Integer> whereIterator = iterator.where(null);
+        assertSame(iterator, whereIterator);
+    }
+
+    @Test
+    public void whereWithStartedNonEmptyIteratorAndNonMatchingCondition()
+    {
+        final Array<Integer> array = new Array<>(5);
+        for (int i = 0; i < 5; ++i)
+        {
+            array.set(i, i * 2);
+        }
+        final Iterator<Integer> iterator = new ArrayIterator<>(array);
+        assertTrue(iterator.next());
+
+        final Iterator<Integer> whereIterator = iterator.where(Math.isOdd);
+        assertTrue(whereIterator.hasStarted());
+        assertFalse(whereIterator.hasCurrent());
+        assertNull(whereIterator.getCurrent());
+
+        assertFalse(whereIterator.next());
+        assertTrue(whereIterator.hasStarted());
+        assertFalse(whereIterator.hasCurrent());
+        assertNull(whereIterator.getCurrent());
+    }
+
+    @Test
+    public void whereWithStartedNonEmptyIteratorAndMatchingCondition()
+    {
+        final Array<Integer> array = new Array<>(5);
+        for (int i = 0; i < 5; ++i)
+        {
+            array.set(i, i);
+        }
+        final Iterator<Integer> iterator = new ArrayIterator<>(array);
+        assertTrue(iterator.next());
+
+        final Iterator<Integer> whereIterator = iterator.where(Math.isOdd);
+        assertTrue(whereIterator.hasStarted());
+        assertTrue(whereIterator.hasCurrent());
+        assertEquals(1, whereIterator.getCurrent().intValue());
+
+        assertTrue(whereIterator.next());
+        assertTrue(whereIterator.hasStarted());
+        assertTrue(whereIterator.hasCurrent());
+        assertEquals(3, whereIterator.getCurrent().intValue());
+
+        assertFalse(whereIterator.next());
+        assertTrue(whereIterator.hasStarted());
+        assertFalse(whereIterator.hasCurrent());
+        assertNull(whereIterator.getCurrent());
+    }
+
+    @Test
     public void forEachWithEmptyNonStartedIterator()
     {
         final Array<Integer> a = new Array<>(0);

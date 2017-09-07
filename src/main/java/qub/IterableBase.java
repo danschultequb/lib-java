@@ -20,6 +20,18 @@ public abstract class IterableBase<T> implements Iterable<T>
     }
 
     @Override
+    public Iterable<T> skip(int toSkip)
+    {
+        return toSkip <= 0 ? this : new SkipIterable<>(this, toSkip);
+    }
+
+    @Override
+    public Iterable<T> where(Function1<T,Boolean> condition)
+    {
+        return condition == null ? this : new WhereIterable<>(this, condition);
+    }
+
+    @Override
     public java.util.Iterator<T> iterator()
     {
         return iterate().iterator();
