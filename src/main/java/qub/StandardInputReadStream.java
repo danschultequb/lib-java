@@ -3,10 +3,10 @@ package qub;
 import java.io.IOException;
 
 /**
- * A ReadStream that reads bytes from the StandardInput stream of the process.
+ * A ByteReadStream that reads bytes from the StandardInput stream of the process.
  */
 
-public class StandardInputReadStream extends ReadStreamBase
+public class StandardInputReadStream extends ByteReadStreamBase
 {
     @Override
     public boolean isOpen()

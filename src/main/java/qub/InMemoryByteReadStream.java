@@ -1,13 +1,13 @@
 package qub;
 
 /**
- * An in-memory implementation of a ReadStream.
+ * An in-memory implementation of a ByteReadStream.
  */
-public class InMemoryReadStream extends ReadStreamBase
+public class InMemoryByteReadStream extends ByteReadStreamBase
 {
     private ArrayList<Byte> bytes;
 
-    public InMemoryReadStream()
+    public InMemoryByteReadStream()
     {
         bytes = new ArrayList<>();
     }
@@ -27,8 +27,8 @@ public class InMemoryReadStream extends ReadStreamBase
     }
 
     /**
-     * Get the bytes that are waiting to be read from this InMemoryReadStream.
-     * @return The bytes that are waiting to be read from this InMemoryReadStream.
+     * Get the bytes that are waiting to be read from this InMemoryByteReadStream.
+     * @return The bytes that are waiting to be read from this InMemoryByteReadStream.
      */
     public byte[] getBytes()
     {
@@ -49,8 +49,8 @@ public class InMemoryReadStream extends ReadStreamBase
     }
 
     /**
-     * Add the provided bytes to this InMemoryReadStream.
-     * @param bytesToAdd The bytes to add to this InMemoryReadStream.
+     * Add the provided bytes to this InMemoryByteReadStream.
+     * @param bytesToAdd The bytes to add to this InMemoryByteReadStream.
      */
     public void add(byte... bytesToAdd)
     {

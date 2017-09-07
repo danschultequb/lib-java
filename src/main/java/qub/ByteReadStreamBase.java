@@ -3,9 +3,9 @@ package qub;
 import java.io.IOException;
 
 /**
- * A ReadStream base implementation that adds common implementations for some methods.
+ * A ByteReadStream base implementation that adds common implementations for some methods.
  */
-public abstract class ReadStreamBase implements ReadStream
+public abstract class ByteReadStreamBase implements ByteReadStream
 {
     @Override
     public byte[] readBytes(int bytesToRead) throws IOException
