@@ -12,6 +12,14 @@ public class ConsoleTests
         final Console console = new Console();
         assertNotNull(console.writeStream);
         assertFalse(console.writeStream.hasValue());
+        assertTrue(console.isOpen());
+    }
+
+    @Test
+    public void close()
+    {
+        final Console console = new Console();
+        assertFalse(console.close());
     }
 
     @Test

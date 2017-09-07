@@ -20,6 +20,17 @@ public class Math {
     }
 
     /**
+     * Get the maximum value between the two provided integers.
+     * @param lhs The first value.
+     * @param rhs The second value.
+     * @return The minimum value between the two provided integers.
+     */
+    public static int maximum(int lhs, int rhs)
+    {
+        return lhs > rhs ? lhs : rhs;
+    }
+
+    /**
      * A function object for determining if an Integer is odd.
      */
     public static final Function1<Integer,Boolean> isOdd = new Function1<Integer,Boolean>() {

@@ -114,6 +114,24 @@ public class ArrayListTests extends IterableTests
     }
 
     @Test
+    public void removeFirst()
+    {
+        final ArrayList<Integer> arrayList = new ArrayList<>();
+
+        assertNull(arrayList.removeFirst());
+
+        arrayList.add(10);
+        assertEquals(10, arrayList.removeFirst().intValue());
+        assertNull(arrayList.removeFirst());
+
+        arrayList.addAll(11, 12, 13);
+        assertEquals(11, arrayList.removeFirst().intValue());
+        assertEquals(12, arrayList.removeFirst().intValue());
+        assertEquals(13, arrayList.removeFirst().intValue());
+        assertNull(arrayList.removeFirst());
+    }
+
+    @Test
     public void iterateReverseWithEmpty()
     {
         final ArrayList<Integer> array = new ArrayList<>();

@@ -1,7 +1,22 @@
 package qub;
 
+/**
+ * An interface for writing bytes to a stream.
+ */
 public interface WriteStream
 {
+    /**
+     * Get whether or not this stream is open.
+     * @return Whether or not this stream is open.
+     */
+    boolean isOpen();
+
+    /**
+     * Close this stream and return whether or not the stream was closed as a result of this call.
+     * @return Whether or not the stream was closed as a result of this call.
+     */
+    boolean close();
+
     /**
      * Write the provided byte to this WriteStream.
      * @param toWrite The byte to write to this stream.
