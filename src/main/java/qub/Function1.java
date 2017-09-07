@@ -2,7 +2,8 @@ package qub;
 
 /**
  * An interface for a function that takes one argument and returns a value.
- * @param <T1>
+ * @param <T1> The type of the argument that this function takes.
+ * @param <TReturn> The type of value that this function returns.
  */
 public interface Function1<T1,TReturn>
 {

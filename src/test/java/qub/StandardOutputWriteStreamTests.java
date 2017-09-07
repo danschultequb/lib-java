@@ -2,6 +2,9 @@ package qub;
 
 import org.junit.Test;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+
 import static org.junit.Assert.*;
 
 public class StandardOutputWriteStreamTests
@@ -25,21 +28,64 @@ public class StandardOutputWriteStreamTests
     @Test
     public void write()
     {
-        final StandardOutputWriteStream stdout = new StandardOutputWriteStream();
-        stdout.write((byte)97);
+        withTempStdout(new Action1<ByteArrayOutputStream>()
+        {
+            @Override
+            public void run(ByteArrayOutputStream mockStdout)
+            {
+                final StandardOutputWriteStream stdout = new StandardOutputWriteStream();
+                stdout.write((byte) 97);
+
+                assertArrayEquals(new byte[] { 97 }, mockStdout.toByteArray());
+            }
+        });
     }
 
     @Test
     public void writeByteArray()
     {
-        final StandardOutputWriteStream stdout = new StandardOutputWriteStream();
-        stdout.write(new byte[]{98, 99, 100});
+        withTempStdout(new Action1<ByteArrayOutputStream>()
+        {
+            @Override
+            public void run(ByteArrayOutputStream mockStdout)
+            {
+                final StandardOutputWriteStream stdout = new StandardOutputWriteStream();
+                stdout.write(new byte[]{98, 99, 100});
+
+                assertArrayEquals(new byte[] { 98, 99, 100 }, mockStdout.toByteArray());
+            }
+        });
     }
 
     @Test
     public void writeByteArrayWithStartIndexAndLength()
     {
-        final StandardOutputWriteStream stdout = new StandardOutputWriteStream();
-        stdout.write(new byte[]{101, 102, 103, 104, 105}, 0, 4);
+        withTempStdout(new Action1<ByteArrayOutputStream>()
+        {
+            @Override
+            public void run(ByteArrayOutputStream mockStdout)
+            {
+                final StandardOutputWriteStream stdout = new StandardOutputWriteStream();
+                stdout.write(new byte[]{101, 102, 103, 104, 105}, 0, 4);
+
+                assertArrayEquals(new byte[] { 101, 102, 103, 104 }, mockStdout.toByteArray());
+            }
+        });
+    }
+
+    private static void withTempStdout(Action1<ByteArrayOutputStream> test)
+    {
+        final PrintStream stdoutBackup = System.out;
+        try
+        {
+            final ByteArrayOutputStream output = new ByteArrayOutputStream();
+            System.setOut(new PrintStream(output));
+
+            test.run(output);
+        }
+        finally
+        {
+            System.setOut(stdoutBackup);
+        }
     }
 }
