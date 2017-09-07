@@ -57,6 +57,12 @@ public abstract class IteratorBase<T> implements Iterator<T>
     }
 
     @Override
+    public Iterator<T> where(Function1<T,Boolean> condition)
+    {
+        return condition == null ? this : new WhereIterator<>(this, condition);
+    }
+
+    @Override
     public java.util.Iterator<T> iterator()
     {
         return new JavaIterator<>(this);
