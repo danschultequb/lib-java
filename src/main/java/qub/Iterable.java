@@ -56,6 +56,14 @@ public interface Iterable<T> extends java.lang.Iterable<T>
     Iterable<T> where(Function1<T,Boolean> condition);
 
     /**
+     * Convert this Iterable into an Iterable that returns values of type U instead of type T.
+     * @param conversion The function to use to convert values of type T to type U.
+     * @param <U> The type to convert values of type T to.
+     * @return An Iterable that returns values of type U instead of type T.
+     */
+    <U> Iterable<U> map(Function1<T,U> conversion);
+
+    /**
      * Create a java.util.Iterator that will iterate over this Iterable.
      * @return A java.util.Iterator that will iterate over this Iterable.
      */

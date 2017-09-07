@@ -397,4 +397,58 @@ public abstract class IterableTests
         assertTrue(whereIterator.any());
         assertEquals(2, whereIterator.getCount());
     }
+
+    @Test
+    public void mapWithEmptyAndNoConversion()
+    {
+        final Iterable<Integer> iterable = createIterable(0);
+        final Iterable<Boolean> mapIterable = iterable.map(null);
+        assertFalse(mapIterable.any());
+        assertEquals(0, mapIterable.getCount());
+
+        final Iterator<Boolean> mapIterator = mapIterable.iterate();
+        assertFalse(mapIterator.any());
+        assertEquals(0, mapIterator.getCount());
+    }
+
+    @Test
+    public void mapWithEmptyAndConversion()
+    {
+        final Iterable<Integer> iterable = createIterable(0);
+        final Iterable<Boolean> mapIterable = iterable.map(Math.isOdd);
+        assertFalse(mapIterable.any());
+        assertEquals(0, mapIterable.getCount());
+
+        final Iterator<Boolean> mapIterator = mapIterable.iterate();
+        assertFalse(mapIterator.any());
+        assertEquals(0, mapIterator.getCount());
+    }
+
+    @Test
+    public void mapWithNonEmptyAndNoConversion()
+    {
+        final Iterable<Integer> iterable = createIterable(4);
+
+        final Iterable<Boolean> mapIterable = iterable.map(null);
+        assertFalse(mapIterable.any());
+        assertEquals(0, mapIterable.getCount());
+
+        final Iterator<Boolean> mapIterator = mapIterable.iterate();
+        assertFalse(mapIterator.any());
+        assertEquals(0, mapIterator.getCount());
+    }
+
+    @Test
+    public void mapWithNonEmptyAndConversion()
+    {
+        final Iterable<Integer> iterable = createIterable(4);
+
+        final Iterable<Boolean> mapIterable = iterable.map(Math.isOdd);
+        assertTrue(mapIterable.any());
+        assertEquals(4, mapIterable.getCount());
+
+        final Iterator<Boolean> mapIterator = mapIterable.iterate();
+        assertTrue(mapIterator.any());
+        assertEquals(4, mapIterator.getCount());
+    }
 }

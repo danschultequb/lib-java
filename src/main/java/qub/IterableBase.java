@@ -32,6 +32,12 @@ public abstract class IterableBase<T> implements Iterable<T>
     }
 
     @Override
+    public <U> Iterable<U> map(Function1<T,U> conversion)
+    {
+        return new MapIterable<>(this, conversion);
+    }
+
+    @Override
     public java.util.Iterator<T> iterator()
     {
         return iterate().iterator();
