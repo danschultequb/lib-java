@@ -1,7 +1,6 @@
 package qub;
 
 import org.junit.Test;
-import sun.nio.cs.ext.IBM037;
 
 import static org.junit.Assert.*;
 

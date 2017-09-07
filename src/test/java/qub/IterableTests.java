@@ -246,6 +246,94 @@ public abstract class IterableTests
     }
 
     @Test
+    public void skipWithEmptyAndNegativeToSkip()
+    {
+        final Iterable<Integer> iterable = createIterable(0);
+        final Iterable<Integer> skipIterable = iterable.skip(-1);
+        assertSame(iterable, skipIterable);
+    }
+
+    @Test
+    public void skipWithEmptyAndZeroToSkip()
+    {
+        final Iterable<Integer> iterable = createIterable(0);
+        final Iterable<Integer> skipIterable = iterable.skip(0);
+        assertSame(iterable, skipIterable);
+    }
+
+    @Test
+    public void skipWithEmptyAndPositiveToSkip()
+    {
+        final Iterable<Integer> iterable = createIterable(0);
+        final Iterable<Integer> skipIterable = iterable.skip(3);
+        assertFalse(skipIterable.any());
+        assertEquals(0, skipIterable.getCount());
+
+        final Iterator<Integer> skipIterator = skipIterable.iterate();
+        assertFalse(skipIterator.any());
+        assertEquals(0, skipIterator.getCount());
+    }
+
+    @Test
+    public void skipWithNonEmptyAndNegativeToSkip()
+    {
+        final Iterable<Integer> iterable = createIterable(4);
+        final Iterable<Integer> skipIterable = iterable.skip(-1);
+        assertSame(iterable, skipIterable);
+    }
+
+    @Test
+    public void skipWithNonEmptyAndZeroToSkip()
+    {
+        final Iterable<Integer> iterable = createIterable(4);
+
+        final Iterable<Integer> skipIterable = iterable.skip(0);
+        assertSame(iterable, skipIterable);
+    }
+
+    @Test
+    public void skipWithNonEmptyAndPositiveToSkipLessThanCount()
+    {
+        final Iterable<Integer> iterable = createIterable(4);
+
+        final Iterable<Integer> skipIterable = iterable.skip(3);
+        assertTrue(skipIterable.any());
+        assertEquals(1, skipIterable.getCount());
+
+        final Iterator<Integer> skipIterator = skipIterable.iterate();
+        assertTrue(skipIterator.any());
+        assertEquals(1, skipIterator.getCount());
+    }
+
+    @Test
+    public void skipWithNonEmptyAndPositiveToSkipEqualToCount()
+    {
+        final Iterable<Integer> iterable = createIterable(4);
+
+        final Iterable<Integer> skipIterable = iterable.skip(iterable.getCount());
+        assertFalse(skipIterable.any());
+        assertEquals(0, skipIterable.getCount());
+
+        final Iterator<Integer> skipIterator = skipIterable.iterate();
+        assertFalse(skipIterator.any());
+        assertEquals(0, skipIterator.getCount());
+    }
+
+    @Test
+    public void skipWithNonEmptyAndPositiveToSkipGreaterThanCount()
+    {
+        final Iterable<Integer> iterable = createIterable(4);
+
+        final Iterable<Integer> skipIterable = iterable.skip(14);
+        assertFalse(skipIterable.any());
+        assertEquals(0, skipIterable.getCount());
+
+        final Iterator<Integer> skipIterator = skipIterable.iterate();
+        assertFalse(skipIterator.any());
+        assertEquals(0, skipIterator.getCount());
+    }
+
+    @Test
     public void whereWithEmptyAndNullCondition()
     {
         final Iterable<Integer> iterable = createIterable(0);
