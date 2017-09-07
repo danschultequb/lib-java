@@ -38,6 +38,15 @@ public interface Iterable<T> extends java.lang.Iterable<T>
     Iterable<T> take(int toTake);
 
     /**
+     * Create a new Iterable that only returns the values from this Iterable that satisfy the given
+     * condition.
+     * @param condition The condition values must satisfy to be returned from the created Iterable.
+     * @return An Iterable that only returns the values from this Iterator that satisfy the given
+     * condition.
+     */
+    Iterable<T> where(Function1<T,Boolean> condition);
+
+    /**
      * Create a java.util.Iterator that will iterate over this Iterable.
      * @return A java.util.Iterator that will iterate over this Iterable.
      */
