@@ -25,6 +25,18 @@ public class MathTests
     }
 
     @Test
+    public void maximum()
+    {
+        assertEquals(-5, Math.maximum(-10, -5));
+        assertEquals(-5, Math.maximum(-5, -10));
+
+        assertEquals(-3, Math.maximum(-3, -3));
+
+        assertEquals(0, Math.maximum(-1, 0));
+        assertEquals(0, Math.maximum(0, -1));
+    }
+
+    @Test
     public void isOdd() {
         assertTrue(Math.isOdd(1));
         assertTrue(Math.isOdd(3));

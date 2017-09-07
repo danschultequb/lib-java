@@ -98,6 +98,16 @@ public class ArrayList<T> extends IterableBase<T>
         return result;
     }
 
+    /**
+     * Remove and return the first value in this ArrayList. If this ArrayList is empty, then null
+     * will be returned.
+     * @return The value that was removed, or null if the ArrayList was empty.
+     */
+    public T removeFirst()
+    {
+        return removeAt(0);
+    }
+
     @Override
     public Iterator<T> iterate()
     {

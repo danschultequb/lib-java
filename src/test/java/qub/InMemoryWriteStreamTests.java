@@ -11,6 +11,18 @@ public class InMemoryWriteStreamTests
     {
         final InMemoryWriteStream writeStream = new InMemoryWriteStream();
         assertArrayEquals(new byte[0], writeStream.getBytes());
+        assertTrue(writeStream.isOpen());
+    }
+
+    @Test
+    public void close()
+    {
+        final InMemoryWriteStream writeStream = new InMemoryWriteStream();
+        assertTrue(writeStream.close());
+        assertFalse(writeStream.isOpen());
+        assertNull(writeStream.getBytes());
+        assertFalse(writeStream.close());
+        assertNull(writeStream.getBytes());
     }
 
     @Test

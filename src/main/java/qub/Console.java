@@ -24,6 +24,18 @@ public class Console implements WriteStream
     }
 
     @Override
+    public boolean isOpen()
+    {
+        return true;
+    }
+
+    @Override
+    public boolean close()
+    {
+        return false;
+    }
+
+    @Override
     public void write(byte toWrite)
     {
         final WriteStream writeStream = getWriteStream();

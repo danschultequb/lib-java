@@ -8,6 +8,18 @@ import java.io.IOException;
 public class StandardOutputWriteStream extends WriteStreamBase
 {
     @Override
+    public boolean isOpen()
+    {
+        return true;
+    }
+
+    @Override
+    public boolean close()
+    {
+        return false;
+    }
+
+    @Override
     public void write(byte toWrite)
     {
         System.out.write(toWrite);

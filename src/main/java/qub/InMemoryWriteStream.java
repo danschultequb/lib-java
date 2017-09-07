@@ -2,19 +2,42 @@ package qub;
 
 public class InMemoryWriteStream extends WriteStreamBase
 {
-    private final ArrayList<Byte> bytes;
+    private ArrayList<Byte> bytes;
 
     public InMemoryWriteStream()
     {
         bytes = new ArrayList<Byte>();
     }
 
+    @Override
+    public boolean isOpen()
+    {
+        return bytes != null;
+    }
+
+    @Override
+    public boolean close()
+    {
+        final boolean closed = bytes != null;
+        bytes = null;
+        return closed;
+    }
+
     public byte[] getBytes()
     {
-        final byte[] result = new byte[bytes.getCount()];
-        for (int i = 0; i < result.length; ++i)
+        byte[] result;
+        if (bytes == null)
         {
-            result[i] = bytes.get(i);
+            result = null;
+        }
+        else
+        {
+            result = new byte[bytes.getCount()];
+            for (int i = 0; i < result.length; ++i)
+            {
+                result[i] = bytes.get(i);
+
+            }
         }
         return result;
     }
@@ -22,7 +45,10 @@ public class InMemoryWriteStream extends WriteStreamBase
     @Override
     public void write(byte toWrite)
     {
-        bytes.add(toWrite);
+        if (bytes != null)
+        {
+            bytes.add(toWrite);
+        }
     }
 
     @Override
@@ -34,10 +60,13 @@ public class InMemoryWriteStream extends WriteStreamBase
     @Override
     public void write(byte[] toWrite, int startIndex, int length)
     {
-        final int endIndex = Math.minimum(toWrite.length, startIndex + length);
-        for (int i = startIndex; i < endIndex; ++i)
+        if (bytes != null)
         {
-            write(toWrite[i]);
+            final int endIndex = Math.minimum(toWrite.length, startIndex + length);
+            for (int i = startIndex; i < endIndex; ++i)
+            {
+                write(toWrite[i]);
+            }
         }
     }
 }
