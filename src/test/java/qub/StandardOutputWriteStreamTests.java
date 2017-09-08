@@ -73,6 +73,54 @@ public class StandardOutputWriteStreamTests
         });
     }
 
+    @Test
+    public void writeString()
+    {
+        withTempStdout(new Action1<ByteArrayOutputStream>()
+        {
+            @Override
+            public void run(ByteArrayOutputStream mockStdout)
+            {
+                final StandardOutputWriteStream stdout = new StandardOutputWriteStream();
+                stdout.write("abc");
+
+                assertArrayEquals(new byte[] { 97, 98, 99 }, mockStdout.toByteArray());
+            }
+        });
+    }
+
+    @Test
+    public void writeLine()
+    {
+        withTempStdout(new Action1<ByteArrayOutputStream>()
+        {
+            @Override
+            public void run(ByteArrayOutputStream mockStdout)
+            {
+                final StandardOutputWriteStream stdout = new StandardOutputWriteStream();
+                stdout.writeLine();
+
+                assertArrayEquals(new byte[] { 13, 10 }, mockStdout.toByteArray());
+            }
+        });
+    }
+
+    @Test
+    public void writeLineWithString()
+    {
+        withTempStdout(new Action1<ByteArrayOutputStream>()
+        {
+            @Override
+            public void run(ByteArrayOutputStream mockStdout)
+            {
+                final StandardOutputWriteStream stdout = new StandardOutputWriteStream();
+                stdout.writeLine("abcd");
+
+                assertArrayEquals(new byte[] { 97, 98, 99, 100, 13, 10 }, mockStdout.toByteArray());
+            }
+        });
+    }
+
     private static void withTempStdout(Action1<ByteArrayOutputStream> test)
     {
         final PrintStream stdoutBackup = System.out;

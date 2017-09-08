@@ -47,15 +47,15 @@ public class ConsoleTests
         console.write((byte)50);
         console.write(new byte[]{51});
         console.write(new byte[]{52}, 0, 1);
-//        console.write("hello");
-//        console.writeLine("there!");
+        console.write("hello");
+        console.writeLine("there!");
     }
 
     @Test
     public void setWriteStreamWithNonNull()
     {
         final Console console = new Console();
-        final InMemoryByteWriteStream writeStream = new InMemoryByteWriteStream();
+        final InMemoryTextWriteStream writeStream = new InMemoryTextWriteStream("\n");
         console.setWriteStream(writeStream);
         assertTrue(console.writeStream.hasValue());
         assertSame(writeStream, console.writeStream.get());
@@ -69,13 +69,13 @@ public class ConsoleTests
         console.write(new byte[]{52}, 0, 1);
         assertArrayEquals(new byte[]{50, 51, 52}, writeStream.getBytes());
 
-//        console.write("hello");
-//        assertArrayEquals(new byte[]{50, 51, 52, 104, 101, 108, 108, 111}, writeStream.getBytes());
-//
-//        console.writeLine();
-//        assertArrayEquals(new byte[]{50, 51, 52, 104, 101, 108, 108, 111, 10 }, writeStream.getBytes());
-//
-//        console.writeLine("there!");
-//        assertArrayEquals(new byte[]{50, 51, 52, 104, 101, 108, 108, 111, 10, 116, 104, 101, 114, 101, 33, 10}, writeStream.getBytes());
+        console.write("hello");
+        assertArrayEquals(new byte[]{50, 51, 52, 104, 101, 108, 108, 111}, writeStream.getBytes());
+
+        console.writeLine();
+        assertArrayEquals(new byte[]{50, 51, 52, 104, 101, 108, 108, 111, 10 }, writeStream.getBytes());
+
+        console.writeLine("there!");
+        assertArrayEquals(new byte[]{50, 51, 52, 104, 101, 108, 108, 111, 10, 116, 104, 101, 114, 101, 33, 10}, writeStream.getBytes());
     }
 }

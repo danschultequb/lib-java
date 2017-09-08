@@ -1,20 +1,20 @@
 package qub;
 
-public class Console implements ByteWriteStream
+public class Console implements TextWriteStream
 {
-    final Value<ByteWriteStream> writeStream;
+    final Value<TextWriteStream> writeStream;
 
     public Console()
     {
         writeStream = new Value<>();
     }
 
-    public void setWriteStream(ByteWriteStream writeStream)
+    public void setWriteStream(TextWriteStream writeStream)
     {
         this.writeStream.set(writeStream);
     }
 
-    ByteWriteStream getWriteStream()
+    TextWriteStream getWriteStream()
     {
         if (!writeStream.hasValue())
         {
@@ -38,7 +38,7 @@ public class Console implements ByteWriteStream
     @Override
     public void write(byte toWrite)
     {
-        final ByteWriteStream writeStream = getWriteStream();
+        final TextWriteStream writeStream = getWriteStream();
         if (writeStream != null)
         {
             writeStream.write(toWrite);
@@ -48,7 +48,7 @@ public class Console implements ByteWriteStream
     @Override
     public void write(byte[] toWrite)
     {
-        final ByteWriteStream writeStream = getWriteStream();
+        final TextWriteStream writeStream = getWriteStream();
         if (writeStream != null)
         {
             writeStream.write(toWrite);
@@ -58,34 +58,40 @@ public class Console implements ByteWriteStream
     @Override
     public void write(byte[] toWrite, int startIndex, int length)
     {
-        final ByteWriteStream writeStream = getWriteStream();
+        final TextWriteStream writeStream = getWriteStream();
         if (writeStream != null)
         {
             writeStream.write(toWrite, startIndex, length);
         }
     }
 
-//    @Override
-//    public void write(String toWrite)
-//    {
-//        ByteWriteStreamBase.write(this, toWrite);
-//    }
-//
-//    @Override
-//    public void writeLine()
-//    {
-//        ByteWriteStreamBase.writeLine(this);
-//    }
-//
-//    @Override
-//    public void writeLine(String toWrite)
-//    {
-//        ByteWriteStreamBase.writeLine(this, toWrite);
-//    }
-//
-//    @Override
-//    public void write(String toWrite, CharacterEncoding encoding)
-//    {
-//        ByteWriteStreamBase.write(this, toWrite, encoding);
-//    }
+    @Override
+    public void write(String toWrite)
+    {
+        final TextWriteStream writeStream = getWriteStream();
+        if (writeStream != null)
+        {
+            writeStream.write(toWrite);
+        }
+    }
+
+    @Override
+    public void writeLine()
+    {
+        final TextWriteStream writeStream = getWriteStream();
+        if (writeStream != null)
+        {
+            writeStream.writeLine();
+        }
+    }
+
+    @Override
+    public void writeLine(String toWrite)
+    {
+        final TextWriteStream writeStream = getWriteStream();
+        if (writeStream != null)
+        {
+            writeStream.writeLine(toWrite);
+        }
+    }
 }

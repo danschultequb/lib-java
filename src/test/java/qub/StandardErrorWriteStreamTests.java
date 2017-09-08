@@ -73,6 +73,54 @@ public class StandardErrorWriteStreamTests
         });
     }
 
+    @Test
+    public void writeString()
+    {
+        withTempStderr(new Action1<ByteArrayOutputStream>()
+        {
+            @Override
+            public void run(ByteArrayOutputStream mockStderr)
+            {
+                final StandardErrorWriteStream stderr = new StandardErrorWriteStream();
+                stderr.write("abc");
+
+                assertArrayEquals(new byte[] { 97, 98, 99 }, mockStderr.toByteArray());
+            }
+        });
+    }
+
+    @Test
+    public void writeLine()
+    {
+        withTempStderr(new Action1<ByteArrayOutputStream>()
+        {
+            @Override
+            public void run(ByteArrayOutputStream mockStderr)
+            {
+                final StandardErrorWriteStream stderr = new StandardErrorWriteStream();
+                stderr.writeLine();
+
+                assertArrayEquals(new byte[] { 13, 10 }, mockStderr.toByteArray());
+            }
+        });
+    }
+
+    @Test
+    public void writeLineWithString()
+    {
+        withTempStderr(new Action1<ByteArrayOutputStream>()
+        {
+            @Override
+            public void run(ByteArrayOutputStream mockStderr)
+            {
+                final StandardErrorWriteStream stderr = new StandardErrorWriteStream();
+                stderr.writeLine("abcd");
+
+                assertArrayEquals(new byte[] { 97, 98, 99, 100, 13, 10 }, mockStderr.toByteArray());
+            }
+        });
+    }
+
     private static void withTempStderr(Action1<ByteArrayOutputStream> test)
     {
         final PrintStream stderrBackup = System.out;

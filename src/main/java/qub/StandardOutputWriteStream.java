@@ -1,9 +1,9 @@
 package qub;
 
 /**
- * A ByteWriteStream that writes bytes to the StandardOutput stream of the process.
+ * A TextWriteStream that writes bytes and Strings to the StandardOutput stream of the process.
  */
-public class StandardOutputWriteStream extends ByteWriteStreamBase
+public class StandardOutputWriteStream extends ByteWriteStreamBase implements TextWriteStream
 {
     @Override
     public boolean isOpen()
@@ -33,5 +33,23 @@ public class StandardOutputWriteStream extends ByteWriteStreamBase
     public void write(byte[] toWrite, int startIndex, int length)
     {
         System.out.write(toWrite, startIndex, length);
+    }
+
+    @Override
+    public void write(String toWrite)
+    {
+        System.out.print(toWrite);
+    }
+
+    @Override
+    public void writeLine()
+    {
+        System.out.println();
+    }
+
+    @Override
+    public void writeLine(String toWrite)
+    {
+        System.out.println(toWrite);
     }
 }
