@@ -451,4 +451,58 @@ public abstract class IterableTests
         assertTrue(mapIterator.any());
         assertEquals(4, mapIterator.getCount());
     }
+
+    @Test
+    public void mapWithEmptyAndWrongType()
+    {
+        final Iterable<Integer> iterable = createIterable(0);
+        final Iterable<Boolean> instanceOfIterable = iterable.instanceOf(Boolean.class);
+        assertFalse(instanceOfIterable.any());
+        assertEquals(0, instanceOfIterable.getCount());
+
+        final Iterator<Boolean> instanceOfIterator = instanceOfIterable.iterate();
+        assertFalse(instanceOfIterator.any());
+        assertEquals(0, instanceOfIterator.getCount());
+    }
+
+    @Test
+    public void mapWithEmptyAndCorrectType()
+    {
+        final Iterable<Integer> iterable = createIterable(0);
+        final Iterable<Number> instanceOfIterable = iterable.instanceOf(Number.class);
+        assertFalse(instanceOfIterable.any());
+        assertEquals(0, instanceOfIterable.getCount());
+
+        final Iterator<Number> instanceOfIterator = instanceOfIterable.iterate();
+        assertFalse(instanceOfIterator.any());
+        assertEquals(0, instanceOfIterator.getCount());
+    }
+
+    @Test
+    public void instanceOfWithNonEmptyAndNoMatches()
+    {
+        final Iterable<Integer> iterable = createIterable(4);
+
+        final Iterable<Boolean> instanceOfIterable = iterable.instanceOf(Boolean.class);
+        assertFalse(instanceOfIterable.any());
+        assertEquals(0, instanceOfIterable.getCount());
+
+        final Iterator<Boolean> instanceOfIterator = instanceOfIterable.iterate();
+        assertFalse(instanceOfIterator.any());
+        assertEquals(0, instanceOfIterator.getCount());
+    }
+
+    @Test
+    public void instanceOfWithNonEmptyAndMatches()
+    {
+        final Iterable<Integer> iterable = createIterable(4);
+
+        final Iterable<Integer> instanceOfIterable = iterable.instanceOf(Integer.class);
+        assertTrue(instanceOfIterable.any());
+        assertEquals(4, instanceOfIterable.getCount());
+
+        final Iterator<Integer> instanceOfIterator = instanceOfIterable.iterate();
+        assertTrue(instanceOfIterator.any());
+        assertEquals(4, instanceOfIterator.getCount());
+    }
 }
