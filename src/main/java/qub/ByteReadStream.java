@@ -5,7 +5,7 @@ import java.io.IOException;
 /**
  * An interface for reading bytes from a stream.
  */
-public interface ReadStream
+public interface ByteReadStream
 {
     /**
      * Get whether or not this stream is open.

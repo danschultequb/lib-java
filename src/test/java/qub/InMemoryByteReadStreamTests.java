@@ -6,12 +6,12 @@ import java.io.IOException;
 
 import static org.junit.Assert.*;
 
-public class InMemoryReadStreamTests
+public class InMemoryByteReadStreamTests
 {
     @Test
     public void constructor()
     {
-        final InMemoryReadStream readStream = new InMemoryReadStream();
+        final InMemoryByteReadStream readStream = new InMemoryByteReadStream();
         assertArrayEquals(new byte[0], readStream.getBytes());
         assertTrue(readStream.isOpen());
     }
@@ -19,7 +19,7 @@ public class InMemoryReadStreamTests
     @Test
     public void close()
     {
-        final InMemoryReadStream readStream = new InMemoryReadStream();
+        final InMemoryByteReadStream readStream = new InMemoryByteReadStream();
         assertTrue(readStream.close());
         assertFalse(readStream.isOpen());
         assertNull(readStream.getBytes());
@@ -29,7 +29,7 @@ public class InMemoryReadStreamTests
     @Test
     public void addBytes()
     {
-        final InMemoryReadStream readStream = new InMemoryReadStream();
+        final InMemoryByteReadStream readStream = new InMemoryByteReadStream();
 
         readStream.add();
         assertArrayEquals(new byte[0], readStream.getBytes());
@@ -47,7 +47,7 @@ public class InMemoryReadStreamTests
     @Test
     public void addString()
     {
-        final InMemoryReadStream readStream = new InMemoryReadStream();
+        final InMemoryByteReadStream readStream = new InMemoryByteReadStream();
 
         readStream.add((String)null);
         assertArrayEquals(new byte[0], readStream.getBytes());
@@ -62,7 +62,7 @@ public class InMemoryReadStreamTests
     @Test
     public void readBytesWithBytesToRead() throws IOException
     {
-        final InMemoryReadStream readStream = new InMemoryReadStream();
+        final InMemoryByteReadStream readStream = new InMemoryByteReadStream();
 
         assertArrayEquals(new byte[0], readStream.readBytes(-5));
         assertArrayEquals(new byte[0], readStream.readBytes(0));

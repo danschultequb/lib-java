@@ -29,9 +29,9 @@ public class ConsoleTests
         assertNotNull(console.writeStream);
         assertFalse(console.writeStream.hasValue());
 
-        final WriteStream writeStream = console.getWriteStream();
+        final ByteWriteStream writeStream = console.getWriteStream();
         assertNotNull(writeStream);
-        assertTrue(writeStream instanceof StandardOutputWriteStream);
+        assertTrue(writeStream instanceof StandardOutputTextWriteStream);
         assertTrue(console.writeStream.hasValue());
         assertSame(writeStream, console.writeStream.get());
     }
@@ -55,7 +55,7 @@ public class ConsoleTests
     public void setWriteStreamWithNonNull()
     {
         final Console console = new Console();
-        final InMemoryWriteStream writeStream = new InMemoryWriteStream();
+        final InMemoryTextWriteStream writeStream = new InMemoryTextWriteStream("\n");
         console.setWriteStream(writeStream);
         assertTrue(console.writeStream.hasValue());
         assertSame(writeStream, console.writeStream.get());

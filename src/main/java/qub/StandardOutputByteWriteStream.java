@@ -1,11 +1,9 @@
 package qub;
 
-import java.io.IOException;
-
 /**
- * A WriteStream that writes bytes to the StandardOutput stream of the process.
+ * A TextWriteStream that writes bytes and Strings to the StandardOutput stream of the process.
  */
-public class StandardOutputWriteStream extends WriteStreamBase
+public class StandardOutputByteWriteStream extends ByteWriteStreamBase
 {
     @Override
     public boolean isOpen()

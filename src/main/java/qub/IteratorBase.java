@@ -63,6 +63,18 @@ public abstract class IteratorBase<T> implements Iterator<T>
     }
 
     @Override
+    public <U> Iterator<U> map(Function1<T,U> conversion)
+    {
+        return new MapIterator<>(this, conversion);
+    }
+
+    @Override
+    public <U> Iterator<U> instanceOf(Class<U> type)
+    {
+        return new InstanceOfIterator<>(this, type);
+    }
+
+    @Override
     public java.util.Iterator<T> iterator()
     {
         return new JavaIterator<>(this);
