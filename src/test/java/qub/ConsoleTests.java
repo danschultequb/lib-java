@@ -31,7 +31,7 @@ public class ConsoleTests
 
         final ByteWriteStream writeStream = console.getWriteStream();
         assertNotNull(writeStream);
-        assertTrue(writeStream instanceof StandardOutputWriteStream);
+        assertTrue(writeStream instanceof StandardOutputTextWriteStream);
         assertTrue(console.writeStream.hasValue());
         assertSame(writeStream, console.writeStream.get());
     }

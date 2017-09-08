@@ -1,9 +1,6 @@
 package qub;
 
-/**
- * A TextWriteStream that writes bytes and Strings to the StandardError stream of the process.
- */
-public class StandardErrorWriteStream extends ByteWriteStreamBase implements TextWriteStream
+public class StandardErrorByteWriteStream extends ByteWriteStreamBase
 {
     @Override
     public boolean isOpen()
@@ -33,23 +30,5 @@ public class StandardErrorWriteStream extends ByteWriteStreamBase implements Tex
     public void write(byte[] toWrite, int startIndex, int length)
     {
         System.err.write(toWrite, startIndex, length);
-    }
-
-    @Override
-    public void write(String toWrite)
-    {
-        System.err.print(toWrite);
-    }
-
-    @Override
-    public void writeLine()
-    {
-        System.err.println();
-    }
-
-    @Override
-    public void writeLine(String toWrite)
-    {
-        System.err.println(toWrite);
     }
 }

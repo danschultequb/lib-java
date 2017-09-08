@@ -7,19 +7,19 @@ import java.io.PrintStream;
 
 import static org.junit.Assert.*;
 
-public class StandardOutputWriteStreamTests
+public class StandardOutputTextWriteStreamTests
 {
     @Test
     public void constructor()
     {
-        final StandardOutputWriteStream stdout = new StandardOutputWriteStream();
+        final StandardOutputTextWriteStream stdout = new StandardOutputTextWriteStream();
         assertTrue(stdout.isOpen());
     }
 
     @Test
     public void close()
     {
-        final StandardOutputWriteStream stdout = new StandardOutputWriteStream();
+        final StandardOutputTextWriteStream stdout = new StandardOutputTextWriteStream();
         assertFalse(stdout.close());
         assertTrue(stdout.isOpen());
         assertFalse(stdout.close());
@@ -33,7 +33,7 @@ public class StandardOutputWriteStreamTests
             @Override
             public void run(ByteArrayOutputStream mockStdout)
             {
-                final StandardOutputWriteStream stdout = new StandardOutputWriteStream();
+                final StandardOutputTextWriteStream stdout = new StandardOutputTextWriteStream();
                 stdout.write((byte) 97);
 
                 assertArrayEquals(new byte[] { 97 }, mockStdout.toByteArray());
@@ -49,7 +49,7 @@ public class StandardOutputWriteStreamTests
             @Override
             public void run(ByteArrayOutputStream mockStdout)
             {
-                final StandardOutputWriteStream stdout = new StandardOutputWriteStream();
+                final StandardOutputTextWriteStream stdout = new StandardOutputTextWriteStream();
                 stdout.write(new byte[]{98, 99, 100});
 
                 assertArrayEquals(new byte[] { 98, 99, 100 }, mockStdout.toByteArray());
@@ -65,7 +65,7 @@ public class StandardOutputWriteStreamTests
             @Override
             public void run(ByteArrayOutputStream mockStdout)
             {
-                final StandardOutputWriteStream stdout = new StandardOutputWriteStream();
+                final StandardOutputTextWriteStream stdout = new StandardOutputTextWriteStream();
                 stdout.write(new byte[]{101, 102, 103, 104, 105}, 0, 4);
 
                 assertArrayEquals(new byte[] { 101, 102, 103, 104 }, mockStdout.toByteArray());
@@ -81,7 +81,7 @@ public class StandardOutputWriteStreamTests
             @Override
             public void run(ByteArrayOutputStream mockStdout)
             {
-                final StandardOutputWriteStream stdout = new StandardOutputWriteStream();
+                final StandardOutputTextWriteStream stdout = new StandardOutputTextWriteStream();
                 stdout.write("abc");
 
                 assertArrayEquals(new byte[] { 97, 98, 99 }, mockStdout.toByteArray());
@@ -97,10 +97,10 @@ public class StandardOutputWriteStreamTests
             @Override
             public void run(ByteArrayOutputStream mockStdout)
             {
-                final StandardOutputWriteStream stdout = new StandardOutputWriteStream();
+                final StandardOutputTextWriteStream stdout = new StandardOutputTextWriteStream("\n");
                 stdout.writeLine();
 
-                assertArrayEquals(new byte[] { 13, 10 }, mockStdout.toByteArray());
+                assertArrayEquals(new byte[] { 10 }, mockStdout.toByteArray());
             }
         });
     }
@@ -113,7 +113,7 @@ public class StandardOutputWriteStreamTests
             @Override
             public void run(ByteArrayOutputStream mockStdout)
             {
-                final StandardOutputWriteStream stdout = new StandardOutputWriteStream();
+                final StandardOutputTextWriteStream stdout = new StandardOutputTextWriteStream("\r\n");
                 stdout.writeLine("abcd");
 
                 assertArrayEquals(new byte[] { 97, 98, 99, 100, 13, 10 }, mockStdout.toByteArray());

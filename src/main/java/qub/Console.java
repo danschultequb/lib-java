@@ -18,7 +18,7 @@ public class Console implements TextWriteStream
     {
         if (!writeStream.hasValue())
         {
-            writeStream.set(new StandardOutputWriteStream());
+            writeStream.set(new StandardOutputTextWriteStream());
         }
         return writeStream.get();
     }
