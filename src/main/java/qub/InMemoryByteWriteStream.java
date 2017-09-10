@@ -1,6 +1,6 @@
 package qub;
 
-public class InMemoryByteWriteStream extends ByteWriteStreamBase
+public class InMemoryByteWriteStream implements ByteWriteStream
 {
     private ArrayList<Byte> bytes;
 

@@ -32,20 +32,7 @@ public class InMemoryByteReadStream extends ByteReadStreamBase
      */
     public byte[] getBytes()
     {
-        byte[] result;
-        if (!isOpen())
-        {
-            result = null;
-        }
-        else
-        {
-            result = new byte[bytes.getCount()];
-            for (int i = 0; i < result.length; ++i)
-            {
-                result[i] = bytes.get(i);
-            }
-        }
-        return result;
+        return Array.toByteArray(bytes);
     }
 
     /**
@@ -60,22 +47,6 @@ public class InMemoryByteReadStream extends ByteReadStreamBase
             {
                 bytes.add(byteToAdd);
             }
-        }
-    }
-
-    public void add(String toAdd)
-    {
-        if (isOpen())
-        {
-            add(toAdd, CharacterEncoding.ASCII);
-        }
-    }
-
-    public void add(String toAdd, CharacterEncoding encoding)
-    {
-        if (isOpen())
-        {
-            add(encoding.encode(toAdd));
         }
     }
 

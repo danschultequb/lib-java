@@ -3,7 +3,7 @@ package qub;
 /**
  * A TextWriteStream that writes bytes and Strings to the StandardOutput stream of the process.
  */
-public class StandardOutputByteWriteStream extends ByteWriteStreamBase
+public class StandardOutputByteWriteStream implements ByteWriteStream
 {
     @Override
     public boolean isOpen()

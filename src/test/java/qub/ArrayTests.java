@@ -17,6 +17,16 @@ public class ArrayTests extends IterableTests
         return result;
     }
 
+    public Iterable<Byte> createByteIterable(int count)
+    {
+        final Array<Byte> result = new Array<>(count);
+        for (int i = 0; i < count; ++i)
+        {
+            result.set(i, (byte)i);
+        }
+        return result;
+    }
+
     @Test
     public void constructorWith0Length()
     {
@@ -112,5 +122,35 @@ public class ArrayTests extends IterableTests
         assertTrue(iterator.hasStarted());
         assertFalse(iterator.hasCurrent());
         assertNull(iterator.getCurrent());
+    }
+
+    @Test
+    public void toByteArrayIteratorNull()
+    {
+        assertNull(Array.toByteArray((Iterator<Byte>)null));
+    }
+
+    @Test
+    public void toByteArrayIteratorEmpty()
+    {
+        assertArrayEquals(new byte[0], Array.toByteArray(new Array<Byte>(0).iterate()));
+    }
+
+    @Test
+    public void toByteArrayIteratorNonEmpty()
+    {
+        assertArrayEquals(new byte[] { 0, 1, 2 }, Array.toByteArray(createByteIterable(3).iterate()));
+    }
+
+    @Test
+    public void toByteArrayIterableNull()
+    {
+        assertNull(Array.toByteArray((Iterable<Byte>)null));
+    }
+
+    @Test
+    public void toByteArrayIterableEmpty()
+    {
+        assertArrayEquals(new byte[0], Array.toByteArray(new Array<Byte>(0)));
     }
 }

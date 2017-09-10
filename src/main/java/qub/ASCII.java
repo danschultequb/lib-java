@@ -33,15 +33,23 @@ public class ASCII extends CharacterEncoding
     }
 
     @Override
-    public String decode(byte[] bytes) {
-        final StringBuilder builder = new StringBuilder(bytes == null ? 0 : bytes.length);
-        if (bytes != null && bytes.length > 0)
+    public char[] decode(byte[] bytes) {
+        char[] result;
+        if (bytes == null)
         {
-            for (byte b : bytes)
+            result = null;
+        }
+        else
+        {
+            result = new char[bytes.length];
+            if (bytes.length > 0)
             {
-                builder.append((char) b);
+                for (int i = 0; i < bytes.length; ++i)
+                {
+                    result[i] = (char)bytes[i];
+                }
             }
         }
-        return builder.toString();
+        return result;
     }
 }

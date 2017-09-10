@@ -29,6 +29,6 @@ public class InMemoryTextWriteStream extends TextWriteStreamBase
 
     public String getText()
     {
-        return !isOpen() ? null : getCharacterEncoding().decode(getBytes());
+        return !isOpen() ? null : String.valueOf(getCharacterEncoding().decode(getBytes()));
     }
 }
