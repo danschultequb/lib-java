@@ -2,6 +2,8 @@ package qub;
 
 import org.junit.Test;
 
+import java.io.IOException;
+
 import static org.junit.Assert.*;
 
 public class ConsoleTests
@@ -29,7 +31,7 @@ public class ConsoleTests
         assertNotNull(console.writeStream);
         assertFalse(console.writeStream.hasValue());
 
-        final ByteWriteStream writeStream = console.getWriteStream();
+        final TextWriteStream writeStream = console.getWriteStream();
         assertNotNull(writeStream);
         assertTrue(writeStream instanceof StandardOutputTextWriteStream);
         assertTrue(console.writeStream.hasValue());
@@ -77,5 +79,76 @@ public class ConsoleTests
 
         console.writeLine("there!");
         assertArrayEquals(new byte[]{50, 51, 52, 104, 101, 108, 108, 111, 10, 116, 104, 101, 114, 101, 33, 10}, writeStream.getBytes());
+    }
+
+    @Test
+    public void getReadStream()
+    {
+        final Console console = new Console();
+        assertNotNull(console.readStream);
+        assertFalse(console.readStream.hasValue());
+
+        final TextReadStream readStream = console.getReadStream();
+        assertNotNull(readStream);
+        assertTrue(readStream instanceof StandardInputTextReadStream);
+        assertTrue(console.readStream.hasValue());
+        assertSame(readStream, console.readStream.get());
+    }
+
+    @Test
+    public void setReadStreamWithNull() throws IOException
+    {
+        final Console console = new Console();
+        console.setReadStream(null);
+        assertTrue(console.readStream.hasValue());
+        assertNull(console.readStream.get());
+
+        assertNull(console.readBytes(5));
+        assertEquals(-1, console.readBytes(null));
+        assertEquals(-1, console.readBytes(null, 0, 0));
+        assertNull(console.readCharacters(7));
+        assertEquals(-1, console.readCharacters(null));
+        assertEquals(-1, console.readCharacters(null, 0, 0));
+        assertNull(console.readString(10));
+        assertNull(console.readLine());
+        assertNull(console.readLine(false));
+    }
+
+    @Test
+    public void setReadStreamWithNonNull() throws IOException
+    {
+        final Console console = new Console();
+        final InMemoryTextReadStream readStream = new InMemoryTextReadStream();
+        console.setReadStream(readStream);
+        assertTrue(console.readStream.hasValue());
+        assertSame(readStream, console.readStream.get());
+
+        readStream.add("hello there my good friend\nHow are you?\r\nI'm alright.");
+
+        assertArrayEquals(new byte[] { 104, 101, 108, 108, 111 }, console.readBytes(5));
+
+        final byte[] byteBuffer = new byte[2];
+        assertEquals(2, console.readBytes(byteBuffer));
+        assertArrayEquals(new byte[] { 32, 116 }, byteBuffer);
+
+        assertEquals(1, console.readBytes(byteBuffer, 1, 1));
+        assertArrayEquals(new byte[] { 32, 104 }, byteBuffer);
+
+        assertArrayEquals(new char[] { 'e', 'r', 'e' }, console.readCharacters(3));
+
+        final char[] characterBuffer = new char[4];
+        assertEquals(4, console.readCharacters(characterBuffer));
+        assertArrayEquals(new char[] { ' ', 'm', 'y', ' ' }, characterBuffer);
+
+        assertEquals(2, console.readCharacters(characterBuffer, 0, 2));
+        assertArrayEquals(new char[] { 'g', 'o', 'y', ' ' }, characterBuffer);
+
+        assertEquals("od fr", console.readString(5));
+
+        assertEquals("iend", console.readLine());
+
+        assertEquals("How are you?\r\n", console.readLine(true));
+
+        assertEquals("I'm alright.", console.readLine(false));
     }
 }
