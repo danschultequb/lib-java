@@ -1,6 +1,6 @@
 package qub;
 
-public class StandardErrorByteWriteStream extends ByteWriteStreamBase
+public class StandardErrorByteWriteStream implements ByteWriteStream
 {
     @Override
     public boolean isOpen()

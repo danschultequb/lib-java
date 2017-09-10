@@ -64,6 +64,16 @@ public interface Iterable<T> extends java.lang.Iterable<T>
     <U> Iterable<U> map(Function1<T,U> conversion);
 
     /**
+     * Convert this Iterable into an Iterable that only returns the values in this Iterable that are
+     * of type or sub-classes of type U.
+     * @param type The type to filter the results to.
+     * @param <U> The type to return.
+     * @return An Iterable that only returns the values in this Iterable that are of type or
+     * sub-classes of type U.
+     */
+    <U> Iterable<U> instanceOf(Class<U> type);
+
+    /**
      * Create a java.util.Iterator that will iterate over this Iterable.
      * @return A java.util.Iterator that will iterate over this Iterable.
      */

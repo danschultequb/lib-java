@@ -23,7 +23,7 @@ public interface ByteReadStream
      * Read at most the provided number of bytes from the stream. If the stream is closed, then null
      * will be returned.
      * @param bytesToRead The number of bytes to read.
-     * @return The bytes that were read from the stream.
+     * @return The bytes that were read from the stream or null if the stream is closed.
      */
     byte[] readBytes(int bytesToRead) throws IOException;
 
@@ -31,17 +31,17 @@ public interface ByteReadStream
      * Read bytes from this stream into the provided byte array, and then return the number of bytes
      * that were read. If this stream is closed, then -1 will be returned.
      * @param output The byte array to read bytes into.
-     * @return The number of bytes that were read.
+     * @return The number of bytes that were read or -1 if the stream is closed.
      */
     int readBytes(byte[] output) throws IOException;
 
     /**
-     * Read bytes from this tream into the provided byte array starting at startIndex and reading a
-     * maximum number of length bytes.
+     * Read bytes from this stream into the provided byte array starting at startIndex and reading a
+     * maximum number of length bytes. If the stream is closed, then -1 will be returned.
      * @param output The byte array to read bytes into.
      * @param startIndex The startIndex in the byte array to read bytes into.
      * @param length The number of bytes to read.
-     * @return The number of bytes that were read.
+     * @return The number of bytes that were read or -1 if the stream is closed.
      */
     int readBytes(byte[] output, int startIndex, int length) throws IOException;
 }

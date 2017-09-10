@@ -38,6 +38,12 @@ public abstract class IterableBase<T> implements Iterable<T>
     }
 
     @Override
+    public <U> Iterable<U> instanceOf(Class<U> type)
+    {
+        return new InstanceOfIterable<>(this, type);
+    }
+
+    @Override
     public java.util.Iterator<T> iterator()
     {
         return iterate().iterator();

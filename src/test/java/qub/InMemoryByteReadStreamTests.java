@@ -9,7 +9,7 @@ import static org.junit.Assert.*;
 public class InMemoryByteReadStreamTests
 {
     @Test
-    public void constructor()
+    public void constructorWithNoArguments()
     {
         final InMemoryByteReadStream readStream = new InMemoryByteReadStream();
         assertArrayEquals(new byte[0], readStream.getBytes());
@@ -42,21 +42,6 @@ public class InMemoryByteReadStreamTests
 
         readStream.add((byte)1, (byte)2, (byte)3);
         assertArrayEquals(new byte[] { 0, 1, 2, 3 }, readStream.getBytes());
-    }
-
-    @Test
-    public void addString()
-    {
-        final InMemoryByteReadStream readStream = new InMemoryByteReadStream();
-
-        readStream.add((String)null);
-        assertArrayEquals(new byte[0], readStream.getBytes());
-
-        readStream.add("");
-        assertArrayEquals(new byte[0], readStream.getBytes());
-
-        readStream.add("xyz");
-        assertArrayEquals(new byte[] { 120, 121, 122 }, readStream.getBytes());
     }
 
     @Test

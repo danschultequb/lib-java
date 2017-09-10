@@ -1,6 +1,6 @@
 package qub;
 
-abstract class TextWriteStreamBase extends ByteWriteStreamBase implements TextWriteStream
+abstract class TextWriteStreamBase implements TextWriteStream, ByteWriteStream
 {
     protected static final CharacterEncoding defaultCharacterEncoding = CharacterEncoding.ASCII;
     protected static final String defaultNewLine = System.lineSeparator();

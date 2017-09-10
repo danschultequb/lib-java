@@ -8,19 +8,19 @@ import java.io.InputStream;
 
 import static org.junit.Assert.*;
 
-public class StandardInputReadStreamTests
+public class StandardInputTextReadStreamTests
 {
     @Test
     public void constructor()
     {
-        final StandardInputReadStream stdin = new StandardInputReadStream();
+        final StandardInputTextReadStream stdin = new StandardInputTextReadStream();
         assertTrue(stdin.isOpen());
     }
 
     @Test
     public void close()
     {
-        final StandardInputReadStream stdin = new StandardInputReadStream();
+        final StandardInputTextReadStream stdin = new StandardInputTextReadStream();
         assertFalse(stdin.close());
         assertTrue(stdin.isOpen());
     }
@@ -28,7 +28,7 @@ public class StandardInputReadStreamTests
     @Test
     public void readBytes() throws IOException
     {
-        final StandardInputReadStream stdin = new StandardInputReadStream();
+        final StandardInputTextReadStream stdin = new StandardInputTextReadStream(CharacterEncoding.ASCII);
         final InputStream stdinBackup = System.in;
 
         try

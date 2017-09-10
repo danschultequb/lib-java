@@ -32,16 +32,24 @@ public abstract class CharacterEncoding
      */
     public byte[] encode(String value)
     {
-        int requiredBytes = encode(value, null);
-        final byte[] result = new byte[requiredBytes];
-        encode(value, result);
+        byte[] result;
+        if (value == null)
+        {
+            result = null;
+        }
+        else
+        {
+            final int requiredBytes = encode(value, null);
+            result = new byte[requiredBytes];
+            encode(value, result);
+        }
         return result;
     }
 
     /**
      * Decode the provided byte array into a String.
      * @param bytes The byte array to decode.
-     * @return The decoded String.
+     * @return The decoded characters.
      */
-    public abstract String decode(byte[] bytes);
+    public abstract char[] decode(byte[] bytes);
 }

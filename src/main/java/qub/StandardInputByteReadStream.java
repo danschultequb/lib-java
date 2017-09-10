@@ -5,8 +5,7 @@ import java.io.IOException;
 /**
  * A ByteReadStream that reads bytes from the StandardInput stream of the process.
  */
-
-public class StandardInputReadStream extends ByteReadStreamBase
+public class StandardInputByteReadStream extends ByteReadStreamBase
 {
     @Override
     public boolean isOpen()

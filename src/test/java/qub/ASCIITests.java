@@ -109,59 +109,48 @@ public class ASCIITests
         final byte[] output = new byte[10];
         final int encodedBytes = ascii.encode("abc", output);
         assertEquals(3, encodedBytes);
-        assertEquals(97, output[0]);
-        assertEquals(98, output[1]);
-        assertEquals(99, output[2]);
+        assertArrayEquals(new byte[] { 97, 98, 99, 0, 0, 0, 0, 0, 0, 0 }, output);
     }
 
     @Test
     public void encodeNull()
     {
         final ASCII ascii = new ASCII();
-        final byte[] encodedBytes = ascii.encode(null);
-        assertNotNull(encodedBytes);
-        assertEquals(0, encodedBytes.length);
+        assertNull(ascii.encode(null));
     }
 
     @Test
     public void encodeEmpty()
     {
         final ASCII ascii = new ASCII();
-        final byte[] encodedBytes = ascii.encode("");
-        assertNotNull(encodedBytes);
-        assertEquals(0, encodedBytes.length);
+        assertArrayEquals(new byte[0], ascii.encode(""));
     }
 
     @Test
     public void encodeNonEmpty()
     {
         final ASCII ascii = new ASCII();
-        final byte[] encodedBytes = ascii.encode("Dan");
-        assertNotNull(encodedBytes);
-        assertEquals(3, encodedBytes.length);
-        assertEquals(68, encodedBytes[0]);
-        assertEquals(97, encodedBytes[1]);
-        assertEquals(110, encodedBytes[2]);
+        assertArrayEquals(new byte[] { 68, 97, 110 }, ascii.encode("Dan"));
     }
 
     @Test
     public void decodeNull()
     {
         final ASCII ascii = new ASCII();
-        assertEquals("", ascii.decode(null));
+        assertEquals(null, ascii.decode(null));
     }
 
     @Test
     public void decodeEmpty()
     {
         final ASCII ascii = new ASCII();
-        assertEquals("", ascii.decode(new byte[0]));
+        assertArrayEquals(new char[0], ascii.decode(new byte[0]));
     }
 
     @Test
     public void decodeNonEmpty()
     {
         final ASCII ascii = new ASCII();
-        assertEquals("abcd", ascii.decode(new byte[]{97 ,98, 99, 100}));
+        assertArrayEquals(new char[] { 'a', 'b', 'c', 'd' }, ascii.decode(new byte[]{97 ,98, 99, 100}));
     }
 }

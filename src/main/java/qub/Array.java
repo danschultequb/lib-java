@@ -82,4 +82,62 @@ public class Array<T> extends IterableBase<T>
     {
         return 1 <= getCount();
     }
+
+    /**
+     * Convert the provided byte Iterator into a byte array.
+     * @param bytes The byte Iterator to convert to a byte array.
+     * @return The byte array.
+     */
+    public static byte[] toByteArray(Iterator<Byte> bytes)
+    {
+        byte[] result;
+        if (bytes == null)
+        {
+            result = null;
+        }
+        else if (!bytes.any())
+        {
+            result = new byte[0];
+        }
+        else
+        {
+            final ArrayList<Byte> list = new ArrayList<>();
+            for (Byte value : bytes)
+            {
+                list.add(value);
+            }
+
+            result = toByteArray(list);
+        }
+        return result;
+    }
+
+    /**
+     * Convert the provided byte Iterable into a byte array.
+     * @param bytes The byte Iterable to convert to a byte array.
+     * @return The byte array.
+     */
+    public static byte[] toByteArray(Iterable<Byte> bytes)
+    {
+        byte[] result;
+        if (bytes == null)
+        {
+            result = null;
+        }
+        else if (!bytes.any())
+        {
+            result = new byte[0];
+        }
+        else
+        {
+            result = new byte[bytes.getCount()];
+            int index = 0;
+            for (Byte value : bytes)
+            {
+                result[index] = value.byteValue();
+                ++index;
+            }
+        }
+        return result;
+    }
 }
