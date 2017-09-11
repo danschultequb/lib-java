@@ -2,22 +2,38 @@ package qub;
 
 import java.io.IOException;
 
-public class Console implements TextWriteStream, TextReadStream
+/**
+ * A Console platform that can be used to write Console applications.
+ */
+public class Console implements TextWriteStream, TextReadStream, Random
 {
     final Value<TextWriteStream> writeStream;
     final Value<TextReadStream> readStream;
+    final Value<Random> random;
 
+    /**
+     * Create a new Console platform that Console applications can be written with.
+     */
     public Console()
     {
         writeStream = new Value<>();
         readStream = new Value<>();
+        random = new Value<>();
     }
 
+    /**
+     * Set the TextWriteStream that is assigned to this Console.
+     * @param writeStream The TextWriteStream that is assigned to this Console.
+     */
     public void setWriteStream(TextWriteStream writeStream)
     {
         this.writeStream.set(writeStream);
     }
 
+    /**
+     * Get the TextWriteStream that is assigned to this Console.
+     * @return
+     */
     TextWriteStream getWriteStream()
     {
         if (!writeStream.hasValue())
@@ -27,11 +43,19 @@ public class Console implements TextWriteStream, TextReadStream
         return writeStream.get();
     }
 
+    /**
+     * Set the TextReadStream that is assigned to this Console.
+     * @param readStream The TextReadStream that is assigned to this Console.
+     */
     public void setReadStream(TextReadStream readStream)
     {
         this.readStream.set(readStream);
     }
 
+    /**
+     * Get the TextReadStream that is assigned to this Console.
+     * @return The TextReadStream that is assigned to this Console.
+     */
     TextReadStream getReadStream()
     {
         if (!readStream.hasValue())
@@ -234,6 +258,56 @@ public class Console implements TextWriteStream, TextReadStream
         if (readStream != null)
         {
             result = readStream.readLine(includeNewLineInLine);
+        }
+
+        return result;
+    }
+
+    /**
+     * Set the Random number generator assigned to this Console.
+     * @param random The Random number generator assigned to this Console.
+     */
+    void setRandom(Random random)
+    {
+        this.random.set(random);
+    }
+
+    /**
+     * Get the Random number generator assigned to this Console.
+     * @return The Random number generator assigned to this Console.
+     */
+    public Random getRandom()
+    {
+        if (!random.hasValue())
+        {
+            random.set(new JavaRandom());
+        }
+        return random.get();
+    }
+
+    @Override
+    public int getRandomInteger()
+    {
+        int result = 0;
+
+        final Random random = getRandom();
+        if (random != null)
+        {
+            result = random.getRandomInteger();
+        }
+
+        return result;
+    }
+
+    @Override
+    public int getRandomIntegerBetween(int lowerBound, int upperBound)
+    {
+        int result = lowerBound;
+
+        final Random random = getRandom();
+        if (random != null)
+        {
+            result = random.getRandomIntegerBetween(lowerBound, upperBound);
         }
 
         return result;

@@ -151,4 +151,46 @@ public class ConsoleTests
 
         assertEquals("I'm alright.", console.readLine(false));
     }
+
+    @Test
+    public void getRandomInteger()
+    {
+        final Console console = new Console();
+
+        // Use default JavaRandom object.
+        assertNotEquals(console.getRandomInteger(), console.getRandomInteger());
+
+        console.setRandom(new FixedRandom(10));
+        for (int i = 0; i < 3; ++i)
+        {
+            assertEquals(10, console.getRandomInteger());
+        }
+
+        console.setRandom(null);
+        for (int i = 0; i < 3; ++i)
+        {
+            assertEquals(0, console.getRandomInteger());
+        }
+    }
+
+    @Test
+    public void getRandomIntegerBetween()
+    {
+        final Console console = new Console();
+
+        // Use default JavaRandom object.
+        assertNotEquals(console.getRandomIntegerBetween(1, 100), console.getRandomIntegerBetween(1, 100));
+
+        console.setRandom(new FixedRandom(10));
+        for (int i = 0; i < 3; ++i)
+        {
+            assertEquals(20, console.getRandomIntegerBetween(10, 30));
+        }
+
+        console.setRandom(null);
+        for (int i = 0; i < 3; ++i)
+        {
+            assertEquals(72, console.getRandomIntegerBetween(72, 83));
+        }
+    }
 }
