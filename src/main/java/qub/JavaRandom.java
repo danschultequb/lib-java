@@ -3,7 +3,7 @@ package qub;
 /**
  * A random number generator that uses Java's internal Random class.
  */
-public class JavaRandom implements Random
+public class JavaRandom extends RandomBase
 {
     private final java.util.Random random;
 
@@ -16,7 +16,7 @@ public class JavaRandom implements Random
     }
 
     @Override
-    public int getInteger()
+    public int getRandomInteger()
     {
         return random.nextInt();
     }
