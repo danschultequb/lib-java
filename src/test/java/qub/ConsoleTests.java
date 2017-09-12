@@ -193,4 +193,25 @@ public class ConsoleTests
             assertEquals(72, console.getRandomIntegerBetween(72, 83));
         }
     }
+
+    @Test
+    public void getRandomBoolean()
+    {
+        final Console console = new Console();
+
+        // Use default JavaRandom object.
+        console.getRandomBoolean();
+
+        console.setRandom(new FixedRandom(10));
+        for (int i = 0; i < 10; ++i)
+        {
+            assertTrue(console.getRandomBoolean());
+        }
+
+        console.setRandom(null);
+        for (int i = 0; i < 10; ++i)
+        {
+            assertFalse(console.getRandomBoolean());
+        }
+    }
 }
