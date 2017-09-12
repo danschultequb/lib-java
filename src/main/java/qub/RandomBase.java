@@ -39,4 +39,10 @@ public abstract class RandomBase implements Random
 
         return result;
     }
+
+    @Override
+    public boolean getRandomBoolean()
+    {
+        return getRandomInteger() % 2 == 0;
+    }
 }

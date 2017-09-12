@@ -312,4 +312,18 @@ public class Console implements TextWriteStream, TextReadStream, Random
 
         return result;
     }
+
+    @Override
+    public boolean getRandomBoolean()
+    {
+        boolean result = false;
+
+        final Random random = getRandom();
+        if (random != null)
+        {
+            result = random.getRandomBoolean();
+        }
+
+        return result;
+    }
 }

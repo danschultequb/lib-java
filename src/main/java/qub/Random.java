@@ -19,4 +19,10 @@ public interface Random
      * @return A random integer between the provided lower and upper bounds.
      */
     int getRandomIntegerBetween(int lowerBound, int upperBound);
+
+    /**
+     * Get a random boolean value.
+     * @return A random boolean value.
+     */
+    boolean getRandomBoolean();
 }
