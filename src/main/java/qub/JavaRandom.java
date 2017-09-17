@@ -18,6 +18,7 @@ public class JavaRandom extends RandomBase
     @Override
     public int getRandomInteger()
     {
-        return random.nextInt();
+        final int value = random.nextInt();
+        return value < 0 ? -value : value;
     }
 }

@@ -11,5 +11,10 @@ public class JavaRandomTests
     {
         final JavaRandom random = new JavaRandom();
         assertNotEquals(random.getRandomInteger(), random.getRandomInteger());
+
+        for (int i = 0; i < 100; ++i)
+        {
+            assertTrue(0 <= random.getRandomInteger());
+        }
     }
 }
