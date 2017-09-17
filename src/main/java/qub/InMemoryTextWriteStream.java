@@ -24,11 +24,23 @@ public class InMemoryTextWriteStream extends TextWriteStreamBase
 
     public byte[] getBytes()
     {
-        return ((InMemoryByteWriteStream)getByteWriteStream()).getBytes();
+        final InMemoryByteWriteStream byteWriteStream = getInMemoryByteWriteStream();
+        return byteWriteStream.getBytes();
     }
 
     public String getText()
     {
         return !isOpen() ? null : String.valueOf(getCharacterEncoding().decode(getBytes()));
+    }
+
+    public void clear()
+    {
+        final InMemoryByteWriteStream byteWriteStream = getInMemoryByteWriteStream();
+        byteWriteStream.clear();
+    }
+
+    private InMemoryByteWriteStream getInMemoryByteWriteStream()
+    {
+        return (InMemoryByteWriteStream)getByteWriteStream();
     }
 }

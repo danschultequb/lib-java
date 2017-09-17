@@ -42,6 +42,11 @@ public class InMemoryByteWriteStream implements ByteWriteStream
         return result;
     }
 
+    public void clear()
+    {
+        bytes.clear();
+    }
+
     @Override
     public void write(byte toWrite)
     {

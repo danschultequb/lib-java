@@ -71,4 +71,24 @@ public class InMemoryTextWriteStreamTests
         assertFalse(writeStream.close());
         assertFalse(writeStream.isOpen());
     }
+
+    @Test
+    public void clear()
+    {
+        final InMemoryTextWriteStream byteWriteStream = new InMemoryTextWriteStream();
+        byteWriteStream.clear();
+        assertArrayEquals(new byte[0], byteWriteStream.getBytes());
+
+        byteWriteStream.write(new byte[] { 1, 2, 3, 4 });
+        assertArrayEquals(new byte[] { 1, 2, 3, 4 }, byteWriteStream.getBytes());
+
+        byteWriteStream.clear();
+        assertArrayEquals(new byte[0], byteWriteStream.getBytes());
+
+        byteWriteStream.write("Hello");
+        assertEquals("Hello", byteWriteStream.getText());
+
+        byteWriteStream.clear();
+        assertEquals("", byteWriteStream.getText());
+    }
 }
