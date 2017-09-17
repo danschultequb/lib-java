@@ -132,6 +132,23 @@ public class ArrayListTests extends IterableTests
     }
 
     @Test
+    public void clear()
+    {
+        final ArrayList<Integer> arrayList = new ArrayList<>();
+        arrayList.clear();
+        assertEquals(0, arrayList.getCount());
+
+        for (int i = 0; i < 5; ++i)
+        {
+            arrayList.add(i);
+        }
+        assertEquals(5, arrayList.getCount());
+
+        arrayList.clear();
+        assertEquals(0, arrayList.getCount());
+    }
+
+    @Test
     public void iterateReverseWithEmpty()
     {
         final ArrayList<Integer> array = new ArrayList<>();

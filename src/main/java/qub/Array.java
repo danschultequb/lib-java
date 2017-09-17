@@ -56,6 +56,15 @@ public class Array<T> extends IterableBase<T>
     }
 
     /**
+     * Set all of the elements of this Array to the provided value.
+     * @param value The value to set all of the elements of this Array to.
+     */
+    public void setAll(T value)
+    {
+        java.util.Arrays.fill(data, value);
+    }
+
+    /**
      * Get whether or not the provided index is inside the bounds of this Array.
      * @param index The index to check.
      * @return Whether or not the provided index is inside the bounds of this Array.

@@ -108,6 +108,12 @@ public class ArrayList<T> extends IterableBase<T>
         return removeAt(0);
     }
 
+    public void clear()
+    {
+        elementCount = 0;
+        array.setAll(null);
+    }
+
     @Override
     public Iterator<T> iterate()
     {

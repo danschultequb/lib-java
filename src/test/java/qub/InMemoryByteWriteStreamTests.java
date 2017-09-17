@@ -58,36 +58,17 @@ public class InMemoryByteWriteStreamTests
         assertArrayEquals(new byte[] { 2, 3 }, writeStream.getBytes());
     }
 
-//    @Test
-//    public void writeString()
-//    {
-//        final InMemoryByteWriteStream writeStream = new InMemoryByteWriteStream();
-//        writeStream.write("");
-//        assertArrayEquals(new byte[0], writeStream.getBytes());
-//
-//        writeStream.write("abc");
-//        assertArrayEquals(new byte[] { 97, 98, 99 }, writeStream.getBytes());
-//    }
-//
-//    @Test
-//    public void writeLine()
-//    {
-//        final InMemoryByteWriteStream writeStream = new InMemoryByteWriteStream();
-//        writeStream.writeLine();
-//        assertArrayEquals(new byte[] { 10 }, writeStream.getBytes());
-//
-//        writeStream.writeLine();
-//        assertArrayEquals(new byte[] { 10, 10 }, writeStream.getBytes());
-//    }
-//
-//    @Test
-//    public void writeLineString()
-//    {
-//        final InMemoryByteWriteStream writeStream = new InMemoryByteWriteStream();
-//        writeStream.writeLine("");
-//        assertArrayEquals(new byte[] { 10 }, writeStream.getBytes());
-//
-//        writeStream.writeLine("defg");
-//        assertArrayEquals(new byte[] { 10, 100, 101, 102, 103, 10 }, writeStream.getBytes());
-//    }
+    @Test
+    public void clear()
+    {
+        final InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
+        byteWriteStream.clear();
+        assertArrayEquals(new byte[0], byteWriteStream.getBytes());
+
+        byteWriteStream.write(new byte[] { 1, 2, 3, 4 });
+        assertArrayEquals(new byte[] { 1, 2, 3, 4 }, byteWriteStream.getBytes());
+
+        byteWriteStream.clear();
+        assertArrayEquals(new byte[0], byteWriteStream.getBytes());
+    }
 }

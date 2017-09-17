@@ -17,7 +17,7 @@ public class ArrayTests extends IterableTests
         return result;
     }
 
-    public Iterable<Byte> createByteIterable(int count)
+    private static Iterable<Byte> createByteIterable(int count)
     {
         final Array<Byte> result = new Array<>(count);
         for (int i = 0; i < count; ++i)
@@ -79,6 +79,20 @@ public class ArrayTests extends IterableTests
         for (int i = 0; i < a.getCount(); ++i) {
             a.set(i, i);
             assertEquals(i, a.get(i).intValue());
+        }
+    }
+
+    @Test
+    public void setAll()
+    {
+        final Array<Integer> a = new Array<>(0);
+        a.setAll(50);
+
+        final Array<Integer> a2 = new Array<>(200);
+        a2.setAll(3);
+        for (int i = 0; i < a2.getCount(); ++i)
+        {
+            assertEquals(3, a2.get(i).intValue());
         }
     }
 

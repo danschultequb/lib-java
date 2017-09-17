@@ -25,15 +25,15 @@ public abstract class RandomBase implements Random
 
         int result;
 
-        final int rangeSize = upperBound - lowerBound;
-        if (rangeSize == 0)
+        final int rangeSize = upperBound - lowerBound + 1;
+        if (rangeSize == 1)
         {
             result = lowerBound;
         }
         else
         {
             final int randomInteger = getRandomInteger();
-            final int scaledRandomInteger = randomInteger % (rangeSize + 1);
+            final int scaledRandomInteger = randomInteger % rangeSize;
             result = scaledRandomInteger + lowerBound;
         }
 
