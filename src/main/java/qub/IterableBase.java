@@ -14,6 +14,12 @@ public abstract class IterableBase<T> implements Iterable<T>
     }
 
     @Override
+    public T first()
+    {
+        return iterate().first();
+    }
+
+    @Override
     public Iterable<T> take(int toTake)
     {
         return new TakeIterable<>(this, toTake);

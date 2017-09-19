@@ -28,6 +28,54 @@ public class ArrayTests extends IterableTests
     }
 
     @Test
+    public void fromValuesWithNoArguments()
+    {
+        final Array<Integer> array = Array.fromValues();
+        assertEquals(0, array.getCount());
+    }
+
+    @Test
+    public void fromValuesWithOneArgument()
+    {
+        final Array<Integer> array = Array.fromValues(101);
+        assertEquals(1, array.getCount());
+        assertEquals(101, array.get(0).intValue());
+    }
+
+    @Test
+    public void fromValuesWithTwoArguments()
+    {
+        final Array<Integer> array = Array.fromValues(101, 102);
+        assertEquals(2, array.getCount());
+        assertEquals(101, array.get(0).intValue());
+        assertEquals(102, array.get(1).intValue());
+    }
+
+    @Test
+    public void fromValuesWithNullIterator()
+    {
+        final Array<Integer> array = Array.fromValues((Iterator<Integer>)null);
+        assertEquals(0, array.getCount());
+    }
+
+    @Test
+    public void fromValuesWithEmptyIterator()
+    {
+        final Array<Integer> array = Array.fromValues(new Array<Integer>(0).iterate());
+        assertEquals(0, array.getCount());
+    }
+
+    @Test
+    public void fromValuesWithNonEmptyIterator()
+    {
+        final Array<Integer> array = Array.fromValues(Array.fromValues(1, 2, 3).iterate());
+        assertEquals(3, array.getCount());
+        assertEquals(1, array.get(0).intValue());
+        assertEquals(2, array.get(1).intValue());
+        assertEquals(3, array.get(2).intValue());
+    }
+
+    @Test
     public void constructorWith0Length()
     {
         final Array<Integer> a = new Array<>(0);

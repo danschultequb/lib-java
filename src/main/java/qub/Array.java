@@ -93,6 +93,51 @@ public class Array<T> extends IterableBase<T>
     }
 
     /**
+     * Create an Array from the provided values.
+     * @param values The values to initialize the array with.
+     */
+    public static <T> Array<T> fromValues(T... values)
+    {
+        final int length = values == null ? 0 : values.length;
+        final Array<T> result = new Array<>(length);
+        for (int i = 0; i < length; ++i)
+        {
+            result.set(i, values[i]);
+        }
+        return result;
+    }
+
+    /**
+     * Create an Array from the provided values.
+     * @param values The values to initialize the array with.
+     */
+    public static <T> Array<T> fromValues(Iterator<T> values)
+    {
+        return fromValues(ArrayList.fromValues(values));
+    }
+
+    /**
+     * Create an Array from the provided values.
+     * @param values The values to initialize the array with.
+     */
+    public static <T> Array<T> fromValues(Iterable<T> values)
+    {
+        final int length = values == null ? 0 : values.getCount();
+        final Array<T> result = new Array<>(length);
+
+        if (values != null && values.any())
+        {
+            int i = 0;
+            for (final T value : values)
+            {
+                result.set(i, value);
+                ++i;
+            }
+        }
+        return result;
+    }
+
+    /**
      * Convert the provided byte Iterator into a byte array.
      * @param bytes The byte Iterator to convert to a byte array.
      * @return The byte array.

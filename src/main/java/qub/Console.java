@@ -5,7 +5,7 @@ import java.io.IOException;
 /**
  * A Console platform that can be used to write Console applications.
  */
-public class Console implements TextWriteStream, TextReadStream, Random
+public class Console implements TextWriteStream, TextReadStream
 {
     final Value<TextWriteStream> writeStream;
     final Value<TextReadStream> readStream;
@@ -283,47 +283,5 @@ public class Console implements TextWriteStream, TextReadStream, Random
             random.set(new JavaRandom());
         }
         return random.get();
-    }
-
-    @Override
-    public int getRandomInteger()
-    {
-        int result = 0;
-
-        final Random random = getRandom();
-        if (random != null)
-        {
-            result = random.getRandomInteger();
-        }
-
-        return result;
-    }
-
-    @Override
-    public int getRandomIntegerBetween(int lowerBound, int upperBound)
-    {
-        int result = lowerBound;
-
-        final Random random = getRandom();
-        if (random != null)
-        {
-            result = random.getRandomIntegerBetween(lowerBound, upperBound);
-        }
-
-        return result;
-    }
-
-    @Override
-    public boolean getRandomBoolean()
-    {
-        boolean result = false;
-
-        final Random random = getRandom();
-        if (random != null)
-        {
-            result = random.getRandomBoolean();
-        }
-
-        return result;
     }
 }

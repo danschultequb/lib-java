@@ -57,6 +57,12 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     int getCount();
 
     /**
+     * Get the first value in this Iterator. This may advance the Iterator once.
+     * @return The first value of this Iterator, or null if this Iterator has no (more) values.
+     */
+    T first();
+
+    /**
      * Create a new Iterator that will iterate over no more than the provided number of values from
      * this Iterator.
      * @param toTake The number of values to take from this Iterator.

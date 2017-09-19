@@ -45,6 +45,16 @@ public abstract class IteratorBase<T> implements Iterator<T>
     }
 
     @Override
+    public T first()
+    {
+        if (!hasStarted())
+        {
+            next();
+        }
+        return getCurrent();
+    }
+
+    @Override
     public Iterator<T> take(int toTake)
     {
         return new TakeIterator<>(this, toTake);

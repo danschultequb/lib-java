@@ -25,6 +25,12 @@ public interface Iterable<T> extends java.lang.Iterable<T>
     int getCount();
 
     /**
+     * Get the first value in this Iterable.
+     * @return The first value of this Iterable, or null if this Iterable is empty.
+     */
+    T first();
+
+    /**
      * Get whether or not this Iterable contains any values that satisfy the provided condition.
      * @return Whether or not this Iterable contains any values that satisfy the provided condition.
      */
