@@ -1,0 +1,5 @@
+package qub;
+
+interface InMemoryContainer
+{
+}

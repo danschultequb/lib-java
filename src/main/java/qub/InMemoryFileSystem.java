@@ -3,7 +3,7 @@ package qub;
 /**
  * A FileSystem implementation that is completely stored in the memory of the running application.
  */
-public class InMemoryFileSystem implements FileSystem
+public class InMemoryFileSystem extends FileSystemBase
 {
     private final ArrayList<InMemoryRoot> roots;
 
@@ -15,74 +15,38 @@ public class InMemoryFileSystem implements FileSystem
         roots = new ArrayList<>();
     }
 
-    /**
-     * Add a new Root to this FileSystem.
-     * @param rootPath The String representation of the path to the Root to add to this FileSystem.
-     */
-    public void addRoot(String rootPath)
-    {
-        addRoot(Path.parse(rootPath));
-    }
-
-    /**
-     * Add a new Root to this FileSystem.
-     * @param rootPath The path to the Root to add to this FileSystem.
-     */
-    public void addRoot(final Path rootPath)
-    {
-        if (rootPath != null && !roots.any(new Function1<InMemoryRoot,Boolean>() {
-            @Override
-            public Boolean run(InMemoryRoot root)
-            {
-                return root.getPath().equals(rootPath);
-            }
-        }))
-        {
-            roots.add(new InMemoryRoot(rootPath));
-        }
-    }
-
     @Override
     public Iterable<Root> getRoots()
     {
-        final Iterable<Root> mappedRoots = roots.map(new Function1<InMemoryRoot, Root>()
+        return Array.fromValues(roots.map(new Function1<InMemoryRoot, Root>()
         {
             @Override
             public Root run(InMemoryRoot inMemoryRoot)
             {
                 return new Root(InMemoryFileSystem.this, inMemoryRoot.getPath());
             }
-        });
-        return Array.fromValues(mappedRoots);
+        }));
     }
-}
 
-interface InMemoryContainer
-{
-
-}
-
-class InMemoryRoot implements InMemoryContainer
-{
-    private final Path path;
-
-    public InMemoryRoot(Path path)
+    /**
+     * Create a new Root in this FileSystem.
+     * @param rootPath The String representation of the path to the Root to create in this
+     *                 FileSystem.
+     */
+    public void createRoot(String rootPath)
     {
-        this.path = path;
+        createRoot(Path.parse(rootPath));
     }
 
-    public Path getPath()
+    /**
+     * Create a new Root in this FileSystem.
+     * @param rootPath The path to the Root to create in this FileSystem.
+     */
+    public void createRoot(Path rootPath)
     {
-        return path;
+        if (rootPath != null && !rootExists(rootPath))
+        {
+            roots.add(new InMemoryRoot(rootPath));
+        }
     }
-}
-
-class InMemoryFolder implements InMemoryContainer
-{
-
-}
-
-class InMemoryFile
-{
-
 }

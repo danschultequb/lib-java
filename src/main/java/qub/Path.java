@@ -56,7 +56,7 @@ public class Path
             }
 
             final String normalizedPathString = normalizedPathStringBuilder.toString();
-            result = normalizedPathString.equals(value) ? this : new Path(normalizedPathString, true);
+            result = new Path(normalizedPathString, true);
         }
         return result;
     }
