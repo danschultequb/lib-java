@@ -4,7 +4,7 @@ package qub;
  * A basic Array data structure that holds a fixed number of elements.
  * @param <T> The type of element contained by this Array.
  */
-public class Array<T> extends IterableBase<T>
+public class Array<T> extends IndexableBase<T>
 {
     private final Object[] data;
 
@@ -156,7 +156,7 @@ public class Array<T> extends IterableBase<T>
         else
         {
             final ArrayList<Byte> list = new ArrayList<>();
-            for (Byte value : bytes)
+            for (final Byte value : bytes)
             {
                 list.add(value);
             }
@@ -186,9 +186,67 @@ public class Array<T> extends IterableBase<T>
         {
             result = new byte[bytes.getCount()];
             int index = 0;
-            for (Byte value : bytes)
+            for (final Byte value : bytes)
             {
                 result[index] = value.byteValue();
+                ++index;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Convert the provided String Iterator into a String array.
+     * @param strings The String Iterator to convert to a String array.
+     * @return The String array.
+     */
+    public static String[] toStringArray(Iterator<String> strings)
+    {
+        String[] result;
+        if (strings == null)
+        {
+            result = null;
+        }
+        else if (!strings.any())
+        {
+            result = new String[0];
+        }
+        else
+        {
+            final ArrayList<String> list = new ArrayList<>();
+            for (final String value : strings)
+            {
+                list.add(value);
+            }
+
+            result = toStringArray(list);
+        }
+        return result;
+    }
+
+    /**
+     * Convert the provided String Iterable into a String array.
+     * @param strings The String Iterable to convert to a String array.
+     * @return The String array.
+     */
+    public static String[] toStringArray(Iterable<String> strings)
+    {
+        String[] result;
+        if (strings == null)
+        {
+            result = null;
+        }
+        else if (!strings.any())
+        {
+            result = new String[0];
+        }
+        else
+        {
+            result = new String[strings.getCount()];
+            int index = 0;
+            for (final String value : strings)
+            {
+                result[index] = value;
                 ++index;
             }
         }

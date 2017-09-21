@@ -23,7 +23,7 @@ public class JavaFileSystem extends FileSystemBase
     @Override
     public Iterable<FileSystemEntry> getEntries(Path containerPath)
     {
-        Iterable<FileSystemEntry> result;
+        Array<FileSystemEntry> result;
 
         if (containerPath == null)
         {
@@ -43,14 +43,18 @@ public class JavaFileSystem extends FileSystemBase
                 for (int i = 0; i < containerEntryFiles.length; ++i)
                 {
                     final java.io.File containerEntryFile = containerEntryFiles[i];
+                    final String containerEntryPathString = containerEntryFile.getAbsolutePath();
+                    final Path containerEntryPath = Path.parse(containerEntryPathString);
                     if (containerEntryFile.isFile())
                     {
-                        result.set(i, new File(this, ))
+                        result.set(i, new File(this, containerEntryPath));
+                    }
+                    else if (containerEntryFile.isDirectory())
+                    {
+                        result.set(i, new Folder(this, containerEntryPath));
                     }
                 }
             }
-            if (containerFile.exists() && containerFile.)
-            final FileSystemContainer container = getContainer(containerPath);
         }
 
         return result;

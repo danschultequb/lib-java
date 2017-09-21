@@ -6,7 +6,7 @@ package qub;
 public class Path
 {
     private final String value;
-    private final boolean normalized;
+    private Path normalizedPath;
 
     /**
      * Create a new Path object from the provided value.
@@ -16,7 +16,7 @@ public class Path
     private Path(String value, boolean normalized)
     {
         this.value = value;
-        this.normalized = normalized;
+        this.normalizedPath = normalized ? this : null;
     }
 
     /**
@@ -26,12 +26,7 @@ public class Path
      */
     public Path normalize()
     {
-        Path result;
-        if (normalized)
-        {
-            result = this;
-        }
-        else
+        if (normalizedPath ==  null)
         {
             final StringBuilder normalizedPathStringBuilder = new StringBuilder();
 
@@ -56,9 +51,16 @@ public class Path
             }
 
             final String normalizedPathString = normalizedPathStringBuilder.toString();
-            result = new Path(normalizedPathString, true);
+            if (normalizedPathString.equals(value))
+            {
+                normalizedPath = this;
+            }
+            else
+            {
+                normalizedPath = new Path(normalizedPathString, true);
+            }
         }
-        return result;
+        return normalizedPath;
     }
 
     @Override
@@ -88,6 +90,45 @@ public class Path
     public String toString()
     {
         return value;
+    }
+
+    /**
+     * Get the segments (root, folders, and/or file) of this Path.
+     * @return The segments (root, folders, and/or file) of this Path.
+     */
+    public Indexable<String> getSegments()
+    {
+        final ArrayList<String> result = new ArrayList<>();
+        final Path normalizedPath = normalize();
+        final String normalizedPathString = normalizedPath.toString();
+        final int normalizedPathStringLength = normalizedPathString.length();
+
+        int currentSlashIndex = -1;
+        if (normalizedPathStringLength > 0 && normalizedPathString.charAt(0) == '/')
+        {
+            result.add("/");
+            currentSlashIndex = 0;
+        }
+
+        while(true)
+        {
+            final int segmentStartIndex = currentSlashIndex + 1;
+            currentSlashIndex = normalizedPathString.indexOf('/', segmentStartIndex);
+            if (currentSlashIndex == -1)
+            {
+                if (segmentStartIndex < normalizedPathStringLength)
+                {
+                    result.add(normalizedPathString.substring(segmentStartIndex));
+                }
+                break;
+            }
+            else
+            {
+                result.add(normalizedPathString.substring(segmentStartIndex, currentSlashIndex));
+            }
+        }
+
+        return result;
     }
 
     /**

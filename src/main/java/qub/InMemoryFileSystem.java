@@ -28,6 +28,12 @@ public class InMemoryFileSystem extends FileSystemBase
         }));
     }
 
+    @Override
+    public Iterable<FileSystemEntry> getEntries(Path containerPath)
+    {
+        return null;
+    }
+
     /**
      * Create a new Root in this FileSystem.
      * @param rootPath The String representation of the path to the Root to create in this
