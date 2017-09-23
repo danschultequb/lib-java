@@ -27,6 +27,16 @@ public class ArrayTests extends IterableTests
         return result;
     }
 
+    private static Iterable<String> createStringIterable(int count)
+    {
+        final Array<String> result = new Array<>(count);
+        for (int i = 0; i < count; ++i)
+        {
+            result.set(i, String.valueOf(i));
+        }
+        return result;
+    }
+
     @Test
     public void fromValuesWithNoArguments()
     {
@@ -214,5 +224,35 @@ public class ArrayTests extends IterableTests
     public void toByteArrayIterableEmpty()
     {
         assertArrayEquals(new byte[0], Array.toByteArray(new Array<Byte>(0)));
+    }
+
+    @Test
+    public void toStringArrayIteratorNull()
+    {
+        assertNull(Array.toStringArray((Iterator<String>)null));
+    }
+
+    @Test
+    public void toStringArrayIteratorEmpty()
+    {
+        assertArrayEquals(new String[0], Array.toStringArray(new Array<String>(0).iterate()));
+    }
+
+    @Test
+    public void toStringArrayIteratorNonEmpty()
+    {
+        assertArrayEquals(new String[] { "0", "1", "2" }, Array.toStringArray(createStringIterable(3).iterate()));
+    }
+
+    @Test
+    public void toStringArrayIterableNull()
+    {
+        assertNull(Array.toStringArray((Iterable<String>)null));
+    }
+
+    @Test
+    public void toStringArrayIterableEmpty()
+    {
+        assertArrayEquals(new String[0], Array.toStringArray(new Array<String>(0)));
     }
 }

@@ -1,16 +1,25 @@
 package qub;
 
-class InMemoryRoot implements InMemoryContainer
+/**
+ * A Root within an InMemoryFileSystem.
+ */
+class InMemoryRoot extends InMemoryFolder
 {
-    private final Path path;
-
-    public InMemoryRoot(Path path)
+    /**
+     * Create a new InMemoryRoot with the provided name/path.
+     * @param name The name/path for the new InMemoryRoot.
+     */
+    public InMemoryRoot(String name)
     {
-        this.path = path;
+        super(name);
     }
 
+    /**
+     * Get the path to this InMemoryRoot.
+     * @return The path to this InMemoryRoot.
+     */
     public Path getPath()
     {
-        return path;
+        return Path.parse(getName());
     }
 }

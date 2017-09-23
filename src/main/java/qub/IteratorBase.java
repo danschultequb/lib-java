@@ -55,6 +55,79 @@ public abstract class IteratorBase<T> implements Iterator<T>
     }
 
     @Override
+    public T first(Function1<T,Boolean> condition)
+    {
+        T result = null;
+
+        if (condition != null)
+        {
+            if (hasCurrent() && condition.run(getCurrent()))
+            {
+                result = getCurrent();
+            }
+            else
+            {
+                while (next())
+                {
+                    if (condition.run(getCurrent()))
+                    {
+                        result = getCurrent();
+                        break;
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    public T last()
+    {
+        T result = null;
+
+        if (hasCurrent())
+        {
+            result = getCurrent();
+        }
+
+        while (next())
+        {
+            result = getCurrent();
+        }
+
+        return result;
+    }
+
+    @Override
+    public T last(Function1<T,Boolean> condition)
+    {
+        T result = null;
+
+        if (condition == null)
+        {
+            result = last();
+        }
+        else
+        {
+            if (hasCurrent() && condition.run(getCurrent()))
+            {
+                result = getCurrent();
+            }
+
+            while (next())
+            {
+                if (condition.run(getCurrent()))
+                {
+                    result = getCurrent();
+                }
+            }
+        }
+
+        return result;
+    }
+
+    @Override
     public Iterator<T> take(int toTake)
     {
         return new TakeIterator<>(this, toTake);

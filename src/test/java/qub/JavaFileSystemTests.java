@@ -1,10 +1,37 @@
 package qub;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+
 public class JavaFileSystemTests extends FileSystemTests
 {
-    @Override
-    protected JavaFileSystem getFileSystem()
+    private static FolderFileSystem fileSystem;
+
+    @BeforeClass
+    public static void beforeClass()
     {
-        return new JavaFileSystem();
+        final JavaFileSystem javaFileSystem = new JavaFileSystem();
+        final String tempFolderPathString = System.getProperty("java.io.tmpdir");
+        final Path tempFolderPath = Path.parse(tempFolderPathString).concatenateSegment("qub-tests");
+        fileSystem = new FolderFileSystem(javaFileSystem, tempFolderPath);
+    }
+
+    @Before
+    public void beforeTest()
+    {
+        fileSystem.create();
+    }
+
+    @After
+    public void afterTest()
+    {
+        fileSystem.delete();
+    }
+
+    @Override
+    protected FileSystem getFileSystem()
+    {
+        return fileSystem;
     }
 }

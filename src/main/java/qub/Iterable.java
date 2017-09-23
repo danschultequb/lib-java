@@ -31,6 +31,27 @@ public interface Iterable<T> extends java.lang.Iterable<T>
     T first();
 
     /**
+     * Get the first value in this Iterable that matches the provided condition.
+     * @return The first value of this Iterable that matches the provided condition, or null if this
+     * Iterable has no values that match the condition.
+     */
+    T first(Function1<T,Boolean> condition);
+
+    /**
+     * Get the last value in this Iterable.
+     * @return The last value in this Iterable, or null if this Iterable is empty.
+     */
+    T last();
+
+    /**
+     * Get the last value in this Iterable that matches the provided condition.
+     * @param condition The condition to run against each of the values in this Iterable.
+     * @return The last value of this Iterable that matches the provided condition, or null if this
+     * Iterable has no values that match the condition.
+     */
+    T last(Function1<T,Boolean> condition);
+
+    /**
      * Get whether or not this Iterable contains any values that satisfy the provided condition.
      * @return Whether or not this Iterable contains any values that satisfy the provided condition.
      */
@@ -51,6 +72,23 @@ public interface Iterable<T> extends java.lang.Iterable<T>
      * Iterable and then return the remaining elements.
      */
     Iterable<T> skip(int toSkip);
+
+    /**
+     * Create a new Iterable will skip over the last element in this Iterable and return the
+     * remaining elements.
+     * @return A new Iterable that will skip over the last element in this Iterable and return the
+     * remaining elements.
+     */
+    Iterable<T> skipLast();
+
+    /**
+     * Create a new Iterable that will skip over the last toSkip elements in this Iterable and
+     * return the remaining elements.
+     * @param toSkip The number of elements to skip from the end.
+     * @return A new Iterable that will skip over the last toSkip elements in this Iterable and
+     * return the remaining elements.
+     */
+    Iterable<T> skipLast(int toSkip);
 
     /**
      * Create a new Iterable that only returns the values from this Iterable that satisfy the given

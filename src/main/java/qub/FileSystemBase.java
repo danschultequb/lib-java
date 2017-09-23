@@ -37,8 +37,113 @@ public abstract class FileSystemBase implements FileSystem
     }
 
     @Override
-    public Iterable<FileSystemEntry> getEntries(String containerPath)
+    public Iterable<FileSystemEntry> getEntries(String folderPath)
     {
-        return getEntries(Path.parse(containerPath));
+        return getEntries(Path.parse(folderPath));
+    }
+
+    @Override
+    public Iterable<Folder> getFolders(String folderPath)
+    {
+        return getFolders(Path.parse(folderPath));
+    }
+
+    @Override
+    public Iterable<Folder> getFolders(Path folderPath)
+    {
+        final Iterable<FileSystemEntry> entries = getEntries(folderPath);
+        return entries == null ? null : entries.instanceOf(Folder.class);
+    }
+
+    @Override
+    public Iterable<File> getFiles(String folderPath)
+    {
+        return getFiles(Path.parse(folderPath));
+    }
+
+    @Override
+    public Iterable<File> getFiles(Path folderPath)
+    {
+        final Iterable<FileSystemEntry> entries = getEntries(folderPath);
+        return entries == null ? null : entries.instanceOf(File.class);
+    }
+
+    @Override
+    public Folder getFolder(String folderPath)
+    {
+        return getFolder(Path.parse(folderPath));
+    }
+
+    @Override
+    public Folder getFolder(Path folderPath)
+    {
+        return folderPath == null || !folderPath.isRooted() ? null : new Folder(this, folderPath);
+    }
+
+    @Override
+    public boolean folderExists(String folderPath)
+    {
+        return folderExists(Path.parse(folderPath));
+    }
+
+    @Override
+    public boolean createFolder(String folderPath)
+    {
+        return createFolder(Path.parse(folderPath), null);
+    }
+
+    @Override
+    public boolean createFolder(String folderPath, Value<Folder> outputFolder)
+    {
+        return createFolder(Path.parse(folderPath), outputFolder);
+    }
+
+    @Override
+    public boolean createFolder(Path folderPath)
+    {
+        return createFolder(folderPath, null);
+    }
+
+    @Override
+    public boolean deleteFolder(String folderPath)
+    {
+        final Path path = Path.parse(folderPath);
+        return deleteFolder(path);
+    }
+
+    @Override
+    public File getFile(String filePath)
+    {
+        return getFile(Path.parse(filePath));
+    }
+
+    @Override
+    public File getFile(Path filePath)
+    {
+        return filePath == null || !filePath.isRooted() || filePath.endsWith("/") || filePath.endsWith("\\") ? null : new File(this, filePath);
+    }
+
+    @Override
+    public boolean fileExists(String fileExists)
+    {
+        return fileExists(Path.parse(fileExists));
+    }
+
+    @Override
+    public boolean createFile(String filePath)
+    {
+        return createFile(Path.parse(filePath), null);
+    }
+
+    @Override
+    public boolean createFile(String filePath, Value<File> outputFile)
+    {
+        return createFile(Path.parse(filePath), outputFile);
+    }
+
+    @Override
+    public boolean createFile(Path filePath)
+    {
+        return createFile(filePath, null);
     }
 }

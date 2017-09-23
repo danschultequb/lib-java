@@ -1,35 +1,28 @@
 package qub;
 
-public class File implements FileSystemEntry
+public class File extends FileSystemEntry
 {
-    private final FileSystem fileSystem;
-    private final Path path;
+    File(FileSystem fileSystem, String path)
+    {
+        this(fileSystem, Path.parse(path));
+    }
 
     File(FileSystem fileSystem, Path path)
     {
-        this.fileSystem = fileSystem;
-        this.path = path;
+        super(fileSystem, path);
     }
 
-    public Path getPath()
+    public boolean create()
     {
-        return path;
+        return getFileSystem().createFile(getPath());
     }
 
+    /**
+     * Get whether or not this File exists.
+     */
     @Override
-    public String toString()
+    public boolean exists()
     {
-        return path.toString();
-    }
-
-    @Override
-    public boolean equals(Object rhs)
-    {
-        return rhs instanceof File && equals((File)rhs);
-    }
-
-    public boolean equals(File rhs)
-    {
-        return rhs != null && rhs.path.equals(this.path);
+        return getFileSystem().fileExists(getPath());
     }
 }

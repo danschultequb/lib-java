@@ -6,8 +6,7 @@ public class InMemoryFileSystemTests extends FileSystemTests
     protected FileSystem getFileSystem()
     {
         final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-        fileSystem.createRoot("C:/");
-        fileSystem.createRoot("D:/");
+        fileSystem.createRoot("/");
         return fileSystem;
     }
 }
