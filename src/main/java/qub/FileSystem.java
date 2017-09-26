@@ -44,14 +44,14 @@ public interface FileSystem
  * @param folderPath The path to the folder (Root or Folder).
  * @return The files and folders (entries) at the provided folder path.
  */
-Iterable<FileSystemEntry> getEntries(String folderPath);
+Iterable<FileSystemEntry> getFilesAndFolders(String folderPath);
 
     /**
      * Get the files and folders (entries) at the provided folder Path.
      * @param folderPath The Path to the folder (Root or Folder).
      * @return The files and folders (entries) at the provided folder Path.
      */
-    Iterable<FileSystemEntry> getEntries(Path folderPath);
+    Iterable<FileSystemEntry> getFilesAndFolders(Path folderPath);
 
     /**
      * Get the folders at the provided folder path.

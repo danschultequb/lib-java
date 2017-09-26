@@ -48,14 +48,14 @@ public class FolderFileSystem extends FileSystemBase
     }
 
     @Override
-    public Iterable<FileSystemEntry> getEntries(Path folderPath)
+    public Iterable<FileSystemEntry> getFilesAndFolders(Path folderPath)
     {
         Iterable<FileSystemEntry> result = null;
 
         if (folderPath != null && folderPath.isRooted() && rootExists(folderPath.getRoot()))
         {
             final Path innerFolderPath = getInnerPath(folderPath);
-            final Iterable<FileSystemEntry> innerResult = innerFileSystem.getEntries(innerFolderPath);
+            final Iterable<FileSystemEntry> innerResult = innerFileSystem.getFilesAndFolders(innerFolderPath);
             if (innerResult != null)
             {
                 result = Array.fromValues(innerResult.map(new Function1<FileSystemEntry, FileSystemEntry>()

@@ -25,7 +25,7 @@ public class JavaFileSystem extends FileSystemBase
     }
 
     @Override
-    public Iterable<FileSystemEntry> getEntries(Path folderPath)
+    public Iterable<FileSystemEntry> getFilesAndFolders(Path folderPath)
     {
         Array<FileSystemEntry> result = null;
 

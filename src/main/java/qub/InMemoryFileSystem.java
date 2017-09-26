@@ -78,7 +78,7 @@ public class InMemoryFileSystem extends FileSystemBase
     }
 
     @Override
-    public Iterable<FileSystemEntry> getEntries(Path folderPath)
+    public Iterable<FileSystemEntry> getFilesAndFolders(Path folderPath)
     {
         ArrayList<FileSystemEntry> result = null;
 

@@ -37,9 +37,9 @@ public abstract class FileSystemBase implements FileSystem
     }
 
     @Override
-    public Iterable<FileSystemEntry> getEntries(String folderPath)
+    public Iterable<FileSystemEntry> getFilesAndFolders(String folderPath)
     {
-        return getEntries(Path.parse(folderPath));
+        return getFilesAndFolders(Path.parse(folderPath));
     }
 
     @Override
@@ -51,7 +51,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public Iterable<Folder> getFolders(Path folderPath)
     {
-        final Iterable<FileSystemEntry> entries = getEntries(folderPath);
+        final Iterable<FileSystemEntry> entries = getFilesAndFolders(folderPath);
         return entries == null ? null : entries.instanceOf(Folder.class);
     }
 
@@ -64,7 +64,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public Iterable<File> getFiles(Path folderPath)
     {
-        final Iterable<FileSystemEntry> entries = getEntries(folderPath);
+        final Iterable<FileSystemEntry> entries = getFilesAndFolders(folderPath);
         return entries == null ? null : entries.instanceOf(File.class);
     }
 

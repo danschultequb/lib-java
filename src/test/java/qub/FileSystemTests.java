@@ -35,7 +35,7 @@ public abstract class FileSystemTests
         fileSystem.createFile("/file1.txt");
         fileSystem.createFile("/folderA/file2.csv");
 
-        final Iterable<FileSystemEntry> entries = fileSystem.getEntries("/");
+        final Iterable<FileSystemEntry> entries = fileSystem.getFilesAndFolders("/");
         assertTrue(entries.any());
         assertEquals(2, entries.getCount());
         final String[] entryPathStrings = Array.toStringArray(entries.map(new Function1<FileSystemEntry, String>()
@@ -53,7 +53,7 @@ public abstract class FileSystemTests
     public void getEntriesForNonExistingPath()
     {
         final FileSystem fileSystem = getFileSystem();
-        final Iterable<FileSystemEntry> entries = fileSystem.getEntries("/i/dont/exist/");
+        final Iterable<FileSystemEntry> entries = fileSystem.getFilesAndFolders("/i/dont/exist/");
         assertNull(entries);
     }
 
@@ -61,7 +61,7 @@ public abstract class FileSystemTests
     public void getEntriesForNullPath()
     {
         final FileSystem fileSystem = getFileSystem();
-        final Iterable<FileSystemEntry> entries = fileSystem.getEntries((Path)null);
+        final Iterable<FileSystemEntry> entries = fileSystem.getFilesAndFolders((Path)null);
         assertNull(entries);
     }
 
@@ -325,5 +325,38 @@ public void getFolderWithNullString()
         final FileSystem fileSystem = getFileSystem();
         fileSystem.createFile("/file1.xml");
         assertTrue(fileSystem.fileExists("/file1.xml"));
+    }
+
+    @Test
+    public void createFileWithNullStringAndNullValue()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertFalse(fileSystem.createFile ((String)null, null));
+    }
+
+    @Test
+    public void createFileWithEmptyStringAndNullValue()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertFalse(fileSystem.createFile ("", null));
+    }
+
+    @Test
+    public void createFileWithRelativePathStringAndNullValue()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        final boolean fileCreated = fileSystem.createFile ("things.txt", null);
+        assertFalse(fileCreated);
+    }
+
+    @Test
+    public void createFileWithRootedPathStringAndNullValue()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        final boolean fileCreated = fileSystem.createFile ("/things.txt", null);
+        assertTrue(fileCreated);
+
+        final boolean fileCreatedAgain = fileSystem.createFile("/things.txt", null);
+        assertFalse(fileCreatedAgain);
     }
 }

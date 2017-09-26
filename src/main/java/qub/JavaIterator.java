@@ -31,4 +31,9 @@ class JavaIterator<T> implements java.util.Iterator<T>
 
         return result;
     }
+
+    @Override
+    public void remove()
+    {
+    }
 }
