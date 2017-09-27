@@ -188,6 +188,21 @@ public void getFolderWithNullString()
     }
 
     @Test
+    public void createFolderWithRelativePathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertFalse(fileSystem.createFolder("folder"));
+    }
+
+    @Test
+    public void createFolderWithRootedPathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertTrue(fileSystem.createFolder("/folder"));
+        assertTrue(fileSystem.folderExists("/folder"));
+    }
+
+    @Test
     public void createFolderWithNullStringAndNullValue()
     {
         final FileSystem fileSystem = getFileSystem();
@@ -199,6 +214,60 @@ public void getFolderWithNullString()
     {
         final FileSystem fileSystem = getFileSystem();
         assertFalse(fileSystem.createFolder("", null));
+    }
+
+    @Test
+    public void createFolderWithRelativePathStringAndNullValue()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertFalse(fileSystem.createFolder("folder", null));
+    }
+
+    @Test
+    public void createFolderWithRootedPathStringAndNullValue()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertTrue(fileSystem.createFolder("/folder", null));
+        assertTrue(fileSystem.folderExists("/folder"));
+    }
+
+    @Test
+    public void createFolderWithNullStringAndNonNullValue()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        final Value<Folder> folder = new Value<>();
+        assertFalse(fileSystem.createFolder((String)null, folder));
+        assertFalse(folder.hasValue());
+    }
+
+    @Test
+    public void createFolderWithEmptyStringAndNonNullValue()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        final Value<Folder> folder = new Value<>();
+        assertFalse(fileSystem.createFolder("", folder));
+        assertFalse(folder.hasValue());
+    }
+
+    @Test
+    public void createFolderWithRelativePathStringAndNonNullValue()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        final Value<Folder> folder = new Value<>();
+        assertFalse(fileSystem.createFolder("folder", folder));
+        assertFalse(folder.hasValue());
+    }
+
+    @Test
+    public void createFolderWithRootedPathStringAndNonNullValue()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        final Value<Folder> folder = new Value<>();
+        assertTrue(fileSystem.createFolder("/folder", folder));
+        assertTrue(fileSystem.folderExists("/folder"));
+        assertTrue(folder.hasValue());
+        assertNotNull(folder.get());
+        assertEquals("/folder", folder.get().getPath().toString());
     }
 
     @Test
@@ -244,6 +313,17 @@ public void getFolderWithNullString()
         fileSystem.createFolder("/folder/");
         assertTrue(fileSystem.deleteFolder("/folder/"));
         assertFalse(fileSystem.deleteFolder("/folder/"));
+    }
+
+    @Test
+    public void deleteFolderWithExistingFolderPathStringWithSiblingFolders()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFolder("/folder/a");
+        fileSystem.createFolder("/folder/b");
+        fileSystem.createFolder("/folder/c");
+        assertTrue(fileSystem.deleteFolder("/folder/c"));
+        assertFalse(fileSystem.deleteFolder("/folder/c"));
     }
 
     @Test
@@ -328,24 +408,57 @@ public void getFolderWithNullString()
     }
 
     @Test
+    public void createFileWithNullString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertFalse(fileSystem.createFile((String)null));
+    }
+
+    @Test
+    public void createFileWithEmptyString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertFalse(fileSystem.createFile(""));
+    }
+
+    @Test
+    public void createFileWithRelativePathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        final boolean fileCreated = fileSystem.createFile("things.txt");
+        assertFalse(fileCreated);
+    }
+
+    @Test
+    public void createFileWithRootedPathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        final boolean fileCreated = fileSystem.createFile("/things.txt");
+        assertTrue(fileCreated);
+
+        final boolean fileCreatedAgain = fileSystem.createFile("/things.txt");
+        assertFalse(fileCreatedAgain);
+    }
+
+    @Test
     public void createFileWithNullStringAndNullValue()
     {
         final FileSystem fileSystem = getFileSystem();
-        assertFalse(fileSystem.createFile ((String)null, null));
+        assertFalse(fileSystem.createFile((String)null, null));
     }
 
     @Test
     public void createFileWithEmptyStringAndNullValue()
     {
         final FileSystem fileSystem = getFileSystem();
-        assertFalse(fileSystem.createFile ("", null));
+        assertFalse(fileSystem.createFile("", null));
     }
 
     @Test
     public void createFileWithRelativePathStringAndNullValue()
     {
         final FileSystem fileSystem = getFileSystem();
-        final boolean fileCreated = fileSystem.createFile ("things.txt", null);
+        final boolean fileCreated = fileSystem.createFile("things.txt", null);
         assertFalse(fileCreated);
     }
 
@@ -353,10 +466,54 @@ public void getFolderWithNullString()
     public void createFileWithRootedPathStringAndNullValue()
     {
         final FileSystem fileSystem = getFileSystem();
-        final boolean fileCreated = fileSystem.createFile ("/things.txt", null);
+        final boolean fileCreated = fileSystem.createFile("/things.txt", null);
         assertTrue(fileCreated);
 
         final boolean fileCreatedAgain = fileSystem.createFile("/things.txt", null);
         assertFalse(fileCreatedAgain);
+    }
+
+    @Test
+    public void createFileWithNullStringAndNonNullValue()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        final Value<File> file = new Value<>();
+        assertFalse(fileSystem.createFile((String)null, file));
+    }
+
+    @Test
+    public void createFileWithEmptyStringAndNonNullValue()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        final Value<File> file = new Value<>();
+        assertFalse(fileSystem.createFile("", file));
+    }
+
+    @Test
+    public void createFileWithRelativePathStringAndNonNullValue()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        final Value<File> file = new Value<>();
+        final boolean fileCreated = fileSystem.createFile("things.txt", file);
+        assertFalse(fileCreated);
+        assertFalse(file.hasValue());
+    }
+
+    @Test
+    public void createFileWithRootedPathStringAndNonNullValue()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        final Value<File> file = new Value<>();
+        final boolean fileCreated = fileSystem.createFile("/things.txt", file);
+        assertTrue(fileCreated);
+        assertTrue(file.hasValue());
+        assertNotNull(file.get());
+        assertEquals("/things.txt", file.get().getPath().toString());
+
+        final boolean fileCreatedAgain = fileSystem.createFile("/things.txt", file);
+        assertFalse(fileCreatedAgain);
+        assertTrue(file.hasValue());
+        assertNotNull(file.get());
+        assertEquals("/things.txt", file.get().getPath().toString());
     }
 }

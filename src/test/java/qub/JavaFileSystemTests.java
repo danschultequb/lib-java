@@ -12,7 +12,7 @@ public class JavaFileSystemTests extends FileSystemTests
     public static void beforeClass()
     {
         final JavaFileSystem javaFileSystem = new JavaFileSystem();
-        final String tempFolderPathString = System.getProperty("java.io.tmpdir");
+        String tempFolderPathString = System.getProperty("java.io.tmpdir");
         final Path tempFolderPath = Path.parse(tempFolderPathString).concatenateSegment("qub-tests");
         fileSystem = new FolderFileSystem(javaFileSystem, tempFolderPath);
     }

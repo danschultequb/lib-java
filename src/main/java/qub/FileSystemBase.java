@@ -138,7 +138,8 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public boolean createFile(String filePath, Value<File> outputFile)
     {
-        return createFile(Path.parse(filePath), outputFile);
+        final Path path = Path.parse(filePath);
+        return createFile(path, outputFile);
     }
 
     @Override
