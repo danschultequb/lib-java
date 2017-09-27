@@ -138,6 +138,104 @@ public abstract class IterableTests
     }
 
     @Test
+    public void firstWithEmpty()
+    {
+        final Iterable<Integer> iterable = createIterable(0);
+        assertNull(iterable.first());
+    }
+
+    @Test
+    public void firstWithNonEmpty()
+    {
+        final Iterable<Integer> iterable = createIterable(3);
+        assertEquals(0, iterable.first().intValue());
+    }
+
+    @Test
+    public void firstWithEmptyAndNullCondition()
+    {
+        final Iterable<Integer> iterable = createIterable(0);
+        assertNull(iterable.first(null));
+    }
+
+    @Test
+    public void firstWithNonEmptyAndNullCondition()
+    {
+        final Iterable<Integer> iterable = createIterable(4);
+        assertNull(iterable.first(null));
+    }
+
+    @Test
+    public void firstWithEmptyAndCondition()
+    {
+        final Iterable<Integer> iterable = createIterable(0);
+        assertNull(iterable.first(Math.isOdd));
+    }
+
+    @Test
+    public void firstWithNonEmptyAndConditionWithNoMatches()
+    {
+        final Iterable<Integer> iterable = createIterable(1);
+        assertNull(iterable.first(Math.isOdd));
+    }
+
+    @Test
+    public void firstWithNonEmptyAndConditionWithMatches()
+    {
+        final Iterable<Integer> iterable = createIterable(1);
+        assertEquals(0, iterable.first(Math.isEven).intValue());
+    }
+
+    @Test
+    public void lastWithEmpty()
+    {
+        final Iterable<Integer> iterable = createIterable(0);
+        assertNull(iterable.first());
+    }
+
+    @Test
+    public void lastWithNonEmpty()
+    {
+        final Iterable<Integer> iterable = createIterable(3);
+        assertEquals(2, iterable.last().intValue());
+    }
+
+    @Test
+    public void lastWithEmptyAndNullCondition()
+    {
+        final Iterable<Integer> iterable = createIterable(0);
+        assertNull(iterable.last(null));
+    }
+
+    @Test
+    public void lastWithNonEmptyAndNullCondition()
+    {
+        final Iterable<Integer> iterable = createIterable(4);
+        assertNull(iterable.last(null));
+    }
+
+    @Test
+    public void lastWithEmptyAndCondition()
+    {
+        final Iterable<Integer> iterable = createIterable(0);
+        assertNull(iterable.last(Math.isOdd));
+    }
+
+    @Test
+    public void lastWithNonEmptyAndConditionWithNoMatches()
+    {
+        final Iterable<Integer> iterable = createIterable(1);
+        assertNull(iterable.last(Math.isOdd));
+    }
+
+    @Test
+    public void lastWithNonEmptyAndConditionWithMatches()
+    {
+        final Iterable<Integer> iterable = createIterable(5);
+        assertEquals(3, iterable.last(Math.isOdd).intValue());
+    }
+
+    @Test
     public void takeWithEmptyAndNegativeToTake()
     {
         final Iterable<Integer> iterable = createIterable(0);

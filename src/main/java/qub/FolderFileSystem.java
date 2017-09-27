@@ -43,7 +43,7 @@ public class FolderFileSystem extends FileSystemBase
 
     private Path getInnerPath(Path outerPath)
     {
-        return outerPath == null ? null : Path.parse(baseFolderPath.toString() + outerPath.toString());
+        return outerPath == null || outerPath.isEmpty() || !outerPath.isRooted() ? null : Path.parse(baseFolderPath.toString() + outerPath.toString());
     }
 
     private Path getOuterPath(Path innerPath)
@@ -62,22 +62,19 @@ public class FolderFileSystem extends FileSystemBase
     {
         Iterable<FileSystemEntry> result = null;
 
-        if (folderPath != null && folderPath.isRooted() && rootExists(folderPath.getRoot()))
+        final Path innerFolderPath = getInnerPath(folderPath);
+        final Iterable<FileSystemEntry> innerResult = innerFileSystem.getFilesAndFolders(innerFolderPath);
+        if (innerResult != null)
         {
-            final Path innerFolderPath = getInnerPath(folderPath);
-            final Iterable<FileSystemEntry> innerResult = innerFileSystem.getFilesAndFolders(innerFolderPath);
-            if (innerResult != null)
+            result = Array.fromValues(innerResult.map(new Function1<FileSystemEntry, FileSystemEntry>()
             {
-                result = Array.fromValues(innerResult.map(new Function1<FileSystemEntry, FileSystemEntry>()
+                @Override
+                public FileSystemEntry run(FileSystemEntry innerEntry)
                 {
-                    @Override
-                    public FileSystemEntry run(FileSystemEntry innerEntry)
-                    {
-                        final Path outerEntryPath = getOuterPath(innerEntry.getPath());
-                        return innerEntry instanceof File ? new File(FolderFileSystem.this, outerEntryPath) : new Folder(FolderFileSystem.this, outerEntryPath);
-                    }
-                }));
-            }
+                    final Path outerEntryPath = getOuterPath(innerEntry.getPath());
+                    return innerEntry instanceof File ? new File(FolderFileSystem.this, outerEntryPath) : new Folder(FolderFileSystem.this, outerEntryPath);
+                }
+            }));
         }
 
         return result;
@@ -93,28 +90,16 @@ public class FolderFileSystem extends FileSystemBase
     @Override
     public boolean createFolder(Path folderPath, Value<Folder> outputFolder)
     {
-        boolean result = false;
+        final Path innerFolderPath = getInnerPath(folderPath);
+        final Value<Folder> innerOutputFolder = (outputFolder == null ? null : new Value<Folder>());
 
-        if (folderPath == null || !folderPath.isRooted())
+        final boolean result = innerFileSystem.createFolder(innerFolderPath, innerOutputFolder);
+
+        if (innerOutputFolder != null && innerOutputFolder.hasValue())
         {
-            if (outputFolder != null)
-            {
-                outputFolder.clear();
-            }
-        }
-        else
-        {
-            final Path innerFolderPath = getInnerPath(folderPath);
-            final Value<Folder> innerOutputFolder = (outputFolder == null ? null : new Value<Folder>());
-
-            result = innerFileSystem.createFolder(innerFolderPath, innerOutputFolder);
-
-            if (innerOutputFolder != null && innerOutputFolder.hasValue())
-            {
-                final Path innerOutputFolderPath = innerOutputFolder.get().getPath();
-                final Path outerOutputFolderPath = getOuterPath(innerOutputFolderPath);
-                outputFolder.set(getFolder(outerOutputFolderPath));
-            }
+            final Path innerOutputFolderPath = innerOutputFolder.get().getPath();
+            final Path outerOutputFolderPath = getOuterPath(innerOutputFolderPath);
+            outputFolder.set(getFolder(outerOutputFolderPath));
         }
 
         return result;
@@ -137,28 +122,16 @@ public class FolderFileSystem extends FileSystemBase
     @Override
     public boolean createFile(Path filePath, Value<File> outputFile)
     {
-        boolean result = false;
+        final Path innerFilePath = getInnerPath(filePath);
+        final Value<File> innerOutputFile = (outputFile == null ? null : new Value<File>());
 
-        if (filePath == null || !filePath.isRooted() || filePath.endsWith("/") || filePath.endsWith("\\") || filePath.endsWith(":") || !rootExists(filePath.getRoot()))
+        final boolean result = innerFileSystem.createFile(innerFilePath, innerOutputFile);
+
+        if(innerOutputFile != null && innerOutputFile.hasValue())
         {
-            if (outputFile != null)
-            {
-                outputFile.clear();
-            }
-        }
-        else
-        {
-            final Path innerFilePath = getInnerPath(filePath);
-            final Value<File> innerOutputFile = (outputFile == null ? null : new Value<File>());
-
-            result = innerFileSystem.createFile(innerFilePath, innerOutputFile);
-
-            if(innerOutputFile != null && innerOutputFile.hasValue())
-            {
-                final Path innerOutputFilePath = innerOutputFile.get().getPath();
-                final Path outerOutputFilePath = getOuterPath(innerOutputFilePath);
-                outputFile.set(getFile(outerOutputFilePath));
-            }
+            final Path innerOutputFilePath = innerOutputFile.get().getPath();
+            final Path outerOutputFilePath = getOuterPath(innerOutputFilePath);
+            outputFile.set(getFile(outerOutputFilePath));
         }
 
         return result;

@@ -104,11 +104,7 @@ public abstract class IteratorBase<T> implements Iterator<T>
     {
         T result = null;
 
-        if (condition == null)
-        {
-            result = last();
-        }
-        else
+        if (condition != null)
         {
             if (hasCurrent() && condition.run(getCurrent()))
             {
@@ -120,6 +116,43 @@ public abstract class IteratorBase<T> implements Iterator<T>
                 if (condition.run(getCurrent()))
                 {
                     result = getCurrent();
+                }
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    public boolean contains(final T value)
+    {
+        return contains(new Function1<T,Boolean>()
+        {
+            @Override
+            public Boolean run(T iteratorValue)
+            {
+                return Functions.equal(iteratorValue, value);
+            }
+        });
+    }
+
+    @Override
+    public boolean contains(Function1<T,Boolean> condition)
+    {
+        boolean result = false;
+
+        if (condition != null)
+        {
+            if (hasCurrent())
+            {
+                result = condition.run(getCurrent());
+            }
+
+            while (!result && next())
+            {
+                if (condition.run(getCurrent()))
+                {
+                    result = condition.run(getCurrent());
                 }
             }
         }

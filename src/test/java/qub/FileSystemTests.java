@@ -27,7 +27,47 @@ public abstract class FileSystemTests
     }
 
     @Test
-    public void getEntriesForExistingPath()
+    public void getFilesAndFoldersForNullStringPath()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        final Iterable<FileSystemEntry> entries = fileSystem.getFilesAndFolders((String)null);
+        assertNull(entries);
+    }
+
+    @Test
+    public void getFilesAndFoldersForEmptyStringPath()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        final Iterable<FileSystemEntry> entries = fileSystem.getFilesAndFolders("");
+        assertNull(entries);
+    }
+
+    @Test
+    public void getFilesAndFoldersForNullPath()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        final Iterable<FileSystemEntry> entries = fileSystem.getFilesAndFolders((Path)null);
+        assertNull(entries);
+    }
+
+    @Test
+    public void getFilesAndFoldersForNonExistingPath()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        final Iterable<FileSystemEntry> entries = fileSystem.getFilesAndFolders("/i/dont/exist/");
+        assertNull(entries);
+    }
+
+    @Test
+    public void getFilesAndFoldersForExistingPathWithNoContents()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFolder("/folderA");
+        assertFalse(fileSystem.getFilesAndFolders("/folderA").any());
+    }
+
+    @Test
+    public void getFilesAndFoldersForExistingPath()
     {
         final FileSystem fileSystem = getFileSystem();
         fileSystem.createFolder("/folderA");
@@ -47,22 +87,6 @@ public abstract class FileSystemTests
             }
         }));
         assertArrayEquals(new String[] { "/folderA", "/file1.txt" }, entryPathStrings);
-    }
-
-    @Test
-    public void getEntriesForNonExistingPath()
-    {
-        final FileSystem fileSystem = getFileSystem();
-        final Iterable<FileSystemEntry> entries = fileSystem.getFilesAndFolders("/i/dont/exist/");
-        assertNull(entries);
-    }
-
-    @Test
-    public void getEntriesForNullPath()
-    {
-        final FileSystem fileSystem = getFileSystem();
-        final Iterable<FileSystemEntry> entries = fileSystem.getFilesAndFolders((Path)null);
-        assertNull(entries);
     }
 
     @Test
@@ -268,6 +292,16 @@ public void getFolderWithNullString()
         assertTrue(folder.hasValue());
         assertNotNull(folder.get());
         assertEquals("/folder", folder.get().getPath().toString());
+    }
+
+    @Test
+    public void createFolderWithNullPathAndNonNullValue()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        final Value<Folder> folder = new Value<>();
+        assertFalse(fileSystem.createFolder((Path)null, folder));
+        assertFalse(folder.hasValue());
+        assertNull(folder.get());
     }
 
     @Test
@@ -515,5 +549,16 @@ public void getFolderWithNullString()
         assertTrue(file.hasValue());
         assertNotNull(file.get());
         assertEquals("/things.txt", file.get().getPath().toString());
+    }
+
+    @Test
+    public void createFileWithInvalidPath()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        final Value<File> file = new Value<>();
+        final boolean fileCreated = fileSystem.createFile("/?#!.txt", file);
+        assertFalse(fileCreated);
+        assertFalse(file.hasValue());
+        assertNull(file.get());
     }
 }

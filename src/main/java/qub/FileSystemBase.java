@@ -83,7 +83,8 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public boolean folderExists(String folderPath)
     {
-        return folderExists(Path.parse(folderPath));
+        final Path path = Path.parse(folderPath);
+        return folderExists(path);
     }
 
     @Override

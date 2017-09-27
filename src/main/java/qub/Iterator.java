@@ -84,6 +84,21 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     T last(Function1<T,Boolean> condition);
 
     /**
+     * Get whether or not this Iterator contains the provided value using the standard equals()
+     * method to compare values.
+     * @param value The value to look for in this Iterator.
+     * @return Whether or not this Iterator contains the provided value.
+     */
+    boolean contains(T value);
+
+    /**
+     * Get whether or not this Iterator contains a value that matches the provided condition.
+     * @param condition The condition to check against the values in this Iterator.
+     * @return Whether or not this Iterator contains a value that matches the provided condition.
+     */
+    boolean contains(Function1<T,Boolean> condition);
+
+    /**
      * Create a new Iterator that will iterate over no more than the provided number of values from
      * this Iterator.
      * @param toTake The number of values to take from this Iterator.

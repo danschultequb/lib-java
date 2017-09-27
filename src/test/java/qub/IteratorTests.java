@@ -253,6 +253,446 @@ public class IteratorTests
     }
 
     @Test
+    public void firstWithNonStartedEmptyIteratorAndNullCondition()
+    {
+        final Array<Integer> array = new Array<>(0);
+        final Iterator<Integer> iterator = new ArrayIterator<>(array);
+        assertFalse(iterator.hasStarted());
+        assertFalse(iterator.hasCurrent());
+        assertNull(iterator.getCurrent());
+
+        assertNull(iterator.first(null));
+
+        assertFalse(iterator.hasStarted());
+        assertFalse(iterator.hasCurrent());
+        assertNull(iterator.getCurrent());
+    }
+
+    @Test
+    public void firstWithStartedEmptyIteratorAndNullCondition()
+    {
+        final Array<Integer> array = new Array<>(0);
+        final Iterator<Integer> iterator = new ArrayIterator<>(array);
+        assertFalse(iterator.hasStarted());
+        assertFalse(iterator.hasCurrent());
+        assertNull(iterator.getCurrent());
+
+        iterator.next();
+
+        assertTrue(iterator.hasStarted());
+        assertFalse(iterator.hasCurrent());
+        assertNull(iterator.getCurrent());
+
+        assertNull(iterator.first(null));
+
+        assertTrue(iterator.hasStarted());
+        assertFalse(iterator.hasCurrent());
+        assertNull(iterator.getCurrent());
+    }
+
+    @Test
+    public void firstWithNonStartedNonEmptyIteratorAndNullCondition()
+    {
+        final Array<Integer> array = Array.fromValues(0, 1, 2);
+        final Iterator<Integer> iterator = new ArrayIterator<>(array);
+        assertFalse(iterator.hasStarted());
+        assertFalse(iterator.hasCurrent());
+        assertNull(iterator.getCurrent());
+
+        assertNull(iterator.first(null));
+
+        assertFalse(iterator.hasStarted());
+        assertFalse(iterator.hasCurrent());
+        assertNull(iterator.getCurrent());
+
+        assertNull(iterator.first(null));
+
+        assertFalse(iterator.hasStarted());
+        assertFalse(iterator.hasCurrent());
+        assertNull(iterator.getCurrent());
+    }
+
+    @Test
+    public void firstWithStartedNonEmptyIteratorAndNullCondition()
+    {
+        final Array<Integer> array = Array.fromValues(0, 1, 2);
+        final Iterator<Integer> iterator = new ArrayIterator<>(array);
+        assertFalse(iterator.hasStarted());
+        assertFalse(iterator.hasCurrent());
+        assertNull(iterator.getCurrent());
+
+        iterator.next();
+
+        assertTrue(iterator.hasStarted());
+        assertTrue(iterator.hasCurrent());
+        assertEquals(0, iterator.getCurrent().intValue());
+
+        assertNull(iterator.first(null));
+
+        assertTrue(iterator.hasStarted());
+        assertTrue(iterator.hasCurrent());
+        assertEquals(0, iterator.getCurrent().intValue());
+
+        assertNull(iterator.first(null));
+
+        assertTrue(iterator.hasStarted());
+        assertTrue(iterator.hasCurrent());
+        assertEquals(0, iterator.getCurrent().intValue());
+    }
+
+    @Test
+    public void firstWithNonStartedEmptyIteratorAndCondition()
+    {
+        final Array<Integer> array = new Array<>(0);
+        final Iterator<Integer> iterator = new ArrayIterator<>(array);
+        assertFalse(iterator.hasStarted());
+        assertFalse(iterator.hasCurrent());
+        assertNull(iterator.getCurrent());
+
+        assertNull(iterator.first(Math.isOdd));
+
+        assertTrue(iterator.hasStarted());
+        assertFalse(iterator.hasCurrent());
+        assertNull(iterator.getCurrent());
+    }
+
+    @Test
+    public void firstWithStartedEmptyIteratorAndCondition()
+    {
+        final Array<Integer> array = new Array<>(0);
+        final Iterator<Integer> iterator = new ArrayIterator<>(array);
+        assertFalse(iterator.hasStarted());
+        assertFalse(iterator.hasCurrent());
+        assertNull(iterator.getCurrent());
+
+        iterator.next();
+
+        assertTrue(iterator.hasStarted());
+        assertFalse(iterator.hasCurrent());
+        assertNull(iterator.getCurrent());
+
+        assertNull(iterator.first(Math.isOdd));
+
+        assertTrue(iterator.hasStarted());
+        assertFalse(iterator.hasCurrent());
+        assertNull(iterator.getCurrent());
+    }
+
+    @Test
+    public void firstWithNonStartedNonEmptyIteratorAndMatchingCondition()
+    {
+        final Array<Integer> array = Array.fromValues(0, 1, 2);
+        final Iterator<Integer> iterator = new ArrayIterator<>(array);
+        assertFalse(iterator.hasStarted());
+        assertFalse(iterator.hasCurrent());
+        assertNull(iterator.getCurrent());
+
+        assertEquals(1, iterator.first(Math.isOdd).intValue());
+
+        assertTrue(iterator.hasStarted());
+        assertTrue(iterator.hasCurrent());
+        assertEquals(1, iterator.getCurrent().intValue());
+
+        assertEquals(1, iterator.first(Math.isOdd).intValue());
+
+        assertTrue(iterator.hasStarted());
+        assertTrue(iterator.hasCurrent());
+        assertEquals(1, iterator.getCurrent().intValue());
+    }
+
+    @Test
+    public void firstWithStartedNonEmptyIteratorAndMatchingCondition()
+    {
+        final Array<Integer> array = Array.fromValues(0, 1, 2);
+        final Iterator<Integer> iterator = new ArrayIterator<>(array);
+        assertFalse(iterator.hasStarted());
+        assertFalse(iterator.hasCurrent());
+        assertNull(iterator.getCurrent());
+
+        iterator.next();
+
+        assertTrue(iterator.hasStarted());
+        assertTrue(iterator.hasCurrent());
+        assertEquals(0, iterator.getCurrent().intValue());
+
+        assertEquals(0, iterator.first(Math.isEven).intValue());
+
+        assertTrue(iterator.hasStarted());
+        assertTrue(iterator.hasCurrent());
+        assertEquals(0, iterator.getCurrent().intValue());
+
+        assertEquals(0, iterator.first(Math.isEven).intValue());
+
+        assertTrue(iterator.hasStarted());
+        assertTrue(iterator.hasCurrent());
+        assertEquals(0, iterator.getCurrent().intValue());
+    }
+
+    @Test
+    public void lastWithNonStartedEmptyIterator()
+    {
+        final Array<Integer> array = new Array<>(0);
+        final Iterator<Integer> iterator = new ArrayIterator<>(array);
+        assertFalse(iterator.hasStarted());
+        assertFalse(iterator.hasCurrent());
+        assertNull(iterator.getCurrent());
+
+        assertNull(iterator.last());
+
+        assertTrue(iterator.hasStarted());
+        assertFalse(iterator.hasCurrent());
+        assertNull(iterator.getCurrent());
+    }
+
+    @Test
+    public void lastWithStartedEmptyIterator()
+    {
+        final Array<Integer> array = new Array<>(0);
+        final Iterator<Integer> iterator = new ArrayIterator<>(array);
+        assertFalse(iterator.hasStarted());
+        assertFalse(iterator.hasCurrent());
+        assertNull(iterator.getCurrent());
+
+        iterator.next();
+
+        assertTrue(iterator.hasStarted());
+        assertFalse(iterator.hasCurrent());
+        assertNull(iterator.getCurrent());
+
+        assertNull(iterator.last());
+
+        assertTrue(iterator.hasStarted());
+        assertFalse(iterator.hasCurrent());
+        assertNull(iterator.getCurrent());
+    }
+
+    @Test
+    public void lastWithNonStartedNonEmptyIterator()
+    {
+        final Array<Integer> array = Array.fromValues(0, 1, 2);
+        final Iterator<Integer> iterator = new ArrayIterator<>(array);
+        assertFalse(iterator.hasStarted());
+        assertFalse(iterator.hasCurrent());
+        assertNull(iterator.getCurrent());
+
+        assertEquals(2, iterator.last().intValue());
+
+        assertTrue(iterator.hasStarted());
+        assertFalse(iterator.hasCurrent());
+        assertNull(iterator.getCurrent());
+
+        assertNull(iterator.last());
+
+        assertTrue(iterator.hasStarted());
+        assertFalse(iterator.hasCurrent());
+        assertNull(iterator.getCurrent());
+    }
+
+    @Test
+    public void lastWithStartedNonEmptyIterator()
+    {
+        final Array<Integer> array = Array.fromValues(0, 1, 2);
+        final Iterator<Integer> iterator = new ArrayIterator<>(array);
+        assertFalse(iterator.hasStarted());
+        assertFalse(iterator.hasCurrent());
+        assertNull(iterator.getCurrent());
+
+        iterator.next();
+
+        assertTrue(iterator.hasStarted());
+        assertTrue(iterator.hasCurrent());
+        assertEquals(0, iterator.getCurrent().intValue());
+
+        assertEquals(2, iterator.last().intValue());
+
+        assertTrue(iterator.hasStarted());
+        assertFalse(iterator.hasCurrent());
+        assertNull(iterator.getCurrent());
+
+        assertNull(iterator.last());
+
+        assertTrue(iterator.hasStarted());
+        assertFalse(iterator.hasCurrent());
+        assertNull(iterator.getCurrent());
+    }
+
+    @Test
+    public void lastWithNonStartedEmptyIteratorAndNullCondition()
+    {
+        final Array<Integer> array = new Array<>(0);
+        final Iterator<Integer> iterator = new ArrayIterator<>(array);
+        assertFalse(iterator.hasStarted());
+        assertFalse(iterator.hasCurrent());
+        assertNull(iterator.getCurrent());
+
+        assertNull(iterator.last(null));
+
+        assertFalse(iterator.hasStarted());
+        assertFalse(iterator.hasCurrent());
+        assertNull(iterator.getCurrent());
+    }
+
+    @Test
+    public void lastWithStartedEmptyIteratorAndNullCondition()
+    {
+        final Array<Integer> array = new Array<>(0);
+        final Iterator<Integer> iterator = new ArrayIterator<>(array);
+        assertFalse(iterator.hasStarted());
+        assertFalse(iterator.hasCurrent());
+        assertNull(iterator.getCurrent());
+
+        iterator.next();
+
+        assertTrue(iterator.hasStarted());
+        assertFalse(iterator.hasCurrent());
+        assertNull(iterator.getCurrent());
+
+        assertNull(iterator.last(null));
+
+        assertTrue(iterator.hasStarted());
+        assertFalse(iterator.hasCurrent());
+        assertNull(iterator.getCurrent());
+    }
+
+    @Test
+    public void lastWithNonStartedNonEmptyIteratorAndNullCondition()
+    {
+        final Array<Integer> array = Array.fromValues(0, 1, 2);
+        final Iterator<Integer> iterator = new ArrayIterator<>(array);
+        assertFalse(iterator.hasStarted());
+        assertFalse(iterator.hasCurrent());
+        assertNull(iterator.getCurrent());
+
+        assertNull(iterator.last(null));
+
+        assertFalse(iterator.hasStarted());
+        assertFalse(iterator.hasCurrent());
+        assertNull(iterator.getCurrent());
+
+        assertNull(iterator.last(null));
+
+        assertFalse(iterator.hasStarted());
+        assertFalse(iterator.hasCurrent());
+        assertNull(iterator.getCurrent());
+    }
+
+    @Test
+    public void lastWithStartedNonEmptyIteratorAndNullCondition()
+    {
+        final Array<Integer> array = Array.fromValues(0, 1, 2);
+        final Iterator<Integer> iterator = new ArrayIterator<>(array);
+        assertFalse(iterator.hasStarted());
+        assertFalse(iterator.hasCurrent());
+        assertNull(iterator.getCurrent());
+
+        iterator.next();
+
+        assertTrue(iterator.hasStarted());
+        assertTrue(iterator.hasCurrent());
+        assertEquals(0, iterator.getCurrent().intValue());
+
+        assertNull(iterator.last(null));
+
+        assertTrue(iterator.hasStarted());
+        assertTrue(iterator.hasCurrent());
+        assertEquals(0, iterator.getCurrent().intValue());
+
+        assertNull(iterator.last(null));
+
+        assertTrue(iterator.hasStarted());
+        assertTrue(iterator.hasCurrent());
+        assertEquals(0, iterator.getCurrent().intValue());
+    }
+
+    @Test
+    public void lastWithNonStartedEmptyIteratorAndCondition()
+    {
+        final Array<Integer> array = new Array<>(0);
+        final Iterator<Integer> iterator = new ArrayIterator<>(array);
+        assertFalse(iterator.hasStarted());
+        assertFalse(iterator.hasCurrent());
+        assertNull(iterator.getCurrent());
+
+        assertNull(iterator.last(Math.isOdd));
+
+        assertTrue(iterator.hasStarted());
+        assertFalse(iterator.hasCurrent());
+        assertNull(iterator.getCurrent());
+    }
+
+    @Test
+    public void lastWithStartedEmptyIteratorAndCondition()
+    {
+        final Array<Integer> array = new Array<>(0);
+        final Iterator<Integer> iterator = new ArrayIterator<>(array);
+        assertFalse(iterator.hasStarted());
+        assertFalse(iterator.hasCurrent());
+        assertNull(iterator.getCurrent());
+
+        iterator.next();
+
+        assertTrue(iterator.hasStarted());
+        assertFalse(iterator.hasCurrent());
+        assertNull(iterator.getCurrent());
+
+        assertNull(iterator.last(Math.isOdd));
+
+        assertTrue(iterator.hasStarted());
+        assertFalse(iterator.hasCurrent());
+        assertNull(iterator.getCurrent());
+    }
+
+    @Test
+    public void lastWithNonStartedNonEmptyIteratorAndMatchingCondition()
+    {
+        final Array<Integer> array = Array.fromValues(0, 1, 2);
+        final Iterator<Integer> iterator = new ArrayIterator<>(array);
+        assertFalse(iterator.hasStarted());
+        assertFalse(iterator.hasCurrent());
+        assertNull(iterator.getCurrent());
+
+        assertEquals(1, iterator.last(Math.isOdd).intValue());
+
+        assertTrue(iterator.hasStarted());
+        assertFalse(iterator.hasCurrent());
+        assertNull(iterator.getCurrent());
+
+        assertNull(iterator.last(Math.isOdd));
+
+        assertTrue(iterator.hasStarted());
+        assertFalse(iterator.hasCurrent());
+        assertNull(iterator.getCurrent());
+    }
+
+    @Test
+    public void lastWithStartedNonEmptyIteratorAndMatchingCondition()
+    {
+        final Array<Integer> array = Array.fromValues(0, 1, 2);
+        final Iterator<Integer> iterator = new ArrayIterator<>(array);
+        assertFalse(iterator.hasStarted());
+        assertFalse(iterator.hasCurrent());
+        assertNull(iterator.getCurrent());
+
+        iterator.next();
+
+        assertTrue(iterator.hasStarted());
+        assertTrue(iterator.hasCurrent());
+        assertEquals(0, iterator.getCurrent().intValue());
+
+        assertEquals(2, iterator.last(Math.isEven).intValue());
+
+        assertTrue(iterator.hasStarted());
+        assertFalse(iterator.hasCurrent());
+        assertNull(iterator.getCurrent());
+
+        assertNull(iterator.last(Math.isEven));
+
+        assertTrue(iterator.hasStarted());
+        assertFalse(iterator.hasCurrent());
+        assertNull(iterator.getCurrent());
+    }
+
+    @Test
     public void takeWithNonStartedEmptyIteratorAndNegativeToTake()
     {
         final Array<Integer> array = new Array<>(0);
@@ -1230,7 +1670,7 @@ public class IteratorTests
         final Iterator<Integer> iterator = new ArrayIterator<>(a);
 
         int elementCount = 0;
-        for (final Integer element : iterator)
+        for (final Integer ignored : iterator)
         {
             ++elementCount;
         }
@@ -1246,7 +1686,7 @@ public class IteratorTests
         assertFalse(iterator.next());
 
         int elementCount = 0;
-        for (final Integer element : iterator)
+        for (final Integer ignored : iterator)
         {
             ++elementCount;
         }

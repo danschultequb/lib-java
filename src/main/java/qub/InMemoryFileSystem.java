@@ -242,4 +242,27 @@ public class InMemoryFileSystem extends FileSystemBase
 
         return result;
     }
+
+    protected static boolean containsInvalidCharacters(String pathString)
+    {
+        boolean result = false;
+
+        if (pathString != null && !pathString.isEmpty())
+        {
+            final int pathStringLength = pathString.length();
+            for (int i = 0; i < pathStringLength; ++i)
+            {
+                final char currentCharacter = pathString.charAt(i);
+                if (invalidCharacters.contains(currentCharacter))
+                {
+                    result = true;
+                    break;
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private static final Array<Character> invalidCharacters = Array.fromValues('@', '#', '?');
 }
