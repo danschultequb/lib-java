@@ -197,16 +197,18 @@ public class JavaFileSystem extends FileSystemBase
                 try
                 {
                     result = file.createNewFile();
+                    if (outputFile != null)
+                    {
+                        outputFile.set(getFile(filePath));
+                    }
                 }
                 catch (IOException e)
                 {
-                    e.printStackTrace();
+                    if (outputFile != null)
+                    {
+                        outputFile.clear();
+                    }
                 }
-            }
-
-            if (outputFile != null)
-            {
-                outputFile.set(getFile(filePath));
             }
         }
 

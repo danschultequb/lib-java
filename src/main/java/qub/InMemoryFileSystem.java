@@ -183,7 +183,7 @@ public class InMemoryFileSystem extends FileSystemBase
     {
         boolean result = false;
 
-        if (filePath == null || !filePath.isRooted() || filePath.endsWith("/") || filePath.endsWith("\\") || !rootExists(filePath.getRoot()))
+        if (filePath == null || !filePath.isRooted() || filePath.endsWith("/") || filePath.endsWith("\\") || !rootExists(filePath.getRoot()) || containsInvalidCharacters(filePath))
         {
             if (outputFile != null)
             {
@@ -241,6 +241,11 @@ public class InMemoryFileSystem extends FileSystemBase
         }
 
         return result;
+    }
+
+    protected static boolean containsInvalidCharacters(Path path)
+    {
+        return path != null && containsInvalidCharacters(path.toString());
     }
 
     protected static boolean containsInvalidCharacters(String pathString)

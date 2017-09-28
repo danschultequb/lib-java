@@ -38,6 +38,18 @@ public abstract class IterableBase<T> implements Iterable<T>
     }
 
     @Override
+    public boolean contains(T value)
+    {
+        return iterate().contains(value);
+    }
+
+    @Override
+    public boolean contains(Function1<T,Boolean> condition)
+    {
+        return iterate().contains(condition);
+    }
+
+    @Override
     public Iterable<T> take(int toTake)
     {
         return new TakeIterable<>(this, toTake);
