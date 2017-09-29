@@ -13,8 +13,11 @@ class WhereIterator<T> extends IteratorBase<T>
     {
         this.innerIterator = innerIterator;
         this.condition = condition;
+    }
 
-        while (hasCurrent() && !condition.run(getCurrent())) {
+    private void skipToMatch()
+    {
+        while (innerIterator.hasCurrent() && !condition.run(innerIterator.getCurrent())) {
             innerIterator.next();
         }
     }
@@ -28,12 +31,14 @@ class WhereIterator<T> extends IteratorBase<T>
     @Override
     public boolean hasCurrent()
     {
+        skipToMatch();
         return innerIterator.hasCurrent();
     }
 
     @Override
     public T getCurrent()
     {
+        skipToMatch();
         return innerIterator.getCurrent();
     }
 
@@ -43,7 +48,6 @@ class WhereIterator<T> extends IteratorBase<T>
         while (innerIterator.next() && !condition.run(getCurrent()))
         {
         }
-
         return this.hasCurrent();
     }
 }

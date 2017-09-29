@@ -131,7 +131,7 @@ public abstract class IteratorBase<T> implements Iterator<T>
             @Override
             public Boolean run(T iteratorValue)
             {
-                return Functions.equal(iteratorValue, value);
+                return Comparer.equal(iteratorValue, value);
             }
         });
     }
