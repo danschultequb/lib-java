@@ -14,6 +14,42 @@ public abstract class IterableBase<T> implements Iterable<T>
     }
 
     @Override
+    public T first()
+    {
+        return iterate().first();
+    }
+
+    @Override
+    public T first(Function1<T,Boolean> condition)
+    {
+        return iterate().first(condition);
+    }
+
+    @Override
+    public T last()
+    {
+        return iterate().last();
+    }
+
+    @Override
+    public T last(Function1<T,Boolean> condition)
+    {
+        return iterate().last(condition);
+    }
+
+    @Override
+    public boolean contains(T value)
+    {
+        return iterate().contains(value);
+    }
+
+    @Override
+    public boolean contains(Function1<T,Boolean> condition)
+    {
+        return iterate().contains(condition);
+    }
+
+    @Override
     public Iterable<T> take(int toTake)
     {
         return new TakeIterable<>(this, toTake);
@@ -23,6 +59,18 @@ public abstract class IterableBase<T> implements Iterable<T>
     public Iterable<T> skip(int toSkip)
     {
         return toSkip <= 0 ? this : new SkipIterable<>(this, toSkip);
+    }
+
+    @Override
+    public Iterable<T> skipLast()
+    {
+        return skipLast(1);
+    }
+
+    @Override
+    public Iterable<T> skipLast(int toSkip)
+    {
+        return toSkip <= 0 ? this : take(getCount() - toSkip);
     }
 
     @Override

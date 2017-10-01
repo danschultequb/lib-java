@@ -150,4 +150,18 @@ public class JavaIteratorTests
 
         assertNull(javaIterator.next());
     }
+
+    @Test
+    public void remove()
+    {
+        final Array<Integer> array = new Array<>(5);
+        for (int i = 0; i < array.getCount(); ++i)
+        {
+            array.set(i, i);
+        }
+
+        final Iterator<Integer> iterator = new ArrayIterator<>(array);
+        final JavaIterator<Integer> javaIterator = new JavaIterator<>(iterator);
+        javaIterator.remove();
+    }
 }

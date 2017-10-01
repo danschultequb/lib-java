@@ -4,7 +4,7 @@ package qub;
  * A basic Array data structure that holds a fixed number of elements.
  * @param <T> The type of element contained by this Array.
  */
-public class Array<T> extends IterableBase<T>
+public class Array<T> extends IndexableBase<T>
 {
     private final Object[] data;
 
@@ -93,6 +93,51 @@ public class Array<T> extends IterableBase<T>
     }
 
     /**
+     * Create an Array from the provided values.
+     * @param values The values to initialize the array with.
+     */
+    public static <T> Array<T> fromValues(T... values)
+    {
+        final int length = values == null ? 0 : values.length;
+        final Array<T> result = new Array<>(length);
+        for (int i = 0; i < length; ++i)
+        {
+            result.set(i, values[i]);
+        }
+        return result;
+    }
+
+    /**
+     * Create an Array from the provided values.
+     * @param values The values to initialize the array with.
+     */
+    public static <T> Array<T> fromValues(Iterator<T> values)
+    {
+        return fromValues(ArrayList.fromValues(values));
+    }
+
+    /**
+     * Create an Array from the provided values.
+     * @param values The values to initialize the array with.
+     */
+    public static <T> Array<T> fromValues(Iterable<T> values)
+    {
+        final int length = values == null ? 0 : values.getCount();
+        final Array<T> result = new Array<>(length);
+
+        if (values != null && values.any())
+        {
+            int i = 0;
+            for (final T value : values)
+            {
+                result.set(i, value);
+                ++i;
+            }
+        }
+        return result;
+    }
+
+    /**
      * Convert the provided byte Iterator into a byte array.
      * @param bytes The byte Iterator to convert to a byte array.
      * @return The byte array.
@@ -111,7 +156,7 @@ public class Array<T> extends IterableBase<T>
         else
         {
             final ArrayList<Byte> list = new ArrayList<>();
-            for (Byte value : bytes)
+            for (final Byte value : bytes)
             {
                 list.add(value);
             }
@@ -141,9 +186,125 @@ public class Array<T> extends IterableBase<T>
         {
             result = new byte[bytes.getCount()];
             int index = 0;
-            for (Byte value : bytes)
+            for (final Byte value : bytes)
             {
                 result[index] = value.byteValue();
+                ++index;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Convert the provided int Iterator into a int array.
+     * @param ints The int Iterator to convert to an int array.
+     * @return The int array.
+     */
+    public static int[] toIntArray(Iterator<Integer> ints)
+    {
+        int[] result;
+        if (ints == null)
+        {
+            result = null;
+        }
+        else if (!ints.any())
+        {
+            result = new int[0];
+        }
+        else
+        {
+            final ArrayList<Integer> list = new ArrayList<>();
+            for (final Integer value : ints)
+            {
+                list.add(value);
+            }
+
+            result = toIntArray(list);
+        }
+        return result;
+    }
+
+    /**
+     * Convert the provided int Iterable into a int array.
+     * @param ints The int Iterable to convert to a int array.
+     * @return The int array.
+     */
+    public static int[] toIntArray(Iterable<Integer> ints)
+    {
+        int[] result;
+        if (ints == null)
+        {
+            result = null;
+        }
+        else if (!ints.any())
+        {
+            result = new int[0];
+        }
+        else
+        {
+            result = new int[ints.getCount()];
+            int index = 0;
+            for (final Integer value : ints)
+            {
+                result[index] = value;
+                ++index;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Convert the provided String Iterator into a String array.
+     * @param strings The String Iterator to convert to a String array.
+     * @return The String array.
+     */
+    public static String[] toStringArray(Iterator<String> strings)
+    {
+        String[] result;
+        if (strings == null)
+        {
+            result = null;
+        }
+        else if (!strings.any())
+        {
+            result = new String[0];
+        }
+        else
+        {
+            final ArrayList<String> list = new ArrayList<>();
+            for (final String value : strings)
+            {
+                list.add(value);
+            }
+
+            result = toStringArray(list);
+        }
+        return result;
+    }
+
+    /**
+     * Convert the provided String Iterable into a String array.
+     * @param strings The String Iterable to convert to a String array.
+     * @return The String array.
+     */
+    public static String[] toStringArray(Iterable<String> strings)
+    {
+        String[] result;
+        if (strings == null)
+        {
+            result = null;
+        }
+        else if (!strings.any())
+        {
+            result = new String[0];
+        }
+        else
+        {
+            result = new String[strings.getCount()];
+            int index = 0;
+            for (final String value : strings)
+            {
+                result[index] = value;
                 ++index;
             }
         }

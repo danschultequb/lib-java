@@ -4,14 +4,20 @@ package qub;
  * A array-based List data structure that can expand when it gets full.
  * @param <T> The type of element stored in this List.
  */
-public class ArrayList<T> extends IterableBase<T>
+public class ArrayList<T> extends IndexableBase<T>
 {
     private Array<T> array;
     private int elementCount;
 
     public ArrayList()
     {
-        array = new Array<>(0);
+        this(new Array<T>(0));
+    }
+
+    private ArrayList(Array<T> array)
+    {
+        this.array = array;
+        this.elementCount = array.getCount();
     }
 
     private boolean inBounds(int index)
@@ -69,9 +75,42 @@ public class ArrayList<T> extends IterableBase<T>
      */
     public void addAll(T... values)
     {
-        for (T value : values)
+        if (values != null && values.length > 0)
         {
-            add(value);
+            for (final T value : values)
+            {
+                add(value);
+            }
+        }
+    }
+
+    /**
+     * Add the provided values at the end of this ArrayList.
+     * @param values The values to add.
+     */
+    public void addAll(Iterator<T> values)
+    {
+        if (values != null && values.any())
+        {
+            for (final T value : values)
+            {
+                add(value);
+            }
+        }
+    }
+
+    /**
+     * Add the provided values at the end of this ArrayList.
+     * @param values The values to add.
+     */
+    public void addAll(Iterable<T> values)
+    {
+        if (values != null && values.any())
+        {
+            for (final T value : values)
+            {
+                add(value);
+            }
         }
     }
 
@@ -139,5 +178,24 @@ public class ArrayList<T> extends IterableBase<T>
     public int getCount()
     {
         return elementCount;
+    }
+
+    public static <T> ArrayList<T> fromValues(T... values)
+    {
+        final Array<T> array = Array.fromValues(values);
+        return new ArrayList<>(array);
+    }
+
+    public static <T> ArrayList<T> fromValues(Iterator<T> values)
+    {
+        final ArrayList<T> result = new ArrayList<>();
+        result.addAll(values);
+        return result;
+    }
+
+    public static <T> ArrayList<T> fromValues(Iterable<T> values)
+    {
+        final Array<T> array = Array.fromValues(values);
+        return new ArrayList<>(array);
     }
 }

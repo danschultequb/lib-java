@@ -59,6 +59,54 @@ public class ArrayListTests extends IterableTests
         {
             assertEquals(i, arrayList.get(i).intValue());
         }
+
+        arrayList.addAll((Iterator<Integer>)null);
+        assertEquals(6, arrayList.getCount());
+        assertTrue(arrayList.any());
+        for (int i = 0; i < arrayList.getCount(); ++i)
+        {
+            assertEquals(i, arrayList.get(i).intValue());
+        }
+
+        arrayList.addAll(Array.<Integer>fromValues().iterate());
+        assertEquals(6, arrayList.getCount());
+        assertTrue(arrayList.any());
+        for (int i = 0; i < arrayList.getCount(); ++i)
+        {
+            assertEquals(i, arrayList.get(i).intValue());
+        }
+
+        arrayList.addAll(Array.fromValues(6, 7, 8, 9).iterate());
+        assertEquals(10, arrayList.getCount());
+        assertTrue(arrayList.any());
+        for (int i = 0; i < arrayList.getCount(); ++i)
+        {
+            assertEquals(i, arrayList.get(i).intValue());
+        }
+
+        arrayList.addAll((Iterable<Integer>)null);
+        assertEquals(10, arrayList.getCount());
+        assertTrue(arrayList.any());
+        for (int i = 0; i < arrayList.getCount(); ++i)
+        {
+            assertEquals(i, arrayList.get(i).intValue());
+        }
+
+        arrayList.addAll(Array.<Integer>fromValues());
+        assertEquals(10, arrayList.getCount());
+        assertTrue(arrayList.any());
+        for (int i = 0; i < arrayList.getCount(); ++i)
+        {
+            assertEquals(i, arrayList.get(i).intValue());
+        }
+
+        arrayList.addAll(Array.fromValues(10, 11));
+        assertEquals(12, arrayList.getCount());
+        assertTrue(arrayList.any());
+        for (int i = 0; i < arrayList.getCount(); ++i)
+        {
+            assertEquals(i, arrayList.get(i).intValue());
+        }
     }
 
     @Test
@@ -188,5 +236,48 @@ public class ArrayListTests extends IterableTests
         assertTrue(iterator.hasStarted());
         assertFalse(iterator.hasCurrent());
         assertNull(iterator.getCurrent());
+    }
+
+    @Test
+    public void fromValues()
+    {
+        final ArrayList<Integer> arrayList1 = ArrayList.fromValues();
+        assertEquals(0, arrayList1.getCount());
+
+        final ArrayList<Integer> arrayList2 = ArrayList.fromValues((Integer[])null);
+        assertEquals(0, arrayList2.getCount());
+
+        final ArrayList<Integer> arrayList3 = ArrayList.fromValues(1, 2, 3);
+        assertEquals(3, arrayList3.getCount());
+        for (int i = 0; i < 3; ++i)
+        {
+            assertEquals(i + 1, arrayList3.get(i).intValue());
+        }
+
+        final ArrayList<Integer> arrayList4 = ArrayList.fromValues((Iterator<Integer>)null);
+        assertEquals(0, arrayList4.getCount());
+
+        final ArrayList<Integer> arrayList5 = ArrayList.fromValues(new Array<Integer>(0).iterate());
+        assertEquals(0, arrayList5.getCount());
+
+        final ArrayList<Integer> arrayList6 = ArrayList.fromValues(Array.fromValues(1, 2, 3).iterate());
+        assertEquals(3, arrayList6.getCount());
+        for (int i = 0; i < 3; ++i)
+        {
+            assertEquals(i + 1, arrayList6.get(i).intValue());
+        }
+
+        final ArrayList<Integer> arrayList7 = ArrayList.fromValues((Iterable<Integer>)null);
+        assertEquals(0, arrayList7.getCount());
+
+        final ArrayList<Integer> arrayList8 = ArrayList.fromValues(new Array<Integer>(0));
+        assertEquals(0, arrayList8.getCount());
+
+        final ArrayList<Integer> arrayList9 = ArrayList.fromValues(Array.fromValues(1, 2, 3));
+        assertEquals(3, arrayList9.getCount());
+        for (int i = 0; i < 3; ++i)
+        {
+            assertEquals(i + 1, arrayList9.get(i).intValue());
+        }
     }
 }

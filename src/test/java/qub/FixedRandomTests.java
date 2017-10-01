@@ -32,4 +32,20 @@ public class FixedRandomTests
         assertEquals(11, r0.getRandomIntegerBetween(11, 11));
         assertEquals(7, r0.getRandomIntegerBetween(10, 7));
     }
+
+    @Test
+    public void getRandomBoolean()
+    {
+        final FixedRandom random = new FixedRandom(0);
+        for (int i = 0; i < 10; ++i)
+        {
+            assertTrue(random.getRandomBoolean());
+        }
+
+        random.setValue(1);
+        for (int i = 0; i < 10; ++i)
+        {
+            assertFalse(random.getRandomBoolean());
+        }
+    }
 }
