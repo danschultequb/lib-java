@@ -5,7 +5,7 @@ package qub;
  */
 public final class Comparer
 {
-    private Comparer()
+    Comparer()
     {
     }
 

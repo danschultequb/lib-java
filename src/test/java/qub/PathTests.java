@@ -366,6 +366,8 @@ public class PathTests
         assertNotNull(path);
         assertEquals("/hello/there.txt", path.toString());
         assertTrue(path.isRooted());
+        assertEquals("/", path.getRoot());
+        assertEquals(Path.parse("/"), path.getRootPath());
         assertTrue(path.equals(path));
         assertTrue(path.equals((Object)path));
         final Indexable<String> pathSegments = path.getSegments();
@@ -387,6 +389,8 @@ public class PathTests
         assertNotNull(path);
         assertEquals("/\\/test1//", path.toString());
         assertTrue(path.isRooted());
+        assertEquals("/", path.getRoot());
+        assertEquals(Path.parse("/"), path.getRootPath());
         final Indexable<String> pathSegments = path.getSegments();
         assertNotNull(pathSegments);
         assertArrayEquals(new String[] { "/", "test1" }, Array.toStringArray(pathSegments));
@@ -405,6 +409,8 @@ public class PathTests
         assertNotNull(path);
         assertEquals("C:\\Windows\\System32\\cmd.exe", path.toString());
         assertTrue(path.isRooted());
+        assertEquals("C:", path.getRoot());
+        assertEquals(Path.parse("C:"), path.getRootPath());
         final Indexable<String> pathSegments = path.getSegments();
         assertNotNull(pathSegments);
         assertArrayEquals(new String[] { "C:", "Windows", "System32", "cmd.exe" }, Array.toStringArray(pathSegments));

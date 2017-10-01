@@ -56,14 +56,7 @@ public class Path
         }
         else if (toConcatenate.isRooted())
         {
-            if (this.isEmpty())
-            {
-                result = toConcatenate;
-            }
-            else
-            {
-                result = null;
-            }
+            result = null;
         }
         else
         {
@@ -100,14 +93,7 @@ public class Path
         }
         else if (segmentToConcatenate.isRooted())
         {
-            if (this.isEmpty())
-            {
-                result = segmentToConcatenate;
-            }
-            else
-            {
-                result = null;
-            }
+            result = null;
         }
         else
         {

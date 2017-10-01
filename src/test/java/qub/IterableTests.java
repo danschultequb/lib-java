@@ -249,6 +249,60 @@ public abstract class IterableTests
     }
 
     @Test
+    public void containsWithEmptyIterable()
+    {
+        final Iterable<Integer> iterable = createIterable(0);
+        assertArrayEquals(new int[0], Array.toIntArray(iterable));
+
+        assertFalse(iterable.contains(3));
+    }
+
+    @Test
+    public void containsWithNonEmptyIterableAndNotFoundValue()
+    {
+        final Iterable<Integer> iterable = createIterable(2);
+        assertArrayEquals(new int[] { 0, 1 }, Array.toIntArray(iterable));
+
+        assertFalse(iterable.contains(3));
+    }
+
+    @Test
+    public void containsWithNonEmptyIteratorAndFoundValue()
+    {
+        final Iterable<Integer> iterable = createIterable(5);
+        assertArrayEquals(new int[] { 0, 1, 2, 3, 4 }, Array.toIntArray(iterable));
+
+        assertTrue(iterable.contains(3));
+    }
+
+    @Test
+    public void containsWithEmptyIterableAndCondition()
+    {
+        final Iterable<Integer> iterable = createIterable(0);
+        assertArrayEquals(new int[0], Array.toIntArray(iterable));
+
+        assertFalse(iterable.contains(Math.isOdd));
+    }
+
+    @Test
+    public void containsWithNonEmptyIterableAndNotFoundCondition()
+    {
+        final Iterable<Integer> iterable = createIterable(1);
+        assertArrayEquals(new int[] { 0 }, Array.toIntArray(iterable));
+
+        assertFalse(iterable.contains(Math.isOdd));
+    }
+
+    @Test
+    public void containsWithNonEmptyIteratorAndFoundCondition()
+    {
+        final Iterable<Integer> iterable = createIterable(5);
+        assertArrayEquals(new int[] { 0, 1, 2, 3, 4 }, Array.toIntArray(iterable));
+
+        assertTrue(iterable.contains(Math.isOdd));
+    }
+
+    @Test
     public void takeWithEmptyAndZeroToTake()
     {
         final Iterable<Integer> iterable = createIterable(0);

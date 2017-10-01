@@ -9,14 +9,30 @@ class InstanceOfIterator<TInner,TOuter> extends IteratorBase<TOuter>
     {
         this.innerIterator = innerIterator;
         this.type = type;
+    }
+
+    private boolean skipToMatch()
+    {
+        boolean foundMatch = false;
 
         if (type != null)
         {
-            while (hasCurrent() && (getCurrent() == null || !type.isAssignableFrom(getCurrent().getClass())))
+            while (innerIterator.hasCurrent())
             {
-                innerIterator.next();
+                final TInner innerCurrent = innerIterator.getCurrent();
+                if (innerCurrent != null && type.isAssignableFrom(innerCurrent.getClass()))
+                {
+                    foundMatch = true;
+                    break;
+                }
+                else
+                {
+                    innerIterator.next();
+                }
             }
         }
+
+        return foundMatch;
     }
 
     @Override
@@ -28,13 +44,13 @@ class InstanceOfIterator<TInner,TOuter> extends IteratorBase<TOuter>
     @Override
     public boolean hasCurrent()
     {
-        return type == null ? false : innerIterator.hasCurrent();
+        return skipToMatch();
     }
 
     @Override
     public TOuter getCurrent()
     {
-        return type == null ? null : (TOuter)innerIterator.getCurrent();
+        return !hasCurrent() ? null : (TOuter)innerIterator.getCurrent();
     }
 
     @Override
@@ -51,11 +67,8 @@ class InstanceOfIterator<TInner,TOuter> extends IteratorBase<TOuter>
         }
         else
         {
-            while (innerIterator.next() && (getCurrent() == null || !type.isAssignableFrom(getCurrent().getClass())))
-            {
-            }
-
-            result = innerIterator.hasCurrent();
+            innerIterator.next();
+            result = skipToMatch();
         }
 
         return result;

@@ -965,319 +965,271 @@ public class IteratorTests
         final Iterator<Integer> mapIterator = iterator.map(null);
         assertIterator(iterator, false, false, null);
         assertIterator(mapIterator, false, false, null);
-        assertFalse(mapIterator.hasStarted());
-        assertFalse(mapIterator.hasCurrent());
-        assertNull(mapIterator.getCurrent());
 
         assertFalse(mapIterator.next());
-        assertTrue(mapIterator.hasStarted());
-        assertFalse(mapIterator.hasCurrent());
-        assertNull(mapIterator.getCurrent());
+        assertIterator(iterator, true, false, null);
+        assertIterator(mapIterator, true, false, null);
     }
 
     @Test
-    public void mapWithNonStartedEmptyIteratorAndConversion()
+    public void mapWithEmptyNonStartedIteratorAndConversion()
     {
-        final Array<Integer> array = new Array<>(0);
-        final Iterator<Integer> iterator = new ArrayIterator<>(array);
+        final Iterator<Integer> iterator = createIterator(0, false);
+        assertIterator(iterator, false, false, null);
+
         final Iterator<Boolean> mapIterator = iterator.map(Math.isOdd);
-        assertFalse(mapIterator.hasStarted());
-        assertFalse(mapIterator.hasCurrent());
-        assertNull(mapIterator.getCurrent());
+        assertIterator(iterator, false, false, null);
+        assertIterator(mapIterator, false, false, null);
 
         assertFalse(mapIterator.next());
-        assertTrue(mapIterator.hasStarted());
-        assertFalse(mapIterator.hasCurrent());
-        assertNull(mapIterator.getCurrent());
+        assertIterator(iterator, true, false, null);
+        assertIterator(mapIterator, true, false, null);
     }
 
     @Test
-    public void mapWithNonStartedNonEmptyIteratorAndNoConversion()
+    public void mapWithNonEmptyNonStartedIteratorAndNoConversion()
     {
-        final Array<Integer> array = new Array<>(5);
-        for (int i = 0; i < 5; ++i)
-        {
-            array.set(i, i * 2);
-        }
-        final Iterator<Integer> iterator = new ArrayIterator<>(array);
+        final Iterator<Integer> iterator = createIterator(5, false);
+        assertIterator(iterator, false, false, null);
+
         final Iterator<Boolean> mapIterator = iterator.map(null);
-        assertFalse(mapIterator.hasStarted());
-        assertFalse(mapIterator.hasCurrent());
-        assertNull(mapIterator.getCurrent());
+        assertIterator(iterator, false, false, null);
+        assertIterator(mapIterator, false, false, null);
 
         assertFalse(mapIterator.next());
-        assertTrue(mapIterator.hasStarted());
-        assertFalse(mapIterator.hasCurrent());
-        assertNull(mapIterator.getCurrent());
+        assertIterator(iterator, true, true, 0);
+        assertIterator(mapIterator, true, false, null);
     }
 
     @Test
-    public void mapWithNonStartedNonEmptyIteratorAndConversion()
+    public void mapWithNonEmptyNonStartedIteratorAndConversion()
     {
-        final Array<Integer> array = new Array<>(5);
-        for (int i = 0; i < 5; ++i)
-        {
-            array.set(i, i);
-        }
-        final Iterator<Integer> iterator = new ArrayIterator<>(array);
+        final Iterator<Integer> iterator = createIterator(5, false);
+        assertIterator(iterator, false, false, null);
+
         final Iterator<Boolean> mapIterator = iterator.map(Math.isOdd);
-        assertFalse(mapIterator.hasStarted());
-        assertFalse(mapIterator.hasCurrent());
-        assertNull(mapIterator.getCurrent());
+        assertIterator(iterator, false, false, null);
+        assertIterator(mapIterator, false, false, null);
 
         for (int i = 0; i < 5; ++i)
         {
             assertTrue(mapIterator.next());
-            assertTrue(mapIterator.hasStarted());
-            assertTrue(mapIterator.hasCurrent());
-            assertEquals(i % 2 == 1, mapIterator.getCurrent());
+            assertIterator(iterator, true, true, i);
+            assertIterator(mapIterator, true, true, i % 2 == 1);
         }
 
         assertFalse(mapIterator.next());
-        assertTrue(mapIterator.hasStarted());
-        assertFalse(mapIterator.hasCurrent());
-        assertNull(mapIterator.getCurrent());
+        assertIterator(iterator, true, false, null);
+        assertIterator(mapIterator, true, false, null);
     }
 
     @Test
-    public void mapWithStartedNonEmptyIteratorAndNoConversion()
+    public void mapWithNonEmptyStartedIteratorAndNoConversion()
     {
-        final Array<Integer> array = new Array<>(5);
-        for (int i = 0; i < 5; ++i)
-        {
-            array.set(i, i * 2);
-        }
-        final Iterator<Integer> iterator = new ArrayIterator<>(array);
-        assertTrue(iterator.next());
+        final Iterator<Integer> iterator = createIterator(5, true);
+        assertIterator(iterator, true, true, 0);
 
         final Iterator<Boolean> mapIterator = iterator.map(null);
-        assertTrue(mapIterator.hasStarted());
-        assertFalse(mapIterator.hasCurrent());
-        assertNull(mapIterator.getCurrent());
+        assertIterator(iterator, true, true, 0);
+        assertIterator(mapIterator, true, false, null);
 
         assertFalse(mapIterator.next());
-        assertTrue(mapIterator.hasStarted());
-        assertFalse(mapIterator.hasCurrent());
-        assertNull(mapIterator.getCurrent());
+        assertIterator(iterator, true, true, 0);
+        assertIterator(mapIterator, true, false, null);
     }
 
     @Test
-    public void mapWithStartedNonEmptyIteratorAndConversion()
+    public void mapWithNonEmptyStartedIteratorAndConversion()
     {
-        final Array<Integer> array = new Array<>(5);
-        for (int i = 0; i < 5; ++i)
-        {
-            array.set(i, i);
-        }
-        final Iterator<Integer> iterator = new ArrayIterator<>(array);
-        assertTrue(iterator.next());
+        final Iterator<Integer> iterator = createIterator(5, true);
+        assertIterator(iterator, true, true, 0);
 
         final Iterator<Boolean> mapIterator = iterator.map(Math.isOdd);
-        assertTrue(mapIterator.hasStarted());
-        assertTrue(mapIterator.hasCurrent());
-        assertFalse(mapIterator.getCurrent());
+        assertIterator(iterator, true, true, 0);
+        assertIterator(mapIterator, true, true, false);
 
         for (int i = 1; i < 5; ++i)
         {
             assertTrue(mapIterator.next());
-            assertTrue(mapIterator.hasStarted());
-            assertTrue(mapIterator.hasCurrent());
-            assertEquals(i % 2 == 1, mapIterator.getCurrent());
+            assertIterator(iterator, true, true, i);
+            assertIterator(mapIterator, true, true, i % 2 == 1);
         }
 
         assertFalse(mapIterator.next());
-        assertTrue(mapIterator.hasStarted());
-        assertFalse(mapIterator.hasCurrent());
-        assertNull(mapIterator.getCurrent());
+        assertIterator(iterator, true, false, null);
+        assertIterator(mapIterator, true, false, null);
     }
 
     @Test
-    public void instanceOfWithNonStartedEmptyIteratorAndNullType()
+    public void instanceOfWithEmptyNonStartedIteratorAndNullType()
     {
-        final Array<Integer> array = new Array<>(0);
-        final Iterator<Integer> iterator = new ArrayIterator<>(array);
+        final Iterator<Integer> iterator = createIterator(0, false);
+        assertIterator(iterator, false, false, null);
+
         final Iterator<Integer> instanceOfIterator = iterator.instanceOf(null);
-        assertFalse(instanceOfIterator.hasStarted());
-        assertFalse(instanceOfIterator.hasCurrent());
-        assertNull(instanceOfIterator.getCurrent());
+        assertIterator(iterator, false, false, null);
+        assertIterator(instanceOfIterator, false, false, null);
 
         assertFalse(instanceOfIterator.next());
-        assertTrue(instanceOfIterator.hasStarted());
-        assertFalse(instanceOfIterator.hasCurrent());
-        assertNull(instanceOfIterator.getCurrent());
+        assertIterator(iterator, true, false, null);
+        assertIterator(instanceOfIterator, true, false, null);
     }
 
     @Test
-    public void instanceOfWithNonStartedEmptyIteratorAndType()
+    public void instanceOfWithEmptyNonStartedIteratorAndType()
     {
-        final Array<Integer> array = new Array<>(0);
-        final Iterator<Integer> iterator = new ArrayIterator<>(array);
+        final Iterator<Integer> iterator = createIterator(0, false);
+        assertIterator(iterator, false, false, null);
+
         final Iterator<Boolean> instanceOfIterator = iterator.instanceOf(Boolean.class);
-        assertFalse(instanceOfIterator.hasStarted());
-        assertFalse(instanceOfIterator.hasCurrent());
-        assertNull(instanceOfIterator.getCurrent());
+        assertIterator(iterator, false, false, null);
+        assertIterator(instanceOfIterator, false, false, null);
 
         assertFalse(instanceOfIterator.next());
-        assertTrue(instanceOfIterator.hasStarted());
-        assertFalse(instanceOfIterator.hasCurrent());
-        assertNull(instanceOfIterator.getCurrent());
+        assertIterator(iterator, true, false, null);
+        assertIterator(instanceOfIterator, true, false, null);
     }
 
     @Test
-    public void instanceOfWithNonStartedNonEmptyIteratorAndNullType()
+    public void instanceOfWithNonEmptyNonStartedIteratorAndNullType()
     {
-        final Array<Integer> array = new Array<>(5);
-        for (int i = 0; i < 5; ++i)
-        {
-            array.set(i, i);
-        }
+        final Iterator<Integer> iterator = createIterator(5, false);
+        assertIterator(iterator, false, false, null);
 
-        final Iterator<Integer> iterator = new ArrayIterator<>(array);
         final Iterator<Integer> instanceOfIterator = iterator.instanceOf(null);
-        assertFalse(instanceOfIterator.hasStarted());
-        assertFalse(instanceOfIterator.hasCurrent());
-        assertNull(instanceOfIterator.getCurrent());
+        assertIterator(iterator, false, false, null);
+        assertIterator(instanceOfIterator, false, false, null);
 
         assertFalse(instanceOfIterator.next());
-        assertTrue(instanceOfIterator.hasStarted());
-        assertFalse(instanceOfIterator.hasCurrent());
-        assertNull(instanceOfIterator.getCurrent());
+        assertIterator(iterator, true, true, 0);
+        assertIterator(instanceOfIterator, true, false, null);
     }
 
     @Test
-    public void instanceOfWithNonStartedNonEmptyIteratorAndNoMatches()
+    public void instanceOfWithNonEmptyNonStartedIteratorAndNoMatches()
     {
-        final Array<Number> array = new Array<>(5);
-        for (int i = 0; i < 5; ++i)
-        {
-            array.set(i, i * 2);
-        }
+        final Iterator<Integer> iterator = createIterator(5, false);
+        assertIterator(iterator, false, false, null);
 
-        final Iterator<Number> iterator = new ArrayIterator<>(array);
         final Iterator<Double> instanceOfIterator = iterator.instanceOf(Double.class);
-        assertFalse(instanceOfIterator.hasStarted());
-        assertFalse(instanceOfIterator.hasCurrent());
-        assertNull(instanceOfIterator.getCurrent());
+        assertIterator(iterator, false, false, null);
+        assertIterator(instanceOfIterator, false, false, null);
 
         assertFalse(instanceOfIterator.next());
-        assertTrue(instanceOfIterator.hasStarted());
-        assertFalse(instanceOfIterator.hasCurrent());
-        assertNull(instanceOfIterator.getCurrent());
+        assertIterator(iterator, true, false, null);
+        assertIterator(instanceOfIterator, true, false, null);
     }
 
     @Test
-    public void instanceOfWithNonStartedNonEmptyIteratorAndMatches()
+    public void instanceOfWithNonEmptyNonStartedIteratorAndMatches()
     {
-        final Array<Number> array = new Array<>(5);
-        for (int i = 0; i < 5; ++i)
+        final Iterator<Number> iterator = createIterator(5, false).map(new Function1<Integer, Number>()
         {
-            array.set(i, i);
-        }
-        final Iterator<Number> iterator = new ArrayIterator<>(array);
+            @Override
+            public Number run(Integer value)
+            {
+                return value;
+            }
+        });
+        assertIterator(iterator, false, false, null);
+
         final Iterator<Integer> instanceOfIterator = iterator.instanceOf(Integer.class);
-        assertFalse(instanceOfIterator.hasStarted());
-        assertFalse(instanceOfIterator.hasCurrent());
-        assertNull(instanceOfIterator.getCurrent());
+        assertIterator(iterator, false, false, null);
+        assertIterator(instanceOfIterator, false, false, null);
 
         for (int i = 0; i < 5; ++i)
         {
             assertTrue(instanceOfIterator.next());
-            assertTrue(instanceOfIterator.hasStarted());
-            assertTrue(instanceOfIterator.hasCurrent());
-            assertEquals(i, instanceOfIterator.getCurrent().intValue());
+            assertIterator(iterator, true, true, i);
+            assertIterator(instanceOfIterator, true, true, i);
         }
 
         assertFalse(instanceOfIterator.next());
-        assertTrue(instanceOfIterator.hasStarted());
-        assertFalse(instanceOfIterator.hasCurrent());
-        assertNull(instanceOfIterator.getCurrent());
+        assertIterator(iterator, true, false, null);
+        assertIterator(instanceOfIterator, true, false, null);
     }
 
     @Test
-    public void instanceOfWithStartedNonEmptyIteratorAndNullType()
+    public void instanceOfWithNonEmptyStartedIteratorAndNullType()
     {
-        final Array<Integer> array = new Array<>(5);
-        for (int i = 0; i < 5; ++i)
-        {
-            array.set(i, i);
-        }
-        final Iterator<Integer> iterator = new ArrayIterator<>(array);
-        assertTrue(iterator.next());
+        final Iterator<Integer> iterator = createIterator(5, true);
+        assertIterator(iterator, true, true, 0);
 
         final Iterator<Integer> instanceOfIterator = iterator.instanceOf(null);
-        assertTrue(instanceOfIterator.hasStarted());
-        assertFalse(instanceOfIterator.hasCurrent());
-        assertNull(instanceOfIterator.getCurrent());
+        assertIterator(iterator, true, true, 0);
+        assertIterator(instanceOfIterator, true, false, null);
+        assertIterator(iterator, true, true, 0);
 
         assertFalse(instanceOfIterator.next());
-        assertTrue(instanceOfIterator.hasStarted());
-        assertFalse(instanceOfIterator.hasCurrent());
-        assertNull(instanceOfIterator.getCurrent());
+        assertIterator(iterator, true, true, 0);
+        assertIterator(instanceOfIterator, true, false, null);
     }
 
     @Test
-    public void instanceOfWithStartedNonEmptyIteratorAndNoMatches()
+    public void instanceOfWithNonEmptyStartedIteratorAndNoMatches()
     {
-        final Array<Number> array = new Array<>(5);
-        for (int i = 0; i < 5; ++i)
+        final Iterator<Number> iterator = createIterator(5, true).map(new Function1<Integer, Number>()
         {
-            array.set(i, i * 2);
-        }
-        final Iterator<Number> iterator = new ArrayIterator<>(array);
-        assertTrue(iterator.next());
+            @Override
+            public Number run(Integer value)
+            {
+                return value;
+            }
+        });
+        assertIterator(iterator, true, true, 0);
 
         final Iterator<Float> instanceOfIterator = iterator.instanceOf(Float.class);
-        assertTrue(instanceOfIterator.hasStarted());
-        assertFalse(instanceOfIterator.hasCurrent());
-        assertNull(instanceOfIterator.getCurrent());
+        assertIterator(iterator, true, true, 0);
+        assertIterator(instanceOfIterator, true, false, null);
+        assertIterator(iterator, true, false, null);
 
         assertFalse(instanceOfIterator.next());
-        assertTrue(instanceOfIterator.hasStarted());
-        assertFalse(instanceOfIterator.hasCurrent());
-        assertNull(instanceOfIterator.getCurrent());
+        assertIterator(iterator, true, false, null);
+        assertIterator(instanceOfIterator, true, false, null);
     }
 
     @Test
-    public void instanceOfWithStartedNonEmptyIteratorAndMatches()
+    public void instanceOfWithNonEmptyStartedIteratorAndMatches()
     {
-        final Array<Number> array = new Array<>(5);
-        for (int i = 0; i < 5; ++i)
+        final Iterator<Number> iterator = createIterator(5, true).map(new Function1<Integer, Number>()
         {
-            array.set(i, i);
-        }
-        final Iterator<Number> iterator = new ArrayIterator<>(array);
-        assertTrue(iterator.next());
+            @Override
+            public Number run(Integer value)
+            {
+                return value;
+            }
+        });
+        assertIterator(iterator, true, true, 0);
 
         final Iterator<Integer> instanceOfIterator = iterator.instanceOf(Integer.class);
-        assertTrue(instanceOfIterator.hasStarted());
-        assertTrue(instanceOfIterator.hasCurrent());
-        assertEquals(0, instanceOfIterator.getCurrent().intValue());
+        assertIterator(iterator, true, true, 0);
+        assertIterator(instanceOfIterator, true, true, 0);
+        assertIterator(iterator, true, true, 0);
 
         for (int i = 1; i < 5; ++i)
         {
             assertTrue(instanceOfIterator.next());
-            assertTrue(instanceOfIterator.hasStarted());
-            assertTrue(instanceOfIterator.hasCurrent());
-            assertEquals(i, instanceOfIterator.getCurrent().intValue());
+            assertIterator(iterator, true, true, i);
+            assertIterator(instanceOfIterator, true, true, i);
         }
 
         assertFalse(instanceOfIterator.next());
-        assertTrue(instanceOfIterator.hasStarted());
-        assertFalse(instanceOfIterator.hasCurrent());
-        assertNull(instanceOfIterator.getCurrent());
+        assertIterator(iterator, true, false, null);
+        assertIterator(instanceOfIterator, true, false, null);
     }
 
     @Test
     public void forEachWithEmptyNonStartedIterator()
     {
-        final Array<Integer> a = new Array<>(0);
-        final Iterator<Integer> iterator = new ArrayIterator<>(a);
+        final Iterator<Integer> iterator = createIterator(0, false);
+        assertIterator(iterator, false, false, null);
 
         int elementCount = 0;
         for (final Integer ignored : iterator)
         {
             ++elementCount;
         }
+        assertIterator(iterator, true, false, null);
 
         assertEquals(0, elementCount);
     }
@@ -1285,15 +1237,15 @@ public class IteratorTests
     @Test
     public void forEachWithEmptyStartedIterator()
     {
-        final Array<Integer> a = new Array<>(0);
-        final Iterator<Integer> iterator = new ArrayIterator<>(a);
-        assertFalse(iterator.next());
+        final Iterator<Integer> iterator = createIterator(0, true);
+        assertIterator(iterator, true, false, null);
 
         int elementCount = 0;
         for (final Integer ignored : iterator)
         {
             ++elementCount;
         }
+        assertIterator(iterator, true, false, null);
 
         assertEquals(0, elementCount);
     }
@@ -1301,11 +1253,8 @@ public class IteratorTests
     @Test
     public void forEachWithNonEmptyNonStartedIterator()
     {
-        final Array<Integer> a = new Array<>(10);
-        for (int i = 0; i < a.getCount(); ++i) {
-            a.set(i, i);
-        }
-        final Iterator<Integer> iterator = new ArrayIterator<>(a);
+        final Iterator<Integer> iterator = createIterator(10, false);
+        assertIterator(iterator, false, false, null);
 
         int i = 0;
         for (final Integer element : iterator)
@@ -1313,19 +1262,16 @@ public class IteratorTests
             assertEquals(i, element.intValue());
             ++i;
         }
+        assertIterator(iterator, true, false, null);
 
-        assertEquals(a.getCount(), i);
+        assertEquals(10, i);
     }
 
     @Test
     public void forEachWithNonEmptyAtFirstElementIterator()
     {
-        final Array<Integer> a = new Array<>(10);
-        for (int i = 0; i < a.getCount(); ++i) {
-            a.set(i, i);
-        }
-        final Iterator<Integer> iterator = new ArrayIterator<>(a);
-        assertTrue(iterator.next());
+        final Iterator<Integer> iterator = createIterator(10, true);
+        assertIterator(iterator, true, true, 0);
 
         int i = 0;
         for (final Integer element : iterator)
@@ -1333,29 +1279,28 @@ public class IteratorTests
             assertEquals(i, element.intValue());
             ++i;
         }
+        assertIterator(iterator, true, false, null);
 
-        assertEquals(a.getCount(), i);
+        assertEquals(10, i);
     }
 
     @Test
     public void forEachWithNonEmptyAtSecondElementIterator()
     {
-        final Array<Integer> a = new Array<>(10);
-        for (int i = 0; i < a.getCount(); ++i) {
-            a.set(i, i);
-        }
-        final Iterator<Integer> iterator = new ArrayIterator<>(a);
+        final Iterator<Integer> iterator = createIterator(10, true);
+        assertIterator(iterator, true, true, 0);
         assertTrue(iterator.next());
-        assertTrue(iterator.next());
+        assertIterator(iterator, true, true, 1);
 
-        int i = 1;
+        int i = 0;
         for (final Integer element : iterator)
         {
-            assertEquals(i, element.intValue());
+            assertEquals(i + 1, element.intValue());
             ++i;
         }
+        assertIterator(iterator, true, false, null);
 
-        assertEquals(a.getCount(), i);
+        assertEquals(9, i);
     }
 
     private static Iterator<Integer> createIterator(int count, boolean started)

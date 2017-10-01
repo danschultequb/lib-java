@@ -196,6 +196,64 @@ public class Array<T> extends IndexableBase<T>
     }
 
     /**
+     * Convert the provided int Iterator into a int array.
+     * @param ints The int Iterator to convert to an int array.
+     * @return The int array.
+     */
+    public static int[] toIntArray(Iterator<Integer> ints)
+    {
+        int[] result;
+        if (ints == null)
+        {
+            result = null;
+        }
+        else if (!ints.any())
+        {
+            result = new int[0];
+        }
+        else
+        {
+            final ArrayList<Integer> list = new ArrayList<>();
+            for (final Integer value : ints)
+            {
+                list.add(value);
+            }
+
+            result = toIntArray(list);
+        }
+        return result;
+    }
+
+    /**
+     * Convert the provided int Iterable into a int array.
+     * @param ints The int Iterable to convert to a int array.
+     * @return The int array.
+     */
+    public static int[] toIntArray(Iterable<Integer> ints)
+    {
+        int[] result;
+        if (ints == null)
+        {
+            result = null;
+        }
+        else if (!ints.any())
+        {
+            result = new int[0];
+        }
+        else
+        {
+            result = new int[ints.getCount()];
+            int index = 0;
+            for (final Integer value : ints)
+            {
+                result[index] = value;
+                ++index;
+            }
+        }
+        return result;
+    }
+
+    /**
      * Convert the provided String Iterator into a String array.
      * @param strings The String Iterator to convert to a String array.
      * @return The String array.
