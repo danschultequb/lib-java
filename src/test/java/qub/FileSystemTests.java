@@ -556,7 +556,7 @@ public void getFolderWithNullString()
     {
         final FileSystem fileSystem = getFileSystem();
         final Value<File> file = new Value<>();
-        final boolean fileCreated = fileSystem.createFile("/?#!.txt", file);
+        final boolean fileCreated = fileSystem.createFile("/\u0000?#!.txt", file);
         assertFalse("Wrong fileCreated", fileCreated);
         assertFalse("Wrong file.hasValue()", file.hasValue());
         assertNull("Wrong file.get()", file.get());
