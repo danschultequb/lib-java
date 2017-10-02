@@ -9,12 +9,42 @@ import static org.junit.Assert.*;
 public class ConsoleTests
 {
     @Test
-    public void constructor()
+    public void constructorWithNoArguments()
     {
         final Console console = new Console();
         assertNotNull(console.writeStream);
         assertFalse(console.writeStream.hasValue());
         assertTrue(console.isOpen());
+        assertArrayEquals(new String[0], console.getCommandLineArgumentStrings());
+    }
+
+    @Test
+    public void constructorWithNullStringArray()
+    {
+        final Console console = new Console((String[])null);
+        assertNull(console.getCommandLineArgumentStrings());
+        assertSame(null, console.getCommandLineArgumentStrings());
+        assertNotNull(console.getCommandLine());
+    }
+
+    @Test
+    public void constructorWithEmptyStringArray()
+    {
+        final String[] commandLineArgumentStrings = new String[0];
+        final Console console = new Console(commandLineArgumentStrings);
+        assertArrayEquals(new String[0], console.getCommandLineArgumentStrings());
+        assertSame(commandLineArgumentStrings, console.getCommandLineArgumentStrings());
+        assertNotNull(console.getCommandLine());
+    }
+
+    @Test
+    public void constructorWithNonEmptyStringArray()
+    {
+        final String[] commandLineArgumentStrings = Array.toStringArray("a", "b", "c");
+        final Console console = new Console(commandLineArgumentStrings);
+        assertArrayEquals(new String[] { "a", "b", "c" }, console.getCommandLineArgumentStrings());
+        assertNotSame(commandLineArgumentStrings, console.getCommandLineArgumentStrings());
+        assertNotNull(console.getCommandLine());
     }
 
     @Test

@@ -7,6 +7,8 @@ import java.io.IOException;
  */
 public class Console implements TextWriteStream, TextReadStream
 {
+    private final CommandLine commandLine;
+
     final Value<TextWriteStream> writeStream;
     final Value<TextReadStream> readStream;
     final Value<Random> random;
@@ -16,9 +18,29 @@ public class Console implements TextWriteStream, TextReadStream
      */
     public Console()
     {
+        this(new String[0]);
+    }
+
+    /**
+     * Create a new Console platform that Console applications can be written with.
+     */
+    public Console(String[] commandLineArgumentStrings)
+    {
+        this.commandLine = new CommandLine(commandLineArgumentStrings);
+
         writeStream = new Value<>();
         readStream = new Value<>();
         random = new Value<>();
+    }
+
+    public String[] getCommandLineArgumentStrings()
+    {
+        return commandLine.getArgumentStrings();
+    }
+
+    public CommandLine getCommandLine()
+    {
+        return commandLine;
     }
 
     /**
