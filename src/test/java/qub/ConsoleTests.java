@@ -12,16 +12,14 @@ public class ConsoleTests
     public void constructorWithNoArguments()
     {
         final Console console = new Console();
-        assertNotNull(console.writeStream);
-        assertFalse(console.writeStream.hasValue());
         assertTrue(console.isOpen());
-        assertArrayEquals(new String[0], console.getCommandLineArgumentStrings());
+        assertArrayEquals(null, console.getCommandLineArgumentStrings());
     }
 
     @Test
     public void constructorWithNullStringArray()
     {
-        final Console console = new Console((String[])null);
+        final Console console = new Console(null);
         assertNull(console.getCommandLineArgumentStrings());
         assertSame(null, console.getCommandLineArgumentStrings());
         assertNotNull(console.getCommandLine());
@@ -58,14 +56,9 @@ public class ConsoleTests
     public void getWriteStream()
     {
         final Console console = new Console();
-        assertNotNull(console.writeStream);
-        assertFalse(console.writeStream.hasValue());
-
         final TextWriteStream writeStream = console.getWriteStream();
         assertNotNull(writeStream);
         assertTrue(writeStream instanceof StandardOutputTextWriteStream);
-        assertTrue(console.writeStream.hasValue());
-        assertSame(writeStream, console.writeStream.get());
     }
 
     @Test
@@ -73,8 +66,6 @@ public class ConsoleTests
     {
         final Console console = new Console();
         console.setWriteStream(null);
-        assertTrue(console.writeStream.hasValue());
-        assertNull(console.writeStream.get());
 
         console.write((byte)50);
         console.write(new byte[]{51});
@@ -89,8 +80,6 @@ public class ConsoleTests
         final Console console = new Console();
         final InMemoryTextWriteStream writeStream = new InMemoryTextWriteStream("\n");
         console.setWriteStream(writeStream);
-        assertTrue(console.writeStream.hasValue());
-        assertSame(writeStream, console.writeStream.get());
 
         console.write((byte)50);
         assertArrayEquals(new byte[]{50}, writeStream.getBytes());
@@ -115,14 +104,10 @@ public class ConsoleTests
     public void getReadStream()
     {
         final Console console = new Console();
-        assertNotNull(console.readStream);
-        assertFalse(console.readStream.hasValue());
 
         final TextReadStream readStream = console.getReadStream();
         assertNotNull(readStream);
         assertTrue(readStream instanceof StandardInputTextReadStream);
-        assertTrue(console.readStream.hasValue());
-        assertSame(readStream, console.readStream.get());
     }
 
     @Test
@@ -130,8 +115,6 @@ public class ConsoleTests
     {
         final Console console = new Console();
         console.setReadStream(null);
-        assertTrue(console.readStream.hasValue());
-        assertNull(console.readStream.get());
 
         assertNull(console.readBytes(5));
         assertEquals(-1, console.readBytes(null));
@@ -150,8 +133,6 @@ public class ConsoleTests
         final Console console = new Console();
         final InMemoryTextReadStream readStream = new InMemoryTextReadStream();
         console.setReadStream(readStream);
-        assertTrue(console.readStream.hasValue());
-        assertSame(readStream, console.readStream.get());
 
         readStream.add("hello there my good friend\nHow are you?\r\nI'm alright.");
 
@@ -203,5 +184,31 @@ public class ConsoleTests
         final FixedRandom random = new FixedRandom(1);
         console.setRandom(random);
         assertSame(random, console.getRandom());
+    }
+
+    @Test
+    public void getFileSystem()
+    {
+        final Console console = new Console();
+        final FileSystem defaultFileSystem = console.getFileSystem();
+        assertNotNull(defaultFileSystem);
+        assertTrue(defaultFileSystem instanceof JavaFileSystem);
+    }
+
+    @Test
+    public void setFileSystemWithNull()
+    {
+        final Console console = new Console();
+        console.setFileSystem(null);
+        assertNull(console.getFileSystem());
+    }
+
+    @Test
+    public void setFileSystemWithNonNull()
+    {
+        final Console console = new Console();
+        final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
+        console.setFileSystem(fileSystem);
+        assertSame(fileSystem, console.getFileSystem());
     }
 }
