@@ -9,16 +9,17 @@ public class Console implements TextWriteStream, TextReadStream
 {
     private final CommandLine commandLine;
 
-    final Value<TextWriteStream> writeStream;
-    final Value<TextReadStream> readStream;
-    final Value<Random> random;
+    private final Value<TextWriteStream> writeStream;
+    private final Value<TextReadStream> readStream;
+    private final Value<Random> random;
+    private final Value<FileSystem> fileSystem;
 
     /**
      * Create a new Console platform that Console applications can be written with.
      */
     public Console()
     {
-        this(new String[0]);
+        this(null);
     }
 
     /**
@@ -31,6 +32,7 @@ public class Console implements TextWriteStream, TextReadStream
         writeStream = new Value<>();
         readStream = new Value<>();
         random = new Value<>();
+        fileSystem = new Value<>();
     }
 
     public String[] getCommandLineArgumentStrings()
@@ -305,5 +307,27 @@ public class Console implements TextWriteStream, TextReadStream
             random.set(new JavaRandom());
         }
         return random.get();
+    }
+
+    /**
+     * Get the FileSystem assigned to this Console.
+     * @return The FileSystem assigned to this Console.
+     */
+    public FileSystem getFileSystem()
+    {
+        if (!fileSystem.hasValue())
+        {
+            fileSystem.set(new JavaFileSystem());
+        }
+        return fileSystem.get();
+    }
+
+    /**
+     * Set the FileSystem that is assigned to this Console.
+     * @param fileSystem The FileSystem that will be assigned to this Console.
+     */
+    public void setFileSystem(FileSystem fileSystem)
+    {
+        this.fileSystem.set(fileSystem);
     }
 }
