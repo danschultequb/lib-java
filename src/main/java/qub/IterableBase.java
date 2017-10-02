@@ -8,9 +8,21 @@ package qub;
 public abstract class IterableBase<T> implements Iterable<T>
 {
     @Override
+    public boolean any()
+    {
+        return iterate().any();
+    }
+
+    @Override
     public boolean any(Function1<T,Boolean> condition)
     {
         return iterate().any(condition);
+    }
+
+    @Override
+    public int getCount()
+    {
+        return iterate().getCount();
     }
 
     @Override
