@@ -39,19 +39,26 @@ public class CommandLine extends IndexableBase<CommandLineArgument>
         return getArguments().get(index);
     }
 
-    public String getValue(String argumentName)
+    public CommandLineArgument get(String argumentName)
     {
-        String result = null;
+        CommandLineArgument result = null;
         if (argumentName != null && !argumentName.isEmpty())
         {
             for (final CommandLineArgument argument : this)
             {
                 if(argumentName.equalsIgnoreCase(argument.getName()))
                 {
-                    result = argument.getValue();
+                    result = argument;
+                    break;
                 }
             }
         }
         return result;
+    }
+
+    public String getValue(String argumentName)
+    {
+        final CommandLineArgument argument = get(argumentName);
+        return argument == null ? null : argument.getValue();
     }
 }

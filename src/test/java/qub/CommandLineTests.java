@@ -55,14 +55,109 @@ public class CommandLineTests
     }
 
     @Test
-    public void getValueWithNullName()
+    public void getValueWithNullArgumentsAndNullName()
+    {
+        final CommandLine commandLine = new CommandLine(null);
+        assertNull(commandLine.getValue(null));
+    }
+
+    @Test
+    public void getValueWithNullArgumentsAndEmptyName()
+    {
+        final CommandLine commandLine = new CommandLine(null);
+        assertNull(commandLine.getValue(""));
+    }
+
+    @Test
+    public void getValueWithNullArgumentsAndNonMatchingName()
+    {
+        final CommandLine commandLine = new CommandLine(null);
+        assertNull(commandLine.getValue("spud"));
+    }
+
+    @Test
+    public void getValueWithEmptyArgumentsAndNullName()
+    {
+        final CommandLine commandLine = new CommandLine(new String[0]);
+        assertNull(commandLine.getValue(null));
+    }
+
+    @Test
+    public void getValueWithEmptyArgumentsAndEmptyName()
+    {
+        final CommandLine commandLine = new CommandLine(new String[0]);
+        assertNull(commandLine.getValue(""));
+    }
+
+    @Test
+    public void getValueWithEmptyArgumentsAndNonMatchingName()
+    {
+        final CommandLine commandLine = new CommandLine(new String[0]);
+        assertNull(commandLine.getValue("spud"));
+    }
+
+    @Test
+    public void getValueWithTextArgumentsAndNullName()
+    {
+        final CommandLine commandLine = new CommandLine("hello", "there");
+        assertNull(commandLine.getValue(null));
+    }
+
+    @Test
+    public void getValueWithTextArgumentsAndEmptyName()
+    {
+        final CommandLine commandLine = new CommandLine("hello", "there");
+        assertNull(commandLine.getValue(""));
+    }
+
+    @Test
+    public void getValueWithTextArgumentsAndNonMatchingName()
+    {
+        final CommandLine commandLine = new CommandLine("hello", "there");
+        assertNull(commandLine.getValue("spud"));
+    }
+
+    @Test
+    public void getValueWithSingleDashArgumentsAndNullName()
+    {
+        final CommandLine commandLine = new CommandLine("-hello", "-there");
+        assertNull(commandLine.getValue(null));
+    }
+
+    @Test
+    public void getValueWithSingleDashArgumentsAndEmptyName()
+    {
+        final CommandLine commandLine = new CommandLine("-hello", "-there");
+        assertNull(commandLine.getValue(""));
+    }
+
+    @Test
+    public void getValueWithSingleDashArgumentsAndNonMatchingName()
+    {
+        final CommandLine commandLine = new CommandLine("-hello", "-there");
+        assertNull(commandLine.getValue("spud"));
+    }
+
+    @Test
+    public void getValueWithSingleDashArgumentsAndMatchingName()
+    {
+        final CommandLine commandLine = new CommandLine("-hello", "there");
+        final CommandLineArgument argument = commandLine.get("hello");
+        assertNotNull(argument);
+        assertEquals("-hello", argument.toString());
+        assertEquals("hello", argument.getName());
+        assertNull(argument.getValue());
+    }
+
+    @Test
+    public void getValueWithSingleDashEqualsSignAndNullName()
     {
         final CommandLine commandLine = new CommandLine("-name=value");
         assertNull(commandLine.getValue(null));
     }
 
     @Test
-    public void getValueWithEmptyName()
+    public void getValueWithSingleDashEqualsSignAndEmptyName()
     {
         final CommandLine commandLine = new CommandLine("-name=value");
         assertNull(commandLine.getValue(""));
