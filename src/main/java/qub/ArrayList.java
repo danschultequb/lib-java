@@ -147,6 +147,26 @@ public class ArrayList<T> extends IndexableBase<T>
         return removeAt(0);
     }
 
+    /**
+     * Remove and return the first value in this ArrayList that matches the provided condition. If
+     * this ArrayList is empty or if no elements match the provided condition, then null will be
+     * returned.
+     * @param condition The condition to run against each element in this ArrayList.
+     * @return The element that was removed, or null if no element matched the condition.
+     */
+    public T removeFirst(Function1<T,Boolean> condition)
+    {
+        T result = null;
+
+        final int firstMatchIndex = indexOf(condition);
+        if (firstMatchIndex != -1)
+        {
+            result = removeAt(firstMatchIndex);
+        }
+
+        return result;
+    }
+
     public void clear()
     {
         elementCount = 0;

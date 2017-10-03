@@ -139,6 +139,18 @@ public class InMemoryFolder
         return result;
     }
 
+    public boolean deleteFile(final String fileName)
+    {
+        return null != files.removeFirst(new Function1<InMemoryFile,Boolean>()
+        {
+            @Override
+            public Boolean run(InMemoryFile file)
+            {
+                return file.getName().equalsIgnoreCase(fileName);
+            }
+        });
+    }
+
     public Iterable<InMemoryFolder> getFolders()
     {
         return folders;

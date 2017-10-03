@@ -180,6 +180,42 @@ public class ArrayListTests extends IterableTests
     }
 
     @Test
+    public void removeFirstWithNullConditionAndEmptyArrayList()
+    {
+        final ArrayList<Integer> arrayList = new ArrayList<>();
+        assertNull(arrayList.removeFirst(null));
+    }
+
+    @Test
+    public void removeFirstWithNullConditionAndNonEmptyArrayList()
+    {
+        final ArrayList<Integer> arrayList = ArrayList.fromValues(0, 1, 2, 3);
+        assertNull(arrayList.removeFirst(null));
+    }
+
+    @Test
+    public void removeFirstWithNonMatchingConditionAndEmptyArrayList()
+    {
+        final ArrayList<Integer> arrayList = new ArrayList<>();
+        assertNull(arrayList.removeFirst(Math.isOdd));
+    }
+
+    @Test
+    public void removeFirstWithNonMatchingConditionAndNonEmptyArrayList()
+    {
+        final ArrayList<Integer> arrayList = ArrayList.fromValues(0, 2, 4, 6);
+        assertNull(arrayList.removeFirst(Math.isOdd));
+    }
+
+    @Test
+    public void removeFirstWithMatchingConditionAndNonEmptyArrayList()
+    {
+        final ArrayList<Integer> arrayList = ArrayList.fromValues(0, 1, 2, 3);
+        assertEquals(1, arrayList.removeFirst(Math.isOdd).intValue());
+        assertArrayEquals(new int[] { 0, 2, 3 }, Array.toIntArray(arrayList));
+    }
+
+    @Test
     public void clear()
     {
         final ArrayList<Integer> arrayList = new ArrayList<>();

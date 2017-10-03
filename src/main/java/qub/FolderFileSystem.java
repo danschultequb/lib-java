@@ -136,4 +136,11 @@ public class FolderFileSystem extends FileSystemBase
 
         return result;
     }
+
+    @Override
+    public boolean deleteFile(Path filePath)
+    {
+        final Path innerFilePath = getInnerPath(filePath);
+        return innerFileSystem.deleteFile(innerFilePath);
+    }
 }

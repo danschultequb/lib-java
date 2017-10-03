@@ -561,4 +561,45 @@ public void getFolderWithNullString()
         assertFalse("Wrong file.hasValue()", file.hasValue());
         assertNull("Wrong file.get()", file.get());
     }
+
+    @Test
+    public void deleteFileWithNullPathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertFalse(fileSystem.deleteFile((String)null));
+    }
+
+    @Test
+    public void deleteFileWithEmptyPathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertFalse(fileSystem.deleteFile(""));
+    }
+
+    @Test
+    public void deleteFileWithRelativePathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertFalse(fileSystem.deleteFile("relativeFile.txt"));
+    }
+
+    @Test
+    public void deleteFileWithRootedPathStringThatDoesntExist()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertFalse(fileSystem.deleteFile("/idontexist.txt"));
+    }
+
+    @Test
+    public void deleteFileWithRootedPathStringThatExists()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFile("/iexist.txt");
+
+        assertTrue(fileSystem.deleteFile("/iexist.txt"));
+        assertFalse(fileSystem.fileExists("/iexist.txt"));
+
+        assertFalse(fileSystem.deleteFile("/iexist.txt"));
+        assertFalse(fileSystem.fileExists("/iexist.txt"));
+    }
 }

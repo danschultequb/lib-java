@@ -148,4 +148,11 @@ public abstract class FileSystemBase implements FileSystem
     {
         return createFile(filePath, null);
     }
+
+    @Override
+    public boolean deleteFile(String filePath)
+    {
+        final Path path = Path.parse(filePath);
+        return deleteFile(path);
+    }
 }
