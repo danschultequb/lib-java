@@ -4,8 +4,10 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class IteratorTests
+public abstract class IteratorTests
 {
+    protected abstract Iterator<Integer> createIterator(int count, boolean started);
+
     @Test
     public void anyWithEmptyNonStartedIterator()
     {
@@ -1301,24 +1303,6 @@ public class IteratorTests
         assertIterator(iterator, true, false, null);
 
         assertEquals(9, i);
-    }
-
-    private static Iterator<Integer> createIterator(int count, boolean started)
-    {
-        final Array<Integer> a = new Array<>(count);
-        for (int i = 0; i < count; ++i) {
-            a.set(i, i);
-        }
-
-        final Iterator<Integer> iterator = new ArrayIterator<>(a);
-        if (started)
-        {
-            iterator.next();
-        }
-
-        assertEquals(started, iterator.hasStarted());
-
-        return iterator;
     }
 
     private static <T> void assertIterator(Iterator<T> iterator, boolean expectedHasStarted, boolean expectedHasCurrent, T expectedCurrent)

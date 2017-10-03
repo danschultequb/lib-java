@@ -45,7 +45,7 @@ class WhereIterator<T> extends IteratorBase<T>
     @Override
     public boolean next()
     {
-        while (innerIterator.next() && !condition.run(getCurrent()))
+        while (innerIterator.next() && !condition.run(innerIterator.getCurrent()))
         {
         }
         return this.hasCurrent();
