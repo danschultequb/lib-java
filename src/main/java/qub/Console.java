@@ -1,6 +1,7 @@
 package qub;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 
 /**
  * A Console platform that can be used to write Console applications.
@@ -13,6 +14,7 @@ public class Console implements TextWriteStream, TextReadStream
     private final Value<TextReadStream> readStream;
     private final Value<Random> random;
     private final Value<FileSystem> fileSystem;
+    private final Value<String> currentFolderPathString;
 
     /**
      * Create a new Console platform that Console applications can be written with.
@@ -33,6 +35,7 @@ public class Console implements TextWriteStream, TextReadStream
         readStream = new Value<>();
         random = new Value<>();
         fileSystem = new Value<>();
+        currentFolderPathString = new Value<>();
     }
 
     public String[] getCommandLineArgumentStrings()
@@ -329,5 +332,45 @@ public class Console implements TextWriteStream, TextReadStream
     public void setFileSystem(FileSystem fileSystem)
     {
         this.fileSystem.set(fileSystem);
+        setCurrentFolderPathString(null);
+    }
+
+    public String getCurrentFolderPathString()
+    {
+        if (!currentFolderPathString.hasValue())
+        {
+            currentFolderPathString.set(Paths.get(".").toAbsolutePath().normalize().toString());
+        }
+        return currentFolderPathString.get();
+    }
+
+    public void setCurrentFolderPathString(String currentFolderPathString)
+    {
+        this.currentFolderPathString.set(currentFolderPathString);
+    }
+
+    /**
+     * Get the path to the folder that this Console is currently running in.
+     * @return The path to the folder that this Console is currently running in.
+     */
+    public Path getCurrentFolderPath()
+    {
+        final String currentFolderPathString = getCurrentFolderPathString();
+        return Path.parse(currentFolderPathString);
+    }
+
+    /**
+     * Set the path to the folder that this Console is currently running in.
+     * @param currentFolderPath The folder to the path that this Console is currently running in.
+     */
+    public void setCurrentFolderPath(Path currentFolderPath)
+    {
+        currentFolderPathString.set(currentFolderPath == null ? null : currentFolderPath.toString());
+    }
+
+    public Folder getCurrentFolder()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        return fileSystem == null ? null : fileSystem.getFolder(getCurrentFolderPath());
     }
 }

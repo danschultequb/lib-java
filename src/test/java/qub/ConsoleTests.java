@@ -201,6 +201,7 @@ public class ConsoleTests
         final Console console = new Console();
         console.setFileSystem(null);
         assertNull(console.getFileSystem());
+        assertNull(console.getCurrentFolderPathString());
     }
 
     @Test
@@ -210,5 +211,67 @@ public class ConsoleTests
         final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
         console.setFileSystem(fileSystem);
         assertSame(fileSystem, console.getFileSystem());
+    }
+
+    @Test
+    public void getCurrentFolderPathString()
+    {
+        final Console console = new Console();
+        final String currentFolderPathString = console.getCurrentFolderPathString();
+        assertNotNull(currentFolderPathString);
+        assertFalse(currentFolderPathString.isEmpty());
+        assertTrue(console.getFileSystem().folderExists(currentFolderPathString));
+    }
+
+    @Test
+    public void setCurrentFolderPathStringWithNull()
+    {
+        final Console console = new Console();
+        console.setCurrentFolderPathString(null);
+        assertNull(console.getCurrentFolderPathString());
+    }
+
+    @Test
+    public void setCurrentFolderPathStringWithEmpty()
+    {
+        final Console console = new Console();
+        console.setCurrentFolderPathString("");
+        assertEquals("", console.getCurrentFolderPathString());
+    }
+
+    @Test
+    public void setCurrentFolderPathStringWithRelativePath()
+    {
+        final Console console = new Console();
+        console.setCurrentFolderPathString("hello there");
+        assertEquals("hello there", console.getCurrentFolderPathString());
+    }
+
+    @Test
+    public void getCurrentFolderPath()
+    {
+        final Console console = new Console();
+        final Path currentFolderPath = console.getCurrentFolderPath();
+        assertNotNull(currentFolderPath);
+        assertFalse(currentFolderPath.isEmpty());
+        assertTrue(currentFolderPath.isRooted());
+        assertTrue(console.getFileSystem().folderExists(currentFolderPath));
+    }
+
+    @Test
+    public void setCurrentFolderPathWithNull()
+    {
+        final Console console = new Console();
+        console.setCurrentFolderPath(null);
+        assertNull(console.getCurrentFolderPath());
+    }
+
+    @Test
+    public void getCurrentFolder()
+    {
+        final Console console = new Console();
+        final Folder currentFolder = console.getCurrentFolder();
+        assertNotNull(currentFolder);
+        assertTrue(currentFolder.exists());
     }
 }
