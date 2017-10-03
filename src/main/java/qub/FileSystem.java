@@ -219,4 +219,18 @@ Iterable<FileSystemEntry> getFilesAndFolders(String folderPath);
      * @return Whether or not this function created the file.
      */
     boolean createFile(Path filePath, Value<File> outputFile);
+
+    /**
+     * Delete the file at the provided path and return whether this function deleted the file.
+     * @param filePath The path to the file to delete.
+     * @return Whether or not this function deleted the file.
+     */
+    boolean deleteFile(String filePath);
+
+    /**
+     * Delete the file at the provided path and return whether this function deleted the file.
+     * @param filePath The path to the file to delete.
+     * @return Whether or not this function deleted the file.
+     */
+    boolean deleteFile(Path filePath);
 }

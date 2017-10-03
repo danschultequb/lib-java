@@ -131,29 +131,29 @@ public class JavaFileSystem extends FileSystemBase
         return result;
     }
 
-    private boolean deleteFolder(java.io.File folder)
+    private static boolean deleteFolder(java.io.File javaFolder)
     {
         boolean result = true;
 
-        final java.io.File[] subEntries = folder.listFiles();
-        if (subEntries != null && subEntries.length > 0)
+        final java.io.File[] javaSubEntries = javaFolder.listFiles();
+        if (javaSubEntries != null && javaSubEntries.length > 0)
         {
-            for (final java.io.File subEntry : folder.listFiles())
+            for (final java.io.File javaSubEntry : javaSubEntries)
             {
-                if (subEntry.isDirectory())
+                if (javaSubEntry.isDirectory())
                 {
-                    result &= deleteFolder(subEntry);
+                    result &= deleteFolder(javaSubEntry);
                 }
                 else
                 {
-                    result &= subEntry.delete();
+                    result &= deleteFile(javaSubEntry);
                 }
             }
         }
 
         if (result)
         {
-            result &= folder.delete();
+            result &= javaFolder.delete();
         }
 
         return result;
@@ -167,8 +167,8 @@ public class JavaFileSystem extends FileSystemBase
         if (filePath != null && filePath.isRooted() && !filePath.endsWith("/") && !filePath.endsWith("\\"))
         {
             final String filePathString = filePath.toString();
-            final java.io.File folderFile = new java.io.File(filePathString);
-            result = folderFile.exists() && folderFile.isFile();
+            final java.io.File javaFolder = new java.io.File(filePathString);
+            result = javaFolder.exists() && javaFolder.isFile();
         }
 
         return result;
@@ -213,5 +213,25 @@ public class JavaFileSystem extends FileSystemBase
         }
 
         return result;
+    }
+
+    @Override
+    public boolean deleteFile(Path filePath)
+    {
+        boolean result = false;
+
+        if (filePath != null && filePath.isRooted() && rootExists(filePath.getRoot()))
+        {
+            final String filePathString = filePath.toString();
+            final java.io.File javaFile = new java.io.File(filePathString);
+            result = deleteFolder(javaFile);
+        }
+
+        return result;
+    }
+
+    private static boolean deleteFile(java.io.File javaFile)
+    {
+        return javaFile.delete();
     }
 }

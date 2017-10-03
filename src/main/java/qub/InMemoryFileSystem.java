@@ -207,6 +207,23 @@ public class InMemoryFileSystem extends FileSystemBase
         return result;
     }
 
+    @Override
+    public boolean deleteFile(Path filePath)
+    {
+        boolean result = false;
+
+        if (filePath != null && filePath.isRooted() && rootExists(filePath.getRoot()))
+        {
+            final InMemoryFolder parentFolder = getInMemoryFolder(filePath.getParentPath());
+            if (parentFolder != null)
+            {
+                result = parentFolder.deleteFile(filePath.getSegments().last());
+            }
+        }
+
+        return result;
+    }
+
     /**
      * Create a new Root in this FileSystem and returns whether or not this function created the
      * Root.
