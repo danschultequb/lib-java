@@ -64,6 +64,61 @@ public class InMemoryFileSystem extends FileSystemBase
         return result;
     }
 
+    private InMemoryFile getInMemoryFile(Path filePath)
+    {
+        InMemoryFile result = null;
+
+        if (filePath != null && filePath.isRooted())
+        {
+            final Path parentFolderPath = filePath.getParentPath();
+            final InMemoryFolder parentFolder = getInMemoryFolder(parentFolderPath);
+            if (parentFolder != null)
+            {
+                result = parentFolder.getFile(filePath.getSegments().last());
+            }
+        }
+
+        return result;
+    }
+
+    public boolean setFileCanDelete(String filePathString, boolean canDelete)
+    {
+        return setFileCanDelete(Path.parse(filePathString), canDelete);
+    }
+
+    public boolean setFileCanDelete(Path filePath, boolean canDelete)
+    {
+        boolean result = false;
+
+        final InMemoryFile file = getInMemoryFile(filePath);
+        if (file != null)
+        {
+            file.setCanDelete(canDelete);
+            result = true;
+        }
+
+        return result;
+    }
+
+    public boolean setFolderCanDelete(String folderPathString, boolean canDelete)
+    {
+        return setFolderCanDelete(Path.parse(folderPathString), canDelete);
+    }
+
+    public boolean setFolderCanDelete(Path folderPath, boolean canDelete)
+    {
+        boolean result = false;
+
+        final InMemoryFolder folder = getInMemoryFolder(folderPath);
+        if (folder != null)
+        {
+            folder.setCanDelete(canDelete);
+            result = true;
+        }
+
+        return result;
+    }
+
     @Override
     public Iterable<Root> getRoots()
     {
