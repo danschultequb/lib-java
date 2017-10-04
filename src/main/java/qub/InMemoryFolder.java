@@ -9,6 +9,8 @@ public class InMemoryFolder
     private final ArrayList<InMemoryFolder> folders;
     private final ArrayList<InMemoryFile> files;
 
+    private boolean canDelete;
+
     /**
      * Create a new InMemoryFolder with the provided name.
      * @param name The name of the new InMemoryFolder.
@@ -18,6 +20,7 @@ public class InMemoryFolder
         this.name = name;
         this.folders = new ArrayList<>();
         this.files = new ArrayList<>();
+        this.canDelete = true;
     }
 
     /**
@@ -27,6 +30,61 @@ public class InMemoryFolder
     public String getName()
     {
         return name;
+    }
+
+    /**
+     * Get whether or not this folder can be deleted.
+     * @return Whether or not this folder can be deleted.
+     */
+    public boolean canDelete()
+    {
+        return canDelete;
+    }
+
+    /**
+     * Get whether or not this folder can be deleted based on its own canDelete property as well as
+     * the canDelete properties of all of its child entries.
+     * @return Whether or not this folder can be deleted based on its own canDelete property as well
+     * as the canDelete properties of all of its child entries.
+     */
+    public boolean canDeleteRecursively()
+    {
+        boolean result = canDelete();
+
+        if (result)
+        {
+            for (final InMemoryFile file : files)
+            {
+                if (!file.canDelete())
+                {
+                    result = false;
+                    break;
+                }
+            }
+
+            if (result)
+            {
+                for (final InMemoryFolder folder : folders)
+                {
+                    if (!folder.canDeleteRecursively())
+                    {
+                        result = false;
+                        break;
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Set whether or not this folder is canDelete.
+     * @param canDelete Whether or not this folder is canDelete.
+     */
+    public void setCanDelete(boolean canDelete)
+    {
+        this.canDelete = canDelete;
     }
 
     /**
@@ -79,26 +137,23 @@ public class InMemoryFolder
      * @param folderName The name of the child folder to delete.
      * @return Whether or not the child folder was deleted by this function.
      */
-    public boolean deleteFolder(String folderName)
+    public boolean deleteFolder(final String folderName)
     {
         boolean result = false;
 
         if (folderName != null && !folderName.isEmpty())
         {
-            int folderIndex = 0;
-            for (final InMemoryFolder folder : folders)
+            final int folderIndex = folders.indexOf(new Function1<InMemoryFolder, Boolean>()
             {
-                if (folder.getName().equals(folderName))
+                @Override
+                public Boolean run(InMemoryFolder folder)
                 {
-                    break;
+                    return folder.getName().equals(folderName);
                 }
-                else
-                {
-                    ++folderIndex;
-                }
-            }
+            });
 
-            if (folderIndex < folders.getCount())
+            final InMemoryFolder folder = folders.get(folderIndex);
+            if (folder != null && folder.canDeleteRecursively())
             {
                 result = true;
                 folders.removeAt(folderIndex);
@@ -141,7 +196,7 @@ public class InMemoryFolder
 
     public boolean deleteFile(final String fileName)
     {
-        return null != files.removeFirst(new Function1<InMemoryFile,Boolean>()
+        final int indexToRemove = files.indexOf(new Function1<InMemoryFile,Boolean>()
         {
             @Override
             public Boolean run(InMemoryFile file)
@@ -149,6 +204,19 @@ public class InMemoryFolder
                 return file.getName().equalsIgnoreCase(fileName);
             }
         });
+
+        boolean result = false;
+        if (indexToRemove != -1)
+        {
+            final InMemoryFile file = files.get(indexToRemove);
+            if (file.canDelete())
+            {
+                files.removeAt(indexToRemove);
+                result = true;
+            }
+        }
+
+        return result;
     }
 
     public Iterable<InMemoryFolder> getFolders()
