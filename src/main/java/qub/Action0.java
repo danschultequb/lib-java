@@ -3,7 +3,7 @@ package qub;
 /**
  * An interface for a function that takes no arguments and doesn't return anything.
  */
-public interface Action0
+public interface Action0 extends Runnable
 {
     /**
      * The function to run.
