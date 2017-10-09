@@ -18,16 +18,21 @@ public abstract class IterableTests
     public void iterateWithEmpty()
     {
         final Iterable<Integer> iterable = createIterable(0);
-        final Iterator<Integer> iterator = iterable.iterate();
-        assertNotNull(iterator);
-        assertFalse(iterator.hasStarted());
-        assertFalse(iterator.hasCurrent());
-        assertNull(iterator.getCurrent());
+        // Some iterables cannot be empty (such as SingleLinkNodes), so they will return null when
+        // an Iterable with 0 elements is requested.
+        if (iterable != null)
+        {
+            final Iterator<Integer> iterator = iterable.iterate();
+            assertNotNull(iterator);
+            assertFalse(iterator.hasStarted());
+            assertFalse(iterator.hasCurrent());
+            assertNull(iterator.getCurrent());
 
-        assertFalse(iterator.next());
-        assertTrue(iterator.hasStarted());
-        assertFalse(iterator.hasCurrent());
-        assertNull(iterator.getCurrent());
+            assertFalse(iterator.next());
+            assertTrue(iterator.hasStarted());
+            assertFalse(iterator.hasCurrent());
+            assertNull(iterator.getCurrent());
+        }
     }
 
     @Test
@@ -57,15 +62,19 @@ public abstract class IterableTests
     public void forEachWithEmptyIterable()
     {
         final Iterable<Integer> iterable = createIterable(0);
-
-        int elementCount = 0;
-        for (final Integer element : iterable)
+        // Some iterables cannot be empty (such as SingleLinkNodes), so they will return null when
+        // an Iterable with 0 elements is requested.
+        if (iterable != null)
         {
-            assertEquals(elementCount, element.intValue());
-            ++elementCount;
-        }
+            int elementCount = 0;
+            for (final Integer element : iterable)
+            {
+                assertEquals(elementCount, element.intValue());
+                ++elementCount;
+            }
 
-        assertEquals(0, elementCount);
+            assertEquals(0, elementCount);
+        }
     }
 
     @Test
@@ -87,7 +96,12 @@ public abstract class IterableTests
     public void anyWithEmptyIterable()
     {
         final Iterable<Integer> iterable = createIterable(0);
-        assertFalse(iterable.any());
+        // Some iterables cannot be empty (such as SingleLinkNodes), so they will return null when
+        // an Iterable with 0 elements is requested.
+        if (iterable != null)
+        {
+            assertFalse(iterable.any());
+        }
     }
 
     @Test
@@ -101,7 +115,12 @@ public abstract class IterableTests
     public void anyWithEmptyAndNullCondition()
     {
         final Iterable<Integer> iterable = createIterable(0);
-        assertFalse(iterable.any(null));
+        // Some iterables cannot be empty (such as SingleLinkNodes), so they will return null when
+        // an Iterable with 0 elements is requested.
+        if (iterable != null)
+        {
+            assertFalse(iterable.any(null));
+        }
     }
 
     @Test
@@ -115,7 +134,12 @@ public abstract class IterableTests
     public void anyWithEmptyAndCondition()
     {
         final Iterable<Integer> iterable = createIterable(0);
-        assertFalse(iterable.any(Math.isEven));
+        // Some iterables cannot be empty (such as SingleLinkNodes), so they will return null when
+        // an Iterable with 0 elements is requested.
+        if (iterable != null)
+        {
+            assertFalse(iterable.any(Math.isEven));
+        }
     }
 
     @Test
@@ -141,7 +165,12 @@ public abstract class IterableTests
     public void firstWithEmpty()
     {
         final Iterable<Integer> iterable = createIterable(0);
-        assertNull(iterable.first());
+        // Some iterables cannot be empty (such as SingleLinkNodes), so they will return null when
+        // an Iterable with 0 elements is requested.
+        if (iterable != null)
+        {
+            assertNull(iterable.first());
+        }
     }
 
     @Test
@@ -155,7 +184,12 @@ public abstract class IterableTests
     public void firstWithEmptyAndNullCondition()
     {
         final Iterable<Integer> iterable = createIterable(0);
-        assertNull(iterable.first(null));
+        // Some iterables cannot be empty (such as SingleLinkNodes), so they will return null when
+        // an Iterable with 0 elements is requested.
+        if (iterable != null)
+        {
+            assertNull(iterable.first(null));
+        }
     }
 
     @Test
@@ -169,7 +203,12 @@ public abstract class IterableTests
     public void firstWithEmptyAndCondition()
     {
         final Iterable<Integer> iterable = createIterable(0);
-        assertNull(iterable.first(Math.isOdd));
+        // Some iterables cannot be empty (such as SingleLinkNodes), so they will return null when
+        // an Iterable with 0 elements is requested.
+        if (iterable != null)
+        {
+            assertNull(iterable.first(Math.isOdd));
+        }
     }
 
     @Test
@@ -190,7 +229,12 @@ public abstract class IterableTests
     public void lastWithEmpty()
     {
         final Iterable<Integer> iterable = createIterable(0);
-        assertNull(iterable.first());
+        // Some iterables cannot be empty (such as SingleLinkNodes), so they will return null when
+        // an Iterable with 0 elements is requested.
+        if (iterable != null)
+        {
+            assertNull(iterable.first());
+        }
     }
 
     @Test
@@ -204,7 +248,12 @@ public abstract class IterableTests
     public void lastWithEmptyAndNullCondition()
     {
         final Iterable<Integer> iterable = createIterable(0);
-        assertNull(iterable.last(null));
+        // Some iterables cannot be empty (such as SingleLinkNodes), so they will return null when
+        // an Iterable with 0 elements is requested.
+        if (iterable != null)
+        {
+            assertNull(iterable.last(null));
+        }
     }
 
     @Test
@@ -218,7 +267,12 @@ public abstract class IterableTests
     public void lastWithEmptyAndCondition()
     {
         final Iterable<Integer> iterable = createIterable(0);
-        assertNull(iterable.last(Math.isOdd));
+        // Some iterables cannot be empty (such as SingleLinkNodes), so they will return null when
+        // an Iterable with 0 elements is requested.
+        if (iterable != null)
+        {
+            assertNull(iterable.last(Math.isOdd));
+        }
     }
 
     @Test
@@ -239,22 +293,32 @@ public abstract class IterableTests
     public void takeWithEmptyAndNegativeToTake()
     {
         final Iterable<Integer> iterable = createIterable(0);
-        final Iterable<Integer> takeIterable = iterable.take(-1);
-        assertFalse(takeIterable.any());
-        assertEquals(0, takeIterable.getCount());
+        // Some iterables cannot be empty (such as SingleLinkNodes), so they will return null when
+        // an Iterable with 0 elements is requested.
+        if (iterable != null)
+        {
+            final Iterable<Integer> takeIterable = iterable.take(-1);
+            assertFalse(takeIterable.any());
+            assertEquals(0, takeIterable.getCount());
 
-        final Iterator<Integer> takeIterator = takeIterable.iterate();
-        assertFalse(takeIterator.any());
-        assertEquals(0, takeIterator.getCount());
+            final Iterator<Integer> takeIterator = takeIterable.iterate();
+            assertFalse(takeIterator.any());
+            assertEquals(0, takeIterator.getCount());
+        }
     }
 
     @Test
     public void containsWithEmptyIterable()
     {
         final Iterable<Integer> iterable = createIterable(0);
-        assertArrayEquals(new int[0], Array.toIntArray(iterable));
+        // Some iterables cannot be empty (such as SingleLinkNodes), so they will return null when
+        // an Iterable with 0 elements is requested.
+        if (iterable != null)
+        {
+            assertArrayEquals(new int[0], Array.toIntArray(iterable));
 
-        assertFalse(iterable.contains(3));
+            assertFalse(iterable.contains(3));
+        }
     }
 
     @Test
@@ -279,9 +343,14 @@ public abstract class IterableTests
     public void containsWithEmptyIterableAndCondition()
     {
         final Iterable<Integer> iterable = createIterable(0);
-        assertArrayEquals(new int[0], Array.toIntArray(iterable));
+        // Some iterables cannot be empty (such as SingleLinkNodes), so they will return null when
+        // an Iterable with 0 elements is requested.
+        if (iterable != null)
+        {
+            assertArrayEquals(new int[0], Array.toIntArray(iterable));
 
-        assertFalse(iterable.contains(Math.isOdd));
+            assertFalse(iterable.contains(Math.isOdd));
+        }
     }
 
     @Test
@@ -306,26 +375,36 @@ public abstract class IterableTests
     public void takeWithEmptyAndZeroToTake()
     {
         final Iterable<Integer> iterable = createIterable(0);
-        final Iterable<Integer> takeIterable = iterable.take(0);
-        assertFalse(takeIterable.any());
-        assertEquals(0, takeIterable.getCount());
+        // Some iterables cannot be empty (such as SingleLinkNodes), so they will return null when
+        // an Iterable with 0 elements is requested.
+        if (iterable != null)
+        {
+            final Iterable<Integer> takeIterable = iterable.take(0);
+            assertFalse(takeIterable.any());
+            assertEquals(0, takeIterable.getCount());
 
-        final Iterator<Integer> takeIterator = takeIterable.iterate();
-        assertFalse(takeIterator.any());
-        assertEquals(0, takeIterator.getCount());
+            final Iterator<Integer> takeIterator = takeIterable.iterate();
+            assertFalse(takeIterator.any());
+            assertEquals(0, takeIterator.getCount());
+        }
     }
 
     @Test
     public void takeWithEmptyAndPositiveToTake()
     {
         final Iterable<Integer> iterable = createIterable(0);
-        final Iterable<Integer> takeIterable = iterable.take(3);
-        assertFalse(takeIterable.any());
-        assertEquals(0, takeIterable.getCount());
+        // Some iterables cannot be empty (such as SingleLinkNodes), so they will return null when
+        // an Iterable with 0 elements is requested.
+        if (iterable != null)
+        {
+            final Iterable<Integer> takeIterable = iterable.take(3);
+            assertFalse(takeIterable.any());
+            assertEquals(0, takeIterable.getCount());
 
-        final Iterator<Integer> takeIterator = takeIterable.iterate();
-        assertFalse(takeIterator.any());
-        assertEquals(0, takeIterator.getCount());
+            final Iterator<Integer> takeIterator = takeIterable.iterate();
+            assertFalse(takeIterator.any());
+            assertEquals(0, takeIterator.getCount());
+        }
     }
 
     @Test
@@ -401,29 +480,44 @@ public abstract class IterableTests
     public void skipWithEmptyAndNegativeToSkip()
     {
         final Iterable<Integer> iterable = createIterable(0);
-        final Iterable<Integer> skipIterable = iterable.skip(-1);
-        assertSame(iterable, skipIterable);
+        // Some iterables cannot be empty (such as SingleLinkNodes), so they will return null when
+        // an Iterable with 0 elements is requested.
+        if (iterable != null)
+        {
+            final Iterable<Integer> skipIterable = iterable.skip(-1);
+            assertSame(iterable, skipIterable);
+        }
     }
 
     @Test
     public void skipWithEmptyAndZeroToSkip()
     {
         final Iterable<Integer> iterable = createIterable(0);
-        final Iterable<Integer> skipIterable = iterable.skip(0);
-        assertSame(iterable, skipIterable);
+        // Some iterables cannot be empty (such as SingleLinkNodes), so they will return null when
+        // an Iterable with 0 elements is requested.
+        if (iterable != null)
+        {
+            final Iterable<Integer> skipIterable = iterable.skip(0);
+            assertSame(iterable, skipIterable);
+        }
     }
 
     @Test
     public void skipWithEmptyAndPositiveToSkip()
     {
         final Iterable<Integer> iterable = createIterable(0);
-        final Iterable<Integer> skipIterable = iterable.skip(3);
-        assertFalse(skipIterable.any());
-        assertEquals(0, skipIterable.getCount());
+        // Some iterables cannot be empty (such as SingleLinkNodes), so they will return null when
+        // an Iterable with 0 elements is requested.
+        if (iterable != null)
+        {
+            final Iterable<Integer> skipIterable = iterable.skip(3);
+            assertFalse(skipIterable.any());
+            assertEquals(0, skipIterable.getCount());
 
-        final Iterator<Integer> skipIterator = skipIterable.iterate();
-        assertFalse(skipIterator.any());
-        assertEquals(0, skipIterator.getCount());
+            final Iterator<Integer> skipIterator = skipIterable.iterate();
+            assertFalse(skipIterator.any());
+            assertEquals(0, skipIterator.getCount());
+        }
     }
 
     @Test
@@ -489,21 +583,31 @@ public abstract class IterableTests
     public void whereWithEmptyAndNullCondition()
     {
         final Iterable<Integer> iterable = createIterable(0);
-        final Iterable<Integer> takeIterable = iterable.where(null);
-        assertSame(iterable, takeIterable);
+        // Some iterables cannot be empty (such as SingleLinkNodes), so they will return null when
+        // an Iterable with 0 elements is requested.
+        if (iterable != null)
+        {
+            final Iterable<Integer> takeIterable = iterable.where(null);
+            assertSame(iterable, takeIterable);
+        }
     }
 
     @Test
     public void whereWithEmptyAndCondition()
     {
         final Iterable<Integer> iterable = createIterable(0);
-        final Iterable<Integer> whereIterable = iterable.where(Math.isOdd);
-        assertFalse(whereIterable.any());
-        assertEquals(0, whereIterable.getCount());
+        // Some iterables cannot be empty (such as SingleLinkNodes), so they will return null when
+        // an Iterable with 0 elements is requested.
+        if (iterable != null)
+        {
+            final Iterable<Integer> whereIterable = iterable.where(Math.isOdd);
+            assertFalse(whereIterable.any());
+            assertEquals(0, whereIterable.getCount());
 
-        final Iterator<Integer> whereIterator = whereIterable.iterate();
-        assertFalse(whereIterator.any());
-        assertEquals(0, whereIterator.getCount());
+            final Iterator<Integer> whereIterator = whereIterable.iterate();
+            assertFalse(whereIterator.any());
+            assertEquals(0, whereIterator.getCount());
+        }
     }
 
     @Test
@@ -554,26 +658,36 @@ public abstract class IterableTests
     public void mapWithEmptyAndNoConversion()
     {
         final Iterable<Integer> iterable = createIterable(0);
-        final Iterable<Boolean> mapIterable = iterable.map(null);
-        assertFalse(mapIterable.any());
-        assertEquals(0, mapIterable.getCount());
+        // Some iterables cannot be empty (such as SingleLinkNodes), so they will return null when
+        // an Iterable with 0 elements is requested.
+        if (iterable != null)
+        {
+            final Iterable<Boolean> mapIterable = iterable.map(null);
+            assertFalse(mapIterable.any());
+            assertEquals(0, mapIterable.getCount());
 
-        final Iterator<Boolean> mapIterator = mapIterable.iterate();
-        assertFalse(mapIterator.any());
-        assertEquals(0, mapIterator.getCount());
+            final Iterator<Boolean> mapIterator = mapIterable.iterate();
+            assertFalse(mapIterator.any());
+            assertEquals(0, mapIterator.getCount());
+        }
     }
 
     @Test
     public void mapWithEmptyAndConversion()
     {
         final Iterable<Integer> iterable = createIterable(0);
-        final Iterable<Boolean> mapIterable = iterable.map(Math.isOdd);
-        assertFalse(mapIterable.any());
-        assertEquals(0, mapIterable.getCount());
+        // Some iterables cannot be empty (such as SingleLinkNodes), so they will return null when
+        // an Iterable with 0 elements is requested.
+        if (iterable != null)
+        {
+            final Iterable<Boolean> mapIterable = iterable.map(Math.isOdd);
+            assertFalse(mapIterable.any());
+            assertEquals(0, mapIterable.getCount());
 
-        final Iterator<Boolean> mapIterator = mapIterable.iterate();
-        assertFalse(mapIterator.any());
-        assertEquals(0, mapIterator.getCount());
+            final Iterator<Boolean> mapIterator = mapIterable.iterate();
+            assertFalse(mapIterator.any());
+            assertEquals(0, mapIterator.getCount());
+        }
     }
 
     @Test
@@ -608,26 +722,36 @@ public abstract class IterableTests
     public void mapWithEmptyAndWrongType()
     {
         final Iterable<Integer> iterable = createIterable(0);
-        final Iterable<Boolean> instanceOfIterable = iterable.instanceOf(Boolean.class);
-        assertFalse(instanceOfIterable.any());
-        assertEquals(0, instanceOfIterable.getCount());
+        // Some iterables cannot be empty (such as SingleLinkNodes), so they will return null when
+        // an Iterable with 0 elements is requested.
+        if (iterable != null)
+        {
+            final Iterable<Boolean> instanceOfIterable = iterable.instanceOf(Boolean.class);
+            assertFalse(instanceOfIterable.any());
+            assertEquals(0, instanceOfIterable.getCount());
 
-        final Iterator<Boolean> instanceOfIterator = instanceOfIterable.iterate();
-        assertFalse(instanceOfIterator.any());
-        assertEquals(0, instanceOfIterator.getCount());
+            final Iterator<Boolean> instanceOfIterator = instanceOfIterable.iterate();
+            assertFalse(instanceOfIterator.any());
+            assertEquals(0, instanceOfIterator.getCount());
+        }
     }
 
     @Test
     public void mapWithEmptyAndCorrectType()
     {
         final Iterable<Integer> iterable = createIterable(0);
-        final Iterable<Number> instanceOfIterable = iterable.instanceOf(Number.class);
-        assertFalse(instanceOfIterable.any());
-        assertEquals(0, instanceOfIterable.getCount());
+        // Some iterables cannot be empty (such as SingleLinkNodes), so they will return null when
+        // an Iterable with 0 elements is requested.
+        if (iterable != null)
+        {
+            final Iterable<Number> instanceOfIterable = iterable.instanceOf(Number.class);
+            assertFalse(instanceOfIterable.any());
+            assertEquals(0, instanceOfIterable.getCount());
 
-        final Iterator<Number> instanceOfIterator = instanceOfIterable.iterate();
-        assertFalse(instanceOfIterator.any());
-        assertEquals(0, instanceOfIterator.getCount());
+            final Iterator<Number> instanceOfIterator = instanceOfIterable.iterate();
+            assertFalse(instanceOfIterator.any());
+            assertEquals(0, instanceOfIterator.getCount());
+        }
     }
 
     @Test
