@@ -112,56 +112,6 @@ public abstract class IterableTests
     }
 
     @Test
-    public void anyWithEmptyAndNullCondition()
-    {
-        final Iterable<Integer> iterable = createIterable(0);
-        // Some iterables cannot be empty (such as SingleLinkNodes), so they will return null when
-        // an Iterable with 0 elements is requested.
-        if (iterable != null)
-        {
-            assertFalse(iterable.any(null));
-        }
-    }
-
-    @Test
-    public void anyWithNonEmptyAndNullCondition()
-    {
-        final Iterable<Integer> iterable = createIterable(5);
-        assertFalse(iterable.any(null));
-    }
-
-    @Test
-    public void anyWithEmptyAndCondition()
-    {
-        final Iterable<Integer> iterable = createIterable(0);
-        // Some iterables cannot be empty (such as SingleLinkNodes), so they will return null when
-        // an Iterable with 0 elements is requested.
-        if (iterable != null)
-        {
-            assertFalse(iterable.any(Math.isEven));
-        }
-    }
-
-    @Test
-    public void anyWithNonEmptyAndNonMatchingCondition()
-    {
-        final Iterable<Integer> iterable = createIterable(5);
-        assertFalse(iterable.any(new Function1<Integer,Boolean>() {
-            @Override
-            public Boolean run(Integer element) {
-                return element > 10;
-            }
-        }));
-    }
-
-    @Test
-    public void anyWithNonEmptyAndMatchingCondition()
-    {
-        final Iterable<Integer> iterable = createIterable(5);
-        assertTrue(iterable.any(Math.isOdd));
-    }
-
-    @Test
     public void firstWithEmpty()
     {
         final Iterable<Integer> iterable = createIterable(0);
@@ -577,6 +527,113 @@ public abstract class IterableTests
         final Iterator<Integer> skipIterator = skipIterable.iterate();
         assertFalse(skipIterator.any());
         assertEquals(0, skipIterator.getCount());
+    }
+
+    @Test
+    public void skipLastWithEmpty()
+    {
+        final Iterable<Integer> iterable = createIterable(0);
+        if (iterable != null)
+        {
+            final Iterable<Integer> skipIterable = iterable.skipLast();
+            assertFalse(skipIterable.any());
+        }
+    }
+
+    @Test
+    public void skipLastWithOneValue()
+    {
+        final Iterable<Integer> iterable = createIterable(1);
+        final Iterable<Integer> skipIterable = iterable.skipLast();
+        assertFalse(skipIterable.any());
+    }
+
+    @Test
+    public void skipLastWithMoreThanOneValue()
+    {
+        final Iterable<Integer> iterable = createIterable(2);
+        final Iterable<Integer> skipIterable = iterable.skipLast();
+        assertTrue(skipIterable.any());
+        assertEquals(1, skipIterable.getCount());
+        assertEquals(0, skipIterable.first().intValue());
+    }
+
+    @Test
+    public void skipLastWithEmptyAndNegativeToSkip()
+    {
+        final Iterable<Integer> iterable = createIterable(0);
+        if (iterable != null)
+        {
+            final Iterable<Integer> skipIterable = iterable.skipLast(-3);
+            assertSame(iterable, skipIterable);
+        }
+    }
+
+    @Test
+    public void skipLastWithEmptyAndZeroToSkip()
+    {
+        final Iterable<Integer> iterable = createIterable(0);
+        if (iterable != null)
+        {
+            final Iterable<Integer> skipIterable = iterable.skipLast(0);
+            assertSame(iterable, skipIterable);
+        }
+    }
+
+    @Test
+    public void skipLastWithEmptyAndPositiveToSkip()
+    {
+        final Iterable<Integer> iterable = createIterable(0);
+        if (iterable != null)
+        {
+            final Iterable<Integer> skipIterable = iterable.skipLast(10);
+            assertNotSame(iterable, skipIterable);
+            assertFalse(skipIterable.any());
+        }
+    }
+
+    @Test
+    public void skipLastWithNonEmptyAndNegativeToSkip()
+    {
+        final Iterable<Integer> iterable = createIterable(5);
+        final Iterable<Integer> skipIterable = iterable.skipLast(-5);
+        assertSame(iterable, skipIterable);
+    }
+
+    @Test
+    public void skipLastWithNonEmptyAndZeroToSkip()
+    {
+        final Iterable<Integer> iterable = createIterable(5);
+        final Iterable<Integer> skipIterable = iterable.skipLast(0);
+        assertSame(iterable, skipIterable);
+    }
+
+    @Test
+    public void skipLastWithNonEmptyAndPositiveLessThanCountToSkip()
+    {
+        final Iterable<Integer> iterable = createIterable(5);
+        final Iterable<Integer> skipIterable = iterable.skipLast(4);
+        assertTrue(skipIterable.any());
+        assertEquals(1, skipIterable.getCount());
+        assertEquals(0, skipIterable.first().intValue());
+    }
+
+    @Test
+    public void skipLastWithNonEmptyAndPositiveEqualToCountToSkip()
+    {
+        final Iterable<Integer> iterable = createIterable(5);
+        final Iterable<Integer> skipIterable = iterable.skipLast(5);
+        assertFalse(skipIterable.any());
+        assertEquals(0, skipIterable.getCount());
+    }
+
+    @Test
+    public void skipLastWithNonEmptyAndPositiveGreaterThanCountToSkip()
+    {
+        final Iterable<Integer> iterable = createIterable(5);
+        final Iterable<Integer> skipIterable = iterable.skipLast(6);
+        assertFalse(skipIterable.any());
+        assertEquals(0, skipIterable.getCount());
     }
 
     @Test

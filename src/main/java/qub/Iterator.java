@@ -39,14 +39,6 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     boolean any();
 
     /**
-     * Get whether or not this Iterator contains any values that satisfy the provided condition.
-     * This function will consume as many values of this Iterator as it takes to find a value that
-     * satisfies the condition.
-     * @return Whether or not this Iterator contains any values that satisfy the provided condition.
-     */
-    boolean any(Function1<T,Boolean> condition);
-
-    /**
      * Get the number of values that are in this Iterator. This will iterate through all of the
      * values in this Iterator. Use this method only if you care how many values are in the
      * Iterator, not what the values actually are.

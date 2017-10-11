@@ -56,51 +56,6 @@ public abstract class IteratorTests
     }
 
     @Test
-    public void anyWithEmptyNonStartedIteratorAndNullCondition()
-    {
-        final Iterator<Integer> iterator = createIterator(0, false);
-        assertIterator(iterator, false, false, null);
-        assertFalse(iterator.any(null));
-        assertIterator(iterator, false, false, null);
-    }
-
-    @Test
-    public void anyWithNonEmptyNonStartedIteratorAndNullCondition()
-    {
-        final Iterator<Integer> iterator = createIterator(5, false);
-        assertIterator(iterator, false, false, null);
-        assertFalse(iterator.any(null));
-        assertIterator(iterator, false, false, null);
-    }
-
-    @Test
-    public void anyWithEmptyNonStartedIteratorAndCondition()
-    {
-        final Iterator<Integer> iterator = createIterator(0, false);
-        assertIterator(iterator, false, false, null);
-        assertFalse(iterator.any(Math.isEven));
-        assertIterator(iterator, true, false, null);
-    }
-
-    @Test
-    public void anyWithNonEmptyNonStartedIteratorAndNonMatchingCondition()
-    {
-        final Iterator<Integer> iterator = createIterator(1, false);
-        assertIterator(iterator, false, false, null);
-        assertFalse(iterator.any(Math.isOdd));
-        assertIterator(iterator, true, false, null);
-    }
-
-    @Test
-    public void anyWithNonEmptyNonStartedIteratorAndMatchingCondition()
-    {
-        final Iterator<Integer> iterator = createIterator(5, false);
-        assertIterator(iterator, false, false, null);
-        assertTrue(iterator.any(Math.isOdd));
-        assertIterator(iterator, true, true, 1);
-    }
-
-    @Test
     public void getCountWithEmptyNonStartedIterator()
     {
         final Iterator<Integer> iterator = createIterator(0, false);
