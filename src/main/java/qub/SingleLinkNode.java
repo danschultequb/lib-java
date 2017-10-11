@@ -1,9 +1,7 @@
 package qub;
 
-import java.util.concurrent.atomic.AtomicReference;
-
 /**
- * A node within a list/chain of single-link nodes.
+ * A node with a single link to another SingleLinkNode.
  * @param <T> The type of value stored in the single-link node.
  */
 public class SingleLinkNode<T> extends IterableBase<T>

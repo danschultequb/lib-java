@@ -52,12 +52,6 @@ public interface Iterable<T> extends java.lang.Iterable<T>
     T last(Function1<T,Boolean> condition);
 
     /**
-     * Get whether or not this Iterable contains any values that satisfy the provided condition.
-     * @return Whether or not this Iterable contains any values that satisfy the provided condition.
-     */
-    boolean any(Function1<T,Boolean> condition);
-
-    /**
      * Get whether or not this Iterable contains the provided value using the standard equals()
      * method to compare values.
      * @param value The value to look for in this Iterator.

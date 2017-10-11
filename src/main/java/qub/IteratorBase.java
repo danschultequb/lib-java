@@ -9,32 +9,6 @@ public abstract class IteratorBase<T> implements Iterator<T>
     }
 
     @Override
-    public boolean any(Function1<T,Boolean> condition)
-    {
-        boolean result = false;
-
-        if (condition != null)
-        {
-            if (!hasStarted())
-            {
-                next();
-            }
-
-            while (hasCurrent())
-            {
-                if (condition.run(getCurrent()))
-                {
-                    result = true;
-                    break;
-                }
-                next();
-            }
-        }
-
-        return result;
-    }
-
-    @Override
     public int getCount()
     {
         int result = hasCurrent() ? 1 : 0;

@@ -4,7 +4,7 @@ package qub;
  * A array-based List data structure that can expand when it gets full.
  * @param <T> The type of element stored in this List.
  */
-public class ArrayList<T> extends IndexableBase<T>
+public class ArrayList<T> extends ListBase<T>
 {
     private Array<T> array;
     private int elementCount;
@@ -25,22 +25,13 @@ public class ArrayList<T> extends IndexableBase<T>
         return 0 <= index && index < elementCount;
     }
 
-    /**
-     * Get the value at the provided index. If the index is not in the bounds of this ArrayList,
-     * then null will be returned.
-     * @param index The index to retrieve.
-     * @return The value at the provided index.
-     */
+    @Override
     public T get(int index)
     {
         return inBounds(index) ? array.get(index) : null;
     }
 
-    /**
-     * Set the value at the provided index.
-     * @param index The index to set.
-     * @param value The value to set at the provided index.
-     */
+    @Override
     public void set(int index, T value)
     {
         if (inBounds(index))
@@ -49,10 +40,7 @@ public class ArrayList<T> extends IndexableBase<T>
         }
     }
 
-    /**
-     * Add the provided value at the end of this ArrayList.
-     * @param value The value to add.
-     */
+    @Override
     public void add(T value)
     {
         if (elementCount >= array.getCount())
@@ -69,57 +57,7 @@ public class ArrayList<T> extends IndexableBase<T>
         ++elementCount;
     }
 
-    /**
-     * Add the provided values at the end of this ArrayList.
-     * @param values The values to add.
-     */
-    public void addAll(T... values)
-    {
-        if (values != null && values.length > 0)
-        {
-            for (final T value : values)
-            {
-                add(value);
-            }
-        }
-    }
-
-    /**
-     * Add the provided values at the end of this ArrayList.
-     * @param values The values to add.
-     */
-    public void addAll(Iterator<T> values)
-    {
-        if (values != null && values.any())
-        {
-            for (final T value : values)
-            {
-                add(value);
-            }
-        }
-    }
-
-    /**
-     * Add the provided values at the end of this ArrayList.
-     * @param values The values to add.
-     */
-    public void addAll(Iterable<T> values)
-    {
-        if (values != null && values.any())
-        {
-            for (final T value : values)
-            {
-                add(value);
-            }
-        }
-    }
-
-    /**
-     * Remove and return the value at the provided index. If the index is not in the bounds of this
-     * ArrayList, then no values will be removed and null will be returned.
-     * @param index The index to remove from.
-     * @return The value that was removed or null if the index is out of bounds.
-     */
+    @Override
     public T removeAt(int index)
     {
         T result = null;
@@ -137,23 +75,13 @@ public class ArrayList<T> extends IndexableBase<T>
         return result;
     }
 
-    /**
-     * Remove and return the first value in this ArrayList. If this ArrayList is empty, then null
-     * will be returned.
-     * @return The value that was removed, or null if the ArrayList was empty.
-     */
+    @Override
     public T removeFirst()
     {
         return removeAt(0);
     }
 
-    /**
-     * Remove and return the first value in this ArrayList that matches the provided condition. If
-     * this ArrayList is empty or if no elements match the provided condition, then null will be
-     * returned.
-     * @param condition The condition to run against each element in this ArrayList.
-     * @return The element that was removed, or null if no element matched the condition.
-     */
+    @Override
     public T removeFirst(Function1<T,Boolean> condition)
     {
         T result = null;
@@ -167,6 +95,7 @@ public class ArrayList<T> extends IndexableBase<T>
         return result;
     }
 
+    @Override
     public void clear()
     {
         elementCount = 0;
