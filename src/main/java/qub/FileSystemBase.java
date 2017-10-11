@@ -14,7 +14,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public boolean rootExists(final Path rootPath)
     {
-        return getRoots().any(new Function1<Root, Boolean>()
+        return getRoots().contains(new Function1<Root, Boolean>()
         {
             @Override
             public Boolean run(Root root)

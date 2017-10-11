@@ -4,36 +4,30 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class QueueTests
+public abstract class QueueTests
 {
-    @Test
-    public void constructor()
-    {
-        final Queue<Boolean> queue = new Queue<>();
-        assertEquals(0, queue.getCount());
-        assertFalse(queue.any());
-    }
+    protected abstract Queue<Integer> createQueue();
 
     @Test
     public void enqueue()
     {
-        final Queue<Boolean> queue = new Queue<>();
+        final Queue<Integer> queue = createQueue();
         assertNull(queue.dequeue());
         assertFalse(queue.any());
 
-        queue.enqueue(false);
+        queue.enqueue(0);
         assertTrue(queue.any());
         assertEquals(1, queue.getCount());
 
-        queue.enqueue(true);
+        queue.enqueue(1);
         assertTrue(queue.any());
         assertEquals(2, queue.getCount());
 
-        assertFalse(queue.dequeue());
+        assertEquals(0, queue.dequeue().intValue());
         assertTrue(queue.any());
         assertEquals(1, queue.getCount());
 
-        assertTrue(queue.dequeue());
+        assertEquals(1, queue.dequeue().intValue());
         assertFalse(queue.any());
         assertEquals(0, queue.getCount());
 
@@ -45,31 +39,16 @@ public class QueueTests
     @Test
     public void peek()
     {
-        final Queue<Boolean> queue = new Queue<>();
+        final Queue<Integer> queue = createQueue();
         assertNull(queue.peek());
 
-        queue.enqueue(false);
-        assertFalse(queue.peek());
+        queue.enqueue(20);
+        assertEquals(20, queue.peek().intValue());
 
-        queue.enqueue(true);
-        assertFalse(queue.peek());
+        queue.enqueue(21);
+        assertEquals(20, queue.peek().intValue());
 
-        assertEquals(false, queue.dequeue());
-        assertEquals(true, queue.peek());
-    }
-
-    @Test
-    public void iterate()
-    {
-        final Queue<Boolean> queue = new Queue<>();
-        final Iterator<Boolean> iterator1 = queue.iterate();
-        assertFalse(iterator1.hasStarted());
-        assertFalse(iterator1.hasCurrent());
-        assertNull(iterator1.getCurrent());
-
-        assertFalse(iterator1.next());
-        assertTrue(iterator1.hasStarted());
-        assertFalse(iterator1.hasCurrent());
-        assertNull(iterator1.getCurrent());
+        assertEquals(20, queue.dequeue().intValue());
+        assertEquals(21, queue.peek().intValue());
     }
 }

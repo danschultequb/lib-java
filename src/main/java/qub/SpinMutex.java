@@ -56,4 +56,49 @@ public class SpinMutex
     {
         return acquired.compareAndSet(true, false);
     }
+
+    /**
+     * Run the provided action after this Mutex has been acquired and automatically release the
+     * Mutex when the action completes.
+     * @param action The action to run after acquiring this Mutex.
+     */
+    public void criticalSection(Action0 action)
+    {
+        if (action != null)
+        {
+            acquire();
+            try
+            {
+                action.run();
+            }
+            finally
+            {
+                release();
+            }
+        }
+    }
+
+    /**
+     * Run the provided function after this Mutex has been acquired and automatically release the
+     * Mutex when the function completes.
+     * @param function The function to run after acquiring this Mutex.
+     * @return The return value from the function.
+     */
+    public <T> T criticalSection(Function0<T> function)
+    {
+        T result = null;
+        if (function != null)
+        {
+            acquire();
+            try
+            {
+                result = function.run();
+            }
+            finally
+            {
+                release();
+            }
+        }
+        return result;
+    }
 }
