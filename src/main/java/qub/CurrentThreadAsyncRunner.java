@@ -1,6 +1,6 @@
 package qub;
 
-public class CurrentThreadAsyncRunner implements AsyncRunner, AsyncRunnerInner
+public class CurrentThreadAsyncRunner implements AsyncRunnerInner
 {
     private final LockedSingleLinkListQueue<AsyncTask> scheduledTasks;
 

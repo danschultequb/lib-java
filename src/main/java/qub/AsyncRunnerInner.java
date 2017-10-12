@@ -1,6 +1,6 @@
 package qub;
 
-public interface AsyncRunnerInner
+public interface AsyncRunnerInner extends AsyncRunner
 {
     /**
      * Create a new PausedAsyncAction for the provided action that can be scheduled by calling the
