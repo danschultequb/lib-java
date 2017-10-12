@@ -4,19 +4,19 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class MainAsyncRunnerTests
+public class CurrentThreadAsyncRunnerTests
 {
     @Test
     public void constructor()
     {
-        final MainAsyncRunner runner = new MainAsyncRunner();
+        final CurrentThreadAsyncRunner runner = new CurrentThreadAsyncRunner();
         assertEquals(0, runner.getScheduledCount());
     }
 
     @Test
     public void scheduleAction0WithNull()
     {
-        final MainAsyncRunner runner = new MainAsyncRunner();
+        final CurrentThreadAsyncRunner runner = new CurrentThreadAsyncRunner();
         final AsyncAction asyncAction = runner.schedule(nullAction0);
         assertNull(asyncAction);
         assertEquals(0, runner.getScheduledCount());
@@ -25,7 +25,7 @@ public class MainAsyncRunnerTests
     @Test
     public void scheduleAction0WithNonNull()
     {
-        final MainAsyncRunner runner = new MainAsyncRunner();
+        final CurrentThreadAsyncRunner runner = new CurrentThreadAsyncRunner();
         final Value<Integer> value = new Value<>(0);
         final AsyncAction asyncAction = runner.schedule(setValueAction0(value, 1));
         assertNotNull(asyncAction);
@@ -36,7 +36,7 @@ public class MainAsyncRunnerTests
     @Test
     public void scheduleFunction0WithNull()
     {
-        final MainAsyncRunner runner = new MainAsyncRunner();
+        final CurrentThreadAsyncRunner runner = new CurrentThreadAsyncRunner();
         final AsyncFunction<Integer> asyncFunction = runner.schedule(nullFunction0);
         assertNull(asyncFunction);
         assertEquals(0, runner.getScheduledCount());
@@ -45,7 +45,7 @@ public class MainAsyncRunnerTests
     @Test
     public void scheduleFunction0WithNonNull()
     {
-        final MainAsyncRunner runner = new MainAsyncRunner();
+        final CurrentThreadAsyncRunner runner = new CurrentThreadAsyncRunner();
         final Value<Integer> value = new Value<>(0);
         final AsyncFunction<Integer> asyncFunction = runner.schedule(setValueFunction0(value, 1));
         assertNotNull(asyncFunction);
@@ -55,7 +55,7 @@ public class MainAsyncRunnerTests
     @Test
     public void asyncActionThenAction0WithNull()
     {
-        final MainAsyncRunner runner = new MainAsyncRunner();
+        final CurrentThreadAsyncRunner runner = new CurrentThreadAsyncRunner();
         final AsyncAction asyncAction = runner.schedule(emptyAction0);
         final AsyncAction asyncAction2 = asyncAction.then(nullAction0);
         assertNull(asyncAction2);
@@ -65,7 +65,7 @@ public class MainAsyncRunnerTests
     @Test
     public void asyncActionThenAction0WithNonNull()
     {
-        final MainAsyncRunner runner = new MainAsyncRunner();
+        final CurrentThreadAsyncRunner runner = new CurrentThreadAsyncRunner();
         final AsyncAction asyncAction = runner.schedule(emptyAction0);
         final AsyncAction asyncAction2 = asyncAction.then(emptyAction0);
         assertNotNull(asyncAction2);
@@ -75,7 +75,7 @@ public class MainAsyncRunnerTests
     @Test
     public void asyncActionThenFunction0WithNull()
     {
-        final MainAsyncRunner runner = new MainAsyncRunner();
+        final CurrentThreadAsyncRunner runner = new CurrentThreadAsyncRunner();
         final AsyncAction asyncAction = runner.schedule(emptyAction0);
         final AsyncFunction<Integer> asyncFunction = asyncAction.then(nullFunction0);
         assertNull(asyncFunction);
@@ -85,7 +85,7 @@ public class MainAsyncRunnerTests
     @Test
     public void asyncActionThenFunction0WithNonNull()
     {
-        final MainAsyncRunner runner = new MainAsyncRunner();
+        final CurrentThreadAsyncRunner runner = new CurrentThreadAsyncRunner();
         final AsyncAction asyncAction = runner.schedule(emptyAction0);
         final AsyncFunction<Integer> asyncFunction = asyncAction.then(emptyFunction0);
         assertNotNull(asyncFunction);
@@ -95,7 +95,7 @@ public class MainAsyncRunnerTests
     @Test
     public void asyncFunctionThenAction0WithNull()
     {
-        final MainAsyncRunner runner = new MainAsyncRunner();
+        final CurrentThreadAsyncRunner runner = new CurrentThreadAsyncRunner();
         final AsyncFunction<Integer> asyncFunction = runner.schedule(emptyFunction0);
         final AsyncAction asyncAction = asyncFunction.then(nullAction0);
         assertNull(asyncAction);
@@ -105,7 +105,7 @@ public class MainAsyncRunnerTests
     @Test
     public void asyncFunctionThenAction0WithNonNull()
     {
-        final MainAsyncRunner runner = new MainAsyncRunner();
+        final CurrentThreadAsyncRunner runner = new CurrentThreadAsyncRunner();
         final AsyncFunction<Integer> asyncFunction = runner.schedule(emptyFunction0);
         final AsyncAction asyncAction = asyncFunction.then(emptyAction0);
         assertNotNull(asyncAction);
@@ -115,7 +115,7 @@ public class MainAsyncRunnerTests
     @Test
     public void asyncFunctionThenAction1WithNull()
     {
-        final MainAsyncRunner runner = new MainAsyncRunner();
+        final CurrentThreadAsyncRunner runner = new CurrentThreadAsyncRunner();
         final AsyncFunction<Integer> asyncFunction = runner.schedule(emptyFunction0);
         final AsyncAction asyncAction = asyncFunction.then(nullAction1);
         assertNull(asyncAction);
@@ -125,7 +125,7 @@ public class MainAsyncRunnerTests
     @Test
     public void asyncFunctionThenAction1WithNonNull()
     {
-        final MainAsyncRunner runner = new MainAsyncRunner();
+        final CurrentThreadAsyncRunner runner = new CurrentThreadAsyncRunner();
         final AsyncFunction<Integer> asyncFunction = runner.schedule(emptyFunction0);
         final AsyncAction asyncAction = asyncFunction.then(emptyAction1);
         assertNotNull(asyncAction);
@@ -135,7 +135,7 @@ public class MainAsyncRunnerTests
     @Test
     public void asyncFunctionThenFunction0WithNull()
     {
-        final MainAsyncRunner runner = new MainAsyncRunner();
+        final CurrentThreadAsyncRunner runner = new CurrentThreadAsyncRunner();
         final AsyncFunction<Integer> asyncFunction = runner.schedule(emptyFunction0);
         final AsyncAction asyncAction = asyncFunction.then(nullFunction0);
         assertNull(asyncAction);
@@ -145,7 +145,7 @@ public class MainAsyncRunnerTests
     @Test
     public void asyncFunctionThenFunction0WithNonNull()
     {
-        final MainAsyncRunner runner = new MainAsyncRunner();
+        final CurrentThreadAsyncRunner runner = new CurrentThreadAsyncRunner();
         final AsyncFunction<Integer> asyncFunction = runner.schedule(emptyFunction0);
         final AsyncAction asyncAction = asyncFunction.then(emptyFunction0);
         assertNotNull(asyncAction);
@@ -155,7 +155,7 @@ public class MainAsyncRunnerTests
     @Test
     public void asyncFunctionThenFunction1WithNull()
     {
-        final MainAsyncRunner runner = new MainAsyncRunner();
+        final CurrentThreadAsyncRunner runner = new CurrentThreadAsyncRunner();
         final AsyncFunction<Integer> asyncFunction = runner.schedule(emptyFunction0);
         final AsyncAction asyncAction = asyncFunction.then(nullFunction1);
         assertNull(asyncAction);
@@ -165,7 +165,7 @@ public class MainAsyncRunnerTests
     @Test
     public void asyncFunctionThenFunction1WithNonNull()
     {
-        final MainAsyncRunner runner = new MainAsyncRunner();
+        final CurrentThreadAsyncRunner runner = new CurrentThreadAsyncRunner();
         final AsyncFunction<Integer> asyncFunction = runner.schedule(emptyFunction0);
         final AsyncAction asyncAction = asyncFunction.then(emptyFunction1);
         assertNotNull(asyncAction);
@@ -175,14 +175,14 @@ public class MainAsyncRunnerTests
     @Test
     public void awaitWithNoScheduledTasks()
     {
-        final MainAsyncRunner runner = new MainAsyncRunner();
+        final CurrentThreadAsyncRunner runner = new CurrentThreadAsyncRunner();
         runner.await();
     }
 
     @Test
     public void awaitWithOneScheduledActions()
     {
-        final MainAsyncRunner runner = new MainAsyncRunner();
+        final CurrentThreadAsyncRunner runner = new CurrentThreadAsyncRunner();
         final Value<Integer> value = new Value<>(0);
         runner.schedule(setValueAction0(value, 1));
         runner.await();
@@ -193,7 +193,7 @@ public class MainAsyncRunnerTests
     @Test
     public void awaitWithTwoScheduledActions()
     {
-        final MainAsyncRunner runner = new MainAsyncRunner();
+        final CurrentThreadAsyncRunner runner = new CurrentThreadAsyncRunner();
         final Value<Integer> value1 = new Value<>(0);
         runner.schedule(setValueAction0(value1, 1));
 
@@ -209,7 +209,7 @@ public class MainAsyncRunnerTests
     @Test
     public void awaitWithOneScheduledActionAndOnePausedAction()
     {
-        final MainAsyncRunner runner = new MainAsyncRunner();
+        final CurrentThreadAsyncRunner runner = new CurrentThreadAsyncRunner();
 
         final Value<Integer> value = new Value<>(0);
         runner.schedule(emptyAction0)
@@ -224,7 +224,7 @@ public class MainAsyncRunnerTests
     @Test
     public void awaitWithOneScheduledActionAndOnePausedActionWithOnePausedAction()
     {
-        final MainAsyncRunner runner = new MainAsyncRunner();
+        final CurrentThreadAsyncRunner runner = new CurrentThreadAsyncRunner();
 
         final Value<Integer> value = new Value<>(0);
         runner.schedule(emptyAction0)
@@ -240,7 +240,7 @@ public class MainAsyncRunnerTests
     @Test
     public void awaitWithOneScheduledFunctionWithOneAction1()
     {
-        final MainAsyncRunner runner = new MainAsyncRunner();
+        final CurrentThreadAsyncRunner runner = new CurrentThreadAsyncRunner();
         final Value<Integer> functionReturnValue = new Value<>();
         final Value<Integer> actionArgument = new Value<>();
 
@@ -270,7 +270,7 @@ public class MainAsyncRunnerTests
     @Test
     public void awaitWithOneScheduledFunctionWithOneFunction1()
     {
-        final MainAsyncRunner runner = new MainAsyncRunner();
+        final CurrentThreadAsyncRunner runner = new CurrentThreadAsyncRunner();
         final Value<Integer> firstFunctionReturn = new Value<>();
         final Value<Integer> secondFunctionArgument = new Value<>();
         final Value<Integer> secondFunctionReturnValue = new Value<>();

@@ -1,12 +1,13 @@
 package qub;
 
-public class MainAsyncAction extends MainAsyncTask implements AsyncAction
+public class BasicAsyncAction extends BasicAsyncTask implements AsyncAction, PausedAsyncAction
 {
     private final Action0 action;
 
-    public MainAsyncAction(MainAsyncRunner runner, Action0 action)
+    public BasicAsyncAction(AsyncRunnerInner runner, Action0 action)
     {
         super(runner);
+
         this.action = action;
     }
 
