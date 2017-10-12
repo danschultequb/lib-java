@@ -1,11 +1,11 @@
 package qub;
 
-public class MainAsyncFunction<T> extends MainAsyncTask implements AsyncFunction<T>
+public class BasicAsyncFunction<T> extends BasicAsyncTask implements AsyncFunction<T>, PausedAsyncFunction<T>
 {
     private final Function0<T> function;
     private final Value<T> functionResult;
 
-    public MainAsyncFunction(MainAsyncRunner runner, Function0<T> function)
+    public BasicAsyncFunction(AsyncRunnerInner runner, Function0<T> function)
     {
         super(runner);
 

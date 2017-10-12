@@ -1,7 +1,7 @@
 package qub;
 
 /**
- * A class that runs provided Actions and Functions asynchronously.
+ * An interface that runs provided Actions and Functions asynchronously.
  */
 public interface AsyncRunner
 {
@@ -19,9 +19,4 @@ public interface AsyncRunner
      * @return A reference to the scheduled function.
      */
     <T> AsyncFunction<T> schedule(Function0<T> function);
-
-    /**
-     * Block until all scheduled actions/functions are run to completion.
-     */
-    void await();
 }

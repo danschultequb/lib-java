@@ -1,14 +1,20 @@
 package qub;
 
-public abstract class MainAsyncTask implements AsyncAction
+public abstract class BasicAsyncTask implements AsyncAction, AsyncTask, PausedAsyncTask
 {
-    private final MainAsyncRunner runner;
-    private final List<MainAsyncTask> pausedTasks;
+    private final AsyncRunnerInner runner;
+    private final List<PausedAsyncTask> pausedTasks;
 
-    protected MainAsyncTask(MainAsyncRunner runner)
+    BasicAsyncTask(AsyncRunnerInner runner)
     {
         this.runner = runner;
         this.pausedTasks = new SingleLinkList<>();
+    }
+
+    @Override
+    public void schedule()
+    {
+        runner.schedule(this);
     }
 
     @Override
@@ -17,7 +23,7 @@ public abstract class MainAsyncTask implements AsyncAction
         AsyncAction result = null;
         if (action != null)
         {
-            final MainAsyncAction asyncAction = new MainAsyncAction(runner, action);
+            final PausedAsyncAction asyncAction = runner.create(action);
             pausedTasks.add(asyncAction);
             result = asyncAction;
         }
@@ -30,20 +36,21 @@ public abstract class MainAsyncTask implements AsyncAction
         AsyncFunction<T> result = null;
         if (function != null)
         {
-            final MainAsyncFunction<T> asyncFunction = new MainAsyncFunction<>(runner, function);
+            final PausedAsyncFunction<T> asyncFunction = runner.create(function);
             pausedTasks.add(asyncFunction);
             result = asyncFunction;
         }
         return result;
     }
 
-    public void runTaskAndSchedulePausedTasks()
+    @Override
+    public void runAndSchedulePausedTasks()
     {
         runTask();
 
-        for (final MainAsyncTask pausedTask : pausedTasks)
+        for (final PausedAsyncTask pausedTask : pausedTasks)
         {
-            runner.schedule(pausedTask);
+            pausedTask.schedule();
         }
     }
 
