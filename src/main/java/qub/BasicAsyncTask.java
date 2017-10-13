@@ -4,11 +4,31 @@ public abstract class BasicAsyncTask implements AsyncAction, AsyncTask, PausedAs
 {
     private final AsyncRunnerInner runner;
     private final List<PausedAsyncTask> pausedTasks;
+    private boolean completed;
 
     BasicAsyncTask(AsyncRunnerInner runner)
     {
         this.runner = runner;
         this.pausedTasks = new SingleLinkList<>();
+        this.completed = false;
+    }
+
+    /**
+     * Get the number of PausedAsyncTasks that are waiting for this AsyncTask to complete.
+     * @return The number of PausedAsyncTasks that are waiting for this AsyncTask to complete.
+     */
+    public int getPausedTaskCount()
+    {
+        return pausedTasks.getCount();
+    }
+
+    /**
+     * Get whether or not this BasicAsyncTask has been run.
+     * @return Whether or not this BasicAsyncTask has been run.
+     */
+    public boolean isCompleted()
+    {
+        return completed;
     }
 
     @Override
@@ -24,7 +44,14 @@ public abstract class BasicAsyncTask implements AsyncAction, AsyncTask, PausedAs
         if (action != null)
         {
             final PausedAsyncAction asyncAction = runner.create(action);
-            pausedTasks.add(asyncAction);
+            if (isCompleted())
+            {
+                asyncAction.schedule();
+            }
+            else
+            {
+                pausedTasks.add(asyncAction);
+            }
             result = asyncAction;
         }
         return result;
@@ -37,7 +64,14 @@ public abstract class BasicAsyncTask implements AsyncAction, AsyncTask, PausedAs
         if (function != null)
         {
             final PausedAsyncFunction<T> asyncFunction = runner.create(function);
-            pausedTasks.add(asyncFunction);
+            if (completed)
+            {
+                asyncFunction.schedule();
+            }
+            else
+            {
+                pausedTasks.add(asyncFunction);
+            }
             result = asyncFunction;
         }
         return result;
@@ -47,6 +81,8 @@ public abstract class BasicAsyncTask implements AsyncAction, AsyncTask, PausedAs
     public void runAndSchedulePausedTasks()
     {
         runTask();
+
+        completed = true;
 
         for (final PausedAsyncTask pausedTask : pausedTasks)
         {
