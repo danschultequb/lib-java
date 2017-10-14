@@ -11,11 +11,8 @@ public class ParallelAsyncRunner implements AsyncRunnerInner
         scheduledTaskCount = new AtomicInteger(0);
     }
 
-    /**
-     * Get the number of actions that are currently scheduled.
-     * @return The number of actions that are current scheduled.
-     */
-    int getScheduledCount()
+    @Override
+    public int getScheduledTaskCount()
     {
         return scheduledTaskCount.get();
     }
@@ -73,9 +70,7 @@ public class ParallelAsyncRunner implements AsyncRunnerInner
         return result;
     }
 
-    /**
-     * Block until all scheduled actions/functions are run to completion.
-     */
+    @Override
     public void await()
     {
         while (scheduledTaskCount.get() > 0)

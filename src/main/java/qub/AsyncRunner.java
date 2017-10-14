@@ -6,6 +6,17 @@ package qub;
 public interface AsyncRunner
 {
     /**
+     * Get the number of actions that are currently scheduled.
+     * @return The number of actions that are current scheduled.
+     */
+    int getScheduledTaskCount();
+
+    /**
+     * Block until all scheduled actions/functions are run to completion.
+     */
+    void await();
+
+    /**
      * Schedule the provided action to run asynchronously.
      * @param action The action to run asynchronously.
      * @return A reference to the scheduled action.

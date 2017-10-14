@@ -9,11 +9,8 @@ public class CurrentThreadAsyncRunner implements AsyncRunnerInner
         scheduledTasks = new LockedSingleLinkListQueue<>();
     }
 
-    /**
-     * Get the number of actions that are currently scheduled.
-     * @return The number of actions that are current scheduled.
-     */
-    int getScheduledTaskCount()
+    @Override
+    public int getScheduledTaskCount()
     {
         return scheduledTasks.getCount();
     }
@@ -62,9 +59,7 @@ public class CurrentThreadAsyncRunner implements AsyncRunnerInner
         return result;
     }
 
-    /**
-     * Block until all scheduled actions/functions are run to completion.
-     */
+    @Override
     public void await()
     {
         while (scheduledTasks.any())
