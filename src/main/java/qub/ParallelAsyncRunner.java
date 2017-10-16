@@ -38,8 +38,16 @@ public class ParallelAsyncRunner implements AsyncRunnerInner
             @Override
             public void run()
             {
-                asyncTask.runAndSchedulePausedTasks();
-                scheduledTaskCount.decrementAndGet();
+                AsyncRunnerRegistry.setCurrentThreadAsyncRunner(ParallelAsyncRunner.this);
+                try
+                {
+                    asyncTask.runAndSchedulePausedTasks();
+                    scheduledTaskCount.decrementAndGet();
+                }
+                finally
+                {
+                    AsyncRunnerRegistry.removeCurrentThreadAsyncRunner();
+                }
             }
         }).start();
     }

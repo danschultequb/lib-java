@@ -177,6 +177,36 @@ public class ArrayTests extends IterableTests
     }
 
     @Test
+    public void toBooleanArrayIteratorNull()
+    {
+        assertNull(Array.toBooleanArray((Iterator<Boolean>)null));
+    }
+
+    @Test
+    public void toBooleanArrayIteratorEmpty()
+    {
+        assertArrayEquals(new boolean[0], Array.toBooleanArray(new Array<Boolean>(0).iterate()));
+    }
+
+    @Test
+    public void toBooleanArrayIteratorNonEmpty()
+    {
+        assertArrayEquals(new boolean[] { false, true, false }, Array.toBooleanArray(Array.fromValues(false, true, false).iterate()));
+    }
+
+    @Test
+    public void toBooleanArrayIterableNull()
+    {
+        assertNull(Array.toBooleanArray((Iterable<Boolean>)null));
+    }
+
+    @Test
+    public void toBooleanArrayIterableEmpty()
+    {
+        assertArrayEquals(new boolean[0], Array.toBooleanArray(new Array<Boolean>(0)));
+    }
+
+    @Test
     public void toByteArrayIteratorNull()
     {
         assertNull(Array.toByteArray((Iterator<Byte>)null));
