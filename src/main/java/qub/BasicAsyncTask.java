@@ -40,11 +40,23 @@ public abstract class BasicAsyncTask implements AsyncAction, AsyncTask, PausedAs
     @Override
     public AsyncAction then(Action0 action)
     {
+        return thenOn(runner, action);
+    }
+
+    @Override
+    public <T> AsyncFunction<T> then(Function0<T> function)
+    {
+        return thenOn(runner, function);
+    }
+
+    @Override
+    public AsyncAction thenOn(AsyncRunner runner, Action0 action)
+    {
         AsyncAction result = null;
-        if (action != null)
+        if (runner != null && action != null)
         {
             final PausedAsyncAction asyncAction = runner.create(action);
-            if (isCompleted())
+            if (completed)
             {
                 asyncAction.schedule();
             }
@@ -58,7 +70,7 @@ public abstract class BasicAsyncTask implements AsyncAction, AsyncTask, PausedAs
     }
 
     @Override
-    public <T> AsyncFunction<T> then(Function0<T> function)
+    public <T> AsyncFunction<T> thenOn(AsyncRunner runner, Function0<T> function)
     {
         AsyncFunction<T> result = null;
         if (function != null)

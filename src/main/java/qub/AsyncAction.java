@@ -19,4 +19,18 @@ public interface AsyncAction
      * AsyncAction completes.
      */
     <T> AsyncFunction<T> then(Function0<T> function);
+
+    /**
+     * Run the provided action on the provided AsyncRunner when this AsyncAction completes.
+     * @param action The action to schedule when this AsyncAction completes.
+     * @return The reference to the asynchronous action that will be scheduled.
+     */
+    AsyncAction thenOn(AsyncRunner runner, Action0 action);
+
+    /**
+     * Run the provided function on the provided AsyncRunner when this AsyncAction completes.
+     * @param action The action to schedule when this AsyncAction completes.
+     * @return The reference to the asynchronous action that will be scheduled.
+     */
+    <T> AsyncFunction<T> thenOn(AsyncRunner runner, Function0<T> action);
 }
