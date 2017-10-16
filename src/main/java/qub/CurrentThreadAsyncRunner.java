@@ -68,4 +68,26 @@ public class CurrentThreadAsyncRunner implements AsyncRunnerInner
             action.runAndSchedulePausedTasks();
         }
     }
+
+    /**
+     * Run the provided action immediately using a new CurrentThreadAsyncRunner that has been
+     * registered with the AsyncRunnerRegistry for the current thread. When the provided action
+     * completes, the provided CurrentThreadAsyncRunner will be removed from the
+     * AsyncRunnerRegistry.
+     * @param action The action to run immediately with the created and registered
+     *               CurrentThreadAsyncRunner.
+     */
+    public static void withRegistered(Action1<CurrentThreadAsyncRunner> action)
+    {
+        final CurrentThreadAsyncRunner runner = new CurrentThreadAsyncRunner();
+        AsyncRunnerRegistry.setCurrentThreadAsyncRunner(runner);
+        try
+        {
+            action.run(runner);
+        }
+        finally
+        {
+            AsyncRunnerRegistry.removeCurrentThreadAsyncRunner();
+        }
+    }
 }
