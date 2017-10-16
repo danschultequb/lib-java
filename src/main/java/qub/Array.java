@@ -138,6 +138,60 @@ public class Array<T> extends IndexableBase<T>
     }
 
     /**
+     * Convert the provided boolean Iterator into a boolean array.
+     * @param booleans The boolean Iterator to convert to a boolean array.
+     * @return The boolean array.
+     */
+    public static boolean[] toBooleanArray(Iterator<Boolean> booleans)
+    {
+        boolean[] result;
+        if (booleans == null)
+        {
+            result = null;
+        }
+        else if (!booleans.any())
+        {
+            result = new boolean[0];
+        }
+        else
+        {
+            final ArrayList<Boolean> list = new ArrayList<>();
+            list.addAll(booleans);
+            result = toBooleanArray(list);
+        }
+        return result;
+    }
+
+    /**
+     * Convert the provided boolean Iterable into a boolean array.
+     * @param booleans The boolean Iterable to convert to a boolean array.
+     * @return The boolean array.
+     */
+    public static boolean[] toBooleanArray(Iterable<Boolean> booleans)
+    {
+        boolean[] result;
+        if (booleans == null)
+        {
+            result = null;
+        }
+        else if (!booleans.any())
+        {
+            result = new boolean[0];
+        }
+        else
+        {
+            result = new boolean[booleans.getCount()];
+            int index = 0;
+            for (final Boolean value : booleans)
+            {
+                result[index] = value;
+                ++index;
+            }
+        }
+        return result;
+    }
+
+    /**
      * Convert the provided byte Iterator into a byte array.
      * @param bytes The byte Iterator to convert to a byte array.
      * @return The byte array.

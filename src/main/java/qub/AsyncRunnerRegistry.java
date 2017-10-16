@@ -2,11 +2,11 @@ package qub;
 
 public class AsyncRunnerRegistry
 {
-    private static Map<Long,AsyncRunner> asyncRunners = new LockedListMap<>();
-
-    private AsyncRunnerRegistry()
+    AsyncRunnerRegistry()
     {
     }
+
+    private static Map<Long,AsyncRunner> asyncRunners = new LockedListMap<>();
 
     private static long getCurrentThreadId()
     {

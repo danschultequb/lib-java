@@ -18,4 +18,26 @@ public class CurrentThreadAsyncRunnerTests extends AsyncRunnerTests
         final CurrentThreadAsyncRunner runner = new CurrentThreadAsyncRunner();
         assertEquals(0, runner.getScheduledTaskCount());
     }
+
+    @Test
+    public void withRegistered()
+    {
+        final AsyncRunner backupRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+        try
+        {
+            CurrentThreadAsyncRunner.withRegistered(new Action1<CurrentThreadAsyncRunner>()
+            {
+                @Override
+                public void run(CurrentThreadAsyncRunner runner)
+                {
+                    assertNotNull(runner);
+                    assertSame(runner, AsyncRunnerRegistry.getCurrentThreadAsyncRunner());
+                }
+            });
+        }
+        finally
+        {
+            AsyncRunnerRegistry.setCurrentThreadAsyncRunner(backupRunner);
+        }
+    }
 }
