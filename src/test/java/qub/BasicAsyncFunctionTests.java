@@ -18,6 +18,13 @@ public class BasicAsyncFunctionTests extends BasicAsyncTaskTests
         return create(runner);
     }
 
+    private BasicAsyncFunction<Integer> createScheduled(AsyncRunnerInner runner)
+    {
+        final BasicAsyncFunction<Integer> basicAsyncFunction = create(runner);
+        basicAsyncFunction.schedule();
+        return basicAsyncFunction;
+    }
+
     @Test
     public void constructor()
     {
@@ -47,6 +54,19 @@ public class BasicAsyncFunctionTests extends BasicAsyncTaskTests
     }
 
     @Test
+    public void thenAction1WithNonNullWhenCompleted()
+    {
+        final CurrentThreadAsyncRunner runner = new CurrentThreadAsyncRunner();
+        final BasicAsyncFunction<Integer> basicAsyncFunction = createScheduled(runner);
+        runner.await();
+
+        final AsyncAction thenAsyncAction = basicAsyncFunction.then(TestUtils.emptyAction1);
+        assertNotNull(thenAsyncAction);
+        assertEquals(0, basicAsyncFunction.getPausedTaskCount());
+        assertEquals(1, runner.getScheduledTaskCount());
+    }
+
+    @Test
     public void thenFunction1WithNull()
     {
         final BasicAsyncFunction<Integer> basicAsyncFunction = create();
@@ -62,5 +82,91 @@ public class BasicAsyncFunctionTests extends BasicAsyncTaskTests
         final AsyncFunction<Integer> thenAsyncFunction = basicAsyncFunction.then(TestUtils.emptyFunction1);
         assertNotNull(thenAsyncFunction);
         assertEquals(1, basicAsyncFunction.getPausedTaskCount());
+    }
+
+    @Test
+    public void thenFunction1WithNonNullWhenCompleted()
+    {
+        final CurrentThreadAsyncRunner runner = new CurrentThreadAsyncRunner();
+        final BasicAsyncFunction<Integer> basicAsyncFunction = createScheduled(runner);
+        runner.await();
+
+        final AsyncFunction<Integer> thenAsyncFunction = basicAsyncFunction.then(TestUtils.emptyFunction1);
+        assertNotNull(thenAsyncFunction);
+        assertEquals(0, basicAsyncFunction.getPausedTaskCount());
+        assertEquals(1, runner.getScheduledTaskCount());
+    }
+
+    @Test
+    public void thenOnAction1()
+    {
+        final CurrentThreadAsyncRunner runner1 = new CurrentThreadAsyncRunner();
+        final BasicAsyncFunction<Integer> basicAsyncFunction = createScheduled(runner1);
+
+        final CurrentThreadAsyncRunner runner2 = new CurrentThreadAsyncRunner();
+        final AsyncAction thenOnAsyncAction = basicAsyncFunction.thenOn(runner2, TestUtils.emptyAction1);
+        assertNotNull(thenOnAsyncAction);
+        assertEquals(1, basicAsyncFunction.getPausedTaskCount());
+        assertEquals(0, runner2.getScheduledTaskCount());
+
+        runner1.await();
+        assertEquals(1, runner2.getScheduledTaskCount());
+
+        runner2.await();
+        assertEquals(0, runner2.getScheduledTaskCount());
+    }
+
+    @Test
+    public void thenOnAction1WhenCompleted()
+    {
+        final CurrentThreadAsyncRunner runner1 = new CurrentThreadAsyncRunner();
+        final BasicAsyncFunction<Integer> basicAsyncFunction = createScheduled(runner1);
+        runner1.await();
+        assertTrue(basicAsyncFunction.isCompleted());
+
+        final CurrentThreadAsyncRunner runner2 = new CurrentThreadAsyncRunner();
+        final AsyncAction thenOnAsyncAction = basicAsyncFunction.thenOn(runner2, TestUtils.emptyAction1);
+        assertNotNull(thenOnAsyncAction);
+        assertEquals(0, basicAsyncFunction.getPausedTaskCount());
+        assertEquals(1, runner2.getScheduledTaskCount());
+
+        runner2.await();
+        assertEquals(0, runner2.getScheduledTaskCount());
+    }
+
+    @Test
+    public void thenOnFunction1()
+    {
+        final CurrentThreadAsyncRunner runner1 = new CurrentThreadAsyncRunner();
+        final BasicAsyncFunction<Integer> basicAsyncFunction = createScheduled(runner1);
+
+        final CurrentThreadAsyncRunner runner2 = new CurrentThreadAsyncRunner();
+        final AsyncFunction<Integer> thenOnAsyncFunction = basicAsyncFunction.thenOn(runner2, TestUtils.emptyFunction1);
+        assertNotNull(thenOnAsyncFunction);
+        assertEquals(1, basicAsyncFunction.getPausedTaskCount());
+        assertEquals(0, runner2.getScheduledTaskCount());
+
+        runner1.await();
+        assertEquals(1, runner2.getScheduledTaskCount());
+
+        runner2.await();
+        assertEquals(0, runner2.getScheduledTaskCount());
+    }
+
+    @Test
+    public void thenOnFunction1WhenCompleted()
+    {
+        final CurrentThreadAsyncRunner runner1 = new CurrentThreadAsyncRunner();
+        final BasicAsyncFunction<Integer> basicAsyncFunction = createScheduled(runner1);
+        runner1.await();
+
+        final CurrentThreadAsyncRunner runner2 = new CurrentThreadAsyncRunner();
+        final AsyncFunction<Integer> thenOnAsyncFunction = basicAsyncFunction.thenOn(runner2, TestUtils.emptyFunction1);
+        assertNotNull(thenOnAsyncFunction);
+        assertEquals(0, basicAsyncFunction.getPausedTaskCount());
+        assertEquals(1, runner2.getScheduledTaskCount());
+
+        runner2.await();
+        assertEquals(0, runner2.getScheduledTaskCount());
     }
 }
