@@ -1,24 +1,20 @@
 package qub;
 
-public class CurrentThreadAsyncRunner implements AsyncRunnerInner
-{
-    private final LockedSingleLinkListQueue<AsyncTask> scheduledTasks;
+import java.util.concurrent.atomic.AtomicInteger;
 
-    public CurrentThreadAsyncRunner()
+public class ParallelAsyncRunner implements AsyncRunnerInner
+{
+    private final AtomicInteger scheduledTaskCount;
+
+    public ParallelAsyncRunner()
     {
-        scheduledTasks = new LockedSingleLinkListQueue<>();
+        scheduledTaskCount = new AtomicInteger(0);
     }
 
     @Override
     public int getScheduledTaskCount()
     {
-        return scheduledTasks.getCount();
-    }
-
-    @Override
-    public void schedule(AsyncTask asyncTask)
-    {
-        scheduledTasks.enqueue(asyncTask);
+        return scheduledTaskCount.get();
     }
 
     @Override
@@ -31,6 +27,21 @@ public class CurrentThreadAsyncRunner implements AsyncRunnerInner
     public <T> PausedAsyncFunction<T> create(Function0<T> function)
     {
         return new BasicAsyncFunction<>(this, function);
+    }
+
+    @Override
+    public void schedule(final AsyncTask asyncTask)
+    {
+        scheduledTaskCount.incrementAndGet();
+        new java.lang.Thread(new Action0()
+        {
+            @Override
+            public void run()
+            {
+                asyncTask.runAndSchedulePausedTasks();
+                scheduledTaskCount.decrementAndGet();
+            }
+        }).start();
     }
 
     @Override
@@ -62,10 +73,8 @@ public class CurrentThreadAsyncRunner implements AsyncRunnerInner
     @Override
     public void await()
     {
-        while (scheduledTasks.any())
+        while (scheduledTaskCount.get() > 0)
         {
-            final AsyncTask action = scheduledTasks.dequeue();
-            action.runAndSchedulePausedTasks();
         }
     }
 }
