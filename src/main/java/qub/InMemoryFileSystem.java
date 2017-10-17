@@ -44,7 +44,7 @@ public class InMemoryFileSystem extends FileSystemBase
         return folder;
     }
 
-    private boolean createInMemoryFolder(Path inMemoryFolderPath, Value<InMemoryFolder> outputFolder)
+    private boolean createInMemoryFolder(Path inMemoryFolderPath, Out<InMemoryFolder> outputFolder)
     {
         boolean result = false;
 
@@ -175,7 +175,7 @@ public class InMemoryFileSystem extends FileSystemBase
     }
 
     @Override
-    public boolean createFolder(Path folderPath, Value<Folder> outputFolder)
+    public boolean createFolder(Path folderPath, Out<Folder> outputFolder)
     {
         boolean result = false;
 
@@ -234,7 +234,7 @@ public class InMemoryFileSystem extends FileSystemBase
     }
 
     @Override
-    public boolean createFile(Path filePath, Value<File> outputFile)
+    public boolean createFile(Path filePath, Out<File> outputFile)
     {
         boolean result = false;
 

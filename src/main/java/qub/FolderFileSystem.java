@@ -88,7 +88,7 @@ public class FolderFileSystem extends FileSystemBase
     }
 
     @Override
-    public boolean createFolder(Path folderPath, Value<Folder> outputFolder)
+    public boolean createFolder(Path folderPath, Out<Folder> outputFolder)
     {
         final Path innerFolderPath = getInnerPath(folderPath);
         final Value<Folder> innerOutputFolder = (outputFolder == null ? null : new Value<Folder>());
@@ -120,7 +120,7 @@ public class FolderFileSystem extends FileSystemBase
     }
 
     @Override
-    public boolean createFile(Path filePath, Value<File> outputFile)
+    public boolean createFile(Path filePath, Out<File> outputFile)
     {
         final Path innerFilePath = getInnerPath(filePath);
         final Value<File> innerOutputFile = (outputFile == null ? null : new Value<File>());

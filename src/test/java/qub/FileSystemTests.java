@@ -8,6 +8,112 @@ public abstract class FileSystemTests
 {
     protected abstract FileSystem getFileSystem();
 
+    private FileSystem getFileSystem(AsyncRunner parallelRunner)
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.setAsyncRunner(parallelRunner);
+        return fileSystem;
+    }
+
+    @Test
+    public void rootExistsWithNullStringPath()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertFalse(fileSystem.rootExists((String)null));
+    }
+
+    @Test
+    public void rootExistsWithEmptyStringPath()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertFalse(fileSystem.rootExists(""));
+    }
+
+    @Test
+    public void rootExistsWithNonExistingStringPath()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertFalse(fileSystem.rootExists("notme:/"));
+    }
+
+    private void rootExistsWithStringPathAsync(final String rootPath, final boolean expectedToExist)
+    {
+        asyncTest(new Action2<FileSystem, Out<Boolean>>()
+        {
+            @Override
+            public void run(FileSystem fileSystem, final Out<Boolean> thenCalled)
+            {
+                fileSystem.rootExistsAsync(rootPath)
+                        .then(new Action1<Boolean>()
+                        {
+                            @Override
+                            public void run(Boolean rootExists)
+                            {
+                                thenCalled.set(true);
+                                assertEquals(expectedToExist, rootExists);
+                            }
+                        });
+            }
+        });
+    }
+
+    @Test
+    public void rootExistAsyncWithNullStringPath()
+    {
+        rootExistsWithStringPathAsync(null, false);
+    }
+
+    @Test
+    public void rootExistAsyncWithEmptyStringPath()
+    {
+        rootExistsWithStringPathAsync("", false);
+    }
+
+    @Test
+    public void rootExistAsyncWithNonExistingStringPath()
+    {
+        rootExistsWithStringPathAsync("notme:\\", false);
+    }
+
+    private void rootExistsWithPathAsync(final Path rootPath, final boolean expectedToExist)
+    {
+        asyncTest(new Action2<FileSystem, Out<Boolean>>()
+        {
+            @Override
+            public void run(FileSystem fileSystem, final Out<Boolean> thenCalled)
+            {
+                fileSystem.rootExistsAsync(rootPath)
+                        .then(new Action1<Boolean>()
+                        {
+                            @Override
+                            public void run(Boolean rootExists)
+                            {
+                                thenCalled.set(true);
+                                assertEquals(expectedToExist, rootExists);
+                            }
+                        });
+            }
+        });
+    }
+
+    @Test
+    public void rootExistAsyncWithNullPath()
+    {
+        rootExistsWithPathAsync(null, false);
+    }
+
+    @Test
+    public void rootExistAsyncWithEmptyPath()
+    {
+        rootExistsWithPathAsync(Path.parse(""), false);
+    }
+
+    @Test
+    public void rootExistAsyncWithNonExistingPath()
+    {
+        rootExistsWithPathAsync(Path.parse("notme:\\"), false);
+    }
+
     @Test
     public void getRoot()
     {
@@ -24,6 +130,29 @@ public abstract class FileSystemTests
         final Iterable<Root> roots = fileSystem.getRoots();
         assertNotNull(roots);
         assertTrue(1 <= roots.getCount());
+    }
+
+    @Test
+    public void getRootsAsync()
+    {
+        asyncTest(new Action2<FileSystem, Out<Boolean>>()
+        {
+            @Override
+            public void run(FileSystem fileSystem, final Out<Boolean> thenCalled)
+            {
+                fileSystem.getRootsAsync()
+                        .then(new Action1<Iterable<Root>>()
+                        {
+                            @Override
+                            public void run(Iterable<Root> roots)
+                            {
+                                thenCalled.set(true);
+                                assertNotNull(roots);
+                                assertTrue(1 <= roots.getCount());
+                            }
+                        });
+            }
+        });
     }
 
     @Test
@@ -90,7 +219,261 @@ public abstract class FileSystemTests
     }
 
     @Test
-    public void getFoldersWithNullPathString()
+    public void getFilesAndFoldersAsyncForNullStringPath()
+    {
+        asyncTest(new Action2<FileSystem, Out<Boolean>>()
+        {
+            @Override
+            public void run(FileSystem fileSystem, final Out<Boolean> thenCalled)
+            {
+                fileSystem.getFilesAndFoldersAsync((String)null)
+                        .then(new Action1<Iterable<FileSystemEntry>>()
+                        {
+                            @Override
+                            public void run(Iterable<FileSystemEntry> entries)
+                            {
+                                thenCalled.set(true);
+                                assertNull(entries);
+                            }
+                        });
+            }
+        });
+    }
+
+    @Test
+    public void getFilesAndFoldersAsyncForEmptyStringPath()
+    {
+        asyncTest(new Action2<FileSystem, Out<Boolean>>()
+        {
+            @Override
+            public void run(FileSystem fileSystem, final Out<Boolean> thenCalled)
+            {
+                fileSystem.getFilesAndFoldersAsync("")
+                        .then(new Action1<Iterable<FileSystemEntry>>()
+                        {
+                            @Override
+                            public void run(Iterable<FileSystemEntry> entries)
+                            {
+                                thenCalled.set(true);
+                                assertNull(entries);
+                            }
+                        });
+            }
+        });
+    }
+
+    @Test
+    public void getFilesAndFoldersAsyncForNonExistingStringPath()
+    {
+        asyncTest(new Action2<FileSystem, Out<Boolean>>()
+        {
+            @Override
+            public void run(FileSystem fileSystem, final Out<Boolean> thenCalled)
+            {
+                fileSystem.getFilesAndFoldersAsync("/i/dont/exist/")
+                        .then(new Action1<Iterable<FileSystemEntry>>()
+                        {
+                            @Override
+                            public void run(Iterable<FileSystemEntry> entries)
+                            {
+                                thenCalled.set(true);
+                                assertNull(entries);
+                            }
+                        });
+            }
+        });
+    }
+
+    @Test
+    public void getFilesAndFoldersAsyncForExistingStringPathWithNoContents()
+    {
+        asyncTest(new Action2<FileSystem, Out<Boolean>>()
+        {
+            @Override
+            public void run(FileSystem fileSystem, final Out<Boolean> thenCalled)
+            {
+                fileSystem.createFolder("/folderA");
+                fileSystem.getFilesAndFoldersAsync("/folderA")
+                        .then(new Action1<Iterable<FileSystemEntry>>()
+                        {
+                            @Override
+                            public void run(Iterable<FileSystemEntry> entries)
+                            {
+                                thenCalled.set(true);
+                                assertFalse(entries.any());
+                            }
+                        });
+            }
+        });
+    }
+
+    @Test
+    public void getFilesAndFoldersAsyncForExistingStringPathWithContents()
+    {
+        asyncTest(new Action2<FileSystem, Out<Boolean>>()
+        {
+            @Override
+            public void run(FileSystem fileSystem, final Out<Boolean> thenCalled)
+            {
+                fileSystem.createFolder("/folderA");
+                fileSystem.createFolder("/folderA/folderB");
+                fileSystem.createFile("/file1.txt");
+                fileSystem.createFile("/folderA/file2.csv");
+
+                fileSystem.getFilesAndFoldersAsync("/")
+                        .then(new Action1<Iterable<FileSystemEntry>>()
+                        {
+                            @Override
+                            public void run(Iterable<FileSystemEntry> entries)
+                            {
+                                thenCalled.set(true);
+
+                                assertTrue(entries.any());
+                                assertEquals(2, entries.getCount());
+                                final String[] entryPathStrings = Array.toStringArray(entries.map(new Function1<FileSystemEntry, String>()
+                                {
+                                    @Override
+                                    public String run(FileSystemEntry entry)
+                                    {
+                                        return entry.getPath().toString();
+                                    }
+                                }));
+                                assertArrayEquals(new String[] { "/folderA", "/file1.txt" }, entryPathStrings);
+                            }
+                        });
+            }
+        });
+    }
+
+    @Test
+    public void getFilesAndFoldersAsyncForNullPath()
+    {
+        asyncTest(new Action2<FileSystem, Out<Boolean>>()
+        {
+            @Override
+            public void run(FileSystem fileSystem, final Out<Boolean> thenCalled)
+            {
+                fileSystem.getFilesAndFoldersAsync((Path)null)
+                        .then(new Action1<Iterable<FileSystemEntry>>()
+                        {
+                            @Override
+                            public void run(Iterable<FileSystemEntry> entries)
+                            {
+                                thenCalled.set(true);
+                                assertNull(entries);
+                            }
+                        });
+            }
+        });
+    }
+
+    @Test
+    public void getFilesAndFoldersAsyncForEmptyPath()
+    {
+        asyncTest(new Action2<FileSystem, Out<Boolean>>()
+        {
+            @Override
+            public void run(FileSystem fileSystem, final Out<Boolean> thenCalled)
+            {
+                fileSystem.getFilesAndFoldersAsync(Path.parse(""))
+                        .then(new Action1<Iterable<FileSystemEntry>>()
+                        {
+                            @Override
+                            public void run(Iterable<FileSystemEntry> entries)
+                            {
+                                thenCalled.set(true);
+                                assertNull(entries);
+                            }
+                        });
+            }
+        });
+    }
+
+    @Test
+    public void getFilesAndFoldersAsyncForNonExistingPath()
+    {
+        asyncTest(new Action2<FileSystem, Out<Boolean>>()
+        {
+            @Override
+            public void run(FileSystem fileSystem, final Out<Boolean> thenCalled)
+            {
+                fileSystem.getFilesAndFoldersAsync(Path.parse("/i/dont/exist/"))
+                        .then(new Action1<Iterable<FileSystemEntry>>()
+                        {
+                            @Override
+                            public void run(Iterable<FileSystemEntry> entries)
+                            {
+                                thenCalled.set(true);
+                                assertNull(entries);
+                            }
+                        });
+            }
+        });
+    }
+
+    @Test
+    public void getFilesAndFoldersAsyncForExistingPathWithNoContents()
+    {
+        asyncTest(new Action2<FileSystem, Out<Boolean>>()
+        {
+            @Override
+            public void run(FileSystem fileSystem, final Out<Boolean> thenCalled)
+            {
+                fileSystem.createFolder("/folderA");
+                fileSystem.getFilesAndFoldersAsync(Path.parse("/folderA"))
+                        .then(new Action1<Iterable<FileSystemEntry>>()
+                        {
+                            @Override
+                            public void run(Iterable<FileSystemEntry> entries)
+                            {
+                                thenCalled.set(true);
+                                assertFalse(entries.any());
+                            }
+                        });
+            }
+        });
+    }
+
+    @Test
+    public void getFilesAndFoldersAsyncForExistingPathWithContents()
+    {
+        asyncTest(new Action2<FileSystem, Out<Boolean>>()
+        {
+            @Override
+            public void run(FileSystem fileSystem, final Out<Boolean> thenCalled)
+            {
+                fileSystem.createFolder("/folderA");
+                fileSystem.createFolder("/folderA/folderB");
+                fileSystem.createFile("/file1.txt");
+                fileSystem.createFile("/folderA/file2.csv");
+
+                fileSystem.getFilesAndFoldersAsync(Path.parse("/"))
+                        .then(new Action1<Iterable<FileSystemEntry>>()
+                        {
+                            @Override
+                            public void run(Iterable<FileSystemEntry> entries)
+                            {
+                                thenCalled.set(true);
+
+                                assertTrue(entries.any());
+                                assertEquals(2, entries.getCount());
+                                final String[] entryPathStrings = Array.toStringArray(entries.map(new Function1<FileSystemEntry, String>()
+                                {
+                                    @Override
+                                    public String run(FileSystemEntry entry)
+                                    {
+                                        return entry.getPath().toString();
+                                    }
+                                }));
+                                assertArrayEquals(new String[] { "/folderA", "/file1.txt" }, entryPathStrings);
+                            }
+                        });
+            }
+        });
+    }
+
+    @Test
+    public void getFoldersWithNullStringPath()
     {
         final FileSystem fileSystem = getFileSystem();
         final Iterable<Folder> folders = fileSystem.getFolders((String)null);
@@ -98,11 +481,187 @@ public abstract class FileSystemTests
     }
 
     @Test
-    public void getFoldersWithEmptyPathString()
+    public void getFoldersWithEmptyStringPath()
     {
         final FileSystem fileSystem = getFileSystem();
         final Iterable<Folder> folders = fileSystem.getFolders("");
         assertNull(folders);
+    }
+
+    @Test
+    public void getFoldersAsyncWithNullStringPath()
+    {
+        asyncTest(new Action2<FileSystem, Out<Boolean>>()
+        {
+            @Override
+            public void run(FileSystem fileSystem, final Out<Boolean> thenCalled)
+            {
+                fileSystem.getFoldersAsync((String)null)
+                        .then(new Action1<Iterable<Folder>>()
+                        {
+                            @Override
+                            public void run(Iterable<Folder> folders)
+                            {
+                                thenCalled.set(true);
+                                assertNull(folders);
+                            }
+                        });
+            }
+        });
+    }
+
+    @Test
+    public void getFoldersAsyncWithEmptyStringPath()
+    {
+        asyncTest(new Action2<FileSystem, Out<Boolean>>()
+        {
+            @Override
+            public void run(FileSystem fileSystem, final Out<Boolean> thenCalled)
+            {
+                fileSystem.getFoldersAsync("")
+                        .then(new Action1<Iterable<Folder>>()
+                        {
+                            @Override
+                            public void run(Iterable<Folder> folders)
+                            {
+                                thenCalled.set(true);
+                                assertNull(folders);
+                            }
+                        });
+            }
+        });
+    }
+
+    @Test
+    public void getFoldersAsyncWithNullPath()
+    {
+        asyncTest(new Action2<FileSystem, Out<Boolean>>()
+        {
+            @Override
+            public void run(FileSystem fileSystem, final Out<Boolean> thenCalled)
+            {
+                fileSystem.getFoldersAsync((Path)null)
+                        .then(new Action1<Iterable<Folder>>()
+                        {
+                            @Override
+                            public void run(Iterable<Folder> folders)
+                            {
+                                thenCalled.set(true);
+                                assertNull(folders);
+                            }
+                        });
+            }
+        });
+    }
+
+    @Test
+    public void getFoldersAsyncWithEmptyPath()
+    {
+        asyncTest(new Action2<FileSystem, Out<Boolean>>()
+        {
+            @Override
+            public void run(FileSystem fileSystem, final Out<Boolean> thenCalled)
+            {
+                fileSystem.getFoldersAsync(Path.parse(""))
+                        .then(new Action1<Iterable<Folder>>()
+                        {
+                            @Override
+                            public void run(Iterable<Folder> folders)
+                            {
+                                thenCalled.set(true);
+                                assertNull(folders);
+                            }
+                        });
+            }
+        });
+    }
+
+    @Test
+    public void getFilesAsyncWithNullStringPath()
+    {
+        asyncTest(new Action2<FileSystem, Out<Boolean>>()
+        {
+            @Override
+            public void run(FileSystem fileSystem, final Out<Boolean> thenCalled)
+            {
+                fileSystem.getFilesAsync((String)null)
+                        .then(new Action1<Iterable<File>>()
+                        {
+                            @Override
+                            public void run(Iterable<File> files)
+                            {
+                                thenCalled.set(true);
+                                assertNull(files);
+                            }
+                        });
+            }
+        });
+    }
+
+    @Test
+    public void getFilesAsyncWithEmptyStringPath()
+    {
+        asyncTest(new Action2<FileSystem, Out<Boolean>>()
+        {
+            @Override
+            public void run(FileSystem fileSystem, final Out<Boolean> thenCalled)
+            {
+                fileSystem.getFilesAsync("")
+                        .then(new Action1<Iterable<File>>()
+                        {
+                            @Override
+                            public void run(Iterable<File> files)
+                            {
+                                thenCalled.set(true);
+                                assertNull(files);
+                            }
+                        });
+            }
+        });
+    }
+
+    @Test
+    public void getFilesAsyncWithNullPath()
+    {
+        asyncTest(new Action2<FileSystem, Out<Boolean>>()
+        {
+            @Override
+            public void run(FileSystem fileSystem, final Out<Boolean> thenCalled)
+            {
+                fileSystem.getFilesAsync((Path)null)
+                        .then(new Action1<Iterable<File>>()
+                        {
+                            @Override
+                            public void run(Iterable<File> files)
+                            {
+                                thenCalled.set(true);
+                                assertNull(files);
+                            }
+                        });
+            }
+        });
+    }
+
+    @Test
+    public void getFilesAsyncWithEmptyPath()
+    {
+        asyncTest(new Action2<FileSystem, Out<Boolean>>()
+        {
+            @Override
+            public void run(FileSystem fileSystem, final Out<Boolean> thenCalled)
+            {
+                fileSystem.getFilesAsync(Path.parse(""))
+                        .then(new Action1<Iterable<File>>()
+                        {
+                            @Override
+                            public void run(Iterable<File> files)
+                            {
+                                thenCalled.set(true);
+                                assertNull(files);
+                            }
+                        });
+            }
+        });
     }
 
     @Test
@@ -122,12 +681,12 @@ public abstract class FileSystemTests
     }
 
     @Test
-public void getFolderWithNullString()
-{
-    final FileSystem fileSystem = getFileSystem();
-    final Folder folder = fileSystem.getFolder((String)null);
-    assertNull(folder);
-}
+    public void getFolderWithNullString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        final Folder folder = fileSystem.getFolder((String)null);
+        assertNull(folder);
+    }
 
     @Test
     public void getFolderWithEmptyString()
@@ -601,5 +1160,36 @@ public void getFolderWithNullString()
 
         assertFalse(fileSystem.deleteFile("/iexist.txt"));
         assertFalse(fileSystem.fileExists("/iexist.txt"));
+    }
+
+    private void asyncTest(final Action2<FileSystem,Out<Boolean>> action)
+    {
+        CurrentThreadAsyncRunner.withRegistered(new Action1<CurrentThreadAsyncRunner>()
+        {
+            @Override
+            public void run(CurrentThreadAsyncRunner mainRunner)
+            {
+                final CurrentThreadAsyncRunner backgroundRunner = new CurrentThreadAsyncRunner();
+                final FileSystem fileSystem = getFileSystem(backgroundRunner);
+                final Value<Boolean> thenCalled = new Value<>();
+
+                action.run(fileSystem, thenCalled);
+
+                assertFalse(thenCalled.hasValue());
+                assertEquals(0, mainRunner.getScheduledTaskCount());
+                assertEquals(1, backgroundRunner.getScheduledTaskCount());
+
+                backgroundRunner.await();
+                assertFalse(thenCalled.hasValue());
+                assertEquals(1, mainRunner.getScheduledTaskCount());
+                assertEquals(0, backgroundRunner.getScheduledTaskCount());
+
+                mainRunner.await();
+                assertTrue(thenCalled.hasValue());
+                assertTrue(thenCalled.get());
+                assertEquals(0, mainRunner.getScheduledTaskCount());
+                assertEquals(0, backgroundRunner.getScheduledTaskCount());
+            }
+        });
     }
 }

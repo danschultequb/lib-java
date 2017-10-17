@@ -16,6 +16,9 @@ public class Console implements TextWriteStream, TextReadStream
     private final Value<FileSystem> fileSystem;
     private final Value<String> currentFolderPathString;
 
+    private final AsyncRunner mainRunner;
+    private final AsyncRunner parallelRunner;
+
     /**
      * Create a new Console platform that Console applications can be written with.
      */
@@ -36,6 +39,11 @@ public class Console implements TextWriteStream, TextReadStream
         random = new Value<>();
         fileSystem = new Value<>();
         currentFolderPathString = new Value<>();
+
+        mainRunner = new CurrentThreadAsyncRunner();
+        AsyncRunnerRegistry.setCurrentThreadAsyncRunner(mainRunner);
+
+        parallelRunner = new ParallelAsyncRunner();
     }
 
     public String[] getCommandLineArgumentStrings()
@@ -320,7 +328,7 @@ public class Console implements TextWriteStream, TextReadStream
     {
         if (!fileSystem.hasValue())
         {
-            fileSystem.set(new JavaFileSystem());
+            setFileSystem(new JavaFileSystem());
         }
         return fileSystem.get();
     }
@@ -332,7 +340,15 @@ public class Console implements TextWriteStream, TextReadStream
     public void setFileSystem(FileSystem fileSystem)
     {
         this.fileSystem.set(fileSystem);
-        setCurrentFolderPathString(null);
+        if (fileSystem == null)
+        {
+            setCurrentFolderPathString(null);
+        }
+        else
+        {
+            fileSystem.setAsyncRunner(parallelRunner);
+            currentFolderPathString.clear();
+        }
     }
 
     public String getCurrentFolderPathString()

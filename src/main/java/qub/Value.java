@@ -4,7 +4,7 @@ package qub;
  * A wrapper around a value of type T.
  * @param <T> The type of the inner value.
  */
-public class Value<T>
+public class Value<T> implements Out<T>
 {
     private T value;
     private boolean hasValue;

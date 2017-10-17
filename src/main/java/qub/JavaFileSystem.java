@@ -90,7 +90,7 @@ public class JavaFileSystem extends FileSystemBase
     }
 
     @Override
-    public boolean createFolder(Path folderPath, Value<Folder> outputFolder)
+    public boolean createFolder(Path folderPath, Out<Folder> outputFolder)
     {
         boolean result = false;
 
@@ -153,7 +153,7 @@ public class JavaFileSystem extends FileSystemBase
 
         if (result)
         {
-            result &= javaFolder.delete();
+            result = javaFolder.delete();
         }
 
         return result;
@@ -175,7 +175,7 @@ public class JavaFileSystem extends FileSystemBase
     }
 
     @Override
-    public boolean createFile(Path filePath, Value<File> outputFile)
+    public boolean createFile(Path filePath, Out<File> outputFile)
     {
         boolean result = false;
 
