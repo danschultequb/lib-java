@@ -2,6 +2,14 @@ package qub;
 
 public class BasicAsyncAction extends BasicAsyncTask implements AsyncAction, PausedAsyncAction
 {
+    private static final Action0 emptyAction0 = new Action0()
+    {
+        @Override
+        public void run()
+        {
+        }
+    };
+
     private final Action0 action;
 
     public BasicAsyncAction(AsyncRunnerInner runner, Action0 action)
@@ -15,5 +23,11 @@ public class BasicAsyncAction extends BasicAsyncTask implements AsyncAction, Pau
     protected void runTask()
     {
         action.run();
+    }
+
+    @Override
+    public AsyncAction thenOn(AsyncRunner runner)
+    {
+        return runner == getRunner() ? this : thenOn(runner, emptyAction0);
     }
 }

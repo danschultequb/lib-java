@@ -5,6 +5,14 @@ package qub;
  */
 public abstract class FileSystemBase implements FileSystem
 {
+    private AsyncRunner runner;
+
+    @Override
+    public void setAsyncRunner(AsyncRunner runner)
+    {
+        this.runner = runner;
+    }
+
     @Override
     public boolean rootExists(String rootPath)
     {
@@ -25,6 +33,38 @@ public abstract class FileSystemBase implements FileSystem
     }
 
     @Override
+    public AsyncFunction<Boolean> rootExistsAsync(final String rootPath)
+    {
+        final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+        return runner
+                .schedule(new Function0<Boolean>()
+                {
+                    @Override
+                    public Boolean run()
+                    {
+                        return rootExists(rootPath);
+                    }
+                })
+                .thenOn(currentRunner);
+    }
+
+    @Override
+    public AsyncFunction<Boolean> rootExistsAsync(final Path rootPath)
+    {
+        final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+        return runner
+                .schedule(new Function0<Boolean>()
+                {
+                    @Override
+                    public Boolean run()
+                    {
+                        return rootExists(rootPath);
+                    }
+                })
+                .thenOn(currentRunner);
+    }
+
+    @Override
     public Root getRoot(String rootPath)
     {
         return getRoot(Path.parse(rootPath));
@@ -37,9 +77,57 @@ public abstract class FileSystemBase implements FileSystem
     }
 
     @Override
+    public AsyncFunction<Iterable<Root>> getRootsAsync()
+    {
+        final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+        return runner
+                .schedule(new Function0<Iterable<Root>>()
+                {
+                    @Override
+                    public Iterable<Root> run()
+                    {
+                        return getRoots();
+                    }
+                })
+                .thenOn(currentRunner);
+    }
+
+    @Override
     public Iterable<FileSystemEntry> getFilesAndFolders(String folderPath)
     {
         return getFilesAndFolders(Path.parse(folderPath));
+    }
+
+    @Override
+    public AsyncFunction<Iterable<FileSystemEntry>> getFilesAndFoldersAsync(final String folderPath)
+    {
+        final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+        return runner
+                .schedule(new Function0<Iterable<FileSystemEntry>>()
+                {
+                    @Override
+                    public Iterable<FileSystemEntry> run()
+                    {
+                        return getFilesAndFolders(folderPath);
+                    }
+                })
+                .thenOn(currentRunner);
+    }
+
+    @Override
+    public AsyncFunction<Iterable<FileSystemEntry>> getFilesAndFoldersAsync(final Path folderPath)
+    {
+        final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+        return runner
+                .schedule(new Function0<Iterable<FileSystemEntry>>()
+                {
+                    @Override
+                    public Iterable<FileSystemEntry> run()
+                    {
+                        return getFilesAndFolders(folderPath);
+                    }
+                })
+                .thenOn(currentRunner);
     }
 
     @Override
@@ -56,6 +144,38 @@ public abstract class FileSystemBase implements FileSystem
     }
 
     @Override
+    public AsyncFunction<Iterable<Folder>> getFoldersAsync(final String folderPath)
+    {
+        final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+        return runner
+                .schedule(new Function0<Iterable<Folder>>()
+                {
+                    @Override
+                    public Iterable<Folder> run()
+                    {
+                        return getFolders(folderPath);
+                    }
+                })
+                .thenOn(currentRunner);
+    }
+
+    @Override
+    public AsyncFunction<Iterable<Folder>> getFoldersAsync(final Path folderPath)
+    {
+        final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+        return runner
+                .schedule(new Function0<Iterable<Folder>>()
+                {
+                    @Override
+                    public Iterable<Folder> run()
+                    {
+                        return getFolders(folderPath);
+                    }
+                })
+                .thenOn(currentRunner);
+    }
+
+    @Override
     public Iterable<File> getFiles(String folderPath)
     {
         return getFiles(Path.parse(folderPath));
@@ -66,6 +186,38 @@ public abstract class FileSystemBase implements FileSystem
     {
         final Iterable<FileSystemEntry> entries = getFilesAndFolders(folderPath);
         return entries == null ? null : entries.instanceOf(File.class);
+    }
+
+    @Override
+    public AsyncFunction<Iterable<File>> getFilesAsync(final String folderPath)
+    {
+        final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+        return runner
+                .schedule(new Function0<Iterable<File>>()
+                {
+                    @Override
+                    public Iterable<File> run()
+                    {
+                        return getFiles(folderPath);
+                    }
+                })
+                .thenOn(currentRunner);
+    }
+
+    @Override
+    public AsyncFunction<Iterable<File>> getFilesAsync(final Path folderPath)
+    {
+        final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+        return runner
+                .schedule(new Function0<Iterable<File>>()
+                {
+                    @Override
+                    public Iterable<File> run()
+                    {
+                        return getFiles(folderPath);
+                    }
+                })
+                .thenOn(currentRunner);
     }
 
     @Override
@@ -88,13 +240,45 @@ public abstract class FileSystemBase implements FileSystem
     }
 
     @Override
+    public AsyncFunction<Boolean> folderExistsAsync(final String folderPath)
+    {
+        final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+        return runner
+                .schedule(new Function0<Boolean>()
+                {
+                    @Override
+                    public Boolean run()
+                    {
+                        return folderExists(folderPath);
+                    }
+                })
+                .thenOn(currentRunner);
+    }
+
+    @Override
+    public AsyncFunction<Boolean> folderExistsAsync(final Path folderPath)
+    {
+        final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+        return runner
+                .schedule(new Function0<Boolean>()
+                {
+                    @Override
+                    public Boolean run()
+                    {
+                        return folderExists(folderPath);
+                    }
+                })
+                .thenOn(currentRunner);
+    }
+
+    @Override
     public boolean createFolder(String folderPath)
     {
         return createFolder(Path.parse(folderPath), null);
     }
 
     @Override
-    public boolean createFolder(String folderPath, Value<Folder> outputFolder)
+    public boolean createFolder(String folderPath, Out<Folder> outputFolder)
     {
         return createFolder(Path.parse(folderPath), outputFolder);
     }
@@ -106,10 +290,106 @@ public abstract class FileSystemBase implements FileSystem
     }
 
     @Override
+    public AsyncFunction<Boolean> createFolderAsync(final String folderPath)
+    {
+        final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+        return runner
+                .schedule(new Function0<Boolean>()
+                {
+                    @Override
+                    public Boolean run()
+                    {
+                        return createFolder(folderPath);
+                    }
+                })
+                .thenOn(currentRunner);
+    }
+
+    @Override
+    public AsyncFunction<Boolean> createFolderAsync(final String folderPath, final Out<Folder> outputFolder)
+    {
+        final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+        return runner
+                .schedule(new Function0<Boolean>()
+                {
+                    @Override
+                    public Boolean run()
+                    {
+                        return createFolder(folderPath, outputFolder);
+                    }
+                })
+                .thenOn(currentRunner);
+    }
+
+    @Override
+    public AsyncFunction<Boolean> createFolderAsync(final Path folderPath)
+    {
+        final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+        return runner
+                .schedule(new Function0<Boolean>()
+                {
+                    @Override
+                    public Boolean run()
+                    {
+                        return createFolder(folderPath);
+                    }
+                })
+                .thenOn(currentRunner);
+    }
+
+    @Override
+    public AsyncFunction<Boolean> createFolderAsync(final Path folderPath, final Out<Folder> outputFolder)
+    {
+        final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+        return runner
+                .schedule(new Function0<Boolean>()
+                {
+                    @Override
+                    public Boolean run()
+                    {
+                        return createFolder(folderPath, outputFolder);
+                    }
+                })
+                .thenOn(currentRunner);
+    }
+
+    @Override
     public boolean deleteFolder(String folderPath)
     {
         final Path path = Path.parse(folderPath);
         return deleteFolder(path);
+    }
+
+    @Override
+    public AsyncFunction<Boolean> deleteFolderAsync(final String folderPath)
+    {
+        final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+        return runner
+                .schedule(new Function0<Boolean>()
+                {
+                    @Override
+                    public Boolean run()
+                    {
+                        return deleteFolder(folderPath);
+                    }
+                })
+                .thenOn(currentRunner);
+    }
+
+    @Override
+    public AsyncFunction<Boolean> deleteFolderAsync(final Path folderPath)
+    {
+        final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+        return runner
+                .schedule(new Function0<Boolean>()
+                {
+                    @Override
+                    public Boolean run()
+                    {
+                        return deleteFolder(folderPath);
+                    }
+                })
+                .thenOn(currentRunner);
     }
 
     @Override
@@ -125,9 +405,41 @@ public abstract class FileSystemBase implements FileSystem
     }
 
     @Override
-    public boolean fileExists(String fileExists)
+    public boolean fileExists(String filePath)
     {
-        return fileExists(Path.parse(fileExists));
+        return fileExists(Path.parse(filePath));
+    }
+
+    @Override
+    public AsyncFunction<Boolean> fileExistsAsync(final String filePath)
+    {
+        final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+        return runner
+                .schedule(new Function0<Boolean>()
+                {
+                    @Override
+                    public Boolean run()
+                    {
+                        return fileExists(filePath);
+                    }
+                })
+                .thenOn(currentRunner);
+    }
+
+    @Override
+    public AsyncFunction<Boolean> fileExistsAsync(final Path filePath)
+    {
+        final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+        return runner
+                .schedule(new Function0<Boolean>()
+                {
+                    @Override
+                    public Boolean run()
+                    {
+                        return fileExists(filePath);
+                    }
+                })
+                .thenOn(currentRunner);
     }
 
     @Override
@@ -137,7 +449,7 @@ public abstract class FileSystemBase implements FileSystem
     }
 
     @Override
-    public boolean createFile(String filePath, Value<File> outputFile)
+    public boolean createFile(String filePath, Out<File> outputFile)
     {
         final Path path = Path.parse(filePath);
         return createFile(path, outputFile);
@@ -150,9 +462,105 @@ public abstract class FileSystemBase implements FileSystem
     }
 
     @Override
+    public AsyncFunction<Boolean> createFileAsync(final String filePath)
+    {
+        final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+        return runner
+                .schedule(new Function0<Boolean>()
+                {
+                    @Override
+                    public Boolean run()
+                    {
+                        return createFile(filePath);
+                    }
+                })
+                .thenOn(currentRunner);
+    }
+
+    @Override
+    public AsyncFunction<Boolean> createFileAsync(final String filePath, final Out<File> outputFile)
+    {
+        final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+        return runner
+                .schedule(new Function0<Boolean>()
+                {
+                    @Override
+                    public Boolean run()
+                    {
+                        return createFile(filePath, outputFile);
+                    }
+                })
+                .thenOn(currentRunner);
+    }
+
+    @Override
+    public AsyncFunction<Boolean> createFileAsync(final Path filePath)
+    {
+        final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+        return runner
+                .schedule(new Function0<Boolean>()
+                {
+                    @Override
+                    public Boolean run()
+                    {
+                        return createFile(filePath);
+                    }
+                })
+                .thenOn(currentRunner);
+    }
+
+    @Override
+    public AsyncFunction<Boolean> createFileAsync(final Path filePath, final Out<File> outputFile)
+    {
+        final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+        return runner
+                .schedule(new Function0<Boolean>()
+                {
+                    @Override
+                    public Boolean run()
+                    {
+                        return createFile(filePath, outputFile);
+                    }
+                })
+                .thenOn(currentRunner);
+    }
+
+    @Override
     public boolean deleteFile(String filePath)
     {
         final Path path = Path.parse(filePath);
         return deleteFile(path);
+    }
+
+    @Override
+    public AsyncFunction<Boolean> deleteFileAsync(final String filePath)
+    {
+        final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+        return runner
+                .schedule(new Function0<Boolean>()
+                {
+                    @Override
+                    public Boolean run()
+                    {
+                        return deleteFile(filePath);
+                    }
+                })
+                .thenOn(currentRunner);
+    }
+
+    @Override
+    public AsyncFunction<Boolean> deleteFileAsync(final Path filePath)
+    {
+        final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+        return runner
+                .schedule(new Function0<Boolean>()
+                {
+                    @Override
+                    public Boolean run()
+                    {
+                        return deleteFile(filePath);
+                    }
+                })
+                .thenOn(currentRunner);
     }
 }

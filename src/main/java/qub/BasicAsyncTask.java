@@ -13,6 +13,10 @@ public abstract class BasicAsyncTask implements AsyncAction, AsyncTask, PausedAs
         this.completed = false;
     }
 
+    protected AsyncRunner getRunner() {
+        return runner;
+    }
+
     /**
      * Get the number of PausedAsyncTasks that are waiting for this AsyncTask to complete.
      * @return The number of PausedAsyncTasks that are waiting for this AsyncTask to complete.
