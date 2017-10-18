@@ -127,11 +127,18 @@ public class FolderFileSystem extends FileSystemBase
 
         final boolean result = innerFileSystem.createFile(innerFilePath, innerOutputFile);
 
-        if(innerOutputFile != null && innerOutputFile.hasValue())
+        if (outputFile != null)
         {
-            final Path innerOutputFilePath = innerOutputFile.get().getPath();
-            final Path outerOutputFilePath = getOuterPath(innerOutputFilePath);
-            outputFile.set(getFile(outerOutputFilePath));
+            if (!result)
+            {
+                outputFile.clear();
+            }
+            else
+            {
+                final Path innerOutputFilePath = innerOutputFile.get().getPath();
+                final Path outerOutputFilePath = getOuterPath(innerOutputFilePath);
+                outputFile.set(getFile(outerOutputFilePath));
+            }
         }
 
         return result;

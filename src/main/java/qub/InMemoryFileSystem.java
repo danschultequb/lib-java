@@ -255,7 +255,14 @@ public class InMemoryFileSystem extends FileSystemBase
 
             if (outputFile != null)
             {
-                outputFile.set(getFile(filePath));
+                if (!result)
+                {
+                    outputFile.clear();
+                }
+                else
+                {
+                    outputFile.set(getFile(filePath));
+                }
             }
         }
 
