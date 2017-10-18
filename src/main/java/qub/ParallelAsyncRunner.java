@@ -2,7 +2,7 @@ package qub;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class ParallelAsyncRunner implements AsyncRunnerInner
+public class ParallelAsyncRunner implements AsyncRunner
 {
     private final AtomicInteger scheduledTaskCount;
 
@@ -30,7 +30,7 @@ public class ParallelAsyncRunner implements AsyncRunnerInner
     }
 
     @Override
-    public void schedule(final AsyncTask asyncTask)
+    public void schedule(final PausedAsyncTask asyncTask)
     {
         scheduledTaskCount.incrementAndGet();
         new java.lang.Thread(new Action0()

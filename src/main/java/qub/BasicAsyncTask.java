@@ -1,19 +1,20 @@
 package qub;
 
-public abstract class BasicAsyncTask implements AsyncAction, AsyncTask, PausedAsyncTask
+public abstract class BasicAsyncTask implements AsyncAction, PausedAsyncTask
 {
-    private final AsyncRunnerInner runner;
-    private final List<PausedAsyncTask> pausedTasks;
+    private final AsyncRunner runner;
+    private final Queue<PausedAsyncTask> pausedTasks;
     private boolean completed;
 
-    BasicAsyncTask(AsyncRunnerInner runner)
+    BasicAsyncTask(AsyncRunner runner)
     {
         this.runner = runner;
-        this.pausedTasks = new SingleLinkList<>();
+        this.pausedTasks = new SingleLinkListQueue<>();
         this.completed = false;
     }
 
-    protected AsyncRunner getRunner() {
+    @Override
+    public AsyncRunner getRunner() {
         return runner;
     }
 
@@ -38,6 +39,12 @@ public abstract class BasicAsyncTask implements AsyncAction, AsyncTask, PausedAs
     @Override
     public void schedule()
     {
+        scheduleOn(runner);
+    }
+
+    @Override
+    public void scheduleOn(AsyncRunner runner)
+    {
         runner.schedule(this);
     }
 
@@ -54,6 +61,12 @@ public abstract class BasicAsyncTask implements AsyncAction, AsyncTask, PausedAs
     }
 
     @Override
+    public AsyncAction thenAsync(Function0<AsyncAction> function)
+    {
+        return thenOnAsync(runner, function);
+    }
+
+    @Override
     public AsyncAction thenOn(AsyncRunner runner, Action0 action)
     {
         AsyncAction result = null;
@@ -66,7 +79,7 @@ public abstract class BasicAsyncTask implements AsyncAction, AsyncTask, PausedAs
             }
             else
             {
-                pausedTasks.add(asyncAction);
+                pausedTasks.enqueue(asyncAction);
             }
             result = asyncAction;
         }
@@ -86,10 +99,46 @@ public abstract class BasicAsyncTask implements AsyncAction, AsyncTask, PausedAs
             }
             else
             {
-                pausedTasks.add(asyncFunction);
+                pausedTasks.enqueue(asyncFunction);
             }
             result = asyncFunction;
         }
+        return result;
+    }
+
+    @Override
+    public AsyncAction thenOnAsync(AsyncRunner runner, Function0<AsyncAction> function)
+    {
+        final boolean validArguments = (runner != null && function != null);
+
+        final PausedAsyncAction result = !validArguments ? null : this.runner.create(new Action0()
+        {
+            @Override
+            public void run()
+            {
+            }
+        });
+
+        if (validArguments)
+        {
+            thenOn(runner, function)
+                    .then(new Action1<AsyncAction>()
+                    {
+                        @Override
+                        public void run(final AsyncAction asyncFunctionResult)
+                        {
+                            asyncFunctionResult.then(new Action0()
+                            {
+                                @Override
+                                public void run()
+                                {
+                                    result.scheduleOn(asyncFunctionResult.getRunner());
+                                }
+                            });
+                        }
+                    });
+        }
+
         return result;
     }
 
@@ -100,8 +149,9 @@ public abstract class BasicAsyncTask implements AsyncAction, AsyncTask, PausedAs
 
         completed = true;
 
-        for (final PausedAsyncTask pausedTask : pausedTasks)
+        while (pausedTasks.any())
         {
+            final PausedAsyncTask pausedTask = pausedTasks.dequeue();
             pausedTask.schedule();
         }
     }

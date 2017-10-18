@@ -8,7 +8,7 @@ import static org.junit.Assert.assertNotNull;
 
 public abstract class BasicAsyncTaskTests
 {
-    protected abstract BasicAsyncTask create(AsyncRunnerInner runner);
+    protected abstract BasicAsyncTask create(AsyncRunner runner);
 
     private BasicAsyncTask create()
     {
@@ -16,7 +16,7 @@ public abstract class BasicAsyncTaskTests
         return create(runner);
     }
 
-    private BasicAsyncTask createScheduled(AsyncRunnerInner runner)
+    private BasicAsyncTask createScheduled(AsyncRunner runner)
     {
         final BasicAsyncTask basicAsyncAction = create(runner);
         basicAsyncAction.schedule();
@@ -57,6 +57,41 @@ public abstract class BasicAsyncTaskTests
         final AsyncFunction<Integer> thenAsyncFunction = basicAsyncTask.then(TestUtils.emptyFunction0);
         assertNotNull(thenAsyncFunction);
         assertEquals(1, basicAsyncTask.getPausedTaskCount());
+    }
+
+    @Test
+    public void thenAsyncFunction0WithNull()
+    {
+        final CurrentThreadAsyncRunner runner = new CurrentThreadAsyncRunner();
+        final BasicAsyncTask basicAsyncTask = create(runner);
+        final AsyncAction thenAsyncAction = basicAsyncTask.thenAsync(null);
+        assertNull(thenAsyncAction);
+        assertEquals(0, basicAsyncTask.getPausedTaskCount());
+    }
+
+    @Test
+    public void thenAsyncFunction0WithNonNull()
+    {
+        final CurrentThreadAsyncRunner runner = new CurrentThreadAsyncRunner();
+        final BasicAsyncTask basicAsyncTask = createScheduled(runner);
+
+        final Value<Integer> value = new Value<>();
+        final AsyncAction thenAsyncAction = basicAsyncTask.thenAsync(new Function0<AsyncAction>()
+        {
+            @Override
+            public AsyncAction run()
+            {
+                return runner.schedule(TestUtils.setValueAction0(value, 5));
+            }
+        });
+        assertNotNull(thenAsyncAction);
+        assertEquals(1, basicAsyncTask.getPausedTaskCount());
+
+        runner.await();
+        assertEquals(0, basicAsyncTask.getPausedTaskCount());
+        assertTrue(basicAsyncTask.isCompleted());
+        assertEquals(0, runner.getScheduledTaskCount());
+        assertEquals(5, value.get().intValue());
     }
 
     @Test
@@ -117,6 +152,92 @@ public abstract class BasicAsyncTaskTests
         assertNotNull(thenOnAsyncAction);
         assertEquals(0, basicAsyncTask.getPausedTaskCount());
         assertEquals(1, runner2.getScheduledTaskCount());
+    }
+
+    @Test
+    public void thenOnAsyncAction0()
+    {
+        final CurrentThreadAsyncRunner runner1 = new CurrentThreadAsyncRunner();
+        final CurrentThreadAsyncRunner runner2 = new CurrentThreadAsyncRunner();
+        final CurrentThreadAsyncRunner runner3 = new CurrentThreadAsyncRunner();
+        final BasicAsyncTask basicAsyncTask = createScheduled(runner1);
+
+        final Value<Integer> value = new Value<>();
+        final AsyncAction thenOnAsyncAction = basicAsyncTask.thenOnAsync(runner2, new Function0<AsyncAction>()
+        {
+            @Override
+            public AsyncAction run()
+            {
+                return runner3.schedule(TestUtils.setValueAction0(value, 4));
+            }
+        });
+        assertNotNull(thenOnAsyncAction);
+        assertEquals(1, basicAsyncTask.getPausedTaskCount());
+        assertEquals(1, runner1.getScheduledTaskCount());
+        assertEquals(0, runner2.getScheduledTaskCount());
+        assertEquals(0, runner3.getScheduledTaskCount());
+        assertFalse(value.hasValue());
+
+        runner1.await();
+        assertEquals(0, basicAsyncTask.getPausedTaskCount());
+        assertEquals(0, runner1.getScheduledTaskCount());
+        assertEquals(1, runner2.getScheduledTaskCount());
+        assertEquals(0, runner3.getScheduledTaskCount());
+        assertFalse(value.hasValue());
+
+        runner2.await();
+        assertEquals(0, basicAsyncTask.getPausedTaskCount());
+        assertEquals(0, runner1.getScheduledTaskCount());
+        assertEquals(0, runner2.getScheduledTaskCount());
+        assertEquals(1, runner3.getScheduledTaskCount());
+        assertFalse(value.hasValue());
+
+        runner3.await();
+        assertEquals(0, basicAsyncTask.getPausedTaskCount());
+        assertEquals(0, runner1.getScheduledTaskCount());
+        assertEquals(0, runner2.getScheduledTaskCount());
+        assertEquals(0, runner3.getScheduledTaskCount());
+        assertEquals(4, value.get().intValue());
+    }
+
+    @Test
+    public void thenOnAsyncAction0AfterCompleted()
+    {
+        final CurrentThreadAsyncRunner runner1 = new CurrentThreadAsyncRunner();
+        final CurrentThreadAsyncRunner runner2 = new CurrentThreadAsyncRunner();
+        final CurrentThreadAsyncRunner runner3 = new CurrentThreadAsyncRunner();
+        final BasicAsyncTask basicAsyncTask = createScheduled(runner1);
+        runner1.await();
+
+        final Value<Integer> value = new Value<>();
+        final AsyncAction thenOnAsyncAction = basicAsyncTask.thenOnAsync(runner2, new Function0<AsyncAction>()
+        {
+            @Override
+            public AsyncAction run()
+            {
+                return runner3.schedule(TestUtils.setValueAction0(value, 4));
+            }
+        });
+        assertNotNull(thenOnAsyncAction);
+        assertEquals(0, basicAsyncTask.getPausedTaskCount());
+        assertEquals(0, runner1.getScheduledTaskCount());
+        assertEquals(1, runner2.getScheduledTaskCount());
+        assertEquals(0, runner3.getScheduledTaskCount());
+        assertFalse(value.hasValue());
+
+        runner2.await();
+        assertEquals(0, basicAsyncTask.getPausedTaskCount());
+        assertEquals(0, runner1.getScheduledTaskCount());
+        assertEquals(0, runner2.getScheduledTaskCount());
+        assertEquals(1, runner3.getScheduledTaskCount());
+        assertFalse(value.hasValue());
+
+        runner3.await();
+        assertEquals(0, basicAsyncTask.getPausedTaskCount());
+        assertEquals(0, runner1.getScheduledTaskCount());
+        assertEquals(0, runner2.getScheduledTaskCount());
+        assertEquals(0, runner3.getScheduledTaskCount());
+        assertEquals(4, value.get().intValue());
     }
 
     @Test

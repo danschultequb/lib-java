@@ -1,8 +1,8 @@
 package qub;
 
-public class CurrentThreadAsyncRunner implements AsyncRunnerInner
+public class CurrentThreadAsyncRunner implements AsyncRunner
 {
-    private final LockedSingleLinkListQueue<AsyncTask> scheduledTasks;
+    private final LockedSingleLinkListQueue<PausedAsyncTask> scheduledTasks;
 
     public CurrentThreadAsyncRunner()
     {
@@ -16,7 +16,7 @@ public class CurrentThreadAsyncRunner implements AsyncRunnerInner
     }
 
     @Override
-    public void schedule(AsyncTask asyncTask)
+    public void schedule(PausedAsyncTask asyncTask)
     {
         scheduledTasks.enqueue(asyncTask);
     }
@@ -64,7 +64,7 @@ public class CurrentThreadAsyncRunner implements AsyncRunnerInner
     {
         while (scheduledTasks.any())
         {
-            final AsyncTask action = scheduledTasks.dequeue();
+            final PausedAsyncTask action = scheduledTasks.dequeue();
             action.runAndSchedulePausedTasks();
         }
     }

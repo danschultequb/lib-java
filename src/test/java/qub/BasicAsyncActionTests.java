@@ -7,7 +7,7 @@ import static org.junit.Assert.*;
 public class BasicAsyncActionTests extends BasicAsyncTaskTests
 {
     @Override
-    protected BasicAsyncAction create(AsyncRunnerInner runner)
+    protected BasicAsyncAction create(AsyncRunner runner)
     {
         return new BasicAsyncAction(runner, TestUtils.emptyAction0);
     }
@@ -18,7 +18,7 @@ public class BasicAsyncActionTests extends BasicAsyncTaskTests
         return create(runner);
     }
 
-    private BasicAsyncAction createScheduled(AsyncRunnerInner runner)
+    private BasicAsyncAction createScheduled(AsyncRunner runner)
     {
         final BasicAsyncAction basicAsyncAction = create(runner);
         basicAsyncAction.schedule();

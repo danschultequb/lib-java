@@ -32,6 +32,12 @@ public interface AsyncRunner
     <T> AsyncFunction<T> schedule(Function0<T> function);
 
     /**
+     * Schedule the provided AsyncTask so that it will be run.
+     * @param asyncTask The AsyncTask to schedule.
+     */
+    void schedule(PausedAsyncTask asyncTask);
+
+    /**
      * Create a new PausedAsyncAction for the provided action that can be scheduled by calling the
      * returned PausedAsyncAction's schedule() function.
      * @param action The action to create a PausedAsyncAction for.
