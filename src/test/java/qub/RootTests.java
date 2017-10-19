@@ -81,6 +81,142 @@ public class RootTests
     }
 
     @Test
+    public void getFolderStringWithNull()
+    {
+        final Root root = getRoot();
+        assertNull(root.getFolder((String)null));
+    }
+
+    @Test
+    public void getFolderStringWithEmpty()
+    {
+        final Root root = getRoot();
+        assertNull(root.getFolder(""));
+    }
+
+    @Test
+    public void getFolderStringWithRelativePathThatDoesntExist()
+    {
+        final Root root = getRoot();
+        final Folder folder = root.getFolder("folderName");
+        assertNotNull(folder);
+        assertEquals("/folderName", folder.getPath().toString());
+    }
+
+    @Test
+    public void getFolderStringWithRelativePathThatExists()
+    {
+        final Root root = getRoot();
+        root.createFolder("folderName");
+
+        final Folder folder = root.getFolder("folderName");
+        assertNotNull(folder);
+        assertEquals("/folderName", folder.getPath().toString());
+    }
+
+    @Test
+    public void getFolderPathWithNull()
+    {
+        final Root root = getRoot();
+        assertNull(root.getFolder((Path)null));
+    }
+
+    @Test
+    public void getFolderPathWithEmpty()
+    {
+        final Root root = getRoot();
+        assertNull(root.getFolder(Path.parse("")));
+    }
+
+    @Test
+    public void getFolderPathWithRelativePathThatDoesntExist()
+    {
+        final Root root = getRoot();
+        final Folder folder = root.getFolder(Path.parse("folderName"));
+        assertNotNull(folder);
+        assertEquals("/folderName", folder.getPath().toString());
+    }
+
+    @Test
+    public void getFolderPathWithRelativePathThatExists()
+    {
+        final Root root = getRoot();
+        root.createFolder("folderName");
+
+        final Folder folder = root.getFolder(Path.parse("folderName"));
+        assertNotNull(folder);
+        assertEquals("/folderName", folder.getPath().toString());
+    }
+
+    @Test
+    public void getFileStringWithNull()
+    {
+        final Root root = getRoot();
+        assertNull(root.getFile((String)null));
+    }
+
+    @Test
+    public void getFileStringWithEmpty()
+    {
+        final Root root = getRoot();
+        assertNull(root.getFile(""));
+    }
+
+    @Test
+    public void getFileStringWithRelativePathThatDoesntExist()
+    {
+        final Root root = getRoot();
+        final File file = root.getFile("fileName");
+        assertNotNull(file);
+        assertEquals("/fileName", file.getPath().toString());
+    }
+
+    @Test
+    public void getFileStringWithRelativePathThatExists()
+    {
+        final Root root = getRoot();
+        root.createFile("fileName");
+
+        final File file = root.getFile("fileName");
+        assertNotNull(file);
+        assertEquals("/fileName", file.getPath().toString());
+    }
+
+    @Test
+    public void getFilePathWithNull()
+    {
+        final Root root = getRoot();
+        assertNull(root.getFile((Path)null));
+    }
+
+    @Test
+    public void getFilePathWithEmpty()
+    {
+        final Root root = getRoot();
+        assertNull(root.getFile(Path.parse("")));
+    }
+
+    @Test
+    public void getFilePathWithRelativePathThatDoesntExist()
+    {
+        final Root root = getRoot();
+        final File file = root.getFile(Path.parse("fileName"));
+        assertNotNull(file);
+        assertEquals("/fileName", file.getPath().toString());
+    }
+
+    @Test
+    public void getFilePathWithRelativePathThatExists()
+    {
+        final Root root = getRoot();
+        root.createFile("fileName");
+
+        final File file = root.getFile(Path.parse("fileName"));
+        assertNotNull(file);
+        assertEquals("/fileName", file.getPath().toString());
+    }
+
+    @Test
     public void createFolderStringWithNullString()
     {
         final Root root = getRoot();

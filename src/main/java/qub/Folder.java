@@ -40,8 +40,14 @@ public class Folder extends FileSystemEntry
      */
     public Folder getFolder(String relativeFolderPath)
     {
-        final Path childFolderPath = getChildPath(relativeFolderPath);
-        return getFileSystem().getFolder(childFolderPath);
+        Folder result = null;
+        if (relativeFolderPath != null && !relativeFolderPath.isEmpty())
+        {
+            final Path childFolderPath = getChildPath(relativeFolderPath);
+            final FileSystem fileSystem = getFileSystem();
+            result = fileSystem.getFolder(childFolderPath);
+        }
+        return result;
     }
 
     /**
@@ -51,8 +57,14 @@ public class Folder extends FileSystemEntry
      */
     public Folder getFolder(Path relativeFolderPath)
     {
-        final Path childFolderPath = getChildPath(relativeFolderPath);
-        return getFileSystem().getFolder(childFolderPath);
+        Folder result = null;
+        if (relativeFolderPath != null)
+        {
+            final Path childFolderPath = getChildPath(relativeFolderPath);
+            final FileSystem fileSystem = getFileSystem();
+            result = fileSystem.getFolder(childFolderPath);
+        }
+        return result;
     }
 
     /**
