@@ -12,7 +12,7 @@ public class BasicAsyncAction extends BasicAsyncTask implements AsyncAction, Pau
 
     private final Action0 action;
 
-    public BasicAsyncAction(AsyncRunnerInner runner, Action0 action)
+    public BasicAsyncAction(AsyncRunner runner, Action0 action)
     {
         super(runner);
 
@@ -22,7 +22,10 @@ public class BasicAsyncAction extends BasicAsyncTask implements AsyncAction, Pau
     @Override
     protected void runTask()
     {
-        action.run();
+        if (action != null)
+        {
+            action.run();
+        }
     }
 
     @Override

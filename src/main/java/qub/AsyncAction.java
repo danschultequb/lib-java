@@ -6,6 +6,12 @@ package qub;
 public interface AsyncAction
 {
     /**
+     * Get the AsyncRunner that will run this AsyncAction.
+     * @return The runner that will run this AsyncAction.
+     */
+    AsyncRunner getRunner();
+
+    /**
      * Run the provided action when this AsyncAction completes.
      * @param action The action to schedule when this AsyncAction completes.
      * @return The reference to the asynchronous action that will be scheduled.
@@ -19,6 +25,22 @@ public interface AsyncAction
      * AsyncAction completes.
      */
     <T> AsyncFunction<T> then(Function0<T> function);
+
+    /**
+     * Run the provided function when this AsyncAction completes.
+     * @param function The function to schedule when this AsyncAction completes.
+     * @return The reference to the asynchronous function that will be scheduled when this
+     * AsyncAction completes.
+     */
+    AsyncAction thenAsyncAction(Function0<AsyncAction> function);
+
+    /**
+     * Run the provided function when this AsyncAction completes.
+     * @param function The function to schedule when this AsyncAction completes.
+     * @return The reference to the asynchronous function that will be scheduled when this
+     * AsyncAction completes.
+     */
+    <T> AsyncFunction<T> thenAsyncFunction(Function0<AsyncFunction<T>> function);
 
     /**
      * Schedule any following AsyncTasks on the provided AsyncRunner.
@@ -36,8 +58,22 @@ public interface AsyncAction
 
     /**
      * Run the provided function on the provided AsyncRunner when this AsyncAction completes.
-     * @param action The action to schedule when this AsyncAction completes.
+     * @param function The function to schedule when this AsyncAction completes.
      * @return The reference to the asynchronous action that will be scheduled.
      */
-    <T> AsyncFunction<T> thenOn(AsyncRunner runner, Function0<T> action);
+    <T> AsyncFunction<T> thenOn(AsyncRunner runner, Function0<T> function);
+
+    /**
+     * Run the provided function on the provided AsyncRunner when this AsyncAction completes.
+     * @param function The function to schedule when this AsyncAction completes.
+     * @return The reference to the asynchronous action that will be scheduled.
+     */
+    AsyncAction thenOnAsyncAction(AsyncRunner runner, Function0<AsyncAction> function);
+
+    /**
+     * Run the provided function on the provided AsyncRunner when this AsyncAction completes.
+     * @param function The function to schedule when this AsyncAction completes.
+     * @return The reference to the asynchronous action that will be scheduled.
+     */
+    <T> AsyncFunction<T> thenOnAsyncFunction(AsyncRunner runner, Function0<AsyncFunction<T>> function);
 }

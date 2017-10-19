@@ -1,8 +1,8 @@
 package qub;
 
-public class CurrentThreadAsyncRunner implements AsyncRunnerInner
+public class CurrentThreadAsyncRunner implements AsyncRunner
 {
-    private final LockedSingleLinkListQueue<AsyncTask> scheduledTasks;
+    private final LockedSingleLinkListQueue<PausedAsyncTask> scheduledTasks;
 
     public CurrentThreadAsyncRunner()
     {
@@ -16,21 +16,9 @@ public class CurrentThreadAsyncRunner implements AsyncRunnerInner
     }
 
     @Override
-    public void schedule(AsyncTask asyncTask)
+    public void schedule(PausedAsyncTask asyncTask)
     {
         scheduledTasks.enqueue(asyncTask);
-    }
-
-    @Override
-    public PausedAsyncAction create(Action0 action)
-    {
-        return new BasicAsyncAction(this, action);
-    }
-
-    @Override
-    public <T> PausedAsyncFunction<T> create(Function0<T> function)
-    {
-        return new BasicAsyncFunction<>(this, function);
     }
 
     @Override
@@ -39,7 +27,7 @@ public class CurrentThreadAsyncRunner implements AsyncRunnerInner
         AsyncAction result = null;
         if (action != null)
         {
-            final PausedAsyncAction asyncAction = create(action);
+            final PausedAsyncAction asyncAction = new BasicAsyncAction(this, action);
             asyncAction.schedule();
             result = asyncAction;
         }
@@ -52,7 +40,7 @@ public class CurrentThreadAsyncRunner implements AsyncRunnerInner
         AsyncFunction<T> result = null;
         if (function != null)
         {
-            final PausedAsyncFunction<T> asyncFunction = create(function);
+            final PausedAsyncFunction<T> asyncFunction = new BasicAsyncFunction<>(this, function);
             asyncFunction.schedule();
             result = asyncFunction;
         }
@@ -64,7 +52,7 @@ public class CurrentThreadAsyncRunner implements AsyncRunnerInner
     {
         while (scheduledTasks.any())
         {
-            final AsyncTask action = scheduledTasks.dequeue();
+            final PausedAsyncTask action = scheduledTasks.dequeue();
             action.runAndSchedulePausedTasks();
         }
     }

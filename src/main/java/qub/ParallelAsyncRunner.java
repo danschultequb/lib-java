@@ -2,7 +2,7 @@ package qub;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class ParallelAsyncRunner implements AsyncRunnerInner
+public class ParallelAsyncRunner implements AsyncRunner
 {
     private final AtomicInteger scheduledTaskCount;
 
@@ -18,19 +18,7 @@ public class ParallelAsyncRunner implements AsyncRunnerInner
     }
 
     @Override
-    public PausedAsyncAction create(Action0 action)
-    {
-        return new BasicAsyncAction(this, action);
-    }
-
-    @Override
-    public <T> PausedAsyncFunction<T> create(Function0<T> function)
-    {
-        return new BasicAsyncFunction<>(this, function);
-    }
-
-    @Override
-    public void schedule(final AsyncTask asyncTask)
+    public void schedule(final PausedAsyncTask asyncTask)
     {
         scheduledTaskCount.incrementAndGet();
         new java.lang.Thread(new Action0()
@@ -58,7 +46,7 @@ public class ParallelAsyncRunner implements AsyncRunnerInner
         AsyncAction result = null;
         if (action != null)
         {
-            final PausedAsyncAction asyncAction = create(action);
+            final PausedAsyncAction asyncAction = new BasicAsyncAction(this, action);
             asyncAction.schedule();
             result = asyncAction;
         }
@@ -71,7 +59,7 @@ public class ParallelAsyncRunner implements AsyncRunnerInner
         AsyncFunction<T> result = null;
         if (function != null)
         {
-            final PausedAsyncFunction<T> asyncFunction = create(function);
+            final PausedAsyncFunction<T> asyncFunction = new BasicAsyncFunction<>(this, function);
             asyncFunction.schedule();
             result = asyncFunction;
         }
