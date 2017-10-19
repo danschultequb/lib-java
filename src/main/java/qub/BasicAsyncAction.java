@@ -22,7 +22,10 @@ public class BasicAsyncAction extends BasicAsyncTask implements AsyncAction, Pau
     @Override
     protected void runTask()
     {
-        action.run();
+        if (action != null)
+        {
+            action.run();
+        }
     }
 
     @Override

@@ -22,24 +22,12 @@ public class CurrentThreadAsyncRunner implements AsyncRunner
     }
 
     @Override
-    public PausedAsyncAction create(Action0 action)
-    {
-        return new BasicAsyncAction(this, action);
-    }
-
-    @Override
-    public <T> PausedAsyncFunction<T> create(Function0<T> function)
-    {
-        return new BasicAsyncFunction<>(this, function);
-    }
-
-    @Override
     public AsyncAction schedule(Action0 action)
     {
         AsyncAction result = null;
         if (action != null)
         {
-            final PausedAsyncAction asyncAction = create(action);
+            final PausedAsyncAction asyncAction = new BasicAsyncAction(this, action);
             asyncAction.schedule();
             result = asyncAction;
         }
@@ -52,7 +40,7 @@ public class CurrentThreadAsyncRunner implements AsyncRunner
         AsyncFunction<T> result = null;
         if (function != null)
         {
-            final PausedAsyncFunction<T> asyncFunction = create(function);
+            final PausedAsyncFunction<T> asyncFunction = new BasicAsyncFunction<>(this, function);
             asyncFunction.schedule();
             result = asyncFunction;
         }

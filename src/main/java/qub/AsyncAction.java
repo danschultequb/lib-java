@@ -32,7 +32,15 @@ public interface AsyncAction
      * @return The reference to the asynchronous function that will be scheduled when this
      * AsyncAction completes.
      */
-    AsyncAction thenAsync(Function0<AsyncAction> function);
+    AsyncAction thenAsyncAction(Function0<AsyncAction> function);
+
+    /**
+     * Run the provided function when this AsyncAction completes.
+     * @param function The function to schedule when this AsyncAction completes.
+     * @return The reference to the asynchronous function that will be scheduled when this
+     * AsyncAction completes.
+     */
+    <T> AsyncFunction<T> thenAsyncFunction(Function0<AsyncFunction<T>> function);
 
     /**
      * Schedule any following AsyncTasks on the provided AsyncRunner.
@@ -60,5 +68,12 @@ public interface AsyncAction
      * @param function The function to schedule when this AsyncAction completes.
      * @return The reference to the asynchronous action that will be scheduled.
      */
-    AsyncAction thenOnAsync(AsyncRunner runner, Function0<AsyncAction> function);
+    AsyncAction thenOnAsyncAction(AsyncRunner runner, Function0<AsyncAction> function);
+
+    /**
+     * Run the provided function on the provided AsyncRunner when this AsyncAction completes.
+     * @param function The function to schedule when this AsyncAction completes.
+     * @return The reference to the asynchronous action that will be scheduled.
+     */
+    <T> AsyncFunction<T> thenOnAsyncFunction(AsyncRunner runner, Function0<AsyncFunction<T>> function);
 }
