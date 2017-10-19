@@ -721,7 +721,7 @@ public abstract class FileSystemTests
     public void folderExistsWithRootPathString()
     {
         final FileSystem fileSystem = getFileSystem();
-        final Folder folder = fileSystem.getRoots().first();
+        final Root folder = fileSystem.getRoots().first();
         assertTrue(fileSystem.folderExists(folder.getPath().toString()));
     }
 
@@ -2026,14 +2026,20 @@ public abstract class FileSystemTests
     }
 
     @Test
-    public void createFileWithRootedPathString()
+    public void createFileWithNonExistingRootedPathString()
     {
         final FileSystem fileSystem = getFileSystem();
         final boolean fileCreated = fileSystem.createFile("/things.txt");
         assertTrue(fileCreated);
+    }
 
-        final boolean fileCreatedAgain = fileSystem.createFile("/things.txt");
-        assertFalse(fileCreatedAgain);
+    @Test
+    public void createFileWithExistingRootedPathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFile("/things.txt");
+
+        assertFalse(fileSystem.createFile("/things.txt"));
     }
 
     @Test
@@ -2054,19 +2060,23 @@ public abstract class FileSystemTests
     public void createFileWithRelativePathStringAndNullValue()
     {
         final FileSystem fileSystem = getFileSystem();
-        final boolean fileCreated = fileSystem.createFile("things.txt", null);
-        assertFalse(fileCreated);
+        assertFalse(fileSystem.createFile("things.txt", null));
     }
 
     @Test
-    public void createFileWithRootedPathStringAndNullValue()
+    public void createFileWithNonExistingRootedPathStringAndNullValue()
     {
         final FileSystem fileSystem = getFileSystem();
-        final boolean fileCreated = fileSystem.createFile("/things.txt", null);
-        assertTrue(fileCreated);
+        assertTrue(fileSystem.createFile("/things.txt", null));
+    }
 
-        final boolean fileCreatedAgain = fileSystem.createFile("/things.txt", null);
-        assertFalse(fileCreatedAgain);
+    @Test
+    public void createFileWithExistingRootedPathStringAndNullValue()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFile("/things.txt", null);
+
+        assertFalse(fileSystem.createFile("/things.txt", null));
     }
 
     @Test
@@ -2111,12 +2121,12 @@ public abstract class FileSystemTests
     public void createFileWithExistingRootedPathStringAndNonNullValue()
     {
         final FileSystem fileSystem = getFileSystem();
-        final Value<File> file = new Value<>();
-        fileSystem.createFile("/things.txt", file);
+        fileSystem.createFile("/things.txt");
 
-        final boolean fileCreated = fileSystem.createFile("/things.txt", file);
-        assertFalse(fileCreated);
-        assertFalse(file.hasValue());
+        final Value<File> file = new Value<>();
+        assertFalse(fileSystem.createFile("/things.txt", file));
+        assertTrue(file.hasValue());
+        assertEquals(Path.parse("/things.txt"), file.get().getPath());
     }
 
     @Test
@@ -2456,7 +2466,9 @@ public abstract class FileSystemTests
                             public void run(Boolean fileCreated)
                             {
                                 assertFalse(fileCreated);
-                                assertFalse(file.hasValue());
+                                assertTrue(file.hasValue());
+                                assertNotNull(file.get());
+                                assertEquals(Path.parse("/things.txt"), file.get().getPath());
                             }
                         });
             }
@@ -2812,7 +2824,9 @@ public abstract class FileSystemTests
                             public void run(Boolean fileCreated)
                             {
                                 assertFalse(fileCreated);
-                                assertFalse(file.hasValue());
+                                assertTrue(file.hasValue());
+                                assertNotNull(file.get());
+                                assertEquals(Path.parse("/things.txt"), file.get().getPath());
                             }
                         });
             }

@@ -13,16 +13,6 @@ public abstract class FileSystemEntry
      * @param fileSystem The FileSystem in which this FileSystemEntry is stored.
      * @param path The Path to this FileSystemEntry.
      */
-    FileSystemEntry(FileSystem fileSystem, String path)
-    {
-        this(fileSystem, Path.parse(path));
-    }
-
-    /**
-     * Create a new FileSystemEntry.
-     * @param fileSystem The FileSystem in which this FileSystemEntry is stored.
-     * @param path The Path to this FileSystemEntry.
-     */
     FileSystemEntry(FileSystem fileSystem, Path path)
     {
         this.fileSystem = fileSystem;

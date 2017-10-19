@@ -10,16 +10,6 @@ public class Folder extends FileSystemEntry
      * @param fileSystem The FileSystem that contains this Folder.
      * @param path The Path to this Folder.
      */
-    Folder(FileSystem fileSystem, String path)
-    {
-        super(fileSystem, path);
-    }
-
-    /**
-     * Create a new Folder reference.
-     * @param fileSystem The FileSystem that contains this Folder.
-     * @param path The Path to this Folder.
-     */
     Folder(FileSystem fileSystem, Path path)
     {
         super(fileSystem, path);
@@ -41,6 +31,50 @@ public class Folder extends FileSystemEntry
     public boolean create()
     {
         return getFileSystem().createFolder(getPath());
+    }
+
+    /**
+     * Get a reference to the Folder at the provided relative folderPath.
+     * @param relativeFolderPath The path to the folder relative to this folder.
+     * @return A reference to the Folder at the provided relative folderPath.
+     */
+    public Folder getFolder(String relativeFolderPath)
+    {
+        final Path childFolderPath = getChildPath(relativeFolderPath);
+        return getFileSystem().getFolder(childFolderPath);
+    }
+
+    /**
+     * Get a reference to the Folder at the provided relative folderPath.
+     * @param relativeFolderPath The path to the folder relative to this folder.
+     * @return A reference to the Folder at the provided relative folderPath.
+     */
+    public Folder getFolder(Path relativeFolderPath)
+    {
+        final Path childFolderPath = getChildPath(relativeFolderPath);
+        return getFileSystem().getFolder(childFolderPath);
+    }
+
+    /**
+     * Get a reference to the File at the provided relativeFilePath.
+     * @param relativeFilePath The path to the file relative to this folder.
+     * @return A reference to the File at the provided relativeFilePath.
+     */
+    public File getFile(String relativeFilePath)
+    {
+        final Path childFilePath = getChildPath(relativeFilePath);
+        return getFileSystem().getFile(childFilePath);
+    }
+
+    /**
+     * Get a reference to the File at the provided relativeFilePath.
+     * @param relativeFilePath The path to the File relative to this folder.
+     * @return A reference to the File at the provided relativeFilePath.
+     */
+    public File getFile(Path relativeFilePath)
+    {
+        final Path childFilePath = getChildPath(relativeFilePath);
+        return getFileSystem().getFile(childFilePath);
     }
 
     /**
