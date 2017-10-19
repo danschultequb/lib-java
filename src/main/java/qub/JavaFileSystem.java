@@ -199,14 +199,7 @@ public class JavaFileSystem extends FileSystemBase
                     result = file.createNewFile();
                     if (outputFile != null)
                     {
-                        if (!result)
-                        {
-                            outputFile.clear();
-                        }
-                        else
-                        {
-                            outputFile.set(getFile(filePath));
-                        }
+                        outputFile.set(getFile(filePath));
                     }
                 }
                 catch (IOException e)

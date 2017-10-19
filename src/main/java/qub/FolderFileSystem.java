@@ -54,7 +54,7 @@ public class FolderFileSystem extends FileSystemBase
     @Override
     public Iterable<Root> getRoots()
     {
-        return Array.fromValues(new Root(this, "/"));
+        return Array.fromValues(new Root(this, Path.parse("/")));
     }
 
     @Override
@@ -127,9 +127,9 @@ public class FolderFileSystem extends FileSystemBase
 
         final boolean result = innerFileSystem.createFile(innerFilePath, innerOutputFile);
 
-        if (outputFile != null)
+        if (outputFile != null && innerOutputFile != null)
         {
-            if (!result)
+            if (!innerOutputFile.hasValue())
             {
                 outputFile.clear();
             }
