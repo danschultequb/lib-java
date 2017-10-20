@@ -167,6 +167,6 @@ public abstract class IteratorBase<T> implements Iterator<T>
     @Override
     public java.util.Iterator<T> iterator()
     {
-        return new JavaIterator<>(this);
+        return new IteratorToJavaIteratorAdapter<>(this);
     }
 }

@@ -4,14 +4,14 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class JavaIteratorTests
+public class IteratorToJavaIteratorAdapterTests
 {
     @Test
     public void hasNextWithNonStartedEmpty()
     {
         final Array<Integer> array = new Array<>(0);
         final Iterator<Integer> iterator = new ArrayIterator<>(array);
-        final JavaIterator<Integer> javaIterator = new JavaIterator<>(iterator);
+        final IteratorToJavaIteratorAdapter<Integer> javaIterator = new IteratorToJavaIteratorAdapter<>(iterator);
         assertFalse(iterator.hasStarted());
 
         for (int i = 0; i < 10; ++i)
@@ -28,7 +28,7 @@ public class JavaIteratorTests
         assertFalse(iterator.next());
         assertTrue(iterator.hasStarted());
 
-        final JavaIterator<Integer> javaIterator = new JavaIterator<>(iterator);
+        final IteratorToJavaIteratorAdapter<Integer> javaIterator = new IteratorToJavaIteratorAdapter<>(iterator);
         assertTrue(iterator.hasStarted());
 
         for (int i = 0; i < 10; ++i)
@@ -43,7 +43,7 @@ public class JavaIteratorTests
     {
         final Array<Integer> array = new Array<>(5);
         final Iterator<Integer> iterator = new ArrayIterator<>(array);
-        final JavaIterator<Integer> javaIterator = new JavaIterator<>(iterator);
+        final IteratorToJavaIteratorAdapter<Integer> javaIterator = new IteratorToJavaIteratorAdapter<>(iterator);
         assertFalse(iterator.hasStarted());
 
         for (int i = 0; i < 10; ++i)
@@ -61,7 +61,7 @@ public class JavaIteratorTests
         assertTrue(iterator.next());
         assertTrue(iterator.hasStarted());
 
-        final JavaIterator<Integer> javaIterator = new JavaIterator<>(iterator);
+        final IteratorToJavaIteratorAdapter<Integer> javaIterator = new IteratorToJavaIteratorAdapter<>(iterator);
         assertTrue(iterator.hasStarted());
 
         for (int i = 0; i < 10; ++i)
@@ -78,7 +78,7 @@ public class JavaIteratorTests
         final Iterator<Integer> iterator = new ArrayIterator<>(array);
         assertFalse(iterator.hasStarted());
 
-        final JavaIterator<Integer> javaIterator = new JavaIterator<>(iterator);
+        final IteratorToJavaIteratorAdapter<Integer> javaIterator = new IteratorToJavaIteratorAdapter<>(iterator);
         assertFalse(iterator.hasStarted());
 
         for (int i = 0; i < 10; ++i)
@@ -95,7 +95,7 @@ public class JavaIteratorTests
         assertFalse(iterator.next());
         assertTrue(iterator.hasStarted());
 
-        final JavaIterator<Integer> javaIterator = new JavaIterator<>(iterator);
+        final IteratorToJavaIteratorAdapter<Integer> javaIterator = new IteratorToJavaIteratorAdapter<>(iterator);
         assertTrue(iterator.hasStarted());
 
         for (int i = 0; i < 10; ++i)
@@ -116,7 +116,7 @@ public class JavaIteratorTests
         final Iterator<Integer> iterator = new ArrayIterator<>(array);
         assertFalse(iterator.hasStarted());
 
-        final JavaIterator<Integer> javaIterator = new JavaIterator<>(iterator);
+        final IteratorToJavaIteratorAdapter<Integer> javaIterator = new IteratorToJavaIteratorAdapter<>(iterator);
         assertFalse(iterator.hasStarted());
 
         for (int i = 0; i < 5; ++i)
@@ -140,7 +140,7 @@ public class JavaIteratorTests
         assertTrue(iterator.next());
         assertTrue(iterator.hasStarted());
 
-        final JavaIterator<Integer> javaIterator = new JavaIterator<>(iterator);
+        final IteratorToJavaIteratorAdapter<Integer> javaIterator = new IteratorToJavaIteratorAdapter<>(iterator);
         assertTrue(iterator.hasStarted());
 
         for (int i = 0; i < 5; ++i)
@@ -161,7 +161,7 @@ public class JavaIteratorTests
         }
 
         final Iterator<Integer> iterator = new ArrayIterator<>(array);
-        final JavaIterator<Integer> javaIterator = new JavaIterator<>(iterator);
+        final IteratorToJavaIteratorAdapter<Integer> javaIterator = new IteratorToJavaIteratorAdapter<>(iterator);
         javaIterator.remove();
     }
 }
