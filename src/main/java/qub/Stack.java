@@ -6,7 +6,7 @@ package qub;
  */
 public class Stack<T>
 {
-    private final ArrayList<T> values;
+    private final List<T> values;
 
     /**
      * Create a new empty Stack.
@@ -59,15 +59,5 @@ public class Stack<T>
     public T peek()
     {
         return values.get(getCount() - 1);
-    }
-
-    /**
-     * Iterate over the values in this Stack in the order that they will be popped.
-     * @return An Iterator that will iterate over the values in this Stack in the order that they
-     * will be popped.
-     */
-    public Iterator<T> iterate()
-    {
-        return values.iterateReverse();
     }
 }
