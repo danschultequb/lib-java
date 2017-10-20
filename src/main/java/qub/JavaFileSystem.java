@@ -266,7 +266,7 @@ public class JavaFileSystem extends FileSystemBase
                     bytesRead = inputStream.read(buffer);
                     if (bytesRead > 0)
                     {
-                        final byte[] byteBlock = Array.clone(buffer, bytesRead);
+                        final byte[] byteBlock = Array.clone(buffer, 0, bytesRead);
                         result.add(byteBlock);
                     }
                 }

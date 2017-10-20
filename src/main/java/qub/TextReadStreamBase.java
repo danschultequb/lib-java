@@ -39,14 +39,16 @@ import java.io.IOException;
     @Override
     public char[] readCharacters(int charactersToRead) throws IOException
     {
-        if (charactersToRead < 0) {
-            charactersToRead = 0;
-        }
+        char[] result;
 
-        char[] result = new char[charactersToRead];
-
-        if (charactersToRead > 0)
+        if (charactersToRead <= 0)
         {
+            result = null;
+        }
+        else
+        {
+            result = new char[charactersToRead];
+
             final int charactersRead = readCharacters(result);
             if (charactersRead == -1)
             {
@@ -57,7 +59,7 @@ import java.io.IOException;
                 final char[] newResult = new char[charactersRead];
                 if (charactersRead > 0)
                 {
-                    System.arraycopy(result, 0, newResult, 0, newResult.length);
+                    Array.copy(result, 0, newResult, 0, newResult.length);
                 }
                 result = newResult;
             }

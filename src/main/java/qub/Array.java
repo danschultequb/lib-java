@@ -399,21 +399,21 @@ public class Array<T> extends IndexableBase<T>
      */
     public static byte[] clone(byte[] toClone)
     {
-        final int length = toClone == null ? 0 : toClone.length;
-        return clone(toClone, length);
+        return clone(toClone, 0, toClone == null ? 0 : toClone.length);
     }
 
     /**
      * Get a new byte[] that is a clone of the provided toClone byte[].
      * @param toClone The byte[] to clone.
+     * @param startIndex The index to start cloning from.
      * @param length The number of bytes from toClone to clone.
      * @return The cloned byte[].
      */
-    public static byte[] clone(byte[] toClone, int length)
+    public static byte[] clone(byte[] toClone, int startIndex, int length)
     {
         byte[] result = toClone;
 
-        if (toClone == null || length < 0)
+        if (toClone == null || length < 0 || startIndex < 0 || toClone.length < startIndex)
         {
             result = null;
         }
@@ -423,7 +423,7 @@ public class Array<T> extends IndexableBase<T>
         }
         else
         {
-            final int resultLength = Math.minimum(toClone.length, length);
+            final int resultLength = Math.minimum(toClone.length - startIndex, length);
             result = new byte[resultLength];
             System.arraycopy(toClone, 0, result, 0, resultLength);
         }
@@ -444,7 +444,27 @@ public class Array<T> extends IndexableBase<T>
         if (copyFrom != null && copyTo != null && 1 <= copyFrom.length && 1 <= copyTo.length &&
                 0 <= copyFromStartIndex && copyFromStartIndex < copyFrom.length &&
                 0 <= copyToStartIndex && copyToStartIndex < copyTo.length &&
-                1 < length)
+                1 <= length)
+        {
+            length = Math.minimum(copyTo.length - copyToStartIndex, Math.minimum(copyFrom.length, length));
+            System.arraycopy(copyFrom, copyFromStartIndex, copyTo, copyToStartIndex, length);
+        }
+    }
+
+    /**
+     * Copy the contents of the copyFrom char[] to the copyTo char[] starting at the
+     * copyToStartIndex.
+     * @param copyFrom The char[] to copy from.
+     * @param copyTo The char[] to copy to.
+     * @param copyToStartIndex The index within copyTo to start copying to.
+     * @param length The number of bytes to copy from the copyFrom byte[] to the copyTo byte[].
+     */
+    public static void copy(char[] copyFrom, int copyFromStartIndex, char[] copyTo, int copyToStartIndex, int length)
+    {
+        if (copyFrom != null && copyTo != null && 1 <= copyFrom.length && 1 <= copyTo.length &&
+                0 <= copyFromStartIndex && copyFromStartIndex < copyFrom.length &&
+                0 <= copyToStartIndex && copyToStartIndex < copyTo.length &&
+                1 <= length)
         {
             length = Math.minimum(copyTo.length - copyToStartIndex, Math.minimum(copyFrom.length, length));
             System.arraycopy(copyFrom, copyFromStartIndex, copyTo, copyToStartIndex, length);
