@@ -296,6 +296,23 @@ public class InMemoryFileSystem extends FileSystemBase
         return result;
     }
 
+    @Override
+    public Iterable<byte[]> getFileContentBlocks(Path rootedFilePath)
+    {
+        Iterable<byte[]> result = null;
+
+        if (rootedFilePath != null && rootedFilePath.isRooted() && rootExists(rootedFilePath.getRoot()))
+        {
+            final InMemoryFile file = getInMemoryFile(rootedFilePath);
+            if (file != null)
+            {
+                result = file.getContentBlocks();
+            }
+        }
+
+        return result;
+    }
+
     /**
      * Create a new Root in this FileSystem and returns whether or not this function created the
      * Root.

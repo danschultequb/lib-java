@@ -44,4 +44,28 @@ public class InMemoryFile
     {
         return Array.clone(contents);
     }
+
+    /**
+     * Get the content blocks of this file.
+     * @return The content blocks of this file.
+     */
+    public Iterable<byte[]> getContentBlocks()
+    {
+        final List<byte[]> result = new ArrayList<>();
+
+        if (contents.length > 0)
+        {
+            final int blockSize = 10;
+            final double blockCount = Math.ceiling((double)contents.length / blockSize);
+            for (int i = 0; i < blockCount; ++i)
+            {
+                final int blockLength = Math.minimum(blockSize, contents.length - (i * blockSize));
+                final byte[] block = new byte[blockLength];
+                Array.copy(contents, i * blockSize, block, 0, blockLength);
+                result.add(block);
+            }
+        }
+
+        return result;
+    }
 }

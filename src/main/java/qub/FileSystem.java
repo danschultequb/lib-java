@@ -489,4 +489,22 @@ public interface FileSystem
      * the provided rootedFilePath.
      */
     byte[] getFileContents(Path rootedFilePath);
+
+    /**
+     * Read the contents of the file at the provided rootedFilePath as a sequence of byte[]. If no
+     * file exists at the provided rootedFilePath, then null will be returned.
+     * @param rootedFilePath The rooted file path of the file to read.
+     * @return The contents of the file at the provided rootedFilePath as a sequence of byte[], or
+     * null if no file exists at the provided rootedFilePath.
+     */
+    Iterable<byte[]> getFileContentBlocks(String rootedFilePath);
+
+    /**
+     * Read the contents of the file at the provided rootedFilePath as a sequence of byte[]. If no
+     * file exists at the provided rootedFilePath, then null will be returned.
+     * @param rootedFilePath The rooted file path of the file to read.
+     * @return The contents of the file at the provided rootedFilePath as a sequence of byte[], or
+     * null if no file exists at the provided rootedFilePath.
+     */
+    Iterable<byte[]> getFileContentBlocks(Path rootedFilePath);
 }

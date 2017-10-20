@@ -67,4 +67,15 @@ public class Math {
     public static boolean isEven(int value) {
         return value % 2 == 0;
     }
+
+    /**
+     * If the provided value is a fractional value, then return the next higher integer. If the
+     * provided vlaue is an integer, then just return the provided value.
+     * @param value The value.
+     * @return The ceiling of the value.
+     */
+    public static double ceiling(double value)
+    {
+        return java.lang.Math.ceil(value);
+    }
 }
