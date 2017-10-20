@@ -321,68 +321,68 @@ public class ArrayTests extends IterableTests
     @Test
     public void cloneByteArrayIntWithNullByteArrayAndNegativeLength()
     {
-        assertNull(Array.clone(null, -5));
+        assertNull(Array.clone(null, 0, -5));
     }
 
     @Test
     public void cloneByteArrayIntWithNullByteArrayAndZeroLength()
     {
-        assertNull(Array.clone(null, 0));
+        assertNull(Array.clone(null, 0, 0));
     }
 
     @Test
     public void cloneByteArrayIntWithNullByteArrayAndPostiveLength()
     {
-        assertNull(Array.clone(null, 5));
+        assertNull(Array.clone(null, 0, 5));
     }
 
     @Test
     public void cloneByteArrayIntWithEmptyByteArrayAndNegativeLength()
     {
         final byte[] byteArray = new byte[0];
-        assertNull(Array.clone(byteArray, -5));
+        assertNull(Array.clone(byteArray, 0, -5));
     }
 
     @Test
     public void cloneByteArrayIntWithEmptyByteArrayAndZeroLength()
     {
         final byte[] byteArray = new byte[0];
-        assertSame(byteArray, Array.clone(byteArray, 0));
+        assertSame(byteArray, Array.clone(byteArray, 0, 0));
     }
 
     @Test
     public void cloneByteArrayIntWithEmptyByteArrayAndPositiveLength()
     {
         final byte[] byteArray = new byte[0];
-        assertSame(byteArray, Array.clone(byteArray, 10));
+        assertSame(byteArray, Array.clone(byteArray, 0, 10));
     }
 
     @Test
     public void cloneByteArrayIntWithNonEmptyByteArrayAndNegativeLength()
     {
         final byte[] byteArray = new byte[10];
-        assertNull(Array.clone(byteArray, -1));
+        assertNull(Array.clone(byteArray, 0, -1));
     }
 
     @Test
     public void cloneByteArrayIntWithNonEmptyByteArrayAndZeroLength()
     {
         final byte[] byteArray = new byte[10];
-        assertArrayEquals(new byte[0], Array.clone(byteArray, 0));
+        assertArrayEquals(new byte[0], Array.clone(byteArray, 0, 0));
     }
 
     @Test
     public void cloneByteArrayIntWithNonEmptyByteArrayAndPositiveLengthLessThanByteArrayLength()
     {
         final byte[] byteArray = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-        assertArrayEquals(new byte[] { 0, 1, 2, 3 }, Array.clone(byteArray, 4));
+        assertArrayEquals(new byte[] { 0, 1, 2, 3 }, Array.clone(byteArray, 0, 4));
     }
 
     @Test
     public void cloneByteArrayIntWithNonEmptyByteArrayAndPositiveLengthEqualToByteArrayLength()
     {
         final byte[] byteArray = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-        final byte[] clonedByteArray = Array.clone(byteArray, byteArray.length);
+        final byte[] clonedByteArray = Array.clone(byteArray, 0, byteArray.length);
         assertNotSame(byteArray, clonedByteArray);
         assertArrayEquals(byteArray, clonedByteArray);
     }
@@ -391,7 +391,7 @@ public class ArrayTests extends IterableTests
     public void cloneByteArrayIntWithNonEmptyByteArrayAndPositiveLengthGreaterThanByteArrayLength()
     {
         final byte[] byteArray = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-        final byte[] clonedByteArray = Array.clone(byteArray, byteArray.length + 1);
+        final byte[] clonedByteArray = Array.clone(byteArray, 0, byteArray.length + 1);
         assertNotSame(byteArray, clonedByteArray);
         assertArrayEquals(byteArray, clonedByteArray);
     }
