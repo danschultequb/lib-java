@@ -64,11 +64,12 @@ public class ArrayList<T> extends ListBase<T>
 
         if (inBounds(index))
         {
-            result = get(index);
+            result = array.get(index);
             for (int i = index; i < getCount() - 1; ++i)
             {
-                set(i, get(i + 1));
+                array.set(i, get(i + 1));
             }
+            array.set(elementCount - 1, null);
             --elementCount;
         }
 
