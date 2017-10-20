@@ -181,13 +181,18 @@ public class InMemoryFolder
         });
     }
 
-    public boolean createFile(String fileName)
+    public boolean createFile(String fileName, byte[] fileContents)
     {
         InMemoryFile inMemoryFile = getFile(fileName);
         final boolean result = (inMemoryFile == null);
         if (result)
         {
-            inMemoryFile = new InMemoryFile(fileName);
+            if (fileContents == null)
+            {
+                fileContents = new byte[0];
+            }
+
+            inMemoryFile = new InMemoryFile(fileName, fileContents);
             files.add(inMemoryFile);
         }
 

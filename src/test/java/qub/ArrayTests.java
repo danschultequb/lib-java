@@ -295,4 +295,342 @@ public class ArrayTests extends IterableTests
     {
         assertArrayEquals(new String[0], Array.toStringArray(new Array<String>(0)));
     }
+
+    @Test
+    public void cloneByteArrayWithNull()
+    {
+        assertNull(Array.clone(null));
+    }
+
+    @Test
+    public void cloneByteArrayWithEmpty()
+    {
+        final byte[] byteArray = new byte[0];
+        assertSame(byteArray, Array.clone(byteArray));
+    }
+
+    @Test
+    public void cloneByteArrayWithNonEmpty()
+    {
+        final byte[] byteArray = new byte[10];
+        final byte[] clonedByteArray = Array.clone(byteArray);
+        assertNotSame(byteArray, clonedByteArray);
+        assertArrayEquals(byteArray, clonedByteArray);
+    }
+
+    @Test
+    public void cloneByteArrayIntWithNullByteArrayAndNegativeLength()
+    {
+        assertNull(Array.clone(null, -5));
+    }
+
+    @Test
+    public void cloneByteArrayIntWithNullByteArrayAndZeroLength()
+    {
+        assertNull(Array.clone(null, 0));
+    }
+
+    @Test
+    public void cloneByteArrayIntWithNullByteArrayAndPostiveLength()
+    {
+        assertNull(Array.clone(null, 5));
+    }
+
+    @Test
+    public void cloneByteArrayIntWithEmptyByteArrayAndNegativeLength()
+    {
+        final byte[] byteArray = new byte[0];
+        assertNull(Array.clone(byteArray, -5));
+    }
+
+    @Test
+    public void cloneByteArrayIntWithEmptyByteArrayAndZeroLength()
+    {
+        final byte[] byteArray = new byte[0];
+        assertSame(byteArray, Array.clone(byteArray, 0));
+    }
+
+    @Test
+    public void cloneByteArrayIntWithEmptyByteArrayAndPositiveLength()
+    {
+        final byte[] byteArray = new byte[0];
+        assertSame(byteArray, Array.clone(byteArray, 10));
+    }
+
+    @Test
+    public void cloneByteArrayIntWithNonEmptyByteArrayAndNegativeLength()
+    {
+        final byte[] byteArray = new byte[10];
+        assertNull(Array.clone(byteArray, -1));
+    }
+
+    @Test
+    public void cloneByteArrayIntWithNonEmptyByteArrayAndZeroLength()
+    {
+        final byte[] byteArray = new byte[10];
+        assertArrayEquals(new byte[0], Array.clone(byteArray, 0));
+    }
+
+    @Test
+    public void cloneByteArrayIntWithNonEmptyByteArrayAndPositiveLengthLessThanByteArrayLength()
+    {
+        final byte[] byteArray = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+        assertArrayEquals(new byte[] { 0, 1, 2, 3 }, Array.clone(byteArray, 4));
+    }
+
+    @Test
+    public void cloneByteArrayIntWithNonEmptyByteArrayAndPositiveLengthEqualToByteArrayLength()
+    {
+        final byte[] byteArray = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+        final byte[] clonedByteArray = Array.clone(byteArray, byteArray.length);
+        assertNotSame(byteArray, clonedByteArray);
+        assertArrayEquals(byteArray, clonedByteArray);
+    }
+
+    @Test
+    public void cloneByteArrayIntWithNonEmptyByteArrayAndPositiveLengthGreaterThanByteArrayLength()
+    {
+        final byte[] byteArray = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+        final byte[] clonedByteArray = Array.clone(byteArray, byteArray.length + 1);
+        assertNotSame(byteArray, clonedByteArray);
+        assertArrayEquals(byteArray, clonedByteArray);
+    }
+
+    @Test
+    public void copyByteArrayByteArrayIntWithNullCopyFrom()
+    {
+        final byte[] copyFrom = null;
+        final byte[] copyTo = new byte[] { 0, 11, 22, 33, 44 };
+        final int copyToStartIndex = 1;
+        final int length = 2;
+
+        Array.copy(copyFrom, copyTo, copyToStartIndex, length);
+
+        assertArrayEquals(new byte[] { 0, 11, 22, 33, 44 }, copyTo);
+    }
+
+    @Test
+    public void copyByteArrayByteArrayIntWithNullCopyTo()
+    {
+        final byte[] copyFrom = new byte[] { 0, 1, 2, 3, 4 };
+        final byte[] copyTo = null;
+        final int copyToStartIndex = 1;
+        final int length = 2;
+
+        Array.copy(copyFrom, copyTo, copyToStartIndex, length);
+
+        assertArrayEquals(new byte[] { 0, 1, 2, 3, 4 }, copyFrom);
+    }
+
+    @Test
+    public void copyByteArrayByteArrayIntWithNegativeCopyToStartIndexAndNegativeLength()
+    {
+        final byte[] copyFrom = new byte[] { 0, 1, 2, 3, 4 };
+        final byte[] copyTo = new byte[] { 5, 6, 7, 8, 9 };
+        final int copyToStartIndex = -1;
+        final int length = -2;
+
+        Array.copy(copyFrom, copyTo, copyToStartIndex, length);
+
+        assertArrayEquals(new byte[] { 0, 1, 2, 3, 4 }, copyFrom);
+        assertArrayEquals(new byte[] { 5, 6, 7, 8, 9 }, copyTo);
+    }
+
+    @Test
+    public void copyByteArrayByteArrayIntWithNegativeCopyToStartIndexAndZeroLength()
+    {
+        final byte[] copyFrom = new byte[] { 0, 1, 2, 3, 4 };
+        final byte[] copyTo = new byte[] { 5, 6, 7, 8, 9 };
+        final int copyToStartIndex = -1;
+        final int length = 0;
+
+        Array.copy(copyFrom, copyTo, copyToStartIndex, length);
+
+        assertArrayEquals(new byte[] { 0, 1, 2, 3, 4 }, copyFrom);
+        assertArrayEquals(new byte[] { 5, 6, 7, 8, 9 }, copyTo);
+    }
+
+    @Test
+    public void copyByteArrayByteArrayIntWithNegativeCopyToStartIndexAndPositiveLength()
+    {
+        final byte[] copyFrom = new byte[] { 0, 1, 2, 3, 4 };
+        final byte[] copyTo = new byte[] { 5, 6, 7, 8, 9 };
+        final int copyToStartIndex = -1;
+        final int length = 2;
+
+        Array.copy(copyFrom, copyTo, copyToStartIndex, length);
+
+        assertArrayEquals(new byte[] { 0, 1, 2, 3, 4 }, copyFrom);
+        assertArrayEquals(new byte[] { 5, 6, 7, 8, 9 }, copyTo);
+    }
+
+    @Test
+    public void copyByteArrayByteArrayIntWithZeroCopyToStartIndexAndNegativeLength()
+    {
+        final byte[] copyFrom = new byte[] { 0, 1, 2, 3, 4 };
+        final byte[] copyTo = new byte[] { 5, 6, 7, 8, 9 };
+        final int copyToStartIndex = 0;
+        final int length = -2;
+
+        Array.copy(copyFrom, copyTo, copyToStartIndex, length);
+
+        assertArrayEquals(new byte[] { 0, 1, 2, 3, 4 }, copyFrom);
+        assertArrayEquals(new byte[] { 5, 6, 7, 8, 9 }, copyTo);
+    }
+
+    @Test
+    public void copyByteArrayByteArrayIntWithZeroCopyToStartIndexAndZeroLength()
+    {
+        final byte[] copyFrom = new byte[] { 0, 1, 2, 3, 4 };
+        final byte[] copyTo = new byte[] { 5, 6, 7, 8, 9 };
+        final int copyToStartIndex = 0;
+        final int length = 0;
+
+        Array.copy(copyFrom, copyTo, copyToStartIndex, length);
+
+        assertArrayEquals(new byte[] { 0, 1, 2, 3, 4 }, copyFrom);
+        assertArrayEquals(new byte[] { 5, 6, 7, 8, 9 }, copyTo);
+    }
+
+    @Test
+    public void copyByteArrayByteArrayIntWithZeroCopyToStartIndexAndPositiveLengthLessThanCopyFromAndCopyToLengths()
+    {
+        final byte[] copyFrom = new byte[] { 0, 1, 2, 3, 4 };
+        final byte[] copyTo = new byte[] { 5, 6, 7, 8, 9 };
+        final int copyToStartIndex = 0;
+        final int length = 3;
+
+        Array.copy(copyFrom, copyTo, copyToStartIndex, length);
+
+        assertArrayEquals(new byte[] { 0, 1, 2, 3, 4 }, copyFrom);
+        assertArrayEquals(new byte[] { 0, 1, 2, 8, 9 }, copyTo);
+    }
+
+    @Test
+    public void copyByteArrayByteArrayIntWithZeroCopyToStartIndexAndPositiveLengthGreaterThenCopyFromLengthAndLessThanCopyToLength()
+    {
+        final byte[] copyFrom = new byte[] { 0, 1, 2 };
+        final byte[] copyTo = new byte[] { 5, 6, 7, 8, 9 };
+        final int copyToStartIndex = 0;
+        final int length = 4;
+
+        Array.copy(copyFrom, copyTo, copyToStartIndex, length);
+
+        assertArrayEquals(new byte[] { 0, 1, 2 }, copyFrom);
+        assertArrayEquals(new byte[] { 0, 1, 2, 8, 9 }, copyTo);
+    }
+
+    @Test
+    public void copyByteArrayByteArrayIntWithZeroCopyToStartIndexAndPositiveLengthLessThenCopyFromLengthAndGreaterThanCopyToLength()
+    {
+        final byte[] copyFrom = new byte[] { 0, 1, 2, 3, 4 };
+        final byte[] copyTo = new byte[] { 5, 6, 7 };
+        final int copyToStartIndex = 0;
+        final int length = 4;
+
+        Array.copy(copyFrom, copyTo, copyToStartIndex, length);
+
+        assertArrayEquals(new byte[] { 0, 1, 2, 3, 4 }, copyFrom);
+        assertArrayEquals(new byte[] { 0, 1, 2 }, copyTo);
+    }
+
+    @Test
+    public void copyByteArrayByteArrayIntWithZeroCopyToStartIndexAndPositiveLengthGreaterThanCopyFromAndCopyToLengths()
+    {
+        final byte[] copyFrom = new byte[] { 0, 1, 2, 3, 4 };
+        final byte[] copyTo = new byte[] { 5, 6, 7, 8, 9 };
+        final int copyToStartIndex = 0;
+        final int length = 30;
+
+        Array.copy(copyFrom, copyTo, copyToStartIndex, length);
+
+        assertArrayEquals(new byte[] { 0, 1, 2, 3, 4 }, copyFrom);
+        assertArrayEquals(new byte[] { 0, 1, 2, 3, 4 }, copyTo);
+        assertNotSame(copyFrom, copyTo);
+    }
+
+    @Test
+    public void copyByteArrayByteArrayIntWithPositiveCopyToStartIndexLessThanCopyToLengthAndNegativeLength()
+    {
+        final byte[] copyFrom = new byte[] { 0, 1, 2, 3, 4 };
+        final byte[] copyTo = new byte[] { 5, 6, 7, 8, 9 };
+        final int copyToStartIndex = 1;
+        final int length = -2;
+
+        Array.copy(copyFrom, copyTo, copyToStartIndex, length);
+
+        assertArrayEquals(new byte[] { 0, 1, 2, 3, 4 }, copyFrom);
+        assertArrayEquals(new byte[] { 5, 6, 7, 8, 9 }, copyTo);
+    }
+
+    @Test
+    public void copyByteArrayByteArrayIntWithPositiveCopyToStartIndexLessThanCopyToLengthAndZeroLength()
+    {
+        final byte[] copyFrom = new byte[] { 0, 1, 2, 3, 4 };
+        final byte[] copyTo = new byte[] { 5, 6, 7, 8, 9 };
+        final int copyToStartIndex = 1;
+        final int length = 0;
+
+        Array.copy(copyFrom, copyTo, copyToStartIndex, length);
+
+        assertArrayEquals(new byte[] { 0, 1, 2, 3, 4 }, copyFrom);
+        assertArrayEquals(new byte[] { 5, 6, 7, 8, 9 }, copyTo);
+    }
+
+    @Test
+    public void copyByteArrayByteArrayIntWithPositiveCopyToStartIndexLessThanCopyToLengthAndPositiveLengthLessThanCopyFromAndCopyToLengths()
+    {
+        final byte[] copyFrom = new byte[] { 0, 1, 2, 3, 4 };
+        final byte[] copyTo = new byte[] { 5, 6, 7, 8, 9 };
+        final int copyToStartIndex = 1;
+        final int length = 3;
+
+        Array.copy(copyFrom, copyTo, copyToStartIndex, length);
+
+        assertArrayEquals(new byte[] { 0, 1, 2, 3, 4 }, copyFrom);
+        assertArrayEquals(new byte[] { 5, 0, 1, 2, 9 }, copyTo);
+    }
+
+    @Test
+    public void copyByteArrayByteArrayIntWithPositiveCopyToStartIndexLessThanCopyToLengthAndPositiveLengthGreaterThenCopyFromLengthAndLessThanCopyToLength()
+    {
+        final byte[] copyFrom = new byte[] { 0, 1, 2 };
+        final byte[] copyTo = new byte[] { 5, 6, 7, 8, 9 };
+        final int copyToStartIndex = 1;
+        final int length = 4;
+
+        Array.copy(copyFrom, copyTo, copyToStartIndex, length);
+
+        assertArrayEquals(new byte[] { 0, 1, 2 }, copyFrom);
+        assertArrayEquals(new byte[] { 5, 0, 1, 2, 9 }, copyTo);
+    }
+
+    @Test
+    public void copyByteArrayByteArrayIntWithPositiveCopyToStartIndexLessThanCopyToLengthAndPositiveLengthLessThenCopyFromLengthAndGreaterThanCopyToLength()
+    {
+        final byte[] copyFrom = new byte[] { 0, 1, 2, 3, 4 };
+        final byte[] copyTo = new byte[] { 5, 6, 7 };
+        final int copyToStartIndex = 1;
+        final int length = 4;
+
+        Array.copy(copyFrom, copyTo, copyToStartIndex, length);
+
+        assertArrayEquals(new byte[] { 0, 1, 2, 3, 4 }, copyFrom);
+        assertArrayEquals(new byte[] { 5, 0, 1 }, copyTo);
+    }
+
+    @Test
+    public void copyByteArrayByteArrayIntWithPositiveCopyToStartIndexLessThanCopyToLengthAndPositiveLengthGreaterThanCopyFromAndCopyToLengths()
+    {
+        final byte[] copyFrom = new byte[] { 0, 1, 2, 3, 4 };
+        final byte[] copyTo = new byte[] { 5, 6, 7, 8, 9 };
+        final int copyToStartIndex = 1;
+        final int length = 30;
+
+        Array.copy(copyFrom, copyTo, copyToStartIndex, length);
+
+        assertArrayEquals(new byte[] { 0, 1, 2, 3, 4 }, copyFrom);
+        assertArrayEquals(new byte[] { 5, 0, 1, 2, 3 }, copyTo);
+        assertNotSame(copyFrom, copyTo);
+    }
 }

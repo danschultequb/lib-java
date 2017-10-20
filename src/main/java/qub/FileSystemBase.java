@@ -445,7 +445,15 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public boolean createFile(String filePath)
     {
-        return createFile(Path.parse(filePath), null);
+        final Path path = Path.parse(filePath);
+        return createFile(path, null, null);
+    }
+
+    @Override
+    public boolean createFile(String filePath, byte[] fileContents)
+    {
+        final Path path = Path.parse(filePath);
+        return createFile(path, fileContents, null);
     }
 
     @Override
@@ -456,9 +464,28 @@ public abstract class FileSystemBase implements FileSystem
     }
 
     @Override
+    public boolean createFile(String filePath, byte[] fileContents, Out<File> outputFile)
+    {
+        final Path path = Path.parse(filePath);
+        return createFile(path, fileContents, outputFile);
+    }
+
+    @Override
     public boolean createFile(Path filePath)
     {
-        return createFile(filePath, null);
+        return createFile(filePath, null, null);
+    }
+
+    @Override
+    public boolean createFile(Path filePath, byte[] fileContents)
+    {
+        return createFile(filePath, fileContents, null);
+    }
+
+    @Override
+    public boolean createFile(Path filePath, Out<File> outputFile)
+    {
+        return createFile(filePath, null, outputFile);
     }
 
     @Override
@@ -562,5 +589,11 @@ public abstract class FileSystemBase implements FileSystem
                     }
                 })
                 .thenOn(currentRunner);
+    }
+
+    @Override
+    public byte[] getFileContents(String rootedFilePath)
+    {
+        return getFileContents(Path.parse(rootedFilePath));
     }
 }
