@@ -1,7 +1,6 @@
 package qub;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -244,48 +243,38 @@ public class JavaFileSystem extends FileSystemBase
     @Override
     public byte[] getFileContents(Path rootedFilePath)
     {
-        byte[] result = null;
+        final Iterable<byte[]> fileContentBlocks = getFileContentBlocks(rootedFilePath);
+        return Array.merge(fileContentBlocks);
+    }
+
+    @Override
+    public Iterable<byte[]> getFileContentBlocks(Path rootedFilePath)
+    {
+        List<byte[]> result = null;
 
         if (rootedFilePath != null && rootedFilePath.isRooted() && rootExists(rootedFilePath.getRoot()))
         {
-            List<byte[]> fileByteBlocks = null;
-            int totalBytesRead = 0;
-
             final String filePathString = rootedFilePath.toString();
             try (final FileInputStream inputStream = new FileInputStream(filePathString);)
             {
-                fileByteBlocks = new ArrayList<>();
+                result = new ArrayList<>();
 
                 final byte[] buffer = new byte[1024];
                 int bytesRead;
                 do
                 {
                     bytesRead = inputStream.read(buffer);
-
                     if (bytesRead > 0)
                     {
                         final byte[] byteBlock = Array.clone(buffer, bytesRead);
-                        fileByteBlocks.add(byteBlock);
-
-                        totalBytesRead += bytesRead;
+                        result.add(byteBlock);
                     }
                 }
                 while (bytesRead >= 0);
             }
             catch (IOException ignored)
             {
-                fileByteBlocks = null;
-            }
-
-            if (fileByteBlocks != null)
-            {
-                result = new byte[totalBytesRead];
-                int resultIndex = 0;
-                for (byte[] byteBlock : fileByteBlocks)
-                {
-                    Array.copy(byteBlock, result, resultIndex, byteBlock.length);
-                    resultIndex += byteBlock.length;
-                }
+                result = null;
             }
         }
 

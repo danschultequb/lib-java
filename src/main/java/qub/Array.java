@@ -439,12 +439,54 @@ public class Array<T> extends IndexableBase<T>
      * @param copyToStartIndex The index within copyTo to start copying to.
      * @param length The number of bytes to copy from the copyFrom byte[] to the copyTo byte[].
      */
-    public static void copy(byte[] copyFrom, byte[] copyTo, int copyToStartIndex, int length)
+    public static void copy(byte[] copyFrom, int copyFromStartIndex, byte[] copyTo, int copyToStartIndex, int length)
     {
-        if (copyFrom != null && copyTo != null && 1 <= copyFrom.length && 0 <= copyToStartIndex && copyToStartIndex < copyTo.length && 1 < length)
+        if (copyFrom != null && copyTo != null && 1 <= copyFrom.length && 1 <= copyTo.length &&
+                0 <= copyFromStartIndex && copyFromStartIndex < copyFrom.length &&
+                0 <= copyToStartIndex && copyToStartIndex < copyTo.length &&
+                1 < length)
         {
             length = Math.minimum(copyTo.length - copyToStartIndex, Math.minimum(copyFrom.length, length));
-            System.arraycopy(copyFrom, 0, copyTo, copyToStartIndex, length);
+            System.arraycopy(copyFrom, copyFromStartIndex, copyTo, copyToStartIndex, length);
         }
+    }
+
+    /**
+     * Merge the provided byte arrays into a single byte array and return the merged byte array.
+     * @param byteArrays The byte arrays to merge.
+     * @return The merged byte array.
+     */
+    public static byte[] merge(Iterable<byte[]> byteArrays)
+    {
+        byte[] result;
+
+        if (byteArrays == null)
+        {
+            result = null;
+        }
+        else
+        {
+            int totalByteCount = 0;
+            for (final byte[] byteArray : byteArrays)
+            {
+                if (byteArray != null)
+                {
+                    totalByteCount += byteArray.length;
+                }
+            }
+
+            result = new byte[totalByteCount];
+            int resultIndex = 0;
+            for (final byte[] byteArray : byteArrays)
+            {
+                if (byteArray != null)
+                {
+                    Array.copy(byteArray, 0, result, resultIndex, byteArray.length);
+                    resultIndex += byteArray.length;
+                }
+            }
+        }
+
+        return result;
     }
 }

@@ -157,4 +157,11 @@ public class FolderFileSystem extends FileSystemBase
         final Path innerFilePath = getInnerPath(rootedFilePath);
         return innerFileSystem.getFileContents(innerFilePath);
     }
+
+    @Override
+    public Iterable<byte[]> getFileContentBlocks(Path rootedFilePath)
+    {
+        final Path innerFilePath = getInnerPath(rootedFilePath);
+        return innerFileSystem.getFileContentBlocks(innerFilePath);
+    }
 }

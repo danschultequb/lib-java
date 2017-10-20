@@ -3238,6 +3238,58 @@ public abstract class FileSystemTests
         assertArrayEquals(new byte[0], fileSystem.getFileContents(Path.parse("/thing.txt")));
     }
 
+    @Test
+    public void getFileContentBlocksStringWithNull()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertNull(fileSystem.getFileContentBlocks((String)null));
+    }
+
+    @Test
+    public void getFileContentBlocksStringWithEmpty()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertNull(fileSystem.getFileContentBlocks(""));
+    }
+
+    @Test
+    public void getFileContentBlocksStringWithRelativePath()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertNull(fileSystem.getFileContentBlocks("B"));
+    }
+
+    @Test
+    public void getFileContentBlocksStringWithNonExistingRootedFilePath()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertNull(fileSystem.getFileContentBlocks("/a.txt"));
+    }
+
+    @Test
+    public void getFileContentBlocksStringWithExistingRootedFilePathWithNoContents()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFile("/a.txt");
+
+        final Iterable<byte[]> fileContentBlocks = fileSystem.getFileContentBlocks("/a.txt");
+        assertNotNull(fileContentBlocks);
+        assertEquals(0, fileContentBlocks.getCount());
+    }
+
+    @Test
+    public void getFileContentBlocksStringWithExistingRootedFilePathWithContents()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFile("/a.txt", new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11});
+
+        final Iterable<byte[]> fileContentBlocks = fileSystem.getFileContentBlocks("/a.txt");
+        assertNotNull(fileContentBlocks);
+
+        final byte[] fileContents = Array.merge(fileContentBlocks);
+        assertArrayEquals(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 }, fileContents);
+    }
+
     private void asyncTest(final Action1<FileSystem> action)
     {
         CurrentThreadAsyncRunner.withRegistered(new Action1<CurrentThreadAsyncRunner>()

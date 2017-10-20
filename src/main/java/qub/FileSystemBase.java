@@ -594,6 +594,14 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public byte[] getFileContents(String rootedFilePath)
     {
-        return getFileContents(Path.parse(rootedFilePath));
+        final Path path = Path.parse(rootedFilePath);
+        return getFileContents(path);
+    }
+
+    @Override
+    public Iterable<byte[]> getFileContentBlocks(String rootedFilePath)
+    {
+        final Path path = Path.parse(rootedFilePath);
+        return getFileContentBlocks(path);
     }
 }

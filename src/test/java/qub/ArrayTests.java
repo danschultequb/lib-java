@@ -404,7 +404,7 @@ public class ArrayTests extends IterableTests
         final int copyToStartIndex = 1;
         final int length = 2;
 
-        Array.copy(copyFrom, copyTo, copyToStartIndex, length);
+        Array.copy(copyFrom, 0, copyTo, copyToStartIndex, length);
 
         assertArrayEquals(new byte[] { 0, 11, 22, 33, 44 }, copyTo);
     }
@@ -417,7 +417,7 @@ public class ArrayTests extends IterableTests
         final int copyToStartIndex = 1;
         final int length = 2;
 
-        Array.copy(copyFrom, copyTo, copyToStartIndex, length);
+        Array.copy(copyFrom, 0, copyTo, copyToStartIndex, length);
 
         assertArrayEquals(new byte[] { 0, 1, 2, 3, 4 }, copyFrom);
     }
@@ -430,7 +430,7 @@ public class ArrayTests extends IterableTests
         final int copyToStartIndex = -1;
         final int length = -2;
 
-        Array.copy(copyFrom, copyTo, copyToStartIndex, length);
+        Array.copy(copyFrom, 0, copyTo, copyToStartIndex, length);
 
         assertArrayEquals(new byte[] { 0, 1, 2, 3, 4 }, copyFrom);
         assertArrayEquals(new byte[] { 5, 6, 7, 8, 9 }, copyTo);
@@ -444,7 +444,7 @@ public class ArrayTests extends IterableTests
         final int copyToStartIndex = -1;
         final int length = 0;
 
-        Array.copy(copyFrom, copyTo, copyToStartIndex, length);
+        Array.copy(copyFrom, 0, copyTo, copyToStartIndex, length);
 
         assertArrayEquals(new byte[] { 0, 1, 2, 3, 4 }, copyFrom);
         assertArrayEquals(new byte[] { 5, 6, 7, 8, 9 }, copyTo);
@@ -458,7 +458,7 @@ public class ArrayTests extends IterableTests
         final int copyToStartIndex = -1;
         final int length = 2;
 
-        Array.copy(copyFrom, copyTo, copyToStartIndex, length);
+        Array.copy(copyFrom, 0, copyTo, copyToStartIndex, length);
 
         assertArrayEquals(new byte[] { 0, 1, 2, 3, 4 }, copyFrom);
         assertArrayEquals(new byte[] { 5, 6, 7, 8, 9 }, copyTo);
@@ -472,7 +472,7 @@ public class ArrayTests extends IterableTests
         final int copyToStartIndex = 0;
         final int length = -2;
 
-        Array.copy(copyFrom, copyTo, copyToStartIndex, length);
+        Array.copy(copyFrom, 0, copyTo, copyToStartIndex, length);
 
         assertArrayEquals(new byte[] { 0, 1, 2, 3, 4 }, copyFrom);
         assertArrayEquals(new byte[] { 5, 6, 7, 8, 9 }, copyTo);
@@ -486,7 +486,7 @@ public class ArrayTests extends IterableTests
         final int copyToStartIndex = 0;
         final int length = 0;
 
-        Array.copy(copyFrom, copyTo, copyToStartIndex, length);
+        Array.copy(copyFrom, 0, copyTo, copyToStartIndex, length);
 
         assertArrayEquals(new byte[] { 0, 1, 2, 3, 4 }, copyFrom);
         assertArrayEquals(new byte[] { 5, 6, 7, 8, 9 }, copyTo);
@@ -500,7 +500,7 @@ public class ArrayTests extends IterableTests
         final int copyToStartIndex = 0;
         final int length = 3;
 
-        Array.copy(copyFrom, copyTo, copyToStartIndex, length);
+        Array.copy(copyFrom, 0, copyTo, copyToStartIndex, length);
 
         assertArrayEquals(new byte[] { 0, 1, 2, 3, 4 }, copyFrom);
         assertArrayEquals(new byte[] { 0, 1, 2, 8, 9 }, copyTo);
@@ -514,7 +514,7 @@ public class ArrayTests extends IterableTests
         final int copyToStartIndex = 0;
         final int length = 4;
 
-        Array.copy(copyFrom, copyTo, copyToStartIndex, length);
+        Array.copy(copyFrom, 0, copyTo, copyToStartIndex, length);
 
         assertArrayEquals(new byte[] { 0, 1, 2 }, copyFrom);
         assertArrayEquals(new byte[] { 0, 1, 2, 8, 9 }, copyTo);
@@ -528,7 +528,7 @@ public class ArrayTests extends IterableTests
         final int copyToStartIndex = 0;
         final int length = 4;
 
-        Array.copy(copyFrom, copyTo, copyToStartIndex, length);
+        Array.copy(copyFrom, 0, copyTo, copyToStartIndex, length);
 
         assertArrayEquals(new byte[] { 0, 1, 2, 3, 4 }, copyFrom);
         assertArrayEquals(new byte[] { 0, 1, 2 }, copyTo);
@@ -542,7 +542,7 @@ public class ArrayTests extends IterableTests
         final int copyToStartIndex = 0;
         final int length = 30;
 
-        Array.copy(copyFrom, copyTo, copyToStartIndex, length);
+        Array.copy(copyFrom, 0, copyTo, copyToStartIndex, length);
 
         assertArrayEquals(new byte[] { 0, 1, 2, 3, 4 }, copyFrom);
         assertArrayEquals(new byte[] { 0, 1, 2, 3, 4 }, copyTo);
@@ -557,7 +557,7 @@ public class ArrayTests extends IterableTests
         final int copyToStartIndex = 1;
         final int length = -2;
 
-        Array.copy(copyFrom, copyTo, copyToStartIndex, length);
+        Array.copy(copyFrom, 0, copyTo, copyToStartIndex, length);
 
         assertArrayEquals(new byte[] { 0, 1, 2, 3, 4 }, copyFrom);
         assertArrayEquals(new byte[] { 5, 6, 7, 8, 9 }, copyTo);
@@ -571,7 +571,7 @@ public class ArrayTests extends IterableTests
         final int copyToStartIndex = 1;
         final int length = 0;
 
-        Array.copy(copyFrom, copyTo, copyToStartIndex, length);
+        Array.copy(copyFrom, 0, copyTo, copyToStartIndex, length);
 
         assertArrayEquals(new byte[] { 0, 1, 2, 3, 4 }, copyFrom);
         assertArrayEquals(new byte[] { 5, 6, 7, 8, 9 }, copyTo);
@@ -585,7 +585,7 @@ public class ArrayTests extends IterableTests
         final int copyToStartIndex = 1;
         final int length = 3;
 
-        Array.copy(copyFrom, copyTo, copyToStartIndex, length);
+        Array.copy(copyFrom, 0, copyTo, copyToStartIndex, length);
 
         assertArrayEquals(new byte[] { 0, 1, 2, 3, 4 }, copyFrom);
         assertArrayEquals(new byte[] { 5, 0, 1, 2, 9 }, copyTo);
@@ -599,7 +599,7 @@ public class ArrayTests extends IterableTests
         final int copyToStartIndex = 1;
         final int length = 4;
 
-        Array.copy(copyFrom, copyTo, copyToStartIndex, length);
+        Array.copy(copyFrom, 0, copyTo, copyToStartIndex, length);
 
         assertArrayEquals(new byte[] { 0, 1, 2 }, copyFrom);
         assertArrayEquals(new byte[] { 5, 0, 1, 2, 9 }, copyTo);
@@ -613,7 +613,7 @@ public class ArrayTests extends IterableTests
         final int copyToStartIndex = 1;
         final int length = 4;
 
-        Array.copy(copyFrom, copyTo, copyToStartIndex, length);
+        Array.copy(copyFrom, 0, copyTo, copyToStartIndex, length);
 
         assertArrayEquals(new byte[] { 0, 1, 2, 3, 4 }, copyFrom);
         assertArrayEquals(new byte[] { 5, 0, 1 }, copyTo);
@@ -627,10 +627,16 @@ public class ArrayTests extends IterableTests
         final int copyToStartIndex = 1;
         final int length = 30;
 
-        Array.copy(copyFrom, copyTo, copyToStartIndex, length);
+        Array.copy(copyFrom, 0, copyTo, copyToStartIndex, length);
 
         assertArrayEquals(new byte[] { 0, 1, 2, 3, 4 }, copyFrom);
         assertArrayEquals(new byte[] { 5, 0, 1, 2, 3 }, copyTo);
         assertNotSame(copyFrom, copyTo);
+    }
+
+    @Test
+    public void mergeByteArrayWithNull()
+    {
+
     }
 }
