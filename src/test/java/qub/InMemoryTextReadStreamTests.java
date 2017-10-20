@@ -105,13 +105,13 @@ public class InMemoryTextReadStreamTests
     public void readCharactersWithCharactersToReadInteger() throws IOException
     {
         final InMemoryTextReadStream readStream = new InMemoryTextReadStream();
-        assertArrayEquals(new char[0], readStream.readCharacters(-1));
-        assertArrayEquals(new char[0], readStream.readCharacters(0));
+        assertArrayEquals(null, readStream.readCharacters(-1));
+        assertArrayEquals(null, readStream.readCharacters(0));
         assertArrayEquals(new char[0], readStream.readCharacters(500));
 
         readStream.add("hello there!");
-        assertArrayEquals(new char[0], readStream.readCharacters(-1));
-        assertArrayEquals(new char[0], readStream.readCharacters(0));
+        assertArrayEquals(null, readStream.readCharacters(-1));
+        assertArrayEquals(null, readStream.readCharacters(0));
         assertArrayEquals(new char[] { 'h' }, readStream.readCharacters(1));
         assertArrayEquals(new char[] { 'e', 'l' }, readStream.readCharacters(2));
         assertEquals("lo ", readStream.readString(3));
