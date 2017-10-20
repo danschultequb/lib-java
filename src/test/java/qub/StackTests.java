@@ -65,48 +65,4 @@ public class StackTests
             assertEquals(1.2, stack.peek(), 0);
         }
     }
-
-    @Test
-    public void iterate()
-    {
-        final Stack<Double> stack = new Stack<>();
-        final Iterator<Double> iterator1 = stack.iterate();
-        assertFalse(iterator1.hasStarted());
-        assertFalse(iterator1.hasCurrent());
-        assertNull(iterator1.getCurrent());
-
-        assertFalse(iterator1.next());
-        assertTrue(iterator1.hasStarted());
-        assertFalse(iterator1.hasCurrent());
-        assertNull(iterator1.getCurrent());
-
-        stack.push(1.2);
-        stack.push(3.4);
-        stack.push(5.6);
-
-        final Iterator<Double> iterator2 = stack.iterate();
-        assertFalse(iterator2.hasStarted());
-        assertFalse(iterator2.hasCurrent());
-        assertNull(iterator2.getCurrent());
-
-        assertTrue(iterator2.next());
-        assertTrue(iterator2.hasStarted());
-        assertTrue(iterator2.hasCurrent());
-        assertEquals(5.6, iterator2.getCurrent(), 0);
-
-        assertTrue(iterator2.next());
-        assertTrue(iterator2.hasStarted());
-        assertTrue(iterator2.hasCurrent());
-        assertEquals(3.4, iterator2.getCurrent(), 0);
-
-        assertTrue(iterator2.next());
-        assertTrue(iterator2.hasStarted());
-        assertTrue(iterator2.hasCurrent());
-        assertEquals(1.2, iterator2.getCurrent(), 0);
-
-        assertFalse(iterator2.next());
-        assertTrue(iterator2.hasStarted());
-        assertFalse(iterator2.hasCurrent());
-        assertNull(iterator2.getCurrent());
-    }
 }

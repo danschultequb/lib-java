@@ -4,7 +4,7 @@ public class JavaList<T> extends ListBase<T>
 {
     private final java.util.List<T> list;
 
-    private JavaList(java.util.List<T> list)
+    protected JavaList(java.util.List<T> list)
     {
         this.list = list;
     }

@@ -18,48 +18,6 @@ public class ArrayListTests extends ListTests
     }
 
     @Test
-    public void iterateReverseWithEmpty()
-    {
-        final ArrayList<Integer> array = new ArrayList<>();
-        final Iterator<Integer> iterator = array.iterateReverse();
-        assertFalse(iterator.hasStarted());
-        assertFalse(iterator.hasCurrent());
-        assertNull(iterator.getCurrent());
-
-        assertFalse(iterator.next());
-        assertTrue(iterator.hasStarted());
-        assertFalse(iterator.hasCurrent());
-        assertNull(iterator.getCurrent());
-    }
-
-    @Test
-    public void iterateReverseWithNonEmpty()
-    {
-        final ArrayList<Integer> arrayList = new ArrayList<>();
-        for (int i = 0; i < 10; ++i)
-        {
-            arrayList.add(i);
-        }
-        final Iterator<Integer> iterator = arrayList.iterateReverse();
-        assertFalse(iterator.hasStarted());
-        assertFalse(iterator.hasCurrent());
-        assertNull(iterator.getCurrent());
-
-        for (int i = 9; i >= 0; --i)
-        {
-            assertTrue(iterator.next());
-            assertTrue(iterator.hasStarted());
-            assertTrue(iterator.hasCurrent());
-            assertEquals(i, iterator.getCurrent().intValue());
-        }
-
-        assertFalse(iterator.next());
-        assertTrue(iterator.hasStarted());
-        assertFalse(iterator.hasCurrent());
-        assertNull(iterator.getCurrent());
-    }
-
-    @Test
     public void fromValues()
     {
         final ArrayList<Integer> arrayList1 = ArrayList.fromValues();
