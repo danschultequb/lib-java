@@ -234,7 +234,7 @@ public class InMemoryFileSystem extends FileSystemBase
     }
 
     @Override
-    public boolean createFile(Path filePath, Out<File> outputFile)
+    public boolean createFile(Path filePath, byte[] fileContents, Out<File> outputFile)
     {
         boolean result = false;
 
@@ -251,7 +251,7 @@ public class InMemoryFileSystem extends FileSystemBase
             createInMemoryFolder(filePath.getParentPath(), parentFolder);
 
             final String fileName = filePath.getSegments().last();
-            result = parentFolder.get().createFile(fileName);
+            result = parentFolder.get().createFile(fileName, fileContents);
 
             if (outputFile != null)
             {
@@ -273,6 +273,23 @@ public class InMemoryFileSystem extends FileSystemBase
             if (parentFolder != null)
             {
                 result = parentFolder.deleteFile(filePath.getSegments().last());
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    public byte[] getFileContents(Path rootedFilePath)
+    {
+        byte[] result = null;
+
+        if (rootedFilePath != null && rootedFilePath.isRooted() && rootExists(rootedFilePath.getRoot()))
+        {
+            final InMemoryFile file = getInMemoryFile(rootedFilePath);
+            if (file != null)
+            {
+                result = file.getContents();
             }
         }
 

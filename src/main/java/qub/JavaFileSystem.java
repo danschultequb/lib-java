@@ -1,5 +1,8 @@
 package qub;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 /**
@@ -175,7 +178,7 @@ public class JavaFileSystem extends FileSystemBase
     }
 
     @Override
-    public boolean createFile(Path filePath, Out<File> outputFile)
+    public boolean createFile(Path filePath, byte[] fileContents, Out<File> outputFile)
     {
         boolean result = false;
 
@@ -193,10 +196,18 @@ public class JavaFileSystem extends FileSystemBase
             createFolder(parentFolderPath, parentFolder);
             if (parentFolder.get() != null)
             {
-                final java.io.File file = new java.io.File(filePath.toString());
+                final String filePathString = filePath.toString();
+                final java.io.File file = new java.io.File(filePathString);
                 try
                 {
                     result = file.createNewFile();
+                    if (result && fileContents != null && fileContents.length > 0)
+                    {
+                        try (final FileOutputStream writeStream = new FileOutputStream(filePathString))
+                        {
+                            writeStream.write(fileContents);
+                        }
+                    }
                     if (outputFile != null)
                     {
                         outputFile.set(getFile(filePath));
@@ -225,6 +236,57 @@ public class JavaFileSystem extends FileSystemBase
             final String filePathString = filePath.toString();
             final java.io.File javaFile = new java.io.File(filePathString);
             result = deleteFolder(javaFile);
+        }
+
+        return result;
+    }
+
+    @Override
+    public byte[] getFileContents(Path rootedFilePath)
+    {
+        byte[] result = null;
+
+        if (rootedFilePath != null && rootedFilePath.isRooted() && rootExists(rootedFilePath.getRoot()))
+        {
+            List<byte[]> fileByteBlocks = null;
+            int totalBytesRead = 0;
+
+            final String filePathString = rootedFilePath.toString();
+            try (final FileInputStream inputStream = new FileInputStream(filePathString);)
+            {
+                fileByteBlocks = new ArrayList<>();
+
+                final byte[] buffer = new byte[1024];
+                int bytesRead;
+                do
+                {
+                    bytesRead = inputStream.read(buffer);
+
+                    if (bytesRead > 0)
+                    {
+                        final byte[] byteBlock = Array.clone(buffer, bytesRead);
+                        fileByteBlocks.add(byteBlock);
+
+                        totalBytesRead += bytesRead;
+                    }
+                }
+                while (bytesRead >= 0);
+            }
+            catch (IOException ignored)
+            {
+                fileByteBlocks = null;
+            }
+
+            if (fileByteBlocks != null)
+            {
+                result = new byte[totalBytesRead];
+                int resultIndex = 0;
+                for (byte[] byteBlock : fileByteBlocks)
+                {
+                    Array.copy(byteBlock, result, resultIndex, byteBlock.length);
+                    resultIndex += byteBlock.length;
+                }
+            }
         }
 
         return result;

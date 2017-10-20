@@ -342,6 +342,16 @@ public interface FileSystem
     boolean createFile(String filePath);
 
     /**
+     * Create a file at the provided path with the provided fileContents and return whether or not
+     * this function created the file.
+     * @param filePath The path to the file to create.
+     * @param fileContents The contents to put in the file if the file didn't exist before this
+     *                     function.
+     * @return Whether or not this function created the file.
+     */
+    boolean createFile(String filePath, byte[] fileContents);
+
+    /**
      * Create a file at the provided path and return whether or not this function created the file.
      * @param filePath The path to the file to create.
      * @param outputFile The output parameter where the file that was created or the file that
@@ -351,11 +361,33 @@ public interface FileSystem
     boolean createFile(String filePath, Out<File> outputFile);
 
     /**
+     * Create a file at the provided path with the provided fileContents and return whether or not
+     * this function created the file.
+     * @param filePath The path to the file to create.
+     * @param fileContents The contents to put in the file if the file didn't exist before this
+     *                     function.
+     * @param outputFile The output parameter where the file that was created or the file that
+     *                     already existed will be placed.
+     * @return Whether or not this function created the file.
+     */
+    boolean createFile(String filePath, byte[] fileContents, Out<File> outputFile);
+
+    /**
      * Create a file at the provided path and return whether or not this function created the file.
      * @param filePath The path to the file to create.
      * @return Whether or not this function created the file.
      */
     boolean createFile(Path filePath);
+
+    /**
+     * Create a file at the provided path with the provided fileContents and return whether or not
+     * this function created the file.
+     * @param filePath The path to the file to create.
+     * @param fileContents The contents to put in the file if the file didn't exist before this
+     *                     function.
+     * @return Whether or not this function created the file.
+     */
+    boolean createFile(Path filePath, byte[] fileContents);
 
     /**
      * Create a file at the provided path and return whether or not this function created the
@@ -366,6 +398,18 @@ public interface FileSystem
      * @return Whether or not this function created the file.
      */
     boolean createFile(Path filePath, Out<File> outputFile);
+
+    /**
+     * Create a file at the provided path with the provided fileContents and return whether or not
+     * this function created the file.
+     * @param filePath The path to the file to create.
+     * @param fileContents The contents to put in the file if the file didn't exist before this
+     *                     function.
+     * @param outputFile The output parameter where the file that was created or the file that
+     *                     already existed will be placed.
+     * @return Whether or not this function created the file.
+     */
+    boolean createFile(Path filePath, byte[] fileContents, Out<File> outputFile);
 
     /**
      * Create a file at the provided path and return whether or not this function created the file.
@@ -427,4 +471,22 @@ public interface FileSystem
      * @return Whether or not this function deleted the file.
      */
     AsyncFunction<Boolean> deleteFileAsync(Path filePath);
+
+    /**
+     * Read the contents of the file at the provided rootedFilePath. If no file exists at the
+     * provided rootedFilePath, then null will be returned.
+     * @param rootedFilePath The rooted file path of the file to read.
+     * @return The contents of the file at the provided rootedFilePath, or null if no file exists at
+     * the provided rootedFilePath.
+     */
+    byte[] getFileContents(String rootedFilePath);
+
+    /**
+     * Read the contents of the file at the provided rootedFilePath. If no file exists at the
+     * provided rootedFilePath, then null will be returned.
+     * @param rootedFilePath The rooted file path of the file to read.
+     * @return The contents of the file at the provided rootedFilePath, or null if no file exists at
+     * the provided rootedFilePath.
+     */
+    byte[] getFileContents(Path rootedFilePath);
 }

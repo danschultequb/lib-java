@@ -391,4 +391,60 @@ public class Array<T> extends IndexableBase<T>
         }
         return result;
     }
+
+    /**
+     * Get a new byte[] that is a clone of the provided toClone byte[].
+     * @param toClone The byte[] to clone.
+     * @return The cloned byte[].
+     */
+    public static byte[] clone(byte[] toClone)
+    {
+        final int length = toClone == null ? 0 : toClone.length;
+        return clone(toClone, length);
+    }
+
+    /**
+     * Get a new byte[] that is a clone of the provided toClone byte[].
+     * @param toClone The byte[] to clone.
+     * @param length The number of bytes from toClone to clone.
+     * @return The cloned byte[].
+     */
+    public static byte[] clone(byte[] toClone, int length)
+    {
+        byte[] result = toClone;
+
+        if (toClone == null || length < 0)
+        {
+            result = null;
+        }
+        else if (toClone.length == 0)
+        {
+            result = toClone;
+        }
+        else
+        {
+            final int resultLength = Math.minimum(toClone.length, length);
+            result = new byte[resultLength];
+            System.arraycopy(toClone, 0, result, 0, resultLength);
+        }
+
+        return result;
+    }
+
+    /**
+     * Copy the contents of the copyFrom byte[] to the copyTo byte[] starting at the
+     * copyToStartIndex.
+     * @param copyFrom The byte[] to copy from.
+     * @param copyTo The byte[] to copy to.
+     * @param copyToStartIndex The index within copyTo to start copying to.
+     * @param length The number of bytes to copy from the copyFrom byte[] to the copyTo byte[].
+     */
+    public static void copy(byte[] copyFrom, byte[] copyTo, int copyToStartIndex, int length)
+    {
+        if (copyFrom != null && copyTo != null && 1 <= copyFrom.length && 0 <= copyToStartIndex && copyToStartIndex < copyTo.length && 1 < length)
+        {
+            length = Math.minimum(copyTo.length - copyToStartIndex, Math.minimum(copyFrom.length, length));
+            System.arraycopy(copyFrom, 0, copyTo, copyToStartIndex, length);
+        }
+    }
 }

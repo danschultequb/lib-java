@@ -4,11 +4,13 @@ public class InMemoryFile
 {
     private final String name;
     private boolean canDelete;
+    private byte[] contents;
 
-    public InMemoryFile(String name)
+    public InMemoryFile(String name, byte[] contents)
     {
         this.name = name;
         this.canDelete = true;
+        this.contents = contents;
     }
 
     public String getName()
@@ -32,5 +34,14 @@ public class InMemoryFile
     public void setCanDelete(boolean canDelete)
     {
         this.canDelete = canDelete;
+    }
+
+    /**
+     * Get the contents of this file.
+     * @return The contents of this file.
+     */
+    public byte[] getContents()
+    {
+        return Array.clone(contents);
     }
 }

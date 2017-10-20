@@ -120,12 +120,12 @@ public class FolderFileSystem extends FileSystemBase
     }
 
     @Override
-    public boolean createFile(Path filePath, Out<File> outputFile)
+    public boolean createFile(Path filePath, byte[] fileContents, Out<File> outputFile)
     {
         final Path innerFilePath = getInnerPath(filePath);
         final Value<File> innerOutputFile = (outputFile == null ? null : new Value<File>());
 
-        final boolean result = innerFileSystem.createFile(innerFilePath, innerOutputFile);
+        final boolean result = innerFileSystem.createFile(innerFilePath, fileContents, innerOutputFile);
 
         if (outputFile != null && innerOutputFile != null)
         {
@@ -149,5 +149,12 @@ public class FolderFileSystem extends FileSystemBase
     {
         final Path innerFilePath = getInnerPath(filePath);
         return innerFileSystem.deleteFile(innerFilePath);
+    }
+
+    @Override
+    public byte[] getFileContents(Path rootedFilePath)
+    {
+        final Path innerFilePath = getInnerPath(rootedFilePath);
+        return innerFileSystem.getFileContents(innerFilePath);
     }
 }
