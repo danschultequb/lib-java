@@ -297,6 +297,20 @@ public class InMemoryFileSystem extends FileSystemBase
     }
 
     @Override
+    public String getFileContentsAsString(Path rootedFilePath, CharacterEncoding encoding)
+    {
+        String result = null;
+
+        if (encoding != null)
+        {
+            final byte[] fileContents = getFileContents(rootedFilePath);
+            result = encoding.decodeAsString(fileContents);
+        }
+
+        return result;
+    }
+
+    @Override
     public Iterable<byte[]> getFileContentBlocks(Path rootedFilePath)
     {
         Iterable<byte[]> result = null;

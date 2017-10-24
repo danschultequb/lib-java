@@ -54,4 +54,30 @@ public class File extends FileSystemEntry
         final Path path = getPath();
         return fileSystem.getFileContents(path);
     }
+
+    /**
+     * Get the entire contents of this File as a single ASCII-encoded String. If this file doesn't
+     * exist, then null will be returned.
+     * @return The entire contents of this File as a single ASCII-encoded String, or null if this
+     * File doesn't exist.
+     */
+    public String getContentsAsString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        final Path path = getPath();
+        return fileSystem.getFileContentsAsString(path);
+    }
+
+    /**
+     * Get the entire contents of this File as a single String. If this file doesn't exist, then
+     * null will be returned.
+     * @return The entire contents of this File as a single String, or null if this File doesn't
+     * exist.
+     */
+    public String getContentsAsString(CharacterEncoding encoding)
+    {
+        final FileSystem fileSystem = getFileSystem();
+        final Path path = getPath();
+        return fileSystem.getFileContentsAsString(path, encoding);
+    }
 }

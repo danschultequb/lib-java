@@ -47,9 +47,20 @@ public abstract class CharacterEncoding
     }
 
     /**
-     * Decode the provided byte array into a String.
+     * Decode the provided byte array into a chararacter array.
      * @param bytes The byte array to decode.
      * @return The decoded characters.
      */
     public abstract char[] decode(byte[] bytes);
+
+    /**
+     * Decode the provided byte array into a String.
+     * @param bytes The byte array to decode.
+     * @return The decoded String.
+     */
+    public String decodeAsString(byte[] bytes)
+    {
+        final char[] decodedCharacters = decode(bytes);
+        return decodedCharacters == null ? null : new String(decodedCharacters);
+    }
 }
