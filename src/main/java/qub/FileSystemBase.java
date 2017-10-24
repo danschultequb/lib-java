@@ -599,6 +599,26 @@ public abstract class FileSystemBase implements FileSystem
     }
 
     @Override
+    public String getFileContentsAsString(String rootedFilePath)
+    {
+        final Path path = Path.parse(rootedFilePath);
+        return getFileContentsAsString(path);
+    }
+
+    @Override
+    public String getFileContentsAsString(String rootedFilePath, CharacterEncoding encoding)
+    {
+        final Path path = Path.parse(rootedFilePath);
+        return getFileContentsAsString(path, encoding);
+    }
+
+    @Override
+    public String getFileContentsAsString(Path rootedFilePath)
+    {
+        return getFileContentsAsString(rootedFilePath, CharacterEncoding.ASCII);
+    }
+
+    @Override
     public Iterable<byte[]> getFileContentBlocks(String rootedFilePath)
     {
         final Path path = Path.parse(rootedFilePath);

@@ -3239,6 +3239,94 @@ public abstract class FileSystemTests
     }
 
     @Test
+    public void getFileContentsAsStringWithNullPathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertNull(fileSystem.getFileContentsAsString((String)null));
+    }
+
+    @Test
+    public void getFileContentsAsStringWithEmptyPathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertNull(fileSystem.getFileContentsAsString(""));
+    }
+
+    @Test
+    public void getFileContentsAsStringWithRelativePathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertNull(fileSystem.getFileContentsAsString("file.txt"));
+    }
+
+    @Test
+    public void getFileContentsAsStringWithNonExistingRootedPathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertNull(fileSystem.getFileContentsAsString("/file.txt"));
+    }
+
+    @Test
+    public void getFileContentsAsStringWithExistingRootedPathStringWithNoContents()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFile("/file.txt");
+        assertEquals("", fileSystem.getFileContentsAsString("/file.txt"));
+    }
+
+    @Test
+    public void getFileContentsAsStringWithExistingRootPathStringWithContents()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFile("/file.txt", CharacterEncoding.ASCII.encode("Hello there!"));
+        assertEquals("Hello there!", fileSystem.getFileContentsAsString("/file.txt"));
+    }
+
+    @Test
+    public void getFileContentsAsStringWithNullEncodingAndNullPathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertNull(fileSystem.getFileContentsAsString((String)null));
+    }
+
+    @Test
+    public void getFileContentsAsStringWithNullEncodingAndEmptyPathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertNull(fileSystem.getFileContentsAsString(""));
+    }
+
+    @Test
+    public void getFileContentsAsStringWithNullEncodingAndRelativePathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertNull(fileSystem.getFileContentsAsString("file.txt"));
+    }
+
+    @Test
+    public void getFileContentsAsStringWithNullEncodingAndNonExistingRootedPathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertNull(fileSystem.getFileContentsAsString("/file.txt"));
+    }
+
+    @Test
+    public void getFileContentsAsStringWithNullEncodingAndExistingRootedPathStringWithNoContents()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFile("/file.txt");
+        assertNull(fileSystem.getFileContentsAsString("/file.txt", null));
+    }
+
+    @Test
+    public void getFileContentsAsStringWithNullEncodingAndExistingRootPathStringWithContents()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFile("/file.txt", CharacterEncoding.ASCII.encode("Hello there!"));
+        assertNull(fileSystem.getFileContentsAsString("/file.txt", null));
+    }
+
+    @Test
     public void getFileContentBlocksStringWithNull()
     {
         final FileSystem fileSystem = getFileSystem();

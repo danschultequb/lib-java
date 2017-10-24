@@ -159,6 +159,13 @@ public class FolderFileSystem extends FileSystemBase
     }
 
     @Override
+    public String getFileContentsAsString(Path rootedFilePath, CharacterEncoding encoding)
+    {
+        final Path innerFilePath = getInnerPath(rootedFilePath);
+        return innerFileSystem.getFileContentsAsString(innerFilePath, encoding);
+    }
+
+    @Override
     public Iterable<byte[]> getFileContentBlocks(Path rootedFilePath)
     {
         final Path innerFilePath = getInnerPath(rootedFilePath);
