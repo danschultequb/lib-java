@@ -68,4 +68,13 @@ public class InMemoryFile
 
         return result;
     }
+
+    /**
+     * Set this file's contents.
+     * @param contents The new contents of this file.
+     */
+    public void setContents(byte[] contents)
+    {
+        this.contents = contents == null ? new byte[0] : contents;
+    }
 }

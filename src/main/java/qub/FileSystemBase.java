@@ -624,4 +624,11 @@ public abstract class FileSystemBase implements FileSystem
         final Path path = Path.parse(rootedFilePath);
         return getFileContentBlocks(path);
     }
+
+    @Override
+    public boolean setFileContents(String rootedFilePath, byte[] fileContents)
+    {
+        final Path path = Path.parse(rootedFilePath);
+        return setFileContents(path, fileContents);
+    }
 }

@@ -543,4 +543,22 @@ public interface FileSystem
      * null if no file exists at the provided rootedFilePath.
      */
     Iterable<byte[]> getFileContentBlocks(Path rootedFilePath);
+
+    /**
+     * Set the contents of the file at the provided rootedFilePath to the provided byte array. If
+     * the file doesn't exist, then it will be created.
+     * @param rootedFilePath The path to the file to set the contents for.
+     * @param fileContents The contents to set.
+     * @return Whether or not the file's contents were set.
+     */
+    boolean setFileContents(String rootedFilePath, byte[] fileContents);
+
+    /**
+     * Set the contents of the file at the provided rootedFilePath to the provided byte array. If
+     * the file doesn't exist, then it will be created.
+     * @param rootedFilePath The path to the file to set the contents for.
+     * @param fileContents The contents to set.
+     * @return Whether or not the file's contents were set.
+     */
+    boolean setFileContents(Path rootedFilePath, byte[] fileContents);
 }

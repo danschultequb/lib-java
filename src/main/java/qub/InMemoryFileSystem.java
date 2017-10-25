@@ -327,6 +327,28 @@ public class InMemoryFileSystem extends FileSystemBase
         return result;
     }
 
+    @Override
+    public boolean setFileContents(Path rootedFilePath, byte[] fileContents)
+    {
+        boolean result = false;
+
+        if (rootedFilePath != null && rootedFilePath.isRooted() && rootExists(rootedFilePath.getRoot()))
+        {
+            if (fileExists(rootedFilePath))
+            {
+                final InMemoryFile file = getInMemoryFile(rootedFilePath);
+                file.setContents(fileContents);
+            }
+            else
+            {
+                createFile(rootedFilePath, fileContents);
+            }
+            result = true;
+        }
+
+        return result;
+    }
+
     /**
      * Create a new Root in this FileSystem and returns whether or not this function created the
      * Root.
