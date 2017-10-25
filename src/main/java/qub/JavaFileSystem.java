@@ -1,6 +1,7 @@
 package qub;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -287,6 +288,27 @@ public class JavaFileSystem extends FileSystemBase
             catch (IOException ignored)
             {
                 result = null;
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    public boolean setFileContents(Path rootedFilePath, byte[] fileContents)
+    {
+        boolean result = false;
+
+        if (rootedFilePath != null && rootedFilePath.isRooted() && rootExists(rootedFilePath.getRoot()))
+        {
+            try (FileOutputStream outputStream = new FileOutputStream(rootedFilePath.toString()))
+            {
+                outputStream.write(fileContents == null ? new byte[0] : fileContents);
+                result = true;
+            }
+            catch (IOException ignored)
+            {
+                result = createFile(rootedFilePath, fileContents);
             }
         }
 

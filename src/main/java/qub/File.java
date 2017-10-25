@@ -80,4 +80,17 @@ public class File extends FileSystemEntry
         final Path path = getPath();
         return fileSystem.getFileContentsAsString(path, encoding);
     }
+
+    /**
+     * Set the contents of this File to be the provided fileContents and return whether or not the
+     * file's contents were set.
+     * @param fileContents The contents to set the file to.
+     * @return Whether or not the file's contents were set.
+     */
+    public boolean setContents(byte[] fileContents)
+    {
+        final FileSystem fileSystem = getFileSystem();
+        final Path path = getPath();
+        return fileSystem.setFileContents(path, fileContents);
+    }
 }

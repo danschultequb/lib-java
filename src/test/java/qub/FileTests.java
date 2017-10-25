@@ -195,6 +195,75 @@ public class FileTests
         assertEquals("Hello", file.getContentsAsString(CharacterEncoding.ASCII));
     }
 
+    @Test
+    public void setContentsWithNonExistingFileAndNullContents()
+    {
+        final File file = getFile();
+
+        assertTrue(file.setContents(null));
+
+        assertTrue(file.exists());
+        assertArrayEquals(new byte[0], file.getContents());
+    }
+
+    @Test
+    public void setContentsWithExistingFileAndNullContents()
+    {
+        final File file = getFile();
+        file.create();
+
+        assertTrue(file.setContents(null));
+
+        assertTrue(file.exists());
+        assertArrayEquals(new byte[0], file.getContents());
+    }
+
+    @Test
+    public void setContentsWithNonExistingFileAndEmptyContents()
+    {
+        final File file = getFile();
+
+        assertTrue(file.setContents(new byte[0]));
+
+        assertTrue(file.exists());
+        assertArrayEquals(new byte[0], file.getContents());
+    }
+
+    @Test
+    public void setContentsWithExistingFileAndEmptyContents()
+    {
+        final File file = getFile();
+        file.create();
+
+        assertTrue(file.setContents(new byte[0]));
+
+        assertTrue(file.exists());
+        assertArrayEquals(new byte[0], file.getContents());
+    }
+
+    @Test
+    public void setContentsWithNonExistingFileAndNonEmptyContents()
+    {
+        final File file = getFile();
+
+        assertTrue(file.setContents(new byte[] { 0, 1, 2, 3 }));
+
+        assertTrue(file.exists());
+        assertArrayEquals(new byte[] { 0, 1, 2, 3 }, file.getContents());
+    }
+
+    @Test
+    public void setContentsWithExistingFileAndNonEmptyContents()
+    {
+        final File file = getFile();
+        file.create();
+
+        assertTrue(file.setContents(new byte[] { 0, 1, 2, 3 }));
+
+        assertTrue(file.exists());
+        assertArrayEquals(new byte[] { 0, 1, 2, 3 }, file.getContents());
+    }
+
     private static FileSystem getFileSystem()
     {
         final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
