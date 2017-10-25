@@ -22,7 +22,7 @@ public class FileTests
     {
         final File file = getFile();
 
-        assertTrue(file.create(null));
+        assertTrue(file.create((byte[])null));
 
         assertTrue(file.exists());
         assertArrayEquals(new byte[0], file.getContents());
@@ -48,6 +48,72 @@ public class FileTests
 
         assertTrue(file.exists());
         assertArrayEquals(new byte[] { 0, 1, 2, 3, 4 }, file.getContents());
+    }
+
+    @Test
+    public void createWithNullContentsString()
+    {
+        final File file = getFile();
+
+        assertTrue(file.create((String)null));
+
+        assertTrue(file.exists());
+        assertEquals("", file.getContentsAsString());
+    }
+
+    @Test
+    public void createWithEmptyContentsString()
+    {
+        final File file = getFile();
+
+        assertTrue(file.create(""));
+
+        assertTrue(file.exists());
+        assertEquals("", file.getContentsAsString());
+    }
+
+    @Test
+    public void createWithNonEmptyContentsString()
+    {
+        final File file = getFile();
+
+        assertTrue(file.create("hello"));
+
+        assertTrue(file.exists());
+        assertEquals("hello", file.getContentsAsString());
+    }
+
+    @Test
+    public void createWithNullContentsStringAndEncoding()
+    {
+        final File file = getFile();
+
+        assertTrue(file.create(null, CharacterEncoding.ASCII));
+
+        assertTrue(file.exists());
+        assertEquals("", file.getContentsAsString());
+    }
+
+    @Test
+    public void createWithEmptyContentsStringAndEncoding()
+    {
+        final File file = getFile();
+
+        assertTrue(file.create("", CharacterEncoding.ASCII));
+
+        assertTrue(file.exists());
+        assertEquals("", file.getContentsAsString());
+    }
+
+    @Test
+    public void createWithNonEmptyContentsStringAndEncoding()
+    {
+        final File file = getFile();
+
+        assertTrue(file.create("hello", CharacterEncoding.ASCII));
+
+        assertTrue(file.exists());
+        assertEquals("hello", file.getContentsAsString());
     }
 
     @Test
@@ -200,7 +266,7 @@ public class FileTests
     {
         final File file = getFile();
 
-        assertTrue(file.setContents(null));
+        assertTrue(file.setContents((byte[])null));
 
         assertTrue(file.exists());
         assertArrayEquals(new byte[0], file.getContents());
@@ -212,7 +278,7 @@ public class FileTests
         final File file = getFile();
         file.create();
 
-        assertTrue(file.setContents(null));
+        assertTrue(file.setContents((byte[])null));
 
         assertTrue(file.exists());
         assertArrayEquals(new byte[0], file.getContents());
@@ -262,6 +328,144 @@ public class FileTests
 
         assertTrue(file.exists());
         assertArrayEquals(new byte[] { 0, 1, 2, 3 }, file.getContents());
+    }
+
+    @Test
+    public void setContentsWithNonExistingFileAndNullContentsString()
+    {
+        final File file = getFile();
+
+        assertTrue(file.setContents((String)null));
+
+        assertTrue(file.exists());
+        assertEquals("", file.getContentsAsString());
+    }
+
+    @Test
+    public void setContentsWithExistingFileAndNullContentsString()
+    {
+        final File file = getFile();
+        file.create();
+
+        assertTrue(file.setContents((String)null));
+
+        assertTrue(file.exists());
+        assertEquals("", file.getContentsAsString());
+    }
+
+    @Test
+    public void setContentsWithNonExistingFileAndEmptyContentsString()
+    {
+        final File file = getFile();
+
+        assertTrue(file.setContents(""));
+
+        assertTrue(file.exists());
+        assertEquals("", file.getContentsAsString());
+    }
+
+    @Test
+    public void setContentsWithExistingFileAndEmptyContentsString()
+    {
+        final File file = getFile();
+        file.create();
+
+        assertTrue(file.setContents(""));
+
+        assertTrue(file.exists());
+        assertEquals("", file.getContentsAsString());
+    }
+
+    @Test
+    public void setContentsWithNonExistingFileAndNonEmptyContentsString()
+    {
+        final File file = getFile();
+
+        assertTrue(file.setContents("XYZ"));
+
+        assertTrue(file.exists());
+        assertEquals("XYZ", file.getContentsAsString());
+    }
+
+    @Test
+    public void setContentsWithExistingFileAndNonEmptyContentsString()
+    {
+        final File file = getFile();
+        file.create();
+
+        assertTrue(file.setContents("XYZ"));
+
+        assertTrue(file.exists());
+        assertEquals("XYZ", file.getContentsAsString());
+    }
+
+    @Test
+    public void setContentsWithNonExistingFileAndNullContentsStringAndEncoding()
+    {
+        final File file = getFile();
+
+        assertTrue(file.setContents(null, CharacterEncoding.ASCII));
+
+        assertTrue(file.exists());
+        assertEquals("", file.getContentsAsString());
+    }
+
+    @Test
+    public void setContentsWithExistingFileAndNullContentsStringAndEncoding()
+    {
+        final File file = getFile();
+        file.create();
+
+        assertTrue(file.setContents(null, CharacterEncoding.ASCII));
+
+        assertTrue(file.exists());
+        assertEquals("", file.getContentsAsString());
+    }
+
+    @Test
+    public void setContentsWithNonExistingFileAndEmptyContentsStringAndEncoding()
+    {
+        final File file = getFile();
+
+        assertTrue(file.setContents("", CharacterEncoding.ASCII));
+
+        assertTrue(file.exists());
+        assertEquals("", file.getContentsAsString());
+    }
+
+    @Test
+    public void setContentsWithExistingFileAndEmptyContentsStringAndEncoding()
+    {
+        final File file = getFile();
+        file.create();
+
+        assertTrue(file.setContents("", CharacterEncoding.ASCII));
+
+        assertTrue(file.exists());
+        assertEquals("", file.getContentsAsString());
+    }
+
+    @Test
+    public void setContentsWithNonExistingFileAndNonEmptyContentsStringAndEncoding()
+    {
+        final File file = getFile();
+
+        assertTrue(file.setContents("ABC", CharacterEncoding.ASCII));
+
+        assertTrue(file.exists());
+        assertEquals("ABC", file.getContentsAsString());
+    }
+
+    @Test
+    public void setContentsWithExistingFileAndNonEmptyContentsStringAndEncoding()
+    {
+        final File file = getFile();
+        file.create();
+
+        assertTrue(file.setContents("ABC", CharacterEncoding.ASCII));
+
+        assertTrue(file.exists());
+        assertEquals("ABC", file.getContentsAsString());
     }
 
     private static FileSystem getFileSystem()

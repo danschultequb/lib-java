@@ -2028,7 +2028,9 @@ public abstract class FileSystemTests
     public void createFileWithNonExistingRootedPathString()
     {
         final FileSystem fileSystem = getFileSystem();
+
         assertTrue(fileSystem.createFile("/things.txt"));
+
         assertTrue(fileSystem.fileExists("/things.txt"));
         assertArrayEquals(new byte[0], fileSystem.getFileContents("/things.txt"));
     }
@@ -2037,7 +2039,9 @@ public abstract class FileSystemTests
     public void createFileWithNonExistingRootedPathStringAndContents()
     {
         final FileSystem fileSystem = getFileSystem();
+
         assertTrue(fileSystem.createFile("/things.txt", new byte[] { 0, 1, 2, 3 }));
+
         assertTrue(fileSystem.fileExists("/things.txt"));
         assertArrayEquals(new byte[] { 0, 1, 2, 3 }, fileSystem.getFileContents("/things.txt"));
     }
@@ -2049,17 +2053,43 @@ public abstract class FileSystemTests
         fileSystem.createFile("/things.txt");
 
         assertFalse(fileSystem.createFile("/things.txt"));
+
         assertTrue(fileSystem.fileExists("/things.txt"));
         assertArrayEquals(new byte[0], fileSystem.getFileContents("/things.txt"));
     }
 
     @Test
-    public void createFileWithExistingRootedPathStringAndContents()
+    public void createFileWithExistingRootedPathStringAndByteArrayContents()
     {
         final FileSystem fileSystem = getFileSystem();
         fileSystem.createFile("/things.txt");
 
         assertFalse(fileSystem.createFile("/things.txt", new byte[] { 0, 1, 2, 3 }));
+
+        assertTrue(fileSystem.fileExists("/things.txt"));
+        assertArrayEquals(new byte[0], fileSystem.getFileContents("/things.txt"));
+    }
+
+    @Test
+    public void createFileWithExistingRootedPathStringAndStringContents()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFile("/things.txt");
+
+        assertFalse(fileSystem.createFile("/things.txt", "ABC"));
+
+        assertTrue(fileSystem.fileExists("/things.txt"));
+        assertArrayEquals(new byte[0], fileSystem.getFileContents("/things.txt"));
+    }
+
+    @Test
+    public void createFileWithExistingRootedPathStringAndStringContentsAndEncoding()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFile("/things.txt");
+
+        assertFalse(fileSystem.createFile("/things.txt", "ABC", CharacterEncoding.ASCII));
+
         assertTrue(fileSystem.fileExists("/things.txt"));
         assertArrayEquals(new byte[0], fileSystem.getFileContents("/things.txt"));
     }
@@ -2101,6 +2131,28 @@ public abstract class FileSystemTests
         assertTrue(fileSystem.createFile("/things.txt", new byte[] { 10, 11, 12 }, null));
         assertTrue(fileSystem.fileExists("/things.txt"));
         assertArrayEquals(new byte[] { 10, 11, 12 }, fileSystem.getFileContents("/things.txt"));
+    }
+
+    @Test
+    public void createFileWithNonExistingRootedPathStringAndStringContentsAndNullValue()
+    {
+        final FileSystem fileSystem = getFileSystem();
+
+        assertTrue(fileSystem.createFile("/things.txt", "ABC", (Out<File>)null));
+
+        assertTrue(fileSystem.fileExists("/things.txt"));
+        assertEquals("ABC", fileSystem.getFileContentsAsString("/things.txt"));
+    }
+
+    @Test
+    public void createFileWithNonExistingRootedPathStringAndStringContentsAndEncodingAndNullValue()
+    {
+        final FileSystem fileSystem = getFileSystem();
+
+        assertTrue(fileSystem.createFile("/things.txt", "ABC", CharacterEncoding.ASCII, null));
+
+        assertTrue(fileSystem.fileExists("/things.txt"));
+        assertEquals("ABC", fileSystem.getFileContentsAsString("/things.txt"));
     }
 
     @Test
@@ -2182,6 +2234,20 @@ public abstract class FileSystemTests
     {
         final FileSystem fileSystem = getFileSystem();
         assertFalse(fileSystem.createFile((Path)null, new byte[] { 0, 1, 2 }));
+    }
+
+    @Test
+    public void createFileWithNullPathAndStringContents()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertFalse(fileSystem.createFile((Path)null, "ABC"));
+    }
+
+    @Test
+    public void createFileWithNullPathAndStringContentsAndEncoding()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertFalse(fileSystem.createFile((Path)null, "ABC", CharacterEncoding.ASCII));
     }
 
     @Test
@@ -3403,7 +3469,7 @@ public abstract class FileSystemTests
     public void setFileContentsWithNonExistingRootedPathStringAndNullContents()
     {
         final FileSystem fileSystem = getFileSystem();
-        assertTrue(fileSystem.setFileContents("/A.txt", null));
+        assertTrue(fileSystem.setFileContents("/A.txt", (byte[])null));
         assertTrue(fileSystem.fileExists("/A.txt"));
         assertArrayEquals(new byte[0], fileSystem.getFileContents("/A.txt"));
     }
@@ -3414,7 +3480,7 @@ public abstract class FileSystemTests
         final FileSystem fileSystem = getFileSystem();
         fileSystem.createFile("/A.txt", new byte[] { 0, 1 });
 
-        assertTrue(fileSystem.setFileContents("/A.txt", null));
+        assertTrue(fileSystem.setFileContents("/A.txt", (byte[])null));
         assertTrue(fileSystem.fileExists("/A.txt"));
         assertArrayEquals(new byte[0], fileSystem.getFileContents("/A.txt"));
     }
@@ -3495,7 +3561,7 @@ public abstract class FileSystemTests
     {
         final FileSystem fileSystem = getFileSystem();
 
-        assertTrue(fileSystem.setFileContents(Path.parse("/A.txt"), null));
+        assertTrue(fileSystem.setFileContents(Path.parse("/A.txt"), (byte[])null));
 
         assertTrue(fileSystem.fileExists("/A.txt"));
         assertArrayEquals(new byte[0], fileSystem.getFileContents("/A.txt"));
@@ -3507,7 +3573,7 @@ public abstract class FileSystemTests
         final FileSystem fileSystem = getFileSystem();
         fileSystem.createFile("/A.txt", new byte[] { 0, 1 });
 
-        assertTrue(fileSystem.setFileContents(Path.parse("/A.txt"), null));
+        assertTrue(fileSystem.setFileContents(Path.parse("/A.txt"), (byte[])null));
 
         assertTrue(fileSystem.fileExists("/A.txt"));
         assertArrayEquals(new byte[0], fileSystem.getFileContents("/A.txt"));
@@ -3557,6 +3623,198 @@ public abstract class FileSystemTests
 
         assertTrue(fileSystem.fileExists("/A.txt"));
         assertArrayEquals(new byte[] { 0, 1, 2 }, fileSystem.getFileContents("/A.txt"));
+    }
+
+    @Test
+    public void setFileContentsStringWithNullPathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertFalse(fileSystem.setFileContents((String)null, "ABC"));
+    }
+
+    @Test
+    public void setFileContentsStringWithEmptyPathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertFalse(fileSystem.setFileContents("", "ABC"));
+    }
+
+    @Test
+    public void setFileContentsStringWithRelativePathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertFalse(fileSystem.setFileContents("relative.file", "ABC"));
+    }
+
+    @Test
+    public void setFileContentsStringWithNonExistingRootedPathStringAndNullContents()
+    {
+        final FileSystem fileSystem = getFileSystem();
+
+        assertTrue(fileSystem.setFileContents("/A.txt", (String)null));
+
+        assertTrue(fileSystem.fileExists("/A.txt"));
+        assertEquals("", fileSystem.getFileContentsAsString("/A.txt"));
+    }
+
+    @Test
+    public void setFileContentsStringWithExistingRootedPathStringAndNullContents()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFile("/A.txt", new byte[] { 0, 1 });
+
+        assertTrue(fileSystem.setFileContents("/A.txt", (String)null));
+
+        assertTrue(fileSystem.fileExists("/A.txt"));
+        assertEquals("", fileSystem.getFileContentsAsString("/A.txt"));
+    }
+
+    @Test
+    public void setFileContentsStringWithNonExistingRootedPathStringAndEmptyContents()
+    {
+        final FileSystem fileSystem = getFileSystem();
+
+        assertTrue(fileSystem.setFileContents("/A.txt", ""));
+
+        assertTrue(fileSystem.fileExists("/A.txt"));
+        assertEquals("", fileSystem.getFileContentsAsString("/A.txt"));
+    }
+
+    @Test
+    public void setFileContentsStringWithExistingRootedPathStringAndEmptyContents()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFile("/A.txt", new byte[] { 0, 1 });
+
+        assertTrue(fileSystem.setFileContents("/A.txt", ""));
+
+        assertTrue(fileSystem.fileExists("/A.txt"));
+        assertEquals("", fileSystem.getFileContentsAsString("/A.txt"));
+    }
+
+    @Test
+    public void setFileContentsStringWithNonExistingRootedPathStringAndNonEmptyContents()
+    {
+        final FileSystem fileSystem = getFileSystem();
+
+        assertTrue(fileSystem.setFileContents("/A.txt", "ABC"));
+
+        assertTrue(fileSystem.fileExists("/A.txt"));
+        assertEquals("ABC", fileSystem.getFileContentsAsString("/A.txt"));
+    }
+
+    @Test
+    public void setFileContentsStringWithNonExistingRootedPathStringWithNonExistingParentFolderAndNonEmptyContents()
+    {
+        final FileSystem fileSystem = getFileSystem();
+
+        assertTrue(fileSystem.setFileContents("/folder/A.txt", "ABC"));
+
+        assertTrue(fileSystem.folderExists("/folder"));
+        assertTrue(fileSystem.fileExists("/folder/A.txt"));
+        assertEquals("ABC", fileSystem.getFileContentsAsString("/folder/A.txt"));
+    }
+
+    @Test
+    public void setFileContentsStringWithExistingRootedPathStringAndNonEmptyContents()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFile("/A.txt");
+
+        assertTrue(fileSystem.setFileContents("/A.txt", "ABC"));
+
+        assertTrue(fileSystem.fileExists("/A.txt"));
+        assertEquals("ABC", fileSystem.getFileContentsAsString("/A.txt"));
+    }
+
+    @Test
+    public void setFileContentsStringWithNullPath()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertFalse(fileSystem.setFileContents((Path)null, "ABC"));
+    }
+
+    @Test
+    public void setFileContentsStringWithEmptyPath()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertFalse(fileSystem.setFileContents(Path.parse(""), "ABC"));
+    }
+
+    @Test
+    public void setFileContentsStringWithRelativePath()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertFalse(fileSystem.setFileContents(Path.parse("relative.file"), "ABC"));
+    }
+
+    @Test
+    public void setFileContentsStringWithNonExistingRootedPathAndNullContents()
+    {
+        final FileSystem fileSystem = getFileSystem();
+
+        assertTrue(fileSystem.setFileContents(Path.parse("/A.txt"), (String)null));
+
+        assertTrue(fileSystem.fileExists("/A.txt"));
+        assertEquals("", fileSystem.getFileContentsAsString("/A.txt"));
+    }
+
+    @Test
+    public void setFileContentsStringWithExistingRootedPathAndNullContents()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFile("/A.txt", "Test");
+
+        assertTrue(fileSystem.setFileContents(Path.parse("/A.txt"), (String)null));
+
+        assertTrue(fileSystem.fileExists("/A.txt"));
+        assertEquals("", fileSystem.getFileContentsAsString("/A.txt"));
+    }
+
+    @Test
+    public void setFileContentsStringWithNonExistingRootedPathAndEmptyContents()
+    {
+        final FileSystem fileSystem = getFileSystem();
+
+        assertTrue(fileSystem.setFileContents(Path.parse("/A.txt"), ""));
+
+        assertTrue(fileSystem.fileExists("/A.txt"));
+        assertEquals("", fileSystem.getFileContentsAsString("/A.txt"));
+    }
+
+    @Test
+    public void setFileContentsStringWithExistingRootedPathAndEmptyContents()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFile("/A.txt", new byte[] { 0, 1 });
+
+        assertTrue(fileSystem.setFileContents(Path.parse("/A.txt"), ""));
+
+        assertTrue(fileSystem.fileExists("/A.txt"));
+        assertEquals("", fileSystem.getFileContentsAsString("/A.txt"));
+    }
+
+    @Test
+    public void setFileContentsStringWithNonExistingRootedPathAndNonEmptyContents()
+    {
+        final FileSystem fileSystem = getFileSystem();
+
+        assertTrue(fileSystem.setFileContents(Path.parse("/A.txt"), "ABC"));
+
+        assertTrue(fileSystem.fileExists("/A.txt"));
+        assertEquals("ABC", fileSystem.getFileContentsAsString("/A.txt"));
+    }
+
+    @Test
+    public void setFileContentsStringWithExistingRootedPathAndNonEmptyContents()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFile("/A.txt");
+
+        assertTrue(fileSystem.setFileContents(Path.parse("/A.txt"), "ABC"));
+
+        assertTrue(fileSystem.fileExists("/A.txt"));
+        assertEquals("ABC", fileSystem.getFileContentsAsString("/A.txt"));
     }
 
     private void asyncTest(final Action1<FileSystem> action)
