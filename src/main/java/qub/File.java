@@ -34,6 +34,31 @@ public class File extends FileSystemEntry
     }
 
     /**
+     * Create this File with the provided contents and return whether or not it was created as a
+     * result of this function.
+     * @param contents The contents to create the file with if the file is created as a result of
+     *                 this function.
+     * @return Whether or not this function created the file.
+     */
+    public boolean create(String contents)
+    {
+        return getFileSystem().createFile(getPath(), contents);
+    }
+
+    /**
+     * Create this File with the provided contents and return whether or not it was created as a
+     * result of this function.
+     * @param contents The contents to create the file with if the file is created as a result of
+     *                 this function.
+     * @param encoding The CharacterEncoding to use to convert the provided contents to bytes.
+     * @return Whether or not this function created the file.
+     */
+    public boolean create(String contents, CharacterEncoding encoding)
+    {
+        return getFileSystem().createFile(getPath(), contents, encoding);
+    }
+
+    /**
      * Get whether or not this File exists.
      */
     @Override
@@ -92,5 +117,32 @@ public class File extends FileSystemEntry
         final FileSystem fileSystem = getFileSystem();
         final Path path = getPath();
         return fileSystem.setFileContents(path, fileContents);
+    }
+
+    /**
+     * Set the contents of this File to be the provided fileContents and return whether or not the
+     * file's contents were set.
+     * @param fileContents The contents to set the file to.
+     * @return Whether or not the file's contents were set.
+     */
+    public boolean setContents(String fileContents)
+    {
+        final FileSystem fileSystem = getFileSystem();
+        final Path path = getPath();
+        return fileSystem.setFileContents(path, fileContents);
+    }
+
+    /**
+     * Set the contents of this File to be the provided fileContents and return whether or not the
+     * file's contents were set.
+     * @param fileContents The contents to set the file to.
+     * @param encoding The CharacterEncoding to use to convert the provided fileContents into bytes.
+     * @return Whether or not the file's contents were set.
+     */
+    public boolean setContents(String fileContents, CharacterEncoding encoding)
+    {
+        final FileSystem fileSystem = getFileSystem();
+        final Path path = getPath();
+        return fileSystem.setFileContents(path, fileContents, encoding);
     }
 }

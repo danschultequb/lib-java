@@ -446,7 +446,7 @@ public abstract class FileSystemBase implements FileSystem
     public boolean createFile(String filePath)
     {
         final Path path = Path.parse(filePath);
-        return createFile(path, null, null);
+        return createFile(path, (byte[])null, null);
     }
 
     @Override
@@ -457,10 +457,38 @@ public abstract class FileSystemBase implements FileSystem
     }
 
     @Override
+    public boolean createFile(String filePath, String fileContents)
+    {
+        final Path path = Path.parse(filePath);
+        return createFile(path, fileContents, CharacterEncoding.ASCII, null);
+    }
+
+    @Override
+    public boolean createFile(String filePath, String fileContents, CharacterEncoding encoding)
+    {
+        final Path path = Path.parse(filePath);
+        return createFile(path, fileContents, encoding, null);
+    }
+
+    @Override
     public boolean createFile(String filePath, Out<File> outputFile)
     {
         final Path path = Path.parse(filePath);
         return createFile(path, outputFile);
+    }
+
+    @Override
+    public boolean createFile(String filePath, String fileContents, Out<File> outputFile)
+    {
+        final Path path = Path.parse(filePath);
+        return createFile(path, fileContents, outputFile);
+    }
+
+    @Override
+    public boolean createFile(String filePath, String fileContents, CharacterEncoding encoding, Out<File> outputFile)
+    {
+        final Path path = Path.parse(filePath);
+        return createFile(path, fileContents, encoding, outputFile);
     }
 
     @Override
@@ -473,7 +501,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public boolean createFile(Path filePath)
     {
-        return createFile(filePath, null, null);
+        return createFile(filePath, (byte[])null, null);
     }
 
     @Override
@@ -483,9 +511,34 @@ public abstract class FileSystemBase implements FileSystem
     }
 
     @Override
+    public boolean createFile(Path filePath, String fileContents)
+    {
+        return createFile(filePath, fileContents, CharacterEncoding.ASCII, null);
+    }
+
+    @Override
+    public boolean createFile(Path filePath, String fileContents, CharacterEncoding encoding)
+    {
+        return createFile(filePath, fileContents, encoding, null);
+    }
+
+    @Override
     public boolean createFile(Path filePath, Out<File> outputFile)
     {
-        return createFile(filePath, null, outputFile);
+        return createFile(filePath, (byte[])null, outputFile);
+    }
+
+    @Override
+    public boolean createFile(Path filePath, String fileContents, Out<File> outputFile)
+    {
+        return createFile(filePath, fileContents, CharacterEncoding.ASCII, outputFile);
+    }
+
+    @Override
+    public boolean createFile(Path filePath, String fileContents, CharacterEncoding encoding, Out<File> outputFile)
+    {
+        final byte[] fileContentsBytes = encoding == null ? null : encoding.encode(fileContents);
+        return createFile(filePath, fileContentsBytes, outputFile);
     }
 
     @Override
@@ -630,5 +683,29 @@ public abstract class FileSystemBase implements FileSystem
     {
         final Path path = Path.parse(rootedFilePath);
         return setFileContents(path, fileContents);
+    }
+
+    @Override
+    public boolean setFileContents(String rootedFilePath, String fileContents)
+    {
+        return setFileContents(rootedFilePath, fileContents, CharacterEncoding.ASCII);
+    }
+
+    @Override
+    public boolean setFileContents(Path rootedFilePath, String fileContents)
+    {
+        return setFileContents(rootedFilePath, fileContents, CharacterEncoding.ASCII);
+    }
+
+    @Override
+    public boolean setFileContents(String rootedFilePath, String fileContents, CharacterEncoding encoding)
+    {
+        return setFileContents(rootedFilePath, encoding == null ? null : encoding.encode(fileContents));
+    }
+
+    @Override
+    public boolean setFileContents(Path rootedFilePath, String fileContents, CharacterEncoding encoding)
+    {
+        return setFileContents(rootedFilePath, encoding == null ? null : encoding.encode(fileContents));
     }
 }

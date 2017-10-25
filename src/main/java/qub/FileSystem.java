@@ -352,6 +352,27 @@ public interface FileSystem
     boolean createFile(String filePath, byte[] fileContents);
 
     /**
+     * Create a file at the provided path with the provided fileContents and return whether or not
+     * this function created the file.
+     * @param filePath The path to the file to create.
+     * @param fileContents The contents to put in the file if the file didn't exist before this
+     *                     function.
+     * @return Whether or not this function created the file.
+     */
+    boolean createFile(String filePath, String fileContents);
+
+    /**
+     * Create a file at the provided path with the provided fileContents and return whether or not
+     * this function created the file.
+     * @param filePath The path to the file to create.
+     * @param fileContents The contents to put in the file if the file didn't exist before this
+     *                     function.
+     * @param encoding The CharacterEncoding to use to convert the provided fileContents to bytes.
+     * @return Whether or not this function created the file.
+     */
+    boolean createFile(String filePath, String fileContents, CharacterEncoding encoding);
+
+    /**
      * Create a file at the provided path and return whether or not this function created the file.
      * @param filePath The path to the file to create.
      * @param outputFile The output parameter where the file that was created or the file that
@@ -373,6 +394,31 @@ public interface FileSystem
     boolean createFile(String filePath, byte[] fileContents, Out<File> outputFile);
 
     /**
+     * Create a file at the provided path with the provided fileContents and return whether or not
+     * this function created the file.
+     * @param filePath The path to the file to create.
+     * @param fileContents The contents to put in the file if the file didn't exist before this
+     *                     function.
+     * @param outputFile The output parameter where the file that was created or the file that
+     *                     already existed will be placed.
+     * @return Whether or not this function created the file.
+     */
+    boolean createFile(String filePath, String fileContents, Out<File> outputFile);
+
+    /**
+     * Create a file at the provided path with the provided fileContents and return whether or not
+     * this function created the file.
+     * @param filePath The path to the file to create.
+     * @param fileContents The contents to put in the file if the file didn't exist before this
+     *                     function.
+     * @param encoding The CharacterEncoding to use to convert the provided fileContents to bytes.
+     * @param outputFile The output parameter where the file that was created or the file that
+     *                     already existed will be placed.
+     * @return Whether or not this function created the file.
+     */
+    boolean createFile(String filePath, String fileContents, CharacterEncoding encoding, Out<File> outputFile);
+
+    /**
      * Create a file at the provided path and return whether or not this function created the file.
      * @param filePath The path to the file to create.
      * @return Whether or not this function created the file.
@@ -388,6 +434,27 @@ public interface FileSystem
      * @return Whether or not this function created the file.
      */
     boolean createFile(Path filePath, byte[] fileContents);
+
+    /**
+     * Create a file at the provided path with the provided fileContents and return whether or not
+     * this function created the file.
+     * @param filePath The path to the file to create.
+     * @param fileContents The contents to put in the file if the file didn't exist before this
+     *                     function.
+     * @return Whether or not this function created the file.
+     */
+    boolean createFile(Path filePath, String fileContents);
+
+    /**
+     * Create a file at the provided path with the provided fileContents and return whether or not
+     * this function created the file.
+     * @param filePath The path to the file to create.
+     * @param fileContents The contents to put in the file if the file didn't exist before this
+     *                     function.
+     * @param encoding The CharacterEncoding to use to convert the provided fileContents to bytes.
+     * @return Whether or not this function created the file.
+     */
+    boolean createFile(Path filePath, String fileContents, CharacterEncoding encoding);
 
     /**
      * Create a file at the provided path and return whether or not this function created the
@@ -410,6 +477,31 @@ public interface FileSystem
      * @return Whether or not this function created the file.
      */
     boolean createFile(Path filePath, byte[] fileContents, Out<File> outputFile);
+
+    /**
+     * Create a file at the provided path with the provided fileContents and return whether or not
+     * this function created the file.
+     * @param filePath The path to the file to create.
+     * @param fileContents The contents to put in the file if the file didn't exist before this
+     *                     function.
+     * @param outputFile The output parameter where the file that was created or the file that
+     *                     already existed will be placed.
+     * @return Whether or not this function created the file.
+     */
+    boolean createFile(Path filePath, String fileContents, Out<File> outputFile);
+
+    /**
+     * Create a file at the provided path with the provided fileContents and return whether or not
+     * this function created the file.
+     * @param filePath The path to the file to create.
+     * @param fileContents The contents to put in the file if the file didn't exist before this
+     *                     function.
+     * @param encoding The CharacterEncoding to use to convert the provided fileContents to bytes.
+     * @param outputFile The output parameter where the file that was created or the file that
+     *                     already existed will be placed.
+     * @return Whether or not this function created the file.
+     */
+    boolean createFile(Path filePath, String fileContents, CharacterEncoding encoding, Out<File> outputFile);
 
     /**
      * Create a file at the provided path and return whether or not this function created the file.
@@ -561,4 +653,42 @@ public interface FileSystem
      * @return Whether or not the file's contents were set.
      */
     boolean setFileContents(Path rootedFilePath, byte[] fileContents);
+
+    /**
+     * Set the contents of the file at the provided rootedFilePath to the provided String. If the
+     * file doesn't exist, then it will be created.
+     * @param rootedFilePath The path to the file to set the contents for.
+     * @param fileContents The contents to set.
+     * @return Whether or not the file's contents were set.
+     */
+    boolean setFileContents(String rootedFilePath, String fileContents);
+
+    /**
+     * Set the contents of the file at the provided rootedFilePath to the provided String. If the
+     * file doesn't exist, then it will be created.
+     * @param rootedFilePath The path to the file to set the contents for.
+     * @param fileContents The contents to set.
+     * @return Whether or not the file's contents were set.
+     */
+    boolean setFileContents(Path rootedFilePath, String fileContents);
+
+    /**
+     * Set the contents of the file at the provided rootedFilePath to the provided String. If the
+     * file doesn't exist, then it will be created.
+     * @param rootedFilePath The path to the file to set the contents for.
+     * @param fileContents The contents to set.
+     * @param encoding The CharacterEncoding to use to convert the provided fileContents to bytes.
+     * @return Whether or not the file's contents were set.
+     */
+    boolean setFileContents(String rootedFilePath, String fileContents, CharacterEncoding encoding);
+
+    /**
+     * Set the contents of the file at the provided rootedFilePath to the provided String. If the
+     * file doesn't exist, then it will be created.
+     * @param rootedFilePath The path to the file to set the contents for.
+     * @param fileContents The contents to set.
+     * @param encoding The CharacterEncoding to use to convert the provided fileContents to bytes.
+     * @return Whether or not the file's contents were set.
+     */
+    boolean setFileContents(Path rootedFilePath, String fileContents, CharacterEncoding encoding);
 }
