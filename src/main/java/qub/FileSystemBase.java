@@ -679,6 +679,91 @@ public abstract class FileSystemBase implements FileSystem
     }
 
     @Override
+    public Iterable<String> getFileContentLines(String rootedFilePath)
+    {
+        final Path path = Path.parse(rootedFilePath);
+        return getFileContentLines(path);
+    }
+
+    @Override
+    public Iterable<String> getFileContentLines(String rootedFilePath, boolean includeNewLines)
+    {
+        final Path path = Path.parse(rootedFilePath);
+        return getFileContentLines(path, includeNewLines);
+    }
+
+    @Override
+    public Iterable<String> getFileContentLines(String rootedFilePath, CharacterEncoding encoding)
+    {
+        final Path path = Path.parse(rootedFilePath);
+        return getFileContentLines(path, encoding);
+    }
+
+    @Override
+    public Iterable<String> getFileContentLines(String rootedFilePath, boolean includeNewLines, CharacterEncoding encoding)
+    {
+        final Path path = Path.parse(rootedFilePath);
+        return getFileContentLines(path, includeNewLines, encoding);
+    }
+
+    @Override
+    public Iterable<String> getFileContentLines(Path rootedFilePath)
+    {
+        return getFileContentLines(rootedFilePath, true);
+    }
+
+    @Override
+    public Iterable<String> getFileContentLines(Path rootedFilePath, boolean includeNewLines)
+    {
+        return getFileContentLines(rootedFilePath, includeNewLines, CharacterEncoding.ASCII);
+    }
+
+    @Override
+    public Iterable<String> getFileContentLines(Path rootedFilePath, CharacterEncoding encoding)
+    {
+        return getFileContentLines(rootedFilePath, true, encoding);
+    }
+
+    @Override
+    public Iterable<String> getFileContentLines(Path rootedFilePath, boolean includeNewLines, CharacterEncoding encoding)
+    {
+        Iterable<String> result = null;
+
+        final String fileContents = getFileContentsAsString(rootedFilePath, encoding);
+        if (fileContents != null)
+        {
+            final List<String> lines = new ArrayList<>();
+            final int fileContentsLength = fileContents.length();
+            int lineStartIndex = 0;
+
+            while (lineStartIndex < fileContentsLength)
+            {
+                final int newLineCharacterIndex = fileContents.indexOf('\n', lineStartIndex);
+                if (newLineCharacterIndex < 0)
+                {
+                    lines.add(fileContents.substring(lineStartIndex));
+                    lineStartIndex = fileContentsLength;
+                }
+                else
+                {
+                    String line = fileContents.substring(lineStartIndex, newLineCharacterIndex + 1);
+                    if (!includeNewLines)
+                    {
+                        final int newLineWidth = line.endsWith("\r\n") ? 2 : 1;
+                        line = line.substring(0, line.length() - newLineWidth);
+                    }
+                    lines.add(line);
+                    lineStartIndex = newLineCharacterIndex + 1;
+                }
+            }
+
+            result = lines;
+        }
+
+        return result;
+    }
+
+    @Override
     public boolean setFileContents(String rootedFilePath, byte[] fileContents)
     {
         final Path path = Path.parse(rootedFilePath);

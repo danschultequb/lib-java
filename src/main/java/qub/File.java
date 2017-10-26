@@ -107,6 +107,56 @@ public class File extends FileSystemEntry
     }
 
     /**
+     * Get the content lines of this File. If this file doesn't exist, then null will be returned.
+     * @return The content lines of this File, or null if this File doesn't exist.
+     */
+    public Iterable<String> getContentLines()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        final Path path = getPath();
+        return fileSystem.getFileContentLines(path);
+    }
+
+    /**
+     * Get the content lines of this File. If this file doesn't exist, then null will be returned.
+     * @param encoding The CharacterEncoding to use to convert this File's content to Strings.
+     * @return The content lines of this File, or null if this File doesn't exist.
+     */
+    public Iterable<String> getContentLines(CharacterEncoding encoding)
+    {
+        final FileSystem fileSystem = getFileSystem();
+        final Path path = getPath();
+        return fileSystem.getFileContentLines(path, encoding);
+    }
+
+    /**
+     * Get the content lines of this File. If this file doesn't exist, then null will be returned.
+     * @param includeNewLineCharacters Whether or not to include the newline characters at the end
+     *                                 of each line.
+     * @return The content lines of this File, or null if this File doesn't exist.
+     */
+    public Iterable<String> getContentLines(boolean includeNewLineCharacters)
+    {
+        final FileSystem fileSystem = getFileSystem();
+        final Path path = getPath();
+        return fileSystem.getFileContentLines(path, includeNewLineCharacters);
+    }
+
+    /**
+     * Get the content lines of this File. If this file doesn't exist, then null will be returned.
+     * @param includeNewLineCharacters Whether or not to include the newline characters at the end
+     *                                 of each line.
+     * @param encoding The CharacterEncoding to use to convert this File's contents to Strings.
+     * @return The content lines of this File, or null if this File doesn't exist.
+     */
+    public Iterable<String> getContentLines(boolean includeNewLineCharacters, CharacterEncoding encoding)
+    {
+        final FileSystem fileSystem = getFileSystem();
+        final Path path = getPath();
+        return fileSystem.getFileContentLines(path, includeNewLineCharacters, encoding);
+    }
+
+    /**
      * Set the contents of this File to be the provided fileContents and return whether or not the
      * file's contents were set.
      * @param fileContents The contents to set the file to.

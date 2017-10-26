@@ -3445,6 +3445,487 @@ public abstract class FileSystemTests
     }
 
     @Test
+    public void getFileContentLinesWithNullPathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+
+        assertNull(fileSystem.getFileContentLines((String)null));
+    }
+
+    @Test
+    public void getFileContentLinesWithEmptyPathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+
+        assertNull(fileSystem.getFileContentLines(""));
+    }
+
+    @Test
+    public void getFileContentLinesWithRelativePathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+
+        assertNull(fileSystem.getFileContentLines("relative/file.txt"));
+    }
+
+    @Test
+    public void getFileContentLinesWithNonExistingRootedPathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+
+        assertNull(fileSystem.getFileContentLines("/folder/file.csv"));
+    }
+
+    @Test
+    public void getFileContentLinesWithExistingEmptyFileAtRootedPathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFile("/folder/file.csv");
+
+        assertArrayEquals(new String[0], Array.toStringArray(fileSystem.getFileContentLines("/folder/file.csv")));
+    }
+
+    @Test
+    public void getFileContentLinesWithExistingSingleLineFileAtRootedPathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFile("/folder/file.csv", "abcdef");
+
+        assertArrayEquals(new String[] { "abcdef" }, Array.toStringArray(fileSystem.getFileContentLines("/folder/file.csv")));
+    }
+
+    @Test
+    public void getFileContentLinesWithExistingMultipleLineFileAtRootedPathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFile("/folder/file.csv", "ab\ncd\r\ne\nf\n");
+
+        assertArrayEquals(new String[] { "ab\n", "cd\r\n", "e\n", "f\n" }, Array.toStringArray(fileSystem.getFileContentLines("/folder/file.csv")));
+    }
+
+    @Test
+    public void getFileContentLinesWithNullPath()
+    {
+        final FileSystem fileSystem = getFileSystem();
+
+        assertNull(fileSystem.getFileContentLines((Path)null));
+    }
+
+    @Test
+    public void getFileContentLinesWithEmptyPath()
+    {
+        final FileSystem fileSystem = getFileSystem();
+
+        assertNull(fileSystem.getFileContentLines(Path.parse("")));
+    }
+
+    @Test
+    public void getFileContentLinesWithRelativePath()
+    {
+        final FileSystem fileSystem = getFileSystem();
+
+        assertNull(fileSystem.getFileContentLines(Path.parse("relative/file.txt")));
+    }
+
+    @Test
+    public void getFileContentLinesWithNonExistingRootedPath()
+    {
+        final FileSystem fileSystem = getFileSystem();
+
+        assertNull(fileSystem.getFileContentLines(Path.parse("/folder/file.csv")));
+    }
+
+    @Test
+    public void getFileContentLinesWithExistingEmptyFileAtRootedPath()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFile("/folder/file.csv");
+
+        assertArrayEquals(new String[0], Array.toStringArray(fileSystem.getFileContentLines(Path.parse("/folder/file.csv"))));
+    }
+
+    @Test
+    public void getFileContentLinesWithExistingSingleLineFileAtRootedPath()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFile("/folder/file.csv", "abcdef");
+
+        assertArrayEquals(new String[] { "abcdef" }, Array.toStringArray(fileSystem.getFileContentLines(Path.parse("/folder/file.csv"))));
+    }
+
+    @Test
+    public void getFileContentLinesWithExistingMultipleLineFileAtRootedPath()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFile("/folder/file.csv", "ab\ncd\r\ne\nf\n");
+
+        assertArrayEquals(new String[] { "ab\n", "cd\r\n", "e\n", "f\n" }, Array.toStringArray(fileSystem.getFileContentLines(Path.parse("/folder/file.csv"))));
+    }
+
+    @Test
+    public void getFileContentLinesIncludeNewLinesWithNullPathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+
+        assertNull(fileSystem.getFileContentLines((String)null, true));
+    }
+
+    @Test
+    public void getFileContentLinesIncludeNewLinesWithEmptyPathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+
+        assertNull(fileSystem.getFileContentLines("", true));
+    }
+
+    @Test
+    public void getFileContentLinesIncludeNewLinesWithRelativePathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+
+        assertNull(fileSystem.getFileContentLines("relative/file.txt", true));
+    }
+
+    @Test
+    public void getFileContentLinesIncludeNewLinesWithNonExistingRootedPathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+
+        assertNull(fileSystem.getFileContentLines("/folder/file.csv", true));
+    }
+
+    @Test
+    public void getFileContentLinesIncludeNewLinesWithExistingEmptyFileAtRootedPathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFile("/folder/file.csv");
+
+        assertArrayEquals(new String[0], Array.toStringArray(fileSystem.getFileContentLines("/folder/file.csv", true)));
+    }
+
+    @Test
+    public void getFileContentLinesIncludeNewLinesWithExistingSingleLineFileAtRootedPathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFile("/folder/file.csv", "abcdef");
+
+        assertArrayEquals(new String[] { "abcdef" }, Array.toStringArray(fileSystem.getFileContentLines("/folder/file.csv", true)));
+    }
+
+    @Test
+    public void getFileContentLinesIncludeNewLinesWithExistingMultipleLineFileAtRootedPathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFile("/folder/file.csv", "ab\ncd\r\ne\nf\n");
+
+        assertArrayEquals(new String[] { "ab\n", "cd\r\n", "e\n", "f\n" }, Array.toStringArray(fileSystem.getFileContentLines("/folder/file.csv", true)));
+    }
+
+    @Test
+    public void getFileContentLinesIncludeNewLinesWithNullPath()
+    {
+        final FileSystem fileSystem = getFileSystem();
+
+        assertNull(fileSystem.getFileContentLines((Path)null, true));
+    }
+
+    @Test
+    public void getFileContentLinesIncludeNewLinesWithEmptyPath()
+    {
+        final FileSystem fileSystem = getFileSystem();
+
+        assertNull(fileSystem.getFileContentLines(Path.parse(""), true));
+    }
+
+    @Test
+    public void getFileContentLinesIncludeNewLinesWithRelativePath()
+    {
+        final FileSystem fileSystem = getFileSystem();
+
+        assertNull(fileSystem.getFileContentLines(Path.parse("relative/file.txt"), true));
+    }
+
+    @Test
+    public void getFileContentLinesIncludeNewLinesWithNonExistingRootedPath()
+    {
+        final FileSystem fileSystem = getFileSystem();
+
+        assertNull(fileSystem.getFileContentLines(Path.parse("/folder/file.csv"), true));
+    }
+
+    @Test
+    public void getFileContentLinesIncludeNewLinesWithExistingEmptyFileAtRootedPath()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFile("/folder/file.csv");
+
+        assertArrayEquals(new String[0], Array.toStringArray(fileSystem.getFileContentLines(Path.parse("/folder/file.csv"), true)));
+    }
+
+    @Test
+    public void getFileContentLinesIncludeNewLinesWithExistingSingleLineFileAtRootedPath()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFile("/folder/file.csv", "abcdef");
+
+        assertArrayEquals(new String[] { "abcdef" }, Array.toStringArray(fileSystem.getFileContentLines(Path.parse("/folder/file.csv"), true)));
+    }
+
+    @Test
+    public void getFileContentLinesIncludeNewLinesWithExistingMultipleLineFileAtRootedPath()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFile("/folder/file.csv", "ab\ncd\r\ne\nf\n");
+
+        assertArrayEquals(new String[] { "ab\n", "cd\r\n", "e\n", "f\n" }, Array.toStringArray(fileSystem.getFileContentLines(Path.parse("/folder/file.csv"), true)));
+    }
+
+    @Test
+    public void getFileContentLinesDontIncludeNewLinesWithNullPathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+
+        assertNull(fileSystem.getFileContentLines((String)null, false));
+    }
+
+    @Test
+    public void getFileContentLinesDontIncludeNewLinesWithEmptyPathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+
+        assertNull(fileSystem.getFileContentLines("", false));
+    }
+
+    @Test
+    public void getFileContentLinesDontIncludeNewLinesWithRelativePathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+
+        assertNull(fileSystem.getFileContentLines("relative/file.txt", false));
+    }
+
+    @Test
+    public void getFileContentLinesDontIncludeNewLinesWithNonExistingRootedPathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+
+        assertNull(fileSystem.getFileContentLines("/folder/file.csv", false));
+    }
+
+    @Test
+    public void getFileContentLinesDontIncludeNewLinesWithExistingEmptyFileAtRootedPathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFile("/folder/file.csv");
+
+        assertArrayEquals(new String[0], Array.toStringArray(fileSystem.getFileContentLines("/folder/file.csv", false)));
+    }
+
+    @Test
+    public void getFileContentLinesDontIncludeNewLinesWithExistingSingleLineFileAtRootedPathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFile("/folder/file.csv", "abcdef");
+
+        assertArrayEquals(new String[] { "abcdef" }, Array.toStringArray(fileSystem.getFileContentLines("/folder/file.csv", false)));
+    }
+
+    @Test
+    public void getFileContentLinesDontIncludeNewLinesWithExistingMultipleLineFileAtRootedPathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFile("/folder/file.csv", "ab\ncd\r\ne\nf\n");
+
+        assertArrayEquals(new String[] { "ab", "cd", "e", "f" }, Array.toStringArray(fileSystem.getFileContentLines("/folder/file.csv", false)));
+    }
+
+    @Test
+    public void getFileContentLinesDontIncludeNewLinesEncodingWithExistingMultipleLineFileAtRootedPathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFile("/folder/file.csv", "ab\ncd\r\ne\nf\n");
+
+        assertArrayEquals(new String[] { "ab", "cd", "e", "f" }, Array.toStringArray(fileSystem.getFileContentLines("/folder/file.csv", false, CharacterEncoding.ASCII)));
+    }
+
+    @Test
+    public void getFileContentLinesDontIncludeNewLinesWithNullPath()
+    {
+        final FileSystem fileSystem = getFileSystem();
+
+        assertNull(fileSystem.getFileContentLines((Path)null, false));
+    }
+
+    @Test
+    public void getFileContentLinesDontIncludeNewLinesWithEmptyPath()
+    {
+        final FileSystem fileSystem = getFileSystem();
+
+        assertNull(fileSystem.getFileContentLines(Path.parse(""), false));
+    }
+
+    @Test
+    public void getFileContentLinesDontIncludeNewLinesWithRelativePath()
+    {
+        final FileSystem fileSystem = getFileSystem();
+
+        assertNull(fileSystem.getFileContentLines(Path.parse("relative/file.txt"), false));
+    }
+
+    @Test
+    public void getFileContentLinesDontIncludeNewLinesWithNonExistingRootedPath()
+    {
+        final FileSystem fileSystem = getFileSystem();
+
+        assertNull(fileSystem.getFileContentLines(Path.parse("/folder/file.csv"), false));
+    }
+
+    @Test
+    public void getFileContentLinesDontIncludeNewLinesWithExistingEmptyFileAtRootedPath()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFile("/folder/file.csv");
+
+        assertArrayEquals(new String[0], Array.toStringArray(fileSystem.getFileContentLines(Path.parse("/folder/file.csv"), false)));
+    }
+
+    @Test
+    public void getFileContentLinesDontIncludeNewLinesWithExistingSingleLineFileAtRootedPath()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFile("/folder/file.csv", "abcdef");
+
+        assertArrayEquals(new String[] { "abcdef" }, Array.toStringArray(fileSystem.getFileContentLines(Path.parse("/folder/file.csv"), false)));
+    }
+
+    @Test
+    public void getFileContentLinesDontIncludeNewLinesWithExistingMultipleLineFileAtRootedPath()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFile("/folder/file.csv", "ab\ncd\r\ne\nf\n");
+
+        assertArrayEquals(new String[] { "ab", "cd", "e", "f" }, Array.toStringArray(fileSystem.getFileContentLines(Path.parse("/folder/file.csv"), false)));
+    }
+
+    @Test
+    public void getFileContentLinesEncodingWithNullPathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+
+        assertNull(fileSystem.getFileContentLines((String)null, CharacterEncoding.ASCII));
+    }
+
+    @Test
+    public void getFileContentLinesEncodingWithEmptyPathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+
+        assertNull(fileSystem.getFileContentLines("", CharacterEncoding.ASCII));
+    }
+
+    @Test
+    public void getFileContentLinesEncodingWithRelativePathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+
+        assertNull(fileSystem.getFileContentLines("relative/file.txt", CharacterEncoding.ASCII));
+    }
+
+    @Test
+    public void getFileContentLinesEncodingWithNonExistingRootedPathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+
+        assertNull(fileSystem.getFileContentLines("/folder/file.csv", CharacterEncoding.ASCII));
+    }
+
+    @Test
+    public void getFileContentLinesEncodingWithExistingEmptyFileAtRootedPathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFile("/folder/file.csv");
+
+        assertArrayEquals(new String[0], Array.toStringArray(fileSystem.getFileContentLines("/folder/file.csv", CharacterEncoding.ASCII)));
+    }
+
+    @Test
+    public void getFileContentLinesEncodingWithExistingSingleLineFileAtRootedPathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFile("/folder/file.csv", "abcdef");
+
+        assertArrayEquals(new String[] { "abcdef" }, Array.toStringArray(fileSystem.getFileContentLines("/folder/file.csv", CharacterEncoding.ASCII)));
+    }
+
+    @Test
+    public void getFileContentLinesEncodingWithExistingMultipleLineFileAtRootedPathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFile("/folder/file.csv", "ab\ncd\r\ne\nf\n");
+
+        assertArrayEquals(new String[] { "ab\n", "cd\r\n", "e\n", "f\n" }, Array.toStringArray(fileSystem.getFileContentLines("/folder/file.csv", CharacterEncoding.ASCII)));
+    }
+
+    @Test
+    public void getFileContentLinesEncodingWithNullPath()
+    {
+        final FileSystem fileSystem = getFileSystem();
+
+        assertNull(fileSystem.getFileContentLines((Path)null, CharacterEncoding.ASCII));
+    }
+
+    @Test
+    public void getFileContentLinesEncodingWithEmptyPath()
+    {
+        final FileSystem fileSystem = getFileSystem();
+
+        assertNull(fileSystem.getFileContentLines(Path.parse(""), CharacterEncoding.ASCII));
+    }
+
+    @Test
+    public void getFileContentLinesEncodingWithRelativePath()
+    {
+        final FileSystem fileSystem = getFileSystem();
+
+        assertNull(fileSystem.getFileContentLines(Path.parse("relative/file.txt"), CharacterEncoding.ASCII));
+    }
+
+    @Test
+    public void getFileContentLinesEncodingWithNonExistingRootedPath()
+    {
+        final FileSystem fileSystem = getFileSystem();
+
+        assertNull(fileSystem.getFileContentLines(Path.parse("/folder/file.csv"), CharacterEncoding.ASCII));
+    }
+
+    @Test
+    public void getFileContentLinesEncodingWithExistingEmptyFileAtRootedPath()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFile("/folder/file.csv");
+
+        assertArrayEquals(new String[0], Array.toStringArray(fileSystem.getFileContentLines(Path.parse("/folder/file.csv"), CharacterEncoding.ASCII)));
+    }
+
+    @Test
+    public void getFileContentLinesEncodingWithExistingSingleLineFileAtRootedPath()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFile("/folder/file.csv", "abcdef");
+
+        assertArrayEquals(new String[] { "abcdef" }, Array.toStringArray(fileSystem.getFileContentLines(Path.parse("/folder/file.csv"), CharacterEncoding.ASCII)));
+    }
+
+    @Test
+    public void getFileContentLinesEncodingWithExistingMultipleLineFileAtRootedPath()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFile("/folder/file.csv", "ab\ncd\r\ne\nf\n");
+
+        assertArrayEquals(new String[] { "ab\n", "cd\r\n", "e\n", "f\n" }, Array.toStringArray(fileSystem.getFileContentLines(Path.parse("/folder/file.csv"), CharacterEncoding.ASCII)));
+    }
+
+    @Test
     public void setFileContentsWithNullPathString()
     {
         final FileSystem fileSystem = getFileSystem();
