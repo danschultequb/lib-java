@@ -262,6 +262,192 @@ public class FileTests
     }
 
     @Test
+    public void getContentLinesWithNonExistingFile()
+    {
+        final File file = getFile();
+        assertNull(file.getContentLines());
+    }
+
+    @Test
+    public void getContentLinesWithExistingEmptyFile()
+    {
+        final File file = getFile();
+        file.create();
+        assertArrayEquals(new String[0], Array.toStringArray(file.getContentLines()));
+    }
+
+    @Test
+    public void getContentLinesWithExistingSingleLineFile()
+    {
+        final File file = getFile();
+        file.create("hello");
+        assertArrayEquals(new String[] { "hello" }, Array.toStringArray(file.getContentLines()));
+    }
+
+    @Test
+    public void getContentLinesWithExistingMultipleLineFile()
+    {
+        final File file = getFile();
+        file.create("a\nb\r\nc");
+        assertArrayEquals(new String[] { "a\n", "b\r\n", "c" }, Array.toStringArray(file.getContentLines()));
+    }
+
+    @Test
+    public void getContentLinesNullEncodingWithNonExistingFile()
+    {
+        final File file = getFile();
+        assertNull(file.getContentLines(null));
+    }
+
+    @Test
+    public void getContentLinesNullEncodingWithExistingEmptyFile()
+    {
+        final File file = getFile();
+        file.create();
+        assertArrayEquals(null, Array.toStringArray(file.getContentLines(null)));
+    }
+
+    @Test
+    public void getContentLinesNullEncodingWithExistingSingleLineFile()
+    {
+        final File file = getFile();
+        file.create("hello");
+        assertArrayEquals(null, Array.toStringArray(file.getContentLines(null)));
+    }
+
+    @Test
+    public void getContentLinesNullEncodingWithExistingMultipleLineFile()
+    {
+        final File file = getFile();
+        file.create("a\nb\r\nc");
+        assertArrayEquals(null, Array.toStringArray(file.getContentLines(null)));
+    }
+
+    @Test
+    public void getContentLinesEncodingWithNonExistingFile()
+    {
+        final File file = getFile();
+        assertNull(file.getContentLines(CharacterEncoding.ASCII));
+    }
+
+    @Test
+    public void getContentLinesEncodingWithExistingEmptyFile()
+    {
+        final File file = getFile();
+        file.create();
+        assertArrayEquals(new String[0], Array.toStringArray(file.getContentLines(CharacterEncoding.ASCII)));
+    }
+
+    @Test
+    public void getContentLinesEncodingWithExistingSingleLineFile()
+    {
+        final File file = getFile();
+        file.create("hello");
+        assertArrayEquals(new String[] { "hello" }, Array.toStringArray(file.getContentLines(CharacterEncoding.ASCII)));
+    }
+
+    @Test
+    public void getContentLinesEncodingWithExistingMultipleLineFile()
+    {
+        final File file = getFile();
+        file.create("a\nb\r\nc");
+        assertArrayEquals(new String[] { "a\n", "b\r\n", "c" }, Array.toStringArray(file.getContentLines(CharacterEncoding.ASCII)));
+    }
+
+    @Test
+    public void getContentLinesDontIncludeNewLinesWithNonExistingFile()
+    {
+        final File file = getFile();
+        assertNull(file.getContentLines(false));
+    }
+
+    @Test
+    public void getContentLinesDontIncludeNewLinesWithExistingEmptyFile()
+    {
+        final File file = getFile();
+        file.create();
+        assertArrayEquals(new String[0], Array.toStringArray(file.getContentLines(false)));
+    }
+
+    @Test
+    public void getContentLinesDontIncludeNewLinesWithExistingSingleLineFile()
+    {
+        final File file = getFile();
+        file.create("hello");
+        assertArrayEquals(new String[] { "hello" }, Array.toStringArray(file.getContentLines(false)));
+    }
+
+    @Test
+    public void getContentLinesDontIncludeNewLinesWithExistingMultipleLineFile()
+    {
+        final File file = getFile();
+        file.create("a\nb\r\nc");
+        assertArrayEquals(new String[] { "a", "b", "c" }, Array.toStringArray(file.getContentLines(false)));
+    }
+
+    @Test
+    public void getContentLinesIncludeNewLinesWithNonExistingFile()
+    {
+        final File file = getFile();
+        assertNull(file.getContentLines(true));
+    }
+
+    @Test
+    public void getContentLinesIncludeNewLinesWithExistingEmptyFile()
+    {
+        final File file = getFile();
+        file.create();
+        assertArrayEquals(new String[0], Array.toStringArray(file.getContentLines(true)));
+    }
+
+    @Test
+    public void getContentLinesIncludeNewLinesWithExistingSingleLineFile()
+    {
+        final File file = getFile();
+        file.create("hello");
+        assertArrayEquals(new String[] { "hello" }, Array.toStringArray(file.getContentLines(true)));
+    }
+
+    @Test
+    public void getContentLinesIncludeNewLinesWithExistingMultipleLineFile()
+    {
+        final File file = getFile();
+        file.create("a\nb\r\nc");
+        assertArrayEquals(new String[] { "a\n", "b\r\n", "c" }, Array.toStringArray(file.getContentLines(true)));
+    }
+
+    @Test
+    public void getContentLinesIncludeNewLinesEncodingWithNonExistingFile()
+    {
+        final File file = getFile();
+        assertNull(file.getContentLines(true, CharacterEncoding.ASCII));
+    }
+
+    @Test
+    public void getContentLinesIncludeNewLinesEncodingWithExistingEmptyFile()
+    {
+        final File file = getFile();
+        file.create();
+        assertArrayEquals(new String[0], Array.toStringArray(file.getContentLines(true, CharacterEncoding.ASCII)));
+    }
+
+    @Test
+    public void getContentLinesIncludeNewLinesEncodingWithExistingSingleLineFile()
+    {
+        final File file = getFile();
+        file.create("hello");
+        assertArrayEquals(new String[] { "hello" }, Array.toStringArray(file.getContentLines(true, CharacterEncoding.ASCII)));
+    }
+
+    @Test
+    public void getContentLinesIncludeNewLinesEncodingWithExistingMultipleLineFile()
+    {
+        final File file = getFile();
+        file.create("a\nb\r\nc");
+        assertArrayEquals(new String[] { "a\n", "b\r\n", "c" }, Array.toStringArray(file.getContentLines(true, CharacterEncoding.ASCII)));
+    }
+
+    @Test
     public void setContentsWithNonExistingFileAndNullContents()
     {
         final File file = getFile();

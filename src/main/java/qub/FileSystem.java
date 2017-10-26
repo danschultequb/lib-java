@@ -637,6 +637,90 @@ public interface FileSystem
     Iterable<byte[]> getFileContentBlocks(Path rootedFilePath);
 
     /**
+     * Get the content lines of the file at the provided rootedFilePath. If no file exists at the
+     * provided rootedfilePath, then null will be returned.
+     * @param rootedFilePath The path to the File.
+     * @return The content lines of the file, or null if no file exists at the provided
+     * rootedFilePath.
+     */
+    Iterable<String> getFileContentLines(String rootedFilePath);
+
+    /**
+     * Get the content lines of the file at the provided rootedFilePath. If no file exists at the
+     * provided rootedfilePath, then null will be returned.
+     * @param rootedFilePath The path to the File.
+     * @return The content lines of the file, or null if no file exists at the provided
+     * rootedFilePath.
+     */
+    Iterable<String> getFileContentLines(Path rootedFilePath);
+
+    /**
+     * Get the content lines of the file at the provided rootedFilePath. If no file exists at the
+     * provided rootedfilePath, then null will be returned.
+     * @param rootedFilePath The path to the File.
+     * @param includeNewLines Whether or not each line will include its terminating newline
+     *                        character(s).
+     * @return The content lines of the file, or null if no file exists at the provided
+     * rootedFilePath.
+     */
+    Iterable<String> getFileContentLines(String rootedFilePath, boolean includeNewLines);
+
+    /**
+     * Get the content lines of the file at the provided rootedFilePath. If no file exists at the
+     * provided rootedfilePath, then null will be returned.
+     * @param rootedFilePath The path to the File.
+     * @param includeNewLines Whether or not each line will include its terminating newline
+     *                        character(s).
+     * @return The content lines of the file, or null if no file exists at the provided
+     * rootedFilePath.
+     */
+    Iterable<String> getFileContentLines(Path rootedFilePath, boolean includeNewLines);
+
+    /**
+     * Get the content lines of the file at the provided rootedFilePath. If no file exists at the
+     * provided rootedfilePath, then null will be returned.
+     * @param rootedFilePath The path to the File.
+     * @param encoding The CharacterEncoding to use to convert the file's contents to Strings.
+     * @return The content lines of the file, or null if no file exists at the provided
+     * rootedFilePath.
+     */
+    Iterable<String> getFileContentLines(String rootedFilePath, CharacterEncoding encoding);
+
+    /**
+     * Get the content lines of the file at the provided rootedFilePath. If no file exists at the
+     * provided rootedfilePath, then null will be returned.
+     * @param rootedFilePath The path to the File.
+     * @param encoding The CharacterEncoding to use to convert the file's contents to Strings.
+     * @return The content lines of the file, or null if no file exists at the provided
+     * rootedFilePath.
+     */
+    Iterable<String> getFileContentLines(Path rootedFilePath, CharacterEncoding encoding);
+
+    /**
+     * Get the content lines of the file at the provided rootedFilePath. If no file exists at the
+     * provided rootedfilePath, then null will be returned.
+     * @param rootedFilePath The path to the File.
+     * @param includeNewLines Whether or not each line will include its terminating newline
+     *                        character(s).
+     * @param encoding The CharacterEncoding to use to convert the file's contents to Strings.
+     * @return The content lines of the file, or null if no file exists at the provided
+     * rootedFilePath.
+     */
+    Iterable<String> getFileContentLines(String rootedFilePath, boolean includeNewLines, CharacterEncoding encoding);
+
+    /**
+     * Get the content lines of the file at the provided rootedFilePath. If no file exists at the
+     * provided rootedfilePath, then null will be returned.
+     * @param rootedFilePath The path to the File.
+     * @param includeNewLines Whether or not each line will include its terminating newline
+     *                        character(s).
+     * @param encoding The CharacterEncoding to use to convert the file's contents to Strings.
+     * @return The content lines of the file, or null if no file exists at the provided
+     * rootedFilePath.
+     */
+    Iterable<String> getFileContentLines(Path rootedFilePath, boolean includeNewLines, CharacterEncoding encoding);
+
+    /**
      * Set the contents of the file at the provided rootedFilePath to the provided byte array. If
      * the file doesn't exist, then it will be created.
      * @param rootedFilePath The path to the file to set the contents for.
