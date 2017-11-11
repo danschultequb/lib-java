@@ -1,66 +1,56 @@
 package qub;
 
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+
 /**
- * An encoding that converts between Strings and bytes.
+ * An encoding that converts between characters and bytes.
  */
-public abstract class CharacterEncoding
+public class CharacterEncoding
 {
-    public static final ASCII ASCII = new ASCII();
+    public static final CharacterEncoding US_ASCII = new CharacterEncoding(StandardCharsets.US_ASCII);
+    public static final CharacterEncoding UTF_8 = new CharacterEncoding(StandardCharsets.UTF_8);
 
-    /**
-     * Get the encoded bytes for the provided String in the provided byte[]. This function returns
-     * how many bytes were written for the encoded value.
-     * @param value The String value to encode.
-     * @param output The byte array where the encoded bytes will be written.
-     * @return The number of encoded bytes that were written.
-     */
-    public abstract int encode(String value, byte[] output);
+    private final Charset charset;
 
-    /**
-     * Get the encoded bytes for the provided character in the provided byte[]. This function
-     * returns how many bytes were written for the encoded value.
-     * @param value The character value to encode.
-     * @param output The byte array where the encoded bytes will be written.
-     * @return The number of encoded bytes that were written.
-     */
-    public abstract int encode(char value, byte[] output);
-
-    /**
-     * Get the encoded bytes for the provided character in the provided byte[].
-     * @param value The String value to encode.
-     * @return The encoded bytes from the provided String.
-     */
-    public byte[] encode(String value)
+    private CharacterEncoding(Charset charset)
     {
-        byte[] result;
-        if (value == null)
+        this.charset = charset;
+    }
+
+    Charset getCharset()
+    {
+        return charset;
+    }
+
+    public byte[] encode(char character)
+    {
+        return encode(Character.toString(character));
+    }
+
+    public byte[] encode(String text)
+    {
+        byte[] result = null;
+        if (text != null)
         {
-            result = null;
-        }
-        else
-        {
-            final int requiredBytes = encode(value, null);
-            result = new byte[requiredBytes];
-            encode(value, result);
+            final ByteBuffer byteBuffer = charset.encode(text);
+            result = new byte[byteBuffer.limit()];
+            byteBuffer.get(result);
         }
         return result;
     }
 
-    /**
-     * Decode the provided byte array into a chararacter array.
-     * @param bytes The byte array to decode.
-     * @return The decoded characters.
-     */
-    public abstract char[] decode(byte[] bytes);
-
-    /**
-     * Decode the provided byte array into a String.
-     * @param bytes The byte array to decode.
-     * @return The decoded String.
-     */
-    public String decodeAsString(byte[] bytes)
+    public String decode(byte[] bytes)
     {
-        final char[] decodedCharacters = decode(bytes);
-        return decodedCharacters == null ? null : new String(decodedCharacters);
+        String result = null;
+        if (bytes != null)
+        {
+            final ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
+            final CharBuffer charBuffer = charset.decode(byteBuffer);
+            result = charBuffer.toString();
+        }
+        return result;
     }
 }

@@ -460,7 +460,7 @@ public abstract class FileSystemBase implements FileSystem
     public boolean createFile(String filePath, String fileContents)
     {
         final Path path = Path.parse(filePath);
-        return createFile(path, fileContents, CharacterEncoding.ASCII, null);
+        return createFile(path, fileContents, CharacterEncoding.UTF_8, null);
     }
 
     @Override
@@ -513,7 +513,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public boolean createFile(Path filePath, String fileContents)
     {
-        return createFile(filePath, fileContents, CharacterEncoding.ASCII, null);
+        return createFile(filePath, fileContents, CharacterEncoding.UTF_8, null);
     }
 
     @Override
@@ -531,7 +531,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public boolean createFile(Path filePath, String fileContents, Out<File> outputFile)
     {
-        return createFile(filePath, fileContents, CharacterEncoding.ASCII, outputFile);
+        return createFile(filePath, fileContents, CharacterEncoding.UTF_8, outputFile);
     }
 
     @Override
@@ -668,7 +668,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public String getFileContentsAsString(Path rootedFilePath)
     {
-        return getFileContentsAsString(rootedFilePath, CharacterEncoding.ASCII);
+        return getFileContentsAsString(rootedFilePath, CharacterEncoding.UTF_8);
     }
 
     @Override
@@ -715,7 +715,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public Iterable<String> getFileContentLines(Path rootedFilePath, boolean includeNewLines)
     {
-        return getFileContentLines(rootedFilePath, includeNewLines, CharacterEncoding.ASCII);
+        return getFileContentLines(rootedFilePath, includeNewLines, CharacterEncoding.UTF_8);
     }
 
     @Override
@@ -773,13 +773,13 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public boolean setFileContents(String rootedFilePath, String fileContents)
     {
-        return setFileContents(rootedFilePath, fileContents, CharacterEncoding.ASCII);
+        return setFileContents(rootedFilePath, fileContents, CharacterEncoding.UTF_8);
     }
 
     @Override
     public boolean setFileContents(Path rootedFilePath, String fileContents)
     {
-        return setFileContents(rootedFilePath, fileContents, CharacterEncoding.ASCII);
+        return setFileContents(rootedFilePath, fileContents, CharacterEncoding.UTF_8);
     }
 
     @Override

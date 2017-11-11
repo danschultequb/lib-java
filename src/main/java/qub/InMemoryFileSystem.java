@@ -304,7 +304,7 @@ public class InMemoryFileSystem extends FileSystemBase
         if (encoding != null)
         {
             final byte[] fileContents = getFileContents(rootedFilePath);
-            result = encoding.decodeAsString(fileContents);
+            result = encoding.decode(fileContents);
         }
 
         return result;

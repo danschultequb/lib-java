@@ -425,7 +425,46 @@ public class Array<T> extends IndexableBase<T>
         {
             final int resultLength = Math.minimum(toClone.length - startIndex, length);
             result = new byte[resultLength];
-            System.arraycopy(toClone, 0, result, 0, resultLength);
+            System.arraycopy(toClone, startIndex, result, 0, resultLength);
+        }
+
+        return result;
+    }
+
+    /**
+     * Get a new char[] that is a clone of the provided toClone char[].
+     * @param toClone The char[] to clone.
+     * @return The cloned char[].
+     */
+    public static char[] clone(char[] toClone)
+    {
+        return clone(toClone, 0, toClone == null ? 0 : toClone.length);
+    }
+
+    /**
+     * Get a new char[] that is a clone of the provided toClone char[].
+     * @param toClone The char[] to clone.
+     * @param startIndex The index to start cloning from.
+     * @param length The number of characters from toClone to clone.
+     * @return The cloned char[].
+     */
+    public static char[] clone(char[] toClone, int startIndex, int length)
+    {
+        char[] result = toClone;
+
+        if (toClone == null || length < 0 || startIndex < 0 || toClone.length < startIndex)
+        {
+            result = null;
+        }
+        else if (toClone.length == 0)
+        {
+            result = toClone;
+        }
+        else
+        {
+            final int resultLength = Math.minimum(toClone.length - startIndex, length);
+            result = new char[resultLength];
+            System.arraycopy(toClone, startIndex, result, 0, resultLength);
         }
 
         return result;

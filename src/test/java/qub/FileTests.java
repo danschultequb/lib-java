@@ -88,7 +88,7 @@ public class FileTests
     {
         final File file = getFile();
 
-        assertTrue(file.create(null, CharacterEncoding.ASCII));
+        assertTrue(file.create(null, CharacterEncoding.UTF_8));
 
         assertTrue(file.exists());
         assertEquals("", file.getContentsAsString());
@@ -99,7 +99,7 @@ public class FileTests
     {
         final File file = getFile();
 
-        assertTrue(file.create("", CharacterEncoding.ASCII));
+        assertTrue(file.create("", CharacterEncoding.UTF_8));
 
         assertTrue(file.exists());
         assertEquals("", file.getContentsAsString());
@@ -110,7 +110,7 @@ public class FileTests
     {
         final File file = getFile();
 
-        assertTrue(file.create("hello", CharacterEncoding.ASCII));
+        assertTrue(file.create("hello", CharacterEncoding.UTF_8));
 
         assertTrue(file.exists());
         assertEquals("hello", file.getContentsAsString());
@@ -242,7 +242,7 @@ public class FileTests
     public void getContentsAsStringWithNonNullEncodingAndNonExistingFile()
     {
         final File file = getFile();
-        assertNull(file.getContentsAsString(CharacterEncoding.ASCII));
+        assertNull(file.getContentsAsString(CharacterEncoding.UTF_8));
     }
 
     @Test
@@ -250,7 +250,7 @@ public class FileTests
     {
         final File file = getFile();
         file.create();
-        assertEquals("", file.getContentsAsString(CharacterEncoding.ASCII));
+        assertEquals("", file.getContentsAsString(CharacterEncoding.UTF_8));
     }
 
     @Test
@@ -258,7 +258,7 @@ public class FileTests
     {
         final File file = getFile();
         file.create("Hello".getBytes());
-        assertEquals("Hello", file.getContentsAsString(CharacterEncoding.ASCII));
+        assertEquals("Hello", file.getContentsAsString(CharacterEncoding.UTF_8));
     }
 
     @Test
@@ -327,7 +327,7 @@ public class FileTests
     public void getContentLinesEncodingWithNonExistingFile()
     {
         final File file = getFile();
-        assertNull(file.getContentLines(CharacterEncoding.ASCII));
+        assertNull(file.getContentLines(CharacterEncoding.UTF_8));
     }
 
     @Test
@@ -335,7 +335,7 @@ public class FileTests
     {
         final File file = getFile();
         file.create();
-        assertArrayEquals(new String[0], Array.toStringArray(file.getContentLines(CharacterEncoding.ASCII)));
+        assertArrayEquals(new String[0], Array.toStringArray(file.getContentLines(CharacterEncoding.UTF_8)));
     }
 
     @Test
@@ -343,7 +343,7 @@ public class FileTests
     {
         final File file = getFile();
         file.create("hello");
-        assertArrayEquals(new String[] { "hello" }, Array.toStringArray(file.getContentLines(CharacterEncoding.ASCII)));
+        assertArrayEquals(new String[] { "hello" }, Array.toStringArray(file.getContentLines(CharacterEncoding.UTF_8)));
     }
 
     @Test
@@ -351,7 +351,7 @@ public class FileTests
     {
         final File file = getFile();
         file.create("a\nb\r\nc");
-        assertArrayEquals(new String[] { "a\n", "b\r\n", "c" }, Array.toStringArray(file.getContentLines(CharacterEncoding.ASCII)));
+        assertArrayEquals(new String[] { "a\n", "b\r\n", "c" }, Array.toStringArray(file.getContentLines(CharacterEncoding.UTF_8)));
     }
 
     @Test
@@ -420,7 +420,7 @@ public class FileTests
     public void getContentLinesIncludeNewLinesEncodingWithNonExistingFile()
     {
         final File file = getFile();
-        assertNull(file.getContentLines(true, CharacterEncoding.ASCII));
+        assertNull(file.getContentLines(true, CharacterEncoding.UTF_8));
     }
 
     @Test
@@ -428,7 +428,7 @@ public class FileTests
     {
         final File file = getFile();
         file.create();
-        assertArrayEquals(new String[0], Array.toStringArray(file.getContentLines(true, CharacterEncoding.ASCII)));
+        assertArrayEquals(new String[0], Array.toStringArray(file.getContentLines(true, CharacterEncoding.UTF_8)));
     }
 
     @Test
@@ -436,7 +436,7 @@ public class FileTests
     {
         final File file = getFile();
         file.create("hello");
-        assertArrayEquals(new String[] { "hello" }, Array.toStringArray(file.getContentLines(true, CharacterEncoding.ASCII)));
+        assertArrayEquals(new String[] { "hello" }, Array.toStringArray(file.getContentLines(true, CharacterEncoding.UTF_8)));
     }
 
     @Test
@@ -444,7 +444,7 @@ public class FileTests
     {
         final File file = getFile();
         file.create("a\nb\r\nc");
-        assertArrayEquals(new String[] { "a\n", "b\r\n", "c" }, Array.toStringArray(file.getContentLines(true, CharacterEncoding.ASCII)));
+        assertArrayEquals(new String[] { "a\n", "b\r\n", "c" }, Array.toStringArray(file.getContentLines(true, CharacterEncoding.UTF_8)));
     }
 
     @Test
@@ -590,7 +590,7 @@ public class FileTests
     {
         final File file = getFile();
 
-        assertTrue(file.setContents(null, CharacterEncoding.ASCII));
+        assertTrue(file.setContents(null, CharacterEncoding.UTF_8));
 
         assertTrue(file.exists());
         assertEquals("", file.getContentsAsString());
@@ -602,7 +602,7 @@ public class FileTests
         final File file = getFile();
         file.create();
 
-        assertTrue(file.setContents(null, CharacterEncoding.ASCII));
+        assertTrue(file.setContents(null, CharacterEncoding.UTF_8));
 
         assertTrue(file.exists());
         assertEquals("", file.getContentsAsString());
@@ -613,7 +613,7 @@ public class FileTests
     {
         final File file = getFile();
 
-        assertTrue(file.setContents("", CharacterEncoding.ASCII));
+        assertTrue(file.setContents("", CharacterEncoding.UTF_8));
 
         assertTrue(file.exists());
         assertEquals("", file.getContentsAsString());
@@ -625,7 +625,7 @@ public class FileTests
         final File file = getFile();
         file.create();
 
-        assertTrue(file.setContents("", CharacterEncoding.ASCII));
+        assertTrue(file.setContents("", CharacterEncoding.UTF_8));
 
         assertTrue(file.exists());
         assertEquals("", file.getContentsAsString());
@@ -636,7 +636,7 @@ public class FileTests
     {
         final File file = getFile();
 
-        assertTrue(file.setContents("ABC", CharacterEncoding.ASCII));
+        assertTrue(file.setContents("ABC", CharacterEncoding.UTF_8));
 
         assertTrue(file.exists());
         assertEquals("ABC", file.getContentsAsString());
@@ -648,7 +648,7 @@ public class FileTests
         final File file = getFile();
         file.create();
 
-        assertTrue(file.setContents("ABC", CharacterEncoding.ASCII));
+        assertTrue(file.setContents("ABC", CharacterEncoding.UTF_8));
 
         assertTrue(file.exists());
         assertEquals("ABC", file.getContentsAsString());

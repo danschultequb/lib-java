@@ -296,104 +296,82 @@ public class ArrayTests extends IterableTests
         assertArrayEquals(new String[0], Array.toStringArray(new Array<String>(0)));
     }
 
-    @Test
-    public void cloneByteArrayWithNull()
+    private static void cloneTest(byte[] bytes)
     {
-        assertNull(Array.clone(null));
+        final byte[] clonedBytes = Array.clone(bytes);
+        if (bytes == null || bytes.length == 0)
+        {
+            assertSame(bytes, clonedBytes);
+        }
+        else
+        {
+            assertArrayEquals(bytes, clonedBytes);
+            assertNotSame(bytes, clonedBytes);
+        }
+    }
+
+    private static void cloneTest(byte[] bytes, int startIndex, int length, byte[] expectedBytes)
+    {
+        final byte[] clonedBytes = Array.clone(bytes, startIndex, length);
+        assertArrayEquals(expectedBytes, clonedBytes);
+    }
+
+    private static void cloneTest(char[] characters)
+    {
+        final char[] clonedCharacters = Array.clone(characters);
+        if (characters == null || characters.length == 0)
+        {
+            assertSame(characters, clonedCharacters);
+        }
+        else
+        {
+            assertArrayEquals(characters, clonedCharacters);
+            assertNotSame(characters, clonedCharacters);
+        }
+    }
+
+    private static void cloneTest(char[] characters, int startIndex, int length, char[] expectedCharacters)
+    {
+        final char[] clonedCharacters = Array.clone(characters, startIndex, length);
+        assertArrayEquals(expectedCharacters, clonedCharacters);
     }
 
     @Test
-    public void cloneByteArrayWithEmpty()
+    public void cloneArray()
     {
-        final byte[] byteArray = new byte[0];
-        assertSame(byteArray, Array.clone(byteArray));
-    }
+        cloneTest((byte[])null);
+        cloneTest(new byte[0]);
+        cloneTest(new byte[] { 0 });
+        cloneTest(new byte[] { 0, 1, 2, 3, 4 });
 
-    @Test
-    public void cloneByteArrayWithNonEmpty()
-    {
-        final byte[] byteArray = new byte[10];
-        final byte[] clonedByteArray = Array.clone(byteArray);
-        assertNotSame(byteArray, clonedByteArray);
-        assertArrayEquals(byteArray, clonedByteArray);
-    }
+        cloneTest((byte[])null, -1, -2, null);
+        cloneTest((byte[])null, -1, 0, null);
+        cloneTest((byte[])null, -1, 2, null);
+        cloneTest((byte[])null, 0, -2, null);
+        cloneTest((byte[])null, 0, 0, null);
+        cloneTest((byte[])null, 0, 2, null);
+        cloneTest((byte[])null, 1, -2, null);
+        cloneTest((byte[])null, 1, 0, null);
+        cloneTest((byte[])null, 1, 2, null);
+        cloneTest(new byte[] { 0, 1, 2 }, 0, 3, new byte[] { 0, 1, 2 });
+        cloneTest(new byte[] { 0, 1, 2 }, 1, 1, new byte[] { 1 });
 
-    @Test
-    public void cloneByteArrayIntWithNullByteArrayAndNegativeLength()
-    {
-        assertNull(Array.clone(null, 0, -5));
-    }
+        cloneTest((char[])null);
+        cloneTest(new char[0]);
+        cloneTest(new char[] { 'a' });
+        cloneTest(new char[] { 'a', 'b', 'c', 'd', 'e' });
 
-    @Test
-    public void cloneByteArrayIntWithNullByteArrayAndZeroLength()
-    {
-        assertNull(Array.clone(null, 0, 0));
-    }
-
-    @Test
-    public void cloneByteArrayIntWithNullByteArrayAndPostiveLength()
-    {
-        assertNull(Array.clone(null, 0, 5));
-    }
-
-    @Test
-    public void cloneByteArrayIntWithEmptyByteArrayAndNegativeLength()
-    {
-        final byte[] byteArray = new byte[0];
-        assertNull(Array.clone(byteArray, 0, -5));
-    }
-
-    @Test
-    public void cloneByteArrayIntWithEmptyByteArrayAndZeroLength()
-    {
-        final byte[] byteArray = new byte[0];
-        assertSame(byteArray, Array.clone(byteArray, 0, 0));
-    }
-
-    @Test
-    public void cloneByteArrayIntWithEmptyByteArrayAndPositiveLength()
-    {
-        final byte[] byteArray = new byte[0];
-        assertSame(byteArray, Array.clone(byteArray, 0, 10));
-    }
-
-    @Test
-    public void cloneByteArrayIntWithNonEmptyByteArrayAndNegativeLength()
-    {
-        final byte[] byteArray = new byte[10];
-        assertNull(Array.clone(byteArray, 0, -1));
-    }
-
-    @Test
-    public void cloneByteArrayIntWithNonEmptyByteArrayAndZeroLength()
-    {
-        final byte[] byteArray = new byte[10];
-        assertArrayEquals(new byte[0], Array.clone(byteArray, 0, 0));
-    }
-
-    @Test
-    public void cloneByteArrayIntWithNonEmptyByteArrayAndPositiveLengthLessThanByteArrayLength()
-    {
-        final byte[] byteArray = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-        assertArrayEquals(new byte[] { 0, 1, 2, 3 }, Array.clone(byteArray, 0, 4));
-    }
-
-    @Test
-    public void cloneByteArrayIntWithNonEmptyByteArrayAndPositiveLengthEqualToByteArrayLength()
-    {
-        final byte[] byteArray = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-        final byte[] clonedByteArray = Array.clone(byteArray, 0, byteArray.length);
-        assertNotSame(byteArray, clonedByteArray);
-        assertArrayEquals(byteArray, clonedByteArray);
-    }
-
-    @Test
-    public void cloneByteArrayIntWithNonEmptyByteArrayAndPositiveLengthGreaterThanByteArrayLength()
-    {
-        final byte[] byteArray = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-        final byte[] clonedByteArray = Array.clone(byteArray, 0, byteArray.length + 1);
-        assertNotSame(byteArray, clonedByteArray);
-        assertArrayEquals(byteArray, clonedByteArray);
+        cloneTest((char[])null, -1, -2, null);
+        cloneTest((char[])null, -1, 0, null);
+        cloneTest((char[])null, -1, 2, null);
+        cloneTest((char[])null, 0, -2, null);
+        cloneTest((char[])null, 0, 0, null);
+        cloneTest((char[])null, 0, 2, null);
+        cloneTest((char[])null, 1, -2, null);
+        cloneTest((char[])null, 1, 0, null);
+        cloneTest((char[])null, 1, 2, null);
+        cloneTest(new char[] { 'a', 'b', 'c' }, 0, 3, new char[] { 'a', 'b', 'c' });
+        cloneTest(new char[] { 'x', 'y', 'z' }, 1, 1, new char[] { 'y' });
     }
 
     @Test
@@ -634,9 +612,18 @@ public class ArrayTests extends IterableTests
         assertNotSame(copyFrom, copyTo);
     }
 
-    @Test
-    public void mergeByteArrayWithNull()
+    private static void copyTest(char[] copyFrom, int copyFromStartIndex, char[] copyTo, int copyToStartIndex, int copyLength, char[] expectedCopyTo)
     {
+        Array.copy(copyFrom, copyFromStartIndex, copyTo, copyToStartIndex, copyLength);
+        assertArrayEquals("copy()", expectedCopyTo, copyTo);
+    }
 
+    @Test
+    public void copy()
+    {
+        copyTest((char[])null, 0, (char[])null, 0, 0, (char[])null);
+        copyTest(new char[0], 0, new char[0], 0, 0, new char[0]);
+        copyTest(new char[] { 'a', 'b', 'c' }, 0, new char[] { '0', '1', '2' }, 0, 0, new char[] { '0', '1', '2' });
+        copyTest(new char[] { 'a', 'b', 'c' }, 0, new char[] { '0', '1', '2' }, 0, 2, new char[] { 'a', 'b', '2' });
     }
 }

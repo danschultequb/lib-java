@@ -1,5 +1,5 @@
 language: java
-script: mvn clean test jacoco:report coveralls:report
+script: mvn clean test
 git:
   depth: 1
 notifications:
