@@ -2088,7 +2088,7 @@ public abstract class FileSystemTests
         final FileSystem fileSystem = getFileSystem();
         fileSystem.createFile("/things.txt");
 
-        assertFalse(fileSystem.createFile("/things.txt", "ABC", CharacterEncoding.ASCII));
+        assertFalse(fileSystem.createFile("/things.txt", "ABC", CharacterEncoding.UTF_8));
 
         assertTrue(fileSystem.fileExists("/things.txt"));
         assertArrayEquals(new byte[0], fileSystem.getFileContents("/things.txt"));
@@ -2149,7 +2149,7 @@ public abstract class FileSystemTests
     {
         final FileSystem fileSystem = getFileSystem();
 
-        assertTrue(fileSystem.createFile("/things.txt", "ABC", CharacterEncoding.ASCII, null));
+        assertTrue(fileSystem.createFile("/things.txt", "ABC", CharacterEncoding.UTF_8, null));
 
         assertTrue(fileSystem.fileExists("/things.txt"));
         assertEquals("ABC", fileSystem.getFileContentsAsString("/things.txt"));
@@ -2247,7 +2247,7 @@ public abstract class FileSystemTests
     public void createFileWithNullPathAndStringContentsAndEncoding()
     {
         final FileSystem fileSystem = getFileSystem();
-        assertFalse(fileSystem.createFile((Path)null, "ABC", CharacterEncoding.ASCII));
+        assertFalse(fileSystem.createFile((Path)null, "ABC", CharacterEncoding.UTF_8));
     }
 
     @Test
@@ -3344,7 +3344,7 @@ public abstract class FileSystemTests
     public void getFileContentsAsStringWithExistingRootPathStringWithContents()
     {
         final FileSystem fileSystem = getFileSystem();
-        fileSystem.createFile("/file.txt", CharacterEncoding.ASCII.encode("Hello there!"));
+        fileSystem.createFile("/file.txt", CharacterEncoding.UTF_8.encode("Hello there!"));
         assertEquals("Hello there!", fileSystem.getFileContentsAsString("/file.txt"));
     }
 
@@ -3388,7 +3388,7 @@ public abstract class FileSystemTests
     public void getFileContentsAsStringWithNullEncodingAndExistingRootPathStringWithContents()
     {
         final FileSystem fileSystem = getFileSystem();
-        fileSystem.createFile("/file.txt", CharacterEncoding.ASCII.encode("Hello there!"));
+        fileSystem.createFile("/file.txt", CharacterEncoding.UTF_8.encode("Hello there!"));
         assertNull(fileSystem.getFileContentsAsString("/file.txt", null));
     }
 
@@ -3745,7 +3745,7 @@ public abstract class FileSystemTests
         final FileSystem fileSystem = getFileSystem();
         fileSystem.createFile("/folder/file.csv", "ab\ncd\r\ne\nf\n");
 
-        assertArrayEquals(new String[] { "ab", "cd", "e", "f" }, Array.toStringArray(fileSystem.getFileContentLines("/folder/file.csv", false, CharacterEncoding.ASCII)));
+        assertArrayEquals(new String[] { "ab", "cd", "e", "f" }, Array.toStringArray(fileSystem.getFileContentLines("/folder/file.csv", false, CharacterEncoding.UTF_8)));
     }
 
     @Test
@@ -3812,7 +3812,7 @@ public abstract class FileSystemTests
     {
         final FileSystem fileSystem = getFileSystem();
 
-        assertNull(fileSystem.getFileContentLines((String)null, CharacterEncoding.ASCII));
+        assertNull(fileSystem.getFileContentLines((String)null, CharacterEncoding.UTF_8));
     }
 
     @Test
@@ -3820,7 +3820,7 @@ public abstract class FileSystemTests
     {
         final FileSystem fileSystem = getFileSystem();
 
-        assertNull(fileSystem.getFileContentLines("", CharacterEncoding.ASCII));
+        assertNull(fileSystem.getFileContentLines("", CharacterEncoding.UTF_8));
     }
 
     @Test
@@ -3828,7 +3828,7 @@ public abstract class FileSystemTests
     {
         final FileSystem fileSystem = getFileSystem();
 
-        assertNull(fileSystem.getFileContentLines("relative/file.txt", CharacterEncoding.ASCII));
+        assertNull(fileSystem.getFileContentLines("relative/file.txt", CharacterEncoding.UTF_8));
     }
 
     @Test
@@ -3836,7 +3836,7 @@ public abstract class FileSystemTests
     {
         final FileSystem fileSystem = getFileSystem();
 
-        assertNull(fileSystem.getFileContentLines("/folder/file.csv", CharacterEncoding.ASCII));
+        assertNull(fileSystem.getFileContentLines("/folder/file.csv", CharacterEncoding.UTF_8));
     }
 
     @Test
@@ -3845,7 +3845,7 @@ public abstract class FileSystemTests
         final FileSystem fileSystem = getFileSystem();
         fileSystem.createFile("/folder/file.csv");
 
-        assertArrayEquals(new String[0], Array.toStringArray(fileSystem.getFileContentLines("/folder/file.csv", CharacterEncoding.ASCII)));
+        assertArrayEquals(new String[0], Array.toStringArray(fileSystem.getFileContentLines("/folder/file.csv", CharacterEncoding.UTF_8)));
     }
 
     @Test
@@ -3854,7 +3854,7 @@ public abstract class FileSystemTests
         final FileSystem fileSystem = getFileSystem();
         fileSystem.createFile("/folder/file.csv", "abcdef");
 
-        assertArrayEquals(new String[] { "abcdef" }, Array.toStringArray(fileSystem.getFileContentLines("/folder/file.csv", CharacterEncoding.ASCII)));
+        assertArrayEquals(new String[] { "abcdef" }, Array.toStringArray(fileSystem.getFileContentLines("/folder/file.csv", CharacterEncoding.UTF_8)));
     }
 
     @Test
@@ -3863,7 +3863,7 @@ public abstract class FileSystemTests
         final FileSystem fileSystem = getFileSystem();
         fileSystem.createFile("/folder/file.csv", "ab\ncd\r\ne\nf\n");
 
-        assertArrayEquals(new String[] { "ab\n", "cd\r\n", "e\n", "f\n" }, Array.toStringArray(fileSystem.getFileContentLines("/folder/file.csv", CharacterEncoding.ASCII)));
+        assertArrayEquals(new String[] { "ab\n", "cd\r\n", "e\n", "f\n" }, Array.toStringArray(fileSystem.getFileContentLines("/folder/file.csv", CharacterEncoding.UTF_8)));
     }
 
     @Test
@@ -3871,7 +3871,7 @@ public abstract class FileSystemTests
     {
         final FileSystem fileSystem = getFileSystem();
 
-        assertNull(fileSystem.getFileContentLines((Path)null, CharacterEncoding.ASCII));
+        assertNull(fileSystem.getFileContentLines((Path)null, CharacterEncoding.UTF_8));
     }
 
     @Test
@@ -3879,7 +3879,7 @@ public abstract class FileSystemTests
     {
         final FileSystem fileSystem = getFileSystem();
 
-        assertNull(fileSystem.getFileContentLines(Path.parse(""), CharacterEncoding.ASCII));
+        assertNull(fileSystem.getFileContentLines(Path.parse(""), CharacterEncoding.UTF_8));
     }
 
     @Test
@@ -3887,7 +3887,7 @@ public abstract class FileSystemTests
     {
         final FileSystem fileSystem = getFileSystem();
 
-        assertNull(fileSystem.getFileContentLines(Path.parse("relative/file.txt"), CharacterEncoding.ASCII));
+        assertNull(fileSystem.getFileContentLines(Path.parse("relative/file.txt"), CharacterEncoding.UTF_8));
     }
 
     @Test
@@ -3895,7 +3895,7 @@ public abstract class FileSystemTests
     {
         final FileSystem fileSystem = getFileSystem();
 
-        assertNull(fileSystem.getFileContentLines(Path.parse("/folder/file.csv"), CharacterEncoding.ASCII));
+        assertNull(fileSystem.getFileContentLines(Path.parse("/folder/file.csv"), CharacterEncoding.UTF_8));
     }
 
     @Test
@@ -3904,7 +3904,7 @@ public abstract class FileSystemTests
         final FileSystem fileSystem = getFileSystem();
         fileSystem.createFile("/folder/file.csv");
 
-        assertArrayEquals(new String[0], Array.toStringArray(fileSystem.getFileContentLines(Path.parse("/folder/file.csv"), CharacterEncoding.ASCII)));
+        assertArrayEquals(new String[0], Array.toStringArray(fileSystem.getFileContentLines(Path.parse("/folder/file.csv"), CharacterEncoding.UTF_8)));
     }
 
     @Test
@@ -3913,7 +3913,7 @@ public abstract class FileSystemTests
         final FileSystem fileSystem = getFileSystem();
         fileSystem.createFile("/folder/file.csv", "abcdef");
 
-        assertArrayEquals(new String[] { "abcdef" }, Array.toStringArray(fileSystem.getFileContentLines(Path.parse("/folder/file.csv"), CharacterEncoding.ASCII)));
+        assertArrayEquals(new String[] { "abcdef" }, Array.toStringArray(fileSystem.getFileContentLines(Path.parse("/folder/file.csv"), CharacterEncoding.UTF_8)));
     }
 
     @Test
@@ -3922,7 +3922,11 @@ public abstract class FileSystemTests
         final FileSystem fileSystem = getFileSystem();
         fileSystem.createFile("/folder/file.csv", "ab\ncd\r\ne\nf\n");
 
-        assertArrayEquals(new String[] { "ab\n", "cd\r\n", "e\n", "f\n" }, Array.toStringArray(fileSystem.getFileContentLines(Path.parse("/folder/file.csv"), CharacterEncoding.ASCII)));
+        final String[] expected = new String[] { "ab\n", "cd\r\n", "e\n", "f\n" };
+        final Path filePath = Path.parse("/folder/file.csv");
+        final Iterable<String> fileLines = fileSystem.getFileContentLines(filePath, CharacterEncoding.UTF_8);
+        final String[] actual = Array.toStringArray(fileLines);
+        assertArrayEquals(expected, actual);
     }
 
     @Test

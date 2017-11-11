@@ -71,4 +71,61 @@ public class InMemoryByteWriteStreamTests
         byteWriteStream.clear();
         assertArrayEquals(new byte[0], byteWriteStream.getBytes());
     }
+
+    @Test
+    public void asCharacterWriteStream()
+    {
+        final InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
+        final CharacterWriteStream characterWriteStream = byteWriteStream.asCharacterWriteStream();
+        assertNotNull(characterWriteStream);
+        assertSame(byteWriteStream, characterWriteStream.asByteWriteStream());
+    }
+
+    @Test
+    public void asCharacterWriteStreamWithEncoding()
+    {
+        final InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
+        final CharacterWriteStream characterWriteStream = byteWriteStream.asCharacterWriteStream(CharacterEncoding.US_ASCII);
+        assertNotNull(characterWriteStream);
+        assertSame(byteWriteStream, characterWriteStream.asByteWriteStream());
+    }
+
+    @Test
+    public void asLineWriteStream()
+    {
+        final InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
+        final LineWriteStream lineWriteStream = byteWriteStream.asLineWriteStream();
+        assertNotNull(lineWriteStream);
+        assertSame(byteWriteStream, lineWriteStream.asByteWriteStream());
+    }
+
+    @Test
+    public void asLineWriteStreamWithEncoding()
+    {
+        final InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
+        final LineWriteStream lineWriteStream = byteWriteStream.asLineWriteStream(CharacterEncoding.US_ASCII);
+        assertNotNull(lineWriteStream);
+        assertSame(byteWriteStream, lineWriteStream.asByteWriteStream());
+    }
+
+    @Test
+    public void asLineWriteStreamWithLineSeparator()
+    {
+        final InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
+        final LineWriteStream lineWriteStream = byteWriteStream.asLineWriteStream("\r\n");
+        assertNotNull(lineWriteStream);
+        assertEquals("\r\n", lineWriteStream.getLineSeparator());
+        assertSame(byteWriteStream, lineWriteStream.asByteWriteStream());
+    }
+
+    @Test
+    public void asLineWriteStreamWithEncodingAndLineSeparator()
+    {
+        final InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
+        final LineWriteStream lineWriteStream = byteWriteStream.asLineWriteStream(CharacterEncoding.US_ASCII, "\r\n");
+        assertNotNull(lineWriteStream);
+        assertSame(CharacterEncoding.US_ASCII, lineWriteStream.getCharacterEncoding());
+        assertEquals("\r\n", lineWriteStream.getLineSeparator());
+        assertSame(byteWriteStream, lineWriteStream.asByteWriteStream());
+    }
 }

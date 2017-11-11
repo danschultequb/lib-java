@@ -567,7 +567,7 @@ public interface FileSystem
     /**
      * Read the contents of the file at the provided rootedFilePath. If no file exists at the
      * provided rootedFilePath, then null will be returned.
-     * @param rootedFilePath The rooted file path of the file to read.
+     * @param rootedFilePath The rooted file path of the file to readByte.
      * @return The contents of the file at the provided rootedFilePath, or null if no file exists at
      * the provided rootedFilePath.
      */
@@ -576,7 +576,7 @@ public interface FileSystem
     /**
      * Read the contents of the file at the provided rootedFilePath. If no file exists at the
      * provided rootedFilePath, then null will be returned.
-     * @param rootedFilePath The rooted file path of the file to read.
+     * @param rootedFilePath The rooted file path of the file to readByte.
      * @return The contents of the file at the provided rootedFilePath, or null if no file exists at
      * the provided rootedFilePath.
      */
@@ -585,7 +585,7 @@ public interface FileSystem
     /**
      * Read the contents of the file at the provided rootedFilePath. If no file exists at the
      * provided rootedFilePath, then null will be returned.
-     * @param rootedFilePath The rooted file path of the file to read.
+     * @param rootedFilePath The rooted file path of the file to readByte.
      * @return The contents of the file at the provided rootedFilePath, or null if no file exists at
      * the provided rootedFilePath.
      */
@@ -594,7 +594,7 @@ public interface FileSystem
     /**
      * Read the contents of the file at the provided rootedFilePath. If no file exists at the
      * provided rootedFilePath, then null will be returned.
-     * @param rootedFilePath The rooted file path of the file to read.
+     * @param rootedFilePath The rooted file path of the file to readByte.
      * @return The contents of the file at the provided rootedFilePath, or null if no file exists at
      * the provided rootedFilePath.
      */
@@ -603,7 +603,7 @@ public interface FileSystem
     /**
      * Read the contents of the file at the provided rootedFilePath. If no file exists at the
      * provided rootedFilePath, then null will be returned.
-     * @param rootedFilePath The rooted file path of the file to read.
+     * @param rootedFilePath The rooted file path of the file to readByte.
      * @return The contents of the file at the provided rootedFilePath, or null if no file exists at
      * the provided rootedFilePath.
      */
@@ -612,7 +612,7 @@ public interface FileSystem
     /**
      * Read the contents of the file at the provided rootedFilePath. If no file exists at the
      * provided rootedFilePath, then null will be returned.
-     * @param rootedFilePath The rooted file path of the file to read.
+     * @param rootedFilePath The rooted file path of the file to readByte.
      * @return The contents of the file at the provided rootedFilePath, or null if no file exists at
      * the provided rootedFilePath.
      */
@@ -621,7 +621,7 @@ public interface FileSystem
     /**
      * Read the contents of the file at the provided rootedFilePath as a sequence of byte[]. If no
      * file exists at the provided rootedFilePath, then null will be returned.
-     * @param rootedFilePath The rooted file path of the file to read.
+     * @param rootedFilePath The rooted file path of the file to readByte.
      * @return The contents of the file at the provided rootedFilePath as a sequence of byte[], or
      * null if no file exists at the provided rootedFilePath.
      */
@@ -630,7 +630,7 @@ public interface FileSystem
     /**
      * Read the contents of the file at the provided rootedFilePath as a sequence of byte[]. If no
      * file exists at the provided rootedFilePath, then null will be returned.
-     * @param rootedFilePath The rooted file path of the file to read.
+     * @param rootedFilePath The rooted file path of the file to readByte.
      * @return The contents of the file at the provided rootedFilePath as a sequence of byte[], or
      * null if no file exists at the provided rootedFilePath.
      */

@@ -1,33 +1,25 @@
 package qub;
 
+import java.io.IOException;
+
 /**
  * An interface for writing bytes to a stream.
  */
-public interface ByteWriteStream
+public interface ByteWriteStream extends Stream
 {
-    /**
-     * Get whether or not this stream is open.
-     * @return Whether or not this stream is open.
-     */
-    boolean isOpen();
-
-    /**
-     * Close this stream and return whether or not the stream was closed as a result of this call.
-     * @return Whether or not the stream was closed as a result of this call.
-     */
-    boolean close();
+    void setExceptionHandler(Action1<IOException> exceptionHandler);
 
     /**
      * Write the provided byte to this ByteWriteStream.
      * @param toWrite The byte to write to this stream.
      */
-    void write(byte toWrite);
+    boolean write(byte toWrite);
 
     /**
      * Write the provided bytes to this ByteWriteStream.
      * @param toWrite The bytes to write to this stream.
      */
-    void write(byte[] toWrite);
+    boolean write(byte[] toWrite);
 
     /**
      * Write the provided subsection of bytes to this ByteWriteStream.
@@ -35,5 +27,52 @@ public interface ByteWriteStream
      * @param startIndex The start index of the subsection inside toWrite to write.
      * @param length The number of bytes to write.
      */
-    void write(byte[] toWrite, int startIndex, int length);
+    boolean write(byte[] toWrite, int startIndex, int length);
+
+    /**
+     * Convert this ByteWriteStream to a CharacterWriteStream that uses UTF-8 for its character
+     * encoding.
+     * @return A CharacterWriteStream that wraps around this ByteWriteStream.
+     */
+    CharacterWriteStream asCharacterWriteStream();
+
+    /**
+     * Convert this ByteWriteStream to a CharacterWriteStream that uses the provided character
+     * encoding.
+     * @param encoding The encoding to use to convert characters to bytes.
+     * @return A CharacterWriteStream that wraps around this ByteWriteStream.
+     */
+    CharacterWriteStream asCharacterWriteStream(CharacterEncoding encoding);
+
+    /**
+     * Convert this ByteWriteStream to a LineWriteStream that uses UTF-8 for its character
+     * encoding and '\n' as its line separator.
+     * @return A LineWriteStream that wraps around this ByteWriteStream.
+     */
+    LineWriteStream asLineWriteStream();
+
+    /**
+     * Convert this ByteWriteStream to a LineWriteStream that uses the provided character encoding
+     * and '\n' as its line separator.
+     * @param encoding The encoding to use to convert characters to bytes.
+     * @return A LineWriteStream that wraps around this ByteWriteStream.
+     */
+    LineWriteStream asLineWriteStream(CharacterEncoding encoding);
+
+    /**
+     * Convert this ByteWriteStream to a LineWriteStream that uses UTF-8 for its character
+     * encoding and the provided line separator.
+     * @param lineSeparator The separator to insert between lines.
+     * @return A LineWriteStream that wraps around this ByteWriteStream.
+     */
+    LineWriteStream asLineWriteStream(String lineSeparator);
+
+    /**
+     * Convert this ByteWriteStream to a LineWriteStream that uses the provided character encoding
+     * and the provided line separator.
+     * @param encoding The encoding to use to convert characters to bytes.
+     * @param lineSeparator The separator to insert between lines.
+     * @return A LineWriteStream that wraps around this ByteWriteStream.
+     */
+    LineWriteStream asLineWriteStream(CharacterEncoding encoding, String lineSeparator);
 }

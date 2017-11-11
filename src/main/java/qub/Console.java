@@ -1,17 +1,21 @@
 package qub;
 
-import java.io.IOException;
 import java.nio.file.Paths;
 
 /**
  * A Console platform that can be used to write Console applications.
  */
-public class Console implements TextWriteStream, TextReadStream
+public class Console
 {
     private final CommandLine commandLine;
 
-    private final Value<TextWriteStream> writeStream;
-    private final Value<TextReadStream> readStream;
+    private final Value<CharacterEncoding> characterEncoding;
+    private final Value<String> lineSeparator;
+    private final Value<Boolean> includeNewLines;
+    private final Value<ByteWriteStream> writeStream;
+    private final Value<ByteReadStream> byteReadStream;
+    private final Value<CharacterReadStream> characterReadStream;
+    private final Value<LineReadStream> lineReadStream;
     private final Value<Random> random;
     private final Value<FileSystem> fileSystem;
     private final Value<String> currentFolderPathString;
@@ -34,8 +38,13 @@ public class Console implements TextWriteStream, TextReadStream
     {
         this.commandLine = new CommandLine(commandLineArgumentStrings);
 
+        characterEncoding = new Value<>();
+        lineSeparator = new Value<>();
+        includeNewLines = new Value<>();
         writeStream = new Value<>();
-        readStream = new Value<>();
+        byteReadStream = new Value<>();
+        characterReadStream = new Value<>();
+        lineReadStream = new Value<>();
         random = new Value<>();
         fileSystem = new Value<>();
         currentFolderPathString = new Value<>();
@@ -56,11 +65,65 @@ public class Console implements TextWriteStream, TextReadStream
         return commandLine;
     }
 
+    public void setCharacterEncoding(CharacterEncoding characterEncoding)
+    {
+        this.characterEncoding.set(characterEncoding);
+    }
+
+    public String readLine()
+    {
+        final LineReadStream lineReadStream = asLineReadStream();
+        return lineReadStream.readLine();
+    }
+
+    public String readLine(boolean includeNewLine)
+    {
+        final LineReadStream lineReadStream = asLineReadStream();
+        return lineReadStream.readLine(includeNewLine);
+    }
+
+    public CharacterEncoding getCharacterEncoding()
+    {
+        if (!characterEncoding.hasValue())
+        {
+            characterEncoding.set(CharacterEncoding.UTF_8);
+        }
+        return characterEncoding.get();
+    }
+
+    public void setLineSeparator(String lineSeparator)
+    {
+        this.lineSeparator.set(lineSeparator);
+    }
+
+    public String getLineSeparator()
+    {
+        if (!lineSeparator.hasValue())
+        {
+            lineSeparator.set("\n");
+        }
+        return lineSeparator.get();
+    }
+
+    public void setIncludeNewLines(boolean includeNewLines)
+    {
+        this.includeNewLines.set(includeNewLines);
+    }
+
+    public boolean getIncludeNewLines()
+    {
+        if (!includeNewLines.hasValue())
+        {
+            includeNewLines.set(false);
+        }
+        return includeNewLines.get();
+    }
+
     /**
      * Set the TextWriteStream that is assigned to this Console.
      * @param writeStream The TextWriteStream that is assigned to this Console.
      */
-    public void setWriteStream(TextWriteStream writeStream)
+    public void setByteWriteStream(ByteWriteStream writeStream)
     {
         this.writeStream.set(writeStream);
     }
@@ -69,230 +132,181 @@ public class Console implements TextWriteStream, TextReadStream
      * Get the TextWriteStream that is assigned to this Console.
      * @return
      */
-    TextWriteStream getWriteStream()
+    public ByteWriteStream asByteWriteStream()
     {
         if (!writeStream.hasValue())
         {
-            writeStream.set(new StandardOutputTextWriteStream());
+            writeStream.set(new OutputStreamToByteWriteStream(System.out));
         }
         return writeStream.get();
     }
 
-    /**
-     * Set the TextReadStream that is assigned to this Console.
-     * @param readStream The TextReadStream that is assigned to this Console.
-     */
-    public void setReadStream(TextReadStream readStream)
+    public void setCharacterWriteStream(CharacterWriteStream writeStream)
     {
-        this.readStream.set(readStream);
+        setByteWriteStream(writeStream == null ? null : writeStream.asByteWriteStream());
+    }
+
+    public CharacterWriteStream asCharacterWriteStream()
+    {
+        return ByteWriteStreamBase.asCharacterWriteStream(asByteWriteStream(), getCharacterEncoding());
+    }
+
+    public void setLineWriteStream(LineWriteStream writeStream)
+    {
+        setCharacterWriteStream(writeStream == null ? null : writeStream.asCharacterWriteStream());
+    }
+
+    public LineWriteStream asLineWriteStream()
+    {
+        return ByteWriteStreamBase.asLineWriteStream(asByteWriteStream(), getCharacterEncoding(), getLineSeparator());
+    }
+
+    /**
+     * Set the ByteReadStream that is assigned to this Console.
+     * @param readStream The ByteReadStream that is assigned to this Console.
+     */
+    public void setByteReadStream(ByteReadStream readStream)
+    {
+        setLineReadStream(ByteReadStreamBase.asLineReadStream(readStream, getCharacterEncoding(), getIncludeNewLines()));
+    }
+
+    /**
+     * Set the CharacterReadStream that is assigned to this Console.
+     * @param readStream The CharacterReadStream that is assigned to this Console.
+     */
+    public void setCharacterReadStream(CharacterReadStream readStream)
+    {
+        setLineReadStream(CharacterReadStreamBase.asLineReadStream(readStream, getIncludeNewLines()));
+    }
+
+    /**
+     * Set the LineReadStream that is assigned to this Console.
+     * @param readStream The LineReadStream that is assigned to this Console.
+     */
+    public void setLineReadStream(LineReadStream readStream)
+    {
+        lineReadStream.set(readStream);
+        characterReadStream.set(readStream == null ? null : readStream.asCharacterReadStream());
+        byteReadStream.set(readStream == null ? null : readStream.asByteReadStream());
     }
 
     /**
      * Get the TextReadStream that is assigned to this Console.
      * @return The TextReadStream that is assigned to this Console.
      */
-    TextReadStream getReadStream()
+    public ByteReadStream asByteReadStream()
     {
-        if (!readStream.hasValue())
+        if (!byteReadStream.hasValue())
         {
-            readStream.set(new StandardInputTextReadStream());
+            setByteReadStream(new InputStreamToByteReadStream(System.in));
         }
-        return readStream.get();
+        return byteReadStream.get();
     }
 
-    @Override
-    public boolean isOpen()
+    public CharacterReadStream asCharacterReadStream()
     {
-        return true;
+        if (!characterReadStream.hasValue())
+        {
+            asByteReadStream();
+        }
+        return characterReadStream.get();
     }
 
-    @Override
-    public boolean close()
+    public LineReadStream asLineReadStream()
     {
-        return false;
+        if (!lineReadStream.hasValue())
+        {
+            asByteReadStream();
+        }
+        return lineReadStream.get();
     }
 
-    @Override
-    public void write(byte toWrite)
+    public boolean write(byte toWrite)
     {
-        final TextWriteStream writeStream = getWriteStream();
+        boolean result = false;
+
+        final ByteWriteStream writeStream = asByteWriteStream();
         if (writeStream != null)
         {
-            writeStream.write(toWrite);
+            result = writeStream.write(toWrite);
         }
+
+        return result;
     }
 
-    @Override
-    public void write(byte[] toWrite)
+    public boolean write(byte[] toWrite)
     {
-        final TextWriteStream writeStream = getWriteStream();
+        boolean result = false;
+
+        final ByteWriteStream writeStream = asByteWriteStream();
         if (writeStream != null)
         {
-            writeStream.write(toWrite);
+            result = writeStream.write(toWrite);
         }
+
+        return result;
     }
 
-    @Override
-    public void write(byte[] toWrite, int startIndex, int length)
+    public boolean write(byte[] toWrite, int startIndex, int length)
     {
-        final TextWriteStream writeStream = getWriteStream();
+        boolean result = false;
+
+        final ByteWriteStream writeStream = asByteWriteStream();
         if (writeStream != null)
         {
-            writeStream.write(toWrite, startIndex, length);
+            result = writeStream.write(toWrite, startIndex, length);
         }
+
+        return result;
     }
 
-    @Override
-    public void write(String toWrite)
+    public boolean write(char toWrite)
     {
-        final TextWriteStream writeStream = getWriteStream();
+        boolean result = false;
+
+        final CharacterWriteStream writeStream = asCharacterWriteStream();
         if (writeStream != null)
         {
-            writeStream.write(toWrite);
+            result = writeStream.write(toWrite);
         }
+
+        return result;
     }
 
-    @Override
-    public void writeLine()
+    public boolean write(String toWrite)
     {
-        final TextWriteStream writeStream = getWriteStream();
+        boolean result = false;
+
+        final CharacterWriteStream writeStream = asCharacterWriteStream();
         if (writeStream != null)
         {
-            writeStream.writeLine();
+            result = writeStream.write(toWrite);
         }
+
+        return result;
     }
 
-    @Override
-    public void writeLine(String toWrite)
+    public boolean writeLine()
     {
-        final TextWriteStream writeStream = getWriteStream();
+        boolean result = false;
+
+        final LineWriteStream writeStream = asLineWriteStream();
+        if (writeStream != null)
+        {
+            result = writeStream.writeLine();
+        }
+
+        return result;
+    }
+
+    public boolean writeLine(String toWrite)
+    {
+        boolean result = false;
+
+        final LineWriteStream writeStream = asLineWriteStream();
         if (writeStream != null)
         {
             writeStream.writeLine(toWrite);
-        }
-    }
-
-    @Override
-    public byte[] readBytes(int bytesToRead) throws IOException
-    {
-        byte[] result = null;
-
-        final TextReadStream readStream = getReadStream();
-        if (readStream != null)
-        {
-            result = readStream.readBytes(bytesToRead);
-        }
-
-        return result;
-    }
-
-    @Override
-    public int readBytes(byte[] output) throws IOException
-    {
-        int result = -1;
-
-        final TextReadStream readStream = getReadStream();
-        if (readStream != null)
-        {
-            result = readStream.readBytes(output);
-        }
-
-        return result;
-    }
-
-    @Override
-    public int readBytes(byte[] output, int startIndex, int length) throws IOException
-    {
-        int result = -1;
-
-        final TextReadStream readStream = getReadStream();
-        if (readStream != null)
-        {
-            result = readStream.readBytes(output, startIndex, length);
-        }
-
-        return result;
-    }
-
-    @Override
-    public char[] readCharacters(int charactersToRead) throws IOException
-    {
-        char[] result = null;
-
-        final TextReadStream readStream = getReadStream();
-        if (readStream != null)
-        {
-            result = readStream.readCharacters(charactersToRead);
-        }
-
-        return result;
-    }
-
-    @Override
-    public int readCharacters(char[] output) throws IOException
-    {
-        int result = -1;
-
-        final TextReadStream readStream = getReadStream();
-        if (readStream != null)
-        {
-            result = readStream.readCharacters(output);
-        }
-
-        return result;
-    }
-
-    @Override
-    public int readCharacters(char[] output, int startIndex, int length) throws IOException
-    {
-        int result = -1;
-
-        final TextReadStream readStream = getReadStream();
-        if (readStream != null)
-        {
-            result = readStream.readCharacters(output, startIndex, length);
-        }
-
-        return result;
-    }
-
-    @Override
-    public String readString(int stringLength) throws IOException
-    {
-        String result = null;
-
-        final TextReadStream readStream = getReadStream();
-        if (readStream != null)
-        {
-            result = readStream.readString(stringLength);
-        }
-
-        return result;
-    }
-
-    @Override
-    public String readLine() throws IOException
-    {
-        String result = null;
-
-        final TextReadStream readStream = getReadStream();
-        if (readStream != null)
-        {
-            result = readStream.readLine();
-        }
-
-        return result;
-    }
-
-    @Override
-    public String readLine(boolean includeNewLineInLine) throws IOException
-    {
-        String result = null;
-
-        final TextReadStream readStream = getReadStream();
-        if (readStream != null)
-        {
-            result = readStream.readLine(includeNewLineInLine);
         }
 
         return result;
