@@ -3,6 +3,14 @@ package qub;
 public abstract class IteratorBase<T> implements Iterator<T>
 {
     @Override
+    public T takeCurrent()
+    {
+        final T current = getCurrent();
+        next();
+        return current;
+    }
+
+    @Override
     public boolean any()
     {
         return hasCurrent() || next();

@@ -9,7 +9,7 @@ public class LexTests
     public void constructor()
     {
         final Lex lex = new Lex("LexText", 20, Lex.Type.Letters);
-        assertEquals("LexText", lex.getText());
+        assertEquals("LexText", lex.toString());
         assertEquals(20, lex.getStartIndex());
         assertEquals(Lex.Type.Letters, lex.getType());
     }
@@ -477,7 +477,7 @@ public class LexTests
     private static void assertLex(Lex lex, String text, int startIndex, Lex.Type type)
     {
         assertNotNull(lex);
-        assertEquals(text, lex.getText());
+        assertEquals(text, lex.toString());
         assertEquals(startIndex, lex.getStartIndex());
         assertEquals(type, lex.getType());
     }

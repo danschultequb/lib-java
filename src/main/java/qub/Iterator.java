@@ -31,6 +31,12 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     boolean next();
 
     /**
+     * Return the current value for this Iterator and advance this Iterator to the next value.
+     * @return The current value for this Iterator.
+     */
+    T takeCurrent();
+
+    /**
      * Get whether or not this Iterator contains any values. This function may move this Iterator
      * forward one position, but it can be called multiple times without consuming any of the
      * values in this Iterator.
