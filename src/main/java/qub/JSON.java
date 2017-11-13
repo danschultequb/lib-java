@@ -60,6 +60,20 @@ public class JSON
             return type;
         }
 
+        @Override
+        public boolean equals(Object rhs)
+        {
+            return rhs instanceof Token && equals((Token)rhs);
+        }
+
+        public boolean equals(Token rhs)
+        {
+            return rhs != null &&
+                    text.equals(rhs.text) &&
+                    startIndex == rhs.startIndex &&
+                    type == rhs.type;
+        }
+
         public enum Type
         {
             LeftCurlyBracket,
@@ -110,19 +124,19 @@ public class JSON
             return new Token(",", startIndex, Type.Comma);
         }
 
-        public static Token trueToken(int startIndex)
+        public static Token trueToken(String text, int startIndex)
         {
-            return new Token("true", startIndex, Type.True);
+            return new Token(text, startIndex, Type.True);
         }
 
-        public static Token falseToken(int startIndex)
+        public static Token falseToken(String text, int startIndex)
         {
-            return new Token("false", startIndex, Type.False);
+            return new Token(text, startIndex, Type.False);
         }
 
-        public static Token nullToken(int startIndex)
+        public static Token nullToken(String text, int startIndex)
         {
-            return new Token("null", startIndex, Type.Null);
+            return new Token(text, startIndex, Type.Null);
         }
 
         public static Token newLine(String text, int startIndex)
@@ -181,31 +195,48 @@ public class JSON
     public static class Tokenizer extends IteratorBase<Token>
     {
         private final Lexer lexer;
-        private final List<Issue> issues;
+        private final Action1<Issue> onIssue;
         private boolean hasStarted;
         private Token current;
 
         public Tokenizer(String text)
         {
-            this(new StringIterator(text));
+            this(text, (List<Issue>)null);
         }
 
-        public Tokenizer(Iterator<Character> characters)
+        public Tokenizer(String text, final List<Issue> issues)
         {
-            this(new Lexer(characters));
+            this(text, issues == null ? null : new Action1<Issue>()
+            {
+                @Override
+                public void run(Issue issue)
+                {
+                    issues.add(issue);
+                }
+            });
         }
 
-        public Tokenizer(Lexer lexer)
+        public Tokenizer(String text, Action1<Issue> onIssue)
+        {
+            this(new StringIterator(text), onIssue);
+        }
+
+        public Tokenizer(Iterator<Character> characters, Action1<Issue> onIssue)
+        {
+            this(new Lexer(characters), onIssue);
+        }
+
+        public Tokenizer(Lexer lexer, Action1<Issue> onIssue)
         {
             this.lexer = lexer;
-            this.issues = null;
+            this.onIssue = onIssue;
         }
 
         private void addIssue(Issue issue)
         {
-            if (issues != null)
+            if (onIssue != null)
             {
-                issues.add(issue);
+                onIssue.run(issue);
             }
         }
 
@@ -276,18 +307,30 @@ public class JSON
                         break;
 
                     case Letters:
-                        switch (lexer.getCurrent().toString())
+                        switch (lexer.getCurrent().toString().toLowerCase())
                         {
                             case "true":
-                                current = Token.trueToken(tokenStartIndex);
+                                if (!lexer.getCurrent().toString().equals("true"))
+                                {
+                                    addIssue(Issues.shouldBeLowercased(tokenStartIndex, 4));
+                                }
+                                current = Token.trueToken(lexer.getCurrent().toString(), tokenStartIndex);
                                 break;
 
                             case "false":
-                                current = Token.falseToken(tokenStartIndex);
+                                if (!lexer.getCurrent().toString().equals("false"))
+                                {
+                                    addIssue(Issues.shouldBeLowercased(tokenStartIndex, 5));
+                                }
+                                current = Token.falseToken(lexer.getCurrent().toString(), tokenStartIndex);
                                 break;
 
                             case "null":
-                                current = Token.nullToken(tokenStartIndex);
+                                if (!lexer.getCurrent().toString().equals("null"))
+                                {
+                                    addIssue(Issues.shouldBeLowercased(tokenStartIndex, 4));
+                                }
+                                current = Token.nullToken(lexer.getCurrent().toString(), tokenStartIndex);
                                 break;
 
                             default:
@@ -342,6 +385,7 @@ public class JSON
                         break;
 
                     case NewLine:
+                    case CarriageReturnNewLine:
                         current = Token.newLine(lexer.takeCurrent().toString(), tokenStartIndex);
                         break;
 
@@ -381,7 +425,7 @@ public class JSON
                             }
                             else if (lexer.getCurrent().getType() != Lex.Type.Digits)
                             {
-                                addIssue(Issues.expectedFractionalNumberDigits(decimalPointStartIndex, lexer.getCurrent().getLength()));
+                                addIssue(Issues.expectedFractionalNumberDigits(lexer.getCurrent().getStartIndex(), lexer.getCurrent().getLength()));
                             }
                             else
                             {
@@ -396,7 +440,7 @@ public class JSON
                             final int eStartIndex = tokenStartIndex + numberText.length();
                             if (lexer.getCurrent().toString().equals("E"))
                             {
-                                addIssue(Issues.shouldBeLowercasedE(eStartIndex, 1));
+                                addIssue(Issues.shouldBeLowercased(eStartIndex, 1));
                             }
                             numberText.append(lexer.takeCurrent().toString());
 
@@ -431,7 +475,69 @@ public class JSON
 
                         current = Token.number(numberText.toString(), tokenStartIndex);
                         break;
+
+                    case ForwardSlash:
+                        final StringBuilder commentText = new StringBuilder(lexer.takeCurrent().toString());
+                        if (!lexer.hasCurrent())
+                        {
+                            addIssue(Issues.missingCommentSlashOrAsterisk(tokenStartIndex, 1));
+                            current = Token.unrecognized(commentText.toString(), tokenStartIndex);
+                        }
+                        else
+                        {
+                            switch (lexer.getCurrent().getType())
+                            {
+                                case ForwardSlash:
+                                    do
+                                    {
+                                        commentText.append(lexer.takeCurrent().toString());
+                                    }
+                                    while (lexer.hasCurrent() && !lexer.getCurrent().isNewLine());
+                                    current = Token.lineComment(commentText.toString(), tokenStartIndex);
+                                    break;
+
+                                case Asterisk:
+                                    commentText.append(lexer.takeCurrent().toString());
+                                    boolean previousCharacterWasAsterisk = false;
+                                    boolean commentClosed = false;
+                                    while (lexer.hasCurrent() && !commentClosed)
+                                    {
+                                        switch (lexer.getCurrent().getType())
+                                        {
+                                            case Asterisk:
+                                                previousCharacterWasAsterisk = true;
+                                                break;
+
+                                            case ForwardSlash:
+                                                commentClosed = previousCharacterWasAsterisk;
+                                                break;
+
+                                            default:
+                                                previousCharacterWasAsterisk = false;
+                                                break;
+                                        }
+                                        commentText.append(lexer.takeCurrent().toString());
+                                    }
+                                    current = Token.blockComment(commentText.toString(), tokenStartIndex, commentClosed);
+                                    break;
+
+                                default:
+                                    addIssue(Issues.expectedCommentSlashOrAsterisk(lexer.getCurrent().getStartIndex(), lexer.getCurrent().getLength()));
+                                    current = Token.unrecognized(commentText.toString(), tokenStartIndex);
+                                    break;
+                            }
+                        }
+
+                        break;
+
+                    default:
+                        current = Token.unrecognized(lexer.takeCurrent().toString(), tokenStartIndex);
+                        break;
                 }
+            }
+            else
+            {
+                current = null;
             }
 
             return hasCurrent();
@@ -465,9 +571,9 @@ public class JSON
             return Issue.error("Expected fractional number digits.", startIndex, length);
         }
 
-        public static Issue shouldBeLowercasedE(int startIndex, int length)
+        public static Issue shouldBeLowercased(int startIndex, int length)
         {
-            return Issue.error("'E' should be 'e'.", startIndex, length);
+            return Issue.error("Should be lowercased.", startIndex, length);
         }
 
         public static Issue missingExponentNumberDigits(int startIndex, int length)
@@ -478,6 +584,16 @@ public class JSON
         public static Issue expectedExponentNumberDigits(int startIndex, int length)
         {
             return Issue.error("Expected exponent number digits.", startIndex, length);
+        }
+
+        public static Issue missingCommentSlashOrAsterisk(int startIndex, int length)
+        {
+            return Issue.error("Missing comment forward slash ('/') or asterisk ('*').", startIndex, length);
+        }
+
+        public static Issue expectedCommentSlashOrAsterisk(int startIndex, int length)
+        {
+            return Issue.error("Expected comment forward slash ('/') or asterisk ('*').", startIndex, length);
         }
     }
 }

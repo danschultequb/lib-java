@@ -28,6 +28,26 @@ public class Issue
         return type;
     }
 
+    @Override
+    public boolean equals(Object rhs)
+    {
+        return rhs instanceof Issue && equals((Issue)rhs);
+    }
+
+    public boolean equals(Issue rhs)
+    {
+        return rhs != null &&
+                message.equals(rhs.message) &&
+                span.equals(rhs.span) &&
+                type == rhs.type;
+    }
+
+    @Override
+    public String toString()
+    {
+        return type + " " + span + ": \"" + message + "\"";
+    }
+
     public static Issue warning(String message, int startIndex, int length)
     {
         return warning(message, new Span(startIndex, length));

@@ -3,9 +3,8 @@ package qub;
 public class Lexer extends IteratorBase<Lex>
 {
     private final Iterator<Character> characters;
-    private int currentCharacterStartIndex;
     private boolean hasStarted;
-    private Lex currentLex;
+    private Lex current;
 
     public Lexer(String text)
     {
@@ -14,13 +13,7 @@ public class Lexer extends IteratorBase<Lex>
 
     public Lexer(Iterator<Character> characters)
     {
-        this(characters, 0);
-    }
-
-    public Lexer(Iterator<Character> characters, int currentCharacterStartIndex)
-    {
         this.characters = characters;
-        this.currentCharacterStartIndex = currentCharacterStartIndex - 1;
     }
 
     @Override
@@ -32,235 +25,219 @@ public class Lexer extends IteratorBase<Lex>
     @Override
     public boolean hasCurrent()
     {
-        return currentLex != null;
+        return current != null;
     }
 
     @Override
     public Lex getCurrent()
     {
-        return currentLex;
+        return current;
     }
 
     @Override
     public boolean next()
     {
+        int lexStartIndex;
         if (!hasStarted)
         {
+            lexStartIndex = 0;
             hasStarted = true;
-            nextCharacter();
+            characters.next();
+        }
+        else
+        {
+            lexStartIndex = current.getAfterEndIndex();
         }
 
-        if (hasCurrentCharacter())
+        if (characters.hasCurrent())
         {
-            final int currentLexStartIndex = getCurrentCharacterStartIndex();
-            switch (this.getCurrentCharacter())
+            switch (characters.getCurrent())
             {
                 case '{':
-                    currentLex = Lex.leftCurlyBracket(currentLexStartIndex);
-                    this.nextCharacter();
+                    current = Lex.leftCurlyBracket(lexStartIndex);
+                    characters.next();
                     break;
 
                 case '}':
-                    currentLex = Lex.rightCurlyBracket(currentLexStartIndex);
-                    this.nextCharacter();
+                    current = Lex.rightCurlyBracket(lexStartIndex);
+                    characters.next();
                     break;
 
                 case '[':
-                    currentLex = Lex.leftSquareBracket(currentLexStartIndex);
-                    this.nextCharacter();
+                    current = Lex.leftSquareBracket(lexStartIndex);
+                    characters.next();
                     break;
 
                 case ']':
-                    currentLex = Lex.rightSquareBracket(currentLexStartIndex);
-                    this.nextCharacter();
+                    current = Lex.rightSquareBracket(lexStartIndex);
+                    characters.next();
                     break;
 
                 case '(':
-                    currentLex = Lex.leftParenthesis(currentLexStartIndex);
-                    this.nextCharacter();
+                    current = Lex.leftParenthesis(lexStartIndex);
+                    characters.next();
                     break;
 
                 case ')':
-                    currentLex = Lex.rightParenthesis(currentLexStartIndex);
-                    this.nextCharacter();
+                    current = Lex.rightParenthesis(lexStartIndex);
+                    characters.next();
                     break;
 
                 case '<':
-                    currentLex = Lex.leftAngleBracket(currentLexStartIndex);
-                    this.nextCharacter();
+                    current = Lex.leftAngleBracket(lexStartIndex);
+                    characters.next();
                     break;
 
                 case '>':
-                    currentLex = Lex.rightAngleBracket(currentLexStartIndex);
-                    this.nextCharacter();
+                    current = Lex.rightAngleBracket(lexStartIndex);
+                    characters.next();
                     break;
 
                 case '\"':
-                    currentLex = Lex.doubleQuote(currentLexStartIndex);
-                    this.nextCharacter();
+                    current = Lex.doubleQuote(lexStartIndex);
+                    characters.next();
                     break;
 
                 case '\'':
-                    currentLex = Lex.singleQuote(currentLexStartIndex);
-                    this.nextCharacter();
+                    current = Lex.singleQuote(lexStartIndex);
+                    characters.next();
                     break;
 
                 case '-':
-                    currentLex = Lex.dash(currentLexStartIndex);
-                    this.nextCharacter();
+                    current = Lex.dash(lexStartIndex);
+                    characters.next();
                     break;
 
                 case '+':
-                    currentLex = Lex.plus(currentLexStartIndex);
-                    this.nextCharacter();
+                    current = Lex.plus(lexStartIndex);
+                    characters.next();
                     break;
 
                 case ',':
-                    currentLex = Lex.comma(currentLexStartIndex);
-                    this.nextCharacter();
+                    current = Lex.comma(lexStartIndex);
+                    characters.next();
                     break;
 
                 case ':':
-                    currentLex = Lex.colon(currentLexStartIndex);
-                    this.nextCharacter();
+                    current = Lex.colon(lexStartIndex);
+                    characters.next();
                     break;
 
                 case ';':
-                    currentLex = Lex.semicolon(currentLexStartIndex);
-                    this.nextCharacter();
+                    current = Lex.semicolon(lexStartIndex);
+                    characters.next();
                     break;
 
                 case '!':
-                    currentLex = Lex.exclamationPoint(currentLexStartIndex);
-                    this.nextCharacter();
+                    current = Lex.exclamationPoint(lexStartIndex);
+                    characters.next();
                     break;
 
                 case '\\':
-                    currentLex = Lex.backslash(currentLexStartIndex);
-                    this.nextCharacter();
+                    current = Lex.backslash(lexStartIndex);
+                    characters.next();
                     break;
 
                 case '/':
-                    currentLex = Lex.forwardSlash(currentLexStartIndex);
-                    this.nextCharacter();
+                    current = Lex.forwardSlash(lexStartIndex);
+                    characters.next();
                     break;
 
                 case '?':
-                    currentLex = Lex.questionMark(currentLexStartIndex);
-                    this.nextCharacter();
+                    current = Lex.questionMark(lexStartIndex);
+                    characters.next();
                     break;
 
                 case '=':
-                    currentLex = Lex.equalsSign(currentLexStartIndex);
-                    this.nextCharacter();
+                    current = Lex.equalsSign(lexStartIndex);
+                    characters.next();
                     break;
 
                 case '.':
-                    currentLex = Lex.period(currentLexStartIndex);
-                    this.nextCharacter();
+                    current = Lex.period(lexStartIndex);
+                    characters.next();
                     break;
 
                 case '_':
-                    currentLex = Lex.underscore(currentLexStartIndex);
-                    this.nextCharacter();
+                    current = Lex.underscore(lexStartIndex);
+                    characters.next();
                     break;
 
                 case '&':
-                    currentLex = Lex.ampersand(currentLexStartIndex);
-                    this.nextCharacter();
+                    current = Lex.ampersand(lexStartIndex);
+                    characters.next();
                     break;
 
                 case ' ':
-                    currentLex = Lex.space(currentLexStartIndex);
-                    this.nextCharacter();
+                    current = Lex.space(lexStartIndex);
+                    characters.next();
                     break;
 
                 case '\t':
-                    currentLex = Lex.tab(currentLexStartIndex);
-                    this.nextCharacter();
+                    current = Lex.tab(lexStartIndex);
+                    characters.next();
                     break;
 
                 case '\r':
-                    if(!this.nextCharacter() || this.getCurrentCharacter() != '\n')
+                    if(!characters.next() || characters.getCurrent() != '\n')
                     {
-                        currentLex = Lex.carriageReturn(currentLexStartIndex);
+                        current = Lex.carriageReturn(lexStartIndex);
                     }
                     else
                     {
-                        currentLex = Lex.carriageReturnNewLine(currentLexStartIndex);
-                        this.nextCharacter();
+                        current = Lex.carriageReturnNewLine(lexStartIndex);
+                        characters.next();
                     }
                     break;
 
                 case '\n':
-                    currentLex = Lex.newLine(currentLexStartIndex);
-                    this.nextCharacter();
+                    current = Lex.newLine(lexStartIndex);
+                    characters.next();
                     break;
 
                 case '*':
-                    currentLex = Lex.asterisk(currentLexStartIndex);
-                    this.nextCharacter();
+                    current = Lex.asterisk(lexStartIndex);
+                    characters.next();
                     break;
 
                 case '%':
-                    currentLex = Lex.percent(currentLexStartIndex);
-                    this.nextCharacter();
+                    current = Lex.percent(lexStartIndex);
+                    characters.next();
                     break;
 
                 case '|':
-                    currentLex = Lex.verticalBar(currentLexStartIndex);
-                    this.nextCharacter();
+                    current = Lex.verticalBar(lexStartIndex);
+                    characters.next();
                     break;
 
                 case '#':
-                    currentLex = Lex.hash(currentLexStartIndex);
-                    this.nextCharacter();
+                    current = Lex.hash(lexStartIndex);
+                    characters.next();
                     break;
 
                 default:
-                    if(Lex.isLetter(this.getCurrentCharacter()))
+                    if(Lex.isLetter(characters.getCurrent()))
                     {
-                        currentLex = Lex.letters(readLetters(characters), currentLexStartIndex);
+                        current = Lex.letters(readLetters(characters), lexStartIndex);
                     }
-                    else if(Lex.isDigit(this.getCurrentCharacter()))
+                    else if(Lex.isDigit(characters.getCurrent()))
                     {
-                        currentLex = Lex.digits(readDigits(characters), currentLexStartIndex);
+                        current = Lex.digits(readDigits(characters), lexStartIndex);
                     }
                     else
                     {
-                        currentLex = Lex.unrecognized(this.getCurrentCharacter(), currentLexStartIndex);
-                        this.nextCharacter();
+                        current = Lex.unrecognized(characters.getCurrent(), lexStartIndex);
+                        characters.next();
                     }
                     break;
             }
         }
         else
         {
-            currentLex = null;
+            current = null;
         }
 
         return hasCurrent();
-    }
-
-    private int getCurrentCharacterStartIndex()
-    {
-        return currentCharacterStartIndex;
-    }
-
-    private boolean hasCurrentCharacter()
-    {
-        return characters.hasCurrent();
-    }
-
-    private Character getCurrentCharacter()
-    {
-        return characters.getCurrent();
-    }
-
-    private boolean nextCharacter()
-    {
-        ++currentCharacterStartIndex;
-        return characters.next();
     }
 
     private static String readLetters(Iterator<Character> characters)
@@ -275,16 +252,16 @@ public class Lexer extends IteratorBase<Lex>
 
     private static String readWhile(Iterator<Character> characters, Function1<Character,Boolean> condition)
     {
-        String result = "";
+        final StringBuilder result = new StringBuilder();
 
         if (characters.hasCurrent() && condition.run(characters.getCurrent())) {
-            result += characters.getCurrent();
+            result.append(characters.getCurrent());
         }
 
         while (characters.next() && condition.run(characters.getCurrent())) {
-            result += characters.getCurrent();
+            result.append(characters.getCurrent());
         }
 
-        return result;
+        return result.toString();
     }
 }

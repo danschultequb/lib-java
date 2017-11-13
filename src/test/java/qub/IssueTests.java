@@ -13,6 +13,7 @@ public class IssueTests
         assertEquals("test message", issue.getMessage());
         assertEquals(new Span(1, 2), issue.getSpan());
         assertEquals(Issue.Type.Warning, issue.getType());
+        assertEquals("Warning [1, 3): \"test message\"", issue.toString());
     }
 
     @Test

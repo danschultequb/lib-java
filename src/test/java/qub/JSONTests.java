@@ -64,19 +64,19 @@ public class JSONTests
     @Test
     public void TokenTrueToken()
     {
-        assertToken(JSON.Token.trueToken(5), "true", 5, 4, JSON.Token.Type.True);
+        assertToken(JSON.Token.trueToken("true", 5), "true", 5, 4, JSON.Token.Type.True);
     }
 
     @Test
     public void TokenFalseToken()
     {
-        assertToken(JSON.Token.falseToken(6), "false", 6, 5, JSON.Token.Type.False);
+        assertToken(JSON.Token.falseToken("false", 6), "false", 6, 5, JSON.Token.Type.False);
     }
 
     @Test
     public void TokenNullToken()
     {
-        assertToken(JSON.Token.nullToken(7), "null", 7, 4, JSON.Token.Type.Null);
+        assertToken(JSON.Token.nullToken("null", 7), "null", 7, 4, JSON.Token.Type.Null);
     }
 
     @Test
@@ -128,7 +128,116 @@ public class JSONTests
     @Test
     public void Tokenizer()
     {
+        assertTokenizer(null);
+        assertTokenizer("");
+        assertTokenizer("{", JSON.Token.leftCurlyBracket(0));
+        assertTokenizer("}", JSON.Token.rightCurlyBracket(0));
+        assertTokenizer("[", JSON.Token.leftSquareBracket(0));
+        assertTokenizer("]", JSON.Token.rightSquareBracket(0));
+        assertTokenizer(":", JSON.Token.colon(0));
+        assertTokenizer(",", JSON.Token.comma(0));
+        assertTokenizer("true", JSON.Token.trueToken("true", 0));
+        assertTokenizer("TRUE",
+            JSON.Token.trueToken("TRUE", 0),
+            JSON.Issues.shouldBeLowercased(0, 4));
+        assertTokenizer("falSE",
+            JSON.Token.falseToken("falSE", 0),
+            JSON.Issues.shouldBeLowercased(0, 5));
+        assertTokenizer("false", JSON.Token.falseToken("false", 0));
+        assertTokenizer("null", JSON.Token.nullToken("null", 0));
+        assertTokenizer("NULL",
+            JSON.Token.nullToken("NULL", 0),
+            JSON.Issues.shouldBeLowercased(0, 4));
+        assertTokenizer("\'",
+            JSON.Token.quotedString("\'", 0, false),
+            JSON.Issues.missingEndQuote("\'", 0, 1));
+        assertTokenizer("\'test",
+            JSON.Token.quotedString("\'test", 0, false),
+            JSON.Issues.missingEndQuote("\'", 0, 5));
+        assertTokenizer("\'\\\'",
+            JSON.Token.quotedString("\'\\\'", 0, false),
+            JSON.Issues.missingEndQuote("\'", 0, 3));
+        assertTokenizer("\'\'", JSON.Token.quotedString("\'\'", 0, true));
+        assertTokenizer("\"",
+            JSON.Token.quotedString("\"", 0, false),
+            JSON.Issues.missingEndQuote("\"", 0, 1));
+        assertTokenizer("\"\"", JSON.Token.quotedString("\"\"", 0, true));
+        assertTokenizer(" ", JSON.Token.whitespace(" ", 0));
+        assertTokenizer("\t", JSON.Token.whitespace("\t", 0));
+        assertTokenizer("\r", JSON.Token.whitespace("\r", 0));
+        assertTokenizer(" \t\r", JSON.Token.whitespace(" \t\r", 0));
+        assertTokenizer("\n", JSON.Token.newLine("\n", 0));
+        assertTokenizer("\r\n", JSON.Token.newLine("\r\n", 0));
+        assertTokenizer("-",
+            JSON.Token.number("-", 0),
+            JSON.Issues.missingWholeNumberDigits(0, 1));
+        assertTokenizer("-5", JSON.Token.number("-5", 0));
+        assertTokenizer("-.",
+            JSON.Token.number("-.", 0),
+            new Issue[]
+            {
+                JSON.Issues.expectedWholeNumberDigits(1, 1),
+                JSON.Issues.missingFractionalNumberDigits(1, 1)
+            });
+        assertTokenizer("12.",
+            JSON.Token.number("12.", 0),
+            JSON.Issues.missingFractionalNumberDigits(2, 1));
+        assertTokenizer("12.3", JSON.Token.number("12.3", 0));
+        assertTokenizer("12.a",
+            new JSON.Token[]
+            {
+                JSON.Token.number("12.", 0),
+                JSON.Token.unrecognized("a", 3)
+            },
+            JSON.Issues.expectedFractionalNumberDigits(3, 1));
+        assertTokenizer("10e",
+            JSON.Token.number("10e", 0),
+            JSON.Issues.missingExponentNumberDigits(2, 1));
+        assertTokenizer("10e{",
+            new JSON.Token[]
+            {
+                JSON.Token.number("10e", 0),
+                JSON.Token.leftCurlyBracket(3)
+            },
+            JSON.Issues.expectedExponentNumberDigits(3, 1));
+        assertTokenizer("10e5", JSON.Token.number("10e5", 0));
+        assertTokenizer("10e-",
+            JSON.Token.number("10e-", 0),
+            JSON.Issues.missingExponentNumberDigits(3, 1));
+        assertTokenizer("10e-5", JSON.Token.number("10e-5", 0));
+        assertTokenizer("10e+",
+            JSON.Token.number("10e+", 0),
+            JSON.Issues.missingExponentNumberDigits(3, 1));
+        assertTokenizer("10e+5", JSON.Token.number("10e+5", 0));
+        assertTokenizer("10E+5",
+            JSON.Token.number("10E+5", 0),
+            JSON.Issues.shouldBeLowercased(2, 1));
+        assertTokenizer("/",
+            JSON.Token.unrecognized("/", 0),
+            JSON.Issues.missingCommentSlashOrAsterisk(0, 1));
+        assertTokenizer("//", JSON.Token.lineComment("//", 0));
+        assertTokenizer("/*", JSON.Token.blockComment("/*", 0, false));
+        assertTokenizer("/**", JSON.Token.blockComment("/**", 0, false));
+        assertTokenizer("/**/", JSON.Token.blockComment("/**/", 0, true));
+        assertTokenizer("/*\n*/", JSON.Token.blockComment("/*\n*/", 0, true));
+        assertTokenizer("/*/", JSON.Token.blockComment("/*/", 0, false));
 
+        assertTokenizer("/a",
+            new JSON.Token[]
+            {
+                JSON.Token.unrecognized("/", 0),
+                JSON.Token.unrecognized("a", 1)
+            },
+            JSON.Issues.expectedCommentSlashOrAsterisk(1, 1));
+
+        assertTokenizer("&", JSON.Token.unrecognized("&", 0));
+    }
+
+    @Test
+    public void IssuesConstructor()
+    {
+        final JSON.Issues issues = new JSON.Issues();
+        assertNotNull(issues);
     }
 
     private static void assertToken(JSON.Token token, String text, int startIndex, int length, JSON.Token.Type type)
@@ -144,10 +253,78 @@ public class JSONTests
         assertEquals(closed, token.isClosed());
     }
 
+    private static void assertTokenizer(String text)
+    {
+        assertTokenizer(text, new JSON.Token[0]);
+    }
+
+    private static void assertTokenizer(String text, JSON.Token expectedToken)
+    {
+        assertTokenizer(text, expectedToken, new Issue[0]);
+    }
+
+    private static void assertTokenizer(String text, JSON.Token expectedToken, Issue expectedIssue)
+    {
+        assertTokenizer(text, new JSON.Token[] { expectedToken }, new Issue[] { expectedIssue });
+    }
+
+    private static void assertTokenizer(String text, JSON.Token expectedToken, Issue[] expectedIssues)
+    {
+        assertTokenizer(text, new JSON.Token[] { expectedToken }, expectedIssues);
+    }
+
     private static void assertTokenizer(String text, JSON.Token[] expectedTokens)
+    {
+        assertTokenizer(text, expectedTokens, new Issue[0]);
+    }
+
+    private static void assertTokenizer(String text, JSON.Token[] expectedTokens, Issue expectedIssue)
+    {
+        assertTokenizer(text, expectedTokens, new Issue[] { expectedIssue });
+    }
+
+    private static void assertTokenizer(String text, JSON.Token[] expectedTokens, Issue[] expectedIssues)
+    {
+        assertTokenizerWithoutIssues(text, expectedTokens);
+        assertTokenizerWithIssues(text, expectedTokens, expectedIssues);
+    }
+
+    private static void assertTokenizerWithoutIssues(String text, JSON.Token[] expectedTokens)
     {
         final JSON.Tokenizer tokenizer = new JSON.Tokenizer(text);
         final Array<JSON.Token> actualTokens = Array.fromValues(tokenizer);
-        final int
+        final int tokensToCompare = Math.minimum(expectedTokens.length, actualTokens.getCount());
+        for (int i = 0; i < tokensToCompare; ++i)
+        {
+            final JSON.Token expectedToken = expectedTokens[i];
+            final JSON.Token actualToken = actualTokens.get(i);
+            assertEquals(expectedToken, actualToken);
+        }
+        assertEquals(expectedTokens.length, actualTokens.getCount());
+    }
+
+    private static void assertTokenizerWithIssues(String text, JSON.Token[] expectedTokens, Issue[] expectedIssues)
+    {
+        final List<Issue> actualIssues = new ArrayList<>();
+        final JSON.Tokenizer tokenizer = new JSON.Tokenizer(text, actualIssues);
+        final Array<JSON.Token> actualTokens = Array.fromValues(tokenizer);
+
+        final int tokensToCompare = Math.minimum(expectedTokens.length, actualTokens.getCount());
+        for (int i = 0; i < tokensToCompare; ++i)
+        {
+            final JSON.Token expectedToken = expectedTokens[i];
+            final JSON.Token actualToken = actualTokens.get(i);
+            assertEquals(expectedToken, actualToken);
+        }
+        assertEquals(expectedTokens.length, actualTokens.getCount());
+
+        final int issuesToCompare = Math.minimum(expectedIssues.length, actualIssues.getCount());
+        for (int i = 0; i < issuesToCompare; ++i)
+        {
+            final Issue expectedIssue = expectedIssues[i];
+            final Issue actualIssue = actualIssues.get(i);
+            assertEquals(expectedIssue, actualIssue);
+        }
+        assertEquals(expectedIssues.length, actualIssues.getCount());
     }
 }
