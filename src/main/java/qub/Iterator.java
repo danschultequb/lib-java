@@ -115,6 +115,16 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     Iterator<T> skip(int toSkip);
 
     /**
+     * Create a new Iterator that will skip over the elements in this Iterator until it finds an
+     * element that makes the provided condition true. The returned Iterator will start at the
+     * element after the element that made the condition true.
+     * @param condition The condition.
+     * @return a new Iterator that will skip over the elements in this Iterator until it finds an
+     * element that makes the provided condition true.
+     */
+    Iterator<T> skipUntil(Function1<T,Boolean> condition);
+
+    /**
      * Create a new Iterator that only returns the values from this Iterator that satisfy the given
      * condition.
      * @param condition The condition values must satisfy to be returned from the created Iterator.

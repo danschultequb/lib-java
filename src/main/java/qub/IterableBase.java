@@ -80,6 +80,12 @@ public abstract class IterableBase<T> implements Iterable<T>
     }
 
     @Override
+    public Iterable<T> skipUntil(Function1<T,Boolean> condition)
+    {
+        return IterableBase.skipUntil(this, condition);
+    }
+
+    @Override
     public Iterable<T> where(Function1<T,Boolean> condition)
     {
         return IterableBase.where(this, condition);
@@ -131,6 +137,11 @@ public abstract class IterableBase<T> implements Iterable<T>
     public static <T> Iterable<T> skipLast(Iterable<T> iterable, int toSkip)
     {
         return iterable == null || toSkip <= 0 ? iterable : iterable.take(iterable.getCount() - toSkip);
+    }
+
+    public static <T> Iterable<T> skipUntil(Iterable<T> iterable, Function1<T,Boolean> condition)
+    {
+        return iterable == null ? iterable : new SkipUntilIterable<>(iterable, condition);
     }
 
     public static <T> Iterable<T> where(Iterable<T> iterable, Function1<T,Boolean> condition)

@@ -637,6 +637,91 @@ public abstract class IterableTests
     }
 
     @Test
+    public void skipUntilWithEmptyAndNullCondition()
+    {
+        final Iterable<Integer> iterable = createIterable(0);
+        // Some iterables cannot be empty (such as SingleLinkNodes), so they will return null when
+        // an Iterable with 0 elements is requested.
+        if (iterable != null)
+        {
+            final Iterable<Integer> skipUntilIterable = iterable.skipUntil(null);
+            assertFalse(skipUntilIterable.any());
+            assertEquals(0, skipUntilIterable.getCount());
+
+            final Iterator<Integer> skipUntilIterator = skipUntilIterable.iterate();
+            assertFalse(skipUntilIterator.any());
+            assertEquals(0, skipUntilIterator.getCount());
+        }
+    }
+
+    @Test
+    public void skipUntilWithEmptyAndCondition()
+    {
+        final Iterable<Integer> iterable = createIterable(0);
+        // Some iterables cannot be empty (such as SingleLinkNodes), so they will return null when
+        // an Iterable with 0 elements is requested.
+        if (iterable != null)
+        {
+            final Iterable<Integer> skipUntilIterable = iterable.skipUntil(Math.isOdd);
+            assertFalse(skipUntilIterable.any());
+            assertEquals(0, skipUntilIterable.getCount());
+
+            final Iterator<Integer> skipUntilIterator = skipUntilIterable.iterate();
+            assertFalse(skipUntilIterator.any());
+            assertEquals(0, skipUntilIterator.getCount());
+        }
+    }
+
+    @Test
+    public void skipUntilWithNonEmptyAndNullCondition()
+    {
+        final Iterable<Integer> iterable = createIterable(4);
+
+        final Iterable<Integer> skipUntilIterable = iterable.skipUntil(null);
+        assertFalse(skipUntilIterable.any());
+        assertEquals(0, skipUntilIterable.getCount());
+
+        final Iterator<Integer> skipUntilIterator = skipUntilIterable.iterate();
+        assertFalse(skipUntilIterator.any());
+        assertEquals(0, skipUntilIterator.getCount());
+    }
+
+    @Test
+    public void skipUntilWithNonEmptyAndNonMatchingCondition()
+    {
+        final Iterable<Integer> iterable = createIterable(4);
+
+        final Iterable<Integer> skipUntilIterable = iterable.skipUntil(new Function1<Integer,Boolean>()
+        {
+            @Override
+            public Boolean run(Integer value)
+            {
+                return value != null && value > 10;
+            }
+        });
+        assertFalse(skipUntilIterable.any());
+        assertEquals(0, skipUntilIterable.getCount());
+
+        final Iterator<Integer> skipUntilIterator = skipUntilIterable.iterate();
+        assertFalse(skipUntilIterator.any());
+        assertEquals(0, skipUntilIterator.getCount());
+    }
+
+    @Test
+    public void skipUntilWithNonEmptyAndMatchingCondition()
+    {
+        final Iterable<Integer> iterable = createIterable(4);
+
+        final Iterable<Integer> skipUntilIterable = iterable.skipUntil(Math.isOdd);
+        assertTrue(skipUntilIterable.any());
+        assertEquals(3, skipUntilIterable.getCount());
+
+        final Iterator<Integer> skipUntilIterator = skipUntilIterable.iterate();
+        assertTrue(skipUntilIterator.any());
+        assertEquals(3, skipUntilIterator.getCount());
+    }
+
+    @Test
     public void whereWithEmptyAndNullCondition()
     {
         final Iterable<Integer> iterable = createIterable(0);

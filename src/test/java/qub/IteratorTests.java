@@ -801,6 +801,139 @@ public abstract class IteratorTests
     }
 
     @Test
+    public void skipUntilWithEmptyNonStartedIteratorAndNullCondition()
+    {
+        final Iterator<Integer> iterator = createIterator(0, false);
+        assertIterator(iterator, false, null);
+
+        final Iterator<Integer> skipUntilIterator = iterator.skipUntil(null);
+        assertIterator(iterator, false, null);
+        assertIterator(skipUntilIterator, false, null);
+
+        assertFalse(skipUntilIterator.next());
+        assertIterator(iterator, true, null);
+        assertIterator(skipUntilIterator, true, null);
+    }
+
+    @Test
+    public void skipUntilWithEmptyNonStartedIteratorAndCondition()
+    {
+        final Iterator<Integer> iterator = createIterator(0, false);
+        assertIterator(iterator, false, null);
+
+        final Iterator<Integer> skipUntilIterator = iterator.skipUntil(Math.isOdd);
+        assertIterator(iterator, false, null);
+        assertIterator(skipUntilIterator, false, null);
+
+        assertFalse(skipUntilIterator.next());
+        assertIterator(iterator, true, null);
+        assertIterator(skipUntilIterator, true, null);
+    }
+
+    @Test
+    public void skipUntilWithNonEmptyNonStartedIteratorAndNullCondition()
+    {
+        final Iterator<Integer> iterator = createIterator(5, false);
+        assertIterator(iterator, false, null);
+
+        final Iterator<Integer> skipUntilIterator = iterator.skipUntil(null);
+        assertIterator(iterator, false, null);
+    }
+
+    @Test
+    public void skipUntilWithNonEmptyNonStartedIteratorAndNonMatchingCondition()
+    {
+        final Iterator<Integer> iterator = createIterator(6, false);
+        assertIterator(iterator, false, null);
+
+        final Iterator<Integer> skipUntilIterator = iterator.skipUntil(Comparer.equal(20));
+        assertIterator(iterator, false, null);
+        assertIterator(skipUntilIterator, false, null);
+
+        assertFalse(skipUntilIterator.next());
+        assertIterator(iterator, true, null);
+        assertIterator(skipUntilIterator, true, null);
+    }
+
+    @Test
+    public void skipUntilWithNonEmptyNonStartedIteratorAndMatchingCondition()
+    {
+        final Iterator<Integer> iterator = createIterator(5, false);
+        assertIterator(iterator, false, null);
+
+        final Iterator<Integer> skipUntilIterator = iterator.skipUntil(Math.isOdd);
+        assertIterator(iterator, false, null);
+        assertIterator(skipUntilIterator, false, null);
+
+        for (int i = 1; i < 5; ++i)
+        {
+            assertTrue(skipUntilIterator.next());
+            assertIterator(iterator, true, i);
+            assertIterator(skipUntilIterator, true, i);
+        }
+
+        assertFalse(skipUntilIterator.next());
+        assertIterator(iterator, true, null);
+        assertIterator(skipUntilIterator, true, null);
+    }
+
+    @Test
+    public void skipUntilWithNonEmptyStartedIteratorAndNullCondition()
+    {
+        final Iterator<Integer> iterator = createIterator(5, true);
+        assertIterator(iterator, true, 0);
+
+        final Iterator<Integer> skipUntilIterator = iterator.skipUntil(null);
+        assertIterator(iterator, true, 0);
+        assertNull(skipUntilIterator.getCurrent());
+        assertIterator(skipUntilIterator, true, null);
+        assertIterator(iterator, true, 0);
+    }
+
+    @Test
+    public void skipUntilWithNonEmptyStartedIteratorAndNonMatchingCondition()
+    {
+        final Iterator<Integer> iterator = createIterator(3, true);
+        assertIterator(iterator, true, 0);
+
+        final Iterator<Integer> skipUntilIterator = iterator.skipUntil(Math.isOdd);
+        assertIterator(iterator, true, 0);
+        assertIterator(skipUntilIterator, true, 1);
+        assertIterator(iterator, true, 1);
+
+        assertTrue(skipUntilIterator.next());
+        assertIterator(iterator, true, 2);
+        assertIterator(skipUntilIterator, true, 2);
+
+        assertFalse(skipUntilIterator.next());
+        assertIterator(iterator, true, null);
+        assertIterator(skipUntilIterator, true, null);
+    }
+
+    @Test
+    public void skipUntilWithStartedNonEmptyIteratorAndMatchingCondition()
+    {
+        final Iterator<Integer> iterator = createIterator(5, true);
+        assertIterator(iterator, true, 0);
+
+        final Iterator<Integer> skipUntilIterator = iterator.skipUntil(Math.isOdd);
+        assertIterator(iterator, true, 0);
+        assertIterator(skipUntilIterator, true, 1);
+        assertIterator(iterator, true, 1);
+
+        for (int i = 2; i < 5; ++i)
+        {
+            assertTrue(skipUntilIterator.next());
+            assertIterator(iterator, true, i);
+            assertIterator(skipUntilIterator, true, i);
+        }
+
+        assertFalse(skipUntilIterator.next());
+        assertIterator(iterator, true, null);
+        assertIterator(skipUntilIterator, true, null);
+    }
+
+    @Test
     public void whereWithEmptyNonStartedIteratorAndNullCondition()
     {
         final Iterator<Integer> iterator = createIterator(0, false);

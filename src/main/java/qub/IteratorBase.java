@@ -155,6 +155,12 @@ public abstract class IteratorBase<T> implements Iterator<T>
     }
 
     @Override
+    public Iterator<T> skipUntil(Function1<T,Boolean> condition)
+    {
+        return new SkipUntilIterator<>(this, condition);
+    }
+
+    @Override
     public Iterator<T> where(Function1<T,Boolean> condition)
     {
         return condition == null ? this : new WhereIterator<>(this, condition);
