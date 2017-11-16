@@ -104,6 +104,40 @@ public abstract class IterableBase<T> implements Iterable<T>
     }
 
     @Override
+    public boolean equals(Object rhs)
+    {
+        return rhs instanceof Iterable && equals((Iterable<T>)rhs);
+    }
+    @Override
+    public boolean equals(Iterable<T> rhs)
+    {
+        boolean result = false;
+
+        if (rhs != null)
+        {
+            result = true;
+
+            final Iterator<T> lhsIterator = iterate();
+            final Iterator<T> rhsIterator = rhs.iterate();
+            while (lhsIterator.next() & rhsIterator.next())
+            {
+                if (!lhsIterator.getCurrent().equals(rhsIterator.getCurrent()))
+                {
+                    result = false;
+                    break;
+                }
+            }
+
+            if (result)
+            {
+                result = !lhsIterator.hasCurrent() && !rhsIterator.hasCurrent();
+            }
+        }
+
+        return result;
+    }
+
+    @Override
     public java.util.Iterator<T> iterator()
     {
         return iterate().iterator();

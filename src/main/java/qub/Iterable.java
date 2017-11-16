@@ -137,6 +137,24 @@ public interface Iterable<T> extends java.lang.Iterable<T>
     <U> Iterable<U> instanceOf(Class<U> type);
 
     /**
+     * Get whether or not this Iterable contains equal elements in the same order as the provided
+     * Iterable.
+     * @param rhs The Iterable to compare against this Iterable.
+     * @return Whether or not this Iterable contains equal elements in the same order as the
+     * provided Iterable.
+     */
+    boolean equals(Object rhs);
+
+    /**
+     * Get whether or not this Iterable contains equal elements in the same order as the provided
+     * Iterable.
+     * @param rhs The Iterable to compare against this Iterable.
+     * @return Whether or not this Iterable contains equal elements in the same order as the
+     * provided Iterable.
+     */
+    boolean equals(Iterable<T> rhs);
+
+    /**
      * Create a java.util.Iterator that will iterate over this Iterable.
      * @return A java.util.Iterator that will iterate over this Iterable.
      */

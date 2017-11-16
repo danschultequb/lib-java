@@ -15,8 +15,13 @@ public abstract class JSONSegment
 
     public Span getSpan()
     {
-        return new Span(getStartIndex(), getLength());
+        final int startIndex = getStartIndex();
+        final int afterEndIndex = getAfterEndIndex();
+        return new Span(startIndex, afterEndIndex - startIndex);
     }
+
+    @Override
+    public abstract boolean equals(Object rhs);
 
     protected static int getStartIndex(Iterable<JSONSegment> segments)
     {

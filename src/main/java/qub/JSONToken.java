@@ -20,6 +20,20 @@ public class JSONToken extends JSONSegment
     }
 
     @Override
+    public boolean equals(Object rhs)
+    {
+        return rhs instanceof JSONToken && equals((JSONToken)rhs);
+    }
+
+    public boolean equals(JSONToken rhs)
+    {
+        return rhs != null &&
+            text.equals(rhs.text) &&
+            startIndex == rhs.startIndex &&
+            type == rhs.type;
+    }
+
+    @Override
     public int getStartIndex()
     {
         return startIndex;
@@ -40,20 +54,6 @@ public class JSONToken extends JSONSegment
     public JSONTokenType getType()
     {
         return type;
-    }
-
-    @Override
-    public boolean equals(Object rhs)
-    {
-        return rhs instanceof JSONToken && equals((JSONToken)rhs);
-    }
-
-    public boolean equals(JSONToken rhs)
-    {
-        return rhs != null &&
-                text.equals(rhs.text) &&
-                startIndex == rhs.startIndex &&
-                type == rhs.type;
     }
 
     public static JSONToken leftCurlyBracket(int startIndex)

@@ -3,18 +3,29 @@ package qub;
 public class JSONTokenizer extends IteratorBase<JSONToken>
 {
     private final Lexer lexer;
+    private final int firstTokenStartIndex;
     private final Action1<Issue> onIssue;
     private boolean hasStarted;
     private JSONToken current;
 
     public JSONTokenizer(String text)
     {
-        this(text, (List<Issue>)null);
+        this(text, 0);
     }
 
-    public JSONTokenizer(String text, final List<Issue> issues)
+    public JSONTokenizer(String text, int firstTokenStartIndex)
     {
-        this(text, issues == null ? null : new Action1<Issue>()
+        this(text, firstTokenStartIndex, (List<Issue>)null);
+    }
+
+    public JSONTokenizer(String text, List<Issue> issues)
+    {
+        this(text, 0, issues);
+    }
+
+    public JSONTokenizer(String text, int firstTokenStartIndex, final List<Issue> issues)
+    {
+        this(text, firstTokenStartIndex, issues == null ? null : new Action1<Issue>()
         {
             @Override
             public void run(Issue issue)
@@ -24,19 +35,20 @@ public class JSONTokenizer extends IteratorBase<JSONToken>
         });
     }
 
-    public JSONTokenizer(String text, Action1<Issue> onIssue)
+    public JSONTokenizer(String text, int firstTokenStartIndex, Action1<Issue> onIssue)
     {
-        this(new StringIterator(text), onIssue);
+        this(new StringIterator(text), firstTokenStartIndex, onIssue);
     }
 
-    public JSONTokenizer(Iterator<Character> characters, Action1<Issue> onIssue)
+    public JSONTokenizer(Iterator<Character> characters, int firstTokenStartIndex, Action1<Issue> onIssue)
     {
-        this(new Lexer(characters), onIssue);
+        this(new Lexer(characters), firstTokenStartIndex, onIssue);
     }
 
-    public JSONTokenizer(Lexer lexer, Action1<Issue> onIssue)
+    public JSONTokenizer(Lexer lexer, int firstTokenStartIndex, Action1<Issue> onIssue)
     {
         this.lexer = lexer;
+        this.firstTokenStartIndex = firstTokenStartIndex;
         this.onIssue = onIssue;
     }
 
@@ -81,7 +93,7 @@ public class JSONTokenizer extends IteratorBase<JSONToken>
 
         if (lexer.hasCurrent())
         {
-            int tokenStartIndex = hasCurrent() ? getCurrent().getAfterEndIndex() : 0;
+            int tokenStartIndex = hasCurrent() ? getCurrent().getAfterEndIndex() : firstTokenStartIndex;
             switch (lexer.getCurrent().getType())
             {
                 case LeftCurlyBracket:

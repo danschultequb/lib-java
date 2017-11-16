@@ -60,13 +60,49 @@ public class JSONPropertySegmentTests
                 JSONToken.colon(3),
                 JSONToken.quotedString("\"b\"", 4, true),
                 7);
+        assertPropertySegment("\"a\":  ",
+                JSONToken.quotedString("\"a\"", 0, true),
+                "a",
+                JSONToken.colon(3),
+                null,
+                6);
+        assertPropertySegment("\"a\":// comment",
+                JSONToken.quotedString("\"a\"", 0, true),
+                "a",
+                JSONToken.colon(3),
+                null,
+                14);
+        assertPropertySegment("\"a\":/* comment",
+                JSONToken.quotedString("\"a\"", 0, true),
+                "a",
+                JSONToken.colon(3),
+                null,
+                14);
+        assertPropertySegment("\"apples\":{}",
+                JSONToken.quotedString("\"apples\"", 0, true),
+                "apples",
+                JSONToken.colon(8),
+                JSON.parseObject("{}", 9),
+                11);
+    }
+
+    @Test
+    public void equalsTest()
+    {
+        final JSONPropertySegment propertySegment = JSON.parseProperty("\"a\":\"b\"");
+        assertFalse(propertySegment.equals((Object)null));
+        assertFalse(propertySegment.equals((JSONPropertySegment)null));
+
+        assertFalse(propertySegment.equals((Object)"test"));
+
+        assertTrue(propertySegment.equals(propertySegment));
+        assertTrue(propertySegment.equals(JSON.parseProperty("\"a\":\"b\"")));
+        assertFalse(propertySegment.equals(JSON.parseProperty("\"a\":50")));
     }
 
     private static void assertPropertySegment(String text, JSONQuotedString nameSegment, String name, JSONToken colonSegment, JSONSegment valueSegment, int afterEndIndex)
     {
-        final JSONTokenizer tokenizer = new JSONTokenizer(text);
-        final Iterable<JSONSegment> segments = ArrayList.fromValues(tokenizer).instanceOf(JSONSegment.class);
-        final JSONPropertySegment propertySegment = new JSONPropertySegment(segments);
+        final JSONPropertySegment propertySegment = JSON.parseProperty(text);
 
         assertEquals(nameSegment, propertySegment.getNameSegment());
         assertEquals(name, propertySegment.getName());

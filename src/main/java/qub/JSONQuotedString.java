@@ -7,7 +7,7 @@ public class JSONQuotedString extends JSONCloseableToken
         super(text, startIndex, JSONTokenType.QuotedString, closed);
     }
 
-    public String getUnquotedString()
+    public String toUnquotedString()
     {
         final String text = toString();
         final int textLength = text.length();

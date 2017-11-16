@@ -11,7 +11,7 @@ public class JSONPropertySegment extends JSONSegment
 
     public String getName()
     {
-        return getNameSegment().getUnquotedString();
+        return getNameSegment().toUnquotedString();
     }
 
     public JSONQuotedString getNameSegment()
@@ -35,50 +35,58 @@ public class JSONPropertySegment extends JSONSegment
 
     public JSONSegment getValueSegment()
     {
-        return segments
-                .skip(1)
-                .skipUntil(new Function1<JSONSegment, Boolean>()
+        JSONSegment result = null;
+        if (segments.getCount() > 2)
+        {
+            final JSONSegment lastSegment = segments.last();
+            if (lastSegment instanceof JSONToken)
+            {
+                final JSONToken lastToken = (JSONToken)lastSegment;
+                switch (lastToken.getType())
                 {
-                    @Override
-                    public Boolean run(JSONSegment segment)
-                    {
-                        return segment instanceof JSONToken &&
-                                ((JSONToken)segment).getType() == JSONTokenType.Colon;
-                    }
-                })
-                .first(new Function1<JSONSegment, Boolean>()
-                {
-                    @Override
-                    public Boolean run(JSONSegment segment)
-                    {
-                        boolean result = true;
-                        if (segment instanceof JSONToken)
-                        {
-                            final JSONToken token = (JSONToken)segment;
-                            result = token.getType() != JSONTokenType.Colon &&
-                                    token.getType() != JSONTokenType.Whitespace;
-                        }
-                        return result;
-                    }
-                });
+                    case False:
+                    case Null:
+                    case Number:
+                    case QuotedString:
+                    case True:
+                        result = lastToken;
+                        break;
+                }
+            }
+            else
+            {
+                result = lastSegment;
+            }
+        }
+        return result;
+    }
 
+    @Override
+    public boolean equals(Object rhs)
+    {
+        return rhs instanceof JSONPropertySegment && equals((JSONPropertySegment)rhs);
+    }
+
+    public boolean equals(JSONPropertySegment rhs)
+    {
+        return rhs != null && segments.equals(rhs.segments);
     }
 
     @Override
     public String toString()
     {
-        return JSONSegment.getCombinedText(segments);
+        return getCombinedText(segments);
     }
 
     @Override
     public int getStartIndex()
     {
-        return JSONSegment.getStartIndex(segments);
+        return getStartIndex(segments);
     }
 
     @Override
     public int getAfterEndIndex()
     {
-        return JSONSegment.getAfterEndIndex(segments);
+        return getAfterEndIndex(segments);
     }
 }

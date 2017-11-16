@@ -861,7 +861,7 @@ public abstract class IterableTests
     }
 
     @Test
-    public void mapWithEmptyAndWrongType()
+    public void instanceOfWithEmptyAndWrongType()
     {
         final Iterable<Integer> iterable = createIterable(0);
         // Some iterables cannot be empty (such as SingleLinkNodes), so they will return null when
@@ -879,7 +879,7 @@ public abstract class IterableTests
     }
 
     @Test
-    public void mapWithEmptyAndCorrectType()
+    public void instanceOfWithEmptyAndCorrectType()
     {
         final Iterable<Integer> iterable = createIterable(0);
         // Some iterables cannot be empty (such as SingleLinkNodes), so they will return null when
@@ -922,5 +922,158 @@ public abstract class IterableTests
         final Iterator<Integer> instanceOfIterator = instanceOfIterable.iterate();
         assertTrue(instanceOfIterator.any());
         assertEquals(4, instanceOfIterator.getCount());
+    }
+
+    @Test
+    public void equalsWithEmptyAndNull()
+    {
+        final Iterable<Integer> iterable = createIterable(0);
+        if (iterable != null)
+        {
+            assertFalse(iterable.equals((Object) null));
+            assertFalse(iterable.equals((Iterable<Integer>) null));
+        }
+    }
+
+    @Test
+    public void equalsWithEmptyAndEmpty()
+    {
+        final Iterable<Integer> iterable = createIterable(0);
+        if (iterable != null)
+        {
+            final Iterable<Integer> rhs = new Array<>(0);
+            assertTrue(iterable.equals((Object) rhs));
+            assertTrue(iterable.equals(rhs));
+        }
+    }
+
+    @Test
+    public void equalsWithEmptyAndOneValue()
+    {
+        final Iterable<Integer> iterable = createIterable(0);
+        if (iterable != null)
+        {
+            final Iterable<Integer> rhs = Array.fromValues(0);
+            assertFalse(iterable.equals((Object)rhs));
+            assertFalse(iterable.equals(rhs));
+        }
+    }
+
+    @Test
+    public void equalsWithEmptyAndTwoValues()
+    {
+        final Iterable<Integer> iterable = createIterable(0);
+        if (iterable != null)
+        {
+            final Iterable<Integer> rhs = Array.fromValues(0, 1);
+            assertFalse(iterable.equals((Object)rhs));
+            assertFalse(iterable.equals(rhs));
+        }
+    }
+
+    @Test
+    public void equalsWithOneValueAndNull()
+    {
+        final Iterable<Integer> iterable = createIterable(1);
+        if (iterable != null)
+        {
+            assertFalse(iterable.equals((Object) null));
+            assertFalse(iterable.equals((Iterable<Integer>) null));
+        }
+    }
+
+    @Test
+    public void equalsWithOneValueAndEmpty()
+    {
+        final Iterable<Integer> iterable = createIterable(1);
+        if (iterable != null)
+        {
+            final Iterable<Integer> rhs = new Array<>(0);
+            assertFalse(iterable.equals((Object) rhs));
+            assertFalse(iterable.equals(rhs));
+        }
+    }
+
+    @Test
+    public void equalsWithOneValueAndOneValue()
+    {
+        final Iterable<Integer> iterable = createIterable(1);
+        if (iterable != null)
+        {
+            final Iterable<Integer> rhs = Array.fromValues(0);
+            assertTrue(iterable.equals((Object)rhs));
+            assertTrue(iterable.equals(rhs));
+        }
+    }
+
+    @Test
+    public void equalsWithOneValueAndTwoValues()
+    {
+        final Iterable<Integer> iterable = createIterable(1);
+        if (iterable != null)
+        {
+            final Iterable<Integer> rhs = Array.fromValues(0, 1);
+            assertFalse(iterable.equals((Object)rhs));
+            assertFalse(iterable.equals(rhs));
+        }
+    }
+
+    @Test
+    public void equalsWithTwoValuesAndNull()
+    {
+        final Iterable<Integer> iterable = createIterable(2);
+        if (iterable != null)
+        {
+            assertFalse(iterable.equals((Object) null));
+            assertFalse(iterable.equals((Iterable<Integer>) null));
+        }
+    }
+
+    @Test
+    public void equalsWithTwoValuesAndEmpty()
+    {
+        final Iterable<Integer> iterable = createIterable(2);
+        if (iterable != null)
+        {
+            final Iterable<Integer> rhs = new Array<>(0);
+            assertFalse(iterable.equals((Object) rhs));
+            assertFalse(iterable.equals(rhs));
+        }
+    }
+
+    @Test
+    public void equalsWithTwoValuesAndOneValue()
+    {
+        final Iterable<Integer> iterable = createIterable(2);
+        if (iterable != null)
+        {
+            final Iterable<Integer> rhs = Array.fromValues(0);
+            assertFalse(iterable.equals((Object)rhs));
+            assertFalse(iterable.equals(rhs));
+        }
+    }
+
+    @Test
+    public void equalsWithTwoValuesAndEqualTwoValues()
+    {
+        final Iterable<Integer> iterable = createIterable(2);
+        if (iterable != null)
+        {
+            final Iterable<Integer> rhs = Array.fromValues(0, 1);
+            assertTrue(iterable.equals((Object)rhs));
+            assertTrue(iterable.equals(rhs));
+        }
+    }
+
+    @Test
+    public void equalsWithTwoValuesAndDifferentTwoValues()
+    {
+        final Iterable<Integer> iterable = createIterable(2);
+        if (iterable != null)
+        {
+            final Iterable<Integer> rhs = Array.fromValues(2, 3);
+            assertFalse(iterable.equals((Object)rhs));
+            assertFalse(iterable.equals(rhs));
+        }
     }
 }
