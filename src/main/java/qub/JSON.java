@@ -286,6 +286,24 @@ public class JSON
         }
     }
 
+    public static JSONArraySegment parseArray(String text)
+    {
+        return parseArray(text, 0);
+    }
+
+    public static JSONArraySegment parseArray(String text, int startIndex)
+    {
+        JSONArraySegment result = null;
+
+        final JSONTokenizer tokenizer = new JSONTokenizer(text, startIndex);
+        if (tokenizer.next() && tokenizer.getCurrent().getType() == JSONTokenType.LeftSquareBracket)
+        {
+            result = parseArray(tokenizer, null);
+        }
+
+        return result;
+    }
+
     public static JSONArraySegment parseArray(JSONTokenizer tokenizer, List<Issue> issues)
     {
         final JSONToken leftSquareBracket = tokenizer.takeCurrent();

@@ -111,6 +111,11 @@ public class JSONToken extends JSONSegment
         return new JSONQuotedString(text, startIndex, closed);
     }
 
+    public static JSONToken number(String text)
+    {
+        return number(text, 0);
+    }
+
     public static JSONToken number(String text, int startIndex)
     {
         return new JSONToken(text, startIndex, JSONTokenType.Number);

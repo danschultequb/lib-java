@@ -30,7 +30,7 @@ public abstract class JSONSegment
 
     protected static int getAfterEndIndex(Iterable<JSONSegment> segments)
     {
-        return segments.last().getAfterEndIndex();
+        return !segments.any() ? 0 : segments.last().getAfterEndIndex();
     }
 
     protected static String getCombinedText(Iterable<JSONSegment> segments)

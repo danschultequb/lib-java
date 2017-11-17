@@ -121,7 +121,10 @@ public abstract class IterableBase<T> implements Iterable<T>
             final Iterator<T> rhsIterator = rhs.iterate();
             while (lhsIterator.next() & rhsIterator.next())
             {
-                if (!lhsIterator.getCurrent().equals(rhsIterator.getCurrent()))
+                final T lhsCurrent = lhsIterator.getCurrent();
+                final T rhsCurrent = rhsIterator.getCurrent();
+                if (lhsCurrent != rhsCurrent &&
+                    (lhsCurrent == null || rhsCurrent == null || !lhsCurrent.equals(rhsCurrent)))
                 {
                     result = false;
                     break;
