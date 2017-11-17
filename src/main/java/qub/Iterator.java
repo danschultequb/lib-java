@@ -31,6 +31,12 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     boolean next();
 
     /**
+     * Return the current value for this Iterator and advance this Iterator to the next value.
+     * @return The current value for this Iterator.
+     */
+    T takeCurrent();
+
+    /**
      * Get whether or not this Iterator contains any values. This function may move this Iterator
      * forward one position, but it can be called multiple times without consuming any of the
      * values in this Iterator.
@@ -107,6 +113,16 @@ public interface Iterator<T> extends java.lang.Iterable<T>
      * Iterator and then iterate over the remaining elements.
      */
     Iterator<T> skip(int toSkip);
+
+    /**
+     * Create a new Iterator that will skip over the elements in this Iterator until it finds an
+     * element that makes the provided condition true. The returned Iterator will start at the
+     * element after the element that made the condition true.
+     * @param condition The condition.
+     * @return a new Iterator that will skip over the elements in this Iterator until it finds an
+     * element that makes the provided condition true.
+     */
+    Iterator<T> skipUntil(Function1<T,Boolean> condition);
 
     /**
      * Create a new Iterator that only returns the values from this Iterator that satisfy the given

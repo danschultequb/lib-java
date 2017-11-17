@@ -100,6 +100,16 @@ public interface Iterable<T> extends java.lang.Iterable<T>
     Iterable<T> skipLast(int toSkip);
 
     /**
+     * Create a new Iterator that will skip over the elements in this Iterator until it finds an
+     * element that makes the provided condition true. The returned Iterator will start at the
+     * element after the element that made the condition true.
+     * @param condition The condition.
+     * @return a new Iterator that will skip over the elements in this Iterator until it finds an
+     * element that makes the provided condition true.
+     */
+    Iterable<T> skipUntil(Function1<T,Boolean> condition);
+
+    /**
      * Create a new Iterable that only returns the values from this Iterable that satisfy the given
      * condition.
      * @param condition The condition values must satisfy to be returned from the created Iterable.
@@ -125,6 +135,24 @@ public interface Iterable<T> extends java.lang.Iterable<T>
      * sub-classes of type U.
      */
     <U> Iterable<U> instanceOf(Class<U> type);
+
+    /**
+     * Get whether or not this Iterable contains equal elements in the same order as the provided
+     * Iterable.
+     * @param rhs The Iterable to compare against this Iterable.
+     * @return Whether or not this Iterable contains equal elements in the same order as the
+     * provided Iterable.
+     */
+    boolean equals(Object rhs);
+
+    /**
+     * Get whether or not this Iterable contains equal elements in the same order as the provided
+     * Iterable.
+     * @param rhs The Iterable to compare against this Iterable.
+     * @return Whether or not this Iterable contains equal elements in the same order as the
+     * provided Iterable.
+     */
+    boolean equals(Iterable<T> rhs);
 
     /**
      * Create a java.util.Iterator that will iterate over this Iterable.

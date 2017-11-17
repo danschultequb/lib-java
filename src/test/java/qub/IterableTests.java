@@ -637,6 +637,91 @@ public abstract class IterableTests
     }
 
     @Test
+    public void skipUntilWithEmptyAndNullCondition()
+    {
+        final Iterable<Integer> iterable = createIterable(0);
+        // Some iterables cannot be empty (such as SingleLinkNodes), so they will return null when
+        // an Iterable with 0 elements is requested.
+        if (iterable != null)
+        {
+            final Iterable<Integer> skipUntilIterable = iterable.skipUntil(null);
+            assertFalse(skipUntilIterable.any());
+            assertEquals(0, skipUntilIterable.getCount());
+
+            final Iterator<Integer> skipUntilIterator = skipUntilIterable.iterate();
+            assertFalse(skipUntilIterator.any());
+            assertEquals(0, skipUntilIterator.getCount());
+        }
+    }
+
+    @Test
+    public void skipUntilWithEmptyAndCondition()
+    {
+        final Iterable<Integer> iterable = createIterable(0);
+        // Some iterables cannot be empty (such as SingleLinkNodes), so they will return null when
+        // an Iterable with 0 elements is requested.
+        if (iterable != null)
+        {
+            final Iterable<Integer> skipUntilIterable = iterable.skipUntil(Math.isOdd);
+            assertFalse(skipUntilIterable.any());
+            assertEquals(0, skipUntilIterable.getCount());
+
+            final Iterator<Integer> skipUntilIterator = skipUntilIterable.iterate();
+            assertFalse(skipUntilIterator.any());
+            assertEquals(0, skipUntilIterator.getCount());
+        }
+    }
+
+    @Test
+    public void skipUntilWithNonEmptyAndNullCondition()
+    {
+        final Iterable<Integer> iterable = createIterable(4);
+
+        final Iterable<Integer> skipUntilIterable = iterable.skipUntil(null);
+        assertFalse(skipUntilIterable.any());
+        assertEquals(0, skipUntilIterable.getCount());
+
+        final Iterator<Integer> skipUntilIterator = skipUntilIterable.iterate();
+        assertFalse(skipUntilIterator.any());
+        assertEquals(0, skipUntilIterator.getCount());
+    }
+
+    @Test
+    public void skipUntilWithNonEmptyAndNonMatchingCondition()
+    {
+        final Iterable<Integer> iterable = createIterable(4);
+
+        final Iterable<Integer> skipUntilIterable = iterable.skipUntil(new Function1<Integer,Boolean>()
+        {
+            @Override
+            public Boolean run(Integer value)
+            {
+                return value != null && value > 10;
+            }
+        });
+        assertFalse(skipUntilIterable.any());
+        assertEquals(0, skipUntilIterable.getCount());
+
+        final Iterator<Integer> skipUntilIterator = skipUntilIterable.iterate();
+        assertFalse(skipUntilIterator.any());
+        assertEquals(0, skipUntilIterator.getCount());
+    }
+
+    @Test
+    public void skipUntilWithNonEmptyAndMatchingCondition()
+    {
+        final Iterable<Integer> iterable = createIterable(4);
+
+        final Iterable<Integer> skipUntilIterable = iterable.skipUntil(Math.isOdd);
+        assertTrue(skipUntilIterable.any());
+        assertEquals(3, skipUntilIterable.getCount());
+
+        final Iterator<Integer> skipUntilIterator = skipUntilIterable.iterate();
+        assertTrue(skipUntilIterator.any());
+        assertEquals(3, skipUntilIterator.getCount());
+    }
+
+    @Test
     public void whereWithEmptyAndNullCondition()
     {
         final Iterable<Integer> iterable = createIterable(0);
@@ -776,7 +861,7 @@ public abstract class IterableTests
     }
 
     @Test
-    public void mapWithEmptyAndWrongType()
+    public void instanceOfWithEmptyAndWrongType()
     {
         final Iterable<Integer> iterable = createIterable(0);
         // Some iterables cannot be empty (such as SingleLinkNodes), so they will return null when
@@ -794,7 +879,7 @@ public abstract class IterableTests
     }
 
     @Test
-    public void mapWithEmptyAndCorrectType()
+    public void instanceOfWithEmptyAndCorrectType()
     {
         final Iterable<Integer> iterable = createIterable(0);
         // Some iterables cannot be empty (such as SingleLinkNodes), so they will return null when
@@ -837,5 +922,158 @@ public abstract class IterableTests
         final Iterator<Integer> instanceOfIterator = instanceOfIterable.iterate();
         assertTrue(instanceOfIterator.any());
         assertEquals(4, instanceOfIterator.getCount());
+    }
+
+    @Test
+    public void equalsWithEmptyAndNull()
+    {
+        final Iterable<Integer> iterable = createIterable(0);
+        if (iterable != null)
+        {
+            assertFalse(iterable.equals((Object) null));
+            assertFalse(iterable.equals((Iterable<Integer>) null));
+        }
+    }
+
+    @Test
+    public void equalsWithEmptyAndEmpty()
+    {
+        final Iterable<Integer> iterable = createIterable(0);
+        if (iterable != null)
+        {
+            final Iterable<Integer> rhs = new Array<>(0);
+            assertTrue(iterable.equals((Object) rhs));
+            assertTrue(iterable.equals(rhs));
+        }
+    }
+
+    @Test
+    public void equalsWithEmptyAndOneValue()
+    {
+        final Iterable<Integer> iterable = createIterable(0);
+        if (iterable != null)
+        {
+            final Iterable<Integer> rhs = Array.fromValues(0);
+            assertFalse(iterable.equals((Object)rhs));
+            assertFalse(iterable.equals(rhs));
+        }
+    }
+
+    @Test
+    public void equalsWithEmptyAndTwoValues()
+    {
+        final Iterable<Integer> iterable = createIterable(0);
+        if (iterable != null)
+        {
+            final Iterable<Integer> rhs = Array.fromValues(0, 1);
+            assertFalse(iterable.equals((Object)rhs));
+            assertFalse(iterable.equals(rhs));
+        }
+    }
+
+    @Test
+    public void equalsWithOneValueAndNull()
+    {
+        final Iterable<Integer> iterable = createIterable(1);
+        if (iterable != null)
+        {
+            assertFalse(iterable.equals((Object) null));
+            assertFalse(iterable.equals((Iterable<Integer>) null));
+        }
+    }
+
+    @Test
+    public void equalsWithOneValueAndEmpty()
+    {
+        final Iterable<Integer> iterable = createIterable(1);
+        if (iterable != null)
+        {
+            final Iterable<Integer> rhs = new Array<>(0);
+            assertFalse(iterable.equals((Object) rhs));
+            assertFalse(iterable.equals(rhs));
+        }
+    }
+
+    @Test
+    public void equalsWithOneValueAndOneValue()
+    {
+        final Iterable<Integer> iterable = createIterable(1);
+        if (iterable != null)
+        {
+            final Iterable<Integer> rhs = Array.fromValues(0);
+            assertTrue(iterable.equals((Object)rhs));
+            assertTrue(iterable.equals(rhs));
+        }
+    }
+
+    @Test
+    public void equalsWithOneValueAndTwoValues()
+    {
+        final Iterable<Integer> iterable = createIterable(1);
+        if (iterable != null)
+        {
+            final Iterable<Integer> rhs = Array.fromValues(0, 1);
+            assertFalse(iterable.equals((Object)rhs));
+            assertFalse(iterable.equals(rhs));
+        }
+    }
+
+    @Test
+    public void equalsWithTwoValuesAndNull()
+    {
+        final Iterable<Integer> iterable = createIterable(2);
+        if (iterable != null)
+        {
+            assertFalse(iterable.equals((Object) null));
+            assertFalse(iterable.equals((Iterable<Integer>) null));
+        }
+    }
+
+    @Test
+    public void equalsWithTwoValuesAndEmpty()
+    {
+        final Iterable<Integer> iterable = createIterable(2);
+        if (iterable != null)
+        {
+            final Iterable<Integer> rhs = new Array<>(0);
+            assertFalse(iterable.equals((Object) rhs));
+            assertFalse(iterable.equals(rhs));
+        }
+    }
+
+    @Test
+    public void equalsWithTwoValuesAndOneValue()
+    {
+        final Iterable<Integer> iterable = createIterable(2);
+        if (iterable != null)
+        {
+            final Iterable<Integer> rhs = Array.fromValues(0);
+            assertFalse(iterable.equals((Object)rhs));
+            assertFalse(iterable.equals(rhs));
+        }
+    }
+
+    @Test
+    public void equalsWithTwoValuesAndEqualTwoValues()
+    {
+        final Iterable<Integer> iterable = createIterable(2);
+        if (iterable != null)
+        {
+            final Iterable<Integer> rhs = Array.fromValues(0, 1);
+            assertTrue(iterable.equals((Object)rhs));
+            assertTrue(iterable.equals(rhs));
+        }
+    }
+
+    @Test
+    public void equalsWithTwoValuesAndDifferentTwoValues()
+    {
+        final Iterable<Integer> iterable = createIterable(2);
+        if (iterable != null)
+        {
+            final Iterable<Integer> rhs = Array.fromValues(2, 3);
+            assertFalse(iterable.equals((Object)rhs));
+            assertFalse(iterable.equals(rhs));
+        }
     }
 }

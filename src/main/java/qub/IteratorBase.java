@@ -3,6 +3,14 @@ package qub;
 public abstract class IteratorBase<T> implements Iterator<T>
 {
     @Override
+    public T takeCurrent()
+    {
+        final T current = getCurrent();
+        next();
+        return current;
+    }
+
+    @Override
     public boolean any()
     {
         return hasCurrent() || next();
@@ -144,6 +152,12 @@ public abstract class IteratorBase<T> implements Iterator<T>
     public Iterator<T> skip(int toSkip)
     {
         return new SkipIterator<>(this, toSkip);
+    }
+
+    @Override
+    public Iterator<T> skipUntil(Function1<T,Boolean> condition)
+    {
+        return new SkipUntilIterator<>(this, condition);
     }
 
     @Override

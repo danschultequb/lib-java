@@ -52,7 +52,8 @@ public class Lex
         this.type = type;
     }
 
-    public String getText()
+    @Override
+    public String toString()
     {
         return text;
     }
