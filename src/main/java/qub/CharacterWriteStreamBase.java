@@ -5,6 +5,11 @@ public abstract class CharacterWriteStreamBase implements CharacterWriteStream
     private final ByteWriteStream byteWriteStream;
     private final CharacterEncoding characterEncoding;
 
+    protected CharacterWriteStreamBase(ByteWriteStream byteWriteStream)
+    {
+        this(byteWriteStream, CharacterEncoding.UTF_8);
+    }
+
     protected CharacterWriteStreamBase(ByteWriteStream byteWriteStream, CharacterEncoding encoding)
     {
         this.byteWriteStream = byteWriteStream;

@@ -7,9 +7,14 @@ public class InMemoryCharacterWriteStream extends CharacterWriteStreamBase
         this(new InMemoryByteWriteStream());
     }
 
+    public InMemoryCharacterWriteStream(CharacterEncoding encoding)
+    {
+        super(new InMemoryByteWriteStream(), encoding);
+    }
+
     public InMemoryCharacterWriteStream(InMemoryByteWriteStream byteWriteStream)
     {
-        super(byteWriteStream, CharacterEncoding.UTF_8);
+        super(byteWriteStream);
     }
 
     @Override
