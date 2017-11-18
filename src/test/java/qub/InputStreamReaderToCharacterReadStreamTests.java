@@ -94,11 +94,11 @@ public class InputStreamReaderToCharacterReadStreamTests
     {
         final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream();
         final InputStreamReaderToCharacterReadStream characterReadStream = getCharacterReadStream(byteReadStream);
-        assertTrue(characterReadStream.close());
+        characterReadStream.close();
         assertFalse(characterReadStream.isOpen());
         assertFalse(byteReadStream.isOpen());
 
-        assertFalse(characterReadStream.close());
+        characterReadStream.close();
         assertFalse(characterReadStream.isOpen());
         assertFalse(byteReadStream.isOpen());
     }

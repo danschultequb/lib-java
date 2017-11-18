@@ -89,6 +89,11 @@ public class JSONWriteStream implements Stream
         writeRightCurlyBracket();
     }
 
+    public void writeArray()
+    {
+        writeArray(null);
+    }
+
     public void writeArray(Action1<JSONArrayWriteStream> writeArrayAction)
     {
         writeLeftSquareBracket();
@@ -106,8 +111,8 @@ public class JSONWriteStream implements Stream
     }
 
     @Override
-    public boolean close()
+    public void close()
     {
-        return writeStream.close();
+        writeStream.close();
     }
 }

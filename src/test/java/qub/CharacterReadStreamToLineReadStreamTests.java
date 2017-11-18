@@ -20,10 +20,10 @@ public class CharacterReadStreamToLineReadStreamTests
     public void close()
     {
         final CharacterReadStreamToLineReadStream lineReadStream = getLineReadStream();
-        assertTrue(lineReadStream.close());
+        lineReadStream.close();
         assertLineReadStream(lineReadStream, false, false, null);
 
-        assertFalse(lineReadStream.close());
+        lineReadStream.close();
         assertLineReadStream(lineReadStream, false, false, null);
     }
 

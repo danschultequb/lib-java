@@ -89,11 +89,11 @@ public class CharacterReadStreamToLineReadStream extends IteratorBase<String> im
     }
 
     @Override
-    public boolean close()
+    public void close()
     {
         current = null;
 
-        return readStream.close();
+        readStream.close();
     }
 
     @Override

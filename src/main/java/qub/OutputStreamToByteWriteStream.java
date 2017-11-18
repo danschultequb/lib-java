@@ -104,16 +104,14 @@ public class OutputStreamToByteWriteStream extends ByteWriteStreamBase
     }
 
     @Override
-    public boolean close()
+    public void close()
     {
-        boolean result = false;
         if (isOpen())
         {
             try
             {
                 outputStream.close();
                 closed = true;
-                result = true;
             }
             catch (IOException e)
             {
@@ -123,6 +121,5 @@ public class OutputStreamToByteWriteStream extends ByteWriteStreamBase
                 }
             }
         }
-        return result;
     }
 }

@@ -19,9 +19,10 @@ public class InMemoryByteReadStreamTests
     public void close()
     {
         final InMemoryByteReadStream readStream = new InMemoryByteReadStream();
-        assertTrue(readStream.close());
+        readStream.close();
         assertFalse(readStream.isOpen());
-        assertFalse(readStream.close());
+        readStream.close();
+        assertFalse(readStream.isOpen());
     }
 
     @Test
@@ -43,7 +44,7 @@ public class InMemoryByteReadStreamTests
         assertArrayEquals(new byte[] { 3 }, readStream.readBytes(3));
         assertArrayEquals(null, readStream.readBytes(1));
 
-        assertTrue(readStream.close());
+        readStream.close();
 
         assertNull(readStream.readBytes(1));
     }

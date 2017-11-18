@@ -3,7 +3,7 @@ package qub;
 /**
  * A generic interface for any type of Stream.
  */
-public interface Stream
+public interface Stream extends AutoCloseable
 {
     /**
      * Get whether or not this stream is open.
@@ -12,8 +12,7 @@ public interface Stream
     boolean isOpen();
 
     /**
-     * Close this stream and return whether or not the stream was closed as a result of this call.
-     * @return Whether or not the stream was closed as a result of this call.
+     * Close this stream.
      */
-    boolean close();
+    void close();
 }

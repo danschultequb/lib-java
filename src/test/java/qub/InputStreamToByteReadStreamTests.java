@@ -38,7 +38,7 @@ public class InputStreamToByteReadStreamTests
 
     private static void closeTest(InputStreamToByteReadStream readStream, boolean expectedResult, boolean expectedIsOpen)
     {
-        assertEquals("close()", expectedResult, readStream.close());
+        readStream.close();
         assertEquals("isOpen()", expectedIsOpen, readStream.isOpen());
     }
 

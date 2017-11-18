@@ -20,13 +20,19 @@ public class JavaFileSystemTests extends FileSystemTests
     @Before
     public void beforeTest()
     {
-        fileSystem.create();
+        while (!fileSystem.exists())
+        {
+            fileSystem.create();
+        }
     }
 
     @After
     public void afterTest()
     {
-        fileSystem.delete();
+        while (fileSystem.exists())
+        {
+            fileSystem.delete();
+        }
     }
 
     @Override

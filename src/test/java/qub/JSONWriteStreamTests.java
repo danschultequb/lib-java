@@ -20,11 +20,11 @@ public class JSONWriteStreamTests
         final InMemoryLineWriteStream inMemoryWriteStream = new InMemoryLineWriteStream();
         final JSONWriteStream writeStream = new JSONWriteStream(inMemoryWriteStream);
 
-        assertTrue(writeStream.close());
+        writeStream.close();
         assertFalse(writeStream.isOpen());
         assertFalse(inMemoryWriteStream.isOpen());
 
-        assertFalse(writeStream.close());
+        writeStream.close();
         assertFalse(writeStream.isOpen());
         assertFalse(inMemoryWriteStream.isOpen());
     }
@@ -249,5 +249,207 @@ public class JSONWriteStreamTests
             }
         });
         assertEquals("{\"apples\":15.5}", inMemoryWriteStream.getText());
+    }
+
+    @Test
+    public void writeObjectWithObjectProperty()
+    {
+        final InMemoryLineWriteStream inMemoryWriteStream = new InMemoryLineWriteStream();
+        final JSONWriteStream writeStream = new JSONWriteStream(inMemoryWriteStream);
+        writeStream.writeObject(new Action1<JSONObjectWriteStream>()
+        {
+            @Override
+            public void run(JSONObjectWriteStream objectWriteStream)
+            {
+                objectWriteStream.writeObjectProperty("apples", new Action1<JSONObjectWriteStream>()
+                {
+                    @Override
+                    public void run(JSONObjectWriteStream arg1)
+                    {
+                    }
+                });
+            }
+        });
+        assertEquals("{\"apples\":{}}", inMemoryWriteStream.getText());
+    }
+
+    @Test
+    public void writeObjectWithArrayProperty()
+    {
+        final InMemoryLineWriteStream inMemoryWriteStream = new InMemoryLineWriteStream();
+        final JSONWriteStream writeStream = new JSONWriteStream(inMemoryWriteStream);
+        writeStream.writeObject(new Action1<JSONObjectWriteStream>()
+        {
+            @Override
+            public void run(JSONObjectWriteStream objectWriteStream)
+            {
+                objectWriteStream.writeArrayProperty("apples", new Action1<JSONArrayWriteStream>()
+                {
+                    @Override
+                    public void run(JSONArrayWriteStream arg1)
+                    {
+                    }
+                });
+            }
+        });
+        assertEquals("{\"apples\":[]}", inMemoryWriteStream.getText());
+    }
+
+    @Test
+    public void writeArrayWithNoAction()
+    {
+        final InMemoryLineWriteStream inMemoryWriteStream = new InMemoryLineWriteStream();
+        final JSONWriteStream writeStream = new JSONWriteStream(inMemoryWriteStream);
+        writeStream.writeArray();
+        assertEquals("[]", inMemoryWriteStream.getText());
+    }
+
+    @Test
+    public void writeArrayWithNullAction()
+    {
+        final InMemoryLineWriteStream inMemoryWriteStream = new InMemoryLineWriteStream();
+        final JSONWriteStream writeStream = new JSONWriteStream(inMemoryWriteStream);
+        writeStream.writeArray(null);
+        assertEquals("[]", inMemoryWriteStream.getText());
+    }
+
+    @Test
+    public void writeArrayWithEmptyAction()
+    {
+        final InMemoryLineWriteStream inMemoryWriteStream = new InMemoryLineWriteStream();
+        final JSONWriteStream writeStream = new JSONWriteStream(inMemoryWriteStream);
+        writeStream.writeArray(new Action1<JSONArrayWriteStream>()
+        {
+            @Override
+            public void run(JSONArrayWriteStream arrayWriteStream)
+            {
+            }
+        });
+        assertEquals("[]", inMemoryWriteStream.getText());
+    }
+
+    @Test
+    public void writeArrayWithNullElement()
+    {
+        final InMemoryLineWriteStream inMemoryWriteStream = new InMemoryLineWriteStream();
+        final JSONWriteStream writeStream = new JSONWriteStream(inMemoryWriteStream);
+        writeStream.writeArray(new Action1<JSONArrayWriteStream>()
+        {
+            @Override
+            public void run(JSONArrayWriteStream arrayWriteStream)
+            {
+                arrayWriteStream.writeNull();
+            }
+        });
+        assertEquals("[null]", inMemoryWriteStream.getText());
+    }
+
+    @Test
+    public void writeArrayWithBooleanElements()
+    {
+        final InMemoryLineWriteStream inMemoryWriteStream = new InMemoryLineWriteStream();
+        final JSONWriteStream writeStream = new JSONWriteStream(inMemoryWriteStream);
+        writeStream.writeArray(new Action1<JSONArrayWriteStream>()
+        {
+            @Override
+            public void run(JSONArrayWriteStream arrayWriteStream)
+            {
+                arrayWriteStream.writeBoolean(false);
+                arrayWriteStream.writeBoolean(true);
+            }
+        });
+        assertEquals("[false,true]", inMemoryWriteStream.getText());
+    }
+
+    @Test
+    public void writeArrayWithQuotedStringElement()
+    {
+        final InMemoryLineWriteStream inMemoryWriteStream = new InMemoryLineWriteStream();
+        final JSONWriteStream writeStream = new JSONWriteStream(inMemoryWriteStream);
+        writeStream.writeArray(new Action1<JSONArrayWriteStream>()
+        {
+            @Override
+            public void run(JSONArrayWriteStream arrayWriteStream)
+            {
+                arrayWriteStream.writeQuotedString("oranges");
+            }
+        });
+        assertEquals("[\"oranges\"]", inMemoryWriteStream.getText());
+    }
+
+    @Test
+    public void writeArrayWithIntegerElement()
+    {
+        final InMemoryLineWriteStream inMemoryWriteStream = new InMemoryLineWriteStream();
+        final JSONWriteStream writeStream = new JSONWriteStream(inMemoryWriteStream);
+        writeStream.writeArray(new Action1<JSONArrayWriteStream>()
+        {
+            @Override
+            public void run(JSONArrayWriteStream arrayWriteStream)
+            {
+                arrayWriteStream.writeNumber(15);
+            }
+        });
+        assertEquals("[15]", inMemoryWriteStream.getText());
+    }
+
+    @Test
+    public void writeArrayWithDoubleElement()
+    {
+        final InMemoryLineWriteStream inMemoryWriteStream = new InMemoryLineWriteStream();
+        final JSONWriteStream writeStream = new JSONWriteStream(inMemoryWriteStream);
+        writeStream.writeArray(new Action1<JSONArrayWriteStream>()
+        {
+            @Override
+            public void run(JSONArrayWriteStream arrayWriteStream)
+            {
+                arrayWriteStream.writeNumber(15.5);
+            }
+        });
+        assertEquals("[15.5]", inMemoryWriteStream.getText());
+    }
+
+    @Test
+    public void writeArrayWithObjectElement()
+    {
+        final InMemoryLineWriteStream inMemoryWriteStream = new InMemoryLineWriteStream();
+        final JSONWriteStream writeStream = new JSONWriteStream(inMemoryWriteStream);
+        writeStream.writeArray(new Action1<JSONArrayWriteStream>()
+        {
+            @Override
+            public void run(JSONArrayWriteStream arrayWriteStream)
+            {
+                arrayWriteStream.writeObject(new Action1<JSONObjectWriteStream>()
+                {
+                    @Override
+                    public void run(JSONObjectWriteStream arg1)
+                    {
+                    }
+                });
+            }
+        });
+        assertEquals("[{}]", inMemoryWriteStream.getText());
+    }
+
+    @Test
+    public void writeArrayWithArrayElement()
+    {
+        final InMemoryLineWriteStream inMemoryWriteStream = new InMemoryLineWriteStream();
+        final JSONWriteStream writeStream = new JSONWriteStream(inMemoryWriteStream);
+        writeStream.writeArray(new Action1<JSONArrayWriteStream>()
+        {
+            @Override
+            public void run(JSONArrayWriteStream arrayWriteStream)
+            {
+                arrayWriteStream.writeArray(new Action1<JSONArrayWriteStream>()
+                {
+                    @Override
+                    public void run(JSONArrayWriteStream arg1)
+                    {
+                    }
+                });
+            }
+        });
+        assertEquals("[[]]", inMemoryWriteStream.getText());
     }
 }

@@ -110,11 +110,11 @@ public class OutputStreamWriterToCharacterWriteStreamTests
     {
         InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
         final OutputStreamWriterToCharacterWriteStream characterWriteStream = getCharacterWriteStream(byteWriteStream);
-        assertTrue(characterWriteStream.close());
+        characterWriteStream.close();
         assertFalse(characterWriteStream.isOpen());
         assertFalse(byteWriteStream.isOpen());
 
-        assertFalse(characterWriteStream.close());
+        characterWriteStream.close();
         assertFalse(characterWriteStream.isOpen());
         assertFalse(byteWriteStream.isOpen());
     }
@@ -125,7 +125,7 @@ public class OutputStreamWriterToCharacterWriteStreamTests
         TestStubOutputStream outputStream = new TestStubOutputStream();
         OutputStreamToByteWriteStream byteWriteStream = new OutputStreamToByteWriteStream(outputStream);
         final OutputStreamWriterToCharacterWriteStream characterWriteStream = getCharacterWriteStream(byteWriteStream);
-        assertFalse(characterWriteStream.close());
+        characterWriteStream.close();
         assertTrue(characterWriteStream.isOpen());
         assertTrue(byteWriteStream.isOpen());
     }

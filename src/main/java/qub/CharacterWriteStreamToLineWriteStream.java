@@ -94,8 +94,8 @@ public class CharacterWriteStreamToLineWriteStream implements LineWriteStream
     }
 
     @Override
-    public boolean close()
+    public void close()
     {
-        return stream.close();
+        stream.close();
     }
 }
