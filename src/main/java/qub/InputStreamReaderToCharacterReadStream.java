@@ -41,9 +41,9 @@ class InputStreamReaderToCharacterReadStream extends CharacterReadStreamBase
     }
 
     @Override
-    public boolean close()
+    public void close()
     {
-        return byteReadStream.close();
+        byteReadStream.close();
     }
 
     @Override

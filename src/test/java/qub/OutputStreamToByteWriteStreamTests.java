@@ -16,18 +16,18 @@ public class OutputStreamToByteWriteStreamTests
         assertTrue(writeStream.isOpen());
     }
 
-    private static void closeTest(OutputStream outputStream, boolean expectedCloseResult, boolean expectedIsOpen)
+    private static void closeTest(OutputStream outputStream, boolean expectedIsOpen)
     {
         final OutputStreamToByteWriteStream writeStream = getWriteStream(outputStream);
-        assertEquals(expectedCloseResult, writeStream.close());
+        writeStream.close();
         assertEquals(expectedIsOpen, writeStream.isOpen());
     }
 
     @Test
     public void close()
     {
-        closeTest(new ByteArrayOutputStream(), true, false);
-        closeTest(new TestStubOutputStream(), false, true);
+        closeTest(new ByteArrayOutputStream(), false);
+        closeTest(new TestStubOutputStream(), true);
     }
 
     private static void writeByteTests(byte toWrite, boolean expectedWriteResult)

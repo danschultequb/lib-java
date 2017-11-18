@@ -29,17 +29,15 @@ public abstract class CharacterWriteStreamBase implements CharacterWriteStream
     }
 
     @Override
-    public boolean close()
+    public void close()
     {
-        boolean result = false;
         try
         {
-            result = byteWriteStream.close();
+            byteWriteStream.close();
         }
         catch (Exception ignored)
         {
         }
-        return result;
     }
 
     @Override

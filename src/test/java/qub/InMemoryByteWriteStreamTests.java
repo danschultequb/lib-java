@@ -18,10 +18,10 @@ public class InMemoryByteWriteStreamTests
     public void close()
     {
         final InMemoryByteWriteStream writeStream = new InMemoryByteWriteStream();
-        assertTrue(writeStream.close());
+        writeStream.close();
         assertFalse(writeStream.isOpen());
         assertNull(writeStream.getBytes());
-        assertFalse(writeStream.close());
+        writeStream.close();
         assertNull(writeStream.getBytes());
     }
 

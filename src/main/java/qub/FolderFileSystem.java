@@ -36,6 +36,11 @@ public class FolderFileSystem extends FileSystemBase
         return innerFileSystem.deleteFolder(baseFolderPath);
     }
 
+    public boolean exists()
+    {
+        return innerFileSystem.folderExists(baseFolderPath);
+    }
+
     public Path getBaseFolderPath()
     {
         return baseFolderPath;

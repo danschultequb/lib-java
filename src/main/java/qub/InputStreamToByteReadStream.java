@@ -27,15 +27,13 @@ public class InputStreamToByteReadStream extends ByteReadStreamBase
     }
 
     @Override
-    public boolean close()
+    public void close()
     {
-        boolean result = false;
         if (!closed)
         {
             try
             {
                 inputStream.close();
-                result = true;
                 closed = true;
             }
             catch (IOException e)
@@ -43,7 +41,6 @@ public class InputStreamToByteReadStream extends ByteReadStreamBase
                 handleException(e);
             }
         }
-        return result;
     }
 
     @Override
