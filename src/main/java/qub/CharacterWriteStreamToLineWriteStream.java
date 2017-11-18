@@ -86,4 +86,16 @@ public class CharacterWriteStreamToLineWriteStream implements LineWriteStream
     {
         return stream;
     }
+
+    @Override
+    public boolean isOpen()
+    {
+        return stream.isOpen();
+    }
+
+    @Override
+    public boolean close()
+    {
+        return stream.close();
+    }
 }

@@ -1,6 +1,6 @@
 package qub;
 
-public interface LineWriteStream
+public interface LineWriteStream extends Stream
 {
     CharacterEncoding getCharacterEncoding();
 
