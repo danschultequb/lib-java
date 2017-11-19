@@ -34,6 +34,13 @@ public interface List<T> extends Indexable<T>
     void set(int index, T value);
 
     /**
+     * Remove the first value in this List that is equal to the provided value.
+     * @param value The value to remove.
+     * @return Whether or not a value in this List was removed.
+     */
+    boolean remove(T value);
+
+    /**
      * Remove and return the value at the provided index. If the index is not in the bounds of this
      * List, then no values will be removed and null will be returned.
      * @param index The index to remove from.

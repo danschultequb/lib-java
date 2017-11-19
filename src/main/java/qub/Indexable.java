@@ -18,4 +18,13 @@ public interface Indexable<T> extends Iterable<T>
      * element matches the condition.
      */
     int indexOf(Function1<T,Boolean> condition);
+
+    /**
+     * Get the index of the first element in this Indexable that equals the provided value or -1 if
+     * no element equals the value.
+     * @param value The value to look for in this Indexable.
+     * @return The index of the first element that equals the provided value or -1 if no element
+     * equals the provided value.
+     */
+    int indexOf(T value);
 }

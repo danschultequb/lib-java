@@ -1,5 +1,7 @@
 package qub;
 
+import java.util.Objects;
+
 public abstract class IndexableBase<T> extends IterableBase<T> implements Indexable<T>
 {
     @Override
@@ -23,5 +25,18 @@ public abstract class IndexableBase<T> extends IterableBase<T> implements Indexa
             }
         }
         return result;
+    }
+
+    @Override
+    public int indexOf(final T value)
+    {
+        return indexOf(new Function1<T, Boolean>()
+        {
+            @Override
+            public Boolean run(T element)
+            {
+                return Objects.equals(element, value);
+            }
+        });
     }
 }

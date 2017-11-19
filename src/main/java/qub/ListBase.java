@@ -37,4 +37,16 @@ public abstract class ListBase<T> extends IndexableBase<T> implements List<T>
             }
         }
     }
+
+    @Override
+    public boolean remove(T value)
+    {
+        final int indexToRemove = indexOf(value);
+        final boolean result = indexToRemove != -1;
+        if (result)
+        {
+            removeAt(indexToRemove);
+        }
+        return result;
+    }
 }
