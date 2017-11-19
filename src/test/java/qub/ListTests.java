@@ -133,6 +133,31 @@ public abstract class ListTests extends IndexableTests
     }
 
     @Test
+    public void removeWithNull()
+    {
+        final List<Integer> list = createList(10);
+        assertFalse(list.remove(null));
+        assertEquals(10, list.getCount());
+    }
+
+    @Test
+    public void removeWithNotFound()
+    {
+        final List<Integer> list = createList(10);
+        assertFalse(list.remove(20));
+        assertEquals(10, list.getCount());
+    }
+
+    @Test
+    public void removeWithFound()
+    {
+        final List<Integer> list = createList(5);
+        assertTrue(list.remove(3));
+        assertEquals(4, list.getCount());
+        assertEquals(Array.fromValues(0, 1, 2, 4), list);
+    }
+
+    @Test
     public void removeAt()
     {
         final List<Integer> list = createList(0);

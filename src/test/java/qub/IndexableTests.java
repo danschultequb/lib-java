@@ -61,7 +61,7 @@ public abstract class IndexableTests extends IterableTests
     public void indexOfWithEmptyAndNullCondition()
     {
         final Indexable<Integer> indexable = createIndexable(0);
-        assertEquals(-1, indexable.indexOf(null));
+        assertEquals(-1, indexable.indexOf((Function1<Integer,Boolean>)null));
     }
 
     @Test
@@ -75,7 +75,7 @@ public abstract class IndexableTests extends IterableTests
     public void indexOfWithNonEmptyAndNullCondition()
     {
         final Indexable<Integer> indexable = createIndexable(1);
-        assertEquals(-1, indexable.indexOf(null));
+        assertEquals(-1, indexable.indexOf((Function1<Integer,Boolean>)null));
     }
 
     @Test
@@ -90,5 +90,26 @@ public abstract class IndexableTests extends IterableTests
     {
         final Indexable<Integer> indexable = createIndexable(7);
         assertEquals(1, indexable.indexOf(Math.isOdd));
+    }
+
+    @Test
+    public void indexOfWithNullValue()
+    {
+        final Indexable<Integer> indexable = createIndexable(2);
+        assertEquals(-1, indexable.indexOf((Integer)null));
+    }
+
+    @Test
+    public void indexOfWithNotFoundValue()
+    {
+        final Indexable<Integer> indexable = createIndexable(2);
+        assertEquals(-1, indexable.indexOf(20));
+    }
+
+    @Test
+    public void indexOfWithFoundValue()
+    {
+        final Indexable<Integer> indexable = createIndexable(10);
+        assertEquals(4, indexable.indexOf(4));
     }
 }
