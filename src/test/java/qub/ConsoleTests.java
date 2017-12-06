@@ -500,4 +500,44 @@ public class ConsoleTests
         assertNotNull(currentFolder);
         assertTrue(currentFolder.exists());
     }
+
+    @Test
+    public void getEnvironmentVariableWithNull()
+    {
+        final Console console = new Console();
+        assertNull(console.getEnvironmentVariable(null));
+        assertNull(console.getEnvironmentVariable(null));
+    }
+
+    @Test
+    public void getEnvironmentVariableWithEmpty()
+    {
+        final Console console = new Console();
+        assertNull(console.getEnvironmentVariable(""));
+    }
+
+    @Test
+    public void getEnvironmentVariableWithNotFound()
+    {
+        final Console console = new Console();
+        assertNull(console.getEnvironmentVariable("Can't find me"));
+    }
+
+    @Test
+    public void getEnvironmentVariableWithFound()
+    {
+        final Console console = new Console();
+        final String path = console.getEnvironmentVariable("path");
+        assertNotNull(path);
+        assertFalse(path.isEmpty());
+    }
+
+    @Test
+    public void setEnvironmentVariables()
+    {
+        final Console console = new Console();
+        final Map<String,String> envVars = new ListMap<>();
+        console.setEnvironmentVariables(envVars);
+        assertSame(envVars, console.getEnvironmentVariables());
+    }
 }
