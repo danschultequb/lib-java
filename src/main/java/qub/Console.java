@@ -19,6 +19,7 @@ public class Console
     private final Value<Random> random;
     private final Value<FileSystem> fileSystem;
     private final Value<String> currentFolderPathString;
+    private final Value<Map<String,String>> environmentVariables;
 
     private final AsyncRunner mainRunner;
     private final AsyncRunner parallelRunner;
@@ -48,6 +49,7 @@ public class Console
         random = new Value<>();
         fileSystem = new Value<>();
         currentFolderPathString = new Value<>();
+        environmentVariables = new Value<>();
 
         mainRunner = new CurrentThreadAsyncRunner();
         AsyncRunnerRegistry.setCurrentThreadAsyncRunner(mainRunner);
@@ -402,5 +404,58 @@ public class Console
     {
         final FileSystem fileSystem = getFileSystem();
         return fileSystem == null ? null : fileSystem.getFolder(getCurrentFolderPath());
+    }
+
+    /**
+     * Set the environment variables that will be used by this Application.
+     * @param environmentVariables The environment variables that will be used by this application.
+     */
+    public void setEnvironmentVariables(Map<String,String> environmentVariables)
+    {
+        this.environmentVariables.set(environmentVariables);
+    }
+
+    /**
+     * Get the environment variables for this application.
+     * @return The environment variables for this application.
+     */
+    public Map<String,String> getEnvironmentVariables()
+    {
+        if (!environmentVariables.hasValue())
+        {
+            final Map<String,String> envVars = new ListMap<>();
+            for (final java.util.Map.Entry<String,String> entry : System.getenv().entrySet())
+            {
+                envVars.set(entry.getKey(), entry.getValue());
+            }
+            environmentVariables.set(envVars);
+        }
+        return environmentVariables.get();
+    }
+
+    /**
+     * Get the value of the provided environment variable. If no environment variable exists with
+     * the provided name, then null will be returned.
+     * @param variableName The name of the environment variable.
+     * @return The value of the environment variable, or null if the variable doesn't exist.
+     */
+    public String getEnvironmentVariable(String variableName)
+    {
+        String result = null;
+        if (variableName != null && !variableName.isEmpty())
+        {
+            final String lowerVariableName = variableName.toLowerCase();
+            final Map<String,String> environmentVariables = getEnvironmentVariables();
+            final MapEntry<String,String> resultEntry = environmentVariables.first(new Function1<MapEntry<String, String>, Boolean>()
+            {
+                @Override
+                public Boolean run(MapEntry<String, String> entry)
+                {
+                    return entry.getKey().toLowerCase().equals(lowerVariableName);
+                }
+            });
+            result = resultEntry == null ? null : resultEntry.getValue();
+        }
+        return result;
     }
 }
