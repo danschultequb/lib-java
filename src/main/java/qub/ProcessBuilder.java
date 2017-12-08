@@ -7,15 +7,19 @@ import java.io.IOException;
  */
 public class ProcessBuilder
 {
+    private final AsyncRunner asyncRunner;
     private final File executableFile;
     private final List<String> arguments;
+    private Action1<String> outputRedirectFunction;
+    private Action1<String> errorRedirectFunction;
 
     /**
      * Create a new ProcessBuilder with the provided executable file.
      * @param executableFile The file to execute.
      */
-    ProcessBuilder(File executableFile)
+    ProcessBuilder(AsyncRunner asyncRunner, File executableFile)
     {
+        this.asyncRunner = asyncRunner;
         this.executableFile = executableFile;
         this.arguments = new ArrayList<>();
     }
@@ -120,12 +124,35 @@ public class ProcessBuilder
     }
 
     /**
+     * Redirect the output stream lines from the processes that are created by this ProcessBuilder.
+     * @param onOutputLine The function to call when a process writes a line to its output stream.
+     * @return This ProcessBuilder.
+     */
+    public ProcessBuilder redirectOutputLines(Action1<String> onOutputLine)
+    {
+        this.outputRedirectFunction = onOutputLine;
+        return this;
+    }
+
+    /**
+     * Redirect the error stream lines from the processes that are created by this ProcessBuilder.
+     * @param onErrorLine The function to call when a process writes a line to its error stream.
+     * @return This ProcessBuilder.
+     */
+    public ProcessBuilder redirectErrorLines(Action1<String> onErrorLine)
+    {
+        this.errorRedirectFunction = onErrorLine;
+        return this;
+    }
+
+    /**
      * Create a process with this ProcessBuilder's properties and wait for the process to complete.
      * @return The exit code of the Process, or null if the process couldn't start.
      */
     public Integer run()
     {
         final java.lang.ProcessBuilder builder = new java.lang.ProcessBuilder(executableFile.getPath().toString());
+
         if (arguments.any())
         {
             for (final String argument : arguments)
@@ -134,10 +161,69 @@ public class ProcessBuilder
             }
         }
 
+        if (outputRedirectFunction != null)
+        {
+            builder.redirectOutput();
+        }
+
+        if (errorRedirectFunction != null)
+        {
+            builder.redirectError();
+        }
+
         Integer result = null;
         try
         {
             final java.lang.Process process = builder.start();
+
+            if (outputRedirectFunction != null)
+            {
+                asyncRunner.schedule(new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        try (final LineReadStream processOutputLineReadStream = new InputStreamToByteReadStream(process.getInputStream()).asLineReadStream(true))
+                        {
+                            String outputLine;
+                            do
+                            {
+                                outputLine = processOutputLineReadStream.readLine();
+                                if (outputLine != null)
+                                {
+                                    outputRedirectFunction.run(outputLine);
+                                }
+                            }
+                            while (outputLine != null);
+                        }
+                    }
+                });
+            }
+
+            if (errorRedirectFunction != null)
+            {
+                asyncRunner.schedule(new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        try (final LineReadStream processErrorLineReadStream = new InputStreamToByteReadStream(process.getErrorStream()).asLineReadStream(true))
+                        {
+                            String errorLine;
+                            do
+                            {
+                                errorLine = processErrorLineReadStream.readLine();
+                                if (errorLine != null)
+                                {
+                                    errorRedirectFunction.run(errorLine);
+                                }
+                            }
+                            while (errorLine != null);
+                        }
+                    }
+                });
+            }
+
             result = process.waitFor();
         }
         catch (IOException | InterruptedException ignored)

@@ -633,7 +633,48 @@ public class ConsoleTests
             final ProcessBuilder builder = console.getProcessBuilder("javac");
             assertTrue(builder.getExecutableFile().getPath().getSegments().last().contains("javac"));
             assertEquals(0, builder.getArgumentCount());
+
+            final StringBuilder output = new StringBuilder();
+            builder.redirectOutputLines(new Action1<String>()
+            {
+                @Override
+                public void run(String outputLine)
+                {
+                    output.append(outputLine);
+                }
+            });
+
             assertEquals(2, builder.run().intValue());
+
+            final String outputString = output.toString();
+            assertTrue(outputString.contains("javac <options> <source files>"));
+            assertTrue(outputString.contains("Terminate compilation if warnings occur"));
+        }
+    }
+
+    @Test
+    public void getProcessBuilderWithFileNameWithoutExtensionWithErrorLines()
+    {
+        final Console console = new Console();
+        if (console.onWindows())
+        {
+            final ProcessBuilder builder = console.getProcessBuilder("javac");
+            builder.addArgument("notfound.java");
+
+            final StringBuilder error = new StringBuilder();
+            builder.redirectErrorLines(new Action1<String>()
+            {
+                @Override
+                public void run(String errorLine)
+                {
+                    error.append(errorLine);
+                }
+            });
+
+            assertEquals(2, builder.run().intValue());
+
+            final String errorString = error.toString();
+            assertTrue(errorString.contains("file not found: notfound.java"));
         }
     }
 }
