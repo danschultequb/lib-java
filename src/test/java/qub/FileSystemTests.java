@@ -3393,6 +3393,13 @@ public abstract class FileSystemTests
     }
 
     @Test
+    public void getFileContentByteReadStreamWhenFileDoesntExist()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertNull(fileSystem.getFileContentByteReadStream("C:/i/dont/exist.txt"));
+    }
+
+    @Test
     public void getFileContentBlocksStringWithNull()
     {
         final FileSystem fileSystem = getFileSystem();

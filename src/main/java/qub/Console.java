@@ -131,8 +131,8 @@ public class Console
     }
 
     /**
-     * Get the TextWriteStream that is assigned to this Console.
-     * @return
+     * Get the ByteWriteStream that is assigned to this Console.
+     * @return The ByteWriteStream that is assigned to this Console.
      */
     public ByteWriteStream asByteWriteStream()
     {
@@ -456,6 +456,115 @@ public class Console
             });
             result = resultEntry == null ? null : resultEntry.getValue();
         }
+        return result;
+    }
+
+    /**
+     * Get a ProcessBuilder that references the provided executablePath.
+     * @param executablePath The path to the executable to run from the returned ProcessBuilder.
+     * @return The ProcessBuilder.
+     */
+    public ProcessBuilder getProcessBuilder(String executablePath)
+    {
+        return getProcessBuilder(Path.parse(executablePath));
+    }
+
+    private File getExecutableFile(FileSystem fileSystem, Path exectuablePath, boolean checkExtensions)
+    {
+        File result = null;
+        if (checkExtensions)
+        {
+            final File executableFile = fileSystem.getFile(exectuablePath);
+            if (executableFile.exists())
+            {
+                result = executableFile;
+            }
+        }
+        else
+        {
+            final Path executablePathWithoutExtension = exectuablePath.withoutFileExtension();
+
+            final Path folderPath = exectuablePath.getParentPath();
+            final Folder folder = fileSystem.getFolder(folderPath);
+            result = folder.getFiles().first(new Function1<File, Boolean>()
+            {
+                @Override
+                public Boolean run(File file)
+                {
+                    return executablePathWithoutExtension.equals(file.getPath().withoutFileExtension());
+                }
+            });
+        }
+        return result;
+    }
+
+    private File findExecutableFile(Path executablePath, boolean checkExtensions)
+    {
+        File executableFile;
+
+        final FileSystem fileSystem = getFileSystem();
+        if(executablePath.isRooted())
+        {
+            executableFile = getExecutableFile(fileSystem, executablePath, checkExtensions);
+        }
+        else
+        {
+            final Path currentFolderPath = getCurrentFolderPath();
+            final Path currentFolderExecutablePath = currentFolderPath.concatenateSegment(executablePath);
+            final File currentFolderFile = getExecutableFile(fileSystem, currentFolderExecutablePath, checkExtensions);
+            if(currentFolderFile != null)
+            {
+                executableFile = currentFolderFile;
+            }
+            else
+            {
+                executableFile = null;
+
+                final String pathEnvironmentVariable = getEnvironmentVariable("path");
+                final String[] pathStrings = pathEnvironmentVariable.split(";");
+                for (final String pathString : pathStrings)
+                {
+                    if (pathString != null && !pathString.isEmpty())
+                    {
+                        final Path path = Path.parse(pathString);
+                        final Path pathBasedExecutablePath = path.concatenateSegment(executablePath);
+                        final File pathFile = getExecutableFile(fileSystem, pathBasedExecutablePath, checkExtensions);
+                        if (pathFile != null)
+                        {
+                            executableFile = pathFile;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        return executableFile;
+    }
+
+    /**
+     * Get a ProcessBuilder that references the provided executablePath.
+     * @param executablePath The path to the executable to run from the returned ProcessBuilder.
+     * @return The ProcessBuilder.
+     */
+    public ProcessBuilder getProcessBuilder(Path executablePath)
+    {
+        ProcessBuilder result = null;
+
+        if (executablePath != null && !executablePath.isEmpty())
+        {
+            File executableFile = findExecutableFile(executablePath, true);
+            if (executableFile == null)
+            {
+                executableFile = findExecutableFile(executablePath, false);
+            }
+
+            if (executableFile != null)
+            {
+                result = new ProcessBuilder(executableFile);
+            }
+        }
+
         return result;
     }
 }

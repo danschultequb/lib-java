@@ -101,27 +101,6 @@ public class ProcessBuilderTests
     }
 
     @Test
-    @Ignore
-    public void runWithNoArguments()
-    {
-        final JavaFileSystem fileSystem = new JavaFileSystem();
-        final File javacFile = fileSystem.getFile("C:/Program Files/Java/jdk-9/bin/javac.exe");
-        final ProcessBuilder builder = new ProcessBuilder(javacFile);
-        assertEquals(2, builder.run().intValue());
-    }
-
-    @Test
-    @Ignore
-    public void runWithOneArgument()
-    {
-        final JavaFileSystem fileSystem = new JavaFileSystem();
-        final File javacFile = fileSystem.getFile("C:/Program Files/Java/jdk-9/bin/javac.exe");
-        final ProcessBuilder builder = new ProcessBuilder(javacFile);
-        builder.addArgument("-?");
-        assertEquals(2, builder.run().intValue());
-    }
-
-    @Test
     public void runWithNotFoundExecutableFile()
     {
         final JavaFileSystem fileSystem = new JavaFileSystem();

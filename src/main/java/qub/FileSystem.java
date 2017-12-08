@@ -721,6 +721,20 @@ public interface FileSystem
     Iterable<String> getFileContentLines(Path rootedFilePath, boolean includeNewLines, CharacterEncoding encoding);
 
     /**
+     * Get a ByteReadStream to the file at the provided rootedFilePath.
+     * @param rootedFilePath The rooted file path to the file.
+     * @return A ByteReadStream to the contents of the file.
+     */
+    ByteReadStream getFileContentByteReadStream(String rootedFilePath);
+
+    /**
+     * Get a ByteReadStream to the file at the provided rootedFilePath.
+     * @param rootedFilePath The rooted file path to the file.
+     * @return A ByteReadStream to the contents of the file.
+     */
+    ByteReadStream getFileContentByteReadStream(Path rootedFilePath);
+
+    /**
      * Set the contents of the file at the provided rootedFilePath to the provided byte array. If
      * the file doesn't exist, then it will be created.
      * @param rootedFilePath The path to the file to set the contents for.

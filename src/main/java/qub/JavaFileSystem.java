@@ -1,10 +1,5 @@
 package qub;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-
 /**
  * A FileSystem implementation that interacts with a typical Windows, Linux, or MacOS device.
  */
@@ -28,13 +23,13 @@ public class JavaFileSystem extends FileSystemBase
     }
 
     @Override
-    public Iterable<FileSystemEntry> getFilesAndFolders(Path folderPath)
+    public Iterable<FileSystemEntry> getFilesAndFolders(Path rootedFolderPath)
     {
         Array<FileSystemEntry> result = null;
 
-        if (folderPath != null)
+        if (rootExists(rootedFolderPath))
         {
-            final java.io.File containerFile = new java.io.File(folderPath.toString());
+            final java.io.File containerFile = new java.io.File(rootedFolderPath.toString());
             if (containerFile.exists() && containerFile.isDirectory())
             {
                 final java.io.File[] containerEntryFiles = containerFile.listFiles();
@@ -78,13 +73,13 @@ public class JavaFileSystem extends FileSystemBase
     }
 
     @Override
-    public boolean folderExists(Path folderPath)
+    public boolean folderExists(Path rootedFolderPath)
     {
         boolean result = false;
 
-        if (folderPath != null && folderPath.isRooted())
+        if (rootExists(rootedFolderPath))
         {
-            final String folderPathString = folderPath.toString();
+            final String folderPathString = rootedFolderPath.toString();
             final java.io.File folderFile = new java.io.File(folderPathString);
             result = folderFile.exists() && folderFile.isDirectory();
         }
@@ -93,11 +88,11 @@ public class JavaFileSystem extends FileSystemBase
     }
 
     @Override
-    public boolean createFolder(Path folderPath, Out<Folder> outputFolder)
+    public boolean createFolder(Path rootedFolderPath, Out<Folder> outputFolder)
     {
         boolean result = false;
 
-        if (folderPath == null || !folderPath.isRooted() || !rootExists(folderPath.getRoot()))
+        if (!rootExists(rootedFolderPath))
         {
             if (outputFolder != null)
             {
@@ -106,13 +101,13 @@ public class JavaFileSystem extends FileSystemBase
         }
         else
         {
-            final String folderPathString = folderPath.toString();
+            final String folderPathString = rootedFolderPath.toString();
             final java.io.File folderFile = new java.io.File(folderPathString);
             result = folderFile.mkdirs();
 
             if (outputFolder != null)
             {
-                outputFolder.set(getFolder(folderPath));
+                outputFolder.set(getFolder(rootedFolderPath));
             }
         }
 
@@ -120,13 +115,13 @@ public class JavaFileSystem extends FileSystemBase
     }
 
     @Override
-    public boolean deleteFolder(Path folderPath)
+    public boolean deleteFolder(Path rootedFolderPath)
     {
         boolean result = false;
 
-        if (folderPath != null && folderPath.isRooted() && rootExists(folderPath.getRoot()))
+        if (rootExists(rootedFolderPath))
         {
-            final String folderPathString = folderPath.toString();
+            final String folderPathString = rootedFolderPath.toString();
             final java.io.File folderFile = new java.io.File(folderPathString);
             result = deleteFolder(folderFile);
         }
@@ -163,13 +158,13 @@ public class JavaFileSystem extends FileSystemBase
     }
 
     @Override
-    public boolean fileExists(Path filePath)
+    public boolean fileExists(Path rootedFilePath)
     {
         boolean result = false;
 
-        if (filePath != null && filePath.isRooted() && !filePath.endsWith("/") && !filePath.endsWith("\\"))
+        if (rootExists(rootedFilePath))
         {
-            final String filePathString = filePath.toString();
+            final String filePathString = rootedFilePath.toString();
             final java.io.File javaFolder = new java.io.File(filePathString);
             result = javaFolder.exists() && javaFolder.isFile();
         }
@@ -178,11 +173,11 @@ public class JavaFileSystem extends FileSystemBase
     }
 
     @Override
-    public boolean createFile(Path filePath, byte[] fileContents, Out<File> outputFile)
+    public boolean createFile(Path rootedFilePath, byte[] fileContents, Out<File> outputFile)
     {
         boolean result = false;
 
-        if (filePath == null || !filePath.isRooted() || filePath.endsWith("/") || filePath.endsWith("\\") || filePath.endsWith(":") || !rootExists(filePath.getRoot()))
+        if (!rootExists(rootedFilePath) || rootedFilePath.endsWith("/") || rootedFilePath.endsWith("\\") || rootedFilePath.endsWith(":"))
         {
             if (outputFile != null)
             {
@@ -191,29 +186,29 @@ public class JavaFileSystem extends FileSystemBase
         }
         else
         {
-            final Path parentFolderPath = filePath.getParentPath();
+            final Path parentFolderPath = rootedFilePath.getParentPath();
             final Value<Folder> parentFolder = new Value<>();
             createFolder(parentFolderPath, parentFolder);
             if (parentFolder.get() != null)
             {
-                final String filePathString = filePath.toString();
+                final String filePathString = rootedFilePath.toString();
                 final java.io.File file = new java.io.File(filePathString);
                 try
                 {
                     result = file.createNewFile();
                     if (result && fileContents != null && fileContents.length > 0)
                     {
-                        try (final FileOutputStream writeStream = new FileOutputStream(filePathString))
+                        try (final java.io.FileOutputStream writeStream = new java.io.FileOutputStream(filePathString))
                         {
                             writeStream.write(fileContents);
                         }
                     }
                     if (outputFile != null)
                     {
-                        outputFile.set(getFile(filePath));
+                        outputFile.set(getFile(rootedFilePath));
                     }
                 }
-                catch (IOException e)
+                catch (java.io.IOException e)
                 {
                     if (outputFile != null)
                     {
@@ -227,13 +222,13 @@ public class JavaFileSystem extends FileSystemBase
     }
 
     @Override
-    public boolean deleteFile(Path filePath)
+    public boolean deleteFile(Path rootedFilePath)
     {
         boolean result = false;
 
-        if (filePath != null && filePath.isRooted() && rootExists(filePath.getRoot()))
+        if (rootExists(rootedFilePath))
         {
-            final String filePathString = filePath.toString();
+            final String filePathString = rootedFilePath.toString();
             final java.io.File javaFile = new java.io.File(filePathString);
             result = deleteFolder(javaFile);
         }
@@ -242,52 +237,26 @@ public class JavaFileSystem extends FileSystemBase
     }
 
     @Override
-    public byte[] getFileContents(Path rootedFilePath)
+    public ByteReadStream getFileContentByteReadStream(Path rootedFilePath)
     {
-        final Iterable<byte[]> fileContentBlocks = getFileContentBlocks(rootedFilePath);
-        return Array.merge(fileContentBlocks);
-    }
+        ByteReadStream result = null;
 
-    @Override
-    public String getFileContentsAsString(Path rootedFilePath, CharacterEncoding encoding)
-    {
-        String result = null;
-        if (encoding != null)
-        {
-            final byte[] fileContents = getFileContents(rootedFilePath);
-            result = encoding.decode(fileContents);
-        }
-        return result;
-    }
-
-    @Override
-    public Iterable<byte[]> getFileContentBlocks(Path rootedFilePath)
-    {
-        List<byte[]> result = null;
-
-        if (rootedFilePath != null && rootedFilePath.isRooted() && rootExists(rootedFilePath.getRoot()))
+        if (rootExists(rootedFilePath))
         {
             final String filePathString = rootedFilePath.toString();
-            try (final FileInputStream inputStream = new FileInputStream(filePathString);)
-            {
-                result = new ArrayList<>();
 
-                final byte[] buffer = new byte[1024];
-                int bytesRead;
-                do
-                {
-                    bytesRead = inputStream.read(buffer);
-                    if (bytesRead > 0)
-                    {
-                        final byte[] byteBlock = Array.clone(buffer, 0, bytesRead);
-                        result.add(byteBlock);
-                    }
-                }
-                while (bytesRead >= 0);
-            }
-            catch (IOException ignored)
+            java.io.FileInputStream fileInputStream = null;
+            try
             {
-                result = null;
+                fileInputStream = new java.io.FileInputStream(filePathString);
+            }
+            catch (java.io.FileNotFoundException ignored)
+            {
+            }
+
+            if (fileInputStream != null)
+            {
+                result = new InputStreamToByteReadStream(fileInputStream);
             }
         }
 
@@ -299,14 +268,14 @@ public class JavaFileSystem extends FileSystemBase
     {
         boolean result = false;
 
-        if (rootedFilePath != null && rootedFilePath.isRooted() && rootExists(rootedFilePath.getRoot()))
+        if (rootExists(rootedFilePath))
         {
-            try (FileOutputStream outputStream = new FileOutputStream(rootedFilePath.toString()))
+            try (java.io.FileOutputStream outputStream = new java.io.FileOutputStream(rootedFilePath.toString()))
             {
                 outputStream.write(fileContents == null ? new byte[0] : fileContents);
                 result = true;
             }
-            catch (IOException ignored)
+            catch (java.io.IOException ignored)
             {
                 result = createFile(rootedFilePath, fileContents);
             }

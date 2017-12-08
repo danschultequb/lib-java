@@ -29,6 +29,66 @@ public class Path
     }
 
     /**
+     * Get whether or not this Path has a file extension.
+     * @return Whether or not this Path has a file extension.
+     */
+    public boolean hasFileExtension()
+    {
+        return getFileExtension() != null;
+    }
+
+    /**
+     * Get the file extension (including the period) of this Path. If no file extension exists on
+     * this Path, then null will be returned.
+     * @return The file extension (including the period) of this Path.
+     */
+    public String getFileExtension()
+    {
+        String result;
+        final Path normalizedPath = normalize();
+        final String lastSegment = normalizedPath.getSegments().last();
+        final int lastPeriodIndex = lastSegment.lastIndexOf('.');
+        if (lastPeriodIndex == -1)
+        {
+            result = null;
+        }
+        else
+        {
+            result = lastSegment.substring(lastPeriodIndex);
+        }
+        return result;
+    }
+
+    /**
+     * Get a Path that is this path without a file extension. If this path doesn't have a file
+     * extension, then this path will be returned.
+     * @return This path without a file extension.
+     */
+    public Path withoutFileExtension()
+    {
+        Path result;
+        final Path normalizedPath = normalize();
+        final String lastSegment = normalizedPath.getSegments().last();
+        final int lastPeriodIndex = lastSegment.lastIndexOf('.');
+        if (lastPeriodIndex == -1)
+        {
+            result = this;
+        }
+        else
+        {
+            final int lastSegmentLength = lastSegment.length();
+
+            final String normalizedPathString = normalizedPath.toString();
+            final int normalizedPathStringLength = normalizedPathString.length();
+
+            final int fileExtensionStartIndex = normalizedPathStringLength - (lastSegmentLength - lastPeriodIndex);
+
+            result = new Path(normalizedPathString.substring(0, fileExtensionStartIndex), true);
+        }
+        return result;
+    }
+
+    /**
      * Return a Path that is the result of concatenating the provided String onto the end of this
      * Path.
      * @param toConcatenate The String to concatenate onto the end of this Path.

@@ -20,16 +20,22 @@ public abstract class FileSystemBase implements FileSystem
     }
 
     @Override
-    public boolean rootExists(final Path rootPath)
+    public boolean rootExists(Path rootPath)
     {
-        return getRoots().contains(new Function1<Root, Boolean>()
+        boolean result = false;
+        if (rootPath != null && rootPath.isRooted())
         {
-            @Override
-            public Boolean run(Root root)
+            final Path onlyRootPath = rootPath.getRootPath();
+            result = getRoots().contains(new Function1<Root, Boolean>()
             {
-                return root.getPath().equals(rootPath);
-            }
-        });
+                @Override
+                public Boolean run(Root root)
+                {
+                    return root.getPath().equals(onlyRootPath);
+                }
+            });
+        }
+        return result;
     }
 
     @Override
@@ -652,6 +658,13 @@ public abstract class FileSystemBase implements FileSystem
     }
 
     @Override
+    public byte[] getFileContents(Path rootedFilePath)
+    {
+        final Iterable<byte[]> fileContentBlocks = getFileContentBlocks(rootedFilePath);
+        return Array.merge(fileContentBlocks);
+    }
+
+    @Override
     public String getFileContentsAsString(String rootedFilePath)
     {
         final Path path = Path.parse(rootedFilePath);
@@ -672,10 +685,51 @@ public abstract class FileSystemBase implements FileSystem
     }
 
     @Override
+    public String getFileContentsAsString(Path rootedFilePath, CharacterEncoding encoding)
+    {
+        String result = null;
+        if (encoding != null)
+        {
+            final byte[] fileContents = getFileContents(rootedFilePath);
+            result = encoding.decode(fileContents);
+        }
+        return result;
+    }
+
+    @Override
     public Iterable<byte[]> getFileContentBlocks(String rootedFilePath)
     {
         final Path path = Path.parse(rootedFilePath);
         return getFileContentBlocks(path);
+    }
+
+    @Override
+    public Iterable<byte[]> getFileContentBlocks(Path rootedFilePath)
+    {
+        List<byte[]> result = null;
+
+        try (final ByteReadStream fileByteReadStream = getFileContentByteReadStream(rootedFilePath))
+        {
+            if (fileByteReadStream != null)
+            {
+                result = new ArrayList<>();
+
+                final byte[] buffer = new byte[1024];
+                int bytesRead;
+                do
+                {
+                    bytesRead = fileByteReadStream.readBytes(buffer);
+                    if (bytesRead > 0)
+                    {
+                        final byte[] byteBlock = Array.clone(buffer, 0, bytesRead);
+                        result.add(byteBlock);
+                    }
+                }
+                while (bytesRead >= 0);
+            }
+        }
+
+        return result;
     }
 
     @Override
@@ -761,6 +815,13 @@ public abstract class FileSystemBase implements FileSystem
         }
 
         return result;
+    }
+
+    @Override
+    public ByteReadStream getFileContentByteReadStream(String rootedFilePath)
+    {
+        final Path path = Path.parse(rootedFilePath);
+        return getFileContentByteReadStream(path);
     }
 
     @Override

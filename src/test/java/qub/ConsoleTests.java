@@ -540,4 +540,90 @@ public class ConsoleTests
         console.setEnvironmentVariables(envVars);
         assertSame(envVars, console.getEnvironmentVariables());
     }
+
+    @Test
+    public void getProcessBuilderWithNullString()
+    {
+        final Console console = new Console();
+        assertNull(console.getProcessBuilder((String)null));
+    }
+
+    @Test
+    public void getProcessBuilderWithEmptyString()
+    {
+        final Console console = new Console();
+        assertNull(console.getProcessBuilder(""));
+    }
+
+    @Test
+    public void getProcessBuilderWithCurrentFolderRelativePathWithFileExtension()
+    {
+        final Console console = new Console();
+        final ProcessBuilder builder = console.getProcessBuilder("pom.xml");
+        assertNotNull(builder);
+        assertEquals(console.getCurrentFolder().getFile("pom.xml"), builder.getExecutableFile());
+        assertEquals(0, builder.getArgumentCount());
+    }
+
+    @Test
+    public void getProcessBuilderWithCurrentFolderRelativePathWithoutFileExtension()
+    {
+        final Console console = new Console();
+        final ProcessBuilder builder = console.getProcessBuilder("pom");
+        assertNotNull(builder);
+        assertEquals(console.getCurrentFolder().getFile("pom.xml"), builder.getExecutableFile());
+        assertEquals(0, builder.getArgumentCount());
+    }
+
+    @Test
+    public void getProcessBuilderWithRootedPathWithFileExtension()
+    {
+        final Console console = new Console();
+        final Path executablePath = console.getCurrentFolder().getFile("pom.xml").getPath();
+        final ProcessBuilder builder = console.getProcessBuilder(executablePath);
+        assertNotNull(builder);
+        assertEquals(console.getCurrentFolder().getFile("pom.xml"), builder.getExecutableFile());
+        assertEquals(0, builder.getArgumentCount());
+    }
+
+    @Test
+    public void getProcessBuilderWithRootedPathWithoutFileExtension()
+    {
+        final Console console = new Console();
+        final Path executablePath = console.getCurrentFolder().getFile("pom").getPath();
+        final ProcessBuilder builder = console.getProcessBuilder(executablePath);
+        assertNotNull(builder);
+        assertEquals(console.getCurrentFolder().getFile("pom.xml"), builder.getExecutableFile());
+        assertEquals(0, builder.getArgumentCount());
+    }
+
+    @Test
+    public void getProcessBuilderWithExactPathToFile()
+    {
+        final Console console = new Console();
+        final ProcessBuilder builder = console.getProcessBuilder("C:/Program Files/Java/jdk-9/bin/javac.exe");
+        assertEquals("javac.exe", builder.getExecutableFile().getPath().getSegments().last());
+        assertEquals(0, builder.getArgumentCount());
+        assertEquals(2, builder.run().intValue());
+    }
+
+    @Test
+    public void getProcessBuilderWithFileNameWithExtension()
+    {
+        final Console console = new Console();
+        final ProcessBuilder builder = console.getProcessBuilder("javac.exe");
+        assertEquals("javac.exe", builder.getExecutableFile().getPath().getSegments().last());
+        assertEquals(0, builder.getArgumentCount());
+        assertEquals(2, builder.run().intValue());
+    }
+
+    @Test
+    public void getProcessBuilderWithFileNameWithoutExtension()
+    {
+        final Console console = new Console();
+        final ProcessBuilder builder = console.getProcessBuilder("javac");
+        assertTrue(builder.getExecutableFile().getPath().getSegments().last().contains("javac"));
+        assertEquals(0, builder.getArgumentCount());
+        assertEquals(2, builder.run().intValue());
+    }
 }

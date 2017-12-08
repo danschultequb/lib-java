@@ -448,6 +448,13 @@ public class FileTests
     }
 
     @Test
+    public void getContentByteReadStreamWhenFileDoesntExist()
+    {
+        final File file = getFile();
+        assertNull(file.getContentByteReadStream());
+    }
+
+    @Test
     public void setContentsWithNonExistingFileAndNullContents()
     {
         final File file = getFile();
