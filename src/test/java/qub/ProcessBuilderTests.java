@@ -10,7 +10,7 @@ public class ProcessBuilderTests
     @Test
     public void constructor()
     {
-        final ProcessBuilder builder = new ProcessBuilder(null);
+        final ProcessBuilder builder = new ProcessBuilder(null, null);
         assertNull(builder.getExecutableFile());
         assertEquals(0, builder.getArgumentCount());
     }
@@ -18,7 +18,7 @@ public class ProcessBuilderTests
     @Test
     public void addArgumentWithNull()
     {
-        final ProcessBuilder builder = new ProcessBuilder(null);
+        final ProcessBuilder builder = new ProcessBuilder(null, null);
         builder.addArgument(null);
         assertEquals(0, builder.getArgumentCount());
     }
@@ -26,7 +26,7 @@ public class ProcessBuilderTests
     @Test
     public void addArgumentWithEmpty()
     {
-        final ProcessBuilder builder = new ProcessBuilder(null);
+        final ProcessBuilder builder = new ProcessBuilder(null, null);
         builder.addArgument("");
         assertEquals(0, builder.getArgumentCount());
     }
@@ -34,7 +34,7 @@ public class ProcessBuilderTests
     @Test
     public void addArgumentWithNonEmpty()
     {
-        final ProcessBuilder builder = new ProcessBuilder(null);
+        final ProcessBuilder builder = new ProcessBuilder(null, null);
         builder.addArgument("test");
         assertEquals(1, builder.getArgumentCount());
         assertEquals("test", builder.getArgument(0));
@@ -43,7 +43,7 @@ public class ProcessBuilderTests
     @Test
     public void addArgumentsWithNoValues()
     {
-        final ProcessBuilder builder = new ProcessBuilder(null);
+        final ProcessBuilder builder = new ProcessBuilder(null, null);
         builder.addArguments();
         assertEquals(0, builder.getArgumentCount());
     }
@@ -51,7 +51,7 @@ public class ProcessBuilderTests
     @Test
     public void addArgumentsWithOneNullValue()
     {
-        final ProcessBuilder builder = new ProcessBuilder(null);
+        final ProcessBuilder builder = new ProcessBuilder(null, null);
         builder.addArguments((String)null);
         assertEquals(0, builder.getArgumentCount());
     }
@@ -59,7 +59,7 @@ public class ProcessBuilderTests
     @Test
     public void setArgumentWithNegativeIndex()
     {
-        final ProcessBuilder builder = new ProcessBuilder(null);
+        final ProcessBuilder builder = new ProcessBuilder(null, null);
         builder.setArgument(-1, "test");
         assertEquals(0, builder.getArgumentCount());
     }
@@ -67,7 +67,7 @@ public class ProcessBuilderTests
     @Test
     public void setArgumentWithNullValue()
     {
-        final ProcessBuilder builder = new ProcessBuilder(null);
+        final ProcessBuilder builder = new ProcessBuilder(null, null);
         builder.addArguments("a", "b", "c");
         builder.setArgument(0, null);
         assertEquals(Array.fromValues("b", "c"), builder.getArguments());
@@ -76,7 +76,7 @@ public class ProcessBuilderTests
     @Test
     public void setArgumentWithEmptyValue()
     {
-        final ProcessBuilder builder = new ProcessBuilder(null);
+        final ProcessBuilder builder = new ProcessBuilder(null, null);
         builder.addArguments("a", "b", "c");
         builder.setArgument(2, "");
         assertEquals(Array.fromValues("a", "b"), builder.getArguments());
@@ -85,7 +85,7 @@ public class ProcessBuilderTests
     @Test
     public void setArgumentWithNonEmptyValue()
     {
-        final ProcessBuilder builder = new ProcessBuilder(null);
+        final ProcessBuilder builder = new ProcessBuilder(null, null);
         builder.addArguments("a", "b", "c");
         builder.setArgument(1, "d");
         assertEquals(Array.fromValues("a", "d", "c"), builder.getArguments());
@@ -94,7 +94,7 @@ public class ProcessBuilderTests
     @Test
     public void removeArgumentAt()
     {
-        final ProcessBuilder builder = new ProcessBuilder(null);
+        final ProcessBuilder builder = new ProcessBuilder(null, null);
         builder.addArguments("a", "b", "c");
         builder.removeArgument(1);
         assertEquals(Array.fromValues("a", "c"), builder.getArguments());
@@ -105,7 +105,7 @@ public class ProcessBuilderTests
     {
         final JavaFileSystem fileSystem = new JavaFileSystem();
         final File javacFile = fileSystem.getFile("C:/idontexist.exe");
-        final ProcessBuilder builder = new ProcessBuilder(javacFile);
+        final ProcessBuilder builder = new ProcessBuilder(null, javacFile);
         builder.addArgument("won't matter");
         assertEquals(null, builder.run());
     }

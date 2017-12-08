@@ -561,7 +561,7 @@ public class Console
 
             if (executableFile != null)
             {
-                result = new ProcessBuilder(executableFile);
+                result = new ProcessBuilder(parallelRunner, executableFile);
             }
         }
 
