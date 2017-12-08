@@ -567,4 +567,14 @@ public class Console
 
         return result;
     }
+
+    /**
+     * Get whether or not this application is running in a Windows environment.
+     * @return Whether or not this application is running in a Windows environment.
+     */
+    public boolean onWindows()
+    {
+        final String osName = System.getProperty("os.name");
+        return osName.toLowerCase().contains("windows");
+    }
 }

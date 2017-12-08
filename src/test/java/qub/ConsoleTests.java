@@ -1,5 +1,6 @@
 package qub;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -598,12 +599,41 @@ public class ConsoleTests
     }
 
     @Test
+    public void getProcessBuilderWithExactPathToFile()
+    {
+        final Console console = new Console();
+        if (console.onWindows())
+        {
+            final ProcessBuilder builder = console.getProcessBuilder("C:/Program Files/Java/jdk-9/bin/javac.exe");
+            assertEquals("javac.exe", builder.getExecutableFile().getPath().getSegments().last());
+            assertEquals(0, builder.getArgumentCount());
+            assertEquals(2, builder.run().intValue());
+        }
+    }
+
+    @Test
+    public void getProcessBuilderWithFileNameWithExtension()
+    {
+        final Console console = new Console();
+        if (console.onWindows())
+        {
+            final ProcessBuilder builder = console.getProcessBuilder("javac.exe");
+            assertEquals("javac.exe", builder.getExecutableFile().getPath().getSegments().last());
+            assertEquals(0, builder.getArgumentCount());
+            assertEquals(2, builder.run().intValue());
+        }
+    }
+
+    @Test
     public void getProcessBuilderWithFileNameWithoutExtension()
     {
         final Console console = new Console();
-        final ProcessBuilder builder = console.getProcessBuilder("javac");
-        assertTrue(builder.getExecutableFile().getPath().getSegments().last().contains("javac"));
-        assertEquals(0, builder.getArgumentCount());
-        assertEquals(2, builder.run().intValue());
+        if (console.onWindows())
+        {
+            final ProcessBuilder builder = console.getProcessBuilder("javac");
+            assertTrue(builder.getExecutableFile().getPath().getSegments().last().contains("javac"));
+            assertEquals(0, builder.getArgumentCount());
+            assertEquals(2, builder.run().intValue());
+        }
     }
 }
