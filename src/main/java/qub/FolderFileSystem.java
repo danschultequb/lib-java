@@ -178,6 +178,13 @@ public class FolderFileSystem extends FileSystemBase
     }
 
     @Override
+    public ByteReadStream getFileContentByteReadStream(Path rootedFilePath)
+    {
+        final Path innerFilePath = getInnerPath(rootedFilePath);
+        return innerFileSystem.getFileContentByteReadStream(innerFilePath);
+    }
+
+    @Override
     public boolean setFileContents(Path rootedFilePath, byte[] fileContents)
     {
         final Path innerFilePath = getInnerPath(rootedFilePath);

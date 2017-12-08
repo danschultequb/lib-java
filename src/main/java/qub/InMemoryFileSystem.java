@@ -68,7 +68,7 @@ public class InMemoryFileSystem extends FileSystemBase
     {
         InMemoryFile result = null;
 
-        if (filePath != null && filePath.isRooted())
+        if (rootExists(filePath))
         {
             final Path parentFolderPath = filePath.getParentPath();
             final InMemoryFolder parentFolder = getInMemoryFolder(parentFolderPath);
@@ -280,48 +280,14 @@ public class InMemoryFileSystem extends FileSystemBase
     }
 
     @Override
-    public byte[] getFileContents(Path rootedFilePath)
+    public ByteReadStream getFileContentByteReadStream(Path rootedFilePath)
     {
-        byte[] result = null;
+        ByteReadStream result = null;
 
-        if (rootedFilePath != null && rootedFilePath.isRooted() && rootExists(rootedFilePath.getRoot()))
+        final InMemoryFile file = getInMemoryFile(rootedFilePath);
+        if (file != null)
         {
-            final InMemoryFile file = getInMemoryFile(rootedFilePath);
-            if (file != null)
-            {
-                result = file.getContents();
-            }
-        }
-
-        return result;
-    }
-
-    @Override
-    public String getFileContentsAsString(Path rootedFilePath, CharacterEncoding encoding)
-    {
-        String result = null;
-
-        if (encoding != null)
-        {
-            final byte[] fileContents = getFileContents(rootedFilePath);
-            result = encoding.decode(fileContents);
-        }
-
-        return result;
-    }
-
-    @Override
-    public Iterable<byte[]> getFileContentBlocks(Path rootedFilePath)
-    {
-        Iterable<byte[]> result = null;
-
-        if (rootedFilePath != null && rootedFilePath.isRooted() && rootExists(rootedFilePath.getRoot()))
-        {
-            final InMemoryFile file = getInMemoryFile(rootedFilePath);
-            if (file != null)
-            {
-                result = file.getContentBlocks();
-            }
+            result = file.getContentByteReadStream();
         }
 
         return result;
@@ -332,11 +298,11 @@ public class InMemoryFileSystem extends FileSystemBase
     {
         boolean result = false;
 
-        if (rootedFilePath != null && rootedFilePath.isRooted() && rootExists(rootedFilePath.getRoot()))
+        if (rootExists(rootedFilePath))
         {
-            if (fileExists(rootedFilePath))
+            final InMemoryFile file = getInMemoryFile(rootedFilePath);
+            if (file != null)
             {
-                final InMemoryFile file = getInMemoryFile(rootedFilePath);
                 file.setContents(fileContents);
             }
             else

@@ -421,4 +421,67 @@ public class PathTests
         assertNotNull(normalizedPathSegments);
         assertArrayEquals(new String[] { "C:", "Windows", "System32", "cmd.exe" }, Array.toStringArray(normalizedPathSegments));
     }
+
+    @Test
+    public void hasFileExtensionWithPathWithNoPeriod()
+    {
+        final Path path = Path.parse("/a/b/c/");
+        assertFalse(path.hasFileExtension());
+    }
+
+    @Test
+    public void hasFileExtensionWithPathWithFileExtension()
+    {
+        final Path path = Path.parse("folder/file.txt");
+        assertTrue(path.hasFileExtension());
+    }
+
+    @Test
+    public void hasFileExtensionWithPeriodBeforeLastSegment()
+    {
+        final Path path = Path.parse("a.b/c/d");
+        assertFalse(path.hasFileExtension());
+    }
+
+    @Test
+    public void getFileExtensionWithPathWithNoPeriod()
+    {
+        final Path path = Path.parse("/a/b/c/");
+        assertNull(path.getFileExtension());
+    }
+
+    @Test
+    public void getFileExtensionWithPathWithFileExtension()
+    {
+        final Path path = Path.parse("folder/file.txt");
+        assertEquals(".txt", path.getFileExtension());
+    }
+
+    @Test
+    public void getFileExtensionWithPeriodBeforeLastSegment()
+    {
+        final Path path = Path.parse("a.b/c/d");
+        assertNull(path.getFileExtension());
+    }
+
+    @Test
+    public void withoutFileExtensionWithPathWithNoPeriod()
+    {
+        final Path path = Path.parse("/a/b/c/");
+        assertSame(path, path.withoutFileExtension());
+    }
+
+    @Test
+    public void withoutFileExtensionWithPathWithFileExtension()
+    {
+        final Path path = Path.parse("folder/file.txt");
+        assertEquals(Path.parse("folder/file"), path.withoutFileExtension());
+    }
+
+    @Test
+    public void withoutFileExtensionWithPeriodBeforeLastSegment()
+    {
+        final Path path = Path.parse("a.b/c/d");
+        assertSame(path, path.withoutFileExtension());
+    }
 }

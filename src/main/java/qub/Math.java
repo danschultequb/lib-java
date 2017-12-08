@@ -78,4 +78,15 @@ public class Math {
     {
         return java.lang.Math.ceil(value);
     }
+
+    /**
+     * If the provided value is a fractional value, then return the next lower integer. If the
+     * provided vlaue is an integer, then just return the provided value.
+     * @param value The value.
+     * @return The floor of the value.
+     */
+    public static double floor(double value)
+    {
+        return java.lang.Math.floor(value);
+    }
 }

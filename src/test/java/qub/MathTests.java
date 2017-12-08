@@ -77,4 +77,30 @@ public class MathTests
         assertTrue(Math.isEven.run(2));
         assertTrue(Math.isEven.run(-2));
     }
+
+    @Test
+    public void ceiling()
+    {
+        assertEquals(0, Math.ceiling(0), 0);
+        assertEquals(0, Math.ceiling(-0), 0);
+
+        assertEquals(1, Math.ceiling(0.1), 0);
+        assertEquals(0, Math.ceiling(-0.1), 0);
+
+        assertEquals(10, Math.ceiling(9.9), 0);
+        assertEquals(-9, Math.ceiling(-9.9), 0);
+    }
+
+    @Test
+    public void floor()
+    {
+        assertEquals(0, Math.floor(0), 0);
+        assertEquals(0, Math.floor(-0), 0);
+
+        assertEquals(0, Math.floor(0.1), 0);
+        assertEquals(-1, Math.floor(-0.1), 0);
+
+        assertEquals(9, Math.floor(9.9), 0);
+        assertEquals(-10, Math.floor(-9.9), 0);
+    }
 }
