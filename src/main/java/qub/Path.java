@@ -251,6 +251,60 @@ public class Path
     }
 
     /**
+     * Get this Path relative to the provided Path. If this path does not begin with the provided
+     * path, then this Path will be returned.
+     * @param basePath The path to make a relative version of this Path against.
+     * @return The relative version of this Path against the provided basePath, or this Path if this
+     * Path doesn't start with the provided basePath.
+     */
+    public Path relativeTo(Path basePath)
+    {
+        Path result = this;
+        if (basePath != null && !equals(basePath))
+        {
+            final Indexable<String> thisSegments = getSegments();
+            final int thisSegmentsCount = thisSegments.getCount();
+            final Indexable<String> basePathSegments = basePath.getSegments();
+            final int basePathSegmentsCount = basePathSegments.getCount();
+
+            int segmentIndex = 0;
+            for (; segmentIndex < basePathSegmentsCount; ++segmentIndex)
+            {
+                if (!thisSegments.get(segmentIndex).equalsIgnoreCase(basePathSegments.get(segmentIndex)))
+                {
+                    break;
+                }
+            }
+
+            if (0 < segmentIndex && segmentIndex < thisSegmentsCount)
+            {
+                final StringBuilder relativePathStringBuilder = new StringBuilder();
+
+                for (int i = segmentIndex; i < basePathSegmentsCount; ++i)
+                {
+                    if (relativePathStringBuilder.length() > 0)
+                    {
+                        relativePathStringBuilder.append('/');
+                    }
+                    relativePathStringBuilder.append("..");
+                }
+
+                final Iterable<String> relativePathSegments = thisSegments.skip(segmentIndex);
+                for (final String segment : relativePathSegments)
+                {
+                    if (relativePathStringBuilder.length() > 0)
+                    {
+                        relativePathStringBuilder.append('/');
+                    }
+                    relativePathStringBuilder.append(segment);
+                }
+                result = parse(relativePathStringBuilder.toString());
+            }
+        }
+        return result;
+    }
+
+    /**
      * Get the normalized version of this Path. In this context, a normalized path uses only forward
      * slashes ('/') as path separators and doesn't have multiple slashes in a row.
      * @return The normalized version of this Path.

@@ -484,4 +484,60 @@ public class PathTests
         final Path path = Path.parse("a.b/c/d");
         assertSame(path, path.withoutFileExtension());
     }
+
+    @Test
+    public void relativeToWithNull()
+    {
+        final Path path = Path.parse("C:/a/b/c.d");
+        final Path base = null;
+        assertSame(path, path.relativeTo(base));
+    }
+
+    @Test
+    public void relativeToWithSame()
+    {
+        final Path path = Path.parse("C:/a/b/c.d");
+        final Path base = path;
+        assertSame(path, path.relativeTo(base));
+    }
+
+    @Test
+    public void relativeToWithNothingInCommon()
+    {
+        final Path path = Path.parse("C:/a/b/c.d");
+        final Path base = Path.parse("/folder/");
+        assertSame(path, path.relativeTo(base));
+    }
+
+    @Test
+    public void relativeToWithOneSegmentInCommon()
+    {
+        final Path path = Path.parse("C:/a/b/c.d");
+        final Path base = Path.parse("C:/");
+        assertEquals(Path.parse("a/b/c.d"), path.relativeTo(base));
+    }
+
+    @Test
+    public void relativeToWithMultipleSegmentsInCommon()
+    {
+        final Path path = Path.parse("C:/a/b/c.d");
+        final Path base = Path.parse("C:/a/b");
+        assertEquals(Path.parse("c.d"), path.relativeTo(base));
+    }
+
+    @Test
+    public void relativeToWithSegmentsInCommonAndOneDifferentSegment()
+    {
+        final Path path = Path.parse("C:/a/b/c.d");
+        final Path base = Path.parse("C:/a/z");
+        assertEquals(Path.parse("../b/c.d"), path.relativeTo(base));
+    }
+
+    @Test
+    public void relativeToWithSegmentsInCommonAndTwoDifferentSegments()
+    {
+        final Path path = Path.parse("C:/a/b/c.d");
+        final Path base = Path.parse("C:/a/z/y");
+        assertEquals(Path.parse("../../b/c.d"), path.relativeTo(base));
+    }
 }
