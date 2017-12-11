@@ -12,10 +12,14 @@ public class Console
     private final Value<CharacterEncoding> characterEncoding;
     private final Value<String> lineSeparator;
     private final Value<Boolean> includeNewLines;
-    private final Value<ByteWriteStream> writeStream;
+
+    private final Value<ByteWriteStream> outputWriteStream;
+    private final Value<ByteWriteStream> errorWriteStream;
+
     private final Value<ByteReadStream> byteReadStream;
     private final Value<CharacterReadStream> characterReadStream;
     private final Value<LineReadStream> lineReadStream;
+
     private final Value<Random> random;
     private final Value<FileSystem> fileSystem;
     private final Value<String> currentFolderPathString;
@@ -42,7 +46,8 @@ public class Console
         characterEncoding = new Value<>();
         lineSeparator = new Value<>();
         includeNewLines = new Value<>();
-        writeStream = new Value<>();
+        outputWriteStream = new Value<>();
+        errorWriteStream = new Value<>();
         byteReadStream = new Value<>();
         characterReadStream = new Value<>();
         lineReadStream = new Value<>();
@@ -122,45 +127,87 @@ public class Console
     }
 
     /**
-     * Set the TextWriteStream that is assigned to this Console.
-     * @param writeStream The TextWriteStream that is assigned to this Console.
+     * Set the ByteWriteStream that is assigned to this Console's output.
+     * @param writeStream The ByteWriteStream that is assigned to this Console's output.
      */
-    public void setByteWriteStream(ByteWriteStream writeStream)
+    public void setOutput(ByteWriteStream writeStream)
     {
-        this.writeStream.set(writeStream);
+        this.outputWriteStream.set(writeStream);
     }
 
     /**
      * Get the ByteWriteStream that is assigned to this Console.
      * @return The ByteWriteStream that is assigned to this Console.
      */
-    public ByteWriteStream asByteWriteStream()
+    public ByteWriteStream getOutputAsByteWriteStream()
     {
-        if (!writeStream.hasValue())
+        if (!outputWriteStream.hasValue())
         {
-            writeStream.set(new OutputStreamToByteWriteStream(System.out));
+            outputWriteStream.set(new OutputStreamToByteWriteStream(System.out));
         }
-        return writeStream.get();
+        return outputWriteStream.get();
     }
 
-    public void setCharacterWriteStream(CharacterWriteStream writeStream)
+    public void setOutput(CharacterWriteStream writeStream)
     {
-        setByteWriteStream(writeStream == null ? null : writeStream.asByteWriteStream());
+        setOutput(writeStream == null ? null : writeStream.asByteWriteStream());
     }
 
-    public CharacterWriteStream asCharacterWriteStream()
+    public CharacterWriteStream getOutputAsCharacterWriteStream()
     {
-        return ByteWriteStreamBase.asCharacterWriteStream(asByteWriteStream(), getCharacterEncoding());
+        return ByteWriteStreamBase.asCharacterWriteStream(getOutputAsByteWriteStream(), getCharacterEncoding());
     }
 
-    public void setLineWriteStream(LineWriteStream writeStream)
+    public void setOutput(LineWriteStream writeStream)
     {
-        setCharacterWriteStream(writeStream == null ? null : writeStream.asCharacterWriteStream());
+        setOutput(writeStream == null ? null : writeStream.asCharacterWriteStream());
     }
 
-    public LineWriteStream asLineWriteStream()
+    public LineWriteStream getOutputAsLineWriteStream()
     {
-        return ByteWriteStreamBase.asLineWriteStream(asByteWriteStream(), getCharacterEncoding(), getLineSeparator());
+        return ByteWriteStreamBase.asLineWriteStream(getOutputAsByteWriteStream(), getCharacterEncoding(), getLineSeparator());
+    }
+
+    /**
+     * Set the ByteWriteStream that is assigned to this Console's error.
+     * @param writeStream The ByteWriteStream that is assigned to this Console's error.
+     */
+    public void setError(ByteWriteStream writeStream)
+    {
+        this.errorWriteStream.set(writeStream);
+    }
+
+    /**
+     * Get the error ByteWriteStream that is assigned to this Console.
+     * @return The error ByteWriteStream that is assigned to this Console.
+     */
+    public ByteWriteStream getErrorAsByteWriteStream()
+    {
+        if (!errorWriteStream.hasValue())
+        {
+            errorWriteStream.set(new OutputStreamToByteWriteStream(System.err));
+        }
+        return errorWriteStream.get();
+    }
+
+    public void setError(CharacterWriteStream writeStream)
+    {
+        setError(writeStream == null ? null : writeStream.asByteWriteStream());
+    }
+
+    public CharacterWriteStream getErrorAsCharacterWriteStream()
+    {
+        return ByteWriteStreamBase.asCharacterWriteStream(getErrorAsByteWriteStream(), getCharacterEncoding());
+    }
+
+    public void setError(LineWriteStream writeStream)
+    {
+        setError(writeStream == null ? null : writeStream.asCharacterWriteStream());
+    }
+
+    public LineWriteStream getErrorAsLineWriteStream()
+    {
+        return ByteWriteStreamBase.asLineWriteStream(getErrorAsByteWriteStream(), getCharacterEncoding(), getLineSeparator());
     }
 
     /**
@@ -227,7 +274,7 @@ public class Console
     {
         boolean result = false;
 
-        final ByteWriteStream writeStream = asByteWriteStream();
+        final ByteWriteStream writeStream = getOutputAsByteWriteStream();
         if (writeStream != null)
         {
             result = writeStream.write(toWrite);
@@ -240,7 +287,7 @@ public class Console
     {
         boolean result = false;
 
-        final ByteWriteStream writeStream = asByteWriteStream();
+        final ByteWriteStream writeStream = getOutputAsByteWriteStream();
         if (writeStream != null)
         {
             result = writeStream.write(toWrite);
@@ -253,7 +300,7 @@ public class Console
     {
         boolean result = false;
 
-        final ByteWriteStream writeStream = asByteWriteStream();
+        final ByteWriteStream writeStream = getOutputAsByteWriteStream();
         if (writeStream != null)
         {
             result = writeStream.write(toWrite, startIndex, length);
@@ -266,7 +313,7 @@ public class Console
     {
         boolean result = false;
 
-        final CharacterWriteStream writeStream = asCharacterWriteStream();
+        final CharacterWriteStream writeStream = getOutputAsCharacterWriteStream();
         if (writeStream != null)
         {
             result = writeStream.write(toWrite);
@@ -279,7 +326,7 @@ public class Console
     {
         boolean result = false;
 
-        final CharacterWriteStream writeStream = asCharacterWriteStream();
+        final CharacterWriteStream writeStream = getOutputAsCharacterWriteStream();
         if (writeStream != null)
         {
             result = writeStream.write(toWrite);
@@ -292,7 +339,7 @@ public class Console
     {
         boolean result = false;
 
-        final LineWriteStream writeStream = asLineWriteStream();
+        final LineWriteStream writeStream = getOutputAsLineWriteStream();
         if (writeStream != null)
         {
             result = writeStream.writeLine();
@@ -305,7 +352,98 @@ public class Console
     {
         boolean result = false;
 
-        final LineWriteStream writeStream = asLineWriteStream();
+        final LineWriteStream writeStream = getOutputAsLineWriteStream();
+        if (writeStream != null)
+        {
+            writeStream.writeLine(toWrite);
+        }
+
+        return result;
+    }
+
+    public boolean writeError(byte toWrite)
+    {
+        boolean result = false;
+
+        final ByteWriteStream writeStream = getErrorAsByteWriteStream();
+        if (writeStream != null)
+        {
+            result = writeStream.write(toWrite);
+        }
+
+        return result;
+    }
+
+    public boolean writeError(byte[] toWrite)
+    {
+        boolean result = false;
+
+        final ByteWriteStream writeStream = getErrorAsByteWriteStream();
+        if (writeStream != null)
+        {
+            result = writeStream.write(toWrite);
+        }
+
+        return result;
+    }
+
+    public boolean writeError(byte[] toWrite, int startIndex, int length)
+    {
+        boolean result = false;
+
+        final ByteWriteStream writeStream = getErrorAsByteWriteStream();
+        if (writeStream != null)
+        {
+            result = writeStream.write(toWrite, startIndex, length);
+        }
+
+        return result;
+    }
+
+    public boolean writeError(char toWrite)
+    {
+        boolean result = false;
+
+        final CharacterWriteStream writeStream = getErrorAsCharacterWriteStream();
+        if (writeStream != null)
+        {
+            result = writeStream.write(toWrite);
+        }
+
+        return result;
+    }
+
+    public boolean writeError(String toWrite)
+    {
+        boolean result = false;
+
+        final CharacterWriteStream writeStream = getErrorAsCharacterWriteStream();
+        if (writeStream != null)
+        {
+            result = writeStream.write(toWrite);
+        }
+
+        return result;
+    }
+
+    public boolean writeErrorLine()
+    {
+        boolean result = false;
+
+        final LineWriteStream writeStream = getErrorAsLineWriteStream();
+        if (writeStream != null)
+        {
+            result = writeStream.writeLine();
+        }
+
+        return result;
+    }
+
+    public boolean writeErrorLine(String toWrite)
+    {
+        boolean result = false;
+
+        final LineWriteStream writeStream = getErrorAsLineWriteStream();
         if (writeStream != null)
         {
             writeStream.writeLine(toWrite);
