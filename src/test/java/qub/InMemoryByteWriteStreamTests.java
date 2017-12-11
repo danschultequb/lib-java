@@ -59,6 +59,14 @@ public class InMemoryByteWriteStreamTests
     }
 
     @Test
+    public void writeAllWithNull()
+    {
+        final InMemoryByteWriteStream writeStream = new InMemoryByteWriteStream();
+        assertFalse(writeStream.writeAll(null));
+        assertArrayEquals(new byte[0], writeStream.getBytes());
+    }
+
+    @Test
     public void clear()
     {
         final InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
