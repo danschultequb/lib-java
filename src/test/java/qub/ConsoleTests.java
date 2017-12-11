@@ -1,6 +1,5 @@
 package qub;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -88,18 +87,18 @@ public class ConsoleTests
     }
 
     @Test
-    public void asByteWriteStream()
+    public void getOutputAsByteWriteStream()
     {
         final Console console = new Console();
-        final ByteWriteStream writeStream = console.asByteWriteStream();
+        final ByteWriteStream writeStream = console.getOutputAsByteWriteStream();
         assertNotNull(writeStream);
     }
 
     @Test
-    public void setByteWriteStreamWithNull()
+    public void setOutputWithNullByteWriteStream()
     {
         final Console console = new Console();
-        console.setByteWriteStream(null);
+        console.setOutput((ByteWriteStream)null);
 
         console.write((byte)50);
         console.write(new byte[]{51});
@@ -109,11 +108,11 @@ public class ConsoleTests
     }
 
     @Test
-    public void setByteWriteStreamWithNonNull()
+    public void setOutputWithNonNullBytewriteStream()
     {
         final Console console = new Console();
         final InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
-        console.setByteWriteStream(byteWriteStream);
+        console.setOutput(byteWriteStream);
 
         console.write((byte)50);
         assertArrayEquals(new byte[]{50}, byteWriteStream.getBytes());
@@ -135,18 +134,18 @@ public class ConsoleTests
     }
 
     @Test
-    public void asCharacterWriteStream()
+    public void getOutputAsCharacterWriteStream()
     {
         final Console console = new Console();
-        final CharacterWriteStream writeStream = console.asCharacterWriteStream();
+        final CharacterWriteStream writeStream = console.getOutputAsCharacterWriteStream();
         assertNotNull(writeStream);
     }
 
     @Test
-    public void setCharacterWriteStreamWithNull()
+    public void setOutputWithNullCharacterWriteStream()
     {
         final Console console = new Console();
-        console.setCharacterWriteStream(null);
+        console.setOutput((CharacterWriteStream)null);
 
         console.write((byte)50);
         console.write(new byte[]{51});
@@ -156,11 +155,11 @@ public class ConsoleTests
     }
 
     @Test
-    public void setCharacterWriteStreamWithNonNull()
+    public void setOutputWithNonNullCharacterWriteStream()
     {
         final Console console = new Console();
         final InMemoryCharacterWriteStream characterWriteStream = new InMemoryCharacterWriteStream();
-        console.setCharacterWriteStream(characterWriteStream);
+        console.setOutput(characterWriteStream);
 
         console.write((byte)50);
         assertArrayEquals(new byte[]{50}, characterWriteStream.getBytes());
@@ -182,18 +181,18 @@ public class ConsoleTests
     }
 
     @Test
-    public void asLineWriteStream()
+    public void getOutputAsLineWriteStream()
     {
         final Console console = new Console();
-        final LineWriteStream writeStream = console.asLineWriteStream();
+        final LineWriteStream writeStream = console.getOutputAsLineWriteStream();
         assertNotNull(writeStream);
     }
 
     @Test
-    public void setLineWriteStreamWithNull()
+    public void setOutputWithNullLineWriteStream()
     {
         final Console console = new Console();
-        console.setLineWriteStream(null);
+        console.setOutput((LineWriteStream)null);
 
         console.write((byte)50);
         console.write(new byte[]{51});
@@ -203,11 +202,11 @@ public class ConsoleTests
     }
 
     @Test
-    public void setLineWriteStreamWithNonNull()
+    public void setOutputWithNonNullLineWriteStream()
     {
         final Console console = new Console();
         final InMemoryLineWriteStream lineWriteStream = new InMemoryLineWriteStream();
-        console.setLineWriteStream(lineWriteStream);
+        console.setOutput(lineWriteStream);
 
         console.write((byte)50);
         assertArrayEquals(new byte[]{50}, lineWriteStream.getBytes());
@@ -228,6 +227,150 @@ public class ConsoleTests
         assertArrayEquals(new byte[]{50, 51, 52, 97, 104, 101, 108, 108, 111, 10 }, lineWriteStream.getBytes());
 
         console.writeLine("there!");
+        assertArrayEquals(new byte[]{50, 51, 52, 97, 104, 101, 108, 108, 111, 10, 116, 104, 101, 114, 101, 33, 10}, lineWriteStream.getBytes());
+    }
+
+    @Test
+    public void getErrorAsByteWriteStream()
+    {
+        final Console console = new Console();
+        final ByteWriteStream writeStream = console.getErrorAsByteWriteStream();
+        assertNotNull(writeStream);
+    }
+
+    @Test
+    public void setErrorWithNullByteWriteStream()
+    {
+        final Console console = new Console();
+        console.setError((ByteWriteStream)null);
+
+        console.writeError((byte)50);
+        console.writeError(new byte[]{51});
+        console.writeError(new byte[]{52}, 0, 1);
+        console.writeError("hello");
+        console.writeErrorLine("there!");
+    }
+
+    @Test
+    public void setErrorWithNonNullBytewriteStream()
+    {
+        final Console console = new Console();
+        final InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
+        console.setError(byteWriteStream);
+
+        console.writeError((byte)50);
+        assertArrayEquals(new byte[]{50}, byteWriteStream.getBytes());
+
+        console.writeError(new byte[]{51});
+        assertArrayEquals(new byte[]{50, 51}, byteWriteStream.getBytes());
+
+        console.writeError(new byte[]{52}, 0, 1);
+        assertArrayEquals(new byte[]{50, 51, 52}, byteWriteStream.getBytes());
+
+        console.writeError("hello");
+        assertArrayEquals(new byte[]{50, 51, 52, 104, 101, 108, 108, 111}, byteWriteStream.getBytes());
+
+        console.writeErrorLine();
+        assertArrayEquals(new byte[]{50, 51, 52, 104, 101, 108, 108, 111, 10 }, byteWriteStream.getBytes());
+
+        console.writeErrorLine("there!");
+        assertArrayEquals(new byte[]{50, 51, 52, 104, 101, 108, 108, 111, 10, 116, 104, 101, 114, 101, 33, 10}, byteWriteStream.getBytes());
+    }
+
+    @Test
+    public void getErrorAsCharacterWriteStream()
+    {
+        final Console console = new Console();
+        final CharacterWriteStream writeStream = console.getErrorAsCharacterWriteStream();
+        assertNotNull(writeStream);
+    }
+
+    @Test
+    public void setErrorWithNullCharacterWriteStream()
+    {
+        final Console console = new Console();
+        console.setError((CharacterWriteStream)null);
+
+        console.writeError((byte)50);
+        console.writeError(new byte[]{51});
+        console.writeError(new byte[]{52}, 0, 1);
+        console.writeError("hello");
+        console.writeErrorLine("there!");
+    }
+
+    @Test
+    public void setErrorWithNonNullCharacterWriteStream()
+    {
+        final Console console = new Console();
+        final InMemoryCharacterWriteStream characterWriteStream = new InMemoryCharacterWriteStream();
+        console.setError(characterWriteStream);
+
+        console.writeError((byte)50);
+        assertArrayEquals(new byte[]{50}, characterWriteStream.getBytes());
+
+        console.writeError(new byte[]{51});
+        assertArrayEquals(new byte[]{50, 51}, characterWriteStream.getBytes());
+
+        console.writeError(new byte[]{52}, 0, 1);
+        assertArrayEquals(new byte[]{50, 51, 52}, characterWriteStream.getBytes());
+
+        console.writeError("hello");
+        assertArrayEquals(new byte[]{50, 51, 52, 104, 101, 108, 108, 111}, characterWriteStream.getBytes());
+
+        console.writeErrorLine();
+        assertArrayEquals(new byte[]{50, 51, 52, 104, 101, 108, 108, 111, 10 }, characterWriteStream.getBytes());
+
+        console.writeErrorLine("there!");
+        assertArrayEquals(new byte[]{50, 51, 52, 104, 101, 108, 108, 111, 10, 116, 104, 101, 114, 101, 33, 10}, characterWriteStream.getBytes());
+    }
+
+    @Test
+    public void getErrorAsLineWriteStream()
+    {
+        final Console console = new Console();
+        final LineWriteStream writeStream = console.getErrorAsLineWriteStream();
+        assertNotNull(writeStream);
+    }
+
+    @Test
+    public void setErrorWithNullLineWriteStream()
+    {
+        final Console console = new Console();
+        console.setError((LineWriteStream)null);
+
+        console.writeError((byte)50);
+        console.writeError(new byte[]{51});
+        console.writeError(new byte[]{52}, 0, 1);
+        console.writeError("hello");
+        console.writeErrorLine("there!");
+    }
+
+    @Test
+    public void setErrorWithNonNullLineWriteStream()
+    {
+        final Console console = new Console();
+        final InMemoryLineWriteStream lineWriteStream = new InMemoryLineWriteStream();
+        console.setError(lineWriteStream);
+
+        console.writeError((byte)50);
+        assertArrayEquals(new byte[]{50}, lineWriteStream.getBytes());
+
+        console.writeError(new byte[]{51});
+        assertArrayEquals(new byte[]{50, 51}, lineWriteStream.getBytes());
+
+        console.writeError(new byte[]{52}, 0, 1);
+        assertArrayEquals(new byte[]{50, 51, 52}, lineWriteStream.getBytes());
+
+        console.writeError('a');
+        assertArrayEquals(new byte[]{50, 51, 52, 97}, lineWriteStream.getBytes());
+
+        console.writeError("hello");
+        assertArrayEquals(new byte[]{50, 51, 52, 97, 104, 101, 108, 108, 111}, lineWriteStream.getBytes());
+
+        console.writeErrorLine();
+        assertArrayEquals(new byte[]{50, 51, 52, 97, 104, 101, 108, 108, 111, 10 }, lineWriteStream.getBytes());
+
+        console.writeErrorLine("there!");
         assertArrayEquals(new byte[]{50, 51, 52, 97, 104, 101, 108, 108, 111, 10, 116, 104, 101, 114, 101, 33, 10}, lineWriteStream.getBytes());
     }
 
