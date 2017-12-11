@@ -30,6 +30,13 @@ public interface ByteWriteStream extends Stream
     boolean write(byte[] toWrite, int startIndex, int length);
 
     /**
+     * Write all of the bytes from the provided byteReadStream to this ByteWriteStream.
+     * @param byteReadStream The ByteReadStream to read from.
+     * @return Whether or not the write was successful.
+     */
+    boolean writeAll(ByteReadStream byteReadStream);
+
+    /**
      * Convert this ByteWriteStream to a CharacterWriteStream that uses UTF-8 for its character
      * encoding.
      * @return A CharacterWriteStream that wraps around this ByteWriteStream.

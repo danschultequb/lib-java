@@ -3,6 +3,31 @@ package qub;
 public abstract class ByteWriteStreamBase implements ByteWriteStream
 {
     @Override
+    public boolean writeAll(ByteReadStream byteReadStream)
+    {
+        boolean result = false;
+
+        if (byteReadStream != null && isOpen() && byteReadStream.isOpen())
+        {
+            final byte[] buffer = new byte[1024];
+            int bytesRead = byteReadStream.readBytes(buffer);
+
+            if (bytesRead > 0)
+            {
+                result = true;
+            }
+
+            while (bytesRead > 0)
+            {
+                write(buffer, 0, bytesRead);
+                bytesRead = byteReadStream.readBytes(buffer);
+            }
+        }
+
+        return result;
+    }
+
+    @Override
     public CharacterWriteStream asCharacterWriteStream()
     {
         return asCharacterWriteStream(this);
