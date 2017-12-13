@@ -135,7 +135,7 @@ public class ProcessBuilder
         if (executableFile != null)
         {
             builderIsEmpty = false;
-            builder.append(executableFile.getPath().toString());
+            builder.append(escapeArgument(executableFile.getPath().toString()));
         }
 
         for (final String argument : arguments)
