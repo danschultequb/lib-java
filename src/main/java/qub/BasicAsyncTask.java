@@ -3,14 +3,16 @@ package qub;
 public abstract class BasicAsyncTask implements AsyncAction, PausedAsyncTask
 {
     private AsyncRunner runner;
+    private final Synchronization synchronization;
     private final List<BasicAsyncTask> pausedTasks;
-    private boolean completed;
+    private InMemoryGate completionGate;
 
-    BasicAsyncTask(AsyncRunner runner)
+    BasicAsyncTask(AsyncRunner runner, Synchronization synchronization)
     {
         this.runner = runner;
+        this.synchronization = synchronization;
         this.pausedTasks = new SingleLinkList<>();
-        this.completed = false;
+        this.completionGate = synchronization.createSpinGate(false);
     }
 
     @Override
@@ -28,7 +30,12 @@ public abstract class BasicAsyncTask implements AsyncAction, PausedAsyncTask
             }
         }
         this.runner = runner;
+    }
 
+    @Override
+    public void await()
+    {
+        completionGate.passThrough();
     }
 
     /**
@@ -46,7 +53,7 @@ public abstract class BasicAsyncTask implements AsyncAction, PausedAsyncTask
      */
     public boolean isCompleted()
     {
-        return completed;
+        return completionGate.isOpen();
     }
 
     @Override
@@ -81,12 +88,12 @@ public abstract class BasicAsyncTask implements AsyncAction, PausedAsyncTask
 
     private BasicAsyncAction thenOnInner(AsyncRunner runner, Action0 action)
     {
-        return scheduleOrEnqueue(new BasicAsyncAction(runner, action));
+        return scheduleOrEnqueue(new BasicAsyncAction(runner, synchronization, action));
     }
 
     private <T> BasicAsyncFunction<T> thenOnInner(AsyncRunner runner, Function0<T> function)
     {
-        return scheduleOrEnqueue(new BasicAsyncFunction<T>(runner, function));
+        return scheduleOrEnqueue(new BasicAsyncFunction<T>(runner, synchronization, function));
     }
 
     @Override
@@ -104,7 +111,7 @@ public abstract class BasicAsyncTask implements AsyncAction, PausedAsyncTask
     @Override
     public AsyncAction thenOnAsyncAction(AsyncRunner runner, Function0<AsyncAction> function)
     {
-        final BasicAsyncAction result = runner == null || function == null ? null : new BasicAsyncAction(null, null);
+        final BasicAsyncAction result = runner == null || function == null ? null : new BasicAsyncAction(null, synchronization, null);
 
         if (result != null)
         {
@@ -135,7 +142,7 @@ public abstract class BasicAsyncTask implements AsyncAction, PausedAsyncTask
     public <T> AsyncFunction<T> thenOnAsyncFunction(AsyncRunner runner, Function0<AsyncFunction<T>> function)
     {
         final Value<T> asyncFunctionResultValue = new Value<>();
-        final BasicAsyncFunction<T> result = (runner == null || function == null) ? null : new BasicAsyncFunction<T>(null, new Function0<T>()
+        final BasicAsyncFunction<T> result = (runner == null || function == null) ? null : new BasicAsyncFunction<T>(null, synchronization, new Function0<T>()
         {
             @Override
             public T run()
@@ -172,7 +179,7 @@ public abstract class BasicAsyncTask implements AsyncAction, PausedAsyncTask
 
     private <T extends BasicAsyncTask> T scheduleOrEnqueue(T asyncTask)
     {
-        if (completed)
+        if (isCompleted())
         {
             asyncTask.schedule();
         }
@@ -188,7 +195,7 @@ public abstract class BasicAsyncTask implements AsyncAction, PausedAsyncTask
     {
         runTask();
 
-        completed = true;
+        completionGate.open();
 
         while (pausedTasks.any())
         {

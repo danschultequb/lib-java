@@ -4,11 +4,31 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class ParallelAsyncRunner implements AsyncRunner
 {
+    private final Function0<Synchronization> synchronizationFunction;
     private final AtomicInteger scheduledTaskCount;
 
-    public ParallelAsyncRunner()
+    public ParallelAsyncRunner(final Synchronization synchronization)
     {
+        this(new Function0<Synchronization>()
+        {
+            @Override
+            public Synchronization run()
+            {
+                return synchronization;
+            }
+        });
+    }
+
+    public ParallelAsyncRunner(Function0<Synchronization> synchronizationFunction)
+    {
+        this.synchronizationFunction = synchronizationFunction;
         scheduledTaskCount = new AtomicInteger(0);
+    }
+
+    @Override
+    public Synchronization getSynchronization()
+    {
+        return synchronizationFunction.run();
     }
 
     @Override
@@ -46,7 +66,8 @@ public class ParallelAsyncRunner implements AsyncRunner
         AsyncAction result = null;
         if (action != null)
         {
-            final PausedAsyncAction asyncAction = new BasicAsyncAction(this, action);
+            final Synchronization synchronization = getSynchronization();
+            final PausedAsyncAction asyncAction = new BasicAsyncAction(this, synchronization, action);
             asyncAction.schedule();
             result = asyncAction;
         }
@@ -59,7 +80,8 @@ public class ParallelAsyncRunner implements AsyncRunner
         AsyncFunction<T> result = null;
         if (function != null)
         {
-            final PausedAsyncFunction<T> asyncFunction = new BasicAsyncFunction<>(this, function);
+            final Synchronization synchronization = getSynchronization();
+            final PausedAsyncFunction<T> asyncFunction = new BasicAsyncFunction<>(this, synchronization, function);
             asyncFunction.schedule();
             result = asyncFunction;
         }

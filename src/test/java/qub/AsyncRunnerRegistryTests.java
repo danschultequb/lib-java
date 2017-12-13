@@ -22,7 +22,7 @@ public class AsyncRunnerRegistryTests
     public void getCurrentThreadAsyncRunnerWithRegisteredRunner()
     {
         final AsyncRunner backupRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        final CurrentThreadAsyncRunner runner = new CurrentThreadAsyncRunner();
+        final CurrentThreadAsyncRunner runner = new CurrentThreadAsyncRunner(new Synchronization());
         AsyncRunnerRegistry.setCurrentThreadAsyncRunner(runner);
         try
         {

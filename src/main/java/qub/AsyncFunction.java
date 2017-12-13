@@ -7,6 +7,13 @@ package qub;
 public interface AsyncFunction<T> extends AsyncAction
 {
     /**
+     * Block until this AsyncAction completes. If the AsyncAction is already completed, then this
+     * will return immediately and returns the function's return value.
+     * @return The return value from this AsyncFunction.
+     */
+    T awaitReturn();
+
+    /**
      * Run the provided action with this AsyncFunction's result when this AsyncFunction completes.
      * @param action The action to schedule when this AsyncAction completes.
      * @return The reference to the asynchronous action that will be scheduled.

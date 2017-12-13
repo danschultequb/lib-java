@@ -29,7 +29,7 @@ public abstract class AsyncRunnerTests
     @Test
     public void await()
     {
-        final AsyncRunner runner = new CurrentThreadAsyncRunner();
+        final AsyncRunner runner = new CurrentThreadAsyncRunner(new Synchronization());
         runner.await();
     }
 
