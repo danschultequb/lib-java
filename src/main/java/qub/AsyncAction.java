@@ -12,6 +12,12 @@ public interface AsyncAction
     AsyncRunner getRunner();
 
     /**
+     * Get whether or not this AsyncAction has been run.
+     * @return Whether or not this AsyncAction has been run.
+     */
+    boolean isCompleted();
+
+    /**
      * Block until this AsyncAction completes. If the AsyncAction is already completed, then this
      * will return immediately.
      */

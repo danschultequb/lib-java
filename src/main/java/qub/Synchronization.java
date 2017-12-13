@@ -19,16 +19,6 @@ public class Synchronization
      */
     public Gate createGate(boolean isOpen)
     {
-        return createSpinGate(isOpen);
-    }
-
-    /**
-     * Create a new InMemoryGate object with the provided initial open state.
-     * @param isOpen Whether or not the created InMemoryGate will be open.
-     * @return The created InMemoryGate.
-     */
-    public InMemoryGate createSpinGate(boolean isOpen)
-    {
         return new InMemoryGate(isOpen);
     }
 }

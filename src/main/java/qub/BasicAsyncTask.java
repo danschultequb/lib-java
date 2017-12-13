@@ -5,14 +5,14 @@ public abstract class BasicAsyncTask implements AsyncAction, PausedAsyncTask
     private AsyncRunner runner;
     private final Synchronization synchronization;
     private final List<BasicAsyncTask> pausedTasks;
-    private InMemoryGate completionGate;
+    private Gate completionGate;
 
     BasicAsyncTask(AsyncRunner runner, Synchronization synchronization)
     {
         this.runner = runner;
         this.synchronization = synchronization;
         this.pausedTasks = new SingleLinkList<>();
-        this.completionGate = synchronization.createSpinGate(false);
+        this.completionGate = synchronization.createGate(false);
     }
 
     @Override
@@ -47,10 +47,7 @@ public abstract class BasicAsyncTask implements AsyncAction, PausedAsyncTask
         return pausedTasks.getCount();
     }
 
-    /**
-     * Get whether or not this BasicAsyncTask has been run.
-     * @return Whether or not this BasicAsyncTask has been run.
-     */
+    @Override
     public boolean isCompleted()
     {
         return completionGate.isOpen();

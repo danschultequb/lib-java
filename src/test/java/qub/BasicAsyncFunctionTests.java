@@ -219,4 +219,23 @@ public class BasicAsyncFunctionTests extends BasicAsyncTaskTests
         runner2.await();
         assertEquals(0, runner2.getScheduledTaskCount());
     }
+
+    @Test
+    public void awaitReturn()
+    {
+        final ParallelAsyncRunner runner = new ParallelAsyncRunner(new Synchronization());
+        final AsyncFunction<Integer> asyncFunction = runner.schedule(new Function0<Integer>()
+        {
+            @Override
+            public Integer run()
+            {
+                return 20;
+            }
+        });
+        assertEquals(20, asyncFunction.awaitReturn().intValue());
+        assertTrue(asyncFunction.isCompleted());
+        assertEquals(0, runner.getScheduledTaskCount());
+
+        assertEquals(20, asyncFunction.awaitReturn().intValue());
+    }
 }
