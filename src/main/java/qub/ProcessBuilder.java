@@ -101,7 +101,7 @@ public class ProcessBuilder
      */
     public ProcessBuilder setArgument(int index, String argument)
     {
-        if (argument == null || argument.isEmpty())
+        if (argument == null)
         {
             removeArgument(index);
         }
@@ -121,6 +121,36 @@ public class ProcessBuilder
     {
         arguments.removeAt(index);
         return this;
+    }
+
+    /**
+     * Get the full command line string that will be executed.
+     * @return The full command line string that will be executed.
+     */
+    public String getCommand()
+    {
+        final StringBuilder builder = new StringBuilder();
+
+        boolean builderIsEmpty = true;
+        if (executableFile != null)
+        {
+            builderIsEmpty = false;
+            builder.append(executableFile.getPath().toString());
+        }
+
+        for (final String argument : arguments)
+        {
+            if (!builderIsEmpty)
+            {
+                builder.append(' ');
+            }
+
+            final String escapedArgument = escapeArgument(argument);
+            builder.append(escapedArgument);
+            builderIsEmpty = false;
+        }
+
+        return builder.toString();
     }
 
     public ProcessBuilder redirectOutput(Action1<ByteReadStream> redirectOutputAction)
@@ -264,6 +294,71 @@ public class ProcessBuilder
                 builder.append(line);
             }
         };
+    }
+
+    /**
+     * Escape the provided argument so that it will be understood as a single argument.
+     * @param argument The argument to escape.
+     * @return The escaped argument.
+     */
+    static String escapeArgument(String argument)
+    {
+        final StringBuilder builder = new StringBuilder();
+        final int argumentLength = argument.length();
+        if (argumentLength == 0)
+        {
+            builder.append("\"\"");
+        }
+        else
+        {
+            boolean originalArgumentIsQuoted = false;
+            boolean addQuoteToEnd = false;
+            for (int i = 0; i < argumentLength; ++i)
+            {
+                final char c = argument.charAt(i);
+                switch (c)
+                {
+                    case ' ':
+                    case '\t':
+                        builder.append(c);
+                        if (!originalArgumentIsQuoted && !addQuoteToEnd)
+                        {
+                            builder.insert(0, '\"');
+                            addQuoteToEnd = true;
+                        }
+                        break;
+
+                    case '\"':
+                        if (i == 0)
+                        {
+                            originalArgumentIsQuoted = true;
+                            builder.append(c);
+                        }
+                        else if ((i != argumentLength - 1 && originalArgumentIsQuoted) || addQuoteToEnd)
+                        {
+                            builder.append("\\\"");
+                        }
+                        else
+                        {
+                            builder.append(c);
+                        }
+                        break;
+
+                    default:
+                        builder.append(c);
+                        break;
+                }
+            }
+
+            if (addQuoteToEnd)
+            {
+                builder.append('\"');
+            }
+        }
+
+
+
+        return builder.toString();
     }
 
     /**

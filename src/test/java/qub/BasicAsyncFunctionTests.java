@@ -234,7 +234,6 @@ public class BasicAsyncFunctionTests extends BasicAsyncTaskTests
         });
         assertEquals(20, asyncFunction.awaitReturn().intValue());
         assertTrue(asyncFunction.isCompleted());
-        assertEquals(0, runner.getScheduledTaskCount());
 
         assertEquals(20, asyncFunction.awaitReturn().intValue());
     }
