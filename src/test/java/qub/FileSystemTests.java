@@ -4311,12 +4311,13 @@ public abstract class FileSystemTests
 
     private void asyncTest(final Action1<FileSystem> action)
     {
-        CurrentThreadAsyncRunner.withRegistered(new Action1<CurrentThreadAsyncRunner>()
+        final Synchronization synchronization = new Synchronization();
+        CurrentThreadAsyncRunner.withRegistered(synchronization, new Action1<CurrentThreadAsyncRunner>()
         {
             @Override
             public void run(CurrentThreadAsyncRunner mainRunner)
             {
-                final CurrentThreadAsyncRunner backgroundRunner = new CurrentThreadAsyncRunner();
+                final CurrentThreadAsyncRunner backgroundRunner = new CurrentThreadAsyncRunner(synchronization);
                 final FileSystem fileSystem = getFileSystem(backgroundRunner);
                 
                 action.run(fileSystem);

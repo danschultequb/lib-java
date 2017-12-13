@@ -17,6 +17,12 @@ public interface AsyncRunner
     void await();
 
     /**
+     * Get the Synchronization object that this AsyncRunner uses.
+     * @return The Synchronization object that this AsyncRunner uses.
+     */
+    Synchronization getSynchronization();
+
+    /**
      * Schedule the provided action to run asynchronously.
      * @param action The action to run asynchronously.
      * @return A reference to the scheduled action.
@@ -36,4 +42,6 @@ public interface AsyncRunner
      * @param asyncTask The AsyncTask to schedule.
      */
     void schedule(PausedAsyncTask asyncTask);
+
+
 }

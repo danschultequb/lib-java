@@ -14,7 +14,12 @@ public class BasicAsyncAction extends BasicAsyncTask implements AsyncAction, Pau
 
     public BasicAsyncAction(AsyncRunner runner, Action0 action)
     {
-        super(runner);
+        this(runner, runner.getSynchronization(), action);
+    }
+
+    public BasicAsyncAction(AsyncRunner runner, Synchronization synchronization, Action0 action)
+    {
+        super(runner, synchronization);
 
         this.action = action;
     }

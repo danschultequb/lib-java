@@ -24,6 +24,7 @@ public class Console
     private final Value<FileSystem> fileSystem;
     private final Value<String> currentFolderPathString;
     private final Value<Map<String,String>> environmentVariables;
+    private final Value<Synchronization> synchronization;
 
     private final AsyncRunner mainRunner;
     private final AsyncRunner parallelRunner;
@@ -55,11 +56,20 @@ public class Console
         fileSystem = new Value<>();
         currentFolderPathString = new Value<>();
         environmentVariables = new Value<>();
+        synchronization = new Value<>();
 
-        mainRunner = new CurrentThreadAsyncRunner();
+        final Function0<Synchronization> synchronizationFunction = new Function0<Synchronization>()
+        {
+            @Override
+            public Synchronization run()
+            {
+                return getSynchronization();
+            }
+        };
+        mainRunner = new CurrentThreadAsyncRunner(synchronizationFunction);
         AsyncRunnerRegistry.setCurrentThreadAsyncRunner(mainRunner);
 
-        parallelRunner = new ParallelAsyncRunner();
+        parallelRunner = new ParallelAsyncRunner(synchronizationFunction);
     }
 
     public String[] getCommandLineArgumentStrings()
@@ -595,6 +605,19 @@ public class Console
             result = resultEntry == null ? null : resultEntry.getValue();
         }
         return result;
+    }
+
+    /**
+     * Get the Synchronization factory for creating synchronization objects.
+     * @return The Synchronization factory for creating synchronization objects.
+     */
+    public Synchronization getSynchronization()
+    {
+        if (!synchronization.hasValue())
+        {
+            synchronization.set(new Synchronization());
+        }
+        return synchronization.get();
     }
 
     /**

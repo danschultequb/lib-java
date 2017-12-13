@@ -296,10 +296,12 @@ public class ProcessBuilder
         try
         {
             final java.lang.Process process = builder.start();
+            AsyncAction outputAction = null;
+            AsyncAction errorAction = null;
 
             if (redirectOutputAction != null)
             {
-                asyncRunner.schedule(new Action0()
+                outputAction = asyncRunner.schedule(new Action0()
                 {
                     @Override
                     public void run()
@@ -311,7 +313,7 @@ public class ProcessBuilder
 
             if (redirectErrorAction != null)
             {
-                asyncRunner.schedule(new Action0()
+                errorAction = asyncRunner.schedule(new Action0()
                 {
                     @Override
                     public void run()
@@ -322,6 +324,14 @@ public class ProcessBuilder
             }
 
             result = process.waitFor();
+            if (outputAction != null)
+            {
+                outputAction.await();
+            }
+            if (errorAction != null)
+            {
+                errorAction.await();
+            }
         }
         catch (IOException | InterruptedException ignored)
         {

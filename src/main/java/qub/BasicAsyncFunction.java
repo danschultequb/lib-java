@@ -5,12 +5,19 @@ public class BasicAsyncFunction<T> extends BasicAsyncTask implements AsyncFuncti
     private final Function0<T> function;
     private final Value<T> functionResult;
 
-    public BasicAsyncFunction(AsyncRunner runner, Function0<T> function)
+    public BasicAsyncFunction(AsyncRunner runner, Synchronization synchronization, Function0<T> function)
     {
-        super(runner);
+        super(runner, synchronization);
 
         this.function = function;
         this.functionResult = new Value<>();
+    }
+
+    @Override
+    public T awaitReturn()
+    {
+        await();
+        return functionResult.get();
     }
 
     @Override
