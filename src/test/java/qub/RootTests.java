@@ -669,4 +669,184 @@ public class RootTests
         assertEquals(1, entries.getCount());
         assertEquals(root.getFolder("things"), entries.first());
     }
+
+    @Test
+    public void getFilesAndFoldersRecursivelyWhenRootDoesntExist()
+    {
+        final Root root = getRoot("C:/");
+        assertNull(root.getFilesAndFoldersRecursively());
+    }
+
+    @Test
+    public void getFilesAndFoldersRecursivelyWhenRootIsEmpty()
+    {
+        final Root root = getRoot();
+        assertEquals(new Array<FileSystemEntry>(0), root.getFilesAndFoldersRecursively());
+    }
+
+    @Test
+    public void getFilesAndFoldersRecursivelyWhenRootHasFiles()
+    {
+        final Root root = getRoot();
+        root.createFile("1.txt");
+        root.createFile("2.txt");
+        assertEquals(
+            Array.fromValues(
+                root.getFile("1.txt"),
+                root.getFile("2.txt")),
+            root.getFilesAndFoldersRecursively());
+    }
+
+    @Test
+    public void getFilesAndFoldersRecursivelyWhenRootHasFolders()
+    {
+        final Root root = getRoot();
+        root.createFolder("1.txt");
+        root.createFolder("2.txt");
+        assertEquals(
+            Array.fromValues(
+                root.getFolder("1.txt"),
+                root.getFolder("2.txt")),
+            root.getFilesAndFoldersRecursively());
+    }
+
+    @Test
+    public void getFilesAndFoldersRecursivelyWhenRootHasGrandchildFilesAndFolders()
+    {
+        final Root root = getRoot();
+        root.createFile("1.txt");
+        root.createFile("2.txt");
+        root.createFile("A/3.csv");
+        root.createFile("B/C/4.xml");
+        root.createFile("A/5.png");
+
+        final Iterable<FileSystemEntry> expectedEntries =
+            Array.fromValues(
+                root.getFolder("A"),
+                root.getFolder("B"),
+                root.getFile("1.txt"),
+                root.getFile("2.txt"),
+                root.getFile("A/3.csv"),
+                root.getFile("A/5.png"),
+                root.getFolder("B/C"),
+                root.getFile("B/C/4.xml"));
+        final Iterable<FileSystemEntry> actualEntries = root.getFilesAndFoldersRecursively();
+        assertEquals(expectedEntries, actualEntries);
+    }
+
+    @Test
+    public void getFilesRecursivelyWhenRootDoesntExist()
+    {
+        final Root root = getRoot("C:/");
+        assertNull(root.getFilesRecursively());
+    }
+
+    @Test
+    public void getFilesRecursivelyWhenRootIsEmpty()
+    {
+        final Root root = getRoot();
+        assertEquals(new Array<FileSystemEntry>(0), root.getFilesRecursively());
+    }
+
+    @Test
+    public void getFilesRecursivelyWhenRootHasFiles()
+    {
+        final Root root = getRoot();
+        root.createFile("1.txt");
+        root.createFile("2.txt");
+        assertEquals(
+            Array.fromValues(
+                root.getFile("1.txt"),
+                root.getFile("2.txt")),
+            root.getFilesRecursively());
+    }
+
+    @Test
+    public void getFilesRecursivelyWhenRootHasFolders()
+    {
+        final Root root = getRoot();
+        root.createFolder("1.txt");
+        root.createFolder("2.txt");
+        assertEquals(
+            new Array<File>(0),
+            root.getFilesRecursively());
+    }
+
+    @Test
+    public void getFilesRecursivelyWhenRootHasGrandchildFilesAndFolders()
+    {
+        final Root root = getRoot();
+        root.createFile("1.txt");
+        root.createFile("2.txt");
+        root.createFile("A/3.csv");
+        root.createFile("B/C/4.xml");
+        root.createFile("A/5.png");
+
+        final Iterable<File> expectedEntries =
+            Array.fromValues(
+                root.getFile("1.txt"),
+                root.getFile("2.txt"),
+                root.getFile("A/3.csv"),
+                root.getFile("A/5.png"),
+                root.getFile("B/C/4.xml"));
+        final Iterable<File> actualEntries = root.getFilesRecursively();
+        assertEquals(expectedEntries, actualEntries);
+    }
+
+    @Test
+    public void getFoldersRecursivelyWhenRootDoesntExist()
+    {
+        final Root root = getRoot("C:/");
+        assertNull(root.getFoldersRecursively());
+    }
+
+    @Test
+    public void getFoldersRecursivelyWhenRootIsEmpty()
+    {
+        final Root root = getRoot();
+        assertEquals(new Array<FileSystemEntry>(0), root.getFoldersRecursively());
+    }
+
+    @Test
+    public void getFoldersRecursivelyWhenRootHasFiles()
+    {
+        final Root root = getRoot();
+        root.createFile("1.txt");
+        root.createFile("2.txt");
+        assertEquals(
+            new Array<Folder>(0),
+            root.getFoldersRecursively());
+    }
+
+    @Test
+    public void getFoldersRecursivelyWhenRootHasFolders()
+    {
+        final Root root = getRoot();
+        root.createFolder("1.txt");
+        root.createFolder("2.txt");
+        assertEquals(
+            Array.fromValues(
+                root.getFolder("1.txt"),
+                root.getFolder("2.txt")),
+            root.getFoldersRecursively());
+    }
+
+    @Test
+    public void getFoldersRecursivelyWhenRootHasGrandchildFilesAndFolders()
+    {
+        final Root root = getRoot();
+        root.createFile("1.txt");
+        root.createFile("2.txt");
+        root.createFile("A/3.csv");
+        root.createFile("B/C/4.xml");
+        root.createFile("A/5.png");
+
+        final Iterable<Folder> expectedEntries =
+            Array.fromValues(
+                root.getFolder("A"),
+                root.getFolder("B"),
+                root.getFolder("B/C"));
+        final Iterable<Folder> actualEntries = root.getFoldersRecursively();
+        assertEquals(expectedEntries, actualEntries);
+    }
 }

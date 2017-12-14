@@ -179,13 +179,28 @@ public class Root
         return folder.getFolders();
     }
 
+    public Iterable<Folder> getFoldersRecursively()
+    {
+        return folder.getFoldersRecursively();
+    }
+
     public Iterable<File> getFiles()
     {
         return folder.getFiles();
     }
 
+    public Iterable<File> getFilesRecursively()
+    {
+        return folder.getFilesRecursively();
+    }
+
     public Iterable<FileSystemEntry> getFilesAndFolders()
     {
         return folder.getFilesAndFolders();
+    }
+
+    public Iterable<FileSystemEntry> getFilesAndFoldersRecursively()
+    {
+        return folder.getFilesAndFoldersRecursively();
     }
 }

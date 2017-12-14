@@ -81,6 +81,20 @@ public interface FileSystem
     Iterable<FileSystemEntry> getFilesAndFolders(Path folderPath);
 
     /**
+     * Get the files and folders (entries) at the provided folder path and its subfolders.
+     * @param folderPath The path to the folder (Root or Folder).
+     * @return The files and folders (entries) at the provided folder path and its subfolders.
+     */
+    Iterable<FileSystemEntry> getFilesAndFoldersRecursively(String folderPath);
+
+    /**
+     * Get the files and folders (entries) at the provided folder path and its subfolders.
+     * @param folderPath The path to the folder (Root or Folder).
+     * @return The files and folders (entries) at the provided folder path and its subfolders.
+     */
+    Iterable<FileSystemEntry> getFilesAndFoldersRecursively(Path folderPath);
+
+    /**
      * Get the files and folders (entries) at the provided folder path.
      * @param folderPath The path to the folder (Root or Folder).
      * @return The files and folders (entries) at the provided folder path.
@@ -109,6 +123,20 @@ public interface FileSystem
     Iterable<Folder> getFolders(Path folderPath);
 
     /**
+     * Get the folders at the provided folder path and its subfolders.
+     * @param folderPath The path to the folder (Root or Folder).
+     * @return The folders at the provided container path and its subfolders.
+     */
+    Iterable<Folder> getFoldersRecursively(String folderPath);
+
+    /**
+     * Get the folders at the provided folder path and its subfolders.
+     * @param folderPath The path to the folder (Root or Folder).
+     * @return The folders at the provided container path and its subfolders.
+     */
+    Iterable<Folder> getFoldersRecursively(Path folderPath);
+
+    /**
      * Get the folders at the provided folder path.
      * @param folderPath The path to the folder (Root or Folder).
      * @return The folders at the provided container path.
@@ -135,6 +163,20 @@ public interface FileSystem
      * @return The files at the provided container path.
      */
     Iterable<File> getFiles(Path folderPath);
+
+    /**
+     * Get the files at the provided folder path and each of the subfolders recursively.
+     * @param folderPath The path to the folder (Root or Folder).
+     * @return The files at the provided container path and its subfolders.
+     */
+    Iterable<File> getFilesRecursively(String folderPath);
+
+    /**
+     * Get the files at the provided folder path and each of the subfolders recursively.
+     * @param folderPath The path to the folder (Root or Folder).
+     * @return The files at the provided container path and its subfolders.
+     */
+    Iterable<File> getFilesRecursively(Path folderPath);
 
     /**
      * Get the files at the provided folder path.

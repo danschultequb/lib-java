@@ -226,14 +226,29 @@ public class Folder extends FileSystemEntry
         return getFileSystem().getFolders(getPath());
     }
 
+    public Iterable<Folder> getFoldersRecursively()
+    {
+        return getFileSystem().getFoldersRecursively(getPath());
+    }
+
     public Iterable<File> getFiles()
     {
         return getFileSystem().getFiles(getPath());
     }
 
+    public Iterable<File> getFilesRecursively()
+    {
+        return getFileSystem().getFilesRecursively(getPath());
+    }
+
     public Iterable<FileSystemEntry> getFilesAndFolders()
     {
         return getFileSystem().getFilesAndFolders(getPath());
+    }
+
+    public Iterable<FileSystemEntry> getFilesAndFoldersRecursively()
+    {
+        return getFileSystem().getFilesAndFoldersRecursively(getPath());
     }
 
     private Path getChildPath(String relativePath)

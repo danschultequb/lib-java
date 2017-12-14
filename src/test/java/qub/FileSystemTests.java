@@ -474,6 +474,102 @@ public abstract class FileSystemTests
     }
 
     @Test
+    public void getFoldersRecursivelyWithNullPathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertNull(fileSystem.getFoldersRecursively((String)null));
+    }
+
+    @Test
+    public void getFoldersRecursivelyWithEmptyPathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertNull(fileSystem.getFoldersRecursively(""));
+    }
+
+    @Test
+    public void getFoldersRecursivelyWithRelativePathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertNull(fileSystem.getFoldersRecursively("test/folder"));
+    }
+
+    @Test
+    public void getFoldersRecursivelyWithRootedPathStringWhenRootDoesntExist()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertNull(fileSystem.getFoldersRecursively("F:/test/folder"));
+    }
+
+    @Test
+    public void getFoldersRecursivelyWithRootedPathStringWhenParentFolderDoesntExist()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertNull(fileSystem.getFoldersRecursively("/test/folder"));
+    }
+
+    @Test
+    public void getFoldersRecursivelyWithRootedPathStringWhenFolderDoesntExist()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFolder("/test/");
+        assertNull(fileSystem.getFoldersRecursively("/test/folder"));
+    }
+
+    @Test
+    public void getFoldersRecursivelyWithRootedPathStringWhenFolderIsEmpty()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFolder("/test/folder");
+        assertEquals(new Array<Folder>(0), fileSystem.getFoldersRecursively("/test/folder"));
+    }
+
+    @Test
+    public void getFoldersRecursivelyWithRootedPathStringWhenFolderHasFiles()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFolder("/test/folder");
+        fileSystem.createFile("/test/folder/1.txt");
+        fileSystem.createFile("/test/folder/2.txt");
+        assertEquals(
+            new Array<Folder>(0),
+            fileSystem.getFoldersRecursively("/test/folder"));
+    }
+
+    @Test
+    public void getFoldersRecursivelyWithRootedPathStringWhenFolderHasFolders()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFolder("/test/folder");
+        fileSystem.createFolder("/test/folder/1.txt");
+        fileSystem.createFolder("/test/folder/2.txt");
+        assertEquals(
+            Array.fromValues(
+                fileSystem.getFolder("/test/folder/1.txt"),
+                fileSystem.getFolder("/test/folder/2.txt")),
+            fileSystem.getFoldersRecursively("/test/folder"));
+    }
+
+    @Test
+    public void getFoldersRecursivelyWithRootedPathStringWhenFolderHasGrandchildFilesAndFolders()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFile("/test/folder/1.txt");
+        fileSystem.createFile("/test/folder/2.txt");
+        fileSystem.createFile("/test/folder/A/3.csv");
+        fileSystem.createFile("/test/folder/B/C/4.xml");
+        fileSystem.createFile("/test/folder/A/5.png");
+
+        final Iterable<Folder> expectedEntries =
+            Array.fromValues(
+                fileSystem.getFolder("/test/folder/A"),
+                fileSystem.getFolder("/test/folder/B"),
+                fileSystem.getFolder("/test/folder/B/C"));
+        final Iterable<Folder> actualEntries = fileSystem.getFoldersRecursively("/test/folder");
+        assertEquals(expectedEntries, actualEntries);
+    }
+
+    @Test
     public void getFoldersAsyncWithNullStringPath()
     {
         asyncTest(new Action1<FileSystem>()
@@ -655,6 +751,104 @@ public abstract class FileSystemTests
         final FileSystem fileSystem = getFileSystem();
         final Iterable<File> files = fileSystem.getFiles("");
         assertNull(files);
+    }
+
+    @Test
+    public void getFilesRecursivelyWithNullPathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertNull(fileSystem.getFilesRecursively((String)null));
+    }
+
+    @Test
+    public void getFilesRecursivelyWithEmptyPathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertNull(fileSystem.getFilesRecursively(""));
+    }
+
+    @Test
+    public void getFilesRecursivelyWithRelativePathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertNull(fileSystem.getFilesRecursively("test/folder"));
+    }
+
+    @Test
+    public void getFilesRecursivelyWithRootedPathStringWhenRootDoesntExist()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertNull(fileSystem.getFilesRecursively("F:/test/folder"));
+    }
+
+    @Test
+    public void getFilesRecursivelyWithRootedPathStringWhenParentFolderDoesntExist()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertNull(fileSystem.getFilesRecursively("/test/folder"));
+    }
+
+    @Test
+    public void getFilesRecursivelyWithRootedPathStringWhenFolderDoesntExist()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFolder("/test/");
+        assertNull(fileSystem.getFilesRecursively("/test/folder"));
+    }
+
+    @Test
+    public void getFilesRecursivelyWithRootedPathStringWhenFolderIsEmpty()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFolder("/test/folder");
+        assertEquals(new Array<FileSystemEntry>(0), fileSystem.getFilesRecursively("/test/folder"));
+    }
+
+    @Test
+    public void getFilesRecursivelyWithRootedPathStringWhenFolderHasFiles()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFolder("/test/folder");
+        fileSystem.createFile("/test/folder/1.txt");
+        fileSystem.createFile("/test/folder/2.txt");
+        assertEquals(
+            Array.fromValues(
+                fileSystem.getFile("/test/folder/1.txt"),
+                fileSystem.getFile("/test/folder/2.txt")),
+            fileSystem.getFilesRecursively("/test/folder"));
+    }
+
+    @Test
+    public void getFilesRecursivelyWithRootedPathStringWhenFolderHasFolders()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFolder("/test/folder");
+        fileSystem.createFolder("/test/folder/1.txt");
+        fileSystem.createFolder("/test/folder/2.txt");
+        assertEquals(
+            new Array<File>(0),
+            fileSystem.getFilesRecursively("/test/folder"));
+    }
+
+    @Test
+    public void getFilesRecursivelyWithRootedPathStringWhenFolderHasGrandchildFilesAndFolders()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFile("/test/folder/1.txt");
+        fileSystem.createFile("/test/folder/2.txt");
+        fileSystem.createFile("/test/folder/A/3.csv");
+        fileSystem.createFile("/test/folder/B/C/4.xml");
+        fileSystem.createFile("/test/folder/A/5.png");
+
+        final Iterable<File> expectedEntries =
+            Array.fromValues(
+                fileSystem.getFile("/test/folder/1.txt"),
+                fileSystem.getFile("/test/folder/2.txt"),
+                fileSystem.getFile("/test/folder/A/3.csv"),
+                fileSystem.getFile("/test/folder/A/5.png"),
+                fileSystem.getFile("/test/folder/B/C/4.xml"));
+        final Iterable<File> actualEntries = fileSystem.getFilesRecursively("/test/folder");
+        assertEquals(expectedEntries, actualEntries);
     }
 
     @Test
@@ -4307,6 +4501,109 @@ public abstract class FileSystemTests
 
         assertTrue(fileSystem.fileExists("/A.txt"));
         assertEquals("ABC", fileSystem.getFileContentsAsString("/A.txt"));
+    }
+
+    @Test
+    public void getFilesAndFoldersRecursivelyWithNullPathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertNull(fileSystem.getFilesAndFoldersRecursively((String)null));
+    }
+
+    @Test
+    public void getFilesAndFoldersRecursivelyWithEmptyPathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertNull(fileSystem.getFilesAndFoldersRecursively(""));
+    }
+
+    @Test
+    public void getFilesAndFoldersRecursivelyWithRelativePathString()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertNull(fileSystem.getFilesAndFoldersRecursively("test/folder"));
+    }
+
+    @Test
+    public void getFilesAndFoldersRecursivelyWithRootedPathStringWhenRootDoesntExist()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertNull(fileSystem.getFilesAndFoldersRecursively("F:/test/folder"));
+    }
+
+    @Test
+    public void getFilesAndFoldersRecursivelyWithRootedPathStringWhenParentFolderDoesntExist()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertNull(fileSystem.getFilesAndFoldersRecursively("/test/folder"));
+    }
+
+    @Test
+    public void getFilesAndFoldersRecursivelyWithRootedPathStringWhenFolderDoesntExist()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFolder("/test/");
+        assertNull(fileSystem.getFilesAndFoldersRecursively("/test/folder"));
+    }
+
+    @Test
+    public void getFilesAndFoldersRecursivelyWithRootedPathStringWhenFolderIsEmpty()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFolder("/test/folder");
+        assertEquals(new Array<FileSystemEntry>(0), fileSystem.getFilesAndFoldersRecursively("/test/folder"));
+    }
+
+    @Test
+    public void getFilesAndFoldersRecursivelyWithRootedPathStringWhenFolderHasFiles()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFolder("/test/folder");
+        fileSystem.createFile("/test/folder/1.txt");
+        fileSystem.createFile("/test/folder/2.txt");
+        assertEquals(
+            Array.fromValues(
+                fileSystem.getFile("/test/folder/1.txt"),
+                fileSystem.getFile("/test/folder/2.txt")),
+            fileSystem.getFilesAndFoldersRecursively("/test/folder"));
+    }
+
+    @Test
+    public void getFilesAndFoldersRecursivelyWithRootedPathStringWhenFolderHasFolders()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFolder("/test/folder");
+        fileSystem.createFolder("/test/folder/1.txt");
+        fileSystem.createFolder("/test/folder/2.txt");
+        assertEquals(
+            Array.fromValues(
+                fileSystem.getFolder("/test/folder/1.txt"),
+                fileSystem.getFolder("/test/folder/2.txt")),
+            fileSystem.getFilesAndFoldersRecursively("/test/folder"));
+    }
+
+    @Test
+    public void getFilesAndFoldersRecursivelyWithRootedPathStringWhenFolderHasGrandchildFilesAndFolders()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        fileSystem.createFile("/test/folder/1.txt");
+        fileSystem.createFile("/test/folder/2.txt");
+        fileSystem.createFile("/test/folder/A/3.csv");
+        fileSystem.createFile("/test/folder/B/C/4.xml");
+        fileSystem.createFile("/test/folder/A/5.png");
+
+        final Iterable<FileSystemEntry> expectedEntries =
+            Array.fromValues(
+                fileSystem.getFolder("/test/folder/A"),
+                fileSystem.getFolder("/test/folder/B"),
+                fileSystem.getFile("/test/folder/1.txt"),
+                fileSystem.getFile("/test/folder/2.txt"),
+                fileSystem.getFile("/test/folder/A/3.csv"),
+                fileSystem.getFile("/test/folder/A/5.png"),
+                fileSystem.getFolder("/test/folder/B/C"),
+                fileSystem.getFile("/test/folder/B/C/4.xml"));
+        final Iterable<FileSystemEntry> actualEntries = fileSystem.getFilesAndFoldersRecursively("/test/folder");
+        assertEquals(expectedEntries, actualEntries);
     }
 
     private void asyncTest(final Action1<FileSystem> action)
