@@ -82,7 +82,17 @@ public class ProcessBuilder
      */
     public ProcessBuilder addArguments(String... arguments)
     {
-        if (arguments != null && arguments.length > 0)
+        return addArguments(Array.fromValues(arguments));
+    }
+
+    /**
+     * Add the provided arguments to the new ProcessBuilder. Null or empty arguments will be ignored.
+     * @param arguments The arguments to add.
+     * @return This ProcessBuilder.
+     */
+    public ProcessBuilder addArguments(Iterable<String> arguments)
+    {
+        if (arguments != null && arguments.any())
         {
             for (final String argument : arguments)
             {
