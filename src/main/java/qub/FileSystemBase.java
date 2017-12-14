@@ -5,12 +5,12 @@ package qub;
  */
 public abstract class FileSystemBase implements FileSystem
 {
-    private AsyncRunner runner;
+    private AsyncRunner parallelRunner;
 
     @Override
-    public void setAsyncRunner(AsyncRunner runner)
+    public void setAsyncRunner(AsyncRunner parallelRunner)
     {
-        this.runner = runner;
+        this.parallelRunner = parallelRunner;
     }
 
     @Override
@@ -42,7 +42,7 @@ public abstract class FileSystemBase implements FileSystem
     public AsyncFunction<Boolean> rootExistsAsync(final String rootPath)
     {
         final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        return runner
+        return parallelRunner
                 .schedule(new Function0<Boolean>()
                 {
                     @Override
@@ -58,7 +58,7 @@ public abstract class FileSystemBase implements FileSystem
     public AsyncFunction<Boolean> rootExistsAsync(final Path rootPath)
     {
         final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        return runner
+        return parallelRunner
                 .schedule(new Function0<Boolean>()
                 {
                     @Override
@@ -86,7 +86,7 @@ public abstract class FileSystemBase implements FileSystem
     public AsyncFunction<Iterable<Root>> getRootsAsync()
     {
         final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        return runner
+        return parallelRunner
                 .schedule(new Function0<Iterable<Root>>()
                 {
                     @Override
@@ -105,10 +105,48 @@ public abstract class FileSystemBase implements FileSystem
     }
 
     @Override
+    public Iterable<FileSystemEntry> getFilesAndFoldersRecursively(String folderPath)
+    {
+        return getFilesAndFoldersRecursively(Path.parse(folderPath));
+    }
+
+    @Override
+    public Iterable<FileSystemEntry> getFilesAndFoldersRecursively(Path folderPath)
+    {
+        List<FileSystemEntry> result = null;
+
+        final Folder folder = getFolder(folderPath);
+        if (folder != null && folder.exists())
+        {
+            result = new ArrayList<>();
+
+            final Queue<Folder> foldersToVisit = new SingleLinkListQueue<>();
+            foldersToVisit.enqueue(getFolder(folderPath));
+
+            while (foldersToVisit.any())
+            {
+                final Folder currentFolder = foldersToVisit.dequeue();
+                final Iterable<FileSystemEntry> currentFolderEntries = currentFolder.getFilesAndFolders();
+                for (final FileSystemEntry entry : currentFolderEntries)
+                {
+                    result.add(entry);
+
+                    if (entry instanceof Folder)
+                    {
+                        foldersToVisit.enqueue((Folder)entry);
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+    @Override
     public AsyncFunction<Iterable<FileSystemEntry>> getFilesAndFoldersAsync(final String folderPath)
     {
         final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        return runner
+        return parallelRunner
                 .schedule(new Function0<Iterable<FileSystemEntry>>()
                 {
                     @Override
@@ -124,7 +162,7 @@ public abstract class FileSystemBase implements FileSystem
     public AsyncFunction<Iterable<FileSystemEntry>> getFilesAndFoldersAsync(final Path folderPath)
     {
         final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        return runner
+        return parallelRunner
                 .schedule(new Function0<Iterable<FileSystemEntry>>()
                 {
                     @Override
@@ -150,10 +188,23 @@ public abstract class FileSystemBase implements FileSystem
     }
 
     @Override
+    public Iterable<Folder> getFoldersRecursively(String folderPath)
+    {
+        return getFoldersRecursively(Path.parse(folderPath));
+    }
+
+    @Override
+    public Iterable<Folder> getFoldersRecursively(Path folderPath)
+    {
+        final Iterable<FileSystemEntry> entries = getFilesAndFoldersRecursively(folderPath);
+        return entries == null ? null : entries.instanceOf(Folder.class);
+    }
+
+    @Override
     public AsyncFunction<Iterable<Folder>> getFoldersAsync(final String folderPath)
     {
         final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        return runner
+        return parallelRunner
                 .schedule(new Function0<Iterable<Folder>>()
                 {
                     @Override
@@ -169,7 +220,7 @@ public abstract class FileSystemBase implements FileSystem
     public AsyncFunction<Iterable<Folder>> getFoldersAsync(final Path folderPath)
     {
         final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        return runner
+        return parallelRunner
                 .schedule(new Function0<Iterable<Folder>>()
                 {
                     @Override
@@ -195,10 +246,23 @@ public abstract class FileSystemBase implements FileSystem
     }
 
     @Override
+    public Iterable<File> getFilesRecursively(String folderPath)
+    {
+        return getFilesRecursively(Path.parse(folderPath));
+    }
+
+    @Override
+    public Iterable<File> getFilesRecursively(Path folderPath)
+    {
+        final Iterable<FileSystemEntry> entries = getFilesAndFoldersRecursively(folderPath);
+        return entries == null ? null : entries.instanceOf(File.class);
+    }
+
+    @Override
     public AsyncFunction<Iterable<File>> getFilesAsync(final String folderPath)
     {
         final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        return runner
+        return parallelRunner
                 .schedule(new Function0<Iterable<File>>()
                 {
                     @Override
@@ -214,7 +278,7 @@ public abstract class FileSystemBase implements FileSystem
     public AsyncFunction<Iterable<File>> getFilesAsync(final Path folderPath)
     {
         final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        return runner
+        return parallelRunner
                 .schedule(new Function0<Iterable<File>>()
                 {
                     @Override
@@ -249,7 +313,7 @@ public abstract class FileSystemBase implements FileSystem
     public AsyncFunction<Boolean> folderExistsAsync(final String folderPath)
     {
         final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        return runner
+        return parallelRunner
                 .schedule(new Function0<Boolean>()
                 {
                     @Override
@@ -265,7 +329,7 @@ public abstract class FileSystemBase implements FileSystem
     public AsyncFunction<Boolean> folderExistsAsync(final Path folderPath)
     {
         final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        return runner
+        return parallelRunner
                 .schedule(new Function0<Boolean>()
                 {
                     @Override
@@ -299,7 +363,7 @@ public abstract class FileSystemBase implements FileSystem
     public AsyncFunction<Boolean> createFolderAsync(final String folderPath)
     {
         final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        return runner
+        return parallelRunner
                 .schedule(new Function0<Boolean>()
                 {
                     @Override
@@ -315,7 +379,7 @@ public abstract class FileSystemBase implements FileSystem
     public AsyncFunction<Boolean> createFolderAsync(final String folderPath, final Out<Folder> outputFolder)
     {
         final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        return runner
+        return parallelRunner
                 .schedule(new Function0<Boolean>()
                 {
                     @Override
@@ -331,7 +395,7 @@ public abstract class FileSystemBase implements FileSystem
     public AsyncFunction<Boolean> createFolderAsync(final Path folderPath)
     {
         final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        return runner
+        return parallelRunner
                 .schedule(new Function0<Boolean>()
                 {
                     @Override
@@ -347,7 +411,7 @@ public abstract class FileSystemBase implements FileSystem
     public AsyncFunction<Boolean> createFolderAsync(final Path folderPath, final Out<Folder> outputFolder)
     {
         final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        return runner
+        return parallelRunner
                 .schedule(new Function0<Boolean>()
                 {
                     @Override
@@ -370,7 +434,7 @@ public abstract class FileSystemBase implements FileSystem
     public AsyncFunction<Boolean> deleteFolderAsync(final String folderPath)
     {
         final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        return runner
+        return parallelRunner
                 .schedule(new Function0<Boolean>()
                 {
                     @Override
@@ -386,7 +450,7 @@ public abstract class FileSystemBase implements FileSystem
     public AsyncFunction<Boolean> deleteFolderAsync(final Path folderPath)
     {
         final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        return runner
+        return parallelRunner
                 .schedule(new Function0<Boolean>()
                 {
                     @Override
@@ -420,7 +484,7 @@ public abstract class FileSystemBase implements FileSystem
     public AsyncFunction<Boolean> fileExistsAsync(final String filePath)
     {
         final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        return runner
+        return parallelRunner
                 .schedule(new Function0<Boolean>()
                 {
                     @Override
@@ -436,7 +500,7 @@ public abstract class FileSystemBase implements FileSystem
     public AsyncFunction<Boolean> fileExistsAsync(final Path filePath)
     {
         final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        return runner
+        return parallelRunner
                 .schedule(new Function0<Boolean>()
                 {
                     @Override
@@ -551,7 +615,7 @@ public abstract class FileSystemBase implements FileSystem
     public AsyncFunction<Boolean> createFileAsync(final String filePath)
     {
         final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        return runner
+        return parallelRunner
                 .schedule(new Function0<Boolean>()
                 {
                     @Override
@@ -567,7 +631,7 @@ public abstract class FileSystemBase implements FileSystem
     public AsyncFunction<Boolean> createFileAsync(final String filePath, final Out<File> outputFile)
     {
         final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        return runner
+        return parallelRunner
                 .schedule(new Function0<Boolean>()
                 {
                     @Override
@@ -583,7 +647,7 @@ public abstract class FileSystemBase implements FileSystem
     public AsyncFunction<Boolean> createFileAsync(final Path filePath)
     {
         final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        return runner
+        return parallelRunner
                 .schedule(new Function0<Boolean>()
                 {
                     @Override
@@ -599,7 +663,7 @@ public abstract class FileSystemBase implements FileSystem
     public AsyncFunction<Boolean> createFileAsync(final Path filePath, final Out<File> outputFile)
     {
         final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        return runner
+        return parallelRunner
                 .schedule(new Function0<Boolean>()
                 {
                     @Override
@@ -622,7 +686,7 @@ public abstract class FileSystemBase implements FileSystem
     public AsyncFunction<Boolean> deleteFileAsync(final String filePath)
     {
         final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        return runner
+        return parallelRunner
                 .schedule(new Function0<Boolean>()
                 {
                     @Override
@@ -638,7 +702,7 @@ public abstract class FileSystemBase implements FileSystem
     public AsyncFunction<Boolean> deleteFileAsync(final Path filePath)
     {
         final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        return runner
+        return parallelRunner
                 .schedule(new Function0<Boolean>()
                 {
                     @Override
