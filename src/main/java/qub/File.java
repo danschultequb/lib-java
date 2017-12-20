@@ -67,6 +67,12 @@ public class File extends FileSystemEntry
         return getFileSystem().fileExists(getPath());
     }
 
+    @Override
+    public boolean delete()
+    {
+        return getFileSystem().deleteFile(getPath());
+    }
+
     /**
      * Get the entire contents of this File as a single byte[]. If this file doesn't exist, then
      * null will be returned.

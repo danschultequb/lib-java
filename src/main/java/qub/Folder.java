@@ -24,6 +24,12 @@ public class Folder extends FileSystemEntry
         return getFileSystem().folderExists(getPath());
     }
 
+    @Override
+    public boolean delete()
+    {
+        return getFileSystem().deleteFolder(getPath());
+    }
+
     /**
      * Try to create this folder and return whether or not this function created the folder.
      * @return Whether or not this function created the folder.

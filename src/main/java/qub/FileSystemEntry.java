@@ -40,6 +40,13 @@ public abstract class FileSystemEntry
      */
     public abstract boolean exists();
 
+    /**
+     * Attempt to delete this FileSystemEntry. Return whether or not this function deleted the
+     * entry.
+     * @return Whether or not this function deleted the entry.
+     */
+    public abstract boolean delete();
+
     @Override
     public String toString()
     {

@@ -15,7 +15,7 @@ public class JSONTokenizer extends IteratorBase<JSONToken>
 
     public JSONTokenizer(String text, int firstTokenStartIndex)
     {
-        this(text, firstTokenStartIndex, (List<Issue>)null);
+        this(text, firstTokenStartIndex, (Action1<Issue>)null);
     }
 
     public JSONTokenizer(String text, List<Issue> issues)
@@ -25,19 +25,17 @@ public class JSONTokenizer extends IteratorBase<JSONToken>
 
     public JSONTokenizer(String text, int firstTokenStartIndex, final List<Issue> issues)
     {
-        this(text, firstTokenStartIndex, issues == null ? null : new Action1<Issue>()
-        {
-            @Override
-            public void run(Issue issue)
-            {
-                issues.add(issue);
-            }
-        });
+        this(text, firstTokenStartIndex, getAddToListAction(issues));
     }
 
     public JSONTokenizer(String text, int firstTokenStartIndex, Action1<Issue> onIssue)
     {
         this(new StringIterator(text), firstTokenStartIndex, onIssue);
+    }
+
+    public JSONTokenizer(Iterator<Character> characters, List<Issue> issues)
+    {
+        this(characters, 0, getAddToListAction(issues));
     }
 
     public JSONTokenizer(Iterator<Character> characters, int firstTokenStartIndex, Action1<Issue> onIssue)
@@ -361,5 +359,17 @@ public class JSONTokenizer extends IteratorBase<JSONToken>
         }
 
         return hasCurrent();
+    }
+
+    private static Action1<Issue> getAddToListAction(final List<Issue> issues)
+    {
+        return issues == null ? null : new Action1<Issue>()
+        {
+            @Override
+            public void run(Issue issue)
+            {
+                issues.add(issue);
+            }
+        };
     }
 }

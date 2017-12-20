@@ -132,6 +132,24 @@ public class FileTests
     }
 
     @Test
+    public void deleteWhenFileDoesntExist()
+    {
+        final File file = getFile();
+        assertFalse(file.delete());
+        assertFalse(file.exists());
+    }
+
+    @Test
+    public void deleteWhenFileExists()
+    {
+        final File file = getFile();
+        file.create();
+
+        assertTrue(file.delete());
+        assertFalse(file.exists());
+    }
+
+    @Test
     public void equalsNull()
     {
         final File file = getFile();
