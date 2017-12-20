@@ -9,14 +9,29 @@ public class FolderTests
     @Test
     public void exists()
     {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-        fileSystem.createRoot("/");
-
-        final Folder folder = fileSystem.getFolder("/test/folder");
+        final Folder folder = getFolder();
         assertFalse(folder.exists());
 
-        fileSystem.createFolder(folder.getPath());
+        folder.create();
         assertTrue(folder.exists());
+    }
+
+    @Test
+    public void deleteWhenFolderDoesntExist()
+    {
+        final Folder folder = getFolder();
+        assertFalse(folder.delete());
+        assertFalse(folder.exists());
+    }
+
+    @Test
+    public void deleteWhenFolderExists()
+    {
+        final Folder folder = getFolder();
+        folder.create();
+
+        assertTrue(folder.delete());
+        assertFalse(folder.exists());
     }
 
     @Test
@@ -362,10 +377,7 @@ public class FolderTests
     @Test
     public void createFileWithNullPathAndNullValue()
     {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-        fileSystem.createRoot("/");
-
-        final Folder folder = fileSystem.getFolder("/test/folder");
+        final Folder folder = getFolder();
         assertFalse(folder.createFile((Path)null, null));
         assertFalse(folder.exists());
     }
@@ -373,10 +385,7 @@ public class FolderTests
     @Test
     public void createFileWithEmptyPathAndNullValue()
     {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-        fileSystem.createRoot("/");
-
-        final Folder folder = fileSystem.getFolder("/test/folder");
+        final Folder folder = getFolder();
         assertFalse(folder.createFile(Path.parse(""), null));
         assertFalse(folder.exists());
     }
@@ -384,10 +393,7 @@ public class FolderTests
     @Test
     public void createFileWithFileNamePathAndNullValue()
     {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-        fileSystem.createRoot("/");
-
-        final Folder folder = fileSystem.getFolder("/test/folder");
+        final Folder folder = getFolder();
         assertTrue(folder.createFile(Path.parse("file.xml"), null));
         assertTrue(folder.exists());
     }
@@ -395,10 +401,7 @@ public class FolderTests
     @Test
     public void createFileWithBackslashRelativeFilePathAndNullValue()
     {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-        fileSystem.createRoot("/");
-
-        final Folder folder = fileSystem.getFolder("/test/folder");
+        final Folder folder = getFolder();
         assertTrue(folder.createFile(Path.parse("subfolder\\file.xml"), null));
         assertTrue(folder.exists());
         assertFalse(folder.getFiles().any());
@@ -407,10 +410,7 @@ public class FolderTests
     @Test
     public void createFileWithForwardSlashRelativeFilePathAndNullValue()
     {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-        fileSystem.createRoot("/");
-
-        final Folder folder = fileSystem.getFolder("/test/folder");
+        final Folder folder = getFolder();
         assertTrue(folder.createFile(Path.parse("subfolder/file.xml"), null));
         assertTrue(folder.exists());
         assertFalse(folder.getFiles().any());
@@ -419,10 +419,7 @@ public class FolderTests
     @Test
     public void createFileWithNullPathAndNonNullValue()
     {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-        fileSystem.createRoot("/");
-
-        final Folder folder = fileSystem.getFolder("/test/folder");
+        final Folder folder = getFolder();
         final Value<File> file = new Value<>();
         assertFalse(folder.createFile((Path)null, file));
         assertFalse(folder.exists());
@@ -432,10 +429,7 @@ public class FolderTests
     @Test
     public void createFileWithEmptyAndNonNullValue()
     {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-        fileSystem.createRoot("/");
-
-        final Folder folder = fileSystem.getFolder("/test/folder");
+        final Folder folder = getFolder();
         final Value<File> file = new Value<>();
         assertFalse(folder.createFile(Path.parse(""), file));
         assertFalse(folder.exists());
@@ -445,10 +439,7 @@ public class FolderTests
     @Test
     public void createFileWithFileNameAndNonNullValue()
     {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-        fileSystem.createRoot("/");
-
-        final Folder folder = fileSystem.getFolder("/test/folder");
+        final Folder folder = getFolder();
         final Value<File> file = new Value<>();
         assertTrue(folder.createFile(Path.parse("file.xml"), file));
         assertTrue(folder.exists());
@@ -460,10 +451,7 @@ public class FolderTests
     @Test
     public void createFileWithBackslashRelativeFilePathAndNonNullValue()
     {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-        fileSystem.createRoot("/");
-
-        final Folder folder = fileSystem.getFolder("/test/folder");
+        final Folder folder = getFolder();
         final Value<File> file = new Value<>();
         assertTrue(folder.createFile(Path.parse("subfolder\\file.xml"), file));
         assertTrue(folder.exists());
@@ -476,10 +464,7 @@ public class FolderTests
     @Test
     public void createFileWithForwardSlashRelativeFilePathAndNonNullValue()
     {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-        fileSystem.createRoot("/");
-
-        final Folder folder = fileSystem.getFolder("/test/folder");
+        final Folder folder = getFolder();
         final Value<File> file = new Value<>();
         assertTrue(folder.createFile(Path.parse("subfolder/file.xml"), file));
         assertTrue(folder.exists());
@@ -492,10 +477,7 @@ public class FolderTests
     @Test
     public void getFolders()
     {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-        fileSystem.createRoot("/");
-
-        final Folder folder = fileSystem.getFolder("/test/folder");
+        final Folder folder = getFolder();
         assertFalse(folder.exists());
         assertNull(folder.getFolders());
 
@@ -534,10 +516,7 @@ public class FolderTests
     @Test
     public void getFilesWhenFolderDoesntExist()
     {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-        fileSystem.createRoot("/");
-
-        final Folder folder = fileSystem.getFolder("/test/folder");
+        final Folder folder = getFolder();
         assertFalse(folder.exists());
         assertNull(folder.getFiles());
     }
@@ -545,10 +524,7 @@ public class FolderTests
     @Test
     public void getFilesWhenFolderExistsButDoesntHaveChildFiles()
     {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-        fileSystem.createRoot("/");
-
-        final Folder folder = fileSystem.getFolder("/test/folder");
+        final Folder folder = getFolder();
         assertTrue(folder.create());
         assertTrue(folder.exists());
         final Iterable<File> files = folder.getFiles();
@@ -565,10 +541,7 @@ public class FolderTests
     @Test
     public void getFilesWhenFolderExistsAndHasOneChildFile()
     {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-        fileSystem.createRoot("/");
-
-        final Folder folder = fileSystem.getFolder("/test/folder");
+        final Folder folder = getFolder();
         assertTrue(folder.create());
         assertTrue(folder.exists());
         assertTrue(folder.createFile("data.txt"));
@@ -586,10 +559,7 @@ public class FolderTests
     @Test
     public void getFilesWhenFolderExistsAndHasOneGrandchildFile()
     {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-        fileSystem.createRoot("/");
-
-        final Folder folder = fileSystem.getFolder("/test/folder");
+        final Folder folder = getFolder();
         assertTrue(folder.create());
         assertTrue(folder.exists());
         assertTrue(folder.createFile("subfolder/data.txt"));
@@ -607,10 +577,7 @@ public class FolderTests
     @Test
     public void getFilesAndFoldersWhenFolderDoesntExist()
     {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-        fileSystem.createRoot("/");
-
-        final Folder folder = fileSystem.getFolder("/test/folder");
+        final Folder folder = getFolder();
         assertFalse(folder.exists());
 
         final Iterable<FileSystemEntry> filesAndFolders = folder.getFilesAndFolders();
@@ -620,10 +587,7 @@ public class FolderTests
     @Test
     public void getFilesAndFoldersWhenFolderExistsButIsEmpty()
     {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-        fileSystem.createRoot("/");
-
-        final Folder folder = fileSystem.getFolder("/test/folder");
+        final Folder folder = getFolder();
         assertTrue(folder.create());
 
         final Iterable<FileSystemEntry> filesAndFolders = folder.getFilesAndFolders();
@@ -634,10 +598,7 @@ public class FolderTests
     @Test
     public void getFilesAndFoldersWhenFolderHasOneChildFolder()
     {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-        fileSystem.createRoot("/");
-
-        final Folder folder = fileSystem.getFolder("/test/folder");
+        final Folder folder = getFolder();
         assertTrue(folder.create());
         assertTrue(folder.createFolder("subfolder"));
 
@@ -657,10 +618,7 @@ public class FolderTests
     @Test
     public void getFilesAndFoldersWhenFolderHasOneChildFile()
     {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-        fileSystem.createRoot("/");
-
-        final Folder folder = fileSystem.getFolder("/test/folder");
+        final Folder folder = getFolder();
         assertTrue(folder.create());
         assertTrue(folder.createFile("file.java"));
 
@@ -677,15 +635,10 @@ public class FolderTests
         })));
     }
 
-
-
     @Test
     public void getFilesAndFoldersWhenFolderHasOneChildFileAndOneChildFolder()
     {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-        fileSystem.createRoot("/");
-
-        final Folder folder = fileSystem.getFolder("/test/folder");
+        final Folder folder = getFolder();
         assertTrue(folder.create());
         assertTrue(folder.createFile("file.java"));
         assertTrue(folder.createFolder("childfolder"));
@@ -701,5 +654,13 @@ public class FolderTests
                 return childEntry.getPath().toString();
             }
         })));
+    }
+
+    private static Folder getFolder()
+    {
+        final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
+        fileSystem.createRoot("/");
+
+        return fileSystem.getFolder("/test/folder");
     }
 }

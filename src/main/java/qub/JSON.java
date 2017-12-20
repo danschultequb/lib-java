@@ -9,9 +9,15 @@ public class JSON
 
     public static JSONDocument parse(String text, List<Issue> issues)
     {
+        final StringIterator characters = new StringIterator(text);
+        return parse(characters, issues);
+    }
+
+    public static JSONDocument parse(Iterator<Character> characters, List<Issue> issues)
+    {
         final List<JSONSegment> documentSegments = new ArrayList<>();
 
-        final JSONTokenizer tokenizer = new JSONTokenizer(text, issues);
+        final JSONTokenizer tokenizer = new JSONTokenizer(characters, issues);
         tokenizer.next();
 
         boolean foundRootSegment = false;
