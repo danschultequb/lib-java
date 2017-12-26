@@ -4,13 +4,19 @@ public class JSON
 {
     public static JSONDocument parse(String text)
     {
-        return parse(text, null);
+        final StringIterator characters = new StringIterator(text);
+        return parse(characters);
     }
 
     public static JSONDocument parse(String text, List<Issue> issues)
     {
         final StringIterator characters = new StringIterator(text);
         return parse(characters, issues);
+    }
+
+    public static JSONDocument parse(Iterator<Character> characters)
+    {
+        return parse(characters, null);
     }
 
     public static JSONDocument parse(Iterator<Character> characters, List<Issue> issues)
