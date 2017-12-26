@@ -3594,6 +3594,13 @@ public abstract class FileSystemTests
     }
 
     @Test
+    public void getFileContentCharacterReadStreamWhenFileDoesntExist()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        assertNull(fileSystem.getFileContentCharacterReadStream("C:/i/dont/exist.txt"));
+    }
+
+    @Test
     public void getFileContentBlocksStringWithNull()
     {
         final FileSystem fileSystem = getFileSystem();

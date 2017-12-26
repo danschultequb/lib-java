@@ -174,6 +174,17 @@ public class File extends FileSystemEntry
     }
 
     /**
+     * Get a CharacterReadStream to this file's contents.
+     * @return A CharacterReadStream to this file's contents.
+     */
+    public CharacterReadStream getContentCharacterReadStream()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        final Path path = getPath();
+        return fileSystem.getFileContentCharacterReadStream(path);
+    }
+
+    /**
      * Set the contents of this File to be the provided fileContents and return whether or not the
      * file's contents were set.
      * @param fileContents The contents to set the file to.

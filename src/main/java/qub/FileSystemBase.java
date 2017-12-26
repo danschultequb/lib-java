@@ -889,6 +889,20 @@ public abstract class FileSystemBase implements FileSystem
     }
 
     @Override
+    public CharacterReadStream getFileContentCharacterReadStream(String rootedFilePath)
+    {
+        final Path path = Path.parse(rootedFilePath);
+        return getFileContentCharacterReadStream(path);
+    }
+
+    @Override
+    public CharacterReadStream getFileContentCharacterReadStream(Path rootedFilePath)
+    {
+        final ByteReadStream contentByteReadStream = getFileContentByteReadStream(rootedFilePath);
+        return contentByteReadStream == null ? null : contentByteReadStream.asCharacterReadStream();
+    }
+
+    @Override
     public boolean setFileContents(String rootedFilePath, byte[] fileContents)
     {
         final Path path = Path.parse(rootedFilePath);

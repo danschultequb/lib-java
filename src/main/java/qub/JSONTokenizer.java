@@ -173,7 +173,7 @@ public class JSONTokenizer extends IteratorBase<JSONToken>
                         {
                             escaped = false;
                         }
-                        else if (lexer.getCurrent().getType() == Lex.Type.Backslash)
+                        else if (lexer.getCurrent().getType() == LexType.Backslash)
                         {
                             escaped = true;
                         }
@@ -212,7 +212,7 @@ public class JSONTokenizer extends IteratorBase<JSONToken>
                 case Period:
                     final StringBuilder numberText = new StringBuilder();
 
-                    if (lexer.getCurrent().getType() == Lex.Type.Dash)
+                    if (lexer.getCurrent().getType() == LexType.Dash)
                     {
                         // Negative sign
                         numberText.append(lexer.takeCurrent().toString());
@@ -222,7 +222,7 @@ public class JSONTokenizer extends IteratorBase<JSONToken>
                     {
                         addIssue(JSONIssues.missingWholeNumberDigits(tokenStartIndex, numberText.length()));
                     }
-                    else if (lexer.getCurrent().getType() != Lex.Type.Digits)
+                    else if (lexer.getCurrent().getType() != LexType.Digits)
                     {
                         addIssue(JSONIssues.expectedWholeNumberDigits(tokenStartIndex + numberText.length(), lexer.getCurrent().getLength()));
                     }
@@ -231,7 +231,7 @@ public class JSONTokenizer extends IteratorBase<JSONToken>
                         numberText.append(lexer.takeCurrent().toString());
                     }
 
-                    if (lexer.hasCurrent() && lexer.getCurrent().getType() == Lex.Type.Period)
+                    if (lexer.hasCurrent() && lexer.getCurrent().getType() == LexType.Period)
                     {
                         // Decimal point
                         final int decimalPointStartIndex = tokenStartIndex + numberText.length();
@@ -241,7 +241,7 @@ public class JSONTokenizer extends IteratorBase<JSONToken>
                         {
                             addIssue(JSONIssues.missingFractionalNumberDigits(decimalPointStartIndex, 1));
                         }
-                        else if (lexer.getCurrent().getType() != Lex.Type.Digits)
+                        else if (lexer.getCurrent().getType() != LexType.Digits)
                         {
                             addIssue(JSONIssues.expectedFractionalNumberDigits(lexer.getCurrent().getStartIndex(), lexer.getCurrent().getLength()));
                         }
@@ -269,7 +269,7 @@ public class JSONTokenizer extends IteratorBase<JSONToken>
                         else
                         {
                             final int exponentSignOrDigitsStartIndex = tokenStartIndex + numberText.length();
-                            if (lexer.getCurrent().getType() == Lex.Type.Dash || lexer.getCurrent().getType() == Lex.Type.Plus)
+                            if (lexer.getCurrent().getType() == LexType.Dash || lexer.getCurrent().getType() == LexType.Plus)
                             {
                                 // Exponent number sign
                                 numberText.append(lexer.takeCurrent().toString());
@@ -279,7 +279,7 @@ public class JSONTokenizer extends IteratorBase<JSONToken>
                             {
                                 addIssue(JSONIssues.missingExponentNumberDigits(exponentSignOrDigitsStartIndex, 1));
                             }
-                            else if (lexer.getCurrent().getType() != Lex.Type.Digits)
+                            else if (lexer.getCurrent().getType() != LexType.Digits)
                             {
                                 addIssue(JSONIssues.expectedExponentNumberDigits(tokenStartIndex + numberText.length(), lexer.getCurrent().getLength()));
                             }

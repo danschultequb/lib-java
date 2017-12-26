@@ -777,6 +777,20 @@ public interface FileSystem
     ByteReadStream getFileContentByteReadStream(Path rootedFilePath);
 
     /**
+     * Get a CharacterReadStream to the file at the provided rootedFilePath.
+     * @param rootedFilePath The rooted file path to the file.
+     * @return A CharacterReadStream to the contents of the file.
+     */
+    CharacterReadStream getFileContentCharacterReadStream(String rootedFilePath);
+
+    /**
+     * Get a CharacterReadStream to the file at the provided rootedFilePath.
+     * @param rootedFilePath The rooted file path to the file.
+     * @return A CharacterReadStream to the contents of the file.
+     */
+    CharacterReadStream getFileContentCharacterReadStream(Path rootedFilePath);
+
+    /**
      * Set the contents of the file at the provided rootedFilePath to the provided byte array. If
      * the file doesn't exist, then it will be created.
      * @param rootedFilePath The path to the file to set the contents for.

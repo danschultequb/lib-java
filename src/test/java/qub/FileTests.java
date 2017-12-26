@@ -473,6 +473,13 @@ public class FileTests
     }
 
     @Test
+    public void getContentCharacterReadStreamWhenFileDoesntExist()
+    {
+        final File file = getFile();
+        assertNull(file.getContentCharacterReadStream());
+    }
+
+    @Test
     public void setContentsWithNonExistingFileAndNullContents()
     {
         final File file = getFile();

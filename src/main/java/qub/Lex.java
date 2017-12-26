@@ -2,50 +2,11 @@ package qub;
 
 public class Lex
 {
-    public enum Type
-    {
-        LeftCurlyBracket,
-        RightCurlyBracket,
-        LeftSquareBracket,
-        RightSquareBracket,
-        LeftAngleBracket,
-        RightAngleBracket,
-        LeftParenthesis,
-        RightParenthesis,
-        Letters,
-        SingleQuote,
-        DoubleQuote,
-        Digits,
-        Comma,
-        Colon,
-        Semicolon,
-        ExclamationPoint,
-        Backslash,
-        ForwardSlash,
-        QuestionMark,
-        Dash,
-        Plus,
-        EqualsSign,
-        Period,
-        Underscore,
-        Ampersand,
-        VerticalBar,
-        Space,
-        Tab,
-        CarriageReturn,
-        NewLine,
-        CarriageReturnNewLine,
-        Asterisk,
-        Percent,
-        Hash,
-        Unrecognized
-    };
-
     private final String text;
     private final int startIndex;
-    private final Type type;
+    private final LexType type;
 
-    public Lex(String text, int startIndex, Type type)
+    public Lex(String text, int startIndex, LexType type)
     {
         this.text = text;
         this.startIndex = startIndex;
@@ -83,7 +44,7 @@ public class Lex
         return new Span(startIndex, getLength());
     }
 
-    public Type getType()
+    public LexType getType()
     {
         return type;
     }
@@ -142,177 +103,177 @@ public class Lex
 
     public static Lex leftCurlyBracket(int startIndex)
     {
-        return new Lex("{", startIndex, Type.LeftCurlyBracket);
+        return new Lex("{", startIndex, LexType.LeftCurlyBracket);
     }
 
     public static Lex rightCurlyBracket(int startIndex)
     {
-        return new Lex("}", startIndex, Type.RightCurlyBracket);
+        return new Lex("}", startIndex, LexType.RightCurlyBracket);
     }
 
     public static Lex leftSquareBracket(int startIndex)
     {
-        return new Lex("[", startIndex, Type.LeftSquareBracket);
+        return new Lex("[", startIndex, LexType.LeftSquareBracket);
     }
 
     public static Lex rightSquareBracket(int startIndex)
     {
-        return new Lex("]", startIndex, Type.RightSquareBracket);
+        return new Lex("]", startIndex, LexType.RightSquareBracket);
     }
 
     public static Lex leftParenthesis(int startIndex)
     {
-        return new Lex("(", startIndex, Type.LeftParenthesis);
+        return new Lex("(", startIndex, LexType.LeftParenthesis);
     }
 
     public static Lex rightParenthesis(int startIndex)
     {
-        return new Lex(")", startIndex, Type.RightParenthesis);
+        return new Lex(")", startIndex, LexType.RightParenthesis);
     }
 
     public static Lex leftAngleBracket(int startIndex)
     {
-        return new Lex("<", startIndex, Type.LeftAngleBracket);
+        return new Lex("<", startIndex, LexType.LeftAngleBracket);
     }
 
     public static Lex rightAngleBracket(int startIndex)
     {
-        return new Lex(">", startIndex, Type.RightAngleBracket);
+        return new Lex(">", startIndex, LexType.RightAngleBracket);
     }
 
     public static Lex doubleQuote(int startIndex)
     {
-        return new Lex("\"", startIndex, Type.DoubleQuote);
+        return new Lex("\"", startIndex, LexType.DoubleQuote);
     }
 
     public static Lex singleQuote(int startIndex)
     {
-        return new Lex("\'", startIndex, Type.SingleQuote);
+        return new Lex("\'", startIndex, LexType.SingleQuote);
     }
 
     public static Lex dash(int startIndex)
     {
-        return new Lex("-", startIndex, Type.Dash);
+        return new Lex("-", startIndex, LexType.Dash);
     }
 
     public static Lex plus(int startIndex)
     {
-        return new Lex("+", startIndex, Type.Plus);
+        return new Lex("+", startIndex, LexType.Plus);
     }
 
     public static Lex comma(int startIndex)
     {
-        return new Lex(",", startIndex, Type.Comma);
+        return new Lex(",", startIndex, LexType.Comma);
     }
 
     public static Lex colon(int startIndex)
     {
-        return new Lex(":", startIndex, Type.Colon);
+        return new Lex(":", startIndex, LexType.Colon);
     }
 
     public static Lex semicolon(int startIndex)
     {
-        return new Lex(";", startIndex, Type.Semicolon);
+        return new Lex(";", startIndex, LexType.Semicolon);
     }
 
     public static Lex exclamationPoint(int startIndex)
     {
-        return new Lex("!", startIndex, Type.ExclamationPoint);
+        return new Lex("!", startIndex, LexType.ExclamationPoint);
     }
 
     public static Lex backslash(int startIndex)
     {
-        return new Lex("\\", startIndex, Type.Backslash);
+        return new Lex("\\", startIndex, LexType.Backslash);
     }
 
     public static Lex forwardSlash(int startIndex)
     {
-        return new Lex("/", startIndex, Type.ForwardSlash);
+        return new Lex("/", startIndex, LexType.ForwardSlash);
     }
 
     public static Lex questionMark(int startIndex)
     {
-        return new Lex("?", startIndex, Type.QuestionMark);
+        return new Lex("?", startIndex, LexType.QuestionMark);
     }
 
     public static Lex equalsSign(int startIndex)
     {
-        return new Lex("=", startIndex, Type.EqualsSign);
+        return new Lex("=", startIndex, LexType.EqualsSign);
     }
 
     public static Lex period(int startIndex)
     {
-        return new Lex(".", startIndex, Type.Period);
+        return new Lex(".", startIndex, LexType.Period);
     }
 
     public static Lex underscore(int startIndex)
     {
-        return new Lex("_", startIndex, Type.Underscore);
+        return new Lex("_", startIndex, LexType.Underscore);
     }
 
     public static Lex ampersand(int startIndex)
     {
-        return new Lex("&", startIndex, Type.Ampersand);
+        return new Lex("&", startIndex, LexType.Ampersand);
     }
 
     public static Lex space(int startIndex)
     {
-        return new Lex(" ", startIndex, Type.Space);
+        return new Lex(" ", startIndex, LexType.Space);
     }
 
     public static Lex tab(int startIndex)
     {
-        return new Lex("\t", startIndex, Type.Tab);
+        return new Lex("\t", startIndex, LexType.Tab);
     }
 
     public static Lex carriageReturn(int startIndex)
     {
-        return new Lex("\r", startIndex, Type.CarriageReturn);
+        return new Lex("\r", startIndex, LexType.CarriageReturn);
     }
 
     public static Lex carriageReturnNewLine(int startIndex)
     {
-        return new Lex("\r\n", startIndex, Type.CarriageReturnNewLine);
+        return new Lex("\r\n", startIndex, LexType.CarriageReturnNewLine);
     }
 
     public static Lex newLine(int startIndex)
     {
-        return new Lex("\n", startIndex, Type.NewLine);
+        return new Lex("\n", startIndex, LexType.NewLine);
     }
 
     public static Lex asterisk(int startIndex)
     {
-        return new Lex("*", startIndex, Type.Asterisk);
+        return new Lex("*", startIndex, LexType.Asterisk);
     }
 
     public static Lex percent(int startIndex)
     {
-        return new Lex("%", startIndex, Type.Percent);
+        return new Lex("%", startIndex, LexType.Percent);
     }
 
     public static Lex verticalBar(int startIndex)
     {
-        return new Lex("|", startIndex, Type.VerticalBar);
+        return new Lex("|", startIndex, LexType.VerticalBar);
     }
 
     public static Lex hash(int startIndex)
     {
-        return new Lex("#", startIndex, Type.Hash);
+        return new Lex("#", startIndex, LexType.Hash);
     }
 
     public static Lex letters(String letters, int startIndex)
     {
-        return new Lex(letters, startIndex, Type.Letters);
+        return new Lex(letters, startIndex, LexType.Letters);
     }
 
     public static Lex digits(String digits, int startIndex)
     {
-        return new Lex(digits, startIndex, Type.Digits);
+        return new Lex(digits, startIndex, LexType.Digits);
     }
 
     public static Lex unrecognized(char unrecognized, int startIndex)
     {
-        return new Lex(Character.toString(unrecognized), startIndex, Type.Unrecognized);
+        return new Lex(Character.toString(unrecognized), startIndex, LexType.Unrecognized);
     }
 
     public static boolean isLetter(char character)
