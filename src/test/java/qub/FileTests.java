@@ -7,6 +7,18 @@ import static org.junit.Assert.*;
 public class FileTests
 {
     @Test
+    public void getFileExtension()
+    {
+        final FileSystem fileSystem = getFileSystem();
+
+        final File fileWithoutExtension = fileSystem.getFile("/folder/file");
+        assertNull(fileWithoutExtension.getFileExtension());
+
+        final File fileWithExtension = fileSystem.getFile("/file.csv");
+        assertEquals(".csv", fileWithExtension.getFileExtension());
+    }
+
+    @Test
     public void create()
     {
         final File file = getFile();

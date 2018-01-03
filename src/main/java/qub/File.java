@@ -13,6 +13,15 @@ public class File extends FileSystemEntry
     }
 
     /**
+     * Get the file extension (including the '.' character) for this File.
+     * @return
+     */
+    public String getFileExtension()
+    {
+        return getPath().getFileExtension();
+    }
+
+    /**
      * Create this File and return whether or not it was created as a result of this function.
      * @return Whether or not this function created the file.
      */
