@@ -31,17 +31,17 @@ public class JSONObject extends JSONSegment
         return result;
     }
 
-    public Iterable<JSONProperty> getPropertySegments()
+    public Iterable<JSONProperty> getProperties()
     {
         return segments.instanceOf(JSONProperty.class);
     }
 
-    public JSONProperty getPropertySegment(final String propertyName)
+    public JSONProperty getProperty(final String propertyName)
     {
         JSONProperty result = null;
         if (propertyName != null && !propertyName.isEmpty())
         {
-            result = getPropertySegments()
+            result = getProperties()
                 .first(new Function1<JSONProperty, Boolean>()
                 {
                     @Override
@@ -56,9 +56,9 @@ public class JSONObject extends JSONSegment
         return result;
     }
 
-    public JSONSegment getPropertyValueSegment(String propertyName)
+    public JSONSegment getPropertyValue(String propertyName)
     {
-        final JSONProperty propertySegment = getPropertySegment(propertyName);
+        final JSONProperty propertySegment = getProperty(propertyName);
         return propertySegment == null ? null : propertySegment.getValueSegment();
     }
 

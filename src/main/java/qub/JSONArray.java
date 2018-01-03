@@ -31,7 +31,7 @@ public class JSONArray extends JSONSegment
         return result;
     }
 
-    public Indexable<JSONSegment> getElementSegments()
+    public Indexable<JSONSegment> getElements()
     {
         final List<JSONSegment> result = new ArrayList<>();
 
@@ -87,12 +87,12 @@ public class JSONArray extends JSONSegment
 
     public int getElementCount()
     {
-        return getElementSegments().getCount();
+        return getElements().getCount();
     }
 
-    public JSONSegment getElementSegment(int index)
+    public JSONSegment getElement(int index)
     {
-        return getElementSegments().get(index);
+        return getElements().get(index);
     }
 
     @Override

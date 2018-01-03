@@ -60,10 +60,10 @@ public class JSONArrayTests
         assertEquals(leftSquareBracket, arraySegment.getLeftSquareBracket());
         assertEquals(rightSquareBracket, arraySegment.getRightSquareBracket());
         assertEquals(text, arraySegment.toString());
-        assertEquals(Array.fromValues(elementSegments), arraySegment.getElementSegments());
+        assertEquals(Array.fromValues(elementSegments), arraySegment.getElements());
         for (int i = 0; i < elementSegments.length; ++i)
         {
-            assertEquals(elementSegments[i], arraySegment.getElementSegment(i));
+            assertEquals(elementSegments[i], arraySegment.getElement(i));
         }
         assertEquals(elementSegments.length, arraySegment.getElementCount());
         assertEquals(0, arraySegment.getStartIndex());

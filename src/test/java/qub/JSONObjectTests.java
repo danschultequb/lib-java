@@ -54,7 +54,7 @@ public class JSONObjectTests
         final JSONObject objectSegment = JSON.parseObject(text);
         assertEquals(leftCurlyBracket, objectSegment.getLeftCurlyBracket());
         assertEquals(rightCurlyBracket, objectSegment.getRightCurlyBracket());
-        assertEquals(Array.fromValues(propertySegments), objectSegment.getPropertySegments());
+        assertEquals(Array.fromValues(propertySegments), objectSegment.getProperties());
         assertEquals(startIndex, objectSegment.getStartIndex());
         assertEquals(afterEndIndex, objectSegment.getAfterEndIndex());
         assertEquals(length, objectSegment.getLength());
@@ -65,27 +65,27 @@ public class JSONObjectTests
     public void getPropertySegment()
     {
         final JSONObject objectSegment = JSON.parseObject("{ \"a\":1, \"b\": 2 }");
-        assertNull(objectSegment.getPropertySegment(null));
-        assertNull(objectSegment.getPropertySegment(""));
-        assertNull(objectSegment.getPropertySegment("c"));
-        assertNull(objectSegment.getPropertySegment("\"c\""));
-        assertEquals(JSON.parseProperty("\"a\":1", 2), objectSegment.getPropertySegment("\"a\""));
-        assertEquals(JSON.parseProperty("\"a\":1", 2), objectSegment.getPropertySegment("a"));
-        assertEquals(JSON.parseProperty("\"b\": 2", 9), objectSegment.getPropertySegment("\"b\""));
-        assertEquals(JSON.parseProperty("\"b\": 2", 9), objectSegment.getPropertySegment("b"));
+        assertNull(objectSegment.getProperty(null));
+        assertNull(objectSegment.getProperty(""));
+        assertNull(objectSegment.getProperty("c"));
+        assertNull(objectSegment.getProperty("\"c\""));
+        assertEquals(JSON.parseProperty("\"a\":1", 2), objectSegment.getProperty("\"a\""));
+        assertEquals(JSON.parseProperty("\"a\":1", 2), objectSegment.getProperty("a"));
+        assertEquals(JSON.parseProperty("\"b\": 2", 9), objectSegment.getProperty("\"b\""));
+        assertEquals(JSON.parseProperty("\"b\": 2", 9), objectSegment.getProperty("b"));
     }
 
     @Test
     public void getPropertyValueSegment()
     {
         final JSONObject objectSegment = JSON.parseObject("{ \"a\":1, \"b\": 2 }");
-        assertNull(objectSegment.getPropertyValueSegment(null));
-        assertNull(objectSegment.getPropertyValueSegment(""));
-        assertNull(objectSegment.getPropertyValueSegment("c"));
-        assertNull(objectSegment.getPropertyValueSegment("\"c\""));
-        assertEquals(JSONToken.number("1", 6), objectSegment.getPropertyValueSegment("\"a\""));
-        assertEquals(JSONToken.number("1", 6), objectSegment.getPropertyValueSegment("a"));
-        assertEquals(JSONToken.number("2", 14), objectSegment.getPropertyValueSegment("\"b\""));
-        assertEquals(JSONToken.number("2", 14), objectSegment.getPropertyValueSegment("b"));
+        assertNull(objectSegment.getPropertyValue(null));
+        assertNull(objectSegment.getPropertyValue(""));
+        assertNull(objectSegment.getPropertyValue("c"));
+        assertNull(objectSegment.getPropertyValue("\"c\""));
+        assertEquals(JSONToken.number("1", 6), objectSegment.getPropertyValue("\"a\""));
+        assertEquals(JSONToken.number("1", 6), objectSegment.getPropertyValue("a"));
+        assertEquals(JSONToken.number("2", 14), objectSegment.getPropertyValue("\"b\""));
+        assertEquals(JSONToken.number("2", 14), objectSegment.getPropertyValue("b"));
     }
 }
