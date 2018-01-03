@@ -7,6 +7,12 @@ package qub;
 public interface Iterator<T> extends java.lang.Iterable<T>
 {
     /**
+     * Ensure that this Iterator has started. If it hasn't started, then it will be moved to the
+     * next value.
+     */
+    void ensureHasStarted();
+
+    /**
      * Whether or not this Iterator has begun iterating over its values.
      * @return Whether or not this Iterator has begun iterating over its values.
      */

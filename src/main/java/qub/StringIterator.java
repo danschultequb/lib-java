@@ -1,6 +1,9 @@
 package qub;
 
-public class StringIterator extends IteratorBase<Character>
+/**
+ * A SeekableIterator that iterates over the characters in a String.
+ */
+public class StringIterator extends IteratorBase<Character> implements SeekableIterator<Character>
 {
     private final String text;
     private final int textLength;
@@ -44,5 +47,18 @@ public class StringIterator extends IteratorBase<Character>
         }
 
         return index < textLength;
+    }
+
+    @Override
+    public int getCurrentIndex()
+    {
+        return index;
+    }
+
+    @Override
+    public void setCurrentIndex(int index)
+    {
+        this.index = (index < 0 ? 0 : (index > textLength ? textLength : index));
+        this.hasStarted = true;
     }
 }
