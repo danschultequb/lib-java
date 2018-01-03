@@ -9,7 +9,7 @@ public abstract class PathPatternTests
     protected abstract PathPattern parse(String text);
 
     @Test
-    public void parse()
+    public void parseString()
     {
         final PathPattern pattern = PathPattern.parse("test");
         assertTrue(pattern instanceof SimplePathPattern);
@@ -17,60 +17,89 @@ public abstract class PathPatternTests
     }
 
     @Test
-    public void parseNull()
+    public void parseNullPath()
     {
-        parseTest(null);
+        parsePathTest(null);
+    }
+
+    @Test
+    public void parseEmptyPath()
+    {
+        parsePathTest(Path.parse(""));
+    }
+
+    @Test
+    public void parseNonEmptyPath()
+    {
+        parsePathTest(Path.parse("/folder/subfolder"));
+    }
+
+    @Test
+    public void parseNullString()
+    {
+        parseStringTest(null);
     }
 
     @Test
     public void parseEmpty()
     {
-        parseTest("");
+        parseStringTest("");
     }
 
     @Test
     public void parseNonEmptyLetters()
     {
-        parseTest("abcd");
+        parseStringTest("abcd");
     }
 
     @Test
     public void parseBackslash()
     {
-        parseTest("\\");
+        parseStringTest("\\");
     }
 
     @Test
     public void parseForwardSlash()
     {
-        parseTest("/");
+        parseStringTest("/");
     }
 
     @Test
     public void parseStar()
     {
-        parseTest("*");
+        parseStringTest("*");
     }
 
     @Test
     public void parseStarFollowedByLetters()
     {
-        parseTest("*abc");
+        parseStringTest("*abc");
     }
 
     @Test
     public void parseDoubleStar()
     {
-        parseTest("**");
+        parseStringTest("**");
     }
 
     @Test
     public void parseDoubleStarFollowedByLetters()
     {
-        parseTest("**test");
+        parseStringTest("**test");
     }
 
-    private void parseTest(String text)
+    private void parsePathTest(Path path)
+    {
+        final PathPattern pattern = PathPattern.parse(path);
+        assertNotNull(pattern);
+
+        final String pathString = (path == null ? null : path.toString());
+        assertEquals(pathString, pattern.toString());
+        assertTrue(pattern.isMatch(path));
+        assertTrue(pattern.isMatch(pathString));
+    }
+
+    private void parseStringTest(String text)
     {
         final PathPattern pattern = parse(text);
         assertNotNull(pattern);
@@ -81,7 +110,7 @@ public abstract class PathPatternTests
     @Test
     public void isMatchWithNullPattern()
     {
-        final PathPattern pattern = parse(null);
+        final PathPattern pattern = parse((String)null);
 
         assertTrue(pattern.isMatch((String)null));
         assertTrue(pattern.isMatch(""));

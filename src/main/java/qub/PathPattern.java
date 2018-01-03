@@ -68,6 +68,16 @@ public abstract class PathPattern
     }
 
     /**
+     * Parse the provided path into a PathPattern.
+     * @param path The path to parse.
+     * @return The parsed PathPattern.
+     */
+    public static PathPattern parse(Path path)
+    {
+        return PathPattern.parse(path == null ? null : path.toString());
+    }
+
+    /**
      * Parse the provided text into a PathPattern.
      * @param text The text to parse.
      * @return The parsed PathPattern.
