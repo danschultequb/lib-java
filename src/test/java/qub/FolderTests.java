@@ -656,6 +656,36 @@ public class FolderTests
         })));
     }
 
+    @Test
+    public void fileExistsWhenFileDoesntExist()
+    {
+        final Folder folder = getFolder();
+        assertFalse(folder.fileExists("test.txt"));
+    }
+
+    @Test
+    public void fileExistsWhenFileExists()
+    {
+        final Folder folder = getFolder();
+        folder.createFile("test.txt");
+        assertTrue(folder.fileExists("test.txt"));
+    }
+
+    @Test
+    public void folderExistsWhenFolderDoesntExist()
+    {
+        final Folder folder = getFolder();
+        assertFalse(folder.folderExists("test"));
+    }
+
+    @Test
+    public void folderExistsWhenFolderExists()
+    {
+        final Folder folder = getFolder();
+        folder.createFolder("test");
+        assertTrue(folder.folderExists("test"));
+    }
+
     private static Folder getFolder()
     {
         final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
