@@ -46,9 +46,19 @@ public class Folder extends FileSystemEntry
      */
     public boolean folderExists(String relativeFolderPath)
     {
+        return folderExists(Path.parse(relativeFolderPath));
+    }
+
+    /**
+     * Get whether or not the folder at the provided relativeFolderPath exists.
+     * @param relativeFolderPath The relative path to the folder.
+     * @return Whether or not the folder at the provided relativeFolderPath exists.
+     */
+    public boolean folderExists(Path relativeFolderPath)
+    {
         boolean result = false;
 
-        if (relativeFolderPath != null && !relativeFolderPath.isEmpty())
+        if (relativeFolderPath != null && !relativeFolderPath.isEmpty() && !relativeFolderPath.isRooted())
         {
             final Path childFolderPath = getChildPath(relativeFolderPath);
             final FileSystem fileSystem = getFileSystem();
@@ -99,9 +109,19 @@ public class Folder extends FileSystemEntry
      */
     public boolean fileExists(String relativeFilePath)
     {
+        return fileExists(Path.parse(relativeFilePath));
+    }
+
+    /**
+     * Get whether or not the file at the provided relativeFilePath exists.
+     * @param relativeFilePath The relative path to the file.
+     * @return Whether or not the file at the provided relativeFilePath exists.
+     */
+    public boolean fileExists(Path relativeFilePath)
+    {
         boolean result = false;
 
-        if (relativeFilePath != null && !relativeFilePath.isEmpty())
+        if (relativeFilePath != null && !relativeFilePath.isEmpty() && !relativeFilePath.isRooted())
         {
             final Path childFilePath = getChildPath(relativeFilePath);
             final FileSystem fileSystem = getFileSystem();
