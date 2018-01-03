@@ -21,7 +21,7 @@ public class JSONDocument
             @Override
             public Boolean run(JSONSegment segment)
             {
-                boolean result = segment instanceof JSONObjectSegment || segment instanceof JSONArraySegment;
+                boolean result = segment instanceof JSONObject || segment instanceof JSONArray;
                 if (!result && segment instanceof JSONToken)
                 {
                     final JSONToken token = (JSONToken)segment;

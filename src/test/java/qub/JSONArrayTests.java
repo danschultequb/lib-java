@@ -4,7 +4,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class JSONArraySegmentTests
+public class JSONArrayTests
 {
     @Test
     public void constructor()
@@ -55,7 +55,7 @@ public class JSONArraySegmentTests
 
     private static void constructorTest(String text, JSONToken leftSquareBracket, JSONToken rightSquareBracket, JSONSegment[] elementSegments)
     {
-        final JSONArraySegment arraySegment = JSON.parseArray(text);
+        final JSONArray arraySegment = JSON.parseArray(text);
         assertNotNull(arraySegment);
         assertEquals(leftSquareBracket, arraySegment.getLeftSquareBracket());
         assertEquals(rightSquareBracket, arraySegment.getRightSquareBracket());

@@ -4,14 +4,14 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class JSONObjectSegmentTests
+public class JSONObjectTests
 {
     @Test
     public void constructor()
     {
         constructorTest("{",
             JSONToken.leftCurlyBracket(0),
-            new JSONPropertySegment[0],
+            new JSONProperty[0],
             null,
             0,
             1,
@@ -19,7 +19,7 @@ public class JSONObjectSegmentTests
 
         constructorTest("{}",
             JSONToken.leftCurlyBracket(0),
-            new JSONPropertySegment[0],
+            new JSONProperty[0],
             JSONToken.rightCurlyBracket(1),
             0,
             2,
@@ -27,7 +27,7 @@ public class JSONObjectSegmentTests
 
         constructorTest("{\"a\":\"b\"}",
             JSONToken.leftCurlyBracket(0),
-            new JSONPropertySegment[]
+            new JSONProperty[]
             {
                 JSON.parseProperty("\"a\":\"b\"", 1)
             },
@@ -38,7 +38,7 @@ public class JSONObjectSegmentTests
 
         constructorTest("{\"1\":\"2\", \"3\":\"4\"}",
             JSONToken.leftCurlyBracket(0),
-            new JSONPropertySegment[]
+            new JSONProperty[]
                 {
                     JSON.parseProperty("\"1\":\"2\"", 1),
                     JSON.parseProperty("\"3\":\"4\"", 10)
@@ -49,9 +49,9 @@ public class JSONObjectSegmentTests
             18);
     }
 
-    private static void constructorTest(String text, JSONToken leftCurlyBracket, JSONPropertySegment[] propertySegments, JSONToken rightCurlyBracket, int startIndex, int afterEndIndex, int length)
+    private static void constructorTest(String text, JSONToken leftCurlyBracket, JSONProperty[] propertySegments, JSONToken rightCurlyBracket, int startIndex, int afterEndIndex, int length)
     {
-        final JSONObjectSegment objectSegment = JSON.parseObject(text);
+        final JSONObject objectSegment = JSON.parseObject(text);
         assertEquals(leftCurlyBracket, objectSegment.getLeftCurlyBracket());
         assertEquals(rightCurlyBracket, objectSegment.getRightCurlyBracket());
         assertEquals(Array.fromValues(propertySegments), objectSegment.getPropertySegments());
@@ -64,7 +64,7 @@ public class JSONObjectSegmentTests
     @Test
     public void getPropertySegment()
     {
-        final JSONObjectSegment objectSegment = JSON.parseObject("{ \"a\":1, \"b\": 2 }");
+        final JSONObject objectSegment = JSON.parseObject("{ \"a\":1, \"b\": 2 }");
         assertNull(objectSegment.getPropertySegment(null));
         assertNull(objectSegment.getPropertySegment(""));
         assertNull(objectSegment.getPropertySegment("c"));
@@ -78,7 +78,7 @@ public class JSONObjectSegmentTests
     @Test
     public void getPropertyValueSegment()
     {
-        final JSONObjectSegment objectSegment = JSON.parseObject("{ \"a\":1, \"b\": 2 }");
+        final JSONObject objectSegment = JSON.parseObject("{ \"a\":1, \"b\": 2 }");
         assertNull(objectSegment.getPropertyValueSegment(null));
         assertNull(objectSegment.getPropertyValueSegment(""));
         assertNull(objectSegment.getPropertyValueSegment("c"));

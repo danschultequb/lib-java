@@ -1,10 +1,10 @@
 package qub;
 
-public class JSONPropertySegment extends JSONSegment
+public class JSONProperty extends JSONSegment
 {
     private final Iterable<JSONSegment> segments;
 
-    public JSONPropertySegment(Iterable<JSONSegment> segments)
+    public JSONProperty(Iterable<JSONSegment> segments)
     {
         this.segments = segments;
     }
@@ -64,10 +64,10 @@ public class JSONPropertySegment extends JSONSegment
     @Override
     public boolean equals(Object rhs)
     {
-        return rhs instanceof JSONPropertySegment && equals((JSONPropertySegment)rhs);
+        return rhs instanceof JSONProperty && equals((JSONProperty)rhs);
     }
 
-    public boolean equals(JSONPropertySegment rhs)
+    public boolean equals(JSONProperty rhs)
     {
         return rhs != null && segments.equals(rhs.segments);
     }

@@ -1,10 +1,10 @@
 package qub;
 
-public class JSONArraySegment extends JSONSegment
+public class JSONArray extends JSONSegment
 {
     private final Iterable<JSONSegment> segments;
 
-    public JSONArraySegment(Iterable<JSONSegment> segments)
+    public JSONArray(Iterable<JSONSegment> segments)
     {
         this.segments = segments;
     }
@@ -98,10 +98,10 @@ public class JSONArraySegment extends JSONSegment
     @Override
     public boolean equals(Object rhs)
     {
-        return rhs instanceof JSONArraySegment && equals((JSONArraySegment)rhs);
+        return rhs instanceof JSONArray && equals((JSONArray)rhs);
     }
 
-    public boolean equals(JSONArraySegment rhs)
+    public boolean equals(JSONArray rhs)
     {
         return rhs != null &&
             segments.equals(rhs.segments);

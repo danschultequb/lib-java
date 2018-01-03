@@ -1,10 +1,10 @@
 package qub;
 
-public class JSONObjectSegment extends JSONSegment
+public class JSONObject extends JSONSegment
 {
     private final Iterable<JSONSegment> segments;
 
-    public JSONObjectSegment(Iterable<JSONSegment> segments)
+    public JSONObject(Iterable<JSONSegment> segments)
     {
         this.segments = segments;
     }
@@ -31,21 +31,21 @@ public class JSONObjectSegment extends JSONSegment
         return result;
     }
 
-    public Iterable<JSONPropertySegment> getPropertySegments()
+    public Iterable<JSONProperty> getPropertySegments()
     {
-        return segments.instanceOf(JSONPropertySegment.class);
+        return segments.instanceOf(JSONProperty.class);
     }
 
-    public JSONPropertySegment getPropertySegment(final String propertyName)
+    public JSONProperty getPropertySegment(final String propertyName)
     {
-        JSONPropertySegment result = null;
+        JSONProperty result = null;
         if (propertyName != null && !propertyName.isEmpty())
         {
             result = getPropertySegments()
-                .first(new Function1<JSONPropertySegment, Boolean>()
+                .first(new Function1<JSONProperty, Boolean>()
                 {
                     @Override
-                    public Boolean run(JSONPropertySegment propertySegment)
+                    public Boolean run(JSONProperty propertySegment)
                     {
                         final JSONQuotedString nameSegment = propertySegment.getNameSegment();
                         return nameSegment.toString().equals(propertyName) ||
@@ -58,17 +58,17 @@ public class JSONObjectSegment extends JSONSegment
 
     public JSONSegment getPropertyValueSegment(String propertyName)
     {
-        final JSONPropertySegment propertySegment = getPropertySegment(propertyName);
+        final JSONProperty propertySegment = getPropertySegment(propertyName);
         return propertySegment == null ? null : propertySegment.getValueSegment();
     }
 
     @Override
     public boolean equals(Object rhs)
     {
-        return rhs instanceof JSONObjectSegment && equals((JSONObjectSegment)rhs);
+        return rhs instanceof JSONObject && equals((JSONObject)rhs);
     }
 
-    public boolean equals(JSONObjectSegment rhs)
+    public boolean equals(JSONObject rhs)
     {
         return rhs != null &&
             segments.equals(rhs.segments);

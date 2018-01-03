@@ -32,7 +32,7 @@ public class JSON
             final JSONSegment segment = parseSegment(tokenizer, issues);
             documentSegments.add(segment);
 
-            if (segment instanceof JSONObjectSegment || segment instanceof JSONArraySegment)
+            if (segment instanceof JSONObject || segment instanceof JSONArray)
             {
                 if (!foundRootSegment)
                 {
@@ -92,14 +92,14 @@ public class JSON
         return result;
     }
 
-    public static JSONObjectSegment parseObject(String text)
+    public static JSONObject parseObject(String text)
     {
         return parseObject(text, 0);
     }
 
-    public static JSONObjectSegment parseObject(String text, int firstTokenStartIndex)
+    public static JSONObject parseObject(String text, int firstTokenStartIndex)
     {
-        JSONObjectSegment result = null;
+        JSONObject result = null;
 
         final JSONTokenizer tokenizer = new JSONTokenizer(text, firstTokenStartIndex);
         if (tokenizer.next() && tokenizer.getCurrent().getType() == JSONTokenType.LeftCurlyBracket)
@@ -110,7 +110,7 @@ public class JSON
         return result;
     }
 
-    public static JSONObjectSegment parseObject(JSONTokenizer tokenizer, List<Issue> issues)
+    public static JSONObject parseObject(JSONTokenizer tokenizer, List<Issue> issues)
     {
         final JSONToken leftCurlyBracket = tokenizer.takeCurrent();
         final List<JSONSegment> objectSegments = ArrayList.<JSONSegment>fromValues(leftCurlyBracket);
@@ -205,17 +205,17 @@ public class JSON
             addIssue(issues, JSONIssues.missingClosingRightCurlyBracket(leftCurlyBracket.getSpan()));
         }
 
-        return new JSONObjectSegment(objectSegments);
+        return new JSONObject(objectSegments);
     }
 
-    public static JSONPropertySegment parseProperty(String text)
+    public static JSONProperty parseProperty(String text)
     {
         return parseProperty(text, 0);
     }
 
-    public static JSONPropertySegment parseProperty(String text, int startIndex)
+    public static JSONProperty parseProperty(String text, int startIndex)
     {
-        JSONPropertySegment result = null;
+        JSONProperty result = null;
 
         final JSONTokenizer tokenizer = new JSONTokenizer(text, startIndex);
         if (tokenizer.next() && tokenizer.getCurrent().getType() == JSONTokenType.QuotedString)
@@ -226,7 +226,7 @@ public class JSON
         return result;
     }
 
-    public static JSONPropertySegment parseProperty(JSONTokenizer tokenizer, List<Issue> issues)
+    public static JSONProperty parseProperty(JSONTokenizer tokenizer, List<Issue> issues)
     {
         final JSONToken propertyName = tokenizer.takeCurrent();
         final List<JSONSegment> propertySegments = ArrayList.<JSONSegment>fromValues(propertyName);
@@ -287,7 +287,7 @@ public class JSON
             }
         }
 
-        return new JSONPropertySegment(propertySegments);
+        return new JSONProperty(propertySegments);
     }
 
     public static void skipWhitespace(JSONTokenizer tokenizer, List<JSONSegment> segments)
@@ -298,14 +298,14 @@ public class JSON
         }
     }
 
-    public static JSONArraySegment parseArray(String text)
+    public static JSONArray parseArray(String text)
     {
         return parseArray(text, 0);
     }
 
-    public static JSONArraySegment parseArray(String text, int startIndex)
+    public static JSONArray parseArray(String text, int startIndex)
     {
-        JSONArraySegment result = null;
+        JSONArray result = null;
 
         final JSONTokenizer tokenizer = new JSONTokenizer(text, startIndex);
         if (tokenizer.next() && tokenizer.getCurrent().getType() == JSONTokenType.LeftSquareBracket)
@@ -316,7 +316,7 @@ public class JSON
         return result;
     }
 
-    public static JSONArraySegment parseArray(JSONTokenizer tokenizer, List<Issue> issues)
+    public static JSONArray parseArray(JSONTokenizer tokenizer, List<Issue> issues)
     {
         final JSONToken leftSquareBracket = tokenizer.takeCurrent();
         final List<JSONSegment> arraySegments = ArrayList.<JSONSegment>fromValues(leftSquareBracket);
@@ -435,7 +435,7 @@ public class JSON
             addIssue(issues, JSONIssues.missingClosingRightSquareBracket(leftSquareBracket.getSpan()));
         }
 
-        return new JSONArraySegment(arraySegments);
+        return new JSONArray(arraySegments);
     }
 
     private static void addIssue(List<Issue> issues, Issue issue)

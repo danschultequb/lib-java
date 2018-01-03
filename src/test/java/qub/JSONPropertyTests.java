@@ -4,7 +4,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class JSONPropertySegmentTests
+public class JSONPropertyTests
 {
     @Test
     public void constructor()
@@ -89,9 +89,9 @@ public class JSONPropertySegmentTests
     @Test
     public void equalsTest()
     {
-        final JSONPropertySegment propertySegment = JSON.parseProperty("\"a\":\"b\"");
+        final JSONProperty propertySegment = JSON.parseProperty("\"a\":\"b\"");
         assertFalse(propertySegment.equals((Object)null));
-        assertFalse(propertySegment.equals((JSONPropertySegment)null));
+        assertFalse(propertySegment.equals((JSONProperty)null));
 
         assertFalse(propertySegment.equals((Object)"test"));
 
@@ -102,7 +102,7 @@ public class JSONPropertySegmentTests
 
     private static void assertPropertySegment(String text, JSONQuotedString nameSegment, String name, JSONToken colonSegment, JSONSegment valueSegment, int afterEndIndex)
     {
-        final JSONPropertySegment propertySegment = JSON.parseProperty(text);
+        final JSONProperty propertySegment = JSON.parseProperty(text);
 
         assertEquals(nameSegment, propertySegment.getNameSegment());
         assertEquals(name, propertySegment.getName());
