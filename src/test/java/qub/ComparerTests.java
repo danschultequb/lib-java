@@ -41,6 +41,10 @@ public class ComparerTests
 
                         equalTest.run(null, null, true);
                         equalTest.run(null, false, false);
+                        equalTest.run(false, false, true);
+                        equalTest.run(false, true, false);
+                        equalTest.run(20, 20, true);
+                        equalTest.run(new char[0], new char[0], true);
                     }
                 });
             }
