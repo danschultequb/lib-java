@@ -1,0 +1,12 @@
+{
+  "publisher": "qub",
+  "project": "qub",
+  "version": "1.0.0",
+  "type": "library",
+  "java": {
+    "sources": "src/main/java",
+    "tests": "src/test/java",
+    "output": "output",
+    "classpath": "C:/qub/junit/junit/4.12/junit-4.12.jar"
+  }
+}

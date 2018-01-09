@@ -1,40 +1,72 @@
 package qub;
 
-import org.junit.Test;
-
-import static org.junit.Assert.*;
-
 public class AsyncRunnerRegistryTests
 {
-    @Test
-    public void constructor()
+    public static void test(final TestRunner runner)
     {
-        assertNotNull(new AsyncRunnerRegistry());
-    }
-
-    @Test
-    public void getCurrentThreadAsyncRunnerWithNoRegisteredRunner()
-    {
-        assertNull(AsyncRunnerRegistry.getCurrentThreadAsyncRunner());
-    }
-
-    @Test
-    public void getCurrentThreadAsyncRunnerWithRegisteredRunner()
-    {
-        final AsyncRunner backupRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        final CurrentThreadAsyncRunner runner = new CurrentThreadAsyncRunner(new Synchronization());
-        AsyncRunnerRegistry.setCurrentThreadAsyncRunner(runner);
-        try
+        runner.testGroup("AsyncRunnerRegistry", new Action0()
         {
-            assertSame(runner, AsyncRunnerRegistry.getCurrentThreadAsyncRunner());
-        }
-        finally
-        {
-            AsyncRunnerRegistry.removeCurrentThreadAsyncRunner();
-            if (backupRunner != null)
+            @Override
+            public void run()
             {
-                AsyncRunnerRegistry.setCurrentThreadAsyncRunner(backupRunner);
+                runner.test("constructor()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        test.assertNotNull(new AsyncRunnerRegistry());
+                    }
+                });
+
+                runner.testGroup("getCurrentThreadAsyncRunner()", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with no registered runner", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final AsyncRunner backupRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+                                AsyncRunnerRegistry.removeCurrentThreadAsyncRunner();
+                                try
+                                {
+                                    test.assertNull(AsyncRunnerRegistry.getCurrentThreadAsyncRunner());
+                                }
+                                finally
+                                {
+                                    AsyncRunnerRegistry.setCurrentThreadAsyncRunner(backupRunner);
+                                }
+
+                            }
+                        });
+
+                        runner.test("with registered runner", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final AsyncRunner backupRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+                                final CurrentThreadAsyncRunner runner = new CurrentThreadAsyncRunner(new Synchronization());
+                                AsyncRunnerRegistry.setCurrentThreadAsyncRunner(runner);
+                                try
+                                {
+                                    test.assertSame(runner, AsyncRunnerRegistry.getCurrentThreadAsyncRunner());
+                                }
+                                finally
+                                {
+                                    AsyncRunnerRegistry.removeCurrentThreadAsyncRunner();
+                                    if (backupRunner != null)
+                                    {
+                                        AsyncRunnerRegistry.setCurrentThreadAsyncRunner(backupRunner);
+                                    }
+                                }
+                            }
+                        });
+                    }
+                });
             }
-        }
+        });
     }
 }

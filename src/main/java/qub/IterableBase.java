@@ -141,6 +141,30 @@ public abstract class IterableBase<T> implements Iterable<T>
     }
 
     @Override
+    public String toString()
+    {
+        final StringBuilder builder = new StringBuilder();
+        builder.append('[');
+
+        boolean addedAValue = false;
+        for (final T value : this)
+        {
+            if (addedAValue)
+            {
+                builder.append(',');
+            }
+            else
+            {
+                addedAValue = true;
+            }
+            builder.append(value.toString());
+        }
+
+        builder.append(']');
+        return builder.toString();
+    }
+
+    @Override
     public java.util.Iterator<T> iterator()
     {
         return iterate().iterator();

@@ -1,10 +1,23 @@
 package qub;
 
-public class SingleLinkListQueueTests extends QueueTests
+public class SingleLinkListQueueTests
 {
-    @Override
-    protected Queue<Integer> createQueue()
+    public static void test(final TestRunner runner)
     {
-        return new SingleLinkListQueue<>();
+        runner.testGroup("SingleLinkListQueue<T>", new Action0()
+        {
+            @Override
+            public void run()
+            {
+                QueueTests.test(runner, new Function0<Queue<Integer>>()
+                {
+                    @Override
+                    public Queue<Integer> run()
+                    {
+                        return new SingleLinkListQueue<>();
+                    }
+                });
+            }
+        });
     }
 }

@@ -1,115 +1,137 @@
 package qub;
 
-import org.junit.Test;
-
-import static org.junit.Assert.*;
-
-public abstract class IndexableTests extends IterableTests
+public class IndexableTests
 {
-    @Override
-    protected Iterable<Integer> createIterable(int count)
+    public static void test(final TestRunner runner, final Function1<Integer,Indexable<Integer>> createIndexable)
     {
-        return createIndexable(count);
-    }
-
-    protected abstract Indexable<Integer> createIndexable(int count);
-
-    @Test
-    public void createIndexableWithNegative()
-    {
-        final Indexable<Integer> indexable = createIndexable(-2);
-        assertNotNull(indexable);
-        assertFalse(indexable.any());
-    }
-
-    @Test
-    public void createIndexableWithZero()
-    {
-        final Indexable<Integer> indexable = createIndexable(0);
-        assertNotNull(indexable);
-        assertFalse(indexable.any());
-    }
-
-    @Test
-    public void createIndexableWithPositive()
-    {
-        final Indexable<Integer> indexable = createIndexable(10);
-        assertNotNull(indexable);
-        assertTrue(indexable.any());
-        assertEquals(10, indexable.getCount());
-        for (int i = 0; i < 10; ++i)
+        runner.testGroup("Indexable<T>", new Action0()
         {
-            assertEquals(i, indexable.get(i).intValue());
-        }
-    }
+            @Override
+            public void run()
+            {
+                IterableTests.test(runner, new Function1<Integer,Iterable<Integer>>()
+                {
+                    @Override
+                    public Iterable<Integer> run(Integer count)
+                    {
+                        return createIndexable.run(count);
+                    }
+                });
 
-    @Test
-    public void getWithNegativeIndex()
-    {
-        final Indexable<Integer> indexable = createIndexable(0);
-        assertNull(indexable.get(-5));
-    }
+                runner.testGroup("get()", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with negative index", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Indexable<Integer> indexable = createIndexable.run(0);
+                                test.assertNull(indexable.get(-5));
+                            }
+                        });
+                        
+                        runner.test("with index equal to Indexable count", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Indexable<Integer> indexable = createIndexable.run(3);
+                                test.assertNull(indexable.get(3));
+                            }
+                        });
+                    }
+                });
+                
+                runner.testGroup("indexOf()", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with empty Indexable and null condition", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Indexable<Integer> indexable = createIndexable.run(0);
+                                test.assertEqual(-1, indexable.indexOf((Function1<Integer,Boolean>)null));
+                            }
+                        });
 
-    @Test
-    public void getWithIndexEqualToIndexablesCount()
-    {
-        final Indexable<Integer> indexable = createIndexable(3);
-        assertNull(indexable.get(3));
-    }
+                        runner.test("with empty Indexable and non-null condition", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Indexable<Integer> indexable = createIndexable.run(0);
+                                test.assertEqual(-1, indexable.indexOf(Math.isOdd));
+                            }
+                        });
 
-    @Test
-    public void indexOfWithEmptyAndNullCondition()
-    {
-        final Indexable<Integer> indexable = createIndexable(0);
-        assertEquals(-1, indexable.indexOf((Function1<Integer,Boolean>)null));
-    }
+                        runner.test("with non-empty Indexable and null condition", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Indexable<Integer> indexable = createIndexable.run(1);
+                                test.assertEqual(-1, indexable.indexOf((Function1<Integer,Boolean>)null));
+                            }
+                        });
 
-    @Test
-    public void indexOfWithEmptyAndNonNullCondition()
-    {
-        final Indexable<Integer> indexable = createIndexable(0);
-        assertEquals(-1, indexable.indexOf(Math.isOdd));
-    }
+                        runner.test("with non-empty Indexable and non-matching condition", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Indexable<Integer> indexable = createIndexable.run(1);
+                                test.assertEqual(-1, indexable.indexOf(Math.isOdd));
+                            }
+                        });
 
-    @Test
-    public void indexOfWithNonEmptyAndNullCondition()
-    {
-        final Indexable<Integer> indexable = createIndexable(1);
-        assertEquals(-1, indexable.indexOf((Function1<Integer,Boolean>)null));
-    }
+                        runner.test("with non-empty Indexable and matching condition", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Indexable<Integer> indexable = createIndexable.run(7);
+                                test.assertEqual(1, indexable.indexOf(Math.isOdd));
+                            }
+                        });
 
-    @Test
-    public void indexOfWithNonEmptyAndNonMatchingCondition()
-    {
-        final Indexable<Integer> indexable = createIndexable(1);
-        assertEquals(-1, indexable.indexOf(Math.isOdd));
-    }
+                        runner.test("with non-empty Indexable and null value", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Indexable<Integer> indexable = createIndexable.run(2);
+                                test.assertEqual(-1, indexable.indexOf((Integer)null));
+                            }
+                        });
 
-    @Test
-    public void indexOfWithNonEmptyAndMatchingCondition()
-    {
-        final Indexable<Integer> indexable = createIndexable(7);
-        assertEquals(1, indexable.indexOf(Math.isOdd));
-    }
+                        runner.test("with non-empty Indexable and not found value", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Indexable<Integer> indexable = createIndexable.run(2);
+                                test.assertEqual(-1, indexable.indexOf(20));
+                            }
+                        });
 
-    @Test
-    public void indexOfWithNullValue()
-    {
-        final Indexable<Integer> indexable = createIndexable(2);
-        assertEquals(-1, indexable.indexOf((Integer)null));
-    }
-
-    @Test
-    public void indexOfWithNotFoundValue()
-    {
-        final Indexable<Integer> indexable = createIndexable(2);
-        assertEquals(-1, indexable.indexOf(20));
-    }
-
-    @Test
-    public void indexOfWithFoundValue()
-    {
-        final Indexable<Integer> indexable = createIndexable(10);
-        assertEquals(4, indexable.indexOf(4));
+                        runner.test("with non-empty Indexable and found value", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Indexable<Integer> indexable = createIndexable.run(10);
+                                test.assertEqual(4, indexable.indexOf(4));
+                            }
+                        });
+                    }
+                });
+            }
+        });
     }
 }

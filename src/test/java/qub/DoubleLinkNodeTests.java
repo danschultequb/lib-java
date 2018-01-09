@@ -1,71 +1,102 @@
 package qub;
 
-import org.junit.Test;
-
-import static org.junit.Assert.*;
-
 public class DoubleLinkNodeTests extends IterableTests
 {
-    @Override
-    protected Iterable<Integer> createIterable(int count)
+    public static void test(final TestRunner runner)
     {
-        DoubleLinkNode<Integer> result = null;
-
-        if (count > 0)
+        runner.testGroup("DoubleLinkNode<T>", new Action0()
         {
-            result = new DoubleLinkNode<>(0);
-            DoubleLinkNode<Integer> currentNode = result;
-            for (int i = 1; i < count; ++i)
+            @Override
+            public void run()
             {
-                final DoubleLinkNode<Integer> nextNode = new DoubleLinkNode<>(i);
-                currentNode.setNext(nextNode);
-                nextNode.setPrevious(currentNode);
+                IterableTests.test(runner, new Function1<Integer, Iterable<Integer>>()
+                {
+                    @Override
+                    public Iterable<Integer> run(Integer count)
+                    {
+                        DoubleLinkNode<Integer> result = null;
 
-                currentNode = nextNode;
+                        if (count > 0)
+                        {
+                            result = new DoubleLinkNode<>(0);
+                            DoubleLinkNode<Integer> currentNode = result;
+                            for (int i = 1; i < count; ++i)
+                            {
+                                final DoubleLinkNode<Integer> nextNode = new DoubleLinkNode<>(i);
+                                currentNode.setNext(nextNode);
+                                nextNode.setPrevious(currentNode);
+
+                                currentNode = nextNode;
+                            }
+                        }
+
+                        return result;
+                    }
+                });
+                
+                runner.test("constructor()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final DoubleLinkNode<Integer> node = new DoubleLinkNode<>(20);
+                        test.assertEqual(20, node.getValue());
+                        test.assertNull(node.getPrevious());
+                        test.assertNull(node.getNext());
+                    }
+                });
+                
+                runner.testGroup("setValue()", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final DoubleLinkNode<Integer> node = new DoubleLinkNode<>(10);
+                                node.setValue(null);
+                                test.assertNull(node.getValue());
+                            }
+                        });
+                        
+                        runner.test("with non-null", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final DoubleLinkNode<Integer> node = new DoubleLinkNode<>(10);
+                                node.setValue(20);
+                                test.assertEqual(20, node.getValue());
+                            }
+                        });
+                    }
+                });
+                
+                runner.test("setPrevious()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final DoubleLinkNode<Integer> node = new DoubleLinkNode<>(11);
+                        node.setPrevious(node);
+                        test.assertSame(node, node.getPrevious());
+                    }
+                });
+
+                runner.test("setNext()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final DoubleLinkNode<Integer> node = new DoubleLinkNode<>(11);
+                        node.setNext(node);
+                        test.assertSame(node, node.getNext());
+                    }
+                });
             }
-        }
-
-        return result;
-    }
-
-    @Test
-    public void constructor()
-    {
-        final DoubleLinkNode<Integer> node = new DoubleLinkNode<>(20);
-        assertEquals(20, node.getValue().intValue());
-        assertNull(node.getPrevious());
-        assertNull(node.getNext());
-    }
-
-    @Test
-    public void setValueWithNull()
-    {
-        final DoubleLinkNode<Integer> node = new DoubleLinkNode<>(10);
-        node.setValue(null);
-        assertNull(node.getValue());
-    }
-
-    @Test
-    public void setValueWithNonNull()
-    {
-        final DoubleLinkNode<Integer> node = new DoubleLinkNode<>(10);
-        node.setValue(20);
-        assertEquals(20, node.getValue().intValue());
-    }
-
-    @Test
-    public void setPrevious()
-    {
-        final DoubleLinkNode<Integer> node = new DoubleLinkNode<>(11);
-        node.setPrevious(node);
-        assertSame(node, node.getPrevious());
-    }
-
-    @Test
-    public void setNext()
-    {
-        final DoubleLinkNode<Integer> node = new DoubleLinkNode<>(11);
-        node.setNext(node);
-        assertSame(node, node.getNext());
+        });
     }
 }

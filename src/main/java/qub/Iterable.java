@@ -137,6 +137,12 @@ public interface Iterable<T> extends java.lang.Iterable<T>
     <U> Iterable<U> instanceOf(Class<U> type);
 
     /**
+     * Get the String representation of this Iterable.
+     * @return The String representation of this Iterable.
+     */
+    String toString();
+
+    /**
      * Get whether or not this Iterable contains equal elements in the same order as the provided
      * Iterable.
      * @param rhs The Iterable to compare against this Iterable.

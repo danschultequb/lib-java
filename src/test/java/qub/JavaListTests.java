@@ -1,15 +1,28 @@
 package qub;
 
-public class JavaListTests extends ListTests
+public class JavaListTests
 {
-    @Override
-    protected List<Integer> createList(int count)
+    public static void test(final TestRunner runner)
     {
-        final List<Integer> list = JavaList.wrap(new java.util.ArrayList<Integer>());
-        for (int i = 0; i < count; ++i)
+        runner.testGroup("JavaList<T>", new Action0()
         {
-            list.add(i);
-        }
-        return list;
+            @Override
+            public void run()
+            {
+                ListTests.test(runner, new Function1<Integer, List<Integer>>()
+                {
+                    @Override
+                    public List<Integer> run(Integer count)
+                    {
+                        final List<Integer> list = JavaList.wrap(new java.util.ArrayList<Integer>());
+                        for (int i = 0; i < count; ++i)
+                        {
+                            list.add(i);
+                        }
+                        return list;
+                    }
+                });
+            }
+        });
     }
 }

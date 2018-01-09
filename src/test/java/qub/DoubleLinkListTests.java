@@ -1,15 +1,28 @@
 package qub;
 
-public class DoubleLinkListTests extends ListTests
+public class DoubleLinkListTests
 {
-    @Override
-    protected List<Integer> createList(int count)
+    public static void test(final TestRunner runner)
     {
-        final DoubleLinkList<Integer> result = new DoubleLinkList<>();
-        for (int i = 0; i < count; ++i)
+        runner.testGroup("DoubleLinkList<T>", new Action0()
         {
-            result.add(i);
-        }
-        return result;
+            @Override
+            public void run()
+            {
+                ListTests.test(runner, new Function1<Integer, List<Integer>>()
+                {
+                    @Override
+                    public List<Integer> run(Integer count)
+                    {
+                        final DoubleLinkList<Integer> result = new DoubleLinkList<>();
+                        for (int i = 0; i < count; ++i)
+                        {
+                            result.add(i);
+                        }
+                        return result;
+                    }
+                });
+            }
+        });
     }
 }

@@ -1,10 +1,23 @@
 package qub;
 
-public class ArrayListQueueTests extends QueueTests
+public class ArrayListQueueTests
 {
-    @Override
-    protected Queue<Integer> createQueue()
+    public static void test(final TestRunner runner)
     {
-        return new ArrayListQueue<>();
+        runner.testGroup("ArrayListQueue<T>", new Action0()
+        {
+            @Override
+            public void run()
+            {
+                QueueTests.test(runner, new Function0<Queue<Integer>>()
+                {
+                    @Override
+                    public Queue<Integer> run()
+                    {
+                        return new ArrayListQueue<>();
+                    }
+                });
+            }
+        });
     }
 }

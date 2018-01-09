@@ -19,7 +19,7 @@ public class CommandLineTests
     @Test
     public void constructorWithNull()
     {
-        final CommandLine commandLine = new CommandLine(null);
+        final CommandLine commandLine = new CommandLine((String[])null);
         assertNull(commandLine.getArgumentStrings());
         assertFalse(commandLine.any());
         assertEquals(0, commandLine.getCount());
@@ -57,21 +57,21 @@ public class CommandLineTests
     @Test
     public void getValueWithNullArgumentsAndNullName()
     {
-        final CommandLine commandLine = new CommandLine(null);
+        final CommandLine commandLine = new CommandLine((String[])null);
         assertNull(commandLine.getValue(null));
     }
 
     @Test
     public void getValueWithNullArgumentsAndEmptyName()
     {
-        final CommandLine commandLine = new CommandLine(null);
+        final CommandLine commandLine = new CommandLine((String[])null);
         assertNull(commandLine.getValue(""));
     }
 
     @Test
     public void getValueWithNullArgumentsAndNonMatchingName()
     {
-        final CommandLine commandLine = new CommandLine(null);
+        final CommandLine commandLine = new CommandLine((String[])null);
         assertNull(commandLine.getValue("spud"));
     }
 
