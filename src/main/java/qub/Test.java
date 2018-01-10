@@ -189,6 +189,32 @@ public class Test
         }
     }
 
+    /**
+     * Cause the test to fail instantly.
+     */
+    public void fail()
+    {
+        fail("Unexplained test failure.");
+    }
+
+    /**
+     * Cause the test to fail instantly with the provided message.
+     * @param message The message to display that should explain the failure.
+     */
+    public void fail(String message)
+    {
+        throw new TestAssertionFailure(new String[] { message });
+    }
+
+    /**
+     * Cause the test to fail instantly with the message from the provided Exception.
+     * @param e The Exception that caused the test failure.
+     */
+    public void fail(Exception e)
+    {
+        fail(e.getMessage());
+    }
+
     private static String[] getMessageLines(String message, Object expected, Object actual)
     {
         int nextMessageIndex;

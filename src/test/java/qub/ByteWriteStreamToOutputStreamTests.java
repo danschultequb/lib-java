@@ -1,37 +1,73 @@
 package qub;
 
-import org.junit.Test;
-
 import java.io.IOException;
-
-import static org.junit.Assert.*;
 
 public class ByteWriteStreamToOutputStreamTests
 {
-    @Test
-    public void close() throws IOException
+    public static void test(final TestRunner runner)
     {
-        final InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
-        final ByteWriteStreamToOutputStream outputStream = new ByteWriteStreamToOutputStream(byteWriteStream);
-        outputStream.close();
-        assertFalse(byteWriteStream.isOpen());
-    }
+        runner.testGroup("ByteWriteStreamToOutputStream", new Action0()
+        {
+            @Override
+            public void run()
+            {
+                runner.test("close()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
+                        final ByteWriteStreamToOutputStream outputStream = new ByteWriteStreamToOutputStream(byteWriteStream);
+                        try
+                        {
+                            outputStream.close();
+                            test.assertFalse(byteWriteStream.isOpen());
+                        }
+                        catch (IOException e)
+                        {
+                            test.fail(e);
+                        }
+                    }
+                });
 
-    @Test
-    public void writeByte() throws IOException
-    {
-        final InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
-        final ByteWriteStreamToOutputStream outputStream = new ByteWriteStreamToOutputStream(byteWriteStream);
-        outputStream.write((byte)15);
-        assertArrayEquals(new byte[] { 15 }, byteWriteStream.getBytes());
-    }
+                runner.test("writeByte()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
+                        final ByteWriteStreamToOutputStream outputStream = new ByteWriteStreamToOutputStream(byteWriteStream);
+                        try
+                        {
+                            outputStream.write((byte)15);
+                            test.assertEqual(new byte[] { 15 }, byteWriteStream.getBytes());
+                        }
+                        catch (IOException e)
+                        {
+                            test.fail(e);
+                        }
+                    }
+                });
 
-    @Test
-    public void writeByteArray() throws IOException
-    {
-        final InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
-        final ByteWriteStreamToOutputStream outputStream = new ByteWriteStreamToOutputStream(byteWriteStream);
-        outputStream.write(new byte[] { 16, 17, 18, 19, 20 });
-        assertArrayEquals(new byte[] { 16, 17, 18, 19, 20 }, byteWriteStream.getBytes());
+                runner.test("write(byte[])", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
+                        final ByteWriteStreamToOutputStream outputStream = new ByteWriteStreamToOutputStream(byteWriteStream);
+                        try
+                        {
+                            outputStream.write(new byte[] { 16, 17, 18, 19, 20 });
+                            test.assertEqual(new byte[] { 16, 17, 18, 19, 20 }, byteWriteStream.getBytes());
+                        }
+                        catch (IOException e)
+                        {
+                            test.fail(e);
+                        }
+                    }
+                });
+            }
+        });
     }
 }

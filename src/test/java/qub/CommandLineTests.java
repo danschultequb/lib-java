@@ -1,179 +1,262 @@
 package qub;
 
-import org.junit.Test;
-
-import static org.junit.Assert.*;
-
 public class CommandLineTests
 {
-    @Test
-    public void constructorWithNoArguments()
+    public static void test(final TestRunner runner)
     {
-        final CommandLine commandLine = new CommandLine();
-        assertArrayEquals(new String[0], commandLine.getArgumentStrings());
-        assertFalse(commandLine.any());
-        assertEquals(0, commandLine.getCount());
-        assertNull(commandLine.get(0));
-    }
-
-    @Test
-    public void constructorWithNull()
-    {
-        final CommandLine commandLine = new CommandLine((String[])null);
-        assertNull(commandLine.getArgumentStrings());
-        assertFalse(commandLine.any());
-        assertEquals(0, commandLine.getCount());
-        assertNull(commandLine.get(0));
-    }
-
-    @Test
-    public void constructorWithEmpty()
-    {
-        final CommandLine commandLine = new CommandLine(new String[0]);
-        assertArrayEquals(new String[0], commandLine.getArgumentStrings());
-        assertFalse(commandLine.any());
-        assertEquals(0, commandLine.getCount());
-        assertNull(commandLine.get(0));
-    }
-
-    @Test
-    public void constructorWithStringsNotInArray()
-    {
-        final CommandLine commandLine = new CommandLine("a", "b", "c", "d");
-        assertArrayEquals(new String[] { "a", "b", "c", "d" }, commandLine.getArgumentStrings());
-        assertTrue(commandLine.any());
-        assertEquals(4, commandLine.getCount());
-        assertNotNull(commandLine.get(0));
-        assertArrayEquals(new String[] { "a", "b", "c", "d" }, Array.toStringArray(commandLine.map(new Function1<CommandLineArgument, String>()
+        runner.testGroup("CommandLine", new Action0()
         {
             @Override
-            public String run(CommandLineArgument arg1)
+            public void run()
             {
-                return arg1.toString();
+                runner.testGroup("constructor()", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with no arguments", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final CommandLine commandLine = new CommandLine();
+                                test.assertEqual(new String[0], commandLine.getArgumentStrings());
+                                test.assertFalse(commandLine.any());
+                                test.assertEqual(0, commandLine.getCount());
+                                test.assertNull(commandLine.get(0));
+                            }
+                        });
+                        
+                        runner.test("with null String[]", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final CommandLine commandLine = new CommandLine((String[])null);
+                                test.assertNull(commandLine.getArgumentStrings());
+                                test.assertFalse(commandLine.any());
+                                test.assertEqual(0, commandLine.getCount());
+                                test.assertNull(commandLine.get(0));
+                            }
+                        });
+                        
+                        runner.test("with empty String[]", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final CommandLine commandLine = new CommandLine(new String[0]);
+                                test.assertEqual(new String[0], commandLine.getArgumentStrings());
+                                test.assertFalse(commandLine.any());
+                                test.assertEqual(0, commandLine.getCount());
+                                test.assertNull(commandLine.get(0));
+                            }
+                        });
+
+                        runner.test("with String argument list", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final CommandLine commandLine = new CommandLine("a", "b", "c", "d");
+                                test.assertEqual(new String[] { "a", "b", "c", "d" }, commandLine.getArgumentStrings());
+                                test.assertTrue(commandLine.any());
+                                test.assertEqual(4, commandLine.getCount());
+                                test.assertNotNull(commandLine.get(0));
+                                test.assertEqual(new String[] { "a", "b", "c", "d" }, Array.toStringArray(commandLine.map(new Function1<CommandLineArgument, String>()
+                                {
+                                    @Override
+                                    public String run(CommandLineArgument arg1)
+                                    {
+                                        return arg1.toString();
+                                    }
+                                })));
+                            }
+                        });
+                    }
+                });
+
+                runner.testGroup("getValue()", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null arguments and null name", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final CommandLine commandLine = new CommandLine((String[])null);
+                                test.assertNull(commandLine.getValue(null));
+                            }
+                        });
+
+                        runner.test("with null arguments and empty name", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final CommandLine commandLine = new CommandLine((String[])null);
+                                test.assertNull(commandLine.getValue(""));
+                            }
+                        });
+
+                        runner.test("with null arguments and non-empty name", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final CommandLine commandLine = new CommandLine((String[])null);
+                                test.assertNull(commandLine.getValue("spud"));
+                            }
+                        });
+
+                        runner.test("with empty arguments and null name", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final CommandLine commandLine = new CommandLine(new String[0]);
+                                test.assertNull(commandLine.getValue(null));
+                            }
+                        });
+
+                        runner.test("with empty arguments and empty name", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final CommandLine commandLine = new CommandLine(new String[0]);
+                                test.assertNull(commandLine.getValue(""));
+                            }
+                        });
+
+                        runner.test("with empty arguments and non-empty name", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final CommandLine commandLine = new CommandLine(new String[0]);
+                                test.assertNull(commandLine.getValue("spud"));
+                            }
+                        });
+
+                        runner.test("with non-empty arguments and null name", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final CommandLine commandLine = new CommandLine("hello", "there");
+                                test.assertNull(commandLine.getValue(null));
+                            }
+                        });
+
+                        runner.test("with non-empty arguments and empty name", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final CommandLine commandLine = new CommandLine("hello", "there");
+                                test.assertNull(commandLine.getValue(""));
+                            }
+                        });
+
+                        runner.test("with non-empty arguments and non-matching name", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final CommandLine commandLine = new CommandLine("hello", "there");
+                                test.assertNull(commandLine.getValue("spud"));
+                            }
+                        });
+
+                        runner.test("with single-dash arguments and null name", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final CommandLine commandLine = new CommandLine("-hello", "-there");
+                                test.assertNull(commandLine.getValue(null));
+                            }
+                        });
+
+                        runner.test("with single-dash arguments and empty name", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final CommandLine commandLine = new CommandLine("-hello", "-there");
+                                test.assertNull(commandLine.getValue(""));
+                            }
+                        });
+
+                        runner.test("with single-dash arguments and non-matching name", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final CommandLine commandLine = new CommandLine("-hello", "-there");
+                                test.assertNull(commandLine.getValue("spud"));
+                            }
+                        });
+
+                        runner.test("with single-dash arguments and matching name", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final CommandLine commandLine = new CommandLine("-hello", "there");
+                                final CommandLineArgument argument = commandLine.get("hello");
+                                test.assertNotNull(argument);
+                                test.assertEqual("-hello", argument.toString());
+                                test.assertEqual("hello", argument.getName());
+                                test.assertNull(argument.getValue());
+                            }
+                        });
+
+                        runner.test("with single-dash and equals sign argument and null name", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final CommandLine commandLine = new CommandLine("-name=value");
+                                test.assertNull(commandLine.getValue(null));
+                            }
+                        });
+
+                        runner.test("with single-dash and equals sign argument and empty name", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final CommandLine commandLine = new CommandLine("-name=value");
+                                test.assertNull(commandLine.getValue(""));
+                            }
+                        });
+
+                        runner.test("with single-dash and equals sign argument and non-matching name", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final CommandLine commandLine = new CommandLine("-name=value");
+                                test.assertNull(commandLine.getValue("spud"));
+                            }
+                        });
+
+                        runner.test("with single-dash and equals sign argument and matching name", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final CommandLine commandLine = new CommandLine("-name=value");
+                                test.assertEqual("value", commandLine.getValue("name"));
+                            }
+                        });
+                    }
+                });
             }
-        })));
-    }
-
-    @Test
-    public void getValueWithNullArgumentsAndNullName()
-    {
-        final CommandLine commandLine = new CommandLine((String[])null);
-        assertNull(commandLine.getValue(null));
-    }
-
-    @Test
-    public void getValueWithNullArgumentsAndEmptyName()
-    {
-        final CommandLine commandLine = new CommandLine((String[])null);
-        assertNull(commandLine.getValue(""));
-    }
-
-    @Test
-    public void getValueWithNullArgumentsAndNonMatchingName()
-    {
-        final CommandLine commandLine = new CommandLine((String[])null);
-        assertNull(commandLine.getValue("spud"));
-    }
-
-    @Test
-    public void getValueWithEmptyArgumentsAndNullName()
-    {
-        final CommandLine commandLine = new CommandLine(new String[0]);
-        assertNull(commandLine.getValue(null));
-    }
-
-    @Test
-    public void getValueWithEmptyArgumentsAndEmptyName()
-    {
-        final CommandLine commandLine = new CommandLine(new String[0]);
-        assertNull(commandLine.getValue(""));
-    }
-
-    @Test
-    public void getValueWithEmptyArgumentsAndNonMatchingName()
-    {
-        final CommandLine commandLine = new CommandLine(new String[0]);
-        assertNull(commandLine.getValue("spud"));
-    }
-
-    @Test
-    public void getValueWithTextArgumentsAndNullName()
-    {
-        final CommandLine commandLine = new CommandLine("hello", "there");
-        assertNull(commandLine.getValue(null));
-    }
-
-    @Test
-    public void getValueWithTextArgumentsAndEmptyName()
-    {
-        final CommandLine commandLine = new CommandLine("hello", "there");
-        assertNull(commandLine.getValue(""));
-    }
-
-    @Test
-    public void getValueWithTextArgumentsAndNonMatchingName()
-    {
-        final CommandLine commandLine = new CommandLine("hello", "there");
-        assertNull(commandLine.getValue("spud"));
-    }
-
-    @Test
-    public void getValueWithSingleDashArgumentsAndNullName()
-    {
-        final CommandLine commandLine = new CommandLine("-hello", "-there");
-        assertNull(commandLine.getValue(null));
-    }
-
-    @Test
-    public void getValueWithSingleDashArgumentsAndEmptyName()
-    {
-        final CommandLine commandLine = new CommandLine("-hello", "-there");
-        assertNull(commandLine.getValue(""));
-    }
-
-    @Test
-    public void getValueWithSingleDashArgumentsAndNonMatchingName()
-    {
-        final CommandLine commandLine = new CommandLine("-hello", "-there");
-        assertNull(commandLine.getValue("spud"));
-    }
-
-    @Test
-    public void getValueWithSingleDashArgumentsAndMatchingName()
-    {
-        final CommandLine commandLine = new CommandLine("-hello", "there");
-        final CommandLineArgument argument = commandLine.get("hello");
-        assertNotNull(argument);
-        assertEquals("-hello", argument.toString());
-        assertEquals("hello", argument.getName());
-        assertNull(argument.getValue());
-    }
-
-    @Test
-    public void getValueWithSingleDashEqualsSignAndNullName()
-    {
-        final CommandLine commandLine = new CommandLine("-name=value");
-        assertNull(commandLine.getValue(null));
-    }
-
-    @Test
-    public void getValueWithSingleDashEqualsSignAndEmptyName()
-    {
-        final CommandLine commandLine = new CommandLine("-name=value");
-        assertNull(commandLine.getValue(""));
-    }
-
-    @Test
-    public void getValueWithSingleDashEqualsSignAndNonMatchingName()
-    {
-        final CommandLine commandLine = new CommandLine("-name=value");
-        assertNull(commandLine.getValue("spud"));
-    }
-
-    @Test
-    public void getValueWithSingleDashEqualsSignAndMatchingName()
-    {
-        final CommandLine commandLine = new CommandLine("-name=value");
-        assertEquals("value", commandLine.getValue("name"));
+        });
     }
 }

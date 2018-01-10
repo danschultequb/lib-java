@@ -1,39 +1,75 @@
 package qub;
 
-import org.junit.Test;
-
 import java.io.IOException;
-
-import static org.junit.Assert.*;
 
 public class ByteReadStreamToInputStreamTests
 {
-    @Test
-    public void close() throws IOException
+    public static void test(final TestRunner runner)
     {
-        final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream();
-        final ByteReadStreamToInputStream inputStream = new ByteReadStreamToInputStream(byteReadStream);
-        inputStream.close();
-        assertFalse(byteReadStream.isOpen());
-    }
+        runner.testGroup("ByteReadStreamToInputStream", new Action0()
+        {
+            @Override
+            public void run()
+            {
+                runner.test("close()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream();
+                        final ByteReadStreamToInputStream inputStream = new ByteReadStreamToInputStream(byteReadStream);
+                        try
+                        {
+                            inputStream.close();
+                            test.assertFalse(byteReadStream.isOpen());
+                        }
+                        catch (IOException e)
+                        {
+                            test.fail(e);
+                        }
+                    }
+                });
 
-    @Test
-    public void read() throws IOException
-    {
-        final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream();
-        final ByteReadStreamToInputStream inputStream = new ByteReadStreamToInputStream(byteReadStream);
-        final int byteRead = inputStream.read();
-        assertEquals(-1, byteRead);
-    }
+                runner.test("read()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream();
+                        final ByteReadStreamToInputStream inputStream = new ByteReadStreamToInputStream(byteReadStream);
+                        try
+                        {
+                            final int byteRead = inputStream.read();
+                            test.assertEqual(-1, byteRead);
+                        }
+                        catch (IOException e)
+                        {
+                            test.fail(e);
+                        }
+                    }
+                });
 
-    @Test
-    public void readByteArray() throws IOException
-    {
-        final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream();
-        final ByteReadStreamToInputStream inputStream = new ByteReadStreamToInputStream(byteReadStream);
-        final byte[] bytes = new byte[100];
-        final int bytesRead = inputStream.read(bytes);
-        assertEquals(-1, bytesRead);
-        assertArrayEquals(new byte[100], bytes);
+                runner.test("read(byte[])", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream();
+                        final ByteReadStreamToInputStream inputStream = new ByteReadStreamToInputStream(byteReadStream);
+                        final byte[] bytes = new byte[100];
+                        try
+                        {
+                            final int bytesRead = inputStream.read(bytes);
+                            test.assertEqual(-1, bytesRead);
+                            test.assertEqual(new byte[100], bytes);
+                        }
+                        catch (IOException e)
+                        {
+                            test.fail(e);
+                        }
+                    }
+                });
+            }
+        });
     }
 }
