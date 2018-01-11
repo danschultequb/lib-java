@@ -1,847 +1,1143 @@
 package qub;
 
-import org.junit.Test;
-
-import java.io.IOException;
-
-import static org.junit.Assert.*;
-
 public class ConsoleTests
 {
-    @Test
-    public void constructorWithNoArguments()
+    public static void test(final TestRunner runner)
     {
-        final Console console = new Console();
-        assertArrayEquals(null, console.getCommandLineArgumentStrings());
-    }
-
-    @Test
-    public void constructorWithNullStringArray()
-    {
-        final Console console = new Console(null);
-        assertNull(console.getCommandLineArgumentStrings());
-        assertSame(null, console.getCommandLineArgumentStrings());
-        assertNotNull(console.getCommandLine());
-    }
-
-    @Test
-    public void constructorWithEmptyStringArray()
-    {
-        final String[] commandLineArgumentStrings = new String[0];
-        final Console console = new Console(commandLineArgumentStrings);
-        assertArrayEquals(new String[0], console.getCommandLineArgumentStrings());
-        assertSame(commandLineArgumentStrings, console.getCommandLineArgumentStrings());
-        assertNotNull(console.getCommandLine());
-    }
-
-    @Test
-    public void constructorWithNonEmptyStringArray()
-    {
-        final String[] commandLineArgumentStrings = Array.toStringArray("a", "b", "c");
-        final Console console = new Console(commandLineArgumentStrings);
-        assertArrayEquals(new String[] { "a", "b", "c" }, console.getCommandLineArgumentStrings());
-        assertNotSame(commandLineArgumentStrings, console.getCommandLineArgumentStrings());
-        assertNotNull(console.getCommandLine());
-    }
-
-    @Test
-    public void getEncoding()
-    {
-        final Console console = new Console();
-        assertEquals(CharacterEncoding.UTF_8, console.getCharacterEncoding());
-
-        console.setCharacterEncoding(CharacterEncoding.US_ASCII);
-        assertEquals(CharacterEncoding.US_ASCII, console.getCharacterEncoding());
-
-        console.setCharacterEncoding(null);
-        assertEquals(null, console.getCharacterEncoding());
-    }
-
-    @Test
-    public void getLineSeparator()
-    {
-        final Console console = new Console();
-        assertEquals("\n", console.getLineSeparator());
-
-        console.setLineSeparator("\r\n");
-        assertEquals("\r\n", console.getLineSeparator());
-
-        console.setLineSeparator("abc");
-        assertEquals("abc", console.getLineSeparator());
-
-        console.setLineSeparator("");
-        assertEquals("", console.getLineSeparator());
-
-        console.setLineSeparator(null);
-        assertEquals(null, console.getLineSeparator());
-    }
-
-    @Test
-    public void getIncludeNewLines()
-    {
-        final Console console = new Console();
-        assertFalse(console.getIncludeNewLines());
-
-        console.setIncludeNewLines(true);
-        assertTrue(console.getIncludeNewLines());
-    }
-
-    @Test
-    public void getOutputAsByteWriteStream()
-    {
-        final Console console = new Console();
-        final ByteWriteStream writeStream = console.getOutputAsByteWriteStream();
-        assertNotNull(writeStream);
-    }
-
-    @Test
-    public void setOutputWithNullByteWriteStream()
-    {
-        final Console console = new Console();
-        console.setOutput((ByteWriteStream)null);
-
-        console.write((byte)50);
-        console.write(new byte[]{51});
-        console.write(new byte[]{52}, 0, 1);
-        console.write("hello");
-        console.writeLine("there!");
-    }
-
-    @Test
-    public void setOutputWithNonNullBytewriteStream()
-    {
-        final Console console = new Console();
-        final InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
-        console.setOutput(byteWriteStream);
-
-        console.write((byte)50);
-        assertArrayEquals(new byte[]{50}, byteWriteStream.getBytes());
-
-        console.write(new byte[]{51});
-        assertArrayEquals(new byte[]{50, 51}, byteWriteStream.getBytes());
-
-        console.write(new byte[]{52}, 0, 1);
-        assertArrayEquals(new byte[]{50, 51, 52}, byteWriteStream.getBytes());
-
-        console.write("hello");
-        assertArrayEquals(new byte[]{50, 51, 52, 104, 101, 108, 108, 111}, byteWriteStream.getBytes());
-
-        console.writeLine();
-        assertArrayEquals(new byte[]{50, 51, 52, 104, 101, 108, 108, 111, 10 }, byteWriteStream.getBytes());
-
-        console.writeLine("there!");
-        assertArrayEquals(new byte[]{50, 51, 52, 104, 101, 108, 108, 111, 10, 116, 104, 101, 114, 101, 33, 10}, byteWriteStream.getBytes());
-    }
-
-    @Test
-    public void getOutputAsCharacterWriteStream()
-    {
-        final Console console = new Console();
-        final CharacterWriteStream writeStream = console.getOutputAsCharacterWriteStream();
-        assertNotNull(writeStream);
-    }
-
-    @Test
-    public void setOutputWithNullCharacterWriteStream()
-    {
-        final Console console = new Console();
-        console.setOutput((CharacterWriteStream)null);
-
-        console.write((byte)50);
-        console.write(new byte[]{51});
-        console.write(new byte[]{52}, 0, 1);
-        console.write("hello");
-        console.writeLine("there!");
-    }
-
-    @Test
-    public void setOutputWithNonNullCharacterWriteStream()
-    {
-        final Console console = new Console();
-        final InMemoryCharacterWriteStream characterWriteStream = new InMemoryCharacterWriteStream();
-        console.setOutput(characterWriteStream);
-
-        console.write((byte)50);
-        assertArrayEquals(new byte[]{50}, characterWriteStream.getBytes());
-
-        console.write(new byte[]{51});
-        assertArrayEquals(new byte[]{50, 51}, characterWriteStream.getBytes());
-
-        console.write(new byte[]{52}, 0, 1);
-        assertArrayEquals(new byte[]{50, 51, 52}, characterWriteStream.getBytes());
-
-        console.write("hello");
-        assertArrayEquals(new byte[]{50, 51, 52, 104, 101, 108, 108, 111}, characterWriteStream.getBytes());
-
-        console.writeLine();
-        assertArrayEquals(new byte[]{50, 51, 52, 104, 101, 108, 108, 111, 10 }, characterWriteStream.getBytes());
-
-        console.writeLine("there!");
-        assertArrayEquals(new byte[]{50, 51, 52, 104, 101, 108, 108, 111, 10, 116, 104, 101, 114, 101, 33, 10}, characterWriteStream.getBytes());
-    }
-
-    @Test
-    public void getOutputAsLineWriteStream()
-    {
-        final Console console = new Console();
-        final LineWriteStream writeStream = console.getOutputAsLineWriteStream();
-        assertNotNull(writeStream);
-    }
-
-    @Test
-    public void setOutputWithNullLineWriteStream()
-    {
-        final Console console = new Console();
-        console.setOutput((LineWriteStream)null);
-
-        console.write((byte)50);
-        console.write(new byte[]{51});
-        console.write(new byte[]{52}, 0, 1);
-        console.write("hello");
-        console.writeLine("there!");
-    }
-
-    @Test
-    public void setOutputWithNonNullLineWriteStream()
-    {
-        final Console console = new Console();
-        final InMemoryLineWriteStream lineWriteStream = new InMemoryLineWriteStream();
-        console.setOutput(lineWriteStream);
-
-        console.write((byte)50);
-        assertArrayEquals(new byte[]{50}, lineWriteStream.getBytes());
-
-        console.write(new byte[]{51});
-        assertArrayEquals(new byte[]{50, 51}, lineWriteStream.getBytes());
-
-        console.write(new byte[]{52}, 0, 1);
-        assertArrayEquals(new byte[]{50, 51, 52}, lineWriteStream.getBytes());
-
-        console.write('a');
-        assertArrayEquals(new byte[]{50, 51, 52, 97}, lineWriteStream.getBytes());
-
-        console.write("hello");
-        assertArrayEquals(new byte[]{50, 51, 52, 97, 104, 101, 108, 108, 111}, lineWriteStream.getBytes());
-
-        console.writeLine();
-        assertArrayEquals(new byte[]{50, 51, 52, 97, 104, 101, 108, 108, 111, 10 }, lineWriteStream.getBytes());
-
-        console.writeLine("there!");
-        assertArrayEquals(new byte[]{50, 51, 52, 97, 104, 101, 108, 108, 111, 10, 116, 104, 101, 114, 101, 33, 10}, lineWriteStream.getBytes());
-    }
-
-    @Test
-    public void getErrorAsByteWriteStream()
-    {
-        final Console console = new Console();
-        final ByteWriteStream writeStream = console.getErrorAsByteWriteStream();
-        assertNotNull(writeStream);
-    }
-
-    @Test
-    public void setErrorWithNullByteWriteStream()
-    {
-        final Console console = new Console();
-        console.setError((ByteWriteStream)null);
-
-        console.writeError((byte)50);
-        console.writeError(new byte[]{51});
-        console.writeError(new byte[]{52}, 0, 1);
-        console.writeError("hello");
-        console.writeErrorLine("there!");
-    }
-
-    @Test
-    public void setErrorWithNonNullBytewriteStream()
-    {
-        final Console console = new Console();
-        final InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
-        console.setError(byteWriteStream);
-
-        console.writeError((byte)50);
-        assertArrayEquals(new byte[]{50}, byteWriteStream.getBytes());
-
-        console.writeError(new byte[]{51});
-        assertArrayEquals(new byte[]{50, 51}, byteWriteStream.getBytes());
-
-        console.writeError(new byte[]{52}, 0, 1);
-        assertArrayEquals(new byte[]{50, 51, 52}, byteWriteStream.getBytes());
-
-        console.writeError("hello");
-        assertArrayEquals(new byte[]{50, 51, 52, 104, 101, 108, 108, 111}, byteWriteStream.getBytes());
-
-        console.writeErrorLine();
-        assertArrayEquals(new byte[]{50, 51, 52, 104, 101, 108, 108, 111, 10 }, byteWriteStream.getBytes());
-
-        console.writeErrorLine("there!");
-        assertArrayEquals(new byte[]{50, 51, 52, 104, 101, 108, 108, 111, 10, 116, 104, 101, 114, 101, 33, 10}, byteWriteStream.getBytes());
-    }
-
-    @Test
-    public void getErrorAsCharacterWriteStream()
-    {
-        final Console console = new Console();
-        final CharacterWriteStream writeStream = console.getErrorAsCharacterWriteStream();
-        assertNotNull(writeStream);
-    }
-
-    @Test
-    public void setErrorWithNullCharacterWriteStream()
-    {
-        final Console console = new Console();
-        console.setError((CharacterWriteStream)null);
-
-        console.writeError((byte)50);
-        console.writeError(new byte[]{51});
-        console.writeError(new byte[]{52}, 0, 1);
-        console.writeError("hello");
-        console.writeErrorLine("there!");
-    }
-
-    @Test
-    public void setErrorWithNonNullCharacterWriteStream()
-    {
-        final Console console = new Console();
-        final InMemoryCharacterWriteStream characterWriteStream = new InMemoryCharacterWriteStream();
-        console.setError(characterWriteStream);
-
-        console.writeError((byte)50);
-        assertArrayEquals(new byte[]{50}, characterWriteStream.getBytes());
-
-        console.writeError(new byte[]{51});
-        assertArrayEquals(new byte[]{50, 51}, characterWriteStream.getBytes());
-
-        console.writeError(new byte[]{52}, 0, 1);
-        assertArrayEquals(new byte[]{50, 51, 52}, characterWriteStream.getBytes());
-
-        console.writeError("hello");
-        assertArrayEquals(new byte[]{50, 51, 52, 104, 101, 108, 108, 111}, characterWriteStream.getBytes());
-
-        console.writeErrorLine();
-        assertArrayEquals(new byte[]{50, 51, 52, 104, 101, 108, 108, 111, 10 }, characterWriteStream.getBytes());
-
-        console.writeErrorLine("there!");
-        assertArrayEquals(new byte[]{50, 51, 52, 104, 101, 108, 108, 111, 10, 116, 104, 101, 114, 101, 33, 10}, characterWriteStream.getBytes());
-    }
-
-    @Test
-    public void getErrorAsLineWriteStream()
-    {
-        final Console console = new Console();
-        final LineWriteStream writeStream = console.getErrorAsLineWriteStream();
-        assertNotNull(writeStream);
-    }
-
-    @Test
-    public void setErrorWithNullLineWriteStream()
-    {
-        final Console console = new Console();
-        console.setError((LineWriteStream)null);
-
-        console.writeError((byte)50);
-        console.writeError(new byte[]{51});
-        console.writeError(new byte[]{52}, 0, 1);
-        console.writeError("hello");
-        console.writeErrorLine("there!");
-    }
-
-    @Test
-    public void setErrorWithNonNullLineWriteStream()
-    {
-        final Console console = new Console();
-        final InMemoryLineWriteStream lineWriteStream = new InMemoryLineWriteStream();
-        console.setError(lineWriteStream);
-
-        console.writeError((byte)50);
-        assertArrayEquals(new byte[]{50}, lineWriteStream.getBytes());
-
-        console.writeError(new byte[]{51});
-        assertArrayEquals(new byte[]{50, 51}, lineWriteStream.getBytes());
-
-        console.writeError(new byte[]{52}, 0, 1);
-        assertArrayEquals(new byte[]{50, 51, 52}, lineWriteStream.getBytes());
-
-        console.writeError('a');
-        assertArrayEquals(new byte[]{50, 51, 52, 97}, lineWriteStream.getBytes());
-
-        console.writeError("hello");
-        assertArrayEquals(new byte[]{50, 51, 52, 97, 104, 101, 108, 108, 111}, lineWriteStream.getBytes());
-
-        console.writeErrorLine();
-        assertArrayEquals(new byte[]{50, 51, 52, 97, 104, 101, 108, 108, 111, 10 }, lineWriteStream.getBytes());
-
-        console.writeErrorLine("there!");
-        assertArrayEquals(new byte[]{50, 51, 52, 97, 104, 101, 108, 108, 111, 10, 116, 104, 101, 114, 101, 33, 10}, lineWriteStream.getBytes());
-    }
-
-    @Test
-    public void asByteReadStream()
-    {
-        final Console console = new Console();
-
-        final ByteReadStream readStream = console.getInputAsByteReadStream();
-        assertNotNull(readStream);
-    }
-
-    @Test
-    public void setInputWithNullByteReadStream() throws IOException
-    {
-        final Console console = new Console();
-        console.setInput((ByteReadStream)null);
-        assertNull(console.getInputAsByteReadStream());
-    }
-
-    @Test
-    public void setInputWithNonNullByteReadStream() throws IOException
-    {
-        final Console console = new Console();
-        final InMemoryCharacterReadStream readStream = new InMemoryCharacterReadStream("hello there my good friend\nHow are you?\r\nI'm alright.");
-        console.setInput(readStream.asByteReadStream());
-
-        final ByteReadStream byteReadStream = console.getInputAsByteReadStream();
-        assertArrayEquals(new byte[] { 104, 101, 108, 108, 111 }, byteReadStream.readBytes(5));
-
-        final byte[] byteBuffer = new byte[2];
-        assertEquals(2, byteReadStream.readBytes(byteBuffer));
-        assertArrayEquals(new byte[] { 32, 116 }, byteBuffer);
-
-        assertEquals(1, byteReadStream.readBytes(byteBuffer, 1, 1));
-        assertArrayEquals(new byte[] { 32, 104 }, byteBuffer);
-
-        final CharacterReadStream characterReadStream = console.getInputAsCharacterReadStream();
-        assertArrayEquals(new char[] { 'e', 'r', 'e' }, characterReadStream.readCharacters(3));
-
-        final char[] characterBuffer = new char[4];
-        assertEquals(4, characterReadStream.readCharacters(characterBuffer));
-        assertArrayEquals(new char[] { ' ', 'm', 'y', ' ' }, characterBuffer);
-
-        assertEquals(2, characterReadStream.readCharacters(characterBuffer, 0, 2));
-        assertArrayEquals(new char[] { 'g', 'o', 'y', ' ' }, characterBuffer);
-
-        assertEquals("od fr", characterReadStream.readString(5));
-
-        assertEquals("iend", console.readLine());
-
-        assertEquals("How are you?\r\n", console.readLine(true));
-
-        assertEquals("I'm alright.", console.readLine(false));
-    }
-
-    @Test
-    public void getInputAsCharacterReadStream()
-    {
-        final Console console = new Console();
-
-        final CharacterReadStream readStream = console.getInputAsCharacterReadStream();
-        assertNotNull(readStream);
-    }
-
-    @Test
-    public void setInputWithNullCharacterReadStream() throws IOException
-    {
-        final Console console = new Console();
-        console.setInput((CharacterReadStream)null);
-        assertNull(console.getInputAsCharacterReadStream());
-    }
-
-    @Test
-    public void setInputWithNonNullCharacterReadStream() throws IOException
-    {
-        final Console console = new Console();
-        final InMemoryCharacterReadStream readStream = new InMemoryCharacterReadStream("hello there my good friend\nHow are you?\r\nI'm alright.");
-        console.setInput(readStream);
-
-        final ByteReadStream byteReadStream = console.getInputAsByteReadStream();
-        assertArrayEquals(new byte[] { 104, 101, 108, 108, 111 }, byteReadStream.readBytes(5));
-
-        final byte[] byteBuffer = new byte[2];
-        assertEquals(2, byteReadStream.readBytes(byteBuffer));
-        assertArrayEquals(new byte[] { 32, 116 }, byteBuffer);
-
-        assertEquals(1, byteReadStream.readBytes(byteBuffer, 1, 1));
-        assertArrayEquals(new byte[] { 32, 104 }, byteBuffer);
-
-        final CharacterReadStream characterReadStream = console.getInputAsCharacterReadStream();
-        assertArrayEquals(new char[] { 'e', 'r', 'e' }, characterReadStream.readCharacters(3));
-
-        final char[] characterBuffer = new char[4];
-        assertEquals(4, characterReadStream.readCharacters(characterBuffer));
-        assertArrayEquals(new char[] { ' ', 'm', 'y', ' ' }, characterBuffer);
-
-        assertEquals(2, characterReadStream.readCharacters(characterBuffer, 0, 2));
-        assertArrayEquals(new char[] { 'g', 'o', 'y', ' ' }, characterBuffer);
-
-        assertEquals("od fr", characterReadStream.readString(5));
-
-        assertEquals("iend", console.readLine());
-
-        assertEquals("How are you?\r\n", console.readLine(true));
-
-        assertEquals("I'm alright.", console.readLine(false));
-    }
-
-    @Test
-    public void asLineReadStream()
-    {
-        final Console console = new Console();
-
-        final LineReadStream readStream = console.getInputAsLineReadStream();
-        assertNotNull(readStream);
-    }
-
-    @Test
-    public void setInputWithNullLineReadStream() throws IOException
-    {
-        final Console console = new Console();
-        console.setInput((LineReadStream)null);
-        assertNull(console.getInputAsLineReadStream());
-    }
-
-    @Test
-    public void setLineReadStreamWithNonNull() throws IOException
-    {
-        final Console console = new Console();
-        final InMemoryLineReadStream readStream = new InMemoryLineReadStream("hello there my good friend\nHow are you?\r\nI'm alright.");
-        console.setInput(readStream);
-
-        final ByteReadStream byteReadStream = console.getInputAsByteReadStream();
-        assertArrayEquals(new byte[] { 104, 101, 108, 108, 111 }, byteReadStream.readBytes(5));
-
-        final byte[] byteBuffer = new byte[2];
-        assertEquals(2, byteReadStream.readBytes(byteBuffer));
-        assertArrayEquals(new byte[] { 32, 116 }, byteBuffer);
-
-        assertEquals(1, byteReadStream.readBytes(byteBuffer, 1, 1));
-        assertArrayEquals(new byte[] { 32, 104 }, byteBuffer);
-
-        final CharacterReadStream characterReadStream = console.getInputAsCharacterReadStream();
-        assertArrayEquals(new char[] { 'e', 'r', 'e' }, characterReadStream.readCharacters(3));
-
-        final char[] characterBuffer = new char[4];
-        assertEquals(4, characterReadStream.readCharacters(characterBuffer));
-        assertArrayEquals(new char[] { ' ', 'm', 'y', ' ' }, characterBuffer);
-
-        assertEquals(2, characterReadStream.readCharacters(characterBuffer, 0, 2));
-        assertArrayEquals(new char[] { 'g', 'o', 'y', ' ' }, characterBuffer);
-
-        assertEquals("od fr", characterReadStream.readString(5));
-
-        assertEquals("iend", console.readLine());
-
-        assertEquals("How are you?\r\n", console.readLine(true));
-
-        assertEquals("I'm alright.", console.readLine(false));
-    }
-
-    @Test
-    public void getRandom()
-    {
-        final Console console = new Console();
-        final Random random = console.getRandom();
-        assertNotNull(random);
-        assertTrue(random instanceof JavaRandom);
-        assertSame(random, console.getRandom());
-    }
-
-    @Test
-    public void setRandom()
-    {
-        final Console console = new Console();
-
-        console.setRandom(null);
-        assertNull(console.getRandom());
-
-        final FixedRandom random = new FixedRandom(1);
-        console.setRandom(random);
-        assertSame(random, console.getRandom());
-    }
-
-    @Test
-    public void getFileSystem()
-    {
-        final Console console = new Console();
-        final FileSystem defaultFileSystem = console.getFileSystem();
-        assertNotNull(defaultFileSystem);
-        assertTrue(defaultFileSystem instanceof JavaFileSystem);
-    }
-
-    @Test
-    public void setFileSystemWithNull()
-    {
-        final Console console = new Console();
-        console.setFileSystem(null);
-        assertNull(console.getFileSystem());
-        assertNull(console.getCurrentFolderPathString());
-    }
-
-    @Test
-    public void setFileSystemWithNonNull()
-    {
-        final Console console = new Console();
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-        console.setFileSystem(fileSystem);
-        assertSame(fileSystem, console.getFileSystem());
-    }
-
-    @Test
-    public void getCurrentFolderPathString()
-    {
-        final Console console = new Console();
-        final String currentFolderPathString = console.getCurrentFolderPathString();
-        assertNotNull(currentFolderPathString);
-        assertFalse(currentFolderPathString.isEmpty());
-        assertTrue(console.getFileSystem().folderExists(currentFolderPathString));
-    }
-
-    @Test
-    public void setCurrentFolderPathStringWithNull()
-    {
-        final Console console = new Console();
-        console.setCurrentFolderPathString(null);
-        assertNull(console.getCurrentFolderPathString());
-    }
-
-    @Test
-    public void setCurrentFolderPathStringWithEmpty()
-    {
-        final Console console = new Console();
-        console.setCurrentFolderPathString("");
-        assertEquals("", console.getCurrentFolderPathString());
-    }
-
-    @Test
-    public void setCurrentFolderPathStringWithRelativePath()
-    {
-        final Console console = new Console();
-        console.setCurrentFolderPathString("hello there");
-        assertEquals("hello there", console.getCurrentFolderPathString());
-    }
-
-    @Test
-    public void getCurrentFolderPath()
-    {
-        final Console console = new Console();
-        final Path currentFolderPath = console.getCurrentFolderPath();
-        assertNotNull(currentFolderPath);
-        assertFalse(currentFolderPath.isEmpty());
-        assertTrue(currentFolderPath.isRooted());
-        assertTrue(console.getFileSystem().folderExists(currentFolderPath));
-    }
-
-    @Test
-    public void setCurrentFolderPathWithNull()
-    {
-        final Console console = new Console();
-        console.setCurrentFolderPath(null);
-        assertNull(console.getCurrentFolderPath());
-    }
-
-    @Test
-    public void getCurrentFolder()
-    {
-        final Console console = new Console();
-        final Folder currentFolder = console.getCurrentFolder();
-        assertNotNull(currentFolder);
-        assertTrue(currentFolder.exists());
-    }
-
-    @Test
-    public void getEnvironmentVariableWithNull()
-    {
-        final Console console = new Console();
-        assertNull(console.getEnvironmentVariable(null));
-        assertNull(console.getEnvironmentVariable(null));
-    }
-
-    @Test
-    public void getEnvironmentVariableWithEmpty()
-    {
-        final Console console = new Console();
-        assertNull(console.getEnvironmentVariable(""));
-    }
-
-    @Test
-    public void getEnvironmentVariableWithNotFound()
-    {
-        final Console console = new Console();
-        assertNull(console.getEnvironmentVariable("Can't find me"));
-    }
-
-    @Test
-    public void getEnvironmentVariableWithFound()
-    {
-        final Console console = new Console();
-        final String path = console.getEnvironmentVariable("path");
-        assertNotNull(path);
-        assertFalse(path.isEmpty());
-    }
-
-    @Test
-    public void setEnvironmentVariables()
-    {
-        final Console console = new Console();
-        final Map<String,String> envVars = new ListMap<>();
-        console.setEnvironmentVariables(envVars);
-        assertSame(envVars, console.getEnvironmentVariables());
-    }
-
-    @Test
-    public void getProcessBuilderWithNullString()
-    {
-        final Console console = new Console();
-        assertNull(console.getProcessBuilder((String)null));
-    }
-
-    @Test
-    public void getProcessBuilderWithEmptyString()
-    {
-        final Console console = new Console();
-        assertNull(console.getProcessBuilder(""));
-    }
-
-    @Test
-    public void getProcessBuilderWithCurrentFolderRelativePathWithFileExtension()
-    {
-        final Console console = new Console();
-        final ProcessBuilder builder = console.getProcessBuilder("pom.xml");
-        assertNotNull(builder);
-        assertEquals(console.getCurrentFolder().getFile("pom.xml"), builder.getExecutableFile());
-        assertEquals(0, builder.getArgumentCount());
-    }
-
-    @Test
-    public void getProcessBuilderWithCurrentFolderRelativePathWithoutFileExtension()
-    {
-        final Console console = new Console();
-        final ProcessBuilder builder = console.getProcessBuilder("pom");
-        assertNotNull(builder);
-        assertEquals(console.getCurrentFolder().getFile("pom.xml"), builder.getExecutableFile());
-        assertEquals(0, builder.getArgumentCount());
-    }
-
-    @Test
-    public void getProcessBuilderWithRootedPathWithFileExtension()
-    {
-        final Console console = new Console();
-        final Path executablePath = console.getCurrentFolder().getFile("pom.xml").getPath();
-        final ProcessBuilder builder = console.getProcessBuilder(executablePath);
-        assertNotNull(builder);
-        assertEquals(console.getCurrentFolder().getFile("pom.xml"), builder.getExecutableFile());
-        assertEquals(0, builder.getArgumentCount());
-    }
-
-    @Test
-    public void getProcessBuilderWithRootedPathWithoutFileExtension()
-    {
-        final Console console = new Console();
-        final Path executablePath = console.getCurrentFolder().getFile("pom").getPath();
-        final ProcessBuilder builder = console.getProcessBuilder(executablePath);
-        assertNotNull(builder);
-        assertEquals(console.getCurrentFolder().getFile("pom.xml"), builder.getExecutableFile());
-        assertEquals(0, builder.getArgumentCount());
-    }
-
-    @Test
-    public void getProcessBuilderWithExactPathToFile()
-    {
-        final Console console = new Console();
-        if (console.onWindows())
+        runner.testGroup("Console", new Action0()
         {
-            final ProcessBuilder builder = console.getProcessBuilder("C:/Program Files/Java/jdk-9/bin/javac.exe");
-            assertEquals("javac.exe", builder.getExecutableFile().getPath().getSegments().last());
-            assertEquals(0, builder.getArgumentCount());
-            assertEquals(2, builder.run().intValue());
-        }
-    }
+            @Override
+            public void run()
+            {
+                runner.testGroup("constructor()", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with no arguments", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Console console = new Console();
+                                test.assertEqual(null, console.getCommandLineArgumentStrings());
+                            }
+                        });
+                        
+                        runner.test("with null String[]", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Console console = new Console(null);
+                                test.assertNull(console.getCommandLineArgumentStrings());
+                                test.assertSame(null, console.getCommandLineArgumentStrings());
+                                test.assertNotNull(console.getCommandLine());
+                            }
+                        });
+                        
+                        runner.test("with empty String[]", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final String[] commandLineArgumentStrings = new String[0];
+                                final Console console = new Console(commandLineArgumentStrings);
+                                test.assertEqual(new String[0], console.getCommandLineArgumentStrings());
+                                test.assertSame(commandLineArgumentStrings, console.getCommandLineArgumentStrings());
+                                test.assertNotNull(console.getCommandLine());
+                            }
+                        });
+                        
+                        runner.test("with non-empty String[]", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final String[] commandLineArgumentStrings = Array.toStringArray("a", "b", "c");
+                                final Console console = new Console(commandLineArgumentStrings);
+                                test.assertEqual(new String[] { "a", "b", "c" }, console.getCommandLineArgumentStrings());
+                                test.assertNotSame(commandLineArgumentStrings, console.getCommandLineArgumentStrings());
+                                test.assertNotNull(console.getCommandLine());
+                            }
+                        });
+                    }
+                });
+                
+                runner.test("getEncoding()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final Console console = new Console();
+                        test.assertEqual(CharacterEncoding.UTF_8, console.getCharacterEncoding());
 
-    @Test
-    public void getProcessBuilderWithFileNameWithExtension()
-    {
-        final Console console = new Console();
-        if (console.onWindows())
-        {
-            final ProcessBuilder builder = console.getProcessBuilder("javac.exe");
-            assertEquals("javac.exe", builder.getExecutableFile().getPath().getSegments().last());
-            assertEquals(0, builder.getArgumentCount());
-            assertEquals(2, builder.run().intValue());
-        }
-    }
+                        console.setCharacterEncoding(CharacterEncoding.US_ASCII);
+                        test.assertEqual(CharacterEncoding.US_ASCII, console.getCharacterEncoding());
 
-    @Test
-    public void getProcessBuilderWithFileNameWithoutExtension()
-    {
-        final Console console = new Console();
-        if (console.onWindows())
-        {
-            final ProcessBuilder builder = console.getProcessBuilder("javac");
-            assertTrue(builder.getExecutableFile().getPath().getSegments().last().contains("javac"));
-            assertEquals(0, builder.getArgumentCount());
+                        console.setCharacterEncoding(null);
+                        test.assertEqual(null, console.getCharacterEncoding());
+                    }
+                });
 
-            final StringBuilder output = builder.redirectOutput();
+                runner.test("getLineSeparator()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final Console console = new Console();
+                        test.assertEqual("\n", console.getLineSeparator());
 
-            assertEquals(2, builder.run().intValue());
+                        console.setLineSeparator("\r\n");
+                        test.assertEqual("\r\n", console.getLineSeparator());
 
-            final String outputString = output.toString();
-            assertTrue(outputString.contains("javac <options> <source files>"));
-            assertTrue(outputString.contains("Terminate compilation if warnings occur"));
-        }
-    }
+                        console.setLineSeparator("abc");
+                        test.assertEqual("abc", console.getLineSeparator());
 
-    @Test
-    public void getProcessBuilderWithFileNameWithoutExtensionWithErrorLines()
-    {
-        final Console console = new Console();
-        if (console.onWindows())
-        {
-            final ProcessBuilder builder = console.getProcessBuilder("javac");
-            builder.addArgument("notfound.java");
+                        console.setLineSeparator("");
+                        test.assertEqual("", console.getLineSeparator());
 
-            final StringBuilder error = builder.redirectError();
+                        console.setLineSeparator(null);
+                        test.assertEqual(null, console.getLineSeparator());
+                    }
+                });
+                
+                runner.test("getIncludeNewLines()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final Console console = new Console();
+                        test.assertFalse(console.getIncludeNewLines());
 
-            assertEquals(2, builder.run().intValue());
+                        console.setIncludeNewLines(true);
+                        test.assertTrue(console.getIncludeNewLines());
+                    }
+                });
+                
+                runner.test("getOutputAsByteWriteStream()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final Console console = new Console();
+                        final ByteWriteStream writeStream = console.getOutputAsByteWriteStream();
+                        test.assertNotNull(writeStream);
+                    }
+                });
+                
+                runner.testGroup("setOutput(ByteWriteStream)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Console console = new Console();
+                                console.setOutput((ByteWriteStream)null);
 
-            final String errorString = error.toString();
-            assertTrue(errorString.contains("file not found: notfound.java"));
-        }
-    }
+                                console.write((byte)50);
+                                console.write(new byte[]{51});
+                                console.write(new byte[]{52}, 0, 1);
+                                console.write("hello");
+                                console.writeLine("there!");
+                            }
+                        });
+                        
+                        runner.test("with non-null", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Console console = new Console();
+                                final InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
+                                console.setOutput(byteWriteStream);
 
-    @Test
-    public void getProcessBuilderWithRedirectedOutput()
-    {
-        final Console console = new Console();
-        if (console.onWindows())
-        {
-            final ProcessBuilder builder = console.getProcessBuilder("javac");
-            assertTrue(builder.getExecutableFile().getPath().getSegments().last().contains("javac"));
-            assertEquals(0, builder.getArgumentCount());
+                                console.write((byte)50);
+                                test.assertEqual(new byte[]{50}, byteWriteStream.getBytes());
 
-            final InMemoryByteWriteStream output = new InMemoryByteWriteStream();
-            builder.redirectOutput(output);
+                                console.write(new byte[]{51});
+                                test.assertEqual(new byte[]{50, 51}, byteWriteStream.getBytes());
 
-            assertEquals(2, builder.run().intValue());
+                                console.write(new byte[]{52}, 0, 1);
+                                test.assertEqual(new byte[]{50, 51, 52}, byteWriteStream.getBytes());
 
-            final String outputString = new String(output.getBytes());
-            assertTrue(outputString.contains("javac <options> <source files>"));
-            assertTrue(outputString.contains("Terminate compilation if warnings occur"));
-        }
-    }
+                                console.write("hello");
+                                test.assertEqual(new byte[]{50, 51, 52, 104, 101, 108, 108, 111}, byteWriteStream.getBytes());
 
-    @Test
-    public void getProcessBuilderWithRedirectedError()
-    {
-        final Console console = new Console();
-        if (console.onWindows())
-        {
-            final ProcessBuilder builder = console.getProcessBuilder("javac");
-            builder.addArgument("notfound.java");
+                                console.writeLine();
+                                test.assertEqual(new byte[]{50, 51, 52, 104, 101, 108, 108, 111, 10 }, byteWriteStream.getBytes());
 
-            final InMemoryByteWriteStream error = new InMemoryByteWriteStream();
-            builder.redirectError(error);
+                                console.writeLine("there!");
+                                test.assertEqual(new byte[]{50, 51, 52, 104, 101, 108, 108, 111, 10, 116, 104, 101, 114, 101, 33, 10}, byteWriteStream.getBytes());
+                            }
+                        });
+                    }
+                });
+                
+                runner.test("getOutputAsCharacterWriteStream()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final Console console = new Console();
+                        final CharacterWriteStream writeStream = console.getOutputAsCharacterWriteStream();
+                        test.assertNotNull(writeStream);
+                    }
+                });
+                
+                runner.testGroup("setOutput(CharacterWriteStream)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Console console = new Console();
+                                console.setOutput((CharacterWriteStream)null);
 
-            assertEquals(2, builder.run().intValue());
+                                console.write((byte)50);
+                                console.write(new byte[]{51});
+                                console.write(new byte[]{52}, 0, 1);
+                                console.write("hello");
+                                console.writeLine("there!");
+                            }
+                        });
 
-            final String errorString = new String(error.getBytes());
-            assertTrue(errorString.contains("file not found: notfound.java"));
-        }
+                        runner.test("with non-null", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Console console = new Console();
+                                final InMemoryCharacterWriteStream characterWriteStream = new InMemoryCharacterWriteStream();
+                                console.setOutput(characterWriteStream);
+
+                                console.write((byte)50);
+                                test.assertEqual(new byte[]{50}, characterWriteStream.getBytes());
+
+                                console.write(new byte[]{51});
+                                test.assertEqual(new byte[]{50, 51}, characterWriteStream.getBytes());
+
+                                console.write(new byte[]{52}, 0, 1);
+                                test.assertEqual(new byte[]{50, 51, 52}, characterWriteStream.getBytes());
+
+                                console.write("hello");
+                                test.assertEqual(new byte[]{50, 51, 52, 104, 101, 108, 108, 111}, characterWriteStream.getBytes());
+
+                                console.writeLine();
+                                test.assertEqual(new byte[]{50, 51, 52, 104, 101, 108, 108, 111, 10 }, characterWriteStream.getBytes());
+
+                                console.writeLine("there!");
+                                test.assertEqual(new byte[]{50, 51, 52, 104, 101, 108, 108, 111, 10, 116, 104, 101, 114, 101, 33, 10}, characterWriteStream.getBytes());
+                            }
+                        });
+                    }
+                });
+                
+                runner.test("getOutputAsLineWriteStream()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final Console console = new Console();
+                        final LineWriteStream writeStream = console.getOutputAsLineWriteStream();
+                        test.assertNotNull(writeStream);
+                    }
+                });
+                
+                runner.testGroup("setOutput(LineWriteStream)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Console console = new Console();
+                                console.setOutput((LineWriteStream)null);
+
+                                console.write((byte)50);
+                                console.write(new byte[]{51});
+                                console.write(new byte[]{52}, 0, 1);
+                                console.write("hello");
+                                console.writeLine("there!");
+                            }
+                        });
+                        
+                        runner.test("with non-null", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Console console = new Console();
+                                final InMemoryLineWriteStream lineWriteStream = new InMemoryLineWriteStream();
+                                console.setOutput(lineWriteStream);
+
+                                console.write((byte)50);
+                                test.assertEqual(new byte[]{50}, lineWriteStream.getBytes());
+
+                                console.write(new byte[]{51});
+                                test.assertEqual(new byte[]{50, 51}, lineWriteStream.getBytes());
+
+                                console.write(new byte[]{52}, 0, 1);
+                                test.assertEqual(new byte[]{50, 51, 52}, lineWriteStream.getBytes());
+
+                                console.write('a');
+                                test.assertEqual(new byte[]{50, 51, 52, 97}, lineWriteStream.getBytes());
+
+                                console.write("hello");
+                                test.assertEqual(new byte[]{50, 51, 52, 97, 104, 101, 108, 108, 111}, lineWriteStream.getBytes());
+
+                                console.writeLine();
+                                test.assertEqual(new byte[]{50, 51, 52, 97, 104, 101, 108, 108, 111, 10 }, lineWriteStream.getBytes());
+
+                                console.writeLine("there!");
+                                test.assertEqual(new byte[]{50, 51, 52, 97, 104, 101, 108, 108, 111, 10, 116, 104, 101, 114, 101, 33, 10}, lineWriteStream.getBytes());
+                            }
+                        });
+                    }
+                });
+                
+                runner.test("getErrorAsByteWriteStream()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final Console console = new Console();
+                        final ByteWriteStream writeStream = console.getErrorAsByteWriteStream();
+                        test.assertNotNull(writeStream);
+                    }
+                });
+                
+                runner.testGroup("setError(ByteWriteStream)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Console console = new Console();
+                                console.setError((ByteWriteStream)null);
+
+                                console.writeError((byte)50);
+                                console.writeError(new byte[]{51});
+                                console.writeError(new byte[]{52}, 0, 1);
+                                console.writeError("hello");
+                                console.writeErrorLine("there!");
+                            }
+                        });
+                        
+                        runner.test("with non-null", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Console console = new Console();
+                                final InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
+                                console.setError(byteWriteStream);
+
+                                console.writeError((byte)50);
+                                test.assertEqual(new byte[]{50}, byteWriteStream.getBytes());
+
+                                console.writeError(new byte[]{51});
+                                test.assertEqual(new byte[]{50, 51}, byteWriteStream.getBytes());
+
+                                console.writeError(new byte[]{52}, 0, 1);
+                                test.assertEqual(new byte[]{50, 51, 52}, byteWriteStream.getBytes());
+
+                                console.writeError("hello");
+                                test.assertEqual(new byte[]{50, 51, 52, 104, 101, 108, 108, 111}, byteWriteStream.getBytes());
+
+                                console.writeErrorLine();
+                                test.assertEqual(new byte[]{50, 51, 52, 104, 101, 108, 108, 111, 10 }, byteWriteStream.getBytes());
+
+                                console.writeErrorLine("there!");
+                                test.assertEqual(new byte[]{50, 51, 52, 104, 101, 108, 108, 111, 10, 116, 104, 101, 114, 101, 33, 10}, byteWriteStream.getBytes());
+                            }
+                        });
+                    }
+                });
+                
+                runner.test("getErrorAsCharacterWriteStream()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final Console console = new Console();
+                        final CharacterWriteStream writeStream = console.getErrorAsCharacterWriteStream();
+                        test.assertNotNull(writeStream);
+                    }
+                });
+                
+                runner.testGroup("setError(CharacterWriteStream)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Console console = new Console();
+                                console.setError((CharacterWriteStream)null);
+
+                                console.writeError((byte)50);
+                                console.writeError(new byte[]{51});
+                                console.writeError(new byte[]{52}, 0, 1);
+                                console.writeError("hello");
+                                console.writeErrorLine("there!");
+                            }
+                        });
+                        
+                        runner.test("with non-null", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Console console = new Console();
+                                final InMemoryCharacterWriteStream characterWriteStream = new InMemoryCharacterWriteStream();
+                                console.setError(characterWriteStream);
+
+                                console.writeError((byte)50);
+                                test.assertEqual(new byte[]{50}, characterWriteStream.getBytes());
+
+                                console.writeError(new byte[]{51});
+                                test.assertEqual(new byte[]{50, 51}, characterWriteStream.getBytes());
+
+                                console.writeError(new byte[]{52}, 0, 1);
+                                test.assertEqual(new byte[]{50, 51, 52}, characterWriteStream.getBytes());
+
+                                console.writeError("hello");
+                                test.assertEqual(new byte[]{50, 51, 52, 104, 101, 108, 108, 111}, characterWriteStream.getBytes());
+
+                                console.writeErrorLine();
+                                test.assertEqual(new byte[]{50, 51, 52, 104, 101, 108, 108, 111, 10 }, characterWriteStream.getBytes());
+
+                                console.writeErrorLine("there!");
+                                test.assertEqual(new byte[]{50, 51, 52, 104, 101, 108, 108, 111, 10, 116, 104, 101, 114, 101, 33, 10}, characterWriteStream.getBytes());
+                            }
+                        });
+                    }
+                });
+                
+                runner.test("getErrorAsLineWriteStream()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final Console console = new Console();
+                        final LineWriteStream writeStream = console.getErrorAsLineWriteStream();
+                        test.assertNotNull(writeStream);
+                    }
+                });
+                
+                runner.testGroup("setError(LineWriteStream)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Console console = new Console();
+                                console.setError((LineWriteStream)null);
+
+                                console.writeError((byte)50);
+                                console.writeError(new byte[]{51});
+                                console.writeError(new byte[]{52}, 0, 1);
+                                console.writeError("hello");
+                                console.writeErrorLine("there!");
+                            }
+                        });
+                        
+                        runner.test("with non-null", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Console console = new Console();
+                                final InMemoryLineWriteStream lineWriteStream = new InMemoryLineWriteStream();
+                                console.setError(lineWriteStream);
+
+                                console.writeError((byte)50);
+                                test.assertEqual(new byte[]{50}, lineWriteStream.getBytes());
+
+                                console.writeError(new byte[]{51});
+                                test.assertEqual(new byte[]{50, 51}, lineWriteStream.getBytes());
+
+                                console.writeError(new byte[]{52}, 0, 1);
+                                test.assertEqual(new byte[]{50, 51, 52}, lineWriteStream.getBytes());
+
+                                console.writeError('a');
+                                test.assertEqual(new byte[]{50, 51, 52, 97}, lineWriteStream.getBytes());
+
+                                console.writeError("hello");
+                                test.assertEqual(new byte[]{50, 51, 52, 97, 104, 101, 108, 108, 111}, lineWriteStream.getBytes());
+
+                                console.writeErrorLine();
+                                test.assertEqual(new byte[]{50, 51, 52, 97, 104, 101, 108, 108, 111, 10 }, lineWriteStream.getBytes());
+
+                                console.writeErrorLine("there!");
+                                test.assertEqual(new byte[]{50, 51, 52, 97, 104, 101, 108, 108, 111, 10, 116, 104, 101, 114, 101, 33, 10}, lineWriteStream.getBytes());
+                            }
+                        });
+                    }
+                });
+                
+                runner.test("getInputAsByteReadStream()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final Console console = new Console();
+
+                        final ByteReadStream readStream = console.getInputAsByteReadStream();
+                        test.assertNotNull(readStream);
+                    }
+                });
+                
+                runner.testGroup("setInput(ByteReadStream)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Console console = new Console();
+                                console.setInput((ByteReadStream)null);
+                                test.assertNull(console.getInputAsByteReadStream());
+                            }
+                        });
+                        
+                        runner.test("with non-null", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Console console = new Console();
+                                final InMemoryCharacterReadStream readStream = new InMemoryCharacterReadStream("hello there my good friend\nHow are you?\r\nI'm alright.");
+                                console.setInput(readStream.asByteReadStream());
+
+                                final ByteReadStream byteReadStream = console.getInputAsByteReadStream();
+                                test.assertEqual(new byte[] { 104, 101, 108, 108, 111 }, byteReadStream.readBytes(5));
+
+                                final byte[] byteBuffer = new byte[2];
+                                test.assertEqual(2, byteReadStream.readBytes(byteBuffer));
+                                test.assertEqual(new byte[] { 32, 116 }, byteBuffer);
+
+                                test.assertEqual(1, byteReadStream.readBytes(byteBuffer, 1, 1));
+                                test.assertEqual(new byte[] { 32, 104 }, byteBuffer);
+
+                                final CharacterReadStream characterReadStream = console.getInputAsCharacterReadStream();
+                                test.assertEqual(new char[] { 'e', 'r', 'e' }, characterReadStream.readCharacters(3));
+
+                                final char[] characterBuffer = new char[4];
+                                test.assertEqual(4, characterReadStream.readCharacters(characterBuffer));
+                                test.assertEqual(new char[] { ' ', 'm', 'y', ' ' }, characterBuffer);
+
+                                test.assertEqual(2, characterReadStream.readCharacters(characterBuffer, 0, 2));
+                                test.assertEqual(new char[] { 'g', 'o', 'y', ' ' }, characterBuffer);
+
+                                test.assertEqual("od fr", characterReadStream.readString(5));
+
+                                test.assertEqual("iend", console.readLine());
+
+                                test.assertEqual("How are you?\r\n", console.readLine(true));
+
+                                test.assertEqual("I'm alright.", console.readLine(false));
+                            }
+                        });
+                    }
+                });
+                
+                runner.test("getInputAsCharacterReadStream()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final Console console = new Console();
+                        final CharacterReadStream readStream = console.getInputAsCharacterReadStream();
+                        test.assertNotNull(readStream);
+                    }
+                });
+                
+                runner.testGroup("setInput(CharacterReadStream)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Console console = new Console();
+                                console.setInput((CharacterReadStream)null);
+                                test.assertNull(console.getInputAsCharacterReadStream());
+                            }
+                        });
+                        
+                        runner.test("with non-null", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Console console = new Console();
+                                final InMemoryCharacterReadStream readStream = new InMemoryCharacterReadStream("hello there my good friend\nHow are you?\r\nI'm alright.");
+                                console.setInput(readStream);
+
+                                final ByteReadStream byteReadStream = console.getInputAsByteReadStream();
+                                test.assertEqual(new byte[] { 104, 101, 108, 108, 111 }, byteReadStream.readBytes(5));
+
+                                final byte[] byteBuffer = new byte[2];
+                                test.assertEqual(2, byteReadStream.readBytes(byteBuffer));
+                                test.assertEqual(new byte[] { 32, 116 }, byteBuffer);
+
+                                test.assertEqual(1, byteReadStream.readBytes(byteBuffer, 1, 1));
+                                test.assertEqual(new byte[] { 32, 104 }, byteBuffer);
+
+                                final CharacterReadStream characterReadStream = console.getInputAsCharacterReadStream();
+                                test.assertEqual(new char[] { 'e', 'r', 'e' }, characterReadStream.readCharacters(3));
+
+                                final char[] characterBuffer = new char[4];
+                                test.assertEqual(4, characterReadStream.readCharacters(characterBuffer));
+                                test.assertEqual(new char[] { ' ', 'm', 'y', ' ' }, characterBuffer);
+
+                                test.assertEqual(2, characterReadStream.readCharacters(characterBuffer, 0, 2));
+                                test.assertEqual(new char[] { 'g', 'o', 'y', ' ' }, characterBuffer);
+
+                                test.assertEqual("od fr", characterReadStream.readString(5));
+
+                                test.assertEqual("iend", console.readLine());
+
+                                test.assertEqual("How are you?\r\n", console.readLine(true));
+
+                                test.assertEqual("I'm alright.", console.readLine(false));
+                            }
+                        });
+                    }
+                });
+                
+                runner.test("getInputAsLineReadStream()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final Console console = new Console();
+                        final LineReadStream readStream = console.getInputAsLineReadStream();
+                        test.assertNotNull(readStream);
+                    }
+                });
+                
+                runner.testGroup("setInput(LineReadStream)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Console console = new Console();
+                                console.setInput((LineReadStream)null);
+                                test.assertNull(console.getInputAsLineReadStream());
+                            }
+                        });
+                        
+                        runner.test("with non-null", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Console console = new Console();
+                                final InMemoryLineReadStream readStream = new InMemoryLineReadStream("hello there my good friend\nHow are you?\r\nI'm alright.");
+                                console.setInput(readStream);
+
+                                final ByteReadStream byteReadStream = console.getInputAsByteReadStream();
+                                test.assertEqual(new byte[] { 104, 101, 108, 108, 111 }, byteReadStream.readBytes(5));
+
+                                final byte[] byteBuffer = new byte[2];
+                                test.assertEqual(2, byteReadStream.readBytes(byteBuffer));
+                                test.assertEqual(new byte[] { 32, 116 }, byteBuffer);
+
+                                test.assertEqual(1, byteReadStream.readBytes(byteBuffer, 1, 1));
+                                test.assertEqual(new byte[] { 32, 104 }, byteBuffer);
+
+                                final CharacterReadStream characterReadStream = console.getInputAsCharacterReadStream();
+                                test.assertEqual(new char[] { 'e', 'r', 'e' }, characterReadStream.readCharacters(3));
+
+                                final char[] characterBuffer = new char[4];
+                                test.assertEqual(4, characterReadStream.readCharacters(characterBuffer));
+                                test.assertEqual(new char[] { ' ', 'm', 'y', ' ' }, characterBuffer);
+
+                                test.assertEqual(2, characterReadStream.readCharacters(characterBuffer, 0, 2));
+                                test.assertEqual(new char[] { 'g', 'o', 'y', ' ' }, characterBuffer);
+
+                                test.assertEqual("od fr", characterReadStream.readString(5));
+
+                                test.assertEqual("iend", console.readLine());
+
+                                test.assertEqual("How are you?\r\n", console.readLine(true));
+
+                                test.assertEqual("I'm alright.", console.readLine(false));
+                            }
+                        });
+                    }
+                });
+                
+                runner.test("getRandom()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final Console console = new Console();
+                        final Random random = console.getRandom();
+                        test.assertNotNull(random);
+                        test.assertTrue(random instanceof JavaRandom);
+                        test.assertSame(random, console.getRandom());
+                    }
+                });
+                
+                runner.test("setRandom()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final Console console = new Console();
+
+                        console.setRandom(null);
+                        test.assertNull(console.getRandom());
+
+                        final FixedRandom random = new FixedRandom(1);
+                        console.setRandom(random);
+                        test.assertSame(random, console.getRandom());
+                    }
+                });
+                
+                runner.test("getFileSystem()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final Console console = new Console();
+                        final FileSystem defaultFileSystem = console.getFileSystem();
+                        test.assertNotNull(defaultFileSystem);
+                        test.assertTrue(defaultFileSystem instanceof JavaFileSystem);
+                    }
+                });
+                
+                runner.testGroup("setFileSystem()", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Console console = new Console();
+                                console.setFileSystem(null);
+                                test.assertNull(console.getFileSystem());
+                                test.assertNull(console.getCurrentFolderPathString());
+                            }
+                        });
+                        
+                        runner.test("with non-null", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Console console = new Console();
+                                final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
+                                console.setFileSystem(fileSystem);
+                                test.assertSame(fileSystem, console.getFileSystem());
+                            }
+                        });
+                    }
+                });
+                
+                runner.test("getCurrentFolderPathString()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final Console console = new Console();
+                        final String currentFolderPathString = console.getCurrentFolderPathString();
+                        test.assertNotNull(currentFolderPathString);
+                        test.assertFalse(currentFolderPathString.isEmpty());
+                        test.assertTrue(console.getFileSystem().folderExists(currentFolderPathString));
+                    }
+                });
+                
+                runner.testGroup("setCurrentFolderPathString()", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Console console = new Console();
+                                console.setCurrentFolderPathString(null);
+                                test.assertNull(console.getCurrentFolderPathString());
+                            }
+                        });
+                        
+                        runner.test("with empty", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Console console = new Console();
+                                console.setCurrentFolderPathString("");
+                                test.assertEqual("", console.getCurrentFolderPathString());
+                            }
+                        });
+                        
+                        runner.test("with relative path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Console console = new Console();
+                                console.setCurrentFolderPathString("hello there");
+                                test.assertEqual("hello there", console.getCurrentFolderPathString());
+                            }
+                        });
+                    }
+                });
+                
+                runner.test("getCurrentFolderPath()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final Console console = new Console();
+                        final Path currentFolderPath = console.getCurrentFolderPath();
+                        test.assertNotNull(currentFolderPath);
+                        test.assertFalse(currentFolderPath.isEmpty());
+                        test.assertTrue(currentFolderPath.isRooted());
+                        test.assertTrue(console.getFileSystem().folderExists(currentFolderPath));
+                    }
+                });
+                
+                runner.testGroup("setCurrentFolderPath()", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Console console = new Console();
+                                console.setCurrentFolderPath(null);
+                                test.assertNull(console.getCurrentFolderPath());
+                            }
+                        });
+                    }
+                });
+                
+                runner.test("getCurrentFolder()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final Console console = new Console();
+                        final Folder currentFolder = console.getCurrentFolder();
+                        test.assertNotNull(currentFolder);
+                        test.assertTrue(currentFolder.exists());
+                    }
+                });
+                
+                runner.testGroup("getEnvironmentVariable()", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Console console = new Console();
+                                test.assertNull(console.getEnvironmentVariable(null));
+                                test.assertNull(console.getEnvironmentVariable(null));
+                            }
+                        });
+                        
+                        runner.test("with empty", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Console console = new Console();
+                                test.assertNull(console.getEnvironmentVariable(""));
+                            }
+                        });
+                        
+                        runner.test("with not found variable name", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Console console = new Console();
+                                test.assertNull(console.getEnvironmentVariable("Can't find me"));
+                            }
+                        });
+                        
+                        runner.test("with found variable name", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Console console = new Console();
+                                final String path = console.getEnvironmentVariable("path");
+                                test.assertNotNull(path);
+                                test.assertNotEqual("", path);
+                            }
+                        });
+                    }
+                });
+                
+                runner.test("setEnvironmentVariables()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final Console console = new Console();
+                        final Map<String,String> envVars = new ListMap<>();
+                        console.setEnvironmentVariables(envVars);
+                        test.assertSame(envVars, console.getEnvironmentVariables());
+                    }
+                });
+                
+                runner.testGroup("getProcessBuilder()", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null String", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Console console = new Console();
+                                test.assertNull(console.getProcessBuilder((String)null));
+                            }
+                        });
+                        
+                        runner.test("with empty String", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Console console = new Console();
+                                test.assertNull(console.getProcessBuilder(""));
+                            }
+                        });
+                        
+                        runner.test("with relative path with file extension", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Console console = new Console();
+                                final ProcessBuilder builder = console.getProcessBuilder("pom.xml");
+                                test.assertNotNull(builder);
+                                test.assertEqual(console.getCurrentFolder().getFile("pom.xml"), builder.getExecutableFile());
+                                test.assertEqual(0, builder.getArgumentCount());
+                            }
+                        });
+                        
+                        runner.test("with relative path without file extension", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Console console = new Console();
+                                final ProcessBuilder builder = console.getProcessBuilder("pom");
+                                test.assertNotNull(builder);
+                                test.assertEqual(console.getCurrentFolder().getFile("pom.xml"), builder.getExecutableFile());
+                                test.assertEqual(0, builder.getArgumentCount());
+                            }
+                        });
+                        
+                        runner.test("with rooted path with file extension", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Console console = new Console();
+                                final Path executablePath = console.getCurrentFolder().getFile("pom.xml").getPath();
+                                final ProcessBuilder builder = console.getProcessBuilder(executablePath);
+                                test.assertNotNull(builder);
+                                test.assertEqual(console.getCurrentFolder().getFile("pom.xml"), builder.getExecutableFile());
+                                test.assertEqual(0, builder.getArgumentCount());
+                            }
+                        });
+                        
+                        runner.test("with rooted path without file extension", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Console console = new Console();
+                                final Path executablePath = console.getCurrentFolder().getFile("pom").getPath();
+                                final ProcessBuilder builder = console.getProcessBuilder(executablePath);
+                                test.assertNotNull(builder);
+                                test.assertEqual(console.getCurrentFolder().getFile("pom.xml"), builder.getExecutableFile());
+                                test.assertEqual(0, builder.getArgumentCount());
+                            }
+                        });
+                        
+                        runner.test("with rooted path to file and run()", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Console console = new Console();
+                                if (console.onWindows())
+                                {
+                                    final ProcessBuilder builder = console.getProcessBuilder("C:/Program Files/Java/jdk-9/bin/javac.exe");
+                                    test.assertEqual("javac.exe", builder.getExecutableFile().getPath().getSegments().last());
+                                    test.assertEqual(0, builder.getArgumentCount());
+                                    test.assertEqual(2, builder.run());
+                                }
+                            }
+                        });
+
+                        runner.test("with file name with extension and run()", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Console console = new Console();
+                                if (console.onWindows())
+                                {
+                                    final ProcessBuilder builder = console.getProcessBuilder("javac.exe");
+                                    test.assertEqual("javac.exe", builder.getExecutableFile().getPath().getSegments().last());
+                                    test.assertEqual(0, builder.getArgumentCount());
+                                    test.assertEqual(2, builder.run());
+                                }
+                            }
+                        });
+
+                        runner.test("with file name without extension and run()", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Console console = new Console();
+                                if (console.onWindows())
+                                {
+                                    final ProcessBuilder builder = console.getProcessBuilder("javac");
+                                    test.assertTrue(builder.getExecutableFile().getPath().getSegments().last().contains("javac"));
+                                    test.assertEqual(0, builder.getArgumentCount());
+
+                                    final StringBuilder output = builder.redirectOutput();
+
+                                    test.assertEqual(2, builder.run());
+
+                                    final String outputString = output.toString();
+                                    test.assertTrue(outputString.contains("javac <options> <source files>"));
+                                    test.assertTrue(outputString.contains("Terminate compilation if warnings occur"));
+                                }
+                            }
+                        });
+
+                        runner.test("with file name without extension and run() with error lines", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Console console = new Console();
+                                if (console.onWindows())
+                                {
+                                    final ProcessBuilder builder = console.getProcessBuilder("javac");
+                                    builder.addArgument("notfound.java");
+
+                                    final StringBuilder error = builder.redirectError();
+
+                                    test.assertEqual(2, builder.run());
+
+                                    final String errorString = error.toString();
+                                    test.assertTrue(errorString.contains("file not found: notfound.java"));
+                                }
+                            }
+                        });
+
+                        runner.test("with redirected output", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Console console = new Console();
+                                if (console.onWindows())
+                                {
+                                    final ProcessBuilder builder = console.getProcessBuilder("javac");
+                                    test.assertTrue(builder.getExecutableFile().getPath().getSegments().last().contains("javac"));
+                                    test.assertEqual(0, builder.getArgumentCount());
+
+                                    final InMemoryByteWriteStream output = new InMemoryByteWriteStream();
+                                    builder.redirectOutput(output);
+
+                                    test.assertEqual(2, builder.run());
+
+                                    final String outputString = new String(output.getBytes());
+                                    test.assertTrue(outputString.contains("javac <options> <source files>"));
+                                    test.assertTrue(outputString.contains("Terminate compilation if warnings occur"));
+                                }
+                            }
+                        });
+
+                        runner.test("with redirected error", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Console console = new Console();
+                                if (console.onWindows())
+                                {
+                                    final ProcessBuilder builder = console.getProcessBuilder("javac");
+                                    builder.addArgument("notfound.java");
+
+                                    final InMemoryByteWriteStream error = new InMemoryByteWriteStream();
+                                    builder.redirectError(error);
+
+                                    test.assertEqual(2, builder.run());
+
+                                    final String errorString = new String(error.getBytes());
+                                    test.assertTrue(errorString.contains("file not found: notfound.java"));
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+        });
     }
 }

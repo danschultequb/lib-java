@@ -134,6 +134,34 @@ public class Test
     }
 
     /**
+     * Assert that the provided values are not equal. If they are equal, then a TestAssertionFailure
+     * will be thrown.
+     * @param expected The first value to compare.
+     * @param actual The second value to compare.
+     * @param <T> The type of values to compare.
+     */
+    public <T> void assertNotEqual(T expected, T actual)
+    {
+        assertNotEqual(expected, actual, null);
+    }
+
+    /**
+     * Assert that the provided values are not equal. If they are equal, then a TestAssertionFailure
+     * will be thrown with the provided message.
+     * @param expected The first value to compare.
+     * @param actual The second value to compare.
+     * @param message The message to show if the values are equal
+     * @param <T> The type of values to compare.
+     */
+    public <T> void assertNotEqual(T expected, T actual, String message)
+    {
+        if (Comparer.equal(expected, actual))
+        {
+            throw new TestAssertionFailure(getMessageLines(message, "not " + expected, actual));
+        }
+    }
+
+    /**
      * Assert that the provided values point to the same object. If they don't point to the same
      * object, then a TestAssertionFailure will be thrown.
      * @param expected The first value to compare.
