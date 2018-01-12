@@ -1,831 +1,1088 @@
 package qub;
 
-import org.junit.Test;
-
-import static org.junit.Assert.*;
-
-public abstract class FileSystemTests
+public class FileSystemTests
 {
-    protected abstract FileSystem getFileSystem();
-
-    private FileSystem getFileSystem(AsyncRunner parallelRunner)
+    public static void test(final TestRunner runner, final Function0<FileSystem> creator)
     {
-        final FileSystem fileSystem = getFileSystem();
+        runner.testGroup("FileSystem", new Action0()
+        {
+            @Override
+            public void run()
+            {
+                runner.testGroup("rootExists()", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null String path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                test.assertFalse(fileSystem.rootExists((String)null));
+                            }
+                        });
+                        
+                        runner.test("with empty String path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                test.assertFalse(fileSystem.rootExists(""));
+                            }
+                        });
+                        
+                        runner.test("with non-existing String path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                test.assertFalse(fileSystem.rootExists("notme:/"));
+                            }
+                        });
+                    }
+                });
+                
+                runner.testGroup("rootExistsAsync(String)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        final Action2<String,Boolean> rootExistsAsyncTest = new Action2<String, Boolean>()
+                        {
+                            @Override
+                            public void run(final String rootPath, final Boolean expectedToExist)
+                            {
+                                runner.test("with " + (rootPath == null ? null : "\"" + rootPath + "\""), new Action1<Test>()
+                                {
+                                    @Override
+                                    public void run(final Test test)
+                                    {
+                                        asyncTest(new Action1<FileSystem>()
+                                        {
+                                            @Override
+                                            public void run(FileSystem fileSystem)
+                                            {
+                                                fileSystem.rootExistsAsync(rootPath)
+                                                    .then(new Action1<Boolean>()
+                                                    {
+                                                        @Override
+                                                        public void run(Boolean rootExists)
+                                                        {
+                                                            test.assertEqual(expectedToExist, rootExists);
+                                                        }
+                                                    });
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        };
+                        
+                        rootExistsAsyncTest.run(null, false);
+                        rootExistsAsyncTest.run("", false);
+                        rootExistsAsyncTest.run("notme:\\", false);
+                    }
+                });
+                
+                runner.testGroup("rootExistsAsync(Path)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        final Action2<String,Boolean> rootExistsAsyncTest = new Action2<String, Boolean>()
+                        {
+                            @Override
+                            public void run(final String rootPath, final Boolean expectedToExist)
+                            {
+                                runner.test("with " + (rootPath == null ? null : "\"" + rootPath + "\""), new Action1<Test>()
+                                {
+                                    @Override
+                                    public void run(final Test test)
+                                    {
+                                        asyncTest(new Action1<FileSystem>()
+                                        {
+                                            @Override
+                                            public void run(FileSystem fileSystem)
+                                            {
+                                                fileSystem.rootExistsAsync(Path.parse(rootPath))
+                                                    .then(new Action1<Boolean>()
+                                                    {
+                                                        @Override
+                                                        public void run(Boolean rootExists)
+                                                        {
+                                                            test.assertEqual(expectedToExist, rootExists);
+                                                        }
+                                                    });
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        };
+                        
+                        rootExistsAsyncTest.run(null, false);
+                        rootExistsAsyncTest.run("", false);
+                        rootExistsAsyncTest.run("notme:\\", false);
+                    }
+                });
+                
+                runner.test("getRoot()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final FileSystem fileSystem = getFileSystem(creator);
+                        final Root root1 = fileSystem.getRoot("/daffy/");
+                        test.assertFalse(root1.exists());
+                        test.assertEqual("/daffy/", root1.toString());
+                    }
+                });
+                
+                runner.test("getRoots()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final FileSystem fileSystem = getFileSystem(creator);
+                        final Iterable<Root> roots = fileSystem.getRoots();
+                        test.assertNotNull(roots);
+                        test.assertTrue(1 <= roots.getCount());
+                    }
+                });
+                
+                runner.test("getRootsAsync()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(final Test test)
+                    {
+                        asyncTest(new Action1<FileSystem>()
+                        {
+                            @Override
+                            public void run(FileSystem fileSystem)
+                            {
+                                fileSystem.getRootsAsync()
+                                    .then(new Action1<Iterable<Root>>()
+                                    {
+                                        @Override
+                                        public void run(Iterable<Root> roots)
+                                        {
+                                            test.assertNotNull(roots);
+                                            test.assertTrue(1 <= roots.getCount());
+                                        }
+                                    });
+                            }
+                        });
+                    }
+                });
+                
+                runner.testGroup("getFilesAndFolders(String)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null String path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                final Iterable<FileSystemEntry> entries = fileSystem.getFilesAndFolders((String)null);
+                                test.assertNull(entries);
+                            }
+                        });
+                        
+                        runner.test("with empty String path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                final Iterable<FileSystemEntry> entries = fileSystem.getFilesAndFolders("");
+                                test.assertNull(entries);
+                            }
+                        });
+                        
+                        runner.test("with null Path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                final Iterable<FileSystemEntry> entries = fileSystem.getFilesAndFolders((Path)null);
+                                test.assertNull(entries);
+                            }
+                        });
+                        
+                        runner.test("with non-existing path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                final Iterable<FileSystemEntry> entries = fileSystem.getFilesAndFolders("/i/dont/exist/");
+                                test.assertNull(entries);
+                            }
+                        });
+                        
+                        runner.test("with existing path with no contents", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                fileSystem.createFolder("/folderA");
+                                test.assertFalse(fileSystem.getFilesAndFolders("/folderA").any());
+                            }
+                        });
+                        
+                        runner.test("with existing path with contents", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                fileSystem.createFolder("/folderA");
+                                fileSystem.createFolder("/folderA/folderB");
+                                fileSystem.createFile("/file1.txt");
+                                fileSystem.createFile("/folderA/file2.csv");
+
+                                final Iterable<FileSystemEntry> entries = fileSystem.getFilesAndFolders("/");
+                                test.assertTrue(entries.any());
+                                test.assertEqual(2, entries.getCount());
+                                final String[] entryPathStrings = Array.toStringArray(entries.map(new Function1<FileSystemEntry, String>()
+                                {
+                                    @Override
+                                    public String run(FileSystemEntry arg1)
+                                    {
+                                        return arg1.getPath().toString();
+                                    }
+                                }));
+                                test.assertEqual(new String[] { "/folderA", "/file1.txt" }, entryPathStrings);
+                            }
+                        });
+                    }
+                });
+
+                runner.testGroup("getFilesAndFoldersAsync(String)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(FileSystem fileSystem)
+                                    {
+                                        fileSystem.getFilesAndFoldersAsync((String)null)
+                                            .then(new Action1<Iterable<FileSystemEntry>>()
+                                            {
+                                                @Override
+                                                public void run(Iterable<FileSystemEntry> entries)
+                                                {
+                                                    test.assertNull(entries);
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+
+                        runner.test("with empty path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(FileSystem fileSystem)
+                                    {
+                                        fileSystem.getFilesAndFoldersAsync("")
+                                            .then(new Action1<Iterable<FileSystemEntry>>()
+                                            {
+                                                @Override
+                                                public void run(Iterable<FileSystemEntry> entries)
+                                                {
+                                                    test.assertNull(entries);
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+
+                        runner.test("with non-existing path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(FileSystem fileSystem)
+                                    {
+                                        fileSystem.getFilesAndFoldersAsync("/i/dont/exist/")
+                                            .then(new Action1<Iterable<FileSystemEntry>>()
+                                            {
+                                                @Override
+                                                public void run(Iterable<FileSystemEntry> entries)
+                                                {
+                                                    test.assertNull(entries);
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+
+                        runner.test("with existing path with no content", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(FileSystem fileSystem)
+                                    {
+                                        fileSystem.createFolder("/folderA");
+                                        fileSystem.getFilesAndFoldersAsync("/folderA")
+                                            .then(new Action1<Iterable<FileSystemEntry>>()
+                                            {
+                                                @Override
+                                                public void run(Iterable<FileSystemEntry> entries)
+                                                {
+                                                    test.assertFalse(entries.any());
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+
+                        runner.test("with existing path with content", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(FileSystem fileSystem)
+                                    {
+                                        fileSystem.createFolder("/folderA");
+                                        fileSystem.createFolder("/folderA/folderB");
+                                        fileSystem.createFile("/file1.txt");
+                                        fileSystem.createFile("/folderA/file2.csv");
+
+                                        fileSystem.getFilesAndFoldersAsync("/")
+                                            .then(new Action1<Iterable<FileSystemEntry>>()
+                                            {
+                                                @Override
+                                                public void run(Iterable<FileSystemEntry> entries)
+                                                {
+                                                    test.assertTrue(entries.any());
+                                                    test.assertEqual(2, entries.getCount());
+                                                    final String[] entryPathStrings = Array.toStringArray(entries.map(new Function1<FileSystemEntry, String>()
+                                                    {
+                                                        @Override
+                                                        public String run(FileSystemEntry entry)
+                                                        {
+                                                            return entry.getPath().toString();
+                                                        }
+                                                    }));
+                                                    test.assertEqual(new String[] { "/folderA", "/file1.txt" }, entryPathStrings);
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+
+                runner.testGroup("getFilesAndFoldersAsync(Path)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(FileSystem fileSystem)
+                                    {
+                                        fileSystem.getFilesAndFoldersAsync((Path)null)
+                                            .then(new Action1<Iterable<FileSystemEntry>>()
+                                            {
+                                                @Override
+                                                public void run(Iterable<FileSystemEntry> entries)
+                                                {
+                                                    test.assertNull(entries);
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+
+                        runner.test("with empty path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(FileSystem fileSystem)
+                                    {
+                                        fileSystem.getFilesAndFoldersAsync(Path.parse(""))
+                                            .then(new Action1<Iterable<FileSystemEntry>>()
+                                            {
+                                                @Override
+                                                public void run(Iterable<FileSystemEntry> entries)
+                                                {
+                                                    test.assertNull(entries);
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+
+                        runner.test("with non-existing path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(FileSystem fileSystem)
+                                    {
+                                        fileSystem.getFilesAndFoldersAsync(Path.parse("/i/dont/exist/"))
+                                            .then(new Action1<Iterable<FileSystemEntry>>()
+                                            {
+                                                @Override
+                                                public void run(Iterable<FileSystemEntry> entries)
+                                                {
+                                                    test.assertNull(entries);
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+
+                        runner.test("with existing path with no contents", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(FileSystem fileSystem)
+                                    {
+                                        fileSystem.createFolder("/folderA");
+                                        fileSystem.getFilesAndFoldersAsync(Path.parse("/folderA"))
+                                            .then(new Action1<Iterable<FileSystemEntry>>()
+                                            {
+                                                @Override
+                                                public void run(Iterable<FileSystemEntry> entries)
+                                                {
+                                                    test.assertFalse(entries.any());
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+
+                        runner.test("with existing path with contents", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(FileSystem fileSystem)
+                                    {
+                                        fileSystem.createFolder("/folderA");
+                                        fileSystem.createFolder("/folderA/folderB");
+                                        fileSystem.createFile("/file1.txt");
+                                        fileSystem.createFile("/folderA/file2.csv");
+
+                                        fileSystem.getFilesAndFoldersAsync(Path.parse("/"))
+                                            .then(new Action1<Iterable<FileSystemEntry>>()
+                                            {
+                                                @Override
+                                                public void run(Iterable<FileSystemEntry> entries)
+                                                {
+                                                    test.assertTrue(entries.any());
+                                                    test.assertEqual(2, entries.getCount());
+                                                    final String[] entryPathStrings = Array.toStringArray(entries.map(new Function1<FileSystemEntry, String>()
+                                                    {
+                                                        @Override
+                                                        public String run(FileSystemEntry entry)
+                                                        {
+                                                            return entry.getPath().toString();
+                                                        }
+                                                    }));
+                                                    test.assertEqual(new String[] { "/folderA", "/file1.txt" }, entryPathStrings);
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+
+                runner.testGroup("getFolders(String)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                final Iterable<Folder> folders = fileSystem.getFolders((String)null);
+                                test.assertNull(folders);
+                            }
+                        });
+
+                        runner.test("with empty path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                final Iterable<Folder> folders = fileSystem.getFolders("");
+                                test.assertNull(folders);
+                            }
+                        });
+                    }
+                });
+
+                runner.testGroup("getFoldersRecursively(String)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                test.assertNull(fileSystem.getFoldersRecursively((String)null));
+                            }
+                        });
+
+                        runner.test("with empty path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                test.assertNull(fileSystem.getFoldersRecursively(""));
+                            }
+                        });
+
+                        runner.test("with relative path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                test.assertNull(fileSystem.getFoldersRecursively("test/folder"));
+                            }
+                        });
+
+                        runner.test("with rooted path when root doesn't exist", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                test.assertNull(fileSystem.getFoldersRecursively("F:/test/folder"));
+                            }
+                        });
+
+                        runner.test("with rooted path when parent folder doesn't exist", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                test.assertNull(fileSystem.getFoldersRecursively("/test/folder"));
+                            }
+                        });
+
+                        runner.test("with rooted path when folder doesn't exist", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                fileSystem.createFolder("/test/");
+                                test.assertNull(fileSystem.getFoldersRecursively("/test/folder"));
+                            }
+                        });
+
+                        runner.test("with rooted path when folder is empty", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                fileSystem.createFolder("/test/folder");
+                                test.assertEqual(new Array<Folder>(0), fileSystem.getFoldersRecursively("/test/folder"));
+                            }
+                        });
+
+                        runner.test("with rooted path when folder has files", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                fileSystem.createFolder("/test/folder");
+                                fileSystem.createFile("/test/folder/1.txt");
+                                fileSystem.createFile("/test/folder/2.txt");
+                                test.assertEqual(
+                                    new Array<Folder>(0),
+                                    fileSystem.getFoldersRecursively("/test/folder"));
+                            }
+                        });
+
+                        runner.test("with rooted path when folder has folders", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                fileSystem.createFolder("/test/folder");
+                                fileSystem.createFolder("/test/folder/1.txt");
+                                fileSystem.createFolder("/test/folder/2.txt");
+                                test.assertEqual(
+                                    Array.fromValues(
+                                        fileSystem.getFolder("/test/folder/1.txt"),
+                                        fileSystem.getFolder("/test/folder/2.txt")),
+                                    fileSystem.getFoldersRecursively("/test/folder"));
+                            }
+                        });
+
+                        runner.test("with rooted path when folder has grandchild folders and files", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                fileSystem.createFile("/test/folder/1.txt");
+                                fileSystem.createFile("/test/folder/2.txt");
+                                fileSystem.createFile("/test/folder/A/3.csv");
+                                fileSystem.createFile("/test/folder/B/C/4.xml");
+                                fileSystem.createFile("/test/folder/A/5.png");
+
+                                final Iterable<Folder> expectedEntries =
+                                    Array.fromValues(
+                                        fileSystem.getFolder("/test/folder/A"),
+                                        fileSystem.getFolder("/test/folder/B"),
+                                        fileSystem.getFolder("/test/folder/B/C"));
+                                final Iterable<Folder> actualEntries = fileSystem.getFoldersRecursively("/test/folder");
+                                test.assertEqual(expectedEntries, actualEntries);
+                            }
+                        });
+                    }
+                });
+
+                runner.testGroup("getFoldersAsync(String)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(FileSystem fileSystem)
+                                    {
+                                        fileSystem.getFoldersAsync((String)null)
+                                            .then(new Action1<Iterable<Folder>>()
+                                            {
+                                                @Override
+                                                public void run(Iterable<Folder> folders)
+                                                {
+                                                    test.assertNull(folders);
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+
+                        runner.test("with empty path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(FileSystem fileSystem)
+                                    {
+                                        fileSystem.getFoldersAsync("")
+                                            .then(new Action1<Iterable<Folder>>()
+                                            {
+                                                @Override
+                                                public void run(Iterable<Folder> folders)
+                                                {
+                                                    test.assertNull(folders);
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+
+                runner.testGroup("getFoldersAsync(Path)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(FileSystem fileSystem)
+                                    {
+                                        fileSystem.getFoldersAsync((Path)null)
+                                            .then(new Action1<Iterable<Folder>>()
+                                            {
+                                                @Override
+                                                public void run(Iterable<Folder> folders)
+                                                {
+                                                    test.assertNull(folders);
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+
+                        runner.test("with empty path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(FileSystem fileSystem)
+                                    {
+                                        fileSystem.getFoldersAsync(Path.parse(""))
+                                            .then(new Action1<Iterable<Folder>>()
+                                            {
+                                                @Override
+                                                public void run(Iterable<Folder> folders)
+                                                {
+                                                    test.assertNull(folders);
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+
+                runner.testGroup("getFilesAsync(String)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(FileSystem fileSystem)
+                                    {
+                                        fileSystem.getFilesAsync((String)null)
+                                            .then(new Action1<Iterable<File>>()
+                                            {
+                                                @Override
+                                                public void run(Iterable<File> files)
+                                                {
+                                                    test.assertNull(files);
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+
+                        runner.test("with empty path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(FileSystem fileSystem)
+                                    {
+                                        fileSystem.getFilesAsync("")
+                                            .then(new Action1<Iterable<File>>()
+                                            {
+                                                @Override
+                                                public void run(Iterable<File> files)
+                                                {
+                                                    test.assertNull(files);
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+
+                runner.testGroup("getFilesAsync(Path)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(FileSystem fileSystem)
+                                    {
+                                        fileSystem.getFilesAsync((Path)null)
+                                            .then(new Action1<Iterable<File>>()
+                                            {
+                                                @Override
+                                                public void run(Iterable<File> files)
+                                                {
+                                                    test.assertNull(files);
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+
+                        runner.test("with empty path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(FileSystem fileSystem)
+                                    {
+                                        fileSystem.getFilesAsync(Path.parse(""))
+                                            .then(new Action1<Iterable<File>>()
+                                            {
+                                                @Override
+                                                public void run(Iterable<File> files)
+                                                {
+                                                    test.assertNull(files);
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+
+                runner.testGroup("getFiles(String)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                final Iterable<File> files = fileSystem.getFiles((String)null);
+                                test.assertNull(files);
+                            }
+                        });
+
+                        runner.test("with empty path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                final Iterable<File> files = fileSystem.getFiles("");
+                                test.assertNull(files);
+                            }
+                        });
+                    }
+                });
+
+                runner.testGroup("getFilesRecursively(String)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                test.assertNull(fileSystem.getFilesRecursively((String)null));
+                            }
+                        });
+
+                        runner.test("with empty path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                test.assertNull(fileSystem.getFilesRecursively(""));
+                            }
+                        });
+
+                        runner.test("with relative path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                test.assertNull(fileSystem.getFilesRecursively("test/folder"));
+                            }
+                        });
+
+                        runner.test("with rooted path when root doesn't exist", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                test.assertNull(fileSystem.getFilesRecursively("F:/test/folder"));
+                            }
+                        });
+
+                        runner.test("with rooted path when parent folder doesn't exist", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                test.assertNull(fileSystem.getFilesRecursively("/test/folder"));
+                            }
+                        });
+
+                        runner.test("with rooted path when folder doesn't exist", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                fileSystem.createFolder("/test/");
+                                test.assertNull(fileSystem.getFilesRecursively("/test/folder"));
+                            }
+                        });
+
+                        runner.test("with rooted path when folder is empty", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                fileSystem.createFolder("/test/folder");
+                                test.assertEqual(new Array<FileSystemEntry>(0), fileSystem.getFilesRecursively("/test/folder"));
+                            }
+                        });
+
+                        runner.test("with rooted path when folder has files", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                fileSystem.createFolder("/test/folder");
+                                fileSystem.createFile("/test/folder/1.txt");
+                                fileSystem.createFile("/test/folder/2.txt");
+                                test.assertEqual(
+                                    Array.fromValues(
+                                        fileSystem.getFile("/test/folder/1.txt"),
+                                        fileSystem.getFile("/test/folder/2.txt")),
+                                    fileSystem.getFilesRecursively("/test/folder"));
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    }
+    
+    private static FileSystem getFileSystem(Function0<FileSystem> creator)
+    {
+        return creator.run();
+    }
+
+    private static FileSystem getFileSystem(Function0<FileSystem> creator, AsyncRunner parallelRunner)
+    {
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.setAsyncRunner(parallelRunner);
         return fileSystem;
     }
 
     @Test
-    public void rootExistsWithNullStringPath()
-    {
-        final FileSystem fileSystem = getFileSystem();
-        assertFalse(fileSystem.rootExists((String)null));
-    }
-
-    @Test
-    public void rootExistsWithEmptyStringPath()
-    {
-        final FileSystem fileSystem = getFileSystem();
-        assertFalse(fileSystem.rootExists(""));
-    }
-
-    @Test
-    public void rootExistsWithNonExistingStringPath()
-    {
-        final FileSystem fileSystem = getFileSystem();
-        assertFalse(fileSystem.rootExists("notme:/"));
-    }
-
-    private void rootExistsWithStringPathAsync(final String rootPath, final boolean expectedToExist)
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(FileSystem fileSystem)
-            {
-                fileSystem.rootExistsAsync(rootPath)
-                        .then(new Action1<Boolean>()
-                        {
-                            @Override
-                            public void run(Boolean rootExists)
-                            {
-                                assertEquals(expectedToExist, rootExists);
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void rootExistAsyncWithNullStringPath()
-    {
-        rootExistsWithStringPathAsync(null, false);
-    }
-
-    @Test
-    public void rootExistAsyncWithEmptyStringPath()
-    {
-        rootExistsWithStringPathAsync("", false);
-    }
-
-    @Test
-    public void rootExistAsyncWithNonExistingStringPath()
-    {
-        rootExistsWithStringPathAsync("notme:\\", false);
-    }
-
-    private void rootExistsWithPathAsync(final Path rootPath, final boolean expectedToExist)
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(FileSystem fileSystem)
-            {
-                fileSystem.rootExistsAsync(rootPath)
-                        .then(new Action1<Boolean>()
-                        {
-                            @Override
-                            public void run(Boolean rootExists)
-                            {
-                                assertEquals(expectedToExist, rootExists);
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void rootExistAsyncWithNullPath()
-    {
-        rootExistsWithPathAsync(null, false);
-    }
-
-    @Test
-    public void rootExistAsyncWithEmptyPath()
-    {
-        rootExistsWithPathAsync(Path.parse(""), false);
-    }
-
-    @Test
-    public void rootExistAsyncWithNonExistingPath()
-    {
-        rootExistsWithPathAsync(Path.parse("notme:\\"), false);
-    }
-
-    @Test
-    public void getRoot()
-    {
-        final FileSystem fileSystem = getFileSystem();
-        final Root root1 = fileSystem.getRoot("/daffy/");
-        assertFalse(root1.exists());
-        assertEquals("/daffy/", root1.toString());
-    }
-
-    @Test
-    public void getRoots()
-    {
-        final FileSystem fileSystem = getFileSystem();
-        final Iterable<Root> roots = fileSystem.getRoots();
-        assertNotNull(roots);
-        assertTrue(1 <= roots.getCount());
-    }
-
-    @Test
-    public void getRootsAsync()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(FileSystem fileSystem)
-            {
-                fileSystem.getRootsAsync()
-                        .then(new Action1<Iterable<Root>>()
-                        {
-                            @Override
-                            public void run(Iterable<Root> roots)
-                            {
-                                assertNotNull(roots);
-                                assertTrue(1 <= roots.getCount());
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void getFilesAndFoldersForNullStringPath()
-    {
-        final FileSystem fileSystem = getFileSystem();
-        final Iterable<FileSystemEntry> entries = fileSystem.getFilesAndFolders((String)null);
-        assertNull(entries);
-    }
-
-    @Test
-    public void getFilesAndFoldersForEmptyStringPath()
-    {
-        final FileSystem fileSystem = getFileSystem();
-        final Iterable<FileSystemEntry> entries = fileSystem.getFilesAndFolders("");
-        assertNull(entries);
-    }
-
-    @Test
-    public void getFilesAndFoldersForNullPath()
-    {
-        final FileSystem fileSystem = getFileSystem();
-        final Iterable<FileSystemEntry> entries = fileSystem.getFilesAndFolders((Path)null);
-        assertNull(entries);
-    }
-
-    @Test
-    public void getFilesAndFoldersForNonExistingPath()
-    {
-        final FileSystem fileSystem = getFileSystem();
-        final Iterable<FileSystemEntry> entries = fileSystem.getFilesAndFolders("/i/dont/exist/");
-        assertNull(entries);
-    }
-
-    @Test
-    public void getFilesAndFoldersForExistingPathWithNoContents()
-    {
-        final FileSystem fileSystem = getFileSystem();
-        fileSystem.createFolder("/folderA");
-        assertFalse(fileSystem.getFilesAndFolders("/folderA").any());
-    }
-
-    @Test
-    public void getFilesAndFoldersForExistingPath()
-    {
-        final FileSystem fileSystem = getFileSystem();
-        fileSystem.createFolder("/folderA");
-        fileSystem.createFolder("/folderA/folderB");
-        fileSystem.createFile("/file1.txt");
-        fileSystem.createFile("/folderA/file2.csv");
-
-        final Iterable<FileSystemEntry> entries = fileSystem.getFilesAndFolders("/");
-        assertTrue(entries.any());
-        assertEquals(2, entries.getCount());
-        final String[] entryPathStrings = Array.toStringArray(entries.map(new Function1<FileSystemEntry, String>()
-        {
-            @Override
-            public String run(FileSystemEntry arg1)
-            {
-                return arg1.getPath().toString();
-            }
-        }));
-        assertArrayEquals(new String[] { "/folderA", "/file1.txt" }, entryPathStrings);
-    }
-
-    @Test
-    public void getFilesAndFoldersAsyncForNullStringPath()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(FileSystem fileSystem)
-            {
-                fileSystem.getFilesAndFoldersAsync((String)null)
-                        .then(new Action1<Iterable<FileSystemEntry>>()
-                        {
-                            @Override
-                            public void run(Iterable<FileSystemEntry> entries)
-                            {
-                                assertNull(entries);
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void getFilesAndFoldersAsyncForEmptyStringPath()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(FileSystem fileSystem)
-            {
-                fileSystem.getFilesAndFoldersAsync("")
-                        .then(new Action1<Iterable<FileSystemEntry>>()
-                        {
-                            @Override
-                            public void run(Iterable<FileSystemEntry> entries)
-                            {
-                                assertNull(entries);
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void getFilesAndFoldersAsyncForNonExistingStringPath()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(FileSystem fileSystem)
-            {
-                fileSystem.getFilesAndFoldersAsync("/i/dont/exist/")
-                        .then(new Action1<Iterable<FileSystemEntry>>()
-                        {
-                            @Override
-                            public void run(Iterable<FileSystemEntry> entries)
-                            {
-                                assertNull(entries);
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void getFilesAndFoldersAsyncForExistingStringPathWithNoContents()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(FileSystem fileSystem)
-            {
-                fileSystem.createFolder("/folderA");
-                fileSystem.getFilesAndFoldersAsync("/folderA")
-                        .then(new Action1<Iterable<FileSystemEntry>>()
-                        {
-                            @Override
-                            public void run(Iterable<FileSystemEntry> entries)
-                            {
-                                assertFalse(entries.any());
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void getFilesAndFoldersAsyncForExistingStringPathWithContents()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(FileSystem fileSystem)
-            {
-                fileSystem.createFolder("/folderA");
-                fileSystem.createFolder("/folderA/folderB");
-                fileSystem.createFile("/file1.txt");
-                fileSystem.createFile("/folderA/file2.csv");
-
-                fileSystem.getFilesAndFoldersAsync("/")
-                        .then(new Action1<Iterable<FileSystemEntry>>()
-                        {
-                            @Override
-                            public void run(Iterable<FileSystemEntry> entries)
-                            {
-                                assertTrue(entries.any());
-                                assertEquals(2, entries.getCount());
-                                final String[] entryPathStrings = Array.toStringArray(entries.map(new Function1<FileSystemEntry, String>()
-                                {
-                                    @Override
-                                    public String run(FileSystemEntry entry)
-                                    {
-                                        return entry.getPath().toString();
-                                    }
-                                }));
-                                assertArrayEquals(new String[] { "/folderA", "/file1.txt" }, entryPathStrings);
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void getFilesAndFoldersAsyncForNullPath()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(FileSystem fileSystem)
-            {
-                fileSystem.getFilesAndFoldersAsync((Path)null)
-                        .then(new Action1<Iterable<FileSystemEntry>>()
-                        {
-                            @Override
-                            public void run(Iterable<FileSystemEntry> entries)
-                            {
-                                assertNull(entries);
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void getFilesAndFoldersAsyncForEmptyPath()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(FileSystem fileSystem)
-            {
-                fileSystem.getFilesAndFoldersAsync(Path.parse(""))
-                        .then(new Action1<Iterable<FileSystemEntry>>()
-                        {
-                            @Override
-                            public void run(Iterable<FileSystemEntry> entries)
-                            {
-                                assertNull(entries);
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void getFilesAndFoldersAsyncForNonExistingPath()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(FileSystem fileSystem)
-            {
-                fileSystem.getFilesAndFoldersAsync(Path.parse("/i/dont/exist/"))
-                        .then(new Action1<Iterable<FileSystemEntry>>()
-                        {
-                            @Override
-                            public void run(Iterable<FileSystemEntry> entries)
-                            {
-                                assertNull(entries);
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void getFilesAndFoldersAsyncForExistingPathWithNoContents()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(FileSystem fileSystem)
-            {
-                fileSystem.createFolder("/folderA");
-                fileSystem.getFilesAndFoldersAsync(Path.parse("/folderA"))
-                        .then(new Action1<Iterable<FileSystemEntry>>()
-                        {
-                            @Override
-                            public void run(Iterable<FileSystemEntry> entries)
-                            {
-                                assertFalse(entries.any());
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void getFilesAndFoldersAsyncForExistingPathWithContents()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(FileSystem fileSystem)
-            {
-                fileSystem.createFolder("/folderA");
-                fileSystem.createFolder("/folderA/folderB");
-                fileSystem.createFile("/file1.txt");
-                fileSystem.createFile("/folderA/file2.csv");
-
-                fileSystem.getFilesAndFoldersAsync(Path.parse("/"))
-                        .then(new Action1<Iterable<FileSystemEntry>>()
-                        {
-                            @Override
-                            public void run(Iterable<FileSystemEntry> entries)
-                            {
-                                assertTrue(entries.any());
-                                assertEquals(2, entries.getCount());
-                                final String[] entryPathStrings = Array.toStringArray(entries.map(new Function1<FileSystemEntry, String>()
-                                {
-                                    @Override
-                                    public String run(FileSystemEntry entry)
-                                    {
-                                        return entry.getPath().toString();
-                                    }
-                                }));
-                                assertArrayEquals(new String[] { "/folderA", "/file1.txt" }, entryPathStrings);
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void getFoldersWithNullStringPath()
-    {
-        final FileSystem fileSystem = getFileSystem();
-        final Iterable<Folder> folders = fileSystem.getFolders((String)null);
-        assertNull(folders);
-    }
-
-    @Test
-    public void getFoldersWithEmptyStringPath()
-    {
-        final FileSystem fileSystem = getFileSystem();
-        final Iterable<Folder> folders = fileSystem.getFolders("");
-        assertNull(folders);
-    }
-
-    @Test
-    public void getFoldersRecursivelyWithNullPathString()
-    {
-        final FileSystem fileSystem = getFileSystem();
-        assertNull(fileSystem.getFoldersRecursively((String)null));
-    }
-
-    @Test
-    public void getFoldersRecursivelyWithEmptyPathString()
-    {
-        final FileSystem fileSystem = getFileSystem();
-        assertNull(fileSystem.getFoldersRecursively(""));
-    }
-
-    @Test
-    public void getFoldersRecursivelyWithRelativePathString()
-    {
-        final FileSystem fileSystem = getFileSystem();
-        assertNull(fileSystem.getFoldersRecursively("test/folder"));
-    }
-
-    @Test
-    public void getFoldersRecursivelyWithRootedPathStringWhenRootDoesntExist()
-    {
-        final FileSystem fileSystem = getFileSystem();
-        assertNull(fileSystem.getFoldersRecursively("F:/test/folder"));
-    }
-
-    @Test
-    public void getFoldersRecursivelyWithRootedPathStringWhenParentFolderDoesntExist()
-    {
-        final FileSystem fileSystem = getFileSystem();
-        assertNull(fileSystem.getFoldersRecursively("/test/folder"));
-    }
-
-    @Test
-    public void getFoldersRecursivelyWithRootedPathStringWhenFolderDoesntExist()
-    {
-        final FileSystem fileSystem = getFileSystem();
-        fileSystem.createFolder("/test/");
-        assertNull(fileSystem.getFoldersRecursively("/test/folder"));
-    }
-
-    @Test
-    public void getFoldersRecursivelyWithRootedPathStringWhenFolderIsEmpty()
-    {
-        final FileSystem fileSystem = getFileSystem();
-        fileSystem.createFolder("/test/folder");
-        assertEquals(new Array<Folder>(0), fileSystem.getFoldersRecursively("/test/folder"));
-    }
-
-    @Test
-    public void getFoldersRecursivelyWithRootedPathStringWhenFolderHasFiles()
-    {
-        final FileSystem fileSystem = getFileSystem();
-        fileSystem.createFolder("/test/folder");
-        fileSystem.createFile("/test/folder/1.txt");
-        fileSystem.createFile("/test/folder/2.txt");
-        assertEquals(
-            new Array<Folder>(0),
-            fileSystem.getFoldersRecursively("/test/folder"));
-    }
-
-    @Test
-    public void getFoldersRecursivelyWithRootedPathStringWhenFolderHasFolders()
-    {
-        final FileSystem fileSystem = getFileSystem();
-        fileSystem.createFolder("/test/folder");
-        fileSystem.createFolder("/test/folder/1.txt");
-        fileSystem.createFolder("/test/folder/2.txt");
-        assertEquals(
-            Array.fromValues(
-                fileSystem.getFolder("/test/folder/1.txt"),
-                fileSystem.getFolder("/test/folder/2.txt")),
-            fileSystem.getFoldersRecursively("/test/folder"));
-    }
-
-    @Test
-    public void getFoldersRecursivelyWithRootedPathStringWhenFolderHasGrandchildFilesAndFolders()
-    {
-        final FileSystem fileSystem = getFileSystem();
-        fileSystem.createFile("/test/folder/1.txt");
-        fileSystem.createFile("/test/folder/2.txt");
-        fileSystem.createFile("/test/folder/A/3.csv");
-        fileSystem.createFile("/test/folder/B/C/4.xml");
-        fileSystem.createFile("/test/folder/A/5.png");
-
-        final Iterable<Folder> expectedEntries =
-            Array.fromValues(
-                fileSystem.getFolder("/test/folder/A"),
-                fileSystem.getFolder("/test/folder/B"),
-                fileSystem.getFolder("/test/folder/B/C"));
-        final Iterable<Folder> actualEntries = fileSystem.getFoldersRecursively("/test/folder");
-        assertEquals(expectedEntries, actualEntries);
-    }
-
-    @Test
-    public void getFoldersAsyncWithNullStringPath()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(FileSystem fileSystem)
-            {
-                fileSystem.getFoldersAsync((String)null)
-                        .then(new Action1<Iterable<Folder>>()
-                        {
-                            @Override
-                            public void run(Iterable<Folder> folders)
-                            {
-                                assertNull(folders);
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void getFoldersAsyncWithEmptyStringPath()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(FileSystem fileSystem)
-            {
-                fileSystem.getFoldersAsync("")
-                        .then(new Action1<Iterable<Folder>>()
-                        {
-                            @Override
-                            public void run(Iterable<Folder> folders)
-                            {
-                                assertNull(folders);
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void getFoldersAsyncWithNullPath()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(FileSystem fileSystem)
-            {
-                fileSystem.getFoldersAsync((Path)null)
-                        .then(new Action1<Iterable<Folder>>()
-                        {
-                            @Override
-                            public void run(Iterable<Folder> folders)
-                            {
-                                assertNull(folders);
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void getFoldersAsyncWithEmptyPath()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(FileSystem fileSystem)
-            {
-                fileSystem.getFoldersAsync(Path.parse(""))
-                        .then(new Action1<Iterable<Folder>>()
-                        {
-                            @Override
-                            public void run(Iterable<Folder> folders)
-                            {
-                                assertNull(folders);
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void getFilesAsyncWithNullStringPath()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(FileSystem fileSystem)
-            {
-                fileSystem.getFilesAsync((String)null)
-                        .then(new Action1<Iterable<File>>()
-                        {
-                            @Override
-                            public void run(Iterable<File> files)
-                            {
-                                assertNull(files);
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void getFilesAsyncWithEmptyStringPath()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(FileSystem fileSystem)
-            {
-                fileSystem.getFilesAsync("")
-                        .then(new Action1<Iterable<File>>()
-                        {
-                            @Override
-                            public void run(Iterable<File> files)
-                            {
-                                assertNull(files);
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void getFilesAsyncWithNullPath()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(FileSystem fileSystem)
-            {
-                fileSystem.getFilesAsync((Path)null)
-                        .then(new Action1<Iterable<File>>()
-                        {
-                            @Override
-                            public void run(Iterable<File> files)
-                            {
-                                assertNull(files);
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void getFilesAsyncWithEmptyPath()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(FileSystem fileSystem)
-            {
-                fileSystem.getFilesAsync(Path.parse(""))
-                        .then(new Action1<Iterable<File>>()
-                        {
-                            @Override
-                            public void run(Iterable<File> files)
-                            {
-                                assertNull(files);
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void getFilesWithNullPathString()
-    {
-        final FileSystem fileSystem = getFileSystem();
-        final Iterable<File> files = fileSystem.getFiles((String)null);
-        assertNull(files);
-    }
-
-    @Test
-    public void getFilesWithEmptyPathString()
-    {
-        final FileSystem fileSystem = getFileSystem();
-        final Iterable<File> files = fileSystem.getFiles("");
-        assertNull(files);
-    }
-
-    @Test
-    public void getFilesRecursivelyWithNullPathString()
-    {
-        final FileSystem fileSystem = getFileSystem();
-        assertNull(fileSystem.getFilesRecursively((String)null));
-    }
-
-    @Test
-    public void getFilesRecursivelyWithEmptyPathString()
-    {
-        final FileSystem fileSystem = getFileSystem();
-        assertNull(fileSystem.getFilesRecursively(""));
-    }
-
-    @Test
-    public void getFilesRecursivelyWithRelativePathString()
-    {
-        final FileSystem fileSystem = getFileSystem();
-        assertNull(fileSystem.getFilesRecursively("test/folder"));
-    }
-
-    @Test
-    public void getFilesRecursivelyWithRootedPathStringWhenRootDoesntExist()
-    {
-        final FileSystem fileSystem = getFileSystem();
-        assertNull(fileSystem.getFilesRecursively("F:/test/folder"));
-    }
-
-    @Test
-    public void getFilesRecursivelyWithRootedPathStringWhenParentFolderDoesntExist()
-    {
-        final FileSystem fileSystem = getFileSystem();
-        assertNull(fileSystem.getFilesRecursively("/test/folder"));
-    }
-
-    @Test
-    public void getFilesRecursivelyWithRootedPathStringWhenFolderDoesntExist()
-    {
-        final FileSystem fileSystem = getFileSystem();
-        fileSystem.createFolder("/test/");
-        assertNull(fileSystem.getFilesRecursively("/test/folder"));
-    }
-
-    @Test
-    public void getFilesRecursivelyWithRootedPathStringWhenFolderIsEmpty()
-    {
-        final FileSystem fileSystem = getFileSystem();
-        fileSystem.createFolder("/test/folder");
-        assertEquals(new Array<FileSystemEntry>(0), fileSystem.getFilesRecursively("/test/folder"));
-    }
-
-    @Test
-    public void getFilesRecursivelyWithRootedPathStringWhenFolderHasFiles()
-    {
-        final FileSystem fileSystem = getFileSystem();
-        fileSystem.createFolder("/test/folder");
-        fileSystem.createFile("/test/folder/1.txt");
-        fileSystem.createFile("/test/folder/2.txt");
-        assertEquals(
-            Array.fromValues(
-                fileSystem.getFile("/test/folder/1.txt"),
-                fileSystem.getFile("/test/folder/2.txt")),
-            fileSystem.getFilesRecursively("/test/folder"));
-    }
-
-    @Test
     public void getFilesRecursivelyWithRootedPathStringWhenFolderHasFolders()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFolder("/test/folder");
         fileSystem.createFolder("/test/folder/1.txt");
         fileSystem.createFolder("/test/folder/2.txt");
-        assertEquals(
+        test.assertEqual(
             new Array<File>(0),
             fileSystem.getFilesRecursively("/test/folder"));
     }
@@ -833,7 +1090,7 @@ public abstract class FileSystemTests
     @Test
     public void getFilesRecursivelyWithRootedPathStringWhenFolderHasGrandchildFilesAndFolders()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/test/folder/1.txt");
         fileSystem.createFile("/test/folder/2.txt");
         fileSystem.createFile("/test/folder/A/3.csv");
@@ -848,83 +1105,83 @@ public abstract class FileSystemTests
                 fileSystem.getFile("/test/folder/A/5.png"),
                 fileSystem.getFile("/test/folder/B/C/4.xml"));
         final Iterable<File> actualEntries = fileSystem.getFilesRecursively("/test/folder");
-        assertEquals(expectedEntries, actualEntries);
+        test.assertEqual(expectedEntries, actualEntries);
     }
 
     @Test
     public void getFolderWithNullString()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         final Folder folder = fileSystem.getFolder((String)null);
-        assertNull(folder);
+        test.assertNull(folder);
     }
 
     @Test
     public void getFolderWithEmptyString()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         final Folder folder = fileSystem.getFolder("");
-        assertNull(folder);
+        test.assertNull(folder);
     }
 
     @Test
     public void getFolderWithNonRootedString()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         final Folder folder = fileSystem.getFolder("a/b/c");
-        assertNull(folder);
+        test.assertNull(folder);
     }
 
     @Test
     public void getFolderWithForwardSlashRoot()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         final Folder folder = fileSystem.getFolder("/");
-        assertNotNull(folder);
-        assertEquals("/", folder.toString());
+        test.assertNotNull(folder);
+        test.assertEqual("/", folder.toString());
     }
 
     @Test
     public void getFolderWithBackslashRoot()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         final Folder folder = fileSystem.getFolder("\\");
-        assertNotNull(folder);
-        assertEquals("\\", folder.toString());
+        test.assertNotNull(folder);
+        test.assertEqual("\\", folder.toString());
     }
 
     @Test
     public void getFolderWithWindowsRoot()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         final Folder folder = fileSystem.getFolder("Z:\\");
-        assertNotNull(folder);
-        assertEquals("Z:\\", folder.toString());
+        test.assertNotNull(folder);
+        test.assertEqual("Z:\\", folder.toString());
     }
 
     @Test
     public void getFolderWithRootAndFolder()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         final Folder folder = fileSystem.getFolder("/a/b");
-        assertNotNull(folder);
-        assertEquals("/a/b", folder.toString());
+        test.assertNotNull(folder);
+        test.assertEqual("/a/b", folder.toString());
     }
 
     @Test
     public void folderExistsWithRootPathString()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         final Root folder = fileSystem.getRoots().first();
-        assertTrue(fileSystem.folderExists(folder.getPath().toString()));
+        test.assertTrue(fileSystem.folderExists(folder.getPath().toString()));
     }
 
     @Test
     public void folderExistsWithExistingFolderPathString()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFolder("/folderName");
-        assertTrue(fileSystem.folderExists("/folderName"));
+        test.assertTrue(fileSystem.folderExists("/folderName"));
     }
 
     @Test
@@ -941,7 +1198,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean folderExists)
                             {
-                                assertTrue(folderExists);
+                                test.assertTrue(folderExists);
                             }
                         });
             }
@@ -963,7 +1220,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean folderExists)
                             {
-                                assertTrue(folderExists);
+                                test.assertTrue(folderExists);
                             }
                         });
             }
@@ -984,7 +1241,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean folderExists)
                             {
-                                assertTrue(folderExists);
+                                test.assertTrue(folderExists);
                             }
                         });
             }
@@ -1006,7 +1263,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean folderExists)
                             {
-                                assertTrue(folderExists);
+                                test.assertTrue(folderExists);
                             }
                         });
             }
@@ -1016,115 +1273,115 @@ public abstract class FileSystemTests
     @Test
     public void createFolderWithNullString()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertFalse(fileSystem.createFolder((String)null));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertFalse(fileSystem.createFolder((String)null));
     }
 
     @Test
     public void createFolderWithEmptyString()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertFalse(fileSystem.createFolder(""));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertFalse(fileSystem.createFolder(""));
     }
 
     @Test
     public void createFolderWithRelativePathString()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertFalse(fileSystem.createFolder("folder"));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertFalse(fileSystem.createFolder("folder"));
     }
 
     @Test
     public void createFolderWithRootedPathString()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertTrue(fileSystem.createFolder("/folder"));
-        assertTrue(fileSystem.folderExists("/folder"));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertTrue(fileSystem.createFolder("/folder"));
+        test.assertTrue(fileSystem.folderExists("/folder"));
     }
 
     @Test
     public void createFolderWithNullStringAndNullValue()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertFalse(fileSystem.createFolder((String)null, null));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertFalse(fileSystem.createFolder((String)null, null));
     }
 
     @Test
     public void createFolderWithEmptyStringAndNullValue()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertFalse(fileSystem.createFolder("", null));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertFalse(fileSystem.createFolder("", null));
     }
 
     @Test
     public void createFolderWithRelativePathStringAndNullValue()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertFalse(fileSystem.createFolder("folder", null));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertFalse(fileSystem.createFolder("folder", null));
     }
 
     @Test
     public void createFolderWithRootedPathStringAndNullValue()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertTrue(fileSystem.createFolder("/folder", null));
-        assertTrue(fileSystem.folderExists("/folder"));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertTrue(fileSystem.createFolder("/folder", null));
+        test.assertTrue(fileSystem.folderExists("/folder"));
     }
 
     @Test
     public void createFolderWithNullStringAndNonNullValue()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         final Value<Folder> folder = new Value<>();
-        assertFalse(fileSystem.createFolder((String)null, folder));
-        assertFalse(folder.hasValue());
+        test.assertFalse(fileSystem.createFolder((String)null, folder));
+        test.assertFalse(folder.hasValue());
     }
 
     @Test
     public void createFolderWithEmptyStringAndNonNullValue()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         final Value<Folder> folder = new Value<>();
-        assertFalse(fileSystem.createFolder("", folder));
-        assertFalse(folder.hasValue());
+        test.assertFalse(fileSystem.createFolder("", folder));
+        test.assertFalse(folder.hasValue());
     }
 
     @Test
     public void createFolderWithRelativePathStringAndNonNullValue()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         final Value<Folder> folder = new Value<>();
-        assertFalse(fileSystem.createFolder("folder", folder));
-        assertFalse(folder.hasValue());
+        test.assertFalse(fileSystem.createFolder("folder", folder));
+        test.assertFalse(folder.hasValue());
     }
 
     @Test
     public void createFolderWithRootedPathStringAndNonNullValue()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         final Value<Folder> folder = new Value<>();
-        assertTrue(fileSystem.createFolder("/folder", folder));
-        assertTrue(fileSystem.folderExists("/folder"));
-        assertTrue(folder.hasValue());
-        assertNotNull(folder.get());
-        assertEquals("/folder", folder.get().getPath().toString());
+        test.assertTrue(fileSystem.createFolder("/folder", folder));
+        test.assertTrue(fileSystem.folderExists("/folder"));
+        test.assertTrue(folder.hasValue());
+        test.assertNotNull(folder.get());
+        test.assertEqual("/folder", folder.get().getPath().toString());
     }
 
     @Test
     public void createFolderWithNullPathAndNonNullValue()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         final Value<Folder> folder = new Value<>();
-        assertFalse(fileSystem.createFolder((Path)null, folder));
-        assertFalse(folder.hasValue());
-        assertNull(folder.get());
+        test.assertFalse(fileSystem.createFolder((Path)null, folder));
+        test.assertFalse(folder.hasValue());
+        test.assertNull(folder.get());
     }
 
     @Test
     public void createFolderWithNullPath()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertFalse(fileSystem.createFolder((Path)null));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertFalse(fileSystem.createFolder((Path)null));
     }
 
     @Test
@@ -1141,7 +1398,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean folderCreated)
                             {
-                                assertFalse(folderCreated);
+                                test.assertFalse(folderCreated);
                             }
                         });
             }
@@ -1162,7 +1419,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean folderCreated)
                             {
-                                assertFalse(folderCreated);
+                                test.assertFalse(folderCreated);
                             }
                         });
             }
@@ -1183,7 +1440,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean arg1)
                             {
-                                assertFalse(arg1);
+                                test.assertFalse(arg1);
                             }
                         });
             }
@@ -1204,8 +1461,8 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean folderCreated)
                             {
-                                assertTrue(folderCreated);
-                                assertTrue(fileSystem.folderExists("/folder"));
+                                test.assertTrue(folderCreated);
+                                test.assertTrue(fileSystem.folderExists("/folder"));
                             }
                         });
             }
@@ -1226,7 +1483,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean folderCreated)
                             {
-                                assertFalse(folderCreated);
+                                test.assertFalse(folderCreated);
                             }
                         });
             }
@@ -1247,7 +1504,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean folderCreated)
                             {
-                                assertFalse(folderCreated);
+                                test.assertFalse(folderCreated);
                             }
                         });
             }
@@ -1268,7 +1525,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean folderCreated)
                             {
-                                assertFalse(folderCreated);
+                                test.assertFalse(folderCreated);
                             }
                         });
             }
@@ -1289,8 +1546,8 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean folderCreated)
                             {
-                                assertTrue(folderCreated);
-                                assertTrue(fileSystem.folderExists("/folder"));
+                                test.assertTrue(folderCreated);
+                                test.assertTrue(fileSystem.folderExists("/folder"));
                             }
                         });
             }
@@ -1312,8 +1569,8 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean folderCreated)
                             {
-                                assertFalse(folderCreated);
-                                assertFalse(folder.hasValue());
+                                test.assertFalse(folderCreated);
+                                test.assertFalse(folder.hasValue());
                             }
                         });
             }
@@ -1335,8 +1592,8 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean folderCreated)
                             {
-                                assertFalse(folderCreated);
-                                assertFalse(folder.hasValue());
+                                test.assertFalse(folderCreated);
+                                test.assertFalse(folder.hasValue());
                             }
                         });
             }
@@ -1358,8 +1615,8 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean folderCreated)
                             {
-                                assertFalse(folderCreated);
-                                assertFalse(folder.hasValue());
+                                test.assertFalse(folderCreated);
+                                test.assertFalse(folder.hasValue());
                             }
                         });
             }
@@ -1381,12 +1638,12 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean folderCreated)
                             {
-                                assertTrue(folderCreated);
-                                assertTrue(fileSystem.folderExists("/folder"));
+                                test.assertTrue(folderCreated);
+                                test.assertTrue(fileSystem.folderExists("/folder"));
 
-                                assertTrue(folder.hasValue());
-                                assertNotNull(folder.get());
-                                assertEquals("/folder", folder.get().getPath().toString());
+                                test.assertTrue(folder.hasValue());
+                                test.assertNotNull(folder.get());
+                                test.assertEqual("/folder", folder.get().getPath().toString());
                             }
                         });
             }
@@ -1407,7 +1664,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean folderCreated)
                             {
-                                assertFalse(folderCreated);
+                                test.assertFalse(folderCreated);
                             }
                         });
             }
@@ -1428,7 +1685,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean folderCreated)
                             {
-                                assertFalse(folderCreated);
+                                test.assertFalse(folderCreated);
                             }
                         });
             }
@@ -1449,7 +1706,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean arg1)
                             {
-                                assertFalse(arg1);
+                                test.assertFalse(arg1);
                             }
                         });
             }
@@ -1470,8 +1727,8 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean folderCreated)
                             {
-                                assertTrue(folderCreated);
-                                assertTrue(fileSystem.folderExists("/folder"));
+                                test.assertTrue(folderCreated);
+                                test.assertTrue(fileSystem.folderExists("/folder"));
                             }
                         });
             }
@@ -1492,7 +1749,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean folderCreated)
                             {
-                                assertFalse(folderCreated);
+                                test.assertFalse(folderCreated);
                             }
                         });
             }
@@ -1513,7 +1770,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean folderCreated)
                             {
-                                assertFalse(folderCreated);
+                                test.assertFalse(folderCreated);
                             }
                         });
             }
@@ -1534,7 +1791,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean folderCreated)
                             {
-                                assertFalse(folderCreated);
+                                test.assertFalse(folderCreated);
                             }
                         });
             }
@@ -1555,8 +1812,8 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean folderCreated)
                             {
-                                assertTrue(folderCreated);
-                                assertTrue(fileSystem.folderExists("/folder"));
+                                test.assertTrue(folderCreated);
+                                test.assertTrue(fileSystem.folderExists("/folder"));
                             }
                         });
             }
@@ -1578,8 +1835,8 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean folderCreated)
                             {
-                                assertFalse(folderCreated);
-                                assertFalse(folder.hasValue());
+                                test.assertFalse(folderCreated);
+                                test.assertFalse(folder.hasValue());
                             }
                         });
             }
@@ -1601,8 +1858,8 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean folderCreated)
                             {
-                                assertFalse(folderCreated);
-                                assertFalse(folder.hasValue());
+                                test.assertFalse(folderCreated);
+                                test.assertFalse(folder.hasValue());
                             }
                         });
             }
@@ -1624,8 +1881,8 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean folderCreated)
                             {
-                                assertFalse(folderCreated);
-                                assertFalse(folder.hasValue());
+                                test.assertFalse(folderCreated);
+                                test.assertFalse(folder.hasValue());
                             }
                         });
             }
@@ -1647,12 +1904,12 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean folderCreated)
                             {
-                                assertTrue(folderCreated);
-                                assertTrue(fileSystem.folderExists("/folder"));
+                                test.assertTrue(folderCreated);
+                                test.assertTrue(fileSystem.folderExists("/folder"));
 
-                                assertTrue(folder.hasValue());
-                                assertNotNull(folder.get());
-                                assertEquals("/folder", folder.get().getPath().toString());
+                                test.assertTrue(folder.hasValue());
+                                test.assertNotNull(folder.get());
+                                test.assertEqual("/folder", folder.get().getPath().toString());
                             }
                         });
             }
@@ -1662,50 +1919,50 @@ public abstract class FileSystemTests
     @Test
     public void deleteFolderWithNullString()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertFalse(fileSystem.deleteFolder((String)null));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertFalse(fileSystem.deleteFolder((String)null));
     }
 
     @Test
     public void deleteFolderWithEmptyString()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertFalse(fileSystem.deleteFolder(""));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertFalse(fileSystem.deleteFolder(""));
     }
 
     @Test
     public void deleteFolderWithNonRootedFolderPathString()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFolder("/folder");
-        assertFalse(fileSystem.deleteFolder("folder"));
+        test.assertFalse(fileSystem.deleteFolder("folder"));
     }
 
     @Test
     public void deleteFolderWithNonExistingFolderPathString()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertFalse(fileSystem.deleteFolder("/folder"));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertFalse(fileSystem.deleteFolder("/folder"));
     }
 
     @Test
     public void deleteFolderWithExistingFolderPathString()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFolder("/folder/");
-        assertTrue(fileSystem.deleteFolder("/folder/"));
-        assertFalse(fileSystem.deleteFolder("/folder/"));
+        test.assertTrue(fileSystem.deleteFolder("/folder/"));
+        test.assertFalse(fileSystem.deleteFolder("/folder/"));
     }
 
     @Test
     public void deleteFolderWithExistingFolderPathStringWithSiblingFolders()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFolder("/folder/a");
         fileSystem.createFolder("/folder/b");
         fileSystem.createFolder("/folder/c");
-        assertTrue(fileSystem.deleteFolder("/folder/c"));
-        assertFalse(fileSystem.deleteFolder("/folder/c"));
+        test.assertTrue(fileSystem.deleteFolder("/folder/c"));
+        test.assertFalse(fileSystem.deleteFolder("/folder/c"));
     }
 
     @Test
@@ -1722,7 +1979,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean folderDeleted)
                             {
-                                assertFalse(folderDeleted);
+                                test.assertFalse(folderDeleted);
                             }
                         });
             }
@@ -1743,7 +2000,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean folderDeleted)
                             {
-                                assertFalse(folderDeleted);
+                                test.assertFalse(folderDeleted);
                             }
                         });
             }
@@ -1765,8 +2022,8 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean folderDeleted)
                             {
-                                assertFalse(folderDeleted);
-                                assertTrue(fileSystem.folderExists("/folder"));
+                                test.assertFalse(folderDeleted);
+                                test.assertTrue(fileSystem.folderExists("/folder"));
                             }
                         });
             }
@@ -1787,7 +2044,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean folderDeleted)
                             {
-                                assertFalse(folderDeleted);
+                                test.assertFalse(folderDeleted);
                             }
                         });
             }
@@ -1810,8 +2067,8 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean folderDeleted)
                             {
-                                assertTrue(folderDeleted);
-                                assertFalse(fileSystem.folderExists("/folder/"));
+                                test.assertTrue(folderDeleted);
+                                test.assertFalse(fileSystem.folderExists("/folder/"));
                             }
                         });
             }
@@ -1836,10 +2093,10 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean folderDeleted)
                             {
-                                assertTrue(folderDeleted);
-                                assertFalse(fileSystem.folderExists("/folder/c"));
-                                assertTrue(fileSystem.folderExists("/folder/a"));
-                                assertTrue(fileSystem.folderExists("/folder/b"));
+                                test.assertTrue(folderDeleted);
+                                test.assertFalse(fileSystem.folderExists("/folder/c"));
+                                test.assertTrue(fileSystem.folderExists("/folder/a"));
+                                test.assertTrue(fileSystem.folderExists("/folder/b"));
                             }
                         });
             }
@@ -1860,7 +2117,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean folderDeleted)
                             {
-                                assertFalse(folderDeleted);
+                                test.assertFalse(folderDeleted);
                             }
                         });
             }
@@ -1881,7 +2138,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean folderDeleted)
                             {
-                                assertFalse(folderDeleted);
+                                test.assertFalse(folderDeleted);
                             }
                         });
             }
@@ -1903,8 +2160,8 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean folderDeleted)
                             {
-                                assertFalse(folderDeleted);
-                                assertTrue(fileSystem.folderExists("/folder"));
+                                test.assertFalse(folderDeleted);
+                                test.assertTrue(fileSystem.folderExists("/folder"));
                             }
                         });
             }
@@ -1925,7 +2182,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean folderDeleted)
                             {
-                                assertFalse(folderDeleted);
+                                test.assertFalse(folderDeleted);
                             }
                         });
             }
@@ -1948,8 +2205,8 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean folderDeleted)
                             {
-                                assertTrue(folderDeleted);
-                                assertFalse(fileSystem.folderExists("/folder/"));
+                                test.assertTrue(folderDeleted);
+                                test.assertFalse(fileSystem.folderExists("/folder/"));
                             }
                         });
             }
@@ -1974,10 +2231,10 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean folderDeleted)
                             {
-                                assertTrue(folderDeleted);
-                                assertFalse(fileSystem.folderExists("/folder/c"));
-                                assertTrue(fileSystem.folderExists("/folder/a"));
-                                assertTrue(fileSystem.folderExists("/folder/b"));
+                                test.assertTrue(folderDeleted);
+                                test.assertFalse(fileSystem.folderExists("/folder/c"));
+                                test.assertTrue(fileSystem.folderExists("/folder/a"));
+                                test.assertTrue(fileSystem.folderExists("/folder/b"));
                             }
                         });
             }
@@ -1987,82 +2244,82 @@ public abstract class FileSystemTests
     @Test
     public void getFileWithNullString()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         final File file = fileSystem.getFile((String)null);
-        assertNull(file);
+        test.assertNull(file);
     }
 
     @Test
     public void getFileWithEmptyString()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         final File file = fileSystem.getFile("");
-        assertNull(file);
+        test.assertNull(file);
     }
 
     @Test
     public void getFileWithNonRootedString()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         final File file = fileSystem.getFile("a/b/c");
-        assertNull(file);
+        test.assertNull(file);
     }
 
     @Test
     public void getFileWithForwardSlashRoot()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         final File file = fileSystem.getFile("/");
-        assertNull(file);
+        test.assertNull(file);
     }
 
     @Test
     public void getFileWithBackslashRoot()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         final File file = fileSystem.getFile("\\");
-        assertNull(file);
+        test.assertNull(file);
     }
 
     @Test
     public void getFileWithWindowsRoot()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         final File file = fileSystem.getFile("Z:\\");
-        assertNull(file);
+        test.assertNull(file);
     }
 
     @Test
     public void getFileWithRootAndFile()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         final File file = fileSystem.getFile("/a/b");
-        assertNotNull(file);
-        assertEquals("/a/b", file.toString());
+        test.assertNotNull(file);
+        test.assertEqual("/a/b", file.toString());
     }
 
     @Test
     public void fileExistsWithRootPathString()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         final Root root = fileSystem.getRoots().first();
-        assertFalse(fileSystem.fileExists(root.getPath().toString()));
+        test.assertFalse(fileSystem.fileExists(root.getPath().toString()));
     }
 
     @Test
     public void fileExistsWithExistingFolderPathString()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFolder("/folderName");
-        assertFalse(fileSystem.fileExists("/folerName"));
+        test.assertFalse(fileSystem.fileExists("/folerName"));
     }
 
     @Test
     public void fileExistsWithExistingFilePathString()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/file1.xml");
-        assertTrue(fileSystem.fileExists("/file1.xml"));
+        test.assertTrue(fileSystem.fileExists("/file1.xml"));
     }
 
     @Test
@@ -2080,7 +2337,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean fileExists)
                             {
-                                assertFalse(fileExists);
+                                test.assertFalse(fileExists);
                             }
                         });
             }
@@ -2102,7 +2359,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean fileExists)
                             {
-                                assertFalse(fileExists);
+                                test.assertFalse(fileExists);
                             }
                         });
             }
@@ -2124,7 +2381,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean fileExists)
                             {
-                                assertTrue(fileExists);
+                                test.assertTrue(fileExists);
                             }
                         });
             }
@@ -2146,7 +2403,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean fileExists)
                             {
-                                assertFalse(fileExists);
+                                test.assertFalse(fileExists);
                             }
                         });
             }
@@ -2168,7 +2425,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean fileExists)
                             {
-                                assertFalse(fileExists);
+                                test.assertFalse(fileExists);
                             }
                         });
             }
@@ -2190,7 +2447,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean fileExists)
                             {
-                                assertTrue(fileExists);
+                                test.assertTrue(fileExists);
                             }
                         });
             }
@@ -2200,259 +2457,259 @@ public abstract class FileSystemTests
     @Test
     public void createFileWithNullString()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertFalse(fileSystem.createFile((String)null));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertFalse(fileSystem.createFile((String)null));
     }
 
     @Test
     public void createFileWithEmptyString()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertFalse(fileSystem.createFile(""));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertFalse(fileSystem.createFile(""));
     }
 
     @Test
     public void createFileWithRelativePathString()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertFalse(fileSystem.createFile("things.txt"));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertFalse(fileSystem.createFile("things.txt"));
     }
 
     @Test
     public void createFileWithNonExistingRootedPathString()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
 
-        assertTrue(fileSystem.createFile("/things.txt"));
+        test.assertTrue(fileSystem.createFile("/things.txt"));
 
-        assertTrue(fileSystem.fileExists("/things.txt"));
-        assertArrayEquals(new byte[0], fileSystem.getFileContents("/things.txt"));
+        test.assertTrue(fileSystem.fileExists("/things.txt"));
+        test.assertEqual(new byte[0], fileSystem.getFileContents("/things.txt"));
     }
 
     @Test
     public void createFileWithNonExistingRootedPathStringAndContents()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
 
-        assertTrue(fileSystem.createFile("/things.txt", new byte[] { 0, 1, 2, 3 }));
+        test.assertTrue(fileSystem.createFile("/things.txt", new byte[] { 0, 1, 2, 3 }));
 
-        assertTrue(fileSystem.fileExists("/things.txt"));
-        assertArrayEquals(new byte[] { 0, 1, 2, 3 }, fileSystem.getFileContents("/things.txt"));
+        test.assertTrue(fileSystem.fileExists("/things.txt"));
+        test.assertEqual(new byte[] { 0, 1, 2, 3 }, fileSystem.getFileContents("/things.txt"));
     }
 
     @Test
     public void createFileWithExistingRootedPathString()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/things.txt");
 
-        assertFalse(fileSystem.createFile("/things.txt"));
+        test.assertFalse(fileSystem.createFile("/things.txt"));
 
-        assertTrue(fileSystem.fileExists("/things.txt"));
-        assertArrayEquals(new byte[0], fileSystem.getFileContents("/things.txt"));
+        test.assertTrue(fileSystem.fileExists("/things.txt"));
+        test.assertEqual(new byte[0], fileSystem.getFileContents("/things.txt"));
     }
 
     @Test
     public void createFileWithExistingRootedPathStringAndByteArrayContents()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/things.txt");
 
-        assertFalse(fileSystem.createFile("/things.txt", new byte[] { 0, 1, 2, 3 }));
+        test.assertFalse(fileSystem.createFile("/things.txt", new byte[] { 0, 1, 2, 3 }));
 
-        assertTrue(fileSystem.fileExists("/things.txt"));
-        assertArrayEquals(new byte[0], fileSystem.getFileContents("/things.txt"));
+        test.assertTrue(fileSystem.fileExists("/things.txt"));
+        test.assertEqual(new byte[0], fileSystem.getFileContents("/things.txt"));
     }
 
     @Test
     public void createFileWithExistingRootedPathStringAndStringContents()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/things.txt");
 
-        assertFalse(fileSystem.createFile("/things.txt", "ABC"));
+        test.assertFalse(fileSystem.createFile("/things.txt", "ABC"));
 
-        assertTrue(fileSystem.fileExists("/things.txt"));
-        assertArrayEquals(new byte[0], fileSystem.getFileContents("/things.txt"));
+        test.assertTrue(fileSystem.fileExists("/things.txt"));
+        test.assertEqual(new byte[0], fileSystem.getFileContents("/things.txt"));
     }
 
     @Test
     public void createFileWithExistingRootedPathStringAndStringContentsAndEncoding()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/things.txt");
 
-        assertFalse(fileSystem.createFile("/things.txt", "ABC", CharacterEncoding.UTF_8));
+        test.assertFalse(fileSystem.createFile("/things.txt", "ABC", CharacterEncoding.UTF_8));
 
-        assertTrue(fileSystem.fileExists("/things.txt"));
-        assertArrayEquals(new byte[0], fileSystem.getFileContents("/things.txt"));
+        test.assertTrue(fileSystem.fileExists("/things.txt"));
+        test.assertEqual(new byte[0], fileSystem.getFileContents("/things.txt"));
     }
 
     @Test
     public void createFileWithNullStringAndNullValue()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertFalse(fileSystem.createFile((String)null, (Out<File>)null));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertFalse(fileSystem.createFile((String)null, (Out<File>)null));
     }
 
     @Test
     public void createFileWithEmptyStringAndNullValue()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertFalse(fileSystem.createFile("", (Out<File>)null));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertFalse(fileSystem.createFile("", (Out<File>)null));
     }
 
     @Test
     public void createFileWithRelativePathStringAndNullValue()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertFalse(fileSystem.createFile("things.txt", (Out<File>)null));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertFalse(fileSystem.createFile("things.txt", (Out<File>)null));
     }
 
     @Test
     public void createFileWithNonExistingRootedPathStringAndNullValue()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertTrue(fileSystem.createFile("/things.txt", (Out<File>)null));
-        assertTrue(fileSystem.fileExists("/things.txt"));
-        assertArrayEquals(new byte[0], fileSystem.getFileContents("/things.txt"));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertTrue(fileSystem.createFile("/things.txt", (Out<File>)null));
+        test.assertTrue(fileSystem.fileExists("/things.txt"));
+        test.assertEqual(new byte[0], fileSystem.getFileContents("/things.txt"));
     }
 
     @Test
     public void createFileWithNonExistingRootedPathStringAndContentsAndNullValue()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertTrue(fileSystem.createFile("/things.txt", new byte[] { 10, 11, 12 }, null));
-        assertTrue(fileSystem.fileExists("/things.txt"));
-        assertArrayEquals(new byte[] { 10, 11, 12 }, fileSystem.getFileContents("/things.txt"));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertTrue(fileSystem.createFile("/things.txt", new byte[] { 10, 11, 12 }, null));
+        test.assertTrue(fileSystem.fileExists("/things.txt"));
+        test.assertEqual(new byte[] { 10, 11, 12 }, fileSystem.getFileContents("/things.txt"));
     }
 
     @Test
     public void createFileWithNonExistingRootedPathStringAndStringContentsAndNullValue()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
 
-        assertTrue(fileSystem.createFile("/things.txt", "ABC", (Out<File>)null));
+        test.assertTrue(fileSystem.createFile("/things.txt", "ABC", (Out<File>)null));
 
-        assertTrue(fileSystem.fileExists("/things.txt"));
-        assertEquals("ABC", fileSystem.getFileContentsAsString("/things.txt"));
+        test.assertTrue(fileSystem.fileExists("/things.txt"));
+        test.assertEqual("ABC", fileSystem.getFileContentsAsString("/things.txt"));
     }
 
     @Test
     public void createFileWithNonExistingRootedPathStringAndStringContentsAndEncodingAndNullValue()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
 
-        assertTrue(fileSystem.createFile("/things.txt", "ABC", CharacterEncoding.UTF_8, null));
+        test.assertTrue(fileSystem.createFile("/things.txt", "ABC", CharacterEncoding.UTF_8, null));
 
-        assertTrue(fileSystem.fileExists("/things.txt"));
-        assertEquals("ABC", fileSystem.getFileContentsAsString("/things.txt"));
+        test.assertTrue(fileSystem.fileExists("/things.txt"));
+        test.assertEqual("ABC", fileSystem.getFileContentsAsString("/things.txt"));
     }
 
     @Test
     public void createFileWithExistingRootedPathStringAndNullValue()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/things.txt");
 
-        assertFalse(fileSystem.createFile("/things.txt", (Out<File>)null));
+        test.assertFalse(fileSystem.createFile("/things.txt", (Out<File>)null));
 
-        assertTrue(fileSystem.fileExists("/things.txt"));
-        assertArrayEquals(new byte[0], fileSystem.getFileContents("/things.txt"));
+        test.assertTrue(fileSystem.fileExists("/things.txt"));
+        test.assertEqual(new byte[0], fileSystem.getFileContents("/things.txt"));
     }
 
     @Test
     public void createFileWithExistingRootedPathStringAndContentsNullValue()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/things.txt");
 
-        assertFalse(fileSystem.createFile("/things.txt", new byte[] { 0, 1 }, null));
+        test.assertFalse(fileSystem.createFile("/things.txt", new byte[] { 0, 1 }, null));
 
-        assertTrue(fileSystem.fileExists("/things.txt"));
-        assertArrayEquals(new byte[0], fileSystem.getFileContents("/things.txt"));
+        test.assertTrue(fileSystem.fileExists("/things.txt"));
+        test.assertEqual(new byte[0], fileSystem.getFileContents("/things.txt"));
     }
 
     @Test
     public void createFileWithNullStringAndNonNullValue()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         final Value<File> file = new Value<>();
-        assertFalse(fileSystem.createFile((String)null, file));
+        test.assertFalse(fileSystem.createFile((String)null, file));
     }
 
     @Test
     public void createFileWithEmptyStringAndNonNullValue()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         final Value<File> file = new Value<>();
-        assertFalse(fileSystem.createFile("", file));
+        test.assertFalse(fileSystem.createFile("", file));
     }
 
     @Test
     public void createFileWithRelativePathStringAndNonNullValue()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         final Value<File> file = new Value<>();
         final boolean fileCreated = fileSystem.createFile("things.txt", file);
-        assertFalse(fileCreated);
-        assertFalse(file.hasValue());
+        test.assertFalse(fileCreated);
+        test.assertFalse(file.hasValue());
     }
 
     @Test
     public void createFileWithNonExistingRootedPathStringAndNonNullValue()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         final Value<File> file = new Value<>();
         final boolean fileCreated = fileSystem.createFile("/things.txt", file);
-        assertTrue(fileCreated);
-        assertTrue(file.hasValue());
-        assertNotNull(file.get());
-        assertEquals("/things.txt", file.get().getPath().toString());
+        test.assertTrue(fileCreated);
+        test.assertTrue(file.hasValue());
+        test.assertNotNull(file.get());
+        test.assertEqual("/things.txt", file.get().getPath().toString());
     }
 
     @Test
     public void createFileWithExistingRootedPathStringAndNonNullValue()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/things.txt");
 
         final Value<File> file = new Value<>();
-        assertFalse(fileSystem.createFile("/things.txt", file));
-        assertTrue(file.hasValue());
-        assertEquals(Path.parse("/things.txt"), file.get().getPath());
+        test.assertFalse(fileSystem.createFile("/things.txt", file));
+        test.assertTrue(file.hasValue());
+        test.assertEqual(Path.parse("/things.txt"), file.get().getPath());
     }
 
     @Test
     public void createFileWithNullPathAndContents()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertFalse(fileSystem.createFile((Path)null, new byte[] { 0, 1, 2 }));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertFalse(fileSystem.createFile((Path)null, new byte[] { 0, 1, 2 }));
     }
 
     @Test
     public void createFileWithNullPathAndStringContents()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertFalse(fileSystem.createFile((Path)null, "ABC"));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertFalse(fileSystem.createFile((Path)null, "ABC"));
     }
 
     @Test
     public void createFileWithNullPathAndStringContentsAndEncoding()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertFalse(fileSystem.createFile((Path)null, "ABC", CharacterEncoding.UTF_8));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertFalse(fileSystem.createFile((Path)null, "ABC", CharacterEncoding.UTF_8));
     }
 
     @Test
     public void createFileWithInvalidPath()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         final Value<File> file = new Value<>();
         final boolean fileCreated = fileSystem.createFile("/\u0000?#!.txt", file);
-        assertFalse("Wrong fileCreated", fileCreated);
-        assertFalse("Wrong file.hasValue()", file.hasValue());
-        assertNull("Wrong file.get()", file.get());
+        test.assertFalse("Wrong fileCreated", fileCreated);
+        test.assertFalse("Wrong file.hasValue()", file.hasValue());
+        test.assertNull("Wrong file.get()", file.get());
     }
 
     @Test
@@ -2469,7 +2726,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean fileCreated)
                             {
-                                assertFalse(fileCreated);
+                                test.assertFalse(fileCreated);
                             }
                         });
             }
@@ -2490,7 +2747,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean fileCreated)
                             {
-                                assertFalse(fileCreated);
+                                test.assertFalse(fileCreated);
                             }
                         });
             }
@@ -2511,7 +2768,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean fileCreated)
                             {
-                                assertFalse(fileCreated);
+                                test.assertFalse(fileCreated);
                             }
                         });
             }
@@ -2532,8 +2789,8 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean fileCreated)
                             {
-                                assertTrue(fileCreated);
-                                assertTrue(fileSystem.fileExists("/things.txt"));
+                                test.assertTrue(fileCreated);
+                                test.assertTrue(fileSystem.fileExists("/things.txt"));
                             }
                         });
             }
@@ -2556,8 +2813,8 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean fileCreated)
                             {
-                                assertFalse(fileCreated);
-                                assertTrue(fileSystem.fileExists("/things.txt"));
+                                test.assertFalse(fileCreated);
+                                test.assertTrue(fileSystem.fileExists("/things.txt"));
                             }
                         });
             }
@@ -2578,7 +2835,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean fileCreated)
                             {
-                                assertFalse(fileCreated);
+                                test.assertFalse(fileCreated);
                             }
                         });
             }
@@ -2599,7 +2856,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean fileCreated)
                             {
-                                assertFalse(fileCreated);
+                                test.assertFalse(fileCreated);
                             }
                         });
             }
@@ -2620,7 +2877,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean fileCreated)
                             {
-                                assertFalse(fileCreated);
+                                test.assertFalse(fileCreated);
                             }
                         });
             }
@@ -2641,7 +2898,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean fileCreated)
                             {
-                                assertTrue(fileCreated);
+                                test.assertTrue(fileCreated);
                             }
                         });
             }
@@ -2664,7 +2921,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean fileCreated)
                             {
-                                assertFalse(fileCreated);
+                                test.assertFalse(fileCreated);
                             }
                         });
             }
@@ -2686,8 +2943,8 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean fileCreated)
                             {
-                                assertFalse(fileCreated);
-                                assertFalse(file.hasValue());
+                                test.assertFalse(fileCreated);
+                                test.assertFalse(file.hasValue());
                             }
                         });
             }
@@ -2709,8 +2966,8 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean fileCreated)
                             {
-                                assertFalse(fileCreated);
-                                assertFalse(file.hasValue());
+                                test.assertFalse(fileCreated);
+                                test.assertFalse(file.hasValue());
                             }
                         });
             }
@@ -2732,8 +2989,8 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean fileCreated)
                             {
-                                assertFalse(fileCreated);
-                                assertFalse(file.hasValue());
+                                test.assertFalse(fileCreated);
+                                test.assertFalse(file.hasValue());
                             }
                         });
             }
@@ -2755,8 +3012,8 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean fileCreated)
                             {
-                                assertTrue(fileCreated);
-                                assertEquals("/things.txt", file.get().getPath().toString());
+                                test.assertTrue(fileCreated);
+                                test.assertEqual("/things.txt", file.get().getPath().toString());
                             }
                         });
             }
@@ -2780,10 +3037,10 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean fileCreated)
                             {
-                                assertFalse(fileCreated);
-                                assertTrue(file.hasValue());
-                                assertNotNull(file.get());
-                                assertEquals(Path.parse("/things.txt"), file.get().getPath());
+                                test.assertFalse(fileCreated);
+                                test.assertTrue(file.hasValue());
+                                test.assertNotNull(file.get());
+                                test.assertEqual(Path.parse("/things.txt"), file.get().getPath());
                             }
                         });
             }
@@ -2805,8 +3062,8 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean fileCreated)
                             {
-                                assertFalse(fileCreated);
-                                assertFalse(file.hasValue());
+                                test.assertFalse(fileCreated);
+                                test.assertFalse(file.hasValue());
                             }
                         });
             }
@@ -2827,7 +3084,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean fileCreated)
                             {
-                                assertFalse(fileCreated);
+                                test.assertFalse(fileCreated);
                             }
                         });
             }
@@ -2848,7 +3105,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean fileCreated)
                             {
-                                assertFalse(fileCreated);
+                                test.assertFalse(fileCreated);
                             }
                         });
             }
@@ -2869,7 +3126,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean fileCreated)
                             {
-                                assertFalse(fileCreated);
+                                test.assertFalse(fileCreated);
                             }
                         });
             }
@@ -2890,8 +3147,8 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean fileCreated)
                             {
-                                assertTrue(fileCreated);
-                                assertTrue(fileSystem.fileExists("/things.txt"));
+                                test.assertTrue(fileCreated);
+                                test.assertTrue(fileSystem.fileExists("/things.txt"));
                             }
                         });
             }
@@ -2914,8 +3171,8 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean fileCreated)
                             {
-                                assertFalse(fileCreated);
-                                assertTrue(fileSystem.fileExists("/things.txt"));
+                                test.assertFalse(fileCreated);
+                                test.assertTrue(fileSystem.fileExists("/things.txt"));
                             }
                         });
             }
@@ -2936,7 +3193,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean fileCreated)
                             {
-                                assertFalse(fileCreated);
+                                test.assertFalse(fileCreated);
                             }
                         });
             }
@@ -2957,7 +3214,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean fileCreated)
                             {
-                                assertFalse(fileCreated);
+                                test.assertFalse(fileCreated);
                             }
                         });
             }
@@ -2978,7 +3235,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean fileCreated)
                             {
-                                assertFalse(fileCreated);
+                                test.assertFalse(fileCreated);
                             }
                         });
             }
@@ -2999,7 +3256,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean fileCreated)
                             {
-                                assertTrue(fileCreated);
+                                test.assertTrue(fileCreated);
                             }
                         });
             }
@@ -3022,7 +3279,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean fileCreated)
                             {
-                                assertFalse(fileCreated);
+                                test.assertFalse(fileCreated);
                             }
                         });
             }
@@ -3044,8 +3301,8 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean fileCreated)
                             {
-                                assertFalse(fileCreated);
-                                assertFalse(file.hasValue());
+                                test.assertFalse(fileCreated);
+                                test.assertFalse(file.hasValue());
                             }
                         });
             }
@@ -3067,8 +3324,8 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean fileCreated)
                             {
-                                assertFalse(fileCreated);
-                                assertFalse(file.hasValue());
+                                test.assertFalse(fileCreated);
+                                test.assertFalse(file.hasValue());
                             }
                         });
             }
@@ -3090,8 +3347,8 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean fileCreated)
                             {
-                                assertFalse(fileCreated);
-                                assertFalse(file.hasValue());
+                                test.assertFalse(fileCreated);
+                                test.assertFalse(file.hasValue());
                             }
                         });
             }
@@ -3113,8 +3370,8 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean fileCreated)
                             {
-                                assertTrue(fileCreated);
-                                assertEquals("/things.txt", file.get().getPath().toString());
+                                test.assertTrue(fileCreated);
+                                test.assertEqual("/things.txt", file.get().getPath().toString());
                             }
                         });
             }
@@ -3138,10 +3395,10 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean fileCreated)
                             {
-                                assertFalse(fileCreated);
-                                assertTrue(file.hasValue());
-                                assertNotNull(file.get());
-                                assertEquals(Path.parse("/things.txt"), file.get().getPath());
+                                test.assertFalse(fileCreated);
+                                test.assertTrue(file.hasValue());
+                                test.assertNotNull(file.get());
+                                test.assertEqual(Path.parse("/things.txt"), file.get().getPath());
                             }
                         });
             }
@@ -3163,8 +3420,8 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean fileCreated)
                             {
-                                assertFalse(fileCreated);
-                                assertFalse(file.hasValue());
+                                test.assertFalse(fileCreated);
+                                test.assertFalse(file.hasValue());
                             }
                         });
             }
@@ -3174,42 +3431,42 @@ public abstract class FileSystemTests
     @Test
     public void deleteFileWithNullPathString()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertFalse(fileSystem.deleteFile((String)null));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertFalse(fileSystem.deleteFile((String)null));
     }
 
     @Test
     public void deleteFileWithEmptyPathString()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertFalse(fileSystem.deleteFile(""));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertFalse(fileSystem.deleteFile(""));
     }
 
     @Test
     public void deleteFileWithRelativePathString()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertFalse(fileSystem.deleteFile("relativeFile.txt"));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertFalse(fileSystem.deleteFile("relativeFile.txt"));
     }
 
     @Test
     public void deleteFileWithRootedPathStringThatDoesntExist()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertFalse(fileSystem.deleteFile("/idontexist.txt"));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertFalse(fileSystem.deleteFile("/idontexist.txt"));
     }
 
     @Test
     public void deleteFileWithRootedPathStringThatExists()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/iexist.txt");
 
-        assertTrue(fileSystem.deleteFile("/iexist.txt"));
-        assertFalse(fileSystem.fileExists("/iexist.txt"));
+        test.assertTrue(fileSystem.deleteFile("/iexist.txt"));
+        test.assertFalse(fileSystem.fileExists("/iexist.txt"));
 
-        assertFalse(fileSystem.deleteFile("/iexist.txt"));
-        assertFalse(fileSystem.fileExists("/iexist.txt"));
+        test.assertFalse(fileSystem.deleteFile("/iexist.txt"));
+        test.assertFalse(fileSystem.fileExists("/iexist.txt"));
     }
 
     @Test
@@ -3226,7 +3483,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean fileDeleted)
                             {
-                                assertFalse(fileDeleted);
+                                test.assertFalse(fileDeleted);
                             }
                         });
             }
@@ -3247,7 +3504,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean fileDeleted)
                             {
-                                assertFalse(fileDeleted);
+                                test.assertFalse(fileDeleted);
                             }
                         });
             }
@@ -3268,7 +3525,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean fileDeleted)
                             {
-                                assertFalse(fileDeleted);
+                                test.assertFalse(fileDeleted);
                             }
                         });
             }
@@ -3289,7 +3546,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean fileDeleted)
                             {
-                                assertFalse(fileDeleted);
+                                test.assertFalse(fileDeleted);
                             }
                         });
             }
@@ -3311,8 +3568,8 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean fileDeleted)
                             {
-                                assertTrue(fileDeleted);
-                                assertFalse(fileSystem.fileExists("/iexist.txt"));
+                                test.assertTrue(fileDeleted);
+                                test.assertFalse(fileSystem.fileExists("/iexist.txt"));
                             }
                         });
             }
@@ -3333,7 +3590,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean fileDeleted)
                             {
-                                assertFalse(fileDeleted);
+                                test.assertFalse(fileDeleted);
                             }
                         });
             }
@@ -3354,7 +3611,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean fileDeleted)
                             {
-                                assertFalse(fileDeleted);
+                                test.assertFalse(fileDeleted);
                             }
                         });
             }
@@ -3375,7 +3632,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean fileDeleted)
                             {
-                                assertFalse(fileDeleted);
+                                test.assertFalse(fileDeleted);
                             }
                         });
             }
@@ -3396,7 +3653,7 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean fileDeleted)
                             {
-                                assertFalse(fileDeleted);
+                                test.assertFalse(fileDeleted);
                             }
                         });
             }
@@ -3418,8 +3675,8 @@ public abstract class FileSystemTests
                             @Override
                             public void run(Boolean fileDeleted)
                             {
-                                assertTrue(fileDeleted);
-                                assertFalse(fileSystem.fileExists("/iexist.txt"));
+                                test.assertTrue(fileDeleted);
+                                test.assertFalse(fileSystem.fileExists("/iexist.txt"));
                             }
                         });
             }
@@ -3429,1146 +3686,1146 @@ public abstract class FileSystemTests
     @Test
     public void getFileContentsStringWithNull()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertNull(fileSystem.getFileContents((String)null));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertNull(fileSystem.getFileContents((String)null));
     }
 
     @Test
     public void getFileContentsStringWithEmpty()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertNull(fileSystem.getFileContents(""));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertNull(fileSystem.getFileContents(""));
     }
 
     @Test
     public void getFileContentsStringWithRelativePath()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertNull(fileSystem.getFileContents("thing.txt"));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertNull(fileSystem.getFileContents("thing.txt"));
     }
 
     @Test
     public void getFileContentsStringWithNonExistingRootedPath()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertNull(fileSystem.getFileContents("/thing.txt"));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertNull(fileSystem.getFileContents("/thing.txt"));
     }
 
     @Test
     public void getFileContentsStringWithEmptyFile()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/thing.txt");
-        assertArrayEquals(new byte[0], fileSystem.getFileContents("/thing.txt"));
+        test.assertEqual(new byte[0], fileSystem.getFileContents("/thing.txt"));
     }
 
     @Test
     public void getFileContentsPathWithNull()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertNull(fileSystem.getFileContents((Path)null));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertNull(fileSystem.getFileContents((Path)null));
     }
 
     @Test
     public void getFileContentsPathWithEmpty()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertNull(fileSystem.getFileContents(Path.parse("")));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertNull(fileSystem.getFileContents(Path.parse("")));
     }
 
     @Test
     public void getFileContentsPathWithRelativePath()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertNull(fileSystem.getFileContents(Path.parse("thing.txt")));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertNull(fileSystem.getFileContents(Path.parse("thing.txt")));
     }
 
     @Test
     public void getFileContentsPathWithNonExistingRootedPath()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertNull(fileSystem.getFileContents(Path.parse("/thing.txt")));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertNull(fileSystem.getFileContents(Path.parse("/thing.txt")));
     }
 
     @Test
     public void getFileContentsPathWithEmptyFile()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/thing.txt");
-        assertArrayEquals(new byte[0], fileSystem.getFileContents(Path.parse("/thing.txt")));
+        test.assertEqual(new byte[0], fileSystem.getFileContents(Path.parse("/thing.txt")));
     }
 
     @Test
     public void getFileContentsAsStringWithNullPathString()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertNull(fileSystem.getFileContentsAsString((String)null));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertNull(fileSystem.getFileContentsAsString((String)null));
     }
 
     @Test
     public void getFileContentsAsStringWithEmptyPathString()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertNull(fileSystem.getFileContentsAsString(""));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertNull(fileSystem.getFileContentsAsString(""));
     }
 
     @Test
     public void getFileContentsAsStringWithRelativePathString()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertNull(fileSystem.getFileContentsAsString("file.txt"));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertNull(fileSystem.getFileContentsAsString("file.txt"));
     }
 
     @Test
     public void getFileContentsAsStringWithNonExistingRootedPathString()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertNull(fileSystem.getFileContentsAsString("/file.txt"));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertNull(fileSystem.getFileContentsAsString("/file.txt"));
     }
 
     @Test
     public void getFileContentsAsStringWithExistingRootedPathStringWithNoContents()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/file.txt");
-        assertEquals("", fileSystem.getFileContentsAsString("/file.txt"));
+        test.assertEqual("", fileSystem.getFileContentsAsString("/file.txt"));
     }
 
     @Test
     public void getFileContentsAsStringWithExistingRootPathStringWithContents()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/file.txt", CharacterEncoding.UTF_8.encode("Hello there!"));
-        assertEquals("Hello there!", fileSystem.getFileContentsAsString("/file.txt"));
+        test.assertEqual("Hello there!", fileSystem.getFileContentsAsString("/file.txt"));
     }
 
     @Test
     public void getFileContentsAsStringWithNullEncodingAndNullPathString()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertNull(fileSystem.getFileContentsAsString((String)null));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertNull(fileSystem.getFileContentsAsString((String)null));
     }
 
     @Test
     public void getFileContentsAsStringWithNullEncodingAndEmptyPathString()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertNull(fileSystem.getFileContentsAsString(""));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertNull(fileSystem.getFileContentsAsString(""));
     }
 
     @Test
     public void getFileContentsAsStringWithNullEncodingAndRelativePathString()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertNull(fileSystem.getFileContentsAsString("file.txt"));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertNull(fileSystem.getFileContentsAsString("file.txt"));
     }
 
     @Test
     public void getFileContentsAsStringWithNullEncodingAndNonExistingRootedPathString()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertNull(fileSystem.getFileContentsAsString("/file.txt"));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertNull(fileSystem.getFileContentsAsString("/file.txt"));
     }
 
     @Test
     public void getFileContentsAsStringWithNullEncodingAndExistingRootedPathStringWithNoContents()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/file.txt");
-        assertNull(fileSystem.getFileContentsAsString("/file.txt", null));
+        test.assertNull(fileSystem.getFileContentsAsString("/file.txt", null));
     }
 
     @Test
     public void getFileContentsAsStringWithNullEncodingAndExistingRootPathStringWithContents()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/file.txt", CharacterEncoding.UTF_8.encode("Hello there!"));
-        assertNull(fileSystem.getFileContentsAsString("/file.txt", null));
+        test.assertNull(fileSystem.getFileContentsAsString("/file.txt", null));
     }
 
     @Test
     public void getFileContentByteReadStreamWhenFileDoesntExist()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertNull(fileSystem.getFileContentByteReadStream("C:/i/dont/exist.txt"));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertNull(fileSystem.getFileContentByteReadStream("C:/i/dont/exist.txt"));
     }
 
     @Test
     public void getFileContentCharacterReadStreamWhenFileDoesntExist()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertNull(fileSystem.getFileContentCharacterReadStream("C:/i/dont/exist.txt"));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertNull(fileSystem.getFileContentCharacterReadStream("C:/i/dont/exist.txt"));
     }
 
     @Test
     public void getFileContentBlocksStringWithNull()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertNull(fileSystem.getFileContentBlocks((String)null));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertNull(fileSystem.getFileContentBlocks((String)null));
     }
 
     @Test
     public void getFileContentBlocksStringWithEmpty()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertNull(fileSystem.getFileContentBlocks(""));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertNull(fileSystem.getFileContentBlocks(""));
     }
 
     @Test
     public void getFileContentBlocksStringWithRelativePath()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertNull(fileSystem.getFileContentBlocks("B"));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertNull(fileSystem.getFileContentBlocks("B"));
     }
 
     @Test
     public void getFileContentBlocksStringWithNonExistingRootedFilePath()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertNull(fileSystem.getFileContentBlocks("/a.txt"));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertNull(fileSystem.getFileContentBlocks("/a.txt"));
     }
 
     @Test
     public void getFileContentBlocksStringWithExistingRootedFilePathWithNoContents()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/a.txt");
 
         final Iterable<byte[]> fileContentBlocks = fileSystem.getFileContentBlocks("/a.txt");
-        assertNotNull(fileContentBlocks);
-        assertEquals(0, fileContentBlocks.getCount());
+        test.assertNotNull(fileContentBlocks);
+        test.assertEqual(0, fileContentBlocks.getCount());
     }
 
     @Test
     public void getFileContentBlocksStringWithExistingRootedFilePathWithContents()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/a.txt", new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11});
 
         final Iterable<byte[]> fileContentBlocks = fileSystem.getFileContentBlocks("/a.txt");
-        assertNotNull(fileContentBlocks);
+        test.assertNotNull(fileContentBlocks);
 
         final byte[] fileContents = Array.merge(fileContentBlocks);
-        assertArrayEquals(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 }, fileContents);
+        test.assertEqual(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 }, fileContents);
     }
 
     @Test
     public void getFileContentLinesWithNullPathString()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
 
-        assertNull(fileSystem.getFileContentLines((String)null));
+        test.assertNull(fileSystem.getFileContentLines((String)null));
     }
 
     @Test
     public void getFileContentLinesWithEmptyPathString()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
 
-        assertNull(fileSystem.getFileContentLines(""));
+        test.assertNull(fileSystem.getFileContentLines(""));
     }
 
     @Test
     public void getFileContentLinesWithRelativePathString()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
 
-        assertNull(fileSystem.getFileContentLines("relative/file.txt"));
+        test.assertNull(fileSystem.getFileContentLines("relative/file.txt"));
     }
 
     @Test
     public void getFileContentLinesWithNonExistingRootedPathString()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
 
-        assertNull(fileSystem.getFileContentLines("/folder/file.csv"));
+        test.assertNull(fileSystem.getFileContentLines("/folder/file.csv"));
     }
 
     @Test
     public void getFileContentLinesWithExistingEmptyFileAtRootedPathString()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/folder/file.csv");
 
-        assertArrayEquals(new String[0], Array.toStringArray(fileSystem.getFileContentLines("/folder/file.csv")));
+        test.assertEqual(new String[0], Array.toStringArray(fileSystem.getFileContentLines("/folder/file.csv")));
     }
 
     @Test
     public void getFileContentLinesWithExistingSingleLineFileAtRootedPathString()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/folder/file.csv", "abcdef");
 
-        assertArrayEquals(new String[] { "abcdef" }, Array.toStringArray(fileSystem.getFileContentLines("/folder/file.csv")));
+        test.assertEqual(new String[] { "abcdef" }, Array.toStringArray(fileSystem.getFileContentLines("/folder/file.csv")));
     }
 
     @Test
     public void getFileContentLinesWithExistingMultipleLineFileAtRootedPathString()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/folder/file.csv", "ab\ncd\r\ne\nf\n");
 
-        assertArrayEquals(new String[] { "ab\n", "cd\r\n", "e\n", "f\n" }, Array.toStringArray(fileSystem.getFileContentLines("/folder/file.csv")));
+        test.assertEqual(new String[] { "ab\n", "cd\r\n", "e\n", "f\n" }, Array.toStringArray(fileSystem.getFileContentLines("/folder/file.csv")));
     }
 
     @Test
     public void getFileContentLinesWithNullPath()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
 
-        assertNull(fileSystem.getFileContentLines((Path)null));
+        test.assertNull(fileSystem.getFileContentLines((Path)null));
     }
 
     @Test
     public void getFileContentLinesWithEmptyPath()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
 
-        assertNull(fileSystem.getFileContentLines(Path.parse("")));
+        test.assertNull(fileSystem.getFileContentLines(Path.parse("")));
     }
 
     @Test
     public void getFileContentLinesWithRelativePath()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
 
-        assertNull(fileSystem.getFileContentLines(Path.parse("relative/file.txt")));
+        test.assertNull(fileSystem.getFileContentLines(Path.parse("relative/file.txt")));
     }
 
     @Test
     public void getFileContentLinesWithNonExistingRootedPath()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
 
-        assertNull(fileSystem.getFileContentLines(Path.parse("/folder/file.csv")));
+        test.assertNull(fileSystem.getFileContentLines(Path.parse("/folder/file.csv")));
     }
 
     @Test
     public void getFileContentLinesWithExistingEmptyFileAtRootedPath()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/folder/file.csv");
 
-        assertArrayEquals(new String[0], Array.toStringArray(fileSystem.getFileContentLines(Path.parse("/folder/file.csv"))));
+        test.assertEqual(new String[0], Array.toStringArray(fileSystem.getFileContentLines(Path.parse("/folder/file.csv"))));
     }
 
     @Test
     public void getFileContentLinesWithExistingSingleLineFileAtRootedPath()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/folder/file.csv", "abcdef");
 
-        assertArrayEquals(new String[] { "abcdef" }, Array.toStringArray(fileSystem.getFileContentLines(Path.parse("/folder/file.csv"))));
+        test.assertEqual(new String[] { "abcdef" }, Array.toStringArray(fileSystem.getFileContentLines(Path.parse("/folder/file.csv"))));
     }
 
     @Test
     public void getFileContentLinesWithExistingMultipleLineFileAtRootedPath()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/folder/file.csv", "ab\ncd\r\ne\nf\n");
 
-        assertArrayEquals(new String[] { "ab\n", "cd\r\n", "e\n", "f\n" }, Array.toStringArray(fileSystem.getFileContentLines(Path.parse("/folder/file.csv"))));
+        test.assertEqual(new String[] { "ab\n", "cd\r\n", "e\n", "f\n" }, Array.toStringArray(fileSystem.getFileContentLines(Path.parse("/folder/file.csv"))));
     }
 
     @Test
     public void getFileContentLinesIncludeNewLinesWithNullPathString()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
 
-        assertNull(fileSystem.getFileContentLines((String)null, true));
+        test.assertNull(fileSystem.getFileContentLines((String)null, true));
     }
 
     @Test
     public void getFileContentLinesIncludeNewLinesWithEmptyPathString()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
 
-        assertNull(fileSystem.getFileContentLines("", true));
+        test.assertNull(fileSystem.getFileContentLines("", true));
     }
 
     @Test
     public void getFileContentLinesIncludeNewLinesWithRelativePathString()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
 
-        assertNull(fileSystem.getFileContentLines("relative/file.txt", true));
+        test.assertNull(fileSystem.getFileContentLines("relative/file.txt", true));
     }
 
     @Test
     public void getFileContentLinesIncludeNewLinesWithNonExistingRootedPathString()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
 
-        assertNull(fileSystem.getFileContentLines("/folder/file.csv", true));
+        test.assertNull(fileSystem.getFileContentLines("/folder/file.csv", true));
     }
 
     @Test
     public void getFileContentLinesIncludeNewLinesWithExistingEmptyFileAtRootedPathString()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/folder/file.csv");
 
-        assertArrayEquals(new String[0], Array.toStringArray(fileSystem.getFileContentLines("/folder/file.csv", true)));
+        test.assertEqual(new String[0], Array.toStringArray(fileSystem.getFileContentLines("/folder/file.csv", true)));
     }
 
     @Test
     public void getFileContentLinesIncludeNewLinesWithExistingSingleLineFileAtRootedPathString()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/folder/file.csv", "abcdef");
 
-        assertArrayEquals(new String[] { "abcdef" }, Array.toStringArray(fileSystem.getFileContentLines("/folder/file.csv", true)));
+        test.assertEqual(new String[] { "abcdef" }, Array.toStringArray(fileSystem.getFileContentLines("/folder/file.csv", true)));
     }
 
     @Test
     public void getFileContentLinesIncludeNewLinesWithExistingMultipleLineFileAtRootedPathString()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/folder/file.csv", "ab\ncd\r\ne\nf\n");
 
-        assertArrayEquals(new String[] { "ab\n", "cd\r\n", "e\n", "f\n" }, Array.toStringArray(fileSystem.getFileContentLines("/folder/file.csv", true)));
+        test.assertEqual(new String[] { "ab\n", "cd\r\n", "e\n", "f\n" }, Array.toStringArray(fileSystem.getFileContentLines("/folder/file.csv", true)));
     }
 
     @Test
     public void getFileContentLinesIncludeNewLinesWithNullPath()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
 
-        assertNull(fileSystem.getFileContentLines((Path)null, true));
+        test.assertNull(fileSystem.getFileContentLines((Path)null, true));
     }
 
     @Test
     public void getFileContentLinesIncludeNewLinesWithEmptyPath()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
 
-        assertNull(fileSystem.getFileContentLines(Path.parse(""), true));
+        test.assertNull(fileSystem.getFileContentLines(Path.parse(""), true));
     }
 
     @Test
     public void getFileContentLinesIncludeNewLinesWithRelativePath()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
 
-        assertNull(fileSystem.getFileContentLines(Path.parse("relative/file.txt"), true));
+        test.assertNull(fileSystem.getFileContentLines(Path.parse("relative/file.txt"), true));
     }
 
     @Test
     public void getFileContentLinesIncludeNewLinesWithNonExistingRootedPath()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
 
-        assertNull(fileSystem.getFileContentLines(Path.parse("/folder/file.csv"), true));
+        test.assertNull(fileSystem.getFileContentLines(Path.parse("/folder/file.csv"), true));
     }
 
     @Test
     public void getFileContentLinesIncludeNewLinesWithExistingEmptyFileAtRootedPath()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/folder/file.csv");
 
-        assertArrayEquals(new String[0], Array.toStringArray(fileSystem.getFileContentLines(Path.parse("/folder/file.csv"), true)));
+        test.assertEqual(new String[0], Array.toStringArray(fileSystem.getFileContentLines(Path.parse("/folder/file.csv"), true)));
     }
 
     @Test
     public void getFileContentLinesIncludeNewLinesWithExistingSingleLineFileAtRootedPath()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/folder/file.csv", "abcdef");
 
-        assertArrayEquals(new String[] { "abcdef" }, Array.toStringArray(fileSystem.getFileContentLines(Path.parse("/folder/file.csv"), true)));
+        test.assertEqual(new String[] { "abcdef" }, Array.toStringArray(fileSystem.getFileContentLines(Path.parse("/folder/file.csv"), true)));
     }
 
     @Test
     public void getFileContentLinesIncludeNewLinesWithExistingMultipleLineFileAtRootedPath()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/folder/file.csv", "ab\ncd\r\ne\nf\n");
 
-        assertArrayEquals(new String[] { "ab\n", "cd\r\n", "e\n", "f\n" }, Array.toStringArray(fileSystem.getFileContentLines(Path.parse("/folder/file.csv"), true)));
+        test.assertEqual(new String[] { "ab\n", "cd\r\n", "e\n", "f\n" }, Array.toStringArray(fileSystem.getFileContentLines(Path.parse("/folder/file.csv"), true)));
     }
 
     @Test
     public void getFileContentLinesDontIncludeNewLinesWithNullPathString()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
 
-        assertNull(fileSystem.getFileContentLines((String)null, false));
+        test.assertNull(fileSystem.getFileContentLines((String)null, false));
     }
 
     @Test
     public void getFileContentLinesDontIncludeNewLinesWithEmptyPathString()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
 
-        assertNull(fileSystem.getFileContentLines("", false));
+        test.assertNull(fileSystem.getFileContentLines("", false));
     }
 
     @Test
     public void getFileContentLinesDontIncludeNewLinesWithRelativePathString()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
 
-        assertNull(fileSystem.getFileContentLines("relative/file.txt", false));
+        test.assertNull(fileSystem.getFileContentLines("relative/file.txt", false));
     }
 
     @Test
     public void getFileContentLinesDontIncludeNewLinesWithNonExistingRootedPathString()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
 
-        assertNull(fileSystem.getFileContentLines("/folder/file.csv", false));
+        test.assertNull(fileSystem.getFileContentLines("/folder/file.csv", false));
     }
 
     @Test
     public void getFileContentLinesDontIncludeNewLinesWithExistingEmptyFileAtRootedPathString()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/folder/file.csv");
 
-        assertArrayEquals(new String[0], Array.toStringArray(fileSystem.getFileContentLines("/folder/file.csv", false)));
+        test.assertEqual(new String[0], Array.toStringArray(fileSystem.getFileContentLines("/folder/file.csv", false)));
     }
 
     @Test
     public void getFileContentLinesDontIncludeNewLinesWithExistingSingleLineFileAtRootedPathString()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/folder/file.csv", "abcdef");
 
-        assertArrayEquals(new String[] { "abcdef" }, Array.toStringArray(fileSystem.getFileContentLines("/folder/file.csv", false)));
+        test.assertEqual(new String[] { "abcdef" }, Array.toStringArray(fileSystem.getFileContentLines("/folder/file.csv", false)));
     }
 
     @Test
     public void getFileContentLinesDontIncludeNewLinesWithExistingMultipleLineFileAtRootedPathString()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/folder/file.csv", "ab\ncd\r\ne\nf\n");
 
-        assertArrayEquals(new String[] { "ab", "cd", "e", "f" }, Array.toStringArray(fileSystem.getFileContentLines("/folder/file.csv", false)));
+        test.assertEqual(new String[] { "ab", "cd", "e", "f" }, Array.toStringArray(fileSystem.getFileContentLines("/folder/file.csv", false)));
     }
 
     @Test
     public void getFileContentLinesDontIncludeNewLinesEncodingWithExistingMultipleLineFileAtRootedPathString()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/folder/file.csv", "ab\ncd\r\ne\nf\n");
 
-        assertArrayEquals(new String[] { "ab", "cd", "e", "f" }, Array.toStringArray(fileSystem.getFileContentLines("/folder/file.csv", false, CharacterEncoding.UTF_8)));
+        test.assertEqual(new String[] { "ab", "cd", "e", "f" }, Array.toStringArray(fileSystem.getFileContentLines("/folder/file.csv", false, CharacterEncoding.UTF_8)));
     }
 
     @Test
     public void getFileContentLinesDontIncludeNewLinesWithNullPath()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
 
-        assertNull(fileSystem.getFileContentLines((Path)null, false));
+        test.assertNull(fileSystem.getFileContentLines((Path)null, false));
     }
 
     @Test
     public void getFileContentLinesDontIncludeNewLinesWithEmptyPath()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
 
-        assertNull(fileSystem.getFileContentLines(Path.parse(""), false));
+        test.assertNull(fileSystem.getFileContentLines(Path.parse(""), false));
     }
 
     @Test
     public void getFileContentLinesDontIncludeNewLinesWithRelativePath()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
 
-        assertNull(fileSystem.getFileContentLines(Path.parse("relative/file.txt"), false));
+        test.assertNull(fileSystem.getFileContentLines(Path.parse("relative/file.txt"), false));
     }
 
     @Test
     public void getFileContentLinesDontIncludeNewLinesWithNonExistingRootedPath()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
 
-        assertNull(fileSystem.getFileContentLines(Path.parse("/folder/file.csv"), false));
+        test.assertNull(fileSystem.getFileContentLines(Path.parse("/folder/file.csv"), false));
     }
 
     @Test
     public void getFileContentLinesDontIncludeNewLinesWithExistingEmptyFileAtRootedPath()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/folder/file.csv");
 
-        assertArrayEquals(new String[0], Array.toStringArray(fileSystem.getFileContentLines(Path.parse("/folder/file.csv"), false)));
+        test.assertEqual(new String[0], Array.toStringArray(fileSystem.getFileContentLines(Path.parse("/folder/file.csv"), false)));
     }
 
     @Test
     public void getFileContentLinesDontIncludeNewLinesWithExistingSingleLineFileAtRootedPath()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/folder/file.csv", "abcdef");
 
-        assertArrayEquals(new String[] { "abcdef" }, Array.toStringArray(fileSystem.getFileContentLines(Path.parse("/folder/file.csv"), false)));
+        test.assertEqual(new String[] { "abcdef" }, Array.toStringArray(fileSystem.getFileContentLines(Path.parse("/folder/file.csv"), false)));
     }
 
     @Test
     public void getFileContentLinesDontIncludeNewLinesWithExistingMultipleLineFileAtRootedPath()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/folder/file.csv", "ab\ncd\r\ne\nf\n");
 
-        assertArrayEquals(new String[] { "ab", "cd", "e", "f" }, Array.toStringArray(fileSystem.getFileContentLines(Path.parse("/folder/file.csv"), false)));
+        test.assertEqual(new String[] { "ab", "cd", "e", "f" }, Array.toStringArray(fileSystem.getFileContentLines(Path.parse("/folder/file.csv"), false)));
     }
 
     @Test
     public void getFileContentLinesEncodingWithNullPathString()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
 
-        assertNull(fileSystem.getFileContentLines((String)null, CharacterEncoding.UTF_8));
+        test.assertNull(fileSystem.getFileContentLines((String)null, CharacterEncoding.UTF_8));
     }
 
     @Test
     public void getFileContentLinesEncodingWithEmptyPathString()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
 
-        assertNull(fileSystem.getFileContentLines("", CharacterEncoding.UTF_8));
+        test.assertNull(fileSystem.getFileContentLines("", CharacterEncoding.UTF_8));
     }
 
     @Test
     public void getFileContentLinesEncodingWithRelativePathString()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
 
-        assertNull(fileSystem.getFileContentLines("relative/file.txt", CharacterEncoding.UTF_8));
+        test.assertNull(fileSystem.getFileContentLines("relative/file.txt", CharacterEncoding.UTF_8));
     }
 
     @Test
     public void getFileContentLinesEncodingWithNonExistingRootedPathString()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
 
-        assertNull(fileSystem.getFileContentLines("/folder/file.csv", CharacterEncoding.UTF_8));
+        test.assertNull(fileSystem.getFileContentLines("/folder/file.csv", CharacterEncoding.UTF_8));
     }
 
     @Test
     public void getFileContentLinesEncodingWithExistingEmptyFileAtRootedPathString()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/folder/file.csv");
 
-        assertArrayEquals(new String[0], Array.toStringArray(fileSystem.getFileContentLines("/folder/file.csv", CharacterEncoding.UTF_8)));
+        test.assertEqual(new String[0], Array.toStringArray(fileSystem.getFileContentLines("/folder/file.csv", CharacterEncoding.UTF_8)));
     }
 
     @Test
     public void getFileContentLinesEncodingWithExistingSingleLineFileAtRootedPathString()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/folder/file.csv", "abcdef");
 
-        assertArrayEquals(new String[] { "abcdef" }, Array.toStringArray(fileSystem.getFileContentLines("/folder/file.csv", CharacterEncoding.UTF_8)));
+        test.assertEqual(new String[] { "abcdef" }, Array.toStringArray(fileSystem.getFileContentLines("/folder/file.csv", CharacterEncoding.UTF_8)));
     }
 
     @Test
     public void getFileContentLinesEncodingWithExistingMultipleLineFileAtRootedPathString()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/folder/file.csv", "ab\ncd\r\ne\nf\n");
 
-        assertArrayEquals(new String[] { "ab\n", "cd\r\n", "e\n", "f\n" }, Array.toStringArray(fileSystem.getFileContentLines("/folder/file.csv", CharacterEncoding.UTF_8)));
+        test.assertEqual(new String[] { "ab\n", "cd\r\n", "e\n", "f\n" }, Array.toStringArray(fileSystem.getFileContentLines("/folder/file.csv", CharacterEncoding.UTF_8)));
     }
 
     @Test
     public void getFileContentLinesEncodingWithNullPath()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
 
-        assertNull(fileSystem.getFileContentLines((Path)null, CharacterEncoding.UTF_8));
+        test.assertNull(fileSystem.getFileContentLines((Path)null, CharacterEncoding.UTF_8));
     }
 
     @Test
     public void getFileContentLinesEncodingWithEmptyPath()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
 
-        assertNull(fileSystem.getFileContentLines(Path.parse(""), CharacterEncoding.UTF_8));
+        test.assertNull(fileSystem.getFileContentLines(Path.parse(""), CharacterEncoding.UTF_8));
     }
 
     @Test
     public void getFileContentLinesEncodingWithRelativePath()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
 
-        assertNull(fileSystem.getFileContentLines(Path.parse("relative/file.txt"), CharacterEncoding.UTF_8));
+        test.assertNull(fileSystem.getFileContentLines(Path.parse("relative/file.txt"), CharacterEncoding.UTF_8));
     }
 
     @Test
     public void getFileContentLinesEncodingWithNonExistingRootedPath()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
 
-        assertNull(fileSystem.getFileContentLines(Path.parse("/folder/file.csv"), CharacterEncoding.UTF_8));
+        test.assertNull(fileSystem.getFileContentLines(Path.parse("/folder/file.csv"), CharacterEncoding.UTF_8));
     }
 
     @Test
     public void getFileContentLinesEncodingWithExistingEmptyFileAtRootedPath()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/folder/file.csv");
 
-        assertArrayEquals(new String[0], Array.toStringArray(fileSystem.getFileContentLines(Path.parse("/folder/file.csv"), CharacterEncoding.UTF_8)));
+        test.assertEqual(new String[0], Array.toStringArray(fileSystem.getFileContentLines(Path.parse("/folder/file.csv"), CharacterEncoding.UTF_8)));
     }
 
     @Test
     public void getFileContentLinesEncodingWithExistingSingleLineFileAtRootedPath()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/folder/file.csv", "abcdef");
 
-        assertArrayEquals(new String[] { "abcdef" }, Array.toStringArray(fileSystem.getFileContentLines(Path.parse("/folder/file.csv"), CharacterEncoding.UTF_8)));
+        test.assertEqual(new String[] { "abcdef" }, Array.toStringArray(fileSystem.getFileContentLines(Path.parse("/folder/file.csv"), CharacterEncoding.UTF_8)));
     }
 
     @Test
     public void getFileContentLinesEncodingWithExistingMultipleLineFileAtRootedPath()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/folder/file.csv", "ab\ncd\r\ne\nf\n");
 
         final String[] expected = new String[] { "ab\n", "cd\r\n", "e\n", "f\n" };
         final Path filePath = Path.parse("/folder/file.csv");
         final Iterable<String> fileLines = fileSystem.getFileContentLines(filePath, CharacterEncoding.UTF_8);
         final String[] actual = Array.toStringArray(fileLines);
-        assertArrayEquals(expected, actual);
+        test.assertEqual(expected, actual);
     }
 
     @Test
     public void setFileContentsWithNullPathString()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertFalse(fileSystem.setFileContents((String)null, new byte[] { 0, 1, 2 }));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertFalse(fileSystem.setFileContents((String)null, new byte[] { 0, 1, 2 }));
     }
 
     @Test
     public void setFileContentsWithEmptyPathString()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertFalse(fileSystem.setFileContents("", new byte[] { 0, 1, 2 }));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertFalse(fileSystem.setFileContents("", new byte[] { 0, 1, 2 }));
     }
 
     @Test
     public void setFileContentsWithRelativePathString()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertFalse(fileSystem.setFileContents("relative.file", new byte[] { 0, 1, 2 }));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertFalse(fileSystem.setFileContents("relative.file", new byte[] { 0, 1, 2 }));
     }
 
     @Test
     public void setFileContentsWithNonExistingRootedPathStringAndNullContents()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertTrue(fileSystem.setFileContents("/A.txt", (byte[])null));
-        assertTrue(fileSystem.fileExists("/A.txt"));
-        assertArrayEquals(new byte[0], fileSystem.getFileContents("/A.txt"));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertTrue(fileSystem.setFileContents("/A.txt", (byte[])null));
+        test.assertTrue(fileSystem.fileExists("/A.txt"));
+        test.assertEqual(new byte[0], fileSystem.getFileContents("/A.txt"));
     }
 
     @Test
     public void setFileContentsWithExistingRootedPathStringAndNullContents()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/A.txt", new byte[] { 0, 1 });
 
-        assertTrue(fileSystem.setFileContents("/A.txt", (byte[])null));
-        assertTrue(fileSystem.fileExists("/A.txt"));
-        assertArrayEquals(new byte[0], fileSystem.getFileContents("/A.txt"));
+        test.assertTrue(fileSystem.setFileContents("/A.txt", (byte[])null));
+        test.assertTrue(fileSystem.fileExists("/A.txt"));
+        test.assertEqual(new byte[0], fileSystem.getFileContents("/A.txt"));
     }
 
     @Test
     public void setFileContentsWithNonExistingRootedPathStringAndEmptyContents()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertTrue(fileSystem.setFileContents("/A.txt", new byte[0]));
-        assertTrue(fileSystem.fileExists("/A.txt"));
-        assertArrayEquals(new byte[0], fileSystem.getFileContents("/A.txt"));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertTrue(fileSystem.setFileContents("/A.txt", new byte[0]));
+        test.assertTrue(fileSystem.fileExists("/A.txt"));
+        test.assertEqual(new byte[0], fileSystem.getFileContents("/A.txt"));
     }
 
     @Test
     public void setFileContentsWithExistingRootedPathStringAndEmptyContents()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/A.txt", new byte[] { 0, 1 });
 
-        assertTrue(fileSystem.setFileContents("/A.txt", new byte[0]));
-        assertTrue(fileSystem.fileExists("/A.txt"));
-        assertArrayEquals(new byte[0], fileSystem.getFileContents("/A.txt"));
+        test.assertTrue(fileSystem.setFileContents("/A.txt", new byte[0]));
+        test.assertTrue(fileSystem.fileExists("/A.txt"));
+        test.assertEqual(new byte[0], fileSystem.getFileContents("/A.txt"));
     }
 
     @Test
     public void setFileContentsWithNonExistingRootedPathStringAndNonEmptyContents()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertTrue(fileSystem.setFileContents("/A.txt", new byte[] { 0, 1, 2 }));
-        assertTrue(fileSystem.fileExists("/A.txt"));
-        assertArrayEquals(new byte[] { 0, 1, 2 }, fileSystem.getFileContents("/A.txt"));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertTrue(fileSystem.setFileContents("/A.txt", new byte[] { 0, 1, 2 }));
+        test.assertTrue(fileSystem.fileExists("/A.txt"));
+        test.assertEqual(new byte[] { 0, 1, 2 }, fileSystem.getFileContents("/A.txt"));
     }
 
     @Test
     public void setFileContentsWithNonExistingRootedPathStringWithNonExistingParentFolderAndNonEmptyContents()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertTrue(fileSystem.setFileContents("/folder/A.txt", new byte[] { 0, 1, 2 }));
-        assertTrue(fileSystem.folderExists("/folder"));
-        assertTrue(fileSystem.fileExists("/folder/A.txt"));
-        assertArrayEquals(new byte[] { 0, 1, 2 }, fileSystem.getFileContents("/folder/A.txt"));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertTrue(fileSystem.setFileContents("/folder/A.txt", new byte[] { 0, 1, 2 }));
+        test.assertTrue(fileSystem.folderExists("/folder"));
+        test.assertTrue(fileSystem.fileExists("/folder/A.txt"));
+        test.assertEqual(new byte[] { 0, 1, 2 }, fileSystem.getFileContents("/folder/A.txt"));
     }
 
     @Test
     public void setFileContentsWithExistingRootedPathStringAndNonEmptyContents()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/A.txt");
 
-        assertTrue(fileSystem.setFileContents("/A.txt", new byte[] { 0, 1, 2 }));
-        assertTrue(fileSystem.fileExists("/A.txt"));
-        assertArrayEquals(new byte[] { 0, 1, 2 }, fileSystem.getFileContents("/A.txt"));
+        test.assertTrue(fileSystem.setFileContents("/A.txt", new byte[] { 0, 1, 2 }));
+        test.assertTrue(fileSystem.fileExists("/A.txt"));
+        test.assertEqual(new byte[] { 0, 1, 2 }, fileSystem.getFileContents("/A.txt"));
     }
 
     @Test
     public void setFileContentsWithNullPath()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertFalse(fileSystem.setFileContents((Path)null, new byte[] { 0, 1, 2 }));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertFalse(fileSystem.setFileContents((Path)null, new byte[] { 0, 1, 2 }));
     }
 
     @Test
     public void setFileContentsWithEmptyPath()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertFalse(fileSystem.setFileContents(Path.parse(""), new byte[] { 0, 1, 2 }));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertFalse(fileSystem.setFileContents(Path.parse(""), new byte[] { 0, 1, 2 }));
     }
 
     @Test
     public void setFileContentsWithRelativePath()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertFalse(fileSystem.setFileContents(Path.parse("relative.file"), new byte[] { 0, 1, 2 }));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertFalse(fileSystem.setFileContents(Path.parse("relative.file"), new byte[] { 0, 1, 2 }));
     }
 
     @Test
     public void setFileContentsWithNonExistingRootedPathAndNullContents()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
 
-        assertTrue(fileSystem.setFileContents(Path.parse("/A.txt"), (byte[])null));
+        test.assertTrue(fileSystem.setFileContents(Path.parse("/A.txt"), (byte[])null));
 
-        assertTrue(fileSystem.fileExists("/A.txt"));
-        assertArrayEquals(new byte[0], fileSystem.getFileContents("/A.txt"));
+        test.assertTrue(fileSystem.fileExists("/A.txt"));
+        test.assertEqual(new byte[0], fileSystem.getFileContents("/A.txt"));
     }
 
     @Test
     public void setFileContentsWithExistingRootedPathAndNullContents()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/A.txt", new byte[] { 0, 1 });
 
-        assertTrue(fileSystem.setFileContents(Path.parse("/A.txt"), (byte[])null));
+        test.assertTrue(fileSystem.setFileContents(Path.parse("/A.txt"), (byte[])null));
 
-        assertTrue(fileSystem.fileExists("/A.txt"));
-        assertArrayEquals(new byte[0], fileSystem.getFileContents("/A.txt"));
+        test.assertTrue(fileSystem.fileExists("/A.txt"));
+        test.assertEqual(new byte[0], fileSystem.getFileContents("/A.txt"));
     }
 
     @Test
     public void setFileContentsWithNonExistingRootedPathAndEmptyContents()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
 
-        assertTrue(fileSystem.setFileContents(Path.parse("/A.txt"), new byte[0]));
+        test.assertTrue(fileSystem.setFileContents(Path.parse("/A.txt"), new byte[0]));
 
-        assertTrue(fileSystem.fileExists("/A.txt"));
-        assertArrayEquals(new byte[0], fileSystem.getFileContents("/A.txt"));
+        test.assertTrue(fileSystem.fileExists("/A.txt"));
+        test.assertEqual(new byte[0], fileSystem.getFileContents("/A.txt"));
     }
 
     @Test
     public void setFileContentsWithExistingRootedPathAndEmptyContents()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/A.txt", new byte[] { 0, 1 });
 
-        assertTrue(fileSystem.setFileContents(Path.parse("/A.txt"), new byte[0]));
+        test.assertTrue(fileSystem.setFileContents(Path.parse("/A.txt"), new byte[0]));
 
-        assertTrue(fileSystem.fileExists("/A.txt"));
-        assertArrayEquals(new byte[0], fileSystem.getFileContents("/A.txt"));
+        test.assertTrue(fileSystem.fileExists("/A.txt"));
+        test.assertEqual(new byte[0], fileSystem.getFileContents("/A.txt"));
     }
 
     @Test
     public void setFileContentsWithNonExistingRootedPathAndNonEmptyContents()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
 
-        assertTrue(fileSystem.setFileContents(Path.parse("/A.txt"), new byte[] { 0, 1, 2 }));
+        test.assertTrue(fileSystem.setFileContents(Path.parse("/A.txt"), new byte[] { 0, 1, 2 }));
 
-        assertTrue(fileSystem.fileExists("/A.txt"));
-        assertArrayEquals(new byte[] { 0, 1, 2 }, fileSystem.getFileContents("/A.txt"));
+        test.assertTrue(fileSystem.fileExists("/A.txt"));
+        test.assertEqual(new byte[] { 0, 1, 2 }, fileSystem.getFileContents("/A.txt"));
     }
 
     @Test
     public void setFileContentsWithExistingRootedPathAndNonEmptyContents()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/A.txt");
 
-        assertTrue(fileSystem.setFileContents(Path.parse("/A.txt"), new byte[] { 0, 1, 2 }));
+        test.assertTrue(fileSystem.setFileContents(Path.parse("/A.txt"), new byte[] { 0, 1, 2 }));
 
-        assertTrue(fileSystem.fileExists("/A.txt"));
-        assertArrayEquals(new byte[] { 0, 1, 2 }, fileSystem.getFileContents("/A.txt"));
+        test.assertTrue(fileSystem.fileExists("/A.txt"));
+        test.assertEqual(new byte[] { 0, 1, 2 }, fileSystem.getFileContents("/A.txt"));
     }
 
     @Test
     public void setFileContentsStringWithNullPathString()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertFalse(fileSystem.setFileContents((String)null, "ABC"));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertFalse(fileSystem.setFileContents((String)null, "ABC"));
     }
 
     @Test
     public void setFileContentsStringWithEmptyPathString()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertFalse(fileSystem.setFileContents("", "ABC"));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertFalse(fileSystem.setFileContents("", "ABC"));
     }
 
     @Test
     public void setFileContentsStringWithRelativePathString()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertFalse(fileSystem.setFileContents("relative.file", "ABC"));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertFalse(fileSystem.setFileContents("relative.file", "ABC"));
     }
 
     @Test
     public void setFileContentsStringWithNonExistingRootedPathStringAndNullContents()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
 
-        assertTrue(fileSystem.setFileContents("/A.txt", (String)null));
+        test.assertTrue(fileSystem.setFileContents("/A.txt", (String)null));
 
-        assertTrue(fileSystem.fileExists("/A.txt"));
-        assertEquals("", fileSystem.getFileContentsAsString("/A.txt"));
+        test.assertTrue(fileSystem.fileExists("/A.txt"));
+        test.assertEqual("", fileSystem.getFileContentsAsString("/A.txt"));
     }
 
     @Test
     public void setFileContentsStringWithExistingRootedPathStringAndNullContents()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/A.txt", new byte[] { 0, 1 });
 
-        assertTrue(fileSystem.setFileContents("/A.txt", (String)null));
+        test.assertTrue(fileSystem.setFileContents("/A.txt", (String)null));
 
-        assertTrue(fileSystem.fileExists("/A.txt"));
-        assertEquals("", fileSystem.getFileContentsAsString("/A.txt"));
+        test.assertTrue(fileSystem.fileExists("/A.txt"));
+        test.assertEqual("", fileSystem.getFileContentsAsString("/A.txt"));
     }
 
     @Test
     public void setFileContentsStringWithNonExistingRootedPathStringAndEmptyContents()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
 
-        assertTrue(fileSystem.setFileContents("/A.txt", ""));
+        test.assertTrue(fileSystem.setFileContents("/A.txt", ""));
 
-        assertTrue(fileSystem.fileExists("/A.txt"));
-        assertEquals("", fileSystem.getFileContentsAsString("/A.txt"));
+        test.assertTrue(fileSystem.fileExists("/A.txt"));
+        test.assertEqual("", fileSystem.getFileContentsAsString("/A.txt"));
     }
 
     @Test
     public void setFileContentsStringWithExistingRootedPathStringAndEmptyContents()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/A.txt", new byte[] { 0, 1 });
 
-        assertTrue(fileSystem.setFileContents("/A.txt", ""));
+        test.assertTrue(fileSystem.setFileContents("/A.txt", ""));
 
-        assertTrue(fileSystem.fileExists("/A.txt"));
-        assertEquals("", fileSystem.getFileContentsAsString("/A.txt"));
+        test.assertTrue(fileSystem.fileExists("/A.txt"));
+        test.assertEqual("", fileSystem.getFileContentsAsString("/A.txt"));
     }
 
     @Test
     public void setFileContentsStringWithNonExistingRootedPathStringAndNonEmptyContents()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
 
-        assertTrue(fileSystem.setFileContents("/A.txt", "ABC"));
+        test.assertTrue(fileSystem.setFileContents("/A.txt", "ABC"));
 
-        assertTrue(fileSystem.fileExists("/A.txt"));
-        assertEquals("ABC", fileSystem.getFileContentsAsString("/A.txt"));
+        test.assertTrue(fileSystem.fileExists("/A.txt"));
+        test.assertEqual("ABC", fileSystem.getFileContentsAsString("/A.txt"));
     }
 
     @Test
     public void setFileContentsStringWithNonExistingRootedPathStringWithNonExistingParentFolderAndNonEmptyContents()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
 
-        assertTrue(fileSystem.setFileContents("/folder/A.txt", "ABC"));
+        test.assertTrue(fileSystem.setFileContents("/folder/A.txt", "ABC"));
 
-        assertTrue(fileSystem.folderExists("/folder"));
-        assertTrue(fileSystem.fileExists("/folder/A.txt"));
-        assertEquals("ABC", fileSystem.getFileContentsAsString("/folder/A.txt"));
+        test.assertTrue(fileSystem.folderExists("/folder"));
+        test.assertTrue(fileSystem.fileExists("/folder/A.txt"));
+        test.assertEqual("ABC", fileSystem.getFileContentsAsString("/folder/A.txt"));
     }
 
     @Test
     public void setFileContentsStringWithExistingRootedPathStringAndNonEmptyContents()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/A.txt");
 
-        assertTrue(fileSystem.setFileContents("/A.txt", "ABC"));
+        test.assertTrue(fileSystem.setFileContents("/A.txt", "ABC"));
 
-        assertTrue(fileSystem.fileExists("/A.txt"));
-        assertEquals("ABC", fileSystem.getFileContentsAsString("/A.txt"));
+        test.assertTrue(fileSystem.fileExists("/A.txt"));
+        test.assertEqual("ABC", fileSystem.getFileContentsAsString("/A.txt"));
     }
 
     @Test
     public void setFileContentsStringWithNullPath()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertFalse(fileSystem.setFileContents((Path)null, "ABC"));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertFalse(fileSystem.setFileContents((Path)null, "ABC"));
     }
 
     @Test
     public void setFileContentsStringWithEmptyPath()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertFalse(fileSystem.setFileContents(Path.parse(""), "ABC"));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertFalse(fileSystem.setFileContents(Path.parse(""), "ABC"));
     }
 
     @Test
     public void setFileContentsStringWithRelativePath()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertFalse(fileSystem.setFileContents(Path.parse("relative.file"), "ABC"));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertFalse(fileSystem.setFileContents(Path.parse("relative.file"), "ABC"));
     }
 
     @Test
     public void setFileContentsStringWithNonExistingRootedPathAndNullContents()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
 
-        assertTrue(fileSystem.setFileContents(Path.parse("/A.txt"), (String)null));
+        test.assertTrue(fileSystem.setFileContents(Path.parse("/A.txt"), (String)null));
 
-        assertTrue(fileSystem.fileExists("/A.txt"));
-        assertEquals("", fileSystem.getFileContentsAsString("/A.txt"));
+        test.assertTrue(fileSystem.fileExists("/A.txt"));
+        test.assertEqual("", fileSystem.getFileContentsAsString("/A.txt"));
     }
 
     @Test
     public void setFileContentsStringWithExistingRootedPathAndNullContents()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/A.txt", "Test");
 
-        assertTrue(fileSystem.setFileContents(Path.parse("/A.txt"), (String)null));
+        test.assertTrue(fileSystem.setFileContents(Path.parse("/A.txt"), (String)null));
 
-        assertTrue(fileSystem.fileExists("/A.txt"));
-        assertEquals("", fileSystem.getFileContentsAsString("/A.txt"));
+        test.assertTrue(fileSystem.fileExists("/A.txt"));
+        test.assertEqual("", fileSystem.getFileContentsAsString("/A.txt"));
     }
 
     @Test
     public void setFileContentsStringWithNonExistingRootedPathAndEmptyContents()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
 
-        assertTrue(fileSystem.setFileContents(Path.parse("/A.txt"), ""));
+        test.assertTrue(fileSystem.setFileContents(Path.parse("/A.txt"), ""));
 
-        assertTrue(fileSystem.fileExists("/A.txt"));
-        assertEquals("", fileSystem.getFileContentsAsString("/A.txt"));
+        test.assertTrue(fileSystem.fileExists("/A.txt"));
+        test.assertEqual("", fileSystem.getFileContentsAsString("/A.txt"));
     }
 
     @Test
     public void setFileContentsStringWithExistingRootedPathAndEmptyContents()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/A.txt", new byte[] { 0, 1 });
 
-        assertTrue(fileSystem.setFileContents(Path.parse("/A.txt"), ""));
+        test.assertTrue(fileSystem.setFileContents(Path.parse("/A.txt"), ""));
 
-        assertTrue(fileSystem.fileExists("/A.txt"));
-        assertEquals("", fileSystem.getFileContentsAsString("/A.txt"));
+        test.assertTrue(fileSystem.fileExists("/A.txt"));
+        test.assertEqual("", fileSystem.getFileContentsAsString("/A.txt"));
     }
 
     @Test
     public void setFileContentsStringWithNonExistingRootedPathAndNonEmptyContents()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
 
-        assertTrue(fileSystem.setFileContents(Path.parse("/A.txt"), "ABC"));
+        test.assertTrue(fileSystem.setFileContents(Path.parse("/A.txt"), "ABC"));
 
-        assertTrue(fileSystem.fileExists("/A.txt"));
-        assertEquals("ABC", fileSystem.getFileContentsAsString("/A.txt"));
+        test.assertTrue(fileSystem.fileExists("/A.txt"));
+        test.assertEqual("ABC", fileSystem.getFileContentsAsString("/A.txt"));
     }
 
     @Test
     public void setFileContentsStringWithExistingRootedPathAndNonEmptyContents()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/A.txt");
 
-        assertTrue(fileSystem.setFileContents(Path.parse("/A.txt"), "ABC"));
+        test.assertTrue(fileSystem.setFileContents(Path.parse("/A.txt"), "ABC"));
 
-        assertTrue(fileSystem.fileExists("/A.txt"));
-        assertEquals("ABC", fileSystem.getFileContentsAsString("/A.txt"));
+        test.assertTrue(fileSystem.fileExists("/A.txt"));
+        test.assertEqual("ABC", fileSystem.getFileContentsAsString("/A.txt"));
     }
 
     @Test
     public void getFilesAndFoldersRecursivelyWithNullPathString()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertNull(fileSystem.getFilesAndFoldersRecursively((String)null));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertNull(fileSystem.getFilesAndFoldersRecursively((String)null));
     }
 
     @Test
     public void getFilesAndFoldersRecursivelyWithEmptyPathString()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertNull(fileSystem.getFilesAndFoldersRecursively(""));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertNull(fileSystem.getFilesAndFoldersRecursively(""));
     }
 
     @Test
     public void getFilesAndFoldersRecursivelyWithRelativePathString()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertNull(fileSystem.getFilesAndFoldersRecursively("test/folder"));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertNull(fileSystem.getFilesAndFoldersRecursively("test/folder"));
     }
 
     @Test
     public void getFilesAndFoldersRecursivelyWithRootedPathStringWhenRootDoesntExist()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertNull(fileSystem.getFilesAndFoldersRecursively("F:/test/folder"));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertNull(fileSystem.getFilesAndFoldersRecursively("F:/test/folder"));
     }
 
     @Test
     public void getFilesAndFoldersRecursivelyWithRootedPathStringWhenParentFolderDoesntExist()
     {
-        final FileSystem fileSystem = getFileSystem();
-        assertNull(fileSystem.getFilesAndFoldersRecursively("/test/folder"));
+        final FileSystem fileSystem = getFileSystem(creator);
+        test.assertNull(fileSystem.getFilesAndFoldersRecursively("/test/folder"));
     }
 
     @Test
     public void getFilesAndFoldersRecursivelyWithRootedPathStringWhenFolderDoesntExist()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFolder("/test/");
-        assertNull(fileSystem.getFilesAndFoldersRecursively("/test/folder"));
+        test.assertNull(fileSystem.getFilesAndFoldersRecursively("/test/folder"));
     }
 
     @Test
     public void getFilesAndFoldersRecursivelyWithRootedPathStringWhenFolderIsEmpty()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFolder("/test/folder");
-        assertEquals(new Array<FileSystemEntry>(0), fileSystem.getFilesAndFoldersRecursively("/test/folder"));
+        test.assertEqual(new Array<FileSystemEntry>(0), fileSystem.getFilesAndFoldersRecursively("/test/folder"));
     }
 
     @Test
     public void getFilesAndFoldersRecursivelyWithRootedPathStringWhenFolderHasFiles()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFolder("/test/folder");
         fileSystem.createFile("/test/folder/1.txt");
         fileSystem.createFile("/test/folder/2.txt");
-        assertEquals(
+        test.assertEqual(
             Array.fromValues(
                 fileSystem.getFile("/test/folder/1.txt"),
                 fileSystem.getFile("/test/folder/2.txt")),
@@ -4578,11 +4835,11 @@ public abstract class FileSystemTests
     @Test
     public void getFilesAndFoldersRecursivelyWithRootedPathStringWhenFolderHasFolders()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFolder("/test/folder");
         fileSystem.createFolder("/test/folder/1.txt");
         fileSystem.createFolder("/test/folder/2.txt");
-        assertEquals(
+        test.assertEqual(
             Array.fromValues(
                 fileSystem.getFolder("/test/folder/1.txt"),
                 fileSystem.getFolder("/test/folder/2.txt")),
@@ -4592,7 +4849,7 @@ public abstract class FileSystemTests
     @Test
     public void getFilesAndFoldersRecursivelyWithRootedPathStringWhenFolderHasGrandchildFilesAndFolders()
     {
-        final FileSystem fileSystem = getFileSystem();
+        final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.createFile("/test/folder/1.txt");
         fileSystem.createFile("/test/folder/2.txt");
         fileSystem.createFile("/test/folder/A/3.csv");
@@ -4610,10 +4867,10 @@ public abstract class FileSystemTests
                 fileSystem.getFolder("/test/folder/B/C"),
                 fileSystem.getFile("/test/folder/B/C/4.xml"));
         final Iterable<FileSystemEntry> actualEntries = fileSystem.getFilesAndFoldersRecursively("/test/folder");
-        assertEquals(expectedEntries, actualEntries);
+        test.assertEqual(expectedEntries, actualEntries);
     }
 
-    private void asyncTest(final Action1<FileSystem> action)
+    private static void asyncTest(final Action1<FileSystem> action)
     {
         final Synchronization synchronization = new Synchronization();
         CurrentThreadAsyncRunner.withRegistered(synchronization, new Action1<CurrentThreadAsyncRunner>()
@@ -4625,16 +4882,16 @@ public abstract class FileSystemTests
                 final FileSystem fileSystem = getFileSystem(backgroundRunner);
                 
                 action.run(fileSystem);
-                assertEquals(0, mainRunner.getScheduledTaskCount());
-                assertEquals(1, backgroundRunner.getScheduledTaskCount());
+                test.assertEqual(0, mainRunner.getScheduledTaskCount());
+                test.assertEqual(1, backgroundRunner.getScheduledTaskCount());
 
                 backgroundRunner.await();
-                assertEquals(1, mainRunner.getScheduledTaskCount());
-                assertEquals(0, backgroundRunner.getScheduledTaskCount());
+                test.assertEqual(1, mainRunner.getScheduledTaskCount());
+                test.assertEqual(0, backgroundRunner.getScheduledTaskCount());
 
                 mainRunner.await();
-                assertEquals(0, mainRunner.getScheduledTaskCount());
-                assertEquals(0, backgroundRunner.getScheduledTaskCount());
+                test.assertEqual(0, mainRunner.getScheduledTaskCount());
+                test.assertEqual(0, backgroundRunner.getScheduledTaskCount());
             }
         });
     }
