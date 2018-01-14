@@ -1057,6 +1057,1631 @@ public class FileSystemTests
                                     fileSystem.getFilesRecursively("/test/folder"));
                             }
                         });
+
+                        runner.test("with rooted path when folder has folders", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                fileSystem.createFolder("/test/folder");
+                                fileSystem.createFolder("/test/folder/1.txt");
+                                fileSystem.createFolder("/test/folder/2.txt");
+                                test.assertEqual(
+                                    new Array<File>(0),
+                                    fileSystem.getFilesRecursively("/test/folder"));
+                            }
+                        });
+
+                        runner.test("with rooted path when folder has grandchild folders and files", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                fileSystem.createFile("/test/folder/1.txt");
+                                fileSystem.createFile("/test/folder/2.txt");
+                                fileSystem.createFile("/test/folder/A/3.csv");
+                                fileSystem.createFile("/test/folder/B/C/4.xml");
+                                fileSystem.createFile("/test/folder/A/5.png");
+
+                                final Iterable<File> expectedEntries =
+                                    Array.fromValues(
+                                        fileSystem.getFile("/test/folder/1.txt"),
+                                        fileSystem.getFile("/test/folder/2.txt"),
+                                        fileSystem.getFile("/test/folder/A/3.csv"),
+                                        fileSystem.getFile("/test/folder/A/5.png"),
+                                        fileSystem.getFile("/test/folder/B/C/4.xml"));
+                                final Iterable<File> actualEntries = fileSystem.getFilesRecursively("/test/folder");
+                                test.assertEqual(expectedEntries, actualEntries);
+                            }
+                        });
+                    }
+                });
+
+                runner.testGroup("getFolder(String)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                final Folder folder = fileSystem.getFolder((String)null);
+                                test.assertNull(folder);
+                            }
+                        });
+
+                        runner.test("with empty path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                final Folder folder = fileSystem.getFolder("");
+                                test.assertNull(folder);
+                            }
+                        });
+
+                        runner.test("with relative path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                final Folder folder = fileSystem.getFolder("a/b/c");
+                                test.assertNull(folder);
+                            }
+                        });
+
+                        runner.test("with forward-slash", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                final Folder folder = fileSystem.getFolder("/");
+                                test.assertNotNull(folder);
+                                test.assertEqual("/", folder.toString());
+                            }
+                        });
+
+                        runner.test("with backslash", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                final Folder folder = fileSystem.getFolder("\\");
+                                test.assertNotNull(folder);
+                                test.assertEqual("\\", folder.toString());
+                            }
+                        });
+
+                        runner.test("with Windows root", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                final Folder folder = fileSystem.getFolder("Z:\\");
+                                test.assertNotNull(folder);
+                                test.assertEqual("Z:\\", folder.toString());
+                            }
+                        });
+
+                        runner.test("with root and folder", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                final Folder folder = fileSystem.getFolder("/a/b");
+                                test.assertNotNull(folder);
+                                test.assertEqual("/a/b", folder.toString());
+                            }
+                        });
+                    }
+                });
+
+                runner.testGroup("folderExists(String)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with root path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                final Root folder = fileSystem.getRoots().first();
+                                test.assertTrue(fileSystem.folderExists(folder.getPath().toString()));
+                            }
+                        });
+
+                        runner.test("with existing folder path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                fileSystem.createFolder("/folderName");
+                                test.assertTrue(fileSystem.folderExists("/folderName"));
+                            }
+                        });
+                    }
+                });
+
+                runner.testGroup("folderExistsAsync(String)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with root path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(FileSystem fileSystem)
+                                    {
+                                        fileSystem.folderExistsAsync(fileSystem.getRoots().first().getPath().toString())
+                                            .then(new Action1<Boolean>()
+                                            {
+                                                @Override
+                                                public void run(Boolean folderExists)
+                                                {
+                                                    test.assertTrue(folderExists);
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+
+                        runner.test("with existing folder path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(FileSystem fileSystem)
+                                    {
+                                        fileSystem.createFolder("/folderName");
+                                        fileSystem.folderExistsAsync("/folderName")
+                                            .then(new Action1<Boolean>()
+                                            {
+                                                @Override
+                                                public void run(Boolean folderExists)
+                                                {
+                                                    test.assertTrue(folderExists);
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+
+                runner.testGroup("folderExistsAsync(Path)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with root path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(FileSystem fileSystem)
+                                    {
+                                        fileSystem.folderExistsAsync(fileSystem.getRoots().first().getPath())
+                                            .then(new Action1<Boolean>()
+                                            {
+                                                @Override
+                                                public void run(Boolean folderExists)
+                                                {
+                                                    test.assertTrue(folderExists);
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+
+                        runner.test("with existing folder path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(FileSystem fileSystem)
+                                    {
+                                        fileSystem.createFolder("/folderName");
+                                        fileSystem.folderExistsAsync(Path.parse("/folderName"))
+                                            .then(new Action1<Boolean>()
+                                            {
+                                                @Override
+                                                public void run(Boolean folderExists)
+                                                {
+                                                    test.assertTrue(folderExists);
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+
+                runner.testGroup("createFolder(String)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                test.assertFalse(fileSystem.createFolder((String)null));
+                            }
+                        });
+
+                        runner.test("with empty path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                test.assertFalse(fileSystem.createFolder(""));
+                            }
+                        });
+
+                        runner.test("with relative path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                test.assertFalse(fileSystem.createFolder("folder"));
+                            }
+                        });
+
+                        runner.test("with rooted path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                test.assertTrue(fileSystem.createFolder("/folder"));
+                                test.assertTrue(fileSystem.folderExists("/folder"));
+                            }
+                        });
+                    }
+                });
+
+                runner.testGroup("createFolder(String,Value<Folder>)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null path and null value", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                test.assertFalse(fileSystem.createFolder((String)null, null));
+                            }
+                        });
+
+                        runner.test("with empty path and null value", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                test.assertFalse(fileSystem.createFolder("", null));
+                            }
+                        });
+
+                        runner.test("with relative path and null value", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                test.assertFalse(fileSystem.createFolder("folder", null));
+                            }
+                        });
+
+                        runner.test("with rooted path and null value", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                test.assertTrue(fileSystem.createFolder("/folder", null));
+                                test.assertTrue(fileSystem.folderExists("/folder"));
+                            }
+                        });
+
+                        runner.test("with null path and non-null value", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                final Value<Folder> folder = new Value<>();
+                                test.assertFalse(fileSystem.createFolder((String)null, folder));
+                                test.assertFalse(folder.hasValue());
+                            }
+                        });
+
+                        runner.test("with empty path and non-null value", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                final Value<Folder> folder = new Value<>();
+                                test.assertFalse(fileSystem.createFolder("", folder));
+                                test.assertFalse(folder.hasValue());
+                            }
+                        });
+
+                        runner.test("with relative path and non-null value", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                final Value<Folder> folder = new Value<>();
+                                test.assertFalse(fileSystem.createFolder("folder", folder));
+                                test.assertFalse(folder.hasValue());
+                            }
+                        });
+
+                        runner.test("with rooted path and non-null value", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                final Value<Folder> folder = new Value<>();
+                                test.assertTrue(fileSystem.createFolder("/folder", folder));
+                                test.assertTrue(fileSystem.folderExists("/folder"));
+                                test.assertTrue(folder.hasValue());
+                                test.assertNotNull(folder.get());
+                                test.assertEqual("/folder", folder.get().getPath().toString());
+                            }
+                        });
+                    }
+                });
+
+                runner.testGroup("createFolder(Path)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                test.assertFalse(fileSystem.createFolder((Path)null));
+                            }
+                        });
+                    }
+                });
+
+                runner.testGroup("createFolder(Path,Value<Folder>)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null path and non-null value", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                final Value<Folder> folder = new Value<>();
+                                test.assertFalse(fileSystem.createFolder((Path)null, folder));
+                                test.assertFalse(folder.hasValue());
+                                test.assertNull(folder.get());
+                            }
+                        });
+                    }
+                });
+
+                runner.testGroup("createFolderAsync(String)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(FileSystem fileSystem)
+                                    {
+                                        fileSystem.createFolderAsync((String)null)
+                                            .then(new Action1<Boolean>()
+                                            {
+                                                @Override
+                                                public void run(Boolean folderCreated)
+                                                {
+                                                    test.assertFalse(folderCreated);
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+
+                        runner.test("with empty path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(FileSystem fileSystem)
+                                    {
+                                        fileSystem.createFolderAsync("")
+                                            .then(new Action1<Boolean>()
+                                            {
+                                                @Override
+                                                public void run(Boolean folderCreated)
+                                                {
+                                                    test.assertFalse(folderCreated);
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+
+                        runner.test("with relative path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(FileSystem fileSystem)
+                                    {
+                                        fileSystem.createFolderAsync("folder")
+                                            .then(new Action1<Boolean>()
+                                            {
+                                                @Override
+                                                public void run(Boolean arg1)
+                                                {
+                                                    test.assertFalse(arg1);
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+
+                        runner.test("with rooted path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(final FileSystem fileSystem)
+                                    {
+                                        fileSystem.createFolderAsync("/folder")
+                                            .then(new Action1<Boolean>()
+                                            {
+                                                @Override
+                                                public void run(Boolean folderCreated)
+                                                {
+                                                    test.assertTrue(folderCreated);
+                                                    test.assertTrue(fileSystem.folderExists("/folder"));
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+
+                runner.testGroup("createFolderAsync(String,Value<Folder>)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null path and null value", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(FileSystem fileSystem)
+                                    {
+                                        fileSystem.createFolderAsync((String)null, null)
+                                            .then(new Action1<Boolean>()
+                                            {
+                                                @Override
+                                                public void run(Boolean folderCreated)
+                                                {
+                                                    test.assertFalse(folderCreated);
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+
+                        runner.test("with empty path and null value", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(FileSystem fileSystem)
+                                    {
+                                        fileSystem.createFolderAsync("", null)
+                                            .then(new Action1<Boolean>()
+                                            {
+                                                @Override
+                                                public void run(Boolean folderCreated)
+                                                {
+                                                    test.assertFalse(folderCreated);
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+
+                        runner.test("with relative path and null value", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(FileSystem fileSystem)
+                                    {
+                                        fileSystem.createFolderAsync("folder", null)
+                                            .then(new Action1<Boolean>()
+                                            {
+                                                @Override
+                                                public void run(Boolean folderCreated)
+                                                {
+                                                    test.assertFalse(folderCreated);
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+
+                        runner.test("with rooted path and null value", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(final FileSystem fileSystem)
+                                    {
+                                        fileSystem.createFolderAsync("/folder", null)
+                                            .then(new Action1<Boolean>()
+                                            {
+                                                @Override
+                                                public void run(Boolean folderCreated)
+                                                {
+                                                    test.assertTrue(folderCreated);
+                                                    test.assertTrue(fileSystem.folderExists("/folder"));
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+
+                        runner.test("with null path and non-null value", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(FileSystem fileSystem)
+                                    {
+                                        final Value<Folder> folder = new Value<>();
+                                        fileSystem.createFolderAsync((String)null, folder)
+                                            .then(new Action1<Boolean>()
+                                            {
+                                                @Override
+                                                public void run(Boolean folderCreated)
+                                                {
+                                                    test.assertFalse(folderCreated);
+                                                    test.assertFalse(folder.hasValue());
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+
+                        runner.test("with empty path and non-null value", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(final FileSystem fileSystem)
+                                    {
+                                        final Value<Folder> folder = new Value<>();
+                                        fileSystem.createFolderAsync("", folder)
+                                            .then(new Action1<Boolean>()
+                                            {
+                                                @Override
+                                                public void run(Boolean folderCreated)
+                                                {
+                                                    test.assertFalse(folderCreated);
+                                                    test.assertFalse(folder.hasValue());
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+
+                        runner.test("with relative path and non-null value", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(final FileSystem fileSystem)
+                                    {
+                                        final Value<Folder> folder = new Value<>();
+                                        fileSystem.createFolderAsync("folder", folder)
+                                            .then(new Action1<Boolean>()
+                                            {
+                                                @Override
+                                                public void run(Boolean folderCreated)
+                                                {
+                                                    test.assertFalse(folderCreated);
+                                                    test.assertFalse(folder.hasValue());
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+
+                        runner.test("with rooted path and non-null value", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(final FileSystem fileSystem)
+                                    {
+                                        final Value<Folder> folder = new Value<>();
+                                        fileSystem.createFolderAsync("/folder", folder)
+                                            .then(new Action1<Boolean>()
+                                            {
+                                                @Override
+                                                public void run(Boolean folderCreated)
+                                                {
+                                                    test.assertTrue(folderCreated);
+                                                    test.assertTrue(fileSystem.folderExists("/folder"));
+
+                                                    test.assertTrue(folder.hasValue());
+                                                    test.assertNotNull(folder.get());
+                                                    test.assertEqual("/folder", folder.get().getPath().toString());
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+
+                runner.testGroup("createFolderAsync(Path)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(FileSystem fileSystem)
+                                    {
+                                        fileSystem.createFolderAsync((Path)null)
+                                            .then(new Action1<Boolean>()
+                                            {
+                                                @Override
+                                                public void run(Boolean folderCreated)
+                                                {
+                                                    test.assertFalse(folderCreated);
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+
+                        runner.test("with empty path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(FileSystem fileSystem)
+                                    {
+                                        fileSystem.createFolderAsync(Path.parse(""))
+                                            .then(new Action1<Boolean>()
+                                            {
+                                                @Override
+                                                public void run(Boolean folderCreated)
+                                                {
+                                                    test.assertFalse(folderCreated);
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+
+                        runner.test("with relative path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(FileSystem fileSystem)
+                                    {
+                                        fileSystem.createFolderAsync(Path.parse("folder"))
+                                            .then(new Action1<Boolean>()
+                                            {
+                                                @Override
+                                                public void run(Boolean arg1)
+                                                {
+                                                    test.assertFalse(arg1);
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+
+                        runner.test("with rooted path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(final FileSystem fileSystem)
+                                    {
+                                        fileSystem.createFolderAsync(Path.parse("/folder"))
+                                            .then(new Action1<Boolean>()
+                                            {
+                                                @Override
+                                                public void run(Boolean folderCreated)
+                                                {
+                                                    test.assertTrue(folderCreated);
+                                                    test.assertTrue(fileSystem.folderExists("/folder"));
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+
+                runner.testGroup("createFolderAsync(Path,Value<Folder>)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null path and null value", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(FileSystem fileSystem)
+                                    {
+                                        fileSystem.createFolderAsync((Path)null, null)
+                                            .then(new Action1<Boolean>()
+                                            {
+                                                @Override
+                                                public void run(Boolean folderCreated)
+                                                {
+                                                    test.assertFalse(folderCreated);
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+
+                        runner.test("with empty path and null value", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(FileSystem fileSystem)
+                                    {
+                                        fileSystem.createFolderAsync(Path.parse(""), null)
+                                            .then(new Action1<Boolean>()
+                                            {
+                                                @Override
+                                                public void run(Boolean folderCreated)
+                                                {
+                                                    test.assertFalse(folderCreated);
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+
+                        runner.test("with relative path and null value", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(FileSystem fileSystem)
+                                    {
+                                        fileSystem.createFolderAsync(Path.parse("folder"), null)
+                                            .then(new Action1<Boolean>()
+                                            {
+                                                @Override
+                                                public void run(Boolean folderCreated)
+                                                {
+                                                    test.assertFalse(folderCreated);
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+
+                        runner.test("with rooted path and null value", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(final FileSystem fileSystem)
+                                    {
+                                        fileSystem.createFolderAsync(Path.parse("/folder"), null)
+                                            .then(new Action1<Boolean>()
+                                            {
+                                                @Override
+                                                public void run(Boolean folderCreated)
+                                                {
+                                                    test.assertTrue(folderCreated);
+                                                    test.assertTrue(fileSystem.folderExists("/folder"));
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+
+                        runner.test("with null path and non-null value", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(FileSystem fileSystem)
+                                    {
+                                        final Value<Folder> folder = new Value<>();
+                                        fileSystem.createFolderAsync((Path)null, folder)
+                                            .then(new Action1<Boolean>()
+                                            {
+                                                @Override
+                                                public void run(Boolean folderCreated)
+                                                {
+                                                    test.assertFalse(folderCreated);
+                                                    test.assertFalse(folder.hasValue());
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+
+                        runner.test("with empty path and non-null value", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(final FileSystem fileSystem)
+                                    {
+                                        final Value<Folder> folder = new Value<>();
+                                        fileSystem.createFolderAsync(Path.parse(""), folder)
+                                            .then(new Action1<Boolean>()
+                                            {
+                                                @Override
+                                                public void run(Boolean folderCreated)
+                                                {
+                                                    test.assertFalse(folderCreated);
+                                                    test.assertFalse(folder.hasValue());
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+
+                        runner.test("with relative path and non-null value", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(final FileSystem fileSystem)
+                                    {
+                                        final Value<Folder> folder = new Value<>();
+                                        fileSystem.createFolderAsync(Path.parse("folder"), folder)
+                                            .then(new Action1<Boolean>()
+                                            {
+                                                @Override
+                                                public void run(Boolean folderCreated)
+                                                {
+                                                    test.assertFalse(folderCreated);
+                                                    test.assertFalse(folder.hasValue());
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+
+                        runner.test("with rooted path and non-null value", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(final FileSystem fileSystem)
+                                    {
+                                        final Value<Folder> folder = new Value<>();
+                                        fileSystem.createFolderAsync(Path.parse("/folder"), folder)
+                                            .then(new Action1<Boolean>()
+                                            {
+                                                @Override
+                                                public void run(Boolean folderCreated)
+                                                {
+                                                    test.assertTrue(folderCreated);
+                                                    test.assertTrue(fileSystem.folderExists("/folder"));
+
+                                                    test.assertTrue(folder.hasValue());
+                                                    test.assertNotNull(folder.get());
+                                                    test.assertEqual("/folder", folder.get().getPath().toString());
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+
+                runner.testGroup("deleteFolder(String)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                test.assertFalse(fileSystem.deleteFolder((String)null));
+                            }
+                        });
+
+                        runner.test("with empty path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                test.assertFalse(fileSystem.deleteFolder(""));
+                            }
+                        });
+
+                        runner.test("with relative path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                fileSystem.createFolder("/folder");
+                                test.assertFalse(fileSystem.deleteFolder("folder"));
+                            }
+                        });
+
+                        runner.test("with non-existing path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                test.assertFalse(fileSystem.deleteFolder("/folder"));
+                            }
+                        });
+
+                        runner.test("with existing folder path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                fileSystem.createFolder("/folder/");
+                                test.assertTrue(fileSystem.deleteFolder("/folder/"));
+                                test.assertFalse(fileSystem.deleteFolder("/folder/"));
+                            }
+                        });
+
+                        runner.test("with existing folder path with sibling folders", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                fileSystem.createFolder("/folder/a");
+                                fileSystem.createFolder("/folder/b");
+                                fileSystem.createFolder("/folder/c");
+                                test.assertTrue(fileSystem.deleteFolder("/folder/c"));
+                                test.assertFalse(fileSystem.deleteFolder("/folder/c"));
+                            }
+                        });
+                    }
+                });
+
+                runner.testGroup("deleteFolderAsync(String)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(FileSystem fileSystem)
+                                    {
+                                        fileSystem.deleteFolderAsync((String)null)
+                                            .then(new Action1<Boolean>()
+                                            {
+                                                @Override
+                                                public void run(Boolean folderDeleted)
+                                                {
+                                                    test.assertFalse(folderDeleted);
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+
+                        runner.test("with empty path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(FileSystem fileSystem)
+                                    {
+                                        fileSystem.deleteFolderAsync("")
+                                            .then(new Action1<Boolean>()
+                                            {
+                                                @Override
+                                                public void run(Boolean folderDeleted)
+                                                {
+                                                    test.assertFalse(folderDeleted);
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+
+                        runner.test("with relative path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(final FileSystem fileSystem)
+                                    {
+                                        fileSystem.createFolder("/folder");
+                                        fileSystem.deleteFolderAsync("folder")
+                                            .then(new Action1<Boolean>()
+                                            {
+                                                @Override
+                                                public void run(Boolean folderDeleted)
+                                                {
+                                                    test.assertFalse(folderDeleted);
+                                                    test.assertTrue(fileSystem.folderExists("/folder"));
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+
+                        runner.test("with non-existing folder path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(FileSystem fileSystem)
+                                    {
+                                        fileSystem.deleteFolderAsync("/folder")
+                                            .then(new Action1<Boolean>()
+                                            {
+                                                @Override
+                                                public void run(Boolean folderDeleted)
+                                                {
+                                                    test.assertFalse(folderDeleted);
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+
+                        runner.test("with existing folder path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(final FileSystem fileSystem)
+                                    {
+                                        fileSystem.createFolder("/folder/");
+
+                                        fileSystem.deleteFolderAsync("/folder/")
+                                            .then(new Action1<Boolean>()
+                                            {
+                                                @Override
+                                                public void run(Boolean folderDeleted)
+                                                {
+                                                    test.assertTrue(folderDeleted);
+                                                    test.assertFalse(fileSystem.folderExists("/folder/"));
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+
+                        runner.test("with existing folder path and sibling folders", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(final FileSystem fileSystem)
+                                    {
+                                        fileSystem.createFolder("/folder/a");
+                                        fileSystem.createFolder("/folder/b");
+                                        fileSystem.createFolder("/folder/c");
+
+                                        fileSystem.deleteFolderAsync("/folder/c")
+                                            .then(new Action1<Boolean>()
+                                            {
+                                                @Override
+                                                public void run(Boolean folderDeleted)
+                                                {
+                                                    test.assertTrue(folderDeleted);
+                                                    test.assertFalse(fileSystem.folderExists("/folder/c"));
+                                                    test.assertTrue(fileSystem.folderExists("/folder/a"));
+                                                    test.assertTrue(fileSystem.folderExists("/folder/b"));
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+
+                runner.testGroup("deleteFolderAsync(Path)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(FileSystem fileSystem)
+                                    {
+                                        fileSystem.deleteFolderAsync((Path)null)
+                                            .then(new Action1<Boolean>()
+                                            {
+                                                @Override
+                                                public void run(Boolean folderDeleted)
+                                                {
+                                                    test.assertFalse(folderDeleted);
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+
+                        runner.test("with empty path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(FileSystem fileSystem)
+                                    {
+                                        fileSystem.deleteFolderAsync(Path.parse(""))
+                                            .then(new Action1<Boolean>()
+                                            {
+                                                @Override
+                                                public void run(Boolean folderDeleted)
+                                                {
+                                                    test.assertFalse(folderDeleted);
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+
+                        runner.test("with relative path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(final FileSystem fileSystem)
+                                    {
+                                        fileSystem.createFolder("/folder");
+                                        fileSystem.deleteFolderAsync(Path.parse("folder"))
+                                            .then(new Action1<Boolean>()
+                                            {
+                                                @Override
+                                                public void run(Boolean folderDeleted)
+                                                {
+                                                    test.assertFalse(folderDeleted);
+                                                    test.assertTrue(fileSystem.folderExists("/folder"));
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+
+                        runner.test("with non-existing folder path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(FileSystem fileSystem)
+                                    {
+                                        fileSystem.deleteFolderAsync(Path.parse("/folder"))
+                                            .then(new Action1<Boolean>()
+                                            {
+                                                @Override
+                                                public void run(Boolean folderDeleted)
+                                                {
+                                                    test.assertFalse(folderDeleted);
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+
+                        runner.test("with existing folder path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(final FileSystem fileSystem)
+                                    {
+                                        fileSystem.createFolder("/folder/");
+
+                                        fileSystem.deleteFolderAsync(Path.parse("/folder/"))
+                                            .then(new Action1<Boolean>()
+                                            {
+                                                @Override
+                                                public void run(Boolean folderDeleted)
+                                                {
+                                                    test.assertTrue(folderDeleted);
+                                                    test.assertFalse(fileSystem.folderExists("/folder/"));
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+
+                        runner.test("with existing folder path with sibling folders", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test test)
+                            {
+                                asyncTest(new Action1<FileSystem>()
+                                {
+                                    @Override
+                                    public void run(final FileSystem fileSystem)
+                                    {
+                                        fileSystem.createFolder("/folder/a");
+                                        fileSystem.createFolder("/folder/b");
+                                        fileSystem.createFolder("/folder/c");
+
+                                        fileSystem.deleteFolderAsync(Path.parse("/folder/c"))
+                                            .then(new Action1<Boolean>()
+                                            {
+                                                @Override
+                                                public void run(Boolean folderDeleted)
+                                                {
+                                                    test.assertTrue(folderDeleted);
+                                                    test.assertFalse(fileSystem.folderExists("/folder/c"));
+                                                    test.assertTrue(fileSystem.folderExists("/folder/a"));
+                                                    test.assertTrue(fileSystem.folderExists("/folder/b"));
+                                                }
+                                            });
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+
+                runner.testGroup("getFile(String)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                final File file = fileSystem.getFile((String)null);
+                                test.assertNull(file);
+                            }
+                        });
+
+                        runner.test("with empty path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                final File file = fileSystem.getFile("");
+                                test.assertNull(file);
+                            }
+                        });
+
+                        runner.test("with relative path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                final File file = fileSystem.getFile("a/b/c");
+                                test.assertNull(file);
+                            }
+                        });
+
+                        runner.test("with forward slash", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                final File file = fileSystem.getFile("/");
+                                test.assertNull(file);
+                            }
+                        });
+
+                        runner.test("with backslash", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                final File file = fileSystem.getFile("\\");
+                                test.assertNull(file);
+                            }
+                        });
+
+                        runner.test("with Windows root", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                final File file = fileSystem.getFile("Z:\\");
+                                test.assertNull(file);
+                            }
+                        });
+
+                        runner.test("with rooted file path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                final File file = fileSystem.getFile("/a/b");
+                                test.assertNotNull(file);
+                                test.assertEqual("/a/b", file.toString());
+                            }
+                        });
+                    }
+                });
+
+                runner.testGroup("fileExists(String)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with rooted path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                final Root root = fileSystem.getRoots().first();
+                                test.assertFalse(fileSystem.fileExists(root.getPath().toString()));
+                            }
+                        });
+
+                        runner.test("with existing folder path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                fileSystem.createFolder("/folderName");
+                                test.assertFalse(fileSystem.fileExists("/folerName"));
+                            }
+                        });
+
+                        runner.test("with existing file path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                fileSystem.createFile("/file1.xml");
+                                test.assertTrue(fileSystem.fileExists("/file1.xml"));
+                            }
+                        });
+                    }
+                });
+
+                runner.testGroup("fileExistsAsync(String)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with root path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(final Test arg1)
+                            {
+
+                            }
+                        });
                     }
                 });
             }
@@ -1073,1253 +2698,6 @@ public class FileSystemTests
         final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.setAsyncRunner(parallelRunner);
         return fileSystem;
-    }
-
-    @Test
-    public void getFilesRecursivelyWithRootedPathStringWhenFolderHasFolders()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        fileSystem.createFolder("/test/folder");
-        fileSystem.createFolder("/test/folder/1.txt");
-        fileSystem.createFolder("/test/folder/2.txt");
-        test.assertEqual(
-            new Array<File>(0),
-            fileSystem.getFilesRecursively("/test/folder"));
-    }
-
-    @Test
-    public void getFilesRecursivelyWithRootedPathStringWhenFolderHasGrandchildFilesAndFolders()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        fileSystem.createFile("/test/folder/1.txt");
-        fileSystem.createFile("/test/folder/2.txt");
-        fileSystem.createFile("/test/folder/A/3.csv");
-        fileSystem.createFile("/test/folder/B/C/4.xml");
-        fileSystem.createFile("/test/folder/A/5.png");
-
-        final Iterable<File> expectedEntries =
-            Array.fromValues(
-                fileSystem.getFile("/test/folder/1.txt"),
-                fileSystem.getFile("/test/folder/2.txt"),
-                fileSystem.getFile("/test/folder/A/3.csv"),
-                fileSystem.getFile("/test/folder/A/5.png"),
-                fileSystem.getFile("/test/folder/B/C/4.xml"));
-        final Iterable<File> actualEntries = fileSystem.getFilesRecursively("/test/folder");
-        test.assertEqual(expectedEntries, actualEntries);
-    }
-
-    @Test
-    public void getFolderWithNullString()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        final Folder folder = fileSystem.getFolder((String)null);
-        test.assertNull(folder);
-    }
-
-    @Test
-    public void getFolderWithEmptyString()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        final Folder folder = fileSystem.getFolder("");
-        test.assertNull(folder);
-    }
-
-    @Test
-    public void getFolderWithNonRootedString()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        final Folder folder = fileSystem.getFolder("a/b/c");
-        test.assertNull(folder);
-    }
-
-    @Test
-    public void getFolderWithForwardSlashRoot()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        final Folder folder = fileSystem.getFolder("/");
-        test.assertNotNull(folder);
-        test.assertEqual("/", folder.toString());
-    }
-
-    @Test
-    public void getFolderWithBackslashRoot()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        final Folder folder = fileSystem.getFolder("\\");
-        test.assertNotNull(folder);
-        test.assertEqual("\\", folder.toString());
-    }
-
-    @Test
-    public void getFolderWithWindowsRoot()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        final Folder folder = fileSystem.getFolder("Z:\\");
-        test.assertNotNull(folder);
-        test.assertEqual("Z:\\", folder.toString());
-    }
-
-    @Test
-    public void getFolderWithRootAndFolder()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        final Folder folder = fileSystem.getFolder("/a/b");
-        test.assertNotNull(folder);
-        test.assertEqual("/a/b", folder.toString());
-    }
-
-    @Test
-    public void folderExistsWithRootPathString()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        final Root folder = fileSystem.getRoots().first();
-        test.assertTrue(fileSystem.folderExists(folder.getPath().toString()));
-    }
-
-    @Test
-    public void folderExistsWithExistingFolderPathString()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        fileSystem.createFolder("/folderName");
-        test.assertTrue(fileSystem.folderExists("/folderName"));
-    }
-
-    @Test
-    public void folderExistsAsyncWithRootStringPath()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(FileSystem fileSystem)
-            {
-                fileSystem.folderExistsAsync(fileSystem.getRoots().first().getPath().toString())
-                        .then(new Action1<Boolean>()
-                        {
-                            @Override
-                            public void run(Boolean folderExists)
-                            {
-                                test.assertTrue(folderExists);
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void folderExistsAsyncWithExistingFolderStringPath()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(FileSystem fileSystem)
-            {
-                fileSystem.createFolder("/folderName");
-                fileSystem.folderExistsAsync("/folderName")
-                        .then(new Action1<Boolean>()
-                        {
-                            @Override
-                            public void run(Boolean folderExists)
-                            {
-                                test.assertTrue(folderExists);
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void folderExistsAsyncWithRootPath()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(FileSystem fileSystem)
-            {
-                fileSystem.folderExistsAsync(fileSystem.getRoots().first().getPath())
-                        .then(new Action1<Boolean>()
-                        {
-                            @Override
-                            public void run(Boolean folderExists)
-                            {
-                                test.assertTrue(folderExists);
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void folderExistsAsyncWithExistingFolderPath()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(FileSystem fileSystem)
-            {
-                fileSystem.createFolder("/folderName");
-                fileSystem.folderExistsAsync(Path.parse("/folderName"))
-                        .then(new Action1<Boolean>()
-                        {
-                            @Override
-                            public void run(Boolean folderExists)
-                            {
-                                test.assertTrue(folderExists);
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void createFolderWithNullString()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        test.assertFalse(fileSystem.createFolder((String)null));
-    }
-
-    @Test
-    public void createFolderWithEmptyString()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        test.assertFalse(fileSystem.createFolder(""));
-    }
-
-    @Test
-    public void createFolderWithRelativePathString()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        test.assertFalse(fileSystem.createFolder("folder"));
-    }
-
-    @Test
-    public void createFolderWithRootedPathString()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        test.assertTrue(fileSystem.createFolder("/folder"));
-        test.assertTrue(fileSystem.folderExists("/folder"));
-    }
-
-    @Test
-    public void createFolderWithNullStringAndNullValue()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        test.assertFalse(fileSystem.createFolder((String)null, null));
-    }
-
-    @Test
-    public void createFolderWithEmptyStringAndNullValue()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        test.assertFalse(fileSystem.createFolder("", null));
-    }
-
-    @Test
-    public void createFolderWithRelativePathStringAndNullValue()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        test.assertFalse(fileSystem.createFolder("folder", null));
-    }
-
-    @Test
-    public void createFolderWithRootedPathStringAndNullValue()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        test.assertTrue(fileSystem.createFolder("/folder", null));
-        test.assertTrue(fileSystem.folderExists("/folder"));
-    }
-
-    @Test
-    public void createFolderWithNullStringAndNonNullValue()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        final Value<Folder> folder = new Value<>();
-        test.assertFalse(fileSystem.createFolder((String)null, folder));
-        test.assertFalse(folder.hasValue());
-    }
-
-    @Test
-    public void createFolderWithEmptyStringAndNonNullValue()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        final Value<Folder> folder = new Value<>();
-        test.assertFalse(fileSystem.createFolder("", folder));
-        test.assertFalse(folder.hasValue());
-    }
-
-    @Test
-    public void createFolderWithRelativePathStringAndNonNullValue()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        final Value<Folder> folder = new Value<>();
-        test.assertFalse(fileSystem.createFolder("folder", folder));
-        test.assertFalse(folder.hasValue());
-    }
-
-    @Test
-    public void createFolderWithRootedPathStringAndNonNullValue()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        final Value<Folder> folder = new Value<>();
-        test.assertTrue(fileSystem.createFolder("/folder", folder));
-        test.assertTrue(fileSystem.folderExists("/folder"));
-        test.assertTrue(folder.hasValue());
-        test.assertNotNull(folder.get());
-        test.assertEqual("/folder", folder.get().getPath().toString());
-    }
-
-    @Test
-    public void createFolderWithNullPathAndNonNullValue()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        final Value<Folder> folder = new Value<>();
-        test.assertFalse(fileSystem.createFolder((Path)null, folder));
-        test.assertFalse(folder.hasValue());
-        test.assertNull(folder.get());
-    }
-
-    @Test
-    public void createFolderWithNullPath()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        test.assertFalse(fileSystem.createFolder((Path)null));
-    }
-
-    @Test
-    public void createFolderAsyncWithNullString()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(FileSystem fileSystem)
-            {
-                fileSystem.createFolderAsync((String)null)
-                        .then(new Action1<Boolean>()
-                        {
-                            @Override
-                            public void run(Boolean folderCreated)
-                            {
-                                test.assertFalse(folderCreated);
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void createFolderAsyncWithEmptyString()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(FileSystem fileSystem)
-            {
-                fileSystem.createFolderAsync("")
-                        .then(new Action1<Boolean>()
-                        {
-                            @Override
-                            public void run(Boolean folderCreated)
-                            {
-                                test.assertFalse(folderCreated);
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void createFolderAsyncWithRelativePathString()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(FileSystem fileSystem)
-            {
-                fileSystem.createFolderAsync("folder")
-                        .then(new Action1<Boolean>()
-                        {
-                            @Override
-                            public void run(Boolean arg1)
-                            {
-                                test.assertFalse(arg1);
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void createFolderAsyncWithRootedPathString()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(final FileSystem fileSystem)
-            {
-                fileSystem.createFolderAsync("/folder")
-                        .then(new Action1<Boolean>()
-                        {
-                            @Override
-                            public void run(Boolean folderCreated)
-                            {
-                                test.assertTrue(folderCreated);
-                                test.assertTrue(fileSystem.folderExists("/folder"));
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void createFolderAsyncWithNullStringAndNullValue()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(FileSystem fileSystem)
-            {
-                fileSystem.createFolderAsync((String)null, null)
-                        .then(new Action1<Boolean>()
-                        {
-                            @Override
-                            public void run(Boolean folderCreated)
-                            {
-                                test.assertFalse(folderCreated);
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void createFolderAsyncWithEmptyStringAndNullValue()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(FileSystem fileSystem)
-            {
-                fileSystem.createFolderAsync("", null)
-                        .then(new Action1<Boolean>()
-                        {
-                            @Override
-                            public void run(Boolean folderCreated)
-                            {
-                                test.assertFalse(folderCreated);
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void createFolderAsyncWithRelativePathStringAndNullValue()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(FileSystem fileSystem)
-            {
-                fileSystem.createFolderAsync("folder", null)
-                        .then(new Action1<Boolean>()
-                        {
-                            @Override
-                            public void run(Boolean folderCreated)
-                            {
-                                test.assertFalse(folderCreated);
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void createFolderAsyncWithRootedPathStringAndNullValue()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(final FileSystem fileSystem)
-            {
-                fileSystem.createFolderAsync("/folder", null)
-                        .then(new Action1<Boolean>()
-                        {
-                            @Override
-                            public void run(Boolean folderCreated)
-                            {
-                                test.assertTrue(folderCreated);
-                                test.assertTrue(fileSystem.folderExists("/folder"));
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void createFolderAsyncWithNullStringAndNonNullValue()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(FileSystem fileSystem)
-            {
-                final Value<Folder> folder = new Value<>();
-                fileSystem.createFolderAsync((String)null, folder)
-                        .then(new Action1<Boolean>()
-                        {
-                            @Override
-                            public void run(Boolean folderCreated)
-                            {
-                                test.assertFalse(folderCreated);
-                                test.assertFalse(folder.hasValue());
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void createFolderAsyncWithEmptyStringAndNonNullValue()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(final FileSystem fileSystem)
-            {
-                final Value<Folder> folder = new Value<>();
-                fileSystem.createFolderAsync("", folder)
-                        .then(new Action1<Boolean>()
-                        {
-                            @Override
-                            public void run(Boolean folderCreated)
-                            {
-                                test.assertFalse(folderCreated);
-                                test.assertFalse(folder.hasValue());
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void createFolderAsyncWithRelativePathStringAndNonNullValue()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(final FileSystem fileSystem)
-            {
-                final Value<Folder> folder = new Value<>();
-                fileSystem.createFolderAsync("folder", folder)
-                        .then(new Action1<Boolean>()
-                        {
-                            @Override
-                            public void run(Boolean folderCreated)
-                            {
-                                test.assertFalse(folderCreated);
-                                test.assertFalse(folder.hasValue());
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void createFolderAsyncWithRootedPathStringAndNonNullValue()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(final FileSystem fileSystem)
-            {
-                final Value<Folder> folder = new Value<>();
-                fileSystem.createFolderAsync("/folder", folder)
-                        .then(new Action1<Boolean>()
-                        {
-                            @Override
-                            public void run(Boolean folderCreated)
-                            {
-                                test.assertTrue(folderCreated);
-                                test.assertTrue(fileSystem.folderExists("/folder"));
-
-                                test.assertTrue(folder.hasValue());
-                                test.assertNotNull(folder.get());
-                                test.assertEqual("/folder", folder.get().getPath().toString());
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void createFolderAsyncWithNullPath()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(FileSystem fileSystem)
-            {
-                fileSystem.createFolderAsync((Path)null)
-                        .then(new Action1<Boolean>()
-                        {
-                            @Override
-                            public void run(Boolean folderCreated)
-                            {
-                                test.assertFalse(folderCreated);
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void createFolderAsyncWithEmptyPath()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(FileSystem fileSystem)
-            {
-                fileSystem.createFolderAsync(Path.parse(""))
-                        .then(new Action1<Boolean>()
-                        {
-                            @Override
-                            public void run(Boolean folderCreated)
-                            {
-                                test.assertFalse(folderCreated);
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void createFolderAsyncWithRelativePath()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(FileSystem fileSystem)
-            {
-                fileSystem.createFolderAsync(Path.parse("folder"))
-                        .then(new Action1<Boolean>()
-                        {
-                            @Override
-                            public void run(Boolean arg1)
-                            {
-                                test.assertFalse(arg1);
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void createFolderAsyncWithRootedPath()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(final FileSystem fileSystem)
-            {
-                fileSystem.createFolderAsync(Path.parse("/folder"))
-                        .then(new Action1<Boolean>()
-                        {
-                            @Override
-                            public void run(Boolean folderCreated)
-                            {
-                                test.assertTrue(folderCreated);
-                                test.assertTrue(fileSystem.folderExists("/folder"));
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void createFolderAsyncWithNullPathAndNullValue()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(FileSystem fileSystem)
-            {
-                fileSystem.createFolderAsync((Path)null, null)
-                        .then(new Action1<Boolean>()
-                        {
-                            @Override
-                            public void run(Boolean folderCreated)
-                            {
-                                test.assertFalse(folderCreated);
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void createFolderAsyncWithEmptyPathAndNullValue()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(FileSystem fileSystem)
-            {
-                fileSystem.createFolderAsync(Path.parse(""), null)
-                        .then(new Action1<Boolean>()
-                        {
-                            @Override
-                            public void run(Boolean folderCreated)
-                            {
-                                test.assertFalse(folderCreated);
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void createFolderAsyncWithRelativePathAndNullValue()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(FileSystem fileSystem)
-            {
-                fileSystem.createFolderAsync(Path.parse("folder"), null)
-                        .then(new Action1<Boolean>()
-                        {
-                            @Override
-                            public void run(Boolean folderCreated)
-                            {
-                                test.assertFalse(folderCreated);
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void createFolderAsyncWithRootedPathAndNullValue()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(final FileSystem fileSystem)
-            {
-                fileSystem.createFolderAsync(Path.parse("/folder"), null)
-                        .then(new Action1<Boolean>()
-                        {
-                            @Override
-                            public void run(Boolean folderCreated)
-                            {
-                                test.assertTrue(folderCreated);
-                                test.assertTrue(fileSystem.folderExists("/folder"));
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void createFolderAsyncWithNullPathAndNonNullValue()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(FileSystem fileSystem)
-            {
-                final Value<Folder> folder = new Value<>();
-                fileSystem.createFolderAsync((Path)null, folder)
-                        .then(new Action1<Boolean>()
-                        {
-                            @Override
-                            public void run(Boolean folderCreated)
-                            {
-                                test.assertFalse(folderCreated);
-                                test.assertFalse(folder.hasValue());
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void createFolderAsyncWithEmptyPathAndNonNullValue()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(final FileSystem fileSystem)
-            {
-                final Value<Folder> folder = new Value<>();
-                fileSystem.createFolderAsync(Path.parse(""), folder)
-                        .then(new Action1<Boolean>()
-                        {
-                            @Override
-                            public void run(Boolean folderCreated)
-                            {
-                                test.assertFalse(folderCreated);
-                                test.assertFalse(folder.hasValue());
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void createFolderAsyncWithRelativePathAndNonNullValue()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(final FileSystem fileSystem)
-            {
-                final Value<Folder> folder = new Value<>();
-                fileSystem.createFolderAsync(Path.parse("folder"), folder)
-                        .then(new Action1<Boolean>()
-                        {
-                            @Override
-                            public void run(Boolean folderCreated)
-                            {
-                                test.assertFalse(folderCreated);
-                                test.assertFalse(folder.hasValue());
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void createFolderAsyncWithRootedPathAndNonNullValue()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(final FileSystem fileSystem)
-            {
-                final Value<Folder> folder = new Value<>();
-                fileSystem.createFolderAsync(Path.parse("/folder"), folder)
-                        .then(new Action1<Boolean>()
-                        {
-                            @Override
-                            public void run(Boolean folderCreated)
-                            {
-                                test.assertTrue(folderCreated);
-                                test.assertTrue(fileSystem.folderExists("/folder"));
-
-                                test.assertTrue(folder.hasValue());
-                                test.assertNotNull(folder.get());
-                                test.assertEqual("/folder", folder.get().getPath().toString());
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void deleteFolderWithNullString()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        test.assertFalse(fileSystem.deleteFolder((String)null));
-    }
-
-    @Test
-    public void deleteFolderWithEmptyString()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        test.assertFalse(fileSystem.deleteFolder(""));
-    }
-
-    @Test
-    public void deleteFolderWithNonRootedFolderPathString()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        fileSystem.createFolder("/folder");
-        test.assertFalse(fileSystem.deleteFolder("folder"));
-    }
-
-    @Test
-    public void deleteFolderWithNonExistingFolderPathString()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        test.assertFalse(fileSystem.deleteFolder("/folder"));
-    }
-
-    @Test
-    public void deleteFolderWithExistingFolderPathString()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        fileSystem.createFolder("/folder/");
-        test.assertTrue(fileSystem.deleteFolder("/folder/"));
-        test.assertFalse(fileSystem.deleteFolder("/folder/"));
-    }
-
-    @Test
-    public void deleteFolderWithExistingFolderPathStringWithSiblingFolders()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        fileSystem.createFolder("/folder/a");
-        fileSystem.createFolder("/folder/b");
-        fileSystem.createFolder("/folder/c");
-        test.assertTrue(fileSystem.deleteFolder("/folder/c"));
-        test.assertFalse(fileSystem.deleteFolder("/folder/c"));
-    }
-
-    @Test
-    public void deleteFolderAsyncWithNullString()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(FileSystem fileSystem)
-            {
-                fileSystem.deleteFolderAsync((String)null)
-                        .then(new Action1<Boolean>()
-                        {
-                            @Override
-                            public void run(Boolean folderDeleted)
-                            {
-                                test.assertFalse(folderDeleted);
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void deleteFolderAsyncWithEmptyString()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(FileSystem fileSystem)
-            {
-                fileSystem.deleteFolderAsync("")
-                        .then(new Action1<Boolean>()
-                        {
-                            @Override
-                            public void run(Boolean folderDeleted)
-                            {
-                                test.assertFalse(folderDeleted);
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void deleteFolderAsyncWithNonRootedFolderPathString()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(final FileSystem fileSystem)
-            {
-                fileSystem.createFolder("/folder");
-                fileSystem.deleteFolderAsync("folder")
-                        .then(new Action1<Boolean>()
-                        {
-                            @Override
-                            public void run(Boolean folderDeleted)
-                            {
-                                test.assertFalse(folderDeleted);
-                                test.assertTrue(fileSystem.folderExists("/folder"));
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void deleteFolderAsyncWithNonExistingFolderPathString()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(FileSystem fileSystem)
-            {
-                fileSystem.deleteFolderAsync("/folder")
-                        .then(new Action1<Boolean>()
-                        {
-                            @Override
-                            public void run(Boolean folderDeleted)
-                            {
-                                test.assertFalse(folderDeleted);
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void deleteFolderAsyncWithExistingFolderPathString()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(final FileSystem fileSystem)
-            {
-                fileSystem.createFolder("/folder/");
-
-                fileSystem.deleteFolderAsync("/folder/")
-                        .then(new Action1<Boolean>()
-                        {
-                            @Override
-                            public void run(Boolean folderDeleted)
-                            {
-                                test.assertTrue(folderDeleted);
-                                test.assertFalse(fileSystem.folderExists("/folder/"));
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void deleteFolderAsyncWithExistingFolderPathStringWithSiblingFolders()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(final FileSystem fileSystem)
-            {
-                fileSystem.createFolder("/folder/a");
-                fileSystem.createFolder("/folder/b");
-                fileSystem.createFolder("/folder/c");
-
-                fileSystem.deleteFolderAsync("/folder/c")
-                        .then(new Action1<Boolean>()
-                        {
-                            @Override
-                            public void run(Boolean folderDeleted)
-                            {
-                                test.assertTrue(folderDeleted);
-                                test.assertFalse(fileSystem.folderExists("/folder/c"));
-                                test.assertTrue(fileSystem.folderExists("/folder/a"));
-                                test.assertTrue(fileSystem.folderExists("/folder/b"));
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void deleteFolderAsyncWithNullPath()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(FileSystem fileSystem)
-            {
-                fileSystem.deleteFolderAsync((Path)null)
-                        .then(new Action1<Boolean>()
-                        {
-                            @Override
-                            public void run(Boolean folderDeleted)
-                            {
-                                test.assertFalse(folderDeleted);
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void deleteFolderAsyncWithEmptyPath()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(FileSystem fileSystem)
-            {
-                fileSystem.deleteFolderAsync(Path.parse(""))
-                        .then(new Action1<Boolean>()
-                        {
-                            @Override
-                            public void run(Boolean folderDeleted)
-                            {
-                                test.assertFalse(folderDeleted);
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void deleteFolderAsyncWithNonRootedFolderPath()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(final FileSystem fileSystem)
-            {
-                fileSystem.createFolder("/folder");
-                fileSystem.deleteFolderAsync(Path.parse("folder"))
-                        .then(new Action1<Boolean>()
-                        {
-                            @Override
-                            public void run(Boolean folderDeleted)
-                            {
-                                test.assertFalse(folderDeleted);
-                                test.assertTrue(fileSystem.folderExists("/folder"));
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void deleteFolderAsyncWithNonExistingFolderPath()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(FileSystem fileSystem)
-            {
-                fileSystem.deleteFolderAsync(Path.parse("/folder"))
-                        .then(new Action1<Boolean>()
-                        {
-                            @Override
-                            public void run(Boolean folderDeleted)
-                            {
-                                test.assertFalse(folderDeleted);
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void deleteFolderAsyncWithExistingFolderPath()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(final FileSystem fileSystem)
-            {
-                fileSystem.createFolder("/folder/");
-
-                fileSystem.deleteFolderAsync(Path.parse("/folder/"))
-                        .then(new Action1<Boolean>()
-                        {
-                            @Override
-                            public void run(Boolean folderDeleted)
-                            {
-                                test.assertTrue(folderDeleted);
-                                test.assertFalse(fileSystem.folderExists("/folder/"));
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void deleteFolderAsyncWithExistingFolderPathWithSiblingFolders()
-    {
-        asyncTest(new Action1<FileSystem>()
-        {
-            @Override
-            public void run(final FileSystem fileSystem)
-            {
-                fileSystem.createFolder("/folder/a");
-                fileSystem.createFolder("/folder/b");
-                fileSystem.createFolder("/folder/c");
-
-                fileSystem.deleteFolderAsync(Path.parse("/folder/c"))
-                        .then(new Action1<Boolean>()
-                        {
-                            @Override
-                            public void run(Boolean folderDeleted)
-                            {
-                                test.assertTrue(folderDeleted);
-                                test.assertFalse(fileSystem.folderExists("/folder/c"));
-                                test.assertTrue(fileSystem.folderExists("/folder/a"));
-                                test.assertTrue(fileSystem.folderExists("/folder/b"));
-                            }
-                        });
-            }
-        });
-    }
-
-    @Test
-    public void getFileWithNullString()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        final File file = fileSystem.getFile((String)null);
-        test.assertNull(file);
-    }
-
-    @Test
-    public void getFileWithEmptyString()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        final File file = fileSystem.getFile("");
-        test.assertNull(file);
-    }
-
-    @Test
-    public void getFileWithNonRootedString()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        final File file = fileSystem.getFile("a/b/c");
-        test.assertNull(file);
-    }
-
-    @Test
-    public void getFileWithForwardSlashRoot()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        final File file = fileSystem.getFile("/");
-        test.assertNull(file);
-    }
-
-    @Test
-    public void getFileWithBackslashRoot()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        final File file = fileSystem.getFile("\\");
-        test.assertNull(file);
-    }
-
-    @Test
-    public void getFileWithWindowsRoot()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        final File file = fileSystem.getFile("Z:\\");
-        test.assertNull(file);
-    }
-
-    @Test
-    public void getFileWithRootAndFile()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        final File file = fileSystem.getFile("/a/b");
-        test.assertNotNull(file);
-        test.assertEqual("/a/b", file.toString());
-    }
-
-    @Test
-    public void fileExistsWithRootPathString()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        final Root root = fileSystem.getRoots().first();
-        test.assertFalse(fileSystem.fileExists(root.getPath().toString()));
-    }
-
-    @Test
-    public void fileExistsWithExistingFolderPathString()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        fileSystem.createFolder("/folderName");
-        test.assertFalse(fileSystem.fileExists("/folerName"));
-    }
-
-    @Test
-    public void fileExistsWithExistingFilePathString()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        fileSystem.createFile("/file1.xml");
-        test.assertTrue(fileSystem.fileExists("/file1.xml"));
     }
 
     @Test
