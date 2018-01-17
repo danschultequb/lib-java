@@ -1,701 +1,1061 @@
 package qub;
 
-import org.junit.Test;
-
-import static org.junit.Assert.*;
-
 public class FileTests
 {
-    @Test
-    public void getFileExtension()
-    {
-        final FileSystem fileSystem = getFileSystem();
-
-        final File fileWithoutExtension = fileSystem.getFile("/folder/file");
-        assertNull(fileWithoutExtension.getFileExtension());
-
-        final File fileWithExtension = fileSystem.getFile("/file.csv");
-        assertEquals(".csv", fileWithExtension.getFileExtension());
-    }
-
-    @Test
-    public void create()
-    {
-        final File file = getFile();
-
-        assertTrue(file.create());
-
-        assertTrue(file.exists());
-        assertArrayEquals(new byte[0], file.getContents());
-    }
-
-    @Test
-    public void createWithNullContents()
-    {
-        final File file = getFile();
-
-        assertTrue(file.create((byte[])null));
-
-        assertTrue(file.exists());
-        assertArrayEquals(new byte[0], file.getContents());
-    }
-
-    @Test
-    public void createWithEmptyContents()
-    {
-        final File file = getFile();
-
-        assertTrue(file.create(new byte[0]));
-
-        assertTrue(file.exists());
-        assertArrayEquals(new byte[0], file.getContents());
-    }
-
-    @Test
-    public void createWithNonEmptyContents()
-    {
-        final File file = getFile();
-
-        assertTrue(file.create(new byte[] { 0, 1, 2, 3, 4 }));
-
-        assertTrue(file.exists());
-        assertArrayEquals(new byte[] { 0, 1, 2, 3, 4 }, file.getContents());
-    }
-
-    @Test
-    public void createWithNullContentsString()
-    {
-        final File file = getFile();
-
-        assertTrue(file.create((String)null));
-
-        assertTrue(file.exists());
-        assertEquals("", file.getContentsAsString());
-    }
-
-    @Test
-    public void createWithEmptyContentsString()
-    {
-        final File file = getFile();
-
-        assertTrue(file.create(""));
-
-        assertTrue(file.exists());
-        assertEquals("", file.getContentsAsString());
-    }
-
-    @Test
-    public void createWithNonEmptyContentsString()
-    {
-        final File file = getFile();
-
-        assertTrue(file.create("hello"));
-
-        assertTrue(file.exists());
-        assertEquals("hello", file.getContentsAsString());
-    }
-
-    @Test
-    public void createWithNullContentsStringAndEncoding()
-    {
-        final File file = getFile();
-
-        assertTrue(file.create(null, CharacterEncoding.UTF_8));
-
-        assertTrue(file.exists());
-        assertEquals("", file.getContentsAsString());
-    }
-
-    @Test
-    public void createWithEmptyContentsStringAndEncoding()
-    {
-        final File file = getFile();
-
-        assertTrue(file.create("", CharacterEncoding.UTF_8));
-
-        assertTrue(file.exists());
-        assertEquals("", file.getContentsAsString());
-    }
-
-    @Test
-    public void createWithNonEmptyContentsStringAndEncoding()
-    {
-        final File file = getFile();
-
-        assertTrue(file.create("hello", CharacterEncoding.UTF_8));
-
-        assertTrue(file.exists());
-        assertEquals("hello", file.getContentsAsString());
-    }
-
-    @Test
-    public void existsWhenFileNotCreated()
-    {
-        final File file = getFile();
-        assertFalse(file.exists());
-    }
-
-    @Test
-    public void existsAfterFileIsCreated()
-    {
-        final File file = getFile();
-        file.create();
-        assertTrue(file.exists());
-    }
-
-    @Test
-    public void deleteWhenFileDoesntExist()
-    {
-        final File file = getFile();
-        assertFalse(file.delete());
-        assertFalse(file.exists());
-    }
-
-    @Test
-    public void deleteWhenFileExists()
-    {
-        final File file = getFile();
-        file.create();
-
-        assertTrue(file.delete());
-        assertFalse(file.exists());
-    }
-
-    @Test
-    public void equalsNull()
-    {
-        final File file = getFile();
-        assertFalse(file.equals(null));
-    }
-
-    @Test
-    public void equalsPathString()
-    {
-        final File file = getFile();
-        assertFalse(file.equals(file.getPath().toString()));
-    }
-
-    @Test
-    public void equalsPath()
-    {
-        final File file = getFile();
-        assertFalse(file.equals(file.getPath()));
-    }
-
-    @Test
-    public void equalsDifferentFileWithSameFileSystem()
-    {
-        final FileSystem fileSystem = getFileSystem();
-        final File lhs = getFile(fileSystem, "/a/path.txt");
-        final File rhs = getFile(fileSystem, "/not/the/same/path.txt");
-        assertFalse(lhs.equals(rhs));
-    }
-
-    @Test
-    public void equalsSelf()
-    {
-        final File file = getFile();
-        assertTrue(file.equals(file));
-    }
-
-    @Test
-    public void equalsFileWithEqualPathAndSameFileSystem()
-    {
-        final FileSystem fileSystem = getFileSystem();
-        final File lhs = getFile(fileSystem);
-        final File rhs = getFile(fileSystem);
-        assertTrue(lhs.equals(rhs));
-    }
-
-    @Test
-    public void getContentsWithNonExistingFile()
-    {
-        final File file = getFile();
-        assertNull(file.getContents());
-    }
-
-    @Test
-    public void getContentsWithExistingEmptyFile()
-    {
-        final File file = getFile();
-        file.create();
-        assertArrayEquals(new byte[0], file.getContents());
-    }
-
-    @Test
-    public void getContentsAsStringWithNonExistingFile()
-    {
-        final File file = getFile();
-        assertNull(file.getContentsAsString());
-    }
-
-    @Test
-    public void getContentsAsStringWithExistingFileWithNoContents()
-    {
-        final File file = getFile();
-        file.create();
-        assertEquals("", file.getContentsAsString());
-    }
-
-    @Test
-    public void getContentsAsStringWithExistingFileWithContents()
-    {
-        final File file = getFile();
-        file.create("Hello".getBytes());
-        assertEquals("Hello", file.getContentsAsString());
-    }
-
-    @Test
-    public void getContentsAsStringWithNullEncodingAndNonExistingFile()
-    {
-        final File file = getFile();
-        assertNull(file.getContentsAsString());
-    }
-
-    @Test
-    public void getContentsAsStringWithNullEncodingAndExistingFileWithNoContents()
-    {
-        final File file = getFile();
-        file.create();
-        assertNull(file.getContentsAsString(null));
-    }
-
-    @Test
-    public void getContentsAsStringWithNullEncodingAndExistingFileWithContents()
-    {
-        final File file = getFile();
-        file.create("Hello".getBytes());
-        assertNull(file.getContentsAsString(null));
-    }
-
-    @Test
-    public void getContentsAsStringWithNonNullEncodingAndNonExistingFile()
-    {
-        final File file = getFile();
-        assertNull(file.getContentsAsString(CharacterEncoding.UTF_8));
-    }
-
-    @Test
-    public void getContentsAsStringWithNonNullEncodingAndExistingFileWithNoContents()
-    {
-        final File file = getFile();
-        file.create();
-        assertEquals("", file.getContentsAsString(CharacterEncoding.UTF_8));
-    }
-
-    @Test
-    public void getContentsAsStringWithNonNullEncodingAndExistingFileWithContents()
-    {
-        final File file = getFile();
-        file.create("Hello".getBytes());
-        assertEquals("Hello", file.getContentsAsString(CharacterEncoding.UTF_8));
-    }
-
-    @Test
-    public void getContentLinesWithNonExistingFile()
-    {
-        final File file = getFile();
-        assertNull(file.getContentLines());
-    }
-
-    @Test
-    public void getContentLinesWithExistingEmptyFile()
-    {
-        final File file = getFile();
-        file.create();
-        assertArrayEquals(new String[0], Array.toStringArray(file.getContentLines()));
-    }
-
-    @Test
-    public void getContentLinesWithExistingSingleLineFile()
-    {
-        final File file = getFile();
-        file.create("hello");
-        assertArrayEquals(new String[] { "hello" }, Array.toStringArray(file.getContentLines()));
-    }
-
-    @Test
-    public void getContentLinesWithExistingMultipleLineFile()
-    {
-        final File file = getFile();
-        file.create("a\nb\r\nc");
-        assertArrayEquals(new String[] { "a\n", "b\r\n", "c" }, Array.toStringArray(file.getContentLines()));
-    }
-
-    @Test
-    public void getContentLinesNullEncodingWithNonExistingFile()
-    {
-        final File file = getFile();
-        assertNull(file.getContentLines(null));
-    }
-
-    @Test
-    public void getContentLinesNullEncodingWithExistingEmptyFile()
-    {
-        final File file = getFile();
-        file.create();
-        assertArrayEquals(null, Array.toStringArray(file.getContentLines(null)));
-    }
-
-    @Test
-    public void getContentLinesNullEncodingWithExistingSingleLineFile()
-    {
-        final File file = getFile();
-        file.create("hello");
-        assertArrayEquals(null, Array.toStringArray(file.getContentLines(null)));
-    }
-
-    @Test
-    public void getContentLinesNullEncodingWithExistingMultipleLineFile()
-    {
-        final File file = getFile();
-        file.create("a\nb\r\nc");
-        assertArrayEquals(null, Array.toStringArray(file.getContentLines(null)));
-    }
-
-    @Test
-    public void getContentLinesEncodingWithNonExistingFile()
-    {
-        final File file = getFile();
-        assertNull(file.getContentLines(CharacterEncoding.UTF_8));
-    }
-
-    @Test
-    public void getContentLinesEncodingWithExistingEmptyFile()
-    {
-        final File file = getFile();
-        file.create();
-        assertArrayEquals(new String[0], Array.toStringArray(file.getContentLines(CharacterEncoding.UTF_8)));
-    }
-
-    @Test
-    public void getContentLinesEncodingWithExistingSingleLineFile()
-    {
-        final File file = getFile();
-        file.create("hello");
-        assertArrayEquals(new String[] { "hello" }, Array.toStringArray(file.getContentLines(CharacterEncoding.UTF_8)));
-    }
-
-    @Test
-    public void getContentLinesEncodingWithExistingMultipleLineFile()
-    {
-        final File file = getFile();
-        file.create("a\nb\r\nc");
-        assertArrayEquals(new String[] { "a\n", "b\r\n", "c" }, Array.toStringArray(file.getContentLines(CharacterEncoding.UTF_8)));
-    }
-
-    @Test
-    public void getContentLinesDontIncludeNewLinesWithNonExistingFile()
-    {
-        final File file = getFile();
-        assertNull(file.getContentLines(false));
-    }
-
-    @Test
-    public void getContentLinesDontIncludeNewLinesWithExistingEmptyFile()
-    {
-        final File file = getFile();
-        file.create();
-        assertArrayEquals(new String[0], Array.toStringArray(file.getContentLines(false)));
-    }
-
-    @Test
-    public void getContentLinesDontIncludeNewLinesWithExistingSingleLineFile()
-    {
-        final File file = getFile();
-        file.create("hello");
-        assertArrayEquals(new String[] { "hello" }, Array.toStringArray(file.getContentLines(false)));
-    }
-
-    @Test
-    public void getContentLinesDontIncludeNewLinesWithExistingMultipleLineFile()
-    {
-        final File file = getFile();
-        file.create("a\nb\r\nc");
-        assertArrayEquals(new String[] { "a", "b", "c" }, Array.toStringArray(file.getContentLines(false)));
-    }
-
-    @Test
-    public void getContentLinesIncludeNewLinesWithNonExistingFile()
-    {
-        final File file = getFile();
-        assertNull(file.getContentLines(true));
-    }
-
-    @Test
-    public void getContentLinesIncludeNewLinesWithExistingEmptyFile()
-    {
-        final File file = getFile();
-        file.create();
-        assertArrayEquals(new String[0], Array.toStringArray(file.getContentLines(true)));
-    }
-
-    @Test
-    public void getContentLinesIncludeNewLinesWithExistingSingleLineFile()
-    {
-        final File file = getFile();
-        file.create("hello");
-        assertArrayEquals(new String[] { "hello" }, Array.toStringArray(file.getContentLines(true)));
-    }
-
-    @Test
-    public void getContentLinesIncludeNewLinesWithExistingMultipleLineFile()
-    {
-        final File file = getFile();
-        file.create("a\nb\r\nc");
-        assertArrayEquals(new String[] { "a\n", "b\r\n", "c" }, Array.toStringArray(file.getContentLines(true)));
-    }
-
-    @Test
-    public void getContentLinesIncludeNewLinesEncodingWithNonExistingFile()
-    {
-        final File file = getFile();
-        assertNull(file.getContentLines(true, CharacterEncoding.UTF_8));
-    }
-
-    @Test
-    public void getContentLinesIncludeNewLinesEncodingWithExistingEmptyFile()
-    {
-        final File file = getFile();
-        file.create();
-        assertArrayEquals(new String[0], Array.toStringArray(file.getContentLines(true, CharacterEncoding.UTF_8)));
-    }
-
-    @Test
-    public void getContentLinesIncludeNewLinesEncodingWithExistingSingleLineFile()
-    {
-        final File file = getFile();
-        file.create("hello");
-        assertArrayEquals(new String[] { "hello" }, Array.toStringArray(file.getContentLines(true, CharacterEncoding.UTF_8)));
-    }
-
-    @Test
-    public void getContentLinesIncludeNewLinesEncodingWithExistingMultipleLineFile()
-    {
-        final File file = getFile();
-        file.create("a\nb\r\nc");
-        assertArrayEquals(new String[] { "a\n", "b\r\n", "c" }, Array.toStringArray(file.getContentLines(true, CharacterEncoding.UTF_8)));
-    }
-
-    @Test
-    public void getContentByteReadStreamWhenFileDoesntExist()
-    {
-        final File file = getFile();
-        assertNull(file.getContentByteReadStream());
-    }
-
-    @Test
-    public void getContentCharacterReadStreamWhenFileDoesntExist()
-    {
-        final File file = getFile();
-        assertNull(file.getContentCharacterReadStream());
-    }
-
-    @Test
-    public void setContentsWithNonExistingFileAndNullContents()
-    {
-        final File file = getFile();
-
-        assertTrue(file.setContents((byte[])null));
-
-        assertTrue(file.exists());
-        assertArrayEquals(new byte[0], file.getContents());
-    }
-
-    @Test
-    public void setContentsWithExistingFileAndNullContents()
-    {
-        final File file = getFile();
-        file.create();
-
-        assertTrue(file.setContents((byte[])null));
-
-        assertTrue(file.exists());
-        assertArrayEquals(new byte[0], file.getContents());
-    }
-
-    @Test
-    public void setContentsWithNonExistingFileAndEmptyContents()
-    {
-        final File file = getFile();
-
-        assertTrue(file.setContents(new byte[0]));
-
-        assertTrue(file.exists());
-        assertArrayEquals(new byte[0], file.getContents());
-    }
-
-    @Test
-    public void setContentsWithExistingFileAndEmptyContents()
-    {
-        final File file = getFile();
-        file.create();
-
-        assertTrue(file.setContents(new byte[0]));
-
-        assertTrue(file.exists());
-        assertArrayEquals(new byte[0], file.getContents());
-    }
-
-    @Test
-    public void setContentsWithNonExistingFileAndNonEmptyContents()
-    {
-        final File file = getFile();
-
-        assertTrue(file.setContents(new byte[] { 0, 1, 2, 3 }));
-
-        assertTrue(file.exists());
-        assertArrayEquals(new byte[] { 0, 1, 2, 3 }, file.getContents());
-    }
-
-    @Test
-    public void setContentsWithExistingFileAndNonEmptyContents()
-    {
-        final File file = getFile();
-        file.create();
-
-        assertTrue(file.setContents(new byte[] { 0, 1, 2, 3 }));
-
-        assertTrue(file.exists());
-        assertArrayEquals(new byte[] { 0, 1, 2, 3 }, file.getContents());
-    }
-
-    @Test
-    public void setContentsWithNonExistingFileAndNullContentsString()
-    {
-        final File file = getFile();
-
-        assertTrue(file.setContents((String)null));
-
-        assertTrue(file.exists());
-        assertEquals("", file.getContentsAsString());
-    }
-
-    @Test
-    public void setContentsWithExistingFileAndNullContentsString()
-    {
-        final File file = getFile();
-        file.create();
-
-        assertTrue(file.setContents((String)null));
-
-        assertTrue(file.exists());
-        assertEquals("", file.getContentsAsString());
-    }
-
-    @Test
-    public void setContentsWithNonExistingFileAndEmptyContentsString()
-    {
-        final File file = getFile();
-
-        assertTrue(file.setContents(""));
-
-        assertTrue(file.exists());
-        assertEquals("", file.getContentsAsString());
-    }
-
-    @Test
-    public void setContentsWithExistingFileAndEmptyContentsString()
-    {
-        final File file = getFile();
-        file.create();
-
-        assertTrue(file.setContents(""));
-
-        assertTrue(file.exists());
-        assertEquals("", file.getContentsAsString());
-    }
-
-    @Test
-    public void setContentsWithNonExistingFileAndNonEmptyContentsString()
-    {
-        final File file = getFile();
-
-        assertTrue(file.setContents("XYZ"));
-
-        assertTrue(file.exists());
-        assertEquals("XYZ", file.getContentsAsString());
-    }
-
-    @Test
-    public void setContentsWithExistingFileAndNonEmptyContentsString()
-    {
-        final File file = getFile();
-        file.create();
-
-        assertTrue(file.setContents("XYZ"));
-
-        assertTrue(file.exists());
-        assertEquals("XYZ", file.getContentsAsString());
-    }
-
-    @Test
-    public void setContentsWithNonExistingFileAndNullContentsStringAndEncoding()
-    {
-        final File file = getFile();
-
-        assertTrue(file.setContents(null, CharacterEncoding.UTF_8));
-
-        assertTrue(file.exists());
-        assertEquals("", file.getContentsAsString());
-    }
-
-    @Test
-    public void setContentsWithExistingFileAndNullContentsStringAndEncoding()
-    {
-        final File file = getFile();
-        file.create();
-
-        assertTrue(file.setContents(null, CharacterEncoding.UTF_8));
-
-        assertTrue(file.exists());
-        assertEquals("", file.getContentsAsString());
-    }
-
-    @Test
-    public void setContentsWithNonExistingFileAndEmptyContentsStringAndEncoding()
-    {
-        final File file = getFile();
-
-        assertTrue(file.setContents("", CharacterEncoding.UTF_8));
-
-        assertTrue(file.exists());
-        assertEquals("", file.getContentsAsString());
-    }
-
-    @Test
-    public void setContentsWithExistingFileAndEmptyContentsStringAndEncoding()
-    {
-        final File file = getFile();
-        file.create();
-
-        assertTrue(file.setContents("", CharacterEncoding.UTF_8));
-
-        assertTrue(file.exists());
-        assertEquals("", file.getContentsAsString());
-    }
-
-    @Test
-    public void setContentsWithNonExistingFileAndNonEmptyContentsStringAndEncoding()
-    {
-        final File file = getFile();
-
-        assertTrue(file.setContents("ABC", CharacterEncoding.UTF_8));
-
-        assertTrue(file.exists());
-        assertEquals("ABC", file.getContentsAsString());
-    }
-
-    @Test
-    public void setContentsWithExistingFileAndNonEmptyContentsStringAndEncoding()
-    {
-        final File file = getFile();
-        file.create();
-
-        assertTrue(file.setContents("ABC", CharacterEncoding.UTF_8));
-
-        assertTrue(file.exists());
-        assertEquals("ABC", file.getContentsAsString());
+    public static void test(final TestRunner runner)
+    {
+        runner.testGroup("File", new Action0()
+        {
+            @Override
+            public void run()
+            {
+                runner.test("getFileExtension()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final FileSystem fileSystem = getFileSystem();
+
+                        final File fileWithoutExtension = fileSystem.getFile("/folder/file");
+                        test.assertNull(fileWithoutExtension.getFileExtension());
+
+                        final File fileWithExtension = fileSystem.getFile("/file.csv");
+                        test.assertEqual(".csv", fileWithExtension.getFileExtension());
+                    }
+                });
+                
+                runner.test("create()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final File file = getFile();
+
+                        test.assertTrue(file.create());
+
+                        test.assertTrue(file.exists());
+                        test.assertEqual(new byte[0], file.getContents());
+                    }
+                });
+                
+                runner.testGroup("create(byte[])", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null contents", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+
+                                test.assertTrue(file.create((byte[])null));
+
+                                test.assertTrue(file.exists());
+                                test.assertEqual(new byte[0], file.getContents());
+                            }
+                        });
+                        
+                        runner.test("with empty contents", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+
+                                test.assertTrue(file.create(new byte[0]));
+
+                                test.assertTrue(file.exists());
+                                test.assertEqual(new byte[0], file.getContents());
+                            }
+                        });
+                        
+                        runner.test("with non-empty contents", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+
+                                test.assertTrue(file.create(new byte[] { 0, 1, 2, 3, 4 }));
+
+                                test.assertTrue(file.exists());
+                                test.assertEqual(new byte[] { 0, 1, 2, 3, 4 }, file.getContents());
+                            }
+                        });
+                    }
+                });
+                
+                runner.testGroup("create(String)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null contents", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+
+                                test.assertTrue(file.create((String)null));
+
+                                test.assertTrue(file.exists());
+                                test.assertEqual("", file.getContentsAsString());
+                            }
+                        });
+                        
+                        runner.test("with empty contents", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+
+                                test.assertTrue(file.create(""));
+
+                                test.assertTrue(file.exists());
+                                test.assertEqual("", file.getContentsAsString());
+                            }
+                        });
+                        
+                        runner.test("with non-empty contents", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+
+                                test.assertTrue(file.create("hello"));
+
+                                test.assertTrue(file.exists());
+                                test.assertEqual("hello", file.getContentsAsString());
+                            }
+                        });
+                    }
+                });
+                
+                runner.testGroup("create(String,CharacterEncoding)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null contents", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+
+                                test.assertTrue(file.create(null, CharacterEncoding.UTF_8));
+
+                                test.assertTrue(file.exists());
+                                test.assertEqual("", file.getContentsAsString());
+                            }
+                        });
+                        
+                        runner.test("with empty contents", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+
+                                test.assertTrue(file.create("", CharacterEncoding.UTF_8));
+
+                                test.assertTrue(file.exists());
+                                test.assertEqual("", file.getContentsAsString());
+                            }
+                        });
+                        
+                        runner.test("with non-empty contents", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+
+                                test.assertTrue(file.create("hello", CharacterEncoding.UTF_8));
+
+                                test.assertTrue(file.exists());
+                                test.assertEqual("hello", file.getContentsAsString());
+                            }
+                        });
+                    }
+                });
+                
+                runner.testGroup("exists()", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("when file doesn't exist", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                test.assertFalse(file.exists());
+                            }
+                        });
+
+                        runner.test("when file does exist", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                file.create();
+                                test.assertTrue(file.exists());
+                            }
+                        });
+                    }
+                });
+
+                runner.testGroup("delete()", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("when file doesn't exist", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                test.assertFalse(file.delete());
+                                test.assertFalse(file.exists());
+                            }
+                        });
+
+                        runner.test("when file does exist", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                file.create();
+
+                                test.assertTrue(file.delete());
+                                test.assertFalse(file.exists());
+                            }
+                        });
+                    }
+                });
+
+                runner.testGroup("equals()", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                test.assertFalse(file.equals(null));
+                            }
+                        });
+
+                        runner.test("with String", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                test.assertFalse(file.equals(file.getPath().toString()));
+                            }
+                        });
+
+                        runner.test("with Path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                test.assertFalse(file.equals(file.getPath()));
+                            }
+                        });
+
+                        runner.test("with different file from same file system", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem();
+                                final File lhs = getFile(fileSystem, "/a/path.txt");
+                                final File rhs = getFile(fileSystem, "/not/the/same/path.txt");
+                                test.assertFalse(lhs.equals(rhs));
+                            }
+                        });
+
+                        runner.test("with same", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                test.assertTrue(file.equals(file));
+                            }
+                        });
+
+                        runner.test("with equal path and same file system", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem();
+                                final File lhs = getFile(fileSystem);
+                                final File rhs = getFile(fileSystem);
+                                test.assertTrue(lhs.equals(rhs));
+                            }
+                        });
+                    }
+                });
+
+                runner.testGroup("getContents()", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with non-existing file", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                test.assertNull(file.getContents());
+                            }
+                        });
+
+                        runner.test("with existing file with no contents", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                file.create();
+                                test.assertEqual(new byte[0], file.getContents());
+                            }
+                        });
+                    }
+                });
+
+                runner.testGroup("getContentsAsString()", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with non-existing file", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                test.assertNull(file.getContentsAsString());
+                            }
+                        });
+
+                        runner.test("with existing file with no contents", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                file.create();
+                                test.assertEqual("", file.getContentsAsString());
+                            }
+                        });
+
+                        runner.test("with existing file with contents", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                file.create("Hello".getBytes());
+                                test.assertEqual("Hello", file.getContentsAsString());
+                            }
+                        });
+                    }
+                });
+
+                runner.testGroup("getContentsAsString(CharacterEncoding)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with non-existing file and null encoding", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                test.assertNull(file.getContentsAsString(null));
+                            }
+                        });
+
+                        runner.test("with existing file with no contents and null encoding", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                file.create();
+                                test.assertNull(file.getContentsAsString(null));
+                            }
+                        });
+
+                        runner.test("with existing file with contents and null encoding", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                file.create("Hello".getBytes());
+                                test.assertNull(file.getContentsAsString(null));
+                            }
+                        });
+
+                        runner.test("with non-existing file and non-null encoding", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                test.assertNull(file.getContentsAsString(CharacterEncoding.UTF_8));
+                            }
+                        });
+
+                        runner.test("with existing file with no contents and non-null encoding", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                file.create();
+                                test.assertEqual("", file.getContentsAsString(CharacterEncoding.UTF_8));
+                            }
+                        });
+
+                        runner.test("with existing file with contents and non-null encoding", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                file.create("Hello".getBytes());
+                                test.assertEqual("Hello", file.getContentsAsString(CharacterEncoding.UTF_8));
+                            }
+                        });
+                    }
+                });
+
+                runner.testGroup("getContentLines()", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with non-existing file", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                test.assertNull(file.getContentLines());
+                            }
+                        });
+
+                        runner.test("with existing file with no contents", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                file.create();
+                                test.assertEqual(new String[0], Array.toStringArray(file.getContentLines()));
+                            }
+                        });
+
+                        runner.test("with existing file with single line content", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                file.create("hello");
+                                test.assertEqual(new String[] { "hello" }, Array.toStringArray(file.getContentLines()));
+                            }
+                        });
+
+                        runner.test("with existing file with multiple lines of content", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                file.create("a\nb\r\nc");
+                                test.assertEqual(new String[] { "a\n", "b\r\n", "c" }, Array.toStringArray(file.getContentLines()));
+                            }
+                        });
+                    }
+                });
+
+                runner.testGroup("getContentLines(CharacterEncoding)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with non-existing file and null encoding", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                test.assertNull(file.getContentLines(null));
+                            }
+                        });
+
+                        runner.test("with existing file with no contents and null encoding", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                file.create();
+                                test.assertEqual(null, Array.toStringArray(file.getContentLines(null)));
+                            }
+                        });
+
+                        runner.test("with existing file with single line content and null encoding", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                file.create("hello");
+                                test.assertEqual(null, Array.toStringArray(file.getContentLines(null)));
+                            }
+                        });
+
+                        runner.test("with existing file with multiple lines of content and null encoding", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                file.create("a\nb\r\nc");
+                                test.assertEqual(null, Array.toStringArray(file.getContentLines(null)));
+                            }
+                        });
+
+                        runner.test("with non-existing file and non-null encoding", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                test.assertNull(file.getContentLines(CharacterEncoding.UTF_8));
+                            }
+                        });
+
+                        runner.test("with existing file with no contents and non-null encoding", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                file.create();
+                                test.assertEqual(new String[0], Array.toStringArray(file.getContentLines(CharacterEncoding.UTF_8)));
+                            }
+                        });
+
+                        runner.test("with existing file with single line content and non-null encoding", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                file.create("hello");
+                                test.assertEqual(new String[] { "hello" }, Array.toStringArray(file.getContentLines(CharacterEncoding.UTF_8)));
+                            }
+                        });
+
+                        runner.test("with existing file with multiple lines of content and non-null encoding", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                file.create("a\nb\r\nc");
+                                test.assertEqual(new String[] { "a\n", "b\r\n", "c" }, Array.toStringArray(file.getContentLines(CharacterEncoding.UTF_8)));
+                            }
+                        });
+                    }
+                });
+
+                runner.testGroup("getContentLines(boolean)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with non-existing file and don't include new lines", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                test.assertNull(file.getContentLines(false));
+                            }
+                        });
+
+                        runner.test("with existing file with no contents and don't include new lines", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                file.create();
+                                test.assertEqual(new String[0], Array.toStringArray(file.getContentLines(false)));
+                            }
+                        });
+
+                        runner.test("with existing file with single line of content and don't include new lines", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                file.create("hello");
+                                test.assertEqual(new String[] { "hello" }, Array.toStringArray(file.getContentLines(false)));
+                            }
+                        });
+
+                        runner.test("with existing file with multiple lines of content and don't include new lines", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                file.create("a\nb\r\nc");
+                                test.assertEqual(new String[] { "a", "b", "c" }, Array.toStringArray(file.getContentLines(false)));
+                            }
+                        });
+
+                        runner.test("with non-existing file and include new lines", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                test.assertNull(file.getContentLines(true));
+                            }
+                        });
+
+                        runner.test("with existing file with no contents and include new lines", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                file.create();
+                                test.assertEqual(new String[0], Array.toStringArray(file.getContentLines(true)));
+                            }
+                        });
+
+                        runner.test("with existing file with single line content and include new lines", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                file.create("hello");
+                                test.assertEqual(new String[] { "hello" }, Array.toStringArray(file.getContentLines(true)));
+                            }
+                        });
+
+                        runner.test("with existing file with multiple lines of content and include new lines", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                file.create("a\nb\r\nc");
+                                test.assertEqual(new String[] { "a\n", "b\r\n", "c" }, Array.toStringArray(file.getContentLines(true)));
+                            }
+                        });
+                    }
+                });
+
+                runner.testGroup("getContentLines(boolean,CharacterEncoding)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with non-existing file, include new lines, and non-null encoding", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                test.assertNull(file.getContentLines(true, CharacterEncoding.UTF_8));
+                            }
+                        });
+
+                        runner.test("with existing file with no contents, include new lines, and non-null encoding", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                file.create();
+                                test.assertEqual(new String[0], Array.toStringArray(file.getContentLines(true, CharacterEncoding.UTF_8)));
+                            }
+                        });
+
+                        runner.test("with existing file with single line content, include new lines, and non-null encoding", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                file.create("hello");
+                                test.assertEqual(new String[] { "hello" }, Array.toStringArray(file.getContentLines(true, CharacterEncoding.UTF_8)));
+                            }
+                        });
+
+                        runner.test("with existing file with multiple lines of content, include new lines, and non-null encoding", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                file.create("a\nb\r\nc");
+                                test.assertEqual(new String[] { "a\n", "b\r\n", "c" }, Array.toStringArray(file.getContentLines(true, CharacterEncoding.UTF_8)));
+                            }
+                        });
+                    }
+                });
+
+                runner.testGroup("getContentByteReadStream()", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with non-existing file", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                test.assertNull(file.getContentByteReadStream());
+                            }
+                        });
+                    }
+                });
+
+                runner.testGroup("getContentCharacterReadStream()", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with non-existing file", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                test.assertNull(file.getContentCharacterReadStream());
+                            }
+                        });
+                    }
+                });
+
+                runner.testGroup("setContents(byte[])", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with non-existing file and null contents", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+
+                                test.assertTrue(file.setContents((byte[])null));
+
+                                test.assertTrue(file.exists());
+                                test.assertEqual(new byte[0], file.getContents());
+                            }
+                        });
+
+                        runner.test("with existing file and null contents", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                file.create();
+
+                                test.assertTrue(file.setContents((byte[])null));
+
+                                test.assertTrue(file.exists());
+                                test.assertEqual(new byte[0], file.getContents());
+                            }
+                        });
+
+                        runner.test("with non-existing file and empty contents", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+
+                                test.assertTrue(file.setContents(new byte[0]));
+
+                                test.assertTrue(file.exists());
+                                test.assertEqual(new byte[0], file.getContents());
+                            }
+                        });
+
+                        runner.test("with existing file and empty contents", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                file.create();
+
+                                test.assertTrue(file.setContents(new byte[0]));
+
+                                test.assertTrue(file.exists());
+                                test.assertEqual(new byte[0], file.getContents());
+                            }
+                        });
+
+                        runner.test("with non-existing file and non-empty contents", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+
+                                test.assertTrue(file.setContents(new byte[] { 0, 1, 2, 3 }));
+
+                                test.assertTrue(file.exists());
+                                test.assertEqual(new byte[] { 0, 1, 2, 3 }, file.getContents());
+                            }
+                        });
+
+                        runner.test("with existing file and non-empty contents", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                file.create();
+
+                                test.assertTrue(file.setContents(new byte[] { 0, 1, 2, 3 }));
+
+                                test.assertTrue(file.exists());
+                                test.assertEqual(new byte[] { 0, 1, 2, 3 }, file.getContents());
+                            }
+                        });
+                    }
+                });
+
+                runner.testGroup("setContents(String)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with non-existing file and null contents", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+
+                                test.assertTrue(file.setContents((String)null));
+
+                                test.assertTrue(file.exists());
+                                test.assertEqual("", file.getContentsAsString());
+                            }
+                        });
+
+                        runner.test("with existing file and null contents", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                file.create();
+
+                                test.assertTrue(file.setContents((String)null));
+
+                                test.assertTrue(file.exists());
+                                test.assertEqual("", file.getContentsAsString());
+                            }
+                        });
+
+                        runner.test("with non-existing file and empty contents", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+
+                                test.assertTrue(file.setContents(""));
+
+                                test.assertTrue(file.exists());
+                                test.assertEqual("", file.getContentsAsString());
+                            }
+                        });
+
+                        runner.test("with existing file and empty contents", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                file.create();
+
+                                test.assertTrue(file.setContents(""));
+
+                                test.assertTrue(file.exists());
+                                test.assertEqual("", file.getContentsAsString());
+                            }
+                        });
+
+                        runner.test("with non-existing flie and non-empty contents", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+
+                                test.assertTrue(file.setContents("XYZ"));
+
+                                test.assertTrue(file.exists());
+                                test.assertEqual("XYZ", file.getContentsAsString());
+                            }
+                        });
+
+                        runner.test("with existing file and non-empty contents", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                file.create();
+
+                                test.assertTrue(file.setContents("XYZ"));
+
+                                test.assertTrue(file.exists());
+                                test.assertEqual("XYZ", file.getContentsAsString());
+                            }
+                        });
+                    }
+                });
+
+                runner.testGroup("setContents(String,CharacterEncoding)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with non-existing file, null contents, and non-null encoding", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+
+                                test.assertTrue(file.setContents(null, CharacterEncoding.UTF_8));
+
+                                test.assertTrue(file.exists());
+                                test.assertEqual("", file.getContentsAsString());
+                            }
+                        });
+
+                        runner.test("with existing file, null contents, and non-null encoding", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                file.create();
+
+                                test.assertTrue(file.setContents(null, CharacterEncoding.UTF_8));
+
+                                test.assertTrue(file.exists());
+                                test.assertEqual("", file.getContentsAsString());
+                            }
+                        });
+
+                        runner.test("with non-existing file, empty contents, and non-null encoding", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+
+                                test.assertTrue(file.setContents("", CharacterEncoding.UTF_8));
+
+                                test.assertTrue(file.exists());
+                                test.assertEqual("", file.getContentsAsString());
+                            }
+                        });
+
+                        runner.test("with existing file, empty contents, and non-null encoding", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                file.create();
+
+                                test.assertTrue(file.setContents("", CharacterEncoding.UTF_8));
+
+                                test.assertTrue(file.exists());
+                                test.assertEqual("", file.getContentsAsString());
+                            }
+                        });
+
+                        runner.test("with non-existing file, non-empty contents, and non-null encoding", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+
+                                test.assertTrue(file.setContents("ABC", CharacterEncoding.UTF_8));
+
+                                test.assertTrue(file.exists());
+                                test.assertEqual("ABC", file.getContentsAsString());
+                            }
+                        });
+
+                        runner.test("with existing file, non-empty contents, and non-null encoding", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final File file = getFile();
+                                file.create();
+
+                                test.assertTrue(file.setContents("ABC", CharacterEncoding.UTF_8));
+
+                                test.assertTrue(file.exists());
+                                test.assertEqual("ABC", file.getContentsAsString());
+                            }
+                        });
+                    }
+                });
+            }
+        });
     }
 
     private static FileSystem getFileSystem()
