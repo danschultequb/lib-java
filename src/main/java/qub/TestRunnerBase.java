@@ -4,30 +4,49 @@ public class TestRunnerBase implements TestRunner
 {
     private int passedTestCount;
     private int failedTestCount;
+    private final List<TestAssertionFailure> testFailures = new SingleLinkList<>();
 
     private Action1<String> onTestGroupStarted;
     private Action1<String> onTestGroupFinished;
     private Action1<String> onTestStarted;
     private Action1<String> onTestPassed;
-    private Action2<String,Throwable> onTestFailed;
+    private Action2<String,TestAssertionFailure> onTestFailed;
     private Action1<String> onTestFinished;
+    
+    private Action0 beforeTestAction;
+    private Action0 afterTestAction;
+    private String testFullName = "";
 
     @Override
     public void testGroup(String testGroupName, Action0 testGroupAction)
     {
         if (testGroupAction != null)
         {
+            final Action0 beforeTestActionBackup = beforeTestAction;
+            final Action0 afterTestActionBackup = afterTestAction;
+
+            final String testFullNameBackup = testFullName;
+            if (!testFullName.isEmpty())
+            {
+                testFullName += '.';
+            }
+            testFullName += testGroupName;
+            
             if (onTestGroupStarted != null)
             {
                 onTestGroupStarted.run(testGroupName);
             }
-
+            
             testGroupAction.run();
 
             if (onTestGroupFinished != null)
             {
                 onTestGroupFinished.run(testGroupName);
             }
+
+            beforeTestAction = beforeTestActionBackup;
+            afterTestAction = afterTestActionBackup;
+            testFullName = testFullNameBackup;
         }
     }
 
@@ -36,16 +55,32 @@ public class TestRunnerBase implements TestRunner
     {
         if (testAction != null)
         {
-            final Test test = new Test();
-
+            final String testFullNameBackup = testFullName;
+            if (!testFullName.isEmpty())
+            {
+                testFullName += '.';
+            }
+            testFullName += testName;
+            
             if (onTestStarted != null)
             {
                 onTestStarted.run(testName);
             }
 
+            final Test test = new Test(testFullName);
             try
             {
+                if (beforeTestAction != null)
+                {
+                    beforeTestAction.run();
+                }
+
                 testAction.run(test);
+
+                if (afterTestAction != null)
+                {
+                    afterTestAction.run();
+                }
 
                 ++passedTestCount;
                 if (onTestPassed != null)
@@ -55,10 +90,30 @@ public class TestRunnerBase implements TestRunner
             }
             catch (Throwable e)
             {
+                TestAssertionFailure failure;
+                if (e instanceof TestAssertionFailure)
+                {
+                    failure = (TestAssertionFailure)e;
+                }
+                else
+                {
+                    final List<String> messageLines = new SingleLinkList<>();
+                    messageLines.add("Unhandled Exception: " + e.getClass().getName());
+
+                    final String message = e.getMessage();
+                    if (message != null && !message.isEmpty())
+                    {
+                        messageLines.add("Message: " + e.getMessage());
+                    }
+                    failure = new TestAssertionFailure(testFullName, Array.toStringArray(messageLines), e);
+                }
+
+                testFailures.add(failure);
+
                 ++failedTestCount;
                 if (onTestFailed != null)
                 {
-                    onTestFailed.run(testName, e);
+                    onTestFailed.run(testName, failure);
                 }
             }
 
@@ -66,6 +121,52 @@ public class TestRunnerBase implements TestRunner
             {
                 onTestFinished.run(testName);
             }
+            
+            testFullName = testFullNameBackup;
+        }
+    }
+
+    @Override
+    public void beforeTest(Action0 beforeTestAction)
+    {
+        if (beforeTestAction != null)
+        {
+            final Action0 previousBeforeTestAction = this.beforeTestAction;
+            final Action0 newBeforeTestAction = beforeTestAction;
+            this.beforeTestAction = new Action0()
+            {
+                @Override
+                public void run()
+                {
+                    if (previousBeforeTestAction != null)
+                    {
+                        previousBeforeTestAction.run();
+                    }
+                    newBeforeTestAction.run();
+                }
+            };
+        }
+    }
+
+    @Override
+    public void afterTest(Action0 afterTestAction)
+    {
+        if (afterTestAction != null)
+        {
+            final Action0 previousAfterTestAction = this.afterTestAction;
+            final Action0 newAfterTestAction = afterTestAction;
+            this.afterTestAction = new Action0()
+            {
+                @Override
+                public void run()
+                {
+                    newAfterTestAction.run();
+                    if (previousAfterTestAction != null)
+                    {
+                        previousAfterTestAction.run();
+                    }
+                }
+            };
         }
     }
 
@@ -109,7 +210,7 @@ public class TestRunnerBase implements TestRunner
      * Set the Action that will be run when a Test fails.
      * @param testFailedAction The Action that will be run when a Test fails.
      */
-    public void setOnTestFailed(Action2<String, Throwable> testFailedAction)
+    public void setOnTestFailed(Action2<String, TestAssertionFailure> testFailedAction)
     {
         onTestFailed = testFailedAction;
     }
@@ -148,5 +249,14 @@ public class TestRunnerBase implements TestRunner
     public int getFailedTestCount()
     {
         return failedTestCount;
+    }
+
+    /**
+     * Get the test failures.
+     * @return The test failures.
+     */
+    public Iterable<TestAssertionFailure> getTestFailures()
+    {
+        return testFailures;
     }
 }

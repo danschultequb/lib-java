@@ -65,39 +65,25 @@ public class ConsoleTestRunner extends Console implements TestRunner
                 writeLine(" - Passed");
             }
         });
-        testRunner.setOnTestFailed(new Action2<String, Throwable>()
+        testRunner.setOnTestFailed(new Action2<String, TestAssertionFailure>()
         {
             @Override
-            public void run(String testName, Throwable throwable)
+            public void run(String testName, TestAssertionFailure failure)
             {
                 writeLine(" - Failed");
                 increaseIndent();
 
-                if (throwable instanceof TestAssertionFailure)
+                for (final String messageLine : failure.getMessageLines())
                 {
-                    final TestAssertionFailure failure = (TestAssertionFailure)throwable;
-                    for (final String messageLine : failure.getMessageLines())
+                    if (messageLine != null)
                     {
-                        if (messageLine != null)
-                        {
-                            writeLine(messageLine);
-                        }
-                    }
-                }
-                else
-                {
-                    writeLine("Unhandled Exception: " + throwable.getClass().getName());
-
-                    final String message = throwable.getMessage();
-                    if (message != null && !message.isEmpty())
-                    {
-                        writeLine("Message: " + throwable.getMessage());
+                        writeLine(messageLine);
                     }
                 }
 
                 decreaseIndent();
 
-                writeStackTrace(throwable);
+                writeStackTrace(failure);
             }
         });
         testRunner.setOnTestFinished(new Action1<String>()
@@ -180,6 +166,18 @@ public class ConsoleTestRunner extends Console implements TestRunner
         testRunner.test(testName, testAction);
     }
 
+    @Override
+    public void beforeTest(Action0 beforeTestAction)
+    {
+        testRunner.beforeTest(beforeTestAction);
+    }
+
+    @Override
+    public void afterTest(Action0 afterTestAction)
+    {
+        testRunner.afterTest(afterTestAction);
+    }
+
     /**
      * Write the stack trace of the provided Throwable to the output stream.
      * @param t The Throwable to write the stack trace of.
@@ -204,6 +202,36 @@ public class ConsoleTestRunner extends Console implements TestRunner
      */
     public void writeSummary()
     {
+        final Iterable<TestAssertionFailure> testFailures = testRunner.getTestFailures();
+        if (testFailures.any())
+        {
+            writeLine("Test failures:");
+            increaseIndent();
+
+            int testFailureNumber = 1;
+            for (final TestAssertionFailure failure : testFailures)
+            {
+                writeLine(testFailureNumber + ") " + failure.getFullTestName());
+                ++testFailureNumber;
+                increaseIndent();
+                increaseIndent();
+                for (final String messageLine : failure.getMessageLines())
+                {
+                    if (messageLine != null)
+                    {
+                        writeLine(messageLine);
+                    }
+                }
+                writeStackTrace(failure);
+                decreaseIndent();
+                decreaseIndent();
+
+                writeLine();
+            }
+
+            decreaseIndent();
+        }
+
         writeLine("Tests Run:    " + testRunner.getFinishedTestCount());
         writeLine("Tests Passed: " + testRunner.getPassedTestCount());
         writeLine("Tests Failed: " + testRunner.getFailedTestCount());

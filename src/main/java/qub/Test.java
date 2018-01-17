@@ -5,6 +5,13 @@ package qub;
  */
 public class Test
 {
+    private final String testFullName;
+
+    public Test(String testFullName)
+    {
+        this.testFullName = testFullName;
+    }
+
     /**
      * Assert that the provided value is true. If it is not true, then a TestAssertionFailure will
      * be thrown.
@@ -27,7 +34,7 @@ public class Test
     {
         if (!value)
         {
-            throw new TestAssertionFailure(getMessageLines(message, true, false));
+            throw new TestAssertionFailure(testFullName, getMessageLines(message, true, false));
         }
     }
 
@@ -53,7 +60,7 @@ public class Test
     {
         if (value)
         {
-            throw new TestAssertionFailure(getMessageLines(message, false, true));
+            throw new TestAssertionFailure(testFullName, getMessageLines(message, false, true));
         }
     }
 
@@ -77,7 +84,7 @@ public class Test
     {
         if (value != null)
         {
-            throw new TestAssertionFailure(getMessageLines(message, null, value));
+            throw new TestAssertionFailure(testFullName, getMessageLines(message, null, value));
         }
     }
 
@@ -101,7 +108,7 @@ public class Test
     {
         if (value == null)
         {
-            throw new TestAssertionFailure(getMessageLines(message, "not null", value));
+            throw new TestAssertionFailure(testFullName, getMessageLines(message, "not null", value));
         }
     }
 
@@ -129,7 +136,7 @@ public class Test
     {
         if (!Comparer.equal(expected, actual))
         {
-            throw new TestAssertionFailure(getMessageLines(message, expected, actual));
+            throw new TestAssertionFailure(testFullName, getMessageLines(message, expected, actual));
         }
     }
 
@@ -157,7 +164,7 @@ public class Test
     {
         if (Comparer.equal(expected, actual))
         {
-            throw new TestAssertionFailure(getMessageLines(message, "not " + expected, actual));
+            throw new TestAssertionFailure(testFullName, getMessageLines(message, "not " + expected, actual));
         }
     }
 
@@ -185,7 +192,7 @@ public class Test
     {
         if (!Comparer.same(expected, actual))
         {
-            throw new TestAssertionFailure(getMessageLines(message, expected, actual));
+            throw new TestAssertionFailure(testFullName, getMessageLines(message, expected, actual));
         }
     }
 
@@ -213,7 +220,7 @@ public class Test
     {
         if (Comparer.same(lhs, rhs))
         {
-            throw new TestAssertionFailure(getMessageLines(message, lhs, rhs));
+            throw new TestAssertionFailure(testFullName, getMessageLines(message, lhs, rhs));
         }
     }
 
@@ -231,7 +238,7 @@ public class Test
      */
     public void fail(String message)
     {
-        throw new TestAssertionFailure(new String[] { message });
+        throw new TestAssertionFailure(testFullName, new String[] { message });
     }
 
     /**

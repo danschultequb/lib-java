@@ -4,6 +4,36 @@ public class FileSystemTests
 {
     public static void test(final TestRunner runner, final Function0<FileSystem> creator)
     {
+        final Action2<Test,Action1<FileSystem>> asyncTest = new Action2<Test,Action1<FileSystem>>()
+        {
+            @Override
+            public void run(final Test test, final Action1<FileSystem> action)
+            {
+                final Synchronization synchronization = new Synchronization();
+                CurrentThreadAsyncRunner.withRegistered(synchronization, new Action1<CurrentThreadAsyncRunner>()
+                {
+                    @Override
+                    public void run(CurrentThreadAsyncRunner mainRunner)
+                    {
+                        final CurrentThreadAsyncRunner backgroundRunner = new CurrentThreadAsyncRunner(synchronization);
+                        final FileSystem fileSystem = getFileSystem(creator, backgroundRunner);
+
+                        action.run(fileSystem);
+                        test.assertEqual(0, mainRunner.getScheduledTaskCount());
+                        test.assertEqual(1, backgroundRunner.getScheduledTaskCount());
+
+                        backgroundRunner.await();
+                        test.assertEqual(1, mainRunner.getScheduledTaskCount());
+                        test.assertEqual(0, backgroundRunner.getScheduledTaskCount());
+
+                        mainRunner.await();
+                        test.assertEqual(0, mainRunner.getScheduledTaskCount());
+                        test.assertEqual(0, backgroundRunner.getScheduledTaskCount());
+                    }
+                });
+            }
+        };
+
         runner.testGroup("FileSystem", new Action0()
         {
             @Override
@@ -61,7 +91,7 @@ public class FileSystemTests
                                     @Override
                                     public void run(final Test test)
                                     {
-                                        asyncTest(new Action1<FileSystem>()
+                                        asyncTest.run(test, new Action1<FileSystem>()
                                         {
                                             @Override
                                             public void run(FileSystem fileSystem)
@@ -103,7 +133,7 @@ public class FileSystemTests
                                     @Override
                                     public void run(final Test test)
                                     {
-                                        asyncTest(new Action1<FileSystem>()
+                                        asyncTest.run(test, new Action1<FileSystem>()
                                         {
                                             @Override
                                             public void run(FileSystem fileSystem)
@@ -159,7 +189,7 @@ public class FileSystemTests
                     @Override
                     public void run(final Test test)
                     {
-                        asyncTest(new Action1<FileSystem>()
+                        asyncTest.run(test, new Action1<FileSystem>()
                         {
                             @Override
                             public void run(FileSystem fileSystem)
@@ -277,7 +307,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -301,7 +331,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -325,7 +355,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -349,7 +379,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -374,7 +404,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -420,7 +450,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -444,7 +474,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -468,7 +498,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -492,7 +522,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -517,7 +547,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -725,7 +755,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -749,7 +779,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -780,7 +810,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -804,7 +834,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -835,7 +865,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -859,7 +889,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -890,7 +920,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -914,7 +944,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -1226,7 +1256,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -1250,7 +1280,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -1282,7 +1312,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -1306,7 +1336,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -1522,7 +1552,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -1546,7 +1576,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -1570,7 +1600,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -1594,7 +1624,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(final FileSystem fileSystem)
@@ -1626,7 +1656,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -1650,7 +1680,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -1674,7 +1704,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -1698,7 +1728,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(final FileSystem fileSystem)
@@ -1723,7 +1753,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -1749,7 +1779,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(final FileSystem fileSystem)
@@ -1775,7 +1805,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(final FileSystem fileSystem)
@@ -1801,7 +1831,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(final FileSystem fileSystem)
@@ -1838,7 +1868,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -1862,7 +1892,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -1886,7 +1916,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -1910,7 +1940,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(final FileSystem fileSystem)
@@ -1942,7 +1972,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -1966,7 +1996,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -1990,7 +2020,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -2014,7 +2044,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(final FileSystem fileSystem)
@@ -2039,7 +2069,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -2065,7 +2095,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(final FileSystem fileSystem)
@@ -2091,7 +2121,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(final FileSystem fileSystem)
@@ -2117,7 +2147,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(final FileSystem fileSystem)
@@ -2228,7 +2258,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -2252,7 +2282,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -2276,7 +2306,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(final FileSystem fileSystem)
@@ -2302,7 +2332,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -2326,7 +2356,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(final FileSystem fileSystem)
@@ -2353,7 +2383,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(final FileSystem fileSystem)
@@ -2391,7 +2421,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -2415,7 +2445,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -2439,7 +2469,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(final FileSystem fileSystem)
@@ -2465,7 +2495,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -2489,7 +2519,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(final FileSystem fileSystem)
@@ -2516,7 +2546,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(final FileSystem fileSystem)
@@ -2679,7 +2709,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -2704,7 +2734,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -2729,7 +2759,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -2761,7 +2791,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -2786,7 +2816,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -2811,7 +2841,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -3202,7 +3232,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -3226,7 +3256,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -3250,7 +3280,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -3274,7 +3304,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(final FileSystem fileSystem)
@@ -3299,7 +3329,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(final FileSystem fileSystem)
@@ -3333,7 +3363,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(final FileSystem fileSystem)
@@ -3357,7 +3387,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -3381,7 +3411,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -3405,7 +3435,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -3429,7 +3459,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(final FileSystem fileSystem)
@@ -3456,7 +3486,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -3482,7 +3512,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -3508,7 +3538,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -3534,7 +3564,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(final FileSystem fileSystem)
@@ -3560,7 +3590,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(final FileSystem fileSystem)
@@ -3590,7 +3620,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(final FileSystem fileSystem)
@@ -3623,7 +3653,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -3647,7 +3677,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -3671,7 +3701,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -3695,7 +3725,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(final FileSystem fileSystem)
@@ -3720,7 +3750,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(final FileSystem fileSystem)
@@ -3754,7 +3784,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(final FileSystem fileSystem)
@@ -3778,7 +3808,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -3802,7 +3832,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -3826,7 +3856,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -3850,7 +3880,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -3876,7 +3906,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -3902,7 +3932,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -3928,7 +3958,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -3954,7 +3984,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(final FileSystem fileSystem)
@@ -3980,7 +4010,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(final FileSystem fileSystem)
@@ -4010,7 +4040,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(final FileSystem fileSystem)
@@ -4106,7 +4136,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -4130,7 +4160,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -4154,7 +4184,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -4178,7 +4208,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -4202,7 +4232,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(final FileSystem fileSystem)
@@ -4235,7 +4265,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -4259,7 +4289,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -4283,7 +4313,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -4307,7 +4337,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(FileSystem fileSystem)
@@ -4331,7 +4361,7 @@ public class FileSystemTests
                             @Override
                             public void run(final Test test)
                             {
-                                asyncTest(new Action1<FileSystem>()
+                                asyncTest.run(test, new Action1<FileSystem>()
                                 {
                                     @Override
                                     public void run(final FileSystem fileSystem)
@@ -5832,125 +5862,165 @@ public class FileSystemTests
                                 test.assertEqual("ABC", fileSystem.getFileContentsAsString("/A.txt"));
                             }
                         });
+
+                        runner.test("with existing rooted path and non-empty contents", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                fileSystem.createFile("/A.txt");
+
+                                test.assertTrue(fileSystem.setFileContents(Path.parse("/A.txt"), "ABC"));
+
+                                test.assertTrue(fileSystem.fileExists("/A.txt"));
+                                test.assertEqual("ABC", fileSystem.getFileContentsAsString("/A.txt"));
+                            }
+                        });
+                    }
+                });
+
+                runner.testGroup("getFilesAndFoldersRecursively(String)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                test.assertNull(fileSystem.getFilesAndFoldersRecursively((String)null));
+                            }
+                        });
+
+                        runner.test("with empty path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                test.assertNull(fileSystem.getFilesAndFoldersRecursively(""));
+                            }
+                        });
+
+                        runner.test("with relative path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                test.assertNull(fileSystem.getFilesAndFoldersRecursively("test/folder"));
+                            }
+                        });
+
+                        runner.test("with rooted path when root doesn't exist", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                test.assertNull(fileSystem.getFilesAndFoldersRecursively("F:/test/folder"));
+                            }
+                        });
+
+                        runner.test("with rooted path when parent folder doesn't exist", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                test.assertNull(fileSystem.getFilesAndFoldersRecursively("/test/folder"));
+                            }
+                        });
+
+                        runner.test("with rooted path when folder doesn't exist", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                fileSystem.createFolder("/test/");
+                                test.assertNull(fileSystem.getFilesAndFoldersRecursively("/test/folder"));
+                            }
+                        });
+
+                        runner.test("with rooted path when folder is empty", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                fileSystem.createFolder("/test/folder");
+                                test.assertEqual(new Array<FileSystemEntry>(0), fileSystem.getFilesAndFoldersRecursively("/test/folder"));
+                            }
+                        });
+
+                        runner.test("with rooted path when folder has files", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                fileSystem.createFolder("/test/folder");
+                                fileSystem.createFile("/test/folder/1.txt");
+                                fileSystem.createFile("/test/folder/2.txt");
+                                test.assertEqual(
+                                    Array.fromValues(
+                                        fileSystem.getFile("/test/folder/1.txt"),
+                                        fileSystem.getFile("/test/folder/2.txt")),
+                                    fileSystem.getFilesAndFoldersRecursively("/test/folder"));
+                            }
+                        });
+
+                        runner.test("with rooted path when folder has folders", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                fileSystem.createFolder("/test/folder");
+                                fileSystem.createFolder("/test/folder/1.txt");
+                                fileSystem.createFolder("/test/folder/2.txt");
+                                test.assertEqual(
+                                    Array.fromValues(
+                                        fileSystem.getFolder("/test/folder/1.txt"),
+                                        fileSystem.getFolder("/test/folder/2.txt")),
+                                    fileSystem.getFilesAndFoldersRecursively("/test/folder"));
+                            }
+                        });
+
+                        runner.test("with rooted path when folder has grandchild files and folders", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final FileSystem fileSystem = getFileSystem(creator);
+                                fileSystem.createFile("/test/folder/1.txt");
+                                fileSystem.createFile("/test/folder/2.txt");
+                                fileSystem.createFile("/test/folder/A/3.csv");
+                                fileSystem.createFile("/test/folder/B/C/4.xml");
+                                fileSystem.createFile("/test/folder/A/5.png");
+
+                                final Iterable<FileSystemEntry> expectedEntries =
+                                    Array.fromValues(
+                                        fileSystem.getFolder("/test/folder/A"),
+                                        fileSystem.getFolder("/test/folder/B"),
+                                        fileSystem.getFile("/test/folder/1.txt"),
+                                        fileSystem.getFile("/test/folder/2.txt"),
+                                        fileSystem.getFile("/test/folder/A/3.csv"),
+                                        fileSystem.getFile("/test/folder/A/5.png"),
+                                        fileSystem.getFolder("/test/folder/B/C"),
+                                        fileSystem.getFile("/test/folder/B/C/4.xml"));
+                                final Iterable<FileSystemEntry> actualEntries = fileSystem.getFilesAndFoldersRecursively("/test/folder");
+                                test.assertEqual(expectedEntries, actualEntries);
+                            }
+                        });
                     }
                 });
             }
         });
-    }
-
-    @Test
-    public void setFileContentsStringWithExistingRootedPathAndNonEmptyContents()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        fileSystem.createFile("/A.txt");
-
-        test.assertTrue(fileSystem.setFileContents(Path.parse("/A.txt"), "ABC"));
-
-        test.assertTrue(fileSystem.fileExists("/A.txt"));
-        test.assertEqual("ABC", fileSystem.getFileContentsAsString("/A.txt"));
-    }
-
-    @Test
-    public void getFilesAndFoldersRecursivelyWithNullPathString()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        test.assertNull(fileSystem.getFilesAndFoldersRecursively((String)null));
-    }
-
-    @Test
-    public void getFilesAndFoldersRecursivelyWithEmptyPathString()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        test.assertNull(fileSystem.getFilesAndFoldersRecursively(""));
-    }
-
-    @Test
-    public void getFilesAndFoldersRecursivelyWithRelativePathString()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        test.assertNull(fileSystem.getFilesAndFoldersRecursively("test/folder"));
-    }
-
-    @Test
-    public void getFilesAndFoldersRecursivelyWithRootedPathStringWhenRootDoesntExist()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        test.assertNull(fileSystem.getFilesAndFoldersRecursively("F:/test/folder"));
-    }
-
-    @Test
-    public void getFilesAndFoldersRecursivelyWithRootedPathStringWhenParentFolderDoesntExist()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        test.assertNull(fileSystem.getFilesAndFoldersRecursively("/test/folder"));
-    }
-
-    @Test
-    public void getFilesAndFoldersRecursivelyWithRootedPathStringWhenFolderDoesntExist()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        fileSystem.createFolder("/test/");
-        test.assertNull(fileSystem.getFilesAndFoldersRecursively("/test/folder"));
-    }
-
-    @Test
-    public void getFilesAndFoldersRecursivelyWithRootedPathStringWhenFolderIsEmpty()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        fileSystem.createFolder("/test/folder");
-        test.assertEqual(new Array<FileSystemEntry>(0), fileSystem.getFilesAndFoldersRecursively("/test/folder"));
-    }
-
-    @Test
-    public void getFilesAndFoldersRecursivelyWithRootedPathStringWhenFolderHasFiles()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        fileSystem.createFolder("/test/folder");
-        fileSystem.createFile("/test/folder/1.txt");
-        fileSystem.createFile("/test/folder/2.txt");
-        test.assertEqual(
-            Array.fromValues(
-                fileSystem.getFile("/test/folder/1.txt"),
-                fileSystem.getFile("/test/folder/2.txt")),
-            fileSystem.getFilesAndFoldersRecursively("/test/folder"));
-    }
-
-    @Test
-    public void getFilesAndFoldersRecursivelyWithRootedPathStringWhenFolderHasFolders()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        fileSystem.createFolder("/test/folder");
-        fileSystem.createFolder("/test/folder/1.txt");
-        fileSystem.createFolder("/test/folder/2.txt");
-        test.assertEqual(
-            Array.fromValues(
-                fileSystem.getFolder("/test/folder/1.txt"),
-                fileSystem.getFolder("/test/folder/2.txt")),
-            fileSystem.getFilesAndFoldersRecursively("/test/folder"));
-    }
-
-    @Test
-    public void getFilesAndFoldersRecursivelyWithRootedPathStringWhenFolderHasGrandchildFilesAndFolders()
-    {
-        final FileSystem fileSystem = getFileSystem(creator);
-        fileSystem.createFile("/test/folder/1.txt");
-        fileSystem.createFile("/test/folder/2.txt");
-        fileSystem.createFile("/test/folder/A/3.csv");
-        fileSystem.createFile("/test/folder/B/C/4.xml");
-        fileSystem.createFile("/test/folder/A/5.png");
-
-        final Iterable<FileSystemEntry> expectedEntries =
-            Array.fromValues(
-                fileSystem.getFolder("/test/folder/A"),
-                fileSystem.getFolder("/test/folder/B"),
-                fileSystem.getFile("/test/folder/1.txt"),
-                fileSystem.getFile("/test/folder/2.txt"),
-                fileSystem.getFile("/test/folder/A/3.csv"),
-                fileSystem.getFile("/test/folder/A/5.png"),
-                fileSystem.getFolder("/test/folder/B/C"),
-                fileSystem.getFile("/test/folder/B/C/4.xml"));
-        final Iterable<FileSystemEntry> actualEntries = fileSystem.getFilesAndFoldersRecursively("/test/folder");
-        test.assertEqual(expectedEntries, actualEntries);
     }
 
     private static FileSystem getFileSystem(Function0<FileSystem> creator)
@@ -5963,31 +6033,5 @@ public class FileSystemTests
         final FileSystem fileSystem = getFileSystem(creator);
         fileSystem.setAsyncRunner(parallelRunner);
         return fileSystem;
-    }
-
-    private static void asyncTest(final Action1<FileSystem> action)
-    {
-        final Synchronization synchronization = new Synchronization();
-        CurrentThreadAsyncRunner.withRegistered(synchronization, new Action1<CurrentThreadAsyncRunner>()
-        {
-            @Override
-            public void run(CurrentThreadAsyncRunner mainRunner)
-            {
-                final CurrentThreadAsyncRunner backgroundRunner = new CurrentThreadAsyncRunner(synchronization);
-                final FileSystem fileSystem = getFileSystem(backgroundRunner);
-                
-                action.run(fileSystem);
-                test.assertEqual(0, mainRunner.getScheduledTaskCount());
-                test.assertEqual(1, backgroundRunner.getScheduledTaskCount());
-
-                backgroundRunner.await();
-                test.assertEqual(1, mainRunner.getScheduledTaskCount());
-                test.assertEqual(0, backgroundRunner.getScheduledTaskCount());
-
-                mainRunner.await();
-                test.assertEqual(0, mainRunner.getScheduledTaskCount());
-                test.assertEqual(0, backgroundRunner.getScheduledTaskCount());
-            }
-        });
     }
 }

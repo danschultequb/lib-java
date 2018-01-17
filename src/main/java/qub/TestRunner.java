@@ -18,4 +18,16 @@ public interface TestRunner
      * @param testAction The action for the test.
      */
     void test(String testName, Action1<Test> testAction);
+
+    /**
+     * Set an action that will be run before each test within this test group.
+     * @param beforeTestAction The action that will be run before each test within this test group.
+     */
+    void beforeTest(Action0 beforeTestAction);
+
+    /**
+     * Set an action that will be run after each test within this test group.
+     * @param afterTestAction The action that will be run after each test within this test group.
+     */
+    void afterTest(Action0 afterTestAction);
 }

@@ -1,153 +1,202 @@
 package qub;
 
-import org.junit.Test;
-
-import static org.junit.Assert.*;
-
-public class InMemoryFileSystemTests extends FileSystemTests
+public class InMemoryFileSystemTests
 {
-    @Override
-    protected InMemoryFileSystem getFileSystem()
+    public static void test(final TestRunner runner)
     {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-        fileSystem.createRoot("/");
-        return fileSystem;
-    }
+        runner.testGroup("InMemoryFileSystem", new Action0()
+        {
+            @Override
+            public void run()
+            {
+                FileSystemTests.test(runner, new Function0<FileSystem>()
+                {
+                    @Override
+                    public FileSystem run()
+                    {
+                        final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
+                        fileSystem.createRoot("/");
+                        return fileSystem;
+                    }
+                });
 
-    @Test
-    public void setFileCanDeleteWhenRootDoesntExist()
-    {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-        assertFalse(fileSystem.setFileCanDelete("C:\\folder\\file.bmp", true));
-    }
+                runner.testGroup("setFileCanDelete(String,boolean)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("when root doesn't exist", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
+                                test.assertFalse(fileSystem.setFileCanDelete("C:\\folder\\file.bmp", true));
+                            }
+                        });
+                        
+                        runner.test("when parent folder doesn't exist", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
+                                fileSystem.createRoot("C:\\");
+                                test.assertFalse(fileSystem.setFileCanDelete("C:\\folder\\file.bmp", true));
+                            }
+                        });
+                        
+                        runner.test("when file doesn't exist", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
+                                fileSystem.createRoot("C:\\");
+                                fileSystem.createFolder("C:\\folder");
+                                test.assertFalse(fileSystem.setFileCanDelete("C:\\folder\\file.bmp", true));
+                            }
+                        });
+                        
+                        runner.test("when file exists", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
+                                fileSystem.createRoot("C:\\");
+                                fileSystem.createFolder("C:\\folder");
+                                fileSystem.createFile("C:\\folder\\file.bmp");
+                                test.assertTrue(fileSystem.setFileCanDelete("C:\\folder\\file.bmp", true));
+                            }
+                        });
+                    }
+                });
 
-    @Test
-    public void setFileCanDeleteWhenParentFolderDoesntExist()
-    {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-        fileSystem.createRoot("C:\\");
-        assertFalse(fileSystem.setFileCanDelete("C:\\folder\\file.bmp", true));
-    }
+                runner.testGroup("deleteFile(String)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("when file cannot be deleted", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
+                                fileSystem.createRoot("Z:/");
+                                fileSystem.createFile("Z:/file.png");
+                                test.assertTrue(fileSystem.setFileCanDelete("Z:/file.png", false));
+                                test.assertFalse(fileSystem.deleteFile("Z:/file.png"));
+                                test.assertTrue(fileSystem.fileExists("Z:/file.png"));
+                            }
+                        });
+                    }
+                });
 
-    @Test
-    public void setFileCanDeleteWhenFileDoesntExist()
-    {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-        fileSystem.createRoot("C:\\");
-        fileSystem.createFolder("C:\\folder");
-        assertFalse(fileSystem.setFileCanDelete("C:\\folder\\file.bmp", true));
-    }
+                runner.testGroup("setFolderCanDelete(String,boolean)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("when root doesn't exist", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
+                                test.assertFalse(fileSystem.setFolderCanDelete("C:\\folder\\file.bmp", true));
+                            }
+                        });
 
-    @Test
-    public void setFileCanDeleteWhenFileExists()
-    {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-        fileSystem.createRoot("C:\\");
-        fileSystem.createFolder("C:\\folder");
-        fileSystem.createFile("C:\\folder\\file.bmp");
-        assertTrue(fileSystem.setFileCanDelete("C:\\folder\\file.bmp", true));
-    }
+                        runner.test("when parent folder doesn't exist", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
+                                fileSystem.createRoot("C:\\");
+                                test.assertFalse(fileSystem.setFolderCanDelete("C:\\folder\\file.bmp", true));
+                            }
+                        });
 
-    @Test
-    public void deleteFileWhenFileCannotBeDeleted()
-    {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-        fileSystem.createRoot("Z:/");
-        fileSystem.createFile("Z:/file.png");
-        assertTrue(fileSystem.setFileCanDelete("Z:/file.png", false));
-        assertFalse(fileSystem.deleteFile("Z:/file.png"));
-        assertTrue(fileSystem.fileExists("Z:/file.png"));
-    }
+                        runner.test("when folder doesn't exist", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
+                                fileSystem.createRoot("C:\\");
+                                fileSystem.createFolder("C:\\folder");
+                                test.assertFalse(fileSystem.setFolderCanDelete("C:\\folder\\file.bmp", true));
+                            }
+                        });
 
-    @Test
-    public void setFolderCanDeleteWhenRootDoesntExist()
-    {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-        assertFalse(fileSystem.setFolderCanDelete("C:\\folder\\file.bmp", true));
-    }
+                        runner.test("when folder exists", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
+                                fileSystem.createRoot("C:\\");
+                                fileSystem.createFolder("C:\\folder\\file.bmp");
+                                test.assertTrue(fileSystem.setFolderCanDelete("C:\\folder\\file.bmp", true));
+                            }
+                        });
+                    }
+                });
 
-    @Test
-    public void setFolderCanDeleteWhenParentFolderDoesntExist()
-    {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-        fileSystem.createRoot("C:\\");
-        assertFalse(fileSystem.setFolderCanDelete("C:\\folder\\file.bmp", true));
-    }
+                runner.testGroup("deleteFolder(String)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("when folder cannot be deleted", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
+                                fileSystem.createRoot("Z:/");
+                                fileSystem.createFolder("Z:/file.png");
+                                test.assertTrue(fileSystem.setFolderCanDelete("Z:/file.png", false));
+                                test.assertFalse(fileSystem.deleteFolder("Z:/file.png"));
+                                test.assertTrue(fileSystem.folderExists("Z:/file.png"));
+                            }
+                        });
 
-    @Test
-    public void setFolderCanDeleteWhenFolderDoesntExist()
-    {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-        fileSystem.createRoot("C:\\");
-        fileSystem.createFolder("C:\\folder");
-        assertFalse(fileSystem.setFolderCanDelete("C:\\folder\\file.bmp", true));
-    }
+                        runner.test("when child file cannot be deleted", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
+                                fileSystem.createRoot("Z:/");
+                                fileSystem.createFolder("Z:/file.png");
+                                fileSystem.createFile("Z:/file.png/notme");
+                                fileSystem.setFileCanDelete("Z:/file.png/notme", false);
+                                test.assertFalse(fileSystem.deleteFolder("Z:/file.png"));
+                                test.assertTrue(fileSystem.folderExists("Z:/file.png"));
+                            }
+                        });
 
-    @Test
-    public void setFolderCanDeleteWhenFolderExists()
-    {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-        fileSystem.createRoot("C:\\");
-        fileSystem.createFolder("C:\\folder\\file.bmp");
-        assertTrue(fileSystem.setFolderCanDelete("C:\\folder\\file.bmp", true));
-    }
-
-    @Test
-    public void deleteFolderWhenFolderCannotBeDeleted()
-    {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-        fileSystem.createRoot("Z:/");
-        fileSystem.createFolder("Z:/file.png");
-        assertTrue(fileSystem.setFolderCanDelete("Z:/file.png", false));
-        assertFalse(fileSystem.deleteFolder("Z:/file.png"));
-        assertTrue(fileSystem.folderExists("Z:/file.png"));
-    }
-
-    @Test
-    public void deleteFolderWhenChildFileCannotBeDeleted()
-    {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-        fileSystem.createRoot("Z:/");
-        fileSystem.createFolder("Z:/file.png");
-        fileSystem.createFile("Z:/file.png/notme");
-        fileSystem.setFileCanDelete("Z:/file.png/notme", false);
-        assertFalse(fileSystem.deleteFolder("Z:/file.png"));
-        assertTrue(fileSystem.folderExists("Z:/file.png"));
-    }
-
-    @Test
-    public void deleteFolderWhenChildFileCanBeDeleted()
-    {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-        fileSystem.createRoot("Z:/");
-        fileSystem.createFolder("Z:/file.png");
-        fileSystem.createFile("Z:/file.png/notme");
-        assertTrue(fileSystem.deleteFolder("Z:/file.png"));
-        assertFalse(fileSystem.folderExists("Z:/file.png"));
-        assertFalse(fileSystem.fileExists("Z:/file.png/notme"));
-    }
-
-    @Test
-    public void deleteFolderWhenChildFolderCannotBeDeleted()
-    {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-        fileSystem.createRoot("Z:/");
-        fileSystem.createFolder("Z:/file.png");
-        fileSystem.createFolder("Z:/file.png/notme");
-        fileSystem.setFolderCanDelete("Z:/file.png/notme", false);
-        assertFalse(fileSystem.deleteFolder("Z:/file.png"));
-        assertTrue(fileSystem.folderExists("Z:/file.png"));
-    }
-
-    @Test
-    public void deleteFolderWhenChildFolderCanBeDeleted()
-    {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-        fileSystem.createRoot("Z:/");
-        fileSystem.createFolder("Z:/file.png");
-        fileSystem.createFolder("Z:/file.png/notme");
-        assertTrue(fileSystem.deleteFolder("Z:/file.png"));
-        assertFalse(fileSystem.folderExists("Z:/file.png"));
-        assertFalse(fileSystem.folderExists("Z:/file.png/notme"));
+                        runner.test("when child folder cannot be deleted", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
+                                fileSystem.createRoot("Z:/");
+                                fileSystem.createFolder("Z:/file.png");
+                                fileSystem.createFolder("Z:/file.png/notme");
+                                fileSystem.setFolderCanDelete("Z:/file.png/notme", false);
+                                test.assertFalse(fileSystem.deleteFolder("Z:/file.png"));
+                                test.assertTrue(fileSystem.folderExists("Z:/file.png"));
+                            }
+                        });
+                    }
+                });
+            }
+        });
     }
 }

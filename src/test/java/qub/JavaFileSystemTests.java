@@ -1,43 +1,47 @@
 package qub;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-
-public class JavaFileSystemTests extends FileSystemTests
+public class JavaFileSystemTests
 {
-    private static FolderFileSystem fileSystem;
-
-    @BeforeClass
-    public static void beforeClass()
+    public static void test(final TestRunner runner)
     {
         final JavaFileSystem javaFileSystem = new JavaFileSystem();
         String tempFolderPathString = System.getProperty("java.io.tmpdir");
         final Path tempFolderPath = Path.parse(tempFolderPathString).concatenateSegment("qub-tests");
-        fileSystem = new FolderFileSystem(javaFileSystem, tempFolderPath);
-    }
+        final FolderFileSystem fileSystem = new FolderFileSystem(javaFileSystem, tempFolderPath);
 
-    @Before
-    public void beforeTest()
-    {
-        while (!fileSystem.exists())
+        runner.beforeTest(new Action0()
         {
-            fileSystem.create();
-        }
-    }
+            @Override
+            public void run()
+            {
+                fileSystem.delete();
+                fileSystem.create();
+            }
+        });
 
-    @After
-    public void afterTest()
-    {
-        while (fileSystem.exists())
+        runner.afterTest(new Action0()
         {
-            fileSystem.delete();
-        }
-    }
+            @Override
+            public void run()
+            {
+                fileSystem.delete();
+            }
+        });
 
-    @Override
-    protected FileSystem getFileSystem()
-    {
-        return fileSystem;
+        runner.testGroup("JavaFileSystem", new Action0()
+        {
+            @Override
+            public void run()
+            {
+                FileSystemTests.test(runner, new Function0<FileSystem>()
+                {
+                    @Override
+                    public FileSystem run()
+                    {
+                        return fileSystem;
+                    }
+                });
+            }
+        });
     }
 }
