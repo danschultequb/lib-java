@@ -1,51 +1,66 @@
 package qub;
 
-import org.junit.Test;
-
-import static org.junit.Assert.*;
-
 public class FixedRandomTests
 {
-    @Test
-    public void constructor()
+    public static void test(final TestRunner runner)
     {
-        final FixedRandom random = new FixedRandom(7);
-        for (int i = 0; i < 3; ++i)
+        runner.testGroup("FixedRandom", new Action0()
         {
-            assertEquals(7, random.getRandomInteger());
-        }
-    }
+            @Override
+            public void run()
+            {
+                runner.test("constructor()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final FixedRandom random = new FixedRandom(7);
+                        for (int i = 0; i < 3; ++i)
+                        {
+                            test.assertEqual(7, random.getRandomInteger());
+                        }
+                    }
+                });
 
-    @Test
-    public void getRandomIntegerBetween()
-    {
-        final FixedRandom r0 = new FixedRandom(0);
-        assertEquals(0, r0.getRandomIntegerBetween(0, 9));
-        assertEquals(1, r0.getRandomIntegerBetween(1, 3));
-        assertEquals(11, r0.getRandomIntegerBetween(11, 11));
-        assertEquals(7, r0.getRandomIntegerBetween(10, 7));
+                runner.test("getRandomIntegerBetween(int,int)", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final FixedRandom r0 = new FixedRandom(0);
+                        test.assertEqual(0, r0.getRandomIntegerBetween(0, 9));
+                        test.assertEqual(1, r0.getRandomIntegerBetween(1, 3));
+                        test.assertEqual(11, r0.getRandomIntegerBetween(11, 11));
+                        test.assertEqual(7, r0.getRandomIntegerBetween(10, 7));
 
-        final FixedRandom r10 = new FixedRandom(10);
-        assertEquals(0, r0.getRandomIntegerBetween(0, 9));
-        assertEquals(1, r0.getRandomIntegerBetween(1, 10));
-        assertEquals(1, r0.getRandomIntegerBetween(1, 3));
-        assertEquals(11, r0.getRandomIntegerBetween(11, 11));
-        assertEquals(7, r0.getRandomIntegerBetween(10, 7));
-    }
+                        final FixedRandom r10 = new FixedRandom(10);
+                        test.assertEqual(0, r0.getRandomIntegerBetween(0, 9));
+                        test.assertEqual(1, r0.getRandomIntegerBetween(1, 10));
+                        test.assertEqual(1, r0.getRandomIntegerBetween(1, 3));
+                        test.assertEqual(11, r0.getRandomIntegerBetween(11, 11));
+                        test.assertEqual(7, r0.getRandomIntegerBetween(10, 7));
+                    }
+                });
 
-    @Test
-    public void getRandomBoolean()
-    {
-        final FixedRandom random = new FixedRandom(0);
-        for (int i = 0; i < 10; ++i)
-        {
-            assertTrue(random.getRandomBoolean());
-        }
+                runner.test("getRandomBoolean()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final FixedRandom random = new FixedRandom(0);
+                        for (int i = 0; i < 10; ++i)
+                        {
+                            test.assertTrue(random.getRandomBoolean());
+                        }
 
-        random.setValue(1);
-        for (int i = 0; i < 10; ++i)
-        {
-            assertFalse(random.getRandomBoolean());
-        }
+                        random.setValue(1);
+                        for (int i = 0; i < 10; ++i)
+                        {
+                            test.assertFalse(random.getRandomBoolean());
+                        }
+                    }
+                });
+            }
+        });
     }
 }
