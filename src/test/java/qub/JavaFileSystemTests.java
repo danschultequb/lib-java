@@ -7,7 +7,7 @@ public class JavaFileSystemTests
         final JavaFileSystem javaFileSystem = new JavaFileSystem();
         String tempFolderPathString = System.getProperty("java.io.tmpdir");
         final Path tempFolderPath = Path.parse(tempFolderPathString).concatenateSegment("qub-tests");
-        final FolderFileSystem fileSystem = new FolderFileSystem(javaFileSystem, tempFolderPath);
+        final FolderFileSystem fileSystem = FolderFileSystem.create(javaFileSystem, tempFolderPath);
 
         runner.beforeTest(new Action0()
         {

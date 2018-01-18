@@ -1,86 +1,123 @@
 package qub;
 
-import org.junit.Test;
-
-import static org.junit.Assert.*;
-
 public class FolderFileSystemTests
 {
-    @Test(expected = NullPointerException.class)
-    public void constructorWithNullPathString()
+    public static void test(final TestRunner runner)
     {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-        fileSystem.createRoot("/");
+        runner.testGroup("FolderFileSystem", new Action0()
+        {
+            @Override
+            public void run()
+            {
+                runner.testGroup("create(FileSystem,String)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
+                                fileSystem.createRoot("/");
 
-        new FolderFileSystem(fileSystem, (String)null);
-    }
+                                test.assertNull(FolderFileSystem.create(fileSystem, (String)null));
+                            }
+                        });
+                                
+                        runner.test("with empty path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
+                                fileSystem.createRoot("/");
 
-    @Test(expected = NullPointerException.class)
-    public void constructorWithEmptyPathString()
-    {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-        fileSystem.createRoot("/");
+                                test.assertNull(FolderFileSystem.create(fileSystem, ""));
+                            }
+                        });
+                                
+                        runner.test("with relative path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
+                                fileSystem.createRoot("/");
 
-        new FolderFileSystem(fileSystem, "");
-    }
+                                final FolderFileSystem folderFileSystem = FolderFileSystem.create(fileSystem, "basefolder");
+                                test.assertEqual(Path.parse("basefolder"), folderFileSystem.getBaseFolderPath());
+                            }
+                        });
 
-    @Test
-    public void constructorWithRelativePathString()
-    {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-        fileSystem.createRoot("/");
+                        runner.test("with relative path that ends with backslash", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
+                                fileSystem.createRoot("/");
 
-        final FolderFileSystem folderFileSystem = new FolderFileSystem(fileSystem, "basefolder");
-        assertEquals(Path.parse("basefolder"), folderFileSystem.getBaseFolderPath());
-    }
+                                final FolderFileSystem folderFileSystem = FolderFileSystem.create(fileSystem, "basefolder\\");
+                                test.assertEqual(Path.parse("basefolder"), folderFileSystem.getBaseFolderPath());
+                            }
+                        });
 
-    @Test
-    public void constructorWithRelativePathStringThatEndsWithBackslash()
-    {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-        fileSystem.createRoot("/");
+                        runner.test("with relative path that ends with forward slash", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
+                                fileSystem.createRoot("/");
 
-        final FolderFileSystem folderFileSystem = new FolderFileSystem(fileSystem, "basefolder\\");
-        assertEquals(Path.parse("basefolder"), folderFileSystem.getBaseFolderPath());
-    }
+                                final FolderFileSystem folderFileSystem = FolderFileSystem.create(fileSystem, "basefolder/");
+                                test.assertEqual(Path.parse("basefolder"), folderFileSystem.getBaseFolderPath());
+                            }
+                        });
 
-    @Test
-    public void constructorWithRelativePathStringThatEndsWithForwardSlash()
-    {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-        fileSystem.createRoot("/");
+                        runner.test("with rooted path", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
+                                fileSystem.createRoot("/");
 
-        final FolderFileSystem folderFileSystem = new FolderFileSystem(fileSystem, "basefolder/");
-        assertEquals(Path.parse("basefolder"), folderFileSystem.getBaseFolderPath());
-    }
+                                final FolderFileSystem folderFileSystem = FolderFileSystem.create(fileSystem, "\\basefolder");
+                                test.assertEqual(Path.parse("\\basefolder"), folderFileSystem.getBaseFolderPath());
+                            }
+                        });
 
-    @Test
-    public void constructorWithRootedPathString()
-    {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-        fileSystem.createRoot("/");
+                        runner.test("with rooted path that ends with backslash", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
+                                fileSystem.createRoot("/");
 
-        final FolderFileSystem folderFileSystem = new FolderFileSystem(fileSystem, "\\basefolder");
-        assertEquals(Path.parse("\\basefolder"), folderFileSystem.getBaseFolderPath());
-    }
+                                final FolderFileSystem folderFileSystem = FolderFileSystem.create(fileSystem, "/basefolder\\");
+                                test.assertEqual(Path.parse("/basefolder"), folderFileSystem.getBaseFolderPath());
+                            }
+                        });
 
-    @Test
-    public void constructorWithRootedPathStringThatEndsWithBackslash()
-    {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-        fileSystem.createRoot("/");
+                        runner.test("with rooted path that ends with forward slash", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
+                                fileSystem.createRoot("/");
 
-        final FolderFileSystem folderFileSystem = new FolderFileSystem(fileSystem, "/basefolder\\");
-        assertEquals(Path.parse("/basefolder"), folderFileSystem.getBaseFolderPath());
-    }
-
-    @Test
-    public void constructorWithRootedPathStringThatEndsWithForwardSlash()
-    {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-        fileSystem.createRoot("/");
-
-        final FolderFileSystem folderFileSystem = new FolderFileSystem(fileSystem, "/basefolder/");
-        assertEquals(Path.parse("/basefolder"), folderFileSystem.getBaseFolderPath());
+                                final FolderFileSystem folderFileSystem = FolderFileSystem.create(fileSystem, "/basefolder/");
+                                test.assertEqual(Path.parse("/basefolder"), folderFileSystem.getBaseFolderPath());
+                            }
+                        });
+                    }
+                });
+            }
+        });
     }
 }

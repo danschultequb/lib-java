@@ -8,12 +8,7 @@ public class FolderFileSystem extends FileSystemBase
     private final FileSystem innerFileSystem;
     private final Path baseFolderPath;
 
-    public FolderFileSystem(FileSystem innerFileSystem, String baseFolderPathString)
-    {
-        this(innerFileSystem, Path.parse(baseFolderPathString));
-    }
-
-    public FolderFileSystem(FileSystem innerFileSystem, Path baseFolderPath)
+    private FolderFileSystem(FileSystem innerFileSystem, Path baseFolderPath)
     {
         this.innerFileSystem = innerFileSystem;
 
@@ -24,6 +19,23 @@ public class FolderFileSystem extends FileSystemBase
             normalizedBaseFolderPath = Path.parse(normalizedBaseFolderPathString.substring(0, normalizedBaseFolderPathString.length() - 1));
         }
         this.baseFolderPath = normalizedBaseFolderPath;
+    }
+
+    public static FolderFileSystem create(FileSystem innerFileSystem, String baseFolderPath)
+    {
+        return create(innerFileSystem, Path.parse(baseFolderPath));
+    }
+
+    public static FolderFileSystem create(FileSystem innerFileSystem, Path baseFolderPath)
+    {
+        FolderFileSystem result = null;
+
+        if (baseFolderPath != null)
+        {
+            result = new FolderFileSystem(innerFileSystem, baseFolderPath);
+        }
+
+        return result;
     }
 
     public boolean create()
