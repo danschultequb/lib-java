@@ -1,40 +1,55 @@
 package qub;
 
-import org.junit.Test;
-
-import static org.junit.Assert.*;
-
 public class InMemoryCharacterReadStreamTests
 {
-    @Test
-    public void readCharactersInt()
+    public static void test(final TestRunner runner)
     {
-        final InMemoryCharacterReadStream characterReadStream = new InMemoryCharacterReadStream("abc");
-        assertArrayEquals(new char[] { 'a', 'b', 'c' }, characterReadStream.readCharacters(20));
-        assertNull(characterReadStream.readCharacters(1));
-    }
+        runner.testGroup("InMemoryCharacterReadStream", new Action0()
+        {
+            @Override
+            public void run()
+            {
+                runner.test("readCharacters(int)", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final InMemoryCharacterReadStream characterReadStream = new InMemoryCharacterReadStream("abc");
+                        test.assertEqual(new char[] { 'a', 'b', 'c' }, characterReadStream.readCharacters(20));
+                        test.assertNull(characterReadStream.readCharacters(1));
+                    }
+                });
 
-    @Test
-    public void readCharactersCharacterArray()
-    {
-        final InMemoryCharacterReadStream characterReadStream = new InMemoryCharacterReadStream("abc");
-        final char[] characters = new char[2];
+                runner.test("readCharacters(char[])", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final InMemoryCharacterReadStream characterReadStream = new InMemoryCharacterReadStream("abc");
+                        final char[] characters = new char[2];
 
-        assertEquals(2, characterReadStream.readCharacters(characters));
-        assertArrayEquals(new char[] { 'a', 'b' }, characters);
+                        test.assertEqual(2, characterReadStream.readCharacters(characters));
+                        test.assertEqual(new char[] { 'a', 'b' }, characters);
 
-        assertEquals(1, characterReadStream.readCharacters(characters));
-        assertArrayEquals(new char[] { 'c', 'b' }, characters);
+                        test.assertEqual(1, characterReadStream.readCharacters(characters));
+                        test.assertEqual(new char[] { 'c', 'b' }, characters);
 
-        assertEquals(-1, characterReadStream.readCharacters(characters));
-        assertArrayEquals(new char[] { 'c', 'b' }, characters);
-    }
+                        test.assertEqual(-1, characterReadStream.readCharacters(characters));
+                        test.assertEqual(new char[] { 'c', 'b' }, characters);
+                    }
+                });
 
-    @Test
-    public void asLineReadStream()
-    {
-        final InMemoryCharacterReadStream characterReadStream = new InMemoryCharacterReadStream();
-        final LineReadStream lineReadStream = characterReadStream.asLineReadStream();
-        assertNotNull(lineReadStream);
+                runner.test("asLineReadStream()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final InMemoryCharacterReadStream characterReadStream = new InMemoryCharacterReadStream();
+                        final LineReadStream lineReadStream = characterReadStream.asLineReadStream();
+                        test.assertNotNull(lineReadStream);
+                    }
+                });
+            }
+        });
     }
 }

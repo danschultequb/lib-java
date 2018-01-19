@@ -1,91 +1,116 @@
 package qub;
 
-import org.junit.Test;
-
-import java.io.IOException;
-
-import static org.junit.Assert.*;
-
 public class InMemoryByteReadStreamTests
 {
-    @Test
-    public void constructorWithNoArguments()
+    public static void test(final TestRunner runner)
     {
-        final InMemoryByteReadStream readStream = new InMemoryByteReadStream();
-        assertTrue(readStream.isOpen());
-    }
+        runner.testGroup("InMemoryByteReadStream", new Action0()
+        {
+            @Override
+            public void run()
+            {
+                runner.test("constructor()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final InMemoryByteReadStream readStream = new InMemoryByteReadStream();
+                        test.assertTrue(readStream.isOpen());
+                    }
+                });
+                
+                runner.test("close()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final InMemoryByteReadStream readStream = new InMemoryByteReadStream();
+                        readStream.close();
+                        test.assertFalse(readStream.isOpen());
+                        readStream.close();
+                        test.assertFalse(readStream.isOpen());
+                    }
+                });
+                
+                runner.test("readBytes(int)", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        InMemoryByteReadStream readStream = new InMemoryByteReadStream();
 
-    @Test
-    public void close()
-    {
-        final InMemoryByteReadStream readStream = new InMemoryByteReadStream();
-        readStream.close();
-        assertFalse(readStream.isOpen());
-        readStream.close();
-        assertFalse(readStream.isOpen());
-    }
+                        test.assertNull(readStream.readBytes(-5));
+                        test.assertNull(readStream.readBytes(0));
+                        test.assertNull(readStream.readBytes(1));
+                        test.assertNull(readStream.readBytes(2));
 
-    @Test
-    public void readBytesWithBytesToRead() throws IOException
-    {
-        InMemoryByteReadStream readStream = new InMemoryByteReadStream();
+                        readStream = new InMemoryByteReadStream(new byte[] { 0, 1, 2, 3 });
 
-        assertArrayEquals(null, readStream.readBytes(-5));
-        assertArrayEquals(null, readStream.readBytes(0));
-        assertArrayEquals(null, readStream.readBytes(1));
-        assertArrayEquals(null, readStream.readBytes(2));
+                        test.assertNull(readStream.readBytes(-5));
+                        test.assertNull(readStream.readBytes(0));
+                        test.assertEqual(new byte[] { 0 }, readStream.readBytes(1));
+                        test.assertEqual(new byte[] { 1, 2 }, readStream.readBytes(2));
+                        test.assertEqual(new byte[] { 3 }, readStream.readBytes(3));
+                        test.assertNull(readStream.readBytes(1));
 
-        readStream = new InMemoryByteReadStream(new byte[] { 0, 1, 2, 3 });
+                        readStream.close();
 
-        assertArrayEquals(null, readStream.readBytes(-5));
-        assertArrayEquals(null, readStream.readBytes(0));
-        assertArrayEquals(new byte[] { 0 }, readStream.readBytes(1));
-        assertArrayEquals(new byte[] { 1, 2 }, readStream.readBytes(2));
-        assertArrayEquals(new byte[] { 3 }, readStream.readBytes(3));
-        assertArrayEquals(null, readStream.readBytes(1));
+                        test.assertNull(readStream.readBytes(1));
+                    }
+                });
 
-        readStream.close();
+                runner.test("asLineReadStream()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream();
+                        final LineReadStream lineReadStream = byteReadStream.asLineReadStream();
+                        test.assertEqual(CharacterEncoding.UTF_8, lineReadStream.getCharacterEncoding());
+                        test.assertFalse(lineReadStream.getIncludeNewLines());
+                        test.assertSame(byteReadStream, lineReadStream.asByteReadStream());
+                    }
+                });
 
-        assertNull(readStream.readBytes(1));
-    }
+                runner.test("asLineReadStream(CharacterEncoding)", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream();
+                        final LineReadStream lineReadStream = byteReadStream.asLineReadStream(CharacterEncoding.US_ASCII);
+                        test.assertEqual(CharacterEncoding.US_ASCII, lineReadStream.getCharacterEncoding());
+                        test.assertFalse(lineReadStream.getIncludeNewLines());
+                        test.assertSame(byteReadStream, lineReadStream.asByteReadStream());
+                    }
+                });
 
-    @Test
-    public void asLineReadStream()
-    {
-        final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream();
-        final LineReadStream lineReadStream = byteReadStream.asLineReadStream();
-        assertEquals(CharacterEncoding.UTF_8, lineReadStream.getCharacterEncoding());
-        assertFalse(lineReadStream.getIncludeNewLines());
-        assertSame(byteReadStream, lineReadStream.asByteReadStream());
-    }
+                runner.test("asLineReadStream(boolean)", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream();
+                        final LineReadStream lineReadStream = byteReadStream.asLineReadStream(true);
+                        test.assertEqual(CharacterEncoding.UTF_8, lineReadStream.getCharacterEncoding());
+                        test.assertTrue(lineReadStream.getIncludeNewLines());
+                        test.assertSame(byteReadStream, lineReadStream.asByteReadStream());
+                    }
+                });
 
-    @Test
-    public void asLineReadStreamWithCharacterEncoding()
-    {
-        final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream();
-        final LineReadStream lineReadStream = byteReadStream.asLineReadStream(CharacterEncoding.US_ASCII);
-        assertEquals(CharacterEncoding.US_ASCII, lineReadStream.getCharacterEncoding());
-        assertFalse(lineReadStream.getIncludeNewLines());
-        assertSame(byteReadStream, lineReadStream.asByteReadStream());
-    }
-
-    @Test
-    public void asLineReadStreamWithIncludeNewLines()
-    {
-        final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream();
-        final LineReadStream lineReadStream = byteReadStream.asLineReadStream(true);
-        assertEquals(CharacterEncoding.UTF_8, lineReadStream.getCharacterEncoding());
-        assertTrue(lineReadStream.getIncludeNewLines());
-        assertSame(byteReadStream, lineReadStream.asByteReadStream());
-    }
-
-    @Test
-    public void asLineReadStreamWithCharacterEncodingAndIncludeNewLines()
-    {
-        final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream();
-        final LineReadStream lineReadStream = byteReadStream.asLineReadStream(CharacterEncoding.UTF_8, false);
-        assertEquals(CharacterEncoding.UTF_8, lineReadStream.getCharacterEncoding());
-        assertFalse(lineReadStream.getIncludeNewLines());
-        assertSame(byteReadStream, lineReadStream.asByteReadStream());
+                runner.test("asLineReadStream(CharacterEncoding,boolean)", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream();
+                        final LineReadStream lineReadStream = byteReadStream.asLineReadStream(CharacterEncoding.UTF_8, false);
+                        test.assertEqual(CharacterEncoding.UTF_8, lineReadStream.getCharacterEncoding());
+                        test.assertFalse(lineReadStream.getIncludeNewLines());
+                        test.assertSame(byteReadStream, lineReadStream.asByteReadStream());
+                    }
+                });
+            }
+        });
     }
 }

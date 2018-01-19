@@ -1,54 +1,99 @@
 package qub;
 
-import org.junit.Test;
-
-import static junit.framework.TestCase.*;
-
 public class InMemoryGateTests
 {
-    @Test
-    public void constructorWithTrue()
+    public static void test(final TestRunner runner)
     {
-        final InMemoryGate gate = new InMemoryGate(true);
-        assertTrue(gate.isOpen());
-    }
+        runner.testGroup("InMemoryGate", new Action0()
+        {
+            @Override
+            public void run()
+            {
+                runner.testGroup("constructor(boolean)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with true", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final InMemoryGate gate = new InMemoryGate(true);
+                                test.assertTrue(gate.isOpen());
+                            }
+                        });
 
-    @Test
-    public void constructorWithFalse()
-    {
-        final InMemoryGate gate = new InMemoryGate(false);
-        assertFalse(gate.isOpen());
-    }
+                        runner.test("with false", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final InMemoryGate gate = new InMemoryGate(false);
+                                test.assertFalse(gate.isOpen());
+                            }
+                        });
+                    }
+                });
 
-    @Test
-    public void openWhenAlreadyOpen()
-    {
-        final InMemoryGate gate = new InMemoryGate(true);
-        assertFalse(gate.open());
-        assertTrue(gate.isOpen());
-    }
+                runner.testGroup("open()", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("when open", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final InMemoryGate gate = new InMemoryGate(true);
+                                test.assertFalse(gate.open());
+                                test.assertTrue(gate.isOpen());
+                            }
+                        });
 
-    @Test
-    public void openWhenClosed()
-    {
-        final InMemoryGate gate = new InMemoryGate(false);
-        assertTrue(gate.open());
-        assertTrue(gate.isOpen());
-    }
+                        runner.test("when closed", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final InMemoryGate gate = new InMemoryGate(false);
+                                test.assertTrue(gate.open());
+                                test.assertTrue(gate.isOpen());
+                            }
+                        });
+                    }
+                });
 
-    @Test
-    public void closeWhenAlreadyClosed()
-    {
-        final InMemoryGate gate = new InMemoryGate(false);
-        assertFalse(gate.close());
-        assertFalse(gate.isOpen());
-    }
+                runner.testGroup("close()", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("when closed", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final InMemoryGate gate = new InMemoryGate(false);
+                                test.assertFalse(gate.close());
+                                test.assertFalse(gate.isOpen());
+                            }
+                        });
 
-    @Test
-    public void closeWhenOpen()
-    {
-        final InMemoryGate gate = new InMemoryGate(true);
-        assertTrue(gate.close());
-        assertFalse(gate.isOpen());
+                        runner.test("when open", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final InMemoryGate gate = new InMemoryGate(true);
+                                test.assertTrue(gate.close());
+                                test.assertFalse(gate.isOpen());
+                            }
+                        });
+                    }
+                });
+            }
+        });
     }
 }

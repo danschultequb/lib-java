@@ -1,139 +1,184 @@
 package qub;
 
-import org.junit.Test;
-
-import static org.junit.Assert.*;
-
 public class InMemoryByteWriteStreamTests
 {
-    @Test
-    public void constructor()
+    public static void test(final TestRunner runner)
     {
-        final InMemoryByteWriteStream writeStream = new InMemoryByteWriteStream();
-        assertArrayEquals(new byte[0], writeStream.getBytes());
-        assertTrue(writeStream.isOpen());
-    }
+        runner.testGroup("InMemoryByteWriteStream", new Action0()
+        {
+            @Override
+            public void run()
+            {
+                runner.test("constructor()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final InMemoryByteWriteStream writeStream = new InMemoryByteWriteStream();
+                        test.assertEqual(new byte[0], writeStream.getBytes());
+                        test.assertTrue(writeStream.isOpen());
+                    }
+                });
+                
+                runner.test("close()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final InMemoryByteWriteStream writeStream = new InMemoryByteWriteStream();
+                        writeStream.close();
+                        test.assertFalse(writeStream.isOpen());
+                        test.assertNull(writeStream.getBytes());
+                        writeStream.close();
+                        test.assertNull(writeStream.getBytes());
+                    }
+                });
+                
+                runner.test("write(byte)", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final InMemoryByteWriteStream writeStream = new InMemoryByteWriteStream();
+                        writeStream.write((byte)17);
+                        test.assertEqual(new byte[] { 17 }, writeStream.getBytes());
+                    }
+                });
+                
+                runner.test("write(byte[])", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final InMemoryByteWriteStream writeStream = new InMemoryByteWriteStream();
+                        writeStream.write(new byte[0]);
+                        test.assertEqual(new byte[0], writeStream.getBytes());
 
-    @Test
-    public void close()
-    {
-        final InMemoryByteWriteStream writeStream = new InMemoryByteWriteStream();
-        writeStream.close();
-        assertFalse(writeStream.isOpen());
-        assertNull(writeStream.getBytes());
-        writeStream.close();
-        assertNull(writeStream.getBytes());
-    }
+                        writeStream.write(new byte[] { 1, 2, 3, 4 });
+                        test.assertEqual(new byte[] { 1, 2, 3, 4 }, writeStream.getBytes());
+                    }
+                });
+                
+                runner.test("write(byte[],int,int)", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final InMemoryByteWriteStream writeStream = new InMemoryByteWriteStream();
+                        writeStream.write(new byte[0], 0, 0);
+                        test.assertEqual(new byte[0], writeStream.getBytes());
 
-    @Test
-    public void writeByte()
-    {
-        final InMemoryByteWriteStream writeStream = new InMemoryByteWriteStream();
-        writeStream.write((byte)17);
-        assertArrayEquals(new byte[] { 17 }, writeStream.getBytes());
-    }
+                        writeStream.write(new byte[] { 1, 2, 3, 4 }, 1, 0);
+                        test.assertEqual(new byte[0], writeStream.getBytes());
 
-    @Test
-    public void writeByteArray()
-    {
-        final InMemoryByteWriteStream writeStream = new InMemoryByteWriteStream();
-        writeStream.write(new byte[0]);
-        assertArrayEquals(new byte[0], writeStream.getBytes());
+                        writeStream.write(new byte[] { 1, 2, 3, 4 }, 1, 2);
+                        test.assertEqual(new byte[] { 2, 3 }, writeStream.getBytes());
+                    }
+                });
+                
+                runner.test("writeAll(ByteReadStream)", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final InMemoryByteWriteStream writeStream = new InMemoryByteWriteStream();
+                        test.assertFalse(writeStream.writeAll(null));
+                        test.assertEqual(new byte[0], writeStream.getBytes());
+                    }
+                });
+                
+                runner.test("clear()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
+                        byteWriteStream.clear();
+                        test.assertEqual(new byte[0], byteWriteStream.getBytes());
 
-        writeStream.write(new byte[] { 1, 2, 3, 4 });
-        assertArrayEquals(new byte[] { 1, 2, 3, 4 }, writeStream.getBytes());
-    }
+                        byteWriteStream.write(new byte[] { 1, 2, 3, 4 });
+                        test.assertEqual(new byte[] { 1, 2, 3, 4 }, byteWriteStream.getBytes());
 
-    @Test
-    public void writeByteArrayWithOffsetAndLength()
-    {
-        final InMemoryByteWriteStream writeStream = new InMemoryByteWriteStream();
-        writeStream.write(new byte[0], 0, 0);
-        assertArrayEquals(new byte[0], writeStream.getBytes());
+                        byteWriteStream.clear();
+                        test.assertEqual(new byte[0], byteWriteStream.getBytes());
+                    }
+                });
+                
+                runner.test("asCharacterWriteStream()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
+                        final CharacterWriteStream characterWriteStream = byteWriteStream.asCharacterWriteStream();
+                        test.assertNotNull(characterWriteStream);
+                        test.assertSame(byteWriteStream, characterWriteStream.asByteWriteStream());
+                    }
+                });
 
-        writeStream.write(new byte[] { 1, 2, 3, 4 }, 1, 0);
-        assertArrayEquals(new byte[0], writeStream.getBytes());
+                runner.test("asCharacterWriteStream(CharacterEncoding)", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
+                        final CharacterWriteStream characterWriteStream = byteWriteStream.asCharacterWriteStream(CharacterEncoding.US_ASCII);
+                        test.assertNotNull(characterWriteStream);
+                        test.assertSame(byteWriteStream, characterWriteStream.asByteWriteStream());
+                    }
+                });
 
-        writeStream.write(new byte[] { 1, 2, 3, 4 }, 1, 2);
-        assertArrayEquals(new byte[] { 2, 3 }, writeStream.getBytes());
-    }
+                runner.test("asLineWriteStream()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
+                        final LineWriteStream lineWriteStream = byteWriteStream.asLineWriteStream();
+                        test.assertNotNull(lineWriteStream);
+                        test.assertSame(byteWriteStream, lineWriteStream.asByteWriteStream());
+                    }
+                });
 
-    @Test
-    public void writeAllWithNull()
-    {
-        final InMemoryByteWriteStream writeStream = new InMemoryByteWriteStream();
-        assertFalse(writeStream.writeAll(null));
-        assertArrayEquals(new byte[0], writeStream.getBytes());
-    }
+                runner.test("asLineWriteStream(CharacterEncoding)", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
+                        final LineWriteStream lineWriteStream = byteWriteStream.asLineWriteStream(CharacterEncoding.US_ASCII);
+                        test.assertNotNull(lineWriteStream);
+                        test.assertSame(byteWriteStream, lineWriteStream.asByteWriteStream());
+                    }
+                });
 
-    @Test
-    public void clear()
-    {
-        final InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
-        byteWriteStream.clear();
-        assertArrayEquals(new byte[0], byteWriteStream.getBytes());
+                runner.test("asLineWriteStream(String)", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
+                        final LineWriteStream lineWriteStream = byteWriteStream.asLineWriteStream("\r\n");
+                        test.assertNotNull(lineWriteStream);
+                        test.assertEqual("\r\n", lineWriteStream.getLineSeparator());
+                        test.assertSame(byteWriteStream, lineWriteStream.asByteWriteStream());
+                    }
+                });
 
-        byteWriteStream.write(new byte[] { 1, 2, 3, 4 });
-        assertArrayEquals(new byte[] { 1, 2, 3, 4 }, byteWriteStream.getBytes());
-
-        byteWriteStream.clear();
-        assertArrayEquals(new byte[0], byteWriteStream.getBytes());
-    }
-
-    @Test
-    public void asCharacterWriteStream()
-    {
-        final InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
-        final CharacterWriteStream characterWriteStream = byteWriteStream.asCharacterWriteStream();
-        assertNotNull(characterWriteStream);
-        assertSame(byteWriteStream, characterWriteStream.asByteWriteStream());
-    }
-
-    @Test
-    public void asCharacterWriteStreamWithEncoding()
-    {
-        final InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
-        final CharacterWriteStream characterWriteStream = byteWriteStream.asCharacterWriteStream(CharacterEncoding.US_ASCII);
-        assertNotNull(characterWriteStream);
-        assertSame(byteWriteStream, characterWriteStream.asByteWriteStream());
-    }
-
-    @Test
-    public void asLineWriteStream()
-    {
-        final InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
-        final LineWriteStream lineWriteStream = byteWriteStream.asLineWriteStream();
-        assertNotNull(lineWriteStream);
-        assertSame(byteWriteStream, lineWriteStream.asByteWriteStream());
-    }
-
-    @Test
-    public void asLineWriteStreamWithEncoding()
-    {
-        final InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
-        final LineWriteStream lineWriteStream = byteWriteStream.asLineWriteStream(CharacterEncoding.US_ASCII);
-        assertNotNull(lineWriteStream);
-        assertSame(byteWriteStream, lineWriteStream.asByteWriteStream());
-    }
-
-    @Test
-    public void asLineWriteStreamWithLineSeparator()
-    {
-        final InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
-        final LineWriteStream lineWriteStream = byteWriteStream.asLineWriteStream("\r\n");
-        assertNotNull(lineWriteStream);
-        assertEquals("\r\n", lineWriteStream.getLineSeparator());
-        assertSame(byteWriteStream, lineWriteStream.asByteWriteStream());
-    }
-
-    @Test
-    public void asLineWriteStreamWithEncodingAndLineSeparator()
-    {
-        final InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
-        final LineWriteStream lineWriteStream = byteWriteStream.asLineWriteStream(CharacterEncoding.US_ASCII, "\r\n");
-        assertNotNull(lineWriteStream);
-        assertSame(CharacterEncoding.US_ASCII, lineWriteStream.getCharacterEncoding());
-        assertEquals("\r\n", lineWriteStream.getLineSeparator());
-        assertSame(byteWriteStream, lineWriteStream.asByteWriteStream());
+                runner.test("asLineWriteStream(CharacterEncoding,String)", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
+                        final LineWriteStream lineWriteStream = byteWriteStream.asLineWriteStream(CharacterEncoding.US_ASCII, "\r\n");
+                        test.assertNotNull(lineWriteStream);
+                        test.assertSame(CharacterEncoding.US_ASCII, lineWriteStream.getCharacterEncoding());
+                        test.assertEqual("\r\n", lineWriteStream.getLineSeparator());
+                        test.assertSame(byteWriteStream, lineWriteStream.asByteWriteStream());
+                    }
+                });
+            }
+        });
     }
 }

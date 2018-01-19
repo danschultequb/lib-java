@@ -1,15 +1,24 @@
 package qub;
 
-import org.junit.Test;
-
-import static org.junit.Assert.*;
-
 public class InMemoryCharacterWriteStreamTests
 {
-    @Test
-    public void constructorWithEncoding()
+    public static void test(final TestRunner runner)
     {
-        final InMemoryCharacterWriteStream writeStream = new InMemoryCharacterWriteStream(CharacterEncoding.US_ASCII);
-        assertEquals(CharacterEncoding.US_ASCII, writeStream.getCharacterEncoding());
+        runner.testGroup("InMemoryCharacterWriteStream", new Action0()
+        {
+            @Override
+            public void run()
+            {
+                runner.test("constructor(CharacterEncoding)", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final InMemoryCharacterWriteStream writeStream = new InMemoryCharacterWriteStream(CharacterEncoding.US_ASCII);
+                        test.assertEqual(CharacterEncoding.US_ASCII, writeStream.getCharacterEncoding());
+                    }
+                });
+            }
+        });
     }
 }
