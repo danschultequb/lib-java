@@ -1,167 +1,214 @@
 package qub;
 
-import org.junit.Test;
-
-import static org.junit.Assert.*;
-
 public class IteratorToJavaIteratorAdapterTests
 {
-    @Test
-    public void hasNextWithNonStartedEmpty()
+    public static void test(final TestRunner runner)
     {
-        final Array<Integer> array = new Array<>(0);
-        final Iterator<Integer> iterator = new ArrayIterator<>(array);
-        final IteratorToJavaIteratorAdapter<Integer> javaIterator = new IteratorToJavaIteratorAdapter<>(iterator);
-        assertFalse(iterator.hasStarted());
-
-        for (int i = 0; i < 10; ++i)
+        runner.testGroup("IteratorToJavaIteratorAdapter<T>", new Action0()
         {
-            assertFalse(javaIterator.hasNext());
-        }
-    }
+            @Override
+            public void run()
+            {
+                runner.testGroup("hasNext()", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with non-started empty iterator", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Array<Integer> array = new Array<>(0);
+                                final Iterator<Integer> iterator = new ArrayIterator<>(array);
+                                final IteratorToJavaIteratorAdapter<Integer> javaIterator = new IteratorToJavaIteratorAdapter<>(iterator);
+                                test.assertFalse(iterator.hasStarted());
 
-    @Test
-    public void hasNextWithStartedEmpty()
-    {
-        final Array<Integer> array = new Array<>(0);
-        final Iterator<Integer> iterator = new ArrayIterator<>(array);
-        assertFalse(iterator.next());
-        assertTrue(iterator.hasStarted());
+                                for (int i = 0; i < 10; ++i)
+                                {
+                                    test.assertFalse(javaIterator.hasNext());
+                                }
+                            }
+                        });
+                        
+                        runner.test("with started empty iterator", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Array<Integer> array = new Array<>(0);
+                                final Iterator<Integer> iterator = new ArrayIterator<>(array);
+                                test.assertFalse(iterator.next());
+                                test.assertTrue(iterator.hasStarted());
 
-        final IteratorToJavaIteratorAdapter<Integer> javaIterator = new IteratorToJavaIteratorAdapter<>(iterator);
-        assertTrue(iterator.hasStarted());
+                                final IteratorToJavaIteratorAdapter<Integer> javaIterator = new IteratorToJavaIteratorAdapter<>(iterator);
+                                test.assertTrue(iterator.hasStarted());
 
-        for (int i = 0; i < 10; ++i)
-        {
-            assertFalse(javaIterator.hasNext());
-            assertTrue(iterator.hasStarted());
-        }
-    }
+                                for (int i = 0; i < 10; ++i)
+                                {
+                                    test.assertFalse(javaIterator.hasNext());
+                                    test.assertTrue(iterator.hasStarted());
+                                }
+                            }
+                        });
+                        
+                        runner.test("with non-started non-empty iterator", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Array<Integer> array = new Array<>(5);
+                                final Iterator<Integer> iterator = new ArrayIterator<>(array);
+                                final IteratorToJavaIteratorAdapter<Integer> javaIterator = new IteratorToJavaIteratorAdapter<>(iterator);
+                                test.assertFalse(iterator.hasStarted());
 
-    @Test
-    public void hasNextWithNonStartedNonEmpty()
-    {
-        final Array<Integer> array = new Array<>(5);
-        final Iterator<Integer> iterator = new ArrayIterator<>(array);
-        final IteratorToJavaIteratorAdapter<Integer> javaIterator = new IteratorToJavaIteratorAdapter<>(iterator);
-        assertFalse(iterator.hasStarted());
+                                for (int i = 0; i < 10; ++i)
+                                {
+                                    test.assertTrue(javaIterator.hasNext());
+                                    test.assertTrue(iterator.hasStarted());
+                                }
+                            }
+                        });
+                        
+                        runner.test("with started non-empty iterator", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Array<Integer> array = new Array<>(5);
+                                final Iterator<Integer> iterator = new ArrayIterator<>(array);
+                                test.assertTrue(iterator.next());
+                                test.assertTrue(iterator.hasStarted());
 
-        for (int i = 0; i < 10; ++i)
-        {
-            assertTrue(javaIterator.hasNext());
-            assertTrue(iterator.hasStarted());
-        }
-    }
+                                final IteratorToJavaIteratorAdapter<Integer> javaIterator = new IteratorToJavaIteratorAdapter<>(iterator);
+                                test.assertTrue(iterator.hasStarted());
 
-    @Test
-    public void hasNextWithStartedNonEmpty()
-    {
-        final Array<Integer> array = new Array<>(5);
-        final Iterator<Integer> iterator = new ArrayIterator<>(array);
-        assertTrue(iterator.next());
-        assertTrue(iterator.hasStarted());
+                                for (int i = 0; i < 10; ++i)
+                                {
+                                    test.assertTrue(javaIterator.hasNext());
+                                    test.assertTrue(iterator.hasStarted());
+                                }
+                            }
+                        });
+                    }
+                });
+                
+                runner.testGroup("next()", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with non-started empty iterator", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Array<Integer> array = new Array<>(0);
+                                final Iterator<Integer> iterator = new ArrayIterator<>(array);
+                                test.assertFalse(iterator.hasStarted());
 
-        final IteratorToJavaIteratorAdapter<Integer> javaIterator = new IteratorToJavaIteratorAdapter<>(iterator);
-        assertTrue(iterator.hasStarted());
+                                final IteratorToJavaIteratorAdapter<Integer> javaIterator = new IteratorToJavaIteratorAdapter<>(iterator);
+                                test.assertFalse(iterator.hasStarted());
 
-        for (int i = 0; i < 10; ++i)
-        {
-            assertTrue(javaIterator.hasNext());
-            assertTrue(iterator.hasStarted());
-        }
-    }
+                                for (int i = 0; i < 10; ++i)
+                                {
+                                    test.assertNull(javaIterator.next());
+                                }
+                            }
+                        });
+                        
+                        runner.test("with started empty iterator", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Array<Integer> array = new Array<>(0);
+                                final Iterator<Integer> iterator = new ArrayIterator<>(array);
+                                test.assertFalse(iterator.next());
+                                test.assertTrue(iterator.hasStarted());
 
-    @Test
-    public void nextWithNonStartedEmpty()
-    {
-        final Array<Integer> array = new Array<>(0);
-        final Iterator<Integer> iterator = new ArrayIterator<>(array);
-        assertFalse(iterator.hasStarted());
+                                final IteratorToJavaIteratorAdapter<Integer> javaIterator = new IteratorToJavaIteratorAdapter<>(iterator);
+                                test.assertTrue(iterator.hasStarted());
 
-        final IteratorToJavaIteratorAdapter<Integer> javaIterator = new IteratorToJavaIteratorAdapter<>(iterator);
-        assertFalse(iterator.hasStarted());
+                                for (int i = 0; i < 10; ++i)
+                                {
+                                    test.assertNull(javaIterator.next());
+                                }
+                            }
+                        });
+                        
+                        runner.test("with non-started non-empty iterator", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Array<Integer> array = new Array<>(5);
+                                for (int i = 0; i < array.getCount(); ++i)
+                                {
+                                    array.set(i, i);
+                                }
 
-        for (int i = 0; i < 10; ++i)
-        {
-            assertNull(javaIterator.next());
-        }
-    }
+                                final Iterator<Integer> iterator = new ArrayIterator<>(array);
+                                test.assertFalse(iterator.hasStarted());
 
-    @Test
-    public void nextWithStartedEmpty()
-    {
-        final Array<Integer> array = new Array<>(0);
-        final Iterator<Integer> iterator = new ArrayIterator<>(array);
-        assertFalse(iterator.next());
-        assertTrue(iterator.hasStarted());
+                                final IteratorToJavaIteratorAdapter<Integer> javaIterator = new IteratorToJavaIteratorAdapter<>(iterator);
+                                test.assertFalse(iterator.hasStarted());
 
-        final IteratorToJavaIteratorAdapter<Integer> javaIterator = new IteratorToJavaIteratorAdapter<>(iterator);
-        assertTrue(iterator.hasStarted());
+                                for (int i = 0; i < 5; ++i)
+                                {
+                                    test.assertEqual(i, javaIterator.next());
+                                }
 
-        for (int i = 0; i < 10; ++i)
-        {
-            assertNull(javaIterator.next());
-        }
-    }
+                                test.assertNull(javaIterator.next());
+                            }
+                        });
 
-    @Test
-    public void nextWithNonStartedNonEmpty()
-    {
-        final Array<Integer> array = new Array<>(5);
-        for (int i = 0; i < array.getCount(); ++i)
-        {
-            array.set(i, i);
-        }
+                        runner.test("with started non-empty iterator", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Array<Integer> array = new Array<>(5);
+                                for (int i = 0; i < array.getCount(); ++i)
+                                {
+                                    array.set(i, i);
+                                }
 
-        final Iterator<Integer> iterator = new ArrayIterator<>(array);
-        assertFalse(iterator.hasStarted());
+                                final Iterator<Integer> iterator = new ArrayIterator<>(array);
+                                test.assertTrue(iterator.next());
+                                test.assertTrue(iterator.hasStarted());
 
-        final IteratorToJavaIteratorAdapter<Integer> javaIterator = new IteratorToJavaIteratorAdapter<>(iterator);
-        assertFalse(iterator.hasStarted());
+                                final IteratorToJavaIteratorAdapter<Integer> javaIterator = new IteratorToJavaIteratorAdapter<>(iterator);
+                                test.assertTrue(iterator.hasStarted());
 
-        for (int i = 0; i < 5; ++i)
-        {
-            assertEquals(i, javaIterator.next().intValue());
-        }
+                                for (int i = 0; i < 5; ++i)
+                                {
+                                    test.assertEqual(i, javaIterator.next());
+                                }
 
-        assertNull(javaIterator.next());
-    }
+                                test.assertNull(javaIterator.next());
+                            }
+                        });
+                    }
+                });
 
-    @Test
-    public void nextWithStartedNonEmpty()
-    {
-        final Array<Integer> array = new Array<>(5);
-        for (int i = 0; i < array.getCount(); ++i)
-        {
-            array.set(i, i);
-        }
+                runner.test("remove()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final Array<Integer> array = new Array<>(5);
+                        for (int i = 0; i < array.getCount(); ++i)
+                        {
+                            array.set(i, i);
+                        }
 
-        final Iterator<Integer> iterator = new ArrayIterator<>(array);
-        assertTrue(iterator.next());
-        assertTrue(iterator.hasStarted());
-
-        final IteratorToJavaIteratorAdapter<Integer> javaIterator = new IteratorToJavaIteratorAdapter<>(iterator);
-        assertTrue(iterator.hasStarted());
-
-        for (int i = 0; i < 5; ++i)
-        {
-            assertEquals(i, javaIterator.next().intValue());
-        }
-
-        assertNull(javaIterator.next());
-    }
-
-    @Test
-    public void remove()
-    {
-        final Array<Integer> array = new Array<>(5);
-        for (int i = 0; i < array.getCount(); ++i)
-        {
-            array.set(i, i);
-        }
-
-        final Iterator<Integer> iterator = new ArrayIterator<>(array);
-        final IteratorToJavaIteratorAdapter<Integer> javaIterator = new IteratorToJavaIteratorAdapter<>(iterator);
-        javaIterator.remove();
+                        final Iterator<Integer> iterator = new ArrayIterator<>(array);
+                        final IteratorToJavaIteratorAdapter<Integer> javaIterator = new IteratorToJavaIteratorAdapter<>(iterator);
+                        javaIterator.remove();
+                    }
+                });
+            }
+        });
     }
 }
