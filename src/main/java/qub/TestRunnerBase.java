@@ -170,6 +170,69 @@ public class TestRunnerBase implements TestRunner
         }
     }
 
+    @Override
+    public String escapeAndQuote(String text)
+    {
+        String result;
+        if (text == null)
+        {
+            result = "null";
+        }
+        else
+        {
+            final StringBuilder builder = new StringBuilder();
+            builder.append('\"');
+
+            int start;
+            int end;
+            if (text.startsWith("\"") && text.endsWith("\""))
+            {
+                start = 1;
+                end = text.length() - 1;
+            }
+            else
+            {
+                start = 0;
+                end = text.length();
+            }
+
+            for (int i = start; i < end; ++i)
+            {
+                final char textCharacter = text.charAt(i);
+                switch (textCharacter)
+                {
+                    case '\b':
+                        builder.append("\\b");
+                        break;
+
+                    case '\f':
+                        builder.append("\\f");
+                        break;
+
+                    case '\n':
+                        builder.append("\\n");
+                        break;
+
+                    case '\r':
+                        builder.append("\\r");
+                        break;
+
+                    case '\t':
+                        builder.append("\\t");
+                        break;
+
+                    default:
+                        builder.append(textCharacter);
+                        break;
+                }
+            }
+
+            builder.append('\"');
+            result = builder.toString();
+        }
+        return result;
+    }
+
     /**
      * Set the Action that will be run when a TestGroup starts running.
      * @param testGroupStartedAction The Action that will be run when a TestGroup starts running.

@@ -1,95 +1,134 @@
 package qub;
 
-import org.junit.Test;
-
-import static org.junit.Assert.*;
-
 public class JSONIssuesTests
 {
-    @Test
-    public void constructor()
+    public static void test(final TestRunner runner)
     {
-        final JSONIssues issues = new JSONIssues();
-        assertNotNull(issues);
-    }
+        runner.testGroup("JSONIssues", new Action0()
+        {
+            @Override
+            public void run()
+            {
+                runner.test("constructor", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final JSONIssues issues = new JSONIssues();
+                        test.assertNotNull(issues);
+                    }
+                });
+                
+                runner.test("expectedEndOfFile()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        test.assertEqual(
+                            Issue.error("Expected end of file.", 10, 1),
+                            JSONIssues.expectedEndOfFile(10, 1));
+                    }
+                });
 
-    @Test
-    public void expectedEndOfFile()
-    {
-        assertEquals(
-            Issue.error("Expected end of file.", 10, 1),
-            JSONIssues.expectedEndOfFile(10, 1));
-    }
+                runner.test("missingClosingRightSquareBracket()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        test.assertEqual(
+                            Issue.error("Missing closing right square bracket (']').", 11, 1),
+                            JSONIssues.missingClosingRightSquareBracket(11, 1));
+                    }
+                });
 
-    @Test
-    public void missingClosingRightSquareBracket()
-    {
-        assertEquals(
-            Issue.error("Missing closing right square bracket (']').", 11, 1),
-            JSONIssues.missingClosingRightSquareBracket(11, 1));
-    }
+                runner.test("expectedCommaOrClosingRightSquareBracket()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        test.assertEqual(
+                            Issue.error("Expected comma (',') or closing right square bracket (']').", 12, 4),
+                            JSONIssues.expectedCommaOrClosingRightSquareBracket(12, 4));
+                    }
+                });
 
-    @Test
-    public void expectedCommaOrClosingRightSquareBracket()
-    {
-        assertEquals(
-            Issue.error("Expected comma (',') or closing right square bracket (']').", 12, 4),
-            JSONIssues.expectedCommaOrClosingRightSquareBracket(12, 4));
-    }
+                runner.test("expectedArrayElementOrClosingRightSquareBracket()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        test.assertEqual(
+                            Issue.error("Expected array element or closing right square bracket (']').", 13, 1),
+                            JSONIssues.expectedArrayElementOrClosingRightSquareBracket(13, 1));
+                    }
+                });
 
-    @Test
-    public void expectedArrayElementOrClosingRightSquareBracket()
-    {
-        assertEquals(
-            Issue.error("Expected array element or closing right square bracket (']').", 13, 1),
-            JSONIssues.expectedArrayElementOrClosingRightSquareBracket(13, 1));
-    }
+                runner.test("expectedArrayElement()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        test.assertEqual(
+                            Issue.error("Expected array element.", 14, 1),
+                            JSONIssues.expectedArrayElement(14, 1));
+                    }
+                });
 
-    @Test
-    public void expectedArrayElement()
-    {
-        assertEquals(
-            Issue.error("Expected array element.", 14, 1),
-            JSONIssues.expectedArrayElement(14, 1));
-    }
+                runner.test("expectedCommaOrClosingRightCurlyBracket()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        test.assertEqual(
+                            Issue.error("Expected comma (',') or closing right curly bracket ('}').", 15, 3),
+                            JSONIssues.expectedCommaOrClosingRightCurlyBracket(15, 3));
+                    }
+                });
 
-    @Test
-    public void expectedCommaOrClosingRightCurlyBracket()
-    {
-        assertEquals(
-            Issue.error("Expected comma (',') or closing right curly bracket ('}').", 15, 3),
-            JSONIssues.expectedCommaOrClosingRightCurlyBracket(15, 3));
-    }
+                runner.test("expectedPropertyName()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        test.assertEqual(
+                            Issue.error("Expected property name.", 16, 4),
+                            JSONIssues.expectedPropertyName(16, 4));
+                    }
+                });
 
-    @Test
-    public void expectedPropertyName()
-    {
-        assertEquals(
-            Issue.error("Expected property name.", 16, 4),
-            JSONIssues.expectedPropertyName(16, 4));
-    }
+                runner.test("expectedPropertynameOrClosingRightCurlyBracket()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        test.assertEqual(
+                            Issue.error("Expected property name or closing right curly bracket ('}').", 17, 1),
+                            JSONIssues.expectedPropertyNameOrClosingRightCurlyBracket(17, 1));
+                    }
+                });
 
-    @Test
-    public void expectedPropertyNameOrClosingRightCurlyBracket()
-    {
-        assertEquals(
-            Issue.error("Expected property name or closing right curly bracket ('}').", 17, 1),
-            JSONIssues.expectedPropertyNameOrClosingRightCurlyBracket(17, 1));
-    }
+                runner.test("expectedColon()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        test.assertEqual(
+                            Issue.error("Expected colon (':').", 18, 2),
+                            JSONIssues.expectedColon(18, 2));
+                    }
+                });
 
-    @Test
-    public void expectedColon()
-    {
-        assertEquals(
-            Issue.error("Expected colon (':').", 18, 2),
-            JSONIssues.expectedColon(18, 2));
-    }
-
-    @Test
-    public void expectedPropertyValue()
-    {
-        assertEquals(
-            Issue.error("Expected property value.", 19, 1),
-            JSONIssues.expectedPropertyValue(19, 1));
+                runner.test("expectedPropertyValue()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        test.assertEqual(
+                            Issue.error("Expected property value.", 19, 1),
+                            JSONIssues.expectedPropertyValue(19, 1));
+                    }
+                });
+            }
+        });
     }
 }

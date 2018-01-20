@@ -1,91 +1,113 @@
 package qub;
 
-import org.junit.Test;
-
-import static org.junit.Assert.*;
-
 public class JSONObjectTests
 {
-    @Test
-    public void constructor()
+    public static void test(final TestRunner runner)
     {
-        constructorTest("{",
-            JSONToken.leftCurlyBracket(0),
-            new JSONProperty[0],
-            null,
-            0,
-            1,
-            1);
-
-        constructorTest("{}",
-            JSONToken.leftCurlyBracket(0),
-            new JSONProperty[0],
-            JSONToken.rightCurlyBracket(1),
-            0,
-            2,
-            2);
-
-        constructorTest("{\"a\":\"b\"}",
-            JSONToken.leftCurlyBracket(0),
-            new JSONProperty[]
+        runner.testGroup("JSONObject", new Action0()
+        {
+            @Override
+            public void run()
             {
-                JSON.parseProperty("\"a\":\"b\"", 1)
-            },
-            JSONToken.rightCurlyBracket(8),
-            0,
-            9,
-            9);
-
-        constructorTest("{\"1\":\"2\", \"3\":\"4\"}",
-            JSONToken.leftCurlyBracket(0),
-            new JSONProperty[]
+                runner.testGroup("constructor", new Action0()
                 {
-                    JSON.parseProperty("\"1\":\"2\"", 1),
-                    JSON.parseProperty("\"3\":\"4\"", 10)
-                },
-            JSONToken.rightCurlyBracket(17),
-            0,
-            18,
-            18);
-    }
+                    @Override
+                    public void run()
+                    {
+                        final Action6<String,JSONToken,JSONProperty[],JSONToken,Integer,Integer> constructorTest = new Action6<String, JSONToken, JSONProperty[], JSONToken, Integer, Integer>()
+                        {
+                            @Override
+                            public void run(final String text, final JSONToken leftCurlyBracket, final JSONProperty[] propertySegments, final JSONToken rightCurlyBracket, final Integer afterEndIndex, final Integer length)
+                            {
+                                runner.test("with \"" + text + "\"", new Action1<Test>()
+                                {
+                                    @Override
+                                    public void run(Test test)
+                                    {
+                                        final JSONObject objectSegment = JSON.parseObject(text);
+                                        test.assertEqual(leftCurlyBracket, objectSegment.getLeftCurlyBracket());
+                                        test.assertEqual(rightCurlyBracket, objectSegment.getRightCurlyBracket());
+                                        test.assertEqual(Array.fromValues(propertySegments), objectSegment.getProperties());
+                                        test.assertEqual(0, objectSegment.getStartIndex());
+                                        test.assertEqual(afterEndIndex, objectSegment.getAfterEndIndex());
+                                        test.assertEqual(length, objectSegment.getLength());
+                                        test.assertEqual(text, objectSegment.toString());
+                                    }
+                                });
+                            }
+                        };
 
-    private static void constructorTest(String text, JSONToken leftCurlyBracket, JSONProperty[] propertySegments, JSONToken rightCurlyBracket, int startIndex, int afterEndIndex, int length)
-    {
-        final JSONObject objectSegment = JSON.parseObject(text);
-        assertEquals(leftCurlyBracket, objectSegment.getLeftCurlyBracket());
-        assertEquals(rightCurlyBracket, objectSegment.getRightCurlyBracket());
-        assertEquals(Array.fromValues(propertySegments), objectSegment.getProperties());
-        assertEquals(startIndex, objectSegment.getStartIndex());
-        assertEquals(afterEndIndex, objectSegment.getAfterEndIndex());
-        assertEquals(length, objectSegment.getLength());
-        assertEquals(text, objectSegment.toString());
-    }
+                        constructorTest.run("{",
+                            JSONToken.leftCurlyBracket(0),
+                            new JSONProperty[0],
+                            null,
+                            1,
+                            1);
 
-    @Test
-    public void getPropertySegment()
-    {
-        final JSONObject objectSegment = JSON.parseObject("{ \"a\":1, \"b\": 2 }");
-        assertNull(objectSegment.getProperty(null));
-        assertNull(objectSegment.getProperty(""));
-        assertNull(objectSegment.getProperty("c"));
-        assertNull(objectSegment.getProperty("\"c\""));
-        assertEquals(JSON.parseProperty("\"a\":1", 2), objectSegment.getProperty("\"a\""));
-        assertEquals(JSON.parseProperty("\"a\":1", 2), objectSegment.getProperty("a"));
-        assertEquals(JSON.parseProperty("\"b\": 2", 9), objectSegment.getProperty("\"b\""));
-        assertEquals(JSON.parseProperty("\"b\": 2", 9), objectSegment.getProperty("b"));
-    }
+                        constructorTest.run("{}",
+                            JSONToken.leftCurlyBracket(0),
+                            new JSONProperty[0],
+                            JSONToken.rightCurlyBracket(1),
+                            2,
+                            2);
 
-    @Test
-    public void getPropertyValueSegment()
-    {
-        final JSONObject objectSegment = JSON.parseObject("{ \"a\":1, \"b\": 2 }");
-        assertNull(objectSegment.getPropertyValue(null));
-        assertNull(objectSegment.getPropertyValue(""));
-        assertNull(objectSegment.getPropertyValue("c"));
-        assertNull(objectSegment.getPropertyValue("\"c\""));
-        assertEquals(JSONToken.number("1", 6), objectSegment.getPropertyValue("\"a\""));
-        assertEquals(JSONToken.number("1", 6), objectSegment.getPropertyValue("a"));
-        assertEquals(JSONToken.number("2", 14), objectSegment.getPropertyValue("\"b\""));
-        assertEquals(JSONToken.number("2", 14), objectSegment.getPropertyValue("b"));
+                        constructorTest.run("{\"a\":\"b\"}",
+                            JSONToken.leftCurlyBracket(0),
+                            new JSONProperty[]
+                                {
+                                    JSON.parseProperty("\"a\":\"b\"", 1)
+                                },
+                            JSONToken.rightCurlyBracket(8),
+                            9,
+                            9);
+
+                        constructorTest.run("{\"1\":\"2\", \"3\":\"4\"}",
+                            JSONToken.leftCurlyBracket(0),
+                            new JSONProperty[]
+                                {
+                                    JSON.parseProperty("\"1\":\"2\"", 1),
+                                    JSON.parseProperty("\"3\":\"4\"", 10)
+                                },
+                            JSONToken.rightCurlyBracket(17),
+                            18,
+                            18);
+                    }
+                });
+                
+                runner.test("getPropertySegment()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final JSONObject objectSegment = JSON.parseObject("{ \"a\":1, \"b\": 2 }");
+                        test.assertNull(objectSegment.getProperty(null));
+                        test.assertNull(objectSegment.getProperty(""));
+                        test.assertNull(objectSegment.getProperty("c"));
+                        test.assertNull(objectSegment.getProperty("\"c\""));
+                        test.assertEqual(JSON.parseProperty("\"a\":1", 2), objectSegment.getProperty("\"a\""));
+                        test.assertEqual(JSON.parseProperty("\"a\":1", 2), objectSegment.getProperty("a"));
+                        test.assertEqual(JSON.parseProperty("\"b\": 2", 9), objectSegment.getProperty("\"b\""));
+                        test.assertEqual(JSON.parseProperty("\"b\": 2", 9), objectSegment.getProperty("b"));
+                    }
+                });
+
+                runner.test("getPropertyValue()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final JSONObject objectSegment = JSON.parseObject("{ \"a\":1, \"b\": 2 }");
+                        test.assertNull(objectSegment.getPropertyValue(null));
+                        test.assertNull(objectSegment.getPropertyValue(""));
+                        test.assertNull(objectSegment.getPropertyValue("c"));
+                        test.assertNull(objectSegment.getPropertyValue("\"c\""));
+                        test.assertEqual(JSONToken.number("1", 6), objectSegment.getPropertyValue("\"a\""));
+                        test.assertEqual(JSONToken.number("1", 6), objectSegment.getPropertyValue("a"));
+                        test.assertEqual(JSONToken.number("2", 14), objectSegment.getPropertyValue("\"b\""));
+                        test.assertEqual(JSONToken.number("2", 14), objectSegment.getPropertyValue("b"));
+                    }
+                });
+            }
+        });
     }
 }

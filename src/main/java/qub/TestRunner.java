@@ -30,4 +30,11 @@ public interface TestRunner
      * @param afterTestAction The action that will be run after each test within this test group.
      */
     void afterTest(Action0 afterTestAction);
+
+    /**
+     * Surround the provided text with quotes and textualize any escaped characters.
+     * @param text The text to quote and escape.
+     * @return The quoted and escaped text.
+     */
+    String escapeAndQuote(String text);
 }

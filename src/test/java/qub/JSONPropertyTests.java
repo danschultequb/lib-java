@@ -1,122 +1,145 @@
 package qub;
 
-import org.junit.Test;
-
-import static org.junit.Assert.*;
-
 public class JSONPropertyTests
 {
-    @Test
-    public void constructor()
+    public static void test(final TestRunner runner)
     {
-        assertPropertySegment("\"",
-                JSONToken.quotedString("\"", 0, false),
-                "",
-                null,
-                null,
-                1);
-        assertPropertySegment("\"\"",
-                JSONToken.quotedString("\"\"", 0, true),
-                "",
-                null,
-                null,
-                2);
+        runner.testGroup("JSONProperty", new Action0()
+        {
+            @Override
+            public void run()
+            {
+                runner.testGroup("constructor", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        final Action6<String,JSONQuotedString,String,JSONToken,JSONSegment,Integer> constructorTest = new Action6<String, JSONQuotedString, String, JSONToken, JSONSegment, Integer>()
+                        {
+                            @Override
+                            public void run(final String text, final JSONQuotedString nameSegment, final String name, final JSONToken colonSegment, final JSONSegment valueSegment, final Integer afterEndIndex)
+                            {
+                                runner.test("with \"" + text + "\"", new Action1<Test>()
+                                {
+                                    @Override
+                                    public void run(Test test)
+                                    {
+                                        final JSONProperty propertySegment = JSON.parseProperty(text);
 
-        assertPropertySegment("\"test",
-                JSONToken.quotedString("\"test", 0, false),
-                "test",
-                null,
-                null,
-                5);
-        assertPropertySegment("\"test\"",
-                JSONToken.quotedString("\"test\"", 0, true),
-                "test",
-                null,
-                null,
-                6);
+                                        test.assertEqual(nameSegment, propertySegment.getNameSegment());
+                                        test.assertEqual(name, propertySegment.getName());
 
-        assertPropertySegment("\"a\" ",
-                JSONToken.quotedString("\"a\"", 0, true),
-                "a",
-                null,
-                null,
-                4);
-        assertPropertySegment("\"a\":",
-                JSONToken.quotedString("\"a\"", 0, true),
-                "a",
-                JSONToken.colon(3),
-                null,
-                4);
-        assertPropertySegment("\"a\" :",
-                JSONToken.quotedString("\"a\"", 0, true),
-                "a",
-                JSONToken.colon(4),
-                null,
-                5);
+                                        test.assertEqual(colonSegment, propertySegment.getColonSegment());
 
-        assertPropertySegment("\"a\":\"b\"",
-                JSONToken.quotedString("\"a\"", 0, true),
-                "a",
-                JSONToken.colon(3),
-                JSONToken.quotedString("\"b\"", 4, true),
-                7);
-        assertPropertySegment("\"a\":  ",
-                JSONToken.quotedString("\"a\"", 0, true),
-                "a",
-                JSONToken.colon(3),
-                null,
-                6);
-        assertPropertySegment("\"a\":// comment",
-                JSONToken.quotedString("\"a\"", 0, true),
-                "a",
-                JSONToken.colon(3),
-                null,
-                14);
-        assertPropertySegment("\"a\":/* comment",
-                JSONToken.quotedString("\"a\"", 0, true),
-                "a",
-                JSONToken.colon(3),
-                null,
-                14);
-        assertPropertySegment("\"apples\":{}",
-                JSONToken.quotedString("\"apples\"", 0, true),
-                "apples",
-                JSONToken.colon(8),
-                JSON.parseObject("{}", 9),
-                11);
-    }
+                                        test.assertEqual(valueSegment, propertySegment.getValueSegment());
 
-    @Test
-    public void equalsTest()
-    {
-        final JSONProperty propertySegment = JSON.parseProperty("\"a\":\"b\"");
-        assertFalse(propertySegment.equals((Object)null));
-        assertFalse(propertySegment.equals((JSONProperty)null));
+                                        test.assertEqual(text, propertySegment.toString());
 
-        assertFalse(propertySegment.equals((Object)"test"));
+                                        test.assertEqual(nameSegment.getStartIndex(), propertySegment.getStartIndex());
 
-        assertTrue(propertySegment.equals(propertySegment));
-        assertTrue(propertySegment.equals(JSON.parseProperty("\"a\":\"b\"")));
-        assertFalse(propertySegment.equals(JSON.parseProperty("\"a\":50")));
-    }
+                                        test.assertEqual(afterEndIndex, propertySegment.getAfterEndIndex());
 
-    private static void assertPropertySegment(String text, JSONQuotedString nameSegment, String name, JSONToken colonSegment, JSONSegment valueSegment, int afterEndIndex)
-    {
-        final JSONProperty propertySegment = JSON.parseProperty(text);
+                                        test.assertEqual(afterEndIndex - nameSegment.getStartIndex(), propertySegment.getLength());
+                                    }
+                                });
+                            }
+                        };
 
-        assertEquals(nameSegment, propertySegment.getNameSegment());
-        assertEquals(name, propertySegment.getName());
+                        constructorTest.run("\"",
+                            JSONToken.quotedString("\"", 0, false),
+                            "",
+                            null,
+                            null,
+                            1);
+                        constructorTest.run("\"\"",
+                            JSONToken.quotedString("\"\"", 0, true),
+                            "",
+                            null,
+                            null,
+                            2);
 
-        assertEquals(colonSegment, propertySegment.getColonSegment());
+                        constructorTest.run("\"test",
+                            JSONToken.quotedString("\"test", 0, false),
+                            "test",
+                            null,
+                            null,
+                            5);
+                        constructorTest.run("\"test\"",
+                            JSONToken.quotedString("\"test\"", 0, true),
+                            "test",
+                            null,
+                            null,
+                            6);
 
-        assertEquals(valueSegment, propertySegment.getValueSegment());
+                        constructorTest.run("\"a\" ",
+                            JSONToken.quotedString("\"a\"", 0, true),
+                            "a",
+                            null,
+                            null,
+                            4);
+                        constructorTest.run("\"a\":",
+                            JSONToken.quotedString("\"a\"", 0, true),
+                            "a",
+                            JSONToken.colon(3),
+                            null,
+                            4);
+                        constructorTest.run("\"a\" :",
+                            JSONToken.quotedString("\"a\"", 0, true),
+                            "a",
+                            JSONToken.colon(4),
+                            null,
+                            5);
 
-        assertEquals(text, propertySegment.toString());
+                        constructorTest.run("\"a\":\"b\"",
+                            JSONToken.quotedString("\"a\"", 0, true),
+                            "a",
+                            JSONToken.colon(3),
+                            JSONToken.quotedString("\"b\"", 4, true),
+                            7);
+                        constructorTest.run("\"a\":  ",
+                            JSONToken.quotedString("\"a\"", 0, true),
+                            "a",
+                            JSONToken.colon(3),
+                            null,
+                            6);
+                        constructorTest.run("\"a\":// comment",
+                            JSONToken.quotedString("\"a\"", 0, true),
+                            "a",
+                            JSONToken.colon(3),
+                            null,
+                            14);
+                        constructorTest.run("\"a\":/* comment",
+                            JSONToken.quotedString("\"a\"", 0, true),
+                            "a",
+                            JSONToken.colon(3),
+                            null,
+                            14);
+                        constructorTest.run("\"apples\":{}",
+                            JSONToken.quotedString("\"apples\"", 0, true),
+                            "apples",
+                            JSONToken.colon(8),
+                            JSON.parseObject("{}", 9),
+                            11);
+                    }
+                });
+                
+                runner.test("equals()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final JSONProperty propertySegment = JSON.parseProperty("\"a\":\"b\"");
+                        test.assertFalse(propertySegment.equals((Object)null));
+                        test.assertFalse(propertySegment.equals((JSONProperty)null));
 
-        assertEquals(nameSegment.getStartIndex(), propertySegment.getStartIndex());
+                        test.assertFalse(propertySegment.equals((Object)"test"));
 
-        assertEquals(afterEndIndex, propertySegment.getAfterEndIndex());
-
-        assertEquals(afterEndIndex - nameSegment.getStartIndex(), propertySegment.getLength());
+                        test.assertTrue(propertySegment.equals(propertySegment));
+                        test.assertTrue(propertySegment.equals(JSON.parseProperty("\"a\":\"b\"")));
+                        test.assertFalse(propertySegment.equals(JSON.parseProperty("\"a\":50")));
+                    }
+                });
+            }
+        });
     }
 }
