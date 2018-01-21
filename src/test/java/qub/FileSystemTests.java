@@ -5845,7 +5845,7 @@ public class FileSystemTests
                             {
                                 final FileSystem fileSystem = getFileSystem(creator);
                                 fileSystem.createFile("/A.txt", new byte[] { 0, 1 });
-                                test.assertTrue(fileSystem.setFileContents(Path.parse("/A.txt"), ""));
+                                test.assertTrue(fileSystem.setFileContents(Path.parse("/A.txt"), ""), "Unable to set the file's contents after creating the file");
                                 test.assertTrue(fileSystem.fileExists("/A.txt"));
                                 test.assertEqual("", fileSystem.getFileContentsAsString("/A.txt"));
                             }
