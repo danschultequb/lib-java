@@ -2,6 +2,8 @@ package qub;
 
 public class TestRunnerBase implements TestRunner
 {
+    private static final char testNameSeparator = ' ';
+
     private int passedTestCount;
     private int failedTestCount;
     private final List<TestAssertionFailure> testFailures = new SingleLinkList<>();
@@ -28,7 +30,7 @@ public class TestRunnerBase implements TestRunner
             final String testFullNameBackup = testFullName;
             if (!testFullName.isEmpty())
             {
-                testFullName += '.';
+                testFullName += testNameSeparator;
             }
             testFullName += testGroupName;
             
@@ -58,7 +60,7 @@ public class TestRunnerBase implements TestRunner
             final String testFullNameBackup = testFullName;
             if (!testFullName.isEmpty())
             {
-                testFullName += '.';
+                testFullName += testNameSeparator;
             }
             testFullName += testName;
             

@@ -2318,8 +2318,8 @@ public class FileSystemTests
                                                 @Override
                                                 public void run(Boolean folderDeleted)
                                                 {
-                                                    test.assertFalse(folderDeleted);
-                                                    test.assertTrue(fileSystem.folderExists("/folder"));
+                                                    test.assertFalse(folderDeleted, "Expected the folder to fail to delete since a relative path was given.");
+                                                    test.assertTrue(fileSystem.folderExists("/folder"), "Expected the folder to still exist.");
                                                 }
                                             });
                                     }
@@ -2947,12 +2947,12 @@ public class FileSystemTests
                             public void run(Test test)
                             {
                                 final FileSystem fileSystem = getFileSystem(creator);
-                                fileSystem.createFile("/things.txt");
+                                test.assertTrue(fileSystem.createFile("/things.txt"), "Failed to create the file.");
 
-                                test.assertFalse(fileSystem.createFile("/things.txt", new byte[] { 0, 1, 2, 3 }));
+                                test.assertFalse(fileSystem.createFile("/things.txt", new byte[] { 0, 1, 2, 3 }), "Expected file creation to return false when the file already exists.");
 
-                                test.assertTrue(fileSystem.fileExists("/things.txt"));
-                                test.assertEqual(new byte[0], fileSystem.getFileContents("/things.txt"));
+                                test.assertTrue(fileSystem.fileExists("/things.txt"), "The file should have existed after the failed creation attempt.");
+                                test.assertEqual(new byte[0], fileSystem.getFileContents("/things.txt"), "The file contents should've been empty.");
                             }
                         });
 
@@ -2962,12 +2962,12 @@ public class FileSystemTests
                             public void run(Test test)
                             {
                                 final FileSystem fileSystem = getFileSystem(creator);
-                                fileSystem.createFile("/things.txt");
+                                test.assertTrue(fileSystem.createFile("/things.txt"), "Failed to create the file.");
 
-                                test.assertFalse(fileSystem.createFile("/things.txt", "ABC"));
+                                test.assertFalse(fileSystem.createFile("/things.txt", "ABC"), "Expected file creation to return false when the file already exists.");
 
-                                test.assertTrue(fileSystem.fileExists("/things.txt"));
-                                test.assertEqual(new byte[0], fileSystem.getFileContents("/things.txt"));
+                                test.assertTrue(fileSystem.fileExists("/things.txt"), "The file should've existed after the failed creation attempt.");
+                                test.assertEqual(new byte[0], fileSystem.getFileContents("/things.txt"), "The file contents should've been empty.");
                             }
                         });
 
