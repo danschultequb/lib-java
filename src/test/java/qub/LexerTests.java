@@ -1,85 +1,103 @@
 package qub;
 
-import org.junit.Test;
-
-import static org.junit.Assert.*;
-
 public class LexerTests
 {
-    private static void singleLexTest(char character, Lex expectedLex)
+    public static void test(final TestRunner runner)
     {
-        singleLexTest(Character.toString(character), expectedLex);
+        runner.testGroup("Lexer", new Action0()
+        {
+            @Override
+            public void run()
+            {
+                runner.testGroup("single lex tests", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        final Action2<String,Lex> singleLexTest = new Action2<String, Lex>()
+                        {
+                            @Override
+                            public void run(final String text, final Lex expectedLex)
+                            {
+                                runner.test("with " + runner.escapeAndQuote(text), new Action1<Test>()
+                                {
+                                    @Override
+                                    public void run(Test test)
+                                    {
+                                        final Lexer lexer = new Lexer(text);
+                                        assertLexer(test, lexer, false, null);
+
+                                        test.assertTrue(lexer.next());
+                                        assertLexer(test, lexer, true, expectedLex);
+
+                                        test.assertFalse(lexer.next());
+                                        assertLexer(test, lexer, true, null);
+                                    }
+                                });
+                            }
+                        };
+
+                        singleLexTest.run("{", Lex.leftCurlyBracket(0));
+                        singleLexTest.run("}", Lex.rightCurlyBracket(0));
+                        singleLexTest.run("[", Lex.leftSquareBracket(0));
+                        singleLexTest.run("]", Lex.rightSquareBracket(0));
+                        singleLexTest.run("<", Lex.leftAngleBracket(0));
+                        singleLexTest.run(">", Lex.rightAngleBracket(0));
+                        singleLexTest.run("(", Lex.leftParenthesis(0));
+                        singleLexTest.run(")", Lex.rightParenthesis(0));
+                        singleLexTest.run("xyz", Lex.letters("xyz", 0));
+                        singleLexTest.run("\'", Lex.singleQuote(0));
+                        singleLexTest.run("\"", Lex.doubleQuote(0));
+                        singleLexTest.run("0123456789", Lex.digits("0123456789", 0));
+                        singleLexTest.run(",", Lex.comma(0));
+                        singleLexTest.run(":", Lex.colon(0));
+                        singleLexTest.run(";", Lex.semicolon(0));
+                        singleLexTest.run("!", Lex.exclamationPoint(0));
+                        singleLexTest.run("\\", Lex.backslash(0));
+                        singleLexTest.run("/", Lex.forwardSlash(0));
+                        singleLexTest.run("?", Lex.questionMark(0));
+                        singleLexTest.run("-", Lex.dash(0));
+                        singleLexTest.run("+", Lex.plus(0));
+                        singleLexTest.run("=", Lex.equalsSign(0));
+                        singleLexTest.run(".", Lex.period(0));
+                        singleLexTest.run("_", Lex.underscore(0));
+                        singleLexTest.run("&", Lex.ampersand(0));
+                        singleLexTest.run("|", Lex.verticalBar(0));
+                        singleLexTest.run(" ", Lex.space(0));
+                        singleLexTest.run("\t", Lex.tab(0));
+                        singleLexTest.run("\r", Lex.carriageReturn(0));
+                        singleLexTest.run("\n", Lex.newLine(0));
+                        singleLexTest.run("\r\n", Lex.carriageReturnNewLine(0));
+                        singleLexTest.run("*", Lex.asterisk(0));
+                        singleLexTest.run("%", Lex.percent(0));
+                        singleLexTest.run("#", Lex.hash(0));
+                        singleLexTest.run("^", Lex.unrecognized('^', 0));
+                    }
+                });
+
+                runner.test("with right curly bracket", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final Lexer lexer = new Lexer("}");
+                        assertLexer(test, lexer, false, null);
+
+                        test.assertTrue(lexer.next());
+                        assertLexer(test, lexer, true, Lex.rightCurlyBracket(0));
+
+                        test.assertFalse(lexer.next());
+                        assertLexer(test, lexer, true, null);
+                    }
+                });
+            }
+        });
     }
 
-    private static void singleLexTest(String text, Lex expectedLex)
+    private static void assertLexer(Test test, Lexer lexer, boolean hasStarted, Lex current)
     {
-        final Lexer lexer = new Lexer(text);
-        assertLexer(lexer, false, null);
-
-        assertTrue(lexer.next());
-        assertLexer(lexer, true, expectedLex);
-
-        assertFalse(lexer.next());
-        assertLexer(lexer, true, null);
-    }
-
-    @Test
-    public void withSingleCharacters()
-    {
-        singleLexTest('{', Lex.leftCurlyBracket(0));
-        singleLexTest('}', Lex.rightCurlyBracket(0));
-        singleLexTest('[', Lex.leftSquareBracket(0));
-        singleLexTest(']', Lex.rightSquareBracket(0));
-        singleLexTest('<', Lex.leftAngleBracket(0));
-        singleLexTest('>', Lex.rightAngleBracket(0));
-        singleLexTest('(', Lex.leftParenthesis(0));
-        singleLexTest(')', Lex.rightParenthesis(0));
-        singleLexTest("xyz", Lex.letters("xyz", 0));
-        singleLexTest('\'', Lex.singleQuote(0));
-        singleLexTest('\"', Lex.doubleQuote(0));
-        singleLexTest("0123456789", Lex.digits("0123456789", 0));
-        singleLexTest(',', Lex.comma(0));
-        singleLexTest(':', Lex.colon(0));
-        singleLexTest(';', Lex.semicolon(0));
-        singleLexTest('!', Lex.exclamationPoint(0));
-        singleLexTest('\\', Lex.backslash(0));
-        singleLexTest('/', Lex.forwardSlash(0));
-        singleLexTest('?', Lex.questionMark(0));
-        singleLexTest('-', Lex.dash(0));
-        singleLexTest('+', Lex.plus(0));
-        singleLexTest('=', Lex.equalsSign(0));
-        singleLexTest('.', Lex.period(0));
-        singleLexTest('_', Lex.underscore(0));
-        singleLexTest('&', Lex.ampersand(0));
-        singleLexTest('|', Lex.verticalBar(0));
-        singleLexTest(' ', Lex.space(0));
-        singleLexTest('\t', Lex.tab(0));
-        singleLexTest('\r', Lex.carriageReturn(0));
-        singleLexTest('\n', Lex.newLine(0));
-        singleLexTest("\r\n", Lex.carriageReturnNewLine(0));
-        singleLexTest('*', Lex.asterisk(0));
-        singleLexTest('%', Lex.percent(0));
-        singleLexTest('#', Lex.hash(0));
-        singleLexTest('^', Lex.unrecognized('^', 0));
-    }
-
-    @Test
-    public void withRightCurlyBracket()
-    {
-        final Lexer lexer = new Lexer("}");
-        assertLexer(lexer, false, null);
-
-        assertTrue(lexer.next());
-        assertLexer(lexer, true, Lex.rightCurlyBracket(0));
-
-        assertFalse(lexer.next());
-        assertLexer(lexer, true, null);
-    }
-
-    private static void assertLexer(Lexer lexer, boolean hasStarted, Lex current)
-    {
-        assertEquals(hasStarted, lexer.hasStarted());
-        assertEquals(current != null, lexer.hasCurrent());
-        assertEquals(current, lexer.getCurrent());
+        test.assertEqual(hasStarted, lexer.hasStarted());
+        test.assertEqual(current != null, lexer.hasCurrent());
+        test.assertEqual(current, lexer.getCurrent());
     }
 }
