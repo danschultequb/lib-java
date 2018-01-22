@@ -1,10 +1,23 @@
 package qub;
 
-public class LockedListMapTests extends MapTests
+public class LockedListMapTests
 {
-    @Override
-    protected Map<Integer, Boolean> create()
+    public static void test(final TestRunner runner)
     {
-        return new LockedListMap<>();
+        runner.testGroup("LockedListMap<K,V>", new Action0()
+        {
+            @Override
+            public void run()
+            {
+                MapTests.test(runner, new Function0<Map<Integer, Boolean>>()
+                {
+                    @Override
+                    public Map<Integer, Boolean> run()
+                    {
+                        return new LockedListMap<>();
+                    }
+                });
+            }
+        });
     }
 }

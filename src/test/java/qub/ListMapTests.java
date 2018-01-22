@@ -1,21 +1,23 @@
 package qub;
 
-import org.junit.Test;
-
-import static org.junit.Assert.*;
-
-public class ListMapTests extends MapTests
+public class ListMapTests
 {
-    @Override
-    protected ListMap<Integer,Boolean> create()
+    public static void test(final TestRunner runner)
     {
-        return new ListMap<>();
-    }
-
-    @Test
-    public void constructor()
-    {
-        final ListMap<Integer,Boolean> map = new ListMap<>();
-        assertEquals(0, map.getCount());
+        runner.testGroup("ListMap<K,V>", new Action0()
+        {
+            @Override
+            public void run()
+            {
+                MapTests.test(runner, new Function0<Map<Integer, Boolean>>()
+                {
+                    @Override
+                    public Map<Integer, Boolean> run()
+                    {
+                        return new ListMap<>();
+                    }
+                });
+            }
+        });
     }
 }
