@@ -548,4 +548,41 @@ public class Array<T> extends IndexableBase<T>
 
         return result;
     }
+
+    /**
+     * Get the String representation of the elements within the provided byte array.
+     * @param byteArray The byte array to convert to a String.
+     * @return The String representation of the elements within the provided byte array.
+     */
+    public static String toString(byte[] byteArray)
+    {
+        final StringBuilder builder = new StringBuilder();
+
+        if (byteArray == null)
+        {
+            builder.append("null");
+        }
+        else
+        {
+            builder.append('[');
+
+            boolean addedFirstElement = false;
+            for (final byte element : byteArray)
+            {
+                if (!addedFirstElement)
+                {
+                    addedFirstElement = true;
+                }
+                else
+                {
+                    builder.append(',');
+                }
+                builder.append(element);
+            }
+
+            builder.append(']');
+        }
+
+        return builder.toString();
+    }
 }
