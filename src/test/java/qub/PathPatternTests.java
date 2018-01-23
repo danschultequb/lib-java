@@ -1,207 +1,214 @@
 package qub;
 
-import org.junit.Test;
-
-import static org.junit.Assert.*;
-
-public abstract class PathPatternTests
+public class PathPatternTests
 {
-    protected abstract PathPattern parse(String text);
-
-    @Test
-    public void parseString()
+    public static void test(final TestRunner runner)
     {
-        final PathPattern pattern = PathPattern.parse("test");
-        assertTrue(pattern instanceof SimplePathPattern);
-        assertEquals("test", pattern.toString());
-    }
+        runner.testGroup("PathPattern", new Action0()
+        {
+            @Override
+            public void run()
+            {
+                runner.testGroup("parse(Path)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        final Action1<String> parsePathTest = new Action1<String>()
+                        {
+                            @Override
+                            public void run(final String pathString)
+                            {
+                                runner.test("with " + runner.escapeAndQuote(pathString), new Action1<Test>()
+                                {
+                                    @Override
+                                    public void run(Test test)
+                                    {
+                                        final Path path = Path.parse(pathString);
+                                        
+                                        final PathPattern pattern = PathPattern.parse(path);
+                                        test.assertTrue(pattern instanceof SimplePathPattern);
+                                        test.assertNotNull(pattern);
 
-    @Test
-    public void parseNullPath()
-    {
-        parsePathTest(null);
-    }
+                                        final String pathString = (path == null ? null : path.toString());
+                                        test.assertEqual(pathString, pattern.toString());
+                                        test.assertTrue(pattern.isMatch(path));
+                                        test.assertTrue(pattern.isMatch(pathString));
+                                    }
+                                });
+                            }
+                        };
+                        
+                        parsePathTest.run(null);
+                        parsePathTest.run("");
+                        parsePathTest.run("/folder/subfolder");
+                    }
+                });
+                
+                runner.testGroup("parse(String)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        final Action1<String> parseStringTest = new Action1<String>()
+                        {
+                            @Override
+                            public void run(final String pathString)
+                            {
+                                runner.test("with " + runner.escapeAndQuote(pathString), new Action1<Test>()
+                                {
+                                    @Override
+                                    public void run(Test test)
+                                    {
+                                        final PathPattern pattern = PathPattern.parse(pathString);
+                                        test.assertTrue(pattern instanceof SimplePathPattern);
+                                        test.assertNotNull(pattern);
 
-    @Test
-    public void parseEmptyPath()
-    {
-        parsePathTest(Path.parse(""));
-    }
+                                        test.assertEqual(pathString, pattern.toString());
+                                        test.assertTrue(pattern.isMatch(pathString));
+                                    }
+                                });
+                            }
+                        };
+                        
+                        parseStringTest.run(null);
+                        parseStringTest.run("");
+                        parseStringTest.run("abcd");
+                        parseStringTest.run("\\");
+                        parseStringTest.run("/");
+                        parseStringTest.run("*");
+                        parseStringTest.run("*abc");
+                        parseStringTest.run("**");
+                        parseStringTest.run("**test");
+                    }
+                });
+                
+                runner.testGroup("isMatch(String)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null pattern", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final PathPattern pattern = PathPattern.parse((String)null);
 
-    @Test
-    public void parseNonEmptyPath()
-    {
-        parsePathTest(Path.parse("/folder/subfolder"));
-    }
+                                test.assertTrue(pattern.isMatch((String)null));
+                                test.assertTrue(pattern.isMatch(""));
+                                test.assertFalse(pattern.isMatch("a"));
 
-    @Test
-    public void parseNullString()
-    {
-        parseStringTest(null);
-    }
+                                test.assertTrue(pattern.isMatch((Path)null));
+                                test.assertTrue(pattern.isMatch(Path.parse("")));
+                                test.assertFalse(pattern.isMatch(Path.parse("a")));
+                            }
+                        });
 
-    @Test
-    public void parseEmpty()
-    {
-        parseStringTest("");
-    }
+                        runner.test("with " + runner.escapeAndQuote("abc") + " pattern", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final PathPattern pattern = PathPattern.parse("abc");
 
-    @Test
-    public void parseNonEmptyLetters()
-    {
-        parseStringTest("abcd");
-    }
+                                test.assertTrue(pattern.isMatch("abc"));
+                                test.assertTrue(pattern.isMatch(Path.parse("abc")));
 
-    @Test
-    public void parseBackslash()
-    {
-        parseStringTest("\\");
-    }
+                                test.assertFalse(pattern.isMatch("ab"));
+                                test.assertFalse(pattern.isMatch("abcd"));
+                            }
+                        });
 
-    @Test
-    public void parseForwardSlash()
-    {
-        parseStringTest("/");
-    }
+                        runner.test("with " + runner.escapeAndQuote("a/b") + " pattern", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final PathPattern pattern = PathPattern.parse("a/b");
 
-    @Test
-    public void parseStar()
-    {
-        parseStringTest("*");
-    }
+                                test.assertTrue(pattern.isMatch("a/b"));
+                                test.assertTrue(pattern.isMatch(Path.parse("a/b")));
+                                test.assertTrue(pattern.isMatch("a\\b"));
+                                test.assertTrue(pattern.isMatch(Path.parse("a\\b")));
 
-    @Test
-    public void parseStarFollowedByLetters()
-    {
-        parseStringTest("*abc");
-    }
+                                test.assertFalse(pattern.isMatch("a/b/"));
+                                test.assertFalse(pattern.isMatch("a\\b\\"));
+                            }
+                        });
 
-    @Test
-    public void parseDoubleStar()
-    {
-        parseStringTest("**");
-    }
+                        runner.test("with " + runner.escapeAndQuote("*") + " pattern", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final PathPattern pattern = PathPattern.parse("*");
 
-    @Test
-    public void parseDoubleStarFollowedByLetters()
-    {
-        parseStringTest("**test");
-    }
+                                test.assertTrue(pattern.isMatch(""));
+                                test.assertTrue(pattern.isMatch(".java"));
+                                test.assertTrue(pattern.isMatch("Test.java"));
+                                test.assertTrue(pattern.isMatch("..java"));
+                                test.assertTrue(pattern.isMatch("Test.jav"));
+                                test.assertTrue(pattern.isMatch("Test.javas"));
 
-    private void parsePathTest(Path path)
-    {
-        final PathPattern pattern = PathPattern.parse(path);
-        assertNotNull(pattern);
+                                test.assertFalse(pattern.isMatch("/"));
+                                test.assertFalse(pattern.isMatch("\\"));
+                            }
+                        });
 
-        final String pathString = (path == null ? null : path.toString());
-        assertEquals(pathString, pattern.toString());
-        assertTrue(pattern.isMatch(path));
-        assertTrue(pattern.isMatch(pathString));
-    }
+                        runner.test("with " + runner.escapeAndQuote("*.java") + " pattern", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final PathPattern pattern = PathPattern.parse("*.java");
 
-    private void parseStringTest(String text)
-    {
-        final PathPattern pattern = parse(text);
-        assertNotNull(pattern);
-        assertEquals(text, pattern.toString());
-        assertTrue(pattern.isMatch(text));
-    }
+                                test.assertTrue(pattern.isMatch(".java"));
+                                test.assertTrue(pattern.isMatch("Test.java"));
+                                test.assertTrue(pattern.isMatch("..java"));
 
-    @Test
-    public void isMatchWithNullPattern()
-    {
-        final PathPattern pattern = parse((String)null);
+                                test.assertFalse(pattern.isMatch(""));
+                                test.assertFalse(pattern.isMatch("Test.jav"));
+                                test.assertFalse(pattern.isMatch("Test.javas"));
+                                test.assertFalse(pattern.isMatch("/Test.java"));
+                                test.assertFalse(pattern.isMatch("\\Test.java"));
+                            }
+                        });
 
-        assertTrue(pattern.isMatch((String)null));
-        assertTrue(pattern.isMatch(""));
-        assertFalse(pattern.isMatch("a"));
+                        runner.test("with " + runner.escapeAndQuote("sources/**.java") + " pattern", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final PathPattern pattern = PathPattern.parse("sources/**.java");
 
-        assertTrue(pattern.isMatch((Path)null));
-        assertTrue(pattern.isMatch(Path.parse("")));
-        assertFalse(pattern.isMatch(Path.parse("a")));
-    }
+                                test.assertTrue(pattern.isMatch("sources/Test.java"));
+                                test.assertTrue(pattern.isMatch("sources/qub/Test.java"));
+                                test.assertTrue(pattern.isMatch("sources\\qub\\package\\Class.java"));
 
-    @Test
-    public void isMatchWithLettersPattern()
-    {
-        final PathPattern pattern = parse("abc");
+                                test.assertFalse(pattern.isMatch("output/Test.java"));
+                            }
+                        });
+                    }
+                });
 
-        assertTrue(pattern.isMatch("abc"));
-        assertTrue(pattern.isMatch(Path.parse("abc")));
+                runner.test("equals()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final PathPattern pattern = PathPattern.parse("a/b/c");
 
-        assertFalse(pattern.isMatch("ab"));
-        assertFalse(pattern.isMatch("abcd"));
-    }
+                        test.assertFalse(pattern.equals((Object)null));
+                        test.assertFalse(pattern.equals((PathPattern)null));
+                        test.assertFalse(pattern.equals("path pattern"));
+                        test.assertFalse(pattern.equals(PathPattern.parse("a/b")));
 
-    @Test
-    public void isMatchWithForwardSlash()
-    {
-        final PathPattern pattern = parse("a/b");
-
-        assertTrue(pattern.isMatch("a/b"));
-        assertTrue(pattern.isMatch(Path.parse("a/b")));
-        assertTrue(pattern.isMatch("a\\b"));
-        assertTrue(pattern.isMatch(Path.parse("a\\b")));
-
-        assertFalse(pattern.isMatch("a/b/"));
-        assertFalse(pattern.isMatch("a\\b\\"));
-    }
-
-    @Test
-    public void isMatchWithStar()
-    {
-        final PathPattern pattern = parse("*");
-
-        assertTrue(pattern.isMatch(""));
-        assertTrue(pattern.isMatch(".java"));
-        assertTrue(pattern.isMatch("Test.java"));
-        assertTrue(pattern.isMatch("..java"));
-        assertTrue(pattern.isMatch("Test.jav"));
-        assertTrue(pattern.isMatch("Test.javas"));
-
-        assertFalse(pattern.isMatch("/"));
-        assertFalse(pattern.isMatch("\\"));
-    }
-
-    @Test
-    public void isMatchWithStarAndFileExtension()
-    {
-        final PathPattern pattern = parse("*.java");
-
-        assertTrue(pattern.isMatch(".java"));
-        assertTrue(pattern.isMatch("Test.java"));
-        assertTrue(pattern.isMatch("..java"));
-
-        assertFalse(pattern.isMatch(""));
-        assertFalse(pattern.isMatch("Test.jav"));
-        assertFalse(pattern.isMatch("Test.javas"));
-        assertFalse(pattern.isMatch("/Test.java"));
-        assertFalse(pattern.isMatch("\\Test.java"));
-    }
-
-    @Test
-    public void isMatchWithDoubleStarAndFileExtension()
-    {
-        final PathPattern pattern = parse("sources/**.java");
-
-        assertTrue(pattern.isMatch("sources/Test.java"));
-        assertTrue(pattern.isMatch("sources/qub/Test.java"));
-        assertTrue(pattern.isMatch("sources\\qub\\package\\Class.java"));
-
-        assertFalse(pattern.isMatch("output/Test.java"));
-    }
-
-    @Test
-    public void equals()
-    {
-        final PathPattern pattern = parse("a/b/c");
-
-        assertFalse(pattern.equals((Object)null));
-        assertFalse(pattern.equals((PathPattern)null));
-        assertFalse(pattern.equals("path pattern"));
-        assertFalse(pattern.equals(parse("a/b")));
-
-        assertTrue(pattern.equals(pattern));
-        assertTrue(pattern.equals(parse(pattern.toString())));
+                        test.assertTrue(pattern.equals(pattern));
+                        test.assertTrue(pattern.equals(PathPattern.parse(pattern.toString())));
+                    }
+                });
+            }
+        });
     }
 }

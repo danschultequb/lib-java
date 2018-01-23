@@ -32,9 +32,9 @@ public interface TestRunner
     void afterTest(Action0 afterTestAction);
 
     /**
-     * Surround the provided text with quotes and textualize any escaped characters.
-     * @param text The text to quote and escape.
+     * Surround the provided value's text with quotes and textualize any escaped characters.
+     * @param value The value's text to quote and escape.
      * @return The quoted and escaped text.
      */
-    String escapeAndQuote(String text);
+    String escapeAndQuote(String value);
 }
