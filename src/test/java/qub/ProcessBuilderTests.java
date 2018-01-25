@@ -1,131 +1,197 @@
 package qub;
 
-import org.junit.Test;
-
-import static org.junit.Assert.*;
-
 public class ProcessBuilderTests
 {
-    @Test
-    public void constructor()
+    public static void test(final TestRunner runner)
     {
-        final ProcessBuilder builder = new ProcessBuilder(null, null);
-        assertNull(builder.getExecutableFile());
-        assertEquals(0, builder.getArgumentCount());
-        assertEquals("", builder.getCommand());
-    }
+        runner.testGroup("ProcessBuilder", new Action0()
+        {
+            @Override
+            public void run()
+            {
+                runner.test("constructor", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final ProcessBuilder builder = new ProcessBuilder(null, null);
+                        test.assertNull(builder.getExecutableFile());
+                        test.assertEqual(0, builder.getArgumentCount());
+                        test.assertEqual("", builder.getCommand());
+                    }
+                });
 
-    @Test
-    public void addArgumentWithNull()
-    {
-        final ProcessBuilder builder = new ProcessBuilder(null, null);
-        builder.addArgument(null);
-        assertEquals(0, builder.getArgumentCount());
-        assertEquals("", builder.getCommand());
-    }
+                runner.testGroup("addArgument()", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final ProcessBuilder builder = new ProcessBuilder(null, null);
+                                builder.addArgument(null);
+                                test.assertEqual(0, builder.getArgumentCount());
+                                test.assertEqual("", builder.getCommand());
+                            }
+                        });
 
-    @Test
-    public void addArgumentWithEmpty()
-    {
-        final ProcessBuilder builder = new ProcessBuilder(null, null);
-        builder.addArgument("");
-        assertEquals(0, builder.getArgumentCount());
-        assertEquals("", builder.getCommand());
-    }
+                        runner.test("with empty", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final ProcessBuilder builder = new ProcessBuilder(null, null);
+                                builder.addArgument("");
+                                test.assertEqual(0, builder.getArgumentCount());
+                                test.assertEqual("", builder.getCommand());
+                            }
+                        });
 
-    @Test
-    public void addArgumentWithNonEmpty()
-    {
-        final ProcessBuilder builder = new ProcessBuilder(null, null);
-        builder.addArgument("test");
-        assertEquals(1, builder.getArgumentCount());
-        assertEquals("test", builder.getArgument(0));
-        assertEquals("test", builder.getCommand());
-    }
+                        runner.test("with non-empty", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final ProcessBuilder builder = new ProcessBuilder(null, null);
+                                builder.addArgument("test");
+                                test.assertEqual(1, builder.getArgumentCount());
+                                test.assertEqual("test", builder.getArgument(0));
+                                test.assertEqual("test", builder.getCommand());
+                            }
+                        });
+                    }
+                });
 
-    @Test
-    public void addArgumentsWithNoValues()
-    {
-        final ProcessBuilder builder = new ProcessBuilder(null, null);
-        builder.addArguments();
-        assertEquals(0, builder.getArgumentCount());
-        assertEquals("", builder.getCommand());
-    }
+                runner.testGroup("addArguments()", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with no arguments", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final ProcessBuilder builder = new ProcessBuilder(null, null);
+                                builder.addArguments();
+                                test.assertEqual(0, builder.getArgumentCount());
+                                test.assertEqual("", builder.getCommand());
+                            }
+                        });
 
-    @Test
-    public void addArgumentsWithOneNullValue()
-    {
-        final ProcessBuilder builder = new ProcessBuilder(null, null);
-        builder.addArguments((String)null);
-        assertEquals(0, builder.getArgumentCount());
-        assertEquals("", builder.getCommand());
-    }
+                        runner.test("with one null value", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final ProcessBuilder builder = new ProcessBuilder(null, null);
+                                builder.addArguments((String)null);
+                                test.assertEqual(0, builder.getArgumentCount());
+                                test.assertEqual("", builder.getCommand());
+                            }
+                        });
+                    }
+                });
 
-    @Test
-    public void setArgumentWithNegativeIndex()
-    {
-        final ProcessBuilder builder = new ProcessBuilder(null, null);
-        builder.setArgument(-1, "test");
-        assertEquals(0, builder.getArgumentCount());
-        assertEquals("", builder.getCommand());
-    }
+                runner.testGroup("setArgument()", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with negative index", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final ProcessBuilder builder = new ProcessBuilder(null, null);
+                                builder.setArgument(-1, "test");
+                                test.assertEqual(0, builder.getArgumentCount());
+                                test.assertEqual("", builder.getCommand());
+                            }
+                        });
 
-    @Test
-    public void setArgumentWithNullValue()
-    {
-        final ProcessBuilder builder = new ProcessBuilder(null, null);
-        builder.addArguments("a", "b", "c");
-        builder.setArgument(0, null);
-        assertEquals(Array.fromValues("b", "c"), builder.getArguments());
-        assertEquals("b c", builder.getCommand());
-    }
+                        runner.test("with null value", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final ProcessBuilder builder = new ProcessBuilder(null, null);
+                                builder.addArguments("a", "b", "c");
+                                builder.setArgument(0, null);
+                                test.assertEqual(Array.fromValues("b", "c"), builder.getArguments());
+                                test.assertEqual("b c", builder.getCommand());
+                            }
+                        });
 
-    @Test
-    public void setArgumentWithEmptyValue()
-    {
-        final ProcessBuilder builder = new ProcessBuilder(null, null);
-        builder.addArguments("a", "b", "c");
-        builder.setArgument(2, "");
-        assertEquals(Array.fromValues("a", "b", ""), builder.getArguments());
-        assertEquals("a b \"\"", builder.getCommand());
-    }
+                        runner.test("with emtpy value", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final ProcessBuilder builder = new ProcessBuilder(null, null);
+                                builder.addArguments("a", "b", "c");
+                                builder.setArgument(2, "");
+                                test.assertEqual(Array.fromValues("a", "b", ""), builder.getArguments());
+                                test.assertEqual("a b \"\"", builder.getCommand());
+                            }
+                        });
 
-    @Test
-    public void setArgumentWithNonEmptyValue()
-    {
-        final ProcessBuilder builder = new ProcessBuilder(null, null);
-        builder.addArguments("a", "b", "c");
-        builder.setArgument(1, "\"d\"");
-        assertEquals(Array.fromValues("a", "\"d\"", "c"), builder.getArguments());
-        assertEquals("a \"d\" c", builder.getCommand());
-    }
+                        runner.test("with non-empty value", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final ProcessBuilder builder = new ProcessBuilder(null, null);
+                                builder.addArguments("a", "b", "c");
+                                builder.setArgument(1, "\"d\"");
+                                test.assertEqual(Array.fromValues("a", "\"d\"", "c"), builder.getArguments());
+                                test.assertEqual("a \"d\" c", builder.getCommand());
+                            }
+                        });
+                    }
+                });
 
-    @Test
-    public void removeArgumentAt()
-    {
-        final ProcessBuilder builder = new ProcessBuilder(null, null);
-        builder.addArguments("a", "b", "c");
-        builder.removeArgument(1);
-        assertEquals(Array.fromValues("a", "c"), builder.getArguments());
-        assertEquals("a c", builder.getCommand());
-    }
+                runner.test("removeArgumentAt()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final ProcessBuilder builder = new ProcessBuilder(null, null);
+                        builder.addArguments("a", "b", "c");
+                        builder.removeArgument(1);
+                        test.assertEqual(Array.fromValues("a", "c"), builder.getArguments());
+                        test.assertEqual("a c", builder.getCommand());
+                    }
+                });
 
-    @Test
-    public void runWithNotFoundExecutableFile()
-    {
-        final JavaFileSystem fileSystem = new JavaFileSystem();
-        final File javacFile = fileSystem.getFile("C:/idontexist.exe");
-        final ProcessBuilder builder = new ProcessBuilder(null, javacFile);
-        builder.addArgument("won't matter");
-        assertEquals(null, builder.run());
-        assertEquals("C:/idontexist.exe \"won't matter\"", builder.getCommand());
-    }
+                runner.test("run() with not found executable file", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final JavaFileSystem fileSystem = new JavaFileSystem();
+                        final File javacFile = fileSystem.getFile("C:/idontexist.exe");
+                        final ProcessBuilder builder = new ProcessBuilder(null, javacFile);
+                        builder.addArgument("won't matter");
+                        test.assertEqual(null, builder.run());
+                        test.assertEqual("C:/idontexist.exe \"won't matter\"", builder.getCommand());
+                    }
+                });
 
-    @Test
-    public void escapeArgument()
-    {
-        assertEquals("\"Then he said, \\\"Hey there!\\\"\"", ProcessBuilder.escapeArgument("Then he said, \"Hey there!\""));
-        assertEquals("-argument=\"value\"", ProcessBuilder.escapeArgument("-argument=\"value\""));
-        assertEquals("\"\"", ProcessBuilder.escapeArgument(""));
+                runner.test("escapeArgument()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        test.assertEqual("\"Then he said, \\\"Hey there!\\\"\"", ProcessBuilder.escapeArgument("Then he said, \"Hey there!\""));
+                        test.assertEqual("-argument=\"value\"", ProcessBuilder.escapeArgument("-argument=\"value\""));
+                        test.assertEqual("\"\"", ProcessBuilder.escapeArgument(""));
+                    }
+                });
+            }
+        });
     }
 }

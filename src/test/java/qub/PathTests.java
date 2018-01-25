@@ -1,543 +1,355 @@
 package qub;
 
-import org.junit.Test;
-
-import static org.junit.Assert.*;
-
 public class PathTests
 {
-    @Test
-    public void concatenateRelativePathWithNullPathString()
+    public static void test(final TestRunner runner)
     {
-        final Path path = Path.parse("thing");
-        final Path result = path.concatenate((String)null);
-        assertSame(path, result);
-    }
+        runner.testGroup("Path", new Action0()
+        {
+            @Override
+            public void run()
+            {
+                runner.testGroup("concatenate()", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        final Action3<String,String,String> concatenateTest = new Action3<String, String, String>()
+                        {
+                            @Override
+                            public void run(final String basePath, final String argumentPath, final String expectedResultPath)
+                            {
+                                runner.test("with " + runner.escapeAndQuote(basePath) + " and " + runner.escapeAndQuote(argumentPath), new Action1<Test>()
+                                {
+                                    @Override
+                                    public void run(Test test)
+                                    {
+                                        final Path path = Path.parse(basePath);
+                                        final Path result = path.concatenate(argumentPath);
+                                        test.assertEqual(basePath, path.toString());
+                                        test.assertEqual(expectedResultPath, result == null ? null : result.toString());
+                                    }
+                                });
+                            }
+                        };
+                        
+                        concatenateTest.run("thing", null, "thing");
+                        concatenateTest.run("thing", "", "thing");
+                        concatenateTest.run("thing", "segment", "thingsegment");
+                        concatenateTest.run("thing", "a/b/c", "thinga/b/c");
+                        concatenateTest.run("thing", "a\\b\\c", "thinga\\b\\c");
+                        concatenateTest.run("thing", "C:/test/", null);
+                        
+                        concatenateTest.run("z/y", null, "z/y");
+                        concatenateTest.run("z/y", "", "z/y");
+                        concatenateTest.run("z/y", "segment", "z/ysegment");
+                        concatenateTest.run("z/y", "a/b/c", "z/ya/b/c");
+                        concatenateTest.run("z/y", "a\\b\\c", "z/ya\\b\\c");
+                        concatenateTest.run("z/y", "C:/test/", null);
+                        
+                        concatenateTest.run("z\\y", null, "z\\y");
+                        concatenateTest.run("z\\y", "", "z\\y");
+                        concatenateTest.run("z\\y", "segment", "z\\ysegment");
+                        concatenateTest.run("z\\y", "a/b/c", "z\\ya/b/c");
+                        concatenateTest.run("z\\y", "a\\b\\c", "z\\ya\\b\\c");
+                        concatenateTest.run("z\\y", "C:/test/", null);
+                    }
+                });
+                
+                runner.testGroup("concatenateSegment()", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        final Action3<String,String,String> concatenateSegmentTest = new Action3<String, String, String>()
+                        {
+                            @Override
+                            public void run(final String basePath, final String argumentPath, final String expectedResultPath)
+                            {
+                                runner.test("with " + runner.escapeAndQuote(basePath) + " and " + runner.escapeAndQuote(argumentPath), new Action1<Test>()
+                                {
+                                    @Override
+                                    public void run(Test test)
+                                    {
+                                        final Path path = Path.parse(basePath);
+                                        final Path result = path.concatenateSegment(argumentPath);
+                                        test.assertEqual(basePath, path.toString());
+                                        test.assertEqual(expectedResultPath, result == null ? null : result.toString());
+                                    }
+                                });
+                            }
+                        };
+                        
+                        concatenateSegmentTest.run("thing", null, "thing");
+                        concatenateSegmentTest.run("thing", "", "thing");
+                        concatenateSegmentTest.run("thing", "segment", "thing/segment");
+                        concatenateSegmentTest.run("thing", "a/b/c", "thing/a/b/c");
+                        concatenateSegmentTest.run("thing", "a\\b\\c", "thing/a\\b\\c");
+                        concatenateSegmentTest.run("thing", "C:/test/", null);
+                        
+                        concatenateSegmentTest.run("z/y", null, "z/y");
+                        concatenateSegmentTest.run("z/y", "", "z/y");
+                        concatenateSegmentTest.run("z/y", "segment", "z/y/segment");
+                        concatenateSegmentTest.run("z/y", "a/b/c", "z/y/a/b/c");
+                        concatenateSegmentTest.run("z/y", "a\\b\\c", "z/y/a\\b\\c");
+                        concatenateSegmentTest.run("z/y", "C:/test/", null);
+                        
+                        concatenateSegmentTest.run("z\\y", null, "z\\y");
+                        concatenateSegmentTest.run("z\\y", "", "z\\y");
+                        concatenateSegmentTest.run("z\\y", "segment", "z\\y/segment");
+                        concatenateSegmentTest.run("z\\y", "a/b/c", "z\\y/a/b/c");
+                        concatenateSegmentTest.run("z\\y", "a\\b\\c", "z\\y/a\\b\\c");
+                        concatenateSegmentTest.run("z\\y", "C:/test/", null);
+                    }
+                });
+                
+                runner.testGroup("endsWith()", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        final Action3<String,String,Boolean> endsWithTest = new Action3<String, String, Boolean>()
+                        {
+                            @Override
+                            public void run(final String pathString, final String suffix, final Boolean expectedResult)
+                            {
+                                runner.test("with " + runner.escapeAndQuote(pathString) + " and " + runner.escapeAndQuote(suffix), new Action1<Test>()
+                                {
+                                    @Override
+                                    public void run(Test test)
+                                    {
+                                        final Path path = Path.parse(pathString);
+                                        test.assertEqual(expectedResult, path.endsWith(suffix));
+                                    }
+                                });
+                            }
+                        };
+                        
+                        endsWithTest.run("apples", null, false);
+                        endsWithTest.run("apples", "", false);
+                        endsWithTest.run("apples", "sel", false);
+                        endsWithTest.run("apples", "les", true);
+                    }
+                });
+                
+                runner.testGroup("parse()", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                test.assertNull(Path.parse(null));
+                            }
+                        });
+                        
+                        runner.test("with empty", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                test.assertNull(Path.parse(""));
+                            }
+                        });
 
-    @Test
-    public void concatenateRelativePathWithEmptyPathString()
-    {
-        final Path path = Path.parse("thing");
-        final Path result = path.concatenate("");
-        assertSame(path, result);
-    }
+                        runner.test("with " + runner.escapeAndQuote("/hello/there.txt"), new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Path path = Path.parse("/hello/there.txt");
+                                test.assertNotNull(path);
+                                test.assertEqual("/hello/there.txt", path.toString());
+                                test.assertTrue(path.isRooted());
+                                test.assertEqual("/", path.getRoot());
+                                test.assertEqual(Path.parse("/"), path.getRootPath());
+                                test.assertTrue(path.equals(path));
+                                test.assertTrue(path.equals((Object)path));
+                                final Indexable<String> pathSegments = path.getSegments();
+                                test.assertNotNull(pathSegments);
+                                test.assertEqual(new String[] { "/", "hello", "there.txt" }, Array.toStringArray(pathSegments));
 
-    @Test
-    public void concatenateRelativePathWithRelativePathString()
-    {
-        final Path path = Path.parse("thing");
-        final Path result = path.concatenate("segment");
-        assertEquals("thing", path.toString());
-        assertEquals("thingsegment", result.toString());
-    }
+                                final Path normalizedPath = path.normalize();
+                                test.assertEqual("/hello/there.txt", normalizedPath.toString());
+                                test.assertSame(normalizedPath, normalizedPath.normalize());
+                                final Indexable<String> normalizedPathSegments = normalizedPath.getSegments();
+                                test.assertNotNull(normalizedPathSegments);
+                                test.assertEqual(new String[] { "/", "hello", "there.txt" }, Array.toStringArray(normalizedPathSegments));
+                            }
+                        });
 
-    @Test
-    public void concatenateRelativeWithForwardSlashRelativePathString()
-    {
-        final Path path = Path.parse("thing");
-        final Path result = path.concatenate("a/b/c");
-        assertEquals("thing", path.toString());
-        assertEquals("thinga/b/c", result.toString());
-    }
+                        runner.test("with " + runner.escapeAndQuote("/\\/test1//"), new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Path path = Path.parse("/\\/test1//");
+                                test.assertNotNull(path);
+                                test.assertEqual("/\\/test1//", path.toString());
+                                test.assertTrue(path.isRooted());
+                                test.assertEqual("/", path.getRoot());
+                                test.assertEqual(Path.parse("/"), path.getRootPath());
+                                final Indexable<String> pathSegments = path.getSegments();
+                                test.assertNotNull(pathSegments);
+                                test.assertEqual(new String[] { "/", "test1" }, Array.toStringArray(pathSegments));
 
-    @Test
-    public void concatenateRelativeWithBackslashRelativePathString()
-    {
-        final Path path = Path.parse("thing");
-        final Path result = path.concatenate("a\\b\\c");
-        assertEquals("thing", path.toString());
-        assertEquals("thinga\\b\\c", result.toString());
-    }
+                                final Path normalizedPath = path.normalize();
+                                test.assertEqual("/test1/", normalizedPath.toString());
+                                final Indexable<String> normalizedPathSegments = normalizedPath.getSegments();
+                                test.assertNotNull(normalizedPathSegments);
+                                test.assertEqual(new String[] { "/", "test1" }, Array.toStringArray(normalizedPathSegments));
+                            }
+                        });
 
-    @Test
-    public void concatenateRelativePathWithRootedPathString()
-    {
-        final Path path = Path.parse("thing");
-        final Path result = path.concatenate("C:/test/");
-        assertEquals("thing", path.toString());
-        assertNull(result);
-    }
+                        runner.test("with " + runner.escapeAndQuote("C:\\Windows\\System32\\cmd.exe"), new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Path path = Path.parse("C:\\Windows\\System32\\cmd.exe");
+                                test.assertNotNull(path);
+                                test.assertEqual("C:\\Windows\\System32\\cmd.exe", path.toString());
+                                test.assertTrue(path.isRooted());
+                                test.assertEqual("C:", path.getRoot());
+                                test.assertEqual(Path.parse("C:"), path.getRootPath());
+                                final Indexable<String> pathSegments = path.getSegments();
+                                test.assertNotNull(pathSegments);
+                                test.assertEqual(new String[] { "C:", "Windows", "System32", "cmd.exe" }, Array.toStringArray(pathSegments));
 
-    @Test
-    public void concatenateForwardSlashRelativePathWithNullPathString()
-    {
-        final Path path = Path.parse("z/y");
-        final Path result = path.concatenate((String)null);
-        assertSame(path, result);
-    }
+                                final Path normalizedPath = path.normalize();
+                                test.assertEqual("C:/Windows/System32/cmd.exe", normalizedPath.toString());
+                                final Indexable<String> normalizedPathSegments = normalizedPath.getSegments();
+                                test.assertNotNull(normalizedPathSegments);
+                                test.assertEqual(new String[] { "C:", "Windows", "System32", "cmd.exe" }, Array.toStringArray(normalizedPathSegments));
+                            }
+                        });
+                    }
+                });
 
-    @Test
-    public void concatenateForwardSlashRelativePathWithEmptyPathString()
-    {
-        final Path path = Path.parse("z/y");
-        final Path result = path.concatenate("");
-        assertSame(path, result);
-    }
+                runner.testGroup("hasFileExtension()", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        final Action2<String,Boolean> hasFileExtensionTest = new Action2<String, Boolean>()
+                        {
+                            @Override
+                            public void run(final String pathString, final Boolean expectedResult)
+                            {
+                                runner.test("with " + runner.escapeAndQuote(pathString), new Action1<Test>()
+                                {
+                                    @Override
+                                    public void run(Test test)
+                                    {
+                                        final Path path = Path.parse(pathString);
+                                        test.assertEqual(expectedResult, path.hasFileExtension());
+                                    }
+                                });
+                            }
+                        };
 
-    @Test
-    public void concatenateForwardSlashRelativePathWithRelativePathString()
-    {
-        final Path path = Path.parse("z/y");
-        final Path result = path.concatenate("segment");
-        assertEquals("z/y", path.toString());
-        assertEquals("z/ysegment", result.toString());
-    }
+                        hasFileExtensionTest.run("/a/b/c/", false);
+                        hasFileExtensionTest.run("folder/file.txt", true);
+                        hasFileExtensionTest.run("a.b/c/d", false);
+                    }
+                });
 
-    @Test
-    public void concatenateForwardSlashRelativeWithForwardSlashRelativePathString()
-    {
-        final Path path = Path.parse("z/y");
-        final Path result = path.concatenate("a/b/c");
-        assertEquals("z/y", path.toString());
-        assertEquals("z/ya/b/c", result.toString());
-    }
+                runner.testGroup("getFileExtension()", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        final Action2<String,String> getFileExtensionTest = new Action2<String, String>()
+                        {
+                            @Override
+                            public void run(final String pathString, final String expectedFileExtension)
+                            {
+                                runner.test("with " + runner.escapeAndQuote(pathString), new Action1<Test>()
+                                {
+                                    @Override
+                                    public void run(Test test)
+                                    {
+                                        final Path path = Path.parse(pathString);
+                                        test.assertEqual(expectedFileExtension, path.getFileExtension());
+                                    }
+                                });
+                            }
+                        };
 
-    @Test
-    public void concatenateForwardSlashRelativeWithBackslashRelativePathString()
-    {
-        final Path path = Path.parse("z/y");
-        final Path result = path.concatenate("a\\b\\c");
-        assertEquals("z/y", path.toString());
-        assertEquals("z/ya\\b\\c", result.toString());
-    }
+                        getFileExtensionTest.run("/a/b/c/", null);
+                        getFileExtensionTest.run("folder/file.txt", ".txt");
+                        getFileExtensionTest.run("a.b/c/d", null);
+                        getFileExtensionTest.run("test.bmp", ".bmp");
+                        getFileExtensionTest.run("cats.and.dogs", ".dogs");
+                    }
+                });
 
-    @Test
-    public void concatenateForwardSlashRelativePathWithRootedPathString()
-    {
-        final Path path = Path.parse("z/y");
-        final Path result = path.concatenate("C:/test/");
-        assertEquals("z/y", path.toString());
-        assertNull(result);
-    }
+                runner.testGroup("withoutFileExtension()", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        final Action2<String,String> withoutFileExtensionTest = new Action2<String, String>()
+                        {
+                            @Override
+                            public void run(final String pathString, final String expectedPathString)
+                            {
+                                runner.test("with " + runner.escapeAndQuote(pathString), new Action1<Test>()
+                                {
+                                    @Override
+                                    public void run(Test test)
+                                    {
+                                        final Path path = Path.parse(pathString);
+                                        final Path pathWithoutFileExtension = path.withoutFileExtension();
+                                        test.assertEqual(expectedPathString, pathWithoutFileExtension == null ? null : pathWithoutFileExtension.toString());
+                                    }
+                                });
+                            }
+                        };
 
-    @Test
-    public void concatenateBackslashRelativePathWithNullPathString()
-    {
-        final Path path = Path.parse("z\\y");
-        final Path result = path.concatenate((String)null);
-        assertSame(path, result);
-    }
+                        withoutFileExtensionTest.run("/a/b/c/", "/a/b/c/");
+                        withoutFileExtensionTest.run("folder/file.txt", "folder/file");
+                        withoutFileExtensionTest.run("a.b/c/d", "a.b/c/d");
+                    }
+                });
 
-    @Test
-    public void concatenateBackslashRelativePathWithEmptyPathString()
-    {
-        final Path path = Path.parse("z\\y");
-        final Path result = path.concatenate("");
-        assertSame(path, result);
-    }
+                runner.testGroup("relativeTo()", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        final Action3<String,String,String> relativeToTest = new Action3<String, String, String>()
+                        {
+                            @Override
+                            public void run(final String pathString, final String basePathString, final String expectedPathString)
+                            {
+                                runner.test("with " + runner.escapeAndQuote(pathString) + " and " + runner.escapeAndQuote(basePathString), new Action1<Test>()
+                                {
+                                    @Override
+                                    public void run(Test test)
+                                    {
+                                        final Path path = Path.parse(pathString);
+                                        final Path base = Path.parse(basePathString);
+                                        test.assertEqual(Path.parse(expectedPathString), path.relativeTo(base));
+                                    }
+                                });
+                            }
+                        };
 
-    @Test
-    public void concatenateBackslashRelativePathWithRelativePathString()
-    {
-        final Path path = Path.parse("z\\y");
-        final Path result = path.concatenate("segment");
-        assertEquals("z\\y", path.toString());
-        assertEquals("z\\ysegment", result.toString());
-    }
-
-    @Test
-    public void concatenateBackslashRelativeWithForwardSlashRelativePathString()
-    {
-        final Path path = Path.parse("z\\y");
-        final Path result = path.concatenate("a/b/c");
-        assertEquals("z\\y", path.toString());
-        assertEquals("z\\ya/b/c", result.toString());
-    }
-
-    @Test
-    public void concatenateBackslashRelativeWithBackslashRelativePathString()
-    {
-        final Path path = Path.parse("z\\y");
-        final Path result = path.concatenate("a\\b\\c");
-        assertEquals("z\\y", path.toString());
-        assertEquals("z\\ya\\b\\c", result.toString());
-    }
-
-    @Test
-    public void concatenateBackslashRelativePathWithRootedPathString()
-    {
-        final Path path = Path.parse("z\\y");
-        final Path result = path.concatenate("C:/test/");
-        assertEquals("z\\y", path.toString());
-        assertNull(result);
-    }
-
-    @Test
-    public void concatenateSegmentRelativePathWithNullPathString()
-    {
-        final Path path = Path.parse("thing");
-        final Path result = path.concatenateSegment((String)null);
-        assertSame(path, result);
-    }
-
-    @Test
-    public void concatenateSegmentRelativePathWithEmptyPathString()
-    {
-        final Path path = Path.parse("thing");
-        final Path result = path.concatenateSegment("");
-        assertSame(path, result);
-    }
-
-    @Test
-    public void concatenateSegmentRelativePathWithRelativePathString()
-    {
-        final Path path = Path.parse("thing");
-        final Path result = path.concatenateSegment("segment");
-        assertEquals("thing", path.toString());
-        assertEquals("thing/segment", result.toString());
-    }
-
-    @Test
-    public void concatenateSegmentRelativeWithForwardSlashRelativePathString()
-    {
-        final Path path = Path.parse("thing");
-        final Path result = path.concatenateSegment("a/b/c");
-        assertEquals("thing", path.toString());
-        assertEquals("thing/a/b/c", result.toString());
-    }
-
-    @Test
-    public void concatenateSegmentRelativeWithBackslashRelativePathString()
-    {
-        final Path path = Path.parse("thing");
-        final Path result = path.concatenateSegment("a\\b\\c");
-        assertEquals("thing", path.toString());
-        assertEquals("thing/a\\b\\c", result.toString());
-    }
-
-    @Test
-    public void concatenateSegmentRelativePathWithRootedPathString()
-    {
-        final Path path = Path.parse("thing");
-        final Path result = path.concatenateSegment("C:/test/");
-        assertEquals("thing", path.toString());
-        assertNull(result);
-    }
-
-    @Test
-    public void concatenateSegmentForwardSlashRelativePathWithNullPathString()
-    {
-        final Path path = Path.parse("z/y");
-        final Path result = path.concatenateSegment((String)null);
-        assertSame(path, result);
-    }
-
-    @Test
-    public void concatenateSegmentForwardSlashRelativePathWithEmptyPathString()
-    {
-        final Path path = Path.parse("z/y");
-        final Path result = path.concatenateSegment("");
-        assertSame(path, result);
-    }
-
-    @Test
-    public void concatenateSegmentForwardSlashRelativePathWithRelativePathString()
-    {
-        final Path path = Path.parse("z/y");
-        final Path result = path.concatenateSegment("segment");
-        assertEquals("z/y", path.toString());
-        assertEquals("z/y/segment", result.toString());
-    }
-
-    @Test
-    public void concatenateSegmentForwardSlashRelativeWithForwardSlashRelativePathString()
-    {
-        final Path path = Path.parse("z/y");
-        final Path result = path.concatenateSegment("a/b/c");
-        assertEquals("z/y", path.toString());
-        assertEquals("z/y/a/b/c", result.toString());
-    }
-
-    @Test
-    public void concatenateSegmentForwardSlashRelativeWithBackslashRelativePathString()
-    {
-        final Path path = Path.parse("z/y");
-        final Path result = path.concatenateSegment("a\\b\\c");
-        assertEquals("z/y", path.toString());
-        assertEquals("z/y/a\\b\\c", result.toString());
-    }
-
-    @Test
-    public void concatenateSegmentForwardSlashRelativePathWithRootedPathString()
-    {
-        final Path path = Path.parse("z/y");
-        final Path result = path.concatenateSegment("C:/test/");
-        assertEquals("z/y", path.toString());
-        assertNull(result);
-    }
-
-    @Test
-    public void concatenateSegmentBackslashRelativePathWithNullPathString()
-    {
-        final Path path = Path.parse("z\\y");
-        final Path result = path.concatenateSegment((String)null);
-        assertSame(path, result);
-    }
-
-    @Test
-    public void concatenateSegmentBackslashRelativePathWithEmptyPathString()
-    {
-        final Path path = Path.parse("z\\y");
-        final Path result = path.concatenateSegment("");
-        assertSame(path, result);
-    }
-
-    @Test
-    public void concatenateSegmentBackslashRelativePathWithRelativePathString()
-    {
-        final Path path = Path.parse("z\\y");
-        final Path result = path.concatenateSegment("segment");
-        assertEquals("z\\y", path.toString());
-        assertEquals("z\\y/segment", result.toString());
-    }
-
-    @Test
-    public void concatenateSegmentBackslashRelativeWithForwardSlashRelativePathString()
-    {
-        final Path path = Path.parse("z\\y");
-        final Path result = path.concatenateSegment("a/b/c");
-        assertEquals("z\\y", path.toString());
-        assertEquals("z\\y/a/b/c", result.toString());
-    }
-
-    @Test
-    public void concatenateSegmentBackslashRelativeWithBackslashRelativePathString()
-    {
-        final Path path = Path.parse("z\\y");
-        final Path result = path.concatenateSegment("a\\b\\c");
-        assertEquals("z\\y", path.toString());
-        assertEquals("z\\y/a\\b\\c", result.toString());
-    }
-
-    @Test
-    public void concatenateSegmentBackslashRelativePathWithRootedPathString()
-    {
-        final Path path = Path.parse("z\\y");
-        final Path result = path.concatenateSegment("C:/test/");
-        assertEquals("z\\y", path.toString());
-        assertNull(result);
-    }
-
-    @Test
-    public void endsWithNonEmptyAndNull()
-    {
-        final Path path = Path.parse("apples");
-        assertFalse(path.endsWith(null));
-    }
-
-    @Test
-    public void endsWithNonEmptyAndEmpty()
-    {
-        final Path path = Path.parse("apples");
-        assertFalse(path.endsWith(""));
-    }
-
-    @Test
-    public void endsWithNonEmptyAndNonEmptyWithDifferentSuffix()
-    {
-        final Path path = Path.parse("apples");
-        assertFalse(path.endsWith("sel"));
-    }
-
-    @Test
-    public void endsWithNonEmptyAndNonEmptyWithEqualSuffix()
-    {
-        final Path path = Path.parse("apples");
-        assertTrue(path.endsWith("les"));
-    }
-
-    @Test
-    public void parseNull()
-    {
-        assertNull(Path.parse(null));
-    }
-
-    @Test
-    public void parseEmpty()
-    {
-        final Path path = Path.parse("");
-        assertNull(path);
-    }
-
-    @Test
-    public void parseNonEmpty()
-    {
-        final Path path = Path.parse("/hello/there.txt");
-        assertNotNull(path);
-        assertEquals("/hello/there.txt", path.toString());
-        assertTrue(path.isRooted());
-        assertEquals("/", path.getRoot());
-        assertEquals(Path.parse("/"), path.getRootPath());
-        assertTrue(path.equals(path));
-        assertTrue(path.equals((Object)path));
-        final Indexable<String> pathSegments = path.getSegments();
-        assertNotNull(pathSegments);
-        assertArrayEquals(new String[] { "/", "hello", "there.txt" }, Array.toStringArray(pathSegments));
-
-        final Path normalizedPath = path.normalize();
-        assertEquals("/hello/there.txt", normalizedPath.toString());
-        assertSame(normalizedPath, normalizedPath.normalize());
-        final Indexable<String> normalizedPathSegments = normalizedPath.getSegments();
-        assertNotNull(normalizedPathSegments);
-        assertArrayEquals(new String[] { "/", "hello", "there.txt" }, Array.toStringArray(normalizedPathSegments));
-    }
-
-    @Test
-    public void parseNonEmptyWithMultipleSlashesInARow()
-    {
-        final Path path = Path.parse("/\\/test1//");
-        assertNotNull(path);
-        assertEquals("/\\/test1//", path.toString());
-        assertTrue(path.isRooted());
-        assertEquals("/", path.getRoot());
-        assertEquals(Path.parse("/"), path.getRootPath());
-        final Indexable<String> pathSegments = path.getSegments();
-        assertNotNull(pathSegments);
-        assertArrayEquals(new String[] { "/", "test1" }, Array.toStringArray(pathSegments));
-
-        final Path normalizedPath = path.normalize();
-        assertEquals("/test1/", normalizedPath.toString());
-        final Indexable<String> normalizedPathSegments = normalizedPath.getSegments();
-        assertNotNull(normalizedPathSegments);
-        assertArrayEquals(new String[] { "/", "test1" }, Array.toStringArray(normalizedPathSegments));
-    }
-
-    @Test
-    public void parseWindowsRootedPath()
-    {
-        final Path path = Path.parse("C:\\Windows\\System32\\cmd.exe");
-        assertNotNull(path);
-        assertEquals("C:\\Windows\\System32\\cmd.exe", path.toString());
-        assertTrue(path.isRooted());
-        assertEquals("C:", path.getRoot());
-        assertEquals(Path.parse("C:"), path.getRootPath());
-        final Indexable<String> pathSegments = path.getSegments();
-        assertNotNull(pathSegments);
-        assertArrayEquals(new String[] { "C:", "Windows", "System32", "cmd.exe" }, Array.toStringArray(pathSegments));
-
-        final Path normalizedPath = path.normalize();
-        assertEquals("C:/Windows/System32/cmd.exe", normalizedPath.toString());
-        final Indexable<String> normalizedPathSegments = normalizedPath.getSegments();
-        assertNotNull(normalizedPathSegments);
-        assertArrayEquals(new String[] { "C:", "Windows", "System32", "cmd.exe" }, Array.toStringArray(normalizedPathSegments));
-    }
-
-    @Test
-    public void hasFileExtensionWithPathWithNoPeriod()
-    {
-        final Path path = Path.parse("/a/b/c/");
-        assertFalse(path.hasFileExtension());
-    }
-
-    @Test
-    public void hasFileExtensionWithPathWithFileExtension()
-    {
-        final Path path = Path.parse("folder/file.txt");
-        assertTrue(path.hasFileExtension());
-    }
-
-    @Test
-    public void hasFileExtensionWithPeriodBeforeLastSegment()
-    {
-        final Path path = Path.parse("a.b/c/d");
-        assertFalse(path.hasFileExtension());
-    }
-
-    @Test
-    public void getFileExtensionWithPathWithNoPeriod()
-    {
-        final Path path = Path.parse("/a/b/c/");
-        assertNull(path.getFileExtension());
-    }
-
-    @Test
-    public void getFileExtensionWithPathWithFileExtension()
-    {
-        final Path path = Path.parse("folder/file.txt");
-        assertEquals(".txt", path.getFileExtension());
-    }
-
-    @Test
-    public void getFileExtensionWithPeriodBeforeLastSegment()
-    {
-        final Path path = Path.parse("a.b/c/d");
-        assertNull(path.getFileExtension());
-    }
-
-    @Test
-    public void withoutFileExtensionWithPathWithNoPeriod()
-    {
-        final Path path = Path.parse("/a/b/c/");
-        assertSame(path, path.withoutFileExtension());
-    }
-
-    @Test
-    public void withoutFileExtensionWithPathWithFileExtension()
-    {
-        final Path path = Path.parse("folder/file.txt");
-        assertEquals(Path.parse("folder/file"), path.withoutFileExtension());
-    }
-
-    @Test
-    public void withoutFileExtensionWithPeriodBeforeLastSegment()
-    {
-        final Path path = Path.parse("a.b/c/d");
-        assertSame(path, path.withoutFileExtension());
-    }
-
-    @Test
-    public void relativeToWithNull()
-    {
-        final Path path = Path.parse("C:/a/b/c.d");
-        final Path base = null;
-        assertSame(path, path.relativeTo(base));
-    }
-
-    @Test
-    public void relativeToWithSame()
-    {
-        final Path path = Path.parse("C:/a/b/c.d");
-        final Path base = path;
-        assertSame(path, path.relativeTo(base));
-    }
-
-    @Test
-    public void relativeToWithNothingInCommon()
-    {
-        final Path path = Path.parse("C:/a/b/c.d");
-        final Path base = Path.parse("/folder/");
-        assertSame(path, path.relativeTo(base));
-    }
-
-    @Test
-    public void relativeToWithOneSegmentInCommon()
-    {
-        final Path path = Path.parse("C:/a/b/c.d");
-        final Path base = Path.parse("C:/");
-        assertEquals(Path.parse("a/b/c.d"), path.relativeTo(base));
-    }
-
-    @Test
-    public void relativeToWithMultipleSegmentsInCommon()
-    {
-        final Path path = Path.parse("C:/a/b/c.d");
-        final Path base = Path.parse("C:/a/b");
-        assertEquals(Path.parse("c.d"), path.relativeTo(base));
-    }
-
-    @Test
-    public void relativeToWithSegmentsInCommonAndOneDifferentSegment()
-    {
-        final Path path = Path.parse("C:/a/b/c.d");
-        final Path base = Path.parse("C:/a/z");
-        assertEquals(Path.parse("../b/c.d"), path.relativeTo(base));
-    }
-
-    @Test
-    public void relativeToWithSegmentsInCommonAndTwoDifferentSegments()
-    {
-        final Path path = Path.parse("C:/a/b/c.d");
-        final Path base = Path.parse("C:/a/z/y");
-        assertEquals(Path.parse("../../b/c.d"), path.relativeTo(base));
+                        relativeToTest.run("C:/a/b/c.d", null, "C:/a/b/c.d");
+                        relativeToTest.run("C:/a/b/c.d", "", "C:/a/b/c.d");
+                        relativeToTest.run("C:/a/b/c.d", "C:/a/b/c.d", "C:/a/b/c.d");
+                        relativeToTest.run("C:/a/b/c.d", "/folder/", "C:/a/b/c.d");
+                        relativeToTest.run("C:/a/b/c.d", "C:/", "a/b/c.d");
+                        relativeToTest.run("C:/a/b/c.d", "C:/a/b", "c.d");
+                        relativeToTest.run("C:/a/b/c.d", "C:/a/z", "../b/c.d");
+                        relativeToTest.run("C:/a/b/c.d", "C:/a/z/y", "../../b/c.d");
+                    }
+                });
+            }
+        });
     }
 }

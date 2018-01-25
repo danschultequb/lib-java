@@ -1,18 +1,26 @@
 package qub;
 
-import org.junit.Test;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 public class PathSeparatorTransitionConditionTests
 {
-    @Test
-    public void matches()
+    public static void test(final TestRunner runner)
     {
-        final PathSeparatorTransitionCondition condition = new PathSeparatorTransitionCondition();
-        assertTrue(condition.matches('/'));
-        assertTrue(condition.matches('\\'));
-        assertFalse(condition.matches('a'));
+        runner.testGroup("PathSeparatorTransitionCondition", new Action0()
+        {
+            @Override
+            public void run()
+            {
+                runner.test("matches()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final PathSeparatorTransitionCondition condition = new PathSeparatorTransitionCondition();
+                        test.assertTrue(condition.matches('/'));
+                        test.assertTrue(condition.matches('\\'));
+                        test.assertFalse(condition.matches('a'));
+                    }
+                });
+            }
+        });
     }
 }
