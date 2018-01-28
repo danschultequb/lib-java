@@ -1,57 +1,95 @@
 package qub;
 
-import org.junit.Test;
-
-import static org.junit.Assert.*;
-
 public class SpinMutexTests
 {
-    @Test
-    public void constructor()
+    public static void test(final TestRunner runner)
     {
-        final SpinMutex mutex = new SpinMutex();
-        assertFalse(mutex.isAcquired());
-    }
+        runner.testGroup("SpinMutex", new Action0()
+        {
+            @Override
+            public void run()
+            {
+                runner.test("constructor()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final SpinMutex mutex = new SpinMutex();
+                        test.assertFalse(mutex.isAcquired());
+                    }
+                });
+                
+                runner.test("acquire() when not locked", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final SpinMutex mutex = new SpinMutex();
+                        mutex.acquire();
+                        test.assertTrue(mutex.isAcquired());
+                    }
+                });
 
-    @Test
-    public void acquireWhenNotLocked()
-    {
-        final SpinMutex mutex = new SpinMutex();
-        mutex.acquire();
-        assertTrue(mutex.isAcquired());
-    }
+                runner.testGroup("tryAcquire()", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("when not locked", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final SpinMutex mutex = new SpinMutex();
+                                test.assertTrue(mutex.tryAcquire());
+                                test.assertTrue(mutex.isAcquired());
+                            }
+                        });
 
-    @Test
-    public void tryAcquireWhenNotLocked()
-    {
-        final SpinMutex mutex = new SpinMutex();
-        assertTrue(mutex.tryAcquire());
-        assertTrue(mutex.isAcquired());
-    }
+                        runner.test("when locked", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final SpinMutex mutex = new SpinMutex();
+                                mutex.acquire();
+                                test.assertFalse(mutex.tryAcquire());
+                                test.assertTrue(mutex.isAcquired());
+                            }
+                        });
+                    }
+                });
 
-    @Test
-    public void tryAcquireWhenLocked()
-    {
-        final SpinMutex mutex = new SpinMutex();
-        mutex.acquire();
-        assertFalse(mutex.tryAcquire());
-        assertTrue(mutex.isAcquired());
-    }
+                runner.testGroup("release()", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("when not locked", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final SpinMutex mutex = new SpinMutex();
+                                test.assertFalse(mutex.release());
+                                test.assertFalse(mutex.isAcquired());
+                            }
+                        });
 
-    @Test
-    public void releaseWhenNotLocked()
-    {
-        final SpinMutex mutex = new SpinMutex();
-        assertFalse(mutex.release());
-        assertFalse(mutex.isAcquired());
-    }
-
-    @Test
-    public void releaseWhenLocked()
-    {
-        final SpinMutex mutex = new SpinMutex();
-        mutex.acquire();
-        assertTrue(mutex.release());
-        assertFalse(mutex.isAcquired());
+                        runner.test("when locked", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final SpinMutex mutex = new SpinMutex();
+                                mutex.acquire();
+                                test.assertTrue(mutex.release());
+                                test.assertFalse(mutex.isAcquired());
+                            }
+                        });
+                    }
+                });
+            }
+        });
     }
 }
