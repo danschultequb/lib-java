@@ -1,69 +1,99 @@
 package qub;
 
-import org.junit.Test;
-
-import static org.junit.Assert.*;
-
 public class SpanTests
 {
-    @Test
-    public void constructor()
+    public static void test(final TestRunner runner)
     {
-        final Span span = new Span(1, 2);
-        assertEquals(1, span.getStartIndex());
-        assertEquals(2, span.getLength());
-        assertEquals("[1, 3)", span.toString());
-    }
+        runner.testGroup("Span", new Action0()
+        {
+            @Override
+            public void run()
+            {
+                runner.test("constructor", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final Span span = new Span(1, 2);
+                        test.assertEqual(1, span.getStartIndex());
+                        test.assertEqual(2, span.getLength());
+                        test.assertEqual("[1, 3)", span.toString());
+                    }
+                });
+                
+                runner.testGroup("getAfterEndIndex()", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        final Action3<Integer,Integer,Integer> getAfterEndIndexTest = new Action3<Integer, Integer, Integer>()
+                        {
+                            @Override
+                            public void run(final Integer startIndex, final Integer length, final Integer expectedAfterEndIndex)
+                            {
+                                runner.test("with " + startIndex + " and " + length, new Action1<Test>()
+                                {
+                                    @Override
+                                    public void run(Test test)
+                                    {
+                                        final Span span = new Span(startIndex, length);
+                                        final int actualAfterEndIndex = span.getAfterEndIndex();
+                                        test.assertEqual(expectedAfterEndIndex, actualAfterEndIndex);
+                                    }
+                                });
+                            }
+                        };
 
-    private static void getAfterEndIndexTest(int startIndex, int length)
-    {
-        final Span span = new Span(startIndex, length);
-        final int expectedAfterEndIndex = startIndex + length;
-        final int actualAfterEndIndex = span.getAfterEndIndex();
-        assertEquals(getTestName("getAfterEndIndex", startIndex, length), expectedAfterEndIndex, actualAfterEndIndex);
-    }
+                        getAfterEndIndexTest.run(-10, -3, -13);
+                        getAfterEndIndexTest.run(-10, 0, -10);
+                        getAfterEndIndexTest.run(-10, 7, -3);
+                        getAfterEndIndexTest.run(0, -4, -4);
+                        getAfterEndIndexTest.run(0, 0, 0);
+                        getAfterEndIndexTest.run(0, 3, 3);
+                        getAfterEndIndexTest.run(1, -1, 0);
+                        getAfterEndIndexTest.run(1, 0, 1);
+                        getAfterEndIndexTest.run(1, 1, 2);
+                    }
+                });
+                
+                runner.testGroup("getEndIndex()", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        final Action3<Integer,Integer,Integer> getEndIndexTest = new Action3<Integer, Integer, Integer>()
+                        {
+                            @Override
+                            public void run(final Integer startIndex, final Integer length, final Integer expectedEndIndex)
+                            {
+                                runner.test("with " + startIndex + " and " + length, new Action1<Test>()
+                                {
+                                    @Override
+                                    public void run(Test test)
+                                    {
+                                        final Span span = new Span(startIndex, length);
+                                        final int actualEndIndex = span.getEndIndex();
+                                        test.assertEqual(expectedEndIndex, actualEndIndex);
+                                    }
+                                });
+                            }
+                        };
 
-    @Test
-    public void getAfterEndIndex()
-    {
-        getAfterEndIndexTest(-10, -3);
-        getAfterEndIndexTest(-10, 0);
-        getAfterEndIndexTest(-10, 7);
-        getAfterEndIndexTest(0, -4);
-        getAfterEndIndexTest(0, 0);
-        getAfterEndIndexTest(0, 3);
-        getAfterEndIndexTest(1, -1);
-        getAfterEndIndexTest(1, 0);
-        getAfterEndIndexTest(1, 1);
-    }
-
-    private static void getEndIndexTest(int startIndex, int length)
-    {
-        final Span span = new Span(startIndex, length);
-        final int expectedEndIndex = startIndex + length - (length <= 0 ? 0 : 1);
-        final int actualEndIndex = span.getEndIndex();
-        assertEquals(getTestName("getEndIndex", startIndex, length), expectedEndIndex, actualEndIndex);
-    }
-
-    @Test
-    public void getEndIndex()
-    {
-        getEndIndexTest(-10, -3);
-        getEndIndexTest(-10, 0);
-        getEndIndexTest(-10, 1);
-        getEndIndexTest(-10, 7);
-        getEndIndexTest(0, -4);
-        getEndIndexTest(0, 0);
-        getEndIndexTest(0, 1);
-        getEndIndexTest(0, 3);
-        getEndIndexTest(1, -1);
-        getEndIndexTest(1, 0);
-        getEndIndexTest(1, 1);
-        getEndIndexTest(1, 21);
-    }
-
-    private static String getTestName(String methodName, int startIndex, int length)
-    {
-        return "Span." + methodName + "() with " + startIndex + " and " + length;
+                        getEndIndexTest.run(-10, -3, -13);
+                        getEndIndexTest.run(-10, 0, -10);
+                        getEndIndexTest.run(-10, 1, -10);
+                        getEndIndexTest.run(-10, 7, -4);
+                        getEndIndexTest.run(0, -4, -4);
+                        getEndIndexTest.run(0, 0, 0);
+                        getEndIndexTest.run(0, 1, 0);
+                        getEndIndexTest.run(0, 3, 2);
+                        getEndIndexTest.run(1, -1, 0);
+                        getEndIndexTest.run(1, 0, 1);
+                        getEndIndexTest.run(1, 1, 1);
+                        getEndIndexTest.run(1, 21, 21);
+                    }
+                });
+            }
+        });
     }
 }

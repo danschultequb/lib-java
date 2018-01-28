@@ -1,6 +1,6 @@
 package qub;
 
-public class SingleLinkNodeTests extends IterableTests
+public class SingleLinkNodeTests
 {
     public static void test(final TestRunner runner)
     {
