@@ -1,59 +1,97 @@
 package qub;
 
-import org.junit.Test;
-
-import static org.junit.Assert.*;
-
 public class ValueTests
 {
-    @Test
-    public void constructorWithNoArguments()
+    public static void test(final TestRunner runner)
     {
-        final Value<Character> value = new Value<>();
-        assertFalse(value.hasValue());
-        assertNull(value.get());
-    }
+        runner.testGroup("Value<T>", new Action0()
+        {
+            @Override
+            public void run()
+            {
+                runner.testGroup("constructor()", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with no arguments", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Value<Character> value = new Value<>();
+                                test.assertFalse(value.hasValue());
+                                test.assertNull(value.get());
+                            }
+                        });
 
-    @Test
-    public void constructorWithNullArgument()
-    {
-        final Value<Character> value = new Value<>(null);
-        assertTrue(value.hasValue());
-        assertNull(value.get());
-    }
+                        runner.test("with null argument", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Value<Character> value = new Value<>(null);
+                                test.assertTrue(value.hasValue());
+                                test.assertNull(value.get());
+                            }
+                        });
 
-    @Test
-    public void constructorWithArgument()
-    {
-        final Value<Character> value = new Value<>('n');
-        assertTrue(value.hasValue());
-        assertEquals('n', value.get().charValue());
-    }
+                        runner.test("with argument", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Value<Character> value = new Value<>('n');
+                                test.assertTrue(value.hasValue());
+                                test.assertEqual('n', value.get());
+                            }
+                        });
+                    }
+                });
 
-    @Test
-    public void setWithNull()
-    {
-        final Value<Character> value = new Value<>();
-        value.set(null);
-        assertTrue(value.hasValue());
-        assertNull(value.get());
-    }
+                runner.testGroup("set()", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Value<Character> value = new Value<>();
+                                value.set(null);
+                                test.assertTrue(value.hasValue());
+                                test.assertNull(value.get());
+                            }
+                        });
 
-    @Test
-    public void setWithNonNull()
-    {
-        final Value<Character> value = new Value<>();
-        value.set('z');
-        assertTrue(value.hasValue());
-        assertEquals('z', value.get().charValue());
-    }
+                        runner.test("with non-null", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Value<Character> value = new Value<>();
+                                value.set('z');
+                                test.assertTrue(value.hasValue());
+                                test.assertEqual('z', value.get());
+                            }
+                        });
+                    }
+                });
 
-    @Test
-    public void clear()
-    {
-        final Value<Character> value = new Value<>('v');
-        value.clear();
-        assertFalse(value.hasValue());
-        assertNull(value.get());
+                runner.test("clear()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final Value<Character> value = new Value<>('v');
+                        value.clear();
+                        test.assertFalse(value.hasValue());
+                        test.assertNull(value.get());
+                    }
+                });
+            }
+        });
     }
 }
