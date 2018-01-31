@@ -69,18 +69,18 @@ public class FolderFileSystem extends FileSystemBase
     }
 
     @Override
-    public Iterable<Root> getRoots()
+    public Iterable<Root> getRoots(Action1<String> onError)
     {
         return Array.fromValues(new Root(this, Path.parse("/")));
     }
 
     @Override
-    public Iterable<FileSystemEntry> getFilesAndFolders(Path folderPath)
+    public Iterable<FileSystemEntry> getFilesAndFolders(Path folderPath, Action1<String> onError)
     {
         Iterable<FileSystemEntry> result = null;
 
         final Path innerFolderPath = getInnerPath(folderPath);
-        final Iterable<FileSystemEntry> innerResult = innerFileSystem.getFilesAndFolders(innerFolderPath);
+        final Iterable<FileSystemEntry> innerResult = innerFileSystem.getFilesAndFolders(innerFolderPath, onError);
         if (innerResult != null)
         {
             result = Array.fromValues(innerResult.map(new Function1<FileSystemEntry, FileSystemEntry>()
@@ -98,19 +98,19 @@ public class FolderFileSystem extends FileSystemBase
     }
 
     @Override
-    public boolean folderExists(Path folderPath)
+    public boolean folderExists(Path folderPath, Action1<String> onError)
     {
         final Path innerFolderPath = getInnerPath(folderPath);
-        return innerFileSystem.folderExists(innerFolderPath);
+        return innerFileSystem.folderExists(innerFolderPath, onError);
     }
 
     @Override
-    public boolean createFolder(Path folderPath, Out<Folder> outputFolder)
+    public boolean createFolder(Path folderPath, Out<Folder> outputFolder, Action1<String> onError)
     {
         final Path innerFolderPath = getInnerPath(folderPath);
         final Value<Folder> innerOutputFolder = (outputFolder == null ? null : new Value<Folder>());
 
-        final boolean result = innerFileSystem.createFolder(innerFolderPath, innerOutputFolder);
+        final boolean result = innerFileSystem.createFolder(innerFolderPath, innerOutputFolder, onError);
 
         if (innerOutputFolder != null && innerOutputFolder.hasValue())
         {
@@ -123,28 +123,28 @@ public class FolderFileSystem extends FileSystemBase
     }
 
     @Override
-    public boolean deleteFolder(Path folderPath)
+    public boolean deleteFolder(Path folderPath, Action1<String> onError)
     {
         final Path innerFolderPath = getInnerPath(folderPath);
-        return innerFileSystem.deleteFolder(innerFolderPath);
+        return innerFileSystem.deleteFolder(innerFolderPath, onError);
     }
 
     @Override
-    public boolean fileExists(Path filePath)
+    public boolean fileExists(Path filePath, Action1<String> onError)
     {
         final Path innerFilePath = getInnerPath(filePath);
-        return innerFileSystem.fileExists(innerFilePath);
+        return innerFileSystem.fileExists(innerFilePath, onError);
     }
 
     @Override
-    public boolean createFile(Path filePath, byte[] fileContents, Out<File> outputFile)
+    public boolean createFile(Path filePath, byte[] fileContents, Out<File> outputFile, Action1<String> onError)
     {
         final Path innerFilePath = getInnerPath(filePath);
         final Value<File> innerOutputFile = (outputFile == null ? null : new Value<File>());
 
-        final boolean result = innerFileSystem.createFile(innerFilePath, fileContents, innerOutputFile);
+        final boolean result = innerFileSystem.createFile(innerFilePath, fileContents, innerOutputFile, onError);
 
-        if (outputFile != null && innerOutputFile != null)
+        if (innerOutputFile != null)
         {
             if (!innerOutputFile.hasValue())
             {
@@ -162,44 +162,23 @@ public class FolderFileSystem extends FileSystemBase
     }
 
     @Override
-    public boolean deleteFile(Path filePath)
+    public boolean deleteFile(Path filePath, Action1<String> onError)
     {
         final Path innerFilePath = getInnerPath(filePath);
-        return innerFileSystem.deleteFile(innerFilePath);
+        return innerFileSystem.deleteFile(innerFilePath, onError);
     }
 
     @Override
-    public byte[] getFileContents(Path rootedFilePath)
+    public ByteReadStream getFileContentByteReadStream(Path rootedFilePath, Action1<String> onError)
     {
         final Path innerFilePath = getInnerPath(rootedFilePath);
-        return innerFileSystem.getFileContents(innerFilePath);
+        return innerFileSystem.getFileContentByteReadStream(innerFilePath, onError);
     }
 
     @Override
-    public String getFileContentsAsString(Path rootedFilePath, CharacterEncoding encoding)
+    public boolean setFileContents(Path rootedFilePath, byte[] fileContents, Action1<String> onError)
     {
         final Path innerFilePath = getInnerPath(rootedFilePath);
-        return innerFileSystem.getFileContentsAsString(innerFilePath, encoding);
-    }
-
-    @Override
-    public Iterable<byte[]> getFileContentBlocks(Path rootedFilePath)
-    {
-        final Path innerFilePath = getInnerPath(rootedFilePath);
-        return innerFileSystem.getFileContentBlocks(innerFilePath);
-    }
-
-    @Override
-    public ByteReadStream getFileContentByteReadStream(Path rootedFilePath)
-    {
-        final Path innerFilePath = getInnerPath(rootedFilePath);
-        return innerFileSystem.getFileContentByteReadStream(innerFilePath);
-    }
-
-    @Override
-    public boolean setFileContents(Path rootedFilePath, byte[] fileContents)
-    {
-        final Path innerFilePath = getInnerPath(rootedFilePath);
-        return innerFileSystem.setFileContents(innerFilePath, fileContents);
+        return innerFileSystem.setFileContents(innerFilePath, fileContents, onError);
     }
 }

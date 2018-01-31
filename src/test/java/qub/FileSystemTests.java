@@ -1406,7 +1406,7 @@ public class FileSystemTests
                     }
                 });
 
-                runner.testGroup("createFolder(String,Value<Folder>)", new Action0()
+                runner.testGroup("createFolder(String,Out<Folder>)", new Action0()
                 {
                     @Override
                     public void run()
@@ -1417,7 +1417,7 @@ public class FileSystemTests
                             public void run(Test test)
                             {
                                 final FileSystem fileSystem = getFileSystem(creator);
-                                test.assertFalse(fileSystem.createFolder((String)null, null));
+                                test.assertFalse(fileSystem.createFolder((String)null, (Out<Folder>)null));
                             }
                         });
 
@@ -1427,7 +1427,7 @@ public class FileSystemTests
                             public void run(Test test)
                             {
                                 final FileSystem fileSystem = getFileSystem(creator);
-                                test.assertFalse(fileSystem.createFolder("", null));
+                                test.assertFalse(fileSystem.createFolder("", (Out<Folder>)null));
                             }
                         });
 
@@ -1437,7 +1437,7 @@ public class FileSystemTests
                             public void run(Test test)
                             {
                                 final FileSystem fileSystem = getFileSystem(creator);
-                                test.assertFalse(fileSystem.createFolder("folder", null));
+                                test.assertFalse(fileSystem.createFolder("folder", (Out<Folder>)null));
                             }
                         });
 
@@ -1447,7 +1447,7 @@ public class FileSystemTests
                             public void run(Test test)
                             {
                                 final FileSystem fileSystem = getFileSystem(creator);
-                                test.assertTrue(fileSystem.createFolder("/folder", null));
+                                test.assertTrue(fileSystem.createFolder("/folder", (Out<Folder>)null));
                                 test.assertTrue(fileSystem.folderExists("/folder"));
                             }
                         });
@@ -1646,7 +1646,7 @@ public class FileSystemTests
                     }
                 });
 
-                runner.testGroup("createFolderAsync(String,Value<Folder>)", new Action0()
+                runner.testGroup("createFolderAsync(String,Out<Folder>)", new Action0()
                 {
                     @Override
                     public void run()
@@ -1661,7 +1661,7 @@ public class FileSystemTests
                                     @Override
                                     public void run(FileSystem fileSystem)
                                     {
-                                        fileSystem.createFolderAsync((String)null, null)
+                                        fileSystem.createFolderAsync((String)null, (Out<Folder>)null)
                                             .then(new Action1<Boolean>()
                                             {
                                                 @Override
@@ -1685,7 +1685,7 @@ public class FileSystemTests
                                     @Override
                                     public void run(FileSystem fileSystem)
                                     {
-                                        fileSystem.createFolderAsync("", null)
+                                        fileSystem.createFolderAsync("", (Out<Folder>)null)
                                             .then(new Action1<Boolean>()
                                             {
                                                 @Override
@@ -1709,7 +1709,7 @@ public class FileSystemTests
                                     @Override
                                     public void run(FileSystem fileSystem)
                                     {
-                                        fileSystem.createFolderAsync("folder", null)
+                                        fileSystem.createFolderAsync("folder", (Out<Folder>)null)
                                             .then(new Action1<Boolean>()
                                             {
                                                 @Override
@@ -1733,7 +1733,7 @@ public class FileSystemTests
                                     @Override
                                     public void run(final FileSystem fileSystem)
                                     {
-                                        fileSystem.createFolderAsync("/folder", null)
+                                        fileSystem.createFolderAsync("/folder", (Out<Folder>)null)
                                             .then(new Action1<Boolean>()
                                             {
                                                 @Override
@@ -1962,7 +1962,7 @@ public class FileSystemTests
                     }
                 });
 
-                runner.testGroup("createFolderAsync(Path,Value<Folder>)", new Action0()
+                runner.testGroup("createFolderAsync(Path,Out<Folder>)", new Action0()
                 {
                     @Override
                     public void run()
@@ -1977,7 +1977,7 @@ public class FileSystemTests
                                     @Override
                                     public void run(FileSystem fileSystem)
                                     {
-                                        fileSystem.createFolderAsync((Path)null, null)
+                                        fileSystem.createFolderAsync((Path)null, (Out<Folder>)null)
                                             .then(new Action1<Boolean>()
                                             {
                                                 @Override
@@ -2001,7 +2001,7 @@ public class FileSystemTests
                                     @Override
                                     public void run(FileSystem fileSystem)
                                     {
-                                        fileSystem.createFolderAsync(Path.parse(""), null)
+                                        fileSystem.createFolderAsync(Path.parse(""), (Out<Folder>)null)
                                             .then(new Action1<Boolean>()
                                             {
                                                 @Override
@@ -2025,7 +2025,7 @@ public class FileSystemTests
                                     @Override
                                     public void run(FileSystem fileSystem)
                                     {
-                                        fileSystem.createFolderAsync(Path.parse("folder"), null)
+                                        fileSystem.createFolderAsync(Path.parse("folder"), (Out<Folder>)null)
                                             .then(new Action1<Boolean>()
                                             {
                                                 @Override
@@ -2049,7 +2049,7 @@ public class FileSystemTests
                                     @Override
                                     public void run(final FileSystem fileSystem)
                                     {
-                                        fileSystem.createFolderAsync(Path.parse("/folder"), null)
+                                        fileSystem.createFolderAsync(Path.parse("/folder"), (Out<Folder>)null)
                                             .then(new Action1<Boolean>()
                                             {
                                                 @Override
@@ -2988,7 +2988,7 @@ public class FileSystemTests
                     }
                 });
 
-                runner.testGroup("createFile(String,Value<File>)", new Action0()
+                runner.testGroup("createFile(String,Out<File>)", new Action0()
                 {
                     @Override
                     public void run()
@@ -3041,7 +3041,7 @@ public class FileSystemTests
                             public void run(Test test)
                             {
                                 final FileSystem fileSystem = getFileSystem(creator);
-                                test.assertTrue(fileSystem.createFile("/things.txt", new byte[] { 10, 11, 12 }, null));
+                                test.assertTrue(fileSystem.createFile("/things.txt", new byte[] { 10, 11, 12 }, (Out<File>)null));
                                 test.assertTrue(fileSystem.fileExists("/things.txt"));
                                 test.assertEqual(new byte[] { 10, 11, 12 }, fileSystem.getFileContents("/things.txt"));
                             }
@@ -3068,7 +3068,7 @@ public class FileSystemTests
                             {
                                 final FileSystem fileSystem = getFileSystem(creator);
 
-                                test.assertTrue(fileSystem.createFile("/things.txt", "ABC", CharacterEncoding.UTF_8, null));
+                                test.assertTrue(fileSystem.createFile("/things.txt", "ABC", CharacterEncoding.UTF_8, (Out<File>)null));
 
                                 test.assertTrue(fileSystem.fileExists("/things.txt"));
                                 test.assertEqual("ABC", fileSystem.getFileContentsAsString("/things.txt"));
@@ -3098,7 +3098,7 @@ public class FileSystemTests
                                 final FileSystem fileSystem = getFileSystem(creator);
                                 fileSystem.createFile("/things.txt");
 
-                                test.assertFalse(fileSystem.createFile("/things.txt", new byte[] { 0, 1 }, null));
+                                test.assertFalse(fileSystem.createFile("/things.txt", new byte[] { 0, 1 }, (Out<File>)null));
 
                                 test.assertTrue(fileSystem.fileExists("/things.txt"));
                                 test.assertEqual(new byte[0], fileSystem.getFileContents("/things.txt"));
@@ -3353,7 +3353,7 @@ public class FileSystemTests
                     }
                 });
 
-                runner.testGroup("createFileAsync(String,Value<File>)", new Action0()
+                runner.testGroup("createFileAsync(String,Out<File>)", new Action0()
                 {
                     @Override
                     public void run()
@@ -3368,7 +3368,7 @@ public class FileSystemTests
                                     @Override
                                     public void run(final FileSystem fileSystem)
                                     {
-                                        fileSystem.createFileAsync((String)null, null)
+                                        fileSystem.createFileAsync((String)null, (Out<File>)null)
                                             .then(new Action1<Boolean>()
                                             {
                                                 @Override
@@ -3392,7 +3392,7 @@ public class FileSystemTests
                                     @Override
                                     public void run(FileSystem fileSystem)
                                     {
-                                        fileSystem.createFileAsync("", null)
+                                        fileSystem.createFileAsync("", (Out<File>)null)
                                             .then(new Action1<Boolean>()
                                             {
                                                 @Override
@@ -3416,7 +3416,7 @@ public class FileSystemTests
                                     @Override
                                     public void run(FileSystem fileSystem)
                                     {
-                                        fileSystem.createFileAsync("things.txt", null)
+                                        fileSystem.createFileAsync("things.txt", (Out<File>)null)
                                             .then(new Action1<Boolean>()
                                             {
                                                 @Override
@@ -3440,7 +3440,7 @@ public class FileSystemTests
                                     @Override
                                     public void run(FileSystem fileSystem)
                                     {
-                                        fileSystem.createFileAsync("/things.txt", null)
+                                        fileSystem.createFileAsync("/things.txt", (Out<File>)null)
                                             .then(new Action1<Boolean>()
                                             {
                                                 @Override
@@ -3466,7 +3466,7 @@ public class FileSystemTests
                                     {
                                         fileSystem.createFile("/things.txt");
 
-                                        fileSystem.createFileAsync("/things.txt", null)
+                                        fileSystem.createFileAsync("/things.txt", (Out<File>)null)
                                             .then(new Action1<Boolean>()
                                             {
                                                 @Override
@@ -3774,7 +3774,7 @@ public class FileSystemTests
                     }
                 });
 
-                runner.testGroup("createFileAsync(Path,Value<File>)", new Action0()
+                runner.testGroup("createFileAsync(Path,Out<File>)", new Action0()
                 {
                     @Override
                     public void run()
@@ -3789,7 +3789,7 @@ public class FileSystemTests
                                     @Override
                                     public void run(final FileSystem fileSystem)
                                     {
-                                        fileSystem.createFileAsync((Path)null, null)
+                                        fileSystem.createFileAsync((Path)null, (Out<File>)null)
                                             .then(new Action1<Boolean>()
                                             {
                                                 @Override
@@ -3813,7 +3813,7 @@ public class FileSystemTests
                                     @Override
                                     public void run(FileSystem fileSystem)
                                     {
-                                        fileSystem.createFileAsync(Path.parse(""), null)
+                                        fileSystem.createFileAsync(Path.parse(""), (Out<File>)null)
                                             .then(new Action1<Boolean>()
                                             {
                                                 @Override
@@ -3837,7 +3837,7 @@ public class FileSystemTests
                                     @Override
                                     public void run(FileSystem fileSystem)
                                     {
-                                        fileSystem.createFileAsync(Path.parse("things.txt"), null)
+                                        fileSystem.createFileAsync(Path.parse("things.txt"), (Out<File>)null)
                                             .then(new Action1<Boolean>()
                                             {
                                                 @Override
@@ -3861,7 +3861,7 @@ public class FileSystemTests
                                     @Override
                                     public void run(FileSystem fileSystem)
                                     {
-                                        fileSystem.createFileAsync(Path.parse("/things.txt"), null)
+                                        fileSystem.createFileAsync(Path.parse("/things.txt"), (Out<File>)null)
                                             .then(new Action1<Boolean>()
                                             {
                                                 @Override
@@ -3887,7 +3887,7 @@ public class FileSystemTests
                                     {
                                         fileSystem.createFile("/things.txt");
 
-                                        fileSystem.createFileAsync(Path.parse("/things.txt"), null)
+                                        fileSystem.createFileAsync(Path.parse("/things.txt"), (Out<File>)null)
                                             .then(new Action1<Boolean>()
                                             {
                                                 @Override
@@ -4580,7 +4580,7 @@ public class FileSystemTests
                             public void run(Test test)
                             {
                                 final FileSystem fileSystem = getFileSystem(creator);
-                                test.assertNull(fileSystem.getFileContentsAsString((String)null, null));
+                                test.assertNull(fileSystem.getFileContentsAsString((String)null, (CharacterEncoding)null));
                             }
                         });
 
@@ -4590,7 +4590,7 @@ public class FileSystemTests
                             public void run(Test test)
                             {
                                 final FileSystem fileSystem = getFileSystem(creator);
-                                test.assertNull(fileSystem.getFileContentsAsString("", null));
+                                test.assertNull(fileSystem.getFileContentsAsString("", (CharacterEncoding)null));
                             }
                         });
 
@@ -4600,7 +4600,7 @@ public class FileSystemTests
                             public void run(Test test)
                             {
                                 final FileSystem fileSystem = getFileSystem(creator);
-                                test.assertNull(fileSystem.getFileContentsAsString("file.txt", null));
+                                test.assertNull(fileSystem.getFileContentsAsString("file.txt", (CharacterEncoding)null));
                             }
                         });
 
@@ -4610,7 +4610,7 @@ public class FileSystemTests
                             public void run(Test test)
                             {
                                 final FileSystem fileSystem = getFileSystem(creator);
-                                test.assertNull(fileSystem.getFileContentsAsString("/file.txt", null));
+                                test.assertNull(fileSystem.getFileContentsAsString("/file.txt", (CharacterEncoding)null));
                             }
                         });
 
@@ -4621,7 +4621,7 @@ public class FileSystemTests
                             {
                                 final FileSystem fileSystem = getFileSystem(creator);
                                 fileSystem.createFile("/file.txt");
-                                test.assertNull(fileSystem.getFileContentsAsString("/file.txt", null));
+                                test.assertNull(fileSystem.getFileContentsAsString("/file.txt", (CharacterEncoding)null));
                             }
                         });
 
@@ -4632,7 +4632,7 @@ public class FileSystemTests
                             {
                                 final FileSystem fileSystem = getFileSystem(creator);
                                 fileSystem.createFile("/file.txt", CharacterEncoding.UTF_8.encode("Hello there!"));
-                                test.assertNull(fileSystem.getFileContentsAsString("/file.txt", null));
+                                test.assertNull(fileSystem.getFileContentsAsString("/file.txt", (CharacterEncoding)null));
                             }
                         });
                     }

@@ -310,6 +310,11 @@ public class Folder extends FileSystemEntry
         return getFileSystem().getFilesAndFolders(getPath());
     }
 
+    public Iterable<FileSystemEntry> getFilesAndFolders(Action1<String> onError)
+    {
+        return getFileSystem().getFilesAndFolders(getPath(), onError);
+    }
+
     public Iterable<FileSystemEntry> getFilesAndFoldersRecursively()
     {
         return getFileSystem().getFilesAndFoldersRecursively(getPath());

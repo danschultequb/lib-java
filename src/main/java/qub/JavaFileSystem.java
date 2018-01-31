@@ -6,7 +6,7 @@ package qub;
 public class JavaFileSystem extends FileSystemBase
 {
     @Override
-    public Iterable<Root> getRoots()
+    public Iterable<Root> getRoots(Action1<String> onError)
     {
         return Array
                 .fromValues(java.io.File.listRoots())
@@ -23,7 +23,7 @@ public class JavaFileSystem extends FileSystemBase
     }
 
     @Override
-    public Iterable<FileSystemEntry> getFilesAndFolders(Path rootedFolderPath)
+    public Iterable<FileSystemEntry> getFilesAndFolders(Path rootedFolderPath, Action1<String> onError)
     {
         Array<FileSystemEntry> result = null;
 
@@ -73,7 +73,7 @@ public class JavaFileSystem extends FileSystemBase
     }
 
     @Override
-    public boolean folderExists(Path rootedFolderPath)
+    public boolean folderExists(Path rootedFolderPath, Action1<String> onError)
     {
         boolean result = false;
 
@@ -88,7 +88,7 @@ public class JavaFileSystem extends FileSystemBase
     }
 
     @Override
-    public boolean createFolder(Path rootedFolderPath, Out<Folder> outputFolder)
+    public boolean createFolder(Path rootedFolderPath, Out<Folder> outputFolder, Action1<String> onError)
     {
         boolean result = false;
 
@@ -115,7 +115,7 @@ public class JavaFileSystem extends FileSystemBase
     }
 
     @Override
-    public boolean deleteFolder(Path rootedFolderPath)
+    public boolean deleteFolder(Path rootedFolderPath, Action1<String> onError)
     {
         boolean result = false;
 
@@ -158,7 +158,7 @@ public class JavaFileSystem extends FileSystemBase
     }
 
     @Override
-    public boolean fileExists(Path rootedFilePath)
+    public boolean fileExists(Path rootedFilePath, Action1<String> onError)
     {
         boolean result = false;
 
@@ -173,7 +173,7 @@ public class JavaFileSystem extends FileSystemBase
     }
 
     @Override
-    public boolean createFile(Path rootedFilePath, byte[] fileContents, Out<File> outputFile)
+    public boolean createFile(Path rootedFilePath, byte[] fileContents, Out<File> outputFile, Action1<String> onError)
     {
         boolean result = false;
 
@@ -210,6 +210,11 @@ public class JavaFileSystem extends FileSystemBase
                 }
                 catch (java.io.IOException e)
                 {
+                    if (onError != null)
+                    {
+                        onError.run(e.getMessage());
+                    }
+
                     if (outputFile != null)
                     {
                         outputFile.clear();
@@ -222,7 +227,7 @@ public class JavaFileSystem extends FileSystemBase
     }
 
     @Override
-    public boolean deleteFile(Path rootedFilePath)
+    public boolean deleteFile(Path rootedFilePath, Action1<String> onError)
     {
         boolean result = false;
 
@@ -237,7 +242,7 @@ public class JavaFileSystem extends FileSystemBase
     }
 
     @Override
-    public ByteReadStream getFileContentByteReadStream(Path rootedFilePath)
+    public ByteReadStream getFileContentByteReadStream(Path rootedFilePath, Action1<String> onError)
     {
         ByteReadStream result = null;
 
@@ -250,8 +255,12 @@ public class JavaFileSystem extends FileSystemBase
             {
                 fileInputStream = new java.io.FileInputStream(filePathString);
             }
-            catch (java.io.FileNotFoundException ignored)
+            catch (java.io.FileNotFoundException e)
             {
+                if (onError != null)
+                {
+                    onError.run(e.getMessage());
+                }
             }
 
             if (fileInputStream != null)
@@ -264,7 +273,7 @@ public class JavaFileSystem extends FileSystemBase
     }
 
     @Override
-    public boolean setFileContents(Path rootedFilePath, byte[] fileContents)
+    public boolean setFileContents(Path rootedFilePath, byte[] fileContents, Action1<String> onError)
     {
         boolean result = false;
 
@@ -275,9 +284,13 @@ public class JavaFileSystem extends FileSystemBase
                 outputStream.write(fileContents == null ? new byte[0] : fileContents);
                 result = true;
             }
-            catch (java.io.IOException ignored)
+            catch (java.io.IOException e)
             {
-                result = createFile(rootedFilePath, fileContents);
+                if (onError != null)
+                {
+                    onError.run(e.getMessage());
+                }
+                result = createFile(rootedFilePath, fileContents, onError);
             }
         }
 

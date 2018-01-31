@@ -120,7 +120,7 @@ public class InMemoryFileSystem extends FileSystemBase
     }
 
     @Override
-    public Iterable<Root> getRoots()
+    public Iterable<Root> getRoots(Action1<String> onError)
     {
         return Array.fromValues(roots.map(new Function1<InMemoryRoot, Root>()
         {
@@ -133,7 +133,7 @@ public class InMemoryFileSystem extends FileSystemBase
     }
 
     @Override
-    public Iterable<FileSystemEntry> getFilesAndFolders(Path folderPath)
+    public Iterable<FileSystemEntry> getFilesAndFolders(Path folderPath, Action1<String> onError)
     {
         ArrayList<FileSystemEntry> result = null;
 
@@ -162,7 +162,7 @@ public class InMemoryFileSystem extends FileSystemBase
     }
 
     @Override
-    public boolean folderExists(Path folderPath)
+    public boolean folderExists(Path folderPath, Action1<String> onError)
     {
         boolean result = false;
 
@@ -175,7 +175,7 @@ public class InMemoryFileSystem extends FileSystemBase
     }
 
     @Override
-    public boolean createFolder(Path folderPath, Out<Folder> outputFolder)
+    public boolean createFolder(Path folderPath, Out<Folder> outputFolder, Action1<String> onError)
     {
         boolean result = false;
 
@@ -200,7 +200,7 @@ public class InMemoryFileSystem extends FileSystemBase
     }
 
     @Override
-    public boolean deleteFolder(Path folderPath)
+    public boolean deleteFolder(Path folderPath, Action1<String> onError)
     {
         boolean result = false;
 
@@ -217,7 +217,7 @@ public class InMemoryFileSystem extends FileSystemBase
     }
 
     @Override
-    public boolean fileExists(Path filePath)
+    public boolean fileExists(Path filePath, Action1<String> onError)
     {
         boolean result = false;
 
@@ -234,7 +234,7 @@ public class InMemoryFileSystem extends FileSystemBase
     }
 
     @Override
-    public boolean createFile(Path filePath, byte[] fileContents, Out<File> outputFile)
+    public boolean createFile(Path filePath, byte[] fileContents, Out<File> outputFile, Action1<String> onError)
     {
         boolean result = false;
 
@@ -263,7 +263,7 @@ public class InMemoryFileSystem extends FileSystemBase
     }
 
     @Override
-    public boolean deleteFile(Path filePath)
+    public boolean deleteFile(Path filePath, Action1<String> onError)
     {
         boolean result = false;
 
@@ -280,7 +280,7 @@ public class InMemoryFileSystem extends FileSystemBase
     }
 
     @Override
-    public ByteReadStream getFileContentByteReadStream(Path rootedFilePath)
+    public ByteReadStream getFileContentByteReadStream(Path rootedFilePath, Action1<String> onError)
     {
         ByteReadStream result = null;
 
@@ -294,7 +294,7 @@ public class InMemoryFileSystem extends FileSystemBase
     }
 
     @Override
-    public boolean setFileContents(Path rootedFilePath, byte[] fileContents)
+    public boolean setFileContents(Path rootedFilePath, byte[] fileContents, Action1<String> onError)
     {
         boolean result = false;
 
