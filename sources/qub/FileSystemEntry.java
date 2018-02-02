@@ -28,6 +28,15 @@ public abstract class FileSystemEntry
     }
 
     /**
+     * Get the name of this FileSystemEntry.
+     * @return The name of this FileSystemEntry.
+     */
+    public String getName()
+    {
+        return path.getSegments().last();
+    }
+
+    /**
      * Get the Path to this FileSystemEntry.
      */
     public Path getPath()

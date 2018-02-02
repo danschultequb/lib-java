@@ -4,8 +4,8 @@
   "version": "1.0.0",
   "type": "library",
   "java": {
-    "sources": "src/main/java",
-    "tests": "src/test/java",
-    "output": "output"
+    "sources": "sources",
+    "tests": "tests",
+    "outputs": "outputs"
   }
 }
