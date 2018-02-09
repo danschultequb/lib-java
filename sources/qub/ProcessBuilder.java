@@ -9,6 +9,7 @@ public class ProcessBuilder
 {
     private final AsyncRunner asyncRunner;
     private final File executableFile;
+    private Folder workingFolder;
     private final List<String> arguments;
     private Action1<ByteReadStream> redirectOutputAction;
     private Action1<ByteReadStream> redirectErrorAction;
@@ -130,6 +131,17 @@ public class ProcessBuilder
     public ProcessBuilder removeArgument(int index)
     {
         arguments.removeAt(index);
+        return this;
+    }
+
+    /**
+     * Set the working folder where the created process will run from.
+     * @param workingFolder The working folder where the created process will run from.
+     * @return This ProcessBuilder.
+     */
+    public ProcessBuilder setWorkingFolder(Folder workingFolder)
+    {
+        this.workingFolder = workingFolder;
         return this;
     }
 
@@ -385,6 +397,11 @@ public class ProcessBuilder
             {
                 builder.command().add(argument);
             }
+        }
+
+        if (workingFolder != null)
+        {
+            builder.directory(new java.io.File(workingFolder.getPath().toString()));
         }
 
         if (redirectOutputAction != null)
