@@ -48,6 +48,7 @@ class InstanceOfIterator<TInner,TOuter> extends IteratorBase<TOuter>
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public TOuter getCurrent()
     {
         return !hasCurrent() ? null : (TOuter)innerIterator.getCurrent();

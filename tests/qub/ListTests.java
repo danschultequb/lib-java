@@ -68,17 +68,17 @@ public abstract class ListTests
                         test.assertFalse(list.any());
                         test.assertEqual(null, list.get(0));
 
-                        list.addAll();
+                        list.addAll(new Integer[0]);
                         test.assertEqual(0, list.getCount());
                         test.assertFalse(list.any());
                         test.assertEqual(null, list.get(0));
 
-                        list.addAll(0);
+                        list.addAll(new Integer[] { 0 });
                         test.assertEqual(1, list.getCount());
                         test.assertTrue(list.any());
                         test.assertEqual(0, list.get(0));
 
-                        list.addAll(1, 2, 3, 4, 5);
+                        list.addAll(new Integer[] { 1, 2, 3, 4, 5 });
                         test.assertEqual(6, list.getCount());
                         test.assertTrue(list.any());
                         for (int i = 0; i < list.getCount(); ++i)
@@ -94,7 +94,7 @@ public abstract class ListTests
                             test.assertEqual(i, list.get(i));
                         }
 
-                        list.addAll(Array.<Integer>fromValues().iterate());
+                        list.addAll(Array.fromValues(new Integer[0]).iterate());
                         test.assertEqual(6, list.getCount());
                         test.assertTrue(list.any());
                         for (int i = 0; i < list.getCount(); ++i)
@@ -102,7 +102,7 @@ public abstract class ListTests
                             test.assertEqual(i, list.get(i));
                         }
 
-                        list.addAll(Array.fromValues(6, 7, 8, 9).iterate());
+                        list.addAll(Array.fromValues(new Integer[] { 6, 7, 8, 9 }).iterate());
                         test.assertEqual(10, list.getCount());
                         test.assertTrue(list.any());
                         for (int i = 0; i < list.getCount(); ++i)
@@ -118,7 +118,7 @@ public abstract class ListTests
                             test.assertEqual(i, list.get(i));
                         }
 
-                        list.addAll(Array.<Integer>fromValues());
+                        list.addAll(Array.fromValues(new Integer[0]));
                         test.assertEqual(10, list.getCount());
                         test.assertTrue(list.any());
                         for (int i = 0; i < list.getCount(); ++i)
@@ -126,7 +126,7 @@ public abstract class ListTests
                             test.assertEqual(i, list.get(i));
                         }
 
-                        list.addAll(Array.fromValues(10, 11));
+                        list.addAll(Array.fromValues(new Integer[] { 10, 11 }));
                         test.assertEqual(12, list.getCount());
                         test.assertTrue(list.any());
                         for (int i = 0; i < list.getCount(); ++i)
@@ -200,7 +200,7 @@ public abstract class ListTests
                                 final List<Integer> list = createList.run(5);
                                 test.assertTrue(list.remove(3));
                                 test.assertEqual(4, list.getCount());
-                                test.assertEqual(Array.fromValues(0, 1, 2, 4), list);
+                                test.assertEqual(Array.fromValues(new Integer[] { 0, 1, 2, 4 }), list);
                             }
                         });
                     }

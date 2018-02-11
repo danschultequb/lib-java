@@ -121,7 +121,7 @@ public class ProcessBuilderTests
                                 final ProcessBuilder builder = new ProcessBuilder(null, null);
                                 builder.addArguments("a", "b", "c");
                                 builder.setArgument(0, null);
-                                test.assertEqual(Array.fromValues("b", "c"), builder.getArguments());
+                                test.assertEqual(Array.fromValues(new String[] { "b", "c" }), builder.getArguments());
                                 test.assertEqual("b c", builder.getCommand());
                             }
                         });
@@ -134,7 +134,7 @@ public class ProcessBuilderTests
                                 final ProcessBuilder builder = new ProcessBuilder(null, null);
                                 builder.addArguments("a", "b", "c");
                                 builder.setArgument(2, "");
-                                test.assertEqual(Array.fromValues("a", "b", ""), builder.getArguments());
+                                test.assertEqual(Array.fromValues(new String[] { "a", "b", "" }), builder.getArguments());
                                 test.assertEqual("a b \"\"", builder.getCommand());
                             }
                         });
@@ -147,7 +147,7 @@ public class ProcessBuilderTests
                                 final ProcessBuilder builder = new ProcessBuilder(null, null);
                                 builder.addArguments("a", "b", "c");
                                 builder.setArgument(1, "\"d\"");
-                                test.assertEqual(Array.fromValues("a", "\"d\"", "c"), builder.getArguments());
+                                test.assertEqual(Array.fromValues(new String[] { "a", "\"d\"", "c" }), builder.getArguments());
                                 test.assertEqual("a \"d\" c", builder.getCommand());
                             }
                         });
@@ -162,7 +162,7 @@ public class ProcessBuilderTests
                         final ProcessBuilder builder = new ProcessBuilder(null, null);
                         builder.addArguments("a", "b", "c");
                         builder.removeArgument(1);
-                        test.assertEqual(Array.fromValues("a", "c"), builder.getArguments());
+                        test.assertEqual(Array.fromValues(new String[] { "a", "c" }), builder.getArguments());
                         test.assertEqual("a c", builder.getCommand());
                     }
                 });

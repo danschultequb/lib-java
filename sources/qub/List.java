@@ -12,7 +12,7 @@ public interface List<T> extends Indexable<T>
      * Add the provided values at the end of this List.
      * @param values The values to add.
      */
-    void addAll(T... values);
+    void addAll(T[] values);
 
     /**
      * Add the provided values at the end of this List.

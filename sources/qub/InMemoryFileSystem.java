@@ -377,5 +377,5 @@ public class InMemoryFileSystem extends FileSystemBase
         return result;
     }
 
-    private static final Array<Character> invalidCharacters = Array.fromValues('@', '#', '?');
+    private static final Array<Character> invalidCharacters = Array.fromValues(new Character[] { '@', '#', '?' });
 }

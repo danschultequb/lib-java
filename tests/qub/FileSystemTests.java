@@ -714,9 +714,11 @@ public class FileSystemTests
                                 fileSystem.createFolder("/test/folder/1.txt");
                                 fileSystem.createFolder("/test/folder/2.txt");
                                 test.assertEqual(
-                                    Array.fromValues(
+                                    Array.fromValues(new Folder[]
+                                    {
                                         fileSystem.getFolder("/test/folder/1.txt"),
-                                        fileSystem.getFolder("/test/folder/2.txt")),
+                                        fileSystem.getFolder("/test/folder/2.txt")
+                                    }),
                                     fileSystem.getFoldersRecursively("/test/folder"));
                             }
                         });
@@ -734,10 +736,12 @@ public class FileSystemTests
                                 fileSystem.createFile("/test/folder/A/5.png");
 
                                 final Iterable<Folder> expectedEntries =
-                                    Array.fromValues(
+                                    Array.fromValues(new Folder[]
+                                    {
                                         fileSystem.getFolder("/test/folder/A"),
                                         fileSystem.getFolder("/test/folder/B"),
-                                        fileSystem.getFolder("/test/folder/B/C"));
+                                        fileSystem.getFolder("/test/folder/B/C")
+                                    });
                                 final Iterable<Folder> actualEntries = fileSystem.getFoldersRecursively("/test/folder");
                                 test.assertEqual(expectedEntries, actualEntries);
                             }
@@ -1081,9 +1085,11 @@ public class FileSystemTests
                                 fileSystem.createFile("/test/folder/1.txt");
                                 fileSystem.createFile("/test/folder/2.txt");
                                 test.assertEqual(
-                                    Array.fromValues(
+                                    Array.fromValues(new File[]
+                                    {
                                         fileSystem.getFile("/test/folder/1.txt"),
-                                        fileSystem.getFile("/test/folder/2.txt")),
+                                        fileSystem.getFile("/test/folder/2.txt")
+                                    }),
                                     fileSystem.getFilesRecursively("/test/folder"));
                             }
                         });
@@ -1116,12 +1122,14 @@ public class FileSystemTests
                                 fileSystem.createFile("/test/folder/A/5.png");
 
                                 final Iterable<File> expectedEntries =
-                                    Array.fromValues(
+                                    Array.fromValues(new File[]
+                                    {
                                         fileSystem.getFile("/test/folder/1.txt"),
                                         fileSystem.getFile("/test/folder/2.txt"),
                                         fileSystem.getFile("/test/folder/A/3.csv"),
                                         fileSystem.getFile("/test/folder/A/5.png"),
-                                        fileSystem.getFile("/test/folder/B/C/4.xml"));
+                                        fileSystem.getFile("/test/folder/B/C/4.xml")
+                                    });
                                 final Iterable<File> actualEntries = fileSystem.getFilesRecursively("/test/folder");
                                 test.assertEqual(expectedEntries, actualEntries);
                             }
@@ -5967,9 +5975,11 @@ public class FileSystemTests
                                 fileSystem.createFile("/test/folder/1.txt");
                                 fileSystem.createFile("/test/folder/2.txt");
                                 test.assertEqual(
-                                    Array.fromValues(
+                                    Array.fromValues(new FileSystemEntry[]
+                                    {
                                         fileSystem.getFile("/test/folder/1.txt"),
-                                        fileSystem.getFile("/test/folder/2.txt")),
+                                        fileSystem.getFile("/test/folder/2.txt")
+                                    }),
                                     fileSystem.getFilesAndFoldersRecursively("/test/folder"));
                             }
                         });
@@ -5984,9 +5994,11 @@ public class FileSystemTests
                                 fileSystem.createFolder("/test/folder/1.txt");
                                 fileSystem.createFolder("/test/folder/2.txt");
                                 test.assertEqual(
-                                    Array.fromValues(
+                                    Array.fromValues(new FileSystemEntry[]
+                                    {
                                         fileSystem.getFolder("/test/folder/1.txt"),
-                                        fileSystem.getFolder("/test/folder/2.txt")),
+                                        fileSystem.getFolder("/test/folder/2.txt")
+                                    }),
                                     fileSystem.getFilesAndFoldersRecursively("/test/folder"));
                             }
                         });
@@ -6004,7 +6016,8 @@ public class FileSystemTests
                                 fileSystem.createFile("/test/folder/A/5.png");
 
                                 final Iterable<FileSystemEntry> expectedEntries =
-                                    Array.fromValues(
+                                    Array.fromValues(new FileSystemEntry[]
+                                    {
                                         fileSystem.getFolder("/test/folder/A"),
                                         fileSystem.getFolder("/test/folder/B"),
                                         fileSystem.getFile("/test/folder/1.txt"),
@@ -6012,7 +6025,8 @@ public class FileSystemTests
                                         fileSystem.getFile("/test/folder/A/3.csv"),
                                         fileSystem.getFile("/test/folder/A/5.png"),
                                         fileSystem.getFolder("/test/folder/B/C"),
-                                        fileSystem.getFile("/test/folder/B/C/4.xml"));
+                                        fileSystem.getFile("/test/folder/B/C/4.xml")
+                                    });
                                 final Iterable<FileSystemEntry> actualEntries = fileSystem.getFilesAndFoldersRecursively("/test/folder");
                                 test.assertEqual(expectedEntries, actualEntries);
                             }

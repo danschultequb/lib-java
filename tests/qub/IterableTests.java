@@ -1269,7 +1269,7 @@ public class IterableTests
                                 final Iterable<Integer> iterable = createIterable.run(0);
                                 if (iterable != null)
                                 {
-                                    final Iterable<Integer> rhs = Array.fromValues(0);
+                                    final Iterable<Integer> rhs = Array.fromValues(new Integer[] { 0 });
                                     test.assertFalse(iterable.equals((Object)rhs));
                                     test.assertFalse(iterable.equals(rhs));
                                 }
@@ -1284,7 +1284,7 @@ public class IterableTests
                                 final Iterable<Integer> iterable = createIterable.run(0);
                                 if (iterable != null)
                                 {
-                                    final Iterable<Integer> rhs = Array.fromValues(0, 1);
+                                    final Iterable<Integer> rhs = Array.fromValues(new Integer[] { 0, 1 });
                                     test.assertFalse(iterable.equals((Object)rhs));
                                     test.assertFalse(iterable.equals(rhs));
                                 }
@@ -1328,7 +1328,7 @@ public class IterableTests
                                 final Iterable<Integer> iterable = createIterable.run(1);
                                 if (iterable != null)
                                 {
-                                    final Iterable<Integer> rhs = Array.fromValues(0);
+                                    final Iterable<Integer> rhs = Array.fromValues(new Integer[] { 0 });
                                     test.assertTrue(iterable.equals((Object)rhs));
                                     test.assertTrue(iterable.equals(rhs));
                                 }
@@ -1343,7 +1343,7 @@ public class IterableTests
                                 final Iterable<Integer> iterable = createIterable.run(1);
                                 if (iterable != null)
                                 {
-                                    final Iterable<Integer> rhs = Array.fromValues(0, 1);
+                                    final Iterable<Integer> rhs = Array.fromValues(new Integer[] { 0, 1 });
                                     test.assertFalse(iterable.equals((Object)rhs));
                                     test.assertFalse(iterable.equals(rhs));
                                 }
@@ -1358,7 +1358,7 @@ public class IterableTests
                                 final Iterable<Integer> iterable = createIterable.run(2);
                                 if (iterable != null)
                                 {
-                                    test.assertFalse(iterable.equals((Object) null));
+                                    test.assertFalse(iterable.equals((Object)null));
                                     test.assertFalse(iterable.equals((Iterable<Integer>) null));
                                 }
                             }
@@ -1387,7 +1387,7 @@ public class IterableTests
                                 final Iterable<Integer> iterable = createIterable.run(2);
                                 if (iterable != null)
                                 {
-                                    final Iterable<Integer> rhs = Array.fromValues(0);
+                                    final Iterable<Integer> rhs = Array.fromValues(new Integer[] { 0 });
                                     test.assertFalse(iterable.equals((Object)rhs));
                                     test.assertFalse(iterable.equals(rhs));
                                 }
@@ -1402,7 +1402,7 @@ public class IterableTests
                                 final Iterable<Integer> iterable = createIterable.run(2);
                                 if (iterable != null)
                                 {
-                                    final Iterable<Integer> rhs = Array.fromValues(0, 1);
+                                    final Iterable<Integer> rhs = Array.fromValues(new Integer[] { 0, 1 });
                                     test.assertTrue(iterable.equals((Object)rhs));
                                     test.assertTrue(iterable.equals(rhs));
                                 }
@@ -1417,7 +1417,7 @@ public class IterableTests
                                 final Iterable<Integer> iterable = createIterable.run(2);
                                 if (iterable != null)
                                 {
-                                    final Iterable<Integer> rhs = Array.fromValues(2, 3);
+                                    final Iterable<Integer> rhs = Array.fromValues(new Integer[] { 2, 3 });
                                     test.assertFalse(iterable.equals((Object)rhs));
                                     test.assertFalse(iterable.equals(rhs));
                                 }

@@ -33,7 +33,7 @@ public class ArrayTests
                             @Override
                             public void run(Test test)
                             {
-                                final Array<Integer> array = Array.fromValues();
+                                final Array<Integer> array = Array.fromValues(new Integer[0]);
                                 test.assertEqual(0, array.getCount());
                             }
                         });
@@ -43,7 +43,7 @@ public class ArrayTests
                             @Override
                             public void run(Test test)
                             {
-                                final Array<Integer> array = Array.fromValues(101);
+                                final Array<Integer> array = Array.fromValues(new Integer[] { 101 });
                                 test.assertEqual(1, array.getCount());
                                 test.assertEqual(101, array.get(0));
                             }
@@ -54,7 +54,7 @@ public class ArrayTests
                             @Override
                             public void run(Test test)
                             {
-                                final Array<Integer> array = Array.fromValues(101, 102);
+                                final Array<Integer> array = Array.fromValues(new Integer[] { 101, 102 });
                                 test.assertEqual(2, array.getCount());
                                 test.assertEqual(101, array.get(0));
                                 test.assertEqual(102, array.get(1));
@@ -86,7 +86,7 @@ public class ArrayTests
                             @Override
                             public void run(Test test)
                             {
-                                final Array<Integer> array = Array.fromValues(Array.fromValues(1, 2, 3).iterate());
+                                final Array<Integer> array = Array.fromValues(Array.fromValues(new Integer[] { 1, 2, 3 }).iterate());
                                 test.assertEqual(3, array.getCount());
                                 test.assertEqual(1, array.get(0));
                                 test.assertEqual(2, array.get(1));
@@ -297,7 +297,7 @@ public class ArrayTests
                             {
                                 test.assertEqual(
                                     new boolean[] { false, true, false },
-                                    Array.toBooleanArray(Array.fromValues(false, true, false).iterate()));
+                                    Array.toBooleanArray(Array.fromValues(new Boolean[] { false, true, false }).iterate()));
                             }
                         });
 
@@ -349,7 +349,7 @@ public class ArrayTests
                             @Override
                             public void run(Test test)
                             {
-                                test.assertEqual(new byte[] { 0, 1, 2 }, Array.toByteArray(Array.fromValues((byte)0, (byte)1, (byte)2).iterate()));
+                                test.assertEqual(new byte[] { 0, 1, 2 }, Array.toByteArray(Array.fromValues(new Byte[] { 0, 1, 2 }).iterate()));
                             }
                         });
 
@@ -401,7 +401,7 @@ public class ArrayTests
                             @Override
                             public void run(Test test)
                             {
-                                test.assertEqual(new int[] { 0, 1, 2 }, Array.toIntArray(Array.fromValues(0, 1, 2).iterate()));
+                                test.assertEqual(new int[] { 0, 1, 2 }, Array.toIntArray(Array.fromValues(new Integer[] { 0, 1, 2 }).iterate()));
                             }
                         });
 
@@ -453,7 +453,7 @@ public class ArrayTests
                             @Override
                             public void run(Test test)
                             {
-                                test.assertEqual(new String[] { "0", "1", "2" }, Array.toStringArray(Array.fromValues("0", "1", "2").iterate()));
+                                test.assertEqual(new String[] { "0", "1", "2" }, Array.toStringArray(Array.fromValues(new String[] { "0", "1", "2" }).iterate()));
                             }
                         });
 

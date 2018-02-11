@@ -134,7 +134,7 @@ public class CurrentThreadAsyncRunner implements AsyncRunner
      * @param action The action to run immediately with the created and registered
      *               CurrentThreadAsyncRunner.
      */
-    public static void withRegistered(final Function0 synchronizationFunction, Action1<CurrentThreadAsyncRunner> action)
+    public static void withRegistered(final Function0<Synchronization> synchronizationFunction, Action1<CurrentThreadAsyncRunner> action)
     {
         final CurrentThreadAsyncRunner runner = new CurrentThreadAsyncRunner(synchronizationFunction);
 

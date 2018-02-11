@@ -36,6 +36,7 @@ public class Array<T> extends IndexableBase<T>
      * @param index The index of the element to return.
      * @return The element at the provided index, or null if the provided index is out of bounds.
      */
+    @SuppressWarnings("unchecked")
     public T get(int index)
     {
         return inBounds(index) ? (T)data[index] : null;
@@ -96,7 +97,7 @@ public class Array<T> extends IndexableBase<T>
      * Create an Array from the provided values.
      * @param values The values to initialize the array with.
      */
-    public static <T> Array<T> fromValues(T... values)
+    public static <T> Array<T> fromValues(T[] values)
     {
         final int length = values == null ? 0 : values.length;
         final Array<T> result = new Array<>(length);

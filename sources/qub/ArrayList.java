@@ -11,7 +11,7 @@ public class ArrayList<T> extends JavaList<T>
         super(new java.util.ArrayList<T>());
     }
 
-    public static <T> ArrayList<T> fromValues(T... values)
+    public static <T> ArrayList<T> fromValues(T[] values)
     {
         final ArrayList<T> result = new ArrayList<>();
         result.addAll(values);

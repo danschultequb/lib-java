@@ -28,13 +28,13 @@ public class SingleLinkListTests
                     @Override
                     public void run(Test test)
                     {
-                        final SingleLinkList<Integer> list1 = SingleLinkList.fromValues();
+                        final SingleLinkList<Integer> list1 = SingleLinkList.fromValues(new Integer[0]);
                         test.assertEqual(0, list1.getCount());
 
                         final SingleLinkList<Integer> list2 = SingleLinkList.fromValues((Integer[])null);
                         test.assertEqual(0, list2.getCount());
 
-                        final SingleLinkList<Integer> arrayList3 = SingleLinkList.fromValues(1, 2, 3);
+                        final SingleLinkList<Integer> arrayList3 = SingleLinkList.fromValues(new Integer[] { 1, 2, 3 });
                         test.assertEqual(3, arrayList3.getCount());
                         for (int i = 0; i < 3; ++i)
                         {
@@ -47,7 +47,7 @@ public class SingleLinkListTests
                         final SingleLinkList<Integer> arrayList5 = SingleLinkList.fromValues(new Array<Integer>(0).iterate());
                         test.assertEqual(0, arrayList5.getCount());
 
-                        final SingleLinkList<Integer> arrayList6 = SingleLinkList.fromValues(Array.fromValues(1, 2, 3).iterate());
+                        final SingleLinkList<Integer> arrayList6 = SingleLinkList.fromValues(Array.fromValues(new Integer[] { 1, 2, 3 }).iterate());
                         test.assertEqual(3, arrayList6.getCount());
                         for (int i = 0; i < 3; ++i)
                         {
@@ -60,7 +60,7 @@ public class SingleLinkListTests
                         final SingleLinkList<Integer> arrayList8 = SingleLinkList.fromValues(new Array<Integer>(0));
                         test.assertEqual(0, arrayList8.getCount());
 
-                        final SingleLinkList<Integer> arrayList9 = SingleLinkList.fromValues(Array.fromValues(1, 2, 3));
+                        final SingleLinkList<Integer> arrayList9 = SingleLinkList.fromValues(Array.fromValues(new Integer[] { 1, 2, 3 }));
                         test.assertEqual(3, arrayList9.getCount());
                         for (int i = 0; i < 3; ++i)
                         {

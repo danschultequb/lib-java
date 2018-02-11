@@ -104,10 +104,12 @@ public abstract class IterableBase<T> implements Iterable<T>
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public boolean equals(Object rhs)
     {
         return rhs instanceof Iterable && equals((Iterable<T>)rhs);
     }
+
     @Override
     public boolean equals(Iterable<T> rhs)
     {

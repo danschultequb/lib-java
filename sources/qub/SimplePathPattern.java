@@ -14,7 +14,7 @@ public class SimplePathPattern extends PathPattern
      */
     public boolean isMatch(Iterator<Character> pathCharacters)
     {
-        final List<State> currentStates = ArrayList.fromValues(getStartState());
+        final List<State> currentStates = ArrayList.fromValues(new State[] { getStartState() });
 
         if (pathCharacters != null)
         {

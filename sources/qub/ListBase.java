@@ -3,7 +3,7 @@ package qub;
 public abstract class ListBase<T> extends IndexableBase<T> implements List<T>
 {
     @Override
-    public void addAll(T... values)
+    public void addAll(T[] values)
     {
         if (values != null && values.length > 0)
         {

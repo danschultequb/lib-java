@@ -177,7 +177,7 @@ public class SingleLinkList<T> extends ListBase<T>
         return head == null ? new EmptyIterator<T>() : head.iterate();
     }
 
-    public static <T> SingleLinkList<T> fromValues(T... values)
+    public static <T> SingleLinkList<T> fromValues(T[] values)
     {
         final SingleLinkList<T> result = new SingleLinkList<>();
         result.addAll(values);

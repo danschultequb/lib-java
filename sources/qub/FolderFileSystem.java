@@ -71,7 +71,10 @@ public class FolderFileSystem extends FileSystemBase
     @Override
     public Iterable<Root> getRoots(Action1<String> onError)
     {
-        return Array.fromValues(new Root(this, Path.parse("/")));
+        return Array.fromValues(new Root[]
+        {
+            new Root(this, Path.parse("/"))
+        });
     }
 
     @Override
