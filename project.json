@@ -1,11 +1,8 @@
 {
   "publisher": "qub",
-  "project": "qub",
-  "version": "1.0.0",
-  "type": "library",
+  "project": "qub-java",
+  "version": "0.1.0",
   "java": {
-    "sources": "sources",
-    "tests": "tests",
-    "outputs": "outputs"
+    "jarFileName": "qub.jar"
   }
 }
