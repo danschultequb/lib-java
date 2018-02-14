@@ -23,6 +23,35 @@ public class FileTests
                         test.assertEqual(".csv", fileWithExtension.getFileExtension());
                     }
                 });
+
+                runner.testGroup("getNameWithoutFileExtension()", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        final Action2<String,String> getNameWithoutFileExtensionTest = new Action2<String, String>()
+                        {
+                            @Override
+                            public void run(final String filePath, final String expectedNameWithoutFileExtension)
+                            {
+                                runner.test("with " + runner.escapeAndQuote(filePath), new Action1<Test>()
+                                {
+                                    @Override
+                                    public void run(Test test)
+                                    {
+                                        final FileSystem fileSystem = getFileSystem();
+                                        final File file = fileSystem.getFile(filePath);
+                                        final String nameWithoutFileExtension = file.getNameWithoutFileExtension();
+                                        test.assertEqual(expectedNameWithoutFileExtension, nameWithoutFileExtension);
+                                    }
+                                });
+                            }
+                        };
+
+                        getNameWithoutFileExtensionTest.run("/folder/file", "file");
+                        getNameWithoutFileExtensionTest.run("/dogs.txt", "dogs");
+                    }
+                });
                 
                 runner.test("create()", new Action1<Test>()
                 {

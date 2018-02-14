@@ -22,6 +22,15 @@ public class File extends FileSystemEntry
     }
 
     /**
+     * Get the name of this File without the file extension.
+     * @return The name of this File without the file extension.
+     */
+    public String getNameWithoutFileExtension()
+    {
+        return getPath().withoutFileExtension().getSegments().last();
+    }
+
+    /**
      * Create this File and return whether or not it was created as a result of this function.
      * @return Whether or not this function created the file.
      */

@@ -3,6 +3,5 @@
   "project": "qub-java",
   "version": "0.1.0",
   "java": {
-    "jarFileName": "qub.jar"
   }
 }
