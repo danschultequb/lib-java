@@ -9,6 +9,16 @@ public class Math {
     }
 
     /**
+     * Get the absolute (positive) value of the provided value.
+     * @param value The value to get the absolute (positive) value for.
+     * @return The absolute (positive) value of the provided value.
+     */
+    public static double absoluteValue(double value)
+    {
+        return value < 0 ? -value : value;
+    }
+
+    /**
      * Get the minimum value between the two provided integers.
      * @param lhs The first value.
      * @param rhs The second value.

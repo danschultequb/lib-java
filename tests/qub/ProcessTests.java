@@ -598,6 +598,36 @@ public class ProcessTests
                     }
                 });
 
+                runner.testGroup("getStopwatch()", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with default creator", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Process process = new Process();
+                                final Stopwatch stopwatch = process.getStopwatch();
+                                test.assertNotNull(stopwatch);
+                                test.assertTrue(stopwatch instanceof JavaStopwatch);
+                            }
+                        });
+
+                        runner.test("with null creator", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Process process = new Process();
+                                process.setStopwatchCreator(null);
+                                test.assertNull(process.getStopwatch());
+                            }
+                        });
+                    }
+                });
+
                 runner.testGroup("getProcessBuilder(String)", new Action0()
                 {
                     @Override

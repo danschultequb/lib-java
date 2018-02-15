@@ -125,6 +125,18 @@ public class Test
     }
 
     /**
+     * Assert that the provided values are equal with the provided margin of error. If they are not
+     * equal with the provided margin of error, then a TestAssertionFailure will be thrown.
+     * @param expected The first value to compare.
+     * @param actual The second value to compare.
+     * @param marginOfError The margin of error to allow when comparing the two values.
+     */
+    public void assertEqual(double expected, double actual, double marginOfError)
+    {
+        assertEqual(expected, actual, marginOfError, null);
+    }
+
+    /**
      * Assert that the provided values are equal. If they are not equal, then a TestAssertionFailure
      * will be thrown with the provided message.
      * @param expected The first value to compare.
@@ -135,6 +147,23 @@ public class Test
     public <T> void assertEqual(T expected, T actual, String message)
     {
         if (!Comparer.equal(expected, actual))
+        {
+            throw new TestAssertionFailure(testFullName, getMessageLines(message, expected, actual));
+        }
+    }
+
+    /**
+     * Assert that the provided values are equal with the provided margin of error. If they are not
+     * equal with the provided margin of error, then a TestAssertionFailure will be thrown with the
+     * provided message.
+     * @param expected The first value to compare.
+     * @param actual The second value to compare.
+     * @param marginOfError The margin of error to allow when comparing the two values.
+     * @param message The message to show if the values are not equal
+     */
+    public void assertEqual(double expected, double actual, double marginOfError, String message)
+    {
+        if (!Comparer.equal(expected, actual, marginOfError))
         {
             throw new TestAssertionFailure(testFullName, getMessageLines(message, expected, actual));
         }

@@ -72,6 +72,18 @@ public final class Comparer
     }
 
     /**
+     * Compare the two values to see if they're equals.
+     * @param arg1 The first argument.
+     * @param arg2 The second argument.
+     * @param marginOfError The margin of error to allow when comparing the two values.
+     * @return Whether or not the two values are equals.
+     */
+    public static boolean equal(double arg1, double arg2, double marginOfError)
+    {
+        return Math.absoluteValue(arg1 - arg2) <= marginOfError;
+    }
+
+    /**
      * Compare the contents of the two arrays to see if they're equal.
      * @param arg1 The first array.
      * @param arg2 The second array.

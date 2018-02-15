@@ -25,6 +25,7 @@ public class Process
     private final Value<String> currentFolderPathString;
     private final Value<Map<String,String>> environmentVariables;
     private final Value<Synchronization> synchronization;
+    private final Value<Function0<Stopwatch>> stopwatchCreator;
 
     private final AsyncRunner mainRunner;
     private final AsyncRunner parallelRunner;
@@ -57,6 +58,7 @@ public class Process
         currentFolderPathString = new Value<>();
         environmentVariables = new Value<>();
         synchronization = new Value<>();
+        stopwatchCreator = new Value<>();
 
         final Function0<Synchronization> synchronizationFunction = new Function0<Synchronization>()
         {
@@ -424,6 +426,27 @@ public class Process
             synchronization.set(new Synchronization());
         }
         return synchronization.get();
+    }
+
+    public void setStopwatchCreator(Function0<Stopwatch> stopwatchCreator)
+    {
+        this.stopwatchCreator.set(stopwatchCreator);
+    }
+
+    public Stopwatch getStopwatch()
+    {
+        if (!stopwatchCreator.hasValue())
+        {
+            stopwatchCreator.set(new Function0<Stopwatch>()
+            {
+                @Override
+                public Stopwatch run()
+                {
+                    return new JavaStopwatch();
+                }
+            });
+        }
+        return stopwatchCreator.get() == null ? null : stopwatchCreator.get().run();
     }
 
     /**
