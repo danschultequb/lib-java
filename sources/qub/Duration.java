@@ -400,4 +400,67 @@ public class Duration
         }
         return result;
     }
+
+    public Duration toNanoseconds()
+    {
+        return convertTo(DurationUnits.Nanoseconds);
+    }
+
+    public Duration toMicroseconds()
+    {
+        return convertTo(DurationUnits.Microseconds);
+    }
+
+    public Duration toMilliseconds()
+    {
+        return convertTo(DurationUnits.Milliseconds);
+    }
+
+    public Duration toSeconds()
+    {
+        return convertTo(DurationUnits.Seconds);
+    }
+
+    public Duration toMinutes()
+    {
+        return convertTo(DurationUnits.Minutes);
+    }
+
+    public Duration toHours()
+    {
+        return convertTo(DurationUnits.Hours);
+    }
+
+    public Duration toDays()
+    {
+        return convertTo(DurationUnits.Days);
+    }
+
+    public Duration toWeeks()
+    {
+        return convertTo(DurationUnits.Weeks);
+    }
+
+    @Override
+    public String toString()
+    {
+        return value + " " + units;
+    }
+
+    @Override
+    public boolean equals(Object value)
+    {
+        return value instanceof Duration && equals((Duration)value);
+    }
+
+    public boolean equals(Duration rhs)
+    {
+        boolean result = false;
+        if (rhs != null)
+        {
+            final Duration convertedRhs = rhs.convertTo(units);
+            result = value == convertedRhs.value;
+        }
+        return result;
+    }
 }

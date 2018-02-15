@@ -238,9 +238,9 @@ public class ConsoleTestRunner extends Console implements TestRunner
             decreaseIndent();
         }
 
-        writeLine("Tests Run:    " + testRunner.getFinishedTestCount());
-        writeLine("Tests Passed: " + testRunner.getPassedTestCount());
-        writeLine("Tests Failed: " + testRunner.getFailedTestCount());
+        writeLine("Tests Run:      " + testRunner.getFinishedTestCount());
+        writeLine("Tests Passed:   " + testRunner.getPassedTestCount());
+        writeLine("Tests Failed:   " + testRunner.getFailedTestCount());
     }
 
     public static void main(String[] args)
@@ -248,6 +248,9 @@ public class ConsoleTestRunner extends Console implements TestRunner
         final ConsoleTestRunner console = new ConsoleTestRunner(args);
         final CommandLine commandLine = console.getCommandLine();
         final boolean debug = commandLine.get("debug") != null;
+
+        final Stopwatch stopwatch = console.getStopwatch();
+        stopwatch.start();
 
         for (final CommandLineArgument argument : commandLine.getArguments())
         {
@@ -317,5 +320,8 @@ public class ConsoleTestRunner extends Console implements TestRunner
 
         console.writeLine();
         console.writeSummary();
+
+        final Duration totalTestsDuration = stopwatch.stop();
+        console.writeLine("Tests Duration: " + totalTestsDuration.toSeconds());
     }
 }

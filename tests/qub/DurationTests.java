@@ -228,6 +228,16 @@ public class DurationTests
                         convertToWithValueTest.run(Double.MAX_VALUE, DurationUnits.Nanoseconds, DurationUnits.Weeks, 2.972376215050125E293);
                     }
                 });
+
+                runner.test("toString()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        test.assertEqual("1.0 Nanoseconds", Duration.nanoseconds(1).toString());
+                        test.assertEqual("30.0 Days", Duration.days(30).toString());
+                    }
+                });
             }
         });
     }
