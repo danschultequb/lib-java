@@ -1,5 +1,7 @@
 package qub;
 
+import java.text.DecimalFormat;
+
 /**
  * A period of time.
  */
@@ -522,6 +524,11 @@ public class Duration
     public String toString()
     {
         return value + " " + units;
+    }
+
+    public String toString(String format)
+    {
+        return new DecimalFormat(format).format(value) + " " + units;
     }
 
     @Override

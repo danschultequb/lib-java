@@ -614,6 +614,18 @@ public class DurationTests
                     }
                 });
 
+                runner.test("toString(String)", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        test.assertEqual("123.5 Microseconds", Duration.microseconds(123.456).toString("#.#"));
+                        test.assertEqual("123 Microseconds", Duration.microseconds(123.456).toString("#"));
+                        test.assertEqual("123.46 Microseconds", Duration.microseconds(123.456).toString("#0.0#"));
+                        test.assertEqual("123.0 Microseconds", Duration.microseconds(123).toString("#0.0#"));
+                    }
+                });
+
                 runner.test("equals()", new Action1<Test>()
                 {
                     @Override

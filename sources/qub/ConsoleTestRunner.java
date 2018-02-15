@@ -2,6 +2,7 @@ package qub;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.text.DecimalFormat;
 
 /**
  * A Console object that is used for running unit tests for other applications.
@@ -322,6 +323,6 @@ public class ConsoleTestRunner extends Console implements TestRunner
         console.writeSummary();
 
         final Duration totalTestsDuration = stopwatch.stop();
-        console.writeLine("Tests Duration: " + totalTestsDuration.toSeconds());
+        console.writeLine("Tests Duration: " + totalTestsDuration.toSeconds().toString("#.0"));
     }
 }
