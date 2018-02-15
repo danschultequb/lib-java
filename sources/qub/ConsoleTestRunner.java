@@ -323,6 +323,6 @@ public class ConsoleTestRunner extends Console implements TestRunner
         console.writeSummary();
 
         final Duration totalTestsDuration = stopwatch.stop();
-        console.writeLine("Tests Duration: " + totalTestsDuration.toSeconds().toString("#.0"));
+        console.writeLine("Tests Duration: " + totalTestsDuration.toSeconds().toString("0.0"));
     }
 }
