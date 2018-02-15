@@ -286,9 +286,241 @@ public class DurationTests
                             @Override
                             public void run(Test test)
                             {
-                                test.assertEqual(Duration.seconds(0.5), Duration.milliseconds(100).times(5));
+                                test.assertEqual(Duration.seconds(-0.5), Duration.milliseconds(100).times(-5));
                             }
                         });
+
+                        runner.test("by zero", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                test.assertEqual(Duration.seconds(0), Duration.microseconds(1).times(0));
+                            }
+                        });
+
+                        runner.test("by one", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                test.assertEqual(Duration.minutes(2), Duration.minutes(2).times(1));
+                            }
+                        });
+
+                        runner.test("by positive value", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                test.assertEqual(Duration.hours(10), Duration.hours(1).times(10));
+                            }
+                        });
+                    }
+                });
+
+                runner.testGroup("dividedBy(double)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("by zero", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                try
+                                {
+                                    Duration.nanoseconds(50).dividedBy(0);
+                                    test.fail("Expected ArithmeticException");
+                                }
+                                catch (ArithmeticException e)
+                                {
+                                    test.assertEqual("/ by zero", e.getMessage());
+                                }
+                            }
+                        });
+
+                        final Action3<Duration,Double,Duration> dividedByTest = new Action3<Duration, Double, Duration>()
+                        {
+                            @Override
+                            public void run(final Duration dividend, final Double divisor, final Duration expectedQuotient)
+                            {
+                                runner.test(dividend + " divided by " + divisor, new Action1<Test>()
+                                {
+                                    @Override
+                                    public void run(Test test)
+                                    {
+                                        test.assertEqual(expectedQuotient, dividend.dividedBy(divisor));
+                                    }
+                                });
+                            }
+                        };
+
+                        dividedByTest.run(Duration.nanoseconds(20), -5.0, Duration.nanoseconds(-4));
+                        dividedByTest.run(Duration.days(5), 1.0, Duration.days(5));
+                        dividedByTest.run(Duration.weeks(100), 10.0, Duration.weeks(10));
+                    }
+                });
+
+                runner.testGroup("dividedBy(Duration)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                try
+                                {
+                                    Duration.seconds(10).dividedBy(null);
+                                    test.fail("Expected NullPointerException");
+                                }
+                                catch (NullPointerException ignored)
+                                {
+                                }
+                            }
+                        });
+
+                        runner.test("with zero", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                try
+                                {
+                                    Duration.seconds(10).dividedBy(0);
+                                    test.fail("Expected ArithmeticException");
+                                }
+                                catch (ArithmeticException e)
+                                {
+                                    test.assertEqual("/ by zero", e.getMessage());
+                                }
+                            }
+                        });
+
+                        final Action3<Duration,Duration,Double> dividedByTest = new Action3<Duration, Duration, Double>()
+                        {
+                            @Override
+                            public void run(final Duration dividend, final Duration divisor, final Double expectedQuotient)
+                            {
+                                runner.test("with " + dividend + " divided by " + divisor, new Action1<Test>()
+                                {
+                                    @Override
+                                    public void run(Test test)
+                                    {
+                                        test.assertEqual(expectedQuotient, dividend.dividedBy(divisor));
+                                    }
+                                });
+                            }
+                        };
+
+                        dividedByTest.run(Duration.seconds(10), Duration.seconds(-2), -5.0);
+                        dividedByTest.run(Duration.seconds(10), Duration.seconds(1), 10.0);
+                        dividedByTest.run(Duration.seconds(100), Duration.seconds(50), 2.0);
+                    }
+                });
+
+                runner.testGroup("round()", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        final Action2<Duration,Duration> roundTest = new Action2<Duration, Duration>()
+                        {
+                            @Override
+                            public void run(final Duration value, final Duration expectedRoundedValue)
+                            {
+                                runner.test("with " + value, new Action1<Test>()
+                                {
+                                    @Override
+                                    public void run(Test test)
+                                    {
+                                        test.assertEqual(expectedRoundedValue, value.round());
+                                    }
+                                });
+                            }
+                        };
+
+                        roundTest.run(Duration.nanoseconds(20), Duration.nanoseconds(20));
+                        roundTest.run(Duration.seconds(10.1), Duration.seconds(10));
+                        roundTest.run(Duration.days(0.9), Duration.days(1));
+                    }
+                });
+
+                runner.testGroup("round(Duration)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null scale", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                try
+                                {
+                                    Duration.seconds(10).round(null);
+                                    test.fail("Expected NullPointerException");
+                                }
+                                catch (NullPointerException ignored)
+                                {
+                                }
+                            }
+                        });
+
+                        final Action3<Duration,Duration,Duration> roundTest = new Action3<Duration, Duration, Duration>()
+                        {
+                            @Override
+                            public void run(final Duration value, final Duration scale, final Duration expectedRoundedValue)
+                            {
+                                runner.test("with " + value + " rounded to nearest " + scale, new Action1<Test>()
+                                {
+                                    @Override
+                                    public void run(Test test)
+                                    {
+                                        test.assertEqual(expectedRoundedValue, value.round(scale));
+                                    }
+                                });
+                            }
+                        };
+
+                        roundTest.run(Duration.seconds(0), Duration.minutes(0), Duration.minutes(0));
+                        roundTest.run(Duration.minutes(1.5), Duration.hours(0), Duration.hours(0));
+                        roundTest.run(Duration.seconds(1), Duration.seconds(1), Duration.seconds(1));
+                        roundTest.run(Duration.seconds(9), Duration.seconds(5), Duration.seconds(10));
+                        roundTest.run(Duration.seconds(1.555), Duration.milliseconds(100), Duration.seconds(1.6));
+                    }
+                });
+
+                runner.testGroup("round(double)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        final Action3<Duration,Double,Duration> roundTest = new Action3<Duration, Double, Duration>()
+                        {
+                            @Override
+                            public void run(final Duration value, final Double scale, final Duration expectedRoundedValue)
+                            {
+                                runner.test("with " + value + " rounded to nearest " + scale, new Action1<Test>()
+                                {
+                                    @Override
+                                    public void run(Test test)
+                                    {
+                                        test.assertEqual(expectedRoundedValue, value.round(scale));
+                                    }
+                                });
+                            }
+                        };
+
+                        roundTest.run(Duration.seconds(0), 0.0, Duration.seconds(0));
+                        roundTest.run(Duration.seconds(1), 0.0, Duration.seconds(0));
+                        roundTest.run(Duration.seconds(1), 1.0, Duration.seconds(1));
+                        roundTest.run(Duration.seconds(9), 5.0, Duration.seconds(10));
+                        roundTest.run(Duration.seconds(1.555), 0.1, Duration.seconds(1.6));
                     }
                 });
 

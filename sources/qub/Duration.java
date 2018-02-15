@@ -459,7 +459,20 @@ public class Duration
 
     public Duration dividedBy(double rhs)
     {
-        return rhs == 1 ? this : new Duration(value / rhs, units);
+        Duration result;
+        if (rhs == 0)
+        {
+            throw new ArithmeticException("/ by zero");
+        }
+        else if (rhs == 1)
+        {
+            result = this;
+        }
+        else
+        {
+            result = new Duration(value / rhs, units);
+        }
+        return result;
     }
 
     public double dividedBy(Duration rhs)
@@ -474,11 +487,35 @@ public class Duration
         return roundedValue == value ? this : new Duration(roundedValue, units);
     }
 
-    public Duration roundToNearest(Duration scale)
+    public Duration round(Duration scale)
     {
-        final Duration convertedLhs = this.convertTo(scale.units);
-        final double roundedValue = Math.round(convertedLhs.value, scale.value);
-        return convertedLhs.value == roundedValue ? this : new Duration(roundedValue, scale.units);
+        Duration result;
+        if (scale.value == 0)
+        {
+            result = (value == 0 ? this : new Duration(0, units));
+        }
+        else
+        {
+            final Duration convertedLhs = this.convertTo(scale.units);
+            final double roundedValue = Math.round(convertedLhs.value, scale.value);
+            result = convertedLhs.value == roundedValue ? this : new Duration(roundedValue, scale.units);
+        }
+        return result;
+    }
+
+    public Duration round(double scale)
+    {
+        Duration result;
+        if (scale == 0)
+        {
+            result = (value == 0 ? this : new Duration(0, units));
+        }
+        else
+        {
+            final double roundedValue = Math.round(value, scale);
+            result = value == roundedValue ? this : new Duration(roundedValue, units);
+        }
+        return result;
     }
 
     @Override

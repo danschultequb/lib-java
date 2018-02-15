@@ -184,7 +184,7 @@ public class MathTests
                                     @Override
                                     public void run(Test test)
                                     {
-                                        test.assertEqual(expected, Math.round(value, scale), 0.0000000001);
+                                        test.assertEqual(expected, Math.round(value, scale), 0.000000000001);
                                     }
                                 });
                             }
