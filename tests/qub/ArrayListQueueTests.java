@@ -4,20 +4,9 @@ public class ArrayListQueueTests
 {
     public static void test(final TestRunner runner)
     {
-        runner.testGroup("ArrayListQueue<T>", new Action0()
+        runner.testGroup("ArrayListQueue<T>", () ->
         {
-            @Override
-            public void run()
-            {
-                QueueTests.test(runner, new Function0<Queue<Integer>>()
-                {
-                    @Override
-                    public Queue<Integer> run()
-                    {
-                        return new ArrayListQueue<>();
-                    }
-                });
-            }
+            QueueTests.test(runner, ArrayListQueue::new);
         });
     }
 }

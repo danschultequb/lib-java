@@ -2,6 +2,5 @@
   "publisher": "qub",
   "project": "qub-java",
   "version": "0.1.0",
-  "java": {
-  }
+  "java": {}
 }

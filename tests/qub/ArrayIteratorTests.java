@@ -4,20 +4,9 @@ public class ArrayIteratorTests
 {
     public static void test(final TestRunner runner)
     {
-        runner.testGroup("ArrayIterator<T>", new Action0()
+        runner.testGroup("ArrayIterator<T>", () ->
         {
-            @Override
-            public void run()
-            {
-                IteratorTests.test(runner, new Function2<Integer, Boolean, Iterator<Integer>>()
-                {
-                    @Override
-                    public Iterator<Integer> run(Integer count, Boolean started)
-                    {
-                        return createIterator(count, started);
-                    }
-                });
-            }
+            IteratorTests.test(runner, ArrayIteratorTests::createIterator);
         });
     }
 
