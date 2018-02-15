@@ -1,5 +1,7 @@
 package qub;
 
+import java.math.RoundingMode;
+
 /**
  * A collection of math related functions and function objects.
  */
@@ -98,5 +100,32 @@ public class Math {
     public static double floor(double value)
     {
         return java.lang.Math.floor(value);
+    }
+
+    /**
+     * Round the provided value to the nearest whole number.
+     * @param value The value to round.
+     * @return The rounded value.
+     */
+    public static double round(double value)
+    {
+        return java.lang.Math.round(value);
+    }
+
+    /**
+     * Round the provided value to the nearest multiple of the provided scale value.
+     * @param value The value to round.
+     * @param scale The scale value to round the value to.
+     * @return The rounded value.
+     */
+    public static double round(double value, double scale)
+    {
+//        final java.math.BigDecimal valueDecimal = new java.math.BigDecimal(value);
+//        final java.math.BigDecimal scaleDecimal = new java.math.BigDecimal(scale);
+//        final java.math.BigDecimal scaledValue = valueDecimal.divide(scaleDecimal);
+//        final java.math.BigDecimal roundedScaledValue = scaledValue.setScale(0, RoundingMode.HALF_UP);
+//        final java.math.BigDecimal resultDecimal = roundedScaledValue.multiply(scaleDecimal);
+//        return resultDecimal.doubleValue();
+        return round(value / scale) * scale;
     }
 }

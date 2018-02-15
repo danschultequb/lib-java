@@ -129,6 +129,101 @@ public class MathTests
                         test.assertEqual(-10.0, Math.floor(-9.9));
                     }
                 });
+
+                runner.testGroup("round(double)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        final Action2<Double,Double> roundTest = new Action2<Double, Double>()
+                        {
+                            @Override
+                            public void run(final Double value, final Double expectedRoundedValue)
+                            {
+                                runner.test("with " + value, new Action1<Test>()
+                                {
+                                    @Override
+                                    public void run(Test test)
+                                    {
+                                        test.assertEqual(expectedRoundedValue, Math.round(value));
+                                    }
+                                });
+                            }
+                        };
+
+                        roundTest.run(1.0, 1.0);
+                        roundTest.run(1.1, 1.0);
+                        roundTest.run(1.49, 1.0);
+                        roundTest.run(1.5, 2.0);
+                        roundTest.run(1.51, 2.0);
+                        roundTest.run(1.99, 2.0);
+                        roundTest.run(2.0, 2.0);
+
+                        roundTest.run(-1.0, -1.0);
+                        roundTest.run(-1.1, -1.0);
+                        roundTest.run(-1.49, -1.0);
+                        roundTest.run(-1.5, -1.0);
+                        roundTest.run(-1.51, -2.0);
+                        roundTest.run(-1.99, -2.0);
+                        roundTest.run(-2.0, -2.0);
+                    }
+                });
+
+                runner.testGroup("round(double,double)", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        final Action3<Double,Double,Double> roundTest = new Action3<Double, Double, Double>()
+                        {
+                            @Override
+                            public void run(final Double value, final Double scale, final Double expected)
+                            {
+                                runner.test("with " + value + " to nearest " + scale, new Action1<Test>()
+                                {
+                                    @Override
+                                    public void run(Test test)
+                                    {
+                                        test.assertEqual(expected, Math.round(value, scale), 0.0000000001);
+                                    }
+                                });
+                            }
+                        };
+
+                        roundTest.run(1.0, 1.0, 1.0);
+                        roundTest.run(1.1, 1.0, 1.0);
+                        roundTest.run(1.49, 1.0, 1.0);
+                        roundTest.run(1.5, 1.0, 2.0);
+                        roundTest.run(1.51, 1.0, 2.0);
+                        roundTest.run(1.99, 1.0, 2.0);
+                        roundTest.run(2.0, 1.0, 2.0);
+
+                        roundTest.run(-1.0, 1.0, -1.0);
+                        roundTest.run(-1.1, 1.0, -1.0);
+                        roundTest.run(-1.49, 1.0, -1.0);
+                        roundTest.run(-1.5, 1.0, -1.0);
+                        roundTest.run(-1.51, 1.0, -2.0);
+                        roundTest.run(-1.99, 1.0, -2.0);
+                        roundTest.run(-2.0, 1.0, -2.0);
+
+                        roundTest.run(10.0, 10.0, 10.0);
+                        roundTest.run(11.0, 10.0, 10.0);
+                        roundTest.run(14.0, 10.0, 10.0);
+                        roundTest.run(15.0, 10.0, 20.0);
+                        roundTest.run(16.0, 10.0, 20.0);
+                        roundTest.run(19.0, 10.0, 20.0);
+                        roundTest.run(20.0, 10.0, 20.0);
+
+                        roundTest.run(0.0, 7.0, 0.0);
+                        roundTest.run(1.0, 7.0, 0.0);
+                        roundTest.run(3.0, 7.0, 0.0);
+                        roundTest.run(4.0, 7.0, 7.0);
+                        roundTest.run(6.0, 7.0, 7.0);
+                        roundTest.run(7.0, 7.0, 7.0);
+
+                        roundTest.run(123.456, 0.01, 123.46);
+                    }
+                });
             }
         });
     }

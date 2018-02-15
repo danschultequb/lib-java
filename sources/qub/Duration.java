@@ -441,6 +441,46 @@ public class Duration
         return convertTo(DurationUnits.Weeks);
     }
 
+    public Duration plus(Duration rhs)
+    {
+        Duration result = this;
+        if (rhs != null && rhs.getValue() != 0)
+        {
+            final Duration convertedRhs = rhs.convertTo(units);
+            result = new Duration(value + convertedRhs.value, units);
+        }
+        return result;
+    }
+
+    public Duration times(double rhs)
+    {
+        return rhs == 1 ? this : new Duration(value * rhs, units);
+    }
+
+    public Duration dividedBy(double rhs)
+    {
+        return rhs == 1 ? this : new Duration(value / rhs, units);
+    }
+
+    public double dividedBy(Duration rhs)
+    {
+        final Duration convertedRhs = rhs.convertTo(units);
+        return value / convertedRhs.value;
+    }
+
+    public Duration round()
+    {
+        final double roundedValue = Math.round(value);
+        return roundedValue == value ? this : new Duration(roundedValue, units);
+    }
+
+    public Duration roundToNearest(Duration scale)
+    {
+        final Duration convertedLhs = this.convertTo(scale.units);
+        final double roundedValue = Math.round(convertedLhs.value, scale.value);
+        return convertedLhs.value == roundedValue ? this : new Duration(roundedValue, scale.units);
+    }
+
     @Override
     public String toString()
     {

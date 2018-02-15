@@ -229,6 +229,149 @@ public class DurationTests
                     }
                 });
 
+                runner.testGroup("plus()", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("with null", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Duration duration = Duration.seconds(1);
+                                test.assertEqual(duration, duration.plus(null));
+                            }
+                        });
+
+                        runner.test("with negative duration", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Duration duration = Duration.seconds(1);
+                                test.assertEqual(Duration.seconds(0.5), duration.plus(Duration.seconds(-0.5)));
+                            }
+                        });
+
+                        runner.test("with zero duration", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Duration duration = Duration.seconds(1);
+                                test.assertEqual(duration, duration.plus(Duration.seconds(0)));
+                            }
+                        });
+
+                        runner.test("with positive duration", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                final Duration duration = Duration.seconds(1);
+                                test.assertEqual(Duration.seconds(1.6), duration.plus(Duration.milliseconds(600)));
+                            }
+                        });
+                    }
+                });
+
+                runner.testGroup("times()", new Action0()
+                {
+                    @Override
+                    public void run()
+                    {
+                        runner.test("by negative value", new Action1<Test>()
+                        {
+                            @Override
+                            public void run(Test test)
+                            {
+                                test.assertEqual(Duration.seconds(0.5), Duration.milliseconds(100).times(5));
+                            }
+                        });
+                    }
+                });
+
+                runner.test("toNanoseconds()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final Duration duration = Duration.seconds(1);
+                        test.assertEqual(Duration.nanoseconds(1000000000), duration.toNanoseconds());
+                    }
+                });
+
+                runner.test("toMicroseconds()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final Duration duration = Duration.seconds(1);
+                        test.assertEqual(Duration.microseconds(1000000), duration.toMicroseconds());
+                    }
+                });
+
+                runner.test("toMilliseconds()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final Duration duration = Duration.seconds(1);
+                        test.assertEqual(Duration.milliseconds(1000), duration.toMilliseconds());
+                    }
+                });
+
+                runner.test("toSeconds()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final Duration duration = Duration.minutes(1);
+                        test.assertEqual(Duration.seconds(60), duration.toSeconds());
+                    }
+                });
+
+                runner.test("toMinutes()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final Duration duration = Duration.hours(2);
+                        test.assertEqual(Duration.minutes(120), duration.toMinutes());
+                    }
+                });
+
+                runner.test("toHours()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final Duration duration = Duration.minutes(150);
+                        test.assertEqual(Duration.hours(2.5), duration.toHours());
+                    }
+                });
+
+                runner.test("toDays()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final Duration duration = Duration.weeks(1);
+                        test.assertEqual(Duration.days(7), duration.toDays());
+                    }
+                });
+
+                runner.test("toWeeks()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final Duration duration = Duration.days(21);
+                        test.assertEqual(Duration.weeks(3), duration.toWeeks());
+                    }
+                });
+
                 runner.test("toString()", new Action1<Test>()
                 {
                     @Override
@@ -236,6 +379,27 @@ public class DurationTests
                     {
                         test.assertEqual("1.0 Nanoseconds", Duration.nanoseconds(1).toString());
                         test.assertEqual("30.0 Days", Duration.days(30).toString());
+                    }
+                });
+
+                runner.test("equals()", new Action1<Test>()
+                {
+                    @Override
+                    public void run(Test test)
+                    {
+                        final Duration duration = Duration.milliseconds(123);
+
+                        test.assertFalse(duration.equals((Object)null));
+                        test.assertFalse(duration.equals((Duration)null));
+
+                        test.assertFalse(duration.equals((Object)"123"));
+
+                        test.assertTrue(duration.equals((Object)duration));
+                        test.assertTrue(duration.equals(duration));
+
+                        test.assertFalse(duration.equals(Duration.milliseconds(122)));
+
+                        test.assertFalse(duration.equals(Duration.microseconds(123)));
                     }
                 });
             }
