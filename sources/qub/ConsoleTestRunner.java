@@ -32,68 +32,44 @@ public class ConsoleTestRunner extends Console implements TestRunner
         super(commandLineArgumentStrings);
 
         testRunner = new TestRunnerBase();
-        testRunner.setOnTestGroupStarted(new Action1<String>()
+        testRunner.setOnTestGroupStarted((String testGroupName) ->
         {
-            @Override
-            public void run(String testGroupName)
-            {
-                writeLine(testGroupName);
-                increaseIndent();
-            }
+            writeLine(testGroupName);
+            increaseIndent();
         });
-        testRunner.setOnTestGroupFinished(new Action1<String>()
+        testRunner.setOnTestGroupFinished((String testGroupName) ->
         {
-            @Override
-            public void run(String testGroupName)
-            {
-                decreaseIndent();
-            }
+            decreaseIndent();
         });
-        testRunner.setOnTestStarted(new Action1<String>()
+        testRunner.setOnTestStarted((String testName) ->
         {
-            @Override
-            public void run(String testName)
-            {
-                write(testName);
-                increaseIndent();
-            }
+            write(testName);
+            increaseIndent();
         });
-        testRunner.setOnTestPassed(new Action1<String>()
+        testRunner.setOnTestPassed((String testName) ->
         {
-            @Override
-            public void run(String testName)
-            {
-                writeLine(" - Passed");
-            }
+            writeLine(" - Passed");
         });
-        testRunner.setOnTestFailed(new Action2<String, TestAssertionFailure>()
+        testRunner.setOnTestFailed((String testName, TestAssertionFailure failure) ->
         {
-            @Override
-            public void run(String testName, TestAssertionFailure failure)
-            {
-                writeLine(" - Failed");
-                increaseIndent();
+            writeLine(" - Failed");
+            increaseIndent();
 
-                for (final String messageLine : failure.getMessageLines())
+            for (final String messageLine : failure.getMessageLines())
+            {
+                if (messageLine != null)
                 {
-                    if (messageLine != null)
-                    {
-                        writeLine(messageLine);
-                    }
+                    writeLine(messageLine);
                 }
-
-                decreaseIndent();
-
-                writeStackTrace(failure);
             }
+
+            decreaseIndent();
+
+            writeStackTrace(failure);
         });
-        testRunner.setOnTestFinished(new Action1<String>()
+        testRunner.setOnTestFinished(testName ->
         {
-            @Override
-            public void run(String testName)
-            {
-                decreaseIndent();
-            }
+            decreaseIndent();
         });
 
         singleIndent = "  ";
@@ -159,6 +135,12 @@ public class ConsoleTestRunner extends Console implements TestRunner
     public void testGroup(String testGroupName, Action0 testGroupAction)
     {
         testRunner.testGroup(testGroupName, testGroupAction);
+    }
+
+    @Override
+    public void testGroup(Class<?> testClass, Action0 testGroupAction)
+    {
+        testRunner.testGroup(testClass, testGroupAction);
     }
 
     @Override

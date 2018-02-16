@@ -276,7 +276,13 @@ public class Test
      */
     public void fail(Exception e)
     {
-        fail(e.getMessage());
+        String failMessage = e.getClass().getSimpleName();
+        final String eMessage = e.getMessage();
+        if (eMessage != null && !eMessage.isEmpty())
+        {
+            failMessage += ": " + eMessage;
+        }
+        fail(failMessage);
     }
 
     private static String[] getMessageLines(String message, Object expected, Object actual)

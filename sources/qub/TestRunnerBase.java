@@ -53,6 +53,12 @@ public class TestRunnerBase implements TestRunner
     }
 
     @Override
+    public void testGroup(Class<?> testClass, Action0 testGroupAction)
+    {
+        testGroup(testClass.getSimpleName(), testGroupAction);
+    }
+
+    @Override
     public void test(String testName, Action1<Test> testAction)
     {
         if (testAction != null)
@@ -135,17 +141,13 @@ public class TestRunnerBase implements TestRunner
         {
             final Action0 previousBeforeTestAction = this.beforeTestAction;
             final Action0 newBeforeTestAction = beforeTestAction;
-            this.beforeTestAction = new Action0()
+            this.beforeTestAction = () ->
             {
-                @Override
-                public void run()
+                if (previousBeforeTestAction != null)
                 {
-                    if (previousBeforeTestAction != null)
-                    {
-                        previousBeforeTestAction.run();
-                    }
-                    newBeforeTestAction.run();
+                    previousBeforeTestAction.run();
                 }
+                newBeforeTestAction.run();
             };
         }
     }
@@ -157,16 +159,12 @@ public class TestRunnerBase implements TestRunner
         {
             final Action0 previousAfterTestAction = this.afterTestAction;
             final Action0 newAfterTestAction = afterTestAction;
-            this.afterTestAction = new Action0()
+            this.afterTestAction = () ->
             {
-                @Override
-                public void run()
+                newAfterTestAction.run();
+                if (previousAfterTestAction != null)
                 {
-                    newAfterTestAction.run();
-                    if (previousAfterTestAction != null)
-                    {
-                        previousAfterTestAction.run();
-                    }
+                    previousAfterTestAction.run();
                 }
             };
         }

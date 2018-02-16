@@ -13,6 +13,13 @@ public interface TestRunner
     void testGroup(String testGroupName, Action0 testGroupAction);
 
     /**
+     * Create a new test group with the name of the provided class and the provided action.
+     * @param testClass The class that this test group will be testing.
+     * @param testGroupAction The action that should be run to run the tests of the test group.
+     */
+    void testGroup(Class<?> testClass, Action0 testGroupAction);
+
+    /**
      * Run the test with the provided name and action.
      * @param testName The name of the test.
      * @param testAction The action for the test.
