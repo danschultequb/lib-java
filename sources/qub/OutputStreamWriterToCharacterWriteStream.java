@@ -4,29 +4,33 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 
-public class OutputStreamWriterToCharacterWriteStream extends CharacterWriteStreamBase
+public class OutputStreamWriterToCharacterWriteStream implements CharacterWriteStream
 {
+    private final ByteWriteStream byteWriteStream;
     private final OutputStreamWriter writer;
+    private final CharacterEncoding characterEncoding;
 
-    OutputStreamWriterToCharacterWriteStream(ByteWriteStream byteWriteStream, CharacterEncoding encoding)
+    OutputStreamWriterToCharacterWriteStream(ByteWriteStream byteWriteStream, CharacterEncoding characterEncoding)
     {
-        super(byteWriteStream, encoding);
-
-        byteWriteStream.setExceptionHandler(new Action1<IOException>()
+        byteWriteStream.setExceptionHandler((Exception e) ->
         {
-            @Override
-            public void run(IOException e)
-            {
-                throw new RuntimeException(e);
-            }
+            throw new RuntimeException(e);
         });
 
+        this.byteWriteStream = byteWriteStream;
         final OutputStream outputStream = new ByteWriteStreamToOutputStream(byteWriteStream);
-        this.writer = new OutputStreamWriter(outputStream, encoding.getCharset());
+        this.writer = new OutputStreamWriter(outputStream, characterEncoding.getCharset());
+        this.characterEncoding = characterEncoding;
     }
 
     @Override
-    public boolean write(char toWrite)
+    public final CharacterEncoding getCharacterEncoding()
+    {
+        return characterEncoding;
+    }
+
+    @Override
+    public final boolean write(char toWrite)
     {
         boolean result = false;
         try
@@ -42,7 +46,7 @@ public class OutputStreamWriterToCharacterWriteStream extends CharacterWriteStre
     }
 
     @Override
-    public boolean write(String toWrite)
+    public final boolean write(String toWrite)
     {
         boolean result = false;
         try
@@ -55,5 +59,29 @@ public class OutputStreamWriterToCharacterWriteStream extends CharacterWriteStre
         {
         }
         return result;
+    }
+
+    @Override
+    public final ByteWriteStream asByteWriteStream()
+    {
+        return byteWriteStream;
+    }
+
+    @Override
+    public final boolean isOpen()
+    {
+        return byteWriteStream.isOpen();
+    }
+
+    @Override
+    public final void close()
+    {
+        try
+        {
+            byteWriteStream.close();
+        }
+        catch (Exception ignored)
+        {
+        }
     }
 }

@@ -1,31 +1,34 @@
 package qub;
 
-public class InMemoryCharacterWriteStream extends CharacterWriteStreamBase
+public class InMemoryCharacterWriteStream implements CharacterWriteStream
 {
+    private final InMemoryByteWriteStream byteWriteStream;
+    private final CharacterEncoding characterEncoding;
+
     public InMemoryCharacterWriteStream()
     {
         this(new InMemoryByteWriteStream());
     }
 
-    public InMemoryCharacterWriteStream(CharacterEncoding encoding)
-    {
-        super(new InMemoryByteWriteStream(), encoding);
-    }
-
     public InMemoryCharacterWriteStream(InMemoryByteWriteStream byteWriteStream)
     {
-        super(byteWriteStream);
+        this(byteWriteStream, CharacterEncoding.UTF_8);
     }
 
-    @Override
-    protected InMemoryByteWriteStream getByteWriteStream()
+    public InMemoryCharacterWriteStream(CharacterEncoding characterEncoding)
     {
-        return (InMemoryByteWriteStream)super.getByteWriteStream();
+        this(new InMemoryByteWriteStream(), characterEncoding);
+    }
+
+    public InMemoryCharacterWriteStream(InMemoryByteWriteStream byteWriteStream, CharacterEncoding characterEncoding)
+    {
+        this.byteWriteStream = byteWriteStream;
+        this.characterEncoding = characterEncoding;
     }
 
     public byte[] getBytes()
     {
-        return getByteWriteStream().getBytes();
+        return byteWriteStream.getBytes();
     }
 
     public String getText()
@@ -36,11 +39,17 @@ public class InMemoryCharacterWriteStream extends CharacterWriteStreamBase
     }
 
     @Override
+    public CharacterEncoding getCharacterEncoding()
+    {
+        return characterEncoding;
+    }
+
+    @Override
     public boolean write(char toWrite)
     {
         final CharacterEncoding characterEncoding = getCharacterEncoding();
         final byte[] bytes = characterEncoding.encode(toWrite);
-        return write(bytes);
+        return byteWriteStream.write(bytes);
     }
 
     @Override
@@ -48,6 +57,24 @@ public class InMemoryCharacterWriteStream extends CharacterWriteStreamBase
     {
         final CharacterEncoding characterEncoding = getCharacterEncoding();
         final byte[] bytes = characterEncoding.encode(toWrite);
-        return write(bytes);
+        return byteWriteStream.write(bytes);
+    }
+
+    @Override
+    public ByteWriteStream asByteWriteStream()
+    {
+        return byteWriteStream;
+    }
+
+    @Override
+    public boolean isOpen()
+    {
+        return byteWriteStream.isOpen();
+    }
+
+    @Override
+    public void close()
+    {
+        byteWriteStream.close();
     }
 }

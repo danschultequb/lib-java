@@ -155,7 +155,8 @@ public class Process
 
     public CharacterWriteStream getOutputAsCharacterWriteStream()
     {
-        return ByteWriteStreamBase.asCharacterWriteStream(getOutputAsByteWriteStream(), getCharacterEncoding());
+        final ByteWriteStream outputByteWriteStream = getOutputAsByteWriteStream();
+        return outputByteWriteStream == null ? null : outputByteWriteStream.asCharacterWriteStream(getCharacterEncoding());
     }
 
     public void setOutput(LineWriteStream writeStream)
@@ -165,7 +166,8 @@ public class Process
 
     public LineWriteStream getOutputAsLineWriteStream()
     {
-        return ByteWriteStreamBase.asLineWriteStream(getOutputAsByteWriteStream(), getCharacterEncoding(), getLineSeparator());
+        final ByteWriteStream outputByteWriteStream = getOutputAsByteWriteStream();
+        return outputByteWriteStream == null ? null : outputByteWriteStream.asLineWriteStream(getCharacterEncoding(), getLineSeparator());
     }
 
     /**
@@ -197,7 +199,8 @@ public class Process
 
     public CharacterWriteStream getErrorAsCharacterWriteStream()
     {
-        return ByteWriteStreamBase.asCharacterWriteStream(getErrorAsByteWriteStream(), getCharacterEncoding());
+        final ByteWriteStream errorByteWriteStream = getErrorAsByteWriteStream();
+        return errorByteWriteStream == null ? null : errorByteWriteStream.asCharacterWriteStream(getCharacterEncoding());
     }
 
     public void setError(LineWriteStream writeStream)
@@ -207,7 +210,8 @@ public class Process
 
     public LineWriteStream getErrorAsLineWriteStream()
     {
-        return ByteWriteStreamBase.asLineWriteStream(getErrorAsByteWriteStream(), getCharacterEncoding(), getLineSeparator());
+        final ByteWriteStream errorByteWriteStream = getErrorAsByteWriteStream();
+        return errorByteWriteStream == null ? null : errorByteWriteStream.asLineWriteStream(getCharacterEncoding(), getLineSeparator());
     }
 
     /**

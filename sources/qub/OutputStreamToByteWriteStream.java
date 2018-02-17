@@ -1,13 +1,12 @@
 package qub;
 
-import java.io.IOException;
 import java.io.OutputStream;
 
-public class OutputStreamToByteWriteStream extends ByteWriteStreamBase
+public class OutputStreamToByteWriteStream implements ByteWriteStream
 {
     private final OutputStream outputStream;
     private boolean closed;
-    private Action1<IOException> exceptionHandler;
+    private Action1<Exception> exceptionHandler;
 
     public OutputStreamToByteWriteStream(OutputStream outputStream)
     {
@@ -20,7 +19,7 @@ public class OutputStreamToByteWriteStream extends ByteWriteStreamBase
     }
 
     @Override
-    public void setExceptionHandler(Action1<IOException> exceptionHandler)
+    public void setExceptionHandler(Action1<Exception> exceptionHandler)
     {
         this.exceptionHandler = exceptionHandler;
     }
@@ -35,7 +34,7 @@ public class OutputStreamToByteWriteStream extends ByteWriteStreamBase
             outputStream.flush();
             result = true;
         }
-        catch (IOException e)
+        catch (Exception e)
         {
             if (exceptionHandler != null)
             {
@@ -57,7 +56,7 @@ public class OutputStreamToByteWriteStream extends ByteWriteStreamBase
                 outputStream.flush();
                 result = true;
             }
-            catch (IOException e)
+            catch (Exception e)
             {
                 if (exceptionHandler != null)
                 {
@@ -80,7 +79,7 @@ public class OutputStreamToByteWriteStream extends ByteWriteStreamBase
                 outputStream.flush();
                 result = true;
             }
-            catch (IOException e)
+            catch (Exception e)
             {
                 if (exceptionHandler != null)
                 {
@@ -113,7 +112,7 @@ public class OutputStreamToByteWriteStream extends ByteWriteStreamBase
                 outputStream.close();
                 closed = true;
             }
-            catch (IOException e)
+            catch (Exception e)
             {
                 if (exceptionHandler != null)
                 {

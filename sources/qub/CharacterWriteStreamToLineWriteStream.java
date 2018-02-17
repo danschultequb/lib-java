@@ -2,29 +2,29 @@ package qub;
 
 public class CharacterWriteStreamToLineWriteStream implements LineWriteStream
 {
-    private final CharacterWriteStream stream;
+    private final CharacterWriteStream characterWriteStream;
     private final String lineSeparator;
 
-    CharacterWriteStreamToLineWriteStream(CharacterWriteStream stream)
+    CharacterWriteStreamToLineWriteStream(CharacterWriteStream characterWriteStream)
     {
-        this(stream, "\n");
+        this(characterWriteStream, "\n");
     }
 
-    CharacterWriteStreamToLineWriteStream(CharacterWriteStream stream, String lineSeparator)
+    CharacterWriteStreamToLineWriteStream(CharacterWriteStream characterWriteStream, String lineSeparator)
     {
-        this.stream = stream;
+        this.characterWriteStream = characterWriteStream;
         this.lineSeparator = lineSeparator;
     }
 
     protected CharacterWriteStream getCharacterWriteStream()
     {
-        return stream;
+        return characterWriteStream;
     }
 
     @Override
     public CharacterEncoding getCharacterEncoding()
     {
-        return stream.getCharacterEncoding();
+        return characterWriteStream.getCharacterEncoding();
     }
 
     @Override
@@ -34,68 +34,38 @@ public class CharacterWriteStreamToLineWriteStream implements LineWriteStream
     }
 
     @Override
-    public boolean write(byte toWrite)
-    {
-        return stream.write(toWrite);
-    }
-
-    @Override
-    public boolean write(byte[] toWrite)
-    {
-        return stream.write(toWrite);
-    }
-
-    @Override
-    public boolean write(byte[] toWrite, int startIndex, int length)
-    {
-        return stream.write(toWrite, startIndex, length);
-    }
-
-    @Override
     public boolean write(char toWrite)
     {
-        return stream.write(toWrite);
+        return characterWriteStream.write(toWrite);
     }
 
     @Override
     public boolean write(String toWrite)
     {
-        return stream.write(toWrite);
-    }
-
-    @Override
-    public boolean writeLine()
-    {
-        return stream.write(lineSeparator);
-    }
-
-    @Override
-    public boolean writeLine(String toWrite)
-    {
-        return stream.write(toWrite) && stream.write(lineSeparator);
+        return characterWriteStream.write(toWrite);
     }
 
     @Override
     public ByteWriteStream asByteWriteStream()
     {
-        return stream.asByteWriteStream();
+        return characterWriteStream.asByteWriteStream();
     }
 
     @Override
     public CharacterWriteStream asCharacterWriteStream()
     {
-        return stream;
+        return characterWriteStream;
     }
 
     @Override
     public boolean isOpen()
     {
-        return stream.isOpen();
+        return characterWriteStream.isOpen();
     }
 
     @Override
     public void close()
     {
-        stream.close();
+        characterWriteStream.close();
     }
 }
