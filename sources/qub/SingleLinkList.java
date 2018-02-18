@@ -1,6 +1,6 @@
 package qub;
 
-public class SingleLinkList<T> extends ListBase<T>
+public class SingleLinkList<T> implements List<T>
 {
     private SingleLinkNode<T> head;
     private SingleLinkNode<T> tail;

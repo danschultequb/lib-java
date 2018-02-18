@@ -12,19 +12,46 @@ public interface List<T> extends Indexable<T>
      * Add the provided values at the end of this List.
      * @param values The values to add.
      */
-    void addAll(T[] values);
+    default void addAll(T[] values)
+    {
+        if (values != null && values.length > 0)
+        {
+            for (final T value : values)
+            {
+                add(value);
+            }
+        }
+    }
 
     /**
      * Add the provided values at the end of this List.
      * @param values The values to add.
      */
-    void addAll(Iterator<T> values);
+    default void addAll(Iterator<T> values)
+    {
+        if (values != null && values.any())
+        {
+            for (final T value : values)
+            {
+                add(value);
+            }
+        }
+    }
 
     /**
      * Add the provided values at the end of this List.
      * @param values The values to add.
      */
-    void addAll(Iterable<T> values);
+    default void addAll(Iterable<T> values)
+    {
+        if (values != null && values.any())
+        {
+            for (final T value : values)
+            {
+                add(value);
+            }
+        }
+    }
 
     /**
      * Set the value at the provided index.
@@ -38,7 +65,16 @@ public interface List<T> extends Indexable<T>
      * @param value The value to remove.
      * @return Whether or not a value in this List was removed.
      */
-    boolean remove(T value);
+    default boolean remove(T value)
+    {
+        final int indexToRemove = indexOf(value);
+        final boolean result = indexToRemove != -1;
+        if (result)
+        {
+            removeAt(indexToRemove);
+        }
+        return result;
+    }
 
     /**
      * Remove and return the value at the provided index. If the index is not in the bounds of this
@@ -53,7 +89,10 @@ public interface List<T> extends Indexable<T>
      * will be returned.
      * @return The value that was removed, or null if the ArrayList was empty.
      */
-    T removeFirst();
+    default T removeFirst()
+    {
+        return removeAt(0);
+    }
 
     /**
      * Remove and return the first value in this List that matches the provided condition. If this

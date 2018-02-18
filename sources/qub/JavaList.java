@@ -1,6 +1,6 @@
 package qub;
 
-public class JavaList<T> extends ListBase<T>
+public class JavaList<T> implements List<T>
 {
     private final java.util.List<T> list;
 
