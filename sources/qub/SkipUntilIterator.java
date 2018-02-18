@@ -1,6 +1,6 @@
 package qub;
 
-public class SkipUntilIterator<T> extends IteratorBase<T>
+public class SkipUntilIterator<T> implements Iterator<T>
 {
     private final Iterator<T> iterator;
     private final Function1<T,Boolean> condition;

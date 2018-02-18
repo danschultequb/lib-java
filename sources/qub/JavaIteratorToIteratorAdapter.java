@@ -1,6 +1,6 @@
 package qub;
 
-public class JavaIteratorToIteratorAdapter<T> extends IteratorBase<T>
+public class JavaIteratorToIteratorAdapter<T> implements Iterator<T>
 {
     private final java.util.Iterator<T> javaIterator;
     private boolean hasStarted;

@@ -1,6 +1,6 @@
 package qub;
 
-public class CharacterReadStreamToLineReadStream extends IteratorBase<String> implements LineReadStream
+public class CharacterReadStreamToLineReadStream implements LineReadStream
 {
     private final CharacterReadStream readStream;
     private final boolean includeNewLines;

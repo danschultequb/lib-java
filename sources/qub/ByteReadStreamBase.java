@@ -2,7 +2,7 @@ package qub;
 
 import java.io.InputStream;
 
-public abstract class ByteReadStreamBase extends IteratorBase<Byte> implements ByteReadStream
+public abstract class ByteReadStreamBase implements ByteReadStream
 {
     @Override
     public byte[] readBytes(int bytesToRead)

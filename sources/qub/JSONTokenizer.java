@@ -1,6 +1,6 @@
 package qub;
 
-public class JSONTokenizer extends IteratorBase<JSONToken>
+public class JSONTokenizer implements Iterator<JSONToken>
 {
     private final Lexer lexer;
     private final int firstTokenStartIndex;

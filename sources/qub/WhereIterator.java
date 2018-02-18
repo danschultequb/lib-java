@@ -4,7 +4,7 @@ package qub;
  * An Iterator that only returns values that match a provided condition.
  * @param <T> The type of value that this Iterator returns.
  */
-class WhereIterator<T> extends IteratorBase<T>
+class WhereIterator<T> implements Iterator<T>
 {
     private final Iterator<T> innerIterator;
     private final Function1<T,Boolean> condition;

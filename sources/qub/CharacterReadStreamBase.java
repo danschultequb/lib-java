@@ -1,6 +1,6 @@
 package qub;
 
-public abstract class CharacterReadStreamBase extends IteratorBase<Character> implements CharacterReadStream
+public abstract class CharacterReadStreamBase implements CharacterReadStream
 {
     private final CharacterEncoding encoding;
 
