@@ -1,6 +1,6 @@
 package qub;
 
-public abstract class ListBase<T> extends IndexableBase<T> implements List<T>
+public abstract class ListBase<T> implements List<T>
 {
     @Override
     public void addAll(T[] values)

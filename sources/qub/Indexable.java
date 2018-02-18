@@ -17,7 +17,27 @@ public interface Indexable<T> extends Iterable<T>
      * @return The index of the first element that satisfies the provided condition or -1 if no
      * element matches the condition.
      */
-    int indexOf(Function1<T,Boolean> condition);
+    default int indexOf(Function1<T,Boolean> condition)
+    {
+        int result = -1;
+        if (condition != null)
+        {
+            int index = 0;
+            for (final T element : this)
+            {
+                if (condition.run(element))
+                {
+                    result = index;
+                    break;
+                }
+                else
+                {
+                    ++index;
+                }
+            }
+        }
+        return result;
+    }
 
     /**
      * Get the index of the first element in this Indexable that equals the provided value or -1 if
@@ -26,5 +46,8 @@ public interface Indexable<T> extends Iterable<T>
      * @return The index of the first element that equals the provided value or -1 if no element
      * equals the provided value.
      */
-    int indexOf(T value);
+    default int indexOf(T value)
+    {
+        return indexOf(element -> Comparer.equal(element, value));
+    }
 }

@@ -1,6 +1,6 @@
 package qub;
 
-public class CommandLine extends IndexableBase<CommandLineArgument>
+public class CommandLine implements Indexable<CommandLineArgument>
 {
     private final String[] commandLineParts;
 
