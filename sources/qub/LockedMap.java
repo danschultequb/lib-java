@@ -1,14 +1,14 @@
 package qub;
 
-public abstract class LockedMapBase<TKey,TValue> implements Map<TKey,TValue>
+public class LockedMap<TKey,TValue> implements Map<TKey,TValue>
 {
     private final Map<TKey,TValue> innerMap;
     private final SpinMutex mutex;
 
-    protected LockedMapBase(Map<TKey,TValue> innerMap)
+    public LockedMap(Map<TKey,TValue> innerMap, SpinMutex mutex)
     {
         this.innerMap = innerMap;
-        this.mutex = new SpinMutex();
+        this.mutex = mutex;
     }
 
     @Override
