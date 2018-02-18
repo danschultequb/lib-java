@@ -6,8 +6,8 @@ package qub;
  */
 public class Value<T> implements Out<T>
 {
-    private T value;
-    private boolean hasValue;
+    private volatile T value;
+    private volatile boolean hasValue;
 
     /**
      * Create a new Value with no inner value.
@@ -61,7 +61,13 @@ public class Value<T> implements Out<T>
      */
     public void clear()
     {
-        this.value = null;
+        value = null;
         hasValue = false;
+    }
+
+    @Override
+    public String toString()
+    {
+        return value == null ? null : value.toString();
     }
 }

@@ -3,7 +3,7 @@ package qub;
 /**
  * An implementation of FileSystem that is scoped to a provided folder.
  */
-public class FolderFileSystem extends FileSystemBase
+public class FolderFileSystem implements FileSystem
 {
     private final FileSystem innerFileSystem;
     private final Path baseFolderPath;
@@ -69,6 +69,18 @@ public class FolderFileSystem extends FileSystemBase
     }
 
     @Override
+    public void setAsyncRunner(AsyncRunner asyncRunner)
+    {
+        innerFileSystem.setAsyncRunner(asyncRunner);
+    }
+
+    @Override
+    public AsyncRunner getAsyncRunner()
+    {
+        return innerFileSystem.getAsyncRunner();
+    }
+
+    @Override
     public Iterable<Root> getRoots(Action1<String> onError)
     {
         return Array.fromValues(new Root[]
@@ -80,20 +92,16 @@ public class FolderFileSystem extends FileSystemBase
     @Override
     public Iterable<FileSystemEntry> getFilesAndFolders(Path folderPath, Action1<String> onError)
     {
-        Iterable<FileSystemEntry> result = null;
+        Iterable<FileSystemEntry> result = new Array<>(0);
 
         final Path innerFolderPath = getInnerPath(folderPath);
         final Iterable<FileSystemEntry> innerResult = innerFileSystem.getFilesAndFolders(innerFolderPath, onError);
         if (innerResult != null)
         {
-            result = Array.fromValues(innerResult.map(new Function1<FileSystemEntry, FileSystemEntry>()
+            result = Array.fromValues(innerResult.map((FileSystemEntry innerEntry) ->
             {
-                @Override
-                public FileSystemEntry run(FileSystemEntry innerEntry)
-                {
-                    final Path outerEntryPath = getOuterPath(innerEntry.getPath());
-                    return innerEntry instanceof File ? new File(FolderFileSystem.this, outerEntryPath) : new Folder(FolderFileSystem.this, outerEntryPath);
-                }
+                final Path outerEntryPath = getOuterPath(innerEntry.getPath());
+                return innerEntry instanceof File ? new File(FolderFileSystem.this, outerEntryPath) : new Folder(FolderFileSystem.this, outerEntryPath);
             }));
         }
 
@@ -111,7 +119,7 @@ public class FolderFileSystem extends FileSystemBase
     public boolean createFolder(Path folderPath, Out<Folder> outputFolder, Action1<String> onError)
     {
         final Path innerFolderPath = getInnerPath(folderPath);
-        final Value<Folder> innerOutputFolder = (outputFolder == null ? null : new Value<Folder>());
+        final Value<Folder> innerOutputFolder = (outputFolder == null ? null : new Value<>());
 
         final boolean result = innerFileSystem.createFolder(innerFolderPath, innerOutputFolder, onError);
 
@@ -143,7 +151,7 @@ public class FolderFileSystem extends FileSystemBase
     public boolean createFile(Path filePath, byte[] fileContents, Out<File> outputFile, Action1<String> onError)
     {
         final Path innerFilePath = getInnerPath(filePath);
-        final Value<File> innerOutputFile = (outputFile == null ? null : new Value<File>());
+        final Value<File> innerOutputFile = (outputFile == null ? null : new Value<>());
 
         final boolean result = innerFileSystem.createFile(innerFilePath, fileContents, innerOutputFile, onError);
 

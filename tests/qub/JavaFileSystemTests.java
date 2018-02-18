@@ -7,41 +7,23 @@ public class JavaFileSystemTests
         final JavaFileSystem javaFileSystem = new JavaFileSystem();
         String tempFolderPathString = System.getProperty("java.io.tmpdir");
         final Path tempFolderPath = Path.parse(tempFolderPathString).concatenateSegment("qub-tests");
-        final FolderFileSystem fileSystem = FolderFileSystem.create(javaFileSystem, tempFolderPath);
 
-        runner.beforeTest(new Action0()
+        final Value<FolderFileSystem> folderFileSystem = new Value<>();
+        runner.beforeTest(() ->
         {
-            @Override
-            public void run()
-            {
-                fileSystem.delete();
-                fileSystem.create();
-            }
+            final Path testFolderPath = tempFolderPath.concatenate(Integer.toString((int)(java.lang.Math.random() * 1000)));
+            folderFileSystem.set(FolderFileSystem.create(javaFileSystem, testFolderPath));
+            folderFileSystem.get().create();
         });
 
-        runner.afterTest(new Action0()
+        runner.afterTest(() ->
         {
-            @Override
-            public void run()
-            {
-                fileSystem.delete();
-            }
+            folderFileSystem.get().delete();
         });
 
-        runner.testGroup("JavaFileSystem", new Action0()
+        runner.testGroup("JavaFileSystem", () ->
         {
-            @Override
-            public void run()
-            {
-                FileSystemTests.test(runner, new Function0<FileSystem>()
-                {
-                    @Override
-                    public FileSystem run()
-                    {
-                        return fileSystem;
-                    }
-                });
-            }
+            FileSystemTests.test(runner, folderFileSystem::get);
         });
     }
 }

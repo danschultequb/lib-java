@@ -3,29 +3,39 @@ package qub;
 /**
  * A FileSystem implementation that interacts with a typical Windows, Linux, or MacOS device.
  */
-public class JavaFileSystem extends FileSystemBase
+public class JavaFileSystem implements FileSystem
 {
+    private AsyncRunner asyncRunner;
+
+    @Override
+    public void setAsyncRunner(AsyncRunner asyncRunner)
+    {
+        this.asyncRunner = asyncRunner;
+    }
+
+    @Override
+    public AsyncRunner getAsyncRunner()
+    {
+        return asyncRunner;
+    }
+
     @Override
     public Iterable<Root> getRoots(Action1<String> onError)
     {
         return Array
                 .fromValues(java.io.File.listRoots())
-                .map(new Function1<java.io.File, Root>()
+                .map((java.io.File root) ->
                 {
-                    @Override
-                    public Root run(java.io.File root)
-                    {
-                        final String rootPathString = root.getAbsolutePath();
-                        final String trimmedRootPathString = rootPathString.equals("/") ? rootPathString : rootPathString.substring(0, rootPathString.length() - 1);
-                        return getRoot(trimmedRootPathString);
-                    }
+                    final String rootPathString = root.getAbsolutePath();
+                    final String trimmedRootPathString = rootPathString.equals("/") ? rootPathString : rootPathString.substring(0, rootPathString.length() - 1);
+                    return getRoot(trimmedRootPathString);
                 });
     }
 
     @Override
     public Iterable<FileSystemEntry> getFilesAndFolders(Path rootedFolderPath, Action1<String> onError)
     {
-        Array<FileSystemEntry> result = null;
+        Array<FileSystemEntry> result = new Array<>(0);
 
         if (rootExists(rootedFolderPath))
         {
@@ -33,11 +43,7 @@ public class JavaFileSystem extends FileSystemBase
             if (containerFile.exists() && containerFile.isDirectory())
             {
                 final java.io.File[] containerEntryFiles = containerFile.listFiles();
-                if (containerEntryFiles == null || containerEntryFiles.length == 0)
-                {
-                    result = new Array<>(0);
-                }
-                else
+                if (containerEntryFiles != null && containerEntryFiles.length > 0)
                 {
                     final ArrayList<Folder> folders = new ArrayList<>();
                     final ArrayList<File> files = new ArrayList<>();

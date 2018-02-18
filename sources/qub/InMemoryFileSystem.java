@@ -3,9 +3,10 @@ package qub;
 /**
  * A FileSystem implementation that is completely stored in the memory of the running application.
  */
-public class InMemoryFileSystem extends FileSystemBase
+public class InMemoryFileSystem implements FileSystem
 {
-    private final ArrayList<InMemoryRoot> roots;
+    private final List<InMemoryRoot> roots;
+    private AsyncRunner asyncRunner;
 
     /**
      * Create a new InMemoryFileSystem.
@@ -22,14 +23,7 @@ public class InMemoryFileSystem extends FileSystemBase
 
     private InMemoryRoot getInMemoryRoot(final Path inMemoryRootPath)
     {
-        return roots.first(new Function1<InMemoryRoot,Boolean>()
-        {
-            @Override
-            public Boolean run(InMemoryRoot inMemoryRoot)
-            {
-                return inMemoryRoot.getPath().equals(inMemoryRootPath);
-            }
-        });
+        return roots.first((InMemoryRoot inMemoryRoot) -> inMemoryRoot.getPath().equals(inMemoryRootPath));
     }
 
     private InMemoryFolder getInMemoryFolder(Path inMemoryFolderPath)
@@ -49,7 +43,7 @@ public class InMemoryFileSystem extends FileSystemBase
         boolean result = false;
 
         final Iterator<String> folderPathSegments = inMemoryFolderPath.getSegments().iterate();
-        final Value<InMemoryFolder> folder = new Value<InMemoryFolder>(getInMemoryRoot(folderPathSegments.first()));
+        final Value<InMemoryFolder> folder = new Value<>(getInMemoryRoot(folderPathSegments.first()));
         while (folderPathSegments.next())
         {
             final String folderName = folderPathSegments.getCurrent();
@@ -120,30 +114,33 @@ public class InMemoryFileSystem extends FileSystemBase
     }
 
     @Override
+    public void setAsyncRunner(AsyncRunner asyncRunner)
+    {
+        this.asyncRunner = asyncRunner;
+    }
+
+    @Override
+    public AsyncRunner getAsyncRunner()
+    {
+        return asyncRunner;
+    }
+
+    @Override
     public Iterable<Root> getRoots(Action1<String> onError)
     {
-        return Array.fromValues(roots.map(new Function1<InMemoryRoot, Root>()
-        {
-            @Override
-            public Root run(InMemoryRoot inMemoryRoot)
-            {
-                return new Root(InMemoryFileSystem.this, inMemoryRoot.getPath());
-            }
-        }));
+        return Array.fromValues(roots.map((InMemoryRoot inMemoryRoot) -> new Root(this, inMemoryRoot.getPath())));
     }
 
     @Override
     public Iterable<FileSystemEntry> getFilesAndFolders(Path folderPath, Action1<String> onError)
     {
-        ArrayList<FileSystemEntry> result = null;
+        List<FileSystemEntry> result = new ArrayList<>();
 
         if (folderPath != null && folderPath.isRooted())
         {
             final InMemoryFolder folder = getInMemoryFolder(folderPath);
             if (folder != null)
             {
-                result = new ArrayList<>();
-
                 for (final InMemoryFolder inMemoryFolder : folder.getFolders())
                 {
                     final Path childFolderPath = folderPath.concatenateSegment(inMemoryFolder.getName());
@@ -351,12 +348,12 @@ public class InMemoryFileSystem extends FileSystemBase
         return result;
     }
 
-    protected static boolean containsInvalidCharacters(Path path)
+    private static boolean containsInvalidCharacters(Path path)
     {
         return path != null && containsInvalidCharacters(path.toString());
     }
 
-    protected static boolean containsInvalidCharacters(String pathString)
+    private static boolean containsInvalidCharacters(String pathString)
     {
         boolean result = false;
 

@@ -297,7 +297,7 @@ public class Test
         else
         {
             messageLines = new String[3];
-            messageLines[0] = message;
+            messageLines[0] = "Message:  " + message;
             nextMessageIndex = 1;
         }
 
