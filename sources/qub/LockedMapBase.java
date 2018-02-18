@@ -32,18 +32,18 @@ public abstract class LockedMapBase<TKey,TValue> implements Map<TKey,TValue>
     @Override
     public Iterable<TKey> getKeys()
     {
-        return mutex.criticalSection(() -> innerMap.getKeys());
+        return mutex.criticalSection(innerMap::getKeys);
     }
 
     @Override
     public Iterable<TValue> getValues()
     {
-        return mutex.criticalSection(() -> innerMap.getValues());
+        return mutex.criticalSection(innerMap::getValues);
     }
 
     @Override
     public Iterator<MapEntry<TKey, TValue>> iterate()
     {
-        return mutex.criticalSection(() -> innerMap.iterate());
+        return mutex.criticalSection(innerMap::iterate);
     }
 }
