@@ -18,11 +18,38 @@ public interface Random
      * @param upperBound The inclusive upper bound.
      * @return A random integer between the provided lower and upper bounds.
      */
-    int getRandomIntegerBetween(int lowerBound, int upperBound);
+    default int getRandomIntegerBetween(int lowerBound, int upperBound)
+    {
+        if (upperBound < lowerBound)
+        {
+            final int temp = lowerBound;
+            lowerBound = upperBound;
+            upperBound = temp;
+        }
+
+        int result;
+
+        final int rangeSize = upperBound - lowerBound + 1;
+        if (rangeSize == 1)
+        {
+            result = lowerBound;
+        }
+        else
+        {
+            final int randomInteger = getRandomInteger();
+            final int scaledRandomInteger = randomInteger % rangeSize;
+            result = scaledRandomInteger + lowerBound;
+        }
+
+        return result;
+    }
 
     /**
      * Get a random boolean value.
      * @return A random boolean value.
      */
-    boolean getRandomBoolean();
+    default boolean getRandomBoolean()
+    {
+        return getRandomInteger() % 2 == 0;
+    }
 }
