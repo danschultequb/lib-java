@@ -5,7 +5,7 @@ package qub;
  * @param <T> The type of value stored in the double-link node.
  */
 
-public class DoubleLinkNode<T> extends IterableBase<T>
+public class DoubleLinkNode<T> implements Iterable<T>
 {
     private DoubleLinkNode<T> previous;
     private DoubleLinkNode<T> next;
@@ -72,6 +72,18 @@ public class DoubleLinkNode<T> extends IterableBase<T>
     public void setNext(DoubleLinkNode<T> next)
     {
         this.next = next;
+    }
+
+    @Override
+    public boolean equals(Object rhs)
+    {
+        return Iterable.equals(this, rhs);
+    }
+
+    @Override
+    public String toString()
+    {
+        return Iterable.toString(this);
     }
 
     @Override

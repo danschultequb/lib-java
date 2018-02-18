@@ -4,7 +4,7 @@ package qub;
  * A node with a single link to another SingleLinkNode.
  * @param <T> The type of value stored in the single-link node.
  */
-public class SingleLinkNode<T> extends IterableBase<T>
+public class SingleLinkNode<T> implements Iterable<T>
 {
     private T value;
     private SingleLinkNode<T> next;
@@ -53,6 +53,18 @@ public class SingleLinkNode<T> extends IterableBase<T>
     public void setNext(SingleLinkNode<T> next)
     {
         this.next = next;
+    }
+
+    @Override
+    public boolean equals(Object rhs)
+    {
+        return Iterable.equals(this, rhs);
+    }
+
+    @Override
+    public String toString()
+    {
+        return Iterable.toString(this);
     }
 
     @Override

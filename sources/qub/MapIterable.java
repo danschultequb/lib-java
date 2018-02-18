@@ -1,6 +1,6 @@
 package qub;
 
-class MapIterable<TInner,TOuter> extends IterableBase<TOuter>
+class MapIterable<TInner,TOuter> implements Iterable<TOuter>
 {
     private final Iterable<TInner> innerIterable;
     private final Function1<TInner,TOuter> conversion;
@@ -9,6 +9,18 @@ class MapIterable<TInner,TOuter> extends IterableBase<TOuter>
     {
         this.innerIterable = innerIterable;
         this.conversion = conversion;
+    }
+
+    @Override
+    public boolean equals(Object rhs)
+    {
+        return Iterable.equals(this, rhs);
+    }
+
+    @Override
+    public String toString()
+    {
+        return Iterable.toString(this);
     }
 
     @Override

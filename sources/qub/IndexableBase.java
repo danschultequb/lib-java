@@ -2,7 +2,7 @@ package qub;
 
 import java.util.Objects;
 
-public abstract class IndexableBase<T> extends IterableBase<T> implements Indexable<T>
+public abstract class IndexableBase<T> implements Indexable<T>
 {
     @Override
     public int indexOf(Function1<T,Boolean> condition)
@@ -30,13 +30,6 @@ public abstract class IndexableBase<T> extends IterableBase<T> implements Indexa
     @Override
     public int indexOf(final T value)
     {
-        return indexOf(new Function1<T, Boolean>()
-        {
-            @Override
-            public Boolean run(T element)
-            {
-                return Objects.equals(element, value);
-            }
-        });
+        return indexOf(element -> Comparer.equal(element, value));
     }
 }

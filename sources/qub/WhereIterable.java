@@ -4,7 +4,7 @@ package qub;
  * An Iterable that only returns values that match a provided condition.
  * @param <T> The type of value that this Iterable returns.
  */
-class WhereIterable<T> extends IterableBase<T>
+class WhereIterable<T> implements Iterable<T>
 {
     private final Iterable<T> innerIterable;
     private final Function1<T,Boolean> condition;
@@ -16,20 +16,20 @@ class WhereIterable<T> extends IterableBase<T>
     }
 
     @Override
+    public boolean equals(Object rhs)
+    {
+        return Iterable.equals(this, rhs);
+    }
+
+    @Override
+    public String toString()
+    {
+        return Iterable.toString(this);
+    }
+
+    @Override
     public Iterator<T> iterate()
     {
         return new WhereIterator<>(innerIterable.iterate(), condition);
-    }
-
-    @Override
-    public boolean any()
-    {
-        return iterate().any();
-    }
-
-    @Override
-    public int getCount()
-    {
-        return iterate().getCount();
     }
 }

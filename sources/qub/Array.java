@@ -76,6 +76,18 @@ public class Array<T> extends IndexableBase<T>
     }
 
     @Override
+    public boolean equals(Object rhs)
+    {
+        return Iterable.equals(this, rhs);
+    }
+
+    @Override
+    public String toString()
+    {
+        return Iterable.toString(this);
+    }
+
+    @Override
     public Iterator<T> iterate()
     {
         return new ArrayIterator<>(this);
