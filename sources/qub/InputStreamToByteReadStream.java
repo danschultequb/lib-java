@@ -6,7 +6,7 @@ import java.io.InputStream;
 /**
  * An adapter that converts a java.io.InputStream to a qub.ByteReadStream.
  */
-public class InputStreamToByteReadStream extends ByteReadStreamBase
+public class InputStreamToByteReadStream implements ByteReadStream
 {
     private final InputStream inputStream;
 

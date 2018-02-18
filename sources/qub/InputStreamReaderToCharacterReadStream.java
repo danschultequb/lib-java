@@ -20,13 +20,9 @@ class InputStreamReaderToCharacterReadStream extends CharacterReadStreamBase
         super(encoding);
 
         this.byteReadStream = byteReadStream;
-        byteReadStream.setExceptionHandler(new Action1<IOException>()
+        byteReadStream.setExceptionHandler((IOException e) ->
         {
-            @Override
-            public void run(IOException e)
-            {
-                throw new RuntimeException(e);
-            }
+            throw new RuntimeException(e);
         });
 
         final InputStream inputStream = byteReadStream.asInputStream();

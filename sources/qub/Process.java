@@ -220,7 +220,7 @@ public class Process
      */
     public void setInput(ByteReadStream readStream)
     {
-        setInput(ByteReadStreamBase.asLineReadStream(readStream, getCharacterEncoding(), getIncludeNewLines()));
+        setInput(readStream == null ? null : readStream.asLineReadStream(getCharacterEncoding(), getIncludeNewLines()));
     }
 
     /**
