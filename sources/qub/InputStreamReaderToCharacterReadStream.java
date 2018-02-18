@@ -8,25 +8,25 @@ import java.nio.charset.Charset;
 /**
  * A class for reading characters from a stream.
  */
-class InputStreamReaderToCharacterReadStream extends CharacterReadStreamBase
+class InputStreamReaderToCharacterReadStream implements CharacterReadStream
 {
     private final ByteReadStream byteReadStream;
+    private final CharacterEncoding characterEncoding;
     private final InputStreamReader reader;
     private boolean hasStarted;
     private Character current;
 
-    InputStreamReaderToCharacterReadStream(ByteReadStream byteReadStream, CharacterEncoding encoding)
+    InputStreamReaderToCharacterReadStream(ByteReadStream byteReadStream, CharacterEncoding characterEncoding)
     {
-        super(encoding);
-
         this.byteReadStream = byteReadStream;
         byteReadStream.setExceptionHandler((IOException e) ->
         {
             throw new RuntimeException(e);
         });
+        this.characterEncoding = characterEncoding;
 
         final InputStream inputStream = byteReadStream.asInputStream();
-        final Charset charset = encoding.getCharset();
+        final Charset charset = characterEncoding.getCharset();
         this.reader = new InputStreamReader(inputStream, charset);
     }
 
@@ -117,6 +117,12 @@ class InputStreamReaderToCharacterReadStream extends CharacterReadStreamBase
         }
 
         return result;
+    }
+
+    @Override
+    public CharacterEncoding getEncoding()
+    {
+        return characterEncoding;
     }
 
     @Override

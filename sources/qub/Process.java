@@ -229,7 +229,7 @@ public class Process
      */
     public void setInput(CharacterReadStream readStream)
     {
-        setInput(CharacterReadStreamBase.asLineReadStream(readStream, getIncludeNewLines()));
+        setInput(readStream == null ? null : readStream.asLineReadStream(getIncludeNewLines()));
     }
 
     /**
