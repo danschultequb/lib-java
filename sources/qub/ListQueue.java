@@ -4,14 +4,14 @@ package qub;
  * A data structure that allows values to be added and removed in First-In-First-Out order.
  * @param <T> The type of values that can be added to this Queue.
  */
-public abstract class QueueBase<T> implements Queue<T>
+public class ListQueue<T> implements Queue<T>
 {
     private final List<T> values;
 
     /**
      * Create a new Queue.
      */
-    protected QueueBase(List<T> values)
+    public ListQueue(List<T> values)
     {
         this.values = values;
     }

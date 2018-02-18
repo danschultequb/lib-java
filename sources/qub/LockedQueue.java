@@ -1,14 +1,19 @@
 package qub;
 
-public abstract class LockedQueueBase<T> implements Queue<T>
+public class LockedQueue<T> implements Queue<T>
 {
     private final Queue<T> innerQueue;
     private final SpinMutex mutex;
 
-    protected LockedQueueBase(Queue<T> innerQueue)
+    public LockedQueue(Queue<T> innerQueue)
+    {
+        this(innerQueue, new SpinMutex());
+    }
+
+    public LockedQueue(Queue<T> innerQueue, SpinMutex mutex)
     {
         this.innerQueue = innerQueue;
-        this.mutex = new SpinMutex();
+        this.mutex = mutex;
     }
 
 

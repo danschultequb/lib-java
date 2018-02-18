@@ -1,6 +1,6 @@
 package qub;
 
-public class SingleLinkListQueue<T> extends QueueBase<T>
+public class SingleLinkListQueue<T> extends ListQueue<T>
 {
     /**
      * Create a new SingleLinkListQueue.

@@ -1,12 +1,12 @@
 package qub;
 
-public class ArrayListQueue<T> extends QueueBase<T>
+public class ArrayListQueue<T> extends ListQueue<T>
 {
     /**
      * Create a new ArrayList-based Queue.
      */
-    protected ArrayListQueue()
+    public ArrayListQueue()
     {
-        super(new ArrayList<T>());
+        super(new ArrayList<>());
     }
 }

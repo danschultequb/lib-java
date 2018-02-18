@@ -3,24 +3,17 @@ package qub;
 public class CurrentThreadAsyncRunner implements AsyncRunner
 {
     private final Function0<Synchronization> synchronizationFunction;
-    private final LockedSingleLinkListQueue<PausedAsyncTask> scheduledTasks;
+    private final LockedQueue<PausedAsyncTask> scheduledTasks;
 
     public CurrentThreadAsyncRunner(final Synchronization synchronization)
     {
-        this(new Function0<Synchronization>()
-        {
-            @Override
-            public Synchronization run()
-            {
-                return synchronization;
-            }
-        });
+        this(() -> synchronization);
     }
 
     public CurrentThreadAsyncRunner(Function0<Synchronization> synchronizationFunction)
     {
         this.synchronizationFunction = synchronizationFunction;
-        this.scheduledTasks = new LockedSingleLinkListQueue<>();
+        this.scheduledTasks = new LockedQueue<>(new SingleLinkListQueue<>());
     }
 
     @Override
