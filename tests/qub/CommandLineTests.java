@@ -36,6 +36,33 @@ public class CommandLineTests
                 });
             });
 
+            runner.testGroup("get(String)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final CommandLine commandLine = CommandLine.parse(new String[] { "-a=b", "-c", "d" });
+                    test.assertNull(commandLine.get(null));
+                });
+
+                runner.test("with \"\"", (Test test) ->
+                {
+                    final CommandLine commandLine = CommandLine.parse(new String[] { "-a=b", "-c", "d" });
+                    test.assertNull(commandLine.get(""));
+                });
+
+                runner.test("with non-existing argument name", (Test test) ->
+                {
+                    final CommandLine commandLine = CommandLine.parse(new String[] { "-a=b", "-c", "d" });
+                    test.assertNull(commandLine.get("spam"));
+                });
+
+                runner.test("with existing argument name", (Test test) ->
+                {
+                    final CommandLine commandLine = CommandLine.parse(new String[] { "-a=b", "-c", "d" });
+                    test.assertEqual(new CommandLineArgument("-a=b"), commandLine.get("a"));
+                });
+            });
+
             runner.testGroup("getValue()", () ->
             {
                 runner.test("with null arguments and null name", (Test test) ->
@@ -166,6 +193,87 @@ public class CommandLineTests
                     final CommandLine commandLine = CommandLine.parse(new String[] { "a", "b", "c" });
                     test.assertEqual(new CommandLineArgument("a"), commandLine.removeAt(0));
                     test.assertEqual(CommandLine.parse(new String[] { "b", "c" }), commandLine);
+                });
+            });
+
+            runner.testGroup("remove(String)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final CommandLine commandLine = CommandLine.parse(new String[] { "-a=b", "-c" });
+                    test.assertNull(commandLine.remove(null));
+                });
+
+                runner.test("with \"\"", (Test test) ->
+                {
+                    final CommandLine commandLine = CommandLine.parse(new String[] { "-a=b", "-c" });
+                    test.assertNull(commandLine.remove(""));
+                });
+
+                runner.test("with \"a\" when \"a\" exists", (Test test) ->
+                {
+                    final CommandLine commandLine = CommandLine.parse(new String[] { "-a=b", "-c" });
+                    test.assertEqual(new CommandLineArgument("-a=b"), commandLine.remove("a"));
+                    test.assertEqual(CommandLine.parse(new String[] { "-c" }), commandLine);
+                });
+            });
+
+            runner.testGroup("equals()", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final CommandLine commandLine = CommandLine.parse(new String[] { "-a=b", "-c" });
+                    test.assertFalse(commandLine.equals((Object)null));
+                    test.assertFalse(commandLine.equals((CommandLine)null));
+                });
+
+                runner.test("with \"value\"", (Test test) ->
+                {
+                    final CommandLine commandLine = CommandLine.parse(new String[] { "-a=b", "-c" });
+                    test.assertFalse(commandLine.equals("value"));
+                });
+
+                runner.test("with same", (Test test) ->
+                {
+                    final CommandLine commandLine = CommandLine.parse(new String[] { "-a=b", "-c" });
+                    test.assertTrue(commandLine.equals((Object)commandLine));
+                    test.assertTrue(commandLine.equals(commandLine));
+                });
+
+                runner.test("with equal", (Test test) ->
+                {
+                    final String[] commandLineStrings = new String[] { "-a=b", "-c" };
+                    final CommandLine commandLine = CommandLine.parse(commandLineStrings);
+                    test.assertTrue(commandLine.equals((Object)CommandLine.parse(commandLineStrings)));
+                    test.assertTrue(commandLine.equals(CommandLine.parse(commandLineStrings)));
+                });
+
+                runner.test("with different", (Test test) ->
+                {
+                    final CommandLine commandLine = CommandLine.parse(new String[] { "-a=b", "-c" });
+                    test.assertFalse(commandLine.equals((Object)CommandLine.parse(new String[] { "-d" })));
+                    test.assertFalse(commandLine.equals(CommandLine.parse(new String[] { "-d" })));
+                });
+            });
+
+            runner.testGroup("toString()", () ->
+            {
+                runner.test("with no arguments", (Test test) ->
+                {
+                    final CommandLine commandLine = CommandLine.parse(new String[0]);
+                    test.assertEqual("[]", commandLine.toString());
+                });
+
+                runner.test("with one argument", (Test test) ->
+                {
+                    final CommandLine commandLine = CommandLine.parse(new String[] { "a" });
+                    test.assertEqual("[a]", commandLine.toString());
+                });
+
+                runner.test("with two arguments", (Test test) ->
+                {
+                    final CommandLine commandLine = CommandLine.parse(new String[] { "a", "b" });
+                    test.assertEqual("[a,b]", commandLine.toString());
                 });
             });
         });

@@ -45,7 +45,7 @@ public class CommandLine implements Indexable<CommandLineArgument>
     public CommandLineArgument get(String argumentName)
     {
         CommandLineArgument result = null;
-        if (argumentName != null && !argumentName.isEmpty() && arguments != null && arguments.any())
+        if (argumentName != null && !argumentName.isEmpty() && arguments.any())
         {
             for (final CommandLineArgument argument : arguments)
             {
