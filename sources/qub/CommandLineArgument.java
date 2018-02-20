@@ -42,8 +42,20 @@ public class CommandLineArgument
         return value;
     }
 
+    @Override
     public String toString()
     {
         return argumentString;
+    }
+
+    @Override
+    public boolean equals(Object rhs)
+    {
+        return rhs instanceof CommandLineArgument && equals((CommandLineArgument)rhs);
+    }
+
+    public boolean equals(CommandLineArgument rhs)
+    {
+        return rhs != null && argumentString.equals(rhs.argumentString);
     }
 }

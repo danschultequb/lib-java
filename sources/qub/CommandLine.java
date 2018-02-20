@@ -2,49 +2,52 @@ package qub;
 
 public class CommandLine implements Indexable<CommandLineArgument>
 {
-    private final String[] commandLineParts;
+    private final List<CommandLineArgument> arguments;
 
-    public CommandLine(String... commandLineParts)
+    private CommandLine(List<CommandLineArgument> arguments)
     {
-        this.commandLineParts = Array.toStringArray(commandLineParts);
+        this.arguments = arguments;
     }
 
-    public String[] getArgumentStrings()
+    public Indexable<String> getArgumentStrings()
     {
-        return commandLineParts;
-    }
-
-    public Indexable<CommandLineArgument> getArguments()
-    {
-        final ArrayList<CommandLineArgument> result = new ArrayList<>();
-        if (commandLineParts != null && commandLineParts.length > 0)
+        final List<String> result = new ArrayList<>();
+        for (final CommandLineArgument argument : arguments)
         {
-            for (final String commandLinePart : commandLineParts)
-            {
-                result.add(new CommandLineArgument(commandLinePart));
-            }
+            result.add(argument.toString());
         }
         return result;
     }
 
     @Override
+    public int getCount()
+    {
+        return arguments.getCount();
+    }
+
+    public Indexable<CommandLineArgument> getArguments()
+    {
+        return arguments;
+    }
+
+    @Override
     public Iterator<CommandLineArgument> iterate()
     {
-        return getArguments().iterate();
+        return arguments.iterate();
     }
 
     @Override
     public CommandLineArgument get(int index)
     {
-        return getArguments().get(index);
+        return arguments.get(index);
     }
 
     public CommandLineArgument get(String argumentName)
     {
         CommandLineArgument result = null;
-        if (argumentName != null && !argumentName.isEmpty())
+        if (argumentName != null && !argumentName.isEmpty() && arguments != null && arguments.any())
         {
-            for (final CommandLineArgument argument : this)
+            for (final CommandLineArgument argument : arguments)
             {
                 if(argumentName.equalsIgnoreCase(argument.getName()))
                 {
@@ -60,5 +63,52 @@ public class CommandLine implements Indexable<CommandLineArgument>
     {
         final CommandLineArgument argument = get(argumentName);
         return argument == null ? null : argument.getValue();
+    }
+
+    public CommandLineArgument removeAt(int index)
+    {
+        return arguments.removeAt(index);
+    }
+
+    public CommandLineArgument remove(String argumentName)
+    {
+        return arguments.removeFirst(new Function1<CommandLineArgument, Boolean>()
+        {
+            @Override
+            public Boolean run(CommandLineArgument commandLineArgument)
+            {
+                return commandLineArgument.getName().equalsIgnoreCase(argumentName);
+            }
+        });
+    }
+
+    @Override
+    public String toString()
+    {
+        return arguments.toString();
+    }
+
+    @Override
+    public boolean equals(Object rhs)
+    {
+        return rhs instanceof CommandLine && equals((CommandLine)rhs);
+    }
+
+    public boolean equals(CommandLine rhs)
+    {
+        return rhs != null && arguments.equals(rhs.arguments);
+    }
+
+    public static CommandLine parse(String[] rawCommandLineArguments)
+    {
+        final List<CommandLineArgument> commandLineArguments = new ArrayList<>();
+        if (rawCommandLineArguments != null && rawCommandLineArguments.length > 0)
+        {
+            for (final String rawCommandLineArgument : rawCommandLineArguments)
+            {
+                commandLineArguments.add(new CommandLineArgument(rawCommandLineArgument));
+            }
+        }
+        return new CommandLine(commandLineArguments);
     }
 }

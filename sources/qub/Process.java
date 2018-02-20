@@ -43,7 +43,7 @@ public class Process
      */
     public Process(String[] commandLineArgumentStrings)
     {
-        this.commandLine = new CommandLine(commandLineArgumentStrings);
+        this.commandLine = CommandLine.parse(commandLineArgumentStrings);
 
         characterEncoding = new Value<>();
         lineSeparator = new Value<>();
@@ -74,7 +74,7 @@ public class Process
         parallelRunner = new ParallelAsyncRunner(synchronizationFunction);
     }
 
-    public String[] getCommandLineArgumentStrings()
+    public Indexable<String> getCommandLineArgumentStrings()
     {
         return commandLine.getArgumentStrings();
     }
