@@ -77,7 +77,8 @@ public class CommandLine implements Indexable<CommandLineArgument>
             @Override
             public Boolean run(CommandLineArgument commandLineArgument)
             {
-                return commandLineArgument.getName().equalsIgnoreCase(argumentName);
+                final String commandLineArgumentName = commandLineArgument.getName();
+                return commandLineArgumentName != null && commandLineArgumentName.equalsIgnoreCase(argumentName);
             }
         });
     }

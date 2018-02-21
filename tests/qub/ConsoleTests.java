@@ -16,7 +16,7 @@ public class ConsoleTests
                 
                 runner.test("with null String[]", (Test test) ->
                 {
-                    final Console console = new Console(null);
+                    final Console console = new Console((String[])null);
                     test.assertEqual(new Array<String>(0), console.getCommandLineArgumentStrings());
                     test.assertNotNull(console.getCommandLine());
                 });
@@ -53,7 +53,7 @@ public class ConsoleTests
             runner.test("getLineSeparator()", (Test test) ->
             {
                 final Console console = new Console();
-                test.assertEqual("\n", console.getLineSeparator());
+                test.assertEqual(console.onWindows() ? "\r\n" : "\n", console.getLineSeparator());
 
                 console.setLineSeparator("\r\n");
                 test.assertEqual("\r\n", console.getLineSeparator());
@@ -101,6 +101,7 @@ public class ConsoleTests
                 runner.test("with non-null", (Test test) ->
                 {
                     final Console console = new Console();
+                    console.setLineSeparator("\n");
                     final InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
                     console.setOutput(byteWriteStream);
 
@@ -148,6 +149,7 @@ public class ConsoleTests
                 runner.test("with non-null", (Test test) ->
                 {
                     final Console console = new Console();
+                    console.setLineSeparator("\n");
                     final InMemoryCharacterWriteStream characterWriteStream = new InMemoryCharacterWriteStream();
                     console.setOutput(characterWriteStream);
 
@@ -195,6 +197,7 @@ public class ConsoleTests
                 runner.test("with non-null", (Test test) ->
                 {
                     final Console console = new Console();
+                    console.setLineSeparator("\n");
                     final InMemoryLineWriteStream lineWriteStream = new InMemoryLineWriteStream();
                     console.setOutput(lineWriteStream);
 
@@ -245,6 +248,7 @@ public class ConsoleTests
                 runner.test("with non-null", (Test test) ->
                 {
                     final Console console = new Console();
+                    console.setLineSeparator("\n");
                     final InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
                     console.setError(byteWriteStream);
 
@@ -292,6 +296,7 @@ public class ConsoleTests
                 runner.test("with non-null", (Test test) ->
                 {
                     final Console console = new Console();
+                    console.setLineSeparator("\n");
                     final InMemoryCharacterWriteStream characterWriteStream = new InMemoryCharacterWriteStream();
                     console.setError(characterWriteStream);
 
@@ -339,6 +344,7 @@ public class ConsoleTests
                 runner.test("with non-null", (Test test) ->
                 {
                     final Console console = new Console();
+                    console.setLineSeparator("\n");
                     final InMemoryLineWriteStream lineWriteStream = new InMemoryLineWriteStream();
                     console.setError(lineWriteStream);
 

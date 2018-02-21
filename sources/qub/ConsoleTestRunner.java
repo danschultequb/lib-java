@@ -2,7 +2,6 @@ package qub;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.text.DecimalFormat;
 
 /**
  * A Console object that is used for running unit tests for other applications.
@@ -20,7 +19,7 @@ public class ConsoleTestRunner extends Console implements TestRunner
      */
     public ConsoleTestRunner()
     {
-        this(null);
+        this((String[])null);
     }
 
     /**
@@ -29,28 +28,68 @@ public class ConsoleTestRunner extends Console implements TestRunner
      */
     public ConsoleTestRunner(String[] commandLineArgumentStrings)
     {
-        super(commandLineArgumentStrings);
+        this(CommandLine.parse(commandLineArgumentStrings));
+    }
 
-        testRunner = new TestRunnerBase();
-        testRunner.setOnTestGroupStarted((String testGroupName) ->
+    /**
+     * Create a new ConsoleTestRunner with the provided command line arguments.
+     * @param commandLine The command line arguments for this application.
+     */
+    public ConsoleTestRunner(CommandLine commandLine)
+    {
+        super(commandLine);
+
+        final CommandLineArgument debugArgument = commandLine.remove("debug");
+        boolean debug = debugArgument != null && (debugArgument.getValue() == null || debugArgument.getValue().equals("true"));
+
+        final CommandLineArgument testPatternArgument = commandLine.remove("pattern");
+        PathPattern testPattern = null;
+        if (testPatternArgument != null && testPatternArgument.getValue() != null && !testPatternArgument.getValue().isEmpty())
         {
-            writeLine(testGroupName);
+            testPattern = PathPattern.parse(testPatternArgument.getValue());
+        }
+
+        if (debug)
+        {
+            writeLine("TestPattern: " + (testPattern == null ? "null" : "\"" + testPattern + "\""));
+        }
+
+        testRunner = new TestRunnerBase(debug, testPattern);
+
+        final List<TestGroup> testGroupsWrittenToConsole = new ArrayList<>();
+        testRunner.setOnTestGroupFinished((TestGroup testGroup) ->
+        {
+            if (testGroupsWrittenToConsole.remove(testGroup))
+            {
+                decreaseIndent();
+            }
+        });
+        testRunner.setOnTestStarted((Test test) ->
+        {
+            final Stack<TestGroup> testGroupsToWrite = new Stack<>();
+            TestGroup currentTestGroup = test.getParentTestGroup();
+            while (currentTestGroup != null && !testGroupsWrittenToConsole.contains(currentTestGroup))
+            {
+                testGroupsToWrite.push(currentTestGroup);
+                currentTestGroup = currentTestGroup.getParentTestGroup();
+            }
+
+            while (testGroupsToWrite.any())
+            {
+                final TestGroup testGroupToWrite = testGroupsToWrite.pop();
+                writeLine(testGroupToWrite.getName());
+                testGroupsWrittenToConsole.add(testGroupToWrite);
+                increaseIndent();
+            }
+
+            write(test.getName());
             increaseIndent();
         });
-        testRunner.setOnTestGroupFinished((String testGroupName) ->
-        {
-            decreaseIndent();
-        });
-        testRunner.setOnTestStarted((String testName) ->
-        {
-            write(testName);
-            increaseIndent();
-        });
-        testRunner.setOnTestPassed((String testName) ->
+        testRunner.setOnTestPassed((Test test) ->
         {
             writeLine(" - Passed");
         });
-        testRunner.setOnTestFailed((String testName, TestAssertionFailure failure) ->
+        testRunner.setOnTestFailed((Test test, TestAssertionFailure failure) ->
         {
             writeLine(" - Failed");
             increaseIndent();
@@ -230,7 +269,14 @@ public class ConsoleTestRunner extends Console implements TestRunner
     {
         final ConsoleTestRunner console = new ConsoleTestRunner(args);
         final CommandLine commandLine = console.getCommandLine();
-        final boolean debug = commandLine.get("debug") != null;
+        final boolean debug = commandLine.remove("debug") != null;
+
+        PathPattern filter = null;
+        final CommandLineArgument filterArgument = commandLine.remove("filter");
+        if (filterArgument != null && filterArgument.getValue() != null && !filterArgument.getValue().isEmpty())
+        {
+            filter = PathPattern.parse(filterArgument.getValue());
+        }
 
         final Stopwatch stopwatch = console.getStopwatch();
         stopwatch.start();

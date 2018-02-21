@@ -35,7 +35,7 @@ public class Process
      */
     public Process()
     {
-        this(null);
+        this((String[])null);
     }
 
     /**
@@ -43,7 +43,15 @@ public class Process
      */
     public Process(String[] commandLineArgumentStrings)
     {
-        this.commandLine = CommandLine.parse(commandLineArgumentStrings);
+        this(CommandLine.parse(commandLineArgumentStrings));
+    }
+
+    /**
+     * Create a new Process that Console applications can be written with.
+     */
+    public Process(CommandLine commandLine)
+    {
+        this.commandLine = commandLine;
 
         characterEncoding = new Value<>();
         lineSeparator = new Value<>();
@@ -107,7 +115,7 @@ public class Process
     {
         if (!lineSeparator.hasValue())
         {
-            lineSeparator.set("\n");
+            lineSeparator.set(onWindows() ? "\r\n" : "\n");
         }
         return lineSeparator.get();
     }

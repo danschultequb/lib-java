@@ -5,11 +5,36 @@ package qub;
  */
 public class Test
 {
-    private final String testFullName;
+    private final String name;
+    private final TestGroup parentTestGroup;
 
-    public Test(String testFullName)
+    public Test(String name, TestGroup parentTestGroup)
     {
-        this.testFullName = testFullName;
+        this.name = name;
+        this.parentTestGroup = parentTestGroup;
+    }
+
+    public String getName()
+    {
+        return name;
+    }
+
+    public String getFullName()
+    {
+        return parentTestGroup == null ? name : parentTestGroup.getFullName() + ' ' + name;
+    }
+
+    public TestGroup getParentTestGroup()
+    {
+        return parentTestGroup;
+    }
+
+    public boolean matches(PathPattern testPattern)
+    {
+        return testPattern == null ||
+            testPattern.isMatch(getName()) ||
+            testPattern.isMatch(getFullName()) ||
+            (parentTestGroup != null && parentTestGroup.matches(testPattern));
     }
 
     /**
@@ -34,7 +59,7 @@ public class Test
     {
         if (!value)
         {
-            throw new TestAssertionFailure(testFullName, getMessageLines(message, true, false));
+            throw new TestAssertionFailure(getFullName(), getMessageLines(message, true, false));
         }
     }
 
@@ -60,7 +85,7 @@ public class Test
     {
         if (value)
         {
-            throw new TestAssertionFailure(testFullName, getMessageLines(message, false, true));
+            throw new TestAssertionFailure(getFullName(), getMessageLines(message, false, true));
         }
     }
 
@@ -84,7 +109,7 @@ public class Test
     {
         if (value != null)
         {
-            throw new TestAssertionFailure(testFullName, getMessageLines(message, null, value));
+            throw new TestAssertionFailure(getFullName(), getMessageLines(message, null, value));
         }
     }
 
@@ -108,7 +133,7 @@ public class Test
     {
         if (value == null)
         {
-            throw new TestAssertionFailure(testFullName, getMessageLines(message, "not null", value));
+            throw new TestAssertionFailure(getFullName(), getMessageLines(message, "not null", value));
         }
     }
 
@@ -148,7 +173,7 @@ public class Test
     {
         if (!Comparer.equal(expected, actual))
         {
-            throw new TestAssertionFailure(testFullName, getMessageLines(message, expected, actual));
+            throw new TestAssertionFailure(getFullName(), getMessageLines(message, expected, actual));
         }
     }
 
@@ -165,7 +190,7 @@ public class Test
     {
         if (!Comparer.equal(expected, actual, marginOfError))
         {
-            throw new TestAssertionFailure(testFullName, getMessageLines(message, expected, actual));
+            throw new TestAssertionFailure(getFullName(), getMessageLines(message, expected, actual));
         }
     }
 
@@ -193,7 +218,7 @@ public class Test
     {
         if (Comparer.equal(expected, actual))
         {
-            throw new TestAssertionFailure(testFullName, getMessageLines(message, "not " + expected, actual));
+            throw new TestAssertionFailure(getFullName(), getMessageLines(message, "not " + expected, actual));
         }
     }
 
@@ -221,7 +246,7 @@ public class Test
     {
         if (!Comparer.same(expected, actual))
         {
-            throw new TestAssertionFailure(testFullName, getMessageLines(message, expected, actual));
+            throw new TestAssertionFailure(getFullName(), getMessageLines(message, expected, actual));
         }
     }
 
@@ -249,7 +274,7 @@ public class Test
     {
         if (Comparer.same(lhs, rhs))
         {
-            throw new TestAssertionFailure(testFullName, getMessageLines(message, lhs, rhs));
+            throw new TestAssertionFailure(getFullName(), getMessageLines(message, lhs, rhs));
         }
     }
 
@@ -267,7 +292,7 @@ public class Test
      */
     public void fail(String message)
     {
-        throw new TestAssertionFailure(testFullName, new String[] { message });
+        throw new TestAssertionFailure(getFullName(), new String[] { message });
     }
 
     /**

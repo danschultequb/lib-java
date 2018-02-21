@@ -2,54 +2,28 @@ package qub;
 
 public class TestRunnerBase implements TestRunner
 {
-    private static final char testNameSeparator = ' ';
-
     private int passedTestCount;
     private int failedTestCount;
     private final List<TestAssertionFailure> testFailures = new SingleLinkList<>();
 
-    private Action1<String> onTestGroupStarted;
-    private Action1<String> onTestGroupFinished;
-    private Action1<String> onTestStarted;
-    private Action1<String> onTestPassed;
-    private Action2<String,TestAssertionFailure> onTestFailed;
-    private Action1<String> onTestFinished;
+    private Action1<TestGroup> onTestGroupStarted;
+    private Action1<TestGroup> onTestGroupFinished;
+    private Action1<Test> onTestStarted;
+    private Action1<Test> onTestPassed;
+    private Action2<Test,TestAssertionFailure> onTestFailed;
+    private Action1<Test> onTestFinished;
     
     private Action0 beforeTestAction;
     private Action0 afterTestAction;
-    private String testFullName = "";
+    private TestGroup currentTestGroup;
 
-    @Override
-    public void testGroup(String testGroupName, Action0 testGroupAction)
+    private final boolean debug;
+    private final PathPattern testPattern;
+
+    public TestRunnerBase(boolean debug, PathPattern testPattern)
     {
-        if (testGroupAction != null)
-        {
-            final Action0 beforeTestActionBackup = beforeTestAction;
-            final Action0 afterTestActionBackup = afterTestAction;
-
-            final String testFullNameBackup = testFullName;
-            if (!testFullName.isEmpty())
-            {
-                testFullName += testNameSeparator;
-            }
-            testFullName += testGroupName;
-            
-            if (onTestGroupStarted != null)
-            {
-                onTestGroupStarted.run(testGroupName);
-            }
-            
-            testGroupAction.run();
-
-            if (onTestGroupFinished != null)
-            {
-                onTestGroupFinished.run(testGroupName);
-            }
-
-            beforeTestAction = beforeTestActionBackup;
-            afterTestAction = afterTestActionBackup;
-            testFullName = testFullNameBackup;
-        }
+        this.debug = debug;
+        this.testPattern = testPattern;
     }
 
     @Override
@@ -59,78 +33,99 @@ public class TestRunnerBase implements TestRunner
     }
 
     @Override
+    public void testGroup(String testGroupName, Action0 testGroupAction)
+    {
+        if (testGroupAction != null)
+        {
+            final Action0 beforeTestActionBackup = beforeTestAction;
+            final Action0 afterTestActionBackup = afterTestAction;
+
+            currentTestGroup = new TestGroup(testGroupName, currentTestGroup);
+            if (onTestGroupStarted != null)
+            {
+                onTestGroupStarted.run(currentTestGroup);
+            }
+            
+            testGroupAction.run();
+
+            if (onTestGroupFinished != null)
+            {
+                onTestGroupFinished.run(currentTestGroup);
+            }
+
+            beforeTestAction = beforeTestActionBackup;
+            afterTestAction = afterTestActionBackup;
+            currentTestGroup = currentTestGroup.getParentTestGroup();
+        }
+    }
+
+    @Override
     public void test(String testName, Action1<Test> testAction)
     {
         if (testAction != null)
         {
-            final String testFullNameBackup = testFullName;
-            if (!testFullName.isEmpty())
+            final Test test = new Test(testName, currentTestGroup);
+            if (test.matches(testPattern))
             {
-                testFullName += testNameSeparator;
-            }
-            testFullName += testName;
-            
-            if (onTestStarted != null)
-            {
-                onTestStarted.run(testName);
-            }
-
-            final Test test = new Test(testFullName);
-            try
-            {
-                if (beforeTestAction != null)
+                if (onTestStarted != null)
                 {
-                    beforeTestAction.run();
+                    onTestStarted.run(test);
                 }
 
-                testAction.run(test);
-
-                if (afterTestAction != null)
+                try
                 {
-                    afterTestAction.run();
-                }
-
-                ++passedTestCount;
-                if (onTestPassed != null)
-                {
-                    onTestPassed.run(testName);
-                }
-            }
-            catch (Throwable e)
-            {
-                TestAssertionFailure failure;
-                if (e instanceof TestAssertionFailure)
-                {
-                    failure = (TestAssertionFailure)e;
-                }
-                else
-                {
-                    final List<String> messageLines = new SingleLinkList<>();
-                    messageLines.add("Unhandled Exception: " + e.getClass().getName());
-
-                    final String message = e.getMessage();
-                    if (message != null && !message.isEmpty())
+                    if (beforeTestAction != null)
                     {
-                        messageLines.add("Message: " + e.getMessage());
+                        beforeTestAction.run();
                     }
-                    failure = new TestAssertionFailure(testFullName, Array.toStringArray(messageLines), e);
+
+                    testAction.run(test);
+
+                    if (afterTestAction != null)
+                    {
+                        afterTestAction.run();
+                    }
+
+                    ++passedTestCount;
+                    if (onTestPassed != null)
+                    {
+                        onTestPassed.run(test);
+                    }
                 }
-
-                testFailures.add(failure);
-
-                ++failedTestCount;
-                if (onTestFailed != null)
+                catch (Throwable e)
                 {
-                    onTestFailed.run(testName, failure);
+                    TestAssertionFailure failure;
+                    if (e instanceof TestAssertionFailure)
+                    {
+                        failure = (TestAssertionFailure)e;
+                    }
+                    else
+                    {
+                        final List<String> messageLines = new SingleLinkList<>();
+                        messageLines.add("Unhandled Exception: " + e.getClass().getName());
+
+                        final String message = e.getMessage();
+                        if (message != null && !message.isEmpty())
+                        {
+                            messageLines.add("Message: " + e.getMessage());
+                        }
+                        failure = new TestAssertionFailure(test.getFullName(), Array.toStringArray(messageLines), e);
+                    }
+
+                    testFailures.add(failure);
+
+                    ++failedTestCount;
+                    if (onTestFailed != null)
+                    {
+                        onTestFailed.run(test, failure);
+                    }
+                }
+
+                if (onTestFinished != null)
+                {
+                    onTestFinished.run(test);
                 }
             }
-
-            if (onTestFinished != null)
-            {
-                onTestFinished.run(testName);
-            }
-            
-            testFullName = testFullNameBackup;
         }
     }
 
@@ -237,7 +232,7 @@ public class TestRunnerBase implements TestRunner
      * Set the Action that will be run when a TestGroup starts running.
      * @param testGroupStartedAction The Action that will be run when a TestGroup starts running.
      */
-    public void setOnTestGroupStarted(Action1<String> testGroupStartedAction)
+    public void setOnTestGroupStarted(Action1<TestGroup> testGroupStartedAction)
     {
         onTestGroupStarted = testGroupStartedAction;
     }
@@ -246,7 +241,7 @@ public class TestRunnerBase implements TestRunner
      * Set the Action that will be run when a TestGroup finishes.
      * @param testGroupFinishedAction The Action that will be run when a TestGroup finishes.
      */
-    public void setOnTestGroupFinished(Action1<String> testGroupFinishedAction)
+    public void setOnTestGroupFinished(Action1<TestGroup> testGroupFinishedAction)
     {
         onTestGroupFinished = testGroupFinishedAction;
     }
@@ -255,7 +250,7 @@ public class TestRunnerBase implements TestRunner
      * Set the Action that will be run when a Test starts running.
      * @param testStartedAction The Action that will be run when a Test starts running.
      */
-    public void setOnTestStarted(Action1<String> testStartedAction)
+    public void setOnTestStarted(Action1<Test> testStartedAction)
     {
         onTestStarted = testStartedAction;
     }
@@ -264,7 +259,7 @@ public class TestRunnerBase implements TestRunner
      * Set the Action that will be run when a Test passes.
      * @param testPassedAction The Action that will be run when a Test passes.
      */
-    public void setOnTestPassed(Action1<String> testPassedAction)
+    public void setOnTestPassed(Action1<Test> testPassedAction)
     {
         onTestPassed = testPassedAction;
     }
@@ -273,7 +268,7 @@ public class TestRunnerBase implements TestRunner
      * Set the Action that will be run when a Test fails.
      * @param testFailedAction The Action that will be run when a Test fails.
      */
-    public void setOnTestFailed(Action2<String, TestAssertionFailure> testFailedAction)
+    public void setOnTestFailed(Action2<Test, TestAssertionFailure> testFailedAction)
     {
         onTestFailed = testFailedAction;
     }
@@ -282,7 +277,7 @@ public class TestRunnerBase implements TestRunner
      * Set the Action that will be run when a Test finishes.
      * @param testFinishedAction The Action that will be run when a Test finishes.
      */
-    public void setOnTestFinished(Action1<String> testFinishedAction)
+    public void setOnTestFinished(Action1<Test> testFinishedAction)
     {
         onTestFinished = testFinishedAction;
     }

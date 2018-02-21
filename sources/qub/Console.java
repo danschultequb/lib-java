@@ -21,6 +21,11 @@ public class Console extends Process
         super(commandLineArgumentStrings);
     }
 
+    public Console(CommandLine commandLine)
+    {
+        super(commandLine);
+    }
+
     public String readLine()
     {
         final LineReadStream lineReadStream = getInputAsLineReadStream();

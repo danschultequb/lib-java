@@ -12,11 +12,11 @@ public class ProcessTests
                 test.assertEqual(new Array<String>(0), process.getCommandLineArgumentStrings());
             });
             
-            runner.testGroup("constructor(String)", () ->
+            runner.testGroup("constructor(String[])", () ->
             {
-                runner.test("with null string", (Test test) ->
+                runner.test("with null String[]", (Test test) ->
                 {
-                    final Process process = new Process(null);
+                    final Process process = new Process((String[])null);
                     test.assertEqual(new Array<String>(0), process.getCommandLineArgumentStrings());
                     test.assertNotNull(process.getCommandLine());
                 });
@@ -28,10 +28,7 @@ public class ProcessTests
                     test.assertEqual(new Array<String>(0), process.getCommandLineArgumentStrings());
                     test.assertNotNull(process.getCommandLine());
                 });
-            });
-            
-            runner.testGroup("constructor(String[])", () ->
-            {
+
                 runner.test("with non-empty String[]", (Test test) ->
                 {
                     final String[] commandLineArgumentStrings = new String[] { "a", "b", "c" };
@@ -56,7 +53,7 @@ public class ProcessTests
             runner.test("getLineSeparator()", (Test test) ->
             {
                 final Process process = new Process();
-                test.assertEqual("\n", process.getLineSeparator());
+                test.assertEqual(process.onWindows() ? "\r\n" : "\n", process.getLineSeparator());
 
                 process.setLineSeparator("\r\n");
                 test.assertEqual("\r\n", process.getLineSeparator());
