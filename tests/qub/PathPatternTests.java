@@ -28,6 +28,7 @@ public class PathPatternTests
                 parsePathTest.run(null);
                 parsePathTest.run("");
                 parsePathTest.run("/folder/subfolder");
+                parsePathTest.run("*700");
             });
             
             runner.testGroup("parse(String)", () ->
@@ -54,89 +55,82 @@ public class PathPatternTests
                 parseStringTest.run("*abc");
                 parseStringTest.run("**");
                 parseStringTest.run("**test");
+                parseStringTest.run("*700");
             });
             
             runner.testGroup("isMatch(String)", () ->
             {
-                runner.test("with null pattern", (Test test) ->
+                final Action3<String,String[],String[]> isMatchTest = (String pattern, String[] matches, String[] nonMatches) ->
                 {
-                    final PathPattern pattern = PathPattern.parse((String)null);
+                    runner.testGroup("with " + runner.escapeAndQuote(pattern), () ->
+                    {
+                        final PathPattern pathPattern = PathPattern.parse(pattern);
 
-                    test.assertTrue(pattern.isMatch((String)null));
-                    test.assertTrue(pattern.isMatch(""));
-                    test.assertFalse(pattern.isMatch("a"));
+                        if (matches != null && matches.length > 0)
+                        {
+                            for (String match : matches)
+                            {
+                                runner.test("matching " + runner.escapeAndQuote(match), (Test test) ->
+                                {
+                                    test.assertTrue(pathPattern.isMatch(match));
+                                    test.assertTrue(pathPattern.isMatch(Path.parse(match)));
+                                });
+                            }
+                        }
 
-                    test.assertTrue(pattern.isMatch((Path)null));
-                    test.assertTrue(pattern.isMatch(Path.parse("")));
-                    test.assertFalse(pattern.isMatch(Path.parse("a")));
-                });
+                        if (nonMatches != null && nonMatches.length > 0)
+                        {
+                            for (String nonMatch : nonMatches)
+                            {
+                                runner.test("not matching " + runner.escapeAndQuote(nonMatch), (Test test) ->
+                                {
+                                    test.assertFalse(pathPattern.isMatch(nonMatch));
+                                    test.assertFalse(pathPattern.isMatch(Path.parse(nonMatch)));
+                                });
+                            }
+                        }
+                    });
+                };
 
-                runner.test("with " + runner.escapeAndQuote("abc") + " pattern", (Test test) ->
-                {
-                    final PathPattern pattern = PathPattern.parse("abc");
+                isMatchTest.run(null,
+                    new String[] { null, "" },
+                    new String[] { " ", "a", "1", "7", "*", "**", "*700" });
 
-                    test.assertTrue(pattern.isMatch("abc"));
-                    test.assertTrue(pattern.isMatch(Path.parse("abc")));
+                isMatchTest.run("",
+                    new String[] { null, "" },
+                    new String[] { " ", "a", "1", "7", "*", "**", "*700" });
 
-                    test.assertFalse(pattern.isMatch("ab"));
-                    test.assertFalse(pattern.isMatch("abcd"));
-                });
+                isMatchTest.run("abc",
+                    new String[] { "abc" },
+                    new String[] { null, "", "a", "b", "c", "ab", "bc", "ABC", "abcd" });
 
-                runner.test("with " + runner.escapeAndQuote("a/b") + " pattern", (Test test) ->
-                {
-                    final PathPattern pattern = PathPattern.parse("a/b");
+                isMatchTest.run("a/b",
+                    new String[] { "a/b", "a\\b" },
+                    new String[] { null, "", "a/b/", "a\\b\\", "a/", "A/B", "a/c" });
 
-                    test.assertTrue(pattern.isMatch("a/b"));
-                    test.assertTrue(pattern.isMatch(Path.parse("a/b")));
-                    test.assertTrue(pattern.isMatch("a\\b"));
-                    test.assertTrue(pattern.isMatch(Path.parse("a\\b")));
+                isMatchTest.run("*",
+                    new String[] { null, "", "a", "300", ".java", "..java", "Test.jav", "Test.javas" },
+                    new String[] { "/", "\\", "/a", "a/b", "a/b/c/d/test.java" });
 
-                    test.assertFalse(pattern.isMatch("a/b/"));
-                    test.assertFalse(pattern.isMatch("a\\b\\"));
-                });
+                isMatchTest.run("*.java",
+                    new String[] { ".java", "Test.java", "..java" },
+                    new String[] { null, "", "Test.jav", "Test.javas", "a/Test.java", "/Test.java", "\\Test.java" });
 
-                runner.test("with " + runner.escapeAndQuote("*") + " pattern", (Test test) ->
-                {
-                    final PathPattern pattern = PathPattern.parse("*");
+                isMatchTest.run("sources/**.java",
+                    new String[] { "sources/Test.java", "sources/qub/Test.java", "sources\\qub\\package\\Class.java", "sources/.java" },
+                    new String[] { "output/Test.java", "source/Test.java", "sources/blah.javb" });
 
-                    test.assertTrue(pattern.isMatch(""));
-                    test.assertTrue(pattern.isMatch(".java"));
-                    test.assertTrue(pattern.isMatch("Test.java"));
-                    test.assertTrue(pattern.isMatch("..java"));
-                    test.assertTrue(pattern.isMatch("Test.jav"));
-                    test.assertTrue(pattern.isMatch("Test.javas"));
+                isMatchTest.run("700",
+                    new String[] { "700" },
+                    new String[] { null, "", "1700", "7001", "70", "00", "7", "0" });
 
-                    test.assertFalse(pattern.isMatch("/"));
-                    test.assertFalse(pattern.isMatch("\\"));
-                });
+                isMatchTest.run("*a",
+                    new String[] { "a", "ba", "cba" },
+                    new String[] { null, "", "b", "c", "70", "ab" });
 
-                runner.test("with " + runner.escapeAndQuote("*.java") + " pattern", (Test test) ->
-                {
-                    final PathPattern pattern = PathPattern.parse("*.java");
-
-                    test.assertTrue(pattern.isMatch(".java"));
-                    test.assertTrue(pattern.isMatch("Test.java"));
-                    test.assertTrue(pattern.isMatch("..java"));
-
-                    test.assertFalse(pattern.isMatch(""));
-                    test.assertFalse(pattern.isMatch("Test.jav"));
-                    test.assertFalse(pattern.isMatch("Test.javas"));
-                    test.assertFalse(pattern.isMatch("/Test.java"));
-                    test.assertFalse(pattern.isMatch("\\Test.java"));
-                });
-
-                runner.test("with " + runner.escapeAndQuote("sources/**.java") + " pattern", (Test test) ->
-                {
-                    final PathPattern pattern = PathPattern.parse("sources/**.java");
-
-                    test.assertTrue(pattern.isMatch("sources/Test.java"));
-                    test.assertTrue(pattern.isMatch("sources/qub/Test.java"));
-                    test.assertTrue(pattern.isMatch("sources\\qub\\package\\Class.java"));
-                    test.assertTrue(pattern.isMatch("sources/.java"));
-
-                    test.assertFalse(pattern.isMatch("output/Test.java"));
-                    test.assertFalse(pattern.isMatch("sources/blah.javb"));
-                });
+                isMatchTest.run("*700",
+                    new String[] { "700", "1700", "abc700", " 700", "with cascade strategy and 700" },
+                    new String[] { null, "", "BondsAction", "cascade strategy", "70", "100", "with cascade strategy and 100" });
             });
 
             runner.test("equals()", (Test test) ->

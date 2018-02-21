@@ -1,8 +1,8 @@
 package qub;
 
-public class SimplePathPattern extends PathPattern
+class SimplePathPattern extends PathPattern
 {
-    protected SimplePathPattern(String patternString, State startState)
+    SimplePathPattern(String patternString, State startState)
     {
         super(patternString, startState);
     }
@@ -27,13 +27,11 @@ public class SimplePathPattern extends PathPattern
 
                 for (final State currentState : currentStates)
                 {
-                    final Iterable<State> nextStatesToAdd = currentState.getNextStates(currentCharacter);
-                    nextStates.addAll(nextStatesToAdd);
+                    nextStates.addAll(currentState.getNextStates(currentCharacter));
                 }
 
                 currentStates.clear();
                 currentStates.addAll(nextStates);
-
                 nextStates.clear();
             }
         }
@@ -70,6 +68,7 @@ public class SimplePathPattern extends PathPattern
                     if (characters.next() && characters.getCurrent() == '*')
                     {
                         currentState.addTransition(new DoubleStarTransitionCondition(), currentState);
+                        characters.next();
                     }
                     else
                     {
@@ -81,14 +80,15 @@ public class SimplePathPattern extends PathPattern
                 case '\\':
                     nextState = new State();
                     currentState.addTransition(new PathSeparatorTransitionCondition(), nextState);
+                    characters.next();
                     break;
 
                 default:
                     nextState = new State();
                     currentState.addTransition(new CharacterTransitionCondition(characters.getCurrent()), nextState);
+                    characters.next();
                     break;
             }
-            characters.next();
 
             currentState = nextState;
         }
