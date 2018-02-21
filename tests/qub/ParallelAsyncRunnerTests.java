@@ -4,30 +4,17 @@ public class ParallelAsyncRunnerTests
 {
     public static void test(final TestRunner runner)
     {
-        runner.testGroup("ParallelAsyncRunner", new Action0()
+        runner.testGroup("ParallelAsyncRunner", () ->
         {
-            @Override
-            public void run()
-            {
-                AsyncRunnerTests.test(runner, new Function0<AsyncRunner>()
-                {
-                    @Override
-                    public AsyncRunner run()
-                    {
-                        return new ParallelAsyncRunner(new Synchronization());
-                    }
-                });
+            AsyncRunnerTests.test(runner, () -> new ParallelAsyncRunner(new Synchronization()));
 
-                runner.test("constructor()", new Action1<Test>()
+            runner.test("constructor()", (Test test) ->
+            {
+                try (final ParallelAsyncRunner runner1 = new ParallelAsyncRunner(new Synchronization()))
                 {
-                    @Override
-                    public void run(Test test)
-                    {
-                        final ParallelAsyncRunner runner = new ParallelAsyncRunner(new Synchronization());
-                        test.assertEqual(0, runner.getScheduledTaskCount());
-                    }
-                });
-            }
+                    test.assertEqual(0, runner1.getScheduledTaskCount());
+                }
+            });
         });
     }
 }

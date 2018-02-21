@@ -4,6 +4,7 @@ public class CurrentThreadAsyncRunner implements AsyncRunner
 {
     private final Function0<Synchronization> synchronizationFunction;
     private final LockedQueue<PausedAsyncTask> scheduledTasks;
+    private boolean closed;
 
     public CurrentThreadAsyncRunner(final Synchronization synchronization)
     {
@@ -31,7 +32,10 @@ public class CurrentThreadAsyncRunner implements AsyncRunner
     @Override
     public void schedule(PausedAsyncTask asyncTask)
     {
-        scheduledTasks.enqueue(asyncTask);
+        if (!closed)
+        {
+            scheduledTasks.enqueue(asyncTask);
+        }
     }
 
     @Override
@@ -141,5 +145,11 @@ public class CurrentThreadAsyncRunner implements AsyncRunner
         {
             AsyncRunnerRegistry.removeCurrentThreadAsyncRunner();
         }
+    }
+
+    @Override
+    public void close()
+    {
+        closed = true;
     }
 }

@@ -1,11 +1,14 @@
 package qub;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ParallelAsyncRunner implements AsyncRunner
 {
     private final Function0<Synchronization> synchronizationFunction;
     private final AtomicInteger scheduledTaskCount;
+    private final ExecutorService executorService;
 
     public ParallelAsyncRunner(final Synchronization synchronization)
     {
@@ -23,6 +26,7 @@ public class ParallelAsyncRunner implements AsyncRunner
     {
         this.synchronizationFunction = synchronizationFunction;
         scheduledTaskCount = new AtomicInteger(0);
+        executorService = Executors.newCachedThreadPool();
     }
 
     @Override
@@ -40,24 +44,27 @@ public class ParallelAsyncRunner implements AsyncRunner
     @Override
     public void schedule(final PausedAsyncTask asyncTask)
     {
-        scheduledTaskCount.incrementAndGet();
-        new java.lang.Thread(new Action0()
+        if (!executorService.isShutdown())
         {
-            @Override
-            public void run()
+            scheduledTaskCount.incrementAndGet();
+            executorService.execute(new Action0()
             {
-                AsyncRunnerRegistry.setCurrentThreadAsyncRunner(ParallelAsyncRunner.this);
-                try
+                @Override
+                public void run()
                 {
-                    asyncTask.runAndSchedulePausedTasks();
-                    scheduledTaskCount.decrementAndGet();
+                    AsyncRunnerRegistry.setCurrentThreadAsyncRunner(ParallelAsyncRunner.this);
+                    try
+                    {
+                        asyncTask.runAndSchedulePausedTasks();
+                        scheduledTaskCount.decrementAndGet();
+                    }
+                    finally
+                    {
+                        AsyncRunnerRegistry.removeCurrentThreadAsyncRunner();
+                    }
                 }
-                finally
-                {
-                    AsyncRunnerRegistry.removeCurrentThreadAsyncRunner();
-                }
-            }
-        }).start();
+            });
+        }
     }
 
     @Override
@@ -94,5 +101,11 @@ public class ParallelAsyncRunner implements AsyncRunner
         while (scheduledTaskCount.get() > 0)
         {
         }
+    }
+
+    @Override
+    public void close()
+    {
+        executorService.shutdownNow();
     }
 }

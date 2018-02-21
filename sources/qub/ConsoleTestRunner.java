@@ -267,64 +267,34 @@ public class ConsoleTestRunner extends Console implements TestRunner
 
     public static void main(String[] args)
     {
-        final ConsoleTestRunner console = new ConsoleTestRunner(args);
-        final CommandLine commandLine = console.getCommandLine();
-        final boolean debug = commandLine.remove("debug") != null;
-
-        PathPattern filter = null;
-        final CommandLineArgument filterArgument = commandLine.remove("filter");
-        if (filterArgument != null && filterArgument.getValue() != null && !filterArgument.getValue().isEmpty())
+        try (final ConsoleTestRunner console = new ConsoleTestRunner(args))
         {
-            filter = PathPattern.parse(filterArgument.getValue());
-        }
+            final CommandLine commandLine = console.getCommandLine();
+            final boolean debug = commandLine.remove("debug") != null;
 
-        final Stopwatch stopwatch = console.getStopwatch();
-        stopwatch.start();
+            final Stopwatch stopwatch = console.getStopwatch();
+            stopwatch.start();
 
-        for (final CommandLineArgument argument : commandLine.getArguments())
-        {
-            if (argument.getName() == null)
+            for (final CommandLineArgument argument : commandLine.getArguments())
             {
-                final String fullClassName = argument.getValue();
-                if (debug)
+                if (argument.getName() == null)
                 {
-                    console.write("Looking for class \"" + fullClassName + "\"...");
-                }
-
-                Class<?> testClass = null;
-                try
-                {
-                    testClass = ConsoleTestRunner.class.getClassLoader().loadClass(fullClassName);
+                    final String fullClassName = argument.getValue();
                     if (debug)
                     {
-                        console.writeLine("Found!");
-                    }
-                }
-                catch (ClassNotFoundException e)
-                {
-                    if (debug)
-                    {
-                        console.writeLine("Couldn't find.");
-                    }
-                }
-
-                if (testClass != null)
-                {
-                    if (debug)
-                    {
-                        console.write("Looking for static test(TestRunner) method in \"" + fullClassName + "\"...");
+                        console.write("Looking for class \"" + fullClassName + "\"...");
                     }
 
-                    Method testMethod = null;
+                    Class<?> testClass = null;
                     try
                     {
-                        testMethod = testClass.getMethod("test", TestRunner.class);
+                        testClass = ConsoleTestRunner.class.getClassLoader().loadClass(fullClassName);
                         if (debug)
                         {
                             console.writeLine("Found!");
                         }
                     }
-                    catch (NoSuchMethodException e)
+                    catch (ClassNotFoundException e)
                     {
                         if (debug)
                         {
@@ -332,25 +302,50 @@ public class ConsoleTestRunner extends Console implements TestRunner
                         }
                     }
 
-                    if (testMethod != null)
+                    if (testClass != null)
                     {
+                        if (debug)
+                        {
+                            console.write("Looking for static test(TestRunner) method in \"" + fullClassName + "\"...");
+                        }
+
+                        Method testMethod = null;
                         try
                         {
-                            testMethod.invoke(null, console);
+                            testMethod = testClass.getMethod("test", TestRunner.class);
+                            if (debug)
+                            {
+                                console.writeLine("Found!");
+                            }
                         }
-                        catch (IllegalAccessException | InvocationTargetException e)
+                        catch (NoSuchMethodException e)
                         {
-                            e.printStackTrace();
+                            if (debug)
+                            {
+                                console.writeLine("Couldn't find.");
+                            }
+                        }
+
+                        if (testMethod != null)
+                        {
+                            try
+                            {
+                                testMethod.invoke(null, console);
+                            }
+                            catch (IllegalAccessException | InvocationTargetException e)
+                            {
+                                e.printStackTrace();
+                            }
                         }
                     }
                 }
             }
+
+            console.writeLine();
+            console.writeSummary();
+
+            final Duration totalTestsDuration = stopwatch.stop();
+            console.writeLine("Tests Duration: " + totalTestsDuration.toSeconds().toString("0.0"));
         }
-
-        console.writeLine();
-        console.writeSummary();
-
-        final Duration totalTestsDuration = stopwatch.stop();
-        console.writeLine("Tests Duration: " + totalTestsDuration.toSeconds().toString("0.0"));
     }
 }

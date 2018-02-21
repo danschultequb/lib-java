@@ -5,7 +5,7 @@ import java.nio.file.Paths;
 /**
  * A Console platform that can be used to write Console applications.
  */
-public class Process
+public class Process implements AutoCloseable
 {
     private final CommandLine commandLine;
 
@@ -27,8 +27,8 @@ public class Process
     private final Value<Synchronization> synchronization;
     private final Value<Function0<Stopwatch>> stopwatchCreator;
 
-    private final AsyncRunner mainRunner;
-    private final AsyncRunner parallelRunner;
+    private AsyncRunner mainRunner;
+    private AsyncRunner parallelRunner;
 
     /**
      * Create a new Process applications can be written with.
@@ -68,18 +68,22 @@ public class Process
         synchronization = new Value<>();
         stopwatchCreator = new Value<>();
 
-        final Function0<Synchronization> synchronizationFunction = new Function0<Synchronization>()
-        {
-            @Override
-            public Synchronization run()
-            {
-                return getSynchronization();
-            }
-        };
-        mainRunner = new CurrentThreadAsyncRunner(synchronizationFunction);
+        mainRunner = new CurrentThreadAsyncRunner(this::getSynchronization);
         AsyncRunnerRegistry.setCurrentThreadAsyncRunner(mainRunner);
+    }
 
-        parallelRunner = new ParallelAsyncRunner(synchronizationFunction);
+    public AsyncRunner getMainRunner()
+    {
+        return mainRunner;
+    }
+
+    public AsyncRunner getParallelRunner()
+    {
+        if (parallelRunner == null)
+        {
+            parallelRunner = new ParallelAsyncRunner(this::getSynchronization);
+        }
+        return parallelRunner;
     }
 
     public Indexable<String> getCommandLineArgumentStrings()
@@ -330,7 +334,7 @@ public class Process
         }
         else
         {
-            fileSystem.setAsyncRunner(parallelRunner);
+            fileSystem.setAsyncRunner(getParallelRunner());
             currentFolderPathString.clear();
         }
     }
@@ -563,7 +567,7 @@ public class Process
 
             if (executableFile != null)
             {
-                result = new ProcessBuilder(parallelRunner, executableFile);
+                result = new ProcessBuilder(getParallelRunner(), executableFile);
             }
         }
 
@@ -578,5 +582,30 @@ public class Process
     {
         final String osName = System.getProperty("os.name");
         return osName.toLowerCase().contains("windows");
+    }
+
+    @Override
+    public void close()
+    {
+        try
+        {
+            mainRunner.close();
+        }
+        catch (Exception ignored)
+        {
+        }
+        finally
+        {
+            if (parallelRunner != null)
+            {
+                try
+                {
+                    parallelRunner.close();
+                }
+                catch (Exception ignored)
+                {
+                }
+            }
+        }
     }
 }
