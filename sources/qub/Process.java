@@ -46,6 +46,11 @@ public class Process implements AutoCloseable
         this(CommandLine.parse(commandLineArgumentStrings));
     }
 
+    public Process(Iterable<String> commandLineArgumentStrings)
+    {
+        this(CommandLine.parse(commandLineArgumentStrings));
+    }
+
     /**
      * Create a new Process that Console applications can be written with.
      */

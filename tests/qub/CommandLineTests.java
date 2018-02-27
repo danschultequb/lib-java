@@ -10,7 +10,7 @@ public class CommandLineTests
             {
                 runner.test("with null String[]", (Test test) ->
                 {
-                    final CommandLine commandLine = CommandLine.parse(null);
+                    final CommandLine commandLine = CommandLine.parse((String[])null);
                     test.assertEqual(new Array<String>(0), commandLine.getArgumentStrings());
                     test.assertFalse(commandLine.any());
                     test.assertEqual(0, commandLine.getCount());
@@ -67,19 +67,19 @@ public class CommandLineTests
             {
                 runner.test("with null arguments and null name", (Test test) ->
                 {
-                    final CommandLine commandLine = CommandLine.parse(null);
+                    final CommandLine commandLine = CommandLine.parse((String[])null);
                     test.assertNull(commandLine.getValue(null));
                 });
 
                 runner.test("with null arguments and empty name", (Test test) ->
                 {
-                    final CommandLine commandLine = CommandLine.parse(null);
+                    final CommandLine commandLine = CommandLine.parse((String[])null);
                     test.assertNull(commandLine.getValue(""));
                 });
 
                 runner.test("with null arguments and non-empty name", (Test test) ->
                 {
-                    final CommandLine commandLine = CommandLine.parse(null);
+                    final CommandLine commandLine = CommandLine.parse((String[])null);
                     test.assertNull(commandLine.getValue("spud"));
                 });
 

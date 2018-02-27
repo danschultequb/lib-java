@@ -102,8 +102,13 @@ public class CommandLine implements Indexable<CommandLineArgument>
 
     public static CommandLine parse(String[] rawCommandLineArguments)
     {
+        return parse(Array.fromValues(rawCommandLineArguments));
+    }
+
+    public static CommandLine parse(Iterable<String> rawCommandLineArguments)
+    {
         final List<CommandLineArgument> commandLineArguments = new ArrayList<>();
-        if (rawCommandLineArguments != null && rawCommandLineArguments.length > 0)
+        if (rawCommandLineArguments != null && rawCommandLineArguments.any())
         {
             for (final String rawCommandLineArgument : rawCommandLineArguments)
             {
