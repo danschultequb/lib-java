@@ -2,6 +2,20 @@ package qub;
 
 public class IterableTests
 {
+    public static void test(TestRunner runner)
+    {
+        runner.testGroup(Iterable.class, () ->
+        {
+            runner.testGroup("toString(Iterable<T>)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    test.assertEqual("null", Iterable.toString(null));
+                });
+            });
+        });
+    }
+
     public static void test(final TestRunner runner, final Function1<Integer,Iterable<Integer>> createIterable)
     {
         runner.testGroup("Iterable<T>", () ->
@@ -1014,6 +1028,30 @@ public class IterableTests
                         test.assertFalse(iterable.equals((Object)rhs));
                         test.assertFalse(iterable.equals(rhs));
                     }
+                });
+            });
+
+            runner.testGroup("toString()", () ->
+            {
+                runner.test("with empty Iterable", (Test test) ->
+                {
+                    final Iterable<Integer> iterable = createIterable.run(0);
+                    if (iterable != null)
+                    {
+                        test.assertEqual("[]", iterable.toString());
+                    }
+                });
+
+                runner.test("with single-value Iterable", (Test test) ->
+                {
+                    final Iterable<Integer> iterable = createIterable.run(1);
+                    test.assertEqual("[0]", iterable.toString());
+                });
+
+                runner.test("with multiple-value Iterable", (Test test) ->
+                {
+                    final Iterable<Integer> iterable = createIterable.run(4);
+                    test.assertEqual("[0,1,2,3]", iterable.toString());
                 });
             });
         });

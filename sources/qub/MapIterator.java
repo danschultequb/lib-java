@@ -33,7 +33,7 @@ class MapIterator<TInner,TOuter> implements Iterator<TOuter>
     public TOuter getCurrent()
     {
         TOuter result = null;
-        if (hasCurrent() && conversion != null)
+        if (hasCurrent())
         {
             result = conversion.run(innerIterator.getCurrent());
         }

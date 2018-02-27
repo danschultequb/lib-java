@@ -4,40 +4,35 @@ public class MapIteratorTests
 {
     public static void test(final TestRunner runner)
     {
-        runner.testGroup("MapIterator<T>", new Action0()
+        runner.testGroup(MapIterator.class, () ->
         {
-            @Override
-            public void run()
+            IteratorTests.test(runner, (Integer count, Boolean started) ->
             {
-                IteratorTests.test(runner, new Function2<Integer, Boolean, Iterator<Integer>>()
+                final Array<Long> array = new Array<>(count);
+                for (int i = 0; i < count; ++i)
                 {
-                    @Override
-                    public Iterator<Integer> run(Integer count, Boolean started)
-                    {
-                        final Array<Long> array = new Array<>(count);
-                        for (int i = 0; i < count; ++i)
-                        {
-                            array.set(i, (long)i);
-                        }
+                    array.set(i, (long)i);
+                }
 
-                        final Iterator<Integer> iterator = array.iterate().map(new Function1<Long, Integer>()
-                        {
-                            @Override
-                            public Integer run(Long value)
-                            {
-                                return value.intValue();
-                            }
-                        });
+                final Iterator<Integer> iterator = array.iterate().map(Long::intValue);
 
-                        if (started)
-                        {
-                            iterator.next();
-                        }
+                if (started)
+                {
+                    iterator.next();
+                }
 
-                        return iterator;
-                    }
+                return iterator;
+            });
+
+            runner.testGroup("getCurrent()", () ->
+            {
+                runner.test("with null conversion", (Test test) ->
+                {
+                    final Array<String> array = Array.fromValues(new String[] { "1", "2", "3" });
+                    final Iterator<Integer> iterator = array.iterate().map(null);
+                    test.assertNull(iterator.getCurrent());
                 });
-            }
+            });
         });
     }
 }
