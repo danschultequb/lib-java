@@ -248,6 +248,25 @@ public class JavaFileSystem implements FileSystem
     }
 
     @Override
+    public DateTime getFileLastModified(Path rootedFilePath)
+    {
+        DateTime result = null;
+
+        if (rootExists(rootedFilePath))
+        {
+            final String filePathString = rootedFilePath.toString();
+            final java.io.File javaFile = new java.io.File(filePathString);
+            final long lastModifiedMilliseconds = javaFile.lastModified();
+            if (lastModifiedMilliseconds != 0)
+            {
+                result = DateTime.local(lastModifiedMilliseconds);
+            }
+        }
+
+        return result;
+    }
+
+    @Override
     public ByteReadStream getFileContentByteReadStream(Path rootedFilePath, Action1<String> onError)
     {
         ByteReadStream result = null;

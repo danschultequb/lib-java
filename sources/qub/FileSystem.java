@@ -1703,6 +1703,27 @@ public interface FileSystem
     }
 
     /**
+     * Get the date and time of the most recent modification of the given file, or null if the file
+     * doesn't exist.
+     * @param filePath The path to the file.
+     * @return The date and time of the most recent modification of the given file, or null if the
+     * file doesn't exist.
+     */
+    default DateTime getFileLastModified(String filePath)
+    {
+        return getFileLastModified(Path.parse(filePath));
+    }
+
+    /**
+     * Get the date and time of the most recent modification of the given file, or null if the file
+     * doesn't exist.
+     * @param filePath The path to the file.
+     * @return The date and time of the most recent modification of the given file, or null if the
+     * file doesn't exist.
+     */
+    DateTime getFileLastModified(Path filePath);
+
+    /**
      * Read the contents of the file at the provided rootedFilePath. If no file exists at the
      * provided rootedFilePath, then null will be returned.
      * @param rootedFilePath The rooted file path of the file to readByte.

@@ -3,7 +3,7 @@ package qub;
 import java.util.Calendar;
 import java.util.TimeZone;
 
-public class DateTime
+public class DateTime implements Comparable<DateTime>
 {
     private final Calendar calendar;
 
@@ -124,5 +124,22 @@ public class DateTime
     public static DateTime date(int year, int month, int dayOfMonth)
     {
         return utc(year, month, dayOfMonth, 0, 0, 0, 0);
+    }
+
+    @Override
+    public Comparison compareTo(DateTime value)
+    {
+        return value == null ? Comparison.GreaterThan : Comparison.from(getMillisecondsSinceEpoch() - value.getMillisecondsSinceEpoch());
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        return obj instanceof DateTime && equals((DateTime)obj);
+    }
+
+    public boolean equals(DateTime value)
+    {
+        return Comparable.equalTo(this, value);
     }
 }

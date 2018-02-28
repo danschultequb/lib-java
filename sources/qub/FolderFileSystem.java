@@ -180,6 +180,12 @@ public class FolderFileSystem implements FileSystem
     }
 
     @Override
+    public DateTime getFileLastModified(Path filePath)
+    {
+        return innerFileSystem.getFileLastModified(getInnerPath(filePath));
+    }
+
+    @Override
     public ByteReadStream getFileContentByteReadStream(Path rootedFilePath, Action1<String> onError)
     {
         final Path innerFilePath = getInnerPath(rootedFilePath);

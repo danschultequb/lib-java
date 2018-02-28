@@ -92,6 +92,17 @@ public class File extends FileSystemEntry
     }
 
     /**
+     * Get the date and time of the most recent modification of this file, or null if this file
+     * doesn't exist.
+     * @return The date and time of the most recent modification of this file, or null if this file
+     * doesn't exist.
+     */
+    public DateTime getLastModified()
+    {
+        return getFileSystem().getFileLastModified(getPath());
+    }
+
+    /**
      * Get the entire contents of this File as a single byte[]. If this file doesn't exist, then
      * null will be returned.
      * @return The entire contents of this File as a single byte[], or null if this file doesn't

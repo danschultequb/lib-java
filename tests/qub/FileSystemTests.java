@@ -3443,196 +3443,156 @@ public class FileSystemTests
                 }
             });
 
-            runner.testGroup("deleteFile(String)", new Action0()
+            runner.testGroup("deleteFile(String)", () ->
             {
-                @Override
-                public void run()
+                runner.test("with null path", (Test test) ->
                 {
-                    runner.test("with null path", new Action1<Test>()
-                    {
-                        @Override
-                        public void run(Test test)
-                        {
-                            final FileSystem fileSystem = getFileSystem(creator);
-                            test.assertFalse(fileSystem.deleteFile((String)null));
-                        }
-                    });
+                    final FileSystem fileSystem = getFileSystem(creator);
+                    test.assertFalse(fileSystem.deleteFile((String)null));
+                });
 
-                    runner.test("with empty path", new Action1<Test>()
-                    {
-                        @Override
-                        public void run(Test test)
-                        {
-                            final FileSystem fileSystem = getFileSystem(creator);
-                            test.assertFalse(fileSystem.deleteFile(""));
-                        }
-                    });
+                runner.test("with empty path", (Test test) ->
+                {
+                    final FileSystem fileSystem = getFileSystem(creator);
+                    test.assertFalse(fileSystem.deleteFile(""));
+                });
 
-                    runner.test("with relative path", new Action1<Test>()
-                    {
-                        @Override
-                        public void run(Test test)
-                        {
-                            final FileSystem fileSystem = getFileSystem(creator);
-                            test.assertFalse(fileSystem.deleteFile("relativeFile.txt"));
-                        }
-                    });
+                runner.test("with relative path", (Test test) ->
+                {
+                    final FileSystem fileSystem = getFileSystem(creator);
+                    test.assertFalse(fileSystem.deleteFile("relativeFile.txt"));
+                });
 
-                    runner.test("with non-existing rooted path", new Action1<Test>()
-                    {
-                        @Override
-                        public void run(Test test)
-                        {
-                            final FileSystem fileSystem = getFileSystem(creator);
-                            test.assertFalse(fileSystem.deleteFile("/idontexist.txt"));
-                        }
-                    });
+                runner.test("with non-existing rooted path", (Test test) ->
+                {
+                    final FileSystem fileSystem = getFileSystem(creator);
+                    test.assertFalse(fileSystem.deleteFile("/idontexist.txt"));
+                });
 
-                    runner.test("with existing rooted path", new Action1<Test>()
-                    {
-                        @Override
-                        public void run(Test test)
-                        {
-                            final FileSystem fileSystem = getFileSystem(creator);
-                            fileSystem.createFile("/iexist.txt");
+                runner.test("with existing rooted path", (Test test) ->
+                {
+                    final FileSystem fileSystem = getFileSystem(creator);
+                    fileSystem.createFile("/iexist.txt");
 
-                            test.assertTrue(fileSystem.deleteFile("/iexist.txt"));
-                            test.assertFalse(fileSystem.fileExists("/iexist.txt"));
+                    test.assertTrue(fileSystem.deleteFile("/iexist.txt"));
+                    test.assertFalse(fileSystem.fileExists("/iexist.txt"));
 
-                            test.assertFalse(fileSystem.deleteFile("/iexist.txt"));
-                            test.assertFalse(fileSystem.fileExists("/iexist.txt"));
-                        }
-                    });
-                }
+                    test.assertFalse(fileSystem.deleteFile("/iexist.txt"));
+                    test.assertFalse(fileSystem.fileExists("/iexist.txt"));
+                });
             });
 
-            runner.testGroup("deleteFileAsync(String)", new Action0()
+            runner.testGroup("deleteFileAsync(String)", () ->
             {
-                @Override
-                public void run()
+                runner.test("with null path", (Test test) ->
                 {
-                    runner.test("with null path", new Action1<Test>()
+                    asyncTest.run(test, (FileSystem fileSystem) ->
                     {
-                        @Override
-                        public void run(final Test test)
-                        {
-                            asyncTest.run(test, new Action1<FileSystem>()
+                        fileSystem.deleteFileAsync((String)null)
+                            .then((Boolean fileDeleted) ->
                             {
-                                @Override
-                                public void run(FileSystem fileSystem)
-                                {
-                                    fileSystem.deleteFileAsync((String)null)
-                                        .then(new Action1<Boolean>()
-                                        {
-                                            @Override
-                                            public void run(Boolean fileDeleted)
-                                            {
-                                                test.assertFalse(fileDeleted);
-                                            }
-                                        });
-                                }
+                                test.assertFalse(fileDeleted);
                             });
-                        }
                     });
+                });
 
-                    runner.test("with empty path", new Action1<Test>()
+                runner.test("with empty path", new Action1<Test>()
+                {
+                    @Override
+                    public void run(final Test test)
                     {
-                        @Override
-                        public void run(final Test test)
+                        asyncTest.run(test, new Action1<FileSystem>()
                         {
-                            asyncTest.run(test, new Action1<FileSystem>()
+                            @Override
+                            public void run(FileSystem fileSystem)
                             {
-                                @Override
-                                public void run(FileSystem fileSystem)
-                                {
-                                    fileSystem.deleteFileAsync("")
-                                        .then(new Action1<Boolean>()
+                                fileSystem.deleteFileAsync("")
+                                    .then(new Action1<Boolean>()
+                                    {
+                                        @Override
+                                        public void run(Boolean fileDeleted)
                                         {
-                                            @Override
-                                            public void run(Boolean fileDeleted)
-                                            {
-                                                test.assertFalse(fileDeleted);
-                                            }
-                                        });
-                                }
-                            });
-                        }
-                    });
+                                            test.assertFalse(fileDeleted);
+                                        }
+                                    });
+                            }
+                        });
+                    }
+                });
 
-                    runner.test("with relative path", new Action1<Test>()
+                runner.test("with relative path", new Action1<Test>()
+                {
+                    @Override
+                    public void run(final Test test)
                     {
-                        @Override
-                        public void run(final Test test)
+                        asyncTest.run(test, new Action1<FileSystem>()
                         {
-                            asyncTest.run(test, new Action1<FileSystem>()
+                            @Override
+                            public void run(FileSystem fileSystem)
                             {
-                                @Override
-                                public void run(FileSystem fileSystem)
-                                {
-                                    fileSystem.deleteFileAsync("relativeFile.txt")
-                                        .then(new Action1<Boolean>()
+                                fileSystem.deleteFileAsync("relativeFile.txt")
+                                    .then(new Action1<Boolean>()
+                                    {
+                                        @Override
+                                        public void run(Boolean fileDeleted)
                                         {
-                                            @Override
-                                            public void run(Boolean fileDeleted)
-                                            {
-                                                test.assertFalse(fileDeleted);
-                                            }
-                                        });
-                                }
-                            });
-                        }
-                    });
+                                            test.assertFalse(fileDeleted);
+                                        }
+                                    });
+                            }
+                        });
+                    }
+                });
 
-                    runner.test("with non-existing rooted path", new Action1<Test>()
+                runner.test("with non-existing rooted path", new Action1<Test>()
+                {
+                    @Override
+                    public void run(final Test test)
                     {
-                        @Override
-                        public void run(final Test test)
+                        asyncTest.run(test, new Action1<FileSystem>()
                         {
-                            asyncTest.run(test, new Action1<FileSystem>()
+                            @Override
+                            public void run(FileSystem fileSystem)
                             {
-                                @Override
-                                public void run(FileSystem fileSystem)
-                                {
-                                    fileSystem.deleteFileAsync("/idontexist.txt")
-                                        .then(new Action1<Boolean>()
+                                fileSystem.deleteFileAsync("/idontexist.txt")
+                                    .then(new Action1<Boolean>()
+                                    {
+                                        @Override
+                                        public void run(Boolean fileDeleted)
                                         {
-                                            @Override
-                                            public void run(Boolean fileDeleted)
-                                            {
-                                                test.assertFalse(fileDeleted);
-                                            }
-                                        });
-                                }
-                            });
-                        }
-                    });
+                                            test.assertFalse(fileDeleted);
+                                        }
+                                    });
+                            }
+                        });
+                    }
+                });
 
-                    runner.test("with existing rooted path", new Action1<Test>()
+                runner.test("with existing rooted path", new Action1<Test>()
+                {
+                    @Override
+                    public void run(final Test test)
                     {
-                        @Override
-                        public void run(final Test test)
+                        asyncTest.run(test, new Action1<FileSystem>()
                         {
-                            asyncTest.run(test, new Action1<FileSystem>()
+                            @Override
+                            public void run(final FileSystem fileSystem)
                             {
-                                @Override
-                                public void run(final FileSystem fileSystem)
-                                {
-                                    fileSystem.createFile("/iexist.txt");
-                                    fileSystem.deleteFileAsync("/iexist.txt")
-                                        .then(new Action1<Boolean>()
+                                fileSystem.createFile("/iexist.txt");
+                                fileSystem.deleteFileAsync("/iexist.txt")
+                                    .then(new Action1<Boolean>()
+                                    {
+                                        @Override
+                                        public void run(Boolean fileDeleted)
                                         {
-                                            @Override
-                                            public void run(Boolean fileDeleted)
-                                            {
-                                                test.assertTrue(fileDeleted);
-                                                test.assertFalse(fileSystem.fileExists("/iexist.txt"));
-                                            }
-                                        });
-                                }
-                            });
-                        }
-                    });
-                }
+                                            test.assertTrue(fileDeleted);
+                                            test.assertFalse(fileSystem.fileExists("/iexist.txt"));
+                                        }
+                                    });
+                            }
+                        });
+                    }
+                });
             });
 
             runner.testGroup("deleteFileAsync(Path)", () ->
@@ -3733,6 +3693,41 @@ public class FileSystemTests
                                 test.assertFalse(fileSystem.fileExists("/iexist.txt"));
                             });
                     });
+                });
+            });
+
+            runner.testGroup("getFileLastModified(String)", () ->
+            {
+                runner.test("with null path", (Test test) ->
+                {
+                    final FileSystem fileSystem = getFileSystem(creator);
+                    test.assertNull(fileSystem.getFileLastModified((String)null));
+                });
+
+                runner.test("with empty path", (Test test) ->
+                {
+                    final FileSystem fileSystem = getFileSystem(creator);
+                    test.assertNull(fileSystem.getFileLastModified(""));
+                });
+
+                runner.test("with relative path", (Test test) ->
+                {
+                    final FileSystem fileSystem = getFileSystem(creator);
+                    test.assertNull(fileSystem.getFileLastModified("thing.txt"));
+                });
+
+                runner.test("with non-existing rooted path", (Test test) ->
+                {
+                    final FileSystem fileSystem = getFileSystem(creator);
+                    test.assertNull(fileSystem.getFileLastModified("/thing.txt"));
+                });
+
+                runner.test("with existing rooted path with no contents", (Test test) ->
+                {
+                    final FileSystem fileSystem = getFileSystem(creator);
+                    fileSystem.createFile("/thing.txt");
+                    final DateTime lastModified = fileSystem.getFileLastModified("/thing.txt");
+                    test.assertNotNull(lastModified);
                 });
             });
 

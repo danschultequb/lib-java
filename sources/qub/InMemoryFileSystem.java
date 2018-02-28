@@ -264,7 +264,7 @@ public class InMemoryFileSystem implements FileSystem
     {
         boolean result = false;
 
-        if (filePath != null && filePath.isRooted() && rootExists(filePath.getRoot()))
+        if (rootExists(filePath))
         {
             final InMemoryFolder parentFolder = getInMemoryFolder(filePath.getParentPath());
             if (parentFolder != null)
@@ -274,6 +274,13 @@ public class InMemoryFileSystem implements FileSystem
         }
 
         return result;
+    }
+
+    @Override
+    public DateTime getFileLastModified(Path filePath)
+    {
+        final InMemoryFile file = getInMemoryFile(filePath);
+        return file == null ? null : file.getLastModified();
     }
 
     @Override

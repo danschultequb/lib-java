@@ -5,12 +5,14 @@ public class InMemoryFile
     private final String name;
     private boolean canDelete;
     private byte[] contents;
+    private DateTime lastModified;
 
     public InMemoryFile(String name, byte[] contents)
     {
         this.name = name;
         this.canDelete = true;
         this.contents = contents;
+        this.lastModified = DateTime.localNow();
     }
 
     public String getName()
@@ -52,5 +54,11 @@ public class InMemoryFile
     public void setContents(byte[] contents)
     {
         this.contents = contents == null ? new byte[0] : contents;
+        lastModified = DateTime.localNow();
+    }
+
+    public DateTime getLastModified()
+    {
+        return lastModified;
     }
 }

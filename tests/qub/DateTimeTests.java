@@ -179,6 +179,204 @@ public class DateTimeTests
                     test.assertEqual(Duration.milliseconds(0), dateTime.getTimeZoneOffset());
                 });
             });
+
+            runner.testGroup("lessThan(DateTime)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final DateTime dateTime = DateTime.utc(10);
+                    test.assertFalse(dateTime.lessThan(null));
+                });
+
+                runner.test("with lesser", (Test test) ->
+                {
+                    final DateTime dateTime = DateTime.utc(10);
+                    test.assertFalse(dateTime.lessThan(DateTime.utc(9)));
+                });
+
+                runner.test("with same", (Test test) ->
+                {
+                    final DateTime dateTime = DateTime.utc(10);
+                    test.assertFalse(dateTime.lessThan(dateTime));
+                });
+
+                runner.test("with equal", (Test test) ->
+                {
+                    final DateTime dateTime = DateTime.utc(10);
+                    test.assertFalse(dateTime.lessThan(DateTime.utc(10)));
+                });
+
+                runner.test("with greater", (Test test) ->
+                {
+                    final DateTime dateTime = DateTime.utc(10);
+                    test.assertTrue(dateTime.lessThan(DateTime.utc(11)));
+                });
+            });
+
+            runner.testGroup("lessThanOrEqualTo(DateTime)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final DateTime dateTime = DateTime.utc(10);
+                    test.assertFalse(dateTime.lessThanOrEqualTo(null));
+                });
+
+                runner.test("with lesser", (Test test) ->
+                {
+                    final DateTime dateTime = DateTime.utc(10);
+                    test.assertFalse(dateTime.lessThanOrEqualTo(DateTime.utc(9)));
+                });
+
+                runner.test("with same", (Test test) ->
+                {
+                    final DateTime dateTime = DateTime.utc(10);
+                    test.assertTrue(dateTime.lessThanOrEqualTo(dateTime));
+                });
+
+                runner.test("with equal", (Test test) ->
+                {
+                    final DateTime dateTime = DateTime.utc(10);
+                    test.assertTrue(dateTime.lessThanOrEqualTo(DateTime.utc(10)));
+                });
+
+                runner.test("with greater", (Test test) ->
+                {
+                    final DateTime dateTime = DateTime.utc(10);
+                    test.assertTrue(dateTime.lessThanOrEqualTo(DateTime.utc(11)));
+                });
+            });
+
+            runner.testGroup("equals(Object)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final DateTime dateTime = DateTime.utc(10);
+                    test.assertFalse(dateTime.equals((Object)null));
+                });
+
+                runner.test("with lesser", (Test test) ->
+                {
+                    final DateTime dateTime = DateTime.utc(10);
+                    test.assertFalse(dateTime.equals((Object)DateTime.utc(9)));
+                });
+
+                runner.test("with same", (Test test) ->
+                {
+                    final DateTime dateTime = DateTime.utc(10);
+                    test.assertTrue(dateTime.equals((Object)dateTime));
+                });
+
+                runner.test("with equal", (Test test) ->
+                {
+                    final DateTime dateTime = DateTime.utc(10);
+                    test.assertTrue(dateTime.equals((Object)DateTime.utc(10)));
+                });
+
+                runner.test("with greater", (Test test) ->
+                {
+                    final DateTime dateTime = DateTime.utc(10);
+                    test.assertFalse(dateTime.equals((Object)DateTime.utc(11)));
+                });
+            });
+
+            runner.testGroup("equals(DateTime)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final DateTime dateTime = DateTime.utc(10);
+                    test.assertFalse(dateTime.equals(null));
+                });
+
+                runner.test("with lesser", (Test test) ->
+                {
+                    final DateTime dateTime = DateTime.utc(10);
+                    test.assertFalse(dateTime.equals(DateTime.utc(9)));
+                });
+
+                runner.test("with same", (Test test) ->
+                {
+                    final DateTime dateTime = DateTime.utc(10);
+                    test.assertTrue(dateTime.equals(dateTime));
+                });
+
+                runner.test("with equal", (Test test) ->
+                {
+                    final DateTime dateTime = DateTime.utc(10);
+                    test.assertTrue(dateTime.equals(DateTime.utc(10)));
+                });
+
+                runner.test("with greater", (Test test) ->
+                {
+                    final DateTime dateTime = DateTime.utc(10);
+                    test.assertFalse(dateTime.equals(DateTime.utc(11)));
+                });
+            });
+
+            runner.testGroup("greaterThanOrEqualTo(DateTime)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final DateTime dateTime = DateTime.utc(10);
+                    test.assertTrue(dateTime.greaterThanOrEqualTo(null));
+                });
+
+                runner.test("with lesser", (Test test) ->
+                {
+                    final DateTime dateTime = DateTime.utc(10);
+                    test.assertTrue(dateTime.greaterThanOrEqualTo(DateTime.utc(9)));
+                });
+
+                runner.test("with same", (Test test) ->
+                {
+                    final DateTime dateTime = DateTime.utc(10);
+                    test.assertTrue(dateTime.greaterThanOrEqualTo(dateTime));
+                });
+
+                runner.test("with equal", (Test test) ->
+                {
+                    final DateTime dateTime = DateTime.utc(10);
+                    test.assertTrue(dateTime.greaterThanOrEqualTo(DateTime.utc(10)));
+                });
+
+                runner.test("with greater", (Test test) ->
+                {
+                    final DateTime dateTime = DateTime.utc(10);
+                    test.assertFalse(dateTime.greaterThanOrEqualTo(DateTime.utc(11)));
+                });
+            });
+
+            runner.testGroup("greaterThan(DateTime)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final DateTime dateTime = DateTime.utc(10);
+                    test.assertTrue(dateTime.greaterThan(null));
+                });
+
+                runner.test("with lesser", (Test test) ->
+                {
+                    final DateTime dateTime = DateTime.utc(10);
+                    test.assertTrue(dateTime.greaterThan(DateTime.utc(9)));
+                });
+
+                runner.test("with same", (Test test) ->
+                {
+                    final DateTime dateTime = DateTime.utc(10);
+                    test.assertFalse(dateTime.greaterThan(dateTime));
+                });
+
+                runner.test("with equal", (Test test) ->
+                {
+                    final DateTime dateTime = DateTime.utc(10);
+                    test.assertFalse(dateTime.greaterThan(DateTime.utc(10)));
+                });
+
+                runner.test("with greater", (Test test) ->
+                {
+                    final DateTime dateTime = DateTime.utc(10);
+                    test.assertFalse(dateTime.greaterThan(DateTime.utc(11)));
+                });
+            });
         });
     }
 }
