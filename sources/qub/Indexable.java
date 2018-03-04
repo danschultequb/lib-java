@@ -17,27 +17,7 @@ public interface Indexable<T> extends Iterable<T>
      * @return The index of the first element that satisfies the provided condition or -1 if no
      * element matches the condition.
      */
-    default int indexOf(Function1<T,Boolean> condition)
-    {
-        int result = -1;
-        if (condition != null)
-        {
-            int index = 0;
-            for (final T element : this)
-            {
-                if (condition.run(element))
-                {
-                    result = index;
-                    break;
-                }
-                else
-                {
-                    ++index;
-                }
-            }
-        }
-        return result;
-    }
+    int indexOf(Function1<T,Boolean> condition);
 
     /**
      * Get the index of the first element in this Indexable that equals the provided value or -1 if
@@ -46,10 +26,7 @@ public interface Indexable<T> extends Iterable<T>
      * @return The index of the first element that equals the provided value or -1 if no element
      * equals the provided value.
      */
-    default int indexOf(T value)
-    {
-        return indexOf(element -> Comparer.equal(element, value));
-    }
+    int indexOf(T value);
 
     /**
      * Convert this Indexable into an Indexable that returns values of type U instead of type T.
@@ -57,8 +34,5 @@ public interface Indexable<T> extends Iterable<T>
      * @param <U> The type to convert values of type T to.
      * @return An Indexable that returns values of type U instead of type T.
      */
-    default <U> Indexable<U> map(Function1<T,U> conversion)
-    {
-        return new MapIndexable<>(this, conversion);
-    }
+    <U> Indexable<U> map(Function1<T,U> conversion);
 }

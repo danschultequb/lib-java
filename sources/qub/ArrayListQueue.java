@@ -7,6 +7,6 @@ public class ArrayListQueue<T> extends ListQueue<T>
      */
     public ArrayListQueue()
     {
-        super(new ArrayList<>());
+        super(new ArrayList<T>());
     }
 }

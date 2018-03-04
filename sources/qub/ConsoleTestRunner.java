@@ -57,58 +57,78 @@ public class ConsoleTestRunner extends Console implements TestRunner
         testRunner = new TestRunnerBase(debug, testPattern);
 
         final List<TestGroup> testGroupsWrittenToConsole = new ArrayList<>();
-        testRunner.setOnTestGroupFinished((TestGroup testGroup) ->
+        testRunner.setOnTestGroupFinished(new Action1<TestGroup>()
         {
-            if (testGroupsWrittenToConsole.remove(testGroup))
+            @Override
+            public void run(TestGroup testGroup)
             {
-                decreaseIndent();
-            }
-        });
-        testRunner.setOnTestStarted((Test test) ->
-        {
-            final Stack<TestGroup> testGroupsToWrite = new Stack<>();
-            TestGroup currentTestGroup = test.getParentTestGroup();
-            while (currentTestGroup != null && !testGroupsWrittenToConsole.contains(currentTestGroup))
-            {
-                testGroupsToWrite.push(currentTestGroup);
-                currentTestGroup = currentTestGroup.getParentTestGroup();
-            }
-
-            while (testGroupsToWrite.any())
-            {
-                final TestGroup testGroupToWrite = testGroupsToWrite.pop();
-                writeLine(testGroupToWrite.getName());
-                testGroupsWrittenToConsole.add(testGroupToWrite);
-                increaseIndent();
-            }
-
-            write(test.getName());
-            increaseIndent();
-        });
-        testRunner.setOnTestPassed((Test test) ->
-        {
-            writeLine(" - Passed");
-        });
-        testRunner.setOnTestFailed((Test test, TestAssertionFailure failure) ->
-        {
-            writeLine(" - Failed");
-            increaseIndent();
-
-            for (final String messageLine : failure.getMessageLines())
-            {
-                if (messageLine != null)
+                if (testGroupsWrittenToConsole.remove(testGroup))
                 {
-                    writeLine(messageLine);
+                    ConsoleTestRunner.this.decreaseIndent();
                 }
             }
-
-            decreaseIndent();
-
-            writeStackTrace(failure);
         });
-        testRunner.setOnTestFinished(testName ->
+        testRunner.setOnTestStarted(new Action1<Test>()
         {
-            decreaseIndent();
+            @Override
+            public void run(Test test)
+            {
+                final Stack<TestGroup> testGroupsToWrite = new Stack<>();
+                TestGroup currentTestGroup = test.getParentTestGroup();
+                while (currentTestGroup != null && !testGroupsWrittenToConsole.contains(currentTestGroup))
+                {
+                    testGroupsToWrite.push(currentTestGroup);
+                    currentTestGroup = currentTestGroup.getParentTestGroup();
+                }
+
+                while (testGroupsToWrite.any())
+                {
+                    final TestGroup testGroupToWrite = testGroupsToWrite.pop();
+                    ConsoleTestRunner.this.writeLine(testGroupToWrite.getName());
+                    testGroupsWrittenToConsole.add(testGroupToWrite);
+                    ConsoleTestRunner.this.increaseIndent();
+                }
+
+                write(test.getName());
+                ConsoleTestRunner.this.increaseIndent();
+            }
+        });
+        testRunner.setOnTestPassed(new Action1<Test>()
+        {
+            @Override
+            public void run(Test test)
+            {
+                ConsoleTestRunner.this.writeLine(" - Passed");
+            }
+        });
+        testRunner.setOnTestFailed(new Action2<Test, TestAssertionFailure>()
+        {
+            @Override
+            public void run(Test test, TestAssertionFailure failure)
+            {
+                ConsoleTestRunner.this.writeLine(" - Failed");
+                ConsoleTestRunner.this.increaseIndent();
+
+                for (final String messageLine : failure.getMessageLines())
+                {
+                    if (messageLine != null)
+                    {
+                        ConsoleTestRunner.this.writeLine(messageLine);
+                    }
+                }
+
+                ConsoleTestRunner.this.decreaseIndent();
+
+                ConsoleTestRunner.this.writeStackTrace(failure);
+            }
+        });
+        testRunner.setOnTestFinished(new Action1<Test>()
+        {
+            @Override
+            public void run(Test test)
+            {
+                ConsoleTestRunner.this.decreaseIndent();
+            }
         });
 
         singleIndent = "  ";

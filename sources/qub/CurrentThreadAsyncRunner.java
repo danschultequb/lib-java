@@ -8,13 +8,20 @@ public class CurrentThreadAsyncRunner implements AsyncRunner
 
     public CurrentThreadAsyncRunner(final Synchronization synchronization)
     {
-        this(() -> synchronization);
+        this(new Function0<Synchronization>()
+        {
+            @Override
+            public Synchronization run()
+            {
+                return synchronization;
+            }
+        });
     }
 
     public CurrentThreadAsyncRunner(Function0<Synchronization> synchronizationFunction)
     {
         this.synchronizationFunction = synchronizationFunction;
-        this.scheduledTasks = new LockedQueue<>(new SingleLinkListQueue<>());
+        this.scheduledTasks = new LockedQueue<>(new SingleLinkListQueue<PausedAsyncTask>());
     }
 
     @Override

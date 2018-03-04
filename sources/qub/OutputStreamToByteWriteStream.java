@@ -1,12 +1,13 @@
 package qub;
 
+import java.io.IOException;
 import java.io.OutputStream;
 
-public class OutputStreamToByteWriteStream implements ByteWriteStream
+public class OutputStreamToByteWriteStream extends ByteWriteStreamBase
 {
     private final OutputStream outputStream;
     private boolean closed;
-    private Action1<Exception> exceptionHandler;
+    private Action1<IOException> exceptionHandler;
 
     public OutputStreamToByteWriteStream(OutputStream outputStream)
     {
@@ -19,7 +20,7 @@ public class OutputStreamToByteWriteStream implements ByteWriteStream
     }
 
     @Override
-    public void setExceptionHandler(Action1<Exception> exceptionHandler)
+    public void setExceptionHandler(Action1<IOException> exceptionHandler)
     {
         this.exceptionHandler = exceptionHandler;
     }
@@ -34,7 +35,7 @@ public class OutputStreamToByteWriteStream implements ByteWriteStream
             outputStream.flush();
             result = true;
         }
-        catch (Exception e)
+        catch (IOException e)
         {
             if (exceptionHandler != null)
             {
@@ -56,7 +57,7 @@ public class OutputStreamToByteWriteStream implements ByteWriteStream
                 outputStream.flush();
                 result = true;
             }
-            catch (Exception e)
+            catch (IOException e)
             {
                 if (exceptionHandler != null)
                 {
@@ -79,7 +80,7 @@ public class OutputStreamToByteWriteStream implements ByteWriteStream
                 outputStream.flush();
                 result = true;
             }
-            catch (Exception e)
+            catch (IOException e)
             {
                 if (exceptionHandler != null)
                 {
@@ -112,7 +113,7 @@ public class OutputStreamToByteWriteStream implements ByteWriteStream
                 outputStream.close();
                 closed = true;
             }
-            catch (Exception e)
+            catch (IOException e)
             {
                 if (exceptionHandler != null)
                 {

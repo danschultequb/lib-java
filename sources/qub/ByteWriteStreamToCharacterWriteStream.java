@@ -1,6 +1,6 @@
 package qub;
 
-public class ByteWriteStreamToCharacterWriteStream implements CharacterWriteStream
+public class ByteWriteStreamToCharacterWriteStream extends CharacterWriteStreamBase
 {
     private final ByteWriteStream byteWriteStream;
     private final CharacterEncoding characterEncoding;

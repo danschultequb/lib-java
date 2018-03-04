@@ -136,13 +136,17 @@ public class TestRunnerBase implements TestRunner
         {
             final Action0 previousBeforeTestAction = this.beforeTestAction;
             final Action0 newBeforeTestAction = beforeTestAction;
-            this.beforeTestAction = () ->
+            this.beforeTestAction = new Action0()
             {
-                if (previousBeforeTestAction != null)
+                @Override
+                public void run()
                 {
-                    previousBeforeTestAction.run();
+                    if (previousBeforeTestAction != null)
+                    {
+                        previousBeforeTestAction.run();
+                    }
+                    newBeforeTestAction.run();
                 }
-                newBeforeTestAction.run();
             };
         }
     }
@@ -154,12 +158,16 @@ public class TestRunnerBase implements TestRunner
         {
             final Action0 previousAfterTestAction = this.afterTestAction;
             final Action0 newAfterTestAction = afterTestAction;
-            this.afterTestAction = () ->
+            this.afterTestAction = new Action0()
             {
-                newAfterTestAction.run();
-                if (previousAfterTestAction != null)
+                @Override
+                public void run()
                 {
-                    previousAfterTestAction.run();
+                    newAfterTestAction.run();
+                    if (previousAfterTestAction != null)
+                    {
+                        previousAfterTestAction.run();
+                    }
                 }
             };
         }

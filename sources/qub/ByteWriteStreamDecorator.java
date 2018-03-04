@@ -1,5 +1,7 @@
 package qub;
 
+import java.io.IOException;
+
 public abstract class ByteWriteStreamDecorator implements ByteWriteStream
 {
     private final ByteWriteStream innerByteWriteStream;
@@ -10,7 +12,7 @@ public abstract class ByteWriteStreamDecorator implements ByteWriteStream
     }
 
     @Override
-    public void setExceptionHandler(Action1<Exception> exceptionHandler)
+    public void setExceptionHandler(Action1<IOException> exceptionHandler)
     {
         innerByteWriteStream.setExceptionHandler(exceptionHandler);
     }

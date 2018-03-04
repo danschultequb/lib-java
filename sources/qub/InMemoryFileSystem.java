@@ -3,7 +3,7 @@ package qub;
 /**
  * A FileSystem implementation that is completely stored in the memory of the running application.
  */
-public class InMemoryFileSystem implements FileSystem
+public class InMemoryFileSystem extends FileSystemBase
 {
     private final List<InMemoryRoot> roots;
     private AsyncRunner asyncRunner;
@@ -23,7 +23,14 @@ public class InMemoryFileSystem implements FileSystem
 
     private InMemoryRoot getInMemoryRoot(final Path inMemoryRootPath)
     {
-        return roots.first((InMemoryRoot inMemoryRoot) -> inMemoryRoot.getPath().equals(inMemoryRootPath));
+        return roots.first(new Function1<InMemoryRoot, Boolean>()
+        {
+            @Override
+            public Boolean run(InMemoryRoot inMemoryRoot)
+            {
+                return inMemoryRoot.getPath().equals(inMemoryRootPath);
+            }
+        });
     }
 
     private InMemoryFolder getInMemoryFolder(Path inMemoryFolderPath)
@@ -43,7 +50,7 @@ public class InMemoryFileSystem implements FileSystem
         boolean result = false;
 
         final Iterator<String> folderPathSegments = inMemoryFolderPath.getSegments().iterate();
-        final Value<InMemoryFolder> folder = new Value<>(getInMemoryRoot(folderPathSegments.first()));
+        final Value<InMemoryFolder> folder = new Value<InMemoryFolder>(getInMemoryRoot(folderPathSegments.first()));
         while (folderPathSegments.next())
         {
             final String folderName = folderPathSegments.getCurrent();
@@ -128,7 +135,14 @@ public class InMemoryFileSystem implements FileSystem
     @Override
     public Iterable<Root> getRoots(Action1<String> onError)
     {
-        return Array.fromValues(roots.map((InMemoryRoot inMemoryRoot) -> new Root(this, inMemoryRoot.getPath())));
+        return Array.fromValues(roots.map(new Function1<InMemoryRoot, Root>()
+        {
+            @Override
+            public Root run(InMemoryRoot inMemoryRoot)
+            {
+                return new Root(InMemoryFileSystem.this, inMemoryRoot.getPath());
+            }
+        }));
     }
 
     @Override

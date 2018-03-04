@@ -1,6 +1,6 @@
 package qub;
 
-public class InMemoryCharacterWriteStream implements CharacterWriteStream
+public class InMemoryCharacterWriteStream extends CharacterWriteStreamBase
 {
     private final InMemoryByteWriteStream byteWriteStream;
     private final CharacterEncoding characterEncoding;

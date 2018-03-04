@@ -3,7 +3,7 @@ package qub;
 import java.util.Calendar;
 import java.util.TimeZone;
 
-public class DateTime implements Comparable<DateTime>
+public class DateTime extends ComparableBase<DateTime>
 {
     private final Calendar calendar;
 
@@ -140,6 +140,6 @@ public class DateTime implements Comparable<DateTime>
 
     public boolean equals(DateTime value)
     {
-        return Comparable.equalTo(this, value);
+        return ComparableBase.equals(this, value);
     }
 }

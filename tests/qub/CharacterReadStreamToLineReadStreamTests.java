@@ -4,108 +4,80 @@ public class CharacterReadStreamToLineReadStreamTests
 {
     public static void test(final TestRunner runner)
     {
-        runner.testGroup("CharacterReadStreamToLineReadStream", new Action0()
+        runner.testGroup(CharacterReadStreamToLineReadStream.class, () ->
         {
-            @Override
-            public void run()
+            runner.test("constructor()", (Test test) ->
             {
-                runner.test("constructor()", new Action1<Test>()
+                final InMemoryCharacterReadStream characterReadStream = new InMemoryCharacterReadStream();
+                final CharacterReadStreamToLineReadStream lineReadStream = new CharacterReadStreamToLineReadStream(characterReadStream);
+                assertLineReadStream(test, lineReadStream, true, false, null);
+                test.assertEqual(CharacterEncoding.UTF_8, lineReadStream.getCharacterEncoding());
+                test.assertFalse(lineReadStream.getIncludeNewLines());
+            });
+            
+            runner.test("close()", (Test test) ->
+            {
+                final CharacterReadStreamToLineReadStream lineReadStream = getLineReadStream();
+                lineReadStream.close();
+                assertLineReadStream(test, lineReadStream, false, false, null);
+
+                lineReadStream.close();
+                assertLineReadStream(test, lineReadStream, false, false, null);
+            });
+            
+            runner.testGroup("readLine()", () ->
+            {
+                runner.test("with false includeNewLines", (Test test) ->
                 {
-                    @Override
-                    public void run(Test test)
-                    {
-                        final InMemoryCharacterReadStream characterReadStream = new InMemoryCharacterReadStream();
-                        final CharacterReadStreamToLineReadStream lineReadStream = new CharacterReadStreamToLineReadStream(characterReadStream);
-                        assertLineReadStream(test, lineReadStream, true, false, null);
-                        test.assertEqual(CharacterEncoding.UTF_8, lineReadStream.getCharacterEncoding());
-                        test.assertFalse(lineReadStream.getIncludeNewLines());
-                    }
+                    final CharacterReadStreamToLineReadStream lineReadStream = getLineReadStream("a\nb\r\nc");
+
+                    test.assertEqual("a", lineReadStream.readLine(false));
+                    assertLineReadStream(test, lineReadStream, true, true, "a");
+
+                    test.assertEqual("b", lineReadStream.readLine(false));
+                    assertLineReadStream(test, lineReadStream, true, true, "b");
+
+                    test.assertEqual("c", lineReadStream.readLine(false));
+                    assertLineReadStream(test, lineReadStream, true, true, "c");
+
+                    test.assertEqual(null, lineReadStream.readLine(false));
+                    assertLineReadStream(test, lineReadStream, true, true, null);
                 });
                 
-                runner.test("close()", new Action1<Test>()
+                runner.test("with true includeNewLines", (Test test) ->
                 {
-                    @Override
-                    public void run(Test test)
-                    {
-                        final CharacterReadStreamToLineReadStream lineReadStream = getLineReadStream();
-                        lineReadStream.close();
-                        assertLineReadStream(test, lineReadStream, false, false, null);
+                    final CharacterReadStreamToLineReadStream lineReadStream = getLineReadStream("a\nb\r\nc");
 
-                        lineReadStream.close();
-                        assertLineReadStream(test, lineReadStream, false, false, null);
-                    }
+                    test.assertEqual("a\n", lineReadStream.readLine(true));
+                    assertLineReadStream(test, lineReadStream, true, true, "a\n");
+
+                    test.assertEqual("b\r\n", lineReadStream.readLine(true));
+                    assertLineReadStream(test, lineReadStream, true, true, "b\r\n");
+
+                    test.assertEqual("c", lineReadStream.readLine(true));
+                    assertLineReadStream(test, lineReadStream, true, true, "c");
+
+                    test.assertEqual(null, lineReadStream.readLine(true));
+                    assertLineReadStream(test, lineReadStream, true, true, null);
                 });
-                
-                runner.testGroup("readLine()", new Action0()
-                {
-                    @Override
-                    public void run()
-                    {
-                        runner.test("with false includeNewLines", new Action1<Test>()
-                        {
-                            @Override
-                            public void run(Test test)
-                            {
-                                final CharacterReadStreamToLineReadStream lineReadStream = getLineReadStream("a\nb\r\nc");
+            });
+            
+            runner.test("next() with true includeNewLines", (Test test) ->
+            {
+                final CharacterReadStreamToLineReadStream lineReadStream = getLineReadStream("a\nb\r\nc", true);
 
-                                test.assertEqual("a", lineReadStream.readLine(false));
-                                assertLineReadStream(test, lineReadStream, true, true, "a");
+                test.assertTrue(lineReadStream.next());
+                assertLineReadStream(test, lineReadStream, true, true, "a\n");
 
-                                test.assertEqual("b", lineReadStream.readLine(false));
-                                assertLineReadStream(test, lineReadStream, true, true, "b");
+                test.assertTrue(lineReadStream.next());
+                assertLineReadStream(test, lineReadStream, true, true, "b\r\n");
 
-                                test.assertEqual("c", lineReadStream.readLine(false));
-                                assertLineReadStream(test, lineReadStream, true, true, "c");
+                test.assertTrue(lineReadStream.next());
+                assertLineReadStream(test, lineReadStream, true, true, "c");
 
-                                test.assertEqual(null, lineReadStream.readLine(false));
-                                assertLineReadStream(test, lineReadStream, true, true, null);
-                            }
-                        });
-                        
-                        runner.test("with true includeNewLines", new Action1<Test>()
-                        {
-                            @Override
-                            public void run(Test test)
-                            {
-                                final CharacterReadStreamToLineReadStream lineReadStream = getLineReadStream("a\nb\r\nc");
-
-                                test.assertEqual("a\n", lineReadStream.readLine(true));
-                                assertLineReadStream(test, lineReadStream, true, true, "a\n");
-
-                                test.assertEqual("b\r\n", lineReadStream.readLine(true));
-                                assertLineReadStream(test, lineReadStream, true, true, "b\r\n");
-
-                                test.assertEqual("c", lineReadStream.readLine(true));
-                                assertLineReadStream(test, lineReadStream, true, true, "c");
-
-                                test.assertEqual(null, lineReadStream.readLine(true));
-                                assertLineReadStream(test, lineReadStream, true, true, null);
-                            }
-                        });
-                    }
-                });
-                
-                runner.test("next() with true includeNewLines", new Action1<Test>()
-                {
-                    @Override
-                    public void run(Test test)
-                    {
-                        final CharacterReadStreamToLineReadStream lineReadStream = getLineReadStream("a\nb\r\nc", true);
-
-                        test.assertTrue(lineReadStream.next());
-                        assertLineReadStream(test, lineReadStream, true, true, "a\n");
-
-                        test.assertTrue(lineReadStream.next());
-                        assertLineReadStream(test, lineReadStream, true, true, "b\r\n");
-
-                        test.assertTrue(lineReadStream.next());
-                        assertLineReadStream(test, lineReadStream, true, true, "c");
-
-                        test.assertFalse(lineReadStream.next());
-                        assertLineReadStream(test, lineReadStream, true, true, null);
-                    }
-                });
-            }
+                test.assertFalse(lineReadStream.next());
+                assertLineReadStream(test, lineReadStream, true, true, null);
+            });
         });
     }
 

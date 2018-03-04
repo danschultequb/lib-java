@@ -24,10 +24,7 @@ public interface FileSystem
      * @param rootPath The path to the Root.
      * @return Whether or not a Root exists in this FileSystem with the provided path.
      */
-    default boolean rootExists(String rootPath)
-    {
-        return rootExists(Path.parse(rootPath));
-    }
+    boolean rootExists(String rootPath);
 
     /**
      * Get whether or not a Root exists in this FileSystem with the provided path.
@@ -35,20 +32,14 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return Whether or not a Root exists in this FileSystem with the provided path.
      */
-    default boolean rootExists(String rootPath, Action1<String> onError)
-    {
-        return rootExists(Path.parse(rootPath), onError);
-    }
+    boolean rootExists(String rootPath, Action1<String> onError);
 
     /**
      * Get whether or not a Root exists in this FileSystem with the provided path.
      * @param rootPath The path to the Root.
      * @return Whether or not a Root exists in this FileSystem with the provided path.
      */
-    default boolean rootExists(Path rootPath)
-    {
-        return rootExists(rootPath, null);
-    }
+    boolean rootExists(Path rootPath);
 
     /**
      * Get whether or not a Root exists in this FileSystem with the provided path.
@@ -56,26 +47,14 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return Whether or not a Root exists in this FileSystem with the provided path.
      */
-    default boolean rootExists(Path rootPath, Action1<String> onError)
-    {
-        boolean result = false;
-        if (rootPath != null && rootPath.isRooted())
-        {
-            final Path onlyRootPath = rootPath.getRootPath();
-            result = getRoots(onError).contains((Root root) -> root.getPath().equals(onlyRootPath));
-        }
-        return result;
-    }
+    boolean rootExists(Path rootPath, Action1<String> onError);
 
     /**
      * Get whether or not a Root exists in this FileSystem with the provided path.
      * @param rootPath The path to the Root.
      * @return Whether or not a Root exists in this FileSystem with the provided path.
      */
-    default AsyncFunction<Boolean> rootExistsAsync(String rootPath)
-    {
-        return rootExistsAsync(Path.parse(rootPath));
-    }
+    AsyncFunction<Boolean> rootExistsAsync(String rootPath);
 
     /**
      * Get whether or not a Root exists in this FileSystem with the provided path.
@@ -83,20 +62,14 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return Whether or not a Root exists in this FileSystem with the provided path.
      */
-    default AsyncFunction<Boolean> rootExistsAsync(String rootPath, Action1<String> onError)
-    {
-        return rootExistsAsync(Path.parse(rootPath), onError);
-    }
+    AsyncFunction<Boolean> rootExistsAsync(String rootPath, Action1<String> onError);
 
     /**
      * Get whether or not a Root exists in this FileSystem with the provided path.
      * @param rootPath The path to the Root.
      * @return Whether or not a Root exists in this FileSystem with the provided path.
      */
-    default AsyncFunction<Boolean> rootExistsAsync(Path rootPath)
-    {
-        return rootExistsAsync(rootPath, null);
-    }
+    AsyncFunction<Boolean> rootExistsAsync(Path rootPath);
 
     /**
      * Get whether or not a Root exists in this FileSystem with the provided path.
@@ -104,42 +77,27 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return Whether or not a Root exists in this FileSystem with the provided path.
      */
-    default AsyncFunction<Boolean> rootExistsAsync(Path rootPath, Action1<String> onError)
-    {
-        final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        return getAsyncRunner()
-            .schedule(() -> rootExists(rootPath, onError))
-            .thenOn(currentRunner);
-    }
+    AsyncFunction<Boolean> rootExistsAsync(Path rootPath, Action1<String> onError);
 
     /**
      * Get a reference to a Root with the provided path. The returned Root may or may not exist.
      * @param rootPath The path to the Root to return.
      * @return The Root with the provided path.
      */
-    default Root getRoot(String rootPath)
-    {
-        return getRoot(Path.parse(rootPath));
-    }
+    Root getRoot(String rootPath);
 
     /**
      * Get a reference to a Root with the provided Path. The returned Root may or may not exist.
      * @param rootPath The Path to the Root to return.
      * @return The Root with the provided Path.
      */
-    default Root getRoot(Path rootPath)
-    {
-        return new Root(this, rootPath);
-    }
+    Root getRoot(Path rootPath);
 
     /**
      * Get the roots of this FileSystem.
      * @return The roots of this FileSystem.
      */
-    default Iterable<Root> getRoots()
-    {
-        return getRoots(null);
-    }
+    Iterable<Root> getRoots();
 
     /**
      * Get the roots of this FileSystem.
@@ -152,33 +110,21 @@ public interface FileSystem
      * Get the roots of this FileSystem.
      * @return The roots of this FileSystem.
      */
-    default AsyncFunction<Iterable<Root>> getRootsAsync()
-    {
-        return getRootsAsync(null);
-    }
+    AsyncFunction<Iterable<Root>> getRootsAsync();
 
     /**
      * Get the roots of this FileSystem.
      * @param onError The action that will be called when an error occurs.
      * @return The roots of this FileSystem.
      */
-    default AsyncFunction<Iterable<Root>> getRootsAsync(Action1<String> onError)
-    {
-        final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        return getAsyncRunner()
-            .schedule(() -> getRoots(onError))
-            .thenOn(currentRunner);
-    }
+    AsyncFunction<Iterable<Root>> getRootsAsync(Action1<String> onError);
 
     /**
      * Get the files and folders (entries) at the provided folder path.
      * @param folderPath The path to the folder (Root or Folder).
      * @return The files and folders (entries) at the provided folder path.
      */
-    default Iterable<FileSystemEntry> getFilesAndFolders(String folderPath)
-    {
-        return getFilesAndFolders(Path.parse(folderPath));
-    }
+    Iterable<FileSystemEntry> getFilesAndFolders(String folderPath);
 
     /**
      * Get the files and folders (entries) at the provided folder path.
@@ -186,20 +132,14 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return The files and folders (entries) at the provided folder path.
      */
-    default Iterable<FileSystemEntry> getFilesAndFolders(String folderPath, Action1<String> onError)
-    {
-        return getFilesAndFolders(Path.parse(folderPath), onError);
-    }
+    Iterable<FileSystemEntry> getFilesAndFolders(String folderPath, Action1<String> onError);
 
     /**
      * Get the files and folders (entries) at the provided folder Path.
      * @param folderPath The Path to the folder (Root or Folder).
      * @return The files and folders (entries) at the provided folder Path.
      */
-    default Iterable<FileSystemEntry> getFilesAndFolders(Path folderPath)
-    {
-        return getFilesAndFolders(folderPath, null);
-    }
+    Iterable<FileSystemEntry> getFilesAndFolders(Path folderPath);
 
     /**
      * Get the files and folders (entries) at the provided folder Path.
@@ -214,10 +154,7 @@ public interface FileSystem
      * @param folderPath The path to the folder (Root or Folder).
      * @return The files and folders (entries) at the provided folder path and its subfolders.
      */
-    default Iterable<FileSystemEntry> getFilesAndFoldersRecursively(String folderPath)
-    {
-        return getFilesAndFoldersRecursively(Path.parse(folderPath));
-    }
+    Iterable<FileSystemEntry> getFilesAndFoldersRecursively(String folderPath);
 
     /**
      * Get the files and folders (entries) at the provided folder path and its subfolders.
@@ -225,20 +162,14 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return The files and folders (entries) at the provided folder path and its subfolders.
      */
-    default Iterable<FileSystemEntry> getFilesAndFoldersRecursively(String folderPath, Action1<String> onError)
-    {
-        return getFilesAndFoldersRecursively(Path.parse(folderPath), onError);
-    }
+    Iterable<FileSystemEntry> getFilesAndFoldersRecursively(String folderPath, Action1<String> onError);
 
     /**
      * Get the files and folders (entries) at the provided folder path and its subfolders.
      * @param folderPath The path to the folder (Root or Folder).
      * @return The files and folders (entries) at the provided folder path and its subfolders.
      */
-    default Iterable<FileSystemEntry> getFilesAndFoldersRecursively(Path folderPath)
-    {
-        return getFilesAndFoldersRecursively(folderPath, null);
-    }
+    Iterable<FileSystemEntry> getFilesAndFoldersRecursively(Path folderPath);
 
     /**
      * Get the files and folders (entries) at the provided folder path and its subfolders.
@@ -246,44 +177,14 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return The files and folders (entries) at the provided folder path and its subfolders.
      */
-    default Iterable<FileSystemEntry> getFilesAndFoldersRecursively(Path folderPath, Action1<String> onError)
-    {
-        List<FileSystemEntry> result = new ArrayList<>();
-
-        final Folder folder = getFolder(folderPath);
-        if (folder != null && folder.exists())
-        {
-            final Queue<Folder> foldersToVisit = new SingleLinkListQueue<>();
-            foldersToVisit.enqueue(getFolder(folderPath));
-
-            while (foldersToVisit.any())
-            {
-                final Folder currentFolder = foldersToVisit.dequeue();
-                final Iterable<FileSystemEntry> currentFolderEntries = currentFolder.getFilesAndFolders(onError);
-                for (final FileSystemEntry entry : currentFolderEntries)
-                {
-                    result.add(entry);
-
-                    if (entry instanceof Folder)
-                    {
-                        foldersToVisit.enqueue((Folder)entry);
-                    }
-                }
-            }
-        }
-
-        return result;
-    }
+    Iterable<FileSystemEntry> getFilesAndFoldersRecursively(Path folderPath, Action1<String> onError);
 
     /**
      * Get the files and folders (entries) at the provided folder path.
      * @param folderPath The path to the folder (Root or Folder).
      * @return The files and folders (entries) at the provided folder path.
      */
-    default AsyncFunction<Iterable<FileSystemEntry>> getFilesAndFoldersAsync(String folderPath)
-    {
-        return getFilesAndFoldersAsync(Path.parse(folderPath));
-    }
+    AsyncFunction<Iterable<FileSystemEntry>> getFilesAndFoldersAsync(String folderPath);
 
     /**
      * Get the files and folders (entries) at the provided folder path.
@@ -291,20 +192,14 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return The files and folders (entries) at the provided folder path.
      */
-    default AsyncFunction<Iterable<FileSystemEntry>> getFilesAndFoldersAsync(String folderPath, Action1<String> onError)
-    {
-        return getFilesAndFoldersAsync(Path.parse(folderPath), onError);
-    }
+    AsyncFunction<Iterable<FileSystemEntry>> getFilesAndFoldersAsync(String folderPath, Action1<String> onError);
 
     /**
      * Get the files and folders (entries) at the provided folder Path.
      * @param folderPath The Path to the folder (Root or Folder).
      * @return The files and folders (entries) at the provided folder Path.
      */
-    default AsyncFunction<Iterable<FileSystemEntry>> getFilesAndFoldersAsync(Path folderPath)
-    {
-        return getFilesAndFoldersAsync(folderPath, null);
-    }
+    AsyncFunction<Iterable<FileSystemEntry>> getFilesAndFoldersAsync(Path folderPath);
 
     /**
      * Get the files and folders (entries) at the provided folder Path.
@@ -312,23 +207,14 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return The files and folders (entries) at the provided folder Path.
      */
-    default AsyncFunction<Iterable<FileSystemEntry>> getFilesAndFoldersAsync(Path folderPath, Action1<String> onError)
-    {
-        final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        return getAsyncRunner()
-            .schedule(() -> getFilesAndFolders(folderPath, onError))
-            .thenOn(currentRunner);
-    }
+    AsyncFunction<Iterable<FileSystemEntry>> getFilesAndFoldersAsync(Path folderPath, Action1<String> onError);
 
     /**
      * Get the folders at the provided folder path.
      * @param folderPath The path to the folder (Root or Folder).
      * @return The folders at the provided container path.
      */
-    default Iterable<Folder> getFolders(String folderPath)
-    {
-        return getFolders(Path.parse(folderPath));
-    }
+    Iterable<Folder> getFolders(String folderPath);
 
     /**
      * Get the folders at the provided folder path.
@@ -336,20 +222,14 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return The folders at the provided container path.
      */
-    default Iterable<Folder> getFolders(String folderPath, Action1<String> onError)
-    {
-        return getFolders(Path.parse(folderPath), onError);
-    }
+    Iterable<Folder> getFolders(String folderPath, Action1<String> onError);
 
     /**
      * Get the folders at the provided folder path.
      * @param folderPath The path to the folder (Root or Folder).
      * @return The folders at the provided container path.
      */
-    default Iterable<Folder> getFolders(Path folderPath)
-    {
-        return getFolders(folderPath, null);
-    }
+    Iterable<Folder> getFolders(Path folderPath);
 
     /**
      * Get the folders at the provided folder path.
@@ -357,20 +237,14 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return The folders at the provided container path.
      */
-    default Iterable<Folder> getFolders(Path folderPath, Action1<String> onError)
-    {
-        return getFilesAndFolders(folderPath, onError).instanceOf(Folder.class);
-    }
+    Iterable<Folder> getFolders(Path folderPath, Action1<String> onError);
 
     /**
      * Get the folders at the provided folder path and its subfolders.
      * @param folderPath The path to the folder (Root or Folder).
      * @return The folders at the provided container path and its subfolders.
      */
-    default Iterable<Folder> getFoldersRecursively(String folderPath)
-    {
-        return getFoldersRecursively(Path.parse(folderPath));
-    }
+    Iterable<Folder> getFoldersRecursively(String folderPath);
 
     /**
      * Get the folders at the provided folder path and its subfolders.
@@ -378,20 +252,14 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return The folders at the provided container path and its subfolders.
      */
-    default Iterable<Folder> getFoldersRecursively(String folderPath, Action1<String> onError)
-    {
-        return getFoldersRecursively(Path.parse(folderPath), onError);
-    }
+    Iterable<Folder> getFoldersRecursively(String folderPath, Action1<String> onError);
 
     /**
      * Get the folders at the provided folder path and its subfolders.
      * @param folderPath The path to the folder (Root or Folder).
      * @return The folders at the provided container path and its subfolders.
      */
-    default Iterable<Folder> getFoldersRecursively(Path folderPath)
-    {
-        return getFoldersRecursively(folderPath, null);
-    }
+    Iterable<Folder> getFoldersRecursively(Path folderPath);
 
     /**
      * Get the folders at the provided folder path and its subfolders.
@@ -399,21 +267,14 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return The folders at the provided container path and its subfolders.
      */
-    default Iterable<Folder> getFoldersRecursively(Path folderPath, Action1<String> onError)
-    {
-        return getFilesAndFoldersRecursively(folderPath, onError).instanceOf(Folder.class);
-    }
+    Iterable<Folder> getFoldersRecursively(Path folderPath, Action1<String> onError);
 
     /**
      * Get the folders at the provided folder path.
      * @param folderPath The path to the folder (Root or Folder).
      * @return The folders at the provided container path.
      */
-    default AsyncFunction<Iterable<Folder>> getFoldersAsync(String folderPath)
-    {
-        final Path path = Path.parse(folderPath);
-        return getFoldersAsync(path);
-    }
+    AsyncFunction<Iterable<Folder>> getFoldersAsync(String folderPath);
 
     /**
      * Get the folders at the provided folder path.
@@ -421,21 +282,14 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return The folders at the provided container path.
      */
-    default AsyncFunction<Iterable<Folder>> getFoldersAsync(String folderPath, Action1<String> onError)
-    {
-        final Path path = Path.parse(folderPath);
-        return getFoldersAsync(path, onError);
-    }
+    AsyncFunction<Iterable<Folder>> getFoldersAsync(String folderPath, Action1<String> onError);
 
     /**
      * Get the folders at the provided folder path.
      * @param folderPath The path to the folder (Root or Folder).
      * @return The folders at the provided container path.
      */
-    default AsyncFunction<Iterable<Folder>> getFoldersAsync(Path folderPath)
-    {
-        return getFoldersAsync(folderPath, null);
-    }
+    AsyncFunction<Iterable<Folder>> getFoldersAsync(Path folderPath);
 
     /**
      * Get the folders at the provided folder path.
@@ -443,23 +297,14 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return The folders at the provided container path.
      */
-    default AsyncFunction<Iterable<Folder>> getFoldersAsync(Path folderPath, Action1<String> onError)
-    {
-        final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        return getAsyncRunner()
-            .schedule(() -> getFolders(folderPath, onError))
-            .thenOn(currentRunner);
-    }
+    AsyncFunction<Iterable<Folder>> getFoldersAsync(Path folderPath, Action1<String> onError);
 
     /**
      * Get the files at the provided folder path.
      * @param folderPath The path to the folder (Root or Folder).
      * @return The files at the provided container path.
      */
-    default Iterable<File> getFiles(String folderPath)
-    {
-        return getFiles(Path.parse(folderPath));
-    }
+    Iterable<File> getFiles(String folderPath);
 
     /**
      * Get the files at the provided folder path.
@@ -467,20 +312,14 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return The files at the provided container path.
      */
-    default Iterable<File> getFiles(String folderPath, Action1<String> onError)
-    {
-        return getFiles(Path.parse(folderPath), onError);
-    }
+    Iterable<File> getFiles(String folderPath, Action1<String> onError);
 
     /**
      * Get the files at the provided folder path.
      * @param folderPath The path to the folder (Root or Folder).
      * @return The files at the provided container path.
      */
-    default Iterable<File> getFiles(Path folderPath)
-    {
-        return getFiles(folderPath, null);
-    }
+    Iterable<File> getFiles(Path folderPath);
 
     /**
      * Get the files at the provided folder path.
@@ -488,20 +327,14 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return The files at the provided container path.
      */
-    default Iterable<File> getFiles(Path folderPath, Action1<String> onError)
-    {
-        return getFilesAndFolders(folderPath, onError).instanceOf(File.class);
-    }
+    Iterable<File> getFiles(Path folderPath, Action1<String> onError);
 
     /**
      * Get the files at the provided folder path and each of the subfolders recursively.
      * @param folderPath The path to the folder (Root or Folder).
      * @return The files at the provided container path and its subfolders.
      */
-    default Iterable<File> getFilesRecursively(String folderPath)
-    {
-        return getFilesRecursively(Path.parse(folderPath));
-    }
+    Iterable<File> getFilesRecursively(String folderPath);
 
     /**
      * Get the files at the provided folder path and each of the subfolders recursively.
@@ -509,20 +342,14 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return The files at the provided container path and its subfolders.
      */
-    default Iterable<File> getFilesRecursively(String folderPath, Action1<String> onError)
-    {
-        return getFilesRecursively(Path.parse(folderPath), onError);
-    }
+    Iterable<File> getFilesRecursively(String folderPath, Action1<String> onError);
 
     /**
      * Get the files at the provided folder path and each of the subfolders recursively.
      * @param folderPath The path to the folder (Root or Folder).
      * @return The files at the provided container path and its subfolders.
      */
-    default Iterable<File> getFilesRecursively(Path folderPath)
-    {
-        return getFilesRecursively(folderPath, null);
-    }
+    Iterable<File> getFilesRecursively(Path folderPath);
 
     /**
      * Get the files at the provided folder path and each of the subfolders recursively.
@@ -530,20 +357,14 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return The files at the provided container path and its subfolders.
      */
-    default Iterable<File> getFilesRecursively(Path folderPath, Action1<String> onError)
-    {
-        return getFilesAndFoldersRecursively(folderPath, onError).instanceOf(File.class);
-    }
+    Iterable<File> getFilesRecursively(Path folderPath, Action1<String> onError);
 
     /**
      * Get the files at the provided folder path.
      * @param folderPath The path to the folder (Root or Folder).
      * @return The files at the provided container path.
      */
-    default AsyncFunction<Iterable<File>> getFilesAsync(String folderPath)
-    {
-        return getFilesAsync(Path.parse(folderPath), null);
-    }
+    AsyncFunction<Iterable<File>> getFilesAsync(String folderPath);
 
     /**
      * Get the files at the provided folder path.
@@ -551,20 +372,14 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return The files at the provided container path.
      */
-    default AsyncFunction<Iterable<File>> getFilesAsync(String folderPath, Action1<String> onError)
-    {
-        return getFilesAsync(Path.parse(folderPath), onError);
-    }
+    AsyncFunction<Iterable<File>> getFilesAsync(String folderPath, Action1<String> onError);
 
     /**
      * Get the files at the provided folder path.
      * @param folderPath The path to the folder (Root or Folder).
      * @return The files at the provided container path.
      */
-    default AsyncFunction<Iterable<File>> getFilesAsync(Path folderPath)
-    {
-        return getFilesAsync(folderPath, null);
-    }
+    AsyncFunction<Iterable<File>> getFilesAsync(Path folderPath);
 
     /**
      * Get the files at the provided folder path.
@@ -572,43 +387,28 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return The files at the provided container path.
      */
-    default AsyncFunction<Iterable<File>> getFilesAsync(Path folderPath, Action1<String> onError)
-    {
-        final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        return getAsyncRunner()
-            .schedule(() -> getFiles(folderPath, onError))
-            .thenOn(currentRunner);
-    }
+    AsyncFunction<Iterable<File>> getFilesAsync(Path folderPath, Action1<String> onError);
 
     /**
      * Get a reference to the Folder at the provided folderPath.
      * @param folderPath The path to the folder.
      * @return A reference to the Folder at the provided folderPath.
      */
-    default Folder getFolder(String folderPath)
-    {
-        return getFolder(Path.parse(folderPath));
-    }
+    Folder getFolder(String folderPath);
 
     /**
      * Get a reference to the Folder at the provided folderPath.
      * @param folderPath The path to the folder.
      * @return A reference to the Folder at the provided folderPath.
      */
-    default Folder getFolder(Path folderPath)
-    {
-        return folderPath == null || !folderPath.isRooted() ? null : new Folder(this, folderPath);
-    }
+    Folder getFolder(Path folderPath);
 
     /**
      * Get whether or not a Folder exists in this FileSystem with the provided path.
      * @param folderPath The path to the Folder.
      * @return Whether or not a Folder exists in this FileSystem with the provided path.
      */
-    default boolean folderExists(String folderPath)
-    {
-        return folderExists(Path.parse(folderPath));
-    }
+    boolean folderExists(String folderPath);
 
     /**
      * Get whether or not a Folder exists in this FileSystem with the provided path.
@@ -616,20 +416,14 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return Whether or not a Folder exists in this FileSystem with the provided path.
      */
-    default boolean folderExists(String folderPath, Action1<String> onError)
-    {
-        return folderExists(Path.parse(folderPath), onError);
-    }
+    boolean folderExists(String folderPath, Action1<String> onError);
 
     /**
      * Get whether or not a Folder exists in this FileSystem with the provided path.
      * @param folderPath The path to the Folder.
      * @return Whether or not a Folder exists in this FileSystem with the provided path.
      */
-    default boolean folderExists(Path folderPath)
-    {
-        return folderExists(folderPath, null);
-    }
+    boolean folderExists(Path folderPath);
 
     /**
      * Get whether or not a Folder exists in this FileSystem with the provided path.
@@ -644,10 +438,7 @@ public interface FileSystem
      * @param folderPath The path to the Folder.
      * @return Whether or not a Folder exists in this FileSystem with the provided path.
      */
-    default AsyncFunction<Boolean> folderExistsAsync(String folderPath)
-    {
-        return folderExistsAsync(Path.parse(folderPath));
-    }
+    AsyncFunction<Boolean> folderExistsAsync(String folderPath);
 
     /**
      * Get whether or not a Folder exists in this FileSystem with the provided path.
@@ -655,20 +446,14 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return Whether or not a Folder exists in this FileSystem with the provided path.
      */
-    default AsyncFunction<Boolean> folderExistsAsync(String folderPath, Action1<String> onError)
-    {
-        return folderExistsAsync(Path.parse(folderPath), onError);
-    }
+    AsyncFunction<Boolean> folderExistsAsync(String folderPath, Action1<String> onError);
 
     /**
      * Get whether or not a Folder exists in this FileSystem with the provided path.
      * @param folderPath The path to the Folder.
      * @return Whether or not a Folder exists in this FileSystem with the provided path.
      */
-    default AsyncFunction<Boolean> folderExistsAsync(Path folderPath)
-    {
-        return folderExistsAsync(folderPath, null);
-    }
+    AsyncFunction<Boolean> folderExistsAsync(Path folderPath);
 
     /**
      * Get whether or not a Folder exists in this FileSystem with the provided path.
@@ -676,13 +461,7 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return Whether or not a Folder exists in this FileSystem with the provided path.
      */
-    default AsyncFunction<Boolean> folderExistsAsync(Path folderPath, Action1<String> onError)
-    {
-        final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        return getAsyncRunner()
-            .schedule(() -> folderExists(folderPath, onError))
-            .thenOn(currentRunner);
-    }
+    AsyncFunction<Boolean> folderExistsAsync(Path folderPath, Action1<String> onError);
 
     /**
      * Create a folder at the provided path and return whether or not this function created the
@@ -690,10 +469,7 @@ public interface FileSystem
      * @param folderPath The path to the folder to create.
      * @return Whether or not this function created the folder.
      */
-    default boolean createFolder(String folderPath)
-    {
-        return createFolder(Path.parse(folderPath));
-    }
+    boolean createFolder(String folderPath);
 
     /**
      * Create a folder at the provided path and return whether or not this function created the
@@ -702,10 +478,7 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return Whether or not this function created the folder.
      */
-    default boolean createFolder(String folderPath, Action1<String> onError)
-    {
-        return createFolder(Path.parse(folderPath), onError);
-    }
+    boolean createFolder(String folderPath, Action1<String> onError);
 
     /**
      * Create a folder at the provided path and return whether or not this function created the
@@ -715,10 +488,7 @@ public interface FileSystem
      *                     already existed will be placed.
      * @return Whether or not this function created the folder.
      */
-    default boolean createFolder(String folderPath, Out<Folder> outputFolder)
-    {
-        return createFolder(Path.parse(folderPath), outputFolder);
-    }
+    boolean createFolder(String folderPath, Out<Folder> outputFolder);
 
     /**
      * Create a folder at the provided path and return whether or not this function created the
@@ -729,10 +499,7 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return Whether or not this function created the folder.
      */
-    default boolean createFolder(String folderPath, Out<Folder> outputFolder, Action1<String> onError)
-    {
-        return createFolder(Path.parse(folderPath), outputFolder, onError);
-    }
+    boolean createFolder(String folderPath, Out<Folder> outputFolder, Action1<String> onError);
 
     /**
      * Create a folder at the provided path and return whether or not this function created the
@@ -740,10 +507,7 @@ public interface FileSystem
      * @param folderPath The path to the folder to create.
      * @return Whether or not this function created the folder.
      */
-    default boolean createFolder(Path folderPath)
-    {
-        return createFolder(folderPath, null, null);
-    }
+    boolean createFolder(Path folderPath);
 
     /**
      * Create a folder at the provided path and return whether or not this function created the
@@ -752,10 +516,7 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return Whether or not this function created the folder.
      */
-    default boolean createFolder(Path folderPath, Action1<String> onError)
-    {
-        return createFolder(folderPath, null, onError);
-    }
+    boolean createFolder(Path folderPath, Action1<String> onError);
 
     /**
      * Create a folder at the provided path and return whether or not this function created the
@@ -765,10 +526,7 @@ public interface FileSystem
      *                     already existed will be placed.
      * @return Whether or not this function created the folder.
      */
-    default boolean createFolder(Path folderPath, Out<Folder> outputFolder)
-    {
-        return createFolder(folderPath, outputFolder, null);
-    }
+    boolean createFolder(Path folderPath, Out<Folder> outputFolder);
 
     /**
      * Create a folder at the provided path and return whether or not this function created the
@@ -787,10 +545,7 @@ public interface FileSystem
      * @param folderPath The path to the folder to create.
      * @return Whether or not this function created the folder.
      */
-    default AsyncFunction<Boolean> createFolderAsync(String folderPath)
-    {
-        return createFolderAsync(Path.parse(folderPath));
-    }
+    AsyncFunction<Boolean> createFolderAsync(String folderPath);
 
     /**
      * Create a folder at the provided path and return whether or not this function created the
@@ -799,10 +554,7 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return Whether or not this function created the folder.
      */
-    default AsyncFunction<Boolean> createFolderAsync(String folderPath, Action1<String> onError)
-    {
-        return createFolderAsync(Path.parse(folderPath), onError);
-    }
+    AsyncFunction<Boolean> createFolderAsync(String folderPath, Action1<String> onError);
 
     /**
      * Create a folder at the provided path and return whether or not this function created the
@@ -812,10 +564,7 @@ public interface FileSystem
      *                     already existed will be placed.
      * @return Whether or not this function created the folder.
      */
-    default AsyncFunction<Boolean> createFolderAsync(String folderPath, Out<Folder> outputFolder)
-    {
-        return createFolderAsync(Path.parse(folderPath), outputFolder);
-    }
+    AsyncFunction<Boolean> createFolderAsync(String folderPath, Out<Folder> outputFolder);
 
     /**
      * Create a folder at the provided path and return whether or not this function created the
@@ -826,10 +575,7 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return Whether or not this function created the folder.
      */
-    default AsyncFunction<Boolean> createFolderAsync(String folderPath, Out<Folder> outputFolder, Action1<String> onError)
-    {
-        return createFolderAsync(Path.parse(folderPath), outputFolder, onError);
-    }
+    AsyncFunction<Boolean> createFolderAsync(String folderPath, Out<Folder> outputFolder, Action1<String> onError);
 
     /**
      * Create a folder at the provided path and return whether or not this function created the
@@ -837,10 +583,7 @@ public interface FileSystem
      * @param folderPath The path to the folder to create.
      * @return Whether or not this function created the folder.
      */
-    default AsyncFunction<Boolean> createFolderAsync(Path folderPath)
-    {
-        return createFolderAsync(folderPath, null, null);
-    }
+    AsyncFunction<Boolean> createFolderAsync(Path folderPath);
 
     /**
      * Create a folder at the provided path and return whether or not this function created the
@@ -849,10 +592,7 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return Whether or not this function created the folder.
      */
-    default AsyncFunction<Boolean> createFolderAsync(Path folderPath, Action1<String> onError)
-    {
-        return createFolderAsync(folderPath, null, onError);
-    }
+    AsyncFunction<Boolean> createFolderAsync(Path folderPath, Action1<String> onError);
 
     /**
      * Create a folder at the provided path and return whether or not this function created the
@@ -862,10 +602,7 @@ public interface FileSystem
      *                     already existed will be placed.
      * @return Whether or not this function created the folder.
      */
-    default AsyncFunction<Boolean> createFolderAsync(Path folderPath, Out<Folder> outputFolder)
-    {
-        return createFolderAsync(folderPath, outputFolder, null);
-    }
+    AsyncFunction<Boolean> createFolderAsync(Path folderPath, Out<Folder> outputFolder);
 
     /**
      * Create a folder at the provided path and return whether or not this function created the
@@ -876,23 +613,14 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return Whether or not this function created the folder.
      */
-    default AsyncFunction<Boolean> createFolderAsync(Path folderPath, Out<Folder> outputFolder, Action1<String> onError)
-    {
-        final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        return getAsyncRunner()
-            .schedule(() -> createFolder(folderPath, outputFolder, onError))
-            .thenOn(currentRunner);
-    }
+    AsyncFunction<Boolean> createFolderAsync(Path folderPath, Out<Folder> outputFolder, Action1<String> onError);
 
     /**
      * Delete the folder at the provided path and return whether this function deleted the folder.
      * @param folderPath The path to the folder to delete.
      * @return Whether or not this function deleted the folder.
      */
-    default boolean deleteFolder(String folderPath)
-    {
-        return deleteFolder(Path.parse(folderPath));
-    }
+    boolean deleteFolder(String folderPath);
 
     /**
      * Delete the folder at the provided path and return whether this function deleted the folder.
@@ -900,20 +628,14 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return Whether or not this function deleted the folder.
      */
-    default boolean deleteFolder(String folderPath, Action1<String> onError)
-    {
-        return deleteFolder(Path.parse(folderPath), onError);
-    }
+    boolean deleteFolder(String folderPath, Action1<String> onError);
 
     /**
      * Delete the folder at the provided path and return whether this function deleted the folder.
      * @param folderPath The path to the folder to delete.
      * @return Whether or not this function deleted the folder.
      */
-    default boolean deleteFolder(Path folderPath)
-    {
-        return deleteFolder(folderPath, null);
-    }
+    boolean deleteFolder(Path folderPath);
 
     /**
      * Delete the folder at the provided path and return whether this function deleted the folder.
@@ -928,10 +650,7 @@ public interface FileSystem
      * @param folderPath The path to the folder to delete.
      * @return Whether or not this function deleted the folder.
      */
-    default AsyncFunction<Boolean> deleteFolderAsync(String folderPath)
-    {
-        return deleteFolderAsync(Path.parse(folderPath));
-    }
+    AsyncFunction<Boolean> deleteFolderAsync(String folderPath);
 
     /**
      * Delete the folder at the provided path and return whether this function deleted the folder.
@@ -939,20 +658,14 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return Whether or not this function deleted the folder.
      */
-    default AsyncFunction<Boolean> deleteFolderAsync(String folderPath, Action1<String> onError)
-    {
-        return deleteFolderAsync(Path.parse(folderPath), onError);
-    }
+    AsyncFunction<Boolean> deleteFolderAsync(String folderPath, Action1<String> onError);
 
     /**
      * Delete the folder at the provided path and return whether this function deleted the folder.
      * @param folderPath The path to the folder to delete.
      * @return Whether or not this function deleted the folder.
      */
-    default AsyncFunction<Boolean> deleteFolderAsync(Path folderPath)
-    {
-        return deleteFolderAsync(folderPath, null);
-    }
+    AsyncFunction<Boolean> deleteFolderAsync(Path folderPath);
 
     /**
      * Delete the folder at the provided path and return whether this function deleted the folder.
@@ -960,43 +673,28 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return Whether or not this function deleted the folder.
      */
-    default AsyncFunction<Boolean> deleteFolderAsync(Path folderPath, Action1<String> onError)
-    {
-        final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        return getAsyncRunner()
-            .schedule(() -> deleteFolder(folderPath, onError))
-            .thenOn(currentRunner);
-    }
+    AsyncFunction<Boolean> deleteFolderAsync(Path folderPath, Action1<String> onError);
 
     /**
      * Get a reference to the File at the provided folderPath.
      * @param filePath The path to the file.
      * @return A reference to the File at the provided filePath.
      */
-    default File getFile(String filePath)
-    {
-        return getFile(Path.parse(filePath));
-    }
+    File getFile(String filePath);
 
     /**
      * Get a reference to the File at the provided folderPath.
      * @param filePath The path to the file.
      * @return A reference to the File at the provided filePath.
      */
-    default File getFile(Path filePath)
-    {
-        return filePath == null || !filePath.isRooted() || filePath.endsWith("/") || filePath.endsWith("\\") ? null : new File(this, filePath);
-    }
+    File getFile(Path filePath);
 
     /**
      * Get whether or not a File exists in this FileSystem with the provided path.
      * @param filePath The path to the File.
      * @return Whether or not a File exists in this FileSystem with the provided path.
      */
-    default boolean fileExists(String filePath)
-    {
-        return fileExists(Path.parse(filePath));
-    }
+    boolean fileExists(String filePath);
 
     /**
      * Get whether or not a File exists in this FileSystem with the provided path.
@@ -1004,20 +702,14 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return Whether or not a File exists in this FileSystem with the provided path.
      */
-    default boolean fileExists(String filePath, Action1<String> onError)
-    {
-        return fileExists(Path.parse(filePath), onError);
-    }
+    boolean fileExists(String filePath, Action1<String> onError);
 
     /**
      * Get whether or not a File exists in this FileSystem with the provided path.
      * @param filePath The path to the File.
      * @return Whether or not a File exists in this FileSystem with the provided path.
      */
-    default boolean fileExists(Path filePath)
-    {
-        return fileExists(filePath, null);
-    }
+    boolean fileExists(Path filePath);
 
     /**
      * Get whether or not a File exists in this FileSystem with the provided path.
@@ -1032,10 +724,7 @@ public interface FileSystem
      * @param filePath The path to the File.
      * @return Whether or not a File exists in this FileSystem with the provided path.
      */
-    default AsyncFunction<Boolean> fileExistsAsync(String filePath)
-    {
-        return fileExistsAsync(Path.parse(filePath));
-    }
+    AsyncFunction<Boolean> fileExistsAsync(String filePath);
 
     /**
      * Get whether or not a File exists in this FileSystem with the provided path.
@@ -1043,20 +732,14 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return Whether or not a File exists in this FileSystem with the provided path.
      */
-    default AsyncFunction<Boolean> fileExistsAsync(String filePath, Action1<String> onError)
-    {
-        return fileExistsAsync(Path.parse(filePath), onError);
-    }
+    AsyncFunction<Boolean> fileExistsAsync(String filePath, Action1<String> onError);
 
     /**
      * Get whether or not a File exists in this FileSystem with the provided path.
      * @param filePath The path to the File.
      * @return Whether or not a File exists in this FileSystem with the provided path.
      */
-    default AsyncFunction<Boolean> fileExistsAsync(Path filePath)
-    {
-        return fileExistsAsync(filePath, null);
-    }
+    AsyncFunction<Boolean> fileExistsAsync(Path filePath);
 
     /**
      * Get whether or not a File exists in this FileSystem with the provided path.
@@ -1064,23 +747,14 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return Whether or not a File exists in this FileSystem with the provided path.
      */
-    default AsyncFunction<Boolean> fileExistsAsync(Path filePath, Action1<String> onError)
-    {
-        final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        return getAsyncRunner()
-            .schedule(() -> fileExists(filePath, onError))
-            .thenOn(currentRunner);
-    }
+    AsyncFunction<Boolean> fileExistsAsync(Path filePath, Action1<String> onError);
 
     /**
      * Create a file at the provided path and return whether or not this function created the file.
      * @param filePath The path to the file to create.
      * @return Whether or not this function created the file.
      */
-    default boolean createFile(String filePath)
-    {
-        return createFile(Path.parse(filePath));
-    }
+    boolean createFile(String filePath);
 
     /**
      * Create a file at the provided path and return whether or not this function created the file.
@@ -1088,10 +762,7 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return Whether or not this function created the file.
      */
-    default boolean createFile(String filePath, Action1<String> onError)
-    {
-        return createFile(Path.parse(filePath), onError);
-    }
+    boolean createFile(String filePath, Action1<String> onError);
 
     /**
      * Create a file at the provided path with the provided fileContents and return whether or not
@@ -1101,37 +772,7 @@ public interface FileSystem
      *                     function.
      * @return Whether or not this function created the file.
      */
-    default boolean createFile(String filePath, byte[] fileContents)
-    {
-        return createFile(Path.parse(filePath), fileContents);
-    }
-
-    /**
-     * Create a file at the provided path with the provided fileContents and return whether or not
-     * this function created the file.
-     * @param filePath The path to the file to create.
-     * @param fileContents The contents to put in the file if the file didn't exist before this
-     *                     function.
-     * @param onError The action that will be called when an error occurs.
-     * @return Whether or not this function created the file.
-     */
-    default boolean createFile(String filePath, byte[] fileContents, Action1<String> onError)
-    {
-        return createFile(Path.parse(filePath), fileContents, onError);
-    }
-
-    /**
-     * Create a file at the provided path with the provided fileContents and return whether or not
-     * this function created the file.
-     * @param filePath The path to the file to create.
-     * @param fileContents The contents to put in the file if the file didn't exist before this
-     *                     function.
-     * @return Whether or not this function created the file.
-     */
-    default boolean createFile(String filePath, String fileContents)
-    {
-        return createFile(Path.parse(filePath), fileContents);
-    }
+    boolean createFile(String filePath, byte[] fileContents);
 
     /**
      * Create a file at the provided path with the provided fileContents and return whether or not
@@ -1142,10 +783,28 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return Whether or not this function created the file.
      */
-    default boolean createFile(String filePath, String fileContents, Action1<String> onError)
-    {
-        return createFile(Path.parse(filePath), fileContents, onError);
-    }
+    boolean createFile(String filePath, byte[] fileContents, Action1<String> onError);
+
+    /**
+     * Create a file at the provided path with the provided fileContents and return whether or not
+     * this function created the file.
+     * @param filePath The path to the file to create.
+     * @param fileContents The contents to put in the file if the file didn't exist before this
+     *                     function.
+     * @return Whether or not this function created the file.
+     */
+    boolean createFile(String filePath, String fileContents);
+
+    /**
+     * Create a file at the provided path with the provided fileContents and return whether or not
+     * this function created the file.
+     * @param filePath The path to the file to create.
+     * @param fileContents The contents to put in the file if the file didn't exist before this
+     *                     function.
+     * @param onError The action that will be called when an error occurs.
+     * @return Whether or not this function created the file.
+     */
+    boolean createFile(String filePath, String fileContents, Action1<String> onError);
 
     /**
      * Create a file at the provided path with the provided fileContents and return whether or not
@@ -1156,10 +815,7 @@ public interface FileSystem
      * @param encoding The CharacterEncoding to use to convert the provided fileContents to bytes.
      * @return Whether or not this function created the file.
      */
-    default boolean createFile(String filePath, String fileContents, CharacterEncoding encoding)
-    {
-        return createFile(Path.parse(filePath), fileContents, encoding);
-    }
+    boolean createFile(String filePath, String fileContents, CharacterEncoding encoding);
 
     /**
      * Create a file at the provided path with the provided fileContents and return whether or not
@@ -1171,10 +827,7 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return Whether or not this function created the file.
      */
-    default boolean createFile(String filePath, String fileContents, CharacterEncoding encoding, Action1<String> onError)
-    {
-        return createFile(Path.parse(filePath), fileContents, encoding, onError);
-    }
+    boolean createFile(String filePath, String fileContents, CharacterEncoding encoding, Action1<String> onError);
 
     /**
      * Create a file at the provided path and return whether or not this function created the file.
@@ -1183,10 +836,7 @@ public interface FileSystem
      *                     already existed will be placed.
      * @return Whether or not this function created the file.
      */
-    default boolean createFile(String filePath, Out<File> outputFile)
-    {
-        return createFile(Path.parse(filePath), outputFile);
-    }
+    boolean createFile(String filePath, Out<File> outputFile);
 
     /**
      * Create a file at the provided path and return whether or not this function created the file.
@@ -1196,10 +846,7 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return Whether or not this function created the file.
      */
-    default boolean createFile(String filePath, Out<File> outputFile, Action1<String> onError)
-    {
-        return createFile(Path.parse(filePath), outputFile, onError);
-    }
+    boolean createFile(String filePath, Out<File> outputFile, Action1<String> onError);
 
     /**
      * Create a file at the provided path with the provided fileContents and return whether or not
@@ -1211,41 +858,7 @@ public interface FileSystem
      *                     already existed will be placed.
      * @return Whether or not this function created the file.
      */
-    default boolean createFile(String filePath, byte[] fileContents, Out<File> outputFile)
-    {
-        return createFile(Path.parse(filePath), fileContents, outputFile);
-    }
-
-    /**
-     * Create a file at the provided path with the provided fileContents and return whether or not
-     * this function created the file.
-     * @param filePath The path to the file to create.
-     * @param fileContents The contents to put in the file if the file didn't exist before this
-     *                     function.
-     * @param outputFile The output parameter where the file that was created or the file that
-     *                     already existed will be placed.
-     * @param onError The action that will be called when an error occurs.
-     * @return Whether or not this function created the file.
-     */
-    default boolean createFile(String filePath, byte[] fileContents, Out<File> outputFile, Action1<String> onError)
-    {
-        return createFile(Path.parse(filePath), fileContents, outputFile, onError);
-    }
-
-    /**
-     * Create a file at the provided path with the provided fileContents and return whether or not
-     * this function created the file.
-     * @param filePath The path to the file to create.
-     * @param fileContents The contents to put in the file if the file didn't exist before this
-     *                     function.
-     * @param outputFile The output parameter where the file that was created or the file that
-     *                     already existed will be placed.
-     * @return Whether or not this function created the file.
-     */
-    default boolean createFile(String filePath, String fileContents, Out<File> outputFile)
-    {
-        return createFile(Path.parse(filePath), fileContents, outputFile);
-    }
+    boolean createFile(String filePath, byte[] fileContents, Out<File> outputFile);
 
     /**
      * Create a file at the provided path with the provided fileContents and return whether or not
@@ -1258,10 +871,32 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return Whether or not this function created the file.
      */
-    default boolean createFile(String filePath, String fileContents, Out<File> outputFile, Action1<String> onError)
-    {
-        return createFile(Path.parse(filePath), fileContents, outputFile, onError);
-    }
+    boolean createFile(String filePath, byte[] fileContents, Out<File> outputFile, Action1<String> onError);
+
+    /**
+     * Create a file at the provided path with the provided fileContents and return whether or not
+     * this function created the file.
+     * @param filePath The path to the file to create.
+     * @param fileContents The contents to put in the file if the file didn't exist before this
+     *                     function.
+     * @param outputFile The output parameter where the file that was created or the file that
+     *                     already existed will be placed.
+     * @return Whether or not this function created the file.
+     */
+    boolean createFile(String filePath, String fileContents, Out<File> outputFile);
+
+    /**
+     * Create a file at the provided path with the provided fileContents and return whether or not
+     * this function created the file.
+     * @param filePath The path to the file to create.
+     * @param fileContents The contents to put in the file if the file didn't exist before this
+     *                     function.
+     * @param outputFile The output parameter where the file that was created or the file that
+     *                     already existed will be placed.
+     * @param onError The action that will be called when an error occurs.
+     * @return Whether or not this function created the file.
+     */
+    boolean createFile(String filePath, String fileContents, Out<File> outputFile, Action1<String> onError);
 
     /**
      * Create a file at the provided path with the provided fileContents and return whether or not
@@ -1274,10 +909,7 @@ public interface FileSystem
      *                     already existed will be placed.
      * @return Whether or not this function created the file.
      */
-    default boolean createFile(String filePath, String fileContents, CharacterEncoding encoding, Out<File> outputFile)
-    {
-        return createFile(Path.parse(filePath), fileContents, encoding, outputFile);
-    }
+    boolean createFile(String filePath, String fileContents, CharacterEncoding encoding, Out<File> outputFile);
 
     /**
      * Create a file at the provided path with the provided fileContents and return whether or not
@@ -1291,20 +923,14 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return Whether or not this function created the file.
      */
-    default boolean createFile(String filePath, String fileContents, CharacterEncoding encoding, Out<File> outputFile, Action1<String> onError)
-    {
-        return createFile(Path.parse(filePath), fileContents, encoding, outputFile, onError);
-    }
+    boolean createFile(String filePath, String fileContents, CharacterEncoding encoding, Out<File> outputFile, Action1<String> onError);
 
     /**
      * Create a file at the provided path and return whether or not this function created the file.
      * @param filePath The path to the file to create.
      * @return Whether or not this function created the file.
      */
-    default boolean createFile(Path filePath)
-    {
-        return createFile(filePath, (byte[])null);
-    }
+    boolean createFile(Path filePath);
 
     /**
      * Create a file at the provided path and return whether or not this function created the file.
@@ -1312,10 +938,7 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return Whether or not this function created the file.
      */
-    default boolean createFile(Path filePath, Action1<String> onError)
-    {
-        return createFile(filePath, (byte[])null, onError);
-    }
+    boolean createFile(Path filePath, Action1<String> onError);
 
     /**
      * Create a file at the provided path with the provided fileContents and return whether or not
@@ -1325,37 +948,7 @@ public interface FileSystem
      *                     function.
      * @return Whether or not this function created the file.
      */
-    default boolean createFile(Path filePath, byte[] fileContents)
-    {
-        return createFile(filePath, fileContents, (Out<File>)null);
-    }
-
-    /**
-     * Create a file at the provided path with the provided fileContents and return whether or not
-     * this function created the file.
-     * @param filePath The path to the file to create.
-     * @param fileContents The contents to put in the file if the file didn't exist before this
-     *                     function.
-     * @param onError The action that will be called when an error occurs.
-     * @return Whether or not this function created the file.
-     */
-    default boolean createFile(Path filePath, byte[] fileContents, Action1<String> onError)
-    {
-        return createFile(filePath, fileContents, null, onError);
-    }
-
-    /**
-     * Create a file at the provided path with the provided fileContents and return whether or not
-     * this function created the file.
-     * @param filePath The path to the file to create.
-     * @param fileContents The contents to put in the file if the file didn't exist before this
-     *                     function.
-     * @return Whether or not this function created the file.
-     */
-    default boolean createFile(Path filePath, String fileContents)
-    {
-        return createFile(filePath, fileContents, CharacterEncoding.UTF_8, (Out<File>)null);
-    }
+    boolean createFile(Path filePath, byte[] fileContents);
 
     /**
      * Create a file at the provided path with the provided fileContents and return whether or not
@@ -1366,10 +959,28 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return Whether or not this function created the file.
      */
-    default boolean createFile(Path filePath, String fileContents, Action1<String> onError)
-    {
-        return createFile(filePath, fileContents, CharacterEncoding.UTF_8, null, onError);
-    }
+    boolean createFile(Path filePath, byte[] fileContents, Action1<String> onError);
+
+    /**
+     * Create a file at the provided path with the provided fileContents and return whether or not
+     * this function created the file.
+     * @param filePath The path to the file to create.
+     * @param fileContents The contents to put in the file if the file didn't exist before this
+     *                     function.
+     * @return Whether or not this function created the file.
+     */
+    boolean createFile(Path filePath, String fileContents);
+
+    /**
+     * Create a file at the provided path with the provided fileContents and return whether or not
+     * this function created the file.
+     * @param filePath The path to the file to create.
+     * @param fileContents The contents to put in the file if the file didn't exist before this
+     *                     function.
+     * @param onError The action that will be called when an error occurs.
+     * @return Whether or not this function created the file.
+     */
+    boolean createFile(Path filePath, String fileContents, Action1<String> onError);
 
     /**
      * Create a file at the provided path with the provided fileContents and return whether or not
@@ -1380,10 +991,7 @@ public interface FileSystem
      * @param encoding The CharacterEncoding to use to convert the provided fileContents to bytes.
      * @return Whether or not this function created the file.
      */
-    default boolean createFile(Path filePath, String fileContents, CharacterEncoding encoding)
-    {
-        return createFile(filePath, fileContents, encoding, (Out<File>)null);
-    }
+    boolean createFile(Path filePath, String fileContents, CharacterEncoding encoding);
 
     /**
      * Create a file at the provided path with the provided fileContents and return whether or not
@@ -1395,10 +1003,7 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return Whether or not this function created the file.
      */
-    default boolean createFile(Path filePath, String fileContents, CharacterEncoding encoding, Action1<String> onError)
-    {
-        return createFile(filePath, fileContents, encoding, null, onError);
-    }
+    boolean createFile(Path filePath, String fileContents, CharacterEncoding encoding, Action1<String> onError);
 
     /**
      * Create a file at the provided path and return whether or not this function created the
@@ -1408,10 +1013,7 @@ public interface FileSystem
      *                     already existed will be placed.
      * @return Whether or not this function created the file.
      */
-    default boolean createFile(Path filePath, Out<File> outputFile)
-    {
-        return createFile(filePath, (byte[])null, outputFile);
-    }
+    boolean createFile(Path filePath, Out<File> outputFile);
 
     /**
      * Create a file at the provided path and return whether or not this function created the
@@ -1422,10 +1024,7 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return Whether or not this function created the file.
      */
-    default boolean createFile(Path filePath, Out<File> outputFile, Action1<String> onError)
-    {
-        return createFile(filePath, (byte[])null, outputFile, onError);
-    }
+    boolean createFile(Path filePath, Out<File> outputFile, Action1<String> onError);
 
     /**
      * Create a file at the provided path with the provided fileContents and return whether or not
@@ -1437,10 +1036,7 @@ public interface FileSystem
      *                     already existed will be placed.
      * @return Whether or not this function created the file.
      */
-    default boolean createFile(Path filePath, byte[] fileContents, Out<File> outputFile)
-    {
-        return createFile(filePath, fileContents, outputFile, null);
-    }
+    boolean createFile(Path filePath, byte[] fileContents, Out<File> outputFile);
 
     /**
      * Create a file at the provided path with the provided fileContents and return whether or not
@@ -1465,10 +1061,7 @@ public interface FileSystem
      *                     already existed will be placed.
      * @return Whether or not this function created the file.
      */
-    default boolean createFile(Path filePath, String fileContents, Out<File> outputFile)
-    {
-        return createFile(filePath, fileContents, CharacterEncoding.UTF_8, outputFile);
-    }
+    boolean createFile(Path filePath, String fileContents, Out<File> outputFile);
 
     /**
      * Create a file at the provided path with the provided fileContents and return whether or not
@@ -1481,10 +1074,7 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return Whether or not this function created the file.
      */
-    default boolean createFile(Path filePath, String fileContents, Out<File> outputFile, Action1<String> onError)
-    {
-        return createFile(filePath, fileContents, CharacterEncoding.UTF_8, outputFile, onError);
-    }
+    boolean createFile(Path filePath, String fileContents, Out<File> outputFile, Action1<String> onError);
 
     /**
      * Create a file at the provided path with the provided fileContents and return whether or not
@@ -1497,11 +1087,7 @@ public interface FileSystem
      *                     already existed will be placed.
      * @return Whether or not this function created the file.
      */
-    default boolean createFile(Path filePath, String fileContents, CharacterEncoding encoding, Out<File> outputFile)
-    {
-        final byte[] fileContentsBytes = encoding == null ? null : encoding.encode(fileContents);
-        return createFile(filePath, fileContentsBytes, outputFile);
-    }
+    boolean createFile(Path filePath, String fileContents, CharacterEncoding encoding, Out<File> outputFile);
 
     /**
      * Create a file at the provided path with the provided fileContents and return whether or not
@@ -1515,21 +1101,14 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return Whether or not this function created the file.
      */
-    default boolean createFile(Path filePath, String fileContents, CharacterEncoding encoding, Out<File> outputFile, Action1<String> onError)
-    {
-        final byte[] fileContentsBytes = encoding == null ? null : encoding.encode(fileContents);
-        return createFile(filePath, fileContentsBytes, outputFile, onError);
-    }
+    boolean createFile(Path filePath, String fileContents, CharacterEncoding encoding, Out<File> outputFile, Action1<String> onError);
 
     /**
      * Create a file at the provided path and return whether or not this function created the file.
      * @param filePath The path to the file to create.
      * @return Whether or not this function created the file.
      */
-    default AsyncFunction<Boolean> createFileAsync(String filePath)
-    {
-        return createFileAsync(Path.parse(filePath));
-    }
+    AsyncFunction<Boolean> createFileAsync(String filePath);
 
     /**
      * Create a file at the provided path and return whether or not this function created the file.
@@ -1537,10 +1116,7 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return Whether or not this function created the file.
      */
-    default AsyncFunction<Boolean> createFileAsync(String filePath, Action1<String> onError)
-    {
-        return createFileAsync(Path.parse(filePath), onError);
-    }
+    AsyncFunction<Boolean> createFileAsync(String filePath, Action1<String> onError);
 
     /**
      * Create a file at the provided path and return whether or not this function created the file.
@@ -1549,10 +1125,7 @@ public interface FileSystem
      *                     already existed will be placed.
      * @return Whether or not this function created the file.
      */
-    default AsyncFunction<Boolean> createFileAsync(String filePath, Out<File> outputFile)
-    {
-        return createFileAsync(Path.parse(filePath), outputFile);
-    }
+    AsyncFunction<Boolean> createFileAsync(String filePath, Out<File> outputFile);
 
     /**
      * Create a file at the provided path and return whether or not this function created the file.
@@ -1562,20 +1135,14 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return Whether or not this function created the file.
      */
-    default AsyncFunction<Boolean> createFileAsync(String filePath, Out<File> outputFile, Action1<String> onError)
-    {
-        return createFileAsync(Path.parse(filePath), outputFile, onError);
-    }
+    AsyncFunction<Boolean> createFileAsync(String filePath, Out<File> outputFile, Action1<String> onError);
 
     /**
      * Create a file at the provided path and return whether or not this function created the file.
      * @param filePath The path to the file to create.
      * @return Whether or not this function created the file.
      */
-    default AsyncFunction<Boolean> createFileAsync(Path filePath)
-    {
-        return createFileAsync(filePath, (Out<File>)null);
-    }
+    AsyncFunction<Boolean> createFileAsync(Path filePath);
 
     /**
      * Create a file at the provided path and return whether or not this function created the file.
@@ -1583,10 +1150,7 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return Whether or not this function created the file.
      */
-    default AsyncFunction<Boolean> createFileAsync(Path filePath, Action1<String> onError)
-    {
-        return createFileAsync(filePath, null, onError);
-    }
+    AsyncFunction<Boolean> createFileAsync(Path filePath, Action1<String> onError);
 
     /**
      * Create a file at the provided path and return whether or not this function created the
@@ -1596,10 +1160,7 @@ public interface FileSystem
      *                     already existed will be placed.
      * @return Whether or not this function created the file.
      */
-    default AsyncFunction<Boolean> createFileAsync(Path filePath, Out<File> outputFile)
-    {
-        return createFileAsync(filePath, outputFile, null);
-    }
+    AsyncFunction<Boolean> createFileAsync(Path filePath, Out<File> outputFile);
 
     /**
      * Create a file at the provided path and return whether or not this function created the
@@ -1610,23 +1171,14 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return Whether or not this function created the file.
      */
-    default AsyncFunction<Boolean> createFileAsync(Path filePath, Out<File> outputFile, Action1<String> onError)
-    {
-        final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        return getAsyncRunner()
-            .schedule(() -> createFile(filePath, outputFile, onError))
-            .thenOn(currentRunner);
-    }
+    AsyncFunction<Boolean> createFileAsync(Path filePath, Out<File> outputFile, Action1<String> onError);
 
     /**
      * Delete the file at the provided path and return whether this function deleted the file.
      * @param filePath The path to the file to delete.
      * @return Whether or not this function deleted the file.
      */
-    default boolean deleteFile(String filePath)
-    {
-        return deleteFile(Path.parse(filePath));
-    }
+    boolean deleteFile(String filePath);
 
     /**
      * Delete the file at the provided path and return whether this function deleted the file.
@@ -1634,20 +1186,14 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return Whether or not this function deleted the file.
      */
-    default boolean deleteFile(String filePath, Action1<String> onError)
-    {
-        return deleteFile(Path.parse(filePath), onError);
-    }
+    boolean deleteFile(String filePath, Action1<String> onError);
 
     /**
      * Delete the file at the provided path and return whether this function deleted the file.
      * @param filePath The path to the file to delete.
      * @return Whether or not this function deleted the file.
      */
-    default boolean deleteFile(Path filePath)
-    {
-        return deleteFile(filePath, null);
-    }
+    boolean deleteFile(Path filePath);
 
     /**
      * Delete the file at the provided path and return whether this function deleted the file.
@@ -1662,10 +1208,7 @@ public interface FileSystem
      * @param filePath The path to the file to delete.
      * @return Whether or not this function deleted the file.
      */
-    default AsyncFunction<Boolean> deleteFileAsync(String filePath)
-    {
-        return deleteFileAsync(Path.parse(filePath));
-    }
+    AsyncFunction<Boolean> deleteFileAsync(String filePath);
 
     /**
      * Delete the file at the provided path and return whether this function deleted the file.
@@ -1673,20 +1216,14 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return Whether or not this function deleted the file.
      */
-    default AsyncFunction<Boolean> deleteFileAsync(String filePath, Action1<String> onError)
-    {
-        return deleteFileAsync(Path.parse(filePath), onError);
-    }
+    AsyncFunction<Boolean> deleteFileAsync(String filePath, Action1<String> onError);
 
     /**
      * Delete the file at the provided path and return whether this function deleted the file.
      * @param filePath The path to the file to delete.
      * @return Whether or not this function deleted the file.
      */
-    default AsyncFunction<Boolean> deleteFileAsync(Path filePath)
-    {
-        return deleteFileAsync(filePath, null);
-    }
+    AsyncFunction<Boolean> deleteFileAsync(Path filePath);
 
     /**
      * Delete the file at the provided path and return whether this function deleted the file.
@@ -1694,13 +1231,7 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return Whether or not this function deleted the file.
      */
-    default AsyncFunction<Boolean> deleteFileAsync(Path filePath, Action1<String> onError)
-    {
-        final AsyncRunner currentRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        return getAsyncRunner()
-            .schedule(() -> deleteFile(filePath, onError))
-            .thenOn(currentRunner);
-    }
+    AsyncFunction<Boolean> deleteFileAsync(Path filePath, Action1<String> onError);
 
     /**
      * Get the date and time of the most recent modification of the given file, or null if the file
@@ -1709,10 +1240,7 @@ public interface FileSystem
      * @return The date and time of the most recent modification of the given file, or null if the
      * file doesn't exist.
      */
-    default DateTime getFileLastModified(String filePath)
-    {
-        return getFileLastModified(Path.parse(filePath));
-    }
+    DateTime getFileLastModified(String filePath);
 
     /**
      * Get the date and time of the most recent modification of the given file, or null if the file
@@ -1730,10 +1258,7 @@ public interface FileSystem
      * @return The contents of the file at the provided rootedFilePath, or null if no file exists at
      * the provided rootedFilePath.
      */
-    default byte[] getFileContents(String rootedFilePath)
-    {
-        return getFileContents(Path.parse(rootedFilePath));
-    }
+    byte[] getFileContents(String rootedFilePath);
 
     /**
      * Read the contents of the file at the provided rootedFilePath. If no file exists at the
@@ -1743,10 +1268,7 @@ public interface FileSystem
      * @return The contents of the file at the provided rootedFilePath, or null if no file exists at
      * the provided rootedFilePath.
      */
-    default byte[] getFileContents(String rootedFilePath, Action1<String> onError)
-    {
-        return getFileContents(Path.parse(rootedFilePath), onError);
-    }
+    byte[] getFileContents(String rootedFilePath, Action1<String> onError);
 
     /**
      * Read the contents of the file at the provided rootedFilePath. If no file exists at the
@@ -1755,10 +1277,7 @@ public interface FileSystem
      * @return The contents of the file at the provided rootedFilePath, or null if no file exists at
      * the provided rootedFilePath.
      */
-    default byte[] getFileContents(Path rootedFilePath)
-    {
-        return getFileContents(rootedFilePath, null);
-    }
+    byte[] getFileContents(Path rootedFilePath);
 
     /**
      * Read the contents of the file at the provided rootedFilePath. If no file exists at the
@@ -1768,10 +1287,7 @@ public interface FileSystem
      * @return The contents of the file at the provided rootedFilePath, or null if no file exists at
      * the provided rootedFilePath.
      */
-    default byte[] getFileContents(Path rootedFilePath, Action1<String> onError)
-    {
-        return Array.merge(getFileContentBlocks(rootedFilePath, onError));
-    }
+    byte[] getFileContents(Path rootedFilePath, Action1<String> onError);
 
     /**
      * Read the contents of the file at the provided rootedFilePath. If no file exists at the
@@ -1780,10 +1296,7 @@ public interface FileSystem
      * @return The contents of the file at the provided rootedFilePath, or null if no file exists at
      * the provided rootedFilePath.
      */
-    default String getFileContentsAsString(String rootedFilePath)
-    {
-        return getFileContentsAsString(Path.parse(rootedFilePath));
-    }
+    String getFileContentsAsString(String rootedFilePath);
 
     /**
      * Read the contents of the file at the provided rootedFilePath. If no file exists at the
@@ -1793,10 +1306,7 @@ public interface FileSystem
      * @return The contents of the file at the provided rootedFilePath, or null if no file exists at
      * the provided rootedFilePath.
      */
-    default String getFileContentsAsString(String rootedFilePath, Action1<String> onError)
-    {
-        return getFileContentsAsString(Path.parse(rootedFilePath), onError);
-    }
+    String getFileContentsAsString(String rootedFilePath, Action1<String> onError);
 
     /**
      * Read the contents of the file at the provided rootedFilePath. If no file exists at the
@@ -1805,10 +1315,7 @@ public interface FileSystem
      * @return The contents of the file at the provided rootedFilePath, or null if no file exists at
      * the provided rootedFilePath.
      */
-    default String getFileContentsAsString(Path rootedFilePath)
-    {
-        return getFileContentsAsString(rootedFilePath, CharacterEncoding.UTF_8);
-    }
+    String getFileContentsAsString(Path rootedFilePath);
 
     /**
      * Read the contents of the file at the provided rootedFilePath. If no file exists at the
@@ -1818,10 +1325,7 @@ public interface FileSystem
      * @return The contents of the file at the provided rootedFilePath, or null if no file exists at
      * the provided rootedFilePath.
      */
-    default String getFileContentsAsString(Path rootedFilePath, Action1<String> onError)
-    {
-        return getFileContentsAsString(rootedFilePath, CharacterEncoding.UTF_8, onError);
-    }
+    String getFileContentsAsString(Path rootedFilePath, Action1<String> onError);
 
     /**
      * Read the contents of the file at the provided rootedFilePath. If no file exists at the
@@ -1830,10 +1334,7 @@ public interface FileSystem
      * @return The contents of the file at the provided rootedFilePath, or null if no file exists at
      * the provided rootedFilePath.
      */
-    default String getFileContentsAsString(String rootedFilePath, CharacterEncoding encoding)
-    {
-        return getFileContentsAsString(Path.parse(rootedFilePath), encoding);
-    }
+    String getFileContentsAsString(String rootedFilePath, CharacterEncoding encoding);
 
     /**
      * Read the contents of the file at the provided rootedFilePath. If no file exists at the
@@ -1843,10 +1344,7 @@ public interface FileSystem
      * @return The contents of the file at the provided rootedFilePath, or null if no file exists at
      * the provided rootedFilePath.
      */
-    default String getFileContentsAsString(String rootedFilePath, CharacterEncoding encoding, Action1<String> onError)
-    {
-        return getFileContentsAsString(Path.parse(rootedFilePath), encoding, onError);
-    }
+    String getFileContentsAsString(String rootedFilePath, CharacterEncoding encoding, Action1<String> onError);
 
     /**
      * Read the contents of the file at the provided rootedFilePath. If no file exists at the
@@ -1855,10 +1353,7 @@ public interface FileSystem
      * @return The contents of the file at the provided rootedFilePath, or null if no file exists at
      * the provided rootedFilePath.
      */
-    default String getFileContentsAsString(Path rootedFilePath, CharacterEncoding encoding)
-    {
-        return getFileContentsAsString(rootedFilePath, encoding, null);
-    }
+    String getFileContentsAsString(Path rootedFilePath, CharacterEncoding encoding);
 
     /**
      * Read the contents of the file at the provided rootedFilePath. If no file exists at the
@@ -1868,16 +1363,7 @@ public interface FileSystem
      * @return The contents of the file at the provided rootedFilePath, or null if no file exists at
      * the provided rootedFilePath.
      */
-    default String getFileContentsAsString(Path rootedFilePath, CharacterEncoding encoding, Action1<String> onError)
-    {
-        String result = null;
-        if (encoding != null)
-        {
-            final byte[] fileContents = getFileContents(rootedFilePath, onError);
-            result = encoding.decode(fileContents);
-        }
-        return result;
-    }
+    String getFileContentsAsString(Path rootedFilePath, CharacterEncoding encoding, Action1<String> onError);
 
     /**
      * Read the contents of the file at the provided rootedFilePath as a sequence of byte[]. If no
@@ -1886,10 +1372,7 @@ public interface FileSystem
      * @return The contents of the file at the provided rootedFilePath as a sequence of byte[], or
      * null if no file exists at the provided rootedFilePath.
      */
-    default Iterable<byte[]> getFileContentBlocks(String rootedFilePath)
-    {
-        return getFileContentBlocks(Path.parse(rootedFilePath));
-    }
+    Iterable<byte[]> getFileContentBlocks(String rootedFilePath);
 
     /**
      * Read the contents of the file at the provided rootedFilePath as a sequence of byte[]. If no
@@ -1899,10 +1382,7 @@ public interface FileSystem
      * @return The contents of the file at the provided rootedFilePath as a sequence of byte[], or
      * null if no file exists at the provided rootedFilePath.
      */
-    default Iterable<byte[]> getFileContentBlocks(String rootedFilePath, Action1<String> onError)
-    {
-        return getFileContentBlocks(Path.parse(rootedFilePath), onError);
-    }
+    Iterable<byte[]> getFileContentBlocks(String rootedFilePath, Action1<String> onError);
 
     /**
      * Read the contents of the file at the provided rootedFilePath as a sequence of byte[]. If no
@@ -1911,10 +1391,7 @@ public interface FileSystem
      * @return The contents of the file at the provided rootedFilePath as a sequence of byte[], or
      * null if no file exists at the provided rootedFilePath.
      */
-    default Iterable<byte[]> getFileContentBlocks(Path rootedFilePath)
-    {
-        return getFileContentBlocks(rootedFilePath, null);
-    }
+    Iterable<byte[]> getFileContentBlocks(Path rootedFilePath);
 
     /**
      * Read the contents of the file at the provided rootedFilePath as a sequence of byte[]. If no
@@ -1924,33 +1401,7 @@ public interface FileSystem
      * @return The contents of the file at the provided rootedFilePath as a sequence of byte[], or
      * null if no file exists at the provided rootedFilePath.
      */
-    default Iterable<byte[]> getFileContentBlocks(Path rootedFilePath, Action1<String> onError)
-    {
-        List<byte[]> result = null;
-
-        try (final ByteReadStream fileByteReadStream = getFileContentByteReadStream(rootedFilePath, onError))
-        {
-            if (fileByteReadStream != null)
-            {
-                result = new ArrayList<>();
-
-                final byte[] buffer = new byte[1024];
-                int bytesRead;
-                do
-                {
-                    bytesRead = fileByteReadStream.readBytes(buffer);
-                    if (bytesRead > 0)
-                    {
-                        final byte[] byteBlock = Array.clone(buffer, 0, bytesRead);
-                        result.add(byteBlock);
-                    }
-                }
-                while (bytesRead >= 0);
-            }
-        }
-
-        return result;
-    }
+    Iterable<byte[]> getFileContentBlocks(Path rootedFilePath, Action1<String> onError);
 
     /**
      * Get the content lines of the file at the provided rootedFilePath. If no file exists at the
@@ -1959,10 +1410,7 @@ public interface FileSystem
      * @return The content lines of the file, or null if no file exists at the provided
      * rootedFilePath.
      */
-    default Iterable<String> getFileContentLines(String rootedFilePath)
-    {
-        return getFileContentLines(Path.parse(rootedFilePath));
-    }
+    Iterable<String> getFileContentLines(String rootedFilePath);
 
     /**
      * Get the content lines of the file at the provided rootedFilePath. If no file exists at the
@@ -1972,10 +1420,7 @@ public interface FileSystem
      * @return The content lines of the file, or null if no file exists at the provided
      * rootedFilePath.
      */
-    default Iterable<String> getFileContentLines(String rootedFilePath, Action1<String> onError)
-    {
-        return getFileContentLines(Path.parse(rootedFilePath), onError);
-    }
+    Iterable<String> getFileContentLines(String rootedFilePath, Action1<String> onError);
 
     /**
      * Get the content lines of the file at the provided rootedFilePath. If no file exists at the
@@ -1984,10 +1429,7 @@ public interface FileSystem
      * @return The content lines of the file, or null if no file exists at the provided
      * rootedFilePath.
      */
-    default Iterable<String> getFileContentLines(Path rootedFilePath)
-    {
-        return getFileContentLines(rootedFilePath, true);
-    }
+    Iterable<String> getFileContentLines(Path rootedFilePath);
 
     /**
      * Get the content lines of the file at the provided rootedFilePath. If no file exists at the
@@ -1997,10 +1439,7 @@ public interface FileSystem
      * @return The content lines of the file, or null if no file exists at the provided
      * rootedFilePath.
      */
-    default Iterable<String> getFileContentLines(Path rootedFilePath, Action1<String> onError)
-    {
-        return getFileContentLines(rootedFilePath, true, onError);
-    }
+    Iterable<String> getFileContentLines(Path rootedFilePath, Action1<String> onError);
 
     /**
      * Get the content lines of the file at the provided rootedFilePath. If no file exists at the
@@ -2011,10 +1450,7 @@ public interface FileSystem
      * @return The content lines of the file, or null if no file exists at the provided
      * rootedFilePath.
      */
-    default Iterable<String> getFileContentLines(String rootedFilePath, boolean includeNewLines)
-    {
-        return getFileContentLines(Path.parse(rootedFilePath), includeNewLines);
-    }
+    Iterable<String> getFileContentLines(String rootedFilePath, boolean includeNewLines);
 
     /**
      * Get the content lines of the file at the provided rootedFilePath. If no file exists at the
@@ -2026,10 +1462,7 @@ public interface FileSystem
      * @return The content lines of the file, or null if no file exists at the provided
      * rootedFilePath.
      */
-    default Iterable<String> getFileContentLines(String rootedFilePath, boolean includeNewLines, Action1<String> onError)
-    {
-        return getFileContentLines(Path.parse(rootedFilePath), includeNewLines, onError);
-    }
+    Iterable<String> getFileContentLines(String rootedFilePath, boolean includeNewLines, Action1<String> onError);
 
     /**
      * Get the content lines of the file at the provided rootedFilePath. If no file exists at the
@@ -2040,10 +1473,7 @@ public interface FileSystem
      * @return The content lines of the file, or null if no file exists at the provided
      * rootedFilePath.
      */
-    default Iterable<String> getFileContentLines(Path rootedFilePath, boolean includeNewLines)
-    {
-        return getFileContentLines(rootedFilePath, includeNewLines, CharacterEncoding.UTF_8);
-    }
+    Iterable<String> getFileContentLines(Path rootedFilePath, boolean includeNewLines);
 
     /**
      * Get the content lines of the file at the provided rootedFilePath. If no file exists at the
@@ -2055,10 +1485,7 @@ public interface FileSystem
      * @return The content lines of the file, or null if no file exists at the provided
      * rootedFilePath.
      */
-    default Iterable<String> getFileContentLines(Path rootedFilePath, boolean includeNewLines, Action1<String> onError)
-    {
-        return getFileContentLines(rootedFilePath, includeNewLines, CharacterEncoding.UTF_8, onError);
-    }
+    Iterable<String> getFileContentLines(Path rootedFilePath, boolean includeNewLines, Action1<String> onError);
 
     /**
      * Get the content lines of the file at the provided rootedFilePath. If no file exists at the
@@ -2068,37 +1495,7 @@ public interface FileSystem
      * @return The content lines of the file, or null if no file exists at the provided
      * rootedFilePath.
      */
-    default Iterable<String> getFileContentLines(String rootedFilePath, CharacterEncoding encoding)
-    {
-        return getFileContentLines(Path.parse(rootedFilePath), encoding);
-    }
-
-    /**
-     * Get the content lines of the file at the provided rootedFilePath. If no file exists at the
-     * provided rootedfilePath, then null will be returned.
-     * @param rootedFilePath The path to the File.
-     * @param encoding The CharacterEncoding to use to convert the file's contents to Strings.
-     * @param onError The action that will be called when an error occurs.
-     * @return The content lines of the file, or null if no file exists at the provided
-     * rootedFilePath.
-     */
-    default Iterable<String> getFileContentLines(String rootedFilePath, CharacterEncoding encoding, Action1<String> onError)
-    {
-        return getFileContentLines(Path.parse(rootedFilePath), encoding, onError);
-    }
-
-    /**
-     * Get the content lines of the file at the provided rootedFilePath. If no file exists at the
-     * provided rootedfilePath, then null will be returned.
-     * @param rootedFilePath The path to the File.
-     * @param encoding The CharacterEncoding to use to convert the file's contents to Strings.
-     * @return The content lines of the file, or null if no file exists at the provided
-     * rootedFilePath.
-     */
-    default Iterable<String> getFileContentLines(Path rootedFilePath, CharacterEncoding encoding)
-    {
-        return getFileContentLines(rootedFilePath, true, encoding);
-    }
+    Iterable<String> getFileContentLines(String rootedFilePath, CharacterEncoding encoding);
 
     /**
      * Get the content lines of the file at the provided rootedFilePath. If no file exists at the
@@ -2109,10 +1506,28 @@ public interface FileSystem
      * @return The content lines of the file, or null if no file exists at the provided
      * rootedFilePath.
      */
-    default Iterable<String> getFileContentLines(Path rootedFilePath, CharacterEncoding encoding, Action1<String> onError)
-    {
-        return getFileContentLines(rootedFilePath, true, encoding, onError);
-    }
+    Iterable<String> getFileContentLines(String rootedFilePath, CharacterEncoding encoding, Action1<String> onError);
+
+    /**
+     * Get the content lines of the file at the provided rootedFilePath. If no file exists at the
+     * provided rootedfilePath, then null will be returned.
+     * @param rootedFilePath The path to the File.
+     * @param encoding The CharacterEncoding to use to convert the file's contents to Strings.
+     * @return The content lines of the file, or null if no file exists at the provided
+     * rootedFilePath.
+     */
+    Iterable<String> getFileContentLines(Path rootedFilePath, CharacterEncoding encoding);
+
+    /**
+     * Get the content lines of the file at the provided rootedFilePath. If no file exists at the
+     * provided rootedfilePath, then null will be returned.
+     * @param rootedFilePath The path to the File.
+     * @param encoding The CharacterEncoding to use to convert the file's contents to Strings.
+     * @param onError The action that will be called when an error occurs.
+     * @return The content lines of the file, or null if no file exists at the provided
+     * rootedFilePath.
+     */
+    Iterable<String> getFileContentLines(Path rootedFilePath, CharacterEncoding encoding, Action1<String> onError);
 
     /**
      * Get the content lines of the file at the provided rootedFilePath. If no file exists at the
@@ -2124,10 +1539,7 @@ public interface FileSystem
      * @return The content lines of the file, or null if no file exists at the provided
      * rootedFilePath.
      */
-    default Iterable<String> getFileContentLines(String rootedFilePath, boolean includeNewLines, CharacterEncoding encoding)
-    {
-        return getFileContentLines(Path.parse(rootedFilePath), includeNewLines, encoding);
-    }
+    Iterable<String> getFileContentLines(String rootedFilePath, boolean includeNewLines, CharacterEncoding encoding);
 
     /**
      * Get the content lines of the file at the provided rootedFilePath. If no file exists at the
@@ -2140,10 +1552,7 @@ public interface FileSystem
      * @return The content lines of the file, or null if no file exists at the provided
      * rootedFilePath.
      */
-    default Iterable<String> getFileContentLines(String rootedFilePath, boolean includeNewLines, CharacterEncoding encoding, Action1<String> onError)
-    {
-        return getFileContentLines(Path.parse(rootedFilePath), includeNewLines, encoding, onError);
-    }
+    Iterable<String> getFileContentLines(String rootedFilePath, boolean includeNewLines, CharacterEncoding encoding, Action1<String> onError);
 
     /**
      * Get the content lines of the file at the provided rootedFilePath. If no file exists at the
@@ -2155,10 +1564,7 @@ public interface FileSystem
      * @return The content lines of the file, or null if no file exists at the provided
      * rootedFilePath.
      */
-    default Iterable<String> getFileContentLines(Path rootedFilePath, boolean includeNewLines, CharacterEncoding encoding)
-    {
-        return getFileContentLines(rootedFilePath, includeNewLines, encoding, null);
-    }
+    Iterable<String> getFileContentLines(Path rootedFilePath, boolean includeNewLines, CharacterEncoding encoding);
 
     /**
      * Get the content lines of the file at the provided rootedFilePath. If no file exists at the
@@ -2171,53 +1577,14 @@ public interface FileSystem
      * @return The content lines of the file, or null if no file exists at the provided
      * rootedFilePath.
      */
-    default Iterable<String> getFileContentLines(Path rootedFilePath, boolean includeNewLines, CharacterEncoding encoding, Action1<String> onError)
-    {
-        Iterable<String> result = null;
-
-        final String fileContents = getFileContentsAsString(rootedFilePath, encoding, onError);
-        if (fileContents != null)
-        {
-            final List<String> lines = new ArrayList<>();
-            final int fileContentsLength = fileContents.length();
-            int lineStartIndex = 0;
-
-            while (lineStartIndex < fileContentsLength)
-            {
-                final int newLineCharacterIndex = fileContents.indexOf('\n', lineStartIndex);
-                if (newLineCharacterIndex < 0)
-                {
-                    lines.add(fileContents.substring(lineStartIndex));
-                    lineStartIndex = fileContentsLength;
-                }
-                else
-                {
-                    String line = fileContents.substring(lineStartIndex, newLineCharacterIndex + 1);
-                    if (!includeNewLines)
-                    {
-                        final int newLineWidth = line.endsWith("\r\n") ? 2 : 1;
-                        line = line.substring(0, line.length() - newLineWidth);
-                    }
-                    lines.add(line);
-                    lineStartIndex = newLineCharacterIndex + 1;
-                }
-            }
-
-            result = lines;
-        }
-
-        return result;
-    }
+    Iterable<String> getFileContentLines(Path rootedFilePath, boolean includeNewLines, CharacterEncoding encoding, Action1<String> onError);
 
     /**
      * Get a ByteReadStream to the file at the provided rootedFilePath.
      * @param rootedFilePath The rooted file path to the file.
      * @return A ByteReadStream to the contents of the file.
      */
-    default ByteReadStream getFileContentByteReadStream(String rootedFilePath)
-    {
-        return getFileContentByteReadStream(Path.parse(rootedFilePath));
-    }
+    ByteReadStream getFileContentByteReadStream(String rootedFilePath);
 
     /**
      * Get a ByteReadStream to the file at the provided rootedFilePath.
@@ -2225,20 +1592,14 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return A ByteReadStream to the contents of the file.
      */
-    default ByteReadStream getFileContentByteReadStream(String rootedFilePath, Action1<String> onError)
-    {
-        return getFileContentByteReadStream(Path.parse(rootedFilePath), onError);
-    }
+    ByteReadStream getFileContentByteReadStream(String rootedFilePath, Action1<String> onError);
 
     /**
      * Get a ByteReadStream to the file at the provided rootedFilePath.
      * @param rootedFilePath The rooted file path to the file.
      * @return A ByteReadStream to the contents of the file.
      */
-    default ByteReadStream getFileContentByteReadStream(Path rootedFilePath)
-    {
-        return getFileContentByteReadStream(rootedFilePath, null);
-    }
+    ByteReadStream getFileContentByteReadStream(Path rootedFilePath);
 
     /**
      * Get a ByteReadStream to the file at the provided rootedFilePath.
@@ -2253,10 +1614,7 @@ public interface FileSystem
      * @param rootedFilePath The rooted file path to the file.
      * @return A CharacterReadStream to the contents of the file.
      */
-    default CharacterReadStream getFileContentCharacterReadStream(String rootedFilePath)
-    {
-        return getFileContentCharacterReadStream(Path.parse(rootedFilePath));
-    }
+    CharacterReadStream getFileContentCharacterReadStream(String rootedFilePath);
 
     /**
      * Get a CharacterReadStream to the file at the provided rootedFilePath.
@@ -2264,20 +1622,14 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return A CharacterReadStream to the contents of the file.
      */
-    default CharacterReadStream getFileContentCharacterReadStream(String rootedFilePath, Action1<String> onError)
-    {
-        return getFileContentCharacterReadStream(Path.parse(rootedFilePath), onError);
-    }
+    CharacterReadStream getFileContentCharacterReadStream(String rootedFilePath, Action1<String> onError);
 
     /**
      * Get a CharacterReadStream to the file at the provided rootedFilePath.
      * @param rootedFilePath The rooted file path to the file.
      * @return A CharacterReadStream to the contents of the file.
      */
-    default CharacterReadStream getFileContentCharacterReadStream(Path rootedFilePath)
-    {
-        return getFileContentCharacterReadStream(rootedFilePath, null);
-    }
+    CharacterReadStream getFileContentCharacterReadStream(Path rootedFilePath);
 
     /**
      * Get a CharacterReadStream to the file at the provided rootedFilePath.
@@ -2285,11 +1637,7 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return A CharacterReadStream to the contents of the file.
      */
-    default CharacterReadStream getFileContentCharacterReadStream(Path rootedFilePath, Action1<String> onError)
-    {
-        final ByteReadStream contentByteReadStream = getFileContentByteReadStream(rootedFilePath, onError);
-        return contentByteReadStream == null ? null : contentByteReadStream.asCharacterReadStream();
-    }
+    CharacterReadStream getFileContentCharacterReadStream(Path rootedFilePath, Action1<String> onError);
 
     /**
      * Set the contents of the file at the provided rootedFilePath to the provided byte array. If
@@ -2298,10 +1646,7 @@ public interface FileSystem
      * @param fileContents The contents to set.
      * @return Whether or not the file's contents were set.
      */
-    default boolean setFileContents(String rootedFilePath, byte[] fileContents)
-    {
-        return setFileContents(Path.parse(rootedFilePath), fileContents);
-    }
+    boolean setFileContents(String rootedFilePath, byte[] fileContents);
 
     /**
      * Set the contents of the file at the provided rootedFilePath to the provided byte array. If
@@ -2311,10 +1656,7 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return Whether or not the file's contents were set.
      */
-    default boolean setFileContents(String rootedFilePath, byte[] fileContents, Action1<String> onError)
-    {
-        return setFileContents(Path.parse(rootedFilePath), fileContents, onError);
-    }
+    boolean setFileContents(String rootedFilePath, byte[] fileContents, Action1<String> onError);
 
     /**
      * Set the contents of the file at the provided rootedFilePath to the provided byte array. If
@@ -2323,10 +1665,7 @@ public interface FileSystem
      * @param fileContents The contents to set.
      * @return Whether or not the file's contents were set.
      */
-    default boolean setFileContents(Path rootedFilePath, byte[] fileContents)
-    {
-        return setFileContents(rootedFilePath, fileContents, null);
-    }
+    boolean setFileContents(Path rootedFilePath, byte[] fileContents);
 
     /**
      * Set the contents of the file at the provided rootedFilePath to the provided byte array. If
@@ -2345,10 +1684,7 @@ public interface FileSystem
      * @param fileContents The contents to set.
      * @return Whether or not the file's contents were set.
      */
-    default boolean setFileContents(String rootedFilePath, String fileContents)
-    {
-        return setFileContents(Path.parse(rootedFilePath), fileContents);
-    }
+    boolean setFileContents(String rootedFilePath, String fileContents);
 
     /**
      * Set the contents of the file at the provided rootedFilePath to the provided String. If the
@@ -2358,10 +1694,7 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return Whether or not the file's contents were set.
      */
-    default boolean setFileContents(String rootedFilePath, String fileContents, Action1<String> onError)
-    {
-        return setFileContents(Path.parse(rootedFilePath), fileContents, onError);
-    }
+    boolean setFileContents(String rootedFilePath, String fileContents, Action1<String> onError);
 
     /**
      * Set the contents of the file at the provided rootedFilePath to the provided String. If the
@@ -2370,10 +1703,7 @@ public interface FileSystem
      * @param fileContents The contents to set.
      * @return Whether or not the file's contents were set.
      */
-    default boolean setFileContents(Path rootedFilePath, String fileContents)
-    {
-        return setFileContents(rootedFilePath, fileContents, (Action1<String>)null);
-    }
+    boolean setFileContents(Path rootedFilePath, String fileContents);
 
     /**
      * Set the contents of the file at the provided rootedFilePath to the provided String. If the
@@ -2383,10 +1713,7 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return Whether or not the file's contents were set.
      */
-    default boolean setFileContents(Path rootedFilePath, String fileContents, Action1<String> onError)
-    {
-        return setFileContents(rootedFilePath, fileContents, CharacterEncoding.UTF_8, onError);
-    }
+    boolean setFileContents(Path rootedFilePath, String fileContents, Action1<String> onError);
 
     /**
      * Set the contents of the file at the provided rootedFilePath to the provided String. If the
@@ -2396,10 +1723,7 @@ public interface FileSystem
      * @param encoding The CharacterEncoding to use to convert the provided fileContents to bytes.
      * @return Whether or not the file's contents were set.
      */
-    default boolean setFileContents(String rootedFilePath, String fileContents, CharacterEncoding encoding)
-    {
-        return setFileContents(rootedFilePath, encoding == null ? null : encoding.encode(fileContents));
-    }
+    boolean setFileContents(String rootedFilePath, String fileContents, CharacterEncoding encoding);
 
     /**
      * Set the contents of the file at the provided rootedFilePath to the provided String. If the
@@ -2410,10 +1734,7 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return Whether or not the file's contents were set.
      */
-    default boolean setFileContents(String rootedFilePath, String fileContents, CharacterEncoding encoding, Action1<String> onError)
-    {
-        return setFileContents(Path.parse(rootedFilePath), fileContents, encoding, onError);
-    }
+    boolean setFileContents(String rootedFilePath, String fileContents, CharacterEncoding encoding, Action1<String> onError);
 
     /**
      * Set the contents of the file at the provided rootedFilePath to the provided String. If the
@@ -2423,10 +1744,7 @@ public interface FileSystem
      * @param encoding The CharacterEncoding to use to convert the provided fileContents to bytes.
      * @return Whether or not the file's contents were set.
      */
-    default boolean setFileContents(Path rootedFilePath, String fileContents, CharacterEncoding encoding)
-    {
-        return setFileContents(rootedFilePath, fileContents, encoding, null);
-    }
+    boolean setFileContents(Path rootedFilePath, String fileContents, CharacterEncoding encoding);
 
     /**
      * Set the contents of the file at the provided rootedFilePath to the provided String. If the
@@ -2437,8 +1755,5 @@ public interface FileSystem
      * @param onError The action that will be called when an error occurs.
      * @return Whether or not the file's contents were set.
      */
-    default boolean setFileContents(Path rootedFilePath, String fileContents, CharacterEncoding encoding, Action1<String> onError)
-    {
-        return setFileContents(rootedFilePath, encoding == null ? null : encoding.encode(fileContents), onError);
-    }
+    boolean setFileContents(Path rootedFilePath, String fileContents, CharacterEncoding encoding, Action1<String> onError);
 }

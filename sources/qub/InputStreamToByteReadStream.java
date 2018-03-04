@@ -6,7 +6,7 @@ import java.io.InputStream;
 /**
  * An adapter that converts a java.io.InputStream to a qub.ByteReadStream.
  */
-public class InputStreamToByteReadStream implements ByteReadStream
+public class InputStreamToByteReadStream extends ByteReadStreamBase
 {
     private final InputStream inputStream;
 
@@ -112,9 +112,9 @@ public class InputStreamToByteReadStream implements ByteReadStream
     }
 
     @Override
-    public CharacterReadStream asCharacterReadStream(CharacterEncoding encoding)
+    public CharacterReadStream asCharacterReadStream(CharacterEncoding characterEncoding)
     {
-        return encoding == null ? null : new InputStreamReaderToCharacterReadStream(this, encoding);
+        return characterEncoding == null ? null : new InputStreamReaderToCharacterReadStream(this, characterEncoding);
     }
 
     @Override

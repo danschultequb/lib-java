@@ -7,66 +7,25 @@ public interface ByteReadStream extends Stream, Iterator<Byte>
 {
     Byte readByte();
 
-    default byte[] readBytes(int bytesToRead)
-    {
-        byte[] result = null;
-        if (bytesToRead >= 1)
-        {
-            result = new byte[bytesToRead];
-            final int bytesRead = readBytes(result);
-            if (bytesRead < 0)
-            {
-                result = null;
-            }
-            else if (bytesRead < bytesToRead)
-            {
-                result = Array.clone(result, 0, bytesRead);
-            }
-        }
-        return result;
-    }
+    byte[] readBytes(int bytesToRead);
 
-    default int readBytes(byte[] outputBytes)
-    {
-        return readBytes(outputBytes, 0, outputBytes.length);
-    }
+    int readBytes(byte[] outputBytes);
 
     int readBytes(byte[] outputBytes, int startIndex, int length);
 
     void setExceptionHandler(Action1<IOException> exceptionHandler);
 
-    default InputStream asInputStream()
-    {
-        return new ByteReadStreamToInputStream(this);
-    }
+    InputStream asInputStream();
 
-    default CharacterReadStream asCharacterReadStream()
-    {
-        return asCharacterReadStream(CharacterEncoding.UTF_8);
-    }
+    CharacterReadStream asCharacterReadStream();
 
-    default CharacterReadStream asCharacterReadStream(CharacterEncoding encoding)
-    {
-        return new InputStreamReaderToCharacterReadStream(this, encoding);
-    }
+    CharacterReadStream asCharacterReadStream(CharacterEncoding encoding);
 
-    default LineReadStream asLineReadStream()
-    {
-        return asCharacterReadStream().asLineReadStream();
-    }
+    LineReadStream asLineReadStream();
 
-    default LineReadStream asLineReadStream(CharacterEncoding encoding)
-    {
-        return asCharacterReadStream(encoding).asLineReadStream();
-    }
+    LineReadStream asLineReadStream(CharacterEncoding encoding);
 
-    default LineReadStream asLineReadStream(boolean includeNewLines)
-    {
-        return asCharacterReadStream().asLineReadStream(includeNewLines);
-    }
+    LineReadStream asLineReadStream(boolean includeNewLines);
 
-    default LineReadStream asLineReadStream(CharacterEncoding encoding, boolean includeNewLines)
-    {
-        return asCharacterReadStream(encoding).asLineReadStream(includeNewLines);
-    }
+    LineReadStream asLineReadStream(CharacterEncoding encoding, boolean includeNewLines);
 }

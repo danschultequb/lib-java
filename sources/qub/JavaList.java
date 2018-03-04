@@ -1,6 +1,6 @@
 package qub;
 
-public class JavaList<T> implements List<T>
+public class JavaList<T> extends ListBase<T>
 {
     private final java.util.List<T> list;
 
@@ -73,18 +73,6 @@ public class JavaList<T> implements List<T>
             result = list.get(index);
         }
         return result;
-    }
-
-    @Override
-    public boolean equals(Object rhs)
-    {
-        return Iterable.equals(this, rhs);
-    }
-
-    @Override
-    public String toString()
-    {
-        return Iterable.toString(this);
     }
 
     @Override

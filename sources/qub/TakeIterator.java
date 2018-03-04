@@ -4,7 +4,7 @@ package qub;
  * An Iterator that will iterate over no more than a fixed number of values from an inner Iterator.
  * @param <T> The type of value that this Iterator returns.
  */
-class TakeIterator<T> implements Iterator<T>
+class TakeIterator<T> extends IteratorBase<T>
 {
     private final Iterator<T> innerIterator;
     private final int toTake;

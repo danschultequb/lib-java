@@ -73,7 +73,14 @@ public class Process implements AutoCloseable
         synchronization = new Value<>();
         stopwatchCreator = new Value<>();
 
-        mainRunner = new CurrentThreadAsyncRunner(this::getSynchronization);
+        mainRunner = new CurrentThreadAsyncRunner(new Function0<Synchronization>()
+        {
+            @Override
+            public Synchronization run()
+            {
+                return getSynchronization();
+            }
+        });
         AsyncRunnerRegistry.setCurrentThreadAsyncRunner(mainRunner);
     }
 
@@ -86,7 +93,14 @@ public class Process implements AutoCloseable
     {
         if (parallelRunner == null)
         {
-            parallelRunner = new ParallelAsyncRunner(this::getSynchronization);
+            parallelRunner = new ParallelAsyncRunner(new Function0<Synchronization>()
+            {
+                @Override
+                public Synchronization run()
+                {
+                    return getSynchronization();
+                }
+            });
         }
         return parallelRunner;
     }

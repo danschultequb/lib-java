@@ -1,10 +1,9 @@
 package qub;
 
-public class CharacterReadStreamToLineReadStream implements LineReadStream
+public class CharacterReadStreamToLineReadStream extends LineReadStreamBase
 {
-    private final CharacterReadStream readStream;
+    private final CharacterReadStream characterReadStream;
     private final boolean includeNewLines;
-    private boolean hasStarted;
     private String current;
 
     public CharacterReadStreamToLineReadStream(CharacterReadStream readStream)
@@ -12,68 +11,10 @@ public class CharacterReadStreamToLineReadStream implements LineReadStream
         this(readStream, false);
     }
 
-    public CharacterReadStreamToLineReadStream(CharacterReadStream readStream, boolean includeNewLines)
+    public CharacterReadStreamToLineReadStream(CharacterReadStream characterReadStream, boolean includeNewLines)
     {
-        this.readStream = readStream;
+        this.characterReadStream = characterReadStream;
         this.includeNewLines = includeNewLines;
-    }
-
-    @Override
-    public String readLine()
-    {
-        return readLine(includeNewLines);
-    }
-
-    @Override
-    public String readLine(boolean includeNewLine)
-    {
-        hasStarted = true;
-
-        String result = null;
-
-        Character currentCharacter = readStream.readCharacter();
-        if (currentCharacter != null)
-        {
-            final StringBuilder builder = new StringBuilder();
-
-            do
-            {
-                builder.append(currentCharacter);
-                if (currentCharacter == '\n')
-                {
-                    break;
-                }
-                currentCharacter = readStream.readCharacter();
-            }
-            while (currentCharacter != null);
-
-            if (!includeNewLine)
-            {
-                final int length = builder.length();
-                if (builder.charAt(length - 1) == '\n')
-                {
-                    int charactersToRemove = 1;
-                    if (length >= 2 && builder.charAt(length - 2) == '\r')
-                    {
-                        charactersToRemove = 2;
-                    }
-
-                    builder.delete(length - charactersToRemove, length);
-                }
-            }
-
-            result = builder.toString();
-        }
-
-        current = result;
-
-        return result;
-    }
-
-    @Override
-    public CharacterEncoding getCharacterEncoding()
-    {
-        return readStream.getEncoding();
     }
 
     @Override
@@ -83,35 +24,17 @@ public class CharacterReadStreamToLineReadStream implements LineReadStream
     }
 
     @Override
-    public boolean isOpen()
-    {
-        return readStream.isOpen();
-    }
-
-    @Override
     public void close()
     {
         current = null;
 
-        readStream.close();
-    }
-
-    @Override
-    public ByteReadStream asByteReadStream()
-    {
-        return readStream.asByteReadStream();
+        characterReadStream.close();
     }
 
     @Override
     public CharacterReadStream asCharacterReadStream()
     {
-        return readStream;
-    }
-
-    @Override
-    public boolean hasStarted()
-    {
-        return hasStarted;
+        return characterReadStream;
     }
 
     @Override
@@ -127,8 +50,9 @@ public class CharacterReadStreamToLineReadStream implements LineReadStream
     }
 
     @Override
-    public boolean next()
+    public String readLine(boolean includeNewLines)
     {
-        return readLine() != null;
+        current = super.readLine(includeNewLines);
+        return current;
     }
 }

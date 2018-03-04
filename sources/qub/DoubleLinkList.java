@@ -1,6 +1,6 @@
 package qub;
 
-public class DoubleLinkList<T> implements List<T>
+public class DoubleLinkList<T> extends ListBase<T>
 {
     private DoubleLinkNode<T> head;
     private DoubleLinkNode<T> tail;
@@ -195,20 +195,8 @@ public class DoubleLinkList<T> implements List<T>
     }
 
     @Override
-    public boolean equals(Object rhs)
-    {
-        return Iterable.equals(this, rhs);
-    }
-
-    @Override
-    public String toString()
-    {
-        return Iterable.toString(this);
-    }
-
-    @Override
     public Iterator<T> iterate()
     {
-        return head == null ? new EmptyIterator<>() : head.iterate();
+        return head == null ? new EmptyIterator<T>() : head.iterate();
     }
 }

@@ -6,7 +6,7 @@ public class AsyncRunnerRegistry
     {
     }
 
-    private static Map<Long,AsyncRunner> asyncRunners = new LockedMap<>(new ListMap<>(), new SpinMutex());
+    private static Map<Long,AsyncRunner> asyncRunners = new LockedMap<>(new ListMap<Long,AsyncRunner>(), new SpinMutex());
 
     private static long getCurrentThreadId()
     {

@@ -1,6 +1,6 @@
 package qub;
 
-public class CharacterWriteStreamToLineWriteStream implements LineWriteStream
+public class CharacterWriteStreamToLineWriteStream extends LineWriteStreamBase
 {
     private final CharacterWriteStream characterWriteStream;
     private final String lineSeparator;
@@ -22,33 +22,9 @@ public class CharacterWriteStreamToLineWriteStream implements LineWriteStream
     }
 
     @Override
-    public CharacterEncoding getCharacterEncoding()
-    {
-        return characterWriteStream.getCharacterEncoding();
-    }
-
-    @Override
     public String getLineSeparator()
     {
         return lineSeparator;
-    }
-
-    @Override
-    public boolean write(char toWrite)
-    {
-        return characterWriteStream.write(toWrite);
-    }
-
-    @Override
-    public boolean write(String toWrite)
-    {
-        return characterWriteStream.write(toWrite);
-    }
-
-    @Override
-    public ByteWriteStream asByteWriteStream()
-    {
-        return characterWriteStream.asByteWriteStream();
     }
 
     @Override

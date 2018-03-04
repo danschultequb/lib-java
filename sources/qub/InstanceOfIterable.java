@@ -1,6 +1,6 @@
 package qub;
 
-class InstanceOfIterable<TInner,TOuter> implements Iterable<TOuter>
+class InstanceOfIterable<TInner,TOuter> extends IterableBase<TOuter>
 {
     private final Iterable<TInner> innerIterable;
     private final Class<TOuter> type;
@@ -9,18 +9,6 @@ class InstanceOfIterable<TInner,TOuter> implements Iterable<TOuter>
     {
         this.innerIterable = innerIterable;
         this.type = type;
-    }
-
-    @Override
-    public boolean equals(Object rhs)
-    {
-        return Iterable.equals(this, rhs);
-    }
-
-    @Override
-    public String toString()
-    {
-        return Iterable.toString(this);
     }
 
     @Override

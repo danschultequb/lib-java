@@ -10,15 +10,9 @@ public interface LineWriteStream extends Stream
 
     boolean write(String toWrite);
 
-    default boolean writeLine()
-    {
-        return write(getLineSeparator());
-    }
+    boolean writeLine();
 
-    default boolean writeLine(String toWrite)
-    {
-        return write(toWrite) && writeLine();
-    }
+    boolean writeLine(String toWrite);
 
     ByteWriteStream asByteWriteStream();
 

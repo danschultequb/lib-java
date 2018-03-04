@@ -3,7 +3,7 @@ package qub;
 /**
  * A SeekableIterator that iterates over the characters in a String.
  */
-public class StringIterator implements SeekableIterator<Character>
+public class StringIterator extends IteratorBase<Character> implements SeekableIterator<Character>
 {
     private final String text;
     private final int textLength;

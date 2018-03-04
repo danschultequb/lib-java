@@ -1,6 +1,6 @@
 package qub;
 
-public class ListMap<TKey,TValue> implements Map<TKey,TValue>
+public class ListMap<TKey,TValue> extends IterableBase<MapEntry<TKey,TValue>> implements Map<TKey,TValue>
 {
     private final List<ListMapEntry<TKey,TValue>> entries;
 
@@ -11,7 +11,14 @@ public class ListMap<TKey,TValue> implements Map<TKey,TValue>
 
     private ListMapEntry<TKey,TValue> getEntry(final TKey key)
     {
-        return entries.first(entry -> Comparer.equal(entry.getKey(), key));
+        return entries.first(new Function1<ListMapEntry<TKey, TValue>, Boolean>()
+        {
+            @Override
+            public Boolean run(ListMapEntry<TKey, TValue> entry)
+            {
+                return Comparer.equal(entry.getKey(), key);
+            }
+        });
     }
 
     @Override
@@ -38,24 +45,52 @@ public class ListMap<TKey,TValue> implements Map<TKey,TValue>
     @Override
     public boolean remove(final TKey key)
     {
-        return entries.removeFirst(entry -> Comparer.equal(entry.getKey(), key)) != null;
+        return entries.removeFirst(new Function1<ListMapEntry<TKey, TValue>, Boolean>()
+        {
+            @Override
+            public Boolean run(ListMapEntry<TKey, TValue> entry)
+            {
+                return Comparer.equal(entry.getKey(), key);
+            }
+        }) != null;
     }
 
     @Override
     public Iterable<TKey> getKeys()
     {
-        return entries.map(ListMapEntry::getKey);
+        return entries.map(new Function1<ListMapEntry<TKey, TValue>, TKey>()
+        {
+            @Override
+            public TKey run(ListMapEntry<TKey, TValue> entry)
+            {
+                return entry.getKey();
+            }
+        });
     }
 
     @Override
     public Iterable<TValue> getValues()
     {
-        return entries.map(ListMapEntry::getValue);
+        return entries.map(new Function1<ListMapEntry<TKey, TValue>, TValue>()
+        {
+            @Override
+            public TValue run(ListMapEntry<TKey, TValue> entry)
+            {
+                return entry.getValue();
+            }
+        });
     }
 
     @Override
     public Iterator<MapEntry<TKey, TValue>> iterate()
     {
-        return entries.iterate().map(entry -> (MapEntry<TKey,TValue>)entry);
+        return entries.iterate().map(new Function1<ListMapEntry<TKey, TValue>, MapEntry<TKey, TValue>>()
+        {
+            @Override
+            public MapEntry<TKey, TValue> run(ListMapEntry<TKey, TValue> entry)
+            {
+                return entry;
+            }
+        });
     }
 }

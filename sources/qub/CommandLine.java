@@ -1,6 +1,6 @@
 package qub;
 
-public class CommandLine implements Indexable<CommandLineArgument>
+public class CommandLine extends IndexableBase<CommandLineArgument>
 {
     private final List<CommandLineArgument> arguments;
 
@@ -70,7 +70,7 @@ public class CommandLine implements Indexable<CommandLineArgument>
         return arguments.removeAt(index);
     }
 
-    public CommandLineArgument remove(String argumentName)
+    public CommandLineArgument remove(final String argumentName)
     {
         return arguments.removeFirst(new Function1<CommandLineArgument, Boolean>()
         {
@@ -87,17 +87,6 @@ public class CommandLine implements Indexable<CommandLineArgument>
     public String toString()
     {
         return arguments.toString();
-    }
-
-    @Override
-    public boolean equals(Object rhs)
-    {
-        return rhs instanceof CommandLine && equals((CommandLine)rhs);
-    }
-
-    public boolean equals(CommandLine rhs)
-    {
-        return rhs != null && arguments.equals(rhs.arguments);
     }
 
     public static CommandLine parse(String[] rawCommandLineArguments)

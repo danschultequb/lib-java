@@ -4,7 +4,7 @@ package qub;
  * An Iterable that will contains no more than a fixed number of values from an inner Iterable.
  * @param <T> The type of value contained in this Iterable.
  */
-class TakeIterable<T> implements Iterable<T>
+class TakeIterable<T> extends IterableBase<T>
 {
     private final Iterable<T> innerIterable;
     private final int toTake;
@@ -13,18 +13,6 @@ class TakeIterable<T> implements Iterable<T>
     {
         this.innerIterable = innerIterable;
         this.toTake = toTake;
-    }
-
-    @Override
-    public boolean equals(Object rhs)
-    {
-        return Iterable.equals(this, rhs);
-    }
-
-    @Override
-    public String toString()
-    {
-        return Iterable.toString(this);
     }
 
     @Override

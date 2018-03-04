@@ -1,6 +1,6 @@
 package qub;
 
-public class SingleLinkList<T> implements List<T>
+public class SingleLinkList<T> extends ListBase<T>
 {
     private SingleLinkNode<T> head;
     private SingleLinkNode<T> tail;
@@ -169,18 +169,6 @@ public class SingleLinkList<T> implements List<T>
     {
         final SingleLinkNode<T> node = getNode(index);
         return node == null ? null : node.getValue();
-    }
-
-    @Override
-    public boolean equals(Object rhs)
-    {
-        return Iterable.equals(this, rhs);
-    }
-
-    @Override
-    public String toString()
-    {
-        return Iterable.toString(this);
     }
 
     @Override

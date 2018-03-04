@@ -3,7 +3,7 @@ package qub;
 /**
  * A FileSystem implementation that interacts with a typical Windows, Linux, or MacOS device.
  */
-public class JavaFileSystem implements FileSystem
+public class JavaFileSystem extends FileSystemBase
 {
     private AsyncRunner asyncRunner;
 
@@ -24,11 +24,15 @@ public class JavaFileSystem implements FileSystem
     {
         return Array
                 .fromValues(java.io.File.listRoots())
-                .map((java.io.File root) ->
+                .map(new Function1<java.io.File, Root>()
                 {
-                    final String rootPathString = root.getAbsolutePath();
-                    final String trimmedRootPathString = rootPathString.equals("/") ? rootPathString : rootPathString.substring(0, rootPathString.length() - 1);
-                    return getRoot(trimmedRootPathString);
+                    @Override
+                    public Root run(java.io.File root)
+                    {
+                        final String rootPathString = root.getAbsolutePath();
+                        final String trimmedRootPathString = rootPathString.equals("/") ? rootPathString : rootPathString.substring(0, rootPathString.length() - 1);
+                        return JavaFileSystem.this.getRoot(trimmedRootPathString);
+                    }
                 });
     }
 

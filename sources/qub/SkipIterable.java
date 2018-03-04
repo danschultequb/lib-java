@@ -5,7 +5,7 @@ package qub;
  * then return the remaining elements.
  * @param <T> The type of value that this Iterable returns.
  */
-class SkipIterable<T> implements Iterable<T>
+class SkipIterable<T> extends IterableBase<T>
 {
     private final Iterable<T> innerIterable;
     private final int toSkip;
@@ -14,18 +14,6 @@ class SkipIterable<T> implements Iterable<T>
     {
         this.innerIterable = innerIterable;
         this.toSkip = toSkip;
-    }
-
-    @Override
-    public boolean equals(Object rhs)
-    {
-        return Iterable.equals(this, rhs);
-    }
-
-    @Override
-    public String toString()
-    {
-        return Iterable.toString(this);
     }
 
     @Override

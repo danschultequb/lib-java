@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 
-public class OutputStreamWriterToCharacterWriteStream implements CharacterWriteStream
+public class OutputStreamWriterToCharacterWriteStream extends CharacterWriteStreamBase
 {
     private final ByteWriteStream byteWriteStream;
     private final OutputStreamWriter writer;
@@ -12,9 +12,13 @@ public class OutputStreamWriterToCharacterWriteStream implements CharacterWriteS
 
     OutputStreamWriterToCharacterWriteStream(ByteWriteStream byteWriteStream, CharacterEncoding characterEncoding)
     {
-        byteWriteStream.setExceptionHandler((Exception e) ->
+        byteWriteStream.setExceptionHandler(new Action1<IOException>()
         {
-            throw new RuntimeException(e);
+            @Override
+            public void run(IOException e)
+            {
+                throw new RuntimeException(e);
+            }
         });
 
         this.byteWriteStream = byteWriteStream;

@@ -4,15 +4,13 @@ package qub;
  * A basic Array data structure that holds a fixed number of elements.
  * @param <T> The type of element contained by this Array.
  */
-public class Array<T> implements Indexable<T>
+public class Array<T> extends IndexableBase<T>
 {
     private final Object[] data;
 
     /**
      * Create a new Array with the provided size.
      * @param count The number of elements in the Array.
-     * @require 0 <= count
-     * @promise getCount() == count
      */
     public Array(int count)
     {
@@ -22,7 +20,6 @@ public class Array<T> implements Indexable<T>
     /**
      * Get the number of elements in this Array.
      * @return The number of elements in this Array.
-     * @promise 0 <= result
      */
     @Override
     public int getCount()
@@ -73,18 +70,6 @@ public class Array<T> implements Indexable<T>
     private boolean inBounds(int index)
     {
         return 0 <= index && index < getCount();
-    }
-
-    @Override
-    public boolean equals(Object rhs)
-    {
-        return Iterable.equals(this, rhs);
-    }
-
-    @Override
-    public String toString()
-    {
-        return Iterable.toString(this);
     }
 
     @Override
@@ -255,7 +240,7 @@ public class Array<T> implements Indexable<T>
             int index = 0;
             for (final Byte value : bytes)
             {
-                result[index] = value.byteValue();
+                result[index] = value;
                 ++index;
             }
         }
@@ -339,10 +324,7 @@ public class Array<T> implements Indexable<T>
         else
         {
             result = new String[strings.length];
-            for (int i = 0; i < strings.length; ++i)
-            {
-                result[i] = strings[i];
-            }
+            System.arraycopy(strings, 0, result, 0, strings.length);
         }
         return result;
     }
@@ -424,7 +406,7 @@ public class Array<T> implements Indexable<T>
      */
     public static byte[] clone(byte[] toClone, int startIndex, int length)
     {
-        byte[] result = toClone;
+        byte[] result;
 
         if (toClone == null || length < 0 || startIndex < 0 || toClone.length < startIndex)
         {
@@ -463,7 +445,7 @@ public class Array<T> implements Indexable<T>
      */
     public static char[] clone(char[] toClone, int startIndex, int length)
     {
-        char[] result = toClone;
+        char[] result;
 
         if (toClone == null || length < 0 || startIndex < 0 || toClone.length < startIndex)
         {

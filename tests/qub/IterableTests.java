@@ -10,7 +10,7 @@ public class IterableTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertEqual("null", Iterable.toString(null));
+                    test.assertEqual("null", IterableBase.toString(null));
                 });
             });
         });

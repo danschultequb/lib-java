@@ -1,6 +1,6 @@
 package qub;
 
-public class SingleLinkNodeIterator<T> implements Iterator<T>
+public class SingleLinkNodeIterator<T> extends IteratorBase<T>
 {
     private boolean hasStarted;
     private SingleLinkNode<T> currentNode;

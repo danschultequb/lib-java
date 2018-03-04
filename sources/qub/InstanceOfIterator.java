@@ -1,6 +1,6 @@
 package qub;
 
-class InstanceOfIterator<TInner,TOuter> implements Iterator<TOuter>
+class InstanceOfIterator<TInner,TOuter> extends IteratorBase<TOuter>
 {
     private final Iterator<TInner> innerIterator;
     private final Class<TOuter> type;
