@@ -1154,7 +1154,7 @@ public abstract class FileSystemBase implements FileSystem
         boolean result = false;
         if (rootPath != null && rootPath.isRooted())
         {
-            final Path onlyRootPath = rootPath.getRootPath();
+            final Path onlyRootPath = rootPath.getRoot();
             result = fileSystem.getRoots(onError).contains(new Function1<Root, Boolean>()
             {
                 @Override

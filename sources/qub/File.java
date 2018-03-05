@@ -30,6 +30,21 @@ public class File extends FileSystemEntry
         return getPath().withoutFileExtension().getSegments().last();
     }
 
+    public Path relativeTo(Path path)
+    {
+        return getPath().relativeTo(path);
+    }
+
+    public Path relativeTo(Folder folder)
+    {
+        return getPath().relativeTo(folder);
+    }
+
+    public Path relativeTo(Root root)
+    {
+        return getPath().relativeTo(root);
+    }
+
     /**
      * Create this File and return whether or not it was created as a result of this function.
      * @return Whether or not this function created the file.

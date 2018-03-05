@@ -71,7 +71,7 @@ public class InMemoryFileSystem extends FileSystemBase
 
         if (rootExists(filePath))
         {
-            final Path parentFolderPath = filePath.getParentPath();
+            final Path parentFolderPath = filePath.getParent();
             final InMemoryFolder parentFolder = getInMemoryFolder(parentFolderPath);
             if (parentFolder != null)
             {
@@ -217,7 +217,7 @@ public class InMemoryFileSystem extends FileSystemBase
 
         if (folderPath != null && folderPath.isRooted() && rootExists(folderPath.getRoot()))
         {
-            final InMemoryFolder parentFolder = getInMemoryFolder(folderPath.getParentPath());
+            final InMemoryFolder parentFolder = getInMemoryFolder(folderPath.getParent());
             if (parentFolder != null)
             {
                 result = parentFolder.deleteFolder(folderPath.getSegments().last());
@@ -234,7 +234,7 @@ public class InMemoryFileSystem extends FileSystemBase
 
         if (filePath != null && !filePath.normalize().endsWith("/"))
         {
-            final InMemoryFolder parentFolder = getInMemoryFolder(filePath.getParentPath());
+            final InMemoryFolder parentFolder = getInMemoryFolder(filePath.getParent());
             if (parentFolder != null)
             {
                 result = parentFolder.getFile(filePath.getSegments().last()) != null;
@@ -259,7 +259,7 @@ public class InMemoryFileSystem extends FileSystemBase
         else
         {
             final Value<InMemoryFolder> parentFolder = new Value<>();
-            createInMemoryFolder(filePath.getParentPath(), parentFolder);
+            createInMemoryFolder(filePath.getParent(), parentFolder);
 
             final String fileName = filePath.getSegments().last();
             result = parentFolder.get().createFile(fileName, fileContents);
@@ -280,7 +280,7 @@ public class InMemoryFileSystem extends FileSystemBase
 
         if (rootExists(filePath))
         {
-            final InMemoryFolder parentFolder = getInMemoryFolder(filePath.getParentPath());
+            final InMemoryFolder parentFolder = getInMemoryFolder(filePath.getParent());
             if (parentFolder != null)
             {
                 result = parentFolder.deleteFile(filePath.getSegments().last());

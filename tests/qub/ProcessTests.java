@@ -311,7 +311,6 @@ public class ProcessTests
                 final Process process = creator.run();
                 final Path currentFolderPath = process.getCurrentFolderPath();
                 test.assertNotNull(currentFolderPath);
-                test.assertFalse(currentFolderPath.isEmpty());
                 test.assertTrue(currentFolderPath.isRooted());
                 test.assertTrue(process.getFileSystem().folderExists(currentFolderPath));
             });

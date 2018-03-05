@@ -60,7 +60,7 @@ public class FolderFileSystem extends FileSystemBase
 
     private Path getInnerPath(Path outerPath)
     {
-        return outerPath == null || outerPath.isEmpty() || !outerPath.isRooted() ? null : Path.parse(baseFolderPath.toString() + outerPath.toString());
+        return outerPath == null || !outerPath.isRooted() ? null : Path.parse(baseFolderPath.toString() + outerPath.toString());
     }
 
     private Path getOuterPath(Path innerPath)

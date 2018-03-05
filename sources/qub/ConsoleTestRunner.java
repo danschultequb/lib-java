@@ -152,6 +152,11 @@ public class ConsoleTestRunner extends Console implements TestRunner
         currentIndent = currentIndent.substring(0, currentIndent.length() - singleIndent.length());
     }
 
+    public int getFailedTestCount()
+    {
+        return testRunner.getFailedTestCount();
+    }
+
     @Override
     public boolean write(String line)
     {
@@ -287,6 +292,8 @@ public class ConsoleTestRunner extends Console implements TestRunner
 
     public static void main(String[] args)
     {
+        int testsFailed = 0;
+
         try (final ConsoleTestRunner console = new ConsoleTestRunner(args))
         {
             final CommandLine commandLine = console.getCommandLine();
@@ -366,6 +373,10 @@ public class ConsoleTestRunner extends Console implements TestRunner
 
             final Duration totalTestsDuration = stopwatch.stop();
             console.writeLine("Tests Duration: " + totalTestsDuration.toSeconds().toString("0.0"));
+
+            testsFailed = console.getFailedTestCount();
         }
+
+        System.exit(testsFailed);
     }
 }

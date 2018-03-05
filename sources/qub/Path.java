@@ -20,15 +20,6 @@ public class Path
     }
 
     /**
-     * Get whether or not this is an empty path.
-     * @return Whether or not this is an empty path.
-     */
-    public boolean isEmpty()
-    {
-        return value.isEmpty();
-    }
-
-    /**
      * Get whether or not this Path has a file extension.
      * @return Whether or not this Path has a file extension.
      */
@@ -110,7 +101,7 @@ public class Path
     public Path concatenate(Path toConcatenate)
     {
         Path result;
-        if (toConcatenate == null || toConcatenate.isEmpty())
+        if (toConcatenate == null)
         {
             result = this;
         }
@@ -147,7 +138,7 @@ public class Path
     public Path concatenateSegment(Path segmentToConcatenate)
     {
         Path result;
-        if (segmentToConcatenate == null || segmentToConcatenate.isEmpty())
+        if (segmentToConcatenate == null)
         {
             result = this;
         }
@@ -158,7 +149,7 @@ public class Path
         else
         {
             String resultPathString = value;
-            if (!resultPathString.isEmpty() && !resultPathString.endsWith("/") && !resultPathString.endsWith("\\"))
+            if (!resultPathString.endsWith("/") && !resultPathString.endsWith("\\"))
             {
                 resultPathString += "/";
             }
@@ -175,7 +166,7 @@ public class Path
      */
     public boolean endsWith(String suffix)
     {
-        return !value.isEmpty() && suffix != null && !suffix.isEmpty() && value.endsWith(suffix);
+        return suffix != null && !suffix.isEmpty() && value.endsWith(suffix);
     }
 
     /**
@@ -184,17 +175,10 @@ public class Path
      */
     public boolean isRooted()
     {
-        boolean result = false;
-
         final Path normalizedPath = normalize();
         final Indexable<String> segments = normalizedPath.getSegments();
-        if (segments.any())
-        {
-            final String firstSegment = segments.first();
-            result = firstSegment.equals("/") || firstSegment.endsWith(":");
-        }
-
-        return result;
+        final String firstSegment = segments.first();
+        return firstSegment.equals("/") || firstSegment.endsWith(":");
     }
 
     /**
@@ -202,24 +186,14 @@ public class Path
      * return null.
      * @return The name of this Path's root if the Path is rooted, null otherwise.
      */
-    public String getRoot()
+    public Path getRoot()
     {
-        return isRooted() ? getSegments().first() : null;
+        return isRooted() ? Path.parse(getSegments().first()) : null;
     }
 
-    /**
-     * If this Path is rooted, get the Path to this Path's root. If this Path is not rooted, then
-     * return null.
-     * @return The Path to this Path's root if the Path is rooted, null otherwise.
-     */
-    public Path getRootPath()
+    public Path getParent()
     {
-        return Path.parse(getRoot());
-    }
-
-    public String getParent()
-    {
-        String result = null;
+        Path result = null;
 
         final Iterable<String> segments = getSegments();
         final int segmentCount = segments.getCount();
@@ -239,15 +213,34 @@ public class Path
                 builder.append('/');
             }
 
-            result = builder.toString();
+            result = Path.parse(builder.toString());
         }
 
         return result;
     }
 
-    public Path getParentPath()
+    /**
+     * Get this Path relative to the provided Folder's path. If this path does not begin with the
+     * provided path, then this Path will be returned.
+     * @param folder The folder to make a relative version of this Path against.
+     * @return The relative version of this Path against the provided folder's path, or this Path if
+     * this Path doesn't start with the provided basePath.
+     */
+    public Path relativeTo(Folder folder)
     {
-        return Path.parse(getParent());
+        return relativeTo(folder == null ? null : folder.getPath());
+    }
+
+    /**
+     * Get this Path relative to the provided Root's path. If this path does not begin with the
+     * provided path, then this Path will be returned.
+     * @param root The root to make a relative version of this Path against.
+     * @return The relative version of this Path against the provided root's path, or this Path if
+     * this Path doesn't start with the provided basePath.
+     */
+    public Path relativeTo(Root root)
+    {
+        return relativeTo(root == null ? null : root.getPath());
     }
 
     /**

@@ -509,7 +509,7 @@ public class Process implements AutoCloseable
         {
             final Path executablePathWithoutExtension = exectuablePath.withoutFileExtension();
 
-            final Path folderPath = exectuablePath.getParentPath();
+            final Path folderPath = exectuablePath.getParent();
             final Folder folder = fileSystem.getFolder(folderPath);
             result = folder.getFiles().first(new Function1<File, Boolean>()
             {
@@ -576,7 +576,7 @@ public class Process implements AutoCloseable
     {
         ProcessBuilder result = null;
 
-        if (executablePath != null && !executablePath.isEmpty())
+        if (executablePath != null)
         {
             File executableFile = findExecutableFile(executablePath, true);
             if (executableFile == null)

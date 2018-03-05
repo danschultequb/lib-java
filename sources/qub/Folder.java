@@ -30,6 +30,21 @@ public class Folder extends FileSystemEntry
         return getFileSystem().deleteFolder(getPath());
     }
 
+    public Path relativeTo(Path path)
+    {
+        return getPath().relativeTo(path);
+    }
+
+    public Path relativeTo(Folder folder)
+    {
+        return getPath().relativeTo(folder);
+    }
+
+    public Path relativeTo(Root root)
+    {
+        return getPath().relativeTo(root);
+    }
+
     /**
      * Try to create this folder and return whether or not this function created the folder.
      * @return Whether or not this function created the folder.
@@ -58,7 +73,7 @@ public class Folder extends FileSystemEntry
     {
         boolean result = false;
 
-        if (relativeFolderPath != null && !relativeFolderPath.isEmpty() && !relativeFolderPath.isRooted())
+        if (relativeFolderPath != null && !relativeFolderPath.isRooted())
         {
             final Path childFolderPath = getChildPath(relativeFolderPath);
             final FileSystem fileSystem = getFileSystem();
@@ -121,7 +136,7 @@ public class Folder extends FileSystemEntry
     {
         boolean result = false;
 
-        if (relativeFilePath != null && !relativeFilePath.isEmpty() && !relativeFilePath.isRooted())
+        if (relativeFilePath != null && !relativeFilePath.isRooted())
         {
             final Path childFilePath = getChildPath(relativeFilePath);
             final FileSystem fileSystem = getFileSystem();

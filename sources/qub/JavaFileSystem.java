@@ -196,7 +196,7 @@ public class JavaFileSystem extends FileSystemBase
         }
         else
         {
-            final Path parentFolderPath = rootedFilePath.getParentPath();
+            final Path parentFolderPath = rootedFilePath.getParent();
             final Value<Folder> parentFolder = new Value<>();
             createFolder(parentFolderPath, parentFolder);
             if (parentFolder.get() != null)
