@@ -55,6 +55,7 @@ public abstract class LineReadStreamBase extends IteratorBase<String> implements
 
         if (lineReadStream.isOpen())
         {
+            int charactersRead = 0;
             final StringBuilder builder = new StringBuilder();
             final CharacterReadStream characterReadStream = lineReadStream.asCharacterReadStream();
             characterReadStream.ensureHasStarted();
@@ -64,6 +65,7 @@ public abstract class LineReadStreamBase extends IteratorBase<String> implements
                 while (characterReadStream.hasCurrent())
                 {
                     final char currentCharacter = characterReadStream.takeCurrent();
+                    ++charactersRead;
                     builder.append(currentCharacter);
                     if (currentCharacter == '\n')
                     {
@@ -77,6 +79,7 @@ public abstract class LineReadStreamBase extends IteratorBase<String> implements
                 while (characterReadStream.hasCurrent())
                 {
                     final char currentCharacter = characterReadStream.takeCurrent();
+                    ++charactersRead;
                     if (currentCharacter == '\r')
                     {
                         ++carriageReturnCount;
@@ -102,7 +105,7 @@ public abstract class LineReadStreamBase extends IteratorBase<String> implements
                 }
             }
 
-            result = builder.length() == 0 ? null : builder.toString();
+            result = charactersRead == 0 ? null : builder.toString();
         }
 
         return result;

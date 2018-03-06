@@ -6,4 +6,9 @@ public class InMemoryLineReadStream extends CharacterReadStreamToLineReadStream
     {
         super(new InMemoryCharacterReadStream(text));
     }
+
+    public InMemoryLineReadStream(String text, boolean includeNewLines)
+    {
+        super(new InMemoryCharacterReadStream(text), includeNewLines);
+    }
 }
