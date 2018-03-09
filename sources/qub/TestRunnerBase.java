@@ -186,20 +186,8 @@ public class TestRunnerBase implements TestRunner
             final StringBuilder builder = new StringBuilder();
             builder.append('\"');
 
-            int start;
-            int end;
-            if (text.startsWith("\"") && text.endsWith("\""))
-            {
-                start = 1;
-                end = text.length() - 1;
-            }
-            else
-            {
-                start = 0;
-                end = text.length();
-            }
-
-            for (int i = start; i < end; ++i)
+            final int textLength = text.length();
+            for (int i = 0; i < textLength; ++i)
             {
                 final char textCharacter = text.charAt(i);
                 switch (textCharacter)
