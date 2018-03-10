@@ -6,7 +6,7 @@ public interface CharacterWriteStream extends Stream
 
     boolean write(char toWrite);
 
-    boolean write(String toWrite);
+    boolean write(String toWrite, Object... formattedStringArguments);
 
     /**
      * Convert this CharacterWriteStream to a ByteWriteStream.

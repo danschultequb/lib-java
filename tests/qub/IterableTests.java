@@ -516,6 +516,35 @@ public class IterableTests
                     test.assertEqual(0, skipIterator.getCount());
                 });
             });
+
+            runner.testGroup("skipFirst()", () ->
+            {
+                runner.test("with empty Iterable", (Test test) ->
+                {
+                    final Iterable<Integer> iterable = createIterable.run(0);
+                    if (iterable != null)
+                    {
+                        final Iterable<Integer> skipIterable = iterable.skipFirst();
+                        test.assertFalse(skipIterable.any());
+                    }
+                });
+
+                runner.test("with one-valued Iterable", (Test test) ->
+                {
+                    final Iterable<Integer> iterable = createIterable.run(1);
+                    final Iterable<Integer> skipIterable = iterable.skipFirst();
+                    test.assertFalse(skipIterable.any());
+                });
+
+                runner.test("with more than one valued Iterable", (Test test) ->
+                {
+                    final Iterable<Integer> iterable = createIterable.run(2);
+                    final Iterable<Integer> skipIterable = iterable.skipFirst();
+                    test.assertTrue(skipIterable.any());
+                    test.assertEqual(1, skipIterable.getCount());
+                    test.assertEqual(1, skipIterable.first());
+                });
+            });
             
             runner.testGroup("skipLast()", () ->
             {

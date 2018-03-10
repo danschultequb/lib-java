@@ -95,14 +95,14 @@ public class Console extends Process
         return result;
     }
 
-    public boolean write(String toWrite)
+    public boolean write(String toWrite, Object... formattedStringArguments)
     {
         boolean result = false;
 
         final CharacterWriteStream writeStream = getOutputAsCharacterWriteStream();
         if (writeStream != null)
         {
-            result = writeStream.write(toWrite);
+            result = writeStream.write(toWrite, formattedStringArguments);
         }
 
         return result;
@@ -121,14 +121,14 @@ public class Console extends Process
         return result;
     }
 
-    public boolean writeLine(String toWrite)
+    public boolean writeLine(String toWrite, Object... formattedStringArguments)
     {
         boolean result = false;
 
         final LineWriteStream writeStream = getOutputAsLineWriteStream();
         if (writeStream != null)
         {
-            writeStream.writeLine(toWrite);
+            writeStream.writeLine(toWrite, formattedStringArguments);
         }
 
         return result;
@@ -186,14 +186,14 @@ public class Console extends Process
         return result;
     }
 
-    public boolean writeError(String toWrite)
+    public boolean writeError(String toWrite, Object... formattedStringArguments)
     {
         boolean result = false;
 
         final CharacterWriteStream writeStream = getErrorAsCharacterWriteStream();
         if (writeStream != null)
         {
-            result = writeStream.write(toWrite);
+            result = writeStream.write(toWrite, formattedStringArguments);
         }
 
         return result;
@@ -212,14 +212,14 @@ public class Console extends Process
         return result;
     }
 
-    public boolean writeErrorLine(String toWrite)
+    public boolean writeErrorLine(String toWrite, Object... formattedStringArguments)
     {
         boolean result = false;
 
         final LineWriteStream writeStream = getErrorAsLineWriteStream();
         if (writeStream != null)
         {
-            writeStream.writeLine(toWrite);
+            writeStream.writeLine(toWrite, formattedStringArguments);
         }
 
         return result;

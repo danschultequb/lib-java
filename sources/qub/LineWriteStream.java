@@ -8,11 +8,11 @@ public interface LineWriteStream extends Stream
 
     boolean write(char toWrite);
 
-    boolean write(String toWrite);
+    boolean write(String toWrite, Object... formattedStringArguments);
 
     boolean writeLine();
 
-    boolean writeLine(String toWrite);
+    boolean writeLine(String toWrite, Object... formattedStringArguments);
 
     ByteWriteStream asByteWriteStream();
 

@@ -25,6 +25,16 @@ public class CharacterWriteStreamToLineWriteStreamTests
                 test.assertEqual("tuv", characterWriteStream.getText());
             });
 
+            runner.test("write(String,Object...)", (Test test) ->
+            {
+                final InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
+                final InMemoryCharacterWriteStream characterWriteStream = new InMemoryCharacterWriteStream(byteWriteStream);
+                final CharacterWriteStreamToLineWriteStream lineWriteStream = getLineWriteStream(characterWriteStream);
+                test.assertTrue(lineWriteStream.write("%s == %d", "1", 2));
+                test.assertEqual(new byte[] { 49, 32, 61, 61, 32, 50 }, byteWriteStream.getBytes());
+                test.assertEqual("1 == 2", characterWriteStream.getText());
+            });
+
             runner.test("writeLine()", (Test test) ->
             {
                 final InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
@@ -35,7 +45,7 @@ public class CharacterWriteStreamToLineWriteStreamTests
                 test.assertEqual("\n", characterWriteStream.getText());
             });
 
-            runner.test("writeLine(String)", (Test test) ->
+            runner.test("writeLine(String,Object...)", (Test test) ->
             {
                 final InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
                 final InMemoryCharacterWriteStream characterWriteStream = new InMemoryCharacterWriteStream(byteWriteStream);

@@ -2,6 +2,11 @@ package qub;
 
 public abstract class CharacterWriteStreamBase implements CharacterWriteStream
 {
+    public static boolean shouldFormat(String toWrite, Object... formattedStringArguments)
+    {
+        return toWrite != null && !toWrite.isEmpty() && formattedStringArguments != null && formattedStringArguments.length > 0;
+    }
+
     @Override
     public LineWriteStream asLineWriteStream()
     {

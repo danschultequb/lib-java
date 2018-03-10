@@ -37,9 +37,13 @@ public class ByteWriteStreamToCharacterWriteStream extends CharacterWriteStreamB
     }
 
     @Override
-    public boolean write(String string)
+    public boolean write(String toWrite, Object... formattedStringArguments)
     {
-        final byte[] stringBytes = characterEncoding.encode(string);
+        if (CharacterWriteStreamBase.shouldFormat(toWrite, formattedStringArguments))
+        {
+            toWrite = String.format(toWrite, formattedStringArguments);
+        }
+        final byte[] stringBytes = characterEncoding.encode(toWrite);
         return byteWriteStream.write(stringBytes);
     }
 

@@ -83,6 +83,14 @@ public interface Iterable<T> extends java.lang.Iterable<T>
     Iterable<T> skip(int toSkip);
 
     /**
+     * Create a new Iterable will skip over the first element in this Iterable and return the
+     * remaining elements.
+     * @return A new Iterable that will skip over the first element in this Iterable and return the
+     * remaining elements.
+     */
+    Iterable<T> skipFirst();
+
+    /**
      * Create a new Iterable will skip over the last element in this Iterable and return the
      * remaining elements.
      * @return A new Iterable that will skip over the last element in this Iterable and return the

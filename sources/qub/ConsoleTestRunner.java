@@ -158,7 +158,7 @@ public class ConsoleTestRunner extends Console implements TestRunner
     }
 
     @Override
-    public boolean write(String line)
+    public boolean write(String line, Object... formattedStringArguments)
     {
         boolean result = true;
 
@@ -169,7 +169,7 @@ public class ConsoleTestRunner extends Console implements TestRunner
 
         if (result)
         {
-            result = super.write(line);
+            result = super.write(line, formattedStringArguments);
             onNewLine = line != null && line.endsWith("\n");
         }
 
@@ -177,7 +177,7 @@ public class ConsoleTestRunner extends Console implements TestRunner
     }
 
     @Override
-    public boolean writeLine(String line)
+    public boolean writeLine(String line, Object... formattedStringArguments)
     {
         boolean result = true;
 
@@ -188,7 +188,7 @@ public class ConsoleTestRunner extends Console implements TestRunner
 
         if (result)
         {
-            result = super.writeLine(line);
+            result = super.writeLine(line, formattedStringArguments);
             onNewLine = true;
         }
 

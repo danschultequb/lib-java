@@ -50,8 +50,13 @@ public class OutputStreamWriterToCharacterWriteStream extends CharacterWriteStre
     }
 
     @Override
-    public final boolean write(String toWrite)
+    public final boolean write(String toWrite, Object... formattedStringArguments)
     {
+        if (CharacterWriteStreamBase.shouldFormat(toWrite, formattedStringArguments))
+        {
+            toWrite = String.format(toWrite, formattedStringArguments);
+        }
+
         boolean result = false;
         try
         {

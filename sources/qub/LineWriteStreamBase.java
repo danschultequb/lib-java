@@ -9,9 +9,9 @@ public abstract class LineWriteStreamBase implements LineWriteStream
     }
 
     @Override
-    public boolean write(String toWrite)
+    public boolean write(String toWrite, Object... formattedStringArguments)
     {
-        return LineWriteStreamBase.write(this, toWrite);
+        return LineWriteStreamBase.write(this, toWrite, formattedStringArguments);
     }
 
     @Override
@@ -21,9 +21,9 @@ public abstract class LineWriteStreamBase implements LineWriteStream
     }
 
     @Override
-    public boolean writeLine(String toWrite)
+    public boolean writeLine(String toWrite, Object... formattedStringArguments)
     {
-        return LineWriteStreamBase.writeLine(this, toWrite);
+        return LineWriteStreamBase.writeLine(this, toWrite, formattedStringArguments);
     }
 
     @Override
@@ -43,9 +43,9 @@ public abstract class LineWriteStreamBase implements LineWriteStream
         return lineWriteStream.asCharacterWriteStream().write(character);
     }
 
-    public static boolean write(LineWriteStream lineWriteStream, String string)
+    public static boolean write(LineWriteStream lineWriteStream, String string, Object... formattedStringArguments)
     {
-        return lineWriteStream.asCharacterWriteStream().write(string);
+        return lineWriteStream.asCharacterWriteStream().write(string, formattedStringArguments);
     }
 
     public static boolean writeLine(LineWriteStream lineWriteStream)
@@ -53,9 +53,9 @@ public abstract class LineWriteStreamBase implements LineWriteStream
         return lineWriteStream.write(lineWriteStream.getLineSeparator());
     }
 
-    public static boolean writeLine(LineWriteStream lineWriteStream, String toWrite)
+    public static boolean writeLine(LineWriteStream lineWriteStream, String toWrite, Object... formattedStringArguments)
     {
-        return lineWriteStream.write(toWrite) && lineWriteStream.writeLine();
+        return lineWriteStream.write(toWrite, formattedStringArguments) && lineWriteStream.writeLine();
     }
 
     public static CharacterEncoding getCharacterEncoding(LineWriteStream lineWriteStream)

@@ -9,5 +9,6 @@
     "tests": {
       "version": "1.9"
     }
+    //"lineCoverageRequirement": 100
   }
 }

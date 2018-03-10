@@ -63,6 +63,12 @@ public abstract class IterableBase<T> implements Iterable<T>
     }
 
     @Override
+    public final Iterable<T> skipFirst()
+    {
+        return IterableBase.skipFirst(this);
+    }
+
+    @Override
     public final Iterable<T> skipLast()
     {
         return IterableBase.skipLast(this);
@@ -220,6 +226,17 @@ public abstract class IterableBase<T> implements Iterable<T>
     public static <T> Iterable<T> skip(Iterable<T> iterable, int toSkip)
     {
         return toSkip <= 0 ? iterable : new SkipIterable<>(iterable, toSkip);
+    }
+
+    /**
+     * Create a new Iterable will skip over the first element in this Iterable and return the
+     * remaining elements.
+     * @return A new Iterable that will skip over the first element in this Iterable and return the
+     * remaining elements.
+     */
+    public static <T> Iterable<T> skipFirst(Iterable<T> iterable)
+    {
+        return iterable.skip(1);
     }
 
     /**
