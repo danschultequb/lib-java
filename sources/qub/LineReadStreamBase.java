@@ -3,15 +3,9 @@ package qub;
 public abstract class LineReadStreamBase extends IteratorBase<String> implements LineReadStream
 {
     @Override
-    public final String readLine()
+    public String readLine()
     {
         return LineReadStreamBase.readLine(this);
-    }
-
-    @Override
-    public String readLine(boolean includeNewLines)
-    {
-        return LineReadStreamBase.readLine(this, includeNewLines);
     }
 
     @Override
@@ -46,11 +40,6 @@ public abstract class LineReadStreamBase extends IteratorBase<String> implements
 
     public static String readLine(LineReadStream lineReadStream)
     {
-        return lineReadStream.readLine(lineReadStream.getIncludeNewLines());
-    }
-
-    public static String readLine(LineReadStream lineReadStream, boolean includeNewLines)
-    {
         String result = null;
 
         if (lineReadStream.isOpen())
@@ -58,13 +47,12 @@ public abstract class LineReadStreamBase extends IteratorBase<String> implements
             int charactersRead = 0;
             final StringBuilder builder = new StringBuilder();
             final CharacterReadStream characterReadStream = lineReadStream.asCharacterReadStream();
-            characterReadStream.ensureHasStarted();
 
-            if (includeNewLines)
+            if (lineReadStream.getIncludeNewLines())
             {
-                while (characterReadStream.hasCurrent())
+                while (characterReadStream.next())
                 {
-                    final char currentCharacter = characterReadStream.takeCurrent();
+                    final char currentCharacter = characterReadStream.getCurrent();
                     ++charactersRead;
                     builder.append(currentCharacter);
                     if (currentCharacter == '\n')
@@ -75,33 +63,43 @@ public abstract class LineReadStreamBase extends IteratorBase<String> implements
             }
             else
             {
-                int carriageReturnCount = 0;
-                while (characterReadStream.hasCurrent())
+                boolean previousCharacterWasCarriageReturn = false;
+                while (characterReadStream.next())
                 {
-                    final char currentCharacter = characterReadStream.takeCurrent();
+                    final char currentCharacter = characterReadStream.getCurrent();
                     ++charactersRead;
+
                     if (currentCharacter == '\r')
                     {
-                        ++carriageReturnCount;
-                    }
-                    else if (currentCharacter == '\n')
-                    {
-                        while (carriageReturnCount > 1)
+                        if (previousCharacterWasCarriageReturn)
                         {
                             builder.append('\r');
-                            --carriageReturnCount;
                         }
-                        break;
+                        else
+                        {
+                            previousCharacterWasCarriageReturn = true;
+                        }
+                    }
+                    else if (currentCharacter != '\n')
+                    {
+                        if (previousCharacterWasCarriageReturn)
+                        {
+                            builder.append('\r');
+                        }
+                        previousCharacterWasCarriageReturn = false;
+
+                        builder.append(currentCharacter);
                     }
                     else
                     {
-                        while (carriageReturnCount > 0)
-                        {
-                            builder.append('\r');
-                            --carriageReturnCount;
-                        }
-                        builder.append(currentCharacter);
+                        previousCharacterWasCarriageReturn = false;
+                        break;
                     }
+                }
+
+                if (!characterReadStream.hasCurrent() && previousCharacterWasCarriageReturn)
+                {
+                    builder.append('\r');
                 }
             }
 

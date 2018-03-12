@@ -50,9 +50,9 @@ public class CharacterReadStreamToLineReadStream extends LineReadStreamBase
     }
 
     @Override
-    public String readLine(boolean includeNewLines)
+    public String readLine()
     {
-        current = super.readLine(includeNewLines);
+        current = super.readLine();
         return current;
     }
 }

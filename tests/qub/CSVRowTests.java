@@ -83,7 +83,7 @@ public class CSVRowTests
             {
                 final Action4<Iterable<String>,Integer,String,Iterable<String>> setTest = (Iterable<String> cells, Integer index, String value, Iterable<String> expectedCells) ->
                 {
-                    runner.test("with " + cells + " at index " + index + " with value " + runner.escapeAndQuote(value), (Test test) ->
+                    runner.test("with " + cells + " at index " + index + " with value " + Strings.escapeAndQuote(value), (Test test) ->
                     {
                         final CSVRow row = new CSVRow(cells);
                         row.set(index, value);

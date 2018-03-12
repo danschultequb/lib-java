@@ -16,7 +16,7 @@ public class CSVTests
             {
                 final Action2<String,String[][]> parseTest = (String text, String[][] expectedRows) ->
                 {
-                    runner.test("with " + runner.escapeAndQuote(text), (Test test) ->
+                    runner.test("with " + Strings.escapeAndQuote(text), (Test test) ->
                     {
                         final CSVDocument document = CSV.parse(text);
                         test.assertNotNull(document);

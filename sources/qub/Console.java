@@ -37,12 +37,6 @@ public class Console extends Process
         return lineReadStream.readLine();
     }
 
-    public String readLine(boolean includeNewLine)
-    {
-        final LineReadStream lineReadStream = getInputAsLineReadStream();
-        return lineReadStream.readLine(includeNewLine);
-    }
-
     public boolean write(byte toWrite)
     {
         boolean result = false;

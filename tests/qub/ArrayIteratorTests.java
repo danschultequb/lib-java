@@ -4,7 +4,7 @@ public class ArrayIteratorTests
 {
     public static void test(final TestRunner runner)
     {
-        runner.testGroup("ArrayIterator<T>", () ->
+        runner.testGroup(ArrayIterator.class, () ->
         {
             IteratorTests.test(runner, ArrayIteratorTests::createIterator);
         });

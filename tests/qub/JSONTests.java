@@ -16,7 +16,7 @@ public class JSONTests
             {
                 final Action3<String,JSONSegment[],Issue[]> parseTest = (String text, JSONSegment[] expectedDocumentSegments, Issue[] expectedIssues) ->
                 {
-                    runner.test("with " + runner.escapeAndQuote(text), (Test test) ->
+                    runner.test("with " + Strings.escapeAndQuote(text), (Test test) ->
                     {
                         final JSONDocument expectedDocument = new JSONDocument(Array.fromValues(expectedDocumentSegments));
                         final JSONDocument actualDocumentWithoutErrors = JSON.parse(text);

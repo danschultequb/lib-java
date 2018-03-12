@@ -2,71 +2,51 @@ package qub;
 
 public class AsyncRunnerRegistryTests
 {
-    public static void test(final TestRunner runner)
+    public static void test(TestRunner runner)
     {
-        runner.testGroup("AsyncRunnerRegistry", new Action0()
+        runner.testGroup(AsyncRunnerRegistry.class, () ->
         {
-            @Override
-            public void run()
+            runner.test("constructor()", (Test test) ->
             {
-                runner.test("constructor()", new Action1<Test>()
+                test.assertNotNull(new AsyncRunnerRegistry());
+            });
+
+            runner.testGroup("getCurrentThreadAsyncRunner()", () ->
+            {
+                runner.test("with no registered runner", (Test test) ->
                 {
-                    @Override
-                    public void run(Test test)
+                    final AsyncRunner backupRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+                    AsyncRunnerRegistry.removeCurrentThreadAsyncRunner();
+                    try
                     {
-                        test.assertNotNull(new AsyncRunnerRegistry());
+                        test.assertNull(AsyncRunnerRegistry.getCurrentThreadAsyncRunner());
                     }
+                    finally
+                    {
+                        AsyncRunnerRegistry.setCurrentThreadAsyncRunner(backupRunner);
+                    }
+
                 });
 
-                runner.testGroup("getCurrentThreadAsyncRunner()", new Action0()
+                runner.test("with registered runner", (Test test) ->
                 {
-                    @Override
-                    public void run()
+                    final AsyncRunner backupRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+                    final CurrentThreadAsyncRunner runner1 = new CurrentThreadAsyncRunner(new Synchronization());
+                    AsyncRunnerRegistry.setCurrentThreadAsyncRunner(runner1);
+                    try
                     {
-                        runner.test("with no registered runner", new Action1<Test>()
+                        test.assertSame(runner1, AsyncRunnerRegistry.getCurrentThreadAsyncRunner());
+                    }
+                    finally
+                    {
+                        AsyncRunnerRegistry.removeCurrentThreadAsyncRunner();
+                        if (backupRunner != null)
                         {
-                            @Override
-                            public void run(Test test)
-                            {
-                                final AsyncRunner backupRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-                                AsyncRunnerRegistry.removeCurrentThreadAsyncRunner();
-                                try
-                                {
-                                    test.assertNull(AsyncRunnerRegistry.getCurrentThreadAsyncRunner());
-                                }
-                                finally
-                                {
-                                    AsyncRunnerRegistry.setCurrentThreadAsyncRunner(backupRunner);
-                                }
-
-                            }
-                        });
-
-                        runner.test("with registered runner", new Action1<Test>()
-                        {
-                            @Override
-                            public void run(Test test)
-                            {
-                                final AsyncRunner backupRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-                                final CurrentThreadAsyncRunner runner = new CurrentThreadAsyncRunner(new Synchronization());
-                                AsyncRunnerRegistry.setCurrentThreadAsyncRunner(runner);
-                                try
-                                {
-                                    test.assertSame(runner, AsyncRunnerRegistry.getCurrentThreadAsyncRunner());
-                                }
-                                finally
-                                {
-                                    AsyncRunnerRegistry.removeCurrentThreadAsyncRunner();
-                                    if (backupRunner != null)
-                                    {
-                                        AsyncRunnerRegistry.setCurrentThreadAsyncRunner(backupRunner);
-                                    }
-                                }
-                            }
-                        });
+                            AsyncRunnerRegistry.setCurrentThreadAsyncRunner(backupRunner);
+                        }
                     }
                 });
-            }
+            });
         });
     }
 }

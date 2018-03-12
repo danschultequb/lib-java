@@ -124,7 +124,7 @@ public class CSVDocumentTests
             {
                 final Action5<CSVDocument,Integer,Integer,String,CSVDocument> setTest = (CSVDocument document, Integer rowIndex, Integer columnIndex, String value, CSVDocument expectedDocument) ->
                 {
-                    runner.test("with " + document + " at row " + rowIndex + " and column " + columnIndex + " with " + runner.escapeAndQuote(value), (Test test) ->
+                    runner.test("with " + document + " at row " + rowIndex + " and column " + columnIndex + " with " + Strings.escapeAndQuote(value), (Test test) ->
                     {
                         document.set(rowIndex, columnIndex, value);
                         test.assertEqual(expectedDocument, document);

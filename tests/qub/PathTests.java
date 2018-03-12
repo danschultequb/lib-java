@@ -10,7 +10,7 @@ public class PathTests
             {
                 final Action3<String,String,String> concatenateTest = (String basePath, String argumentPath, String expectedResultPath) ->
                 {
-                    runner.test("with " + runner.escapeAndQuote(basePath) + " and " + runner.escapeAndQuote(argumentPath), (Test test) ->
+                    runner.test("with " + Strings.escapeAndQuote(basePath) + " and " + Strings.escapeAndQuote(argumentPath), (Test test) ->
                     {
                         final Path path = Path.parse(basePath);
                         final Path result = path.concatenate(argumentPath);
@@ -45,7 +45,7 @@ public class PathTests
             {
                 final Action3<String,String,String> concatenateSegmentTest = (String basePath, String argumentPath, String expectedResultPath) ->
                 {
-                    runner.test("with " + runner.escapeAndQuote(basePath) + " and " + runner.escapeAndQuote(argumentPath), (Test test) ->
+                    runner.test("with " + Strings.escapeAndQuote(basePath) + " and " + Strings.escapeAndQuote(argumentPath), (Test test) ->
                     {
                         final Path path = Path.parse(basePath);
                         final Path result = path.concatenateSegment(argumentPath);
@@ -94,7 +94,7 @@ public class PathTests
             {
                 final Action3<String,String,Boolean> endsWithTest = (String pathString, String suffix, Boolean expectedResult) ->
                 {
-                    runner.test("with " + runner.escapeAndQuote(pathString) + " and " + runner.escapeAndQuote(suffix), (Test test) ->
+                    runner.test("with " + Strings.escapeAndQuote(pathString) + " and " + Strings.escapeAndQuote(suffix), (Test test) ->
                     {
                         final Path path = Path.parse(pathString);
                         test.assertEqual(expectedResult, path.endsWith(suffix));
@@ -111,7 +111,7 @@ public class PathTests
             {
                 final Action2<String,String> getRootTest = (String pathString, String expectedRoot) ->
                 {
-                    runner.test("with " + runner.escapeAndQuote(pathString), (Test test) ->
+                    runner.test("with " + Strings.escapeAndQuote(pathString), (Test test) ->
                     {
                         final Path path = Path.parse(pathString);
                         test.assertEqual(Path.parse(expectedRoot), path.getRoot());
@@ -138,7 +138,7 @@ public class PathTests
                     test.assertNull(Path.parse(""));
                 });
 
-                runner.test("with " + runner.escapeAndQuote("/hello/there.txt"), (Test test) ->
+                runner.test("with " + Strings.escapeAndQuote("/hello/there.txt"), (Test test) ->
                 {
                     final Path path = Path.parse("/hello/there.txt");
                     test.assertNotNull(path);
@@ -159,7 +159,7 @@ public class PathTests
                     test.assertEqual(new String[] { "/", "hello", "there.txt" }, Array.toStringArray(normalizedPathSegments));
                 });
 
-                runner.test("with " + runner.escapeAndQuote("/\\/test1//"), (Test test) ->
+                runner.test("with " + Strings.escapeAndQuote("/\\/test1//"), (Test test) ->
                 {
                     final Path path = Path.parse("/\\/test1//");
                     test.assertNotNull(path);
@@ -177,7 +177,7 @@ public class PathTests
                     test.assertEqual(new String[] { "/", "test1" }, Array.toStringArray(normalizedPathSegments));
                 });
 
-                runner.test("with " + runner.escapeAndQuote("C:\\Windows\\System32\\cmd.exe"), (Test test) ->
+                runner.test("with " + Strings.escapeAndQuote("C:\\Windows\\System32\\cmd.exe"), (Test test) ->
                 {
                     final Path path = Path.parse("C:\\Windows\\System32\\cmd.exe");
                     test.assertNotNull(path);
@@ -200,7 +200,7 @@ public class PathTests
             {
                 final Action2<String,Boolean> hasFileExtensionTest = (String pathString, Boolean expectedResult) ->
                 {
-                    runner.test("with " + runner.escapeAndQuote(pathString), (Test test) ->
+                    runner.test("with " + Strings.escapeAndQuote(pathString), (Test test) ->
                     {
                         final Path path = Path.parse(pathString);
                         test.assertEqual(expectedResult, path.hasFileExtension());
@@ -216,7 +216,7 @@ public class PathTests
             {
                 final Action2<String,String> getFileExtensionTest = (String pathString, String expectedFileExtension) ->
                 {
-                    runner.test("with " + runner.escapeAndQuote(pathString), (Test test) ->
+                    runner.test("with " + Strings.escapeAndQuote(pathString), (Test test) ->
                     {
                         final Path path = Path.parse(pathString);
                         test.assertEqual(expectedFileExtension, path.getFileExtension());
@@ -234,7 +234,7 @@ public class PathTests
             {
                 final Action2<String,String> withoutFileExtensionTest = (String pathString, String expectedPathString) ->
                 {
-                    runner.test("with " + runner.escapeAndQuote(pathString), (Test test) ->
+                    runner.test("with " + Strings.escapeAndQuote(pathString), (Test test) ->
                     {
                         final Path path = Path.parse(pathString);
                         final Path pathWithoutFileExtension = path.withoutFileExtension();
@@ -251,7 +251,7 @@ public class PathTests
             {
                 final Action3<String,String,String> relativeToTest = (String pathString, String basePathString, String expectedPathString) ->
                 {
-                    runner.test("with " + runner.escapeAndQuote(pathString) + " and " + runner.escapeAndQuote(basePathString), (Test test) ->
+                    runner.test("with " + Strings.escapeAndQuote(pathString) + " and " + Strings.escapeAndQuote(basePathString), (Test test) ->
                     {
                         final Path path = Path.parse(pathString);
                         final Path base = Path.parse(basePathString);
@@ -273,7 +273,7 @@ public class PathTests
             {
                 final Action3<String,String,String> relativeToTest = (String pathString, String basePathString, String expectedPathString) ->
                 {
-                    runner.test("with " + runner.escapeAndQuote(pathString) + " and " + runner.escapeAndQuote(basePathString), (Test test) ->
+                    runner.test("with " + Strings.escapeAndQuote(pathString) + " and " + Strings.escapeAndQuote(basePathString), (Test test) ->
                     {
                         final Path path = Path.parse(pathString);
 

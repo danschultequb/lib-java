@@ -46,7 +46,7 @@ public class ConsoleTests
             {
                 final Action2<String,String> writeWithNoFormattedStringArgumentsTest = (String toWrite, String expectedText) ->
                 {
-                    runner.test("with " + runner.escapeAndQuote(toWrite) + " and no formatted string arguments", (Test test) ->
+                    runner.test("with " + Strings.escapeAndQuote(toWrite) + " and no formatted string arguments", (Test test) ->
                     {
                         final Console console = new Console();
                         final InMemoryLineWriteStream output = new InMemoryLineWriteStream();
@@ -65,7 +65,7 @@ public class ConsoleTests
 
                 final Action3<String,Object[],String> writeWithFormattedStringArgumentsTest = (String toWrite, Object[] formattedStringArguments, String expectedText) ->
                 {
-                    runner.test("with " + runner.escapeAndQuote(toWrite) + " and " + (formattedStringArguments == null ? "null" : Array.fromValues(formattedStringArguments).toString()) + " formatted string arguments", (Test test) ->
+                    runner.test("with " + Strings.escapeAndQuote(toWrite) + " and " + (formattedStringArguments == null ? "null" : Array.fromValues(formattedStringArguments).toString()) + " formatted string arguments", (Test test) ->
                     {
                         final Console console = new Console();
                         final InMemoryLineWriteStream output = new InMemoryLineWriteStream();
@@ -94,7 +94,7 @@ public class ConsoleTests
 
                 final Action2<String,Object[]> writeWithWrongFormattedStringArgumentsTest = (String toWrite, Object[] formattedStringArguments) ->
                 {
-                    runner.test("with " + runner.escapeAndQuote(toWrite) + " and " + (formattedStringArguments == null ? "null" : Array.fromValues(formattedStringArguments).toString()) + " formatted string arguments", (Test test) ->
+                    runner.test("with " + Strings.escapeAndQuote(toWrite) + " and " + (formattedStringArguments == null ? "null" : Array.fromValues(formattedStringArguments).toString()) + " formatted string arguments", (Test test) ->
                     {
                         final Console console = new Console();
                         final InMemoryLineWriteStream output = new InMemoryLineWriteStream();

@@ -225,12 +225,6 @@ public class ConsoleTestRunner extends Console implements TestRunner
         testRunner.afterTest(afterTestAction);
     }
 
-    @Override
-    public String escapeAndQuote(String text)
-    {
-        return testRunner.escapeAndQuote(text);
-    }
-
     /**
      * Write the stack trace of the provided Throwable to the output stream.
      * @param t The Throwable to write the stack trace of.

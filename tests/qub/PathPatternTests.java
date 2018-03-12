@@ -10,7 +10,7 @@ public class PathPatternTests
             {
                 final Action1<String> parsePathTest = pathString ->
                 {
-                    runner.test("with " + runner.escapeAndQuote(pathString), (Test test) ->
+                    runner.test("with " + Strings.escapeAndQuote(pathString), (Test test) ->
                     {
                         final Path path = Path.parse(pathString);
 
@@ -35,7 +35,7 @@ public class PathPatternTests
             {
                 final Action1<String> parseStringTest = pathString ->
                 {
-                    runner.test("with " + runner.escapeAndQuote(pathString), (Test test) ->
+                    runner.test("with " + Strings.escapeAndQuote(pathString), (Test test) ->
                     {
                         final PathPattern pattern = PathPattern.parse(pathString);
                         test.assertTrue(pattern instanceof SimplePathPattern);
@@ -62,7 +62,7 @@ public class PathPatternTests
             {
                 final Action3<String,String[],String[]> isMatchTest = (String pattern, String[] matches, String[] nonMatches) ->
                 {
-                    runner.testGroup("with " + runner.escapeAndQuote(pattern), () ->
+                    runner.testGroup("with " + Strings.escapeAndQuote(pattern), () ->
                     {
                         final PathPattern pathPattern = PathPattern.parse(pattern);
 
@@ -70,7 +70,7 @@ public class PathPatternTests
                         {
                             for (String match : matches)
                             {
-                                runner.test("matching " + runner.escapeAndQuote(match), (Test test) ->
+                                runner.test("matching " + Strings.escapeAndQuote(match), (Test test) ->
                                 {
                                     test.assertTrue(pathPattern.isMatch(match));
                                     test.assertTrue(pathPattern.isMatch(Path.parse(match)));
@@ -82,7 +82,7 @@ public class PathPatternTests
                         {
                             for (String nonMatch : nonMatches)
                             {
-                                runner.test("not matching " + runner.escapeAndQuote(nonMatch), (Test test) ->
+                                runner.test("not matching " + Strings.escapeAndQuote(nonMatch), (Test test) ->
                                 {
                                     test.assertFalse(pathPattern.isMatch(nonMatch));
                                     test.assertFalse(pathPattern.isMatch(Path.parse(nonMatch)));

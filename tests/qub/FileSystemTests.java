@@ -75,7 +75,7 @@ public class FileSystemTests
             {
                 final Action2<String,Boolean> rootExistsAsyncTest = (String rootPath, Boolean expectedToExist) ->
                 {
-                    runner.test("with " + runner.escapeAndQuote(rootPath), (Test test) ->
+                    runner.test("with " + Strings.escapeAndQuote(rootPath), (Test test) ->
                     {
                         asyncTest.run(test, (FileSystem fileSystem) ->
                         {

@@ -94,6 +94,21 @@ public class Array<T> extends IndexableBase<T>
      * Create an Array from the provided values.
      * @param values The values to initialize the array with.
      */
+    public static Array<Character> fromValues(char[] values)
+    {
+        final int length = values == null ? 0 : values.length;
+        final Array<Character> result = new Array<>(length);
+        for (int i = 0; i < length; ++i)
+        {
+            result.set(i, values[i]);
+        }
+        return result;
+    }
+
+    /**
+     * Create an Array from the provided values.
+     * @param values The values to initialize the array with.
+     */
     public static <T> Array<T> fromValues(T[] values)
     {
         final int length = values == null ? 0 : values.length;

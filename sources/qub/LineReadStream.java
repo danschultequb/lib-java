@@ -7,8 +7,6 @@ public interface LineReadStream extends Stream, Iterator<String>
 {
     String readLine();
 
-    String readLine(boolean includeNewLine);
-
     CharacterEncoding getCharacterEncoding();
 
     boolean getIncludeNewLines();
