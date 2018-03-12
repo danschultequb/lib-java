@@ -2,22 +2,11 @@ package qub;
 
 public class SingleLinkListQueueTests
 {
-    public static void test(final TestRunner runner)
+    public static void test(TestRunner runner)
     {
-        runner.testGroup("SingleLinkListQueue<T>", new Action0()
+        runner.testGroup(SingleLinkListQueue.class, () ->
         {
-            @Override
-            public void run()
-            {
-                QueueTests.test(runner, new Function0<Queue<Integer>>()
-                {
-                    @Override
-                    public Queue<Integer> run()
-                    {
-                        return new SingleLinkListQueue<>();
-                    }
-                });
-            }
+            QueueTests.test(runner, SingleLinkListQueue::new);
         });
     }
 }

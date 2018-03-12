@@ -6,175 +6,123 @@ import java.io.InputStream;
 
 public class InputStreamToByteReadStreamTests
 {
-    public static void test(final TestRunner runner)
+    public static void test(TestRunner runner)
     {
-        runner.testGroup("InputStreamToByteReadStream", new Action0()
+        runner.testGroup(InputStreamToByteReadStream.class, () ->
         {
-            @Override
-            public void run()
+            runner.test("constructor(InputStream)", (Test test) ->
             {
-                runner.test("constructor(InputStream)", new Action1<Test>()
+                final ByteArrayInputStream inputStream = getInputStream(5);
+                final InputStreamToByteReadStream readStream = new InputStreamToByteReadStream(inputStream);
+                assertByteReadStream(test, readStream, true, false, null);
+            });
+            
+            runner.test("close()", (Test test) ->
+            {
+                closeTest(test, getInputStream(0), true);
+                closeTest(test, getInputStream(5), true);
+
+                final ByteArrayInputStream closedInputStream = getInputStream(1);
+                try
                 {
-                    @Override
-                    public void run(Test test)
-                    {
-                        final ByteArrayInputStream inputStream = getInputStream(5);
-                        final InputStreamToByteReadStream readStream = new InputStreamToByteReadStream(inputStream);
-                        assertByteReadStream(test, readStream, true, false, null);
-                    }
+                    closedInputStream.close();
+                }
+                catch (IOException e)
+                {
+                    test.fail(e);
+                }
+                closeTest(test, closedInputStream, true);
+
+                final InputStreamToByteReadStream closedReadStream = getByteReadStream(1);
+                closedReadStream.close();
+                closeTest(test, closedReadStream, false);
+
+                final TestStubInputStream testStubInputStream = new TestStubInputStream();
+                testStubInputStream.setThrowOnClose(true);
+                closeTest(test, testStubInputStream, false, true);
+            });
+
+            runner.test("readByte()", (Test test) ->
+            {
+                final InputStreamToByteReadStream byteReadStream = getByteReadStream(2);
+
+                test.assertEqual((byte)0, byteReadStream.readByte());
+                test.assertEqual((byte)1, byteReadStream.readByte());
+                test.assertEqual(null, byteReadStream.readByte());
+            });
+            
+            runner.test("readByte() with exception", (Test test) ->
+            {
+                final TestStubInputStream inputStream = new TestStubInputStream();
+                inputStream.setThrowOnRead(true);
+                
+                final InputStreamToByteReadStream byteReadStream = getByteReadStream(inputStream);
+                test.assertEqual(null, byteReadStream.readByte());
+            });
+            
+            runner.testGroup("readBytes(byte[])", () ->
+            {
+                runner.test("with no bytes", (Test test) ->
+                {
+                    final InputStreamToByteReadStream byteReadStream = getByteReadStream(0);
+
+                    final byte[] buffer = new byte[10];
+                    test.assertEqual(-1, byteReadStream.readBytes(buffer));
                 });
                 
-                runner.test("close()", new Action1<Test>()
+                runner.test("with bytes", (Test test) ->
                 {
-                    @Override
-                    public void run(Test test)
-                    {
-                        closeTest(test, getInputStream(0), true);
-                        closeTest(test, getInputStream(5), true);
+                    final InputStreamToByteReadStream byteReadStream = getByteReadStream(3);
 
-                        final ByteArrayInputStream closedInputStream = getInputStream(1);
-                        try
-                        {
-                            closedInputStream.close();
-                        }
-                        catch (IOException e)
-                        {
-                            test.fail(e);
-                        }
-                        closeTest(test, closedInputStream, true);
+                    final byte[] buffer = new byte[10];
+                    test.assertEqual(3, byteReadStream.readBytes(buffer));
+                    test.assertEqual(new byte[] { 0, 1, 2, 0, 0, 0, 0, 0, 0, 0 }, buffer);
 
-                        final InputStreamToByteReadStream closedReadStream = getByteReadStream(1);
-                        closedReadStream.close();
-                        closeTest(test, closedReadStream, false);
-
-                        final TestStubInputStream testStubInputStream = new TestStubInputStream();
-                        testStubInputStream.setThrowOnClose(true);
-                        closeTest(test, testStubInputStream, false, true);
-                    }
-                });
-
-                runner.test("readByte()", new Action1<Test>()
-                {
-                    @Override
-                    public void run(Test test)
-                    {
-                        final InputStreamToByteReadStream byteReadStream = getByteReadStream(2);
-
-                        test.assertEqual((byte)0, byteReadStream.readByte());
-                        test.assertEqual((byte)1, byteReadStream.readByte());
-                        test.assertEqual(null, byteReadStream.readByte());
-                    }
+                    test.assertEqual(-1, byteReadStream.readBytes(buffer));
                 });
                 
-                runner.test("readByte() with exception", new Action1<Test>()
+                runner.test("asCharacterReadStream()", (Test test) ->
                 {
-                    @Override
-                    public void run(Test test)
-                    {
-                        final TestStubInputStream inputStream = new TestStubInputStream();
-                        inputStream.setThrowOnRead(true);
-                        
-                        final InputStreamToByteReadStream byteReadStream = getByteReadStream(inputStream);
-                        test.assertEqual(null, byteReadStream.readByte());
-                    }
+                    final InputStreamToByteReadStream byteReadStream = getByteReadStream(new ByteArrayInputStream("abcd".getBytes()));
+
+                    final CharacterReadStream characterReadStream = byteReadStream.asCharacterReadStream();
+
+                    test.assertEqual('a', characterReadStream.readCharacter());
                 });
                 
-                runner.testGroup("readBytes(byte[])", new Action0()
+                runner.testGroup("asCharacterReadStream(CharacterEncoding)", () ->
                 {
-                    @Override
-                    public void run()
+                    runner.test("with null encoding", (Test test) ->
                     {
-                        runner.test("with no bytes", new Action1<Test>()
-                        {
-                            @Override
-                            public void run(Test test)
-                            {
-                                final InputStreamToByteReadStream byteReadStream = getByteReadStream(0);
+                        final InputStreamToByteReadStream byteReadStream = getByteReadStream(10);
 
-                                final byte[] buffer = new byte[10];
-                                test.assertEqual(-1, byteReadStream.readBytes(buffer));
-                            }
-                        });
-                        
-                        runner.test("with bytes", new Action1<Test>()
-                        {
-                            @Override
-                            public void run(Test test)
-                            {
-                                final InputStreamToByteReadStream byteReadStream = getByteReadStream(3);
+                        test.assertNull(byteReadStream.asCharacterReadStream((CharacterEncoding)null));
+                    });
 
-                                final byte[] buffer = new byte[10];
-                                test.assertEqual(3, byteReadStream.readBytes(buffer));
-                                test.assertEqual(new byte[] { 0, 1, 2, 0, 0, 0, 0, 0, 0, 0 }, buffer);
+                    runner.test("with non-null encoding", (Test test) ->
+                    {
+                        final InputStreamToByteReadStream byteReadStream = getByteReadStream(new ByteArrayInputStream("abcd".getBytes()));
 
-                                test.assertEqual(-1, byteReadStream.readBytes(buffer));
-                            }
-                        });
-                        
-                        runner.test("asCharacterReadStream()", new Action1<Test>()
-                        {
-                            @Override
-                            public void run(Test test)
-                            {
-                                final InputStreamToByteReadStream byteReadStream = getByteReadStream(new ByteArrayInputStream("abcd".getBytes()));
+                        final CharacterReadStream characterReadStream = byteReadStream.asCharacterReadStream(CharacterEncoding.US_ASCII);
 
-                                final CharacterReadStream characterReadStream = byteReadStream.asCharacterReadStream();
-
-                                test.assertEqual('a', characterReadStream.readCharacter());
-                            }
-                        });
-                        
-                        runner.testGroup("asCharacterReadStream(CharacterEncoding)", new Action0()
-                        {
-                            @Override
-                            public void run()
-                            {
-                                runner.test("with null encoding", new Action1<Test>()
-                                {
-                                    @Override
-                                    public void run(Test test)
-                                    {
-                                        final InputStreamToByteReadStream byteReadStream = getByteReadStream(10);
-
-                                        test.assertNull(byteReadStream.asCharacterReadStream((CharacterEncoding)null));
-                                    }
-                                });
-
-                                runner.test("with non-null encoding", new Action1<Test>()
-                                {
-                                    @Override
-                                    public void run(Test test)
-                                    {
-                                        final InputStreamToByteReadStream byteReadStream = getByteReadStream(new ByteArrayInputStream("abcd".getBytes()));
-
-                                        final CharacterReadStream characterReadStream = byteReadStream.asCharacterReadStream(CharacterEncoding.US_ASCII);
-
-                                        test.assertEqual('a', characterReadStream.readCharacter());
-                                    }
-                                });
-                            }
-                        });
-
-                        runner.test("next()", new Action1<Test>()
-                        {
-                            @Override
-                            public void run(Test test)
-                            {
-                                final InputStreamToByteReadStream byteReadStream = getByteReadStream(5);
-
-                                for (int i = 0; i < 5; ++i)
-                                {
-                                    test.assertTrue(byteReadStream.next());
-                                    assertByteReadStream(test, byteReadStream, true, true, (byte)i);
-                                }
-
-                                test.assertFalse(byteReadStream.next());
-                                assertByteReadStream(test, byteReadStream, true, true, null);
-                            }
-                        });
-                    }
+                        test.assertEqual('a', characterReadStream.readCharacter());
+                    });
                 });
-            }
+
+                runner.test("next()", (Test test) ->
+                {
+                    final InputStreamToByteReadStream byteReadStream = getByteReadStream(5);
+
+                    for (int i = 0; i < 5; ++i)
+                    {
+                        test.assertTrue(byteReadStream.next());
+                        assertByteReadStream(test, byteReadStream, true, true, (byte)i);
+                    }
+
+                    test.assertFalse(byteReadStream.next());
+                    assertByteReadStream(test, byteReadStream, true, true, null);
+                });
+            });
         });
     }
 

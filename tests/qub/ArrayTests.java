@@ -2,9 +2,9 @@ package qub;
 
 public class ArrayTests
 {
-    public static void test(final TestRunner runner)
+    public static void test(TestRunner runner)
     {
-        runner.testGroup("Array<T>", () ->
+        runner.testGroup(Array.class, () ->
         {
             IndexableTests.test(runner, (Integer count) ->
             {
@@ -251,397 +251,293 @@ public class ArrayTests
                     test.assertEqual(new int[] { 0, 1, 2 }, Array.toIntArray(Array.fromValues(new Integer[] { 0, 1, 2 }).iterate()));
                 });
 
-                runner.test("with null Iterable", new Action1<Test>()
+                runner.test("with null Iterable", (Test test) ->
                 {
-                    @Override
-                    public void run(Test test)
-                    {
-                        test.assertNull(Array.toIntArray((Iterable<Integer>)null));
-                    }
+                    test.assertNull(Array.toIntArray((Iterable<Integer>)null));
                 });
 
-                runner.test("with empty Iterable", new Action1<Test>()
+                runner.test("with empty Iterable", (Test test) ->
                 {
-                    @Override
-                    public void run(Test test)
-                    {
-                        test.assertEqual(new int[0], Array.toIntArray(new Array<Integer>(0)));
-                    }
+                    test.assertEqual(new int[0], Array.toIntArray(new Array<>(0)));
                 });
             });
 
-            runner.testGroup("toStringArray()", new Action0()
+            runner.testGroup("toStringArray()", () ->
             {
-                @Override
-                public void run()
+                runner.test("with null Iterator", (Test test) ->
                 {
-                    runner.test("with null Iterator", new Action1<Test>()
-                    {
-                        @Override
-                        public void run(Test test)
-                        {
-                            test.assertNull(Array.toStringArray((Iterator<String>)null));
-                        }
-                    });
+                    test.assertNull(Array.toStringArray((Iterator<String>)null));
+                });
 
-                    runner.test("with empty Iterator", new Action1<Test>()
-                    {
-                        @Override
-                        public void run(Test test)
-                        {
-                            test.assertEqual(new String[0], Array.toStringArray(new Array<String>(0).iterate()));
-                        }
-                    });
+                runner.test("with empty Iterator", (Test test) ->
+                {
+                    test.assertEqual(new String[0], Array.toStringArray(new Array<String>(0).iterate()));
+                });
 
-                    runner.test("with non-empty Iterator", new Action1<Test>()
-                    {
-                        @Override
-                        public void run(Test test)
-                        {
-                            test.assertEqual(new String[] { "0", "1", "2" }, Array.toStringArray(Array.fromValues(new String[] { "0", "1", "2" }).iterate()));
-                        }
-                    });
+                runner.test("with non-empty Iterator", (Test test) ->
+                {
+                    test.assertEqual(new String[] { "0", "1", "2" }, Array.toStringArray(Array.fromValues(new String[] { "0", "1", "2" }).iterate()));
+                });
 
-                    runner.test("with null Iterable", new Action1<Test>()
-                    {
-                        @Override
-                        public void run(Test test)
-                        {
-                            test.assertNull(Array.toStringArray((Iterable<String>)null));
-                        }
-                    });
+                runner.test("with null Iterable", (Test test) ->
+                {
+                    test.assertNull(Array.toStringArray((Iterable<String>)null));
+                });
 
-                    runner.test("with empty Iterable", new Action1<Test>()
-                    {
-                        @Override
-                        public void run(Test test)
-                        {
-                            test.assertEqual(new String[0], Array.toStringArray(new Array<String>(0)));
-                        }
-                    });
-                }
+                runner.test("with empty Iterable", (Test test) ->
+                {
+                    test.assertEqual(new String[0], Array.toStringArray(new Array<>(0)));
+                });
             });
 
-            runner.testGroup("clone(byte[])", new Action0()
+            runner.testGroup("clone(byte[])", () ->
             {
-                @Override
-                public void run()
+                final Action1<byte[]> cloneTest = (byte[] bytes) ->
                 {
-                    final Action1<byte[]> test = new Action1<byte[]>()
+                    runner.test("with " + (bytes == null ? "null byte[]" : ("byte[" + bytes.length + "]")), (Test test) ->
                     {
-                        @Override
-                        public void run(final byte[] bytes)
+                        final byte[] clonedBytes = Array.clone(bytes);
+                        if (bytes == null || bytes.length == 0)
                         {
-                            runner.test("with " + (bytes == null ? "null byte[]" : ("byte[" + bytes.length + "]")), new Action1<Test>()
-                            {
-                                @Override
-                                public void run(Test test)
-                                {
-                                    final byte[] clonedBytes = Array.clone(bytes);
-                                    if (bytes == null || bytes.length == 0)
-                                    {
-                                        test.assertSame(bytes, clonedBytes);
-                                    }
-                                    else
-                                    {
-                                        test.assertEqual(bytes, clonedBytes);
-                                        test.assertNotSame(bytes, clonedBytes);
-                                    }
-                                }
-                            });
+                            test.assertSame(bytes, clonedBytes);
                         }
-                    };
+                        else
+                        {
+                            test.assertEqual(bytes, clonedBytes);
+                            test.assertNotSame(bytes, clonedBytes);
+                        }
+                    });
+                };
 
-                    test.run(null);
-                    test.run(new byte[0]);
-                    test.run(new byte[] { 0 });
-                    test.run(new byte[] { 0, 1, 2, 3, 4 });
-                }
+                cloneTest.run(null);
+                cloneTest.run(new byte[0]);
+                cloneTest.run(new byte[] { 0 });
+                cloneTest.run(new byte[] { 0, 1, 2, 3, 4 });
             });
 
-            runner.testGroup("clone(byte[],int,int)", new Action0()
+            runner.testGroup("clone(byte[],int,int)", () ->
             {
-                @Override
-                public void run()
+                final Action4<byte[],Integer,Integer,byte[]> cloneTest = (byte[] bytes, Integer startIndex, Integer length, byte[] expectedBytes) ->
                 {
-                    final Action4<byte[],Integer,Integer,byte[]> test = new Action4<byte[], Integer, Integer, byte[]>()
+                    runner.test("with " + (bytes == null ? "null byte[]" : ("byte[" + bytes.length + "]")) + " at " + startIndex + " for " + length + " length", (Test test) ->
                     {
-                        @Override
-                        public void run(final byte[] bytes, final Integer startIndex, final Integer length, final byte[] expectedBytes)
-                        {
-                            runner.test("with " + (bytes == null ? "null byte[]" : ("byte[" + bytes.length + "]")) + " at " + startIndex + " for " + length + " length", new Action1<Test>()
-                            {
-                                @Override
-                                public void run(Test test)
-                                {
-                                    final byte[] clonedBytes = Array.clone(bytes, startIndex, length);
-                                    test.assertEqual(expectedBytes, clonedBytes);
-                                }
-                            });
-                        }
-                    };
+                        final byte[] clonedBytes = Array.clone(bytes, startIndex, length);
+                        test.assertEqual(expectedBytes, clonedBytes);
+                    });
+                };
 
-                    test.run(null, -1, -2, null);
-                    test.run(null, -1, 0, null);
-                    test.run(null, -1, 2, null);
-                    test.run(null, 0, -2, null);
-                    test.run(null, 0, 0, null);
-                    test.run(null, 0, 2, null);
-                    test.run(null, 1, -2, null);
-                    test.run(null, 1, 0, null);
-                    test.run(null, 1, 2, null);
-                    test.run(new byte[] { 0, 1, 2 }, 0, 3, new byte[] { 0, 1, 2 });
-                    test.run(new byte[] { 0, 1, 2 }, 1, 1, new byte[] { 1 });
-                }
+                cloneTest.run(null, -1, -2, null);
+                cloneTest.run(null, -1, 0, null);
+                cloneTest.run(null, -1, 2, null);
+                cloneTest.run(null, 0, -2, null);
+                cloneTest.run(null, 0, 0, null);
+                cloneTest.run(null, 0, 2, null);
+                cloneTest.run(null, 1, -2, null);
+                cloneTest.run(null, 1, 0, null);
+                cloneTest.run(null, 1, 2, null);
+                cloneTest.run(new byte[] { 0, 1, 2 }, 0, 3, new byte[] { 0, 1, 2 });
+                cloneTest.run(new byte[] { 0, 1, 2 }, 1, 1, new byte[] { 1 });
             });
 
-            runner.testGroup("clone(char[])", new Action0()
+            runner.testGroup("clone(char[])", () ->
             {
-                @Override
-                public void run()
+                final Action1<char[]> test = (char[] characters) ->
                 {
-                    final Action1<char[]> test = new Action1<char[]>()
+                    runner.test("with " + (characters == null ? "null char[]" : ("char[" + characters.length + "]")), test1 ->
                     {
-                        @Override
-                        public void run(final char[] characters)
+                        final char[] clonedCharacters = Array.clone(characters);
+                        if (characters == null || characters.length == 0)
                         {
-                            runner.test("with " + (characters == null ? "null char[]" : ("char[" + characters.length + "]")), new Action1<Test>()
-                            {
-                                @Override
-                                public void run(Test test)
-                                {
-                                    final char[] clonedCharacters = Array.clone(characters);
-                                    if (characters == null || characters.length == 0)
-                                    {
-                                        test.assertSame(characters, clonedCharacters);
-                                    }
-                                    else
-                                    {
-                                        test.assertEqual(characters, clonedCharacters);
-                                        test.assertNotSame(characters, clonedCharacters);
-                                    }
-                                }
-                            });
+                            test1.assertSame(characters, clonedCharacters);
                         }
-                    };
+                        else
+                        {
+                            test1.assertEqual(characters, clonedCharacters);
+                            test1.assertNotSame(characters, clonedCharacters);
+                        }
+                    });
+                };
 
-                    test.run(null);
-                    test.run(new char[0]);
-                    test.run(new char[] { 'a' });
-                    test.run(new char[] { 'a', 'b', 'c', 'd', 'e' });
-                }
+                test.run(null);
+                test.run(new char[0]);
+                test.run(new char[] { 'a' });
+                test.run(new char[] { 'a', 'b', 'c', 'd', 'e' });
             });
             
-            runner.testGroup("clone(char[],int,int)", new Action0()
+            runner.testGroup("clone(char[],int,int)", () ->
             {
-                @Override
-                public void run()
+                final Action4<char[],Integer,Integer,char[]> cloneTest = (char[] characters, Integer startIndex, Integer length, char[] expectedCharacters) ->
                 {
-                    final Action4<char[],Integer,Integer,char[]> test = new Action4<char[], Integer, Integer, char[]>()
+                    runner.test("with " + (characters == null ? "null char[]" : ("char[" + characters.length + "]")) + " at " + startIndex + " for " + length + " length", (Test test) ->
                     {
-                        @Override
-                        public void run(final char[] characters, final Integer startIndex, final Integer length, final char[] expectedCharacters)
-                        {
-                            runner.test("with " + (characters == null ? "null char[]" : ("char[" + characters.length + "]")) + " at " + startIndex + " for " + length + " length", new Action1<Test>()
-                            {
-                                @Override
-                                public void run(Test test)
-                                {
-                                    final char[] clonedCharacters = Array.clone(characters, startIndex, length);
-                                    test.assertEqual(expectedCharacters, clonedCharacters);
-                                }
-                            });
-                        }
-                    };
+                        final char[] clonedCharacters = Array.clone(characters, startIndex, length);
+                        test.assertEqual(expectedCharacters, clonedCharacters);
+                    });
+                };
 
-                    test.run(null, -1, -2, null);
-                    test.run(null, -1, 0, null);
-                    test.run(null, -1, 2, null);
-                    test.run(null, 0, -2, null);
-                    test.run(null, 0, 0, null);
-                    test.run(null, 0, 2, null);
-                    test.run(null, 1, -2, null);
-                    test.run(null, 1, 0, null);
-                    test.run(null, 1, 2, null);
-                    test.run(new char[] { 'a', 'b', 'c' }, 0, 3, new char[] { 'a', 'b', 'c' });
-                    test.run(new char[] { 'x', 'y', 'z' }, 1, 1, new char[] { 'y' });
-                }
+                cloneTest.run(null, -1, -2, null);
+                cloneTest.run(null, -1, 0, null);
+                cloneTest.run(null, -1, 2, null);
+                cloneTest.run(null, 0, -2, null);
+                cloneTest.run(null, 0, 0, null);
+                cloneTest.run(null, 0, 2, null);
+                cloneTest.run(null, 1, -2, null);
+                cloneTest.run(null, 1, 0, null);
+                cloneTest.run(null, 1, 2, null);
+                cloneTest.run(new char[] { 'a', 'b', 'c' }, 0, 3, new char[] { 'a', 'b', 'c' });
+                cloneTest.run(new char[] { 'x', 'y', 'z' }, 1, 1, new char[] { 'y' });
             });
 
-            runner.testGroup("copy(byte[],int,byte[],int,int)", new Action0()
+            runner.testGroup("copy(byte[],int,byte[],int,int)", () ->
             {
-                @Override
-                public void run()
+                final Action6<String,byte[],byte[],Integer,Integer,byte[]> copyTest = (String testName, byte[] copyFrom, byte[] copyTo, Integer copyToStartIndex, Integer length, byte[] expectedBytes) ->
                 {
-                    final Action6<String,byte[],byte[],Integer,Integer,byte[]> test = new Action6<String,byte[], byte[], Integer, Integer, byte[]>()
+                    runner.test(testName, (Test test) ->
                     {
-                        @Override
-                        public void run(String testName, final byte[] copyFrom, final byte[] copyTo, final Integer copyToStartIndex, final Integer length, final byte[] expectedBytes)
-                        {
-                            runner.test(testName, new Action1<Test>()
-                            {
-                                @Override
-                                public void run(Test test)
-                                {
-                                    final byte[] copyFromClone = Array.clone(copyFrom);
+                        final byte[] copyFromClone = Array.clone(copyFrom);
 
-                                    Array.copy(copyFrom, 0, copyTo, copyToStartIndex, length);
+                        Array.copy(copyFrom, 0, copyTo, copyToStartIndex, length);
 
-                                    test.assertEqual(copyFromClone, copyFrom);
-                                    test.assertEqual(expectedBytes, copyTo);
-                                }
-                            });
-                        }
-                    };
+                        test.assertEqual(copyFromClone, copyFrom);
+                        test.assertEqual(expectedBytes, copyTo);
+                    });
+                };
 
-                    test.run("with null copyFrom",
-                        null,
-                        new byte[] { 0, 11, 22, 33, 44 },
-                        1,
-                        2,
-                        new byte[] { 0, 11, 22, 33, 44 });
-                    test.run("with null copyTo",
-                        new byte[] { 0, 1, 2, 3, 4 },
-                        null,
-                        1,
-                        2,
-                        null);
-                    test.run("with negative copyToStartIndex and negative length",
-                        new byte[] { 0, 1, 2, 3, 4 },
-                        new byte[] { 5, 6, 7, 8, 9 },
-                        -1,
-                        -2,
-                        new byte[] { 5, 6, 7, 8, 9 });
-                    test.run("with negative copyToStartIndex and zero length",
-                        new byte[] { 0, 1, 2, 3, 4 },
-                        new byte[] { 5, 6, 7, 8, 9 },
-                        -1,
-                        0,
-                        new byte[] { 5, 6, 7, 8, 9 });
-                    test.run("with negative copyToStartIndex and positive length",
-                        new byte[] { 0, 1, 2, 3, 4 },
-                        new byte[] { 5, 6, 7, 8, 9 },
-                        -1,
-                        2,
-                        new byte[] { 5, 6, 7, 8, 9 });
-                    test.run("with zero copyToStartIndex and negative length",
-                        new byte[] { 0, 1, 2, 3, 4 },
-                        new byte[] { 5, 6, 7, 8, 9 },
-                        0,
-                        -2,
-                        new byte[] { 5, 6, 7, 8, 9 });
-                    test.run("with zero copyToStartIndex and zero length",
-                        new byte[] { 0, 1, 2, 3, 4 },
-                        new byte[] { 5, 6, 7, 8, 9 },
-                        0,
-                        0,
-                        new byte[] { 5, 6, 7, 8, 9 });
-                    test.run("with zero copyToStartIndex and positive length",
-                        new byte[] { 0, 1, 2, 3, 4 },
-                        new byte[] { 5, 6, 7, 8, 9 },
-                        0,
-                        3,
-                        new byte[] { 0, 1, 2, 8, 9 });
-                    test.run("with zero copyToStartIndex and positive greater than copyFrom and less than copyTo length",
-                        new byte[] { 0, 1, 2 },
-                        new byte[] { 5, 6, 7, 8, 9 },
-                        0,
-                        4,
-                        new byte[] { 0, 1, 2, 8, 9 });
-                    test.run("with zero copyToStartIndex and positive less than copyFrom and greater than copyTo length",
-                        new byte[] { 0, 1, 2, 3, 4 },
-                        new byte[] { 5, 6, 7 },
-                        0,
-                        4,
-                        new byte[] { 0, 1, 2 });
-                    test.run("with zero copyToStartIndex and positive greater than copyFrom and copyTo length",
-                        new byte[] { 0, 1, 2, 3, 4 },
-                        new byte[] { 5, 6, 7, 8, 9 },
-                        0,
-                        30,
-                        new byte[] { 0, 1, 2, 3, 4 });
-                    test.run("with positive copyToStartIndex and negative length",
-                        new byte[] { 0, 1, 2, 3, 4 },
-                        new byte[] { 5, 6, 7, 8, 9 },
-                        1,
-                        -2,
-                        new byte[] {5, 6, 7, 8, 9 });
-                    test.run("with positive copyToStartIndex and zero length",
-                        new byte[] { 0, 1, 2, 3, 4 },
-                        new byte[] { 5, 6, 7, 8, 9 },
-                        1,
-                        0,
-                        new byte[] { 5, 6, 7, 8, 9 });
-                    test.run("with positive copyToStartIndex and positive less than copyFrom and copyTo length",
-                        new byte[] { 0, 1, 2, 3, 4 },
-                        new byte[] { 5, 6, 7, 8, 9 },
-                        1,
-                        3,
-                        new byte[] { 5, 0, 1, 2, 9 });
-                    test.run("with positive copyToStartIndex and positive greater than copyFrom and less than copyTo length",
-                        new byte[] { 0, 1, 2 },
-                        new byte[] { 5, 6, 7, 8, 9 },
-                        1,
-                        4,
-                        new byte[] { 5, 0, 1, 2, 9 });
-                    test.run("with positive copyToStartIndex and positive less than copyFrom and greater than copyTo length",
-                        new byte[] { 0, 1, 2, 3 ,4 },
-                        new byte[] { 5, 6, 7 },
-                        1,
-                        4,
-                        new byte[] { 5, 0, 1 });
-                    test.run("with positive copyToStartIndex and positive greater than copyFrom and copyTo length",
-                        new byte[] { 0, 1, 2, 3, 4 },
-                        new byte[] { 5, 6, 7, 8, 9 },
-                        1,
-                        30,
-                        new byte[] { 5, 0, 1, 2, 3 });
-                }
+                copyTest.run("with null copyFrom",
+                    null,
+                    new byte[] { 0, 11, 22, 33, 44 },
+                    1,
+                    2,
+                    new byte[] { 0, 11, 22, 33, 44 });
+                copyTest.run("with null copyTo",
+                    new byte[] { 0, 1, 2, 3, 4 },
+                    null,
+                    1,
+                    2,
+                    null);
+                copyTest.run("with negative copyToStartIndex and negative length",
+                    new byte[] { 0, 1, 2, 3, 4 },
+                    new byte[] { 5, 6, 7, 8, 9 },
+                    -1,
+                    -2,
+                    new byte[] { 5, 6, 7, 8, 9 });
+                copyTest.run("with negative copyToStartIndex and zero length",
+                    new byte[] { 0, 1, 2, 3, 4 },
+                    new byte[] { 5, 6, 7, 8, 9 },
+                    -1,
+                    0,
+                    new byte[] { 5, 6, 7, 8, 9 });
+                copyTest.run("with negative copyToStartIndex and positive length",
+                    new byte[] { 0, 1, 2, 3, 4 },
+                    new byte[] { 5, 6, 7, 8, 9 },
+                    -1,
+                    2,
+                    new byte[] { 5, 6, 7, 8, 9 });
+                copyTest.run("with zero copyToStartIndex and negative length",
+                    new byte[] { 0, 1, 2, 3, 4 },
+                    new byte[] { 5, 6, 7, 8, 9 },
+                    0,
+                    -2,
+                    new byte[] { 5, 6, 7, 8, 9 });
+                copyTest.run("with zero copyToStartIndex and zero length",
+                    new byte[] { 0, 1, 2, 3, 4 },
+                    new byte[] { 5, 6, 7, 8, 9 },
+                    0,
+                    0,
+                    new byte[] { 5, 6, 7, 8, 9 });
+                copyTest.run("with zero copyToStartIndex and positive length",
+                    new byte[] { 0, 1, 2, 3, 4 },
+                    new byte[] { 5, 6, 7, 8, 9 },
+                    0,
+                    3,
+                    new byte[] { 0, 1, 2, 8, 9 });
+                copyTest.run("with zero copyToStartIndex and positive greater than copyFrom and less than copyTo length",
+                    new byte[] { 0, 1, 2 },
+                    new byte[] { 5, 6, 7, 8, 9 },
+                    0,
+                    4,
+                    new byte[] { 0, 1, 2, 8, 9 });
+                copyTest.run("with zero copyToStartIndex and positive less than copyFrom and greater than copyTo length",
+                    new byte[] { 0, 1, 2, 3, 4 },
+                    new byte[] { 5, 6, 7 },
+                    0,
+                    4,
+                    new byte[] { 0, 1, 2 });
+                copyTest.run("with zero copyToStartIndex and positive greater than copyFrom and copyTo length",
+                    new byte[] { 0, 1, 2, 3, 4 },
+                    new byte[] { 5, 6, 7, 8, 9 },
+                    0,
+                    30,
+                    new byte[] { 0, 1, 2, 3, 4 });
+                copyTest.run("with positive copyToStartIndex and negative length",
+                    new byte[] { 0, 1, 2, 3, 4 },
+                    new byte[] { 5, 6, 7, 8, 9 },
+                    1,
+                    -2,
+                    new byte[] {5, 6, 7, 8, 9 });
+                copyTest.run("with positive copyToStartIndex and zero length",
+                    new byte[] { 0, 1, 2, 3, 4 },
+                    new byte[] { 5, 6, 7, 8, 9 },
+                    1,
+                    0,
+                    new byte[] { 5, 6, 7, 8, 9 });
+                copyTest.run("with positive copyToStartIndex and positive less than copyFrom and copyTo length",
+                    new byte[] { 0, 1, 2, 3, 4 },
+                    new byte[] { 5, 6, 7, 8, 9 },
+                    1,
+                    3,
+                    new byte[] { 5, 0, 1, 2, 9 });
+                copyTest.run("with positive copyToStartIndex and positive greater than copyFrom and less than copyTo length",
+                    new byte[] { 0, 1, 2 },
+                    new byte[] { 5, 6, 7, 8, 9 },
+                    1,
+                    4,
+                    new byte[] { 5, 0, 1, 2, 9 });
+                copyTest.run("with positive copyToStartIndex and positive less than copyFrom and greater than copyTo length",
+                    new byte[] { 0, 1, 2, 3 ,4 },
+                    new byte[] { 5, 6, 7 },
+                    1,
+                    4,
+                    new byte[] { 5, 0, 1 });
+                copyTest.run("with positive copyToStartIndex and positive greater than copyFrom and copyTo length",
+                    new byte[] { 0, 1, 2, 3, 4 },
+                    new byte[] { 5, 6, 7, 8, 9 },
+                    1,
+                    30,
+                    new byte[] { 5, 0, 1, 2, 3 });
             });
 
-            runner.testGroup("copy(char[],int,char[],int,int)", new Action0()
+            runner.testGroup("copy(char[],int,char[],int,int)", () ->
             {
-                @Override
-                public void run()
+                final Action5<String,char[],char[],Integer,char[]> test = (String testName, char[] copyFrom, char[] copyTo, Integer length, char[] expectedCharacters) ->
                 {
-                    final Action5<String,char[],char[],Integer,char[]> test = new Action5<String, char[], char[], Integer, char[]>()
+                    runner.test(testName, test12 ->
                     {
-                        @Override
-                        public void run(String testName, final char[] copyFrom, final char[] copyTo, final Integer length, final char[] expectedCharacters)
-                        {
-                            runner.test(testName, new Action1<Test>()
-                            {
-                                @Override
-                                public void run(Test test)
-                                {
-                                    Array.copy(copyFrom, 0, copyTo, 0, length);
-                                    test.assertEqual(expectedCharacters, copyTo);
-                                }
-                            });
-                        }
-                    };
+                        Array.copy(copyFrom, 0, copyTo, 0, length);
+                        test12.assertEqual(expectedCharacters, copyTo);
+                    });
+                };
 
-                    test.run("with null copyFrom and null copyTo",
-                        null,
-                        null,
-                        0,
-                        null);
-                    test.run("with empty copyFrom and empty copyTo",
-                        new char[0],
-                        new char[0],
-                        0,
-                        new char[0]);
-                    test.run("with non-empty copyFrom, non-empty copyTo, and zero length",
-                        new char[] { 'a', 'b', 'c' },
-                        new char[] { '0', '1', '2' },
-                        0,
-                        new char[] { '0', '1', '2' });
-                    test.run("with non-empty copyFrom, non-empty copyTo, and non-zero length",
-                        new char[] { 'a', 'b', 'c' },
-                        new char[] { '0', '1', '2' },
-                        2,
-                        new char[] { 'a', 'b', '2' });
-                }
+                test.run("with null copyFrom and null copyTo",
+                    null,
+                    null,
+                    0,
+                    null);
+                test.run("with empty copyFrom and empty copyTo",
+                    new char[0],
+                    new char[0],
+                    0,
+                    new char[0]);
+                test.run("with non-empty copyFrom, non-empty copyTo, and zero length",
+                    new char[] { 'a', 'b', 'c' },
+                    new char[] { '0', '1', '2' },
+                    0,
+                    new char[] { '0', '1', '2' });
+                test.run("with non-empty copyFrom, non-empty copyTo, and non-zero length",
+                    new char[] { 'a', 'b', 'c' },
+                    new char[] { '0', '1', '2' },
+                    2,
+                    new char[] { 'a', 'b', '2' });
             });
         });
     }

@@ -2,45 +2,37 @@ package qub;
 
 public class SingleLinkNodeIteratorTests
 {
-    public static void test(final TestRunner runner)
+    public static void test(TestRunner runner)
     {
-        runner.testGroup("SingleLinkNodeIterator<T>", new Action0()
+        runner.testGroup(SingleLinkNodeIterator.class, () ->
         {
-            @Override
-            public void run()
+            IteratorTests.test(runner, (Integer count, Boolean started) ->
             {
-                IteratorTests.test(runner, new Function2<Integer, Boolean, Iterator<Integer>>()
+                SingleLinkNode<Integer> head = null;
+                SingleLinkNode<Integer> tail = null;
+                for (int i = 0; i < count; ++i)
                 {
-                    @Override
-                    public Iterator<Integer> run(Integer count, Boolean started)
+                    if (head == null)
                     {
-                        SingleLinkNode<Integer> head = null;
-                        SingleLinkNode<Integer> tail = null;
-                        for (int i = 0; i < count; ++i)
-                        {
-                            if (head == null)
-                            {
-                                head = new SingleLinkNode<>(i);
-                                tail = head;
-                            }
-                            else
-                            {
-                                tail.setNext(new SingleLinkNode<>(i));
-                                tail = tail.getNext();
-                            }
-                        }
-
-                        final SingleLinkNodeIterator<Integer> iterator = new SingleLinkNodeIterator<>(head);
-
-                        if (started)
-                        {
-                            iterator.next();
-                        }
-
-                        return iterator;
+                        head = new SingleLinkNode<>(i);
+                        tail = head;
                     }
-                });
-            }
+                    else
+                    {
+                        tail.setNext(new SingleLinkNode<>(i));
+                        tail = tail.getNext();
+                    }
+                }
+
+                final SingleLinkNodeIterator<Integer> iterator = new SingleLinkNodeIterator<>(head);
+
+                if (started)
+                {
+                    iterator.next();
+                }
+
+                return iterator;
+            });
         });
     }
 }

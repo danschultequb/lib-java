@@ -2,27 +2,19 @@ package qub;
 
 public class JavaListTests
 {
-    public static void test(final TestRunner runner)
+    public static void test(TestRunner runner)
     {
-        runner.testGroup("JavaList<T>", new Action0()
+        runner.testGroup(JavaList.class, () ->
         {
-            @Override
-            public void run()
+            ListTests.test(runner, (Integer count) ->
             {
-                ListTests.test(runner, new Function1<Integer, List<Integer>>()
+                final List<Integer> list = JavaList.wrap(new java.util.ArrayList<Integer>());
+                for (int i = 0; i < count; ++i)
                 {
-                    @Override
-                    public List<Integer> run(Integer count)
-                    {
-                        final List<Integer> list = JavaList.wrap(new java.util.ArrayList<Integer>());
-                        for (int i = 0; i < count; ++i)
-                        {
-                            list.add(i);
-                        }
-                        return list;
-                    }
-                });
-            }
+                    list.add(i);
+                }
+                return list;
+            });
         });
     }
 }

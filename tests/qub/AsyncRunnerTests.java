@@ -2,9 +2,9 @@ package qub;
 
 public class AsyncRunnerTests
 {
-    public static void test(final TestRunner runner, final Function0<AsyncRunner> createAsyncRunner)
+    public static void test(TestRunner runner, Function0<AsyncRunner> createAsyncRunner)
     {
-        runner.testGroup("AsyncRunner", () ->
+        runner.testGroup(AsyncRunner.class, () ->
         {
             runner.testGroup("schedule()", () ->
             {
@@ -12,7 +12,7 @@ public class AsyncRunnerTests
                 {
                     try (final AsyncRunner runner1 = createAsyncRunner.run())
                     {
-                        final AsyncAction asyncAction = runner1.schedule(TestUtils.nullAction0);
+                        final AsyncAction asyncAction = runner1.schedule((Action0)null);
                         test.assertNull(asyncAction);
                         test.assertEqual(0, runner1.getScheduledTaskCount());
                     }
@@ -26,7 +26,7 @@ public class AsyncRunnerTests
                 {
                     try (final AsyncRunner runner1 = createAsyncRunner.run())
                     {
-                        final AsyncFunction<Integer> asyncFunction = runner1.schedule(TestUtils.nullFunction0);
+                        final AsyncFunction<Integer> asyncFunction = runner1.schedule((Function0<Integer>)null);
                         test.assertNull(asyncFunction);
                         test.assertEqual(0, runner1.getScheduledTaskCount());
                     }
@@ -56,7 +56,7 @@ public class AsyncRunnerTests
                     try (final AsyncRunner runner1 = createAsyncRunner.run())
                     {
                         final Value<Integer> value = new Value<>(0);
-                        runner1.schedule(TestUtils.setValueAction0(value, 1));
+                        runner1.schedule(() -> value.set(1));
                         test.assertTrue(runner1.getScheduledTaskCount() <= 1);
 
                         runner1.await();
@@ -74,11 +74,11 @@ public class AsyncRunnerTests
                     try (final AsyncRunner runner1 = createAsyncRunner.run())
                     {
                         final Value<Integer> value1 = new Value<>(0);
-                        runner1.schedule(TestUtils.setValueAction0(value1, 1));
+                        runner1.schedule(() -> value1.set(1));
                         test.assertTrue(runner1.getScheduledTaskCount() <= 1);
 
                         final Value<Integer> value2 = new Value<>(0);
-                        runner1.schedule(TestUtils.setValueAction0(value2, 2));
+                        runner1.schedule(() -> value2.set(2));
                         test.assertTrue(runner1.getScheduledTaskCount() <= 2);
 
                         runner1.await();
@@ -97,8 +97,8 @@ public class AsyncRunnerTests
                     try (final AsyncRunner runner1 = createAsyncRunner.run())
                     {
                         final Value<Integer> value = new Value<>(0);
-                        runner1.schedule(TestUtils.emptyAction0)
-                            .then(TestUtils.setValueAction0(value, 1));
+                        runner1.schedule(() -> {})
+                            .then(() -> value.set(1));
                         test.assertTrue(runner1.getScheduledTaskCount() <= 1);
 
                         runner1.await();
@@ -116,9 +116,9 @@ public class AsyncRunnerTests
                     try (final AsyncRunner runner1 = createAsyncRunner.run())
                     {
                         final Value<Integer> value = new Value<>(0);
-                        runner1.schedule(TestUtils.emptyAction0)
-                            .then(TestUtils.emptyAction0)
-                            .then(TestUtils.setValueAction0(value, 1));
+                        runner1.schedule(() -> {})
+                            .then(() -> {})
+                            .then(() -> value.set(1));
                         test.assertTrue(runner1.getScheduledTaskCount() <= 1);
 
                         runner1.await();
@@ -137,15 +137,14 @@ public class AsyncRunnerTests
                     {
                         final Value<Integer> functionReturnValue = new Value<>();
                         final Value<Integer> actionArgument = new Value<>();
+
                         runner1.schedule(() ->
                         {
                             functionReturnValue.set(1);
                             return functionReturnValue.get();
                         })
-                        .then((Integer arg1) ->
-                        {
-                            actionArgument.set(arg1);
-                        });
+                        .then(actionArgument::set);
+
                         test.assertTrue(runner1.getScheduledTaskCount() <= 1);
 
                         runner1.await();

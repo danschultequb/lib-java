@@ -2,24 +2,16 @@ package qub;
 
 public class CharacterTransitionConditionTests
 {
-    public static void test(final TestRunner runner)
+    public static void test(TestRunner runner)
     {
-        runner.testGroup("CharacterTransitionCondition", new Action0()
+        runner.testGroup(CharacterTransitionCondition.class, () ->
         {
-            @Override
-            public void run()
+            runner.test("matches()", (Test test) ->
             {
-                runner.test("matches()", new Action1<Test>()
-                {
-                    @Override
-                    public void run(Test test)
-                    {
-                        final CharacterTransitionCondition condition = new CharacterTransitionCondition('a');
-                        test.assertTrue(condition.matches('a'));
-                        test.assertFalse(condition.matches('b'));
-                    }
-                });
-            }
+                final CharacterTransitionCondition condition = new CharacterTransitionCondition('a');
+                test.assertTrue(condition.matches('a'));
+                test.assertFalse(condition.matches('b'));
+            });
         });
     }
 }

@@ -2,27 +2,19 @@ package qub;
 
 public class DoubleLinkListTests
 {
-    public static void test(final TestRunner runner)
+    public static void test(TestRunner runner)
     {
-        runner.testGroup("DoubleLinkList<T>", new Action0()
+        runner.testGroup(DoubleLinkList.class, () ->
         {
-            @Override
-            public void run()
+            ListTests.test(runner, (Integer count) ->
             {
-                ListTests.test(runner, new Function1<Integer, List<Integer>>()
+                final DoubleLinkList<Integer> result = new DoubleLinkList<>();
+                for (int i = 0; i < count; ++i)
                 {
-                    @Override
-                    public List<Integer> run(Integer count)
-                    {
-                        final DoubleLinkList<Integer> result = new DoubleLinkList<>();
-                        for (int i = 0; i < count; ++i)
-                        {
-                            result.add(i);
-                        }
-                        return result;
-                    }
-                });
-            }
+                    result.add(i);
+                }
+                return result;
+            });
         });
     }
 }

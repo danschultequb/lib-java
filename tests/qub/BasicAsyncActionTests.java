@@ -2,107 +2,69 @@ package qub;
 
 public class BasicAsyncActionTests
 {
-    public static void test(final TestRunner runner)
+    public static void test(TestRunner runner)
     {
-        runner.testGroup("BasicAsyncAction", new Action0()
+        runner.testGroup(BasicAsyncAction.class, () ->
         {
-            @Override
-            public void run()
+            BasicAsyncTaskTests.test(runner, BasicAsyncActionTests::create);
+
+            runner.test("constructor()", (Test test) ->
             {
-                BasicAsyncTaskTests.test(runner, new Function1<AsyncRunner,BasicAsyncTask>()
+                final CurrentThreadAsyncRunner runner1 = createCurrentThreadAsyncRunner();
+                final BasicAsyncAction basicAsyncAction = new BasicAsyncAction(runner1, () -> {});
+                test.assertEqual(0, runner1.getScheduledTaskCount());
+                test.assertEqual(0, basicAsyncAction.getPausedTaskCount());
+                test.assertFalse(basicAsyncAction.isCompleted());
+            });
+
+            runner.testGroup("thenOn()", () ->
+            {
+                runner.test("with null AsyncRunner", (Test test) ->
                 {
-                    @Override
-                    public BasicAsyncTask run(AsyncRunner asyncRunner)
-                    {
-                        return create(asyncRunner);
-                    }
+                    final CurrentThreadAsyncRunner runner1 = createCurrentThreadAsyncRunner();
+                    final BasicAsyncAction basicAsyncAction = create(runner1);
+                    test.assertNull(basicAsyncAction.thenOn(null));
                 });
 
-                runner.test("constructor()", new Action1<Test>()
+                runner.test("with same AsyncRunner", (Test test) ->
                 {
-                    @Override
-                    public void run(Test test)
-                    {
-                        final CurrentThreadAsyncRunner runner = createCurrentThreadAsyncRunner();
-                        final BasicAsyncAction basicAsyncAction = new BasicAsyncAction(runner, TestUtils.emptyAction0);
-                        test.assertEqual(0, runner.getScheduledTaskCount());
-                        test.assertEqual(0, basicAsyncAction.getPausedTaskCount());
-                        test.assertFalse(basicAsyncAction.isCompleted());
-                    }
+                    final CurrentThreadAsyncRunner runner1 = createCurrentThreadAsyncRunner();
+                    final BasicAsyncAction basicAsyncAction = createScheduled(runner1);
+                    test.assertSame(basicAsyncAction, basicAsyncAction.thenOn(runner1));
+                    test.assertEqual(0, basicAsyncAction.getPausedTaskCount());
+                    test.assertEqual(1, runner1.getScheduledTaskCount());
                 });
 
-                runner.testGroup("thenOn()", new Action0()
+                runner.test("with different AsyncRunner", (Test test) ->
                 {
-                    @Override
-                    public void run()
-                    {
-                        runner.test("with null AsyncRunner", new Action1<Test>()
-                        {
-                            @Override
-                            public void run(Test test)
-                            {
-                                final CurrentThreadAsyncRunner runner = createCurrentThreadAsyncRunner();
-                                final BasicAsyncAction basicAsyncAction = create(runner);
-                                test.assertNull(basicAsyncAction.thenOn(null));
-                            }
-                        });
+                    final CurrentThreadAsyncRunner runner1 = createCurrentThreadAsyncRunner();
+                    final BasicAsyncAction basicAsyncAction = createScheduled(runner1);
 
-                        runner.test("with same AsyncRunner", new Action1<Test>()
-                        {
-                            @Override
-                            public void run(Test test)
-                            {
-                                final CurrentThreadAsyncRunner runner = createCurrentThreadAsyncRunner();
-                                final BasicAsyncAction basicAsyncAction = createScheduled(runner);
-                                test.assertSame(basicAsyncAction, basicAsyncAction.thenOn(runner));
-                                test.assertEqual(0, basicAsyncAction.getPausedTaskCount());
-                                test.assertEqual(1, runner.getScheduledTaskCount());
-                            }
-                        });
+                    final CurrentThreadAsyncRunner runner2 = createCurrentThreadAsyncRunner();
+                    final AsyncAction thenAsyncAction = basicAsyncAction.thenOn(runner2);
+                    test.assertNotNull(thenAsyncAction);
+                    test.assertNotSame(basicAsyncAction, thenAsyncAction);
+                    test.assertEqual(1, basicAsyncAction.getPausedTaskCount());
 
-                        runner.test("with different AsyncRunner", new Action1<Test>()
-                        {
-                            @Override
-                            public void run(Test test)
-                            {
-                                final CurrentThreadAsyncRunner runner = createCurrentThreadAsyncRunner();
-                                final BasicAsyncAction basicAsyncAction = createScheduled(runner);
+                    runner1.await();
+                    test.assertEqual(1, runner2.getScheduledTaskCount());
 
-                                final CurrentThreadAsyncRunner runner2 = createCurrentThreadAsyncRunner();
-                                final AsyncAction thenAsyncAction = basicAsyncAction.thenOn(runner2);
-                                test.assertNotNull(thenAsyncAction);
-                                test.assertNotSame(basicAsyncAction, thenAsyncAction);
-                                test.assertEqual(1, basicAsyncAction.getPausedTaskCount());
-
-                                runner.await();
-                                test.assertEqual(1, runner2.getScheduledTaskCount());
-
-                                runner2.await();
-                                test.assertEqual(0, runner2.getScheduledTaskCount());
-                            }
-                        });
-                    }
+                    runner2.await();
+                    test.assertEqual(0, runner2.getScheduledTaskCount());
                 });
-            }
+            });
         });
     }
 
     private static BasicAsyncAction create(AsyncRunner asyncRunner)
     {
-        return new BasicAsyncAction(asyncRunner, TestUtils.emptyAction0);
+        return new BasicAsyncAction(asyncRunner, () -> {});
     }
 
     private static CurrentThreadAsyncRunner createCurrentThreadAsyncRunner()
     {
         final Synchronization synchronization = new Synchronization();
-        return new CurrentThreadAsyncRunner(new Function0<Synchronization>()
-        {
-            @Override
-            public Synchronization run()
-            {
-                return synchronization;
-            }
-        });
+        return new CurrentThreadAsyncRunner(() -> synchronization);
     }
 
     private static BasicAsyncAction createScheduled(AsyncRunner runner)

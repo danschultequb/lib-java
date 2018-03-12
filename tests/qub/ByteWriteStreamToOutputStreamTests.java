@@ -4,70 +4,54 @@ import java.io.IOException;
 
 public class ByteWriteStreamToOutputStreamTests
 {
-    public static void test(final TestRunner runner)
+    public static void test(TestRunner runner)
     {
-        runner.testGroup("ByteWriteStreamToOutputStream", new Action0()
+        runner.testGroup(ByteWriteStreamToOutputStream.class, () ->
         {
-            @Override
-            public void run()
+            runner.test("close()", (Test test) ->
             {
-                runner.test("close()", new Action1<Test>()
+                final InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
+                final ByteWriteStreamToOutputStream outputStream = new ByteWriteStreamToOutputStream(byteWriteStream);
+                try
                 {
-                    @Override
-                    public void run(Test test)
-                    {
-                        final InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
-                        final ByteWriteStreamToOutputStream outputStream = new ByteWriteStreamToOutputStream(byteWriteStream);
-                        try
-                        {
-                            outputStream.close();
-                            test.assertFalse(byteWriteStream.isOpen());
-                        }
-                        catch (IOException e)
-                        {
-                            test.fail(e);
-                        }
-                    }
-                });
+                    outputStream.close();
+                    test.assertFalse(byteWriteStream.isOpen());
+                }
+                catch (IOException e)
+                {
+                    test.fail(e);
+                }
+            });
 
-                runner.test("writeByte()", new Action1<Test>()
+            runner.test("writeByte()", (Test test) ->
+            {
+                final InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
+                final ByteWriteStreamToOutputStream outputStream = new ByteWriteStreamToOutputStream(byteWriteStream);
+                try
                 {
-                    @Override
-                    public void run(Test test)
-                    {
-                        final InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
-                        final ByteWriteStreamToOutputStream outputStream = new ByteWriteStreamToOutputStream(byteWriteStream);
-                        try
-                        {
-                            outputStream.write((byte)15);
-                            test.assertEqual(new byte[] { 15 }, byteWriteStream.getBytes());
-                        }
-                        catch (IOException e)
-                        {
-                            test.fail(e);
-                        }
-                    }
-                });
+                    outputStream.write((byte)15);
+                    test.assertEqual(new byte[] { 15 }, byteWriteStream.getBytes());
+                }
+                catch (IOException e)
+                {
+                    test.fail(e);
+                }
+            });
 
-                runner.test("write(byte[])", new Action1<Test>()
+            runner.test("write(byte[])", (Test test) ->
+            {
+                final InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
+                final ByteWriteStreamToOutputStream outputStream = new ByteWriteStreamToOutputStream(byteWriteStream);
+                try
                 {
-                    @Override
-                    public void run(Test test)
-                    {
-                        final InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
-                        final ByteWriteStreamToOutputStream outputStream = new ByteWriteStreamToOutputStream(byteWriteStream);
-                        try
-                        {
-                            outputStream.write(new byte[] { 16, 17, 18, 19, 20 });
-                            test.assertEqual(new byte[] { 16, 17, 18, 19, 20 }, byteWriteStream.getBytes());
-                        }
-                        catch (IOException e)
-                        {
-                            test.fail(e);
-                        }
-                    }
-                });
-            }
+                    outputStream.write(new byte[] { 16, 17, 18, 19, 20 });
+                    test.assertEqual(new byte[] { 16, 17, 18, 19, 20 }, byteWriteStream.getBytes());
+                }
+                catch (IOException e)
+                {
+                    test.fail(e);
+                }
+            });
         });
     }
 }
