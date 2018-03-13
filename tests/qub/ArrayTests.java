@@ -15,30 +15,99 @@ public class ArrayTests
                 }
                 return result; 
             });
-            
-            runner.testGroup("fromValues()", () ->
+
+            runner.testGroup("fromValues(char[])", () ->
             {
-                runner.test("with no arguments", (Test test) ->
+                runner.test("with null", (Test test) ->
+                {
+                    final Array<Character> array = Array.fromValues((char[])null);
+                    test.assertEqual(0, array.getCount());
+                });
+
+                runner.test("with no values", (Test test) ->
+                {
+                    final Array<Character> array = Array.fromValues(new char[0]);
+                    test.assertEqual(0, array.getCount());
+                });
+
+                runner.test("with one value", (Test test) ->
+                {
+                    final Array<Character> array = Array.fromValues(new char[] { 'a' });
+                    test.assertEqual(1, array.getCount());
+                    test.assertEqual('a', array.get(0));
+                });
+
+                runner.test("with two values", (Test test) ->
+                {
+                    final Array<Character> array = Array.fromValues(new char[] { 'b', 'c' });
+                    test.assertEqual(2, array.getCount());
+                    test.assertEqual('b', array.get(0));
+                    test.assertEqual('c', array.get(1));
+                });
+            });
+
+            runner.testGroup("fromValues(int[])", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final Array<Integer> array = Array.fromValues((int[])null);
+                    test.assertEqual(0, array.getCount());
+                });
+
+                runner.test("with no values", (Test test) ->
+                {
+                    final Array<Integer> array = Array.fromValues(new int[0]);
+                    test.assertEqual(0, array.getCount());
+                });
+
+                runner.test("with one value", (Test test) ->
+                {
+                    final Array<Integer> array = Array.fromValues(new int[] { 101 });
+                    test.assertEqual(1, array.getCount());
+                    test.assertEqual(101, array.get(0));
+                });
+
+                runner.test("with two values", (Test test) ->
+                {
+                    final Array<Integer> array = Array.fromValues(new int[] { 101, 102 });
+                    test.assertEqual(2, array.getCount());
+                    test.assertEqual(101, array.get(0));
+                    test.assertEqual(102, array.get(1));
+                });
+            });
+            
+            runner.testGroup("fromValues(T[])", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final Array<Integer> array = Array.fromValues((Integer[])null);
+                    test.assertEqual(0, array.getCount());
+                });
+
+                runner.test("with no values", (Test test) ->
                 {
                     final Array<Integer> array = Array.fromValues(new Integer[0]);
                     test.assertEqual(0, array.getCount());
                 });
-                
-                runner.test("with one argument", (Test test) ->
+
+                runner.test("with one value", (Test test) ->
                 {
                     final Array<Integer> array = Array.fromValues(new Integer[] { 101 });
                     test.assertEqual(1, array.getCount());
                     test.assertEqual(101, array.get(0));
                 });
-                
-                runner.test("with two arguments", (Test test) ->
+
+                runner.test("with two values", (Test test) ->
                 {
                     final Array<Integer> array = Array.fromValues(new Integer[] { 101, 102 });
                     test.assertEqual(2, array.getCount());
                     test.assertEqual(101, array.get(0));
                     test.assertEqual(102, array.get(1));
                 });
+            });
 
+            runner.testGroup("fromValues(Iterator<T>)", () ->
+            {
                 runner.test("with null Iterator", (Test test) ->
                 {
                     final Array<Integer> array = Array.fromValues((Iterator<Integer>)null);
@@ -60,8 +129,32 @@ public class ArrayTests
                     test.assertEqual(3, array.get(2));
                 });
             });
+
+            runner.testGroup("fromValues(Iterable<T>)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final Array<Integer> array = Array.fromValues((Iterable<Integer>)null);
+                    test.assertEqual(0, array.getCount());
+                });
+
+                runner.test("with empty", (Test test) ->
+                {
+                    final Array<Integer> array = Array.fromValues(new Array<Integer>(0));
+                    test.assertEqual(0, array.getCount());
+                });
+
+                runner.test("with non-empty", (Test test) ->
+                {
+                    final Array<Integer> array = Array.fromValues(Array.fromValues(new Integer[] { 1, 2, 3 }));
+                    test.assertEqual(3, array.getCount());
+                    test.assertEqual(1, array.get(0));
+                    test.assertEqual(2, array.get(1));
+                    test.assertEqual(3, array.get(2));
+                });
+            });
             
-            runner.testGroup("constructor()", () ->
+            runner.testGroup("constructor(int)", () ->
             {
                 runner.test("with 0 length", (Test test) ->
                 {

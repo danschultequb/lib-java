@@ -122,6 +122,14 @@ public class ConsoleTestRunner extends Console implements TestRunner
                 ConsoleTestRunner.this.writeStackTrace(failure);
             }
         });
+        testRunner.setOnTestSkipped(new Action1<Test>()
+        {
+            @Override
+            public void run(Test test)
+            {
+                ConsoleTestRunner.this.writeLine(" - Skipped");
+            }
+        });
         testRunner.setOnTestFinished(new Action1<Test>()
         {
             @Override
@@ -196,6 +204,12 @@ public class ConsoleTestRunner extends Console implements TestRunner
     }
 
     @Override
+    public SkipTest skip()
+    {
+        return testRunner.skip();
+    }
+
+    @Override
     public void testGroup(String testGroupName, Action0 testGroupAction)
     {
         testRunner.testGroup(testGroupName, testGroupAction);
@@ -208,9 +222,27 @@ public class ConsoleTestRunner extends Console implements TestRunner
     }
 
     @Override
+    public void testGroup(String testGroupName, SkipTest skipTest, Action0 testGroupAction)
+    {
+        testRunner.testGroup(testGroupName, skipTest, testGroupAction);
+    }
+
+    @Override
+    public void testGroup(Class<?> testClass, SkipTest skipTest, Action0 testGroupAction)
+    {
+        testRunner.testGroup(testClass, skipTest, testGroupAction);
+    }
+
+    @Override
     public void test(String testName, Action1<Test> testAction)
     {
         testRunner.test(testName, testAction);
+    }
+
+    @Override
+    public void test(String testName, SkipTest skipTest, Action1<Test> testAction)
+    {
+        testRunner.test(testName, skipTest, testAction);
     }
 
     @Override
@@ -249,6 +281,22 @@ public class ConsoleTestRunner extends Console implements TestRunner
      */
     public void writeSummary()
     {
+        final Iterable<Test> skippedTests = testRunner.getSkippedTests();
+        if (skippedTests.any())
+        {
+            writeLine("Skipped Tests:");
+            increaseIndent();
+            int testSkippedNumber = 1;
+            for (final Test skippedTest : skippedTests)
+            {
+                writeLine(testSkippedNumber + ") " + skippedTest.getFullName());
+                ++testSkippedNumber;
+            }
+            decreaseIndent();
+
+            writeLine();
+        }
+
         final Iterable<TestAssertionFailure> testFailures = testRunner.getTestFailures();
         if (testFailures.any())
         {
@@ -282,11 +330,12 @@ public class ConsoleTestRunner extends Console implements TestRunner
         writeLine("Tests Run:      " + testRunner.getFinishedTestCount());
         writeLine("Tests Passed:   " + testRunner.getPassedTestCount());
         writeLine("Tests Failed:   " + testRunner.getFailedTestCount());
+        writeLine("Tests Skipped:  " + testRunner.getSkippedTestCount());
     }
 
     public static void main(String[] args)
     {
-        int testsFailed = 0;
+        int testsFailed;
 
         try (final ConsoleTestRunner console = new ConsoleTestRunner(args))
         {

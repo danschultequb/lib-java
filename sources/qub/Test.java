@@ -7,11 +7,13 @@ public class Test
 {
     private final String name;
     private final TestGroup parentTestGroup;
+    private final boolean shouldSkip;
 
-    public Test(String name, TestGroup parentTestGroup)
+    public Test(String name, TestGroup parentTestGroup, boolean shouldSkip)
     {
         this.name = name;
         this.parentTestGroup = parentTestGroup;
+        this.shouldSkip = shouldSkip || (parentTestGroup != null && parentTestGroup.getShouldSkip());
     }
 
     public String getName()
@@ -35,6 +37,11 @@ public class Test
             testPattern.isMatch(getName()) ||
             testPattern.isMatch(getFullName()) ||
             (parentTestGroup != null && parentTestGroup.matches(testPattern));
+    }
+
+    public boolean getShouldSkip()
+    {
+        return shouldSkip;
     }
 
     /**

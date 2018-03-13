@@ -4,7 +4,7 @@ package qub;
  * A basic Array data structure that holds a fixed number of elements.
  * @param <T> The type of element contained by this Array.
  */
-public class Array<T> extends IndexableBase<T>
+public class Array<T> extends IndexableBase<T> implements MutableIndexable<T>
 {
     private final Object[] data;
 
@@ -98,6 +98,21 @@ public class Array<T> extends IndexableBase<T>
     {
         final int length = values == null ? 0 : values.length;
         final Array<Character> result = new Array<>(length);
+        for (int i = 0; i < length; ++i)
+        {
+            result.set(i, values[i]);
+        }
+        return result;
+    }
+
+    /**
+     * Create an Array from the provided values.
+     * @param values The values to initialize the array with.
+     */
+    public static Array<Integer> fromValues(int[] values)
+    {
+        final int length = values == null ? 0 : values.length;
+        final Array<Integer> result = new Array<>(length);
         for (int i = 0; i < length; ++i)
         {
             result.set(i, values[i]);

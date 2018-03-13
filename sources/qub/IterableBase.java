@@ -390,7 +390,7 @@ public abstract class IterableBase<T> implements Iterable<T>
                 {
                     addedAValue = true;
                 }
-                builder.append(value.toString());
+                builder.append(value == null ? "null" : value.toString());
             }
 
             builder.append(']');

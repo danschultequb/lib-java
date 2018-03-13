@@ -1,6 +1,6 @@
 package qub;
 
-public interface List<T> extends Indexable<T>
+public interface List<T> extends MutableIndexable<T>
 {
     /**
      * Add the provided value at the end of this List.
@@ -25,13 +25,6 @@ public interface List<T> extends Indexable<T>
      * @param values The values to add.
      */
     void addAll(Iterable<T> values);
-
-    /**
-     * Set the value at the provided index.
-     * @param index The index to set.
-     * @param value The value to set at the provided index.
-     */
-    void set(int index, T value);
 
     /**
      * Remove the first value in this List that is equal to the provided value.

@@ -2,15 +2,20 @@ package qub;
 
 public class TestRunnerBase implements TestRunner
 {
+    private static final SkipTest skipTest = new SkipTest();
+
     private int passedTestCount;
     private int failedTestCount;
+    private int skippedTestCount;
     private final List<TestAssertionFailure> testFailures = new SingleLinkList<>();
+    private final List<Test> skippedTests = new SingleLinkList<>();
 
     private Action1<TestGroup> onTestGroupStarted;
     private Action1<TestGroup> onTestGroupFinished;
     private Action1<Test> onTestStarted;
     private Action1<Test> onTestPassed;
     private Action2<Test,TestAssertionFailure> onTestFailed;
+    private Action1<Test> onTestSkipped;
     private Action1<Test> onTestFinished;
     
     private Action0 beforeTestAction;
@@ -27,25 +32,43 @@ public class TestRunnerBase implements TestRunner
     }
 
     @Override
+    public SkipTest skip()
+    {
+        return skipTest;
+    }
+
+    @Override
     public void testGroup(Class<?> testClass, Action0 testGroupAction)
     {
-        testGroup(testClass.getSimpleName(), testGroupAction);
+        testGroup(testClass.getSimpleName(), null, testGroupAction);
     }
 
     @Override
     public void testGroup(String testGroupName, Action0 testGroupAction)
+    {
+        testGroup(testGroupName, null, testGroupAction);
+    }
+
+    @Override
+    public void testGroup(Class<?> testClass, SkipTest skipTest, Action0 testGroupAction)
+    {
+        testGroup(testClass.getSimpleName(), skipTest, testGroupAction);
+    }
+
+    @Override
+    public void testGroup(String testGroupName, SkipTest skipTest, Action0 testGroupAction)
     {
         if (testGroupAction != null)
         {
             final Action0 beforeTestActionBackup = beforeTestAction;
             final Action0 afterTestActionBackup = afterTestAction;
 
-            currentTestGroup = new TestGroup(testGroupName, currentTestGroup);
+            currentTestGroup = new TestGroup(testGroupName, currentTestGroup, skipTest != null);
             if (onTestGroupStarted != null)
             {
                 onTestGroupStarted.run(currentTestGroup);
             }
-            
+
             testGroupAction.run();
 
             if (onTestGroupFinished != null)
@@ -62,9 +85,15 @@ public class TestRunnerBase implements TestRunner
     @Override
     public void test(String testName, Action1<Test> testAction)
     {
+        test(testName, null, testAction);
+    }
+
+    @Override
+    public void test(String testName, SkipTest skipTest, Action1<Test> testAction)
+    {
         if (testAction != null)
         {
-            final Test test = new Test(testName, currentTestGroup);
+            final Test test = new Test(testName, currentTestGroup, skipTest != null);
             if (test.matches(testPattern))
             {
                 if (onTestStarted != null)
@@ -74,22 +103,35 @@ public class TestRunnerBase implements TestRunner
 
                 try
                 {
-                    if (beforeTestAction != null)
+                    if (test.getShouldSkip())
                     {
-                        beforeTestAction.run();
+                        skippedTests.add(test);
+                        ++skippedTestCount;
+
+                        if (onTestSkipped != null)
+                        {
+                            onTestSkipped.run(test);
+                        }
                     }
-
-                    testAction.run(test);
-
-                    if (afterTestAction != null)
+                    else
                     {
-                        afterTestAction.run();
-                    }
+                        if (beforeTestAction != null)
+                        {
+                            beforeTestAction.run();
+                        }
 
-                    ++passedTestCount;
-                    if (onTestPassed != null)
-                    {
-                        onTestPassed.run(test);
+                        testAction.run(test);
+
+                        if (afterTestAction != null)
+                        {
+                            afterTestAction.run();
+                        }
+
+                        ++passedTestCount;
+                        if (onTestPassed != null)
+                        {
+                            onTestPassed.run(test);
+                        }
                     }
                 }
                 catch (Throwable e)
@@ -219,6 +261,15 @@ public class TestRunnerBase implements TestRunner
     }
 
     /**
+     * Set the Action that will be run when a Test is skipped.
+     * @param testSkippedAction The Action that will be run when a Test is skipped.
+     */
+    public void setOnTestSkipped(Action1<Test> testSkippedAction)
+    {
+        onTestSkipped = testSkippedAction;
+    }
+
+    /**
      * Set the Action that will be run when a Test finishes.
      * @param testFinishedAction The Action that will be run when a Test finishes.
      */
@@ -233,7 +284,7 @@ public class TestRunnerBase implements TestRunner
      */
     public int getFinishedTestCount()
     {
-        return getPassedTestCount() + getFailedTestCount();
+        return getPassedTestCount() + getFailedTestCount() + getSkippedTestCount();
     }
 
     /**
@@ -261,5 +312,19 @@ public class TestRunnerBase implements TestRunner
     public Iterable<TestAssertionFailure> getTestFailures()
     {
         return testFailures;
+    }
+
+    /**
+     * Get the number of tests that were skipped.
+     * @return The number of tests that were skipped.
+     */
+    public int getSkippedTestCount()
+    {
+        return skippedTestCount;
+    }
+
+    public Iterable<Test> getSkippedTests()
+    {
+        return skippedTests;
     }
 }
