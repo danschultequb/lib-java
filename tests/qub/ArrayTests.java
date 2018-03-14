@@ -428,6 +428,15 @@ public class ArrayTests
                 cloneTest.run(null, 1, -2, null);
                 cloneTest.run(null, 1, 0, null);
                 cloneTest.run(null, 1, 2, null);
+                cloneTest.run(new byte[0], -1, -2, null);
+                cloneTest.run(new byte[0], -1, 0, null);
+                cloneTest.run(new byte[0], -1, 2, null);
+                cloneTest.run(new byte[0], 0, -2, null);
+                cloneTest.run(new byte[0], 0, 0, new byte[0]);
+                cloneTest.run(new byte[0], 0, 2, new byte[0]);
+                cloneTest.run(new byte[0], 1, -2, null);
+                cloneTest.run(new byte[0], 1, 0, null);
+                cloneTest.run(new byte[0], 1, 2, null);
                 cloneTest.run(new byte[] { 0, 1, 2 }, 0, 3, new byte[] { 0, 1, 2 });
                 cloneTest.run(new byte[] { 0, 1, 2 }, 1, 1, new byte[] { 1 });
             });

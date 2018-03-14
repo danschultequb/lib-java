@@ -340,30 +340,6 @@ public class Array<T> extends IndexableBase<T> implements MutableIndexable<T>
      * @param strings The String Iterator to convert to a String array.
      * @return The String array.
      */
-    public static String[] toStringArray(String... strings)
-    {
-        String[] result;
-        if (strings == null)
-        {
-            result = null;
-        }
-        else if (strings.length == 0)
-        {
-            result = strings;
-        }
-        else
-        {
-            result = new String[strings.length];
-            System.arraycopy(strings, 0, result, 0, strings.length);
-        }
-        return result;
-    }
-
-    /**
-     * Convert the provided String Iterator into a String array.
-     * @param strings The String Iterator to convert to a String array.
-     * @return The String array.
-     */
     public static String[] toStringArray(Iterator<String> strings)
     {
         String[] result;

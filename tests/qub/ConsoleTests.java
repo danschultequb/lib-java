@@ -35,7 +35,7 @@ public class ConsoleTests
                 
                 runner.test("with non-empty String[]", (Test test) ->
                 {
-                    final String[] commandLineArgumentStrings = Array.toStringArray("a", "b", "c");
+                    final String[] commandLineArgumentStrings = new String[] { "a", "b", "c" };
                     final Console console = new Console(commandLineArgumentStrings);
                     test.assertEqual(Array.fromValues(new String[] { "a", "b", "c" }), console.getCommandLineArgumentStrings());
                     test.assertNotNull(console.getCommandLine());

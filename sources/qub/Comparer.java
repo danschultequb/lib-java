@@ -98,7 +98,7 @@ public final class Comparer
             result = true;
             for (int i = 0; i < arg1.length; ++i)
             {
-                if (!Comparer.equal(arg1[i], arg2[i]))
+                if (arg1[i] != arg2[i])
                 {
                     result = false;
                     break;
@@ -124,7 +124,7 @@ public final class Comparer
             result = true;
             for (int i = 0; i < arg1.length; ++i)
             {
-                if (!Comparer.equal(arg1[i], arg2[i]))
+                if (arg1[i] != arg2[i])
                 {
                     result = false;
                     break;
@@ -339,5 +339,18 @@ public final class Comparer
     public static <T> boolean same(T arg1, T arg2)
     {
         return arg1 == arg2;
+    }
+
+    /**
+     * Return whether or not the provided value is greater than or equal to the provided lowerBound
+     * and is less than or equal to the provided upper bound.
+     * @param lowerBound The lower bound.
+     * @param value The value to compare.
+     * @param upperBound The upper bound.
+     * @return Whether or not the value is between the provided lower and upper bounds.
+     */
+    public static boolean between(int lowerBound, int value, int upperBound)
+    {
+        return lowerBound <= value && value <= upperBound;
     }
 }
