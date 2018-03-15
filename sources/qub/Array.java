@@ -94,6 +94,21 @@ public class Array<T> extends IndexableBase<T> implements MutableIndexable<T>
      * Create an Array from the provided values.
      * @param values The values to initialize the array with.
      */
+    public static Array<Byte> fromValues(byte[] values)
+    {
+        final int length = values == null ? 0 : values.length;
+        final Array<Byte> result = new Array<>(length);
+        for (int i = 0; i < length; ++i)
+        {
+            result.set(i, values[i]);
+        }
+        return result;
+    }
+
+    /**
+     * Create an Array from the provided values.
+     * @param values The values to initialize the array with.
+     */
     public static Array<Character> fromValues(char[] values)
     {
         final int length = values == null ? 0 : values.length;
@@ -569,6 +584,43 @@ public class Array<T> extends IndexableBase<T> implements MutableIndexable<T>
 
             boolean addedFirstElement = false;
             for (final byte element : byteArray)
+            {
+                if (!addedFirstElement)
+                {
+                    addedFirstElement = true;
+                }
+                else
+                {
+                    builder.append(',');
+                }
+                builder.append(element);
+            }
+
+            builder.append(']');
+        }
+
+        return builder.toString();
+    }
+
+    /**
+     * Get the String representation of the elements within the provided char array.
+     * @param array The char array to convert to a String.
+     * @return The String representation of the elements within the provided char array.
+     */
+    public static String toString(char[] array)
+    {
+        final StringBuilder builder = new StringBuilder();
+
+        if (array == null)
+        {
+            builder.append("null");
+        }
+        else
+        {
+            builder.append('[');
+
+            boolean addedFirstElement = false;
+            for (final char element : array)
             {
                 if (!addedFirstElement)
                 {

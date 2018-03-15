@@ -63,6 +63,20 @@ public class IPv4AddressTests
                 equalsTest.run(IPv4Address.parse("1.2.3.4"), IPv4Address.parse("1.2.3.4"), true);
             });
 
+            runner.testGroup("toBytes()", () ->
+            {
+                final Action2<IPv4Address,byte[]> toBytesTest = (IPv4Address address, byte[] expected) ->
+                {
+                    runner.test("with " + address, (Test test) ->
+                    {
+                        test.assertEqual(Array.fromValues(expected), Array.fromValues(address.toBytes()));
+                    });
+                };
+
+                toBytesTest.run(IPv4Address.parse("0.0.0.0"), new byte[] { 0, 0, 0, 0 });
+                toBytesTest.run(IPv4Address.parse("1.2.3.4"), new byte[] { 1, 2, 3, 4 });
+            });
+
             runner.testGroup("parse(String)", () ->
             {
                 final Action2<String,IPv4Address> parseTest = (String text, IPv4Address expected) ->

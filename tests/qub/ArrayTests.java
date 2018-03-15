@@ -16,6 +16,36 @@ public class ArrayTests
                 return result; 
             });
 
+            runner.testGroup("fromValues(byte[])", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final Array<Byte> array = Array.fromValues((byte[])null);
+                    test.assertEqual(0, array.getCount());
+                });
+
+                runner.test("with no values", (Test test) ->
+                {
+                    final Array<Byte> array = Array.fromValues(new byte[0]);
+                    test.assertEqual(0, array.getCount());
+                });
+
+                runner.test("with one value", (Test test) ->
+                {
+                    final Array<Byte> array = Array.fromValues(new byte[] { 12 });
+                    test.assertEqual(1, array.getCount());
+                    test.assertEqual(12, array.get(0).intValue());
+                });
+
+                runner.test("with two values", (Test test) ->
+                {
+                    final Array<Byte> array = Array.fromValues(new byte[] { 13, 14 });
+                    test.assertEqual(2, array.getCount());
+                    test.assertEqual(13, array.get(0).intValue());
+                    test.assertEqual(14, array.get(1).intValue());
+                });
+            });
+
             runner.testGroup("fromValues(char[])", () ->
             {
                 runner.test("with null", (Test test) ->
@@ -486,160 +516,594 @@ public class ArrayTests
                 cloneTest.run(null, 1, -2, null);
                 cloneTest.run(null, 1, 0, null);
                 cloneTest.run(null, 1, 2, null);
+                cloneTest.run(new char[0], -1, -2, null);
+                cloneTest.run(new char[0], -1, 0, null);
+                cloneTest.run(new char[0], -1, 2, null);
+                cloneTest.run(new char[0], 0, -2, null);
+                cloneTest.run(new char[0], 0, 0, new char[0]);
+                cloneTest.run(new char[0], 0, 2, new char[0]);
+                cloneTest.run(new char[0], 1, -2, null);
+                cloneTest.run(new char[0], 1, 0, null);
+                cloneTest.run(new char[0], 1, 2, null);
                 cloneTest.run(new char[] { 'a', 'b', 'c' }, 0, 3, new char[] { 'a', 'b', 'c' });
                 cloneTest.run(new char[] { 'x', 'y', 'z' }, 1, 1, new char[] { 'y' });
             });
 
             runner.testGroup("copy(byte[],int,byte[],int,int)", () ->
             {
-                final Action6<String,byte[],byte[],Integer,Integer,byte[]> copyTest = (String testName, byte[] copyFrom, byte[] copyTo, Integer copyToStartIndex, Integer length, byte[] expectedBytes) ->
+                final Action6<byte[],Integer,byte[],Integer,Integer,byte[]> copyTest = (byte[] copyFrom, Integer copyFromStartIndex, byte[] copyTo, Integer copyToStartIndex, Integer length, byte[] expectedBytes) ->
                 {
-                    runner.test(testName, (Test test) ->
+                    runner.test("from " + Array.toString(copyFrom) + " at index " + copyFromStartIndex + " to " + Array.toString(copyTo) + " at index " + copyToStartIndex + " for length " + length, (Test test) ->
                     {
                         final byte[] copyFromClone = Array.clone(copyFrom);
 
-                        Array.copy(copyFrom, 0, copyTo, copyToStartIndex, length);
+                        Array.copy(copyFrom, copyFromStartIndex, copyTo, copyToStartIndex, length);
 
                         test.assertEqual(copyFromClone, copyFrom);
                         test.assertEqual(expectedBytes, copyTo);
                     });
                 };
 
-                copyTest.run("with null copyFrom",
-                    null,
-                    new byte[] { 0, 11, 22, 33, 44 },
-                    1,
-                    2,
-                    new byte[] { 0, 11, 22, 33, 44 });
-                copyTest.run("with null copyTo",
-                    new byte[] { 0, 1, 2, 3, 4 },
-                    null,
-                    1,
-                    2,
-                    null);
-                copyTest.run("with negative copyToStartIndex and negative length",
-                    new byte[] { 0, 1, 2, 3, 4 },
-                    new byte[] { 5, 6, 7, 8, 9 },
-                    -1,
-                    -2,
-                    new byte[] { 5, 6, 7, 8, 9 });
-                copyTest.run("with negative copyToStartIndex and zero length",
-                    new byte[] { 0, 1, 2, 3, 4 },
-                    new byte[] { 5, 6, 7, 8, 9 },
-                    -1,
-                    0,
-                    new byte[] { 5, 6, 7, 8, 9 });
-                copyTest.run("with negative copyToStartIndex and positive length",
-                    new byte[] { 0, 1, 2, 3, 4 },
-                    new byte[] { 5, 6, 7, 8, 9 },
-                    -1,
-                    2,
-                    new byte[] { 5, 6, 7, 8, 9 });
-                copyTest.run("with zero copyToStartIndex and negative length",
-                    new byte[] { 0, 1, 2, 3, 4 },
-                    new byte[] { 5, 6, 7, 8, 9 },
-                    0,
-                    -2,
-                    new byte[] { 5, 6, 7, 8, 9 });
-                copyTest.run("with zero copyToStartIndex and zero length",
-                    new byte[] { 0, 1, 2, 3, 4 },
-                    new byte[] { 5, 6, 7, 8, 9 },
-                    0,
-                    0,
-                    new byte[] { 5, 6, 7, 8, 9 });
-                copyTest.run("with zero copyToStartIndex and positive length",
-                    new byte[] { 0, 1, 2, 3, 4 },
-                    new byte[] { 5, 6, 7, 8, 9 },
-                    0,
-                    3,
-                    new byte[] { 0, 1, 2, 8, 9 });
-                copyTest.run("with zero copyToStartIndex and positive greater than copyFrom and less than copyTo length",
-                    new byte[] { 0, 1, 2 },
-                    new byte[] { 5, 6, 7, 8, 9 },
-                    0,
-                    4,
-                    new byte[] { 0, 1, 2, 8, 9 });
-                copyTest.run("with zero copyToStartIndex and positive less than copyFrom and greater than copyTo length",
-                    new byte[] { 0, 1, 2, 3, 4 },
-                    new byte[] { 5, 6, 7 },
-                    0,
-                    4,
-                    new byte[] { 0, 1, 2 });
-                copyTest.run("with zero copyToStartIndex and positive greater than copyFrom and copyTo length",
-                    new byte[] { 0, 1, 2, 3, 4 },
-                    new byte[] { 5, 6, 7, 8, 9 },
-                    0,
-                    30,
-                    new byte[] { 0, 1, 2, 3, 4 });
-                copyTest.run("with positive copyToStartIndex and negative length",
-                    new byte[] { 0, 1, 2, 3, 4 },
-                    new byte[] { 5, 6, 7, 8, 9 },
-                    1,
-                    -2,
-                    new byte[] {5, 6, 7, 8, 9 });
-                copyTest.run("with positive copyToStartIndex and zero length",
-                    new byte[] { 0, 1, 2, 3, 4 },
-                    new byte[] { 5, 6, 7, 8, 9 },
-                    1,
-                    0,
-                    new byte[] { 5, 6, 7, 8, 9 });
-                copyTest.run("with positive copyToStartIndex and positive less than copyFrom and copyTo length",
-                    new byte[] { 0, 1, 2, 3, 4 },
-                    new byte[] { 5, 6, 7, 8, 9 },
-                    1,
-                    3,
-                    new byte[] { 5, 0, 1, 2, 9 });
-                copyTest.run("with positive copyToStartIndex and positive greater than copyFrom and less than copyTo length",
-                    new byte[] { 0, 1, 2 },
-                    new byte[] { 5, 6, 7, 8, 9 },
-                    1,
-                    4,
-                    new byte[] { 5, 0, 1, 2, 9 });
-                copyTest.run("with positive copyToStartIndex and positive less than copyFrom and greater than copyTo length",
-                    new byte[] { 0, 1, 2, 3 ,4 },
-                    new byte[] { 5, 6, 7 },
-                    1,
-                    4,
-                    new byte[] { 5, 0, 1 });
-                copyTest.run("with positive copyToStartIndex and positive greater than copyFrom and copyTo length",
-                    new byte[] { 0, 1, 2, 3, 4 },
-                    new byte[] { 5, 6, 7, 8, 9 },
-                    1,
-                    30,
-                    new byte[] { 5, 0, 1, 2, 3 });
+                copyTest.run(null, -1, null, -1, -1, null);
+                copyTest.run(null, -1, null, -1, 0, null);
+                copyTest.run(null, -1, null, -1, 1, null);
+                copyTest.run(null, -1, null, 0, -1, null);
+                copyTest.run(null, -1, null, 0, 0, null);
+                copyTest.run(null, -1, null, 0, 1, null);
+                copyTest.run(null, -1, null, 1, -1, null);
+                copyTest.run(null, -1, null, 1, 0, null);
+                copyTest.run(null, -1, null, 1, 1, null);
+                copyTest.run(null, -1, new byte[0], -1, -1, new byte[0]);
+                copyTest.run(null, -1, new byte[0], -1, 0, new byte[0]);
+                copyTest.run(null, -1, new byte[0], -1, 1, new byte[0]);
+                copyTest.run(null, -1, new byte[0], 0, -1, new byte[0]);
+                copyTest.run(null, -1, new byte[0], 0, 0, new byte[0]);
+                copyTest.run(null, -1, new byte[0], 0, 1, new byte[0]);
+                copyTest.run(null, -1, new byte[0], 1, -1, new byte[0]);
+                copyTest.run(null, -1, new byte[0], 1, 0, new byte[0]);
+                copyTest.run(null, -1, new byte[0], 1, 1, new byte[0]);
+                copyTest.run(null, -1, new byte[] { 2 }, -1, -1, new byte[] { 2 });
+                copyTest.run(null, -1, new byte[] { 2 }, -1, 0, new byte[] { 2 });
+                copyTest.run(null, -1, new byte[] { 2 }, -1, 1, new byte[] { 2 });
+                copyTest.run(null, -1, new byte[] { 2 }, 0, -1, new byte[] { 2 });
+                copyTest.run(null, -1, new byte[] { 2 }, 0, 0, new byte[] { 2 });
+                copyTest.run(null, -1, new byte[] { 2 }, 0, 1, new byte[] { 2 });
+                copyTest.run(null, -1, new byte[] { 2 }, 1, -1, new byte[] { 2 });
+                copyTest.run(null, -1, new byte[] { 2 }, 1, 0, new byte[] { 2 });
+                copyTest.run(null, -1, new byte[] { 2 }, 1, 1, new byte[] { 2 });
+                copyTest.run(null, 0, null, -1, -1, null);
+                copyTest.run(null, 0, null, -1, 0, null);
+                copyTest.run(null, 0, null, -1, 1, null);
+                copyTest.run(null, 0, null, 0, -1, null);
+                copyTest.run(null, 0, null, 0, 0, null);
+                copyTest.run(null, 0, null, 0, 1, null);
+                copyTest.run(null, 0, null, 1, -1, null);
+                copyTest.run(null, 0, null, 1, 0, null);
+                copyTest.run(null, 0, null, 1, 1, null);
+                copyTest.run(null, 0, new byte[0], -1, -1, new byte[0]);
+                copyTest.run(null, 0, new byte[0], -1, 0, new byte[0]);
+                copyTest.run(null, 0, new byte[0], -1, 1, new byte[0]);
+                copyTest.run(null, 0, new byte[0], 0, -1, new byte[0]);
+                copyTest.run(null, 0, new byte[0], 0, 0, new byte[0]);
+                copyTest.run(null, 0, new byte[0], 0, 1, new byte[0]);
+                copyTest.run(null, 0, new byte[0], 1, -1, new byte[0]);
+                copyTest.run(null, 0, new byte[0], 1, 0, new byte[0]);
+                copyTest.run(null, 0, new byte[0], 1, 1, new byte[0]);
+                copyTest.run(null, 0, new byte[] { 2 }, -1, -1, new byte[] { 2 });
+                copyTest.run(null, 0, new byte[] { 2 }, -1, 0, new byte[] { 2 });
+                copyTest.run(null, 0, new byte[] { 2 }, -1, 1, new byte[] { 2 });
+                copyTest.run(null, 0, new byte[] { 2 }, 0, -1, new byte[] { 2 });
+                copyTest.run(null, 0, new byte[] { 2 }, 0, 0, new byte[] { 2 });
+                copyTest.run(null, 0, new byte[] { 2 }, 0, 1, new byte[] { 2 });
+                copyTest.run(null, 0, new byte[] { 2 }, 1, -1, new byte[] { 2 });
+                copyTest.run(null, 0, new byte[] { 2 }, 1, 0, new byte[] { 2 });
+                copyTest.run(null, 0, new byte[] { 2 }, 1, 1, new byte[] { 2 });
+                copyTest.run(null, 1, null, -1, -1, null);
+                copyTest.run(null, 1, null, -1, 0, null);
+                copyTest.run(null, 1, null, -1, 1, null);
+                copyTest.run(null, 1, null, 0, -1, null);
+                copyTest.run(null, 1, null, 0, 0, null);
+                copyTest.run(null, 1, null, 0, 1, null);
+                copyTest.run(null, 1, null, 1, -1, null);
+                copyTest.run(null, 1, null, 1, 0, null);
+                copyTest.run(null, 1, null, 1, 1, null);
+                copyTest.run(null, 1, new byte[0], -1, -1, new byte[0]);
+                copyTest.run(null, 1, new byte[0], -1, 0, new byte[0]);
+                copyTest.run(null, 1, new byte[0], -1, 1, new byte[0]);
+                copyTest.run(null, 1, new byte[0], 0, -1, new byte[0]);
+                copyTest.run(null, 1, new byte[0], 0, 0, new byte[0]);
+                copyTest.run(null, 1, new byte[0], 0, 1, new byte[0]);
+                copyTest.run(null, 1, new byte[0], 1, -1, new byte[0]);
+                copyTest.run(null, 1, new byte[0], 1, 0, new byte[0]);
+                copyTest.run(null, 1, new byte[0], 1, 1, new byte[0]);
+                copyTest.run(null, 1, new byte[] { 2 }, -1, -1, new byte[] { 2 });
+                copyTest.run(null, 1, new byte[] { 2 }, -1, 0, new byte[] { 2 });
+                copyTest.run(null, 1, new byte[] { 2 }, -1, 1, new byte[] { 2 });
+                copyTest.run(null, 1, new byte[] { 2 }, 0, -1, new byte[] { 2 });
+                copyTest.run(null, 1, new byte[] { 2 }, 0, 0, new byte[] { 2 });
+                copyTest.run(null, 1, new byte[] { 2 }, 0, 1, new byte[] { 2 });
+                copyTest.run(null, 1, new byte[] { 2 }, 1, -1, new byte[] { 2 });
+                copyTest.run(null, 1, new byte[] { 2 }, 1, 0, new byte[] { 2 });
+                copyTest.run(null, 1, new byte[] { 2 }, 1, 1, new byte[] { 2 });
+                copyTest.run(new byte[0], -1, null, -1, -1, null);
+                copyTest.run(new byte[0], -1, null, -1, 0, null);
+                copyTest.run(new byte[0], -1, null, -1, 1, null);
+                copyTest.run(new byte[0], -1, null, 0, -1, null);
+                copyTest.run(new byte[0], -1, null, 0, 0, null);
+                copyTest.run(new byte[0], -1, null, 0, 1, null);
+                copyTest.run(new byte[0], -1, null, 1, -1, null);
+                copyTest.run(new byte[0], -1, null, 1, 0, null);
+                copyTest.run(new byte[0], -1, null, 1, 1, null);
+                copyTest.run(new byte[0], -1, new byte[0], -1, -1, new byte[0]);
+                copyTest.run(new byte[0], -1, new byte[0], -1, 0, new byte[0]);
+                copyTest.run(new byte[0], -1, new byte[0], -1, 1, new byte[0]);
+                copyTest.run(new byte[0], -1, new byte[0], 0, -1, new byte[0]);
+                copyTest.run(new byte[0], -1, new byte[0], 0, 0, new byte[0]);
+                copyTest.run(new byte[0], -1, new byte[0], 0, 1, new byte[0]);
+                copyTest.run(new byte[0], -1, new byte[0], 1, -1, new byte[0]);
+                copyTest.run(new byte[0], -1, new byte[0], 1, 0, new byte[0]);
+                copyTest.run(new byte[0], -1, new byte[0], 1, 1, new byte[0]);
+                copyTest.run(new byte[0], -1, new byte[] { 2 }, -1, -1, new byte[] { 2 });
+                copyTest.run(new byte[0], -1, new byte[] { 2 }, -1, 0, new byte[] { 2 });
+                copyTest.run(new byte[0], -1, new byte[] { 2 }, -1, 1, new byte[] { 2 });
+                copyTest.run(new byte[0], -1, new byte[] { 2 }, 0, -1, new byte[] { 2 });
+                copyTest.run(new byte[0], -1, new byte[] { 2 }, 0, 0, new byte[] { 2 });
+                copyTest.run(new byte[0], -1, new byte[] { 2 }, 0, 1, new byte[] { 2 });
+                copyTest.run(new byte[0], -1, new byte[] { 2 }, 1, -1, new byte[] { 2 });
+                copyTest.run(new byte[0], -1, new byte[] { 2 }, 1, 0, new byte[] { 2 });
+                copyTest.run(new byte[0], -1, new byte[] { 2 }, 1, 1, new byte[] { 2 });
+                copyTest.run(new byte[0], 0, null, -1, -1, null);
+                copyTest.run(new byte[0], 0, null, -1, 0, null);
+                copyTest.run(new byte[0], 0, null, -1, 1, null);
+                copyTest.run(new byte[0], 0, null, 0, -1, null);
+                copyTest.run(new byte[0], 0, null, 0, 0, null);
+                copyTest.run(new byte[0], 0, null, 0, 1, null);
+                copyTest.run(new byte[0], 0, null, 1, -1, null);
+                copyTest.run(new byte[0], 0, null, 1, 0, null);
+                copyTest.run(new byte[0], 0, null, 1, 1, null);
+                copyTest.run(new byte[0], 0, new byte[0], -1, -1, new byte[0]);
+                copyTest.run(new byte[0], 0, new byte[0], -1, 0, new byte[0]);
+                copyTest.run(new byte[0], 0, new byte[0], -1, 1, new byte[0]);
+                copyTest.run(new byte[0], 0, new byte[0], 0, -1, new byte[0]);
+                copyTest.run(new byte[0], 0, new byte[0], 0, 0, new byte[0]);
+                copyTest.run(new byte[0], 0, new byte[0], 0, 1, new byte[0]);
+                copyTest.run(new byte[0], 0, new byte[0], 1, -1, new byte[0]);
+                copyTest.run(new byte[0], 0, new byte[0], 1, 0, new byte[0]);
+                copyTest.run(new byte[0], 0, new byte[0], 1, 1, new byte[0]);
+                copyTest.run(new byte[0], 0, new byte[] { 2 }, -1, -1, new byte[] { 2 });
+                copyTest.run(new byte[0], 0, new byte[] { 2 }, -1, 0, new byte[] { 2 });
+                copyTest.run(new byte[0], 0, new byte[] { 2 }, -1, 1, new byte[] { 2 });
+                copyTest.run(new byte[0], 0, new byte[] { 2 }, 0, -1, new byte[] { 2 });
+                copyTest.run(new byte[0], 0, new byte[] { 2 }, 0, 0, new byte[] { 2 });
+                copyTest.run(new byte[0], 0, new byte[] { 2 }, 0, 1, new byte[] { 2 });
+                copyTest.run(new byte[0], 0, new byte[] { 2 }, 1, -1, new byte[] { 2 });
+                copyTest.run(new byte[0], 0, new byte[] { 2 }, 1, 0, new byte[] { 2 });
+                copyTest.run(new byte[0], 0, new byte[] { 2 }, 1, 1, new byte[] { 2 });
+                copyTest.run(new byte[0], 1, null, -1, -1, null);
+                copyTest.run(new byte[0], 1, null, -1, 0, null);
+                copyTest.run(new byte[0], 1, null, -1, 1, null);
+                copyTest.run(new byte[0], 1, null, 0, -1, null);
+                copyTest.run(new byte[0], 1, null, 0, 0, null);
+                copyTest.run(new byte[0], 1, null, 0, 1, null);
+                copyTest.run(new byte[0], 1, null, 1, -1, null);
+                copyTest.run(new byte[0], 1, null, 1, 0, null);
+                copyTest.run(new byte[0], 1, null, 1, 1, null);
+                copyTest.run(new byte[0], 1, new byte[0], -1, -1, new byte[0]);
+                copyTest.run(new byte[0], 1, new byte[0], -1, 0, new byte[0]);
+                copyTest.run(new byte[0], 1, new byte[0], -1, 1, new byte[0]);
+                copyTest.run(new byte[0], 1, new byte[0], 0, -1, new byte[0]);
+                copyTest.run(new byte[0], 1, new byte[0], 0, 0, new byte[0]);
+                copyTest.run(new byte[0], 1, new byte[0], 0, 1, new byte[0]);
+                copyTest.run(new byte[0], 1, new byte[0], 1, -1, new byte[0]);
+                copyTest.run(new byte[0], 1, new byte[0], 1, 0, new byte[0]);
+                copyTest.run(new byte[0], 1, new byte[0], 1, 1, new byte[0]);
+                copyTest.run(new byte[0], 1, new byte[] { 2 }, -1, -1, new byte[] { 2 });
+                copyTest.run(new byte[0], 1, new byte[] { 2 }, -1, 0, new byte[] { 2 });
+                copyTest.run(new byte[0], 1, new byte[] { 2 }, -1, 1, new byte[] { 2 });
+                copyTest.run(new byte[0], 1, new byte[] { 2 }, 0, -1, new byte[] { 2 });
+                copyTest.run(new byte[0], 1, new byte[] { 2 }, 0, 0, new byte[] { 2 });
+                copyTest.run(new byte[0], 1, new byte[] { 2 }, 0, 1, new byte[] { 2 });
+                copyTest.run(new byte[0], 1, new byte[] { 2 }, 1, -1, new byte[] { 2 });
+                copyTest.run(new byte[0], 1, new byte[] { 2 }, 1, 0, new byte[] { 2 });
+                copyTest.run(new byte[0], 1, new byte[] { 2 }, 1, 1, new byte[] { 2 });
+                copyTest.run(new byte[] { 1 }, -1, null, -1, -1, null);
+                copyTest.run(new byte[] { 1 }, -1, null, -1, 0, null);
+                copyTest.run(new byte[] { 1 }, -1, null, -1, 1, null);
+                copyTest.run(new byte[] { 1 }, -1, null, 0, -1, null);
+                copyTest.run(new byte[] { 1 }, -1, null, 0, 0, null);
+                copyTest.run(new byte[] { 1 }, -1, null, 0, 1, null);
+                copyTest.run(new byte[] { 1 }, -1, null, 1, -1, null);
+                copyTest.run(new byte[] { 1 }, -1, null, 1, 0, null);
+                copyTest.run(new byte[] { 1 }, -1, null, 1, 1, null);
+                copyTest.run(new byte[] { 1 }, -1, new byte[0], -1, -1, new byte[0]);
+                copyTest.run(new byte[] { 1 }, -1, new byte[0], -1, 0, new byte[0]);
+                copyTest.run(new byte[] { 1 }, -1, new byte[0], -1, 1, new byte[0]);
+                copyTest.run(new byte[] { 1 }, -1, new byte[0], 0, -1, new byte[0]);
+                copyTest.run(new byte[] { 1 }, -1, new byte[0], 0, 0, new byte[0]);
+                copyTest.run(new byte[] { 1 }, -1, new byte[0], 0, 1, new byte[0]);
+                copyTest.run(new byte[] { 1 }, -1, new byte[0], 1, -1, new byte[0]);
+                copyTest.run(new byte[] { 1 }, -1, new byte[0], 1, 0, new byte[0]);
+                copyTest.run(new byte[] { 1 }, -1, new byte[0], 1, 1, new byte[0]);
+                copyTest.run(new byte[] { 1 }, -1, new byte[] { 2 }, -1, -1, new byte[] { 2 });
+                copyTest.run(new byte[] { 1 }, -1, new byte[] { 2 }, -1, 0, new byte[] { 2 });
+                copyTest.run(new byte[] { 1 }, -1, new byte[] { 2 }, -1, 1, new byte[] { 2 });
+                copyTest.run(new byte[] { 1 }, -1, new byte[] { 2 }, 0, -1, new byte[] { 2 });
+                copyTest.run(new byte[] { 1 }, -1, new byte[] { 2 }, 0, 0, new byte[] { 2 });
+                copyTest.run(new byte[] { 1 }, -1, new byte[] { 2 }, 0, 1, new byte[] { 2 });
+                copyTest.run(new byte[] { 1 }, -1, new byte[] { 2 }, 1, -1, new byte[] { 2 });
+                copyTest.run(new byte[] { 1 }, -1, new byte[] { 2 }, 1, 0, new byte[] { 2 });
+                copyTest.run(new byte[] { 1 }, -1, new byte[] { 2 }, 1, 1, new byte[] { 2 });
+                copyTest.run(new byte[] { 1 }, 0, null, -1, -1, null);
+                copyTest.run(new byte[] { 1 }, 0, null, -1, 0, null);
+                copyTest.run(new byte[] { 1 }, 0, null, -1, 1, null);
+                copyTest.run(new byte[] { 1 }, 0, null, 0, -1, null);
+                copyTest.run(new byte[] { 1 }, 0, null, 0, 0, null);
+                copyTest.run(new byte[] { 1 }, 0, null, 0, 1, null);
+                copyTest.run(new byte[] { 1 }, 0, null, 1, -1, null);
+                copyTest.run(new byte[] { 1 }, 0, null, 1, 0, null);
+                copyTest.run(new byte[] { 1 }, 0, null, 1, 1, null);
+                copyTest.run(new byte[] { 1 }, 0, new byte[0], -1, -1, new byte[0]);
+                copyTest.run(new byte[] { 1 }, 0, new byte[0], -1, 0, new byte[0]);
+                copyTest.run(new byte[] { 1 }, 0, new byte[0], -1, 1, new byte[0]);
+                copyTest.run(new byte[] { 1 }, 0, new byte[0], 0, -1, new byte[0]);
+                copyTest.run(new byte[] { 1 }, 0, new byte[0], 0, 0, new byte[0]);
+                copyTest.run(new byte[] { 1 }, 0, new byte[0], 0, 1, new byte[0]);
+                copyTest.run(new byte[] { 1 }, 0, new byte[0], 1, -1, new byte[0]);
+                copyTest.run(new byte[] { 1 }, 0, new byte[0], 1, 0, new byte[0]);
+                copyTest.run(new byte[] { 1 }, 0, new byte[0], 1, 1, new byte[0]);
+                copyTest.run(new byte[] { 1 }, 0, new byte[] { 2 }, -1, -1, new byte[] { 2 });
+                copyTest.run(new byte[] { 1 }, 0, new byte[] { 2 }, -1, 0, new byte[] { 2 });
+                copyTest.run(new byte[] { 1 }, 0, new byte[] { 2 }, -1, 1, new byte[] { 2 });
+                copyTest.run(new byte[] { 1 }, 0, new byte[] { 2 }, 0, -1, new byte[] { 2 });
+                copyTest.run(new byte[] { 1 }, 0, new byte[] { 2 }, 0, 0, new byte[] { 2 });
+                copyTest.run(new byte[] { 1 }, 0, new byte[] { 2 }, 0, 1, new byte[] { 1 });
+                copyTest.run(new byte[] { 1 }, 0, new byte[] { 2 }, 1, -1, new byte[] { 2 });
+                copyTest.run(new byte[] { 1 }, 0, new byte[] { 2 }, 1, 0, new byte[] { 2 });
+                copyTest.run(new byte[] { 1 }, 0, new byte[] { 2 }, 1, 1, new byte[] { 2 });
+                copyTest.run(new byte[] { 1 }, 1, null, -1, -1, null);
+                copyTest.run(new byte[] { 1 }, 1, null, -1, 0, null);
+                copyTest.run(new byte[] { 1 }, 1, null, -1, 1, null);
+                copyTest.run(new byte[] { 1 }, 1, null, 0, -1, null);
+                copyTest.run(new byte[] { 1 }, 1, null, 0, 0, null);
+                copyTest.run(new byte[] { 1 }, 1, null, 0, 1, null);
+                copyTest.run(new byte[] { 1 }, 1, null, 1, -1, null);
+                copyTest.run(new byte[] { 1 }, 1, null, 1, 0, null);
+                copyTest.run(new byte[] { 1 }, 1, null, 1, 1, null);
+                copyTest.run(new byte[] { 1 }, 1, new byte[0], -1, -1, new byte[0]);
+                copyTest.run(new byte[] { 1 }, 1, new byte[0], -1, 0, new byte[0]);
+                copyTest.run(new byte[] { 1 }, 1, new byte[0], -1, 1, new byte[0]);
+                copyTest.run(new byte[] { 1 }, 1, new byte[0], 0, -1, new byte[0]);
+                copyTest.run(new byte[] { 1 }, 1, new byte[0], 0, 0, new byte[0]);
+                copyTest.run(new byte[] { 1 }, 1, new byte[0], 0, 1, new byte[0]);
+                copyTest.run(new byte[] { 1 }, 1, new byte[0], 1, -1, new byte[0]);
+                copyTest.run(new byte[] { 1 }, 1, new byte[0], 1, 0, new byte[0]);
+                copyTest.run(new byte[] { 1 }, 1, new byte[0], 1, 1, new byte[0]);
+                copyTest.run(new byte[] { 1 }, 1, new byte[] { 2 }, -1, -1, new byte[] { 2 });
+                copyTest.run(new byte[] { 1 }, 1, new byte[] { 2 }, -1, 0, new byte[] { 2 });
+                copyTest.run(new byte[] { 1 }, 1, new byte[] { 2 }, -1, 1, new byte[] { 2 });
+                copyTest.run(new byte[] { 1 }, 1, new byte[] { 2 }, 0, -1, new byte[] { 2 });
+                copyTest.run(new byte[] { 1 }, 1, new byte[] { 2 }, 0, 0, new byte[] { 2 });
+                copyTest.run(new byte[] { 1 }, 1, new byte[] { 2 }, 0, 1, new byte[] { 2 });
+                copyTest.run(new byte[] { 1 }, 1, new byte[] { 2 }, 1, -1, new byte[] { 2 });
+                copyTest.run(new byte[] { 1 }, 1, new byte[] { 2 }, 1, 0, new byte[] { 2 });
+                copyTest.run(new byte[] { 1 }, 1, new byte[] { 2 }, 1, 1, new byte[] { 2 });
             });
 
             runner.testGroup("copy(char[],int,char[],int,int)", () ->
             {
-                final Action5<String,char[],char[],Integer,char[]> test = (String testName, char[] copyFrom, char[] copyTo, Integer length, char[] expectedCharacters) ->
+                final Action6<char[],Integer,char[],Integer,Integer,char[]> copyTest = (char[] copyFrom, Integer copyFromStartIndex, char[] copyTo, Integer copyToStartIndex, Integer length, char[] expected) ->
                 {
-                    runner.test(testName, test12 ->
+                    runner.test("from " + Array.toString(copyFrom) + " at index " + copyFromStartIndex + " to " + Array.toString(copyTo) + " at index " + copyToStartIndex + " for length " + length, (Test test) ->
                     {
-                        Array.copy(copyFrom, 0, copyTo, 0, length);
-                        test12.assertEqual(expectedCharacters, copyTo);
+                        final char[] copyFromClone = Array.clone(copyFrom);
+
+                        Array.copy(copyFrom, copyFromStartIndex, copyTo, copyToStartIndex, length);
+
+                        test.assertEqual(copyFromClone, copyFrom);
+                        test.assertEqual(expected, copyTo);
                     });
                 };
 
-                test.run("with null copyFrom and null copyTo",
-                    null,
-                    null,
-                    0,
-                    null);
-                test.run("with empty copyFrom and empty copyTo",
-                    new char[0],
-                    new char[0],
-                    0,
-                    new char[0]);
-                test.run("with non-empty copyFrom, non-empty copyTo, and zero length",
-                    new char[] { 'a', 'b', 'c' },
-                    new char[] { '0', '1', '2' },
-                    0,
-                    new char[] { '0', '1', '2' });
-                test.run("with non-empty copyFrom, non-empty copyTo, and non-zero length",
-                    new char[] { 'a', 'b', 'c' },
-                    new char[] { '0', '1', '2' },
-                    2,
-                    new char[] { 'a', 'b', '2' });
+                copyTest.run(null, -1, null, -1, -1, null);
+                copyTest.run(null, -1, null, -1, 0, null);
+                copyTest.run(null, -1, null, -1, 1, null);
+                copyTest.run(null, -1, null, 0, -1, null);
+                copyTest.run(null, -1, null, 0, 0, null);
+                copyTest.run(null, -1, null, 0, 1, null);
+                copyTest.run(null, -1, null, 1, -1, null);
+                copyTest.run(null, -1, null, 1, 0, null);
+                copyTest.run(null, -1, null, 1, 1, null);
+                copyTest.run(null, -1, new char[0], -1, -1, new char[0]);
+                copyTest.run(null, -1, new char[0], -1, 0, new char[0]);
+                copyTest.run(null, -1, new char[0], -1, 1, new char[0]);
+                copyTest.run(null, -1, new char[0], 0, -1, new char[0]);
+                copyTest.run(null, -1, new char[0], 0, 0, new char[0]);
+                copyTest.run(null, -1, new char[0], 0, 1, new char[0]);
+                copyTest.run(null, -1, new char[0], 1, -1, new char[0]);
+                copyTest.run(null, -1, new char[0], 1, 0, new char[0]);
+                copyTest.run(null, -1, new char[0], 1, 1, new char[0]);
+                copyTest.run(null, -1, new char[] { 'b' }, -1, -1, new char[] { 'b' });
+                copyTest.run(null, -1, new char[] { 'b' }, -1, 0, new char[] { 'b' });
+                copyTest.run(null, -1, new char[] { 'b' }, -1, 1, new char[] { 'b' });
+                copyTest.run(null, -1, new char[] { 'b' }, 0, -1, new char[] { 'b' });
+                copyTest.run(null, -1, new char[] { 'b' }, 0, 0, new char[] { 'b' });
+                copyTest.run(null, -1, new char[] { 'b' }, 0, 1, new char[] { 'b' });
+                copyTest.run(null, -1, new char[] { 'b' }, 1, -1, new char[] { 'b' });
+                copyTest.run(null, -1, new char[] { 'b' }, 1, 0, new char[] { 'b' });
+                copyTest.run(null, -1, new char[] { 'b' }, 1, 1, new char[] { 'b' });
+                copyTest.run(null, 0, null, -1, -1, null);
+                copyTest.run(null, 0, null, -1, 0, null);
+                copyTest.run(null, 0, null, -1, 1, null);
+                copyTest.run(null, 0, null, 0, -1, null);
+                copyTest.run(null, 0, null, 0, 0, null);
+                copyTest.run(null, 0, null, 0, 1, null);
+                copyTest.run(null, 0, null, 1, -1, null);
+                copyTest.run(null, 0, null, 1, 0, null);
+                copyTest.run(null, 0, null, 1, 1, null);
+                copyTest.run(null, 0, new char[0], -1, -1, new char[0]);
+                copyTest.run(null, 0, new char[0], -1, 0, new char[0]);
+                copyTest.run(null, 0, new char[0], -1, 1, new char[0]);
+                copyTest.run(null, 0, new char[0], 0, -1, new char[0]);
+                copyTest.run(null, 0, new char[0], 0, 0, new char[0]);
+                copyTest.run(null, 0, new char[0], 0, 1, new char[0]);
+                copyTest.run(null, 0, new char[0], 1, -1, new char[0]);
+                copyTest.run(null, 0, new char[0], 1, 0, new char[0]);
+                copyTest.run(null, 0, new char[0], 1, 1, new char[0]);
+                copyTest.run(null, 0, new char[] { 'b' }, -1, -1, new char[] { 'b' });
+                copyTest.run(null, 0, new char[] { 'b' }, -1, 0, new char[] { 'b' });
+                copyTest.run(null, 0, new char[] { 'b' }, -1, 1, new char[] { 'b' });
+                copyTest.run(null, 0, new char[] { 'b' }, 0, -1, new char[] { 'b' });
+                copyTest.run(null, 0, new char[] { 'b' }, 0, 0, new char[] { 'b' });
+                copyTest.run(null, 0, new char[] { 'b' }, 0, 1, new char[] { 'b' });
+                copyTest.run(null, 0, new char[] { 'b' }, 1, -1, new char[] { 'b' });
+                copyTest.run(null, 0, new char[] { 'b' }, 1, 0, new char[] { 'b' });
+                copyTest.run(null, 0, new char[] { 'b' }, 1, 1, new char[] { 'b' });
+                copyTest.run(null, 1, null, -1, -1, null);
+                copyTest.run(null, 1, null, -1, 0, null);
+                copyTest.run(null, 1, null, -1, 1, null);
+                copyTest.run(null, 1, null, 0, -1, null);
+                copyTest.run(null, 1, null, 0, 0, null);
+                copyTest.run(null, 1, null, 0, 1, null);
+                copyTest.run(null, 1, null, 1, -1, null);
+                copyTest.run(null, 1, null, 1, 0, null);
+                copyTest.run(null, 1, null, 1, 1, null);
+                copyTest.run(null, 1, new char[0], -1, -1, new char[0]);
+                copyTest.run(null, 1, new char[0], -1, 0, new char[0]);
+                copyTest.run(null, 1, new char[0], -1, 1, new char[0]);
+                copyTest.run(null, 1, new char[0], 0, -1, new char[0]);
+                copyTest.run(null, 1, new char[0], 0, 0, new char[0]);
+                copyTest.run(null, 1, new char[0], 0, 1, new char[0]);
+                copyTest.run(null, 1, new char[0], 1, -1, new char[0]);
+                copyTest.run(null, 1, new char[0], 1, 0, new char[0]);
+                copyTest.run(null, 1, new char[0], 1, 1, new char[0]);
+                copyTest.run(null, 1, new char[] { 'b' }, -1, -1, new char[] { 'b' });
+                copyTest.run(null, 1, new char[] { 'b' }, -1, 0, new char[] { 'b' });
+                copyTest.run(null, 1, new char[] { 'b' }, -1, 1, new char[] { 'b' });
+                copyTest.run(null, 1, new char[] { 'b' }, 0, -1, new char[] { 'b' });
+                copyTest.run(null, 1, new char[] { 'b' }, 0, 0, new char[] { 'b' });
+                copyTest.run(null, 1, new char[] { 'b' }, 0, 1, new char[] { 'b' });
+                copyTest.run(null, 1, new char[] { 'b' }, 1, -1, new char[] { 'b' });
+                copyTest.run(null, 1, new char[] { 'b' }, 1, 0, new char[] { 'b' });
+                copyTest.run(null, 1, new char[] { 'b' }, 1, 1, new char[] { 'b' });
+                copyTest.run(new char[0], -1, null, -1, -1, null);
+                copyTest.run(new char[0], -1, null, -1, 0, null);
+                copyTest.run(new char[0], -1, null, -1, 1, null);
+                copyTest.run(new char[0], -1, null, 0, -1, null);
+                copyTest.run(new char[0], -1, null, 0, 0, null);
+                copyTest.run(new char[0], -1, null, 0, 1, null);
+                copyTest.run(new char[0], -1, null, 1, -1, null);
+                copyTest.run(new char[0], -1, null, 1, 0, null);
+                copyTest.run(new char[0], -1, null, 1, 1, null);
+                copyTest.run(new char[0], -1, new char[0], -1, -1, new char[0]);
+                copyTest.run(new char[0], -1, new char[0], -1, 0, new char[0]);
+                copyTest.run(new char[0], -1, new char[0], -1, 1, new char[0]);
+                copyTest.run(new char[0], -1, new char[0], 0, -1, new char[0]);
+                copyTest.run(new char[0], -1, new char[0], 0, 0, new char[0]);
+                copyTest.run(new char[0], -1, new char[0], 0, 1, new char[0]);
+                copyTest.run(new char[0], -1, new char[0], 1, -1, new char[0]);
+                copyTest.run(new char[0], -1, new char[0], 1, 0, new char[0]);
+                copyTest.run(new char[0], -1, new char[0], 1, 1, new char[0]);
+                copyTest.run(new char[0], -1, new char[] { 'b' }, -1, -1, new char[] { 'b' });
+                copyTest.run(new char[0], -1, new char[] { 'b' }, -1, 0, new char[] { 'b' });
+                copyTest.run(new char[0], -1, new char[] { 'b' }, -1, 1, new char[] { 'b' });
+                copyTest.run(new char[0], -1, new char[] { 'b' }, 0, -1, new char[] { 'b' });
+                copyTest.run(new char[0], -1, new char[] { 'b' }, 0, 0, new char[] { 'b' });
+                copyTest.run(new char[0], -1, new char[] { 'b' }, 0, 1, new char[] { 'b' });
+                copyTest.run(new char[0], -1, new char[] { 'b' }, 1, -1, new char[] { 'b' });
+                copyTest.run(new char[0], -1, new char[] { 'b' }, 1, 0, new char[] { 'b' });
+                copyTest.run(new char[0], -1, new char[] { 'b' }, 1, 1, new char[] { 'b' });
+                copyTest.run(new char[0], 0, null, -1, -1, null);
+                copyTest.run(new char[0], 0, null, -1, 0, null);
+                copyTest.run(new char[0], 0, null, -1, 1, null);
+                copyTest.run(new char[0], 0, null, 0, -1, null);
+                copyTest.run(new char[0], 0, null, 0, 0, null);
+                copyTest.run(new char[0], 0, null, 0, 1, null);
+                copyTest.run(new char[0], 0, null, 1, -1, null);
+                copyTest.run(new char[0], 0, null, 1, 0, null);
+                copyTest.run(new char[0], 0, null, 1, 1, null);
+                copyTest.run(new char[0], 0, new char[0], -1, -1, new char[0]);
+                copyTest.run(new char[0], 0, new char[0], -1, 0, new char[0]);
+                copyTest.run(new char[0], 0, new char[0], -1, 1, new char[0]);
+                copyTest.run(new char[0], 0, new char[0], 0, -1, new char[0]);
+                copyTest.run(new char[0], 0, new char[0], 0, 0, new char[0]);
+                copyTest.run(new char[0], 0, new char[0], 0, 1, new char[0]);
+                copyTest.run(new char[0], 0, new char[0], 1, -1, new char[0]);
+                copyTest.run(new char[0], 0, new char[0], 1, 0, new char[0]);
+                copyTest.run(new char[0], 0, new char[0], 1, 1, new char[0]);
+                copyTest.run(new char[0], 0, new char[] { 'b' }, -1, -1, new char[] { 'b' });
+                copyTest.run(new char[0], 0, new char[] { 'b' }, -1, 0, new char[] { 'b' });
+                copyTest.run(new char[0], 0, new char[] { 'b' }, -1, 1, new char[] { 'b' });
+                copyTest.run(new char[0], 0, new char[] { 'b' }, 0, -1, new char[] { 'b' });
+                copyTest.run(new char[0], 0, new char[] { 'b' }, 0, 0, new char[] { 'b' });
+                copyTest.run(new char[0], 0, new char[] { 'b' }, 0, 1, new char[] { 'b' });
+                copyTest.run(new char[0], 0, new char[] { 'b' }, 1, -1, new char[] { 'b' });
+                copyTest.run(new char[0], 0, new char[] { 'b' }, 1, 0, new char[] { 'b' });
+                copyTest.run(new char[0], 0, new char[] { 'b' }, 1, 1, new char[] { 'b' });
+                copyTest.run(new char[0], 1, null, -1, -1, null);
+                copyTest.run(new char[0], 1, null, -1, 0, null);
+                copyTest.run(new char[0], 1, null, -1, 1, null);
+                copyTest.run(new char[0], 1, null, 0, -1, null);
+                copyTest.run(new char[0], 1, null, 0, 0, null);
+                copyTest.run(new char[0], 1, null, 0, 1, null);
+                copyTest.run(new char[0], 1, null, 1, -1, null);
+                copyTest.run(new char[0], 1, null, 1, 0, null);
+                copyTest.run(new char[0], 1, null, 1, 1, null);
+                copyTest.run(new char[0], 1, new char[0], -1, -1, new char[0]);
+                copyTest.run(new char[0], 1, new char[0], -1, 0, new char[0]);
+                copyTest.run(new char[0], 1, new char[0], -1, 1, new char[0]);
+                copyTest.run(new char[0], 1, new char[0], 0, -1, new char[0]);
+                copyTest.run(new char[0], 1, new char[0], 0, 0, new char[0]);
+                copyTest.run(new char[0], 1, new char[0], 0, 1, new char[0]);
+                copyTest.run(new char[0], 1, new char[0], 1, -1, new char[0]);
+                copyTest.run(new char[0], 1, new char[0], 1, 0, new char[0]);
+                copyTest.run(new char[0], 1, new char[0], 1, 1, new char[0]);
+                copyTest.run(new char[0], 1, new char[] { 'b' }, -1, -1, new char[] { 'b' });
+                copyTest.run(new char[0], 1, new char[] { 'b' }, -1, 0, new char[] { 'b' });
+                copyTest.run(new char[0], 1, new char[] { 'b' }, -1, 1, new char[] { 'b' });
+                copyTest.run(new char[0], 1, new char[] { 'b' }, 0, -1, new char[] { 'b' });
+                copyTest.run(new char[0], 1, new char[] { 'b' }, 0, 0, new char[] { 'b' });
+                copyTest.run(new char[0], 1, new char[] { 'b' }, 0, 1, new char[] { 'b' });
+                copyTest.run(new char[0], 1, new char[] { 'b' }, 1, -1, new char[] { 'b' });
+                copyTest.run(new char[0], 1, new char[] { 'b' }, 1, 0, new char[] { 'b' });
+                copyTest.run(new char[0], 1, new char[] { 'b' }, 1, 1, new char[] { 'b' });
+                copyTest.run(new char[] { 'a' }, -1, null, -1, -1, null);
+                copyTest.run(new char[] { 'a' }, -1, null, -1, 0, null);
+                copyTest.run(new char[] { 'a' }, -1, null, -1, 1, null);
+                copyTest.run(new char[] { 'a' }, -1, null, 0, -1, null);
+                copyTest.run(new char[] { 'a' }, -1, null, 0, 0, null);
+                copyTest.run(new char[] { 'a' }, -1, null, 0, 1, null);
+                copyTest.run(new char[] { 'a' }, -1, null, 1, -1, null);
+                copyTest.run(new char[] { 'a' }, -1, null, 1, 0, null);
+                copyTest.run(new char[] { 'a' }, -1, null, 1, 1, null);
+                copyTest.run(new char[] { 'a' }, -1, new char[0], -1, -1, new char[0]);
+                copyTest.run(new char[] { 'a' }, -1, new char[0], -1, 0, new char[0]);
+                copyTest.run(new char[] { 'a' }, -1, new char[0], -1, 1, new char[0]);
+                copyTest.run(new char[] { 'a' }, -1, new char[0], 0, -1, new char[0]);
+                copyTest.run(new char[] { 'a' }, -1, new char[0], 0, 0, new char[0]);
+                copyTest.run(new char[] { 'a' }, -1, new char[0], 0, 1, new char[0]);
+                copyTest.run(new char[] { 'a' }, -1, new char[0], 1, -1, new char[0]);
+                copyTest.run(new char[] { 'a' }, -1, new char[0], 1, 0, new char[0]);
+                copyTest.run(new char[] { 'a' }, -1, new char[0], 1, 1, new char[0]);
+                copyTest.run(new char[] { 'a' }, -1, new char[] { 'b' }, -1, -1, new char[] { 'b' });
+                copyTest.run(new char[] { 'a' }, -1, new char[] { 'b' }, -1, 0, new char[] { 'b' });
+                copyTest.run(new char[] { 'a' }, -1, new char[] { 'b' }, -1, 1, new char[] { 'b' });
+                copyTest.run(new char[] { 'a' }, -1, new char[] { 'b' }, 0, -1, new char[] { 'b' });
+                copyTest.run(new char[] { 'a' }, -1, new char[] { 'b' }, 0, 0, new char[] { 'b' });
+                copyTest.run(new char[] { 'a' }, -1, new char[] { 'b' }, 0, 1, new char[] { 'b' });
+                copyTest.run(new char[] { 'a' }, -1, new char[] { 'b' }, 1, -1, new char[] { 'b' });
+                copyTest.run(new char[] { 'a' }, -1, new char[] { 'b' }, 1, 0, new char[] { 'b' });
+                copyTest.run(new char[] { 'a' }, -1, new char[] { 'b' }, 1, 1, new char[] { 'b' });
+                copyTest.run(new char[] { 'a' }, 0, null, -1, -1, null);
+                copyTest.run(new char[] { 'a' }, 0, null, -1, 0, null);
+                copyTest.run(new char[] { 'a' }, 0, null, -1, 1, null);
+                copyTest.run(new char[] { 'a' }, 0, null, 0, -1, null);
+                copyTest.run(new char[] { 'a' }, 0, null, 0, 0, null);
+                copyTest.run(new char[] { 'a' }, 0, null, 0, 1, null);
+                copyTest.run(new char[] { 'a' }, 0, null, 1, -1, null);
+                copyTest.run(new char[] { 'a' }, 0, null, 1, 0, null);
+                copyTest.run(new char[] { 'a' }, 0, null, 1, 1, null);
+                copyTest.run(new char[] { 'a' }, 0, new char[0], -1, -1, new char[0]);
+                copyTest.run(new char[] { 'a' }, 0, new char[0], -1, 0, new char[0]);
+                copyTest.run(new char[] { 'a' }, 0, new char[0], -1, 1, new char[0]);
+                copyTest.run(new char[] { 'a' }, 0, new char[0], 0, -1, new char[0]);
+                copyTest.run(new char[] { 'a' }, 0, new char[0], 0, 0, new char[0]);
+                copyTest.run(new char[] { 'a' }, 0, new char[0], 0, 1, new char[0]);
+                copyTest.run(new char[] { 'a' }, 0, new char[0], 1, -1, new char[0]);
+                copyTest.run(new char[] { 'a' }, 0, new char[0], 1, 0, new char[0]);
+                copyTest.run(new char[] { 'a' }, 0, new char[0], 1, 1, new char[0]);
+                copyTest.run(new char[] { 'a' }, 0, new char[] { 'b' }, -1, -1, new char[] { 'b' });
+                copyTest.run(new char[] { 'a' }, 0, new char[] { 'b' }, -1, 0, new char[] { 'b' });
+                copyTest.run(new char[] { 'a' }, 0, new char[] { 'b' }, -1, 1, new char[] { 'b' });
+                copyTest.run(new char[] { 'a' }, 0, new char[] { 'b' }, 0, -1, new char[] { 'b' });
+                copyTest.run(new char[] { 'a' }, 0, new char[] { 'b' }, 0, 0, new char[] { 'b' });
+                copyTest.run(new char[] { 'a' }, 0, new char[] { 'b' }, 0, 1, new char[] { 'a' });
+                copyTest.run(new char[] { 'a' }, 0, new char[] { 'b' }, 1, -1, new char[] { 'b' });
+                copyTest.run(new char[] { 'a' }, 0, new char[] { 'b' }, 1, 0, new char[] { 'b' });
+                copyTest.run(new char[] { 'a' }, 0, new char[] { 'b' }, 1, 1, new char[] { 'b' });
+                copyTest.run(new char[] { 'a' }, 1, null, -1, -1, null);
+                copyTest.run(new char[] { 'a' }, 1, null, -1, 0, null);
+                copyTest.run(new char[] { 'a' }, 1, null, -1, 1, null);
+                copyTest.run(new char[] { 'a' }, 1, null, 0, -1, null);
+                copyTest.run(new char[] { 'a' }, 1, null, 0, 0, null);
+                copyTest.run(new char[] { 'a' }, 1, null, 0, 1, null);
+                copyTest.run(new char[] { 'a' }, 1, null, 1, -1, null);
+                copyTest.run(new char[] { 'a' }, 1, null, 1, 0, null);
+                copyTest.run(new char[] { 'a' }, 1, null, 1, 1, null);
+                copyTest.run(new char[] { 'a' }, 1, new char[0], -1, -1, new char[0]);
+                copyTest.run(new char[] { 'a' }, 1, new char[0], -1, 0, new char[0]);
+                copyTest.run(new char[] { 'a' }, 1, new char[0], -1, 1, new char[0]);
+                copyTest.run(new char[] { 'a' }, 1, new char[0], 0, -1, new char[0]);
+                copyTest.run(new char[] { 'a' }, 1, new char[0], 0, 0, new char[0]);
+                copyTest.run(new char[] { 'a' }, 1, new char[0], 0, 1, new char[0]);
+                copyTest.run(new char[] { 'a' }, 1, new char[0], 1, -1, new char[0]);
+                copyTest.run(new char[] { 'a' }, 1, new char[0], 1, 0, new char[0]);
+                copyTest.run(new char[] { 'a' }, 1, new char[0], 1, 1, new char[0]);
+                copyTest.run(new char[] { 'a' }, 1, new char[] { 'b' }, -1, -1, new char[] { 'b' });
+                copyTest.run(new char[] { 'a' }, 1, new char[] { 'b' }, -1, 0, new char[] { 'b' });
+                copyTest.run(new char[] { 'a' }, 1, new char[] { 'b' }, -1, 1, new char[] { 'b' });
+                copyTest.run(new char[] { 'a' }, 1, new char[] { 'b' }, 0, -1, new char[] { 'b' });
+                copyTest.run(new char[] { 'a' }, 1, new char[] { 'b' }, 0, 0, new char[] { 'b' });
+                copyTest.run(new char[] { 'a' }, 1, new char[] { 'b' }, 0, 1, new char[] { 'b' });
+                copyTest.run(new char[] { 'a' }, 1, new char[] { 'b' }, 1, -1, new char[] { 'b' });
+                copyTest.run(new char[] { 'a' }, 1, new char[] { 'b' }, 1, 0, new char[] { 'b' });
+                copyTest.run(new char[] { 'a' }, 1, new char[] { 'b' }, 1, 1, new char[] { 'b' });
+            });
+
+            runner.testGroup("merge(Iterable<byte[]>)", () ->
+            {
+                final Action2<byte[][],byte[]> mergeTest = (byte[][] bytes, byte[] expected) ->
+                {
+                    runner.test("with " + (bytes == null ? "null" : Array.fromValues(bytes).map(Array::fromValues)), (Test test) ->
+                    {
+                        final Array<Byte> expectedArray = expected == null ? null : Array.fromValues(expected);
+                        final byte[] mergedBytes = Array.merge(bytes == null ? null : Array.fromValues(bytes));
+                        final Array<Byte> actualArray = mergedBytes == null ? null : Array.fromValues(mergedBytes);
+
+                        test.assertEqual(expectedArray, actualArray);
+                    });
+                };
+
+                mergeTest.run(null, null);
+                mergeTest.run(new byte[][] { }, new byte[0]);
+                mergeTest.run(new byte[][] { null }, new byte[0]);
+                mergeTest.run(new byte[][] { new byte[0] }, new byte[0]);
+                mergeTest.run(new byte[][] { new byte[] { 1, 2, 3 } }, new byte[] { 1, 2, 3 });
+                mergeTest.run(new byte[][] { new byte[] { 1, 2, 3 }, new byte[] { 4 } }, new byte[] { 1, 2, 3, 4 });
+                mergeTest.run(new byte[][] { new byte[] { 1, 2, 3 }, new byte[] { 4 }, new byte[] { 5, 6, 7, 8} }, new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 });
+            });
+
+            runner.testGroup("toString(byte[])", () ->
+            {
+                final Action2<byte[],String> toStringTest = (byte[] array, String expected) ->
+                {
+                    runner.test("with " + Array.toString(array), (Test test) ->
+                    {
+                        test.assertEqual(expected, Array.toString(array));
+                    });
+                };
+
+                toStringTest.run(null, "null");
+                toStringTest.run(new byte[0], "[]");
+                toStringTest.run(new byte[] { 1 }, "[1]");
+                toStringTest.run(new byte[] { 2, 3 }, "[2,3]");
+                toStringTest.run(new byte[] { 4, 5, 6 }, "[4,5,6]");
+            });
+
+            runner.testGroup("toString(char[])", () ->
+            {
+                final Action2<char[],String> toStringTest = (char[] array, String expected) ->
+                {
+                    runner.test("with " + Array.toString(array), (Test test) ->
+                    {
+                        test.assertEqual(expected, Array.toString(array));
+                    });
+                };
+
+                toStringTest.run(null, "null");
+                toStringTest.run(new char[0], "[]");
+                toStringTest.run(new char[] { 'a' }, "[a]");
+                toStringTest.run(new char[] { 'b', 'c' }, "[b,c]");
+                toStringTest.run(new char[] { 'd', 'e', 'f' }, "[d,e,f]");
             });
         });
     }

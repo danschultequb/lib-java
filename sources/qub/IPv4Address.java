@@ -39,6 +39,26 @@ public class IPv4Address
             Bytes.toUnsignedInt(bytes[3]);
     }
 
+    /**
+     * Convert this IPv4Address to a 4-byte array.
+     * @return The 4-byte array representation of this IPv4Address.
+     */
+    public byte[] toBytes()
+    {
+        final byte[] result = new byte[4];
+        toBytes(result);
+        return result;
+    }
+
+    /**
+     * Write the byte representation of this IPv4Address to the provided byte[].
+     * @param bytes The byte array to write the byte representation of this IPv4Address to.
+     */
+    public void toBytes(byte[] bytes)
+    {
+        Array.copy(this.bytes, 0, bytes, 0, 4);
+    }
+
     public static IPv4Address parse(String text)
     {
         IPv4Address result = null;
