@@ -19,13 +19,13 @@ public interface ByteReadStream extends Stream, Iterator<Byte>
 
     CharacterReadStream asCharacterReadStream();
 
-    CharacterReadStream asCharacterReadStream(CharacterEncoding encoding);
+    CharacterReadStream asCharacterReadStream(CharacterEncoding characterEncoding);
 
     LineReadStream asLineReadStream();
 
-    LineReadStream asLineReadStream(CharacterEncoding encoding);
+    LineReadStream asLineReadStream(CharacterEncoding characterEncoding);
 
     LineReadStream asLineReadStream(boolean includeNewLines);
 
-    LineReadStream asLineReadStream(CharacterEncoding encoding, boolean includeNewLines);
+    LineReadStream asLineReadStream(CharacterEncoding characterEncoding, boolean includeNewLines);
 }
