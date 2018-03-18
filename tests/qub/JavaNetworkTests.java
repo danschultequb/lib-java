@@ -39,6 +39,65 @@ public class JavaNetworkTests
                     test.assertTrue(tcpClientResult.isError());
                     test.assertEqual("Connection refused: connect", tcpClientResult.getErrorMessage());
                 });
+
+                runner.test("with valid arguments and server listening", (Test test) ->
+                {
+                    try (AsyncRunner asyncRunner = new ParallelAsyncRunner(new Synchronization()))
+                    {
+                        final JavaNetwork network = new JavaNetwork(asyncRunner);
+
+                        final byte[] bytes = new byte[] { 1, 2, 3, 4, 5 };
+
+                        final IPv4Address localhost = IPv4Address.parse("127.0.0.1");
+                        final int port = 8080;
+
+                        asyncRunner.schedule(new Action0()
+                        {
+                            @Override
+                            public void run()
+                            {
+                                final Result<TCPServer> tcpServer = network.createTCPServer(localhost, port);
+                                test.assertTrue(tcpServer.isSuccess());
+                                test.assertNotNull(tcpServer.getValue());
+
+                                final Result<TCPClient> acceptedClient = tcpServer.getValue().accept();
+                                test.assertTrue(acceptedClient.isSuccess());
+                                test.assertNotNull(acceptedClient.getValue());
+
+                                test.assertTrue(acceptedClient.getValue().write(acceptedClient.getValue().readBytes(bytes.length)));
+
+                                test.assertTrue(acceptedClient.getValue().dispose().getValue());
+                                test.assertTrue(tcpServer.getValue().dispose().getValue());
+                            }
+                        });
+
+                        try
+                        {
+                            Thread.sleep(50);
+                        }
+                        catch (InterruptedException ignored)
+                        {
+                        }
+
+                        final Result<TCPClient> tcpClient = network.createTCPClient(localhost, port);
+                        test.assertTrue(tcpClient.isSuccess());
+                        test.assertNotNull(tcpClient.getValue());
+
+                        test.assertTrue(tcpClient.getValue().write(bytes));
+                        test.assertEqual(bytes, tcpClient.getValue().readBytes(5));
+                        final Result<Boolean> tcpClientDispose = tcpClient.getValue().dispose();
+                        test.assertNotNull(tcpClientDispose);
+                        test.assertTrue(tcpClientDispose.getValue(), tcpClientDispose.getErrorMessage());
+
+                        try
+                        {
+                            Thread.sleep(50);
+                        }
+                        catch (InterruptedException ignored)
+                        {
+                        }
+                    }
+                });
             });
 
             runner.testGroup("createTCPServer(int)", () ->

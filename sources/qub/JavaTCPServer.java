@@ -3,6 +3,7 @@ package qub;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
+import java.net.Socket;
 
 class JavaTCPServer extends DisposableBase implements TCPServer
 {
@@ -84,7 +85,17 @@ class JavaTCPServer extends DisposableBase implements TCPServer
     @Override
     public Result<TCPClient> accept()
     {
-        return null;
+        Result<TCPClient> result;
+        try
+        {
+            final Socket socket = serverSocket.accept();
+            result = JavaTCPClient.create(socket);
+        }
+        catch (IOException e)
+        {
+            result = Result.<TCPClient>error(e);
+        }
+        return result;
     }
 
     @Override

@@ -18,6 +18,32 @@ class JavaTCPClient extends DisposableBase implements TCPClient
         this.socketWriteStream = socketWriteStream;
     }
 
+    static Result<TCPClient> create(Socket socket)
+    {
+        Result<TCPClient> result;
+
+        if (socket == null)
+        {
+            result = Result.<TCPClient>error(new IllegalArgumentException("socket cannot be null."));
+        }
+        else
+        {
+            try
+            {
+                final ByteReadStream socketReadStream = new InputStreamToByteReadStream(socket.getInputStream());
+                final ByteWriteStream socketWriteStream = new OutputStreamToByteWriteStream(socket.getOutputStream());
+                final TCPClient tcpClient = new JavaTCPClient(socket, socketReadStream, socketWriteStream);
+                result = Result.success(tcpClient);
+            }
+            catch (IOException e)
+            {
+                result = Result.error(e);
+            }
+        }
+
+        return result;
+    }
+
     static Result<TCPClient> create(IPv4Address remoteIPAddress, int remotePort)
     {
         Result<TCPClient> result;
@@ -37,10 +63,7 @@ class JavaTCPClient extends DisposableBase implements TCPClient
                 final byte[] remoteIPAddressBytes = remoteIPAddress.toBytes();
                 final InetAddress remoteInetAddress = InetAddress.getByAddress(remoteIPAddressBytes);
                 final Socket socket = new Socket(remoteInetAddress, remotePort);
-                final ByteReadStream socketReadStream = new InputStreamToByteReadStream(socket.getInputStream());
-                final ByteWriteStream socketWriteStream = new OutputStreamToByteWriteStream(socket.getOutputStream());
-                final TCPClient tcpClient = new JavaTCPClient(socket, socketReadStream, socketWriteStream);
-                result = Result.success(tcpClient);
+                result = JavaTCPClient.create(socket);
             }
             catch (IOException e)
             {
@@ -313,7 +336,7 @@ class JavaTCPClient extends DisposableBase implements TCPClient
     @Override
     public boolean isDisposed()
     {
-        return !socket.isClosed();
+        return socket.isClosed();
     }
 
     @Override
