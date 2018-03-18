@@ -3,7 +3,7 @@ package qub;
 import java.io.IOException;
 import java.io.InputStream;
 
-public interface ByteReadStream extends Stream, Iterator<Byte>
+public interface ByteReadStream extends Disposable, Iterator<Byte>
 {
     Byte readByte();
 

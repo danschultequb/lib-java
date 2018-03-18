@@ -77,20 +77,14 @@ public class OutputStreamWriterToCharacterWriteStream extends CharacterWriteStre
     }
 
     @Override
-    public final boolean isOpen()
+    public boolean isDisposed()
     {
-        return byteWriteStream.isOpen();
+        return byteWriteStream.isDisposed();
     }
 
     @Override
-    public final void close()
+    public Result<Boolean> dispose()
     {
-        try
-        {
-            byteWriteStream.close();
-        }
-        catch (Exception ignored)
-        {
-        }
+        return byteWriteStream.dispose();
     }
 }

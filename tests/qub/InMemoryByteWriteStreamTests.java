@@ -10,14 +10,14 @@ public class InMemoryByteWriteStreamTests
             {
                 final InMemoryByteWriteStream writeStream = new InMemoryByteWriteStream();
                 test.assertEqual(new byte[0], writeStream.getBytes());
-                test.assertTrue(writeStream.isOpen());
+                test.assertFalse(writeStream.isDisposed());
             });
             
             runner.test("close()", (Test test) ->
             {
                 final InMemoryByteWriteStream writeStream = new InMemoryByteWriteStream();
                 writeStream.close();
-                test.assertFalse(writeStream.isOpen());
+                test.assertTrue(writeStream.isDisposed());
                 test.assertNull(writeStream.getBytes());
                 writeStream.close();
                 test.assertNull(writeStream.getBytes());

@@ -24,14 +24,6 @@ public class CharacterReadStreamToLineReadStream extends LineReadStreamBase
     }
 
     @Override
-    public void close()
-    {
-        current = null;
-
-        characterReadStream.close();
-    }
-
-    @Override
     public CharacterReadStream asCharacterReadStream()
     {
         return characterReadStream;
@@ -54,5 +46,18 @@ public class CharacterReadStreamToLineReadStream extends LineReadStreamBase
     {
         current = super.readLine();
         return current;
+    }
+
+    @Override
+    public void close()
+    {
+        DisposableBase.close(this);
+    }
+
+    @Override
+    public Result<Boolean> dispose()
+    {
+        current = null;
+        return characterReadStream.dispose();
     }
 }

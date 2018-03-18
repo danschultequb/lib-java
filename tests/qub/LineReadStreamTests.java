@@ -13,7 +13,7 @@ public class LineReadStreamTests
                 runner.test("with null and false", (Test test) ->
                 {
                     final LineReadStream lineReadStream = creatorWithIncludeNewLines.run(null, false);
-                    assertLineReadStream(test, lineReadStream, true, false, null);
+                    assertLineReadStream(test, lineReadStream, false, false, null);
                     test.assertEqual(CharacterEncoding.UTF_8, lineReadStream.getCharacterEncoding());
                     test.assertFalse(lineReadStream.getIncludeNewLines());
                 });
@@ -21,7 +21,7 @@ public class LineReadStreamTests
                 runner.test("with null and true", (Test test) ->
                 {
                     final LineReadStream lineReadStream = creatorWithIncludeNewLines.run(null, true);
-                    assertLineReadStream(test, lineReadStream, true, false, null);
+                    assertLineReadStream(test, lineReadStream, false, false, null);
                     test.assertEqual(CharacterEncoding.UTF_8, lineReadStream.getCharacterEncoding());
                     test.assertTrue(lineReadStream.getIncludeNewLines());
                 });
@@ -31,10 +31,10 @@ public class LineReadStreamTests
             {
                 final LineReadStream lineReadStream = creator.run(null);
                 lineReadStream.close();
-                assertLineReadStream(test, lineReadStream, false, false, null);
+                assertLineReadStream(test, lineReadStream, true, false, null);
 
                 lineReadStream.close();
-                assertLineReadStream(test, lineReadStream, false, false, null);
+                assertLineReadStream(test, lineReadStream, true, false, null);
             });
 
             runner.testGroup("readLine()", () ->
@@ -102,11 +102,11 @@ public class LineReadStreamTests
                             for (int i = 0; i < expectedLineCount; ++i)
                             {
                                 test.assertEqual(Strings.escape(expectedLines[i]), Strings.escape(lineReadStream.readLine()));
-                                assertLineReadStream(test, lineReadStream, true, true, expectedLines[i]);
+                                assertLineReadStream(test, lineReadStream, false, true, expectedLines[i]);
                             }
 
                             test.assertNull(lineReadStream.readLine());
-                            assertLineReadStream(test, lineReadStream, true, true, null);
+                            assertLineReadStream(test, lineReadStream, false, true, null);
                         }
                     });
                 };
@@ -147,16 +147,16 @@ public class LineReadStreamTests
                 final LineReadStream lineReadStream = creatorWithIncludeNewLines.run("a\nb\r\nc", true);
 
                 test.assertTrue(lineReadStream.next());
-                assertLineReadStream(test, lineReadStream, true, true, "a\n");
+                assertLineReadStream(test, lineReadStream, false, true, "a\n");
 
                 test.assertTrue(lineReadStream.next());
-                assertLineReadStream(test, lineReadStream, true, true, "b\r\n");
+                assertLineReadStream(test, lineReadStream, false, true, "b\r\n");
 
                 test.assertTrue(lineReadStream.next());
-                assertLineReadStream(test, lineReadStream, true, true, "c");
+                assertLineReadStream(test, lineReadStream, false, true, "c");
 
                 test.assertFalse(lineReadStream.next());
-                assertLineReadStream(test, lineReadStream, true, true, null);
+                assertLineReadStream(test, lineReadStream, false, true, null);
             });
 
             runner.test("asCharacterReadStream()", (Test test) ->
@@ -173,10 +173,10 @@ public class LineReadStreamTests
         });
     }
 
-    private static void assertLineReadStream(Test test, LineReadStream lineReadStream, boolean isOpen, boolean hasStarted, String current)
+    private static void assertLineReadStream(Test test, LineReadStream lineReadStream, boolean isDisposed, boolean hasStarted, String current)
     {
         test.assertNotNull(lineReadStream);
-        test.assertEqual(isOpen, lineReadStream.isOpen());
+        test.assertEqual(isDisposed, lineReadStream.isDisposed());
         test.assertEqual(hasStarted, lineReadStream.hasStarted());
         test.assertEqual(current != null, lineReadStream.hasCurrent());
         test.assertEqual(Strings.escape(current), Strings.escape(lineReadStream.getCurrent()));

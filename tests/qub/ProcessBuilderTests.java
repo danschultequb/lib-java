@@ -110,7 +110,7 @@ public class ProcessBuilderTests
 
             runner.test("run() with not found executable file", (Test test) ->
             {
-                final JavaFileSystem fileSystem = new JavaFileSystem();
+                final JavaFileSystem fileSystem = new JavaFileSystem(null);
                 final File javacFile = fileSystem.getFile("C:/idontexist.exe");
                 final ProcessBuilder builder = new ProcessBuilder(null, javacFile);
                 builder.addArgument("won't matter");

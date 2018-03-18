@@ -6,13 +6,6 @@ package qub;
 public interface FileSystem
 {
     /**
-     * Set the AsyncRunner that this FileSystem object will use to schedule its asynchronous
-     * operations.
-     * @param asyncRunner The AsyncRunner to use to schedule asynchronous operations.
-     */
-    void setAsyncRunner(AsyncRunner asyncRunner);
-
-    /**
      * Get the AsyncRunner that this FileSystem object will use to schedule its asynchronous
      * operations.
      * @return The AsyncRunner to use to schedule asynchronous operations.

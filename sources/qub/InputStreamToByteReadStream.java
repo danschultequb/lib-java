@@ -10,37 +10,50 @@ public class InputStreamToByteReadStream extends ByteReadStreamBase
 {
     private final InputStream inputStream;
 
-    private boolean closed;
+    private boolean disposed;
     private Action1<IOException> exceptionHandler;
     private boolean hasStarted;
     private Byte current;
 
-    InputStreamToByteReadStream(InputStream inputStream)
+    public InputStreamToByteReadStream(InputStream inputStream)
     {
         this.inputStream = inputStream;
     }
 
     @Override
-    public boolean isOpen()
+    final public void close()
     {
-        return !closed;
+        DisposableBase.close(this);
     }
 
     @Override
-    public void close()
+    final public boolean isDisposed()
     {
-        if (!closed)
+        return disposed;
+    }
+
+    @Override
+    final public Result<Boolean> dispose()
+    {
+        Result<Boolean> result;
+        if (disposed)
         {
+            result = Result.success(false);
+        }
+        else
+        {
+            disposed = true;
             try
             {
                 inputStream.close();
-                closed = true;
+                result = Result.success(true);
             }
             catch (IOException e)
             {
-                handleException(e);
+                result = Result.<Boolean>error(e);
             }
         }
+        return result;
     }
 
     @Override

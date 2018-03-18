@@ -3,7 +3,7 @@ package qub;
 /**
  * A class for reading lines from a stream.
  */
-public interface LineReadStream extends Stream, Iterator<String>
+public interface LineReadStream extends Disposable, Iterator<String>
 {
     String readLine();
 

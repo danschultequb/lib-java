@@ -59,12 +59,12 @@ public class OutputStreamWriterToCharacterWriteStreamTests
                     InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
                     final OutputStreamWriterToCharacterWriteStream characterWriteStream = getCharacterWriteStream(byteWriteStream);
                     characterWriteStream.close();
-                    test.assertFalse(characterWriteStream.isOpen());
-                    test.assertFalse(byteWriteStream.isOpen());
+                    test.assertTrue(characterWriteStream.isDisposed());
+                    test.assertTrue(byteWriteStream.isDisposed());
 
                     characterWriteStream.close();
-                    test.assertFalse(characterWriteStream.isOpen());
-                    test.assertFalse(byteWriteStream.isOpen());
+                    test.assertTrue(characterWriteStream.isDisposed());
+                    test.assertTrue(byteWriteStream.isDisposed());
                 });
                 
                 runner.test("with exception", (Test test) ->
@@ -73,8 +73,8 @@ public class OutputStreamWriterToCharacterWriteStreamTests
                     OutputStreamToByteWriteStream byteWriteStream = new OutputStreamToByteWriteStream(outputStream);
                     final OutputStreamWriterToCharacterWriteStream characterWriteStream = getCharacterWriteStream(byteWriteStream);
                     characterWriteStream.close();
-                    test.assertTrue(characterWriteStream.isOpen());
-                    test.assertTrue(byteWriteStream.isOpen());
+                    test.assertTrue(characterWriteStream.isDisposed());
+                    test.assertTrue(byteWriteStream.isDisposed());
                 });
             });
             

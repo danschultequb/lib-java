@@ -17,7 +17,7 @@ public class InMemoryByteWriteStream extends OutputStreamToByteWriteStream
 
     public byte[] getBytes()
     {
-        return isOpen() ? getOutputStream().toByteArray() : null;
+        return !isDisposed() ? getOutputStream().toByteArray() : null;
     }
 
     public void clear()

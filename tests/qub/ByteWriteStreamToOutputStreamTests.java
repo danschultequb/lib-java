@@ -15,7 +15,7 @@ public class ByteWriteStreamToOutputStreamTests
                 try
                 {
                     outputStream.close();
-                    test.assertFalse(byteWriteStream.isOpen());
+                    test.assertTrue(byteWriteStream.isDisposed());
                 }
                 catch (IOException e)
                 {

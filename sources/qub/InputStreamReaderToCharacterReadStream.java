@@ -35,15 +35,21 @@ class InputStreamReaderToCharacterReadStream extends CharacterReadStreamBase
     }
 
     @Override
-    public boolean isOpen()
+    public void close()
     {
-        return byteReadStream.isOpen();
+        DisposableBase.close(this);
     }
 
     @Override
-    public void close()
+    public boolean isDisposed()
     {
-        byteReadStream.close();
+        return byteReadStream.isDisposed();
+    }
+
+    @Override
+    public Result<Boolean> dispose()
+    {
+        return byteReadStream.dispose();
     }
 
     @Override

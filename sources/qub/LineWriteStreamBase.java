@@ -1,6 +1,6 @@
 package qub;
 
-public abstract class LineWriteStreamBase implements LineWriteStream
+public abstract class LineWriteStreamBase extends DisposableBase implements LineWriteStream
 {
     @Override
     public boolean write(char toWrite)

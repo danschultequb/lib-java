@@ -71,14 +71,14 @@ public class InMemoryCharacterWriteStream extends CharacterWriteStreamBase
     }
 
     @Override
-    public boolean isOpen()
+    public boolean isDisposed()
     {
-        return byteWriteStream.isOpen();
+        return byteWriteStream.isDisposed();
     }
 
     @Override
-    public void close()
+    public Result<Boolean> dispose()
     {
-        byteWriteStream.close();
+        return byteWriteStream.dispose();
     }
 }

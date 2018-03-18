@@ -12,15 +12,8 @@ public class ByteReadStreamToInputStreamTests
             {
                 final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream();
                 final ByteReadStreamToInputStream inputStream = new ByteReadStreamToInputStream(byteReadStream);
-                try
-                {
-                    inputStream.close();
-                    test.assertFalse(byteReadStream.isOpen());
-                }
-                catch (IOException e)
-                {
-                    test.fail(e);
-                }
+                inputStream.close();
+                test.assertTrue(byteReadStream.isDisposed());
             });
 
             runner.test("read()", (Test test) ->

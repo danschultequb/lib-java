@@ -2,7 +2,7 @@ package qub;
 
 import java.io.IOException;
 
-public abstract class ByteWriteStreamDecorator implements ByteWriteStream
+public abstract class ByteWriteStreamDecorator extends DisposableBase implements ByteWriteStream
 {
     private final ByteWriteStream innerByteWriteStream;
 
@@ -42,14 +42,14 @@ public abstract class ByteWriteStreamDecorator implements ByteWriteStream
     }
 
     @Override
-    public boolean isOpen()
+    public boolean isDisposed()
     {
-        return innerByteWriteStream.isOpen();
+        return innerByteWriteStream.isDisposed();
     }
 
     @Override
-    public void close()
+    public Result<Boolean> dispose()
     {
-        innerByteWriteStream.close();
+        return innerByteWriteStream.dispose();
     }
 }

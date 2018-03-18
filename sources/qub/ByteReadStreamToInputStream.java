@@ -13,7 +13,7 @@ public class ByteReadStreamToInputStream extends InputStream
     }
 
     @Override
-    public void close() throws IOException
+    public void close()
     {
         byteReadStream.close();
     }

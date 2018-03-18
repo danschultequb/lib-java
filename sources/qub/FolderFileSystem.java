@@ -69,12 +69,6 @@ public class FolderFileSystem extends FileSystemBase
     }
 
     @Override
-    public void setAsyncRunner(AsyncRunner asyncRunner)
-    {
-        innerFileSystem.setAsyncRunner(asyncRunner);
-    }
-
-    @Override
     public AsyncRunner getAsyncRunner()
     {
         return innerFileSystem.getAsyncRunner();

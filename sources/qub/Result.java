@@ -1,6 +1,6 @@
 package qub;
 
-public class Result<T>
+final public class Result<T>
 {
     private final T value;
     private final Throwable error;
@@ -11,38 +11,43 @@ public class Result<T>
         this.error = error;
     }
 
-    public boolean isSuccess()
-    {
-        return !isError();
-    }
-
-    public T getValue()
+    final public T getValue()
     {
         return value;
     }
 
-    public boolean isError()
+    final public boolean isSuccess()
+    {
+        return !isError();
+    }
+
+    final public boolean isError()
     {
         return error != null;
     }
 
-    public Throwable getError()
+    final public Throwable getError()
     {
         return error;
     }
 
-    public String getErrorMessage()
+    final public String getErrorMessage()
     {
         return error == null ? null : error.getMessage();
     }
 
+    public static <T> Result<T> success()
+    {
+        return Result.<T>success(null);
+    }
+
     public static <T> Result<T> success(T value)
     {
-        return new Result<>(value, null);
+        return new Result<T>(value, null);
     }
 
     public static <T> Result<T> error(Throwable error)
     {
-        return new Result<>(null, error);
+        return new Result<T>(null, error);
     }
 }

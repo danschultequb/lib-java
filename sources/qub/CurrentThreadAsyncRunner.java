@@ -1,10 +1,10 @@
 package qub;
 
-public class CurrentThreadAsyncRunner implements AsyncRunner
+public class CurrentThreadAsyncRunner extends DisposableBase implements AsyncRunner
 {
     private final Function0<Synchronization> synchronizationFunction;
     private final LockedQueue<PausedAsyncTask> scheduledTasks;
-    private boolean closed;
+    private boolean disposed;
 
     public CurrentThreadAsyncRunner(final Synchronization synchronization)
     {
@@ -39,7 +39,7 @@ public class CurrentThreadAsyncRunner implements AsyncRunner
     @Override
     public void schedule(PausedAsyncTask asyncTask)
     {
-        if (!closed)
+        if (!disposed)
         {
             scheduledTasks.enqueue(asyncTask);
         }
@@ -155,8 +155,16 @@ public class CurrentThreadAsyncRunner implements AsyncRunner
     }
 
     @Override
-    public void close()
+    public boolean isDisposed()
     {
-        closed = true;
+        return disposed;
+    }
+
+    @Override
+    public Result<Boolean> dispose()
+    {
+        final Result<Boolean> result = Result.success(!disposed);
+        disposed = true;
+        return result;
     }
 }

@@ -27,9 +27,9 @@ public abstract class LineReadStreamBase extends IteratorBase<String> implements
     }
 
     @Override
-    public final boolean isOpen()
+    public final boolean isDisposed()
     {
-        return LineReadStreamBase.isOpen(this);
+        return LineReadStreamBase.isDisposed(this);
     }
 
     @Override
@@ -42,7 +42,7 @@ public abstract class LineReadStreamBase extends IteratorBase<String> implements
     {
         String result = null;
 
-        if (lineReadStream.isOpen())
+        if (!lineReadStream.isDisposed())
         {
             int charactersRead = 0;
             final StringBuilder builder = new StringBuilder();
@@ -124,9 +124,9 @@ public abstract class LineReadStreamBase extends IteratorBase<String> implements
         return lineReadStream.asCharacterReadStream().getEncoding();
     }
 
-    public static boolean isOpen(LineReadStream lineReadStream)
+    public static boolean isDisposed(LineReadStream lineReadStream)
     {
-        return lineReadStream.asCharacterReadStream().isOpen();
+        return lineReadStream.asCharacterReadStream().isDisposed();
     }
 
     public static ByteReadStream asByteReadStream(LineReadStream lineReadStream)

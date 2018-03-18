@@ -9,7 +9,7 @@ public class InputStreamReaderToCharacterReadStreamTests
             runner.test("constructor(ByteReadStream,CharacterEncoding)", (Test test) ->
             {
                 final InputStreamReaderToCharacterReadStream characterReadStream = new InputStreamReaderToCharacterReadStream(new InMemoryByteReadStream(), CharacterEncoding.UTF_8);
-                assertCharacterReadStream(test, characterReadStream, true, false, null);
+                assertCharacterReadStream(test, characterReadStream, false, false, null);
             });
             
             runner.test("readCharacter() with exception", (Test test) ->
@@ -19,7 +19,7 @@ public class InputStreamReaderToCharacterReadStreamTests
 
                 final InputStreamReaderToCharacterReadStream characterReadStream = getCharacterReadStream(inputStream);
                 test.assertNull(characterReadStream.readCharacter());
-                assertCharacterReadStream(test, characterReadStream, true, true, null);
+                assertCharacterReadStream(test, characterReadStream, false, true, null);
             });
             
             runner.test("readCharacters(char[])", (Test test) ->
@@ -31,12 +31,12 @@ public class InputStreamReaderToCharacterReadStreamTests
                 int charactersRead = characterReadStream.readCharacters(characters);
                 test.assertEqual(5, charactersRead);
                 test.assertEqual(new char[] { 'a', 'b', 'c', 'd', 'e' }, characters);
-                assertCharacterReadStream(test, characterReadStream, true, true, 'e');
+                assertCharacterReadStream(test, characterReadStream, false, true, 'e');
 
                 charactersRead = characterReadStream.readCharacters(characters);
                 test.assertEqual(2, charactersRead);
                 test.assertEqual(new char[] { 'f', 'g', 'c', 'd', 'e' }, characters);
-                assertCharacterReadStream(test, characterReadStream, true, true, 'g');
+                assertCharacterReadStream(test, characterReadStream, false, true, 'g');
             });
             
             runner.test("readCharacters(char[]) with exception", (Test test) ->
@@ -50,7 +50,7 @@ public class InputStreamReaderToCharacterReadStreamTests
                 int charactersRead = characterReadStream.readCharacters(characters);
                 test.assertEqual(-1, charactersRead);
                 test.assertEqual(new char[5], characters);
-                assertCharacterReadStream(test, characterReadStream, true, true, null);
+                assertCharacterReadStream(test, characterReadStream, false, true, null);
             });
             
             runner.test("readCharacters(char[],int,int)", (Test test) ->
@@ -86,12 +86,12 @@ public class InputStreamReaderToCharacterReadStreamTests
                 final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream();
                 final InputStreamReaderToCharacterReadStream characterReadStream = getCharacterReadStream(byteReadStream);
                 characterReadStream.close();
-                test.assertFalse(characterReadStream.isOpen());
-                test.assertFalse(byteReadStream.isOpen());
+                test.assertTrue(characterReadStream.isDisposed());
+                test.assertTrue(byteReadStream.isDisposed());
 
                 characterReadStream.close();
-                test.assertFalse(characterReadStream.isOpen());
-                test.assertFalse(byteReadStream.isOpen());
+                test.assertTrue(characterReadStream.isDisposed());
+                test.assertTrue(byteReadStream.isDisposed());
             });
             
             runner.test("asByteReadStream()", (Test test) ->
@@ -110,11 +110,11 @@ public class InputStreamReaderToCharacterReadStreamTests
                 for (int i = 0; i < 3; ++i)
                 {
                     test.assertTrue(characterReadStream.next());
-                    assertCharacterReadStream(test, characterReadStream, true, true, (char)('a' + i));
+                    assertCharacterReadStream(test, characterReadStream, false, true, (char)('a' + i));
                 }
 
                 test.assertFalse(characterReadStream.next());
-                assertCharacterReadStream(test, characterReadStream, true, true, null);
+                assertCharacterReadStream(test, characterReadStream, false, true, null);
             });
         });
     }
@@ -130,10 +130,10 @@ public class InputStreamReaderToCharacterReadStreamTests
         return new InputStreamReaderToCharacterReadStream(byteReadStream, CharacterEncoding.UTF_8);
     }
 
-    private static void assertCharacterReadStream(Test test, CharacterReadStream characterReadStream, boolean isOpen, boolean hasStarted, Character current)
+    private static void assertCharacterReadStream(Test test, CharacterReadStream characterReadStream, boolean isDisposed, boolean hasStarted, Character current)
     {
         test.assertNotNull(characterReadStream);
-        test.assertEqual(isOpen, characterReadStream.isOpen());
+        test.assertEqual(isDisposed, characterReadStream.isDisposed());
         test.assertEqual(hasStarted, characterReadStream.hasStarted());
         test.assertEqual(current != null, characterReadStream.hasCurrent());
         test.assertEqual(current, characterReadStream.getCurrent());

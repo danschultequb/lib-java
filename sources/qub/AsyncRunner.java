@@ -3,7 +3,7 @@ package qub;
 /**
  * An interface that runs provided Actions and Functions asynchronously.
  */
-public interface AsyncRunner extends AutoCloseable
+public interface AsyncRunner extends Disposable
 {
     /**
      * Get the number of actions that are currently scheduled.

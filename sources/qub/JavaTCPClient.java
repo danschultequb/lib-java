@@ -5,12 +5,11 @@ import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 
-class JavaTCPClient implements TCPClient
+class JavaTCPClient extends DisposableBase implements TCPClient
 {
     private final Socket socket;
     private final ByteReadStream socketReadStream;
     private final ByteWriteStream socketWriteStream;
-    private Action1<IOException> exceptionHandler;
 
     private JavaTCPClient(Socket socket, ByteReadStream socketReadStream, ByteWriteStream socketWriteStream)
     {
@@ -19,29 +18,29 @@ class JavaTCPClient implements TCPClient
         this.socketWriteStream = socketWriteStream;
     }
 
-    static Result<TCPClient> create(IPv4Address targetIPAddress, int targetPort)
+    static Result<TCPClient> create(IPv4Address remoteIPAddress, int remotePort)
     {
         Result<TCPClient> result;
 
-        if (targetIPAddress == null)
+        if (remoteIPAddress == null)
         {
-            result = Result.error(new IllegalArgumentException("targetIPAddress cannot be null."));
+            result = Result.<TCPClient>error(new IllegalArgumentException("remoteIPAddress cannot be null."));
         }
-        else if (targetPort <= 0)
+        else if (remotePort <= 0)
         {
-            result = Result.error(new IllegalArgumentException("targetPort must be greater than 0."));
+            result = Result.<TCPClient>error(new IllegalArgumentException("remotePort must be greater than 0."));
         }
         else
         {
             try
             {
-                final byte[] targetIPAddressBytes = targetIPAddress.toBytes();
-                final InetAddress targetInetAddress = InetAddress.getByAddress(targetIPAddressBytes);
-                final Socket socket = new Socket(targetInetAddress, targetPort);
+                final byte[] remoteIPAddressBytes = remoteIPAddress.toBytes();
+                final InetAddress remoteInetAddress = InetAddress.getByAddress(remoteIPAddressBytes);
+                final Socket socket = new Socket(remoteInetAddress, remotePort);
                 final ByteReadStream socketReadStream = new InputStreamToByteReadStream(socket.getInputStream());
                 final ByteWriteStream socketWriteStream = new OutputStreamToByteWriteStream(socket.getOutputStream());
-                final JavaTCPClient tcpClient = new JavaTCPClient(socket, socketReadStream, socketWriteStream);
-                result = Result.<TCPClient>success(tcpClient);
+                final TCPClient tcpClient = new JavaTCPClient(socket, socketReadStream, socketWriteStream);
+                result = Result.success(tcpClient);
             }
             catch (IOException e)
             {
@@ -121,7 +120,6 @@ class JavaTCPClient implements TCPClient
     @Override
     public void setExceptionHandler(Action1<IOException> exceptionHandler)
     {
-        this.exceptionHandler = exceptionHandler;
         socketReadStream.setExceptionHandler(exceptionHandler);
         socketWriteStream.setExceptionHandler(exceptionHandler);
     }
@@ -313,38 +311,31 @@ class JavaTCPClient implements TCPClient
     }
 
     @Override
-    public boolean isOpen()
+    public boolean isDisposed()
     {
         return !socket.isClosed();
     }
 
     @Override
-    public void close()
+    public Result<Boolean> dispose()
     {
-        try
+        Result<Boolean> result;
+        if (isDisposed())
         {
-            socketReadStream.close();
+            result = Result.success(false);
         }
-        finally
+        else
         {
             try
             {
-                socketWriteStream.close();
+                socket.close();
+                result = Result.success(true);
             }
-            finally
+            catch (IOException e)
             {
-                try
-                {
-                    socket.close();
-                }
-                catch (IOException e)
-                {
-                    if (exceptionHandler != null)
-                    {
-                        exceptionHandler.run(e);
-                    }
-                }
+                result = Result.<Boolean>error(e);
             }
         }
+        return result;
     }
 }

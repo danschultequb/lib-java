@@ -1,6 +1,6 @@
 package qub;
 
-public interface CharacterWriteStream extends Stream
+public interface CharacterWriteStream extends Disposable
 {
     CharacterEncoding getCharacterEncoding();
 

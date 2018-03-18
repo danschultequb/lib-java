@@ -2,28 +2,31 @@ package qub;
 
 public class JavaFileSystemTests
 {
-    public static void test(final TestRunner runner)
+    public static void test(TestRunner runner)
     {
-        final JavaFileSystem javaFileSystem = new JavaFileSystem();
         String tempFolderPathString = System.getProperty("java.io.tmpdir");
         final Path tempFolderPath = Path.parse(tempFolderPathString).concatenateSegment("qub-tests");
 
         final Value<FolderFileSystem> folderFileSystem = new Value<>();
-        runner.beforeTest(() ->
-        {
-            final Path testFolderPath = tempFolderPath.concatenate(Integer.toString((int)(java.lang.Math.random() * 1000)));
-            folderFileSystem.set(FolderFileSystem.create(javaFileSystem, testFolderPath));
-            folderFileSystem.get().create();
-        });
 
         runner.afterTest(() ->
         {
-            folderFileSystem.get().delete();
+            if (folderFileSystem.hasValue())
+            {
+                folderFileSystem.get().delete();
+                folderFileSystem.clear();
+            }
         });
 
-        runner.testGroup("JavaFileSystem", () ->
+        runner.testGroup(JavaFileSystem.class, () ->
         {
-            FileSystemTests.test(runner, folderFileSystem::get);
+            FileSystemTests.test(runner, (AsyncRunner asyncRunner) ->
+            {
+                final Value<Path> testFolderPath = new Value<>(tempFolderPath.concatenate(Integer.toString((int)(java.lang.Math.random() * 1000))));
+                folderFileSystem.set(FolderFileSystem.create(new JavaFileSystem(asyncRunner), testFolderPath.get()));
+                folderFileSystem.get().create();
+                return folderFileSystem.get();
+            });
         });
     }
 }

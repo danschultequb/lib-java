@@ -4,11 +4,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class ParallelAsyncRunner implements AsyncRunner
+public class ParallelAsyncRunner extends DisposableBase implements AsyncRunner
 {
     private final Function0<Synchronization> synchronizationFunction;
     private final AtomicInteger scheduledTaskCount;
     private final ExecutorService executorService;
+    private boolean disposed;
 
     public ParallelAsyncRunner(final Synchronization synchronization)
     {
@@ -104,8 +105,32 @@ public class ParallelAsyncRunner implements AsyncRunner
     }
 
     @Override
-    public void close()
+    public boolean isDisposed()
     {
-        executorService.shutdownNow();
+        return disposed;
+    }
+
+    @Override
+    public Result<Boolean> dispose()
+    {
+        Result<Boolean> result;
+        if (disposed)
+        {
+            result = Result.success(false);
+        }
+        else
+        {
+            disposed = true;
+            try
+            {
+                executorService.shutdownNow();
+                result = Result.success(true);
+            }
+            catch (Throwable t)
+            {
+                result = Result.<Boolean>error(t);
+            }
+        }
+        return result;
     }
 }

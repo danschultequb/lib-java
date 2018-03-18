@@ -9,16 +9,16 @@ public class InMemoryByteReadStreamTests
             runner.test("constructor()", (Test test) ->
             {
                 final InMemoryByteReadStream readStream = new InMemoryByteReadStream();
-                test.assertTrue(readStream.isOpen());
+                test.assertFalse(readStream.isDisposed());
             });
             
             runner.test("close()", (Test test) ->
             {
                 final InMemoryByteReadStream readStream = new InMemoryByteReadStream();
                 readStream.close();
-                test.assertFalse(readStream.isOpen());
+                test.assertTrue(readStream.isDisposed());
                 readStream.close();
-                test.assertFalse(readStream.isOpen());
+                test.assertTrue(readStream.isDisposed());
             });
             
             runner.test("readBytes(int)", (Test test) ->

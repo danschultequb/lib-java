@@ -8,12 +8,18 @@ public class InMemoryFileSystem extends FileSystemBase
     private final List<InMemoryRoot> roots;
     private AsyncRunner asyncRunner;
 
+    public InMemoryFileSystem()
+    {
+        this(null);
+    }
+
     /**
      * Create a new InMemoryFileSystem.
      */
-    public InMemoryFileSystem()
+    public InMemoryFileSystem(AsyncRunner asyncRunner)
     {
         roots = new ArrayList<>();
+        this.asyncRunner = asyncRunner;
     }
 
     private InMemoryRoot getInMemoryRoot(String inMemoryRootPath)
@@ -118,12 +124,6 @@ public class InMemoryFileSystem extends FileSystemBase
         }
 
         return result;
-    }
-
-    @Override
-    public void setAsyncRunner(AsyncRunner asyncRunner)
-    {
-        this.asyncRunner = asyncRunner;
     }
 
     @Override

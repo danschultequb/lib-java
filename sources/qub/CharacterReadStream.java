@@ -1,6 +1,6 @@
 package qub;
 
-public interface CharacterReadStream extends Stream, Iterator<Character>
+public interface CharacterReadStream extends Disposable, Iterator<Character>
 {
     Character readCharacter();
 

@@ -1,6 +1,6 @@
 package qub;
 
-public abstract class CharacterWriteStreamBase implements CharacterWriteStream
+public abstract class CharacterWriteStreamBase extends DisposableBase implements CharacterWriteStream
 {
     public static boolean shouldFormat(String toWrite, Object... formattedStringArguments)
     {

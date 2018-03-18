@@ -5,7 +5,7 @@ import java.io.IOException;
 /**
  * An interface for writing bytes to a stream.
  */
-public interface ByteWriteStream extends Stream
+public interface ByteWriteStream extends Disposable
 {
     void setExceptionHandler(Action1<IOException> exceptionHandler);
 

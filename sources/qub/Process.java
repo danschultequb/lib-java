@@ -5,7 +5,7 @@ import java.nio.file.Paths;
 /**
  * A Console platform that can be used to write Console applications.
  */
-public class Process implements AutoCloseable
+public class Process extends DisposableBase
 {
     private final CommandLine commandLine;
 
@@ -29,6 +29,8 @@ public class Process implements AutoCloseable
 
     private AsyncRunner mainRunner;
     private AsyncRunner parallelRunner;
+
+    private boolean disposed;
 
     /**
      * Create a new Process applications can be written with.
@@ -335,7 +337,7 @@ public class Process implements AutoCloseable
     {
         if (!fileSystem.hasValue())
         {
-            setFileSystem(new JavaFileSystem());
+            setFileSystem(new JavaFileSystem(getParallelRunner()));
         }
         return fileSystem.get();
     }
@@ -353,9 +355,13 @@ public class Process implements AutoCloseable
         }
         else
         {
-            fileSystem.setAsyncRunner(getParallelRunner());
             currentFolderPathString.clear();
         }
+    }
+
+    public void setFileSystem(Function1<AsyncRunner,FileSystem> creator)
+    {
+        setFileSystem(creator.run(getParallelRunner()));
     }
 
     public String getCurrentFolderPathString()
@@ -604,27 +610,59 @@ public class Process implements AutoCloseable
     }
 
     @Override
-    public void close()
+    public boolean isDisposed()
     {
-        try
+        return disposed;
+    }
+
+    @Override
+    public Result<Boolean> dispose()
+    {
+        Result<Boolean> result;
+        if (disposed)
         {
-            mainRunner.close();
+            result = Result.<Boolean>success(false);
         }
-        catch (Exception ignored)
+        else
         {
-        }
-        finally
-        {
-            if (parallelRunner != null)
+            disposed = true;
+
+            Throwable resultThrowable = null;
+            try
             {
-                try
+                mainRunner.close();
+            }
+            catch (Exception e)
+            {
+                resultThrowable = e;
+            }
+            finally
+            {
+                if (parallelRunner != null)
                 {
-                    parallelRunner.close();
-                }
-                catch (Exception ignored)
-                {
+                    try
+                    {
+                        parallelRunner.close();
+                    }
+                    catch (Exception e)
+                    {
+                        if (resultThrowable == null)
+                        {
+                            resultThrowable = e;
+                        }
+                    }
                 }
             }
+
+            if (resultThrowable == null)
+            {
+                result = Result.success(true);
+            }
+            else
+            {
+                result = Result.<Boolean>error(resultThrowable);
+            }
         }
+        return result;
     }
 }

@@ -10,7 +10,7 @@ public class JSONWriteStreamTests
             {
                 final InMemoryLineWriteStream inMemoryWriteStream = new InMemoryLineWriteStream();
                 final JSONWriteStream writeStream = new JSONWriteStream(inMemoryWriteStream);
-                test.assertTrue(writeStream.isOpen());
+                test.assertFalse(writeStream.isDisposed());
             });
 
             runner.test("close()", test ->
@@ -19,12 +19,12 @@ public class JSONWriteStreamTests
                 final JSONWriteStream writeStream = new JSONWriteStream(inMemoryWriteStream);
 
                 writeStream.close();
-                test.assertFalse(writeStream.isOpen());
-                test.assertFalse(inMemoryWriteStream.isOpen());
+                test.assertTrue(writeStream.isDisposed());
+                test.assertTrue(inMemoryWriteStream.isDisposed());
 
                 writeStream.close();
-                test.assertFalse(writeStream.isOpen());
-                test.assertFalse(inMemoryWriteStream.isOpen());
+                test.assertTrue(writeStream.isDisposed());
+                test.assertTrue(inMemoryWriteStream.isDisposed());
             });
 
             runner.testGroup("writeBoolean(boolean)", () ->

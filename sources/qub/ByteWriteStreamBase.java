@@ -1,6 +1,6 @@
 package qub;
 
-public abstract class ByteWriteStreamBase implements ByteWriteStream
+public abstract class ByteWriteStreamBase extends DisposableBase implements ByteWriteStream
 {
     @Override
     public boolean write(byte[] toWrite)
@@ -98,7 +98,7 @@ public abstract class ByteWriteStreamBase implements ByteWriteStream
     {
         boolean result = false;
 
-        if (byteReadStream != null && byteWriteStream.isOpen() && byteReadStream.isOpen())
+        if (byteReadStream != null && !byteWriteStream.isDisposed() && !byteReadStream.isDisposed())
         {
             final byte[] buffer = new byte[1024];
             int bytesRead = byteReadStream.readBytes(buffer);

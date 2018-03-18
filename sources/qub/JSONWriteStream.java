@@ -1,6 +1,6 @@
 package qub;
 
-public class JSONWriteStream implements Stream
+public class JSONWriteStream extends DisposableBase
 {
     private final LineWriteStream writeStream;
 
@@ -105,14 +105,14 @@ public class JSONWriteStream implements Stream
     }
 
     @Override
-    public boolean isOpen()
+    public boolean isDisposed()
     {
-        return writeStream.isOpen();
+        return writeStream.isDisposed();
     }
 
     @Override
-    public void close()
+    public Result<Boolean> dispose()
     {
-        writeStream.close();
+        return writeStream.dispose();
     }
 }

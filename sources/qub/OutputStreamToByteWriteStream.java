@@ -6,7 +6,7 @@ import java.io.OutputStream;
 public class OutputStreamToByteWriteStream extends ByteWriteStreamBase
 {
     private final OutputStream outputStream;
-    private boolean closed;
+    private boolean disposed;
     private Action1<IOException> exceptionHandler;
 
     public OutputStreamToByteWriteStream(OutputStream outputStream)
@@ -98,28 +98,32 @@ public class OutputStreamToByteWriteStream extends ByteWriteStreamBase
     }
 
     @Override
-    public boolean isOpen()
+    public boolean isDisposed()
     {
-        return !closed;
+        return disposed;
     }
 
     @Override
-    public void close()
+    public Result<Boolean> dispose()
     {
-        if (isOpen())
+        Result<Boolean> result;
+        if (disposed)
         {
+            result = Result.success(false);
+        }
+        else
+        {
+            disposed = true;
             try
             {
                 outputStream.close();
-                closed = true;
+                result = Result.success(true);
             }
             catch (IOException e)
             {
-                if (exceptionHandler != null)
-                {
-                    exceptionHandler.run(e);
-                }
+                result = Result.<Boolean>error(e);
             }
         }
+        return result;
     }
 }

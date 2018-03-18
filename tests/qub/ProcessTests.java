@@ -254,12 +254,12 @@ public class ProcessTests
                 test.assertTrue(defaultFileSystem instanceof JavaFileSystem);
             });
 
-            runner.testGroup("setFileSystem()", () ->
+            runner.testGroup("setFileSystem(FileSystem)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
                     final Process process = creator.run();
-                    process.setFileSystem(null);
+                    process.setFileSystem((FileSystem)null);
                     test.assertNull(process.getFileSystem());
                     test.assertNull(process.getCurrentFolderPathString());
                 });

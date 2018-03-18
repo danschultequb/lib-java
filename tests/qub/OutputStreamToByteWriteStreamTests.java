@@ -12,22 +12,22 @@ public class OutputStreamToByteWriteStreamTests
             runner.test("constructor()", test ->
             {
                 final OutputStreamToByteWriteStream writeStream = new OutputStreamToByteWriteStream(getOutputStream());
-                test.assertTrue(writeStream.isOpen());
+                test.assertFalse(writeStream.isDisposed());
             });
 
             runner.testGroup("close()", () ->
             {
-                final Action2<OutputStream,Boolean> closeTest = (OutputStream outputStream, Boolean expectedIsOpen) ->
+                final Action2<OutputStream,Boolean> closeTest = (OutputStream outputStream, Boolean expectedIsDisposed) ->
                 {
                     runner.test("with " + outputStream.getClass().getSimpleName(), test ->
                     {
                         final OutputStreamToByteWriteStream writeStream = getWriteStream(outputStream);
                         writeStream.close();
-                        test.assertEqual(expectedIsOpen, writeStream.isOpen());
+                        test.assertEqual(expectedIsDisposed, writeStream.isDisposed());
                     });
                 };
 
-                closeTest.run(new ByteArrayOutputStream(), false);
+                closeTest.run(new ByteArrayOutputStream(), true);
                 closeTest.run(new TestStubOutputStream(), true);
             });
 

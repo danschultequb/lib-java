@@ -14,7 +14,7 @@ public class InputStreamToByteReadStreamTests
             {
                 final ByteArrayInputStream inputStream = getInputStream(5);
                 final InputStreamToByteReadStream readStream = new InputStreamToByteReadStream(inputStream);
-                assertByteReadStream(test, readStream, true, false, null);
+                assertByteReadStream(test, readStream, false, false, null);
             });
             
             runner.test("close()", (Test test) ->
@@ -35,11 +35,11 @@ public class InputStreamToByteReadStreamTests
 
                 final InputStreamToByteReadStream closedReadStream = getByteReadStream(1);
                 closedReadStream.close();
-                closeTest(test, closedReadStream, false);
+                closeTest(test, closedReadStream, true);
 
                 final TestStubInputStream testStubInputStream = new TestStubInputStream();
                 testStubInputStream.setThrowOnClose(true);
-                closeTest(test, testStubInputStream, false, true);
+                closeTest(test, testStubInputStream, true);
             });
 
             runner.test("readByte()", (Test test) ->
@@ -116,11 +116,11 @@ public class InputStreamToByteReadStreamTests
                     for (int i = 0; i < 5; ++i)
                     {
                         test.assertTrue(byteReadStream.next());
-                        assertByteReadStream(test, byteReadStream, true, true, (byte)i);
+                        assertByteReadStream(test, byteReadStream, false, true, (byte)i);
                     }
 
                     test.assertFalse(byteReadStream.next());
-                    assertByteReadStream(test, byteReadStream, true, true, null);
+                    assertByteReadStream(test, byteReadStream, false, true, null);
                 });
             });
         });
@@ -146,36 +146,31 @@ public class InputStreamToByteReadStreamTests
         return new InputStreamToByteReadStream(inputStream);
     }
 
-    private static void assertByteReadStream(Test test, ByteReadStream byteReadStream, boolean isOpen, boolean hasStarted, Byte current)
+    private static void assertByteReadStream(Test test, ByteReadStream byteReadStream, boolean isDisposed, boolean hasStarted, Byte current)
     {
         test.assertNotNull(byteReadStream);
-        test.assertEqual(isOpen, byteReadStream.isOpen());
+        test.assertEqual(isDisposed, byteReadStream.isDisposed());
         test.assertEqual(hasStarted, byteReadStream.hasStarted());
         test.assertEqual(current != null, byteReadStream.hasCurrent());
         test.assertEqual(current, byteReadStream.getCurrent());
     }
 
-    private static void closeTest(Test test, InputStream inputStream, boolean expectedResult)
+    private static void closeTest(Test test, InputStream inputStream)
     {
         final InputStreamToByteReadStream readStream = getByteReadStream(inputStream);
-        closeTest(test, readStream, expectedResult);
+        closeTest(test, readStream, true);
         assertByteReadStream(test, readStream, false, false, null);
     }
 
-    private static void closeTest(Test test, InputStream inputStream, boolean expectedResult, boolean expectedIsOpen)
+    private static void closeTest(Test test, InputStream inputStream, boolean expectedIsDisposed)
     {
         final InputStreamToByteReadStream readStream = getByteReadStream(inputStream);
-        closeTest(test, readStream, expectedResult, expectedIsOpen);
+        closeTest(test, readStream, expectedIsDisposed);
     }
 
-    private static void closeTest(Test test, InputStreamToByteReadStream readStream, boolean expectedResult)
-    {
-        closeTest(test, readStream, expectedResult, false);
-    }
-
-    private static void closeTest(Test test, InputStreamToByteReadStream readStream, boolean expectedResult, boolean expectedIsOpen)
+    private static void closeTest(Test test, InputStreamToByteReadStream readStream, boolean expectedIsDisposed)
     {
         readStream.close();
-        test.assertEqual(expectedIsOpen, readStream.isOpen());
+        test.assertEqual(expectedIsDisposed, readStream.isDisposed());
     }
 }

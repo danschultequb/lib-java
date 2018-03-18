@@ -34,14 +34,14 @@ public class CharacterWriteStreamToLineWriteStream extends LineWriteStreamBase
     }
 
     @Override
-    public boolean isOpen()
+    public boolean isDisposed()
     {
-        return characterWriteStream.isOpen();
+        return characterWriteStream.isDisposed();
     }
 
     @Override
-    public void close()
+    public Result<Boolean> dispose()
     {
-        characterWriteStream.close();
+        return characterWriteStream.dispose();
     }
 }

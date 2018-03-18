@@ -5,10 +5,9 @@ package qub;
  */
 public class JavaFileSystem extends FileSystemBase
 {
-    private AsyncRunner asyncRunner;
+    private final AsyncRunner asyncRunner;
 
-    @Override
-    public void setAsyncRunner(AsyncRunner asyncRunner)
+    JavaFileSystem(AsyncRunner asyncRunner)
     {
         this.asyncRunner = asyncRunner;
     }

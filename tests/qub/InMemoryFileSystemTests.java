@@ -6,9 +6,9 @@ public class InMemoryFileSystemTests
     {
         runner.testGroup(InMemoryFileSystem.class, () ->
         {
-            FileSystemTests.test(runner, () ->
+            FileSystemTests.test(runner, (AsyncRunner asyncRunner) ->
             {
-                final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
+                final InMemoryFileSystem fileSystem = new InMemoryFileSystem(asyncRunner);
                 fileSystem.createRoot("/");
                 return fileSystem;
             });
