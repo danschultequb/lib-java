@@ -11,6 +11,11 @@ public class ParallelAsyncRunner extends DisposableBase implements AsyncRunner
     private final ExecutorService executorService;
     private boolean disposed;
 
+    public ParallelAsyncRunner()
+    {
+        this(new Synchronization());
+    }
+
     public ParallelAsyncRunner(final Synchronization synchronization)
     {
         this(new Function0<Synchronization>()
