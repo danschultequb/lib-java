@@ -239,39 +239,35 @@ public class JavaTCPServerTests
 
                 runner.test("with connection while accepting() on port " + port.incrementAndGet(), (Test test) ->
                 {
-                    final Synchronization synchronization = new Synchronization();
-                    CurrentThreadAsyncRunner.withRegistered(synchronization, (CurrentThreadAsyncRunner currentThreadAsyncRunner) ->
+                    final IPv4Address ipAddress = IPv4Address.parse("127.0.0.1");
+                    final byte[] bytes = new byte[] { 10, 20, 30, 40, 50 };
+                    try (final ParallelAsyncRunner parallelAsyncRunner = new ParallelAsyncRunner();
+                         final TCPServer tcpServer = JavaTCPServer.create(ipAddress, port.get(), parallelAsyncRunner).getValue())
                     {
-                        final IPv4Address ipAddress = IPv4Address.parse("127.0.0.1");
-                        final byte[] bytes = new byte[] { 10, 20, 30, 40, 50 };
-                        try (final ParallelAsyncRunner parallelAsyncRunner = new ParallelAsyncRunner(synchronization);
-                             final TCPServer tcpServer = JavaTCPServer.create(ipAddress, port.get(), parallelAsyncRunner).getValue())
+                        final AsyncFunction<TCPClient> acceptAsyncResult = tcpServer.acceptAsync();
+                        test.assertNotNull(acceptAsyncResult);
+
+                        acceptAsyncResult.then((TCPClient tcpClient) ->
                         {
-                            final AsyncFunction<TCPClient> acceptAsyncResult = tcpServer.acceptAsync();
-                            test.assertNotNull(acceptAsyncResult);
+                            final byte[] serverReadBytes = tcpClient.readBytes(bytes.length);
+                            tcpClient.write(serverReadBytes);
+                            tcpClient.dispose();
+                        });
 
-                            acceptAsyncResult.then((TCPClient tcpClient) ->
+                        parallelAsyncRunner.schedule(() ->
+                        {
+                            // The tcpClient code needs to be in a different thread because the
+                            // tcpServer runs its acceptAsync().then() action on the main thread.
+                            try (final TCPClient tcpClient = JavaTCPClient.create(ipAddress, port.get()).getValue())
                             {
-                                final byte[] serverReadBytes = tcpClient.readBytes(bytes.length);
-                                tcpClient.write(serverReadBytes);
-                                tcpClient.dispose();
-                            });
+                                tcpClient.write(bytes);
+                                final byte[] clientReadBytes = tcpClient.readBytes(bytes.length);
+                                test.assertEqual(bytes, clientReadBytes);
+                            }
+                        });
 
-                            parallelAsyncRunner.schedule(() ->
-                            {
-                                // The tcpClient code needs to be in a different thread because the
-                                // tcpServer runs its acceptAsync().then() action on the main thread.
-                                try (final TCPClient tcpClient = JavaTCPClient.create(ipAddress, port.get()).getValue())
-                                {
-                                    tcpClient.write(bytes);
-                                    final byte[] clientReadBytes = tcpClient.readBytes(bytes.length);
-                                    test.assertEqual(bytes, clientReadBytes);
-                                }
-                            });
-
-                            currentThreadAsyncRunner.await();
-                        }
-                    });
+                        AsyncRunnerRegistry.getCurrentThreadAsyncRunner().await();
+                    }
                 });
             });
 

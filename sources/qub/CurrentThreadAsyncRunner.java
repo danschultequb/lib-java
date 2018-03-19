@@ -140,17 +140,24 @@ public class CurrentThreadAsyncRunner extends DisposableBase implements AsyncRun
      */
     public static void withRegistered(final Function0<Synchronization> synchronizationFunction, Action1<CurrentThreadAsyncRunner> action)
     {
+        final AsyncRunner runnerBackup = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+
         final CurrentThreadAsyncRunner runner = new CurrentThreadAsyncRunner(synchronizationFunction);
-
         AsyncRunnerRegistry.setCurrentThreadAsyncRunner(runner);
-
         try
         {
             action.run(runner);
         }
         finally
         {
-            AsyncRunnerRegistry.removeCurrentThreadAsyncRunner();
+            if (runnerBackup == null)
+            {
+                AsyncRunnerRegistry.removeCurrentThreadAsyncRunner();
+            }
+            else
+            {
+                AsyncRunnerRegistry.setCurrentThreadAsyncRunner(runnerBackup);
+            }
         }
     }
 
