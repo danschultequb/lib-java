@@ -47,6 +47,32 @@ public class BasicAsyncFunction<T> extends BasicAsyncTask implements AsyncFuncti
     }
 
     @Override
+    public AsyncAction thenAsyncAction(final Function1<T,AsyncAction> function)
+    {
+        return function == null ? null : thenAsyncAction(new Function0<AsyncAction>()
+        {
+            @Override
+            public AsyncAction run()
+            {
+                return function.run(functionResult.get());
+            }
+        });
+    }
+
+    @Override
+    public <U> AsyncFunction<U> thenAsyncFunction(final Function1<T, AsyncFunction<U>> function)
+    {
+        return function == null ? null : thenAsyncFunction(new Function0<AsyncFunction<U>>()
+        {
+            @Override
+            public AsyncFunction<U> run()
+            {
+                return function.run(functionResult.get());
+            }
+        });
+    }
+
+    @Override
     public AsyncFunction<T> thenOn(AsyncRunner runner)
     {
         return runner == null ? null : runner == getRunner() ? this : thenOn(runner, new Function1<T, T>()

@@ -218,4 +218,12 @@ public class Console extends Process
 
         return result;
     }
+
+    public static void main(String[] args, Action1<Console> mainAction)
+    {
+        try (final Console console = new Console(args))
+        {
+            mainAction.run(console);
+        }
+    }
 }

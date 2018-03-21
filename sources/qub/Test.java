@@ -8,12 +8,14 @@ public class Test
     private final String name;
     private final TestGroup parentTestGroup;
     private final boolean shouldSkip;
+    private final Process process;
 
-    public Test(String name, TestGroup parentTestGroup, boolean shouldSkip)
+    public Test(String name, TestGroup parentTestGroup, boolean shouldSkip, Process process)
     {
         this.name = name;
         this.parentTestGroup = parentTestGroup;
         this.shouldSkip = shouldSkip || (parentTestGroup != null && parentTestGroup.getShouldSkip());
+        this.process = process;
     }
 
     public String getName()
@@ -42,6 +44,27 @@ public class Test
     public boolean getShouldSkip()
     {
         return shouldSkip;
+    }
+
+    public AsyncRunner getMainRunner()
+    {
+        return process.getMainRunner();
+    }
+
+    public AsyncRunner getParallelRunner()
+    {
+        return process.getParallelRunner();
+    }
+
+    public void await()
+    {
+        final AsyncRunner mainRunner = process.getMainRunner();
+        final AsyncRunner parallelRunner = process.getParallelRunner();
+        while (mainRunner.getScheduledTaskCount() != 0 || parallelRunner.getScheduledTaskCount() != 0)
+        {
+            mainRunner.await();
+            parallelRunner.await();
+        }
     }
 
     /**

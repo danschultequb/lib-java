@@ -54,7 +54,7 @@ public class ConsoleTestRunner extends Console implements TestRunner
             writeLine("TestPattern: " + (testPattern == null ? "null" : "\"" + testPattern + "\""));
         }
 
-        testRunner = new TestRunnerBase(debug, testPattern);
+        testRunner = new TestRunnerBase(this, debug, testPattern);
 
         final List<TestGroup> testGroupsWrittenToConsole = new ArrayList<>();
         testRunner.setOnTestGroupFinished(new Action1<TestGroup>()

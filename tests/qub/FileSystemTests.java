@@ -4,49 +4,22 @@ public class FileSystemTests
 {
     public static void test(TestRunner runner, Function1<AsyncRunner,FileSystem> creator)
     {
-        final Action2<Test,Action1<FileSystem>> asyncTest = (Test test, Action1<FileSystem> testAction) ->
-        {
-            final Synchronization synchronization = new Synchronization();
-            CurrentThreadAsyncRunner.withRegistered(synchronization, (CurrentThreadAsyncRunner mainRunner) ->
-            {
-                final CurrentThreadAsyncRunner backgroundRunner = new CurrentThreadAsyncRunner(synchronization);
-                FileSystem fileSystem = creator.run(backgroundRunner);
-
-                testAction.run(fileSystem);
-                test.assertEqual(0, mainRunner.getScheduledTaskCount());
-                test.assertEqual(1, backgroundRunner.getScheduledTaskCount());
-
-                backgroundRunner.await();
-                test.assertEqual(1, mainRunner.getScheduledTaskCount());
-                test.assertEqual(0, backgroundRunner.getScheduledTaskCount());
-
-                mainRunner.await();
-                test.assertEqual(0, mainRunner.getScheduledTaskCount());
-                test.assertEqual(0, backgroundRunner.getScheduledTaskCount());
-            });
-        };
-
-        runner.testGroup("FileSystem", () ->
+        runner.testGroup(FileSystem.class, () ->
         {
             runner.testGroup("rootExists()", () ->
             {
-                runner.test("with null String path", (Test test) ->
+                final Action1<String> rootExistsTest = (String rootPath) ->
                 {
-                    FileSystem fileSystem = creator.run(null);
-                    test.assertFalse(fileSystem.rootExists((String)null));
-                });
+                    runner.test("with " + Strings.escapeAndQuote(rootPath), (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(null);
+                        test.assertFalse(fileSystem.rootExists(rootPath));
+                    });
+                };
 
-                runner.test("with empty String path", (Test test) ->
-                {
-                    FileSystem fileSystem = creator.run(null);
-                    test.assertFalse(fileSystem.rootExists(""));
-                });
-
-                runner.test("with non-existing String path", (Test test) ->
-                {
-                    FileSystem fileSystem = creator.run(null);
-                    test.assertFalse(fileSystem.rootExists("notme:/"));
-                });
+                rootExistsTest.run(null);
+                rootExistsTest.run("");
+                rootExistsTest.run("notme:/");
             });
 
             runner.testGroup("rootExistsAsync(String)", () ->
@@ -55,14 +28,12 @@ public class FileSystemTests
                 {
                     runner.test("with " + (rootPath == null ? null : "\"" + rootPath + "\""), (Test test) ->
                     {
-                        asyncTest.run(test, (FileSystem fileSystem) ->
-                        {
-                            fileSystem.rootExistsAsync(rootPath)
-                                .then((Boolean rootExists) ->
-                                {
-                                    test.assertEqual(expectedToExist, rootExists);
-                                });
-                        });
+                        final FileSystem fileSystem = creator.run(test.getMainRunner());
+                        fileSystem.rootExistsAsync(rootPath)
+                            .then((Boolean rootExists) ->
+                            {
+                                test.assertEqual(expectedToExist, rootExists);
+                            });
                     });
                 };
 
@@ -77,14 +48,12 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(rootPath), (Test test) ->
                     {
-                        asyncTest.run(test, (FileSystem fileSystem) ->
-                        {
-                            fileSystem.rootExistsAsync(Path.parse(rootPath))
-                                .then((Boolean rootExists) ->
-                                {
-                                    test.assertEqual(expectedToExist, rootExists);
-                                });
-                        });
+                        final FileSystem fileSystem = creator.run(test.getMainRunner());
+                        fileSystem.rootExistsAsync(Path.parse(rootPath))
+                            .then((Boolean rootExists) ->
+                            {
+                                test.assertEqual(expectedToExist, rootExists);
+                            });
                     });
                 };
 
@@ -111,702 +80,536 @@ public class FileSystemTests
 
             runner.test("getRootsAsync()", (Test test) ->
             {
-                asyncTest.run(test, (FileSystem fileSystem) ->
-                {
-                    fileSystem.getRootsAsync()
-                        .then((Iterable<Root> roots) ->
-                        {
-                            test.assertNotNull(roots);
-                            test.assertTrue(1 <= roots.getCount());
-                        });
-                });
+                FileSystem fileSystem = creator.run(test.getMainRunner());
+                fileSystem.getRootsAsync()
+                    .then((Iterable<Root> roots) ->
+                    {
+                        test.assertNotNull(roots);
+                        test.assertTrue(1 <= roots.getCount());
+                    });
             });
 
             runner.testGroup("getFilesAndFolders(String)", () ->
             {
-                runner.test("with null String path", (Test test) ->
+                final Action3<String, Action1<FileSystem>, String[]> getFilesAndFoldersTest = (String folderPath, Action1<FileSystem> setup, String[] expectedEntryPaths) ->
                 {
-                    FileSystem fileSystem = creator.run(null);
-                    final Iterable<FileSystemEntry> entries = fileSystem.getFilesAndFolders((String)null);
-                    test.assertEqual(new Array<FileSystemEntry>(0), entries);
-                });
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(null);
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        test.assertEqual(Array.fromValues(expectedEntryPaths), fileSystem.getFilesAndFolders(folderPath).map(FileSystemEntry::toString));
+                    });
+                };
 
-                runner.test("with empty String path", (Test test) ->
+                getFilesAndFoldersTest.run(null, null, new String[0]);
+                getFilesAndFoldersTest.run("", null, new String[0]);
+            });
+
+            runner.testGroup("getFilesAndFolders(Path)", () ->
+            {
+                final Action3<String, Action1<FileSystem>, String[]> getFilesAndFoldersTest = (String folderPath, Action1<FileSystem> setup, String[] expectedEntryPaths) ->
                 {
-                    FileSystem fileSystem = creator.run(null);
-                    final Iterable<FileSystemEntry> entries = fileSystem.getFilesAndFolders("");
-                    test.assertEqual(new Array<FileSystemEntry>(0), entries);
-                });
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(null);
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        test.assertEqual(Array.fromValues(expectedEntryPaths), fileSystem.getFilesAndFolders(Path.parse(folderPath)).map(FileSystemEntry::toString));
+                    });
+                };
 
-                runner.test("with null Path", (Test test) ->
-                {
-                    FileSystem fileSystem = creator.run(null);
-                    final Iterable<FileSystemEntry> entries = fileSystem.getFilesAndFolders((Path)null);
-                    test.assertEqual(new Array<FileSystemEntry>(0), entries);
-                });
-
-                runner.test("with non-existing path", (Test test) ->
-                {
-                    FileSystem fileSystem = creator.run(null);
-                    final Iterable<FileSystemEntry> entries = fileSystem.getFilesAndFolders("/i/dont/exist/");
-                    test.assertEqual(new Array<FileSystemEntry>(0), entries);
-                });
-
-                runner.test("with existing path with no contents", (Test test) ->
-                {
-                    FileSystem fileSystem = creator.run(null);
-                    fileSystem.createFolder("/folderA");
-                    test.assertFalse(fileSystem.getFilesAndFolders("/folderA").any());
-                });
-
-                runner.test("with existing path with contents", (Test test) ->
-                {
-                    FileSystem fileSystem = creator.run(null);
-                    fileSystem.createFolder("/folderA");
-                    fileSystem.createFolder("/folderA/folderB");
-                    fileSystem.createFile("/file1.txt");
-                    fileSystem.createFile("/folderA/file2.csv");
-
-                    final Iterable<FileSystemEntry> entries = fileSystem.getFilesAndFolders("/");
-                    test.assertTrue(entries.any());
-                    test.assertEqual(2, entries.getCount());
-                    final String[] entryPathStrings = Array.toStringArray(entries.map(FileSystemEntry::toString));
-                    test.assertEqual(new String[] { "/folderA", "/file1.txt" }, entryPathStrings);
-                });
+                getFilesAndFoldersTest.run(null, null, new String[0]);
+                getFilesAndFoldersTest.run("", null, new String[0]);
+                getFilesAndFoldersTest.run(
+                    "/folderA",
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/folderA");
+                    },
+                    new String[0]);
+                getFilesAndFoldersTest.run(
+                    "/",
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/folderA/folderB");
+                        fileSystem.createFile("/file1.txt");
+                        fileSystem.createFile("/folderA/file2.csv");
+                    },
+                    new String[] { "/folderA", "/file1.txt" });
             });
 
             runner.testGroup("getFilesAndFoldersAsync(String)", () ->
             {
-                runner.test("with null path", (Test test) ->
+                final Action3<Action1<FileSystem>,String,String[]> getFilesAndFoldersAsyncTest = (Action1<FileSystem> setup, String folderPath, String[] expectedEntryPaths) ->
                 {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        fileSystem.getFilesAndFoldersAsync((String)null)
+                        final FileSystem fileSystem = creator.run(test.getMainRunner());
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        fileSystem.getFilesAndFoldersAsync(folderPath)
                             .then((Iterable<FileSystemEntry> entries) ->
                             {
-                                test.assertEqual(new Array<FileSystemEntry>(0), entries);
+                                test.assertEqual(Array.fromValues(expectedEntryPaths), entries.map(FileSystemEntry::toString));
                             });
                     });
-                });
+                };
 
-                runner.test("with empty path", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.getFilesAndFoldersAsync("")
-                            .then((Iterable<FileSystemEntry> entries) ->
-                            {
-                                test.assertEqual(new Array<FileSystemEntry>(0), entries);
-                            });
-                    });
-                });
-
-                runner.test("with non-existing path", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.getFilesAndFoldersAsync("/i/dont/exist/")
-                            .then((Iterable<FileSystemEntry> entries) ->
-                            {
-                                test.assertEqual(new Array<FileSystemEntry>(0), entries);
-                            });
-                    });
-                });
-
-                runner.test("with existing path with no content", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFolder("/folderA");
-                        fileSystem.getFilesAndFoldersAsync("/folderA")
-                            .then((Iterable<FileSystemEntry> entries) ->
-                            {
-                                test.assertFalse(entries.any());
-                            });
-                    });
-                });
-
-                runner.test("with existing path with content", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
+                getFilesAndFoldersAsyncTest.run(null, null, new String[0]);
+                getFilesAndFoldersAsyncTest.run(null, "", new String[0]);
+                getFilesAndFoldersAsyncTest.run(null, "/i/dont/exist/", new String[0]);
+                getFilesAndFoldersAsyncTest.run(
+                    (FileSystem fileSystem) -> fileSystem.createFolder("/folderA"),
+                    "/folderA",
+                    new String[0]);
+                getFilesAndFoldersAsyncTest.run(
+                    (FileSystem fileSystem) ->
                     {
                         fileSystem.createFolder("/folderA");
                         fileSystem.createFolder("/folderA/folderB");
                         fileSystem.createFile("/file1.txt");
                         fileSystem.createFile("/folderA/file2.csv");
-
-                        fileSystem.getFilesAndFoldersAsync("/")
-                            .then((Iterable<FileSystemEntry> entries) ->
-                            {
-                                test.assertTrue(entries.any());
-                                test.assertEqual(2, entries.getCount());
-                                final String[] entryPathStrings = Array.toStringArray(entries.map(FileSystemEntry::toString));
-                                test.assertEqual(new String[] { "/folderA", "/file1.txt" }, entryPathStrings);
-                            });
-                    });
-                });
+                    },
+                    "/",
+                    new String[] { "/folderA", "/file1.txt" });
             });
 
             runner.testGroup("getFilesAndFoldersAsync(Path)", () ->
             {
-                runner.test("with null path", (Test test) ->
+                final Action3<Action1<FileSystem>,String,String[]> getFilesAndFoldersAsyncTest = (Action1<FileSystem> setup, String folderPath, String[] expectedEntryPaths) ->
                 {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        fileSystem.getFilesAndFoldersAsync(Path.parse(""))
+                        final FileSystem fileSystem = creator.run(test.getMainRunner());
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        fileSystem.getFilesAndFoldersAsync(Path.parse(folderPath))
                             .then((Iterable<FileSystemEntry> entries) ->
                             {
-                                test.assertEqual(new Array<FileSystemEntry>(0), entries);
+                                test.assertEqual(Array.fromValues(expectedEntryPaths), entries.map(FileSystemEntry::toString));
                             });
                     });
-                });
+                };
 
-                runner.test("with empty path", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.getFilesAndFoldersAsync((Path)null)
-                            .then((Iterable<FileSystemEntry> entries) ->
-                            {
-                                test.assertEqual(new Array<FileSystemEntry>(0), entries);
-                            });
-                    });
-                });
-
-                runner.test("with non-existing path", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.getFilesAndFoldersAsync(Path.parse("/i/dont/exist/"))
-                            .then((Iterable<FileSystemEntry> entries) ->
-                            {
-                                test.assertEqual(new Array<FileSystemEntry>(0), entries);
-                            });
-                    });
-                });
-
-                runner.test("with existing path with no contents", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFolder("/folderA");
-                        fileSystem.getFilesAndFoldersAsync(Path.parse("/folderA"))
-                            .then((Iterable<FileSystemEntry> entries) ->
-                            {
-                                test.assertEqual(new Array<FileSystemEntry>(0), entries);
-                            });
-                    });
-                });
-
-                runner.test("with existing path with contents", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
+                getFilesAndFoldersAsyncTest.run(null, null, null);
+                getFilesAndFoldersAsyncTest.run(null, "", new String[0]);
+                getFilesAndFoldersAsyncTest.run(null, "/i/dont/exist/", new String[0]);
+                getFilesAndFoldersAsyncTest.run(
+                    (FileSystem fileSystem) -> fileSystem.createFolder("/folderA"),
+                    "/folderA",
+                    new String[0]);
+                getFilesAndFoldersAsyncTest.run(
+                    (FileSystem fileSystem) ->
                     {
                         fileSystem.createFolder("/folderA");
                         fileSystem.createFolder("/folderA/folderB");
                         fileSystem.createFile("/file1.txt");
                         fileSystem.createFile("/folderA/file2.csv");
-
-                        fileSystem.getFilesAndFoldersAsync(Path.parse("/"))
-                            .then((Iterable<FileSystemEntry> entries) ->
-                            {
-                                test.assertTrue(entries.any());
-                                test.assertEqual(2, entries.getCount());
-                                final String[] entryPathStrings = Array.toStringArray(entries.map(FileSystemEntry::toString));
-                                test.assertEqual(new String[] { "/folderA", "/file1.txt" }, entryPathStrings);
-                            });
-                    });
-                });
+                    },
+                    "/",
+                    new String[] { "/folderA", "/file1.txt" });
             });
 
             runner.testGroup("getFolders(String)", () ->
             {
-                runner.test("with null path", (Test test) ->
+                final Action1<String> getFoldersTest = (String path) ->
                 {
-                    FileSystem fileSystem = creator.run(null);
-                    final Iterable<Folder> folders = fileSystem.getFolders((String)null);
-                    test.assertEqual(new Array<Folder>(0), folders);
-                });
+                    runner.test("with " + Strings.escapeAndQuote(path), (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(null);
+                        test.assertEqual(new Array<Folder>(0), fileSystem.getFolders(path));
+                    });
+                };
 
-                runner.test("with empty path", (Test test) ->
-                {
-                    FileSystem fileSystem = creator.run(null);
-                    final Iterable<Folder> folders = fileSystem.getFolders("");
-                    test.assertEqual(new Array<Folder>(0), folders);
-                });
+                getFoldersTest.run(null);
+                getFoldersTest.run("");
             });
 
             runner.testGroup("getFoldersRecursively(String)", () ->
             {
-                runner.test("with null path", (Test test) ->
+                final Action3<String,Action1<FileSystem>,String[]> getFoldersRecursivelyTest = (String folderPath, Action1<FileSystem> setup, String[] expectedFolderPaths) ->
                 {
-                    FileSystem fileSystem = creator.run(null);
-                    test.assertEqual(new Array<Folder>(0), fileSystem.getFoldersRecursively((String)null));
-                });
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
+                    {
 
-                runner.test("with empty path", (Test test) ->
-                {
-                    FileSystem fileSystem = creator.run(null);
-                    test.assertEqual(new Array<Folder>(0), fileSystem.getFoldersRecursively(""));
-                });
-
-                runner.test("with relative path", (Test test) ->
-                {
-                    FileSystem fileSystem = creator.run(null);
-                    test.assertEqual(new Array<Folder>(0), fileSystem.getFoldersRecursively("test/folder"));
-                });
-
-                runner.test("with rooted path when root doesn't exist", (Test test) ->
-                {
-                    FileSystem fileSystem = creator.run(null);
-                    test.assertEqual(new Array<Folder>(0), fileSystem.getFoldersRecursively("F:/test/folder"));
-                });
-
-                runner.test("with rooted path when parent folder doesn't exist", (Test test) ->
-                {
-                    FileSystem fileSystem = creator.run(null);
-                    test.assertEqual(new Array<Folder>(0), fileSystem.getFoldersRecursively("/test/folder"));
-                });
-
-                runner.test("with rooted path when folder doesn't exist", (Test test) ->
-                {
-                    FileSystem fileSystem = creator.run(null);
-                    fileSystem.createFolder("/test/");
-                    test.assertEqual(new Array<Folder>(0), fileSystem.getFoldersRecursively("/test/folder"));
-                });
-
-                runner.test("with rooted path when folder is empty", (Test test) ->
-                {
-                    FileSystem fileSystem = creator.run(null);
-                    fileSystem.createFolder("/test/folder");
-                    test.assertEqual(new Array<Folder>(0), fileSystem.getFoldersRecursively("/test/folder"));
-                });
-
-                runner.test("with rooted path when folder has files", (Test test) ->
-                {
-                    FileSystem fileSystem = creator.run(null);
-                    fileSystem.createFolder("/test/folder");
-                    fileSystem.createFile("/test/folder/1.txt");
-                    fileSystem.createFile("/test/folder/2.txt");
-                    test.assertEqual(
-                        new Array<Folder>(0),
-                        fileSystem.getFoldersRecursively("/test/folder"));
-                });
-
-                runner.test("with rooted path when folder has folders", (Test test) ->
-                {
-                    FileSystem fileSystem = creator.run(null);
-                    fileSystem.createFolder("/test/folder");
-                    fileSystem.createFolder("/test/folder/1.txt");
-                    fileSystem.createFolder("/test/folder/2.txt");
-                    test.assertEqual(
-                        Array.fromValues(new Folder[]
+                        final FileSystem fileSystem = creator.run(null);
+                        if (setup != null)
                         {
-                            fileSystem.getFolder("/test/folder/1.txt"),
-                            fileSystem.getFolder("/test/folder/2.txt")
-                        }),
-                        fileSystem.getFoldersRecursively("/test/folder"));
-                });
+                            setup.run(fileSystem);
+                        }
+                        test.assertEqual(Array.fromValues(expectedFolderPaths), fileSystem.getFoldersRecursively(folderPath).map(Folder::toString));
+                    });
+                };
 
-                runner.test("with rooted path when folder has grandchild folders and files", (Test test) ->
-                {
-                    FileSystem fileSystem = creator.run(null);
-                    fileSystem.createFile("/test/folder/1.txt");
-                    fileSystem.createFile("/test/folder/2.txt");
-                    fileSystem.createFile("/test/folder/A/3.csv");
-                    fileSystem.createFile("/test/folder/B/C/4.xml");
-                    fileSystem.createFile("/test/folder/A/5.png");
-
-                    final Iterable<Folder> expectedEntries =
-                        Array.fromValues(new Folder[]
-                        {
-                            fileSystem.getFolder("/test/folder/A"),
-                            fileSystem.getFolder("/test/folder/B"),
-                            fileSystem.getFolder("/test/folder/B/C")
-                        });
-                    final Iterable<Folder> actualEntries = fileSystem.getFoldersRecursively("/test/folder");
-                    test.assertEqual(expectedEntries, actualEntries);
-                });
+                getFoldersRecursivelyTest.run(null, null, new String[0]);
+                getFoldersRecursivelyTest.run("", null, new String[0]);
+                getFoldersRecursivelyTest.run("test/folder", null, new String[0]);
+                getFoldersRecursivelyTest.run("F:/test/folder", null, new String[0]);
+                getFoldersRecursivelyTest.run("/test/folder", null, new String[0]);
+                getFoldersRecursivelyTest.run(
+                    "/test/folder",
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/test/");
+                    },
+                    new String[0]);
+                getFoldersRecursivelyTest.run(
+                    "/test/folder/",
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/test/folder");
+                    },
+                    new String[0]);
+                getFoldersRecursivelyTest.run(
+                    "/test/folder",
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFile("/test/folder/1.txt");
+                        fileSystem.createFile("/test/folder/2.txt");
+                    },
+                    new String[0]);
+                getFoldersRecursivelyTest.run(
+                    "/test/folder",
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/test/folder/1.txt");
+                        fileSystem.createFolder("/test/folder/2.txt");
+                    },
+                    new String[] { "/test/folder/1.txt", "/test/folder/2.txt" });
+                getFoldersRecursivelyTest.run(
+                    "/test/folder",
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFile("/test/folder/1.txt");
+                        fileSystem.createFile("/test/folder/2.txt");
+                        fileSystem.createFile("/test/folder/A/3.csv");
+                        fileSystem.createFile("/test/folder/B/C/4.xml");
+                        fileSystem.createFile("/test/folder/A/5.png");
+                    },
+                    new String[] { "/test/folder/A", "/test/folder/B", "/test/folder/B/C" });
             });
 
             runner.testGroup("getFoldersAsync(String)", () ->
             {
-                runner.test("with null path", (Test test) ->
+                final Action3<String,Action1<FileSystem>,String[]> getFoldersAsyncTest = (String folderPath, Action1<FileSystem> setup, String[] expectedFolderPaths) ->
                 {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        fileSystem.getFoldersAsync((String)null)
+                        final FileSystem fileSystem = creator.run(test.getMainRunner());
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        fileSystem.getFoldersAsync(folderPath)
                             .then((Iterable<Folder> folders) ->
                             {
-                                test.assertEqual(new Array<Folder>(0), folders);
+                                test.assertEqual(Array.fromValues(expectedFolderPaths), folders.map(Folder::toString));
                             });
                     });
-                });
+                };
 
-                runner.test("with empty path", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.getFoldersAsync("")
-                            .then((Iterable<Folder> folders) ->
-                            {
-                                test.assertEqual(new Array<Folder>(0), folders);
-                            });
-                    });
-                });
+                getFoldersAsyncTest.run(null, null, new String[0]);
+                getFoldersAsyncTest.run("", null, new String[0]);
             });
 
             runner.testGroup("getFoldersAsync(Path)", () ->
             {
-                runner.test("with null path", (Test test) ->
+                final Action3<String,Action1<FileSystem>,String[]> getFoldersAsyncTest = (String folderPath, Action1<FileSystem> setup, String[] expectedFolderPaths) ->
                 {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        fileSystem.getFoldersAsync((Path)null)
+                        final FileSystem fileSystem = creator.run(test.getMainRunner());
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        fileSystem.getFoldersAsync(Path.parse(folderPath))
                             .then((Iterable<Folder> folders) ->
                             {
-                                test.assertEqual(new Array<Folder>(0), folders);
+                                test.assertEqual(Array.fromValues(expectedFolderPaths), folders.map(Folder::toString));
                             });
                     });
-                });
+                };
 
-                runner.test("with empty path", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.getFoldersAsync(Path.parse(""))
-                            .then((Iterable<Folder> folders) ->
-                            {
-                                test.assertEqual(new Array<Folder>(0), folders);
-                            });
-                    });
-                });
+                getFoldersAsyncTest.run(null, null, new String[0]);
+                getFoldersAsyncTest.run("", null, new String[0]);
             });
 
             runner.testGroup("getFilesAsync(String)", () ->
             {
-                runner.test("with null path", (Test test) ->
+                final Action3<String,Action1<FileSystem>,String[]> getFilesAsyncTest = (String folderPath, Action1<FileSystem> setup, String[] expectedFilePaths) ->
                 {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        final AsyncFunction<Iterable<File>> asyncFunction = fileSystem.getFilesAsync((String)null);
-                        test.assertNotNull(asyncFunction, "The AsyncFunction returned from getFilesAsync() was null.");
-
-                        asyncFunction.then((Iterable<File> files) ->
+                        final FileSystem fileSystem = creator.run(test.getMainRunner());
+                        if (setup != null)
                         {
-                            test.assertEqual(new Array<File>(0), files);
-                        });
-                    });
-                });
-
-                runner.test("with empty path", (Test test) ->
-                    {
-                        asyncTest.run(test, (FileSystem fileSystem) ->
-                        {
-                            final AsyncFunction<Iterable<File>> asyncFunction = fileSystem.getFilesAsync("");
-                            test.assertNotNull(asyncFunction, "The AsyncFunction returned from getFilesAsync() was null.");
-
-                            asyncFunction.then((Iterable<File> files) ->
+                            setup.run(fileSystem);
+                        }
+                        fileSystem.getFilesAsync(folderPath)
+                            .then((Iterable<File> files) ->
                             {
-                                test.assertEqual(new Array<File>(0), files);
+                                test.assertEqual(Array.fromValues(expectedFilePaths), files.map(File::toString));
                             });
-                        });
                     });
+                };
 
+                getFilesAsyncTest.run(null, null, new String[0]);
+                getFilesAsyncTest.run("", null, new String[0]);
             });
 
             runner.testGroup("getFilesAsync(Path)", () ->
             {
-                runner.test("with null path", (Test test) ->
+                final Action3<String,Action1<FileSystem>,String[]> getFilesAsyncTest = (String folderPath, Action1<FileSystem> setup, String[] expectedFilePaths) ->
                 {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        fileSystem.getFilesAsync((Path)null)
+                        final FileSystem fileSystem = creator.run(test.getMainRunner());
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        fileSystem.getFilesAsync(Path.parse(folderPath))
                             .then((Iterable<File> files) ->
                             {
-                                test.assertEqual(new Array<File>(0), files);
+                                test.assertEqual(Array.fromValues(expectedFilePaths), files.map(File::toString));
                             });
                     });
-                });
+                };
 
-                runner.test("with empty path", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.getFilesAsync(Path.parse(""))
-                            .then((Iterable<File> files) ->
-                            {
-                                test.assertEqual(new Array<File>(0), files);
-                            });
-                    });
-                });
+                getFilesAsyncTest.run(null, null, new String[0]);
+                getFilesAsyncTest.run("", null, new String[0]);
             });
 
             runner.testGroup("getFiles(String)", () ->
             {
-                runner.test("with null path", (Test test) ->
+                final Action3<String,Action1<FileSystem>,String[]> getFilesTest = (String folderPath, Action1<FileSystem> setup, String[] expectedFilePaths) ->
                 {
-                    FileSystem fileSystem = creator.run(null);
-                    test.assertEqual(new Array<File>(0), fileSystem.getFiles((String)null));
-                });
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(test.getMainRunner());
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        test.assertEqual(Array.fromValues(expectedFilePaths), fileSystem.getFiles(folderPath).map(File::toString));
+                    });
+                };
 
-                runner.test("with empty path", (Test test) ->
-                {
-                    FileSystem fileSystem = creator.run(null);
-                    test.assertEqual(new Array<File>(0), fileSystem.getFiles(""));
-                });
+                getFilesTest.run(null, null, new String[0]);
+                getFilesTest.run("", null, new String[0]);
             });
 
             runner.testGroup("getFilesRecursively(String)", () ->
             {
-                runner.test("with null path", (Test test) ->
+                final Action3<String,Action1<FileSystem>,String[]> getFilesRecursivelyTest = (String folderPath, Action1<FileSystem> setup, String[] expectedFilePaths) ->
                 {
-                    FileSystem fileSystem = creator.run(null);
-                    test.assertEqual(new Array<FileSystemEntry>(0), fileSystem.getFilesRecursively((String)null));
-                });
-
-                runner.test("with empty path", (Test test) ->
-                {
-                    FileSystem fileSystem = creator.run(null);
-                    test.assertEqual(new Array<FileSystemEntry>(0), fileSystem.getFilesRecursively(""));
-                });
-
-                runner.test("with relative path", (Test test) ->
-                {
-                    FileSystem fileSystem = creator.run(null);
-                    test.assertEqual(new Array<FileSystemEntry>(0), fileSystem.getFilesRecursively("test/folder"));
-                });
-
-                runner.test("with rooted path when root doesn't exist", (Test test) ->
-                {
-                    FileSystem fileSystem = creator.run(null);
-                    test.assertEqual(new Array<FileSystemEntry>(0), fileSystem.getFilesRecursively("F:/test/folder"));
-                });
-
-                runner.test("with rooted path when parent folder doesn't exist", (Test test) ->
-                {
-                    FileSystem fileSystem = creator.run(null);
-                    test.assertEqual(new Array<FileSystemEntry>(0), fileSystem.getFilesRecursively("/test/folder"));
-                });
-
-                runner.test("with rooted path when folder doesn't exist", (Test test) ->
-                {
-                    FileSystem fileSystem = creator.run(null);
-                    fileSystem.createFolder("/test/");
-                    test.assertEqual(new Array<FileSystemEntry>(0), fileSystem.getFilesRecursively("/test/folder"));
-                });
-
-                runner.test("with rooted path when folder is empty", (Test test) ->
-                {
-                    FileSystem fileSystem = creator.run(null);
-                    fileSystem.createFolder("/test/folder");
-                    test.assertEqual(new Array<FileSystemEntry>(0), fileSystem.getFilesRecursively("/test/folder"));
-                });
-
-                runner.test("with rooted path when folder has files", (Test test) ->
-                {
-                    FileSystem fileSystem = creator.run(null);
-                    fileSystem.createFolder("/test/folder");
-                    fileSystem.createFile("/test/folder/1.txt");
-                    fileSystem.createFile("/test/folder/2.txt");
-                    test.assertEqual(
-                        Array.fromValues(new File[]
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(test.getMainRunner());
+                        if (setup != null)
                         {
-                            fileSystem.getFile("/test/folder/1.txt"),
-                            fileSystem.getFile("/test/folder/2.txt")
-                        }),
-                        fileSystem.getFilesRecursively("/test/folder"));
-                });
+                            setup.run(fileSystem);
+                        }
+                        test.assertEqual(Array.fromValues(expectedFilePaths), fileSystem.getFilesRecursively(folderPath).map(File::toString));
+                    });
+                };
 
-                runner.test("with rooted path when folder has folders", (Test test) ->
-                {
-                    FileSystem fileSystem = creator.run(null);
-                    fileSystem.createFolder("/test/folder");
-                    fileSystem.createFolder("/test/folder/1.txt");
-                    fileSystem.createFolder("/test/folder/2.txt");
-                    test.assertEqual(
-                        new Array<File>(0),
-                        fileSystem.getFilesRecursively("/test/folder"));
-                });
-
-                runner.test("with rooted path when folder has grandchild folders and files", (Test test) ->
-                {
-                    FileSystem fileSystem = creator.run(null);
-                    fileSystem.createFile("/test/folder/1.txt");
-                    fileSystem.createFile("/test/folder/2.txt");
-                    fileSystem.createFile("/test/folder/A/3.csv");
-                    fileSystem.createFile("/test/folder/B/C/4.xml");
-                    fileSystem.createFile("/test/folder/A/5.png");
-
-                    final Iterable<File> expectedEntries =
-                        Array.fromValues(new File[]
-                        {
-                            fileSystem.getFile("/test/folder/1.txt"),
-                            fileSystem.getFile("/test/folder/2.txt"),
-                            fileSystem.getFile("/test/folder/A/3.csv"),
-                            fileSystem.getFile("/test/folder/A/5.png"),
-                            fileSystem.getFile("/test/folder/B/C/4.xml")
-                        });
-                    final Iterable<File> actualEntries = fileSystem.getFilesRecursively("/test/folder");
-                    test.assertEqual(expectedEntries, actualEntries);
-                });
+                getFilesRecursivelyTest.run(null, null, new String[0]);
+                getFilesRecursivelyTest.run("", null, new String[0]);
+                getFilesRecursivelyTest.run("test/folder", null, new String[0]);
+                getFilesRecursivelyTest.run("F:/test/folder", null, new String[0]);
+                getFilesRecursivelyTest.run("/test/folder", null, new String[0]);
+                getFilesRecursivelyTest.run(
+                    "/test/folder",
+                    (FileSystem fileSystem) -> fileSystem.createFolder("/test"),
+                    new String[0]);
+                getFilesRecursivelyTest.run(
+                    "/test/folder",
+                    (FileSystem fileSystem) -> fileSystem.createFolder("/test/folder"),
+                    new String[0]);
+                getFilesRecursivelyTest.run(
+                    "/test/folder",
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/test/folder");
+                        fileSystem.createFile("/test/folder/1.txt");
+                        fileSystem.createFile("/test/folder/2.txt");
+                    },
+                    new String[] { "/test/folder/1.txt", "/test/folder/2.txt" });
+                getFilesRecursivelyTest.run(
+                    "/test/folder",
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/test/folder");
+                        fileSystem.createFolder("/test/folder/1.txt");
+                        fileSystem.createFolder("/test/folder/2.txt");
+                    },
+                    new String[0]);
+                getFilesRecursivelyTest.run(
+                    "/test/folder",
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFile("/test/folder/1.txt");
+                        fileSystem.createFile("/test/folder/2.txt");
+                        fileSystem.createFile("/test/folder/A/3.csv");
+                        fileSystem.createFile("/test/folder/B/C/4.xml");
+                        fileSystem.createFile("/test/folder/A/5.png");
+                    },
+                    new String[]
+                    {
+                        "/test/folder/1.txt",
+                        "/test/folder/2.txt",
+                        "/test/folder/A/3.csv",
+                        "/test/folder/A/5.png",
+                        "/test/folder/B/C/4.xml"
+                    });
             });
 
             runner.testGroup("getFolder(String)", () ->
             {
-                runner.test("with null path", (Test test) ->
+                final Action2<String,Boolean> getFolderTest = (String folderPath, Boolean folderExpected) ->
                 {
-                    FileSystem fileSystem = creator.run(null);
-                    final Folder folder = fileSystem.getFolder((String)null);
-                    test.assertNull(folder);
-                });
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(null);
+                        final Folder folder = fileSystem.getFolder(folderPath);
+                        if (folderExpected)
+                        {
+                            test.assertNotNull(folder);
+                            test.assertEqual(folderPath, folder.toString());
+                        }
+                        else
+                        {
+                            test.assertNull(folder);
+                        }
+                    });
+                };
 
-                runner.test("with empty path", (Test test) ->
-                {
-                    FileSystem fileSystem = creator.run(null);
-                    final Folder folder = fileSystem.getFolder("");
-                    test.assertNull(folder);
-                });
-
-                runner.test("with relative path", (Test test) ->
-                {
-                    FileSystem fileSystem = creator.run(null);
-                    final Folder folder = fileSystem.getFolder("a/b/c");
-                    test.assertNull(folder);
-                });
-
-                runner.test("with forward-slash", (Test test) ->
-                {
-                    FileSystem fileSystem = creator.run(null);
-                    final Folder folder = fileSystem.getFolder("/");
-                    test.assertNotNull(folder);
-                    test.assertEqual("/", folder.toString());
-                });
-
-                runner.test("with backslash", (Test test) ->
-                {
-                    FileSystem fileSystem = creator.run(null);
-                    final Folder folder = fileSystem.getFolder("\\");
-                    test.assertNotNull(folder);
-                    test.assertEqual("\\", folder.toString());
-                });
-
-                runner.test("with Windows root", (Test test) ->
-                {
-                    FileSystem fileSystem = creator.run(null);
-                    final Folder folder = fileSystem.getFolder("Z:\\");
-                    test.assertNotNull(folder);
-                    test.assertEqual("Z:\\", folder.toString());
-                });
-
-                runner.test("with root and folder", (Test test) ->
-                {
-                    FileSystem fileSystem = creator.run(null);
-                    final Folder folder = fileSystem.getFolder("/a/b");
-                    test.assertNotNull(folder);
-                    test.assertEqual("/a/b", folder.toString());
-                });
+                getFolderTest.run(null, false);
+                getFolderTest.run("", false);
+                getFolderTest.run("a/b/c", false);
+                getFolderTest.run("/", true);
+                getFolderTest.run("\\", true);
+                getFolderTest.run("Z:\\", true);
+                getFolderTest.run("/a/b", true);
             });
 
             runner.testGroup("folderExists(String)", () ->
             {
-                runner.test("with root path", (Test test) ->
+                final Action3<String,Action1<FileSystem>,Boolean> folderExistsTest = (String folderPath, Action1<FileSystem> setup, Boolean expectedFolderExists) ->
                 {
-                    FileSystem fileSystem = creator.run(null);
-                    final Root folder = fileSystem.getRoots().first();
-                    test.assertTrue(fileSystem.folderExists(folder.getPath().toString()));
-                });
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(null);
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        test.assertEqual(expectedFolderExists, fileSystem.folderExists(folderPath));
+                    });
+                };
 
-                runner.test("with existing folder path", (Test test) ->
-                {
-                    FileSystem fileSystem = creator.run(null);
-                    fileSystem.createFolder("/folderName");
-                    test.assertTrue(fileSystem.folderExists("/folderName"));
-                });
+                folderExistsTest.run("/", null, true);
+                folderExistsTest.run("/folderName", null, false);
+                folderExistsTest.run(
+                    "/folderName",
+                    (FileSystem fileSystem) -> fileSystem.createFolder("/folderName"),
+                    true);
             });
 
             runner.testGroup("folderExistsAsync(String)", () ->
             {
-                runner.test("with root path", (Test test) ->
+                final Action3<String,Action1<FileSystem>,Boolean> folderExistsAsyncTest = (String folderPath, Action1<FileSystem> setup, Boolean expectedFolderExists) ->
                 {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        fileSystem.folderExistsAsync(fileSystem.getRoots().first().getPath().toString())
+                        final FileSystem fileSystem = creator.run(test.getMainRunner());
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        fileSystem.folderExistsAsync(folderPath)
                             .then((Boolean folderExists) ->
                             {
-                                test.assertTrue(folderExists);
+                                test.assertEqual(expectedFolderExists, folderExists);
                             });
                     });
-                });
+                };
 
-                runner.test("with existing folder path", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFolder("/folderName");
-                        fileSystem.folderExistsAsync("/folderName")
-                            .then((Boolean folderExists) ->
-                            {
-                                test.assertTrue(folderExists);
-                            });
-                    });
-                });
+                folderExistsAsyncTest.run(null, null, false);
+                folderExistsAsyncTest.run("", null, false);
+                folderExistsAsyncTest.run("/", null, true);
+                folderExistsAsyncTest.run("/folderName", null, false);
+                folderExistsAsyncTest.run(
+                    "/folderName",
+                    (FileSystem fileSystem) -> fileSystem.createFolder("/folderName"),
+                    true);
             });
 
             runner.testGroup("folderExistsAsync(Path)", () ->
             {
-                runner.test("with root path", (Test test) ->
+                final Action3<String,Action1<FileSystem>,Boolean> folderExistsAsyncTest = (String folderPath, Action1<FileSystem> setup, Boolean expectedFolderExists) ->
                 {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        fileSystem.folderExistsAsync(fileSystem.getRoots().first().getPath())
+                        final FileSystem fileSystem = creator.run(test.getMainRunner());
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        fileSystem.folderExistsAsync(Path.parse(folderPath))
                             .then((Boolean folderExists) ->
                             {
-                                test.assertTrue(folderExists);
+                                test.assertEqual(expectedFolderExists, folderExists);
                             });
                     });
-                });
+                };
 
-                runner.test("with existing folder path", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFolder("/folderName");
-                        fileSystem.folderExistsAsync(Path.parse("/folderName"))
-                            .then((Boolean folderExists) ->
-                            {
-                                test.assertTrue(folderExists);
-                            });
-                    });
-                });
+                folderExistsAsyncTest.run(null, null, false);
+                folderExistsAsyncTest.run("", null, false);
+                folderExistsAsyncTest.run("/", null, true);
+                folderExistsAsyncTest.run("/folderName", null, false);
+                folderExistsAsyncTest.run(
+                    "/folderName",
+                    (FileSystem fileSystem) -> fileSystem.createFolder("/folderName"),
+                    true);
             });
 
             runner.testGroup("createFolder(String)", () ->
             {
-                runner.test("with null path", (Test test) ->
+                final Action4<String,Action1<FileSystem>,Boolean,Boolean> createFolderTest = (String folderPath, Action1<FileSystem> setup, Boolean expectedCreateResult, Boolean expectedFolderExists) ->
                 {
-                    FileSystem fileSystem = creator.run(null);
-                    test.assertFalse(fileSystem.createFolder((String)null));
-                });
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(null);
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        test.assertEqual(expectedCreateResult, fileSystem.createFolder(folderPath));
+                        test.assertEqual(expectedFolderExists, fileSystem.folderExists(folderPath));
+                    });
+                };
 
-                runner.test("with empty path", (Test test) ->
-                {
-                    FileSystem fileSystem = creator.run(null);
-                    test.assertFalse(fileSystem.createFolder(""));
-                });
-
-                runner.test("with relative path", (Test test) ->
-                {
-                    FileSystem fileSystem = creator.run(null);
-                    test.assertFalse(fileSystem.createFolder("folder"));
-                });
-
-                runner.test("with rooted path", (Test test) ->
-                {
-                    FileSystem fileSystem = creator.run(null);
-                    test.assertTrue(fileSystem.createFolder("/folder"));
-                    test.assertTrue(fileSystem.folderExists("/folder"));
-                });
+                createFolderTest.run(null, null, false, false);
+                createFolderTest.run("", null, false, false);
+                createFolderTest.run("folder", null, false, false);
+                createFolderTest.run("/folder", null, true, true);
+                createFolderTest.run(
+                    "/folder",
+                    (FileSystem fileSystem) -> fileSystem.createFolder("/folder"),
+                    false,
+                    true);
             });
 
             runner.testGroup("createFolder(String,Out<Folder>)", () ->
@@ -895,711 +698,414 @@ public class FileSystemTests
 
             runner.testGroup("createFolderAsync(String)", () ->
             {
-                runner.test("with null path", (Test test) ->
+                final Action4<String,Action1<FileSystem>,Boolean,Boolean> createFolderAsyncTest = (String folderPath, Action1<FileSystem> setup, Boolean expectedCreateResult, Boolean expectedFolderExists) ->
                 {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        fileSystem.createFolderAsync((String)null)
+                        final FileSystem fileSystem = creator.run(test.getMainRunner());
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        fileSystem.createFolderAsync(folderPath)
                             .then((Boolean folderCreated) ->
                             {
-                                test.assertFalse(folderCreated);
+                                test.assertEqual(expectedCreateResult, folderCreated);
+                                test.assertEqual(expectedFolderExists, fileSystem.folderExists(folderPath));
                             });
                     });
-                });
+                };
 
-                runner.test("with empty path", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFolderAsync("")
-                            .then((Boolean folderCreated) ->
-                            {
-                                test.assertFalse(folderCreated);
-                            });
-                    });
-                });
-
-                runner.test("with relative path", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFolderAsync("folder")
-                            .then((Boolean arg1) ->
-                            {
-                                test.assertFalse(arg1);
-                            });
-                    });
-                });
-
-                runner.test("with rooted path", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFolderAsync("/folder")
-                            .then((Boolean folderCreated) ->
-                            {
-                                test.assertTrue(folderCreated);
-                                test.assertTrue(fileSystem.folderExists("/folder"));
-                            });
-                    });
-                });
+                createFolderAsyncTest.run(null, null, false, false);
+                createFolderAsyncTest.run("", null, false, false);
+                createFolderAsyncTest.run("folder", null, false, false);
+                createFolderAsyncTest.run("/folder", null, true, true);
+                createFolderAsyncTest.run(
+                    "/folder",
+                    (FileSystem fileSystem) -> fileSystem.createFolder("/folder"),
+                    false,
+                    true);
             });
 
             runner.testGroup("createFolderAsync(String,Out<Folder>)", () ->
             {
-                runner.test("with null path and null value", (Test test) ->
+                final Action5<String,Action1<FileSystem>,Boolean,Boolean,Boolean> createFolderAsyncTest = (String folderPath, Action1<FileSystem> setup, Boolean provideOut, Boolean expectedCreateResult, Boolean expectedFolderExists) ->
                 {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
+                    runner.test("with " + Strings.escapeAndQuote(folderPath) + " and " + (provideOut ? "non-null" : "null") + " Out<Folder>", (Test test) ->
                     {
-                        fileSystem.createFolderAsync((String)null, (Out<Folder>)null)
+                        final FileSystem fileSystem = creator.run(test.getMainRunner());
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        Value<Folder> out = provideOut ? new Value<>() : null;
+                        fileSystem.createFolderAsync(folderPath, out)
                             .then((Boolean folderCreated) ->
                             {
-                                test.assertFalse(folderCreated);
+                                test.assertEqual(expectedCreateResult, folderCreated);
+                                test.assertEqual(expectedFolderExists, fileSystem.folderExists(folderPath));
+                                if (provideOut)
+                                {
+                                    test.assertEqual(expectedFolderExists, out.hasValue());
+                                    if (expectedFolderExists)
+                                    {
+                                        test.assertEqual(folderPath, out.get().toString());
+                                    }
+                                }
                             });
                     });
-                });
+                };
 
-                runner.test("with empty path and null value", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFolderAsync("", (Out<Folder>)null)
-                            .then((Boolean folderCreated) ->
-                            {
-                                test.assertFalse(folderCreated);
-                            });
-                    });
-                });
+                createFolderAsyncTest.run(null, null, false, false, false);
+                createFolderAsyncTest.run("", null, false, false, false);
+                createFolderAsyncTest.run("folder", null, false, false, false);
+                createFolderAsyncTest.run("/folder", null, false, true, true);
+                createFolderAsyncTest.run(
+                    "/folder",
+                    (FileSystem fileSystem) -> fileSystem.createFolder("/folder"),
+                    false,
+                    false,
+                    true);
 
-                runner.test("with relative path and null value", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFolderAsync("folder", (Out<Folder>)null)
-                            .then((Boolean folderCreated) ->
-                            {
-                                test.assertFalse(folderCreated);
-                            });
-                    });
-                });
-
-                runner.test("with rooted path and null value", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFolderAsync("/folder", (Out<Folder>)null)
-                            .then((Boolean folderCreated) ->
-                            {
-                                test.assertTrue(folderCreated);
-                                test.assertTrue(fileSystem.folderExists("/folder"));
-                            });
-                    });
-                });
-
-                runner.test("with null path and non-null value", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        final Value<Folder> folder = new Value<>();
-                        fileSystem.createFolderAsync((String)null, folder)
-                            .then((Boolean folderCreated) ->
-                            {
-                                test.assertFalse(folderCreated);
-                                test.assertFalse(folder.hasValue());
-                            });
-                    });
-                });
-
-                runner.test("with empty path and non-null value", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        final Value<Folder> folder = new Value<>();
-                        fileSystem.createFolderAsync("", folder)
-                            .then((Boolean folderCreated) ->
-                            {
-                                test.assertFalse(folderCreated);
-                                test.assertFalse(folder.hasValue());
-                            });
-                    });
-                });
-
-                runner.test("with relative path and non-null value", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        final Value<Folder> folder = new Value<>();
-                        fileSystem.createFolderAsync("folder", folder)
-                            .then((Boolean folderCreated) ->
-                            {
-                                test.assertFalse(folderCreated);
-                                test.assertFalse(folder.hasValue());
-                            });
-                    });
-                });
-
-                runner.test("with rooted path and non-null value", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        final Value<Folder> folder = new Value<>();
-                        fileSystem.createFolderAsync("/folder", folder)
-                            .then((Boolean folderCreated) ->
-                            {
-                                test.assertTrue(folderCreated);
-                                test.assertTrue(fileSystem.folderExists("/folder"));
-
-                                test.assertTrue(folder.hasValue());
-                                test.assertNotNull(folder.get());
-                                test.assertEqual("/folder", folder.get().getPath().toString());
-                            });
-                    });
-                });
+                createFolderAsyncTest.run(null, null, true, false, false);
+                createFolderAsyncTest.run("", null, true, false, false);
+                createFolderAsyncTest.run("folder", null, true, false, false);
+                createFolderAsyncTest.run("/folder", null, true, true, true);
+                createFolderAsyncTest.run(
+                    "/folder",
+                    (FileSystem fileSystem) -> fileSystem.createFolder("/folder"),
+                    false,
+                    false,
+                    true);
             });
 
             runner.testGroup("createFolderAsync(Path)", () ->
             {
-                runner.test("with null path", (Test test) ->
+                final Action4<String,Action1<FileSystem>,Boolean,Boolean> createFolderAsyncTest = (String folderPath, Action1<FileSystem> setup, Boolean expectedCreateResult, Boolean expectedFolderExists) ->
                 {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        fileSystem.createFolderAsync((Path)null)
+                        final FileSystem fileSystem = creator.run(test.getMainRunner());
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        fileSystem.createFolderAsync(Path.parse(folderPath))
                             .then((Boolean folderCreated) ->
                             {
-                                test.assertFalse(folderCreated);
+                                test.assertEqual(expectedCreateResult, folderCreated);
+                                test.assertEqual(expectedFolderExists, fileSystem.folderExists(folderPath));
                             });
                     });
-                });
+                };
 
-                runner.test("with empty path", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFolderAsync(Path.parse(""))
-                            .then((Boolean folderCreated) ->
-                            {
-                                test.assertFalse(folderCreated);
-                            });
-                    });
-                });
-
-                runner.test("with relative path", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFolderAsync(Path.parse("folder"))
-                            .then((Boolean arg1) ->
-                            {
-                                test.assertFalse(arg1);
-                            });
-                    });
-                });
-
-                runner.test("with rooted path", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFolderAsync(Path.parse("/folder"))
-                            .then((Boolean folderCreated) ->
-                            {
-                                test.assertTrue(folderCreated);
-                                test.assertTrue(fileSystem.folderExists("/folder"));
-                            });
-                    });
-                });
+                createFolderAsyncTest.run(null, null, false, false);
+                createFolderAsyncTest.run("", null, false, false);
+                createFolderAsyncTest.run("folder", null, false, false);
+                createFolderAsyncTest.run("/folder", null, true, true);
+                createFolderAsyncTest.run(
+                    "/folder",
+                    (FileSystem fileSystem) -> fileSystem.createFolder("/folder"),
+                    false,
+                    true);
             });
 
             runner.testGroup("createFolderAsync(Path,Out<Folder>)", () ->
             {
-                runner.test("with null path and null value", (Test test) ->
+                final Action5<String,Action1<FileSystem>,Boolean,Boolean,Boolean> createFolderAsyncTest = (String folderPath, Action1<FileSystem> setup, Boolean provideOut, Boolean expectedCreateResult, Boolean expectedFolderExists) ->
                 {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
+                    runner.test("with " + Strings.escapeAndQuote(folderPath) + " and " + (provideOut ? "non-null" : "null") + " Out<Folder>", (Test test) ->
                     {
-                        fileSystem.createFolderAsync((Path)null, (Out<Folder>)null)
+                        final FileSystem fileSystem = creator.run(test.getMainRunner());
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        Value<Folder> out = provideOut ? new Value<>() : null;
+                        fileSystem.createFolderAsync(Path.parse(folderPath), out)
                             .then((Boolean folderCreated) ->
                             {
-                                test.assertFalse(folderCreated);
+                                test.assertEqual(expectedCreateResult, folderCreated);
+                                test.assertEqual(expectedFolderExists, fileSystem.folderExists(folderPath));
+                                if (provideOut)
+                                {
+                                    test.assertEqual(expectedFolderExists, out.hasValue());
+                                    if (expectedFolderExists)
+                                    {
+                                        test.assertEqual(folderPath, out.get().toString());
+                                    }
+                                }
                             });
                     });
-                });
+                };
 
-                runner.test("with empty path and null value", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFolderAsync(Path.parse(""), (Out<Folder>)null)
-                            .then((Boolean folderCreated) ->
-                            {
-                                test.assertFalse(folderCreated);
-                            });
-                    });
-                });
+                createFolderAsyncTest.run(null, null, false, false, false);
+                createFolderAsyncTest.run("", null, false, false, false);
+                createFolderAsyncTest.run("folder", null, false, false, false);
+                createFolderAsyncTest.run("/folder", null, false, true, true);
+                createFolderAsyncTest.run(
+                    "/folder",
+                    (FileSystem fileSystem) -> fileSystem.createFolder("/folder"),
+                    false,
+                    false,
+                    true);
 
-                runner.test("with relative path and null value", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFolderAsync(Path.parse("folder"), (Out<Folder>)null)
-                            .then((Boolean folderCreated) ->
-                            {
-                                test.assertFalse(folderCreated);
-                            });
-                    });
-                });
-
-                runner.test("with rooted path and null value", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFolderAsync(Path.parse("/folder"), (Out<Folder>)null)
-                            .then((Boolean folderCreated) ->
-                            {
-                                test.assertTrue(folderCreated);
-                                test.assertTrue(fileSystem.folderExists("/folder"));
-                            });
-                    });
-                });
-
-                runner.test("with null path and non-null value", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        final Value<Folder> folder = new Value<>();
-                        fileSystem.createFolderAsync((Path)null, folder)
-                            .then((Boolean folderCreated) ->
-                            {
-                                test.assertFalse(folderCreated);
-                                test.assertFalse(folder.hasValue());
-                            });
-                    });
-                });
-
-                runner.test("with empty path and non-null value", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        final Value<Folder> folder = new Value<>();
-                        fileSystem.createFolderAsync(Path.parse(""), folder)
-                            .then((Boolean folderCreated) ->
-                            {
-                                test.assertFalse(folderCreated);
-                                test.assertFalse(folder.hasValue());
-                            });
-                    });
-                });
-
-                runner.test("with relative path and non-null value", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        final Value<Folder> folder = new Value<>();
-                        fileSystem.createFolderAsync(Path.parse("folder"), folder)
-                            .then((Boolean folderCreated) ->
-                            {
-                                test.assertFalse(folderCreated);
-                                test.assertFalse(folder.hasValue());
-                            });
-                    });
-                });
-
-                runner.test("with rooted path and non-null value", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        final Value<Folder> folder = new Value<>();
-                        fileSystem.createFolderAsync(Path.parse("/folder"), folder)
-                            .then((Boolean folderCreated) ->
-                            {
-                                test.assertTrue(folderCreated);
-                                test.assertTrue(fileSystem.folderExists("/folder"));
-
-                                test.assertTrue(folder.hasValue());
-                                test.assertNotNull(folder.get());
-                                test.assertEqual("/folder", folder.get().getPath().toString());
-                            });
-                    });
-                });
+                createFolderAsyncTest.run(null, null, true, false, false);
+                createFolderAsyncTest.run("", null, true, false, false);
+                createFolderAsyncTest.run("folder", null, true, false, false);
+                createFolderAsyncTest.run("/folder", null, true, true, true);
+                createFolderAsyncTest.run(
+                    "/folder",
+                    (FileSystem fileSystem) -> fileSystem.createFolder("/folder"),
+                    false,
+                    false,
+                    true);
             });
 
             runner.testGroup("deleteFolder(String)", () ->
             {
-                runner.test("with null path", (Test test) ->
+                final Action3<String,Action1<FileSystem>,Boolean> deleteFolderTest = (String folderPath, Action1<FileSystem> setup, Boolean expectedDeleteResult) ->
                 {
-                    FileSystem fileSystem = creator.run(null);
-                    test.assertFalse(fileSystem.deleteFolder((String)null));
-                });
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(test.getMainRunner());
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        test.assertEqual(expectedDeleteResult, fileSystem.deleteFolder(folderPath));
+                        test.assertFalse(fileSystem.deleteFolder(folderPath));
+                    });
+                };
 
-                runner.test("with empty path", (Test test) ->
-                {
-                    FileSystem fileSystem = creator.run(null);
-                    test.assertFalse(fileSystem.deleteFolder(""));
-                });
-
-                runner.test("with relative path", (Test test) ->
-                {
-                    FileSystem fileSystem = creator.run(null);
-                    fileSystem.createFolder("/folder");
-                    test.assertFalse(fileSystem.deleteFolder("folder"));
-                });
-
-                runner.test("with non-existing path", (Test test) ->
-                {
-                    FileSystem fileSystem = creator.run(null);
-                    test.assertFalse(fileSystem.deleteFolder("/folder"));
-                });
-
-                runner.test("with existing folder path", (Test test) ->
-                {
-                    FileSystem fileSystem = creator.run(null);
-                    fileSystem.createFolder("/folder/");
-                    test.assertTrue(fileSystem.deleteFolder("/folder/"));
-                    test.assertFalse(fileSystem.deleteFolder("/folder/"));
-                });
-
-                runner.test("with existing folder path with sibling folders", (Test test) ->
-                {
-                    FileSystem fileSystem = creator.run(null);
-                    fileSystem.createFolder("/folder/a");
-                    fileSystem.createFolder("/folder/b");
-                    fileSystem.createFolder("/folder/c");
-                    test.assertTrue(fileSystem.deleteFolder("/folder/c"));
-                    test.assertFalse(fileSystem.deleteFolder("/folder/c"));
-                });
+                deleteFolderTest.run(null, null, false);
+                deleteFolderTest.run("", null, false);
+                deleteFolderTest.run("folder", null, false);
+                deleteFolderTest.run("/folder", null, false);
+                deleteFolderTest.run(
+                    "/folder",
+                    (FileSystem fileSystem) -> fileSystem.createFolder("/folder"),
+                    true);
+                deleteFolderTest.run(
+                    "/folder/c",
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/folder/a");
+                        fileSystem.createFolder("/folder/b");
+                        fileSystem.createFolder("/folder/c");
+                    },
+                    true);
             });
 
             runner.testGroup("deleteFolderAsync(String)", () ->
             {
-                runner.test("with null path", (Test test) ->
+                final Action3<String,Action1<FileSystem>,Boolean> deleteFolderTest = (String folderPath, Action1<FileSystem> setup, Boolean expectedDeleteResult) ->
                 {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        fileSystem.deleteFolderAsync((String)null)
-                            .then((Boolean folderDeleted) ->
+                        final FileSystem fileSystem = creator.run(test.getMainRunner());
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        fileSystem.deleteFolderAsync(folderPath)
+                            .thenAsyncFunction((Boolean folderDeleted) ->
                             {
-                                test.assertFalse(folderDeleted);
-                            });
-                    });
-                });
-
-                runner.test("with empty path", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.deleteFolderAsync("")
-                            .then((Boolean folderDeleted) ->
+                                test.assertEqual(expectedDeleteResult, folderDeleted);
+                                return fileSystem.folderExistsAsync(folderPath);
+                            })
+                            .thenAsyncFunction((Boolean folderExists) ->
                             {
-                                test.assertFalse(folderDeleted);
-                            });
-                    });
-                });
-
-                runner.test("with relative path", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFolder("/folder");
-                        fileSystem.deleteFolderAsync("folder")
-                            .then((Boolean folderDeleted) ->
+                                test.assertFalse(folderExists);
+                                return fileSystem.deleteFolderAsync(folderPath);
+                            })
+                            .then((Boolean folderDeletedAgain) ->
                             {
-                                test.assertFalse(folderDeleted, "Expected the folder to fail to delete since a relative path was given.");
-                                test.assertTrue(fileSystem.folderExists("/folder"), "Expected the folder to still exist.");
-                            });
+                                test.assertFalse(folderDeletedAgain);
+                            });;
                     });
-                });
+                };
 
-                runner.test("with non-existing folder path", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.deleteFolderAsync("/folder")
-                            .then((Boolean folderDeleted) ->
-                            {
-                                test.assertFalse(folderDeleted);
-                            });
-                    });
-                });
-
-                runner.test("with existing folder path", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFolder("/folder/");
-
-                        fileSystem.deleteFolderAsync("/folder/")
-                            .then((Boolean folderDeleted) ->
-                            {
-                                test.assertTrue(folderDeleted);
-                                test.assertFalse(fileSystem.folderExists("/folder/"));
-                            });
-                    });
-                });
-
-                runner.test("with existing folder path and sibling folders", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
+                deleteFolderTest.run(null, null, false);
+                deleteFolderTest.run("", null, false);
+                deleteFolderTest.run("folder", null, false);
+                deleteFolderTest.run("/folder", null, false);
+                deleteFolderTest.run(
+                    "/folder",
+                    (FileSystem fileSystem) -> fileSystem.createFolder("/folder"),
+                    true);
+                deleteFolderTest.run(
+                    "/folder/c",
+                    (FileSystem fileSystem) ->
                     {
                         fileSystem.createFolder("/folder/a");
                         fileSystem.createFolder("/folder/b");
                         fileSystem.createFolder("/folder/c");
-
-                        fileSystem.deleteFolderAsync("/folder/c")
-                            .then((Boolean folderDeleted) ->
-                            {
-                                test.assertTrue(folderDeleted);
-                                test.assertFalse(fileSystem.folderExists("/folder/c"));
-                                test.assertTrue(fileSystem.folderExists("/folder/a"));
-                                test.assertTrue(fileSystem.folderExists("/folder/b"));
-                            });
-                    });
-                });
+                    },
+                    true);
             });
 
             runner.testGroup("deleteFolderAsync(Path)", () ->
             {
-                runner.test("with null path", (Test test) ->
+                final Action3<String,Action1<FileSystem>,Boolean> deleteFolderAsyncTest = (String folderPath, Action1<FileSystem> setup, Boolean expectedDeleteResult) ->
                 {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        fileSystem.deleteFolderAsync((Path)null)
-                            .then((Boolean folderDeleted) ->
+                        final FileSystem fileSystem = creator.run(test.getMainRunner());
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        fileSystem.deleteFolderAsync(Path.parse(folderPath))
+                            .thenAsyncFunction((Boolean folderDeleted) ->
                             {
-                                test.assertFalse(folderDeleted);
-                            });
-                    });
-                });
-
-                runner.test("with empty path", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.deleteFolderAsync(Path.parse(""))
-                            .then((Boolean folderDeleted) ->
+                                test.assertEqual(expectedDeleteResult, folderDeleted);
+                                return fileSystem.folderExistsAsync(folderPath);
+                            })
+                            .thenAsyncFunction((Boolean folderExists) ->
                             {
-                                test.assertFalse(folderDeleted);
-                            });
-                    });
-                });
-
-                runner.test("with relative path", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFolder("/folder");
-                        fileSystem.deleteFolderAsync(Path.parse("folder"))
-                            .then((Boolean folderDeleted) ->
+                                test.assertFalse(folderExists);
+                                return fileSystem.deleteFolderAsync(folderPath);
+                            })
+                            .then((Boolean folderDeletedAgain) ->
                             {
-                                test.assertFalse(folderDeleted);
-                                test.assertTrue(fileSystem.folderExists("/folder"));
-                            });
+                                test.assertFalse(folderDeletedAgain);
+                            });;
                     });
-                });
+                };
 
-                runner.test("with non-existing folder path", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.deleteFolderAsync(Path.parse("/folder"))
-                            .then((Boolean folderDeleted) ->
-                            {
-                                test.assertFalse(folderDeleted);
-                            });
-                    });
-                });
-
-                runner.test("with existing folder path", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFolder("/folder/");
-
-                        fileSystem.deleteFolderAsync(Path.parse("/folder/"))
-                            .then((Boolean folderDeleted) ->
-                            {
-                                test.assertTrue(folderDeleted);
-                                test.assertFalse(fileSystem.folderExists("/folder/"));
-                            });
-                    });
-                });
-
-                runner.test("with existing folder path with sibling folders", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
+                deleteFolderAsyncTest.run(null, null, false);
+                deleteFolderAsyncTest.run("", null, false);
+                deleteFolderAsyncTest.run("folder", null, false);
+                deleteFolderAsyncTest.run("/folder", null, false);
+                deleteFolderAsyncTest.run(
+                    "/folder",
+                    (FileSystem fileSystem) -> fileSystem.createFolder("/folder"),
+                    true);
+                deleteFolderAsyncTest.run(
+                    "/folder/c",
+                    (FileSystem fileSystem) ->
                     {
                         fileSystem.createFolder("/folder/a");
                         fileSystem.createFolder("/folder/b");
                         fileSystem.createFolder("/folder/c");
-
-                        fileSystem.deleteFolderAsync(Path.parse("/folder/c"))
-                            .then((Boolean folderDeleted) ->
-                            {
-                                test.assertTrue(folderDeleted);
-                                test.assertFalse(fileSystem.folderExists("/folder/c"));
-                                test.assertTrue(fileSystem.folderExists("/folder/a"));
-                                test.assertTrue(fileSystem.folderExists("/folder/b"));
-                            });
-                    });
-                });
+                    },
+                    true);
             });
 
             runner.testGroup("getFile(String)", () ->
             {
-                runner.test("with null path", (Test test) ->
+                final Action2<String,Boolean> getFileTest = (String filePath, Boolean fileExpected) ->
                 {
-                    FileSystem fileSystem = creator.run(null);
-                    final File file = fileSystem.getFile((String)null);
-                    test.assertNull(file);
-                });
+                    runner.test("with " + Strings.escapeAndQuote(filePath), (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(null);
+                        final File file = fileSystem.getFile(filePath);
+                        if (fileExpected)
+                        {
+                            test.assertNotNull(file);
+                            test.assertEqual(filePath, file.toString());
+                        }
+                        else
+                        {
+                            test.assertNull(file);
+                        }
+                    });
+                };
 
-                runner.test("with empty path", (Test test) ->
-                {
-                    FileSystem fileSystem = creator.run(null);
-                    final File file = fileSystem.getFile("");
-                    test.assertNull(file);
-                });
-
-                runner.test("with relative path", (Test test) ->
-                {
-                    FileSystem fileSystem = creator.run(null);
-                    final File file = fileSystem.getFile("a/b/c");
-                    test.assertNull(file);
-                });
-
-                runner.test("with forward slash", (Test test) ->
-                {
-                    FileSystem fileSystem = creator.run(null);
-                    final File file = fileSystem.getFile("/");
-                    test.assertNull(file);
-                });
-
-                runner.test("with backslash", (Test test) ->
-                {
-                    FileSystem fileSystem = creator.run(null);
-                    final File file = fileSystem.getFile("\\");
-                    test.assertNull(file);
-                });
-
-                runner.test("with Windows root", (Test test) ->
-                {
-                    FileSystem fileSystem = creator.run(null);
-                    final File file = fileSystem.getFile("Z:\\");
-                    test.assertNull(file);
-                });
-
-                runner.test("with rooted file path", (Test test) ->
-                {
-                    FileSystem fileSystem = creator.run(null);
-                    final File file = fileSystem.getFile("/a/b");
-                    test.assertNotNull(file);
-                    test.assertEqual("/a/b", file.toString());
-                });
+                getFileTest.run(null, false);
+                getFileTest.run("", false);
+                getFileTest.run("a/b/c", false);
+                getFileTest.run("/", false);
+                getFileTest.run("\\", false);
+                getFileTest.run("Z:\\", false);
+                getFileTest.run("/a/b", true);
             });
 
             runner.testGroup("fileExists(String)", () ->
             {
-                runner.test("with rooted path", (Test test) ->
+                final Action3<String,Action1<FileSystem>,Boolean> fileExistsTest = (String filePath, Action1<FileSystem> setup, Boolean expectedFileExists) ->
                 {
-                    FileSystem fileSystem = creator.run(null);
-                    final Root root = fileSystem.getRoots().first();
-                    test.assertFalse(fileSystem.fileExists(root.getPath().toString()));
-                });
+                    runner.test("with " + Strings.escapeAndQuote(filePath), (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(test.getMainRunner());
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        test.assertEqual(expectedFileExists, fileSystem.fileExists(filePath));
+                    });
+                };
 
-                runner.test("with existing folder path", (Test test) ->
-                {
-                    FileSystem fileSystem = creator.run(null);
-                    fileSystem.createFolder("/folderName");
-                    test.assertFalse(fileSystem.fileExists("/folerName"));
-                });
-
-                runner.test("with existing file path", (Test test) ->
-                {
-                    FileSystem fileSystem = creator.run(null);
-                    fileSystem.createFile("/file1.xml");
-                    test.assertTrue(fileSystem.fileExists("/file1.xml"));
-                });
+                fileExistsTest.run("/", null, false);
+                fileExistsTest.run(
+                    "/folderName",
+                    (FileSystem fileSystem) -> fileSystem.createFolder("/folderName"),
+                    false);
+                fileExistsTest.run(
+                    "/fileName",
+                    (FileSystem fileSystem) -> fileSystem.createFile("/fileName"),
+                    true);
             });
 
             runner.testGroup("fileExistsAsync(String)", () ->
             {
-                runner.test("with root path", (Test test) ->
+                final Action3<String,Action1<FileSystem>,Boolean> fileExistsAsyncTest = (String filePath, Action1<FileSystem> setup, Boolean expectedFileExists) ->
                 {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
+                    runner.test("with " + Strings.escapeAndQuote(filePath), (Test test) ->
                     {
-                        final Root root = fileSystem.getRoots().first();
-                        fileSystem.fileExistsAsync(root.getPath().toString())
+                        final FileSystem fileSystem = creator.run(test.getMainRunner());
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        fileSystem.fileExistsAsync(filePath)
                             .then((Boolean fileExists) ->
                             {
-                                test.assertFalse(fileExists);
+                                test.assertEqual(expectedFileExists, fileExists);
                             });
                     });
-                });
+                };
 
-                runner.test("with existing folder path", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFolder("/folderName");
-                        fileSystem.fileExistsAsync("/folderName")
-                            .then((Boolean fileExists) ->
-                            {
-                                test.assertFalse(fileExists);
-                            });
-                    });
-                });
-
-                runner.test("with existing file path", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFile("/file1.xml");
-                        fileSystem.fileExistsAsync("/file1.xml")
-                            .then((Boolean fileExists) ->
-                            {
-                                test.assertTrue(fileExists);
-                            });
-                    });
-                });
+                fileExistsAsyncTest.run("/", null, false);
+                fileExistsAsyncTest.run(
+                    "/folderName",
+                    (FileSystem fileSystem) -> fileSystem.createFolder("/folderName"),
+                    false);
+                fileExistsAsyncTest.run(
+                    "/fileName",
+                    (FileSystem fileSystem) -> fileSystem.createFile("/fileName"),
+                    true);
             });
 
             runner.testGroup("fileExistsAsync(Path)", () ->
             {
-                runner.test("with root path", (Test test) ->
+                final Action3<String,Action1<FileSystem>,Boolean> fileExistsAsyncTest = (String filePath, Action1<FileSystem> setup, Boolean expectedFileExists) ->
                 {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
+                    runner.test("with " + Strings.escapeAndQuote(filePath), (Test test) ->
                     {
-                        final Root root = fileSystem.getRoots().first();
-                        fileSystem.fileExistsAsync(root.getPath())
+                        final FileSystem fileSystem = creator.run(test.getMainRunner());
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        fileSystem.fileExistsAsync(Path.parse(filePath))
                             .then((Boolean fileExists) ->
                             {
-                                test.assertFalse(fileExists);
+                                test.assertEqual(expectedFileExists, fileExists);
                             });
                     });
-                });
+                };
 
-                runner.test("with existing folder path", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFolder("/folderName");
-                        fileSystem.fileExistsAsync(Path.parse("/folderName"))
-                            .then((Boolean fileExists) ->
-                            {
-                                test.assertFalse(fileExists);
-                            });
-                    });
-                });
-
-                runner.test("with existing file path", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFile("/file1.xml");
-                        fileSystem.fileExistsAsync(Path.parse("/file1.xml"))
-                            .then((Boolean fileExists) ->
-                            {
-                                test.assertTrue(fileExists);
-                            });
-                    });
-                });
+                fileExistsAsyncTest.run("/", null, false);
+                fileExistsAsyncTest.run(
+                    "/folderName",
+                    (FileSystem fileSystem) -> fileSystem.createFolder("/folderName"),
+                    false);
+                fileExistsAsyncTest.run(
+                    "/fileName",
+                    (FileSystem fileSystem) -> fileSystem.createFile("/fileName"),
+                    true);
             });
 
             runner.testGroup("createFile(String)", () ->
@@ -1842,446 +1348,446 @@ public class FileSystemTests
                 });
             });
 
-            runner.testGroup("createFileAsync(String)", () ->
-            {
-                runner.test("with null path", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFileAsync((String)null)
-                            .then((Boolean fileCreated) ->
-                            {
-                                test.assertFalse(fileCreated);
-                            });
-                    });
-                });
-
-                runner.test("with empty path", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFileAsync("")
-                            .then((Boolean fileCreated) ->
-                            {
-                                test.assertFalse(fileCreated);
-                            });
-                    });
-                });
-
-                runner.test("with relative path", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFileAsync("things.txt")
-                            .then((Boolean fileCreated) ->
-                            {
-                                test.assertFalse(fileCreated);
-                            });
-                    });
-                });
-
-                runner.test("with non-existing rooted path", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFileAsync("/things.txt")
-                            .then((Boolean fileCreated) ->
-                            {
-                                test.assertTrue(fileCreated);
-                                test.assertTrue(fileSystem.fileExists("/things.txt"));
-                            });
-                    });
-                });
-
-                runner.test("with existing rooted path", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFile("/things.txt");
-
-                        fileSystem.createFileAsync("/things.txt")
-                            .then((Boolean fileCreated) ->
-                            {
-                                test.assertFalse(fileCreated);
-                                test.assertTrue(fileSystem.fileExists("/things.txt"));
-                            });
-                    });
-                });
-            });
-
-            runner.testGroup("createFileAsync(String,Out<File>)", () ->
-            {
-                runner.test("with null path and null value", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFileAsync((String)null, (Out<File>)null)
-                            .then((Boolean fileCreated) ->
-                            {
-                                test.assertFalse(fileCreated);
-                            });
-                    });
-                });
-
-                runner.test("with empty path and null value", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFileAsync("", (Out<File>)null)
-                            .then((Boolean fileCreated) ->
-                            {
-                                test.assertFalse(fileCreated);
-                            });
-                    });
-                });
-
-                runner.test("with relative path and null value", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFileAsync("things.txt", (Out<File>)null)
-                            .then((Boolean fileCreated) ->
-                            {
-                                test.assertFalse(fileCreated);
-                            });
-                    });
-                });
-
-                runner.test("with non-existing rooted path and null value", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFileAsync("/things.txt", (Out<File>)null)
-                            .then((Boolean fileCreated) ->
-                            {
-                                test.assertTrue(fileCreated);
-                            });
-                    });
-                });
-
-                runner.test("with existing rooted path and null value", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFile("/things.txt");
-
-                        fileSystem.createFileAsync("/things.txt", (Out<File>)null)
-                            .then((Boolean fileCreated) ->
-                            {
-                                test.assertFalse(fileCreated);
-                                test.assertTrue(fileSystem.fileExists("/things.txt"));
-                            });
-                    });
-                });
-
-                runner.test("with null path and non-null value", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        final Value<File> file = new Value<>();
-                        fileSystem.createFileAsync((String)null, file)
-                            .then((Boolean fileCreated) ->
-                            {
-                                test.assertFalse(fileCreated);
-                                test.assertFalse(file.hasValue());
-                            });
-                    });
-                });
-
-                runner.test("with empty path and non-null value", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        final Value<File> file = new Value<>();
-                        fileSystem.createFileAsync("", file)
-                            .then((Boolean fileCreated) ->
-                            {
-                                test.assertFalse(fileCreated);
-                                test.assertFalse(file.hasValue());
-                            });
-                    });
-                });
-
-                runner.test("with relative path and non-null value", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        final Value<File> file = new Value<>();
-                        fileSystem.createFileAsync("things.txt", file)
-                            .then((Boolean fileCreated) ->
-                            {
-                                test.assertFalse(fileCreated);
-                                test.assertFalse(file.hasValue());
-                            });
-                    });
-                });
-
-                runner.test("with non-existing rooted path and non-null value", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        final Value<File> file = new Value<>();
-                        fileSystem.createFileAsync("/things.txt", file)
-                            .then((Boolean fileCreated) ->
-                            {
-                                test.assertTrue(fileCreated);
-                                test.assertEqual("/things.txt", file.get().getPath().toString());
-                            });
-                    });
-                });
-
-                runner.test("with existing rooted path and non-null value", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        final Value<File> file = new Value<>();
-                        test.assertTrue(fileSystem.createFile("/things.txt", file));
-
-                        fileSystem.createFileAsync("/things.txt", file)
-                            .then((Boolean fileCreated) ->
-                            {
-                                test.assertFalse(fileCreated, "The createFileAsync() method should have failed.");
-                                test.assertTrue(file.hasValue(), "file should have had a value, even though the createFileAsync() method failed.");
-                                test.assertNotNull(file.get(), "file's value should have been not-null.");
-                                test.assertEqual(Path.parse("/things.txt"), file.get().getPath());
-                            });
-                    });
-                });
-
-                runner.test("with invalid path", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        final Value<File> file = new Value<>();
-                        fileSystem.createFileAsync("/\u0000?#!.txt", file)
-                            .then((Boolean fileCreated) ->
-                            {
-                                test.assertFalse(fileCreated);
-                                test.assertFalse(file.hasValue());
-                            });
-                    });
-                });
-            });
-
-            runner.testGroup("createFileAsync(Path)", () ->
-            {
-                runner.test("with null path", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFileAsync((Path)null)
-                            .then((Boolean fileCreated) ->
-                            {
-                                test.assertFalse(fileCreated);
-                            });
-                    });
-                });
-
-                runner.test("with empty path", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFileAsync(Path.parse(""))
-                            .then((Boolean fileCreated) ->
-                            {
-                                test.assertFalse(fileCreated);
-                            });
-                    });
-                });
-
-                runner.test("with relative path", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFileAsync(Path.parse("things.txt"))
-                            .then((Boolean fileCreated) ->
-                            {
-                                test.assertFalse(fileCreated);
-                            });
-                    });
-                });
-
-                runner.test("with non-existing rooted path", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFileAsync(Path.parse("/things.txt"))
-                            .then((Boolean fileCreated) ->
-                            {
-                                test.assertTrue(fileCreated);
-                                test.assertTrue(fileSystem.fileExists("/things.txt"));
-                            });
-                    });
-                });
-
-                runner.test("with existing rooted path", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFile("/things.txt");
-
-                        fileSystem.createFileAsync(Path.parse("/things.txt"))
-                            .then((Boolean fileCreated) ->
-                            {
-                                test.assertFalse(fileCreated);
-                                test.assertTrue(fileSystem.fileExists("/things.txt"));
-                            });
-                    });
-                });
-            });
-
-            runner.testGroup("createFileAsync(Path,Out<File>)", () ->
-            {
-                runner.test("with null path and null value", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFileAsync((Path)null, (Out<File>)null)
-                            .then((Boolean fileCreated) ->
-                            {
-                                test.assertFalse(fileCreated);
-                            });
-                    });
-                });
-
-                runner.test("with empty path and null value", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFileAsync(Path.parse(""), (Out<File>)null)
-                            .then((Boolean fileCreated) ->
-                            {
-                                test.assertFalse(fileCreated);
-                            });
-                    });
-                });
-
-                runner.test("with relative path and null value", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFileAsync(Path.parse("things.txt"), (Out<File>)null)
-                            .then((Boolean fileCreated) ->
-                            {
-                                test.assertFalse(fileCreated);
-                            });
-                    });
-                });
-
-                runner.test("with non-existing rooted path and null value", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFileAsync(Path.parse("/things.txt"), (Out<File>)null)
-                            .then((Boolean fileCreated) ->
-                            {
-                                test.assertTrue(fileCreated);
-                            });
-                    });
-                });
-
-                runner.test("with existing rooted path and null value", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFile("/things.txt");
-
-                        fileSystem.createFileAsync(Path.parse("/things.txt"), (Out<File>)null)
-                            .then((Boolean fileCreated) ->
-                            {
-                                test.assertFalse(fileCreated);
-                            });
-                    });
-                });
-
-                runner.test("with null path and non-null value", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        final Value<File> file = new Value<>();
-                        fileSystem.createFileAsync((Path)null, file)
-                            .then((Boolean fileCreated) ->
-                            {
-                                test.assertFalse(fileCreated);
-                                test.assertFalse(file.hasValue());
-                            });
-                    });
-                });
-
-                runner.test("with empty path and non-null value", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        final Value<File> file = new Value<>();
-                        fileSystem.createFileAsync(Path.parse(""), file)
-                            .then((Boolean fileCreated) ->
-                            {
-                                test.assertFalse(fileCreated);
-                                test.assertFalse(file.hasValue());
-                            });
-                    });
-                });
-
-                runner.test("with relative path and non-null value", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        final Value<File> file = new Value<>();
-                        fileSystem.createFileAsync(Path.parse("things.txt"), file)
-                            .then((Boolean fileCreated) ->
-                            {
-                                test.assertFalse(fileCreated);
-                                test.assertFalse(file.hasValue());
-                            });
-                    });
-                });
-
-                runner.test("with non-existing rooted path and non-null value", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        final Value<File> file = new Value<>();
-                        fileSystem.createFileAsync(Path.parse("/things.txt"), file)
-                            .then((Boolean fileCreated) ->
-                            {
-                                test.assertTrue(fileCreated);
-                                test.assertEqual("/things.txt", file.get().getPath().toString());
-                            });
-                    });
-                });
-
-                runner.test("with existing rooted path and non-null value", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        final Value<File> file = new Value<>();
-                        fileSystem.createFile("/things.txt", file);
-
-                        fileSystem.createFileAsync(Path.parse("/things.txt"), file)
-                            .then((Boolean fileCreated) ->
-                            {
-                                test.assertFalse(fileCreated);
-                                test.assertTrue(file.hasValue());
-                                test.assertNotNull(file.get());
-                                test.assertEqual(Path.parse("/things.txt"), file.get().getPath());
-                            });
-                    });
-                });
-
-                runner.test("with invalid path", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        final Value<File> file = new Value<>();
-                        fileSystem.createFileAsync(Path.parse("/\u0000?#!.txt"), file)
-                            .then((Boolean fileCreated) ->
-                            {
-                                test.assertFalse(fileCreated);
-                                test.assertFalse(file.hasValue());
-                            });
-                    });
-                });
-            });
+//            runner.testGroup("createFileAsync(String)", () ->
+//            {
+//                runner.test("with null path", (Test test) ->
+//                {
+//                    asyncTest.run(test, (FileSystem fileSystem) ->
+//                    {
+//                        fileSystem.createFileAsync((String)null)
+//                            .then((Boolean fileCreated) ->
+//                            {
+//                                test.assertFalse(fileCreated);
+//                            });
+//                    });
+//                });
+//
+//                runner.test("with empty path", (Test test) ->
+//                {
+//                    asyncTest.run(test, (FileSystem fileSystem) ->
+//                    {
+//                        fileSystem.createFileAsync("")
+//                            .then((Boolean fileCreated) ->
+//                            {
+//                                test.assertFalse(fileCreated);
+//                            });
+//                    });
+//                });
+//
+//                runner.test("with relative path", (Test test) ->
+//                {
+//                    asyncTest.run(test, (FileSystem fileSystem) ->
+//                    {
+//                        fileSystem.createFileAsync("things.txt")
+//                            .then((Boolean fileCreated) ->
+//                            {
+//                                test.assertFalse(fileCreated);
+//                            });
+//                    });
+//                });
+//
+//                runner.test("with non-existing rooted path", (Test test) ->
+//                {
+//                    asyncTest.run(test, (FileSystem fileSystem) ->
+//                    {
+//                        fileSystem.createFileAsync("/things.txt")
+//                            .then((Boolean fileCreated) ->
+//                            {
+//                                test.assertTrue(fileCreated);
+//                                test.assertTrue(fileSystem.fileExists("/things.txt"));
+//                            });
+//                    });
+//                });
+//
+//                runner.test("with existing rooted path", (Test test) ->
+//                {
+//                    asyncTest.run(test, (FileSystem fileSystem) ->
+//                    {
+//                        fileSystem.createFile("/things.txt");
+//
+//                        fileSystem.createFileAsync("/things.txt")
+//                            .then((Boolean fileCreated) ->
+//                            {
+//                                test.assertFalse(fileCreated);
+//                                test.assertTrue(fileSystem.fileExists("/things.txt"));
+//                            });
+//                    });
+//                });
+//            });
+//
+//            runner.testGroup("createFileAsync(String,Out<File>)", () ->
+//            {
+//                runner.test("with null path and null value", (Test test) ->
+//                {
+//                    asyncTest.run(test, (FileSystem fileSystem) ->
+//                    {
+//                        fileSystem.createFileAsync((String)null, (Out<File>)null)
+//                            .then((Boolean fileCreated) ->
+//                            {
+//                                test.assertFalse(fileCreated);
+//                            });
+//                    });
+//                });
+//
+//                runner.test("with empty path and null value", (Test test) ->
+//                {
+//                    asyncTest.run(test, (FileSystem fileSystem) ->
+//                    {
+//                        fileSystem.createFileAsync("", (Out<File>)null)
+//                            .then((Boolean fileCreated) ->
+//                            {
+//                                test.assertFalse(fileCreated);
+//                            });
+//                    });
+//                });
+//
+//                runner.test("with relative path and null value", (Test test) ->
+//                {
+//                    asyncTest.run(test, (FileSystem fileSystem) ->
+//                    {
+//                        fileSystem.createFileAsync("things.txt", (Out<File>)null)
+//                            .then((Boolean fileCreated) ->
+//                            {
+//                                test.assertFalse(fileCreated);
+//                            });
+//                    });
+//                });
+//
+//                runner.test("with non-existing rooted path and null value", (Test test) ->
+//                {
+//                    asyncTest.run(test, (FileSystem fileSystem) ->
+//                    {
+//                        fileSystem.createFileAsync("/things.txt", (Out<File>)null)
+//                            .then((Boolean fileCreated) ->
+//                            {
+//                                test.assertTrue(fileCreated);
+//                            });
+//                    });
+//                });
+//
+//                runner.test("with existing rooted path and null value", (Test test) ->
+//                {
+//                    asyncTest.run(test, (FileSystem fileSystem) ->
+//                    {
+//                        fileSystem.createFile("/things.txt");
+//
+//                        fileSystem.createFileAsync("/things.txt", (Out<File>)null)
+//                            .then((Boolean fileCreated) ->
+//                            {
+//                                test.assertFalse(fileCreated);
+//                                test.assertTrue(fileSystem.fileExists("/things.txt"));
+//                            });
+//                    });
+//                });
+//
+//                runner.test("with null path and non-null value", (Test test) ->
+//                {
+//                    asyncTest.run(test, (FileSystem fileSystem) ->
+//                    {
+//                        final Value<File> file = new Value<>();
+//                        fileSystem.createFileAsync((String)null, file)
+//                            .then((Boolean fileCreated) ->
+//                            {
+//                                test.assertFalse(fileCreated);
+//                                test.assertFalse(file.hasValue());
+//                            });
+//                    });
+//                });
+//
+//                runner.test("with empty path and non-null value", (Test test) ->
+//                {
+//                    asyncTest.run(test, (FileSystem fileSystem) ->
+//                    {
+//                        final Value<File> file = new Value<>();
+//                        fileSystem.createFileAsync("", file)
+//                            .then((Boolean fileCreated) ->
+//                            {
+//                                test.assertFalse(fileCreated);
+//                                test.assertFalse(file.hasValue());
+//                            });
+//                    });
+//                });
+//
+//                runner.test("with relative path and non-null value", (Test test) ->
+//                {
+//                    asyncTest.run(test, (FileSystem fileSystem) ->
+//                    {
+//                        final Value<File> file = new Value<>();
+//                        fileSystem.createFileAsync("things.txt", file)
+//                            .then((Boolean fileCreated) ->
+//                            {
+//                                test.assertFalse(fileCreated);
+//                                test.assertFalse(file.hasValue());
+//                            });
+//                    });
+//                });
+//
+//                runner.test("with non-existing rooted path and non-null value", (Test test) ->
+//                {
+//                    asyncTest.run(test, (FileSystem fileSystem) ->
+//                    {
+//                        final Value<File> file = new Value<>();
+//                        fileSystem.createFileAsync("/things.txt", file)
+//                            .then((Boolean fileCreated) ->
+//                            {
+//                                test.assertTrue(fileCreated);
+//                                test.assertEqual("/things.txt", file.get().getPath().toString());
+//                            });
+//                    });
+//                });
+//
+//                runner.test("with existing rooted path and non-null value", (Test test) ->
+//                {
+//                    asyncTest.run(test, (FileSystem fileSystem) ->
+//                    {
+//                        final Value<File> file = new Value<>();
+//                        test.assertTrue(fileSystem.createFile("/things.txt", file));
+//
+//                        fileSystem.createFileAsync("/things.txt", file)
+//                            .then((Boolean fileCreated) ->
+//                            {
+//                                test.assertFalse(fileCreated, "The createFileAsync() method should have failed.");
+//                                test.assertTrue(file.hasValue(), "file should have had a value, even though the createFileAsync() method failed.");
+//                                test.assertNotNull(file.get(), "file's value should have been not-null.");
+//                                test.assertEqual(Path.parse("/things.txt"), file.get().getPath());
+//                            });
+//                    });
+//                });
+//
+//                runner.test("with invalid path", (Test test) ->
+//                {
+//                    asyncTest.run(test, (FileSystem fileSystem) ->
+//                    {
+//                        final Value<File> file = new Value<>();
+//                        fileSystem.createFileAsync("/\u0000?#!.txt", file)
+//                            .then((Boolean fileCreated) ->
+//                            {
+//                                test.assertFalse(fileCreated);
+//                                test.assertFalse(file.hasValue());
+//                            });
+//                    });
+//                });
+//            });
+//
+//            runner.testGroup("createFileAsync(Path)", () ->
+//            {
+//                runner.test("with null path", (Test test) ->
+//                {
+//                    asyncTest.run(test, (FileSystem fileSystem) ->
+//                    {
+//                        fileSystem.createFileAsync((Path)null)
+//                            .then((Boolean fileCreated) ->
+//                            {
+//                                test.assertFalse(fileCreated);
+//                            });
+//                    });
+//                });
+//
+//                runner.test("with empty path", (Test test) ->
+//                {
+//                    asyncTest.run(test, (FileSystem fileSystem) ->
+//                    {
+//                        fileSystem.createFileAsync(Path.parse(""))
+//                            .then((Boolean fileCreated) ->
+//                            {
+//                                test.assertFalse(fileCreated);
+//                            });
+//                    });
+//                });
+//
+//                runner.test("with relative path", (Test test) ->
+//                {
+//                    asyncTest.run(test, (FileSystem fileSystem) ->
+//                    {
+//                        fileSystem.createFileAsync(Path.parse("things.txt"))
+//                            .then((Boolean fileCreated) ->
+//                            {
+//                                test.assertFalse(fileCreated);
+//                            });
+//                    });
+//                });
+//
+//                runner.test("with non-existing rooted path", (Test test) ->
+//                {
+//                    asyncTest.run(test, (FileSystem fileSystem) ->
+//                    {
+//                        fileSystem.createFileAsync(Path.parse("/things.txt"))
+//                            .then((Boolean fileCreated) ->
+//                            {
+//                                test.assertTrue(fileCreated);
+//                                test.assertTrue(fileSystem.fileExists("/things.txt"));
+//                            });
+//                    });
+//                });
+//
+//                runner.test("with existing rooted path", (Test test) ->
+//                {
+//                    asyncTest.run(test, (FileSystem fileSystem) ->
+//                    {
+//                        fileSystem.createFile("/things.txt");
+//
+//                        fileSystem.createFileAsync(Path.parse("/things.txt"))
+//                            .then((Boolean fileCreated) ->
+//                            {
+//                                test.assertFalse(fileCreated);
+//                                test.assertTrue(fileSystem.fileExists("/things.txt"));
+//                            });
+//                    });
+//                });
+//            });
+//
+//            runner.testGroup("createFileAsync(Path,Out<File>)", () ->
+//            {
+//                runner.test("with null path and null value", (Test test) ->
+//                {
+//                    asyncTest.run(test, (FileSystem fileSystem) ->
+//                    {
+//                        fileSystem.createFileAsync((Path)null, (Out<File>)null)
+//                            .then((Boolean fileCreated) ->
+//                            {
+//                                test.assertFalse(fileCreated);
+//                            });
+//                    });
+//                });
+//
+//                runner.test("with empty path and null value", (Test test) ->
+//                {
+//                    asyncTest.run(test, (FileSystem fileSystem) ->
+//                    {
+//                        fileSystem.createFileAsync(Path.parse(""), (Out<File>)null)
+//                            .then((Boolean fileCreated) ->
+//                            {
+//                                test.assertFalse(fileCreated);
+//                            });
+//                    });
+//                });
+//
+//                runner.test("with relative path and null value", (Test test) ->
+//                {
+//                    asyncTest.run(test, (FileSystem fileSystem) ->
+//                    {
+//                        fileSystem.createFileAsync(Path.parse("things.txt"), (Out<File>)null)
+//                            .then((Boolean fileCreated) ->
+//                            {
+//                                test.assertFalse(fileCreated);
+//                            });
+//                    });
+//                });
+//
+//                runner.test("with non-existing rooted path and null value", (Test test) ->
+//                {
+//                    asyncTest.run(test, (FileSystem fileSystem) ->
+//                    {
+//                        fileSystem.createFileAsync(Path.parse("/things.txt"), (Out<File>)null)
+//                            .then((Boolean fileCreated) ->
+//                            {
+//                                test.assertTrue(fileCreated);
+//                            });
+//                    });
+//                });
+//
+//                runner.test("with existing rooted path and null value", (Test test) ->
+//                {
+//                    asyncTest.run(test, (FileSystem fileSystem) ->
+//                    {
+//                        fileSystem.createFile("/things.txt");
+//
+//                        fileSystem.createFileAsync(Path.parse("/things.txt"), (Out<File>)null)
+//                            .then((Boolean fileCreated) ->
+//                            {
+//                                test.assertFalse(fileCreated);
+//                            });
+//                    });
+//                });
+//
+//                runner.test("with null path and non-null value", (Test test) ->
+//                {
+//                    asyncTest.run(test, (FileSystem fileSystem) ->
+//                    {
+//                        final Value<File> file = new Value<>();
+//                        fileSystem.createFileAsync((Path)null, file)
+//                            .then((Boolean fileCreated) ->
+//                            {
+//                                test.assertFalse(fileCreated);
+//                                test.assertFalse(file.hasValue());
+//                            });
+//                    });
+//                });
+//
+//                runner.test("with empty path and non-null value", (Test test) ->
+//                {
+//                    asyncTest.run(test, (FileSystem fileSystem) ->
+//                    {
+//                        final Value<File> file = new Value<>();
+//                        fileSystem.createFileAsync(Path.parse(""), file)
+//                            .then((Boolean fileCreated) ->
+//                            {
+//                                test.assertFalse(fileCreated);
+//                                test.assertFalse(file.hasValue());
+//                            });
+//                    });
+//                });
+//
+//                runner.test("with relative path and non-null value", (Test test) ->
+//                {
+//                    asyncTest.run(test, (FileSystem fileSystem) ->
+//                    {
+//                        final Value<File> file = new Value<>();
+//                        fileSystem.createFileAsync(Path.parse("things.txt"), file)
+//                            .then((Boolean fileCreated) ->
+//                            {
+//                                test.assertFalse(fileCreated);
+//                                test.assertFalse(file.hasValue());
+//                            });
+//                    });
+//                });
+//
+//                runner.test("with non-existing rooted path and non-null value", (Test test) ->
+//                {
+//                    asyncTest.run(test, (FileSystem fileSystem) ->
+//                    {
+//                        final Value<File> file = new Value<>();
+//                        fileSystem.createFileAsync(Path.parse("/things.txt"), file)
+//                            .then((Boolean fileCreated) ->
+//                            {
+//                                test.assertTrue(fileCreated);
+//                                test.assertEqual("/things.txt", file.get().getPath().toString());
+//                            });
+//                    });
+//                });
+//
+//                runner.test("with existing rooted path and non-null value", (Test test) ->
+//                {
+//                    asyncTest.run(test, (FileSystem fileSystem) ->
+//                    {
+//                        final Value<File> file = new Value<>();
+//                        fileSystem.createFile("/things.txt", file);
+//
+//                        fileSystem.createFileAsync(Path.parse("/things.txt"), file)
+//                            .then((Boolean fileCreated) ->
+//                            {
+//                                test.assertFalse(fileCreated);
+//                                test.assertTrue(file.hasValue());
+//                                test.assertNotNull(file.get());
+//                                test.assertEqual(Path.parse("/things.txt"), file.get().getPath());
+//                            });
+//                    });
+//                });
+//
+//                runner.test("with invalid path", (Test test) ->
+//                {
+//                    asyncTest.run(test, (FileSystem fileSystem) ->
+//                    {
+//                        final Value<File> file = new Value<>();
+//                        fileSystem.createFileAsync(Path.parse("/\u0000?#!.txt"), file)
+//                            .then((Boolean fileCreated) ->
+//                            {
+//                                test.assertFalse(fileCreated);
+//                                test.assertFalse(file.hasValue());
+//                            });
+//                    });
+//                });
+//            });
 
             runner.testGroup("deleteFile(String)", () ->
             {
@@ -2322,135 +1828,131 @@ public class FileSystemTests
                 });
             });
 
-            runner.testGroup("deleteFileAsync(String)", () ->
-            {
-                runner.test("with null path", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.deleteFileAsync((String)null)
-                            .then((Boolean fileDeleted) ->
-                            {
-                                test.assertFalse(fileDeleted);
-                            });
-                    });
-                });
-
-                runner.test("with empty path", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.deleteFileAsync("")
-                            .then((Boolean fileDeleted) ->
-                            {
-                                test.assertFalse(fileDeleted);
-                            });
-                    });
-                });
-
-                runner.test("with relative path", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.deleteFileAsync("relativeFile.txt")
-                            .then((Boolean fileDeleted) ->
-                            {
-                                test.assertFalse(fileDeleted);
-                            });
-                    });
-                });
-
-                runner.test("with non-existing rooted path", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.deleteFileAsync("/idontexist.txt")
-                            .then((Boolean fileDeleted) ->
-                            {
-                                test.assertFalse(fileDeleted);
-                            });
-                    });
-                });
-
-                runner.test("with existing rooted path", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFile("/iexist.txt");
-                        fileSystem.deleteFileAsync("/iexist.txt")
-                            .then((Boolean fileDeleted) ->
-                            {
-                                test.assertTrue(fileDeleted);
-                                test.assertFalse(fileSystem.fileExists("/iexist.txt"));
-                            });
-                    });
-                });
-            });
-
-            runner.testGroup("deleteFileAsync(Path)", () ->
-            {
-                runner.test("with null path", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.deleteFileAsync((Path)null)
-                            .then((Boolean fileDeleted) ->
-                            {
-                                test.assertFalse(fileDeleted);
-                            });
-                    });
-                });
-
-                runner.test("with empty path", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.deleteFileAsync(Path.parse(""))
-                            .then((Boolean fileDeleted) ->
-                            {
-                                test.assertFalse(fileDeleted);
-                            });
-                    });
-                });
-
-                runner.test("with relative path", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.deleteFileAsync(Path.parse("relativeFile.txt"))
-                            .then((Boolean fileDeleted) ->
-                            {
-                                test.assertFalse(fileDeleted);
-                            });
-                    });
-                });
-
-                runner.test("with non-existing rooted path", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.deleteFileAsync(Path.parse("/idontexist.txt"))
-                            .then((Boolean fileDeleted) ->
-                            {
-                                test.assertFalse(fileDeleted);
-                            });
-                    });
-                });
-
-                runner.test("with existing rooted path", (Test test) ->
-                {
-                    asyncTest.run(test, (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFile("/iexist.txt");
-                        fileSystem.deleteFileAsync(Path.parse("/iexist.txt"))
-                            .then((Boolean fileDeleted) ->
-                            {
-                                test.assertTrue(fileDeleted);
-                                test.assertFalse(fileSystem.fileExists("/iexist.txt"));
-                            });
-                    });
-                });
-            });
+//            runner.testGroup("deleteFileAsync(String)", () ->
+//            {
+//                runner.test("with null path", (Test test) ->
+//                {
+//                    asyncTest.run(test, (FileSystem fileSystem) ->
+//                    {
+//                        fileSystem.deleteFileAsync((String)null)
+//                            .then((Boolean fileDeleted) ->
+//                            {
+//                                test.assertFalse(fileDeleted);
+//                            });
+//                    });
+//                });
+//
+//                runner.test("with empty path", (Test test) ->
+//                {
+//                    asyncTest.run(test, (FileSystem fileSystem) ->
+//                    {
+//                        fileSystem.deleteFileAsync("")
+//                            .then((Boolean fileDeleted) ->
+//                            {
+//                                test.assertFalse(fileDeleted);
+//                            });
+//                    });
+//                });
+//
+//                runner.test("with relative path", (Test test) ->
+//                {
+//                    asyncTest.run(test, (FileSystem fileSystem) ->
+//                    {
+//                        fileSystem.deleteFileAsync("relativeFile.txt")
+//                            .then((Boolean fileDeleted) ->
+//                            {
+//                                test.assertFalse(fileDeleted);
+//                            });
+//                    });
+//                });
+//
+//                runner.test("with non-existing rooted path", (Test test) ->
+//                {
+//                    asyncTest.run(test, (FileSystem fileSystem) ->
+//                    {
+//                        fileSystem.deleteFileAsync("/idontexist.txt")
+//                            .then((Boolean fileDeleted) ->
+//                            {
+//                                test.assertFalse(fileDeleted);
+//                            });
+//                    });
+//                });
+//
+//                runner.test("with existing rooted path", (Test test) ->
+//                {
+//                    asyncTest.run(test, (FileSystem fileSystem) ->
+//                    {
+//                        fileSystem.createFile("/iexist.txt");
+//                        fileSystem.deleteFileAsync("/iexist.txt")
+//                            .then((Boolean fileDeleted) ->
+//                            {
+//                                test.assertTrue(fileDeleted);
+//                                test.assertFalse(fileSystem.fileExists("/iexist.txt"));
+//                            });
+//                    });
+//                });
+//            });
+//
+//            runner.testGroup("deleteFileAsync(Path)", () ->
+//            {
+//                runner.test("with null path", (Test test) ->
+//                {
+//                    asyncTest.run(test, (FileSystem fileSystem) ->
+//                    {
+//                        fileSystem.deleteFileAsync((Path)null)
+//                            .then((Boolean fileDeleted) ->
+//                            {
+//                                test.assertFalse(fileDeleted);
+//                            });
+//                    });
+//                });
+//
+//                runner.test("with empty path", (Test test) ->
+//                {
+//                    asyncTest.run(test, (FileSystem fileSystem) ->
+//                    {
+//                        fileSystem.deleteFileAsync(Path.parse(""))
+//                            .then((Boolean fileDeleted) ->
+//                            {
+//                                test.assertFalse(fileDeleted);
+//                            });
+//                    });
+//                });
+//
+//                runner.test("with relative path", (Test test) ->
+//                {
+//                    final FileSystem fileSystem = creator.run(test.getMainRunner());
+//                    fileSystem.deleteFileAsync(Path.parse("relativeFile.txt"))
+//                        .then((Boolean fileDeleted) ->
+//                        {
+//                            test.assertFalse(fileDeleted);
+//                        });
+//                });
+//
+//                runner.test("with non-existing rooted path", (Test test) ->
+//                {
+//                    final FileSystem fileSystem = creator.run(test.getMainRunner());
+//                    fileSystem.deleteFileAsync(Path.parse("/idontexist.txt"))
+//                        .then((Boolean fileDeleted) ->
+//                        {
+//                            test.assertFalse(fileDeleted);
+//                        });
+//                });
+//
+//                runner.test("with existing rooted path", (Test test) ->
+//                {
+//                    asyncTest.run(test, (FileSystem fileSystem) ->
+//                    {
+//                        fileSystem.createFile("/iexist.txt");
+//                        fileSystem.deleteFileAsync(Path.parse("/iexist.txt"))
+//                            .then((Boolean fileDeleted) ->
+//                            {
+//                                test.assertTrue(fileDeleted);
+//                                test.assertFalse(fileSystem.fileExists("/iexist.txt"));
+//                            });
+//                    });
+//                });
+//            });
 
             runner.testGroup("getFileLastModified(String)", () ->
             {

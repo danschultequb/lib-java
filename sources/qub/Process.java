@@ -75,7 +75,7 @@ public class Process extends DisposableBase
         synchronization = new Value<>();
         stopwatchCreator = new Value<>();
 
-        mainRunner = new CurrentThreadAsyncRunner(new Function0<Synchronization>()
+        mainRunner = new ManualAsyncRunner(new Function0<Synchronization>()
         {
             @Override
             public Synchronization run()

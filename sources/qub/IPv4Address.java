@@ -2,6 +2,8 @@ package qub;
 
 public class IPv4Address
 {
+    public static final IPv4Address localhost = new IPv4Address((byte)127, (byte)0, (byte)0, (byte)1);
+
     private byte[] bytes;
 
     public IPv4Address(byte b1, byte b2, byte b3, byte b4)

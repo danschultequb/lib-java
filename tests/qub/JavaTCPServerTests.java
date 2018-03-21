@@ -239,10 +239,8 @@ public class JavaTCPServerTests
 
                 runner.test("with connection while accepting() on port " + port.incrementAndGet(), (Test test) ->
                 {
-                    final IPv4Address ipAddress = IPv4Address.parse("127.0.0.1");
                     final byte[] bytes = new byte[] { 10, 20, 30, 40, 50 };
-                    try (final ParallelAsyncRunner parallelAsyncRunner = new ParallelAsyncRunner();
-                         final TCPServer tcpServer = JavaTCPServer.create(ipAddress, port.get(), parallelAsyncRunner).getValue())
+                    try (final TCPServer tcpServer = JavaTCPServer.create(IPv4Address.localhost, port.get(), test.getParallelRunner()).getValue())
                     {
                         final AsyncFunction<TCPClient> acceptAsyncResult = tcpServer.acceptAsync();
                         test.assertNotNull(acceptAsyncResult);
@@ -254,11 +252,11 @@ public class JavaTCPServerTests
                             tcpClient.dispose();
                         });
 
-                        parallelAsyncRunner.schedule(() ->
+                        test.getParallelRunner().schedule(() ->
                         {
                             // The tcpClient code needs to be in a different thread because the
                             // tcpServer runs its acceptAsync().then() action on the main thread.
-                            try (final TCPClient tcpClient = JavaTCPClient.create(ipAddress, port.get()).getValue())
+                            try (final TCPClient tcpClient = JavaTCPClient.create(IPv4Address.localhost, port.get()).getValue())
                             {
                                 tcpClient.write(bytes);
                                 final byte[] clientReadBytes = tcpClient.readBytes(bytes.length);
@@ -266,7 +264,7 @@ public class JavaTCPServerTests
                             }
                         });
 
-                        AsyncRunnerRegistry.getCurrentThreadAsyncRunner().await();
+                        test.await();
                     }
                 });
             });

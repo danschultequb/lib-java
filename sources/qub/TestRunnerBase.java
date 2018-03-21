@@ -4,6 +4,8 @@ public class TestRunnerBase implements TestRunner
 {
     private static final SkipTest skipTest = new SkipTest();
 
+    private final Process process;
+
     private int passedTestCount;
     private int failedTestCount;
     private int skippedTestCount;
@@ -25,8 +27,9 @@ public class TestRunnerBase implements TestRunner
     private final boolean debug;
     private final PathPattern testPattern;
 
-    public TestRunnerBase(boolean debug, PathPattern testPattern)
+    public TestRunnerBase(Process process, boolean debug, PathPattern testPattern)
     {
+        this.process = process;
         this.debug = debug;
         this.testPattern = testPattern;
     }
@@ -93,7 +96,7 @@ public class TestRunnerBase implements TestRunner
     {
         if (testAction != null)
         {
-            final Test test = new Test(testName, currentTestGroup, skipTest != null);
+            final Test test = new Test(testName, currentTestGroup, skipTest != null, process);
             if (test.matches(testPattern))
             {
                 if (onTestStarted != null)
@@ -120,7 +123,14 @@ public class TestRunnerBase implements TestRunner
                             beforeTestAction.run();
                         }
 
-                        testAction.run(test);
+                        try
+                        {
+                            testAction.run(test);
+                        }
+                        finally
+                        {
+                            test.await();
+                        }
 
                         if (afterTestAction != null)
                         {

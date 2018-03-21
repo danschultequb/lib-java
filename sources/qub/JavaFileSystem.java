@@ -140,8 +140,6 @@ public class JavaFileSystem extends FileSystemBase
 
     private static boolean deleteFolder(java.io.File javaFolder)
     {
-        boolean result = true;
-
         final java.io.File[] javaSubEntries = javaFolder.listFiles();
         if (javaSubEntries != null && javaSubEntries.length > 0)
         {
@@ -149,21 +147,16 @@ public class JavaFileSystem extends FileSystemBase
             {
                 if (javaSubEntry.isDirectory())
                 {
-                    result &= deleteFolder(javaSubEntry);
+                    deleteFolder(javaSubEntry);
                 }
                 else
                 {
-                    result &= deleteFile(javaSubEntry);
+                    deleteFile(javaSubEntry);
                 }
             }
         }
 
-        if (result)
-        {
-            result = javaFolder.delete();
-        }
-
-        return result;
+        return javaFolder.delete();
     }
 
     @Override

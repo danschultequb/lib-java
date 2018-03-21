@@ -1,12 +1,12 @@
 package qub;
 
-public class CurrentThreadAsyncRunner extends DisposableBase implements AsyncRunner
+public class ManualAsyncRunner extends DisposableBase implements AsyncRunner
 {
     private final Function0<Synchronization> synchronizationFunction;
     private final LockedQueue<PausedAsyncTask> scheduledTasks;
     private boolean disposed;
 
-    public CurrentThreadAsyncRunner(final Synchronization synchronization)
+    public ManualAsyncRunner(final Synchronization synchronization)
     {
         this(new Function0<Synchronization>()
         {
@@ -18,7 +18,7 @@ public class CurrentThreadAsyncRunner extends DisposableBase implements AsyncRun
         });
     }
 
-    public CurrentThreadAsyncRunner(Function0<Synchronization> synchronizationFunction)
+    public ManualAsyncRunner(Function0<Synchronization> synchronizationFunction)
     {
         this.synchronizationFunction = synchronizationFunction;
         this.scheduledTasks = new LockedQueue<>(new SingleLinkListQueue<PausedAsyncTask>());
@@ -84,16 +84,16 @@ public class CurrentThreadAsyncRunner extends DisposableBase implements AsyncRun
     }
 
     /**
-     * Run the provided action immediately using a new CurrentThreadAsyncRunner that has been
+     * Run the provided action immediately using a new ManualAsyncRunner that has been
      * registered with the AsyncRunnerRegistry for the current thread. When the provided action
-     * completes, the provided CurrentThreadAsyncRunner will be removed from the
+     * completes, the provided ManualAsyncRunner will be removed from the
      * AsyncRunnerRegistry.
      * @param console The Console object that will provide the Synchronization object for the
-     *                created CurrentThreadAsyncRunner.
+     *                created ManualAsyncRunner.
      * @param action The action to run immediately with the created and registered
-     *               CurrentThreadAsyncRunner.
+     *               ManualAsyncRunner.
      */
-    public static void withRegistered(final Console console, Action1<CurrentThreadAsyncRunner> action)
+    public static void withRegistered(final Console console, Action1<ManualAsyncRunner> action)
     {
         final Function0<Synchronization> synchronizationFunction = new Function0<Synchronization>()
         {
@@ -107,16 +107,16 @@ public class CurrentThreadAsyncRunner extends DisposableBase implements AsyncRun
     }
 
     /**
-     * Run the provided action immediately using a new CurrentThreadAsyncRunner that has been
+     * Run the provided action immediately using a new ManualAsyncRunner that has been
      * registered with the AsyncRunnerRegistry for the current thread. When the provided action
-     * completes, the provided CurrentThreadAsyncRunner will be removed from the
+     * completes, the provided ManualAsyncRunner will be removed from the
      * AsyncRunnerRegistry.
      * @param synchronization The Synchronization object to provide to the created
-     *                        CurrentThreadAsyncRunner.
+     *                        ManualAsyncRunner.
      * @param action The action to run immediately with the created and registered
-     *               CurrentThreadAsyncRunner.
+     *               ManualAsyncRunner.
      */
-    public static void withRegistered(final Synchronization synchronization, Action1<CurrentThreadAsyncRunner> action)
+    public static void withRegistered(final Synchronization synchronization, Action1<ManualAsyncRunner> action)
     {
         final Function0<Synchronization> synchronizationFunction = new Function0<Synchronization>()
         {
@@ -130,19 +130,19 @@ public class CurrentThreadAsyncRunner extends DisposableBase implements AsyncRun
     }
 
     /**
-     * Run the provided action immediately using a new CurrentThreadAsyncRunner that has been
+     * Run the provided action immediately using a new ManualAsyncRunner that has been
      * registered with the AsyncRunnerRegistry for the current thread. When the provided action
-     * completes, the provided CurrentThreadAsyncRunner will be removed from the
+     * completes, the provided ManualAsyncRunner will be removed from the
      * AsyncRunnerRegistry.
      * @param synchronizationFunction The function that will provide a Synchronization object.
      * @param action The action to run immediately with the created and registered
-     *               CurrentThreadAsyncRunner.
+     *               ManualAsyncRunner.
      */
-    public static void withRegistered(final Function0<Synchronization> synchronizationFunction, Action1<CurrentThreadAsyncRunner> action)
+    public static void withRegistered(final Function0<Synchronization> synchronizationFunction, Action1<ManualAsyncRunner> action)
     {
         final AsyncRunner runnerBackup = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
 
-        final CurrentThreadAsyncRunner runner = new CurrentThreadAsyncRunner(synchronizationFunction);
+        final ManualAsyncRunner runner = new ManualAsyncRunner(synchronizationFunction);
         AsyncRunnerRegistry.setCurrentThreadAsyncRunner(runner);
         try
         {
