@@ -27,9 +27,17 @@ public class BasicAsyncAction extends BasicAsyncTask implements AsyncAction, Pau
     @Override
     protected void runTask()
     {
-        if (action != null)
+        final Throwable error = getIncomingError();
+        if (error != null)
         {
-            action.run();
+            setOutgoingError(error);
+        }
+        else
+        {
+            if (action != null)
+            {
+                action.run();
+            }
         }
     }
 

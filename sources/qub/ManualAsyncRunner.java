@@ -6,6 +6,11 @@ public class ManualAsyncRunner extends DisposableBase implements AsyncRunner
     private final LockedQueue<PausedAsyncTask> scheduledTasks;
     private boolean disposed;
 
+    public ManualAsyncRunner()
+    {
+        this(new Synchronization());
+    }
+
     public ManualAsyncRunner(final Synchronization synchronization)
     {
         this(new Function0<Synchronization>()

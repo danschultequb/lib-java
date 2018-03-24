@@ -13,6 +13,11 @@ public class BasicAsyncFunction<T> extends BasicAsyncTask implements AsyncFuncti
         this.functionResult = new Value<>();
     }
 
+    protected void setFunctionResult(T functionResult)
+    {
+        this.functionResult.set(functionResult);
+    }
+
     @Override
     public T awaitReturn()
     {
@@ -114,6 +119,6 @@ public class BasicAsyncFunction<T> extends BasicAsyncTask implements AsyncFuncti
     @Override
     protected void runTask()
     {
-        functionResult.set(function.run());
+        setFunctionResult(function.run());
     }
 }

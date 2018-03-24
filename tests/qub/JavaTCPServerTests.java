@@ -237,7 +237,7 @@ public class JavaTCPServerTests
                     }
                 });
 
-                runner.test("with connection while accepting() on port " + port.incrementAndGet(), (Test test) ->
+                runner.test("with connection while accepting() on port " + port.incrementAndGet(), runner.skip(), (Test test) ->
                 {
                     final byte[] bytes = new byte[] { 10, 20, 30, 40, 50 };
                     try (final TCPServer tcpServer = JavaTCPServer.create(IPv4Address.localhost, port.get(), test.getParallelRunner()).getValue())

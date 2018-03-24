@@ -7,6 +7,12 @@ package qub;
 public interface PausedAsyncTask
 {
     /**
+     * Set the error that is active when this PausedAsyncTask is being scheduled.
+     * @param incomingError The error that is active when this PausedAsyncTask is being scheduled.
+     */
+    void setIncomingError(Throwable incomingError);
+
+    /**
      * Schedule this PausedAsyncTask to run on the AsyncRunner that created it.
      */
     void schedule();

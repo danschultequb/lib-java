@@ -52,7 +52,7 @@ public class JavaTCPClientTests
                     test.assertEqual("Connection refused: connect", tcpClientResult.getErrorMessage());
                 });
 
-                runner.test("with valid arguments and with listening server", (Test test) ->
+                runner.test("with valid arguments and with listening server", runner.skip(), (Test test) ->
                 {
                     try (final ParallelAsyncRunner asyncRunner = new ParallelAsyncRunner())
                     {
