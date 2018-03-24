@@ -86,12 +86,12 @@ public class Process extends DisposableBase
         AsyncRunnerRegistry.setCurrentThreadAsyncRunner(mainRunner);
     }
 
-    public AsyncRunner getMainRunner()
+    public AsyncRunner getMainAsyncRunner()
     {
         return mainRunner;
     }
 
-    public AsyncRunner getParallelRunner()
+    public AsyncRunner getParallelAsyncRunner()
     {
         if (parallelRunner == null)
         {
@@ -337,7 +337,7 @@ public class Process extends DisposableBase
     {
         if (!fileSystem.hasValue())
         {
-            setFileSystem(new JavaFileSystem(getParallelRunner()));
+            setFileSystem(new JavaFileSystem(getParallelAsyncRunner()));
         }
         return fileSystem.get();
     }
@@ -361,7 +361,7 @@ public class Process extends DisposableBase
 
     public void setFileSystem(Function1<AsyncRunner,FileSystem> creator)
     {
-        setFileSystem(creator.run(getParallelRunner()));
+        setFileSystem(creator.run(getParallelAsyncRunner()));
     }
 
     public String getCurrentFolderPathString()
@@ -592,7 +592,7 @@ public class Process extends DisposableBase
 
             if (executableFile != null)
             {
-                result = new ProcessBuilder(getParallelRunner(), executableFile);
+                result = new ProcessBuilder(getParallelAsyncRunner(), executableFile);
             }
         }
 

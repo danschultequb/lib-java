@@ -80,7 +80,7 @@ public class ParallelAsyncRunner extends DisposableBase implements AsyncRunner
         if (action != null)
         {
             final Synchronization synchronization = getSynchronization();
-            final PausedAsyncAction asyncAction = new BasicAsyncAction(this, synchronization, action);
+            final BasicAsyncAction asyncAction = new BasicAsyncAction(this, synchronization, action);
             asyncAction.schedule();
             result = asyncAction;
         }
@@ -94,7 +94,7 @@ public class ParallelAsyncRunner extends DisposableBase implements AsyncRunner
         if (function != null)
         {
             final Synchronization synchronization = getSynchronization();
-            final PausedAsyncFunction<T> asyncFunction = new BasicAsyncFunction<>(this, synchronization, function);
+            final BasicAsyncFunction<T> asyncFunction = new BasicAsyncFunction<>(this, synchronization, function);
             asyncFunction.schedule();
             result = asyncFunction;
         }

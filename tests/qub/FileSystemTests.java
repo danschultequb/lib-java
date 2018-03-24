@@ -28,7 +28,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + (rootPath == null ? null : "\"" + rootPath + "\""), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainRunner());
+                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
                         fileSystem.rootExistsAsync(rootPath)
                             .then((Boolean rootExists) ->
                             {
@@ -48,7 +48,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(rootPath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainRunner());
+                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
                         fileSystem.rootExistsAsync(Path.parse(rootPath))
                             .then((Boolean rootExists) ->
                             {
@@ -80,7 +80,7 @@ public class FileSystemTests
 
             runner.test("getRootsAsync()", (Test test) ->
             {
-                FileSystem fileSystem = creator.run(test.getMainRunner());
+                FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
                 fileSystem.getRootsAsync()
                     .then((Iterable<Root> roots) ->
                     {
@@ -149,7 +149,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainRunner());
+                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
                         if (setup != null)
                         {
                             setup.run(fileSystem);
@@ -187,7 +187,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainRunner());
+                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
                         if (setup != null)
                         {
                             setup.run(fileSystem);
@@ -304,7 +304,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainRunner());
+                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
                         if (setup != null)
                         {
                             setup.run(fileSystem);
@@ -327,7 +327,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainRunner());
+                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
                         if (setup != null)
                         {
                             setup.run(fileSystem);
@@ -350,7 +350,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainRunner());
+                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
                         if (setup != null)
                         {
                             setup.run(fileSystem);
@@ -373,7 +373,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainRunner());
+                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
                         if (setup != null)
                         {
                             setup.run(fileSystem);
@@ -396,7 +396,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainRunner());
+                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
                         if (setup != null)
                         {
                             setup.run(fileSystem);
@@ -415,7 +415,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainRunner());
+                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
                         if (setup != null)
                         {
                             setup.run(fileSystem);
@@ -533,7 +533,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainRunner());
+                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
                         if (setup != null)
                         {
                             setup.run(fileSystem);
@@ -562,7 +562,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainRunner());
+                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
                         if (setup != null)
                         {
                             setup.run(fileSystem);
@@ -702,7 +702,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainRunner());
+                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
                         if (setup != null)
                         {
                             setup.run(fileSystem);
@@ -733,7 +733,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath) + " and " + (provideOut ? "non-null" : "null") + " Out<Folder>", (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainRunner());
+                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
                         if (setup != null)
                         {
                             setup.run(fileSystem);
@@ -785,7 +785,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainRunner());
+                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
                         if (setup != null)
                         {
                             setup.run(fileSystem);
@@ -816,7 +816,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath) + " and " + (provideOut ? "non-null" : "null") + " Out<Folder>", (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainRunner());
+                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
                         if (setup != null)
                         {
                             setup.run(fileSystem);
@@ -868,7 +868,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainRunner());
+                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
                         if (setup != null)
                         {
                             setup.run(fileSystem);
@@ -903,7 +903,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainRunner());
+                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
                         if (setup != null)
                         {
                             setup.run(fileSystem);
@@ -951,7 +951,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainRunner());
+                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
                         if (setup != null)
                         {
                             setup.run(fileSystem);
@@ -1028,7 +1028,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(filePath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainRunner());
+                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
                         if (setup != null)
                         {
                             setup.run(fileSystem);
@@ -1054,7 +1054,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(filePath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainRunner());
+                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
                         if (setup != null)
                         {
                             setup.run(fileSystem);
@@ -1084,7 +1084,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(filePath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainRunner());
+                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
                         if (setup != null)
                         {
                             setup.run(fileSystem);
@@ -1921,7 +1921,7 @@ public class FileSystemTests
 //
 //                runner.test("with relative path", (Test test) ->
 //                {
-//                    final FileSystem fileSystem = creator.run(test.getMainRunner());
+//                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
 //                    fileSystem.deleteFileAsync(Path.parse("relativeFile.txt"))
 //                        .then((Boolean fileDeleted) ->
 //                        {
@@ -1931,7 +1931,7 @@ public class FileSystemTests
 //
 //                runner.test("with non-existing rooted path", (Test test) ->
 //                {
-//                    final FileSystem fileSystem = creator.run(test.getMainRunner());
+//                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
 //                    fileSystem.deleteFileAsync(Path.parse("/idontexist.txt"))
 //                        .then((Boolean fileDeleted) ->
 //                        {

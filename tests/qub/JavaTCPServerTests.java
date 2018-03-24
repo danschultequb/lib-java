@@ -240,7 +240,7 @@ public class JavaTCPServerTests
                 runner.test("with connection while accepting() on port " + port.incrementAndGet(), runner.skip(), (Test test) ->
                 {
                     final byte[] bytes = new byte[] { 10, 20, 30, 40, 50 };
-                    try (final TCPServer tcpServer = JavaTCPServer.create(IPv4Address.localhost, port.get(), test.getParallelRunner()).getValue())
+                    try (final TCPServer tcpServer = JavaTCPServer.create(IPv4Address.localhost, port.get(), test.getParallelAsyncRunner()).getValue())
                     {
                         final AsyncFunction<TCPClient> acceptAsyncResult = tcpServer.acceptAsync();
                         test.assertNotNull(acceptAsyncResult);
@@ -252,7 +252,7 @@ public class JavaTCPServerTests
                             tcpClient.dispose();
                         });
 
-                        test.getParallelRunner().schedule(() ->
+                        test.getParallelAsyncRunner().schedule(() ->
                         {
                             // The tcpClient code needs to be in a different thread because the
                             // tcpServer runs its acceptAsync().then() action on the main thread.

@@ -1,6 +1,6 @@
 package qub;
 
-public abstract class BasicAsyncTask implements AsyncAction, PausedAsyncTask
+public abstract class BasicAsyncTask implements AsyncTask, PausedAsyncTask
 {
     private AsyncRunner runner;
     private final Synchronization synchronization;
@@ -18,7 +18,7 @@ public abstract class BasicAsyncTask implements AsyncAction, PausedAsyncTask
     }
 
     @Override
-    public AsyncRunner getRunner() {
+    public AsyncRunner getAsyncRunner() {
         return runner;
     }
 
@@ -26,12 +26,17 @@ public abstract class BasicAsyncTask implements AsyncAction, PausedAsyncTask
     {
         for (BasicAsyncTask pausedTask : pausedTasks)
         {
-            if (pausedTask.getRunner() == this.runner)
+            if (pausedTask.getAsyncRunner() == this.runner)
             {
                 pausedTask.setRunner(runner);
             }
         }
         this.runner = runner;
+    }
+
+    protected Synchronization getSynchronization()
+    {
+        return synchronization;
     }
 
     @Override
@@ -146,9 +151,9 @@ public abstract class BasicAsyncTask implements AsyncAction, PausedAsyncTask
                 @Override
                 public void run(final AsyncAction asyncFunctionResult)
                 {
-                    result.setRunner(asyncFunctionResult.getRunner());
+                    result.setRunner(asyncFunctionResult.getAsyncRunner());
                     asyncFunctionResult
-                        .onError(new Action1<Throwable>()
+                        .catchError(new Action1<Throwable>()
                         {
                             @Override
                             public void run(Throwable error)
@@ -166,7 +171,7 @@ public abstract class BasicAsyncTask implements AsyncAction, PausedAsyncTask
                         });
                 }
             })
-            .onError(new Action1<Throwable>()
+            .catchError(new Action1<Throwable>()
             {
                 @Override
                 public void run(Throwable error)
@@ -204,7 +209,7 @@ public abstract class BasicAsyncTask implements AsyncAction, PausedAsyncTask
                 @Override
                 public void run(final AsyncFunction<T> asyncFunctionResult)
                 {
-                    result.setRunner(asyncFunctionResult.getRunner());
+                    result.setRunner(asyncFunctionResult.getAsyncRunner());
 
                     asyncFunctionResult
                         .then(new Action1<T>()
@@ -215,7 +220,7 @@ public abstract class BasicAsyncTask implements AsyncAction, PausedAsyncTask
                                 asyncFunctionResultValue.set(asyncFunctionResultResult);
                             }
                         })
-                        .onError(new Action1<Throwable>()
+                        .catchError(new Action1<Throwable>()
                         {
                             @Override
                             public void run(Throwable error)
@@ -233,7 +238,7 @@ public abstract class BasicAsyncTask implements AsyncAction, PausedAsyncTask
                         });
                 }
             })
-            .onError(new Action1<Throwable>()
+            .catchError(new Action1<Throwable>()
             {
                 @Override
                 public void run(Throwable error)
@@ -247,142 +252,12 @@ public abstract class BasicAsyncTask implements AsyncAction, PausedAsyncTask
         return result;
     }
 
-    @Override
-    public AsyncAction onError(final Action1<Throwable> action)
+    protected <U> AsyncFunction<U> onErrorOnInner(AsyncRunner asyncRunner, Function1<Throwable,U> function)
     {
-        return action == null ? null : onErrorOn(runner, action);
+        return scheduleOrEnqueue(new BasicAsyncFunctionErrorHandler<U>(asyncRunner, function));
     }
 
-    @Override
-    public <T> AsyncFunction<T> onError(Function1<Throwable, T> function)
-    {
-        return function == null ? null : onErrorOn(runner, function);
-    }
-
-    @Override
-    public AsyncAction onErrorOn(AsyncRunner asyncRunner, Action1<Throwable> action)
-    {
-        return asyncRunner == null || action == null ? null : onErrorOnInner(asyncRunner, action);
-    }
-
-    @Override
-    public <T> AsyncFunction<T> onErrorOn(AsyncRunner asyncRunner, Function1<Throwable, T> function)
-    {
-        return asyncRunner == null || function == null ? null : onErrorOnInner(asyncRunner, function);
-    }
-
-    private AsyncAction onErrorOnInner(AsyncRunner asyncRunner, Action1<Throwable> action)
-    {
-        return scheduleOrEnqueue(new BasicAsyncActionErrorHandler(asyncRunner, action));
-    }
-
-    private <T> AsyncFunction<T> onErrorOnInner(AsyncRunner asyncRunner, Function1<Throwable,T> function)
-    {
-        return scheduleOrEnqueue(new BasicAsyncFunctionErrorHandler<T>(asyncRunner, function));
-    }
-
-    @Override
-    public AsyncAction onErrorAsyncAction(Function1<Throwable, AsyncAction> function)
-    {
-        return function == null ? null : onErrorAsyncActionOn(runner, function);
-    }
-
-    @Override
-    public <T> AsyncFunction<T> onErrorAsyncFunction(Function1<Throwable, AsyncFunction<T>> function)
-    {
-        return function == null ? null : onErrorAsyncFunctionOn(runner, function);
-    }
-
-    @Override
-    public AsyncAction onErrorAsyncActionOn(AsyncRunner asyncRunner, Function1<Throwable, AsyncAction> function)
-    {
-        return asyncRunner == null || function == null ? null : onErrorAsyncActionOnInner(asyncRunner, function);
-    }
-
-    @Override
-    public <T> AsyncFunction<T> onErrorAsyncFunctionOn(AsyncRunner asyncRunner, Function1<Throwable, AsyncFunction<T>> function)
-    {
-        return asyncRunner == null || function == null ? null : onErrorAsyncFunctionOnInner(asyncRunner, function);
-    }
-
-    private AsyncAction onErrorAsyncActionOnInner(final AsyncRunner asyncRunner, Function1<Throwable,AsyncAction> function)
-    {
-        final BasicAsyncAction result = new BasicAsyncAction(null, synchronization, null);
-
-        onErrorOnInner(asyncRunner, function)
-            .then(new Action1<AsyncAction>()
-            {
-                @Override
-                public void run(final AsyncAction asyncFunctionResult)
-                {
-                    if (asyncFunctionResult == null)
-                    {
-                        result.setRunner(asyncRunner);
-                        result.schedule();
-                    }
-                    else
-                    {
-                        result.setRunner(asyncFunctionResult.getRunner());
-                        result.setIncomingError(asyncFunctionResult.getOutgoingError());
-                        asyncFunctionResult.then(new Action0()
-                        {
-                            @Override
-                            public void run()
-                            {
-                                result.schedule();
-                            }
-                        });
-                    }
-                }
-            });
-
-        return result;
-    }
-
-    private <T> AsyncFunction<T> onErrorAsyncFunctionOnInner(final AsyncRunner asyncRunner, Function1<Throwable,AsyncFunction<T>> function)
-    {
-        final Value<T> asyncFunctionResultValue = new Value<>();
-        final BasicAsyncFunction<T> result = new BasicAsyncFunction<T>(null, synchronization, new Function0<T>()
-        {
-            @Override
-            public T run()
-            {
-                return asyncFunctionResultValue.get();
-            }
-        });
-
-        onErrorOnInner(asyncRunner, function)
-            .then(new Action1<AsyncFunction<T>>()
-            {
-                @Override
-                public void run(final AsyncFunction<T> asyncFunctionResult)
-                {
-                    if (asyncFunctionResult == null)
-                    {
-                        result.setRunner(asyncRunner);
-                        result.schedule();
-                    }
-                    else
-                    {
-                        result.setRunner(asyncFunctionResult.getRunner());
-                        result.setIncomingError(asyncFunctionResult.getOutgoingError());
-                        asyncFunctionResult.then(new Action1<T>()
-                        {
-                            @Override
-                            public void run(T asyncFunctionResultResult)
-                            {
-                                asyncFunctionResultValue.set(asyncFunctionResultResult);
-                                result.schedule();
-                            }
-                        });
-                    }
-                }
-            });
-
-        return result;
-    }
-
-    private <T extends BasicAsyncTask> T scheduleOrEnqueue(T asyncTask)
+    protected <T extends BasicAsyncTask> T scheduleOrEnqueue(T asyncTask)
     {
         if (isCompleted())
         {

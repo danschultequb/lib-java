@@ -4,7 +4,7 @@ package qub;
  * A Function that has been scheduled to schedule asynchronously.
  * @param <T> The type that will be returned from the asynchronous function.
  */
-public interface AsyncFunction<T> extends AsyncAction
+public interface AsyncFunction<T> extends AsyncTask
 {
     /**
      * Block until this AsyncAction completes. If the AsyncAction is already completed, then this
@@ -67,4 +67,32 @@ public interface AsyncFunction<T> extends AsyncAction
      * AsyncFunction completes.
      */
     <U> AsyncFunction<U> thenOn(AsyncRunner runner, Function1<T,U> function);
+
+    /**
+     * Run the provided function if this or a previous AsyncFunction produces an error.
+     * @param function The function to schedule if this or a previous AsyncFunction produces an error.
+     * @return The reference to the asynchronous action that will be scheduled.
+     */
+    AsyncFunction<T> catchError(Function1<Throwable,T> function);
+
+    /**
+     * Run the provided function if this or a previous AsyncTask produces an error.
+     * @param function The function to schedule if this or a previous AsyncTask produces an error.
+     * @return The reference to the asynchronous action that will be scheduled.
+     */
+    AsyncFunction<T> catchErrorAsyncFunction(Function1<Throwable,AsyncFunction<T>> function);
+
+    /**
+     * Run the provided function if this or a previous AsyncTask produces an error.
+     * @param function The function to schedule if this or a previous AsyncTask produces an error.
+     * @return The reference to the asynchronous action that will be scheduled.
+     */
+    AsyncFunction<T> catchErrorOn(AsyncRunner asyncRunner, Function1<Throwable,T> function);
+
+    /**
+     * Run the provided function if this or a previous AsyncTask produces an error.
+     * @param function The function to schedule if this or a previous AsyncTask produces an error.
+     * @return The reference to the asynchronous action that will be scheduled.
+     */
+    AsyncFunction<T> catchErrorAsyncFunctionOn(AsyncRunner asyncRunner, Function1<Throwable,AsyncFunction<T>> function);
 }

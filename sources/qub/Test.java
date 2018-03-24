@@ -46,20 +46,20 @@ public class Test
         return shouldSkip;
     }
 
-    public AsyncRunner getMainRunner()
+    public AsyncRunner getMainAsyncRunner()
     {
-        return process.getMainRunner();
+        return process.getMainAsyncRunner();
     }
 
-    public AsyncRunner getParallelRunner()
+    public AsyncRunner getParallelAsyncRunner()
     {
-        return process.getParallelRunner();
+        return process.getParallelAsyncRunner();
     }
 
     public void await()
     {
-        final AsyncRunner mainRunner = process.getMainRunner();
-        final AsyncRunner parallelRunner = process.getParallelRunner();
+        final AsyncRunner mainRunner = process.getMainAsyncRunner();
+        final AsyncRunner parallelRunner = process.getParallelAsyncRunner();
         while (mainRunner.getScheduledTaskCount() != 0 || parallelRunner.getScheduledTaskCount() != 0)
         {
             mainRunner.await();

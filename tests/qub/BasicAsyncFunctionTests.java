@@ -10,7 +10,7 @@ public class BasicAsyncFunctionTests
             
             runner.test("constructor()", (Test test) ->
             {
-                final AsyncRunner asyncRunner = test.getMainRunner();
+                final AsyncRunner asyncRunner = test.getMainAsyncRunner();
                 final BasicAsyncFunction<Integer> basicAsyncFunction = new BasicAsyncFunction<>(asyncRunner, new Synchronization(), () -> 0);
                 test.assertEqual(0, asyncRunner.getScheduledTaskCount());
                 test.assertEqual(0, basicAsyncFunction.getPausedTaskCount());
@@ -30,18 +30,18 @@ public class BasicAsyncFunctionTests
                 runner.test("with non-null", (Test test) ->
                 {
                     final BasicAsyncFunction<Integer> basicAsyncFunction = create(test);
-                    final AsyncAction thenAsyncAction = basicAsyncFunction.then(() -> 0);
+                    final AsyncAction thenAsyncAction = basicAsyncFunction.then((Integer arg) -> {});
                     test.assertNotNull(thenAsyncAction);
                     test.assertEqual(1, basicAsyncFunction.getPausedTaskCount());
                 });
 
                 runner.test("with non-null when completed", (Test test) ->
                 {
-                    final AsyncRunner asyncRunner = test.getMainRunner();
+                    final AsyncRunner asyncRunner = test.getMainAsyncRunner();
                     final BasicAsyncFunction<Integer> basicAsyncFunction = createScheduled(asyncRunner);
                     asyncRunner.await();
 
-                    final AsyncAction thenAsyncAction = basicAsyncFunction.then(() -> 0);
+                    final AsyncAction thenAsyncAction = basicAsyncFunction.then((Integer arg) -> {});
                     test.assertNotNull(thenAsyncAction);
                     test.assertEqual(0, basicAsyncFunction.getPausedTaskCount());
                     test.assertEqual(1, asyncRunner.getScheduledTaskCount());
@@ -68,7 +68,7 @@ public class BasicAsyncFunctionTests
 
                 runner.test("with non-null when completed", (Test test) ->
                 {
-                    final AsyncRunner asyncRunner = test.getMainRunner();
+                    final AsyncRunner asyncRunner = test.getMainAsyncRunner();
                     final BasicAsyncFunction<Integer> basicAsyncFunction = createScheduled(asyncRunner);
                     asyncRunner.await();
 
@@ -90,11 +90,11 @@ public class BasicAsyncFunctionTests
 
                 runner.test("with non-null", (Test test) ->
                 {
-                    final AsyncRunner asyncRunner = test.getMainRunner();
+                    final AsyncRunner asyncRunner = test.getMainAsyncRunner();
                     final BasicAsyncFunction<Integer> basicAsyncFunction = createScheduled(asyncRunner);
                     test.assertEqual(1, asyncRunner.getScheduledTaskCount());
 
-                    final AsyncAction asyncAction = basicAsyncFunction.thenAsyncAction((Integer value) -> asyncRunner.schedule(() -> value));
+                    final AsyncAction asyncAction = basicAsyncFunction.thenAsyncAction((Integer value) -> asyncRunner.schedule(() -> {}));
                     test.assertNotNull(asyncAction);
                     test.assertEqual(1, basicAsyncFunction.getPausedTaskCount());
                     test.assertEqual(1, asyncRunner.getScheduledTaskCount());
@@ -107,13 +107,13 @@ public class BasicAsyncFunctionTests
 
                 runner.test("with non-null when completed", (Test test) ->
                 {
-                    final AsyncRunner asyncRunner = test.getMainRunner();
+                    final AsyncRunner asyncRunner = test.getMainAsyncRunner();
                     final BasicAsyncFunction<Integer> basicAsyncFunction = createScheduled(asyncRunner);
                     asyncRunner.await();
                     test.assertTrue(basicAsyncFunction.isCompleted());
                     test.assertEqual(0, basicAsyncFunction.getPausedTaskCount());
 
-                    final AsyncAction asyncAction = basicAsyncFunction.thenAsyncAction((Integer value) -> asyncRunner.schedule(() -> value));
+                    final AsyncAction asyncAction = basicAsyncFunction.thenAsyncAction((Integer value) -> asyncRunner.schedule(() -> {}));
                     test.assertNotNull(asyncAction);
                     test.assertFalse(asyncAction.isCompleted());
                     test.assertEqual(0, basicAsyncFunction.getPausedTaskCount());
@@ -122,7 +122,7 @@ public class BasicAsyncFunctionTests
 
                 runner.test("with second thenAsyncAction()", (Test test) ->
                 {
-                    final AsyncRunner asyncRunner = test.getMainRunner();
+                    final AsyncRunner asyncRunner = test.getMainAsyncRunner();
                     final BasicAsyncFunction<Integer> basicAsyncFunction = createScheduled(asyncRunner);
                     test.assertEqual(1, asyncRunner.getScheduledTaskCount());
 
@@ -149,7 +149,7 @@ public class BasicAsyncFunctionTests
 
                 runner.test("with non-null", (Test test) ->
                 {
-                    final AsyncRunner asyncRunner = test.getMainRunner();
+                    final AsyncRunner asyncRunner = test.getMainAsyncRunner();
                     final BasicAsyncFunction<Integer> basicAsyncFunction = createScheduled(asyncRunner);
                     test.assertEqual(1, asyncRunner.getScheduledTaskCount());
 
@@ -166,7 +166,7 @@ public class BasicAsyncFunctionTests
 
                 runner.test("with non-null when completed", (Test test) ->
                 {
-                    final AsyncRunner asyncRunner = test.getMainRunner();
+                    final AsyncRunner asyncRunner = test.getMainAsyncRunner();
                     final BasicAsyncFunction<Integer> basicAsyncFunction = createScheduled(asyncRunner);
                     asyncRunner.await();
                     test.assertTrue(basicAsyncFunction.isCompleted());
@@ -181,7 +181,7 @@ public class BasicAsyncFunctionTests
 
                 runner.test("with second thenAsyncFunction()", (Test test) ->
                 {
-                    final AsyncRunner asyncRunner = test.getMainRunner();
+                    final AsyncRunner asyncRunner = test.getMainAsyncRunner();
                     final BasicAsyncFunction<Integer> basicAsyncFunction = createScheduled(asyncRunner);
                     test.assertEqual(1, asyncRunner.getScheduledTaskCount());
 
@@ -201,7 +201,7 @@ public class BasicAsyncFunctionTests
             {
                 runner.test("with null AsyncRunner", (Test test) ->
                 {
-                    final AsyncRunner asyncRunner1 = test.getMainRunner();
+                    final AsyncRunner asyncRunner1 = test.getMainAsyncRunner();
                     final BasicAsyncFunction<Integer> basicAsyncFunction = createScheduled(asyncRunner1);
 
                     final AsyncRunner asyncRunner2 = null;
@@ -214,7 +214,7 @@ public class BasicAsyncFunctionTests
 
                 runner.test("with null Action1", (Test test) ->
                 {
-                    final AsyncRunner asyncRunner1 = test.getMainRunner();
+                    final AsyncRunner asyncRunner1 = test.getMainAsyncRunner();
                     final BasicAsyncFunction<Integer> basicAsyncFunction = createScheduled(asyncRunner1);
 
                     final AsyncRunner asyncRunner2 = new ManualAsyncRunner(asyncRunner1.getSynchronization());
@@ -232,7 +232,7 @@ public class BasicAsyncFunctionTests
 
                 runner.test("with non-null", (Test test) ->
                 {
-                    final AsyncRunner asyncRunner1 = test.getMainRunner();
+                    final AsyncRunner asyncRunner1 = test.getMainAsyncRunner();
                     final BasicAsyncFunction<Integer> basicAsyncFunction = createScheduled(asyncRunner1);
 
                     final AsyncRunner asyncRunner2 = new ManualAsyncRunner(asyncRunner1.getSynchronization());
@@ -250,7 +250,7 @@ public class BasicAsyncFunctionTests
 
                 runner.test("with non-null when completed", (Test test) ->
                 {
-                    final AsyncRunner asyncRunner1 = test.getMainRunner();
+                    final AsyncRunner asyncRunner1 = test.getMainAsyncRunner();
                     final BasicAsyncFunction<Integer> basicAsyncFunction = createScheduled(asyncRunner1);
                     asyncRunner1.await();
                     test.assertTrue(basicAsyncFunction.isCompleted());
@@ -270,12 +270,12 @@ public class BasicAsyncFunctionTests
             {
                 runner.test("with null AsyncRunner", (Test test) ->
                 {
-                    final AsyncRunner asyncRunner1 = test.getMainRunner();
+                    final AsyncRunner asyncRunner1 = test.getMainAsyncRunner();
                     final BasicAsyncFunction<Integer> basicAsyncFunction = createScheduled(asyncRunner1);
 
                     final AsyncRunner asyncRunner2 = null;
-                    final AsyncAction thenOnAsyncAction = basicAsyncFunction.thenOn(asyncRunner2, (Integer value) -> value);
-                    test.assertNull(thenOnAsyncAction);
+                    final AsyncFunction<Integer> thenOnAsyncFunction = basicAsyncFunction.thenOn(asyncRunner2, (Integer value) -> value);
+                    test.assertNull(thenOnAsyncFunction);
                     test.assertEqual(0, basicAsyncFunction.getPausedTaskCount());
 
                     asyncRunner1.await();
@@ -283,12 +283,12 @@ public class BasicAsyncFunctionTests
 
                 runner.test("with null Action1", (Test test) ->
                 {
-                    final AsyncRunner asyncRunner1 = test.getMainRunner();
+                    final AsyncRunner asyncRunner1 = test.getMainAsyncRunner();
                     final BasicAsyncFunction<Integer> basicAsyncFunction = createScheduled(asyncRunner1);
 
                     final AsyncRunner asyncRunner2 = new ManualAsyncRunner(asyncRunner1.getSynchronization());
-                    final AsyncAction thenOnAsyncAction = basicAsyncFunction.thenOn(asyncRunner2, (Function1<Integer,Integer>)null);
-                    test.assertNull(thenOnAsyncAction);
+                    final AsyncFunction<Integer> thenOnAsyncFunction = basicAsyncFunction.thenOn(asyncRunner2, (Function1<Integer,Integer>)null);
+                    test.assertNull(thenOnAsyncFunction);
                     test.assertEqual(0, basicAsyncFunction.getPausedTaskCount());
                     test.assertEqual(0, asyncRunner2.getScheduledTaskCount());
 
@@ -301,7 +301,7 @@ public class BasicAsyncFunctionTests
 
                 runner.test("with non-null", (Test test) ->
                 {
-                    final AsyncRunner asyncRunner1 = test.getMainRunner();
+                    final AsyncRunner asyncRunner1 = test.getMainAsyncRunner();
                     final BasicAsyncFunction<Integer> basicAsyncFunction = createScheduled(asyncRunner1);
 
                     final AsyncRunner asyncRunner2 = new ManualAsyncRunner(asyncRunner1.getSynchronization());
@@ -319,7 +319,7 @@ public class BasicAsyncFunctionTests
 
                 runner.test("with non-null when completed", (Test test) ->
                 {
-                    final AsyncRunner asyncRunner1 = test.getMainRunner();
+                    final AsyncRunner asyncRunner1 = test.getMainAsyncRunner();
                     final BasicAsyncFunction<Integer> basicAsyncFunction = createScheduled(asyncRunner1);
                     asyncRunner1.await();
 
@@ -338,14 +338,14 @@ public class BasicAsyncFunctionTests
             {
                 runner.test("with null AsyncRunner", (Test test) ->
                 {
-                    final AsyncRunner asyncRunner = test.getMainRunner();
+                    final AsyncRunner asyncRunner = test.getMainAsyncRunner();
                     final BasicAsyncFunction<Integer> basicAsyncFunction = createScheduled(asyncRunner);
                     test.assertNull(basicAsyncFunction.thenOn(null));
                 });
 
                 runner.test("with same AsyncRunner", (Test test) ->
                 {
-                    final AsyncRunner asyncRunner = test.getMainRunner();
+                    final AsyncRunner asyncRunner = test.getMainAsyncRunner();
                     final BasicAsyncFunction<Integer> basicAsyncFunction = createScheduled(asyncRunner);
                     test.assertSame(basicAsyncFunction, basicAsyncFunction.thenOn(asyncRunner));
                     test.assertEqual(0, basicAsyncFunction.getPausedTaskCount());
@@ -354,7 +354,7 @@ public class BasicAsyncFunctionTests
 
                 runner.test("with different AsyncRunner", (Test test) ->
                 {
-                    final AsyncRunner asyncRunner1 = test.getMainRunner();
+                    final AsyncRunner asyncRunner1 = test.getMainAsyncRunner();
                     final BasicAsyncFunction<Integer> basicAsyncFunction = createScheduled(asyncRunner1);
 
                     final AsyncRunner asyncRunner2 = new ManualAsyncRunner(asyncRunner1.getSynchronization());
@@ -373,12 +373,326 @@ public class BasicAsyncFunctionTests
 
             runner.test("awaitReturn()", (Test test) ->
             {
-                final AsyncRunner asyncRunner = test.getParallelRunner();
+                final AsyncRunner asyncRunner = test.getParallelAsyncRunner();
                 final AsyncFunction<Integer> asyncFunction = asyncRunner.schedule(() -> 20);
                 test.assertEqual(20, asyncFunction.awaitReturn());
                 test.assertTrue(asyncFunction.isCompleted());
 
                 test.assertEqual(20, asyncFunction.awaitReturn());
+            });
+
+            runner.testGroup("catchError(Function1<Throwable,T>)", () ->
+            {
+                runner.test("with null function", (Test test) ->
+                {
+                    final BasicAsyncFunction<Integer> basicAsyncFunction = create(test.getMainAsyncRunner());
+                    final AsyncFunction<Integer> onErrorAsyncFunction = basicAsyncFunction.catchError(null);
+                    test.assertNull(onErrorAsyncFunction);
+                    test.assertEqual(0, basicAsyncFunction.getPausedTaskCount());
+                });
+
+                runner.test("with non-throwing parent", (Test test) ->
+                {
+                    final AsyncRunner asyncRunner = test.getMainAsyncRunner();
+                    final BasicAsyncFunction<Integer> basicAsyncFunction = createScheduled(asyncRunner);
+
+                    final Value<Boolean> value = new Value<>();
+                    final AsyncFunction<Integer> onErrorAsyncFunction = basicAsyncFunction.catchError((Throwable error) ->
+                    {
+                        value.set(true);
+                        return 7;
+                    });
+                    test.assertNotNull(onErrorAsyncFunction);
+
+                    asyncRunner.await();
+                    test.assertTrue(onErrorAsyncFunction.isCompleted());
+                    test.assertFalse(value.hasValue());
+                });
+
+                runner.test("with throwing parent", (Test test) ->
+                {
+                    final AsyncRunner asyncRunner = test.getMainAsyncRunner();
+                    final BasicAsyncFunction<Integer> basicAsyncTask = createScheduled(asyncRunner);
+
+                    final Value<Boolean> value = new Value<>();
+                    final AsyncFunction<Integer> onErrorAsyncFunction = basicAsyncTask
+                        .then(() ->
+                        {
+                            if (true)
+                            {
+                                throw new RuntimeException("abc");
+                            }
+                            return 5;
+                        })
+                        .catchError((Throwable error) ->
+                        {
+                            value.set(true);
+                            return 7;
+                        });
+                    test.assertNotNull(onErrorAsyncFunction);
+
+                    asyncRunner.await();
+                    test.assertTrue(onErrorAsyncFunction.isCompleted());
+                    test.assertEqual(true, value.get());
+                    test.assertEqual(7, onErrorAsyncFunction.awaitReturn());
+                });
+            });
+
+            runner.testGroup("catchErrorOn(AsyncRunner,Function1<Throwable,T>)", () ->
+            {
+                runner.test("with null AsyncRunner", (Test test) ->
+                {
+                    final BasicAsyncFunction<Integer> basicAsyncTask = create(test.getMainAsyncRunner());
+                    final AsyncFunction<Integer> onErrorAsyncFunction = basicAsyncTask.catchErrorOn(null, (Throwable eror) -> 3);
+                    test.assertNull(onErrorAsyncFunction);
+                    test.assertEqual(0, basicAsyncTask.getPausedTaskCount());
+                });
+
+                runner.test("with null Action", (Test test) ->
+                {
+                    final AsyncRunner asyncRunner1 = test.getMainAsyncRunner();
+                    final AsyncRunner asyncRunner2 = new ManualAsyncRunner();
+                    final BasicAsyncFunction<Integer> basicAsyncTask = createScheduled(asyncRunner1);
+                    final AsyncFunction<Integer> onErrorAsyncFunction = basicAsyncTask.catchErrorOn(asyncRunner2, (Function1<Throwable,Integer>)null);
+                    test.assertNull(onErrorAsyncFunction);
+                    test.assertEqual(0, basicAsyncTask.getPausedTaskCount());
+                });
+
+                runner.test("with non-throwing parent", (Test test) ->
+                {
+                    final AsyncRunner asyncRunner1 = test.getMainAsyncRunner();
+                    final AsyncRunner asyncRunner2 = new ManualAsyncRunner();
+
+                    final BasicAsyncFunction<Integer> basicAsyncTask = createScheduled(asyncRunner1);
+
+                    final Value<Boolean> value = new Value<>();
+                    final AsyncFunction<Integer> onErrorAsyncFunction = basicAsyncTask.catchErrorOn(asyncRunner2, (Throwable error) ->
+                    {
+                        value.set(true);
+                        return 11;
+                    });
+                    test.assertNotNull(onErrorAsyncFunction);
+
+                    asyncRunner1.await();
+                    test.assertEqual(0, asyncRunner1.getScheduledTaskCount());
+                    test.assertEqual(1, asyncRunner2.getScheduledTaskCount());
+
+                    asyncRunner2.await();
+                    test.assertEqual(0, asyncRunner1.getScheduledTaskCount());
+                    test.assertEqual(0, asyncRunner2.getScheduledTaskCount());
+                    test.assertTrue(onErrorAsyncFunction.isCompleted());
+                    test.assertFalse(value.hasValue());
+                    test.assertNull(onErrorAsyncFunction.awaitReturn());
+                });
+
+                runner.test("with throwing parent", (Test test) ->
+                {
+                    final AsyncRunner asyncRunner1 = test.getMainAsyncRunner();
+                    final AsyncRunner asyncRunner2 = new ManualAsyncRunner();
+
+                    final BasicAsyncFunction<Integer> basicAsyncTask = createScheduled(asyncRunner1);
+
+                    final Value<Boolean> value = new Value<>();
+                    final AsyncFunction<Integer> onErrorAsyncFunction = basicAsyncTask
+                        .then(() ->
+                        {
+                            if (true)
+                            {
+                                throw new RuntimeException("abc");
+                            }
+                            return 11;
+                        })
+                        .catchErrorOn(asyncRunner2, (Throwable error) ->
+                        {
+                            value.set(true);
+                            return 12;
+                        });
+                    test.assertNotNull(onErrorAsyncFunction);
+
+                    asyncRunner1.await();
+                    test.assertEqual(0, asyncRunner1.getScheduledTaskCount());
+                    test.assertEqual(1, asyncRunner2.getScheduledTaskCount());
+
+                    asyncRunner2.await();
+                    test.assertEqual(0, asyncRunner1.getScheduledTaskCount());
+                    test.assertEqual(0, asyncRunner2.getScheduledTaskCount());
+                    test.assertTrue(onErrorAsyncFunction.isCompleted());
+                    test.assertEqual(true, value.get());
+                    test.assertEqual(12, onErrorAsyncFunction.awaitReturn());
+                });
+            });
+
+            runner.testGroup("catchErrorAsyncFunction(Function1<Throwable,AsyncFunction<T>>)", () ->
+            {
+                runner.test("with null function", (Test test) ->
+                {
+                    final BasicAsyncFunction<Integer> basicAsyncFunction = create(test.getMainAsyncRunner());
+                    final AsyncFunction<Integer> onErrorAsyncFunction = basicAsyncFunction.catchErrorAsyncFunction(null);
+                    test.assertNull(onErrorAsyncFunction);
+                    test.assertEqual(0, basicAsyncFunction.getPausedTaskCount());
+                });
+
+                runner.test("with non-throwing parent", (Test test) ->
+                {
+                    final AsyncRunner asyncRunner = test.getMainAsyncRunner();
+                    final BasicAsyncFunction<Integer> basicAsyncTask = createScheduled(asyncRunner);
+
+                    final Value<Boolean> value1 = new Value<>();
+                    final Value<String> value2 = new Value<>();
+                    final AsyncFunction<Integer> onErrorAsyncFunction = basicAsyncTask.catchErrorAsyncFunction((Throwable error) ->
+                    {
+                        value1.set(true);
+                        return asyncRunner.schedule(() ->
+                        {
+                            value2.set("hello");
+                            return 30;
+                        });
+                    });
+                    test.assertNotNull(onErrorAsyncFunction);
+
+                    asyncRunner.await();
+                    test.assertTrue(onErrorAsyncFunction.isCompleted());
+                    test.assertFalse(value1.hasValue());
+                    test.assertFalse(value2.hasValue());
+                    test.assertNull(onErrorAsyncFunction.awaitReturn());
+                });
+
+                runner.test("with throwing parent", (Test test) ->
+                {
+                    final AsyncRunner asyncRunner = test.getMainAsyncRunner();
+                    final BasicAsyncFunction<Integer> basicAsyncTask = createScheduled(asyncRunner);
+
+                    final Value<Boolean> value1 = new Value<>();
+                    final Value<String> value2 = new Value<>();
+                    final AsyncFunction<Integer> onErrorAsyncFunction = basicAsyncTask
+                        .then(() ->
+                        {
+                            if (true)
+                            {
+                                throw new RuntimeException("abc");
+                            }
+                            return 30;
+                        })
+                        .catchErrorAsyncFunction((Throwable error) ->
+                        {
+                            value1.set(true);
+                            return asyncRunner.schedule(() ->
+                            {
+                                value2.set("hello");
+                                return 40;
+                            });
+                        });
+                    test.assertNotNull(onErrorAsyncFunction);
+
+                    asyncRunner.await();
+                    test.assertTrue(onErrorAsyncFunction.isCompleted());
+                    test.assertEqual(true, value1.get());
+                    test.assertEqual("hello", value2.get());
+                    test.assertEqual(40, onErrorAsyncFunction.awaitReturn());
+                });
+            });
+
+            runner.testGroup("catchErrorAsyncFunctionOn(AsyncRunner,Function1<Throwable,AsyncFunction<T>>)", () ->
+            {
+                runner.test("with null AsyncRunner", (Test test) ->
+                {
+                    final AsyncRunner asyncRunner = test.getMainAsyncRunner();
+                    final BasicAsyncFunction<Integer> basicAsyncTask = createScheduled(asyncRunner);
+                    final AsyncFunction<Integer> onErrorAsyncFunction = basicAsyncTask.catchErrorAsyncFunctionOn(null, (Throwable error) -> asyncRunner.schedule(() -> 20));
+                    test.assertNull(onErrorAsyncFunction);
+                    test.assertEqual(0, basicAsyncTask.getPausedTaskCount());
+                });
+
+                runner.test("with null function", (Test test) ->
+                {
+                    final AsyncRunner asyncRunner = test.getMainAsyncRunner();
+                    final BasicAsyncFunction<Integer> basicAsyncTask = createScheduled(asyncRunner);
+                    final AsyncFunction<Integer> onErrorAsyncFunction = basicAsyncTask.catchErrorAsyncFunctionOn(asyncRunner, null);
+                    test.assertNull(onErrorAsyncFunction);
+                    test.assertEqual(0, basicAsyncTask.getPausedTaskCount());
+                });
+
+                runner.test("with non-throwing parent", (Test test) ->
+                {
+                    final AsyncRunner asyncRunner1 = test.getMainAsyncRunner();
+                    final AsyncRunner asyncRunner2 = new ManualAsyncRunner();
+                    final BasicAsyncFunction<Integer> basicAsyncTask = createScheduled(asyncRunner1);
+
+                    final Value<Boolean> value1 = new Value<>();
+                    final Value<String> value2 = new Value<>();
+                    final AsyncFunction<Integer> onErrorAsyncFunction = basicAsyncTask.catchErrorAsyncFunctionOn(asyncRunner2, (Throwable error) ->
+                    {
+                        value1.set(true);
+                        return asyncRunner1.schedule(() ->
+                        {
+                            value2.set("hello");
+                            return 21;
+                        });
+                    });
+                    test.assertNotNull(onErrorAsyncFunction);
+
+                    asyncRunner1.await();
+
+                    test.assertEqual(0, asyncRunner1.getScheduledTaskCount());
+                    test.assertEqual(1, asyncRunner2.getScheduledTaskCount());
+
+                    asyncRunner2.await();
+
+                    test.assertEqual(0, asyncRunner1.getScheduledTaskCount());
+                    test.assertEqual(0, asyncRunner2.getScheduledTaskCount());
+                    test.assertTrue(onErrorAsyncFunction.isCompleted());
+                    test.assertFalse(value1.hasValue());
+                    test.assertFalse(value2.hasValue());
+                    test.assertNull(onErrorAsyncFunction.awaitReturn());
+                });
+
+                runner.test("with throwing parent", (Test test) ->
+                {
+                    final AsyncRunner asyncRunner1 = test.getMainAsyncRunner();
+                    final AsyncRunner asyncRunner2 = new ManualAsyncRunner();
+                    final BasicAsyncFunction<Integer> basicAsyncTask = createScheduled(asyncRunner1);
+
+                    final Value<Boolean> value1 = new Value<>();
+                    final Value<String> value2 = new Value<>();
+                    final AsyncFunction<Integer> onErrorAsyncFunction = basicAsyncTask
+                        .then(() ->
+                        {
+                            if (true)
+                            {
+                                throw new RuntimeException("abc");
+                            }
+                            return 40;
+                        })
+                        .catchErrorAsyncFunctionOn(asyncRunner2, (Throwable error) ->
+                        {
+                            value1.set(true);
+                            return asyncRunner1.schedule(() ->
+                            {
+                                value2.set("hello");
+                                return 22;
+                            });
+                        });
+                    test.assertNotNull(onErrorAsyncFunction);
+
+                    asyncRunner1.await();
+                    test.assertEqual(0, asyncRunner1.getScheduledTaskCount());
+                    test.assertEqual(1, asyncRunner2.getScheduledTaskCount());
+
+                    asyncRunner2.await();
+                    test.assertEqual(1, asyncRunner1.getScheduledTaskCount());
+                    test.assertEqual(0, asyncRunner2.getScheduledTaskCount());
+                    test.assertFalse(onErrorAsyncFunction.isCompleted());
+                    test.assertEqual(true, value1.get());
+                    test.assertNull(value2.get());
+
+                    asyncRunner1.await();
+                    test.assertEqual(0, asyncRunner1.getScheduledTaskCount());
+                    test.assertEqual(0, asyncRunner2.getScheduledTaskCount());
+                    test.assertTrue(onErrorAsyncFunction.isCompleted());
+                    test.assertEqual(true, value1.get());
+                    test.assertEqual("hello", value2.get());
+                    test.assertEqual(22, onErrorAsyncFunction.awaitReturn());
+                });
             });
         });
     }
@@ -390,7 +704,7 @@ public class BasicAsyncFunctionTests
 
     private static BasicAsyncFunction<Integer> create(Test test)
     {
-        return create(test.getMainRunner());
+        return create(test.getMainAsyncRunner());
     }
 
     private static BasicAsyncFunction<Integer> createScheduled(AsyncRunner runner)
