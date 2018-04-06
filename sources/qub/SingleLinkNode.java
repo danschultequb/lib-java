@@ -6,8 +6,8 @@ package qub;
  */
 public class SingleLinkNode<T> extends IterableBase<T>
 {
-    private T value;
-    private SingleLinkNode<T> next;
+    private volatile T value;
+    private volatile SingleLinkNode<T> next;
 
     /**
      * Create a new single-link node with the provided value.

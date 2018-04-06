@@ -10,7 +10,7 @@ public class FolderFileSystemTests
             {
                 runner.test("with null path", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner());
                     fileSystem.createRoot("/");
 
                     test.assertNull(FolderFileSystem.create(fileSystem, (String)null));
@@ -18,7 +18,7 @@ public class FolderFileSystemTests
 
                 runner.test("with empty path", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner());
                     fileSystem.createRoot("/");
 
                     test.assertNull(FolderFileSystem.create(fileSystem, ""));
@@ -26,7 +26,7 @@ public class FolderFileSystemTests
 
                 runner.test("with relative path", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner());
                     fileSystem.createRoot("/");
 
                     final FolderFileSystem folderFileSystem = FolderFileSystem.create(fileSystem, "basefolder");
@@ -35,7 +35,7 @@ public class FolderFileSystemTests
 
                 runner.test("with relative path that ends with backslash", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner());
                     fileSystem.createRoot("/");
 
                     final FolderFileSystem folderFileSystem = FolderFileSystem.create(fileSystem, "basefolder\\");
@@ -44,7 +44,7 @@ public class FolderFileSystemTests
 
                 runner.test("with relative path that ends with forward slash", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner());
                     fileSystem.createRoot("/");
 
                     final FolderFileSystem folderFileSystem = FolderFileSystem.create(fileSystem, "basefolder/");
@@ -53,7 +53,7 @@ public class FolderFileSystemTests
 
                 runner.test("with rooted path", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner());
                     fileSystem.createRoot("/");
 
                     final FolderFileSystem folderFileSystem = FolderFileSystem.create(fileSystem, "\\basefolder");
@@ -62,7 +62,7 @@ public class FolderFileSystemTests
 
                 runner.test("with rooted path that ends with backslash", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner());
                     fileSystem.createRoot("/");
 
                     final FolderFileSystem folderFileSystem = FolderFileSystem.create(fileSystem, "/basefolder\\");
@@ -71,7 +71,7 @@ public class FolderFileSystemTests
 
                 runner.test("with rooted path that ends with forward slash", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner());
                     fileSystem.createRoot("/");
 
                     final FolderFileSystem folderFileSystem = FolderFileSystem.create(fileSystem, "/basefolder/");

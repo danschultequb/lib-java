@@ -17,18 +17,18 @@ public class JavaFileSystemTests
         {
             if (folderFileSystem.hasValue())
             {
-                folderFileSystem.get().delete();
+                folderFileSystem.get().delete().await();
                 folderFileSystem.clear();
             }
         });
 
-        runner.testGroup(JavaFileSystem.class, () ->
+        runner.testGroup(JavaFileSystem.class, runner.skip(), () ->
         {
             FileSystemTests.test(runner, (AsyncRunner asyncRunner) ->
             {
                 testFolderPath.set(tempFolderPath.concatenateSegment(Integer.toString(testNumber.incrementAndGet())));
                 folderFileSystem.set(FolderFileSystem.create(new JavaFileSystem(asyncRunner), testFolderPath.get()));
-                folderFileSystem.get().create();
+                folderFileSystem.get().create().await();
                 return folderFileSystem.get();
             });
         });

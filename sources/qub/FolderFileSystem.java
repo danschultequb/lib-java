@@ -38,17 +38,25 @@ public class FolderFileSystem extends FileSystemBase
         return result;
     }
 
-    public boolean create()
+    public AsyncFunction<Result<Boolean>> create()
     {
-        return innerFileSystem.createFolder(baseFolderPath);
+        return innerFileSystem.createFolder(baseFolderPath)
+            .then(new Function1<Result<Folder>, Result<Boolean>>()
+            {
+                @Override
+                public Result<Boolean> run(Result<Folder> createFolderResult)
+                {
+                    return Result.done(!createFolderResult.hasError(), createFolderResult.getError());
+                }
+            });
     }
 
-    public boolean delete()
+    public AsyncFunction<Result<Boolean>> delete()
     {
         return innerFileSystem.deleteFolder(baseFolderPath);
     }
 
-    public boolean exists()
+    public AsyncFunction<Result<Boolean>> exists()
     {
         return innerFileSystem.folderExists(baseFolderPath);
     }
@@ -75,125 +83,113 @@ public class FolderFileSystem extends FileSystemBase
     }
 
     @Override
-    public Iterable<Root> getRoots(Action1<String> onError)
+    public AsyncFunction<Result<Iterable<Root>>> getRoots()
     {
-        return Array.fromValues(new Root[]
+        return Async.<Iterable<Root>>success(getAsyncRunner(), Array.fromValues(new Root[]
         {
             new Root(this, Path.parse("/"))
-        });
+        }));
     }
 
     @Override
-    public Iterable<FileSystemEntry> getFilesAndFolders(Path folderPath, Action1<String> onError)
+    public AsyncFunction<Result<Iterable<FileSystemEntry>>> getFilesAndFolders(Path folderPath)
     {
-        Iterable<FileSystemEntry> result = new Array<>(0);
-
-        final Path innerFolderPath = getInnerPath(folderPath);
-        final Iterable<FileSystemEntry> innerResult = innerFileSystem.getFilesAndFolders(innerFolderPath, onError);
-        if (innerResult != null)
-        {
-            result = Array.fromValues(innerResult.map(new Function1<FileSystemEntry, FileSystemEntry>()
+        return innerFileSystem.getFilesAndFolders(getInnerPath(folderPath))
+            .then(new Function1<Result<Iterable<FileSystemEntry>>, Result<Iterable<FileSystemEntry>>>()
             {
                 @Override
-                public FileSystemEntry run(FileSystemEntry innerEntry)
+                public Result<Iterable<FileSystemEntry>> run(Result<Iterable<FileSystemEntry>> getFilesAndFoldersResult)
                 {
-                    final Path outerEntryPath = FolderFileSystem.this.getOuterPath(innerEntry.getPath());
-                    return innerEntry instanceof File ? new File(FolderFileSystem.this, outerEntryPath) : new Folder(FolderFileSystem.this, outerEntryPath);
+                    Iterable<FileSystemEntry> entries = getFilesAndFoldersResult.getValue();
+                    return Result.done(
+                        entries == null ? null : entries.map(new Function1<FileSystemEntry,FileSystemEntry>()
+                        {
+                            @Override
+                            public FileSystemEntry run(FileSystemEntry innerEntry)
+                            {
+                                final Path outerEntryPath = FolderFileSystem.this.getOuterPath(innerEntry.getPath());
+                                return innerEntry instanceof File ? new File(FolderFileSystem.this, outerEntryPath) : new Folder(FolderFileSystem.this, outerEntryPath);
+                            }
+                        }),
+                        getFilesAndFoldersResult.getError());
                 }
-            }));
-        }
-
-        return result;
+            });
     }
 
     @Override
-    public boolean folderExists(Path folderPath, Action1<String> onError)
+    public AsyncFunction<Result<Boolean>> folderExists(Path folderPath)
     {
-        final Path innerFolderPath = getInnerPath(folderPath);
-        return innerFileSystem.folderExists(innerFolderPath, onError);
+        return innerFileSystem.folderExists(getInnerPath(folderPath));
     }
 
     @Override
-    public boolean createFolder(Path folderPath, Out<Folder> outputFolder, Action1<String> onError)
+    public AsyncFunction<Result<Folder>> createFolder(Path folderPath)
     {
-        final Path innerFolderPath = getInnerPath(folderPath);
-        final Value<Folder> innerOutputFolder = (outputFolder == null ? null : new Value<Folder>());
-
-        final boolean result = innerFileSystem.createFolder(innerFolderPath, innerOutputFolder, onError);
-
-        if (innerOutputFolder != null && innerOutputFolder.hasValue())
-        {
-            final Path innerOutputFolderPath = innerOutputFolder.get().getPath();
-            final Path outerOutputFolderPath = getOuterPath(innerOutputFolderPath);
-            outputFolder.set(getFolder(outerOutputFolderPath));
-        }
-
-        return result;
-    }
-
-    @Override
-    public boolean deleteFolder(Path folderPath, Action1<String> onError)
-    {
-        final Path innerFolderPath = getInnerPath(folderPath);
-        return innerFileSystem.deleteFolder(innerFolderPath, onError);
-    }
-
-    @Override
-    public boolean fileExists(Path filePath, Action1<String> onError)
-    {
-        final Path innerFilePath = getInnerPath(filePath);
-        return innerFileSystem.fileExists(innerFilePath, onError);
-    }
-
-    @Override
-    public boolean createFile(Path filePath, byte[] fileContents, Out<File> outputFile, Action1<String> onError)
-    {
-        final Path innerFilePath = getInnerPath(filePath);
-        final Value<File> innerOutputFile = (outputFile == null ? null : new Value<File>());
-
-        final boolean result = innerFileSystem.createFile(innerFilePath, fileContents, innerOutputFile, onError);
-
-        if (innerOutputFile != null)
-        {
-            if (!innerOutputFile.hasValue())
+        return innerFileSystem.createFolder(getInnerPath(folderPath))
+            .then(new Function1<Result<Folder>, Result<Folder>>()
             {
-                outputFile.clear();
-            }
-            else
-            {
-                final Path innerOutputFilePath = innerOutputFile.get().getPath();
-                final Path outerOutputFilePath = getOuterPath(innerOutputFilePath);
-                outputFile.set(getFile(outerOutputFilePath));
-            }
-        }
-
-        return result;
+                @Override
+                public Result<Folder> run(Result<Folder> createFolderResult)
+                {
+                    final Folder createdFolder = createFolderResult.getValue();
+                    return Result.done(
+                        createdFolder == null ? null : new Folder(FolderFileSystem.this, getOuterPath(createdFolder.getPath())),
+                        createFolderResult.getError());
+                }
+            });
     }
 
     @Override
-    public boolean deleteFile(Path filePath, Action1<String> onError)
+    public AsyncFunction<Result<Boolean>> deleteFolder(Path folderPath)
+    {
+        return innerFileSystem.deleteFolder(getInnerPath(folderPath));
+    }
+
+    @Override
+    public AsyncFunction<Result<Boolean>> fileExists(Path filePath)
+    {
+        return innerFileSystem.fileExists(getInnerPath(filePath));
+    }
+
+    @Override
+    public AsyncFunction<Result<File>> createFile(Path filePath)
     {
         final Path innerFilePath = getInnerPath(filePath);
-        return innerFileSystem.deleteFile(innerFilePath, onError);
+        return innerFileSystem.createFile(innerFilePath)
+            .then(new Function1<Result<File>, Result<File>>()
+            {
+                @Override
+                public Result<File> run(Result<File> createFileResult)
+                {
+                    final File createdFile = createFileResult.getValue();
+                    return Result.done(
+                        createdFile == null ? null : new File(FolderFileSystem.this, getOuterPath(createdFile.getPath())),
+                        createFileResult.getError());
+                }
+            });
     }
 
     @Override
-    public DateTime getFileLastModified(Path filePath)
+    public AsyncFunction<Result<Boolean>> deleteFile(Path filePath)
+    {
+        return innerFileSystem.deleteFile(getInnerPath(filePath));
+    }
+
+    @Override
+    public AsyncFunction<Result<DateTime>> getFileLastModified(Path filePath)
     {
         return innerFileSystem.getFileLastModified(getInnerPath(filePath));
     }
 
     @Override
-    public ByteReadStream getFileContentByteReadStream(Path rootedFilePath, Action1<String> onError)
+    public AsyncFunction<Result<ByteReadStream>> getFileContentByteReadStream(Path rootedFilePath)
     {
-        final Path innerFilePath = getInnerPath(rootedFilePath);
-        return innerFileSystem.getFileContentByteReadStream(innerFilePath, onError);
+        return innerFileSystem.getFileContentByteReadStream(getInnerPath(rootedFilePath));
     }
 
     @Override
-    public boolean setFileContents(Path rootedFilePath, byte[] fileContents, Action1<String> onError)
+    public AsyncFunction<Result<ByteWriteStream>> getFileContentByteWriteStream(Path rootedFilePath)
     {
-        final Path innerFilePath = getInnerPath(rootedFilePath);
-        return innerFileSystem.setFileContents(innerFilePath, fileContents, onError);
+        return innerFileSystem.getFileContentByteWriteStream(getInnerPath(rootedFilePath));
     }
 }

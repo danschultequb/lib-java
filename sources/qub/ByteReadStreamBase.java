@@ -23,6 +23,12 @@ public abstract class ByteReadStreamBase extends IteratorBase<Byte> implements B
     }
 
     @Override
+    public byte[] readAllBytes()
+    {
+        return ByteReadStreamBase.readAllBytes(this);
+    }
+
+    @Override
     public InputStream asInputStream()
     {
         return ByteReadStreamBase.asInputStream(this);
@@ -107,6 +113,28 @@ public abstract class ByteReadStreamBase extends IteratorBase<Byte> implements B
         }
 
         return bytesRead;
+    }
+
+    public static byte[] readAllBytes(ByteReadStream byteReadStream)
+    {
+        byte[] result = null;
+
+        if (byteReadStream != null && !byteReadStream.isDisposed())
+        {
+            final List<byte[]> readByteArrays = new ArrayList<>();
+            final byte[] buffer = new byte[1024];
+            int bytesRead = byteReadStream.readBytes(buffer);
+
+            while (bytesRead > 0)
+            {
+                readByteArrays.add(Array.clone(buffer, 0, bytesRead));
+                bytesRead = byteReadStream.readBytes(buffer);
+            }
+
+            result = Array.merge(readByteArrays);
+        }
+
+        return result;
     }
 
     public static InputStream asInputStream(ByteReadStream byteReadStream)

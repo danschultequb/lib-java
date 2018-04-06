@@ -16,9 +16,7 @@ public class JavaTCPClientTests
                 runner.test("with null", (Test test) ->
                 {
                     final Result<TCPClient> tcpClientResult = JavaTCPClient.create((Socket)null);
-                    test.assertNotNull(tcpClientResult);
-                    test.assertTrue(tcpClientResult.isError());
-                    test.assertEqual("socket cannot be null.", tcpClientResult.getErrorMessage());
+                    test.assertError(new IllegalArgumentException("socket cannot be null."), tcpClientResult);
                 });
             });
 
@@ -27,52 +25,50 @@ public class JavaTCPClientTests
                 runner.test("with null remoteIPAddress", (Test test) ->
                 {
                     final Result<TCPClient> tcpClient = JavaTCPClient.create(null, 80);
-                    test.assertTrue(tcpClient.isError());
-                    test.assertEqual("remoteIPAddress cannot be null.", tcpClient.getErrorMessage());
+                    test.assertError(new IllegalArgumentException("remoteIPAddress cannot be null."), tcpClient);
                 });
 
                 runner.test("with -1 remotePort", (Test test) ->
                 {
                     final Result<TCPClient> tcpClient = JavaTCPClient.create(IPv4Address.localhost, -1);
-                    test.assertTrue(tcpClient.isError());
-                    test.assertEqual("remotePort must be greater than 0.", tcpClient.getErrorMessage());
+                    test.assertError(new IllegalArgumentException("remotePort must be greater than 0."), tcpClient);
                 });
 
                 runner.test("with 0 remotePort", (Test test) ->
                 {
                     final Result<TCPClient> tcpClient = JavaTCPClient.create(IPv4Address.localhost, 0);
-                    test.assertTrue(tcpClient.isError());
-                    test.assertEqual("remotePort must be greater than 0.", tcpClient.getErrorMessage());
+                    test.assertError(new IllegalArgumentException("remotePort must be greater than 0."), tcpClient);
                 });
 
                 runner.test("with valid arguments but no server listening", (Test test) ->
                 {
                     final Result<TCPClient> tcpClientResult = JavaTCPClient.create(IPv4Address.localhost, port.incrementAndGet());
-                    test.assertTrue(tcpClientResult.isError());
-                    test.assertEqual("Connection refused: connect", tcpClientResult.getErrorMessage());
+                    test.assertError(new java.net.ConnectException("Connection refused: connect"), tcpClientResult);
                 });
 
                 runner.test("with valid arguments and with listening server", runner.skip(), (Test test) ->
                 {
-                    try (final ParallelAsyncRunner asyncRunner = new ParallelAsyncRunner())
+                    final AsyncRunner asyncRunner = test.getParallelAsyncRunner();
+
+                    final Network network = new JavaNetwork(asyncRunner);
+                    final Result<TCPEchoServer> echoServerResult = TCPEchoServer.create(network, port.incrementAndGet());
+                    test.assertSuccess(echoServerResult);
+
+                    try (final TCPEchoServer echoServer = echoServerResult.getValue())
                     {
-                        final Network network = new JavaNetwork(asyncRunner);
-                        final TCPEchoServer echoServer = TCPEchoServer.create(network, port.incrementAndGet()).getValue();
                         echoServer.echoAsync();
 
                         asyncRunner.schedule(() ->
                         {
                             final Result<TCPClient> tcpClientResult = JavaTCPClient.create(IPv4Address.localhost, port.get());
-                            test.assertTrue(tcpClientResult.isSuccess());
+                            test.assertSuccess(tcpClientResult);
 
                             try (final TCPClient tcpClient = tcpClientResult.getValue())
                             {
                                 tcpClient.asLineWriteStream().writeLine("abcdef");
                                 test.assertEqual("abcdef", tcpClient.asLineReadStream().readLine());
                             }
-                        });
-
-                        AsyncRunnerRegistry.getCurrentThreadAsyncRunner().await();
+                        }).await();
                     }
                 });
             });

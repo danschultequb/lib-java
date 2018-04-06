@@ -8,10 +8,10 @@ public class BasicAsyncActionTests
         {
             BasicAsyncTaskTests.test(runner, BasicAsyncActionTests::create);
 
-            runner.test("constructor(AsyncRunner,Action0)", (Test test) ->
+            runner.test("constructor(Getable<AsyncRunner>,Getable<AsyncTask>,Action0)", (Test test) ->
             {
                 final AsyncRunner asyncRunner = test.getMainAsyncRunner();
-                final BasicAsyncAction basicAsyncAction = new BasicAsyncAction(asyncRunner, () -> {});
+                final BasicAsyncAction basicAsyncAction = new BasicAsyncAction(new Value<>(asyncRunner), new Array<AsyncTask>(0), () -> {});
                 test.assertSame(asyncRunner, basicAsyncAction.getAsyncRunner());
                 test.assertEqual(0, asyncRunner.getScheduledTaskCount());
                 test.assertEqual(0, basicAsyncAction.getPausedTaskCount());
@@ -34,6 +34,7 @@ public class BasicAsyncActionTests
                     test.assertSame(basicAsyncAction, basicAsyncAction.thenOn(asyncRunner));
                     test.assertEqual(0, basicAsyncAction.getPausedTaskCount());
                     test.assertEqual(1, asyncRunner.getScheduledTaskCount());
+                    basicAsyncAction.await();
                 });
 
                 runner.test("with different AsyncRunner", (Test test) ->
@@ -41,17 +42,17 @@ public class BasicAsyncActionTests
                     final AsyncRunner mainRunner = test.getMainAsyncRunner();
                     final BasicAsyncAction basicAsyncAction = createScheduled(mainRunner);
 
-                    final AsyncRunner parallelRunner = test.getParallelAsyncRunner();
-                    final AsyncAction thenAsyncAction = basicAsyncAction.thenOn(parallelRunner);
+                    final AsyncRunner otherRunner = new ManualAsyncRunner();
+                    final AsyncAction thenAsyncAction = basicAsyncAction.thenOn(otherRunner);
                     test.assertNotNull(thenAsyncAction);
                     test.assertNotSame(basicAsyncAction, thenAsyncAction);
                     test.assertEqual(1, basicAsyncAction.getPausedTaskCount());
 
                     mainRunner.await();
-                    test.assertEqual(1, parallelRunner.getScheduledTaskCount());
+                    test.assertEqual(1, otherRunner.getScheduledTaskCount());
 
-                    parallelRunner.await();
-                    test.assertEqual(0, parallelRunner.getScheduledTaskCount());
+                    otherRunner.await();
+                    test.assertEqual(0, otherRunner.getScheduledTaskCount());
                 });
             });
 
@@ -64,6 +65,7 @@ public class BasicAsyncActionTests
                     final AsyncAction onErrorAsyncAction = basicAsyncAction.catchError(null);
                     test.assertNull(onErrorAsyncAction);
                     test.assertEqual(0, basicAsyncAction.getPausedTaskCount());
+                    basicAsyncAction.await();
                 });
 
                 runner.test("with non-throwing parent", (Test test) ->
@@ -125,6 +127,7 @@ public class BasicAsyncActionTests
                     final AsyncAction onErrorAsyncAction = basicAsyncAction.catchErrorOn(asyncRunner2, (Action1<Throwable>)null);
                     test.assertNull(onErrorAsyncAction);
                     test.assertEqual(0, basicAsyncAction.getPausedTaskCount());
+                    basicAsyncAction.await();
                 });
 
                 runner.test("with non-throwing parent", (Test test) ->
@@ -254,6 +257,7 @@ public class BasicAsyncActionTests
                     final AsyncAction onErrorAsyncAction = basicAsyncAction.catchErrorAsyncActionOn(null, (Throwable error) -> asyncRunner.schedule(() -> {}));
                     test.assertNull(onErrorAsyncAction);
                     test.assertEqual(0, basicAsyncAction.getPausedTaskCount());
+                    basicAsyncAction.await();
                 });
 
                 runner.test("with null function", (Test test) ->
@@ -263,6 +267,7 @@ public class BasicAsyncActionTests
                     final AsyncAction onErrorAsyncAction = basicAsyncAction.catchErrorAsyncActionOn(asyncRunner, null);
                     test.assertNull(onErrorAsyncAction);
                     test.assertEqual(0, basicAsyncAction.getPausedTaskCount());
+                    basicAsyncAction.await();
                 });
 
                 runner.test("with non-throwing parent", (Test test) ->
@@ -344,7 +349,7 @@ public class BasicAsyncActionTests
 
     private static BasicAsyncAction create(AsyncRunner asyncRunner)
     {
-        return new BasicAsyncAction(asyncRunner, () -> {});
+        return new BasicAsyncAction(new Value<>(asyncRunner), new Array<AsyncTask>(0), () -> {});
     }
 
     private static BasicAsyncAction createScheduled(AsyncRunner runner)

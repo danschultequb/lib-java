@@ -1,44 +1,26 @@
 package qub;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ParallelAsyncRunner extends DisposableBase implements AsyncRunner
 {
-    private final Function0<Synchronization> synchronizationFunction;
     private final AtomicInteger scheduledTaskCount;
-    private final ExecutorService executorService;
-    private boolean disposed;
+    private final AtomicInteger runningTaskCount;
+    private volatile boolean disposed;
+
+    private final Action0 decrementScheduledTaskCount = new Action0()
+    {
+        @Override
+        public void run()
+        {
+            scheduledTaskCount.decrementAndGet();
+        }
+    };
 
     public ParallelAsyncRunner()
     {
-        this(new Synchronization());
-    }
-
-    public ParallelAsyncRunner(final Synchronization synchronization)
-    {
-        this(new Function0<Synchronization>()
-        {
-            @Override
-            public Synchronization run()
-            {
-                return synchronization;
-            }
-        });
-    }
-
-    public ParallelAsyncRunner(Function0<Synchronization> synchronizationFunction)
-    {
-        this.synchronizationFunction = synchronizationFunction;
         scheduledTaskCount = new AtomicInteger(0);
-        executorService = Executors.newCachedThreadPool();
-    }
-
-    @Override
-    public Synchronization getSynchronization()
-    {
-        return synchronizationFunction.run();
+        runningTaskCount = new AtomicInteger(0);
     }
 
     @Override
@@ -50,26 +32,28 @@ public class ParallelAsyncRunner extends DisposableBase implements AsyncRunner
     @Override
     public void schedule(final PausedAsyncTask asyncTask)
     {
-        if (!executorService.isShutdown())
+        if (!disposed)
         {
             scheduledTaskCount.incrementAndGet();
-            executorService.execute(new Action0()
+            new java.lang.Thread(new Action0()
             {
                 @Override
                 public void run()
                 {
+                    runningTaskCount.incrementAndGet();
                     AsyncRunnerRegistry.setCurrentThreadAsyncRunner(ParallelAsyncRunner.this);
                     try
                     {
+                        asyncTask.setAfterChildTasksScheduledBeforeCompletedAction(decrementScheduledTaskCount);
                         asyncTask.runAndSchedulePausedTasks();
-                        scheduledTaskCount.decrementAndGet();
+                        runningTaskCount.decrementAndGet();
                     }
                     finally
                     {
                         AsyncRunnerRegistry.removeCurrentThreadAsyncRunner();
                     }
                 }
-            });
+            }).start();
         }
     }
 
@@ -79,8 +63,7 @@ public class ParallelAsyncRunner extends DisposableBase implements AsyncRunner
         AsyncAction result = null;
         if (action != null)
         {
-            final Synchronization synchronization = getSynchronization();
-            final BasicAsyncAction asyncAction = new BasicAsyncAction(this, synchronization, action);
+            final BasicAsyncAction asyncAction = new BasicAsyncAction(new Value<AsyncRunner>(this), new Array<AsyncTask>(0), action);
             asyncAction.schedule();
             result = asyncAction;
         }
@@ -93,8 +76,7 @@ public class ParallelAsyncRunner extends DisposableBase implements AsyncRunner
         AsyncFunction<T> result = null;
         if (function != null)
         {
-            final Synchronization synchronization = getSynchronization();
-            final BasicAsyncFunction<T> asyncFunction = new BasicAsyncFunction<>(this, synchronization, function);
+            final BasicAsyncFunction<T> asyncFunction = new BasicAsyncFunction<>(new Value<AsyncRunner>(this), new Array<AsyncTask>(0), function);
             asyncFunction.schedule();
             result = asyncFunction;
         }
@@ -102,10 +84,47 @@ public class ParallelAsyncRunner extends DisposableBase implements AsyncRunner
     }
 
     @Override
+    public AsyncAction scheduleAsyncAction(Function0<AsyncAction> function)
+    {
+        return schedule(new Action0()
+            {
+                @Override
+                public void run()
+                {
+                }
+            })
+            .thenAsyncAction(function);
+    }
+
+    @Override
+    public <T> AsyncFunction<T> scheduleAsyncFunction(Function0<AsyncFunction<T>> function)
+    {
+        return schedule(new Action0()
+            {
+                @Override
+                public void run()
+                {
+                }
+            })
+            .thenAsyncFunction(function);
+    }
+
+    @Override
     public void await()
     {
-        while (scheduledTaskCount.get() > 0)
+        while (scheduledTaskCount.get() > 0 || runningTaskCount.get() > 0)
         {
+        }
+    }
+
+    @Override
+    public void await(AsyncTask asyncTask)
+    {
+        if (asyncTask.getAsyncRunner() == this)
+        {
+            while (!asyncTask.isCompleted())
+            {
+            }
         }
     }
 
@@ -126,15 +145,7 @@ public class ParallelAsyncRunner extends DisposableBase implements AsyncRunner
         else
         {
             disposed = true;
-            try
-            {
-                executorService.shutdownNow();
-                result = Result.success(true);
-            }
-            catch (Throwable t)
-            {
-                result = Result.<Boolean>error(t);
-            }
+            result = Result.success(true);
         }
         return result;
     }

@@ -104,4 +104,14 @@ public class Strings
     {
         return quote(escape(text));
     }
+
+    /**
+     * Get whether or not the provided text is null or empty.
+     * @param text The text to check.
+     * @return Whether or not the provided text is null or empty.
+     */
+    public static boolean isNullOrEmpty(String text)
+    {
+        return text == null || text.isEmpty();
+    }
 }

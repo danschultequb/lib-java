@@ -2,7 +2,7 @@ package qub;
 
 public class MapTests
 {
-    public static void test(TestRunner runner, Function0<Map<Integer,Boolean>> creator)
+    public static void test(TestRunner runner, Function0<Map<Integer,Boolean>> creator, boolean canHandleNullKeys, boolean canHandleNullValues)
     {
         runner.testGroup(Map.class, () ->
         {
@@ -14,23 +14,25 @@ public class MapTests
 
             runner.testGroup("get()", () ->
             {
-                runner.test("with null non-existing key", test ->
+                if (canHandleNullKeys)
                 {
-                    final Map<Integer,Boolean> map = creator.run();
-                    test.assertNull(map.get(null));
-                });
+                    runner.test("with null non-existing key", test ->
+                    {
+                        final Map<Integer, Boolean> map = creator.run();
+                        test.assertNull(map.get(null));
+                    });
 
+                    runner.test("with null existing key", test ->
+                    {
+                        final Map<Integer,Boolean> map = creator.run();
+                        map.set(null, true);
+                        test.assertTrue(map.get(null));
+                    });
+                }
                 runner.test("with non-null non-existing key", test ->
                 {
                     final Map<Integer,Boolean> map = creator.run();
                     test.assertNull(map.get(20));
-                });
-
-                runner.test("with null existing key", test ->
-                {
-                    final Map<Integer,Boolean> map = creator.run();
-                    map.set(null, true);
-                    test.assertTrue(map.get(null));
                 });
 
                 runner.test("with non-null existing key", test ->
@@ -43,49 +45,68 @@ public class MapTests
 
             runner.testGroup("set()", () ->
             {
-                runner.test("with null non-existing key and null value", test ->
+                if (canHandleNullKeys)
                 {
-                    final Map<Integer,Boolean> map = creator.run();
-                    map.set(null, null);
-                    test.assertEqual(1, map.getCount());
-                    test.assertNull(map.get(null));
-                });
+                    if (canHandleNullValues)
+                    {
+                        runner.test("with null non-existing key and null value", test ->
+                        {
+                            final Map<Integer, Boolean> map = creator.run();
+                            map.set(null, null);
+                            test.assertEqual(1, map.getCount());
+                            test.assertNull(map.get(null));
+                        });
 
-                runner.test("with null non-existing key and non-null value", test ->
+                        runner.test("with null existing key and null value", test ->
+                        {
+                            final Map<Integer,Boolean> map = creator.run();
+                            map.set(null, true);
+
+                            map.set(null, null);
+                            test.assertEqual(1, map.getCount());
+                            test.assertNull(map.get(null));
+                        });
+                    }
+
+                    runner.test("with null non-existing key and non-null value", test ->
+                    {
+                        final Map<Integer,Boolean> map = creator.run();
+                        map.set(null, false);
+                        test.assertEqual(1, map.getCount());
+                        test.assertEqual(false, map.get(null));
+                    });
+
+                    runner.test("with null existing key and non-null value", test ->
+                    {
+                        final Map<Integer,Boolean> map = creator.run();
+                        map.set(null, true);
+
+                        map.set(null, false);
+                        test.assertEqual(1, map.getCount());
+                        test.assertEqual(false, map.get(null));
+                    });
+                }
+
+                if (canHandleNullValues)
                 {
-                    final Map<Integer,Boolean> map = creator.run();
-                    map.set(null, false);
-                    test.assertEqual(1, map.getCount());
-                    test.assertEqual(false, map.get(null));
-                });
+                    runner.test("with non-null non-existing key and null value", test ->
+                    {
+                        final Map<Integer, Boolean> map = creator.run();
+                        map.set(12, null);
+                        test.assertEqual(1, map.getCount());
+                        test.assertNull(map.get(12));
+                    });
 
-                runner.test("with null existing key and null value", test ->
-                {
-                    final Map<Integer,Boolean> map = creator.run();
-                    map.set(null, true);
+                    runner.test("with non-null existing key and null value", test ->
+                    {
+                        final Map<Integer, Boolean> map = creator.run();
+                        map.set(14, true);
 
-                    map.set(null, null);
-                    test.assertEqual(1, map.getCount());
-                    test.assertNull(map.get(null));
-                });
-
-                runner.test("with null existing key and non-null value", test ->
-                {
-                    final Map<Integer,Boolean> map = creator.run();
-                    map.set(null, true);
-
-                    map.set(null, false);
-                    test.assertEqual(1, map.getCount());
-                    test.assertEqual(false, map.get(null));
-                });
-
-                runner.test("with non-null non-existing key and null value", test ->
-                {
-                    final Map<Integer,Boolean> map = creator.run();
-                    map.set(12, null);
-                    test.assertEqual(1, map.getCount());
-                    test.assertNull(map.get(12));
-                });
+                        map.set(14, null);
+                        test.assertEqual(1, map.getCount());
+                        test.assertNull(map.get(14));
+                    });
+                }
 
                 runner.test("with non-null non-existing key and non-null value", test ->
                 {
@@ -93,16 +114,6 @@ public class MapTests
                     map.set(13, false);
                     test.assertEqual(1, map.getCount());
                     test.assertEqual(false, map.get(13));
-                });
-
-                runner.test("with non-null existing key and null value", test ->
-                {
-                    final Map<Integer,Boolean> map = creator.run();
-                    map.set(14, true);
-
-                    map.set(14, null);
-                    test.assertEqual(1, map.getCount());
-                    test.assertNull(map.get(14));
                 });
 
                 runner.test("with non-null existing key and non-null value", test ->
@@ -118,20 +129,23 @@ public class MapTests
 
             runner.testGroup("remove()", () ->
             {
-                runner.test("with null non-existing key", test ->
+                if (canHandleNullKeys)
                 {
-                    final Map<Integer,Boolean> map = creator.run();
-                    test.assertFalse(map.remove(null));
-                });
+                    runner.test("with null non-existing key", test ->
+                    {
+                        final Map<Integer, Boolean> map = creator.run();
+                        test.assertFalse(map.remove(null));
+                    });
 
-                runner.test("with null existing key", test ->
-                {
-                    final Map<Integer,Boolean> map = creator.run();
-                    map.set(null, true);
+                    runner.test("with null existing key", test ->
+                    {
+                        final Map<Integer, Boolean> map = creator.run();
+                        map.set(null, true);
 
-                    test.assertTrue(map.remove(null));
-                    test.assertEqual(0, map.getCount());
-                });
+                        test.assertTrue(map.remove(null));
+                        test.assertEqual(0, map.getCount());
+                    });
+                }
 
                 runner.test("with non-null non-existing key", test ->
                 {

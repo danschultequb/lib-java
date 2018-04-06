@@ -16,12 +16,7 @@ final public class Result<T>
         return value;
     }
 
-    final public boolean isSuccess()
-    {
-        return !isError();
-    }
-
-    final public boolean isError()
+    final public boolean hasError()
     {
         return error != null;
     }
@@ -31,23 +26,40 @@ final public class Result<T>
         return error;
     }
 
+    final public Class<? extends Throwable> getErrorType()
+    {
+        return error == null ? null : error.getClass();
+    }
+
     final public String getErrorMessage()
     {
         return error == null ? null : error.getMessage();
     }
 
-    public static <T> Result<T> success()
+    @Override
+    @SuppressWarnings("unchecked")
+    public boolean equals(Object rhs)
     {
-        return Result.<T>success(null);
+        return rhs instanceof Result && equals((Result<T>)rhs);
+    }
+
+    public boolean equals(Result<T> rhs)
+    {
+        return rhs != null && Comparer.equal(value, rhs.value) && Comparer.equal(error, rhs.error);
     }
 
     public static <T> Result<T> success(T value)
     {
-        return new Result<T>(value, null);
+        return Result.done(value, null);
     }
 
     public static <T> Result<T> error(Throwable error)
     {
-        return new Result<T>(null, error);
+        return Result.done(null, error);
+    }
+
+    public static <T> Result<T> done(T value, Throwable error)
+    {
+        return new Result<T>(value, error);
     }
 }

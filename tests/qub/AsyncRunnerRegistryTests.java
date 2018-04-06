@@ -31,7 +31,7 @@ public class AsyncRunnerRegistryTests
                 runner.test("with registered runner", (Test test) ->
                 {
                     final AsyncRunner backupRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-                    final ManualAsyncRunner runner1 = new ManualAsyncRunner(new Synchronization());
+                    final ManualAsyncRunner runner1 = new ManualAsyncRunner();
                     AsyncRunnerRegistry.setCurrentThreadAsyncRunner(runner1);
                     try
                     {

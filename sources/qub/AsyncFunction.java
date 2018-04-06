@@ -4,7 +4,7 @@ package qub;
  * A Function that has been scheduled to schedule asynchronously.
  * @param <T> The type that will be returned from the asynchronous function.
  */
-public interface AsyncFunction<T> extends AsyncTask
+public interface AsyncFunction<T> extends AsyncAction
 {
     /**
      * Block until this AsyncAction completes. If the AsyncAction is already completed, then this

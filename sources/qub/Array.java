@@ -94,6 +94,21 @@ public class Array<T> extends IndexableBase<T> implements MutableIndexable<T>
      * Create an Array from the provided values.
      * @param values The values to initialize the array with.
      */
+    public static Array<Boolean> fromValues(boolean[] values)
+    {
+        final int length = values == null ? 0 : values.length;
+        final Array<Boolean> result = new Array<>(length);
+        for (int i = 0; i < length; ++i)
+        {
+            result.set(i, values[i]);
+        }
+        return result;
+    }
+
+    /**
+     * Create an Array from the provided values.
+     * @param values The values to initialize the array with.
+     */
     public static Array<Byte> fromValues(byte[] values)
     {
         final int length = values == null ? 0 : values.length;

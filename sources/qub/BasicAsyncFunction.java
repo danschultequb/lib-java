@@ -5,9 +5,9 @@ public class BasicAsyncFunction<T> extends BasicAsyncTask implements AsyncFuncti
     private final Function0<T> function;
     private final Value<T> functionResult;
 
-    public BasicAsyncFunction(AsyncRunner runner, Synchronization synchronization, Function0<T> function)
+    public BasicAsyncFunction(Getable<AsyncRunner> runner, Iterable<AsyncTask> parentTasks, Function0<T> function)
     {
-        super(runner, synchronization);
+        super(runner, parentTasks);
 
         this.function = function;
         this.functionResult = new Value<>();
@@ -117,42 +117,84 @@ public class BasicAsyncFunction<T> extends BasicAsyncTask implements AsyncFuncti
     }
 
     @Override
+    public AsyncFunction<T> catchError(final Action1<Throwable> action)
+    {
+        return action == null ? null : catchError(new Function1<Throwable,T>()
+        {
+            @Override
+            public T run(Throwable error)
+            {
+                action.run(error);
+                return null;
+            }
+        });
+    }
+
+    @Override
+    public AsyncAction catchErrorAsyncAction(Function1<Throwable, AsyncAction> function)
+    {
+        return function == null ? null : catchErrorAsyncActionOnInner(getAsyncRunnerGetable(), function);
+    }
+
+    @Override
     public AsyncFunction<T> catchError(Function1<Throwable, T> function)
     {
-        return function == null ? null : catchErrorOn(getAsyncRunner(), function);
+        return function == null ? null : catchErrorOnInner(getAsyncRunnerGetable(), function);
+    }
+
+    @Override
+    public AsyncAction catchErrorOn(AsyncRunner asyncRunner, final Action1<Throwable> action)
+    {
+        return asyncRunner == null || action == null ? null : catchErrorOnInner(new Value<>(asyncRunner), new Function1<Throwable, T>()
+        {
+            @Override
+            public T run(Throwable error)
+            {
+                action.run(error);
+                return null;
+            }
+        });
     }
 
     @Override
     public AsyncFunction<T> catchErrorOn(AsyncRunner asyncRunner, Function1<Throwable, T> function)
     {
-        return asyncRunner == null || function == null ? null : onErrorOnInner(asyncRunner, function);
+        return asyncRunner == null || function == null ? null : catchErrorOnInner(new Value<>(asyncRunner), function);
     }
 
     @Override
     public AsyncFunction<T> catchErrorAsyncFunction(Function1<Throwable, AsyncFunction<T>> function)
     {
-        return function == null ? null : catchErrorAsyncFunctionOn(getAsyncRunner(), function);
+        return function == null ? null : catchErrorAsyncFunctionOnInner(getAsyncRunnerGetable(), function);
+    }
+
+    @Override
+    public AsyncAction catchErrorAsyncActionOn(AsyncRunner asyncRunner, Function1<Throwable, AsyncAction> function)
+    {
+        return asyncRunner == null || function == null ? null : catchErrorOnInner(new Value<>(asyncRunner), function);
     }
 
     @Override
     public AsyncFunction<T> catchErrorAsyncFunctionOn(AsyncRunner asyncRunner, Function1<Throwable, AsyncFunction<T>> function)
     {
-        return asyncRunner == null || function == null ? null : onErrorAsyncFunctionOnInner(asyncRunner, function);
+        return asyncRunner == null || function == null ? null : catchErrorAsyncFunctionOnInner(new Value<>(asyncRunner), function);
     }
 
-    private AsyncFunction<T> onErrorAsyncFunctionOnInner(final AsyncRunner asyncRunner, Function1<Throwable,AsyncFunction<T>> function)
+    private AsyncFunction<T> catchErrorAsyncFunctionOnInner(final Getable<AsyncRunner> asyncRunner, Function1<Throwable,AsyncFunction<T>> function)
     {
-        final Value<T> asyncFunctionResultValue = new Value<>();
-        final BasicAsyncFunction<T> result = new BasicAsyncFunction<T>(null, getSynchronization(), new Function0<T>()
+        final Value<AsyncRunner> resultAsyncRunner = new Value<AsyncRunner>();
+        final List<AsyncTask> resultParentTasks = new SingleLinkList<AsyncTask>();
+        final Value<T> resultReturnValue = new Value<T>();
+        final BasicAsyncFunction<T> result = new BasicAsyncFunction<T>(resultAsyncRunner, resultParentTasks, new Function0<T>()
         {
             @Override
             public T run()
             {
-                return asyncFunctionResultValue.get();
+                return resultReturnValue.get();
             }
         });
 
-        onErrorOnInner(asyncRunner, function)
+        resultParentTasks.add(this.catchErrorOnInner(asyncRunner, function)
             .then(new Action1<AsyncFunction<T>>()
             {
                 @Override
@@ -160,25 +202,25 @@ public class BasicAsyncFunction<T> extends BasicAsyncTask implements AsyncFuncti
                 {
                     if (asyncFunctionResult == null)
                     {
-                        result.setRunner(asyncRunner);
+                        resultAsyncRunner.set(asyncRunner.get());
                         result.schedule();
                     }
                     else
                     {
-                        result.setRunner(asyncFunctionResult.getAsyncRunner());
+                        resultAsyncRunner.set(asyncFunctionResult.getAsyncRunner());
                         result.setIncomingError(asyncFunctionResult.getOutgoingError());
-                        asyncFunctionResult.then(new Action1<T>()
+                        resultParentTasks.add(asyncFunctionResult.then(new Action1<T>()
                         {
                             @Override
                             public void run(T asyncFunctionResultResult)
                             {
-                                asyncFunctionResultValue.set(asyncFunctionResultResult);
+                                resultReturnValue.set(asyncFunctionResultResult);
                                 result.schedule();
                             }
-                        });
+                        }));
                     }
                 }
-            });
+            }));
 
         return result;
     }

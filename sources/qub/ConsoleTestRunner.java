@@ -84,7 +84,9 @@ public class ConsoleTestRunner extends Console implements TestRunner
                 while (testGroupsToWrite.any())
                 {
                     final TestGroup testGroupToWrite = testGroupsToWrite.pop();
-                    ConsoleTestRunner.this.writeLine(testGroupToWrite.getName());
+
+                    final String skipMessage = testGroupToWrite.getSkipMessage();
+                    ConsoleTestRunner.this.writeLine(testGroupToWrite.getName() + (!testGroupToWrite.shouldSkip() ? "" : " - Skipped" + (Strings.isNullOrEmpty(skipMessage) ? "" : ": " + skipMessage)));
                     testGroupsWrittenToConsole.add(testGroupToWrite);
                     ConsoleTestRunner.this.increaseIndent();
                 }
@@ -127,7 +129,8 @@ public class ConsoleTestRunner extends Console implements TestRunner
             @Override
             public void run(Test test)
             {
-                ConsoleTestRunner.this.writeLine(" - Skipped");
+                final String skipMessage = test.getSkipMessage();
+                ConsoleTestRunner.this.writeLine(" - Skipped" + (Strings.isNullOrEmpty(skipMessage) ? "" : ": " + skipMessage));
             }
         });
         testRunner.setOnTestFinished(new Action1<Test>()
@@ -204,9 +207,15 @@ public class ConsoleTestRunner extends Console implements TestRunner
     }
 
     @Override
-    public SkipTest skip()
+    public Skip skip()
     {
         return testRunner.skip();
+    }
+
+    @Override
+    public Skip skip(String message)
+    {
+        return testRunner.skip(message);
     }
 
     @Override
@@ -222,15 +231,15 @@ public class ConsoleTestRunner extends Console implements TestRunner
     }
 
     @Override
-    public void testGroup(String testGroupName, SkipTest skipTest, Action0 testGroupAction)
+    public void testGroup(String testGroupName, Skip skip, Action0 testGroupAction)
     {
-        testRunner.testGroup(testGroupName, skipTest, testGroupAction);
+        testRunner.testGroup(testGroupName, skip, testGroupAction);
     }
 
     @Override
-    public void testGroup(Class<?> testClass, SkipTest skipTest, Action0 testGroupAction)
+    public void testGroup(Class<?> testClass, Skip skip, Action0 testGroupAction)
     {
-        testRunner.testGroup(testClass, skipTest, testGroupAction);
+        testRunner.testGroup(testClass, skip, testGroupAction);
     }
 
     @Override
@@ -240,9 +249,9 @@ public class ConsoleTestRunner extends Console implements TestRunner
     }
 
     @Override
-    public void test(String testName, SkipTest skipTest, Action1<Test> testAction)
+    public void test(String testName, Skip skip, Action1<Test> testAction)
     {
-        testRunner.test(testName, skipTest, testAction);
+        testRunner.test(testName, skip, testAction);
     }
 
     @Override
@@ -289,7 +298,8 @@ public class ConsoleTestRunner extends Console implements TestRunner
             int testSkippedNumber = 1;
             for (final Test skippedTest : skippedTests)
             {
-                writeLine(testSkippedNumber + ") " + skippedTest.getFullName());
+                final String skipMessage = skippedTest.getSkipMessage();
+                writeLine(testSkippedNumber + ") " + skippedTest.getFullName() + (Strings.isNullOrEmpty(skipMessage) ? "" : ": " + skipMessage));
                 ++testSkippedNumber;
             }
             decreaseIndent();

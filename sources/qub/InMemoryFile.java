@@ -7,11 +7,11 @@ public class InMemoryFile
     private byte[] contents;
     private DateTime lastModified;
 
-    public InMemoryFile(String name, byte[] contents)
+    public InMemoryFile(String name)
     {
         this.name = name;
         this.canDelete = true;
-        this.contents = contents;
+        this.contents = new byte[0];
         this.lastModified = DateTime.localNow();
     }
 
@@ -47,14 +47,23 @@ public class InMemoryFile
         return new InMemoryByteReadStream(contents);
     }
 
-    /**
-     * Set this file's contents.
-     * @param contents The new contents of this file.
-     */
-    public void setContents(byte[] contents)
+    public ByteWriteStream getContentByteWriteStream()
     {
-        this.contents = contents == null ? new byte[0] : contents;
-        lastModified = DateTime.localNow();
+        return new InMemoryByteWriteStream()
+        {
+            @Override
+            public Result<Boolean> dispose()
+            {
+                final Result<Boolean> result = super.dispose();
+                if (!result.hasError() && result.getValue())
+                {
+                    final byte[] writtenBytes = getBytes();
+                    InMemoryFile.this.contents = writtenBytes == null ? new byte[0] : writtenBytes;
+                    InMemoryFile.this.lastModified = DateTime.localNow();
+                }
+                return result;
+            }
+        };
     }
 
     public DateTime getLastModified()

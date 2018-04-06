@@ -4,14 +4,9 @@ public class BasicAsyncActionErrorHandler extends BasicAsyncAction
 {
     private final Action1<Throwable> action;
 
-    public BasicAsyncActionErrorHandler(AsyncRunner runner, Action1<Throwable> action)
+    public BasicAsyncActionErrorHandler(Getable<AsyncRunner> runner, Iterable<AsyncTask> parentTasks, Action1<Throwable> action)
     {
-        this(runner, runner.getSynchronization(), action);
-    }
-
-    public BasicAsyncActionErrorHandler(AsyncRunner runner, Synchronization synchronization, Action1<Throwable> action)
-    {
-        super(runner, synchronization, null);
+        super(runner, parentTasks, null);
 
         this.action = action;
     }

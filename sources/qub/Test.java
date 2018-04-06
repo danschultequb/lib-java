@@ -7,14 +7,14 @@ public class Test
 {
     private final String name;
     private final TestGroup parentTestGroup;
-    private final boolean shouldSkip;
+    private final Skip skip;
     private final Process process;
 
-    public Test(String name, TestGroup parentTestGroup, boolean shouldSkip, Process process)
+    public Test(String name, TestGroup parentTestGroup, Skip skip, Process process)
     {
         this.name = name;
         this.parentTestGroup = parentTestGroup;
-        this.shouldSkip = shouldSkip || (parentTestGroup != null && parentTestGroup.getShouldSkip());
+        this.skip = skip;
         this.process = process;
     }
 
@@ -41,9 +41,14 @@ public class Test
             (parentTestGroup != null && parentTestGroup.matches(testPattern));
     }
 
-    public boolean getShouldSkip()
+    public boolean shouldSkip()
     {
-        return shouldSkip;
+        return skip != null || (parentTestGroup != null && parentTestGroup.shouldSkip());
+    }
+
+    public String getSkipMessage()
+    {
+        return skip == null ? null : skip.getMessage();
     }
 
     public AsyncRunner getMainAsyncRunner()
@@ -58,13 +63,7 @@ public class Test
 
     public void await()
     {
-        final AsyncRunner mainRunner = process.getMainAsyncRunner();
-        final AsyncRunner parallelRunner = process.getParallelAsyncRunner();
-        while (mainRunner.getScheduledTaskCount() != 0 || parallelRunner.getScheduledTaskCount() != 0)
-        {
-            mainRunner.await();
-            parallelRunner.await();
-        }
+        process.await();
     }
 
     /**
@@ -101,7 +100,7 @@ public class Test
      */
     public void assertFalse(boolean value)
     {
-        assertFalse(value, null);
+        assertFalse(value, (String)null);
     }
 
     /**
@@ -111,7 +110,26 @@ public class Test
      * @param message The message to show if the value is not false.
      * @throws TestAssertionFailure if the value is not false.
      */
-    public void assertFalse(boolean value, String message)
+    public void assertFalse(boolean value, final String message)
+    {
+        assertFalse(value, message == null ? null : new Function0<String>()
+        {
+            @Override
+            public String run()
+            {
+                return message;
+            }
+        });
+    }
+
+    /**
+     * Assert that the provided value is false. If it is not false, then a TestAssertionFailure will
+     * be thrown with the provided message.
+     * @param value The value to assert is false.
+     * @param message The message to show if the value is not false.
+     * @throws TestAssertionFailure if the value is not false.
+     */
+    public void assertFalse(boolean value, Function0<String> message)
     {
         if (value)
         {
@@ -309,6 +327,72 @@ public class Test
     }
 
     /**
+     * Assert that the provided Iterable is empty.
+     * @param values The Iterable to check.
+     */
+    public void assertEmpty(Iterable<?> values)
+    {
+        assertEmpty(values, null);
+    }
+
+    /**
+     * Assert that the provided Iterable is empty.
+     * @param values The Iterable to check.
+     * @param message The message to show if the Iterable is not empty.
+     */
+    public <T> void assertEmpty(Iterable<T> values, String message)
+    {
+        if (values.any())
+        {
+            throw new TestAssertionFailure(getFullName(), getMessageLines(message, new Array<T>(0), values));
+        }
+    }
+
+    /**
+     * Assert that the provided Result object is a successful Result.
+     * @param result The Result to check.
+     */
+    public void assertSuccess(final Result<?> result)
+    {
+        assertNotNull(result);
+        assertFalse(result.hasError(), new Function0<String>()
+            {
+                @Override
+                public String run()
+                {
+                    return result.getErrorType().getName() + ": " + result.getErrorMessage();
+                }
+            });
+    }
+
+    /**
+     * Assert that the provided Result object is a successful Result with the provided value.
+     * @param expectedValue The value that we expect the Result to have.
+     * @param result The Result to check.
+     * @param <T> The type of value that the Result has.
+     */
+    public <T> void assertSuccess(T expectedValue, Result<T> result)
+    {
+        assertNotNull(result);
+        assertEqual(expectedValue, result.getValue());
+        assertFalse(result.hasError());
+    }
+
+    /**
+     * Assert that the provided Result object has the provided expected error.
+     * @param expectedError The error that the result should have.
+     * @param result The result to check.
+     */
+    public void assertError(Throwable expectedError, Result<?> result)
+    {
+        assertNotNull(result);
+        assertNull(result.getValue());
+        assertTrue(result.hasError());
+        assertEqual(expectedError.getClass(), result.getErrorType());
+        assertEqual(expectedError.getMessage(), result.getErrorMessage());
+    }
+
+    /**
      * Cause the test to fail instantly.
      */
     public void fail()
@@ -338,6 +422,11 @@ public class Test
             failMessage += ": " + eMessage;
         }
         fail(failMessage);
+    }
+
+    private static String[] getMessageLines(Function0<String> message, Object expected, Object actual)
+    {
+        return getMessageLines(message == null ? (String)null : message.run(), expected, actual);
     }
 
     private static String[] getMessageLines(String message, Object expected, Object actual)

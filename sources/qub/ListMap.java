@@ -1,20 +1,20 @@
 package qub;
 
-public class ListMap<TKey,TValue> extends IterableBase<MapEntry<TKey,TValue>> implements Map<TKey,TValue>
+public class ListMap<TKey,TValue> extends MapBase<TKey,TValue>
 {
-    private final List<ListMapEntry<TKey,TValue>> entries;
+    private final List<MutableMapEntry<TKey,TValue>> entries;
 
     public ListMap()
     {
         entries = new ArrayList<>();
     }
 
-    private ListMapEntry<TKey,TValue> getEntry(final TKey key)
+    private MutableMapEntry<TKey,TValue> getEntry(final TKey key)
     {
-        return entries.first(new Function1<ListMapEntry<TKey, TValue>, Boolean>()
+        return entries.first(new Function1<MutableMapEntry<TKey, TValue>, Boolean>()
         {
             @Override
-            public Boolean run(ListMapEntry<TKey, TValue> entry)
+            public Boolean run(MutableMapEntry<TKey, TValue> entry)
             {
                 return Comparer.equal(entry.getKey(), key);
             }
@@ -24,17 +24,17 @@ public class ListMap<TKey,TValue> extends IterableBase<MapEntry<TKey,TValue>> im
     @Override
     public TValue get(TKey key)
     {
-        final ListMapEntry<TKey,TValue> entry = getEntry(key);
+        final MutableMapEntry<TKey,TValue> entry = getEntry(key);
         return entry == null ? null : entry.getValue();
     }
 
     @Override
     public void set(TKey key, TValue value)
     {
-        final ListMapEntry<TKey,TValue> entry = getEntry(key);
+        final MutableMapEntry<TKey,TValue> entry = getEntry(key);
         if (entry == null)
         {
-            entries.add(new ListMapEntry<>(key, value));
+            entries.add(new MutableMapEntry<>(key, value));
         }
         else
         {
@@ -45,10 +45,10 @@ public class ListMap<TKey,TValue> extends IterableBase<MapEntry<TKey,TValue>> im
     @Override
     public boolean remove(final TKey key)
     {
-        return entries.removeFirst(new Function1<ListMapEntry<TKey, TValue>, Boolean>()
+        return entries.removeFirst(new Function1<MutableMapEntry<TKey, TValue>, Boolean>()
         {
             @Override
-            public Boolean run(ListMapEntry<TKey, TValue> entry)
+            public Boolean run(MutableMapEntry<TKey, TValue> entry)
             {
                 return Comparer.equal(entry.getKey(), key);
             }
@@ -58,10 +58,10 @@ public class ListMap<TKey,TValue> extends IterableBase<MapEntry<TKey,TValue>> im
     @Override
     public Iterable<TKey> getKeys()
     {
-        return entries.map(new Function1<ListMapEntry<TKey, TValue>, TKey>()
+        return entries.map(new Function1<MutableMapEntry<TKey, TValue>, TKey>()
         {
             @Override
-            public TKey run(ListMapEntry<TKey, TValue> entry)
+            public TKey run(MutableMapEntry<TKey, TValue> entry)
             {
                 return entry.getKey();
             }
@@ -71,10 +71,10 @@ public class ListMap<TKey,TValue> extends IterableBase<MapEntry<TKey,TValue>> im
     @Override
     public Iterable<TValue> getValues()
     {
-        return entries.map(new Function1<ListMapEntry<TKey, TValue>, TValue>()
+        return entries.map(new Function1<MutableMapEntry<TKey, TValue>, TValue>()
         {
             @Override
-            public TValue run(ListMapEntry<TKey, TValue> entry)
+            public TValue run(MutableMapEntry<TKey, TValue> entry)
             {
                 return entry.getValue();
             }
@@ -84,10 +84,10 @@ public class ListMap<TKey,TValue> extends IterableBase<MapEntry<TKey,TValue>> im
     @Override
     public Iterator<MapEntry<TKey, TValue>> iterate()
     {
-        return entries.iterate().map(new Function1<ListMapEntry<TKey, TValue>, MapEntry<TKey, TValue>>()
+        return entries.iterate().map(new Function1<MutableMapEntry<TKey, TValue>, MapEntry<TKey, TValue>>()
         {
             @Override
-            public MapEntry<TKey, TValue> run(ListMapEntry<TKey, TValue> entry)
+            public MapEntry<TKey, TValue> run(MutableMapEntry<TKey, TValue> entry)
             {
                 return entry;
             }

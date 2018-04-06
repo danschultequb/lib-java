@@ -8,11 +8,6 @@ public class InMemoryFileSystem extends FileSystemBase
     private final List<InMemoryRoot> roots;
     private AsyncRunner asyncRunner;
 
-    public InMemoryFileSystem()
-    {
-        this(null);
-    }
-
     /**
      * Create a new InMemoryFileSystem.
      */
@@ -51,7 +46,7 @@ public class InMemoryFileSystem extends FileSystemBase
         return folder;
     }
 
-    private boolean createInMemoryFolder(Path inMemoryFolderPath, Out<InMemoryFolder> outputFolder)
+    private boolean createInMemoryFolder(Path inMemoryFolderPath)
     {
         boolean result = false;
 
@@ -63,29 +58,13 @@ public class InMemoryFileSystem extends FileSystemBase
             result = folder.get().createFolder(folderName, folder);
         }
 
-        if (outputFolder != null)
-        {
-            outputFolder.set(folder.get());
-        }
-
         return result;
     }
 
     private InMemoryFile getInMemoryFile(Path filePath)
     {
-        InMemoryFile result = null;
-
-        if (rootExists(filePath))
-        {
-            final Path parentFolderPath = filePath.getParent();
-            final InMemoryFolder parentFolder = getInMemoryFolder(parentFolderPath);
-            if (parentFolder != null)
-            {
-                result = parentFolder.getFile(filePath.getSegments().last());
-            }
-        }
-
-        return result;
+        final InMemoryFolder parentFolder = getInMemoryFolder(filePath.getParent());
+        return parentFolder == null ? null : parentFolder.getFile(filePath.getSegments().last());
     }
 
     public boolean setFileCanDelete(String filePathString, boolean canDelete)
@@ -133,204 +112,310 @@ public class InMemoryFileSystem extends FileSystemBase
     }
 
     @Override
-    public Iterable<Root> getRoots(Action1<String> onError)
+    public AsyncFunction<Result<Iterable<Root>>> getRoots()
     {
-        return Array.fromValues(roots.map(new Function1<InMemoryRoot, Root>()
+        return async(this, new Function1<AsyncRunner, Result<Iterable<Root>>>()
         {
             @Override
-            public Root run(InMemoryRoot inMemoryRoot)
+            public Result<Iterable<Root>> run(AsyncRunner asyncRunner)
             {
-                return new Root(InMemoryFileSystem.this, inMemoryRoot.getPath());
-            }
-        }));
-    }
-
-    @Override
-    public Iterable<FileSystemEntry> getFilesAndFolders(Path folderPath, Action1<String> onError)
-    {
-        List<FileSystemEntry> result = new ArrayList<>();
-
-        if (folderPath != null && folderPath.isRooted())
-        {
-            final InMemoryFolder folder = getInMemoryFolder(folderPath);
-            if (folder != null)
-            {
-                for (final InMemoryFolder inMemoryFolder : folder.getFolders())
+                return Result.<Iterable<Root>>success(Array.fromValues(roots.map(new Function1<InMemoryRoot, Root>()
                 {
-                    final Path childFolderPath = folderPath.concatenateSegment(inMemoryFolder.getName());
-                    result.add(new Folder(this, childFolderPath));
-                }
-
-                for (final InMemoryFile inMemoryFile : folder.getFiles())
-                {
-                    final Path childFilePath = folderPath.concatenateSegment(inMemoryFile.getName());
-                    result.add(new File(this, childFilePath));
-                }
+                    @Override
+                    public Root run(InMemoryRoot inMemoryRoot)
+                    {
+                        return new Root(InMemoryFileSystem.this, inMemoryRoot.getPath());
+                    }
+                })));
             }
-        }
-
-        return result;
+        });
     }
 
     @Override
-    public boolean folderExists(Path folderPath, Action1<String> onError)
+    public AsyncFunction<Result<Iterable<FileSystemEntry>>> getFilesAndFolders(final Path folderPath)
     {
-        boolean result = false;
+        AsyncFunction<Result<Iterable<FileSystemEntry>>> result;
 
-        if (folderPath != null && folderPath.isRooted())
+        if (folderPath == null)
         {
-            result = (getInMemoryFolder(folderPath) != null);
+            result = Async.error(getAsyncRunner(), new IllegalArgumentException("folderPath cannot be null."));
         }
-
-        return result;
-    }
-
-    @Override
-    public boolean createFolder(Path folderPath, Out<Folder> outputFolder, Action1<String> onError)
-    {
-        boolean result = false;
-
-        if (folderPath == null || !folderPath.isRooted() || !rootExists(folderPath.getRoot()))
+        else if (!folderPath.isRooted())
         {
-            if (outputFolder != null)
-            {
-                outputFolder.clear();
-            }
+            result = Async.error(getAsyncRunner(), new IllegalArgumentException("folderPath must be rooted."));
         }
         else
         {
-            result = createInMemoryFolder(folderPath, null);
-
-            if (outputFolder != null)
+            result = async(this, new Function1<AsyncRunner, Result<Iterable<FileSystemEntry>>>()
             {
-                outputFolder.set(getFolder(folderPath));
-            }
-        }
+                @Override
+                public Result<Iterable<FileSystemEntry>> run(AsyncRunner asyncRunner)
+                {
+                    List<FileSystemEntry> entries = new ArrayList<>();
 
+                    final InMemoryFolder folder = getInMemoryFolder(folderPath);
+                    if (folder != null)
+                    {
+                        for (final InMemoryFolder inMemoryFolder : folder.getFolders())
+                        {
+                            final Path childFolderPath = folderPath.concatenateSegment(inMemoryFolder.getName());
+                            entries.add(new Folder(InMemoryFileSystem.this, childFolderPath));
+                        }
+
+                        for (final InMemoryFile inMemoryFile : folder.getFiles())
+                        {
+                            final Path childFilePath = folderPath.concatenateSegment(inMemoryFile.getName());
+                            entries.add(new File(InMemoryFileSystem.this, childFilePath));
+                        }
+                    }
+
+                    return Result.<Iterable<FileSystemEntry>>success(entries);
+                }
+            });
+        }
         return result;
     }
 
     @Override
-    public boolean deleteFolder(Path folderPath, Action1<String> onError)
+    public AsyncFunction<Result<Boolean>> folderExists(final Path folderPath)
     {
-        boolean result = false;
-
-        if (folderPath != null && folderPath.isRooted() && rootExists(folderPath.getRoot()))
+        return async(this, new Function1<AsyncRunner, Result<Boolean>>()
         {
-            final InMemoryFolder parentFolder = getInMemoryFolder(folderPath.getParent());
-            if (parentFolder != null)
+            @Override
+            public Result<Boolean> run(AsyncRunner asyncRunner)
             {
-                result = parentFolder.deleteFolder(folderPath.getSegments().last());
+                return Result.success(getInMemoryFolder(folderPath) != null);
             }
-        }
-
-        return result;
+        });
     }
 
     @Override
-    public boolean fileExists(Path filePath, Action1<String> onError)
+    public AsyncFunction<Result<Folder>> createFolder(final Path folderPath)
     {
-        boolean result = false;
-
-        if (filePath != null && !filePath.normalize().endsWith("/"))
+        return asyncFunction(this, new Function1<AsyncRunner, AsyncFunction<Result<Folder>>>()
         {
-            final InMemoryFolder parentFolder = getInMemoryFolder(filePath.getParent());
-            if (parentFolder != null)
+            @Override
+            public AsyncFunction<Result<Folder>> run(AsyncRunner asyncRunner)
             {
-                result = parentFolder.getFile(filePath.getSegments().last()) != null;
+                return rootExists(folderPath)
+                    .then(new Function1<Result<Boolean>, Result<Folder>>()
+                    {
+                        @Override
+                        public Result<Folder> run(Result<Boolean> rootExistsResult)
+                        {
+                            Result<Folder> createFolderResult;
+                            if (rootExistsResult.hasError())
+                            {
+                                createFolderResult = Result.error(rootExistsResult.getError());
+                            }
+                            else if (!rootExistsResult.getValue())
+                            {
+                                createFolderResult = Result.error(new RootNotFoundException(folderPath.getRoot()));
+                            }
+                            else
+                            {
+                                if (!createInMemoryFolder(folderPath))
+                                {
+                                    createFolderResult = Result.error(new FolderAlreadyExistsException(folderPath));
+                                }
+                                else
+                                {
+                                    createFolderResult = getFolder(folderPath);
+                                }
+                            }
+                            return createFolderResult;
+                        }
+                    });
             }
-        }
-
-        return result;
+        });
     }
 
     @Override
-    public boolean createFile(Path filePath, byte[] fileContents, Out<File> outputFile, Action1<String> onError)
+    public AsyncFunction<Result<Boolean>> deleteFolder(final Path folderPath)
     {
-        boolean result = false;
-
-        if (filePath == null || !filePath.isRooted() || filePath.endsWith("/") || filePath.endsWith("\\") || !rootExists(filePath.getRoot()) || containsInvalidCharacters(filePath))
+        return async(this, new Function1<AsyncRunner, Result<Boolean>>()
         {
-            if (outputFile != null)
+            @Override
+            public Result<Boolean> run(AsyncRunner asyncRunner)
             {
-                outputFile.clear();
+                Result<Boolean> deleteFolderResult;
+
+                final InMemoryFolder parentFolder = getInMemoryFolder(folderPath.getParent());
+
+                if (parentFolder.deleteFolder(folderPath.getSegments().last()))
+                {
+                    deleteFolderResult = Result.success(true);
+                }
+                else
+                {
+                    deleteFolderResult = Result.error(new FolderNotFoundException(folderPath));
+                }
+
+                return deleteFolderResult;
             }
-        }
-        else
-        {
-            final Value<InMemoryFolder> parentFolder = new Value<>();
-            createInMemoryFolder(filePath.getParent(), parentFolder);
-
-            final String fileName = filePath.getSegments().last();
-            result = parentFolder.get().createFile(fileName, fileContents);
-
-            if (outputFile != null)
-            {
-                outputFile.set(getFile(filePath));
-            }
-        }
-
-        return result;
+        });
     }
 
     @Override
-    public boolean deleteFile(Path filePath, Action1<String> onError)
+    public AsyncFunction<Result<Boolean>> fileExists(final Path filePath)
     {
-        boolean result = false;
-
-        if (rootExists(filePath))
+        return async(this, new Function1<AsyncRunner, Result<Boolean>>()
         {
-            final InMemoryFolder parentFolder = getInMemoryFolder(filePath.getParent());
-            if (parentFolder != null)
+            @Override
+            public Result<Boolean> run(AsyncRunner asyncRunner)
             {
-                result = parentFolder.deleteFile(filePath.getSegments().last());
+                return Result.success(getInMemoryFile(filePath) != null);
             }
-        }
-
-        return result;
+        });
     }
 
     @Override
-    public DateTime getFileLastModified(Path filePath)
+    public AsyncFunction<Result<File>> createFile(final Path filePath)
     {
-        final InMemoryFile file = getInMemoryFile(filePath);
-        return file == null ? null : file.getLastModified();
+        return asyncFunction(this, new Function1<AsyncRunner, AsyncFunction<Result<File>>>()
+        {
+            @Override
+            public AsyncFunction<Result<File>> run(AsyncRunner asyncRunner)
+            {
+                return rootExists(filePath)
+                    .then(new Function1<Result<Boolean>, Result<File>>()
+                    {
+                        @Override
+                        public Result<File> run(Result<Boolean> rootExistsResult)
+                        {
+                            Result<File> createFileResult;
+
+                            if (rootExistsResult.hasError())
+                            {
+                                createFileResult = Result.error(rootExistsResult.getError());
+                            }
+                            else if (!rootExistsResult.getValue())
+                            {
+                                createFileResult = Result.error(new RootNotFoundException(filePath.getRoot()));
+                            }
+                            else
+                            {
+                                final Path parentFolderPath = filePath.getParent();
+                                createInMemoryFolder(parentFolderPath);
+                                final InMemoryFolder parentFolder = getInMemoryFolder(parentFolderPath);
+                                if (!parentFolder.createFile(filePath.getSegments().last()))
+                                {
+                                    createFileResult = Result.error(new FileAlreadyExistsException(filePath));
+                                }
+                                else
+                                {
+                                    createFileResult = getFile(filePath);
+                                }
+                            }
+                            return createFileResult;
+                        }
+                    });
+            }
+        });
     }
 
     @Override
-    public ByteReadStream getFileContentByteReadStream(Path rootedFilePath, Action1<String> onError)
+    public AsyncFunction<Result<Boolean>> deleteFile(final Path filePath)
     {
-        ByteReadStream result = null;
-
-        final InMemoryFile file = getInMemoryFile(rootedFilePath);
-        if (file != null)
+        return async(this, new Function1<AsyncRunner, Result<Boolean>>()
         {
-            result = file.getContentByteReadStream();
-        }
+            @Override
+            public Result<Boolean> run(AsyncRunner asyncRunner)
+            {
+                Result<Boolean> result;
 
-        return result;
+                final InMemoryFolder parentFolder = getInMemoryFolder(filePath.getParent());
+                final boolean fileDeleted = (parentFolder != null && parentFolder.deleteFile(filePath.getSegments().last()));
+                if (!fileDeleted)
+                {
+                    result = Result.error(new FileNotFoundException(filePath));
+                }
+                else
+                {
+                    result = Result.success(true);
+                }
+
+                return result;
+            }
+        });
     }
 
     @Override
-    public boolean setFileContents(Path rootedFilePath, byte[] fileContents, Action1<String> onError)
+    public AsyncFunction<Result<DateTime>> getFileLastModified(final Path filePath)
     {
-        boolean result = false;
-
-        if (rootExists(rootedFilePath))
+        return async(this, new Function1<AsyncRunner, Result<DateTime>>()
         {
-            final InMemoryFile file = getInMemoryFile(rootedFilePath);
-            if (file != null)
+            @Override
+            public Result<DateTime> run(AsyncRunner asyncRunner)
             {
-                file.setContents(fileContents);
-            }
-            else
-            {
-                createFile(rootedFilePath, fileContents);
-            }
-            result = true;
-        }
+                Result<DateTime> result;
 
-        return result;
+                final InMemoryFile file = getInMemoryFile(filePath);
+                if (file == null)
+                {
+                    result = Result.error(new FileNotFoundException(filePath));
+                }
+                else
+                {
+                    result = Result.success(file.getLastModified());
+                }
+
+                return result;
+            }
+        });
+    }
+
+    @Override
+    public AsyncFunction<Result<ByteReadStream>> getFileContentByteReadStream(final Path rootedFilePath)
+    {
+        return async(this, new Function1<AsyncRunner, Result<ByteReadStream>>()
+        {
+            @Override
+            public Result<ByteReadStream> run(AsyncRunner arg1)
+            {
+                Result<ByteReadStream> result;
+
+                final InMemoryFile file = getInMemoryFile(rootedFilePath);
+                if (file == null)
+                {
+                    result = Result.error(new FileNotFoundException(rootedFilePath));
+                }
+                else
+                {
+                    result = Result.success(file.getContentByteReadStream());
+                }
+
+                return result;
+            }
+        });
+    }
+
+    @Override
+    public AsyncFunction<Result<ByteWriteStream>> getFileContentByteWriteStream(final Path rootedFilePath)
+    {
+        return async(this, new Function1<AsyncRunner, Result<ByteWriteStream>>()
+        {
+            @Override
+            public Result<ByteWriteStream> run(AsyncRunner asyncRunner)
+            {
+                InMemoryFile file = getInMemoryFile(rootedFilePath);
+                if (file == null)
+                {
+                    final Path parentFolderPath = rootedFilePath.getParent();
+                    InMemoryFolder parentFolder = getInMemoryFolder(parentFolderPath);
+                    if (parentFolder == null)
+                    {
+                        createInMemoryFolder(parentFolderPath);
+                        parentFolder = getInMemoryFolder(parentFolderPath);
+                    }
+
+                    parentFolder.createFile(rootedFilePath.getSegments().last());
+                    file = getInMemoryFile(rootedFilePath);
+                }
+
+                return Result.success(file.getContentByteWriteStream());
+            }
+        });
     }
 
     /**
@@ -340,7 +425,7 @@ public class InMemoryFileSystem extends FileSystemBase
      *                 FileSystem.
      * @return Whether or not this function created the Root.
      */
-    public boolean createRoot(String rootPath)
+    public Result<Root> createRoot(String rootPath)
     {
         return createRoot(Path.parse(rootPath));
     }
@@ -352,20 +437,31 @@ public class InMemoryFileSystem extends FileSystemBase
      *                 FileSystem.
      * @return Whether or not this function created the Root.
      */
-    public boolean createRoot(Path rootPath)
+    public Result<Root> createRoot(Path rootPath)
     {
-        boolean result = false;
+        Result<Root> result;
 
-        if (rootPath != null && rootPath.isRooted())
+        if (rootPath == null)
         {
-            final String rootName = rootPath.getSegments().first();
-            result = !rootExists(rootName);
-            if (result)
+            result = Result.error(new IllegalArgumentException("rootPath cannot be null."));
+        }
+        else if (!rootPath.isRooted())
+        {
+            result = Result.error(new IllegalArgumentException("rootPath is not rooted."));
+        }
+        else
+        {
+            rootPath = rootPath.getRoot();
+            if (getInMemoryRoot(rootPath) != null)
             {
-                roots.add(new InMemoryRoot(rootName));
+                result = Result.error(new RootAlreadyExistsException(rootPath));
+            }
+            else
+            {
+                roots.add(new InMemoryRoot(rootPath.getSegments().first()));
+                result = getRoot(rootPath);
             }
         }
-
         return result;
     }
 

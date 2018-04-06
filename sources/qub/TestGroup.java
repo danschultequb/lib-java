@@ -4,13 +4,13 @@ public class TestGroup
 {
     private final String name;
     private final TestGroup parentTestGroup;
-    private final boolean shouldSkip;
+    private final Skip skip;
 
-    public TestGroup(String name, TestGroup parentTestGroup, boolean shouldSkip)
+    public TestGroup(String name, TestGroup parentTestGroup, Skip skip)
     {
         this.name = name;
         this.parentTestGroup = parentTestGroup;
-        this.shouldSkip = shouldSkip || (parentTestGroup != null && parentTestGroup.getShouldSkip());
+        this.skip = skip;
     }
 
     public String getName()
@@ -36,8 +36,13 @@ public class TestGroup
             (parentTestGroup != null && parentTestGroup.matches(testPattern));
     }
 
-    public boolean getShouldSkip()
+    public boolean shouldSkip()
     {
-        return shouldSkip;
+        return skip != null || (parentTestGroup != null && parentTestGroup.shouldSkip());
+    }
+
+    public String getSkipMessage()
+    {
+        return skip == null ? null : skip.getMessage();
     }
 }

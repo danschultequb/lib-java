@@ -1,7 +1,7 @@
 package qub;
 
 /**
- * A data structure that allows values to be added in a First-In-Last-Out order.
+ * A data structure that allows values to be added in a First-In-Last-Setable order.
  * @param <T> The type of values that can be added to this Stack.
  */
 public class Stack<T>

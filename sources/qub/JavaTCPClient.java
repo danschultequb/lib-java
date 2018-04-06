@@ -99,6 +99,12 @@ class JavaTCPClient extends DisposableBase implements TCPClient
     }
 
     @Override
+    public byte[] readAllBytes()
+    {
+        return socketReadStream.readAllBytes();
+    }
+
+    @Override
     public InputStream asInputStream()
     {
         return socketReadStream.asInputStream();

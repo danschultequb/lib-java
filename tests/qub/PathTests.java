@@ -277,8 +277,8 @@ public class PathTests
                     {
                         final Path path = Path.parse(pathString);
 
-                        final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-                        final Folder folder = fileSystem.getFolder(basePathString);
+                        final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner());
+                        final Folder folder = fileSystem.getFolder(basePathString).getValue();
 
                         test.assertEqual(Path.parse(expectedPathString), path.relativeTo(folder));
                     });

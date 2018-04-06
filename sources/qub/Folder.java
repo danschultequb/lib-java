@@ -19,13 +19,13 @@ public class Folder extends FileSystemEntry
      * Get whether or not this Folder exists.
      */
     @Override
-    public boolean exists()
+    public AsyncFunction<Result<Boolean>> exists()
     {
         return getFileSystem().folderExists(getPath());
     }
 
     @Override
-    public boolean delete()
+    public AsyncFunction<Result<Boolean>> delete()
     {
         return getFileSystem().deleteFolder(getPath());
     }
@@ -49,9 +49,17 @@ public class Folder extends FileSystemEntry
      * Try to create this folder and return whether or not this function created the folder.
      * @return Whether or not this function created the folder.
      */
-    public boolean create()
+    public AsyncFunction<Result<Boolean>> create()
     {
-        return getFileSystem().createFolder(getPath());
+        return getFileSystem().createFolder(getPath())
+            .then(new Function1<Result<Folder>, Result<Boolean>>()
+            {
+                @Override
+                public Result<Boolean> run(Result<Folder> result)
+                {
+                    return Result.done(!result.hasError(), result.getError());
+                }
+            });
     }
 
     /**
@@ -59,7 +67,7 @@ public class Folder extends FileSystemEntry
      * @param relativeFolderPath The relative path to the folder.
      * @return Whether or not the folder at the provided relativeFolderPath exists.
      */
-    public boolean folderExists(String relativeFolderPath)
+    public AsyncFunction<Result<Boolean>> folderExists(String relativeFolderPath)
     {
         return folderExists(Path.parse(relativeFolderPath));
     }
@@ -69,11 +77,19 @@ public class Folder extends FileSystemEntry
      * @param relativeFolderPath The relative path to the folder.
      * @return Whether or not the folder at the provided relativeFolderPath exists.
      */
-    public boolean folderExists(Path relativeFolderPath)
+    public AsyncFunction<Result<Boolean>> folderExists(Path relativeFolderPath)
     {
-        boolean result = false;
+        AsyncFunction<Result<Boolean>> result;
 
-        if (relativeFolderPath != null && !relativeFolderPath.isRooted())
+        if (relativeFolderPath == null)
+        {
+            result = Async.error(getAsyncRunner(), new IllegalArgumentException("relativeFolderPath cannot be null."));
+        }
+        else if (relativeFolderPath.isRooted())
+        {
+            result = Async.error(getAsyncRunner(), new IllegalArgumentException("relativeFolderPath cannot be rooted."));
+        }
+        else
         {
             final Path childFolderPath = getChildPath(relativeFolderPath);
             final FileSystem fileSystem = getFileSystem();
@@ -88,16 +104,9 @@ public class Folder extends FileSystemEntry
      * @param relativeFolderPath The path to the folder relative to this folder.
      * @return A reference to the Folder at the provided relative folderPath.
      */
-    public Folder getFolder(String relativeFolderPath)
+    public Result<Folder> getFolder(String relativeFolderPath)
     {
-        Folder result = null;
-        if (relativeFolderPath != null && !relativeFolderPath.isEmpty())
-        {
-            final Path childFolderPath = getChildPath(relativeFolderPath);
-            final FileSystem fileSystem = getFileSystem();
-            result = fileSystem.getFolder(childFolderPath);
-        }
-        return result;
+        return getFolder(Path.parse(relativeFolderPath));
     }
 
     /**
@@ -105,10 +114,19 @@ public class Folder extends FileSystemEntry
      * @param relativeFolderPath The path to the folder relative to this folder.
      * @return A reference to the Folder at the provided relative folderPath.
      */
-    public Folder getFolder(Path relativeFolderPath)
+    public Result<Folder> getFolder(Path relativeFolderPath)
     {
-        Folder result = null;
-        if (relativeFolderPath != null)
+        Result<Folder> result;
+
+        if (relativeFolderPath == null)
+        {
+            result = Result.error(new IllegalArgumentException("relativeFolderPath cannot be null."));
+        }
+        else if (relativeFolderPath.isRooted())
+        {
+            result = Result.error(new IllegalArgumentException("relativeFolderPath cannot be rooted."));
+        }
+        else
         {
             final Path childFolderPath = getChildPath(relativeFolderPath);
             final FileSystem fileSystem = getFileSystem();
@@ -122,7 +140,7 @@ public class Folder extends FileSystemEntry
      * @param relativeFilePath The relative path to the file.
      * @return Whether or not the file at the provided relativeFilePath exists.
      */
-    public boolean fileExists(String relativeFilePath)
+    public AsyncFunction<Result<Boolean>> fileExists(String relativeFilePath)
     {
         return fileExists(Path.parse(relativeFilePath));
     }
@@ -132,11 +150,19 @@ public class Folder extends FileSystemEntry
      * @param relativeFilePath The relative path to the file.
      * @return Whether or not the file at the provided relativeFilePath exists.
      */
-    public boolean fileExists(Path relativeFilePath)
+    public AsyncFunction<Result<Boolean>> fileExists(Path relativeFilePath)
     {
-        boolean result = false;
+        AsyncFunction<Result<Boolean>> result;
 
-        if (relativeFilePath != null && !relativeFilePath.isRooted())
+        if (relativeFilePath == null)
+        {
+            result = Async.error(getAsyncRunner(), new IllegalArgumentException("relativeFilePath cannot be null."));
+        }
+        else if (relativeFilePath.isRooted())
+        {
+            result = Async.error(getAsyncRunner(), new IllegalArgumentException("relativeFilePath cannot be rooted."));
+        }
+        else
         {
             final Path childFilePath = getChildPath(relativeFilePath);
             final FileSystem fileSystem = getFileSystem();
@@ -151,10 +177,9 @@ public class Folder extends FileSystemEntry
      * @param relativeFilePath The path to the file relative to this folder.
      * @return A reference to the File at the provided relativeFilePath.
      */
-    public File getFile(String relativeFilePath)
+    public Result<File> getFile(String relativeFilePath)
     {
-        final Path childFilePath = getChildPath(relativeFilePath);
-        return getFileSystem().getFile(childFilePath);
+        return getFile(Path.parse(relativeFilePath));
     }
 
     /**
@@ -162,41 +187,23 @@ public class Folder extends FileSystemEntry
      * @param relativeFilePath The path to the File relative to this folder.
      * @return A reference to the File at the provided relativeFilePath.
      */
-    public File getFile(Path relativeFilePath)
+    public Result<File> getFile(Path relativeFilePath)
     {
-        final Path childFilePath = getChildPath(relativeFilePath);
-        return getFileSystem().getFile(childFilePath);
-    }
+        Result<File> result;
 
-    /**
-     * Create a child folder of this folder with the provided relative path.
-     * @param folderRelativePath The relative path from this folder to the child folder to create.
-     * @return Whether or not this function created the child folder.
-     */
-    public boolean createFolder(String folderRelativePath)
-    {
-        boolean result = false;
-        final Path childFolderPath = getChildPath(folderRelativePath);
-        if (!getPath().equals(childFolderPath))
+        if (relativeFilePath == null)
         {
-            result = getFileSystem().createFolder(childFolderPath);
+            result = Result.error(new IllegalArgumentException("relativeFilePath cannot be null."));
         }
-        return result;
-    }
-
-    /**
-     * Create a child folder of this folder with the provided relative path.
-     * @param folderRelativePath The relative path from this folder to the child folder to create.
-     * @param outputFolder The Value that will contain the child folder whether it was created or not.
-     * @return Whether or not this function created the child folder.
-     */
-    public boolean createFolder(String folderRelativePath, Value<Folder> outputFolder)
-    {
-        boolean result = false;
-        final Path childFolderPath = getChildPath(folderRelativePath);
-        if (!getPath().equals(childFolderPath))
+        else if (relativeFilePath.isRooted())
         {
-            result = getFileSystem().createFolder(childFolderPath, outputFolder);
+            result = Result.error(new IllegalArgumentException("relativeFilePath cannot be rooted."));
+        }
+        else
+        {
+            final Path childFilePath = getChildPath(relativeFilePath);
+            final FileSystem fileSystem = getFileSystem();
+            result = fileSystem.getFile(childFilePath);
         }
         return result;
     }
@@ -206,138 +213,102 @@ public class Folder extends FileSystemEntry
      * @param folderRelativePath The relative path from this folder to the child folder to create.
      * @return Whether or not this function created the child folder.
      */
-    public boolean createFolder(Path folderRelativePath)
+    public AsyncFunction<Result<Folder>> createFolder(String folderRelativePath)
     {
-        boolean result = false;
-        final Path childFolderPath = getChildPath(folderRelativePath);
-        if (!getPath().equals(childFolderPath))
-        {
-            result = getFileSystem().createFolder(childFolderPath);
-        }
-        return result;
+        return createFolder(Path.parse(folderRelativePath));
     }
 
     /**
      * Create a child folder of this folder with the provided relative path.
-     * @param folderRelativePath The relative path from this folder to the child folder to create.
-     * @param outputFolder The Value that will contain the child folder whether it was created or not.
+     * @param relativeFolderPath The relative path from this folder to the child folder to create.
      * @return Whether or not this function created the child folder.
      */
-    public boolean createFolder(Path folderRelativePath, Value<Folder> outputFolder)
+    public AsyncFunction<Result<Folder>> createFolder(Path relativeFolderPath)
     {
-        boolean result = false;
-        final Path childFolderPath = getChildPath(folderRelativePath);
-        if (!getPath().equals(childFolderPath))
+        AsyncFunction<Result<Folder>> result;
+
+        if (relativeFolderPath == null)
         {
-            result = getFileSystem().createFolder(childFolderPath, outputFolder);
+            result = Async.error(getAsyncRunner(), new IllegalArgumentException("relativeFolderPath cannot be null."));
+        }
+        else if (relativeFolderPath.isRooted())
+        {
+            result = Async.error(getAsyncRunner(), new IllegalArgumentException("relativeFolderPath cannot be rooted."));
+        }
+        else
+        {
+            final Path childFolderPath = getChildPath(relativeFolderPath);
+            final FileSystem fileSystem = getFileSystem();
+            result = fileSystem.createFolder(childFolderPath);
         }
         return result;
     }
 
     /**
      * Create a child file of this folder with the provided relative path.
-     * @param fileRelativePath The relative path from this folder to the child file to create.
+     * @param relativeFilePath The relative path from this folder to the child file to create.
      * @return Whether or not this function created the child file.
      */
-    public boolean createFile(String fileRelativePath)
+    public AsyncFunction<Result<File>> createFile(String relativeFilePath)
     {
-        boolean result = false;
-        final Path childFilePath = getChildPath(fileRelativePath);
-        if (!getPath().equals(childFilePath))
-        {
-            result = getFileSystem().createFile(childFilePath);
-        }
-        return result;
+        return createFile(Path.parse(relativeFilePath));
     }
 
     /**
      * Create a child file of this folder with the provided relative path.
-     * @param fileRelativePath The relative path from this folder to the child file to create.
-     * @param outputFile The Value that will contain the child file whether it was created or not.
+     * @param relativeFilePath The relative path from this folder to the child file to create.
      * @return Whether or not this function created the child file.
      */
-    public boolean createFile(String fileRelativePath, Value<File> outputFile)
+    public AsyncFunction<Result<File>> createFile(Path relativeFilePath)
     {
-        boolean result = false;
-        final Path childFilePath = getChildPath(fileRelativePath);
-        if (!getPath().equals(childFilePath))
+        AsyncFunction<Result<File>> result;
+
+        if (relativeFilePath == null)
         {
-            result = getFileSystem().createFile(childFilePath, outputFile);
+            result = Async.error(getAsyncRunner(), new IllegalArgumentException("relativeFilePath cannot be null."));
         }
+        else if (relativeFilePath.isRooted())
+        {
+            result = Async.error(getAsyncRunner(), new IllegalArgumentException("relativeFilePath cannot be rooted."));
+        }
+        else
+        {
+            final Path childFilePath = getChildPath(relativeFilePath);
+            final FileSystem fileSystem = getFileSystem();
+            result = fileSystem.createFile(childFilePath);
+        }
+
         return result;
     }
 
-    /**
-     * Create a child file of this folder with the provided relative path.
-     * @param fileRelativePath The relative path from this folder to the child file to create.
-     * @return Whether or not this function created the child file.
-     */
-    public boolean createFile(Path fileRelativePath)
-    {
-        boolean result = false;
-        final Path childFilePath = getChildPath(fileRelativePath);
-        if (!getPath().equals(childFilePath))
-        {
-            result = getFileSystem().createFile(childFilePath);
-        }
-        return result;
-    }
-
-    /**
-     * Create a child file of this folder with the provided relative path.
-     * @param fileRelativePath The relative path from this folder to the child file to create.
-     * @param outputFile The Value that will contain the child file whether it was created or not.
-     * @return Whether or not this function created the child file.
-     */
-    public boolean createFile(Path fileRelativePath, Value<File> outputFile)
-    {
-        boolean result = false;
-        final Path childFilePath = getChildPath(fileRelativePath);
-        if (!getPath().equals(childFilePath))
-        {
-            result = getFileSystem().createFile(childFilePath, outputFile);
-        }
-        return result;
-    }
-
-    public Iterable<Folder> getFolders()
+    public AsyncFunction<Result<Iterable<Folder>>> getFolders()
     {
         return getFileSystem().getFolders(getPath());
     }
 
-    public Iterable<Folder> getFoldersRecursively()
+    public AsyncFunction<Result<Iterable<Folder>>> getFoldersRecursively()
     {
         return getFileSystem().getFoldersRecursively(getPath());
     }
 
-    public Iterable<File> getFiles()
+    public AsyncFunction<Result<Iterable<File>>> getFiles()
     {
         return getFileSystem().getFiles(getPath());
     }
 
-    public Iterable<File> getFilesRecursively()
+    public AsyncFunction<Result<Iterable<File>>> getFilesRecursively()
     {
         return getFileSystem().getFilesRecursively(getPath());
     }
 
-    public Iterable<FileSystemEntry> getFilesAndFolders()
+    public AsyncFunction<Result<Iterable<FileSystemEntry>>> getFilesAndFolders()
     {
         return getFileSystem().getFilesAndFolders(getPath());
     }
 
-    public Iterable<FileSystemEntry> getFilesAndFolders(Action1<String> onError)
-    {
-        return getFileSystem().getFilesAndFolders(getPath(), onError);
-    }
-
-    public Iterable<FileSystemEntry> getFilesAndFoldersRecursively()
+    public AsyncFunction<Result<Iterable<FileSystemEntry>>> getFilesAndFoldersRecursively()
     {
         return getFileSystem().getFilesAndFoldersRecursively(getPath());
-    }
-
-    private Path getChildPath(String relativePath)
-    {
-        return getChildPath(Path.parse(relativePath));
     }
 
     private Path getChildPath(Path relativePath)

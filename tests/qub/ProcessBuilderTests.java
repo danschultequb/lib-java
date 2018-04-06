@@ -111,7 +111,7 @@ public class ProcessBuilderTests
             runner.test("run() with not found executable file", (Test test) ->
             {
                 final JavaFileSystem fileSystem = new JavaFileSystem(null);
-                final File javacFile = fileSystem.getFile("C:/idontexist.exe");
+                final File javacFile = fileSystem.getFile("C:/idontexist.exe").getValue();
                 final ProcessBuilder builder = new ProcessBuilder(null, javacFile);
                 builder.addArgument("won't matter");
                 test.assertEqual(null, builder.run());

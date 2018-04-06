@@ -2,8 +2,8 @@ package qub;
 
 public class SingleLinkList<T> extends ListBase<T>
 {
-    private SingleLinkNode<T> head;
-    private SingleLinkNode<T> tail;
+    private volatile SingleLinkNode<T> head;
+    private volatile SingleLinkNode<T> tail;
 
     public SingleLinkList() {
         head = null;

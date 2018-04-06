@@ -32,7 +32,7 @@ public class TCPEchoServer extends DisposableBase
     public void echo()
     {
         final Result<TCPClient> tcpClientResult = tcpServer.accept();
-        if (tcpClientResult.isSuccess())
+        if (!tcpClientResult.hasError())
         {
             echo(tcpClientResult.getValue());
         }
@@ -61,7 +61,7 @@ public class TCPEchoServer extends DisposableBase
         Result<TCPEchoServer> result;
 
         final Result<TCPServer> tcpServerResult = network.createTCPServer(port);
-        if (tcpServerResult.isError())
+        if (tcpServerResult.hasError())
         {
             result = Result.error(tcpServerResult.getError());
         }

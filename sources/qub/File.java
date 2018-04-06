@@ -49,59 +49,29 @@ public class File extends FileSystemEntry
      * Create this File and return whether or not it was created as a result of this function.
      * @return Whether or not this function created the file.
      */
-    public boolean create()
+    public AsyncFunction<Result<Boolean>> create()
     {
-        return getFileSystem().createFile(getPath());
-    }
-
-    /**
-     * Create this File with the provided contents and return whether or not it was created as a
-     * result of this function.
-     * @param contents The contents to create the file with if the file is created as a result of
-     *                 this function.
-     * @return Whether or not this function created the file.
-     */
-    public boolean create(byte[] contents)
-    {
-        return getFileSystem().createFile(getPath(), contents);
-    }
-
-    /**
-     * Create this File with the provided contents and return whether or not it was created as a
-     * result of this function.
-     * @param contents The contents to create the file with if the file is created as a result of
-     *                 this function.
-     * @return Whether or not this function created the file.
-     */
-    public boolean create(String contents)
-    {
-        return getFileSystem().createFile(getPath(), contents);
-    }
-
-    /**
-     * Create this File with the provided contents and return whether or not it was created as a
-     * result of this function.
-     * @param contents The contents to create the file with if the file is created as a result of
-     *                 this function.
-     * @param encoding The CharacterEncoding to use to convert the provided contents to bytes.
-     * @return Whether or not this function created the file.
-     */
-    public boolean create(String contents, CharacterEncoding encoding)
-    {
-        return getFileSystem().createFile(getPath(), contents, encoding);
+        return getFileSystem().createFile(getPath()).then(new Function1<Result<File>, Result<Boolean>>()
+        {
+            @Override
+            public Result<Boolean> run(Result<File> createResult)
+            {
+                return Result.done(!createResult.hasError(), createResult.getError());
+            }
+        });
     }
 
     /**
      * Get whether or not this File exists.
      */
     @Override
-    public boolean exists()
+    public AsyncFunction<Result<Boolean>> exists()
     {
         return getFileSystem().fileExists(getPath());
     }
 
     @Override
-    public boolean delete()
+    public AsyncFunction<Result<Boolean>> delete()
     {
         return getFileSystem().deleteFile(getPath());
     }
@@ -112,105 +82,16 @@ public class File extends FileSystemEntry
      * @return The date and time of the most recent modification of this file, or null if this file
      * doesn't exist.
      */
-    public DateTime getLastModified()
+    public AsyncFunction<Result<DateTime>> getLastModified()
     {
         return getFileSystem().getFileLastModified(getPath());
-    }
-
-    /**
-     * Get the entire contents of this File as a single byte[]. If this file doesn't exist, then
-     * null will be returned.
-     * @return The entire contents of this File as a single byte[], or null if this file doesn't
-     * exist.
-     */
-    public byte[] getContents()
-    {
-        final FileSystem fileSystem = getFileSystem();
-        final Path path = getPath();
-        return fileSystem.getFileContents(path);
-    }
-
-    /**
-     * Get the entire contents of this File as a single ASCII-encoded String. If this file doesn't
-     * exist, then null will be returned.
-     * @return The entire contents of this File as a single ASCII-encoded String, or null if this
-     * File doesn't exist.
-     */
-    public String getContentsAsString()
-    {
-        final FileSystem fileSystem = getFileSystem();
-        final Path path = getPath();
-        return fileSystem.getFileContentsAsString(path);
-    }
-
-    /**
-     * Get the entire contents of this File as a single String. If this file doesn't exist, then
-     * null will be returned.
-     * @return The entire contents of this File as a single String, or null if this File doesn't
-     * exist.
-     */
-    public String getContentsAsString(CharacterEncoding encoding)
-    {
-        final FileSystem fileSystem = getFileSystem();
-        final Path path = getPath();
-        return fileSystem.getFileContentsAsString(path, encoding);
-    }
-
-    /**
-     * Get the content lines of this File. If this file doesn't exist, then null will be returned.
-     * @return The content lines of this File, or null if this File doesn't exist.
-     */
-    public Iterable<String> getContentLines()
-    {
-        final FileSystem fileSystem = getFileSystem();
-        final Path path = getPath();
-        return fileSystem.getFileContentLines(path);
-    }
-
-    /**
-     * Get the content lines of this File. If this file doesn't exist, then null will be returned.
-     * @param encoding The CharacterEncoding to use to convert this File's content to Strings.
-     * @return The content lines of this File, or null if this File doesn't exist.
-     */
-    public Iterable<String> getContentLines(CharacterEncoding encoding)
-    {
-        final FileSystem fileSystem = getFileSystem();
-        final Path path = getPath();
-        return fileSystem.getFileContentLines(path, encoding);
-    }
-
-    /**
-     * Get the content lines of this File. If this file doesn't exist, then null will be returned.
-     * @param includeNewLineCharacters Whether or not to include the newline characters at the end
-     *                                 of each line.
-     * @return The content lines of this File, or null if this File doesn't exist.
-     */
-    public Iterable<String> getContentLines(boolean includeNewLineCharacters)
-    {
-        final FileSystem fileSystem = getFileSystem();
-        final Path path = getPath();
-        return fileSystem.getFileContentLines(path, includeNewLineCharacters);
-    }
-
-    /**
-     * Get the content lines of this File. If this file doesn't exist, then null will be returned.
-     * @param includeNewLineCharacters Whether or not to include the newline characters at the end
-     *                                 of each line.
-     * @param encoding The CharacterEncoding to use to convert this File's contents to Strings.
-     * @return The content lines of this File, or null if this File doesn't exist.
-     */
-    public Iterable<String> getContentLines(boolean includeNewLineCharacters, CharacterEncoding encoding)
-    {
-        final FileSystem fileSystem = getFileSystem();
-        final Path path = getPath();
-        return fileSystem.getFileContentLines(path, includeNewLineCharacters, encoding);
     }
 
     /**
      * Get a ByteReadStream to this file's contents.
      * @return A ByteReadStream to this file's contents.
      */
-    public ByteReadStream getContentByteReadStream()
+    public AsyncFunction<Result<ByteReadStream>>getContentByteReadStream()
     {
         final FileSystem fileSystem = getFileSystem();
         final Path path = getPath();
@@ -218,53 +99,21 @@ public class File extends FileSystemEntry
     }
 
     /**
-     * Get a CharacterReadStream to this file's contents.
-     * @return A CharacterReadStream to this file's contents.
+     * Get a ByteWriteStream to this file's contents.
+     * @return A ByteWriteStrema to this file's contents.
      */
-    public CharacterReadStream getContentCharacterReadStream()
+    public AsyncFunction<Result<ByteWriteStream>> getContentByteWriteStream()
     {
-        final FileSystem fileSystem = getFileSystem();
-        final Path path = getPath();
-        return fileSystem.getFileContentCharacterReadStream(path);
+        return getFileSystem().getFileContentByteWriteStream(getPath());
     }
 
-    /**
-     * Set the contents of this File to be the provided fileContents and return whether or not the
-     * file's contents were set.
-     * @param fileContents The contents to set the file to.
-     * @return Whether or not the file's contents were set.
-     */
-    public boolean setContents(byte[] fileContents)
+    public AsyncFunction<Result<byte[]>> getContents()
     {
-        final FileSystem fileSystem = getFileSystem();
-        final Path path = getPath();
-        return fileSystem.setFileContents(path, fileContents);
+        return getFileSystem().getFileContent(getPath());
     }
 
-    /**
-     * Set the contents of this File to be the provided fileContents and return whether or not the
-     * file's contents were set.
-     * @param fileContents The contents to set the file to.
-     * @return Whether or not the file's contents were set.
-     */
-    public boolean setContents(String fileContents)
+    public AsyncFunction<Result<Boolean>> setContents(byte[] content)
     {
-        final FileSystem fileSystem = getFileSystem();
-        final Path path = getPath();
-        return fileSystem.setFileContents(path, fileContents);
-    }
-
-    /**
-     * Set the contents of this File to be the provided fileContents and return whether or not the
-     * file's contents were set.
-     * @param fileContents The contents to set the file to.
-     * @param encoding The CharacterEncoding to use to convert the provided fileContents into bytes.
-     * @return Whether or not the file's contents were set.
-     */
-    public boolean setContents(String fileContents, CharacterEncoding encoding)
-    {
-        final FileSystem fileSystem = getFileSystem();
-        final Path path = getPath();
-        return fileSystem.setFileContents(path, fileContents, encoding);
+        return getFileSystem().setFileContent(getPath(), content);
     }
 }

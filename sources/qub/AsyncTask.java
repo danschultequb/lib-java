@@ -1,5 +1,8 @@
 package qub;
 
+/**
+ * A reference to an AsyncTask that has been scheduled to schedule asynchronously.
+ */
 public interface AsyncTask
 {
     /**
@@ -7,6 +10,12 @@ public interface AsyncTask
      * @return The runner that will run this AsyncAction.
      */
     AsyncRunner getAsyncRunner();
+
+    /**
+     * Get the parent tasks that must be run before this AsyncTask can be run.
+     * @return The parent tasks that must be run before this AsyncTask can be run.
+     */
+    Iterable<AsyncTask> getParentTasks();
 
     /**
      * Get whether or not this AsyncAction has been run.
@@ -31,70 +40,4 @@ public interface AsyncTask
      * @return The error that exited this AsyncAction.
      */
     Throwable getOutgoingError();
-
-    /**
-     * Run the provided action when this AsyncAction completes.
-     * @param action The action to schedule when this AsyncAction completes.
-     * @return The reference to the asynchronous action that will be scheduled.
-     */
-    AsyncAction then(Action0 action);
-
-    /**
-     * Run the provided function when this AsyncAction completes.
-     * @param function The function to schedule when this AsyncAction completes.
-     * @return The reference to the asynchronous function that will be scheduled when this
-     * AsyncAction completes.
-     */
-    <T> AsyncFunction<T> then(Function0<T> function);
-
-    /**
-     * Run the provided function when this AsyncAction completes.
-     * @param function The function to schedule when this AsyncAction completes.
-     * @return The reference to the asynchronous function that will be scheduled when this
-     * AsyncAction completes.
-     */
-    AsyncAction thenAsyncAction(Function0<AsyncAction> function);
-
-    /**
-     * Run the provided function when this AsyncAction completes.
-     * @param function The function to schedule when this AsyncAction completes.
-     * @return The reference to the asynchronous function that will be scheduled when this
-     * AsyncAction completes.
-     */
-    <T> AsyncFunction<T> thenAsyncFunction(Function0<AsyncFunction<T>> function);
-
-    /**
-     * Schedule any following AsyncTasks on the provided AsyncRunner.
-     * @param runner The AsyncRunner to schedule following AsyncTasks on.
-     * @return The AsyncAction that transfers flow onto the provided AsyncRunner.
-     */
-    AsyncTask thenOn(AsyncRunner runner);
-
-    /**
-     * Run the provided action on the provided AsyncRunner when this AsyncAction completes.
-     * @param action The action to schedule when this AsyncAction completes.
-     * @return The reference to the asynchronous action that will be scheduled.
-     */
-    AsyncAction thenOn(AsyncRunner runner, Action0 action);
-
-    /**
-     * Run the provided function on the provided AsyncRunner when this AsyncAction completes.
-     * @param function The function to schedule when this AsyncAction completes.
-     * @return The reference to the asynchronous action that will be scheduled.
-     */
-    <T> AsyncFunction<T> thenOn(AsyncRunner runner, Function0<T> function);
-
-    /**
-     * Run the provided function on the provided AsyncRunner when this AsyncAction completes.
-     * @param function The function to schedule when this AsyncAction completes.
-     * @return The reference to the asynchronous action that will be scheduled.
-     */
-    AsyncAction thenAsyncActionOn(AsyncRunner runner, Function0<AsyncAction> function);
-
-    /**
-     * Run the provided function on the provided AsyncRunner when this AsyncAction completes.
-     * @param function The function to schedule when this AsyncAction completes.
-     * @return The reference to the asynchronous action that will be scheduled.
-     */
-    <T> AsyncFunction<T> thenAsyncFunctionOn(AsyncRunner runner, Function0<AsyncFunction<T>> function);
 }

@@ -2,7 +2,7 @@ package qub;
 
 public class TestRunnerBase implements TestRunner
 {
-    private static final SkipTest skipTest = new SkipTest();
+    private static final Skip noMessageSkip = new Skip(null);
 
     private final Process process;
 
@@ -35,9 +35,15 @@ public class TestRunnerBase implements TestRunner
     }
 
     @Override
-    public SkipTest skip()
+    public Skip skip()
     {
-        return skipTest;
+        return noMessageSkip;
+    }
+
+    @Override
+    public Skip skip(String message)
+    {
+        return new Skip(message);
     }
 
     @Override
@@ -53,20 +59,20 @@ public class TestRunnerBase implements TestRunner
     }
 
     @Override
-    public void testGroup(Class<?> testClass, SkipTest skipTest, Action0 testGroupAction)
+    public void testGroup(Class<?> testClass, Skip skip, Action0 testGroupAction)
     {
-        testGroup(testClass.getSimpleName(), skipTest, testGroupAction);
+        testGroup(testClass.getSimpleName(), skip, testGroupAction);
     }
 
     @Override
-    public void testGroup(String testGroupName, SkipTest skipTest, Action0 testGroupAction)
+    public void testGroup(String testGroupName, Skip skip, Action0 testGroupAction)
     {
         if (testGroupAction != null)
         {
             final Action0 beforeTestActionBackup = beforeTestAction;
             final Action0 afterTestActionBackup = afterTestAction;
 
-            currentTestGroup = new TestGroup(testGroupName, currentTestGroup, skipTest != null);
+            currentTestGroup = new TestGroup(testGroupName, currentTestGroup, skip);
             if (onTestGroupStarted != null)
             {
                 onTestGroupStarted.run(currentTestGroup);
@@ -92,11 +98,11 @@ public class TestRunnerBase implements TestRunner
     }
 
     @Override
-    public void test(String testName, SkipTest skipTest, Action1<Test> testAction)
+    public void test(String testName, Skip skip, Action1<Test> testAction)
     {
         if (testAction != null)
         {
-            final Test test = new Test(testName, currentTestGroup, skipTest != null, process);
+            final Test test = new Test(testName, currentTestGroup, skip, process);
             if (test.matches(testPattern))
             {
                 if (onTestStarted != null)
@@ -106,7 +112,7 @@ public class TestRunnerBase implements TestRunner
 
                 try
                 {
-                    if (test.getShouldSkip())
+                    if (test.shouldSkip())
                     {
                         skippedTests.add(test);
                         ++skippedTestCount;
@@ -123,14 +129,9 @@ public class TestRunnerBase implements TestRunner
                             beforeTestAction.run();
                         }
 
-                        try
-                        {
-                            testAction.run(test);
-                        }
-                        finally
-                        {
-                            test.await();
-                        }
+                        testAction.run(test);
+                        test.assertEqual(0, process.getMainAsyncRunner().getScheduledTaskCount(), "The main AsyncRunner should not have any scheduled tasks when a synchronous test completes.");
+                        test.assertEqual(0, process.getParallelAsyncRunner().getScheduledTaskCount(), "The parallel AsyncRunner should not have any scheduled tasks when a synchronous test completes.");
 
                         if (afterTestAction != null)
                         {
@@ -171,6 +172,11 @@ public class TestRunnerBase implements TestRunner
                     {
                         onTestFailed.run(test, failure);
                     }
+                }
+                finally
+                {
+                    test.await();
+                    AsyncRunnerRegistry.setCurrentThreadAsyncRunner(process.getMainAsyncRunner());
                 }
 
                 if (onTestFinished != null)

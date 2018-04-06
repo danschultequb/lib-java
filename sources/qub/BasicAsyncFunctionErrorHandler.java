@@ -4,14 +4,9 @@ public class BasicAsyncFunctionErrorHandler<T> extends BasicAsyncFunction<T>
 {
     private final Function1<Throwable,T> function;
 
-    public BasicAsyncFunctionErrorHandler(AsyncRunner runner, Function1<Throwable,T> function)
+    public BasicAsyncFunctionErrorHandler(Getable<AsyncRunner> asyncRunner, Iterable<AsyncTask> parentTasks, Function1<Throwable,T> function)
     {
-        this(runner, runner.getSynchronization(), function);
-    }
-
-    public BasicAsyncFunctionErrorHandler(AsyncRunner runner, Synchronization synchronization, Function1<Throwable,T> function)
-    {
-        super(runner, synchronization, null);
+        super(asyncRunner, parentTasks, null);
 
         this.function = function;
     }

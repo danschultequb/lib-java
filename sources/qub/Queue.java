@@ -1,7 +1,7 @@
 package qub;
 
 /**
- * A data structure that allows values to be added and removed in First-In-First-Out order.
+ * A data structure that allows values to be added and removed in First-In-First-Setable order.
  * @param <T> The type of values that can be added to this Queue.
  */
 public interface Queue<T>

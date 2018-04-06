@@ -4,7 +4,7 @@ package qub;
  * A wrapper around a value of type T.
  * @param <T> The type of the inner value.
  */
-public class Value<T> implements Out<T>
+public class Value<T> implements Getable<T>, Setable<T>
 {
     private volatile T value;
     private volatile boolean hasValue;
@@ -28,37 +28,26 @@ public class Value<T> implements Out<T>
         hasValue = true;
     }
 
-    /**
-     * Get whether or not this Value has a value.
-     * @return Whether or not this Value has a value.
-     */
+    @Override
     public boolean hasValue()
     {
         return hasValue;
     }
 
-    /**
-     * Get the value that this Value contains, or null if no value has been set yet.
-     * @return The value that this Value contains, or null if no value has been set yet.
-     */
+    @Override
     public T get()
     {
         return value;
     }
 
-    /**
-     * Set the value that this Value contains.
-     * @param value The value to set.
-     */
+    @Override
     public void set(T value)
     {
         this.value = value;
         hasValue = true;
     }
 
-    /**
-     * Clear any value that may have been set.
-     */
+    @Override
     public void clear()
     {
         value = null;
@@ -69,5 +58,17 @@ public class Value<T> implements Out<T>
     public String toString()
     {
         return value == null ? null : value.toString();
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public boolean equals(Object rhs)
+    {
+        return rhs instanceof Value && equals((Value<T>)rhs);
+    }
+
+    public boolean equals(Value<T> rhs)
+    {
+        return rhs != null && hasValue == rhs.hasValue && Comparer.equal(value, rhs.value);
     }
 }

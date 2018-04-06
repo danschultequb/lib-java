@@ -6,7 +6,7 @@ public class ListMapTests
     {
         runner.testGroup(ListMap.class, () ->
         {
-            MapTests.test(runner, ListMap::new);
+            MapTests.test(runner, ListMap::new, true, true);
         });
     }
 }
