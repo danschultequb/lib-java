@@ -33,22 +33,6 @@ public class Async
         });
     }
 
-    public static void awaitAll(AsyncAction task, AsyncAction... extraTasks)
-    {
-        task.await();
-
-        if (extraTasks != null && extraTasks.length > 0)
-        {
-            for (final AsyncAction extraTask : extraTasks)
-            {
-                if (extraTask != null)
-                {
-                    extraTask.await();
-                }
-            }
-        }
-    }
-
     /**
      * Get an AsyncFunction that completes when all of the provided tasks are complated.
      * @param asyncRunner The AsyncRunner to run the returned AsyncFunction on when all the provided

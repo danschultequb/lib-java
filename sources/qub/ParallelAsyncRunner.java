@@ -120,11 +120,8 @@ public class ParallelAsyncRunner extends DisposableBase implements AsyncRunner
     @Override
     public void await(AsyncTask asyncTask)
     {
-        if (asyncTask.getAsyncRunner() == this)
+        while (!asyncTask.isCompleted())
         {
-            while (!asyncTask.isCompleted())
-            {
-            }
         }
     }
 

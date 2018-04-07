@@ -1,59 +1,12 @@
 package qub;
 
-public class TCPEchoServer extends DisposableBase
+public class TCPEchoServer extends AsyncDisposableBase
 {
     private final TCPServer tcpServer;
 
     private TCPEchoServer(TCPServer tcpServer)
     {
         this.tcpServer = tcpServer;
-    }
-
-    private void echo(TCPClient tcpClient)
-    {
-        try
-        {
-            final LineReadStream tcpClientLineReadStream = tcpClient.asLineReadStream(true);
-            final LineWriteStream tcpClientLineWriteStream = tcpClient.asLineWriteStream();
-
-            String line = tcpClientLineReadStream.readLine();
-            while (line != null)
-            {
-                tcpClientLineWriteStream.write(line);
-                line = tcpClientLineReadStream.readLine();
-            }
-        }
-        finally
-        {
-            tcpClient.dispose();
-        }
-    }
-
-    public void echo()
-    {
-        final Result<TCPClient> tcpClientResult = tcpServer.accept();
-        if (!tcpClientResult.hasError())
-        {
-            echo(tcpClientResult.getValue());
-        }
-    }
-
-    public void echoAsync()
-    {
-        tcpServer.acceptAsync()
-            .then((Action1<TCPClient>)this::echo);
-    }
-
-    @Override
-    public boolean isDisposed()
-    {
-        return tcpServer.isDisposed();
-    }
-
-    @Override
-    public Result<Boolean> dispose()
-    {
-        return tcpServer.dispose();
     }
 
     public static Result<TCPEchoServer> create(Network network, int port)
@@ -72,5 +25,57 @@ public class TCPEchoServer extends DisposableBase
         }
 
         return result;
+    }
+
+    public void echo()
+    {
+        echoAsync().await();
+    }
+
+    public AsyncAction echoAsync()
+    {
+        return tcpServer.acceptAsync()
+            .then(new Action1<Result<TCPClient>>()
+            {
+                @Override
+                public void run(Result<TCPClient> tcpClientResult)
+                {
+                    if (!tcpClientResult.hasError())
+                    {
+                        final TCPClient tcpClient = tcpClientResult.getValue();
+                        try
+                        {
+                            final LineReadStream tcpClientLineReadStream = tcpClient.asLineReadStream(true);
+                            final LineWriteStream tcpClientLineWriteStream = tcpClient.asLineWriteStream();
+
+                            //BLOCKING
+                            String line = tcpClientLineReadStream.readLine();
+                            while (line != null)
+                            {
+                                //BLOCKING
+                                tcpClientLineWriteStream.write(line);
+                                //BLOCKING
+                                line = tcpClientLineReadStream.readLine();
+                            }
+                        }
+                        finally
+                        {
+                            tcpClient.dispose();
+                        }
+                    }
+                }
+            });
+    }
+
+    @Override
+    public boolean isDisposed()
+    {
+        return tcpServer.isDisposed();
+    }
+
+    @Override
+    public AsyncFunction<Result<Boolean>> disposeAsync()
+    {
+        return tcpServer.disposeAsync();
     }
 }
