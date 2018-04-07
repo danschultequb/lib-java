@@ -155,7 +155,7 @@ class JavaTCPServer extends AsyncDisposableBase implements TCPServer
                 try
                 {
                     final Socket socket = serverSocket.accept();
-                    result = JavaTCPClient.create(socket);
+                    result = JavaTCPClient.create(socket, asyncRunner);
                 }
                 catch (IOException e)
                 {

@@ -5,70 +5,100 @@ import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 
-class JavaTCPClient extends DisposableBase implements TCPClient
+class JavaTCPClient extends AsyncDisposableBase implements TCPClient
 {
     private final Socket socket;
+    private final AsyncRunner asyncRunner;
     private final ByteReadStream socketReadStream;
     private final ByteWriteStream socketWriteStream;
 
-    private JavaTCPClient(Socket socket, ByteReadStream socketReadStream, ByteWriteStream socketWriteStream)
+    private JavaTCPClient(Socket socket, AsyncRunner asyncRunner, ByteReadStream socketReadStream, ByteWriteStream socketWriteStream)
     {
         this.socket = socket;
+        this.asyncRunner = asyncRunner;
         this.socketReadStream = socketReadStream;
         this.socketWriteStream = socketWriteStream;
     }
 
-    static Result<TCPClient> create(Socket socket)
+    static Result<TCPClient> create(Socket socket, AsyncRunner asyncRunner)
     {
-        Result<TCPClient> result;
+        return createAsync(socket, asyncRunner).awaitReturn();
+    }
+
+    static AsyncFunction<Result<TCPClient>> createAsync(final Socket socket, final AsyncRunner asyncRunner)
+    {
+        AsyncFunction<Result<TCPClient>> result;
 
         if (socket == null)
         {
-            result = Result.<TCPClient>error(new IllegalArgumentException("socket cannot be null."));
+            result = Async.<TCPClient>error(asyncRunner, new IllegalArgumentException("socket cannot be null."));
         }
         else
         {
-            try
+            result = asyncRunner.schedule(new Function0<Result<TCPClient>>()
             {
-                final ByteReadStream socketReadStream = new InputStreamToByteReadStream(socket.getInputStream());
-                final ByteWriteStream socketWriteStream = new OutputStreamToByteWriteStream(socket.getOutputStream());
-                final TCPClient tcpClient = new JavaTCPClient(socket, socketReadStream, socketWriteStream);
-                result = Result.success(tcpClient);
-            }
-            catch (IOException e)
-            {
-                result = Result.error(e);
-            }
+                @Override
+                public Result<TCPClient> run()
+                {
+                    Result<TCPClient> result;
+                    try
+                    {
+                        final ByteReadStream socketReadStream = new InputStreamToByteReadStream(socket.getInputStream());
+                        final ByteWriteStream socketWriteStream = new OutputStreamToByteWriteStream(socket.getOutputStream());
+                        result = Result.<TCPClient>success(new JavaTCPClient(socket, asyncRunner, socketReadStream, socketWriteStream));
+                    }
+                    catch (IOException e)
+                    {
+                        result = Result.<TCPClient>error(e);
+                    }
+                    return result;
+                }
+            });
+
         }
 
         return result;
     }
 
-    static Result<TCPClient> create(IPv4Address remoteIPAddress, int remotePort)
+    static Result<TCPClient> create(IPv4Address remoteIPAddress, int remotePort, AsyncRunner asyncRunner)
     {
-        Result<TCPClient> result;
+        return createAsync(remoteIPAddress, remotePort, asyncRunner).awaitReturn();
+    }
+
+    static AsyncFunction<Result<TCPClient>> createAsync(final IPv4Address remoteIPAddress, final int remotePort, final AsyncRunner asyncRunner)
+    {
+        AsyncFunction<Result<TCPClient>> result;
 
         if (remoteIPAddress == null)
         {
-            result = Result.<TCPClient>error(new IllegalArgumentException("remoteIPAddress cannot be null."));
+            result = Async.<TCPClient>error(asyncRunner, new IllegalArgumentException("remoteIPAddress cannot be null."));
         }
         else if (remotePort <= 0)
         {
-            result = Result.<TCPClient>error(new IllegalArgumentException("remotePort must be greater than 0."));
+            result = Async.<TCPClient>error(asyncRunner, new IllegalArgumentException("remotePort must be greater than 0."));
         }
         else
         {
-            try
+            result = asyncRunner.schedule(new Function0<Result<TCPClient>>()
             {
-                final byte[] remoteIPAddressBytes = remoteIPAddress.toBytes();
-                final InetAddress remoteInetAddress = InetAddress.getByAddress(remoteIPAddressBytes);
-                final Socket socket = new Socket(remoteInetAddress, remotePort);
-                result = JavaTCPClient.create(socket);
-            }
-            catch (IOException e)
-            {
-                result = Result.error(e);
-            }
+                @Override
+                public Result<TCPClient> run()
+                {
+                    Result<TCPClient> result;
+                    try
+                    {
+                        final byte[] remoteIPAddressBytes = remoteIPAddress.toBytes();
+                        final InetAddress remoteInetAddress = InetAddress.getByAddress(remoteIPAddressBytes);
+                        final Socket socket = new Socket(remoteInetAddress, remotePort);
+                        result = JavaTCPClient.create(socket, asyncRunner);
+                    }
+                    catch (IOException e)
+                    {
+                        result = Result.error(e);
+                    }
+                    return result;
+                }
+            });
         }
 
         return result;
@@ -346,24 +376,33 @@ class JavaTCPClient extends DisposableBase implements TCPClient
     }
 
     @Override
-    public Result<Boolean> dispose()
+    public AsyncFunction<Result<Boolean>> disposeAsync()
     {
-        Result<Boolean> result;
+        AsyncFunction<Result<Boolean>> result;
         if (isDisposed())
         {
-            result = Result.success(false);
+            result = Async.success(AsyncRunnerRegistry.getCurrentThreadAsyncRunner(), false);
         }
         else
         {
-            try
-            {
-                socket.close();
-                result = Result.success(true);
-            }
-            catch (IOException e)
-            {
-                result = Result.<Boolean>error(e);
-            }
+            result = Async.invokeOn(asyncRunner, new Function0<Result<Boolean>>()
+                {
+                    @Override
+                    public Result<Boolean> run()
+                    {
+                        Result<Boolean> result;
+                        try
+                        {
+                            socket.close();
+                            result = Result.success(true);
+                        }
+                        catch (IOException e)
+                        {
+                            result = Result.<Boolean>error(e);
+                        }
+                        return result;
+                    }
+                });
         }
         return result;
     }

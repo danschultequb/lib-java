@@ -117,7 +117,7 @@ public class JavaTCPServerTests
                     final Value<byte[]> clientReadBytes = new Value<>();
                     final AsyncAction clientTask = asyncRunner.schedule(() ->
                     {
-                        try (final TCPClient tcpClient = JavaTCPClient.create(ipAddress, port.get()).getValue())
+                        try (final TCPClient tcpClient = JavaTCPClient.create(ipAddress, port.get(), asyncRunner).getValue())
                         {
                             test.assertTrue(tcpClient.write(bytes));
                             clientReadBytes.set(tcpClient.readBytes(bytes.length));
@@ -169,7 +169,7 @@ public class JavaTCPServerTests
                         final AsyncAction clientTask = asyncRunner.schedule(() ->
                         {
                             // Parallel
-                            try (final TCPClient tcpClient = JavaTCPClient.create(ipAddress, port.get()).getValue())
+                            try (final TCPClient tcpClient = JavaTCPClient.create(ipAddress, port.get(), asyncRunner).getValue())
                             {
                                 // Block
                                 test.assertTrue(tcpClient.write(bytes));
@@ -236,7 +236,7 @@ public class JavaTCPServerTests
                         {
                             // The tcpClient code needs to be in a different thread because the
                             // tcpServer runs its acceptAsync().then() action on the main thread.
-                            try (final TCPClient tcpClient = JavaTCPClient.create(IPv4Address.localhost, port.get()).getValue())
+                            try (final TCPClient tcpClient = JavaTCPClient.create(IPv4Address.localhost, port.get(), asyncRunner).getValue())
                             {
                                 tcpClient.write(bytes);
                                 final byte[] clientReadBytes = tcpClient.readBytes(bytes.length);

@@ -1,5 +1,5 @@
 package qub;
 
-public interface TCPClient extends ByteWriteStream, ByteReadStream
+public interface TCPClient extends ByteWriteStream, ByteReadStream, AsyncDisposable
 {
 }

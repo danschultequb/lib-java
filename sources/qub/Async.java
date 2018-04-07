@@ -123,4 +123,9 @@ public class Async
         }
         return result;
     }
+
+    public static <T> AsyncFunction<T> invokeOn(AsyncRunner asyncRunner, Function0<T> function)
+    {
+        return asyncRunner.schedule(function).thenOn(AsyncRunnerRegistry.getCurrentThreadAsyncRunner());
+    }
 }

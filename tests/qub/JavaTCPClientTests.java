@@ -15,7 +15,7 @@ public class JavaTCPClientTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final Result<TCPClient> tcpClientResult = JavaTCPClient.create((Socket)null);
+                    final Result<TCPClient> tcpClientResult = JavaTCPClient.create((Socket)null, test.getParallelAsyncRunner());
                     test.assertError(new IllegalArgumentException("socket cannot be null."), tcpClientResult);
                 });
             });
@@ -24,25 +24,25 @@ public class JavaTCPClientTests
             {
                 runner.test("with null remoteIPAddress", (Test test) ->
                 {
-                    final Result<TCPClient> tcpClient = JavaTCPClient.create(null, 80);
+                    final Result<TCPClient> tcpClient = JavaTCPClient.create(null, 80, test.getParallelAsyncRunner());
                     test.assertError(new IllegalArgumentException("remoteIPAddress cannot be null."), tcpClient);
                 });
 
                 runner.test("with -1 remotePort", (Test test) ->
                 {
-                    final Result<TCPClient> tcpClient = JavaTCPClient.create(IPv4Address.localhost, -1);
+                    final Result<TCPClient> tcpClient = JavaTCPClient.create(IPv4Address.localhost, -1, test.getParallelAsyncRunner());
                     test.assertError(new IllegalArgumentException("remotePort must be greater than 0."), tcpClient);
                 });
 
                 runner.test("with 0 remotePort", (Test test) ->
                 {
-                    final Result<TCPClient> tcpClient = JavaTCPClient.create(IPv4Address.localhost, 0);
+                    final Result<TCPClient> tcpClient = JavaTCPClient.create(IPv4Address.localhost, 0, test.getParallelAsyncRunner());
                     test.assertError(new IllegalArgumentException("remotePort must be greater than 0."), tcpClient);
                 });
 
                 runner.test("with valid arguments but no server listening", (Test test) ->
                 {
-                    final Result<TCPClient> tcpClientResult = JavaTCPClient.create(IPv4Address.localhost, port.incrementAndGet());
+                    final Result<TCPClient> tcpClientResult = JavaTCPClient.create(IPv4Address.localhost, port.incrementAndGet(), test.getParallelAsyncRunner());
                     test.assertError(new java.net.ConnectException("Connection refused: connect"), tcpClientResult);
                 });
 
@@ -60,7 +60,7 @@ public class JavaTCPClientTests
 
                         asyncRunner.schedule(() ->
                         {
-                            final Result<TCPClient> tcpClientResult = JavaTCPClient.create(IPv4Address.localhost, port.get());
+                            final Result<TCPClient> tcpClientResult = JavaTCPClient.create(IPv4Address.localhost, port.get(), test.getParallelAsyncRunner());
                             test.assertSuccess(tcpClientResult);
 
                             try (final TCPClient tcpClient = tcpClientResult.getValue())
