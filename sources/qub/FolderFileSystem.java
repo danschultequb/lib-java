@@ -21,26 +21,37 @@ public class FolderFileSystem extends FileSystemBase
         this.baseFolderPath = normalizedBaseFolderPath;
     }
 
-    public static FolderFileSystem create(FileSystem innerFileSystem, String baseFolderPath)
+    public static Result<FolderFileSystem> get(FileSystem innerFileSystem, String baseFolderPath)
     {
-        return create(innerFileSystem, Path.parse(baseFolderPath));
+        return get(innerFileSystem, Path.parse(baseFolderPath));
     }
 
-    public static FolderFileSystem create(FileSystem innerFileSystem, Path baseFolderPath)
+    public static Result<FolderFileSystem> get(FileSystem innerFileSystem, Path baseFolderPath)
     {
-        FolderFileSystem result = null;
-
-        if (baseFolderPath != null)
+        Result<FolderFileSystem> result;
+        if (innerFileSystem == null)
         {
-            result = new FolderFileSystem(innerFileSystem, baseFolderPath);
+            result = Result.error(new IllegalArgumentException("innerFileSystem cannot be null."));
         }
-
+        else if (baseFolderPath == null)
+        {
+            result = Result.error(new IllegalArgumentException("baseFolderPath cannot be null."));
+        }
+        else
+        {
+            result = Result.success(new FolderFileSystem(innerFileSystem, baseFolderPath));
+        }
         return result;
     }
 
-    public AsyncFunction<Result<Boolean>> create()
+    public Result<Boolean> create()
     {
-        return innerFileSystem.createFolder(baseFolderPath)
+        return createAsync().awaitReturn();
+    }
+
+    public AsyncFunction<Result<Boolean>> createAsync()
+    {
+        return innerFileSystem.createFolderAsync(baseFolderPath)
             .then(new Function1<Result<Folder>, Result<Boolean>>()
             {
                 @Override
@@ -51,9 +62,14 @@ public class FolderFileSystem extends FileSystemBase
             });
     }
 
-    public AsyncFunction<Result<Boolean>> delete()
+    public Result<Boolean> delete()
     {
         return innerFileSystem.deleteFolder(baseFolderPath);
+    }
+
+    public AsyncFunction<Result<Boolean>> deleteAsync()
+    {
+        return innerFileSystem.deleteFolderAsync(baseFolderPath);
     }
 
     public AsyncFunction<Result<Boolean>> exists()
@@ -83,7 +99,7 @@ public class FolderFileSystem extends FileSystemBase
     }
 
     @Override
-    public AsyncFunction<Result<Iterable<Root>>> getRoots()
+    public AsyncFunction<Result<Iterable<Root>>> getRootsAsync()
     {
         return Async.<Iterable<Root>>success(getAsyncRunner(), Array.fromValues(new Root[]
         {
@@ -92,9 +108,9 @@ public class FolderFileSystem extends FileSystemBase
     }
 
     @Override
-    public AsyncFunction<Result<Iterable<FileSystemEntry>>> getFilesAndFolders(Path folderPath)
+    public AsyncFunction<Result<Iterable<FileSystemEntry>>> getFilesAndFoldersAsync(Path folderPath)
     {
-        return innerFileSystem.getFilesAndFolders(getInnerPath(folderPath))
+        return innerFileSystem.getFilesAndFoldersAsync(getInnerPath(folderPath))
             .then(new Function1<Result<Iterable<FileSystemEntry>>, Result<Iterable<FileSystemEntry>>>()
             {
                 @Override
@@ -123,9 +139,9 @@ public class FolderFileSystem extends FileSystemBase
     }
 
     @Override
-    public AsyncFunction<Result<Folder>> createFolder(Path folderPath)
+    public AsyncFunction<Result<Folder>> createFolderAsync(Path folderPath)
     {
-        return innerFileSystem.createFolder(getInnerPath(folderPath))
+        return innerFileSystem.createFolderAsync(getInnerPath(folderPath))
             .then(new Function1<Result<Folder>, Result<Folder>>()
             {
                 @Override
@@ -140,9 +156,9 @@ public class FolderFileSystem extends FileSystemBase
     }
 
     @Override
-    public AsyncFunction<Result<Boolean>> deleteFolder(Path folderPath)
+    public AsyncFunction<Result<Boolean>> deleteFolderAsync(Path folderPath)
     {
-        return innerFileSystem.deleteFolder(getInnerPath(folderPath));
+        return innerFileSystem.deleteFolderAsync(getInnerPath(folderPath));
     }
 
     @Override

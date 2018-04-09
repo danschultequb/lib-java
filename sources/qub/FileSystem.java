@@ -44,21 +44,41 @@ public interface FileSystem
      * Get the roots of this FileSystem.
      * @return The roots of this FileSystem.
      */
-    AsyncFunction<Result<Iterable<Root>>> getRoots();
+    Result<Iterable<Root>> getRoots();
+
+    /**
+     * Get the roots of this FileSystem.
+     * @return The roots of this FileSystem.
+     */
+    AsyncFunction<Result<Iterable<Root>>> getRootsAsync();
 
     /**
      * Get the files and folders (entries) at the provided folder path.
      * @param folderPath The path to the folder (Root or Folder).
      * @return The files and folders (entries) at the provided folder path.
      */
-    AsyncFunction<Result<Iterable<FileSystemEntry>>> getFilesAndFolders(String folderPath);
+    Result<Iterable<FileSystemEntry>> getFilesAndFolders(String folderPath);
 
     /**
      * Get the files and folders (entries) at the provided folder Path.
      * @param folderPath The Path to the folder (Root or Folder).
      * @return The files and folders (entries) at the provided folder Path.
      */
-    AsyncFunction<Result<Iterable<FileSystemEntry>>> getFilesAndFolders(Path folderPath);
+    Result<Iterable<FileSystemEntry>> getFilesAndFolders(Path folderPath);
+
+    /**
+     * Get the files and folders (entries) at the provided folder path.
+     * @param folderPath The path to the folder (Root or Folder).
+     * @return The files and folders (entries) at the provided folder path.
+     */
+    AsyncFunction<Result<Iterable<FileSystemEntry>>> getFilesAndFoldersAsync(String folderPath);
+
+    /**
+     * Get the files and folders (entries) at the provided folder Path.
+     * @param folderPath The Path to the folder (Root or Folder).
+     * @return The files and folders (entries) at the provided folder Path.
+     */
+    AsyncFunction<Result<Iterable<FileSystemEntry>>> getFilesAndFoldersAsync(Path folderPath);
 
     /**
      * Get the files and folders (entries) at the provided folder path and its subfolders.
@@ -164,7 +184,7 @@ public interface FileSystem
      * @param folderPath The path to the folder to create.
      * @return Whether or not this function created the folder.
      */
-    AsyncFunction<Result<Folder>> createFolder(String folderPath);
+    Result<Folder> createFolder(String folderPath);
 
     /**
      * Create a folder at the provided path and return whether or not this function created the
@@ -172,21 +192,51 @@ public interface FileSystem
      * @param folderPath The path to the folder to create.
      * @return Whether or not this function created the folder.
      */
-    AsyncFunction<Result<Folder>> createFolder(Path folderPath);
+    Result<Folder> createFolder(Path folderPath);
+
+    /**
+     * Create a folder at the provided path and return whether or not this function created the
+     * folder.
+     * @param folderPath The path to the folder to create.
+     * @return Whether or not this function created the folder.
+     */
+    AsyncFunction<Result<Folder>> createFolderAsync(String folderPath);
+
+    /**
+     * Create a folder at the provided path and return whether or not this function created the
+     * folder.
+     * @param folderPath The path to the folder to create.
+     * @return Whether or not this function created the folder.
+     */
+    AsyncFunction<Result<Folder>> createFolderAsync(Path folderPath);
 
     /**
      * Delete the folder at the provided path and return whether this function deleted the folder.
      * @param folderPath The path to the folder to delete.
      * @return Whether or not this function deleted the folder.
      */
-    AsyncFunction<Result<Boolean>> deleteFolder(String folderPath);
+    Result<Boolean> deleteFolder(String folderPath);
 
     /**
      * Delete the folder at the provided path and return whether this function deleted the folder.
      * @param folderPath The path to the folder to delete.
      * @return Whether or not this function deleted the folder.
      */
-    AsyncFunction<Result<Boolean>> deleteFolder(Path folderPath);
+    Result<Boolean> deleteFolder(Path folderPath);
+
+    /**
+     * Delete the folder at the provided path and return whether this function deleted the folder.
+     * @param folderPath The path to the folder to delete.
+     * @return Whether or not this function deleted the folder.
+     */
+    AsyncFunction<Result<Boolean>> deleteFolderAsync(String folderPath);
+
+    /**
+     * Delete the folder at the provided path and return whether this function deleted the folder.
+     * @param folderPath The path to the folder to delete.
+     * @return Whether or not this function deleted the folder.
+     */
+    AsyncFunction<Result<Boolean>> deleteFolderAsync(Path folderPath);
 
     /**
      * Get a reference to the File at the provided folderPath.

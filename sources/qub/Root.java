@@ -150,9 +150,14 @@ public class Root
         return folder.getFilesRecursively();
     }
 
-    public AsyncFunction<Result<Iterable<FileSystemEntry>>> getFilesAndFolders()
+    public Result<Iterable<FileSystemEntry>> getFilesAndFolders()
     {
         return folder.getFilesAndFolders();
+    }
+
+    public AsyncFunction<Result<Iterable<FileSystemEntry>>> getFilesAndFoldersAsync()
+    {
+        return folder.getFilesAndFoldersAsync();
     }
 
     public AsyncFunction<Result<Iterable<FileSystemEntry>>> getFilesAndFoldersRecursively()

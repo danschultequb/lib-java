@@ -25,9 +25,9 @@ public class Folder extends FileSystemEntry
     }
 
     @Override
-    public AsyncFunction<Result<Boolean>> delete()
+    public AsyncFunction<Result<Boolean>> deleteAsync()
     {
-        return getFileSystem().deleteFolder(getPath());
+        return getFileSystem().deleteFolderAsync(getPath());
     }
 
     public Path relativeTo(Path path)
@@ -49,9 +49,18 @@ public class Folder extends FileSystemEntry
      * Try to create this folder and return whether or not this function created the folder.
      * @return Whether or not this function created the folder.
      */
-    public AsyncFunction<Result<Boolean>> create()
+    public Result<Boolean> create()
     {
-        return getFileSystem().createFolder(getPath())
+        return createAsync().awaitReturn();
+    }
+
+    /**
+     * Try to create this folder and return whether or not this function created the folder.
+     * @return Whether or not this function created the folder.
+     */
+    public AsyncFunction<Result<Boolean>> createAsync()
+    {
+        return getFileSystem().createFolderAsync(getPath())
             .then(new Function1<Result<Folder>, Result<Boolean>>()
             {
                 @Override
@@ -239,7 +248,7 @@ public class Folder extends FileSystemEntry
         {
             final Path childFolderPath = getChildPath(relativeFolderPath);
             final FileSystem fileSystem = getFileSystem();
-            result = fileSystem.createFolder(childFolderPath);
+            result = fileSystem.createFolderAsync(childFolderPath);
         }
         return result;
     }
@@ -301,9 +310,14 @@ public class Folder extends FileSystemEntry
         return getFileSystem().getFilesRecursively(getPath());
     }
 
-    public AsyncFunction<Result<Iterable<FileSystemEntry>>> getFilesAndFolders()
+    public Result<Iterable<FileSystemEntry>> getFilesAndFolders()
     {
         return getFileSystem().getFilesAndFolders(getPath());
+    }
+
+    public AsyncFunction<Result<Iterable<FileSystemEntry>>> getFilesAndFoldersAsync()
+    {
+        return getFileSystem().getFilesAndFoldersAsync(getPath());
     }
 
     public AsyncFunction<Result<Iterable<FileSystemEntry>>> getFilesAndFoldersRecursively()

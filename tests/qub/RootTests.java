@@ -522,7 +522,7 @@ public class RootTests
                 runner.test("when root doesn't exist", (Test test) ->
                 {
                     final Root root = getRoot(test, "C:/");
-                    final Result<Iterable<FileSystemEntry>> result = root.getFilesAndFolders().awaitReturn();
+                    final Result<Iterable<FileSystemEntry>> result = root.getFilesAndFolders();
                     test.assertNotNull(result);
                     test.assertNull(result.getValue());
                     test.assertTrue(result.hasError());
@@ -534,7 +534,7 @@ public class RootTests
                 runner.test("when root is empty", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    final Result<Iterable<FileSystemEntry>> result = root.getFilesAndFolders().awaitReturn();
+                    final Result<Iterable<FileSystemEntry>> result = root.getFilesAndFolders();
                     test.assertNotNull(result);
                     test.assertEqual(new Array<FileSystemEntry>(0), result.getValue());
                     test.assertFalse(result.hasError());
@@ -545,7 +545,7 @@ public class RootTests
                     final Root root = getRoot(test);
                     root.createFile("thing.txt");
 
-                    final Result<Iterable<FileSystemEntry>> result = root.getFilesAndFolders().awaitReturn();
+                    final Result<Iterable<FileSystemEntry>> result = root.getFilesAndFolders();
                     test.assertNotNull(result);
                     test.assertEqual(
                         Array.fromValues(new FileSystemEntry[]
@@ -561,7 +561,7 @@ public class RootTests
                     final Root root = getRoot(test);
                     root.createFolder("things");
 
-                    final Result<Iterable<FileSystemEntry>> result = root.getFilesAndFolders().awaitReturn();
+                    final Result<Iterable<FileSystemEntry>> result = root.getFilesAndFolders();
                     test.assertNotNull(result);
                     test.assertEqual(
                         Array.fromValues(new FileSystemEntry[]

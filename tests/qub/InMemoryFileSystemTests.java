@@ -4,7 +4,7 @@ public class InMemoryFileSystemTests
 {
     public static void test(TestRunner runner)
     {
-        runner.testGroup(InMemoryFileSystem.class, runner.skip(), () ->
+        runner.testGroup(InMemoryFileSystem.class, () ->
         {
             FileSystemTests.test(runner, (AsyncRunner asyncRunner) ->
             {
@@ -13,7 +13,7 @@ public class InMemoryFileSystemTests
                 return fileSystem;
             });
 
-            runner.testGroup("setFileCanDelete(String,boolean)", () ->
+            runner.testGroup("setFileCanDelete(String,boolean)", runner.skip(), () ->
             {
                 runner.test("when root doesn't exist", (Test test) ->
                 {
@@ -46,7 +46,7 @@ public class InMemoryFileSystemTests
                 });
             });
 
-            runner.testGroup("deleteFile(String)", () ->
+            runner.testGroup("deleteFile(String)", runner.skip(), () ->
             {
                 runner.test("when file cannot be deleted", (Test test) ->
                 {
@@ -59,7 +59,7 @@ public class InMemoryFileSystemTests
                 });
             });
 
-            runner.testGroup("setFolderCanDelete(String,boolean)", () ->
+            runner.testGroup("setFolderCanDelete(String,boolean)", runner.skip(), () ->
             {
                 runner.test("when root doesn't exist", (Test test) ->
                 {
@@ -91,7 +91,7 @@ public class InMemoryFileSystemTests
                 });
             });
 
-            runner.testGroup("deleteFolder(String)", () ->
+            runner.testGroup("deleteFolder(String)", runner.skip(), () ->
             {
                 runner.test("when folder cannot be deleted", (Test test) ->
                 {
@@ -99,7 +99,7 @@ public class InMemoryFileSystemTests
                     fileSystem.createRoot("Z:/");
                     fileSystem.createFolder("Z:/file.png");
                     test.assertTrue(fileSystem.setFolderCanDelete("Z:/file.png", false));
-                    test.assertFalse(fileSystem.deleteFolder("Z:/file.png").awaitReturn().getValue());
+                    test.assertFalse(fileSystem.deleteFolder("Z:/file.png").getValue());
                     test.assertTrue(fileSystem.folderExists("Z:/file.png").awaitReturn().getValue());
                 });
 
@@ -110,7 +110,7 @@ public class InMemoryFileSystemTests
                     fileSystem.createFolder("Z:/file.png");
                     fileSystem.createFile("Z:/file.png/notme");
                     fileSystem.setFileCanDelete("Z:/file.png/notme", false);
-                    test.assertFalse(fileSystem.deleteFolder("Z:/file.png").awaitReturn().getValue());
+                    test.assertFalse(fileSystem.deleteFolder("Z:/file.png").getValue());
                     test.assertTrue(fileSystem.folderExists("Z:/file.png").awaitReturn().getValue());
                 });
 
@@ -121,7 +121,7 @@ public class InMemoryFileSystemTests
                     fileSystem.createFolder("Z:/file.png");
                     fileSystem.createFolder("Z:/file.png/notme");
                     fileSystem.setFolderCanDelete("Z:/file.png/notme", false);
-                    test.assertFalse(fileSystem.deleteFolder("Z:/file.png").awaitReturn().getValue());
+                    test.assertFalse(fileSystem.deleteFolder("Z:/file.png").getValue());
                     test.assertTrue(fileSystem.folderExists("Z:/file.png").awaitReturn().getValue());
                 });
             });

@@ -46,7 +46,7 @@ public class JavaTCPClientTests
                     test.assertError(new java.net.ConnectException("Connection refused: connect"), tcpClientResult);
                 });
 
-                runner.test("with valid arguments and with listening server", runner.skip(), (Test test) ->
+                runner.test("with valid arguments and with listening server", (Test test) ->
                 {
                     final AsyncRunner asyncRunner = test.getParallelAsyncRunner();
 
@@ -56,9 +56,9 @@ public class JavaTCPClientTests
 
                     try (final TCPEchoServer echoServer = echoServerResult.getValue())
                     {
-                        echoServer.echoAsync();
+                        final AsyncAction serverTask = echoServer.echoAsync();
 
-                        asyncRunner.schedule(() ->
+                        final AsyncAction clientTask = asyncRunner.schedule(() ->
                         {
                             final Result<TCPClient> tcpClientResult = JavaTCPClient.create(IPv4Address.localhost, port.get(), test.getParallelAsyncRunner());
                             test.assertSuccess(tcpClientResult);
@@ -68,7 +68,10 @@ public class JavaTCPClientTests
                                 tcpClient.asLineWriteStream().writeLine("abcdef");
                                 test.assertEqual("abcdef", tcpClient.asLineReadStream().readLine());
                             }
-                        }).await();
+                        });
+
+                        serverTask.await();
+                        clientTask.await();
                     }
                 });
             });

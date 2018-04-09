@@ -10,25 +10,24 @@ public class JavaFileSystemTests
         final Path tempFolderPath = Path.parse(tempFolderPathString).concatenateSegment("qub-tests");
         final AtomicInteger testNumber = new AtomicInteger(0);
 
-        final Value<Path> testFolderPath = new Value<>();
         final Value<FolderFileSystem> folderFileSystem = new Value<>();
 
         runner.afterTest(() ->
         {
             if (folderFileSystem.hasValue())
             {
-                folderFileSystem.get().delete().await();
+                folderFileSystem.get().delete();
                 folderFileSystem.clear();
             }
         });
 
-        runner.testGroup(JavaFileSystem.class, runner.skip(), () ->
+        runner.testGroup(JavaFileSystem.class, () ->
         {
             FileSystemTests.test(runner, (AsyncRunner asyncRunner) ->
             {
-                testFolderPath.set(tempFolderPath.concatenateSegment(Integer.toString(testNumber.incrementAndGet())));
-                folderFileSystem.set(FolderFileSystem.create(new JavaFileSystem(asyncRunner), testFolderPath.get()));
-                folderFileSystem.get().create().await();
+                final Path testFolderPath = tempFolderPath.concatenateSegment(Integer.toString(testNumber.incrementAndGet()));
+                folderFileSystem.set(FolderFileSystem.get(new JavaFileSystem(asyncRunner), testFolderPath).getValue());
+                folderFileSystem.get().create();
                 return folderFileSystem.get();
             });
         });

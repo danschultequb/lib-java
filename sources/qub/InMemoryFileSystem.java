@@ -112,7 +112,7 @@ public class InMemoryFileSystem extends FileSystemBase
     }
 
     @Override
-    public AsyncFunction<Result<Iterable<Root>>> getRoots()
+    public AsyncFunction<Result<Iterable<Root>>> getRootsAsync()
     {
         return async(this, new Function1<AsyncRunner, Result<Iterable<Root>>>()
         {
@@ -132,7 +132,7 @@ public class InMemoryFileSystem extends FileSystemBase
     }
 
     @Override
-    public AsyncFunction<Result<Iterable<FileSystemEntry>>> getFilesAndFolders(final Path folderPath)
+    public AsyncFunction<Result<Iterable<FileSystemEntry>>> getFilesAndFoldersAsync(final Path folderPath)
     {
         AsyncFunction<Result<Iterable<FileSystemEntry>>> result;
 
@@ -190,7 +190,7 @@ public class InMemoryFileSystem extends FileSystemBase
     }
 
     @Override
-    public AsyncFunction<Result<Folder>> createFolder(final Path folderPath)
+    public AsyncFunction<Result<Folder>> createFolderAsync(final Path folderPath)
     {
         return asyncFunction(this, new Function1<AsyncRunner, AsyncFunction<Result<Folder>>>()
         {
@@ -231,7 +231,7 @@ public class InMemoryFileSystem extends FileSystemBase
     }
 
     @Override
-    public AsyncFunction<Result<Boolean>> deleteFolder(final Path folderPath)
+    public AsyncFunction<Result<Boolean>> deleteFolderAsync(final Path folderPath)
     {
         return async(this, new Function1<AsyncRunner, Result<Boolean>>()
         {

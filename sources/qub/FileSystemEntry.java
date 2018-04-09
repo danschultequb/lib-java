@@ -59,7 +59,17 @@ public abstract class FileSystemEntry
      * entry.
      * @return Whether or not this function deleted the entry.
      */
-    public abstract AsyncFunction<Result<Boolean>> delete();
+    public Result<Boolean> delete()
+    {
+        return deleteAsync().awaitReturn();
+    }
+
+    /**
+     * Attempt to delete this FileSystemEntry. Return whether or not this function deleted the
+     * entry.
+     * @return Whether or not this function deleted the entry.
+     */
+    public abstract AsyncFunction<Result<Boolean>> deleteAsync();
 
     @Override
     public String toString()

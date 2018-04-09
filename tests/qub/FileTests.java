@@ -70,7 +70,7 @@ public class FileTests
                 runner.test("when file doesn't exist", (Test test) ->
                 {
                     final File file = getFile(test);
-                    test.assertFalse(file.delete().awaitReturn().getValue());
+                    test.assertFalse(file.delete().getValue());
                     test.assertFalse(file.exists().awaitReturn().getValue());
                 });
 
@@ -79,7 +79,7 @@ public class FileTests
                     final File file = getFile(test);
                     file.create();
 
-                    test.assertTrue(file.delete().awaitReturn().getValue());
+                    test.assertTrue(file.delete().getValue());
                     test.assertFalse(file.exists().awaitReturn().getValue());
                 });
             });

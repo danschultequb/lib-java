@@ -71,7 +71,7 @@ public class File extends FileSystemEntry
     }
 
     @Override
-    public AsyncFunction<Result<Boolean>> delete()
+    public AsyncFunction<Result<Boolean>> deleteAsync()
     {
         return getFileSystem().deleteFile(getPath());
     }

@@ -6,14 +6,15 @@ public class FolderFileSystemTests
     {
         runner.testGroup(FolderFileSystem.class, () ->
         {
-            runner.testGroup("create(FileSystem,String)", () ->
+            runner.testGroup("get(FileSystem,String)", () ->
             {
                 runner.test("with null path", (Test test) ->
                 {
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner());
                     fileSystem.createRoot("/");
-
-                    test.assertNull(FolderFileSystem.create(fileSystem, (String)null));
+                    
+                    final Result<FolderFileSystem> getResult = FolderFileSystem.get(fileSystem, (String)null);
+                    test.assertError(new IllegalArgumentException("baseFolderPath cannot be null."), getResult);
                 });
 
                 runner.test("with empty path", (Test test) ->
@@ -21,7 +22,8 @@ public class FolderFileSystemTests
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner());
                     fileSystem.createRoot("/");
 
-                    test.assertNull(FolderFileSystem.create(fileSystem, ""));
+                    final Result<FolderFileSystem> getResult = FolderFileSystem.get(fileSystem, "");
+                    test.assertError(new IllegalArgumentException("baseFolderPath cannot be null."), getResult);
                 });
 
                 runner.test("with relative path", (Test test) ->
@@ -29,8 +31,9 @@ public class FolderFileSystemTests
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner());
                     fileSystem.createRoot("/");
 
-                    final FolderFileSystem folderFileSystem = FolderFileSystem.create(fileSystem, "basefolder");
-                    test.assertEqual(Path.parse("basefolder"), folderFileSystem.getBaseFolderPath());
+                    final Result<FolderFileSystem> folderFileSystem = FolderFileSystem.get(fileSystem, "basefolder");
+                    test.assertSuccess(folderFileSystem);
+                    test.assertEqual(Path.parse("basefolder"), folderFileSystem.getValue().getBaseFolderPath());
                 });
 
                 runner.test("with relative path that ends with backslash", (Test test) ->
@@ -38,8 +41,8 @@ public class FolderFileSystemTests
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner());
                     fileSystem.createRoot("/");
 
-                    final FolderFileSystem folderFileSystem = FolderFileSystem.create(fileSystem, "basefolder\\");
-                    test.assertEqual(Path.parse("basefolder"), folderFileSystem.getBaseFolderPath());
+                    final Result<FolderFileSystem> folderFileSystem = FolderFileSystem.get(fileSystem, "basefolder\\");
+                    test.assertEqual(Path.parse("basefolder"), folderFileSystem.getValue().getBaseFolderPath());
                 });
 
                 runner.test("with relative path that ends with forward slash", (Test test) ->
@@ -47,8 +50,8 @@ public class FolderFileSystemTests
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner());
                     fileSystem.createRoot("/");
 
-                    final FolderFileSystem folderFileSystem = FolderFileSystem.create(fileSystem, "basefolder/");
-                    test.assertEqual(Path.parse("basefolder"), folderFileSystem.getBaseFolderPath());
+                    final Result<FolderFileSystem> folderFileSystem = FolderFileSystem.get(fileSystem, "basefolder/");
+                    test.assertEqual(Path.parse("basefolder"), folderFileSystem.getValue().getBaseFolderPath());
                 });
 
                 runner.test("with rooted path", (Test test) ->
@@ -56,8 +59,8 @@ public class FolderFileSystemTests
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner());
                     fileSystem.createRoot("/");
 
-                    final FolderFileSystem folderFileSystem = FolderFileSystem.create(fileSystem, "\\basefolder");
-                    test.assertEqual(Path.parse("\\basefolder"), folderFileSystem.getBaseFolderPath());
+                    final Result<FolderFileSystem> folderFileSystem = FolderFileSystem.get(fileSystem, "\\basefolder");
+                    test.assertEqual(Path.parse("\\basefolder"), folderFileSystem.getValue().getBaseFolderPath());
                 });
 
                 runner.test("with rooted path that ends with backslash", (Test test) ->
@@ -65,8 +68,8 @@ public class FolderFileSystemTests
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner());
                     fileSystem.createRoot("/");
 
-                    final FolderFileSystem folderFileSystem = FolderFileSystem.create(fileSystem, "/basefolder\\");
-                    test.assertEqual(Path.parse("/basefolder"), folderFileSystem.getBaseFolderPath());
+                    final Result<FolderFileSystem> folderFileSystem = FolderFileSystem.get(fileSystem, "/basefolder\\");
+                    test.assertEqual(Path.parse("/basefolder"), folderFileSystem.getValue().getBaseFolderPath());
                 });
 
                 runner.test("with rooted path that ends with forward slash", (Test test) ->
@@ -74,8 +77,8 @@ public class FolderFileSystemTests
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner());
                     fileSystem.createRoot("/");
 
-                    final FolderFileSystem folderFileSystem = FolderFileSystem.create(fileSystem, "/basefolder/");
-                    test.assertEqual(Path.parse("/basefolder"), folderFileSystem.getBaseFolderPath());
+                    final Result<FolderFileSystem> folderFileSystem = FolderFileSystem.get(fileSystem, "/basefolder/");
+                    test.assertEqual(Path.parse("/basefolder"), folderFileSystem.getValue().getBaseFolderPath());
                 });
             });
         });

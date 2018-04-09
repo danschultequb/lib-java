@@ -40,10 +40,10 @@ public class TCPEchoServer extends AsyncDisposableBase
                 @Override
                 public void run(Result<TCPClient> tcpClientResult)
                 {
+                    //MAIN
                     if (!tcpClientResult.hasError())
                     {
-                        final TCPClient tcpClient = tcpClientResult.getValue();
-                        try
+                        try (final TCPClient tcpClient = tcpClientResult.getValue())
                         {
                             final LineReadStream tcpClientLineReadStream = tcpClient.asLineReadStream(true);
                             final LineWriteStream tcpClientLineWriteStream = tcpClient.asLineWriteStream();
@@ -57,10 +57,6 @@ public class TCPEchoServer extends AsyncDisposableBase
                                 //BLOCKING
                                 line = tcpClientLineReadStream.readLine();
                             }
-                        }
-                        finally
-                        {
-                            tcpClient.dispose();
                         }
                     }
                 }
