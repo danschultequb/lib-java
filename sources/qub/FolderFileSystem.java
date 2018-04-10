@@ -168,10 +168,10 @@ public class FolderFileSystem extends FileSystemBase
     }
 
     @Override
-    public AsyncFunction<Result<File>> createFile(Path filePath)
+    public AsyncFunction<Result<File>> createFileAsync(Path filePath)
     {
         final Path innerFilePath = getInnerPath(filePath);
-        return innerFileSystem.createFile(innerFilePath)
+        return innerFileSystem.createFileAsync(innerFilePath)
             .then(new Function1<Result<File>, Result<File>>()
             {
                 @Override

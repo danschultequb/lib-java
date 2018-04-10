@@ -51,80 +51,73 @@ public class JavaFileSystem extends FileSystemBase
     @Override
     public AsyncFunction<Result<Iterable<FileSystemEntry>>> getFilesAndFoldersAsync(final Path rootedFolderPath)
     {
-        return asyncFunction(this, new Function1<AsyncRunner, AsyncFunction<Result<Iterable<FileSystemEntry>>>>()
+        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+        final AsyncRunner fileSystemAsyncRunner = getAsyncRunner();
+
+        AsyncFunction<Result<Iterable<FileSystemEntry>>> result;
+        if (rootedFolderPath == null)
         {
-            @Override
-            public AsyncFunction<Result<Iterable<FileSystemEntry>>> run(final AsyncRunner asyncRunner)
+            result = Async.error(currentAsyncRunner, new IllegalArgumentException("rootedFolderPath cannot be null."));
+        }
+        else if (!rootedFolderPath.isRooted())
+        {
+            result = Async.error(currentAsyncRunner, new IllegalArgumentException("rootedFolderPath must be rooted."));
+        }
+        else
+        {
+            result = fileSystemAsyncRunner.schedule(new Function0<Result<Iterable<FileSystemEntry>>>()
             {
-                return folderExists(rootedFolderPath)
-                    .thenAsyncFunction(new Function1<Result<Boolean>, AsyncFunction<Result<Iterable<FileSystemEntry>>>>()
+                @Override
+                public Result<Iterable<FileSystemEntry>> run()
+                {
+                    Result<Iterable<FileSystemEntry>> result;
+
+                    Array<FileSystemEntry> filesAndFolders;
+
+                    final java.io.File containerFile = new java.io.File(rootedFolderPath.toString());
+                    final java.io.File[] containerEntryFiles = containerFile.listFiles();
+                    if (containerEntryFiles == null)
                     {
-                        @Override
-                        public AsyncFunction<Result<Iterable<FileSystemEntry>>> run(Result<Boolean> folderExistsResult)
+                        result = Result.error(new FolderNotFoundException(rootedFolderPath));
+                    }
+                    else
+                    {
+                        final List<Folder> folders = new ArrayList<>();
+                        final List<File> files = new ArrayList<>();
+                        for (final java.io.File containerEntryFile : containerEntryFiles)
                         {
-                            AsyncFunction<Result<Iterable<FileSystemEntry>>> getFilesAndFoldersResult;
-                            if (folderExistsResult.hasError())
+                            final String containerEntryPathString = containerEntryFile.getAbsolutePath();
+                            final Path containerEntryPath = Path.parse(containerEntryPathString).normalize();
+                            if (containerEntryFile.isFile())
                             {
-                                getFilesAndFoldersResult = Async.error(asyncRunner, folderExistsResult.getError());
+                                files.add(getFile(containerEntryPath).getValue());
                             }
-                            else if (!folderExistsResult.getValue())
+                            else if (containerEntryFile.isDirectory())
                             {
-                                getFilesAndFoldersResult = Async.error(asyncRunner, new FolderNotFoundException(rootedFolderPath));
+                                folders.add(getFolder(containerEntryPath).getValue());
                             }
-                            else
-                            {
-                                getFilesAndFoldersResult = asyncRunner.schedule(new Function0<Result<Iterable<FileSystemEntry>>>()
-                                {
-                                    @Override
-                                    public Result<Iterable<FileSystemEntry>> run()
-                                    {
-                                        Array<FileSystemEntry> filesAndFolders;
-
-                                        final java.io.File containerFile = new java.io.File(rootedFolderPath.toString());
-                                        final java.io.File[] containerEntryFiles = containerFile.listFiles();
-                                        if (containerEntryFiles == null || containerEntryFiles.length == 0)
-                                        {
-                                            filesAndFolders = new Array<>(0);
-                                        }
-                                        else
-                                        {
-                                            final List<Folder> folders = new ArrayList<>();
-                                            final List<File> files = new ArrayList<>();
-                                            for (final java.io.File containerEntryFile : containerEntryFiles)
-                                            {
-                                                final String containerEntryPathString = containerEntryFile.getAbsolutePath();
-                                                final Path containerEntryPath = Path.parse(containerEntryPathString).normalize();
-                                                if (containerEntryFile.isFile())
-                                                {
-                                                    files.add(getFile(containerEntryPath).getValue());
-                                                }
-                                                else if (containerEntryFile.isDirectory())
-                                                {
-                                                    folders.add(getFolder(containerEntryPath).getValue());
-                                                }
-                                            }
-
-                                            filesAndFolders = new Array<>(containerEntryFiles.length);
-                                            final int foldersCount = folders.getCount();
-                                            for (int i = 0; i < foldersCount; ++i)
-                                            {
-                                                filesAndFolders.set(i, folders.get(i));
-                                            }
-                                            for (int i = 0; i < files.getCount(); ++i)
-                                            {
-                                                filesAndFolders.set(i + foldersCount, files.get(i));
-                                            }
-                                        }
-
-                                        return Result.<Iterable<FileSystemEntry>>success(filesAndFolders);
-                                    }
-                                });
-                            }
-                            return getFilesAndFoldersResult;
                         }
-                    });
-            }
-        });
+
+                        filesAndFolders = new Array<>(containerEntryFiles.length);
+                        final int foldersCount = folders.getCount();
+                        for (int i = 0; i < foldersCount; ++i)
+                        {
+                            filesAndFolders.set(i, folders.get(i));
+                        }
+                        for (int i = 0; i < files.getCount(); ++i)
+                        {
+                            filesAndFolders.set(i + foldersCount, files.get(i));
+                        }
+
+                        result = Result.<Iterable<FileSystemEntry>>success(filesAndFolders);
+                    }
+
+                    return result;
+                }
+            })
+            .thenOn(currentAsyncRunner);
+        }
+        return result;
     }
 
     @Override
@@ -289,7 +282,7 @@ public class JavaFileSystem extends FileSystemBase
     }
 
     @Override
-    public AsyncFunction<Result<File>> createFile(final Path rootedFilePath)
+    public AsyncFunction<Result<File>> createFileAsync(final Path rootedFilePath)
     {
         return asyncFunction(this, new Function1<AsyncRunner, AsyncFunction<Result<File>>>()
         {

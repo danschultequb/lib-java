@@ -138,11 +138,11 @@ public class InMemoryFileSystem extends FileSystemBase
 
         if (folderPath == null)
         {
-            result = Async.error(getAsyncRunner(), new IllegalArgumentException("folderPath cannot be null."));
+            result = Async.error(getAsyncRunner(), new IllegalArgumentException("rootedFolderPath cannot be null."));
         }
         else if (!folderPath.isRooted())
         {
-            result = Async.error(getAsyncRunner(), new IllegalArgumentException("folderPath must be rooted."));
+            result = Async.error(getAsyncRunner(), new IllegalArgumentException("rootedFolderPath must be rooted."));
         }
         else
         {
@@ -270,7 +270,7 @@ public class InMemoryFileSystem extends FileSystemBase
     }
 
     @Override
-    public AsyncFunction<Result<File>> createFile(final Path filePath)
+    public AsyncFunction<Result<File>> createFileAsync(final Path filePath)
     {
         return asyncFunction(this, new Function1<AsyncRunner, AsyncFunction<Result<File>>>()
         {

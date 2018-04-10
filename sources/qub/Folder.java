@@ -258,7 +258,7 @@ public class Folder extends FileSystemEntry
      * @param relativeFilePath The relative path from this folder to the child file to create.
      * @return Whether or not this function created the child file.
      */
-    public AsyncFunction<Result<File>> createFile(String relativeFilePath)
+    public Result<File> createFile(String relativeFilePath)
     {
         return createFile(Path.parse(relativeFilePath));
     }
@@ -268,7 +268,27 @@ public class Folder extends FileSystemEntry
      * @param relativeFilePath The relative path from this folder to the child file to create.
      * @return Whether or not this function created the child file.
      */
-    public AsyncFunction<Result<File>> createFile(Path relativeFilePath)
+    public Result<File> createFile(Path relativeFilePath)
+    {
+        return createFileAsync(relativeFilePath).awaitReturn();
+    }
+
+    /**
+     * Create a child file of this folder with the provided relative path.
+     * @param relativeFilePath The relative path from this folder to the child file to create.
+     * @return Whether or not this function created the child file.
+     */
+    public AsyncFunction<Result<File>> createFileAsync(String relativeFilePath)
+    {
+        return createFileAsync(Path.parse(relativeFilePath));
+    }
+
+    /**
+     * Create a child file of this folder with the provided relative path.
+     * @param relativeFilePath The relative path from this folder to the child file to create.
+     * @return Whether or not this function created the child file.
+     */
+    public AsyncFunction<Result<File>> createFileAsync(Path relativeFilePath)
     {
         AsyncFunction<Result<File>> result;
 
@@ -284,7 +304,7 @@ public class Folder extends FileSystemEntry
         {
             final Path childFilePath = getChildPath(relativeFilePath);
             final FileSystem fileSystem = getFileSystem();
-            result = fileSystem.createFile(childFilePath);
+            result = fileSystem.createFileAsync(childFilePath);
         }
 
         return result;

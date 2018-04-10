@@ -38,13 +38,13 @@ public class FileTests
             {
                 final File file = getFile(test);
 
-                test.assertTrue(file.create().awaitReturn().getValue());
+                test.assertTrue(file.create().getValue());
 
                 test.assertTrue(file.exists().awaitReturn().getValue());
 
                 test.assertEqual(new byte[0], file.getContents().awaitReturn().getValue());
 
-                test.assertFalse(file.create().awaitReturn().getValue());
+                test.assertFalse(file.create().getValue());
 
                 test.assertTrue(file.exists().awaitReturn().getValue());
             });
@@ -60,7 +60,7 @@ public class FileTests
                 runner.test("when file does exist", (Test test) ->
                 {
                     final File file = getFile(test);
-                    file.create().await();
+                    file.create();
                     test.assertTrue(file.exists().awaitReturn().getValue());
                 });
             });

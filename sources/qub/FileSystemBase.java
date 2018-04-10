@@ -201,13 +201,25 @@ public abstract class FileSystemBase implements FileSystem
     public abstract AsyncFunction<Result<Boolean>> fileExists(Path filePath);
 
     @Override
-    public AsyncFunction<Result<File>> createFile(String filePath)
+    public Result<File> createFile(String filePath)
     {
         return FileSystemBase.createFile(this, filePath);
     }
 
     @Override
-    public abstract AsyncFunction<Result<File>> createFile(Path filePath);
+    public Result<File> createFile(Path filePath)
+    {
+        return FileSystemBase.createFile(this, filePath);
+    }
+
+    @Override
+    public AsyncFunction<Result<File>> createFileAsync(String filePath)
+    {
+        return FileSystemBase.createFileAsync(this, filePath);
+    }
+
+    @Override
+    public abstract AsyncFunction<Result<File>> createFileAsync(Path filePath);
 
     @Override
     public AsyncFunction<Result<Boolean>> deleteFile(String filePath)
@@ -754,9 +766,29 @@ public abstract class FileSystemBase implements FileSystem
      * @param filePath The path to the file to create.
      * @return Whether or not this function created the file.
      */
-    public static AsyncFunction<Result<File>> createFile(FileSystem fileSystem, String filePath)
+    public static Result<File> createFile(FileSystem fileSystem, String filePath)
     {
         return fileSystem.createFile(Path.parse(filePath));
+    }
+
+    /**
+     * Create a file at the provided path and return whether or not this function created the file.
+     * @param filePath The path to the file to create.
+     * @return Whether or not this function created the file.
+     */
+    public static Result<File> createFile(FileSystem fileSystem, Path filePath)
+    {
+        return fileSystem.createFileAsync(filePath).awaitReturn();
+    }
+
+    /**
+     * Create a file at the provided path and return whether or not this function created the file.
+     * @param filePath The path to the file to create.
+     * @return Whether or not this function created the file.
+     */
+    public static AsyncFunction<Result<File>> createFileAsync(FileSystem fileSystem, String filePath)
+    {
+        return fileSystem.createFileAsync(Path.parse(filePath));
     }
 
     /**

@@ -49,9 +49,18 @@ public class File extends FileSystemEntry
      * Create this File and return whether or not it was created as a result of this function.
      * @return Whether or not this function created the file.
      */
-    public AsyncFunction<Result<Boolean>> create()
+    public Result<Boolean> create()
     {
-        return getFileSystem().createFile(getPath()).then(new Function1<Result<File>, Result<Boolean>>()
+        return createAsync().awaitReturn();
+    }
+
+    /**
+     * Create this File and return whether or not it was created as a result of this function.
+     * @return Whether or not this function created the file.
+     */
+    public AsyncFunction<Result<Boolean>> createAsync()
+    {
+        return getFileSystem().createFileAsync(getPath()).then(new Function1<Result<File>, Result<Boolean>>()
         {
             @Override
             public Result<Boolean> run(Result<File> createResult)

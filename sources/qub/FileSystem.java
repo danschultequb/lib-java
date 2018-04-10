@@ -271,14 +271,28 @@ public interface FileSystem
      * @param filePath The path to the file to create.
      * @return Whether or not this function created the file.
      */
-    AsyncFunction<Result<File>> createFile(String filePath);
+    Result<File> createFile(String filePath);
 
     /**
      * Create a file at the provided path and return whether or not this function created the file.
      * @param filePath The path to the file to create.
      * @return Whether or not this function created the file.
      */
-    AsyncFunction<Result<File>> createFile(Path filePath);
+    Result<File> createFile(Path filePath);
+
+    /**
+     * Create a file at the provided path and return whether or not this function created the file.
+     * @param filePath The path to the file to create.
+     * @return Whether or not this function created the file.
+     */
+    AsyncFunction<Result<File>> createFileAsync(String filePath);
+
+    /**
+     * Create a file at the provided path and return whether or not this function created the file.
+     * @param filePath The path to the file to create.
+     * @return Whether or not this function created the file.
+     */
+    AsyncFunction<Result<File>> createFileAsync(Path filePath);
 
     /**
      * Delete the file at the provided path and return whether this function deleted the file.

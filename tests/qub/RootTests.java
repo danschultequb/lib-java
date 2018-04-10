@@ -302,7 +302,7 @@ public class RootTests
                 runner.test("with null String", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    final Result<File> result = root.createFile((String)null).awaitReturn();
+                    final Result<File> result = root.createFile((String)null);
                     test.assertNotNull(result);
                     test.assertNull(result.getValue());
                     test.assertTrue(result.hasError());
@@ -313,7 +313,7 @@ public class RootTests
                 runner.test("with empty String", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    final Result<File> result = root.createFile("").awaitReturn();
+                    final Result<File> result = root.createFile("");
                     test.assertNotNull(result);
                     test.assertNull(result.getValue());
                     test.assertTrue(result.hasError());
@@ -324,7 +324,7 @@ public class RootTests
                 runner.test("with non-existing file", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    final Result<File> result = root.createFile("fileName").awaitReturn();
+                    final Result<File> result = root.createFile("fileName");
                     test.assertNotNull(result);
                     test.assertNotNull(result.getValue());
                     test.assertEqual("/fileName", result.getValue().toString());
@@ -334,7 +334,7 @@ public class RootTests
                 runner.test("with non-exisitng file when root doesn't exist", (Test test) ->
                 {
                     final Root root = getRoot(test, "C:/");
-                    final Result<File> result = root.createFile("fileName").awaitReturn();
+                    final Result<File> result = root.createFile("fileName");
                     test.assertNotNull(result);
                     test.assertNull(result.getValue());
                     test.assertTrue(result.hasError());
@@ -347,7 +347,7 @@ public class RootTests
                     final Root root = getRoot(test);
                     root.createFile("A");
 
-                    final Result<File> result = root.createFile("A").awaitReturn();
+                    final Result<File> result = root.createFile("A");
                     test.assertNotNull(result);
                     test.assertNotNull(result.getValue());
                     test.assertEqual("/A", result.getValue().toString());
@@ -362,7 +362,7 @@ public class RootTests
                 runner.test("with null Path", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    final Result<File> result = root.createFile((Path)null).awaitReturn();
+                    final Result<File> result = root.createFile((Path)null);
                     test.assertNotNull(result);
                     test.assertNull(result.getValue());
                     test.assertTrue(result.hasError());
@@ -373,7 +373,7 @@ public class RootTests
                 runner.test("with empty Path", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    final Result<File> result = root.createFile(Path.parse("")).awaitReturn();
+                    final Result<File> result = root.createFile(Path.parse(""));
                     test.assertNotNull(result);
                     test.assertNull(result.getValue());
                     test.assertTrue(result.hasError());
@@ -384,7 +384,7 @@ public class RootTests
                 runner.test("with non-existing file", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    final Result<File> result = root.createFile(Path.parse("fileName")).awaitReturn();
+                    final Result<File> result = root.createFile(Path.parse("fileName"));
                     test.assertNotNull(result);
                     test.assertNotNull(result.getValue());
                     test.assertEqual("/fileName", result.getValue().toString());
@@ -394,7 +394,7 @@ public class RootTests
                 runner.test("with non-existing file when root doesn't exist", (Test test) ->
                 {
                     final Root root = getRoot(test, "C:/");
-                    final Result<File> result = root.createFile(Path.parse("fileName")).awaitReturn();
+                    final Result<File> result = root.createFile(Path.parse("fileName"));
                     test.assertNotNull(result);
                     test.assertNull(result.getValue());
                     test.assertTrue(result.hasError());
@@ -407,7 +407,7 @@ public class RootTests
                     final Root root = getRoot(test);
                     root.createFile("A");
 
-                    final Result<File> result = root.createFile(Path.parse("A")).awaitReturn();
+                    final Result<File> result = root.createFile(Path.parse("A"));
                     test.assertNotNull(result);
                     test.assertNotNull(result.getValue());
                     test.assertEqual("/A", result.getValue().toString());
