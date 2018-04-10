@@ -422,7 +422,7 @@ public class RootTests
                 runner.test("when root doesn't exist", (Test test) ->
                 {
                     final Root root = getRoot(test, "C:/");
-                    final Result<Iterable<Folder>> result = root.getFolders().awaitReturn();
+                    final Result<Iterable<Folder>> result = root.getFolders();
                     test.assertNotNull(result);
                     test.assertNull(result.getValue());
                     test.assertTrue(result.hasError());
@@ -433,7 +433,7 @@ public class RootTests
                 runner.test("when root is empty", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    final Result<Iterable<Folder>> result = root.getFolders().awaitReturn();
+                    final Result<Iterable<Folder>> result = root.getFolders();
                     test.assertNotNull(result);
                     test.assertEqual(new Array<Folder>(0), result.getValue());
                     test.assertFalse(result.hasError());
@@ -444,7 +444,7 @@ public class RootTests
                     final Root root = getRoot(test);
                     root.createFile("thing.txt");
 
-                    final Result<Iterable<Folder>> result = root.getFolders().awaitReturn();
+                    final Result<Iterable<Folder>> result = root.getFolders();
                     test.assertNotNull(result);
                     test.assertEqual(new Array<Folder>(0), result.getValue());
                     test.assertFalse(result.hasError());
@@ -455,7 +455,7 @@ public class RootTests
                     final Root root = getRoot(test);
                     root.createFolder("things");
 
-                    final Result<Iterable<Folder>> result = root.getFolders().awaitReturn();
+                    final Result<Iterable<Folder>> result = root.getFolders();
                     test.assertNotNull(result);
                     test.assertEqual(
                         Array.fromValues(new Folder[]
@@ -578,7 +578,7 @@ public class RootTests
                 runner.test("when root doesn't exist", (Test test) ->
                 {
                     final Root root = getRoot(test, "C:/");
-                    final Result<Iterable<FileSystemEntry>> result = root.getFilesAndFoldersRecursively().awaitReturn();
+                    final Result<Iterable<FileSystemEntry>> result = root.getFilesAndFoldersRecursively();
                     test.assertNotNull(result);
                     test.assertNull(result.getValue());
                     test.assertTrue(result.hasError());
@@ -641,7 +641,7 @@ public class RootTests
                             root.getFolder("B/C").getValue(),
                             root.getFile("B/C/4.xml").getValue()
                         });
-                    final Iterable<FileSystemEntry> actualEntries = root.getFilesAndFoldersRecursively().awaitReturn().getValue();
+                    final Iterable<FileSystemEntry> actualEntries = root.getFilesAndFoldersRecursively().getValue();
                     test.assertEqual(expectedEntries, actualEntries);
                 });
             });
@@ -712,13 +712,13 @@ public class RootTests
                 runner.test("when root doesn't exist", (Test test) ->
                 {
                     final Root root = getRoot(test, "C:/");
-                    test.assertEqual(new Array<Folder>(0), root.getFoldersRecursively().awaitReturn().getValue());
+                    test.assertEqual(new Array<Folder>(0), root.getFoldersRecursively().getValue());
                 });
 
                 runner.test("when root is empty", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    test.assertEqual(new Array<Folder>(0), root.getFoldersRecursively().awaitReturn().getValue());
+                    test.assertEqual(new Array<Folder>(0), root.getFoldersRecursively().getValue());
                 });
 
                 runner.test("when root has files", (Test test) ->
@@ -761,7 +761,7 @@ public class RootTests
                             root.getFolder("B").getValue(),
                             root.getFolder("B/C").getValue()
                         });
-                    final Iterable<Folder> actualEntries = root.getFoldersRecursively().awaitReturn().getValue();
+                    final Iterable<Folder> actualEntries = root.getFoldersRecursively().getValue();
                     test.assertEqual(expectedEntries, actualEntries);
                 });
             });

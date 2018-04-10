@@ -150,14 +150,24 @@ public class Root
         return folder.createFileAsync(fileRelativePath);
     }
 
-    public AsyncFunction<Result<Iterable<Folder>>> getFolders()
+    public Result<Iterable<Folder>> getFolders()
     {
         return folder.getFolders();
     }
 
-    public AsyncFunction<Result<Iterable<Folder>>> getFoldersRecursively()
+    public AsyncFunction<Result<Iterable<Folder>>> getFoldersAsync()
+    {
+        return folder.getFoldersAsync();
+    }
+
+    public Result<Iterable<Folder>> getFoldersRecursively()
     {
         return folder.getFoldersRecursively();
+    }
+
+    public AsyncFunction<Result<Iterable<Folder>>> getFoldersRecursivelyAsync()
+    {
+        return folder.getFoldersRecursivelyAsync();
     }
 
     public AsyncFunction<Result<Iterable<File>>> getFiles()
@@ -180,8 +190,13 @@ public class Root
         return folder.getFilesAndFoldersAsync();
     }
 
-    public AsyncFunction<Result<Iterable<FileSystemEntry>>> getFilesAndFoldersRecursively()
+    public Result<Iterable<FileSystemEntry>> getFilesAndFoldersRecursively()
     {
         return folder.getFilesAndFoldersRecursively();
+    }
+
+    public AsyncFunction<Result<Iterable<FileSystemEntry>>> getFilesAndFoldersRecursivelyAsync()
+    {
+        return folder.getFilesAndFoldersRecursivelyAsync();
     }
 }

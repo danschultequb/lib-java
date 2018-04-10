@@ -114,64 +114,56 @@ public class InMemoryFileSystem extends FileSystemBase
     @Override
     public AsyncFunction<Result<Iterable<Root>>> getRootsAsync()
     {
-        return async(this, new Function1<AsyncRunner, Result<Iterable<Root>>>()
+        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+        return Async.<Iterable<Root>>success(currentAsyncRunner, Array.fromValues(Array.fromValues(roots.map(new Function1<InMemoryRoot, Root>()
         {
             @Override
-            public Result<Iterable<Root>> run(AsyncRunner asyncRunner)
+            public Root run(InMemoryRoot inMemoryRoot)
             {
-                return Result.<Iterable<Root>>success(Array.fromValues(roots.map(new Function1<InMemoryRoot, Root>()
-                {
-                    @Override
-                    public Root run(InMemoryRoot inMemoryRoot)
-                    {
-                        return new Root(InMemoryFileSystem.this, inMemoryRoot.getPath());
-                    }
-                })));
+                return new Root(InMemoryFileSystem.this, inMemoryRoot.getPath());
             }
-        });
+        }))));
     }
 
     @Override
-    public AsyncFunction<Result<Iterable<FileSystemEntry>>> getFilesAndFoldersAsync(final Path folderPath)
+    public AsyncFunction<Result<Iterable<FileSystemEntry>>> getFilesAndFoldersAsync(final Path rootedFolderPath)
     {
-        AsyncFunction<Result<Iterable<FileSystemEntry>>> result;
+        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
 
-        if (folderPath == null)
+        AsyncFunction<Result<Iterable<FileSystemEntry>>> result;
+        if (rootedFolderPath == null)
         {
-            result = Async.error(getAsyncRunner(), new IllegalArgumentException("rootedFolderPath cannot be null."));
+            result = Async.error(currentAsyncRunner, new IllegalArgumentException("rootedFolderPath cannot be null."));
         }
-        else if (!folderPath.isRooted())
+        else if (!rootedFolderPath.isRooted())
         {
-            result = Async.error(getAsyncRunner(), new IllegalArgumentException("rootedFolderPath must be rooted."));
+            result = Async.error(currentAsyncRunner, new IllegalArgumentException("rootedFolderPath must be rooted."));
         }
         else
         {
-            result = async(this, new Function1<AsyncRunner, Result<Iterable<FileSystemEntry>>>()
+            final InMemoryFolder folder = getInMemoryFolder(rootedFolderPath);
+            if (folder == null)
             {
-                @Override
-                public Result<Iterable<FileSystemEntry>> run(AsyncRunner asyncRunner)
+                result = Async.error(currentAsyncRunner, new FolderNotFoundException(rootedFolderPath));
+            }
+            else
+            {
+                final List<FileSystemEntry> entries = new ArrayList<>();
+
+                for (final InMemoryFolder inMemoryFolder : folder.getFolders())
                 {
-                    List<FileSystemEntry> entries = new ArrayList<>();
-
-                    final InMemoryFolder folder = getInMemoryFolder(folderPath);
-                    if (folder != null)
-                    {
-                        for (final InMemoryFolder inMemoryFolder : folder.getFolders())
-                        {
-                            final Path childFolderPath = folderPath.concatenateSegment(inMemoryFolder.getName());
-                            entries.add(new Folder(InMemoryFileSystem.this, childFolderPath));
-                        }
-
-                        for (final InMemoryFile inMemoryFile : folder.getFiles())
-                        {
-                            final Path childFilePath = folderPath.concatenateSegment(inMemoryFile.getName());
-                            entries.add(new File(InMemoryFileSystem.this, childFilePath));
-                        }
-                    }
-
-                    return Result.<Iterable<FileSystemEntry>>success(entries);
+                    final Path childFolderPath = rootedFolderPath.concatenateSegment(inMemoryFolder.getName());
+                    entries.add(new Folder(InMemoryFileSystem.this, childFolderPath));
                 }
-            });
+
+                for (final InMemoryFile inMemoryFile : folder.getFiles())
+                {
+                    final Path childFilePath = rootedFolderPath.concatenateSegment(inMemoryFile.getName());
+                    entries.add(new File(InMemoryFileSystem.this, childFilePath));
+                }
+
+                result = Async.<Iterable<FileSystemEntry>>success(currentAsyncRunner, entries);
+            }
         }
         return result;
     }

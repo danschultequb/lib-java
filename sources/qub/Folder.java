@@ -310,14 +310,24 @@ public class Folder extends FileSystemEntry
         return result;
     }
 
-    public AsyncFunction<Result<Iterable<Folder>>> getFolders()
+    public Result<Iterable<Folder>> getFolders()
     {
         return getFileSystem().getFolders(getPath());
     }
 
-    public AsyncFunction<Result<Iterable<Folder>>> getFoldersRecursively()
+    public AsyncFunction<Result<Iterable<Folder>>> getFoldersAsync()
+    {
+        return getFileSystem().getFoldersAsync(getPath());
+    }
+
+    public Result<Iterable<Folder>> getFoldersRecursively()
     {
         return getFileSystem().getFoldersRecursively(getPath());
+    }
+
+    public AsyncFunction<Result<Iterable<Folder>>> getFoldersRecursivelyAsync()
+    {
+        return getFileSystem().getFoldersRecursivelyAsync(getPath());
     }
 
     public AsyncFunction<Result<Iterable<File>>> getFiles()
@@ -340,9 +350,14 @@ public class Folder extends FileSystemEntry
         return getFileSystem().getFilesAndFoldersAsync(getPath());
     }
 
-    public AsyncFunction<Result<Iterable<FileSystemEntry>>> getFilesAndFoldersRecursively()
+    public Result<Iterable<FileSystemEntry>> getFilesAndFoldersRecursively()
     {
         return getFileSystem().getFilesAndFoldersRecursively(getPath());
+    }
+
+    public AsyncFunction<Result<Iterable<FileSystemEntry>>> getFilesAndFoldersRecursivelyAsync()
+    {
+        return getFileSystem().getFilesAndFoldersRecursivelyAsync(getPath());
     }
 
     private Path getChildPath(Path relativePath)

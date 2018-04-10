@@ -139,11 +139,11 @@ public class FileSystemTests
                     null);
             });
 
-            runner.testGroup("getFilesAndFolders(Path)", runner.skip(), () ->
+            runner.testGroup("getFilesAndFolders(Path)", () ->
             {
                 final Action4<String, Action1<FileSystem>, String[], Throwable> getFilesAndFoldersTest = (String folderPath, Action1<FileSystem> setup, String[] expectedEntryPaths, Throwable expectedError) ->
                 {
-                    runner.test("with " + Strings.escapeAndQuote(folderPath), runner.skip(), (Test test) ->
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
                         final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
                         if (setup != null)
@@ -168,14 +168,13 @@ public class FileSystemTests
                         }
                         else
                         {
-                            test.assertEqual(expectedError.getClass(), result.getErrorType());
-                            test.assertEqual(expectedError.getMessage(), result.getErrorMessage());
+                            test.assertError(expectedError, result);
                         }
                     });
                 };
 
-                getFilesAndFoldersTest.run(null, null, null, new IllegalArgumentException("folderPath cannot be null."));
-                getFilesAndFoldersTest.run("", null, null, new IllegalArgumentException("folderPath cannot be null."));
+                getFilesAndFoldersTest.run(null, null, null, new IllegalArgumentException("rootedFolderPath cannot be null."));
+                getFilesAndFoldersTest.run("", null, null, new IllegalArgumentException("rootedFolderPath cannot be null."));
                 getFilesAndFoldersTest.run(
                     "/folderA",
                     (FileSystem fileSystem) ->
@@ -196,56 +195,76 @@ public class FileSystemTests
                     null);
             });
 
-            runner.testGroup("getFolders(String)", runner.skip(), () ->
+            runner.testGroup("getFolders(String)", () ->
             {
-                final Action1<String> getFoldersTest = (String path) ->
+                final Action2<String,Throwable> getFoldersTest = (String path, Throwable expectedError) ->
                 {
                     runner.test("with " + Strings.escapeAndQuote(path), runner.skip(), (Test test) ->
                     {
                         final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                        test.assertEqual(new Array<Folder>(0), fileSystem.getFolders(path).awaitReturn().getValue());
+                        test.assertError(expectedError, fileSystem.getFolders(path));
                     });
                 };
 
-                getFoldersTest.run(null);
-                getFoldersTest.run("");
+                getFoldersTest.run(null, new IllegalArgumentException("rootedFolderPath cannot be null."));
+                getFoldersTest.run("", new IllegalArgumentException("rootedFolderPath cannot be null."));
             });
 
-            runner.testGroup("getFoldersRecursively(String)", runner.skip(), () ->
+            runner.testGroup("getFoldersRecursively(String)", () ->
             {
-                final Action3<String,Action1<FileSystem>,String[]> getFoldersRecursivelyTest = (String folderPath, Action1<FileSystem> setup, String[] expectedFolderPaths) ->
+                final Action4<String,Action1<FileSystem>,String[],Throwable> getFoldersRecursivelyTest = (String folderPath, Action1<FileSystem> setup, String[] expectedFolderPaths, Throwable expectedError) ->
                 {
-                    runner.test("with " + Strings.escapeAndQuote(folderPath), runner.skip(), (Test test) ->
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-
                         final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
                         if (setup != null)
                         {
                             setup.run(fileSystem);
                         }
-                        test.assertEqual(Array.fromValues(expectedFolderPaths), fileSystem.getFoldersRecursively(folderPath).awaitReturn().getValue().map(Folder::toString));
+                        final Result<Iterable<Folder>> result = fileSystem.getFoldersRecursively(folderPath);
+                        test.assertNotNull(result);
+
+                        if (expectedFolderPaths == null)
+                        {
+                            test.assertNull(result.getValue());
+                        }
+                        else
+                        {
+                            test.assertEqual(Array.fromValues(expectedFolderPaths), result.getValue().map(FileSystemEntry::toString));
+                        }
+
+                        if (expectedError == null)
+                        {
+                            test.assertNull(result.getError());
+                        }
+                        else
+                        {
+                            test.assertError(expectedError, result);
+                        }
                     });
                 };
 
-                getFoldersRecursivelyTest.run(null, null, new String[0]);
-                getFoldersRecursivelyTest.run("", null, new String[0]);
-                getFoldersRecursivelyTest.run("test/folder", null, new String[0]);
-                getFoldersRecursivelyTest.run("F:/test/folder", null, new String[0]);
-                getFoldersRecursivelyTest.run("/test/folder", null, new String[0]);
+                getFoldersRecursivelyTest.run(null, null, null, new IllegalArgumentException("rootedFolderPath cannot be null."));
+                getFoldersRecursivelyTest.run("", null, null, new IllegalArgumentException("rootedFolderPath cannot be null."));
+                getFoldersRecursivelyTest.run("test/folder", null, null, new IllegalArgumentException("rootedFolderPath must be rooted."));
+                getFoldersRecursivelyTest.run("F:/test/folder", null, null, new FolderNotFoundException("F:/test/folder"));
+                getFoldersRecursivelyTest.run("/test/folder", null, null, new FolderNotFoundException("/test/folder"));
                 getFoldersRecursivelyTest.run(
                     "/test/folder",
                     (FileSystem fileSystem) ->
                     {
                         fileSystem.createFolder("/test/");
                     },
-                    new String[0]);
+                    null,
+                    new FolderNotFoundException("/test/folder"));
                 getFoldersRecursivelyTest.run(
                     "/test/folder/",
                     (FileSystem fileSystem) ->
                     {
                         fileSystem.createFolder("/test/folder");
                     },
-                    new String[0]);
+                    new String[0],
+                    null);
                 getFoldersRecursivelyTest.run(
                     "/test/folder",
                     (FileSystem fileSystem) ->
@@ -253,7 +272,8 @@ public class FileSystemTests
                         fileSystem.createFile("/test/folder/1.txt");
                         fileSystem.createFile("/test/folder/2.txt");
                     },
-                    new String[0]);
+                    new String[0],
+                    null);
                 getFoldersRecursivelyTest.run(
                     "/test/folder",
                     (FileSystem fileSystem) ->
@@ -261,7 +281,8 @@ public class FileSystemTests
                         fileSystem.createFolder("/test/folder/1.txt");
                         fileSystem.createFolder("/test/folder/2.txt");
                     },
-                    new String[] { "/test/folder/1.txt", "/test/folder/2.txt" });
+                    new String[] { "/test/folder/1.txt", "/test/folder/2.txt" },
+                    null);
                 getFoldersRecursivelyTest.run(
                     "/test/folder",
                     (FileSystem fileSystem) ->
@@ -272,7 +293,8 @@ public class FileSystemTests
                         fileSystem.createFile("/test/folder/B/C/4.xml");
                         fileSystem.createFile("/test/folder/A/5.png");
                     },
-                    new String[] { "/test/folder/A", "/test/folder/B", "/test/folder/B/C" });
+                    new String[] { "/test/folder/A", "/test/folder/B", "/test/folder/B/C" },
+                    null);
             });
 
             runner.testGroup("getFiles(String)", runner.skip(), () ->
@@ -1199,7 +1221,7 @@ public class FileSystemTests
                 {
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
 
-                    final Result<Iterable<FileSystemEntry>> result = fileSystem.getFilesAndFoldersRecursively((String)null).awaitReturn();
+                    final Result<Iterable<FileSystemEntry>> result = fileSystem.getFilesAndFoldersRecursively((String)null);
                     test.assertError(new IllegalArgumentException("rootedFolderPath cannot be null."), result);
                 });
 
@@ -1207,7 +1229,7 @@ public class FileSystemTests
                 {
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
 
-                    final Result<Iterable<FileSystemEntry>> result = fileSystem.getFilesAndFoldersRecursively("").awaitReturn();
+                    final Result<Iterable<FileSystemEntry>> result = fileSystem.getFilesAndFoldersRecursively("");
                     test.assertError(new IllegalArgumentException("rootedFolderPath cannot be empty."), result);
                 });
 
@@ -1215,7 +1237,7 @@ public class FileSystemTests
                 {
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
 
-                    final Result<Iterable<FileSystemEntry>> result = fileSystem.getFilesAndFoldersRecursively("test/folder").awaitReturn();
+                    final Result<Iterable<FileSystemEntry>> result = fileSystem.getFilesAndFoldersRecursively("test/folder");
                     test.assertError(new IllegalArgumentException("rootedFolderPath must be rooted."), result);
                 });
 
@@ -1223,7 +1245,7 @@ public class FileSystemTests
                 {
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
 
-                    final Result<Iterable<FileSystemEntry>> result = fileSystem.getFilesAndFoldersRecursively("F:/test/folder").awaitReturn();
+                    final Result<Iterable<FileSystemEntry>> result = fileSystem.getFilesAndFoldersRecursively("F:/test/folder");
                     test.assertError(new RootNotFoundException("F:/"), result);
                 });
 
@@ -1231,7 +1253,7 @@ public class FileSystemTests
                 {
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
 
-                    final Result<Iterable<FileSystemEntry>> result = fileSystem.getFilesAndFoldersRecursively("/test/folder").awaitReturn();
+                    final Result<Iterable<FileSystemEntry>> result = fileSystem.getFilesAndFoldersRecursively("/test/folder");
                     test.assertError(new FolderNotFoundException("/test/folder"), result);
                 });
 
@@ -1240,7 +1262,7 @@ public class FileSystemTests
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
                     fileSystem.createFolder("/test/");
 
-                    final Result<Iterable<FileSystemEntry>> result = fileSystem.getFilesAndFoldersRecursively("/test/folder").awaitReturn();
+                    final Result<Iterable<FileSystemEntry>> result = fileSystem.getFilesAndFoldersRecursively("/test/folder");
                     test.assertError(new FolderNotFoundException("/test/folder"), result);
                 });
 
@@ -1249,7 +1271,7 @@ public class FileSystemTests
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
                     fileSystem.createFolder("/test/folder");
 
-                    final Result<Iterable<FileSystemEntry>> result = fileSystem.getFilesAndFoldersRecursively("/test/folder").awaitReturn();
+                    final Result<Iterable<FileSystemEntry>> result = fileSystem.getFilesAndFoldersRecursively("/test/folder");
                     test.assertSuccess(new Array<>(0), result);
                 });
 
@@ -1260,7 +1282,7 @@ public class FileSystemTests
                     fileSystem.createFile("/test/folder/1.txt");
                     fileSystem.createFile("/test/folder/2.txt");
 
-                    final Result<Iterable<FileSystemEntry>> result = fileSystem.getFilesAndFoldersRecursively("/test/folder").awaitReturn();
+                    final Result<Iterable<FileSystemEntry>> result = fileSystem.getFilesAndFoldersRecursively("/test/folder");
                     test.assertSuccess(Array.fromValues(new FileSystemEntry[]
                         {
                             fileSystem.getFile("/test/folder/1.txt").getValue(),
@@ -1275,7 +1297,7 @@ public class FileSystemTests
                     fileSystem.createFolder("/test/folder/1.txt");
                     fileSystem.createFolder("/test/folder/2.txt");
 
-                    final Result<Iterable<FileSystemEntry>> result = fileSystem.getFilesAndFoldersRecursively("/test/folder").awaitReturn();
+                    final Result<Iterable<FileSystemEntry>> result = fileSystem.getFilesAndFoldersRecursively("/test/folder");
                     test.assertSuccess(
                         Array.fromValues(new FileSystemEntry[]
                         {
@@ -1294,7 +1316,7 @@ public class FileSystemTests
                     fileSystem.createFile("/test/folder/B/C/4.xml");
                     fileSystem.createFile("/test/folder/A/5.png");
 
-                    final Result<Iterable<FileSystemEntry>> result = fileSystem.getFilesAndFoldersRecursively("/test/folder").awaitReturn();
+                    final Result<Iterable<FileSystemEntry>> result = fileSystem.getFilesAndFoldersRecursively("/test/folder");
                     test.assertSuccess(
                         Array.fromValues(new FileSystemEntry[]
                         {

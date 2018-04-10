@@ -116,18 +116,30 @@ public class FolderFileSystem extends FileSystemBase
                 @Override
                 public Result<Iterable<FileSystemEntry>> run(Result<Iterable<FileSystemEntry>> getFilesAndFoldersResult)
                 {
-                    Iterable<FileSystemEntry> entries = getFilesAndFoldersResult.getValue();
-                    return Result.done(
-                        entries == null ? null : entries.map(new Function1<FileSystemEntry,FileSystemEntry>()
+                    final Iterable<FileSystemEntry> entries = getFilesAndFoldersResult.getValue();
+                    final Iterable<FileSystemEntry> resultEntries = entries == null ? null : entries.map(new Function1<FileSystemEntry,FileSystemEntry>()
+                    {
+                        @Override
+                        public FileSystemEntry run(FileSystemEntry innerEntry)
                         {
-                            @Override
-                            public FileSystemEntry run(FileSystemEntry innerEntry)
-                            {
-                                final Path outerEntryPath = FolderFileSystem.this.getOuterPath(innerEntry.getPath());
-                                return innerEntry instanceof File ? new File(FolderFileSystem.this, outerEntryPath) : new Folder(FolderFileSystem.this, outerEntryPath);
-                            }
-                        }),
-                        getFilesAndFoldersResult.getError());
+                            final Path outerEntryPath = FolderFileSystem.this.getOuterPath(innerEntry.getPath());
+                            return innerEntry instanceof File ? new File(FolderFileSystem.this, outerEntryPath) : new Folder(FolderFileSystem.this, outerEntryPath);
+                        }
+                    });
+
+                    final Throwable error = getFilesAndFoldersResult.getError();
+                    Throwable resultError;
+                    if (error instanceof FolderNotFoundException)
+                    {
+                        final Path outerPath = getOuterPath(((FolderNotFoundException)error).getFolderPath());
+                        resultError = new FolderNotFoundException(outerPath);
+                    }
+                    else
+                    {
+                        resultError = error;
+                    }
+
+                    return Result.done(resultEntries, resultError);
                 }
             });
     }
