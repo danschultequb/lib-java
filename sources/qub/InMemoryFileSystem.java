@@ -169,16 +169,33 @@ public class InMemoryFileSystem extends FileSystemBase
     }
 
     @Override
-    public AsyncFunction<Result<Boolean>> folderExists(final Path folderPath)
+    public AsyncFunction<Result<Boolean>> folderExistsAsync(final Path rootedFolderPath)
     {
-        return async(this, new Function1<AsyncRunner, Result<Boolean>>()
+        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+
+        AsyncFunction<Result<Boolean>> result;
+        if (rootedFolderPath == null)
         {
-            @Override
-            public Result<Boolean> run(AsyncRunner asyncRunner)
-            {
-                return Result.success(getInMemoryFolder(folderPath) != null);
-            }
-        });
+            result = Async.error(currentAsyncRunner, new IllegalArgumentException("rootedFolderPath cannot be null."));
+        }
+        else if (!rootedFolderPath.isRooted())
+        {
+            result = Async.error(currentAsyncRunner, new IllegalArgumentException("rootedFolderPath must be rooted."));
+        }
+        else
+        {
+            final AsyncRunner fileSystemAsyncRunner = getAsyncRunner();
+            result = fileSystemAsyncRunner.schedule(new Function0<Result<Boolean>>()
+                {
+                    @Override
+                    public Result<Boolean> run()
+                    {
+                        return Result.success(getInMemoryFolder(rootedFolderPath) != null);
+                    }
+                })
+                .thenOn(currentAsyncRunner);
+        }
+        return result;
     }
 
     @Override
@@ -249,16 +266,32 @@ public class InMemoryFileSystem extends FileSystemBase
     }
 
     @Override
-    public AsyncFunction<Result<Boolean>> fileExists(final Path filePath)
+    public AsyncFunction<Result<Boolean>> fileExistsAsync(final Path rootedFilePath)
     {
-        return async(this, new Function1<AsyncRunner, Result<Boolean>>()
+        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+        AsyncFunction<Result<Boolean>> result;
+        if (rootedFilePath == null)
         {
-            @Override
-            public Result<Boolean> run(AsyncRunner asyncRunner)
-            {
-                return Result.success(getInMemoryFile(filePath) != null);
-            }
-        });
+            result = Async.error(currentAsyncRunner, new IllegalArgumentException("rootedFilePath cannot be null."));
+        }
+        else if (!rootedFilePath.isRooted())
+        {
+            result = Async.error(currentAsyncRunner, new IllegalArgumentException("rootedFilePath must be rooted."));
+        }
+        else
+        {
+            final AsyncRunner fileSystemAsyncRunner = getAsyncRunner();
+            result = fileSystemAsyncRunner.schedule(new Function0<Result<Boolean>>()
+                {
+                    @Override
+                    public Result<Boolean> run()
+                    {
+                        return Result.success(getInMemoryFile(rootedFilePath) != null);
+                    }
+                })
+                .thenOn(currentAsyncRunner);
+        }
+        return result;
     }
 
     @Override

@@ -502,43 +502,35 @@ public class Process extends DisposableBase
      * @param executablePath The path to the executable to run from the returned ProcessBuilder.
      * @return The ProcessBuilder.
      */
-    public AsyncFunction<Result<ProcessBuilder>> getProcessBuilder(String executablePath)
+    public Result<ProcessBuilder> getProcessBuilder(String executablePath)
     {
         return getProcessBuilder(Path.parse(executablePath));
     }
 
-    private AsyncFunction<Result<File>> getExecutableFile(final Path executablePath, boolean checkExtensions)
+    private Result<File> getExecutableFile(final Path executablePath, boolean checkExtensions)
     {
-        AsyncFunction<Result<File>> result;
+        Result<File> result;
         if (executablePath == null)
         {
-            result = null;
+            result = Result.error(new IllegalArgumentException("executablePath cannot be null."));
         }
         else if (checkExtensions)
         {
             final File executableFile = getFileSystem().getFile(executablePath).getValue();
-            result = executableFile.exists()
-                .then(new Function1<Result<Boolean>, Result<File>>()
-                {
-                    @Override
-                    public Result<File> run(Result<Boolean> fileExistsResult)
-                    {
-                        Result<File> result;
-                        if (fileExistsResult.hasError())
-                        {
-                            result = Result.error(fileExistsResult.getError());
-                        }
-                        else if (!fileExistsResult.getValue())
-                        {
-                            result = Result.error(new FileNotFoundException(executablePath.toString()));
-                        }
-                        else
-                        {
-                            result = Result.success(executableFile);
-                        }
-                        return result;
-                    }
-                });
+            final Result<Boolean> fileExistsResult = executableFile.exists();
+
+            if (fileExistsResult.hasError())
+            {
+                result = Result.error(fileExistsResult.getError());
+            }
+            else if (!fileExistsResult.getValue())
+            {
+                result = Result.error(new FileNotFoundException(executablePath.toString()));
+            }
+            else
+            {
+                result = Result.success(executableFile);
+            }
         }
         else
         {
@@ -546,46 +538,37 @@ public class Process extends DisposableBase
 
             final Path folderPath = executablePath.getParent();
             final Folder folder = getFileSystem().getFolder(folderPath).getValue();
-            result = folder.getFiles()
-                .then(new Function1<Result<Iterable<File>>, Result<File>>()
+            final Result<Iterable<File>> getFilesResult = folder.getFiles();
+            if (getFilesResult.hasError())
+            {
+                result = Result.error(getFilesResult.getError());
+            }
+            else
+            {
+                final File executableFile = getFilesResult.getValue().first(new Function1<File, Boolean>()
                 {
                     @Override
-                    public Result<File> run(Result<Iterable<File>> getFilesResult)
+                    public Boolean run(File file)
                     {
-                        Result<File> executableFileResult;
-                        if (getFilesResult.hasError())
-                        {
-                            executableFileResult = Result.error(getFilesResult.getError());
-                        }
-                        else
-                        {
-                            final File executableFile = getFilesResult.getValue().first(new Function1<File, Boolean>()
-                            {
-                                @Override
-                                public Boolean run(File file)
-                                {
-                                    return executablePathWithoutExtension.equals(file.getPath().withoutFileExtension());
-                                }
-                            });
-                            if (executableFile == null)
-                            {
-                                executableFileResult = Result.error(new FileNotFoundException(executablePathWithoutExtension.toString()));
-                            }
-                            else
-                            {
-                                executableFileResult = Result.success(executableFile);
-                            }
-                        }
-                        return executableFileResult;
+                        return executablePathWithoutExtension.equals(file.getPath().withoutFileExtension());
                     }
                 });
+                if (executableFile == null)
+                {
+                    result = Result.error(new FileNotFoundException(executablePathWithoutExtension.toString()));
+                }
+                else
+                {
+                    result = Result.success(executableFile);
+                }
+            }
         }
         return result;
     }
 
-    private AsyncFunction<Result<File>> findExecutableFile(final Path executablePath, final boolean checkExtensions)
+    private Result<File> findExecutableFile(final Path executablePath, final boolean checkExtensions)
     {
-        AsyncFunction<Result<File>> result;
+        Result<File> result;
 
         if(executablePath.isRooted())
         {
@@ -595,70 +578,40 @@ public class Process extends DisposableBase
         {
             final Path currentFolderPath = getCurrentFolderPath();
             final Path currentFolderExecutablePath = currentFolderPath.concatenateSegment(executablePath);
-            result = getExecutableFile(currentFolderExecutablePath, checkExtensions)
-                .thenAsyncFunction(new Function1<Result<File>, AsyncFunction<Result<File>>>()
-                {
-                    @Override
-                    public AsyncFunction<Result<File>> run(Result<File> getExecutableFileResult)
-                    {
-                        AsyncFunction<Result<File>> executableFileResult;
-                        if (!getExecutableFileResult.hasError())
-                        {
-                            executableFileResult = Async.success(getFileSystem().getAsyncRunner(), getExecutableFileResult.getValue());
-                        }
-                        else
-                        {
-                            final String pathEnvironmentVariable = getEnvironmentVariable("path");
-                            final Iterator<String> pathStrings = Array.fromValues(pathEnvironmentVariable.split(";")).iterate();
-                            pathStrings.ensureHasStarted();
+            final Result<File> getExecutableFileResult = getExecutableFile(currentFolderExecutablePath, checkExtensions);
 
-                            executableFileResult = checkNextPathString(pathStrings, executablePath, checkExtensions);
-                        }
-                        return executableFileResult;
-                    }
-                });
-        }
-
-        return result;
-    }
-
-    private AsyncFunction<Result<File>> checkNextPathString(final Iterator<String> pathStrings, final Path executablePath, final boolean checkExtensions)
-    {
-        AsyncFunction<Result<File>> result;
-        if (!pathStrings.hasCurrent())
-        {
-            result = Async.error(getFileSystem().getAsyncRunner(), new FileNotFoundException(executablePath.toString()));
-        }
-        else
-        {
-            final Path path = Path.parse(pathStrings.takeCurrent());
-            if (path == null)
+            if (!getExecutableFileResult.hasError())
             {
-                result = checkNextPathString(pathStrings, executablePath, checkExtensions);
+                result = getExecutableFileResult;
             }
             else
             {
-                final Path resolvedExecutablePath = path.concatenateSegment(executablePath);
-                result = getExecutableFile(resolvedExecutablePath, checkExtensions)
-                    .thenAsyncFunction(new Function1<Result<File>, AsyncFunction<Result<File>>>()
+                result = null;
+
+                final String pathEnvironmentVariable = getEnvironmentVariable("path");
+                final Iterable<String> pathStrings = Array.fromValues(pathEnvironmentVariable.split(";"));
+                for (final String pathString : pathStrings)
+                {
+                    final Path path = Path.parse(pathString);
+                    if (path != null)
                     {
-                        @Override
-                        public AsyncFunction<Result<File>> run(Result<File> getExecutableFileResult)
+                        final Path resolvedExecutablePath = path.concatenateSegment(executablePath);
+                        final Result<File> pathStringExecutableFileResult = getExecutableFile(resolvedExecutablePath, checkExtensions);
+                        if (!pathStringExecutableFileResult.hasError())
                         {
-                            AsyncFunction<Result<File>> executableFileResult;
-                            if (!getExecutableFileResult.hasError())
-                            {
-                                executableFileResult = Async.success(getFileSystem().getAsyncRunner(), getExecutableFileResult.getValue());
-                            }
-                            else
-                            {
-                                executableFileResult = checkNextPathString(pathStrings, executablePath, checkExtensions);
-                            }
-                            return executableFileResult;
+                            result = pathStringExecutableFileResult;
+                            break;
                         }
-                    });
+                    }
+                }
+
+                if (result == null)
+                {
+                    result = Result.error(new qub.FileNotFoundException(executablePath));
+                }
             }
         }
+
         return result;
     }
 
@@ -667,37 +620,24 @@ public class Process extends DisposableBase
      * @param executablePath The path to the executable to run from the returned ProcessBuilder.
      * @return The ProcessBuilder.
      */
-    public AsyncFunction<Result<ProcessBuilder>> getProcessBuilder(final Path executablePath)
+    public Result<ProcessBuilder> getProcessBuilder(final Path executablePath)
     {
-        final AsyncRunner asyncRunner = getParallelAsyncRunner();
-        AsyncFunction<Result<ProcessBuilder>> result;
+        Result<ProcessBuilder> result;
         if (executablePath == null)
         {
-            result = Async.error(asyncRunner, new IllegalArgumentException("executablePath cannot be null."));
+            result = Result.error(new IllegalArgumentException("executablePath cannot be null."));
         }
         else
         {
-            result = findExecutableFile(executablePath, true)
-                .thenAsyncFunction(new Function1<Result<File>, AsyncFunction<Result<File>>>()
-                {
-                    @Override
-                    public AsyncFunction<Result<File>> run(Result<File> findExecutablePathResult)
-                    {
-                        return !findExecutablePathResult.hasError()
-                            ? Async.success(asyncRunner, findExecutablePathResult.getValue())
-                            : findExecutableFile(executablePath, false);
-                    }
-                })
-                .then(new Function1<Result<File>, Result<ProcessBuilder>>()
-                {
-                    @Override
-                    public Result<ProcessBuilder> run(Result<File> findExecutablePathResult)
-                    {
-                        return !findExecutablePathResult.hasError()
-                            ? Result.success(new ProcessBuilder(getParallelAsyncRunner(), findExecutablePathResult.getValue()))
-                            : Result.<ProcessBuilder>error(findExecutablePathResult.getError());
-                    }
-                });
+            Result<File> executableFileResult = findExecutableFile(executablePath, true);
+            if (executableFileResult.hasError())
+            {
+                executableFileResult = findExecutableFile(executablePath, false);
+            }
+
+            result = !executableFileResult.hasError()
+                ? Result.success(new ProcessBuilder(getParallelAsyncRunner(), executableFileResult.getValue()))
+                : Result.<ProcessBuilder>error(executableFileResult.getError());
         }
         return result;
     }

@@ -19,9 +19,18 @@ public class Folder extends FileSystemEntry
      * Get whether or not this Folder exists.
      */
     @Override
-    public AsyncFunction<Result<Boolean>> exists()
+    public Result<Boolean> exists()
     {
         return getFileSystem().folderExists(getPath());
+    }
+
+    /**
+     * Get whether or not this Folder exists.
+     */
+    @Override
+    public AsyncFunction<Result<Boolean>> existsAsync()
+    {
+        return getFileSystem().folderExistsAsync(getPath());
     }
 
     @Override
@@ -76,7 +85,7 @@ public class Folder extends FileSystemEntry
      * @param relativeFolderPath The relative path to the folder.
      * @return Whether or not the folder at the provided relativeFolderPath exists.
      */
-    public AsyncFunction<Result<Boolean>> folderExists(String relativeFolderPath)
+    public Result<Boolean> folderExists(String relativeFolderPath)
     {
         return folderExists(Path.parse(relativeFolderPath));
     }
@@ -86,25 +95,44 @@ public class Folder extends FileSystemEntry
      * @param relativeFolderPath The relative path to the folder.
      * @return Whether or not the folder at the provided relativeFolderPath exists.
      */
-    public AsyncFunction<Result<Boolean>> folderExists(Path relativeFolderPath)
+    public Result<Boolean> folderExists(Path relativeFolderPath)
     {
-        AsyncFunction<Result<Boolean>> result;
+        return folderExistsAsync(relativeFolderPath).awaitReturn();
+    }
 
+    /**
+     * Get whether or not the folder at the provided relativeFolderPath exists.
+     * @param relativeFolderPath The relative path to the folder.
+     * @return Whether or not the folder at the provided relativeFolderPath exists.
+     */
+    public AsyncFunction<Result<Boolean>> folderExistsAsync(String relativeFolderPath)
+    {
+        return folderExistsAsync(Path.parse(relativeFolderPath));
+    }
+
+    /**
+     * Get whether or not the folder at the provided relativeFolderPath exists.
+     * @param relativeFolderPath The relative path to the folder.
+     * @return Whether or not the folder at the provided relativeFolderPath exists.
+     */
+    public AsyncFunction<Result<Boolean>> folderExistsAsync(Path relativeFolderPath)
+    {
+        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+        AsyncFunction<Result<Boolean>> result;
         if (relativeFolderPath == null)
         {
-            result = Async.error(getAsyncRunner(), new IllegalArgumentException("relativeFolderPath cannot be null."));
+            result = Async.error(currentAsyncRunner, new IllegalArgumentException("relativeFolderPath cannot be null."));
         }
         else if (relativeFolderPath.isRooted())
         {
-            result = Async.error(getAsyncRunner(), new IllegalArgumentException("relativeFolderPath cannot be rooted."));
+            result = Async.error(currentAsyncRunner, new IllegalArgumentException("relativeFolderPath cannot be rooted."));
         }
         else
         {
             final Path childFolderPath = getChildPath(relativeFolderPath);
             final FileSystem fileSystem = getFileSystem();
-            result = fileSystem.folderExists(childFolderPath);
+            result = fileSystem.folderExistsAsync(childFolderPath);
         }
-
         return result;
     }
 
@@ -149,7 +177,7 @@ public class Folder extends FileSystemEntry
      * @param relativeFilePath The relative path to the file.
      * @return Whether or not the file at the provided relativeFilePath exists.
      */
-    public AsyncFunction<Result<Boolean>> fileExists(String relativeFilePath)
+    public Result<Boolean> fileExists(String relativeFilePath)
     {
         return fileExists(Path.parse(relativeFilePath));
     }
@@ -159,23 +187,61 @@ public class Folder extends FileSystemEntry
      * @param relativeFilePath The relative path to the file.
      * @return Whether or not the file at the provided relativeFilePath exists.
      */
-    public AsyncFunction<Result<Boolean>> fileExists(Path relativeFilePath)
+    public Result<Boolean> fileExists(Path relativeFilePath)
     {
-        AsyncFunction<Result<Boolean>> result;
+        Result<Boolean> result;
 
         if (relativeFilePath == null)
         {
-            result = Async.error(getAsyncRunner(), new IllegalArgumentException("relativeFilePath cannot be null."));
+            result = Result.error(new IllegalArgumentException("relativeFilePath cannot be null."));
         }
         else if (relativeFilePath.isRooted())
         {
-            result = Async.error(getAsyncRunner(), new IllegalArgumentException("relativeFilePath cannot be rooted."));
+            result = Result.error(new IllegalArgumentException("relativeFilePath cannot be rooted."));
         }
         else
         {
             final Path childFilePath = getChildPath(relativeFilePath);
             final FileSystem fileSystem = getFileSystem();
             result = fileSystem.fileExists(childFilePath);
+        }
+
+        return result;
+    }
+
+    /**
+     * Get whether or not the file at the provided relativeFilePath exists.
+     * @param relativeFilePath The relative path to the file.
+     * @return Whether or not the file at the provided relativeFilePath exists.
+     */
+    public AsyncFunction<Result<Boolean>> fileExistsAsync(String relativeFilePath)
+    {
+        return fileExistsAsync(Path.parse(relativeFilePath));
+    }
+
+    /**
+     * Get whether or not the file at the provided relativeFilePath exists.
+     * @param relativeFilePath The relative path to the file.
+     * @return Whether or not the file at the provided relativeFilePath exists.
+     */
+    public AsyncFunction<Result<Boolean>> fileExistsAsync(Path relativeFilePath)
+    {
+        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+        AsyncFunction<Result<Boolean>> result;
+
+        if (relativeFilePath == null)
+        {
+            result = Async.error(currentAsyncRunner, new IllegalArgumentException("relativeFilePath cannot be null."));
+        }
+        else if (relativeFilePath.isRooted())
+        {
+            result = Async.error(currentAsyncRunner, new IllegalArgumentException("relativeFilePath cannot be rooted."));
+        }
+        else
+        {
+            final Path childFilePath = getChildPath(relativeFilePath);
+            final FileSystem fileSystem = getFileSystem();
+            result = fileSystem.fileExistsAsync(childFilePath);
         }
 
         return result;
@@ -330,14 +396,24 @@ public class Folder extends FileSystemEntry
         return getFileSystem().getFoldersRecursivelyAsync(getPath());
     }
 
-    public AsyncFunction<Result<Iterable<File>>> getFiles()
+    public Result<Iterable<File>> getFiles()
     {
         return getFileSystem().getFiles(getPath());
     }
 
-    public AsyncFunction<Result<Iterable<File>>> getFilesRecursively()
+    public AsyncFunction<Result<Iterable<File>>> getFilesAsync()
+    {
+        return getFileSystem().getFilesAsync(getPath());
+    }
+
+    public Result<Iterable<File>> getFilesRecursively()
     {
         return getFileSystem().getFilesRecursively(getPath());
+    }
+
+    public AsyncFunction<Result<Iterable<File>>> getFilesRecursivelyAsync()
+    {
+        return getFileSystem().getFilesRecursivelyAsync(getPath());
     }
 
     public Result<Iterable<FileSystemEntry>> getFilesAndFolders()

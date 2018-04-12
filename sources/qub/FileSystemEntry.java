@@ -52,7 +52,12 @@ public abstract class FileSystemEntry
     /**
      * Get whether or not this FileSystemEntry exists.
      */
-    public abstract AsyncFunction<Result<Boolean>> exists();
+    public abstract Result<Boolean> exists();
+
+    /**
+     * Get whether or not this FileSystemEntry exists.
+     */
+    public abstract AsyncFunction<Result<Boolean>> existsAsync();
 
     /**
      * Attempt to delete this FileSystemEntry. Return whether or not this function deleted the

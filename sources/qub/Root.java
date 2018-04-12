@@ -43,11 +43,20 @@ public class Root
     }
 
     /**
-     * Get whether or not this Folder exists.
+     * Get whether or not this Root exists.
      */
-    public AsyncFunction<Result<Boolean>> exists()
+    public Result<Boolean> exists()
     {
         return folder.exists();
+    }
+
+
+    /**
+     * Get whether or not this Root exists.
+     */
+    public AsyncFunction<Result<Boolean>> existsAsync()
+    {
+        return folder.existsAsync();
     }
 
     /**
@@ -170,14 +179,24 @@ public class Root
         return folder.getFoldersRecursivelyAsync();
     }
 
-    public AsyncFunction<Result<Iterable<File>>> getFiles()
+    public Result<Iterable<File>> getFiles()
     {
         return folder.getFiles();
     }
 
-    public AsyncFunction<Result<Iterable<File>>> getFilesRecursively()
+    public AsyncFunction<Result<Iterable<File>>> getFilesAsync()
+    {
+        return folder.getFilesAsync();
+    }
+
+    public Result<Iterable<File>> getFilesRecursively()
     {
         return folder.getFilesRecursively();
+    }
+
+    public AsyncFunction<Result<Iterable<File>>> getFilesRecursivelyAsync()
+    {
+        return folder.getFilesRecursivelyAsync();
     }
 
     public Result<Iterable<FileSystemEntry>> getFilesAndFolders()

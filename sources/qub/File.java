@@ -74,9 +74,18 @@ public class File extends FileSystemEntry
      * Get whether or not this File exists.
      */
     @Override
-    public AsyncFunction<Result<Boolean>> exists()
+    public Result<Boolean> exists()
     {
         return getFileSystem().fileExists(getPath());
+    }
+
+    /**
+     * Get whether or not this File exists.
+     */
+    @Override
+    public AsyncFunction<Result<Boolean>> existsAsync()
+    {
+        return getFileSystem().fileExistsAsync(getPath());
     }
 
     @Override

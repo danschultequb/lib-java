@@ -472,7 +472,7 @@ public class RootTests
                 runner.test("when root doesn't exist", (Test test) ->
                 {
                     final Root root = getRoot(test, "C:/");
-                    final Result<Iterable<File>> result = root.getFiles().awaitReturn();
+                    final Result<Iterable<File>> result = root.getFiles();
                     test.assertNotNull(result);
                     test.assertNull(result.getValue());
                     test.assertTrue(result.hasError());
@@ -483,7 +483,7 @@ public class RootTests
                 runner.test("when root is empty", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    final Result<Iterable<File>> result = root.getFiles().awaitReturn();
+                    final Result<Iterable<File>> result = root.getFiles();
                     test.assertNotNull(result);
                     test.assertEqual(new Array<File>(0), result.getValue());
                     test.assertFalse(result.hasError());
@@ -494,7 +494,7 @@ public class RootTests
                     final Root root = getRoot(test);
                     root.createFile("thing.txt");
 
-                    final Result<Iterable<File>> result = root.getFiles().awaitReturn();
+                    final Result<Iterable<File>> result = root.getFiles();
                     test.assertNotNull(result);
                     test.assertEqual(
                         Array.fromValues(new File[]
@@ -510,7 +510,7 @@ public class RootTests
                     final Root root = getRoot(test);
                     root.createFolder("things");
 
-                    final Result<Iterable<File>> result = root.getFiles().awaitReturn();
+                    final Result<Iterable<File>> result = root.getFiles();
                     test.assertNotNull(result);
                     test.assertEqual(new Array<File>(0), result.getValue());
                     test.assertFalse(result.hasError());
@@ -702,7 +702,7 @@ public class RootTests
                             root.getFile("A/5.png").getValue(),
                             root.getFile("B/C/4.xml").getValue()
                         });
-                    final Iterable<File> actualEntries = root.getFilesRecursively().awaitReturn().getValue();
+                    final Iterable<File> actualEntries = root.getFilesRecursively().getValue();
                     test.assertEqual(expectedEntries, actualEntries);
                 });
             });

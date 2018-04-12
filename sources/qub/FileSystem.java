@@ -169,28 +169,56 @@ public interface FileSystem
      * @param folderPath The path to the folder (Root or Folder).
      * @return The files at the provided container path.
      */
-    AsyncFunction<Result<Iterable<File>>> getFiles(String folderPath);
+    Result<Iterable<File>> getFiles(String folderPath);
 
     /**
      * Get the files at the provided folder path.
      * @param folderPath The path to the folder (Root or Folder).
      * @return The files at the provided container path.
      */
-    AsyncFunction<Result<Iterable<File>>> getFiles(Path folderPath);
+    Result<Iterable<File>> getFiles(Path folderPath);
+
+    /**
+     * Get the files at the provided folder path.
+     * @param folderPath The path to the folder (Root or Folder).
+     * @return The files at the provided container path.
+     */
+    AsyncFunction<Result<Iterable<File>>> getFilesAsync(String folderPath);
+
+    /**
+     * Get the files at the provided folder path.
+     * @param folderPath The path to the folder (Root or Folder).
+     * @return The files at the provided container path.
+     */
+    AsyncFunction<Result<Iterable<File>>> getFilesAsync(Path folderPath);
 
     /**
      * Get the files at the provided folder path and each of the subfolders recursively.
      * @param folderPath The path to the folder (Root or Folder).
      * @return The files at the provided container path and its subfolders.
      */
-    AsyncFunction<Result<Iterable<File>>> getFilesRecursively(String folderPath);
+    Result<Iterable<File>> getFilesRecursively(String folderPath);
 
     /**
      * Get the files at the provided folder path and each of the subfolders recursively.
      * @param folderPath The path to the folder (Root or Folder).
      * @return The files at the provided container path and its subfolders.
      */
-    AsyncFunction<Result<Iterable<File>>> getFilesRecursively(Path folderPath);
+    Result<Iterable<File>> getFilesRecursively(Path folderPath);
+
+    /**
+     * Get the files at the provided folder path and each of the subfolders recursively.
+     * @param folderPath The path to the folder (Root or Folder).
+     * @return The files at the provided container path and its subfolders.
+     */
+    AsyncFunction<Result<Iterable<File>>> getFilesRecursivelyAsync(String folderPath);
+
+    /**
+     * Get the files at the provided folder path and each of the subfolders recursively.
+     * @param folderPath The path to the folder (Root or Folder).
+     * @return The files at the provided container path and its subfolders.
+     */
+    AsyncFunction<Result<Iterable<File>>> getFilesRecursivelyAsync(Path folderPath);
 
     /**
      * Get a reference to the Folder at the provided folderPath.
@@ -211,14 +239,28 @@ public interface FileSystem
      * @param folderPath The path to the Folder.
      * @return Whether or not a Folder exists in this FileSystem with the provided path.
      */
-    AsyncFunction<Result<Boolean>> folderExists(String folderPath);
+    Result<Boolean> folderExists(String folderPath);
 
     /**
      * Get whether or not a Folder exists in this FileSystem with the provided path.
      * @param folderPath The path to the Folder.
      * @return Whether or not a Folder exists in this FileSystem with the provided path.
      */
-    AsyncFunction<Result<Boolean>> folderExists(Path folderPath);
+    Result<Boolean> folderExists(Path folderPath);
+
+    /**
+     * Get whether or not a Folder exists in this FileSystem with the provided path.
+     * @param folderPath The path to the Folder.
+     * @return Whether or not a Folder exists in this FileSystem with the provided path.
+     */
+    AsyncFunction<Result<Boolean>> folderExistsAsync(String folderPath);
+
+    /**
+     * Get whether or not a Folder exists in this FileSystem with the provided path.
+     * @param folderPath The path to the Folder.
+     * @return Whether or not a Folder exists in this FileSystem with the provided path.
+     */
+    AsyncFunction<Result<Boolean>> folderExistsAsync(Path folderPath);
 
     /**
      * Create a folder at the provided path and return whether or not this function created the
@@ -299,14 +341,28 @@ public interface FileSystem
      * @param filePath The path to the File.
      * @return Whether or not a File exists in this FileSystem with the provided path.
      */
-    AsyncFunction<Result<Boolean>> fileExists(String filePath);
+    Result<Boolean> fileExists(String filePath);
 
     /**
      * Get whether or not a File exists in this FileSystem with the provided path.
      * @param filePath The path to the File.
      * @return Whether or not a File exists in this FileSystem with the provided path.
      */
-    AsyncFunction<Result<Boolean>> fileExists(Path filePath);
+    Result<Boolean> fileExists(Path filePath);
+
+    /**
+     * Get whether or not a File exists in this FileSystem with the provided path.
+     * @param filePath The path to the File.
+     * @return Whether or not a File exists in this FileSystem with the provided path.
+     */
+    AsyncFunction<Result<Boolean>> fileExistsAsync(String filePath);
+
+    /**
+     * Get whether or not a File exists in this FileSystem with the provided path.
+     * @param filePath The path to the File.
+     * @return Whether or not a File exists in this FileSystem with the provided path.
+     */
+    AsyncFunction<Result<Boolean>> fileExistsAsync(Path filePath);
 
     /**
      * Create a file at the provided path and return whether or not this function created the file.

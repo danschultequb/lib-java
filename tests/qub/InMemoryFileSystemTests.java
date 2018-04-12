@@ -55,7 +55,7 @@ public class InMemoryFileSystemTests
                     fileSystem.createFile("Z:/file.png");
                     test.assertTrue(fileSystem.setFileCanDelete("Z:/file.png", false));
                     test.assertFalse(fileSystem.deleteFile("Z:/file.png").awaitReturn().getValue());
-                    test.assertTrue(fileSystem.fileExists("Z:/file.png").awaitReturn().getValue());
+                    test.assertTrue(fileSystem.fileExists("Z:/file.png").getValue());
                 });
             });
 
@@ -100,7 +100,7 @@ public class InMemoryFileSystemTests
                     fileSystem.createFolder("Z:/file.png");
                     test.assertTrue(fileSystem.setFolderCanDelete("Z:/file.png", false));
                     test.assertFalse(fileSystem.deleteFolder("Z:/file.png").getValue());
-                    test.assertTrue(fileSystem.folderExists("Z:/file.png").awaitReturn().getValue());
+                    test.assertTrue(fileSystem.folderExists("Z:/file.png").getValue());
                 });
 
                 runner.test("when child file cannot be deleted", (Test test) ->
@@ -111,7 +111,7 @@ public class InMemoryFileSystemTests
                     fileSystem.createFile("Z:/file.png/notme");
                     fileSystem.setFileCanDelete("Z:/file.png/notme", false);
                     test.assertFalse(fileSystem.deleteFolder("Z:/file.png").getValue());
-                    test.assertTrue(fileSystem.folderExists("Z:/file.png").awaitReturn().getValue());
+                    test.assertTrue(fileSystem.folderExists("Z:/file.png").getValue());
                 });
 
                 runner.test("when child folder cannot be deleted", (Test test) ->
@@ -122,7 +122,7 @@ public class InMemoryFileSystemTests
                     fileSystem.createFolder("Z:/file.png/notme");
                     fileSystem.setFolderCanDelete("Z:/file.png/notme", false);
                     test.assertFalse(fileSystem.deleteFolder("Z:/file.png").getValue());
-                    test.assertTrue(fileSystem.folderExists("Z:/file.png").awaitReturn().getValue());
+                    test.assertTrue(fileSystem.folderExists("Z:/file.png").getValue());
                 });
             });
         });

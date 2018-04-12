@@ -72,9 +72,14 @@ public class FolderFileSystem extends FileSystemBase
         return innerFileSystem.deleteFolderAsync(baseFolderPath);
     }
 
-    public AsyncFunction<Result<Boolean>> exists()
+    public Result<Boolean> exists()
     {
         return innerFileSystem.folderExists(baseFolderPath);
+    }
+
+    public AsyncFunction<Result<Boolean>> existsAsync()
+    {
+        return innerFileSystem.folderExistsAsync(baseFolderPath);
     }
 
     public Path getBaseFolderPath()
@@ -145,9 +150,9 @@ public class FolderFileSystem extends FileSystemBase
     }
 
     @Override
-    public AsyncFunction<Result<Boolean>> folderExists(Path folderPath)
+    public AsyncFunction<Result<Boolean>> folderExistsAsync(Path folderPath)
     {
-        return innerFileSystem.folderExists(getInnerPath(folderPath));
+        return innerFileSystem.folderExistsAsync(getInnerPath(folderPath));
     }
 
     @Override
@@ -174,9 +179,9 @@ public class FolderFileSystem extends FileSystemBase
     }
 
     @Override
-    public AsyncFunction<Result<Boolean>> fileExists(Path filePath)
+    public AsyncFunction<Result<Boolean>> fileExistsAsync(Path filePath)
     {
-        return innerFileSystem.fileExists(getInnerPath(filePath));
+        return innerFileSystem.fileExistsAsync(getInnerPath(filePath));
     }
 
     @Override

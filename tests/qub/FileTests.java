@@ -40,13 +40,13 @@ public class FileTests
 
                 test.assertTrue(file.create().getValue());
 
-                test.assertTrue(file.exists().awaitReturn().getValue());
+                test.assertTrue(file.exists().getValue());
 
                 test.assertEqual(new byte[0], file.getContents().awaitReturn().getValue());
 
                 test.assertFalse(file.create().getValue());
 
-                test.assertTrue(file.exists().awaitReturn().getValue());
+                test.assertTrue(file.exists().getValue());
             });
             
             runner.testGroup("exists()", () ->
@@ -54,14 +54,14 @@ public class FileTests
                 runner.test("when file doesn't exist", (Test test) ->
                 {
                     final File file = getFile(test);
-                    test.assertFalse(file.exists().awaitReturn().getValue());
+                    test.assertFalse(file.exists().getValue());
                 });
 
                 runner.test("when file does exist", (Test test) ->
                 {
                     final File file = getFile(test);
                     file.create();
-                    test.assertTrue(file.exists().awaitReturn().getValue());
+                    test.assertTrue(file.exists().getValue());
                 });
             });
 
@@ -71,7 +71,7 @@ public class FileTests
                 {
                     final File file = getFile(test);
                     test.assertFalse(file.delete().getValue());
-                    test.assertFalse(file.exists().awaitReturn().getValue());
+                    test.assertFalse(file.exists().getValue());
                 });
 
                 runner.test("when file does exist", (Test test) ->
@@ -80,7 +80,7 @@ public class FileTests
                     file.create();
 
                     test.assertTrue(file.delete().getValue());
-                    test.assertFalse(file.exists().awaitReturn().getValue());
+                    test.assertFalse(file.exists().getValue());
                 });
             });
 

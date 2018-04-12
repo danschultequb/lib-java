@@ -129,27 +129,51 @@ public abstract class FileSystemBase implements FileSystem
     }
 
     @Override
-    public AsyncFunction<Result<Iterable<File>>> getFiles(String folderPath)
+    public Result<Iterable<File>> getFiles(String folderPath)
     {
         return FileSystemBase.getFiles(this, folderPath);
     }
 
     @Override
-    public AsyncFunction<Result<Iterable<File>>> getFiles(Path folderPath)
+    public Result<Iterable<File>> getFiles(Path folderPath)
     {
         return FileSystemBase.getFiles(this, folderPath);
     }
 
     @Override
-    public AsyncFunction<Result<Iterable<File>>> getFilesRecursively(String folderPath)
+    public AsyncFunction<Result<Iterable<File>>> getFilesAsync(String folderPath)
+    {
+        return FileSystemBase.getFilesAsync(this, folderPath);
+    }
+
+    @Override
+    public AsyncFunction<Result<Iterable<File>>> getFilesAsync(Path folderPath)
+    {
+        return FileSystemBase.getFilesAsync(this, folderPath);
+    }
+
+    @Override
+    public Result<Iterable<File>> getFilesRecursively(String folderPath)
     {
         return FileSystemBase.getFilesRecursively(this, folderPath);
     }
 
     @Override
-    public AsyncFunction<Result<Iterable<File>>> getFilesRecursively(Path folderPath)
+    public Result<Iterable<File>> getFilesRecursively(Path folderPath)
     {
         return FileSystemBase.getFilesRecursively(this, folderPath);
+    }
+
+    @Override
+    public AsyncFunction<Result<Iterable<File>>> getFilesRecursivelyAsync(String folderPath)
+    {
+        return FileSystemBase.getFilesRecursivelyAsync(this, folderPath);
+    }
+
+    @Override
+    public AsyncFunction<Result<Iterable<File>>> getFilesRecursivelyAsync(Path folderPath)
+    {
+        return FileSystemBase.getFilesRecursivelyAsync(this, folderPath);
     }
 
     @Override
@@ -165,13 +189,25 @@ public abstract class FileSystemBase implements FileSystem
     }
 
     @Override
-    public AsyncFunction<Result<Boolean>> folderExists(String folderPath)
+    public Result<Boolean> folderExists(String folderPath)
     {
         return FileSystemBase.folderExists(this, folderPath);
     }
 
     @Override
-    public abstract AsyncFunction<Result<Boolean>> folderExists(Path folderPath);
+    public Result<Boolean> folderExists(Path folderPath)
+    {
+        return FileSystemBase.folderExists(this, folderPath);
+    }
+
+    @Override
+    public AsyncFunction<Result<Boolean>> folderExistsAsync(String folderPath)
+    {
+        return FileSystemBase.folderExistsAsync(this, folderPath);
+    }
+
+    @Override
+    public abstract AsyncFunction<Result<Boolean>> folderExistsAsync(Path folderPath);
 
     @Override
     public Result<Folder> createFolder(String folderPath)
@@ -228,13 +264,25 @@ public abstract class FileSystemBase implements FileSystem
     }
 
     @Override
-    public AsyncFunction<Result<Boolean>> fileExists(String filePath)
+    public Result<Boolean> fileExists(String filePath)
     {
         return FileSystemBase.fileExists(this, filePath);
     }
 
     @Override
-    public abstract AsyncFunction<Result<Boolean>> fileExists(Path filePath);
+    public Result<Boolean> fileExists(Path filePath)
+    {
+        return FileSystemBase.fileExists(this, filePath);
+    }
+
+    @Override
+    public AsyncFunction<Result<Boolean>> fileExistsAsync(String filePath)
+    {
+        return FileSystemBase.fileExistsAsync(this, filePath);
+    }
+
+    @Override
+    public abstract AsyncFunction<Result<Boolean>> fileExistsAsync(Path filePath);
 
     @Override
     public Result<File> createFile(String filePath)
@@ -531,28 +579,20 @@ public abstract class FileSystemBase implements FileSystem
                     {
                         resultEntries = new ArrayList<>();
 
-                        final Iterable<FileSystemEntry> folderEntries = folderEntriesResult.getValue();
-                        if (folderEntries != null && folderEntries.any())
+                        final Queue<Folder> foldersToVisit = new ArrayListQueue<Folder>();
+                        foldersToVisit.enqueue(folder);
+
+                        while (foldersToVisit.any())
                         {
-                            for (final FileSystemEntry entry : folderEntries)
+                            final Folder currentFolder = foldersToVisit.dequeue();
+                            final Iterable<FileSystemEntry> currentFolderEntries = currentFolder.getFilesAndFolders().getValue();
+                            for (final FileSystemEntry entry : currentFolderEntries)
                             {
                                 resultEntries.add(entry);
 
                                 if (entry instanceof Folder)
                                 {
-                                    final Folder childFolder = (Folder)entry;
-
-                                    final Result<Iterable<FileSystemEntry>> childFolderEntriesResult = childFolder.getFilesAndFoldersRecursively();
-                                    if (childFolderEntriesResult.hasError())
-                                    {
-                                        resultErrors.add(childFolderEntriesResult.getError());
-                                    }
-
-                                    final Iterable<FileSystemEntry> childFolderEntries = childFolderEntriesResult.getValue();
-                                    if (childFolderEntries != null && childFolderEntries.any())
-                                    {
-                                        resultEntries.addAll(childFolderEntries);
-                                    }
+                                    foldersToVisit.enqueue((Folder)entry);
                                 }
                             }
                         }
@@ -668,7 +708,7 @@ public abstract class FileSystemBase implements FileSystem
      * @param folderPath The path to the folder (Root or Folder).
      * @return The files at the provided container path.
      */
-    public static AsyncFunction<Result<Iterable<File>>> getFiles(FileSystem fileSystem, String folderPath)
+    public static Result<Iterable<File>> getFiles(FileSystem fileSystem, String folderPath)
     {
         return fileSystem.getFiles(Path.parse(folderPath));
     }
@@ -678,7 +718,27 @@ public abstract class FileSystemBase implements FileSystem
      * @param folderPath The path to the folder (Root or Folder).
      * @return The files at the provided container path.
      */
-    public static AsyncFunction<Result<Iterable<File>>> getFiles(FileSystem fileSystem, Path folderPath)
+    public static Result<Iterable<File>> getFiles(FileSystem fileSystem, Path folderPath)
+    {
+        return fileSystem.getFilesAsync(folderPath).awaitReturn();
+    }
+
+    /**
+     * Get the files at the provided folder path.
+     * @param folderPath The path to the folder (Root or Folder).
+     * @return The files at the provided container path.
+     */
+    public static AsyncFunction<Result<Iterable<File>>> getFilesAsync(FileSystem fileSystem, String folderPath)
+    {
+        return fileSystem.getFilesAsync(Path.parse(folderPath));
+    }
+
+    /**
+     * Get the files at the provided folder path.
+     * @param folderPath The path to the folder (Root or Folder).
+     * @return The files at the provided container path.
+     */
+    public static AsyncFunction<Result<Iterable<File>>> getFilesAsync(FileSystem fileSystem, Path folderPath)
     {
         return fileSystem.getFilesAndFoldersAsync(folderPath)
             .then(new Function1<Result<Iterable<FileSystemEntry>>, Result<Iterable<File>>>()
@@ -686,7 +746,8 @@ public abstract class FileSystemBase implements FileSystem
                 @Override
                 public Result<Iterable<File>> run(Result<Iterable<FileSystemEntry>> result)
                 {
-                    return Result.done(result.getValue().instanceOf(File.class), result.getError());
+                    final Iterable<FileSystemEntry> entries = result.getValue();
+                    return Result.done(entries == null ? null : entries.instanceOf(File.class), result.getError());
                 }
             });
     }
@@ -696,7 +757,7 @@ public abstract class FileSystemBase implements FileSystem
      * @param folderPath The path to the folder (Root or Folder).
      * @return The files at the provided container path and its subfolders.
      */
-    public static AsyncFunction<Result<Iterable<File>>> getFilesRecursively(FileSystem fileSystem, String folderPath)
+    public static Result<Iterable<File>> getFilesRecursively(FileSystem fileSystem, String folderPath)
     {
         return fileSystem.getFilesRecursively(Path.parse(folderPath));
     }
@@ -706,7 +767,27 @@ public abstract class FileSystemBase implements FileSystem
      * @param folderPath The path to the folder (Root or Folder).
      * @return The files at the provided container path and its subfolders.
      */
-    public static AsyncFunction<Result<Iterable<File>>> getFilesRecursively(FileSystem fileSystem, Path folderPath)
+    public static Result<Iterable<File>> getFilesRecursively(FileSystem fileSystem, Path folderPath)
+    {
+        return fileSystem.getFilesRecursivelyAsync(folderPath).awaitReturn();
+    }
+
+    /**
+     * Get the files at the provided folder path and each of the subfolders recursively.
+     * @param folderPath The path to the folder (Root or Folder).
+     * @return The files at the provided container path and its subfolders.
+     */
+    public static AsyncFunction<Result<Iterable<File>>> getFilesRecursivelyAsync(FileSystem fileSystem, String folderPath)
+    {
+        return fileSystem.getFilesRecursivelyAsync(Path.parse(folderPath));
+    }
+
+    /**
+     * Get the files at the provided folder path and each of the subfolders recursively.
+     * @param folderPath The path to the folder (Root or Folder).
+     * @return The files at the provided container path and its subfolders.
+     */
+    public static AsyncFunction<Result<Iterable<File>>> getFilesRecursivelyAsync(FileSystem fileSystem, Path folderPath)
     {
         return fileSystem.getFilesAndFoldersRecursivelyAsync(folderPath)
             .then(new Function1<Result<Iterable<FileSystemEntry>>, Result<Iterable<File>>>()
@@ -714,7 +795,9 @@ public abstract class FileSystemBase implements FileSystem
                 @Override
                 public Result<Iterable<File>> run(Result<Iterable<FileSystemEntry>> result)
                 {
-                    return Result.done(result.getValue().instanceOf(File.class), result.getError());
+                    final Iterable<FileSystemEntry> entries = result.getValue();
+                    final Iterable<File> resultEntries = entries == null ? null : entries.instanceOf(File.class);
+                    return Result.done(resultEntries, result.getError());
                 }
             });
     }
@@ -757,9 +840,29 @@ public abstract class FileSystemBase implements FileSystem
      * @param folderPath The path to the Folder.
      * @return Whether or not a Folder exists in this FileSystem with the provided path.
      */
-    public static AsyncFunction<Result<Boolean>> folderExists(FileSystem fileSystem, String folderPath)
+    public static Result<Boolean> folderExists(FileSystem fileSystem, String folderPath)
     {
         return fileSystem.folderExists(Path.parse(folderPath));
+    }
+
+    /**
+     * Get whether or not a Folder exists in this FileSystem with the provided path.
+     * @param folderPath The path to the Folder.
+     * @return Whether or not a Folder exists in this FileSystem with the provided path.
+     */
+    public static Result<Boolean> folderExists(FileSystem fileSystem, Path folderPath)
+    {
+        return fileSystem.folderExistsAsync(folderPath).awaitReturn();
+    }
+
+    /**
+     * Get whether or not a Folder exists in this FileSystem with the provided path.
+     * @param folderPath The path to the Folder.
+     * @return Whether or not a Folder exists in this FileSystem with the provided path.
+     */
+    public static AsyncFunction<Result<Boolean>> folderExistsAsync(FileSystem fileSystem, String folderPath)
+    {
+        return fileSystem.folderExistsAsync(Path.parse(folderPath));
     }
 
     /**
@@ -871,9 +974,29 @@ public abstract class FileSystemBase implements FileSystem
      * @param filePath The path to the File.
      * @return Whether or not a File exists in this FileSystem with the provided path.
      */
-    public static AsyncFunction<Result<Boolean>> fileExists(FileSystem fileSystem, String filePath)
+    public static Result<Boolean> fileExists(FileSystem fileSystem, String filePath)
     {
         return fileSystem.fileExists(Path.parse(filePath));
+    }
+
+    /**
+     * Get whether or not a File exists in this FileSystem with the provided path.
+     * @param filePath The path to the File.
+     * @return Whether or not a File exists in this FileSystem with the provided path.
+     */
+    public static Result<Boolean> fileExists(FileSystem fileSystem, Path filePath)
+    {
+        return fileSystem.fileExistsAsync(filePath).awaitReturn();
+    }
+
+    /**
+     * Get whether or not a File exists in this FileSystem with the provided path.
+     * @param filePath The path to the File.
+     * @return Whether or not a File exists in this FileSystem with the provided path.
+     */
+    public static AsyncFunction<Result<Boolean>> fileExistsAsync(FileSystem fileSystem, String filePath)
+    {
+        return fileSystem.fileExistsAsync(Path.parse(filePath));
     }
 
     /**

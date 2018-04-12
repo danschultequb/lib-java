@@ -121,35 +121,34 @@ public class JavaFileSystem extends FileSystemBase
     }
 
     @Override
-    public AsyncFunction<Result<Boolean>> folderExists(final Path rootedFolderPath)
+    public AsyncFunction<Result<Boolean>> folderExistsAsync(final Path rootedFolderPath)
     {
-        return asyncFunction(this, new Function1<AsyncRunner, AsyncFunction<Result<Boolean>>>()
+        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+        AsyncFunction<Result<Boolean>> result;
+        if (rootedFolderPath == null)
         {
-            @Override
-            public AsyncFunction<Result<Boolean>> run(AsyncRunner asyncRunner)
-            {
-                return rootExists(rootedFolderPath)
-                    .then(new Function1<Result<Boolean>, Result<Boolean>>()
+            result = Async.error(currentAsyncRunner, new IllegalArgumentException("rootedFolderPath cannot be null."));
+        }
+        else if (!rootedFolderPath.isRooted())
+        {
+            result = Async.error(currentAsyncRunner, new IllegalArgumentException("rootedFolderPath must be rooted."));
+        }
+        else
+        {
+            final AsyncRunner fileSystemAsyncRunner = getAsyncRunner();
+            result = fileSystemAsyncRunner.schedule(new Function0<Result<Boolean>>()
+                {
+                    @Override
+                    public Result<Boolean> run()
                     {
-                        @Override
-                        public Result<Boolean> run(Result<Boolean> rootExistsResult)
-                        {
-                            Result<Boolean> folderExistsResult;
-                            if (rootExistsResult.hasError() || !rootExistsResult.getValue())
-                            {
-                                folderExistsResult = rootExistsResult;
-                            }
-                            else
-                            {
-                                final String folderPathString = rootedFolderPath.toString();
-                                final java.io.File folderFile = new java.io.File(folderPathString);
-                                folderExistsResult = Result.success(folderFile.exists() && folderFile.isDirectory());
-                            }
-                            return folderExistsResult;
-                        }
-                    });
-            }
-        });
+                        final String folderPathString = rootedFolderPath.toString();
+                        final java.io.File folderFile = new java.io.File(folderPathString);
+                        return Result.success(folderFile.exists() && folderFile.isDirectory());
+                    }
+                })
+                .thenOn(currentAsyncRunner);
+        }
+        return result;
     }
 
     @Override
@@ -269,16 +268,31 @@ public class JavaFileSystem extends FileSystemBase
     }
 
     @Override
-    public AsyncFunction<Result<Boolean>> fileExists(final Path rootedFilePath)
+    public AsyncFunction<Result<Boolean>> fileExistsAsync(final Path rootedFilePath)
     {
-        return async(this, new Function1<AsyncRunner, Result<Boolean>>()
+        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+        AsyncFunction<Result<Boolean>> result;
+        if (rootedFilePath == null)
         {
-            @Override
-            public Result<Boolean> run(AsyncRunner asyncRunner)
+            result = Async.error(currentAsyncRunner, new IllegalArgumentException("rootedFilePath cannot be null."));
+        }
+        else if (!rootedFilePath.isRooted())
+        {
+            result = Async.error(currentAsyncRunner, new IllegalArgumentException("rootedFilePath must be rooted."));
+        }
+        else
+        {
+            final AsyncRunner fileSystemAsyncRunner = getAsyncRunner();
+            result = fileSystemAsyncRunner.schedule(new Function0<Result<Boolean>>()
             {
-                return Result.success(java.nio.file.Files.exists(java.nio.file.Paths.get(rootedFilePath.toString())));
-            }
-        });
+                @Override
+                public Result<Boolean> run()
+                {
+                    return Result.success(java.nio.file.Files.exists(java.nio.file.Paths.get(rootedFilePath.toString())));
+                }
+            });
+        }
+        return result;
     }
 
     @Override

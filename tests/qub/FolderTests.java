@@ -10,13 +10,13 @@ public class FolderTests
             {
                 final Folder folder = getFolder(test);
                 
-                final Result<Boolean> folderExistsResult1 = folder.exists().awaitReturn();
+                final Result<Boolean> folderExistsResult1 = folder.exists();
                 test.assertFalse(folderExistsResult1.hasError());
                 test.assertFalse(folderExistsResult1.getValue());
                 
                 folder.create();
                 
-                final Result<Boolean> folderExistsResult2 = folder.exists().awaitReturn();
+                final Result<Boolean> folderExistsResult2 = folder.exists();
                 test.assertFalse(folderExistsResult2.hasError());
                 test.assertTrue(folderExistsResult2.getValue());
             });
@@ -30,7 +30,7 @@ public class FolderTests
                     final Result<Boolean> deleteFolderResult = folder.delete();
                     test.assertNull(deleteFolderResult.getValue());
                     test.assertTrue(deleteFolderResult.getError() instanceof FolderNotFoundException);
-                    test.assertFalse(folder.exists().awaitReturn().getValue());
+                    test.assertFalse(folder.exists().getValue());
                 });
 
                 runner.test("when folder exists", (Test test) ->
@@ -39,24 +39,24 @@ public class FolderTests
                     folder.create();
 
                     test.assertTrue(folder.delete().getValue());
-                    test.assertFalse(folder.exists().awaitReturn().getValue());
+                    test.assertFalse(folder.exists().getValue());
                 });
             });
 
             runner.test("create()", (Test test) ->
             {
                 final Folder folder = getFolder(test);
-                test.assertFalse(folder.exists().awaitReturn().getValue());
+                test.assertFalse(folder.exists().getValue());
 
                 final Result<Boolean> createFolderResult1 = folder.create();
                 test.assertTrue(createFolderResult1.getValue());
                 test.assertNull(createFolderResult1.getError());
-                test.assertTrue(folder.exists().awaitReturn().getValue());
+                test.assertTrue(folder.exists().getValue());
 
                 final Result<Boolean> createFolderResult2 = folder.create();
                 test.assertNull(createFolderResult2.getValue());
                 test.assertTrue(createFolderResult2.getError() instanceof FolderAlreadyExistsException);
-                test.assertTrue(folder.exists().awaitReturn().getValue());
+                test.assertTrue(folder.exists().getValue());
             });
 
 //            runner.testGroup("createFolder(String)", () ->
