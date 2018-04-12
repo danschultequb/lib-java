@@ -21,7 +21,7 @@ public class Async
         return done(asyncRunner, null, error);
     }
 
-    private static <T> AsyncFunction<Result<T>> done(AsyncRunner asyncRunner, final T value, final Throwable error)
+    public static <T> AsyncFunction<Result<T>> done(AsyncRunner asyncRunner, final T value, final Throwable error)
     {
         return asyncRunner.schedule(new Function0<Result<T>>()
         {

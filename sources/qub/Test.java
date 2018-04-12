@@ -66,6 +66,12 @@ public class Test
         process.await();
     }
 
+    @Override
+    public String toString()
+    {
+        return this.getFullName();
+    }
+
     /**
      * Assert that the provided value is true. If it is not true, then a TestAssertionFailure will
      * be thrown.
@@ -195,6 +201,19 @@ public class Test
     public <T> void assertEqual(T expected, T actual)
     {
         assertEqual(expected, actual, null);
+    }
+
+    public void assertEqual(Throwable expected, Throwable actual)
+    {
+        assertEqual(expected, actual, null);
+    }
+
+    public void assertEqual(Throwable expected, Throwable actual, String message)
+    {
+        if (!Comparer.equal(expected, actual))
+        {
+            throw new TestAssertionFailure(getFullName(), getMessageLines(message, expected, actual));
+        }
     }
 
     /**
@@ -387,9 +406,7 @@ public class Test
     {
         assertNotNull(result);
         assertNull(result.getValue());
-        assertTrue(result.hasError());
-        assertEqual(expectedError.getClass(), result.getErrorType());
-        assertEqual(expectedError.getMessage(), result.getErrorMessage());
+        assertEqual(expectedError, result.getError());
     }
 
     /**

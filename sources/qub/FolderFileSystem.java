@@ -156,20 +156,46 @@ public class FolderFileSystem extends FileSystemBase
     }
 
     @Override
-    public AsyncFunction<Result<Folder>> createFolderAsync(Path folderPath)
+    public AsyncFunction<Result<Folder>> createFolderAsync(final Path rootedFolderPath)
     {
-        return innerFileSystem.createFolderAsync(getInnerPath(folderPath))
-            .then(new Function1<Result<Folder>, Result<Folder>>()
-            {
-                @Override
-                public Result<Folder> run(Result<Folder> createFolderResult)
+        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+        AsyncFunction<Result<Folder>> result;
+        if (rootedFolderPath == null)
+        {
+            result = Async.error(currentAsyncRunner, new IllegalArgumentException("rootedFolderPath cannot be null."));
+        }
+        else if (!rootedFolderPath.isRooted())
+        {
+            result = Async.error(currentAsyncRunner, new IllegalArgumentException("rootedFolderPath must be rooted."));
+        }
+        else
+        {
+            result = innerFileSystem.createFolderAsync(getInnerPath(rootedFolderPath))
+                .then(new Function1<Result<Folder>, Result<Folder>>()
                 {
-                    final Folder createdFolder = createFolderResult.getValue();
-                    return Result.done(
-                        createdFolder == null ? null : new Folder(FolderFileSystem.this, getOuterPath(createdFolder.getPath())),
-                        createFolderResult.getError());
-                }
-            });
+                    @Override
+                    public Result<Folder> run(Result<Folder> createFolderResult)
+                    {
+                        final Folder createdFolder = createFolderResult.getValue();
+                        final Folder resultFolder = (createdFolder == null ? null : new Folder(FolderFileSystem.this, getOuterPath(createdFolder.getPath())));
+
+                        final Throwable error = createFolderResult.getError();
+                        Throwable resultError;
+                        if (error instanceof FolderAlreadyExistsException)
+                        {
+                            final Path outerPath = getOuterPath(((FolderAlreadyExistsException)error).getFolderPath());
+                            resultError = new FolderAlreadyExistsException(outerPath);
+                        }
+                        else
+                        {
+                            resultError = error;
+                        }
+
+                        return Result.done(resultFolder, resultError);
+                    }
+                });
+        }
+        return result;
     }
 
     @Override

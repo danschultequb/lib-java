@@ -175,12 +175,17 @@ public class JavaFileSystem extends FileSystemBase
                         Result<Folder> createFolderResult;
                         try
                         {
-                            java.nio.file.Files.createDirectories(java.nio.file.Paths.get(rootedFolderPath.toString()));
+                            final Path parentFolderPath = rootedFolderPath.getParent();
+                            if (parentFolderPath != null)
+                            {
+                                java.nio.file.Files.createDirectories(java.nio.file.Paths.get(parentFolderPath.toString()));
+                            }
+                            java.nio.file.Files.createDirectory(java.nio.file.Paths.get(rootedFolderPath.toString()));
                             createFolderResult = Result.success(getFolder(rootedFolderPath).getValue());
                         }
                         catch (java.nio.file.FileAlreadyExistsException e)
                         {
-                            createFolderResult = Result.<Folder>error(new FolderAlreadyExistsException(rootedFolderPath));
+                            createFolderResult = Result.<Folder>done(getFolder(rootedFolderPath).getValue(), new FolderAlreadyExistsException(rootedFolderPath));
                         }
                         catch (java.io.IOException e)
                         {

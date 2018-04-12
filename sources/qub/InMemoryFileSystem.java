@@ -199,44 +199,30 @@ public class InMemoryFileSystem extends FileSystemBase
     }
 
     @Override
-    public AsyncFunction<Result<Folder>> createFolderAsync(final Path folderPath)
+    public AsyncFunction<Result<Folder>> createFolderAsync(final Path rootedFolderPath)
     {
-        return asyncFunction(this, new Function1<AsyncRunner, AsyncFunction<Result<Folder>>>()
+        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+
+        AsyncFunction<Result<Folder>> result;
+        if (rootedFolderPath == null)
         {
-            @Override
-            public AsyncFunction<Result<Folder>> run(AsyncRunner asyncRunner)
+            result = Async.error(currentAsyncRunner, new IllegalArgumentException("rootedFolderPath cannot be null."));
+        }
+        else if (!rootedFolderPath.isRooted())
+        {
+            result = Async.error(currentAsyncRunner, new IllegalArgumentException("rootedFolderPath must be rooted."));
+        }
+        else
+        {
+            Throwable resultError = null;
+            if (!createInMemoryFolder(rootedFolderPath))
             {
-                return rootExists(folderPath)
-                    .then(new Function1<Result<Boolean>, Result<Folder>>()
-                    {
-                        @Override
-                        public Result<Folder> run(Result<Boolean> rootExistsResult)
-                        {
-                            Result<Folder> createFolderResult;
-                            if (rootExistsResult.hasError())
-                            {
-                                createFolderResult = Result.error(rootExistsResult.getError());
-                            }
-                            else if (!rootExistsResult.getValue())
-                            {
-                                createFolderResult = Result.error(new RootNotFoundException(folderPath.getRoot()));
-                            }
-                            else
-                            {
-                                if (!createInMemoryFolder(folderPath))
-                                {
-                                    createFolderResult = Result.error(new FolderAlreadyExistsException(folderPath));
-                                }
-                                else
-                                {
-                                    createFolderResult = getFolder(folderPath);
-                                }
-                            }
-                            return createFolderResult;
-                        }
-                    });
+                resultError = new FolderAlreadyExistsException(rootedFolderPath);
             }
-        });
+            Folder resultFolder = getFolder(rootedFolderPath).getValue();
+            result = Async.done(currentAsyncRunner, resultFolder, resultError);
+        }
+        return result;
     }
 
     @Override

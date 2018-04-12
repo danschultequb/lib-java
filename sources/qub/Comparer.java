@@ -72,7 +72,24 @@ public final class Comparer
     }
 
     /**
-     * Compare the two values to see if they're equals.
+     * Get whether or not the provided Throwable errors are equal, ignoring their stack traces.
+     * @param arg1 The first Throwable error.
+     * @param arg2 The second Throwable error.
+     * @return True if they are equal, false if they are not.
+     */
+    public static boolean equal(Throwable arg1, Throwable arg2)
+    {
+        boolean result = arg1 == arg2;
+        if (!result && arg1 != null && arg2 != null)
+        {
+            result = arg1.getClass().equals(arg2.getClass()) &&
+                arg1.getMessage().equals(arg2.getMessage());
+        }
+        return result;
+    }
+
+    /**
+     * Compare the two values to see if they're equal.
      * @param arg1 The first argument.
      * @param arg2 The second argument.
      * @param marginOfError The margin of error to allow when comparing the two values.

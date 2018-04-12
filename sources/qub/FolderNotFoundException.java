@@ -11,9 +11,9 @@ public class FolderNotFoundException extends RuntimeException
 
     public FolderNotFoundException(Path folderPath)
     {
-        super("The folder at \"" + folderPath + "\" doesn't exist.");
+        super("The folder at \"" + folderPath.normalize() + "\" doesn't exist.");
 
-        this.folderPath = folderPath;
+        this.folderPath = folderPath.normalize();
     }
 
     public Path getFolderPath()
