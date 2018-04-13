@@ -291,6 +291,14 @@ public class JavaFileSystem extends FileSystemBase
         {
             result = Async.error(currentAsyncRunner, new IllegalArgumentException("rootedFilePath must be rooted."));
         }
+        else if (rootedFilePath.endsWith("/"))
+        {
+            result = Async.error(currentAsyncRunner, new IllegalArgumentException("rootedFilePath cannot end with '/'."));
+        }
+        else if (rootedFilePath.endsWith("\\"))
+        {
+            result = Async.error(currentAsyncRunner, new IllegalArgumentException("rootedFilePath cannot end with '\\'."));
+        }
         else
         {
             final AsyncRunner fileSystemAsyncRunner = getAsyncRunner();
@@ -299,6 +307,7 @@ public class JavaFileSystem extends FileSystemBase
                 @Override
                 public Result<Boolean> run()
                 {
+                    java.nio.file.Files.getAttribute()
                     return Result.success(java.nio.file.Files.exists(java.nio.file.Paths.get(rootedFilePath.toString())));
                 }
             });

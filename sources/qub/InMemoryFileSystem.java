@@ -268,18 +268,17 @@ public class InMemoryFileSystem extends FileSystemBase
         {
             result = Async.error(currentAsyncRunner, new IllegalArgumentException("rootedFilePath must be rooted."));
         }
+        else if (rootedFilePath.endsWith("/"))
+        {
+            result = Async.error(currentAsyncRunner, new IllegalArgumentException("rootedFilePath cannot end with '/'."));
+        }
+        else if (rootedFilePath.endsWith("\\"))
+        {
+            result = Async.error(currentAsyncRunner, new IllegalArgumentException("rootedFilePath cannot end with '\\'."));
+        }
         else
         {
-            final AsyncRunner fileSystemAsyncRunner = getAsyncRunner();
-            result = fileSystemAsyncRunner.schedule(new Function0<Result<Boolean>>()
-                {
-                    @Override
-                    public Result<Boolean> run()
-                    {
-                        return Result.success(getInMemoryFile(rootedFilePath) != null);
-                    }
-                })
-                .thenOn(currentAsyncRunner);
+            result = Async.success(currentAsyncRunner, getInMemoryFile(rootedFilePath) != null);
         }
         return result;
     }

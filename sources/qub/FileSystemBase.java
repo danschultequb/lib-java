@@ -940,31 +940,31 @@ public abstract class FileSystemBase implements FileSystem
 
     /**
      * Get a reference to the File at the provided folderPath.
-     * @param filePath The path to the file.
+     * @param rootedFilePath The path to the file.
      * @return A reference to the File at the provided filePath.
      */
-    public static Result<File> getFile(FileSystem fileSystem, Path filePath)
+    public static Result<File> getFile(FileSystem fileSystem, Path rootedFilePath)
     {
         Result<File> result;
-        if (filePath == null)
+        if (rootedFilePath == null)
         {
-            result = Result.error(new IllegalArgumentException("filePath cannot be null."));
+            result = Result.error(new IllegalArgumentException("rootedFilePath cannot be null."));
         }
-        else if (!filePath.isRooted())
+        else if (!rootedFilePath.isRooted())
         {
-            result = Result.error(new IllegalArgumentException("filePath doesn't have a root specified."));
+            result = Result.error(new IllegalArgumentException("rootedFilePath must be rooted."));
         }
-        else if (filePath.endsWith("/"))
+        else if (rootedFilePath.endsWith("/"))
         {
-            result = Result.error(new IllegalArgumentException("filePath cannot end with '/'."));
+            result = Result.error(new IllegalArgumentException("rootedFilePath cannot end with '/'."));
         }
-        else if (filePath.endsWith("\\"))
+        else if (rootedFilePath.endsWith("\\"))
         {
-            result = Result.error(new IllegalArgumentException("filePath cannot end with '\\'."));
+            result = Result.error(new IllegalArgumentException("rootedFilePath cannot end with '\\'."));
         }
         else
         {
-            result = Result.success(new File(fileSystem, filePath));
+            result = Result.success(new File(fileSystem, rootedFilePath));
         }
         return result;
     }

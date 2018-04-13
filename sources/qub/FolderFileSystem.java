@@ -237,9 +237,33 @@ public class FolderFileSystem extends FileSystemBase
     }
 
     @Override
-    public AsyncFunction<Result<Boolean>> fileExistsAsync(Path filePath)
+    public AsyncFunction<Result<Boolean>> fileExistsAsync(Path rootedFilePath)
     {
-        return innerFileSystem.fileExistsAsync(getInnerPath(filePath));
+        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+
+        AsyncFunction<Result<Boolean>> result;
+        if (rootedFilePath == null)
+        {
+            result = Async.error(currentAsyncRunner, new IllegalArgumentException("rootedFilePath cannot be null."));
+        }
+        else if (!rootedFilePath.isRooted())
+        {
+            result = Async.error(currentAsyncRunner, new IllegalArgumentException("rootedFilePath must be rooted."));
+        }
+        else if (rootedFilePath.endsWith("/"))
+        {
+            result = Async.error(currentAsyncRunner, new IllegalArgumentException("rootedFilePath cannot end with '/'."));
+        }
+        else if (rootedFilePath.endsWith("\\"))
+        {
+            result = Async.error(currentAsyncRunner, new IllegalArgumentException("rootedFilePath cannot end with '\\'."));
+        }
+        else
+        {
+            result = innerFileSystem.fileExistsAsync(getInnerPath(rootedFilePath));
+        }
+
+        return result;
     }
 
     @Override
