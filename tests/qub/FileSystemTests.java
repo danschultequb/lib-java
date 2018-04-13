@@ -701,25 +701,43 @@ public class FileSystemTests
                     new FolderAlreadyExistsException("/folder"));
             });
 
-            runner.testGroup("createFolder(Path)", runner.skip(), () ->
+            runner.testGroup("createFolder(Path)", () ->
             {
-                runner.test("with null path", runner.skip(), (Test test) ->
+                final Action5<String,String,Action1<FileSystem>,String,Throwable> createFolderTest = (String testName, String folderPath, Action1<FileSystem> setup, String expectedCreatedFolderPath, Throwable expectedError) ->
                 {
-                    FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    final Result<Folder> result = fileSystem.createFolder((Path)null);
-                    test.assertNotNull(result);
-                    test.assertNull(result.getValue());
-                    test.assertTrue(result.hasError());
-                    test.assertEqual(IllegalArgumentException.class, result.getErrorType());
-                    test.assertEqual("rootedFolderPath cannot be null.", result.getErrorMessage());
-                });
+                    runner.test(testName + " (" + folderPath + ")", (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        final Result<Folder> result = fileSystem.createFolder(Path.parse(folderPath));
+                        test.assertNotNull(result);
+
+                        test.assertEqual(expectedCreatedFolderPath, result.getValue() == null ? null : result.getValue().toString());
+
+                        test.assertEqual(expectedError, result.getError());
+                    });
+                };
+
+                createFolderTest.run("with null", null, null, null, new IllegalArgumentException("rootedFolderPath cannot be null."));
+                createFolderTest.run("with empty string", "", null, null, new IllegalArgumentException("rootedFolderPath cannot be null."));
+                createFolderTest.run("with relative path", "folder", null, null, new IllegalArgumentException("rootedFolderPath must be rooted."));
+                createFolderTest.run("with rooted path that doesn't exist", "/folder", null, "/folder", null);
+                createFolderTest.run(
+                    "with rooted path that already exists",
+                    "/folder",
+                    (FileSystem fileSystem) -> fileSystem.createFolder("/folder"),
+                    "/folder",
+                    new FolderAlreadyExistsException("/folder"));
             });
 
-            runner.testGroup("deleteFolder(String)", runner.skip(), () ->
+            runner.testGroup("deleteFolder(String)", () ->
             {
-                final Action3<String,Action1<FileSystem>,Boolean> deleteFolderTest = (String folderPath, Action1<FileSystem> setup, Boolean expectedDeleteResult) ->
+                final Action4<String,Action1<FileSystem>,Boolean,Throwable> deleteFolderTest = (String folderPath, Action1<FileSystem> setup, Boolean expectedDeleteResult, Throwable expectedError) ->
                 {
-                    runner.test("with " + Strings.escapeAndQuote(folderPath), runner.skip(), (Test test) ->
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
                         final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
                         if (setup != null)
@@ -728,19 +746,22 @@ public class FileSystemTests
                         }
                         final Result<Boolean> result = fileSystem.deleteFolder(folderPath);
                         test.assertNotNull(result);
+
                         test.assertEqual(expectedDeleteResult, result.getValue());
-                        test.assertEqual(!expectedDeleteResult, result.hasError());
+
+                        test.assertEqual(expectedError, result.getError());
                     });
                 };
 
-                deleteFolderTest.run(null, null, false);
-                deleteFolderTest.run("", null, false);
-                deleteFolderTest.run("folder", null, false);
-                deleteFolderTest.run("/folder", null, false);
+                deleteFolderTest.run(null, null, null, new IllegalArgumentException("rootedFolderPath cannot be null."));
+                deleteFolderTest.run("", null, null, new IllegalArgumentException("rootedFolderPath cannot be null."));
+                deleteFolderTest.run("folder", null, null, new IllegalArgumentException("rootedFolderPath must be rooted."));
+                deleteFolderTest.run("/folder", null, false, new FolderNotFoundException("/folder"));
                 deleteFolderTest.run(
                     "/folder",
                     (FileSystem fileSystem) -> fileSystem.createFolder("/folder"),
-                    true);
+                    true,
+                    null);
                 deleteFolderTest.run(
                     "/folder/c",
                     (FileSystem fileSystem) ->
@@ -749,7 +770,8 @@ public class FileSystemTests
                         fileSystem.createFolder("/folder/b");
                         fileSystem.createFolder("/folder/c");
                     },
-                    true);
+                    true,
+                    null);
             });
 
             runner.testGroup("deleteFolder(Path)", runner.skip(), () ->

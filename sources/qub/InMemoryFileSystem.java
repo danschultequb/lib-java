@@ -226,29 +226,33 @@ public class InMemoryFileSystem extends FileSystemBase
     }
 
     @Override
-    public AsyncFunction<Result<Boolean>> deleteFolderAsync(final Path folderPath)
+    public AsyncFunction<Result<Boolean>> deleteFolderAsync(final Path rootedFolderPath)
     {
-        return async(this, new Function1<AsyncRunner, Result<Boolean>>()
+        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+
+        AsyncFunction<Result<Boolean>> result;
+        if (rootedFolderPath == null)
         {
-            @Override
-            public Result<Boolean> run(AsyncRunner asyncRunner)
+            result = Async.error(currentAsyncRunner, new IllegalArgumentException("rootedFolderPath cannot be null."));
+        }
+        else if (!rootedFolderPath.isRooted())
+        {
+            result = Async.error(currentAsyncRunner, new IllegalArgumentException("rootedFolderPath must be rooted."));
+        }
+        else
+        {
+            final InMemoryFolder parentFolder = getInMemoryFolder(rootedFolderPath.getParent());
+            if (parentFolder != null && parentFolder.deleteFolder(rootedFolderPath.getSegments().last()))
             {
-                Result<Boolean> deleteFolderResult;
-
-                final InMemoryFolder parentFolder = getInMemoryFolder(folderPath.getParent());
-
-                if (parentFolder.deleteFolder(folderPath.getSegments().last()))
-                {
-                    deleteFolderResult = Result.success(true);
-                }
-                else
-                {
-                    deleteFolderResult = Result.error(new FolderNotFoundException(folderPath));
-                }
-
-                return deleteFolderResult;
+                result = Async.success(currentAsyncRunner, true);
             }
-        });
+            else
+            {
+                result = Async.done(currentAsyncRunner, false, new FolderNotFoundException(rootedFolderPath));
+            }
+        }
+
+        return result;
     }
 
     @Override

@@ -3,6 +3,8 @@ package qub;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -203,12 +205,16 @@ public class JavaFileSystem extends FileSystemBase
     @Override
     public AsyncFunction<Result<Boolean>> deleteFolderAsync(final Path rootedFolderPath)
     {
-        AsyncFunction<Result<Boolean>> result;
-
         final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+
+        AsyncFunction<Result<Boolean>> result;
         if (rootedFolderPath == null)
         {
             result = Async.error(currentAsyncRunner, new IllegalArgumentException("rootedFolderPath cannot be null."));
+        }
+        else if (!rootedFolderPath.isRooted())
+        {
+            result = Async.error(currentAsyncRunner, new IllegalArgumentException("rootedFolderPath must be rooted."));
         }
         else
         {
@@ -218,12 +224,13 @@ public class JavaFileSystem extends FileSystemBase
                     @Override
                     public Result<Boolean> run()
                     {
-                        Result<Boolean> result;
+                        boolean deleteFolderResult = false;
+                        Throwable deleteFolderError = null;
 
                         final Result<Iterable<FileSystemEntry>> entriesResult = getFilesAndFolders(rootedFolderPath);
                         if (entriesResult.hasError())
                         {
-                            result = Result.error(entriesResult.getError());
+                            deleteFolderError = entriesResult.getError();
                         }
                         else
                         {
@@ -245,10 +252,9 @@ public class JavaFileSystem extends FileSystemBase
                                 }
                             }
 
-                            boolean deleteFolderResult = false;
                             try
                             {
-                                java.nio.file.Files.delete(java.nio.file.Paths.get(rootedFolderPath.toString()));
+                                Files.delete(Paths.get(rootedFolderPath.toString()));
                                 deleteFolderResult = true;
                             }
                             catch (java.io.FileNotFoundException e)
@@ -260,10 +266,10 @@ public class JavaFileSystem extends FileSystemBase
                                 errors.add(error);
                             }
 
-                            result = Result.done(deleteFolderResult, ErrorIterable.from(errors));
+                            deleteFolderError = ErrorIterable.from(errors);
                         }
 
-                        return result;
+                        return Result.done(deleteFolderResult, deleteFolderError);
                     }
                 })
                 .thenOn(currentAsyncRunner);

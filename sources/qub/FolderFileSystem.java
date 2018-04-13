@@ -199,9 +199,41 @@ public class FolderFileSystem extends FileSystemBase
     }
 
     @Override
-    public AsyncFunction<Result<Boolean>> deleteFolderAsync(Path folderPath)
+    public AsyncFunction<Result<Boolean>> deleteFolderAsync(Path rootedFolderPath)
     {
-        return innerFileSystem.deleteFolderAsync(getInnerPath(folderPath));
+        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+
+        AsyncFunction<Result<Boolean>> result;
+        if (rootedFolderPath == null)
+        {
+            result = Async.error(currentAsyncRunner, new IllegalArgumentException("rootedFolderPath cannot be null."));
+        }
+        else if (!rootedFolderPath.isRooted())
+        {
+            result = Async.error(currentAsyncRunner, new IllegalArgumentException("rootedFolderPath must be rooted."));
+        }
+        else
+        {
+            result = innerFileSystem.deleteFolderAsync(getInnerPath(rootedFolderPath))
+                .then(new Function1<Result<Boolean>, Result<Boolean>>()
+                {
+                    @Override
+                    public Result<Boolean> run(Result<Boolean> deleteFolderResult)
+                    {
+                        Result<Boolean> result = deleteFolderResult;
+                        if (result.getError() instanceof FolderNotFoundException)
+                        {
+                            final Path outerFolderPath = getOuterPath(((FolderNotFoundException)result.getError()).getFolderPath());
+                            result = Result.done(
+                                deleteFolderResult.getValue(),
+                                new FolderNotFoundException(outerFolderPath));
+                        }
+                        return result;
+                    }
+                });
+        }
+
+        return result;
     }
 
     @Override
