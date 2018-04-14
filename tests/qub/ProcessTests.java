@@ -386,7 +386,7 @@ public class ProcessTests
                 });
             });
 
-            runner.testGroup("getProcessBuilder(String)", runner.skip(), () ->
+            runner.testGroup("getProcessBuilder(String)", () ->
             {
                 runner.test("with null string", (Test test) ->
                 {
