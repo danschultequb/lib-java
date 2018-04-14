@@ -4,7 +4,7 @@ public class FileTests
 {
     public static void test(TestRunner runner)
     {
-        runner.testGroup(File.class, runner.skip(), () ->
+        runner.testGroup(File.class, () ->
         {
             runner.test("getFileExtension()", (Test test) ->
             {
@@ -132,14 +132,16 @@ public class FileTests
                 runner.test("with non-existing file", (Test test) ->
                 {
                     final File file = getFile(test);
-                    test.assertNull(file.getContents());
+                    final Result<byte[]> contents = file.getContents();
+                    test.assertError(new FileNotFoundException("/A"), contents);
                 });
 
                 runner.test("with existing file with no contents", (Test test) ->
                 {
                     final File file = getFile(test);
                     file.create();
-                    test.assertEqual(new byte[0], file.getContents());
+                    final Result<byte[]> contents = file.getContents();
+                    test.assertSuccess(new byte[0], contents);
                 });
             });
 
@@ -148,7 +150,7 @@ public class FileTests
                 runner.test("with non-existing file", (Test test) ->
                 {
                     final File file = getFile(test);
-                    test.assertNull(file.getContentByteReadStream());
+                    test.assertError(new FileNotFoundException("/A"), file.getContentByteReadStream());
                 });
             });
         });
