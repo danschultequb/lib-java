@@ -1,6 +1,7 @@
 package qub;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
 import java.nio.file.Files;
@@ -54,70 +55,62 @@ public class JavaFileSystem extends FileSystemBase
     public AsyncFunction<Result<Iterable<FileSystemEntry>>> getFilesAndFoldersAsync(final Path rootedFolderPath)
     {
         final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        final AsyncRunner fileSystemAsyncRunner = getAsyncRunner();
 
-        AsyncFunction<Result<Iterable<FileSystemEntry>>> result;
-        if (rootedFolderPath == null)
+        AsyncFunction<Result<Iterable<FileSystemEntry>>> result = FileSystemBase.validateRootedFolderPathAsync(currentAsyncRunner, rootedFolderPath);
+        if (result == null)
         {
-            result = Async.error(currentAsyncRunner, new IllegalArgumentException("rootedFolderPath cannot be null."));
-        }
-        else if (!rootedFolderPath.isRooted())
-        {
-            result = Async.error(currentAsyncRunner, new IllegalArgumentException("rootedFolderPath must be rooted."));
-        }
-        else
-        {
+            final AsyncRunner fileSystemAsyncRunner = getAsyncRunner();
             result = fileSystemAsyncRunner.schedule(new Function0<Result<Iterable<FileSystemEntry>>>()
-            {
-                @Override
-                public Result<Iterable<FileSystemEntry>> run()
                 {
-                    Result<Iterable<FileSystemEntry>> result;
-
-                    Array<FileSystemEntry> filesAndFolders;
-
-                    final java.io.File containerFile = new java.io.File(rootedFolderPath.toString());
-                    final java.io.File[] containerEntryFiles = containerFile.listFiles();
-                    if (containerEntryFiles == null)
+                    @Override
+                    public Result<Iterable<FileSystemEntry>> run()
                     {
-                        result = Result.error(new FolderNotFoundException(rootedFolderPath));
-                    }
-                    else
-                    {
-                        final List<Folder> folders = new ArrayList<>();
-                        final List<File> files = new ArrayList<>();
-                        for (final java.io.File containerEntryFile : containerEntryFiles)
+                        Result<Iterable<FileSystemEntry>> result;
+
+                        Array<FileSystemEntry> filesAndFolders;
+
+                        final java.io.File containerFile = new java.io.File(rootedFolderPath.toString());
+                        final java.io.File[] containerEntryFiles = containerFile.listFiles();
+                        if (containerEntryFiles == null)
                         {
-                            final String containerEntryPathString = containerEntryFile.getAbsolutePath();
-                            final Path containerEntryPath = Path.parse(containerEntryPathString).normalize();
-                            if (containerEntryFile.isFile())
+                            result = Result.error(new FolderNotFoundException(rootedFolderPath));
+                        }
+                        else
+                        {
+                            final List<Folder> folders = new ArrayList<>();
+                            final List<File> files = new ArrayList<>();
+                            for (final java.io.File containerEntryFile : containerEntryFiles)
                             {
-                                files.add(getFile(containerEntryPath).getValue());
+                                final String containerEntryPathString = containerEntryFile.getAbsolutePath();
+                                final Path containerEntryPath = Path.parse(containerEntryPathString).normalize();
+                                if (containerEntryFile.isFile())
+                                {
+                                    files.add(getFile(containerEntryPath).getValue());
+                                }
+                                else if (containerEntryFile.isDirectory())
+                                {
+                                    folders.add(getFolder(containerEntryPath).getValue());
+                                }
                             }
-                            else if (containerEntryFile.isDirectory())
+
+                            filesAndFolders = new Array<>(containerEntryFiles.length);
+                            final int foldersCount = folders.getCount();
+                            for (int i = 0; i < foldersCount; ++i)
                             {
-                                folders.add(getFolder(containerEntryPath).getValue());
+                                filesAndFolders.set(i, folders.get(i));
                             }
+                            for (int i = 0; i < files.getCount(); ++i)
+                            {
+                                filesAndFolders.set(i + foldersCount, files.get(i));
+                            }
+
+                            result = Result.<Iterable<FileSystemEntry>>success(filesAndFolders);
                         }
 
-                        filesAndFolders = new Array<>(containerEntryFiles.length);
-                        final int foldersCount = folders.getCount();
-                        for (int i = 0; i < foldersCount; ++i)
-                        {
-                            filesAndFolders.set(i, folders.get(i));
-                        }
-                        for (int i = 0; i < files.getCount(); ++i)
-                        {
-                            filesAndFolders.set(i + foldersCount, files.get(i));
-                        }
-
-                        result = Result.<Iterable<FileSystemEntry>>success(filesAndFolders);
+                        return result;
                     }
-
-                    return result;
-                }
-            })
-            .thenOn(currentAsyncRunner);
+                })
+                .thenOn(currentAsyncRunner);
         }
         return result;
     }
@@ -126,16 +119,9 @@ public class JavaFileSystem extends FileSystemBase
     public AsyncFunction<Result<Boolean>> folderExistsAsync(final Path rootedFolderPath)
     {
         final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        AsyncFunction<Result<Boolean>> result;
-        if (rootedFolderPath == null)
-        {
-            result = Async.error(currentAsyncRunner, new IllegalArgumentException("rootedFolderPath cannot be null."));
-        }
-        else if (!rootedFolderPath.isRooted())
-        {
-            result = Async.error(currentAsyncRunner, new IllegalArgumentException("rootedFolderPath must be rooted."));
-        }
-        else
+
+        AsyncFunction<Result<Boolean>> result = FileSystemBase.validateRootedFolderPathAsync(currentAsyncRunner, rootedFolderPath);
+        if (result == null)
         {
             final AsyncRunner fileSystemAsyncRunner = getAsyncRunner();
             result = fileSystemAsyncRunner.schedule(new Function0<Result<Boolean>>()
@@ -157,16 +143,9 @@ public class JavaFileSystem extends FileSystemBase
     public AsyncFunction<Result<Folder>> createFolderAsync(final Path rootedFolderPath)
     {
         final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        AsyncFunction<Result<Folder>> result;
-        if (rootedFolderPath == null)
-        {
-            result = Async.error(currentAsyncRunner, new IllegalArgumentException("rootedFolderPath cannot be null."));
-        }
-        else if (!rootedFolderPath.isRooted())
-        {
-            result = Async.error(currentAsyncRunner, new IllegalArgumentException("rootedFolderPath must be rooted."));
-        }
-        else
+
+        AsyncFunction<Result<Folder>> result = FileSystemBase.validateRootedFolderPathAsync(currentAsyncRunner, rootedFolderPath);
+        if (result == null)
         {
             final AsyncRunner fileSystemAsyncRunner = getAsyncRunner();
             result = fileSystemAsyncRunner.schedule(new Function0<Result<Folder>>()
@@ -207,16 +186,8 @@ public class JavaFileSystem extends FileSystemBase
     {
         final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
 
-        AsyncFunction<Result<Boolean>> result;
-        if (rootedFolderPath == null)
-        {
-            result = Async.error(currentAsyncRunner, new IllegalArgumentException("rootedFolderPath cannot be null."));
-        }
-        else if (!rootedFolderPath.isRooted())
-        {
-            result = Async.error(currentAsyncRunner, new IllegalArgumentException("rootedFolderPath must be rooted."));
-        }
-        else
+        AsyncFunction<Result<Boolean>> result = FileSystemBase.validateRootedFolderPathAsync(currentAsyncRunner, rootedFolderPath);
+        if (result == null)
         {
             final AsyncRunner fileSystemAsyncRunner = getAsyncRunner();
             result = fileSystemAsyncRunner.schedule(new Function0<Result<Boolean>>()
@@ -225,7 +196,7 @@ public class JavaFileSystem extends FileSystemBase
                     public Result<Boolean> run()
                     {
                         boolean deleteFolderResult = false;
-                        Throwable deleteFolderError = null;
+                        Throwable deleteFolderError;
 
                         final Result<Iterable<FileSystemEntry>> entriesResult = getFilesAndFolders(rootedFolderPath);
                         if (entriesResult.hasError())
@@ -282,24 +253,9 @@ public class JavaFileSystem extends FileSystemBase
     public AsyncFunction<Result<Boolean>> fileExistsAsync(final Path rootedFilePath)
     {
         final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        AsyncFunction<Result<Boolean>> result;
-        if (rootedFilePath == null)
-        {
-            result = Async.error(currentAsyncRunner, new IllegalArgumentException("rootedFilePath cannot be null."));
-        }
-        else if (!rootedFilePath.isRooted())
-        {
-            result = Async.error(currentAsyncRunner, new IllegalArgumentException("rootedFilePath must be rooted."));
-        }
-        else if (rootedFilePath.endsWith("/"))
-        {
-            result = Async.error(currentAsyncRunner, new IllegalArgumentException("rootedFilePath cannot end with '/'."));
-        }
-        else if (rootedFilePath.endsWith("\\"))
-        {
-            result = Async.error(currentAsyncRunner, new IllegalArgumentException("rootedFilePath cannot end with '\\'."));
-        }
-        else
+
+        AsyncFunction<Result<Boolean>> result = FileSystemBase.validateRootedFilePathAsync(currentAsyncRunner, rootedFilePath);
+        if (result == null)
         {
             final AsyncRunner fileSystemAsyncRunner = getAsyncRunner();
             result = fileSystemAsyncRunner.schedule(new Function0<Result<Boolean>>()
@@ -307,8 +263,7 @@ public class JavaFileSystem extends FileSystemBase
                 @Override
                 public Result<Boolean> run()
                 {
-                    java.nio.file.Files.getAttribute()
-                    return Result.success(java.nio.file.Files.exists(java.nio.file.Paths.get(rootedFilePath.toString())));
+                    return Result.success(java.nio.file.Files.isRegularFile(java.nio.file.Paths.get(rootedFilePath.toString())));
                 }
             });
         }
@@ -318,163 +273,217 @@ public class JavaFileSystem extends FileSystemBase
     @Override
     public AsyncFunction<Result<File>> createFileAsync(final Path rootedFilePath)
     {
-        return asyncFunction(this, new Function1<AsyncRunner, AsyncFunction<Result<File>>>()
+        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+
+        AsyncFunction<Result<File>> result = FileSystemBase.validateRootedFilePathAsync(currentAsyncRunner, rootedFilePath);
+        if (result == null)
         {
-            @Override
-            public AsyncFunction<Result<File>> run(final AsyncRunner asyncRunner)
-            {
-                final Path parentFolderPath = rootedFilePath.getParent();
-                return createFolderAsync(parentFolderPath)
-                    .then(new Function1<Result<Folder>, Result<File>>()
+            final AsyncRunner fileSystemAsyncRunner = getAsyncRunner();
+            result = fileSystemAsyncRunner.schedule(new Function0<Result<File>>()
+                {
+                    @Override
+                    public Result<File> run()
                     {
-                        @Override
-                        public Result<File> run(Result<Folder> createFolderResult)
+                        Result<File> createFileResult;
+
+                        final Path parentFolderPath = rootedFilePath.getParent();
+                        final Result<Folder> createFolderResult = createFolder(parentFolderPath);
+                        if (createFolderResult.getValue() == null)
                         {
-                            Result<File> createFileResult;
-                            if (createFolderResult.hasError() && !(createFolderResult.getError() instanceof FolderAlreadyExistsException))
+                            createFileResult = Result.error(createFolderResult.getError());
+                        }
+                        else
+                        {
+                            try
                             {
-                                createFileResult = Result.error(createFolderResult.getError());
+                                java.nio.file.Files.createFile(java.nio.file.Paths.get(rootedFilePath.toString()));
+                                createFileResult = Result.success(getFile(rootedFilePath).getValue());
                             }
-                            else
+                            catch (java.nio.file.FileAlreadyExistsException e)
+                            {
+                                createFileResult = Result.done(getFile(rootedFilePath).getValue(), new FileAlreadyExistsException(rootedFilePath));
+                            }
+                            catch (java.io.IOException e)
+                            {
+                                createFileResult = Result.error(e);
+                            }
+                        }
+                        return createFileResult;
+                    }
+                })
+                .thenOn(currentAsyncRunner);
+        }
+
+        return result;
+    }
+
+    @Override
+    public AsyncFunction<Result<Boolean>> deleteFileAsync(final Path rootedFilePath)
+    {
+        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+
+        AsyncFunction<Result<Boolean>> result = FileSystemBase.validateRootedFilePathAsync(currentAsyncRunner, rootedFilePath);
+        if (result == null)
+        {
+            final AsyncRunner fileSystemAsyncRunner = getAsyncRunner();
+            result = fileSystemAsyncRunner.schedule(new Function0<Result<Boolean>>()
+                {
+                    @Override
+                    public Result<Boolean> run()
+                    {
+                        Result<Boolean> deleteFileResult;
+                        try
+                        {
+                            java.nio.file.Files.delete(java.nio.file.Paths.get(rootedFilePath.toString()));
+                            deleteFileResult = Result.success(true);
+                        }
+                        catch (java.nio.file.NoSuchFileException e)
+                        {
+                            deleteFileResult = Result.done(false, new FileNotFoundException(rootedFilePath));
+                        }
+                        catch (java.io.IOException e)
+                        {
+                            deleteFileResult = Result.error(e);
+                        }
+                        return deleteFileResult;
+                    }
+                })
+                .thenOn(currentAsyncRunner);
+        }
+
+        return result;
+    }
+
+    @Override
+    public AsyncFunction<Result<DateTime>> getFileLastModifiedAsync(final Path rootedFilePath)
+    {
+        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+
+        AsyncFunction<Result<DateTime>> result = FileSystemBase.validateRootedFilePathAsync(currentAsyncRunner, rootedFilePath);
+        if (result == null)
+        {
+            final AsyncRunner fileSystemAsyncRunner = getAsyncRunner();
+            result = fileSystemAsyncRunner.schedule(new Function0<Result<DateTime>>()
+                {
+                    @Override
+                    public Result<DateTime> run()
+                    {
+                        Result<DateTime> getFileLastModifiedResult;
+                        try
+                        {
+                            final java.nio.file.attribute.FileTime lastModifiedTime = java.nio.file.Files.getLastModifiedTime(java.nio.file.Paths.get(rootedFilePath.toString()));
+                            getFileLastModifiedResult = Result.success(DateTime.local(lastModifiedTime.toMillis()));
+                        }
+                        catch (java.nio.file.NoSuchFileException e)
+                        {
+                            getFileLastModifiedResult = Result.error(new FileNotFoundException(rootedFilePath));
+                        }
+                        catch (java.io.IOException e)
+                        {
+                            getFileLastModifiedResult = Result.error(e);
+                        }
+                        return getFileLastModifiedResult;
+                    }
+                })
+                .thenOn(currentAsyncRunner);
+        }
+
+        return result;
+    }
+
+    @Override
+    public AsyncFunction<Result<ByteReadStream>> getFileContentByteReadStreamAsync(final Path rootedFilePath)
+    {
+        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+
+        AsyncFunction<Result<ByteReadStream>> result = FileSystemBase.validateRootedFilePathAsync(currentAsyncRunner, rootedFilePath);
+        if (result == null)
+        {
+            final AsyncRunner fileSystemAsyncRunner = getAsyncRunner();
+            result = fileSystemAsyncRunner.schedule(new Function0<Result<ByteReadStream>>()
+                {
+                    @Override
+                    public Result<ByteReadStream> run()
+                    {
+                        Result<ByteReadStream> result;
+                        try
+                        {
+                            result = Result.<ByteReadStream>success(
+                                new InputStreamToByteReadStream(
+                                    java.nio.file.Files.newInputStream(
+                                        java.nio.file.Paths.get(rootedFilePath.toString()))));
+                        }
+                        catch (java.nio.file.NoSuchFileException e)
+                        {
+                            result = Result.error(new FileNotFoundException(rootedFilePath));
+                        }
+                        catch (java.io.IOException e)
+                        {
+                            result = Result.error(e);
+                        }
+                        return result;
+                    }
+                })
+                .thenOn(currentAsyncRunner);
+        }
+
+        return result;
+    }
+
+    @Override
+    public AsyncFunction<Result<ByteWriteStream>> getFileContentByteWriteStreamAsync(final Path rootedFilePath)
+    {
+        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+
+        AsyncFunction<Result<ByteWriteStream>> result = FileSystemBase.validateRootedFilePathAsync(currentAsyncRunner, rootedFilePath);
+        if (result == null)
+        {
+            final AsyncRunner fileSystemAsyncRunner = getAsyncRunner();
+            result = fileSystemAsyncRunner.schedule(new Function0<Result<ByteWriteStream>>()
+                {
+                    @Override
+                    public Result<ByteWriteStream> run()
+                    {
+                        OutputStream outputStream = null;
+                        Throwable error = null;
+                        try
+                        {
+                            outputStream =
+                                java.nio.file.Files.newOutputStream(
+                                    java.nio.file.Paths.get(rootedFilePath.toString()),
+                                        StandardOpenOption.CREATE,
+                                        StandardOpenOption.TRUNCATE_EXISTING);
+                        }
+                        catch (java.nio.file.NoSuchFileException e)
+                        {
+                            final Result<Folder> createParentFolderResult = createFolder(rootedFilePath.getParent());
+                            if (createParentFolderResult.getValue() != null)
                             {
                                 try
                                 {
-                                    java.nio.file.Files.createFile(java.nio.file.Paths.get(rootedFilePath.toString()));
-                                    createFileResult = Result.success(getFile(rootedFilePath).getValue());
+                                    outputStream =
+                                        Files.newOutputStream(
+                                            Paths.get(rootedFilePath.toString()),
+                                            StandardOpenOption.CREATE,
+                                            StandardOpenOption.TRUNCATE_EXISTING);
                                 }
-                                catch (java.nio.file.FileAlreadyExistsException e)
+                                catch (IOException e1)
                                 {
-                                    createFileResult = Result.error(new FileAlreadyExistsException(rootedFilePath));
-                                }
-                                catch (java.io.IOException e)
-                                {
-                                    createFileResult = Result.error(e);
+                                    error = e1;
                                 }
                             }
-                            return createFileResult;
                         }
-                    });
-            }
-        });
-    }
-
-    @Override
-    public AsyncFunction<Result<Boolean>> deleteFile(final Path rootedFilePath)
-    {
-        return asyncFunction(this, new Function1<AsyncRunner, AsyncFunction<Result<Boolean>>>()
-        {
-            @Override
-            public AsyncFunction<Result<Boolean>> run(final AsyncRunner asyncRunner)
-            {
-                return rootExists(rootedFilePath)
-                    .then(new Function1<Result<Boolean>, Result<Boolean>>()
-                    {
-                        @Override
-                        public Result<Boolean> run(Result<Boolean> rootExistsResult)
+                        catch (IOException e)
                         {
-                            Result<Boolean> deleteFileResult;
-                            if (rootExistsResult.hasError())
-                            {
-                                deleteFileResult = Result.error(rootExistsResult.getError());
-                            }
-                            else if (!rootExistsResult.getValue())
-                            {
-                                deleteFileResult = Result.error(new RootNotFoundException(rootedFilePath.getRoot()));
-                            }
-                            else
-                            {
-                                try
-                                {
-                                    java.nio.file.Files.delete(java.nio.file.Paths.get(rootedFilePath.toString()));
-                                    deleteFileResult = Result.success(true);
-                                }
-                                catch (java.nio.file.NoSuchFileException e)
-                                {
-                                    deleteFileResult = Result.error(new FileNotFoundException(rootedFilePath));
-                                }
-                                catch (java.io.IOException e)
-                                {
-                                    deleteFileResult = Result.error(e);
-                                }
-                            }
-                            return deleteFileResult;
+                            error = e;
                         }
-                    });
-            }
-        });
-    }
 
-    @Override
-    public AsyncFunction<Result<DateTime>> getFileLastModified(final Path rootedFilePath)
-    {
-        return async(this, new Function1<AsyncRunner, Result<DateTime>>()
-        {
-            @Override
-            public Result<DateTime> run(AsyncRunner asyncRunner)
-            {
-                Result<DateTime> getFileLastModifiedResult;
-                try
-                {
-                    final java.nio.file.attribute.FileTime lastModifiedTime = java.nio.file.Files.getLastModifiedTime(java.nio.file.Paths.get(rootedFilePath.toString()));
-                    getFileLastModifiedResult = Result.success(DateTime.local(lastModifiedTime.toMillis()));
-                }
-                catch (java.io.IOException e)
-                {
-                    getFileLastModifiedResult = Result.error(e);
-                }
-                return getFileLastModifiedResult;
-            }
-        });
-    }
+                        return Result.<ByteWriteStream>done(outputStream == null ? null : new OutputStreamToByteWriteStream(outputStream), error);
+                    }
+                })
+                .thenOn(currentAsyncRunner);
+        }
 
-    @Override
-    public AsyncFunction<Result<ByteReadStream>> getFileContentByteReadStream(final Path rootedFilePath)
-    {
-        return async(this, new Function1<AsyncRunner, Result<ByteReadStream>>()
-        {
-            @Override
-            public Result<ByteReadStream> run(AsyncRunner arg1)
-            {
-                Result<ByteReadStream> result;
-                try
-                {
-                    result = Result.<ByteReadStream>success(
-                        new InputStreamToByteReadStream(
-                            java.nio.file.Files.newInputStream(
-                                java.nio.file.Paths.get(rootedFilePath.toString()))));
-                }
-                catch (java.io.IOException e)
-                {
-                    result = Result.error(e);
-                }
-                return result;
-            }
-        });
-    }
-
-    @Override
-    public AsyncFunction<Result<ByteWriteStream>> getFileContentByteWriteStream(final Path rootedFilePath)
-    {
-        return async(this, new Function1<AsyncRunner, Result<ByteWriteStream>>()
-        {
-            @Override
-            public Result<ByteWriteStream> run(AsyncRunner arg1)
-            {
-                Result<ByteWriteStream> result;
-                try
-                {
-                    result = Result.<ByteWriteStream>success(
-                        new OutputStreamToByteWriteStream(
-                            java.nio.file.Files.newOutputStream(
-                                java.nio.file.Paths.get(rootedFilePath.toString()),
-                                StandardOpenOption.CREATE)));
-                }
-                catch (IOException e)
-                {
-                    result = Result.error(e);
-                }
-                return result;
-            }
-        });
+        return result;
     }
 }

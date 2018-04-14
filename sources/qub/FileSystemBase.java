@@ -3,15 +3,27 @@ package qub;
 public abstract class FileSystemBase implements FileSystem
 {
     @Override
-    public AsyncFunction<Result<Boolean>> rootExists(String rootPath)
+    public Result<Boolean> rootExists(String rootPath)
     {
         return FileSystemBase.rootExists(this, rootPath);
     }
 
     @Override
-    public AsyncFunction<Result<Boolean>> rootExists(Path rootPath)
+    public Result<Boolean> rootExists(Path rootPath)
     {
         return FileSystemBase.rootExists(this, rootPath);
+    }
+
+    @Override
+    public AsyncFunction<Result<Boolean>> rootExistsAsync(String rootPath)
+    {
+        return FileSystemBase.rootExistsAsync(this, rootPath);
+    }
+
+    @Override
+    public AsyncFunction<Result<Boolean>> rootExistsAsync(Path rootPath)
+    {
+        return FileSystemBase.rootExistsAsync(this, rootPath);
     }
 
     @Override
@@ -306,63 +318,135 @@ public abstract class FileSystemBase implements FileSystem
     public abstract AsyncFunction<Result<File>> createFileAsync(Path filePath);
 
     @Override
-    public AsyncFunction<Result<Boolean>> deleteFile(String filePath)
+    public Result<Boolean> deleteFile(String filePath)
     {
         return FileSystemBase.deleteFile(this, filePath);
     }
 
     @Override
-    public abstract AsyncFunction<Result<Boolean>> deleteFile(Path filePath);
+    public Result<Boolean> deleteFile(Path filePath)
+    {
+        return FileSystemBase.deleteFile(this, filePath);
+    }
 
     @Override
-    public AsyncFunction<Result<DateTime>> getFileLastModified(String filePath)
+    public AsyncFunction<Result<Boolean>> deleteFileAsync(String filePath)
+    {
+        return FileSystemBase.deleteFileAsync(this, filePath);
+    }
+
+    @Override
+    public abstract AsyncFunction<Result<Boolean>> deleteFileAsync(Path filePath);
+
+    @Override
+    public Result<DateTime> getFileLastModified(String filePath)
     {
         return FileSystemBase.getFileLastModified(this, filePath);
     }
 
     @Override
-    public abstract AsyncFunction<Result<DateTime>> getFileLastModified(Path filePath);
+    public Result<DateTime> getFileLastModified(Path filePath)
+    {
+        return FileSystemBase.getFileLastModified(this, filePath);
+    }
 
     @Override
-    public AsyncFunction<Result<ByteReadStream>> getFileContentByteReadStream(String rootedFilePath)
+    public AsyncFunction<Result<DateTime>> getFileLastModifiedAsync(String filePath)
+    {
+        return FileSystemBase.getFileLastModifiedAsync(this, filePath);
+    }
+
+    @Override
+    public abstract AsyncFunction<Result<DateTime>> getFileLastModifiedAsync(Path filePath);
+
+    @Override
+    public Result<ByteReadStream> getFileContentByteReadStream(String rootedFilePath)
     {
         return FileSystemBase.getFileContentByteReadStream(this, rootedFilePath);
     }
 
     @Override
-    public abstract AsyncFunction<Result<ByteReadStream>> getFileContentByteReadStream(Path rootedFilePath);
+    public Result<ByteReadStream> getFileContentByteReadStream(Path rootedFilePath)
+    {
+        return FileSystemBase.getFileContentByteReadStream(this, rootedFilePath);
+    }
 
     @Override
-    public AsyncFunction<Result<byte[]>> getFileContent(String rootedFilePath)
+    public AsyncFunction<Result<ByteReadStream>> getFileContentByteReadStreamAsync(String rootedFilePath)
+    {
+        return FileSystemBase.getFileContentByteReadStreamAsync(this, rootedFilePath);
+    }
+
+    @Override
+    public abstract AsyncFunction<Result<ByteReadStream>> getFileContentByteReadStreamAsync(Path rootedFilePath);
+
+    @Override
+    public Result<byte[]> getFileContent(String rootedFilePath)
     {
         return FileSystemBase.getFileContent(this, rootedFilePath);
     }
 
     @Override
-    public AsyncFunction<Result<byte[]>> getFileContent(Path rootedFilePath)
+    public Result<byte[]> getFileContent(Path rootedFilePath)
     {
         return FileSystemBase.getFileContent(this, rootedFilePath);
     }
 
     @Override
-    public AsyncFunction<Result<ByteWriteStream>> getFileContentByteWriteStream(String rootedFilePath)
+    public AsyncFunction<Result<byte[]>> getFileContentAsync(String rootedFilePath)
+    {
+        return FileSystemBase.getFileContentAsync(this, rootedFilePath);
+    }
+
+    @Override
+    public AsyncFunction<Result<byte[]>> getFileContentAsync(Path rootedFilePath)
+    {
+        return FileSystemBase.getFileContentAsync(this, rootedFilePath);
+    }
+
+    @Override
+    public Result<ByteWriteStream> getFileContentByteWriteStream(String rootedFilePath)
     {
         return FileSystemBase.getFileContentByteWriteStream(this, rootedFilePath);
     }
 
     @Override
-    public abstract AsyncFunction<Result<ByteWriteStream>> getFileContentByteWriteStream(Path rootedFilePath);
+    public Result<ByteWriteStream> getFileContentByteWriteStream(Path rootedFilePath)
+    {
+        return FileSystemBase.getFileContentByteWriteStream(this, rootedFilePath);
+    }
 
     @Override
-    public AsyncFunction<Result<Boolean>> setFileContent(String rootedFilePath, byte[] content)
+    public AsyncFunction<Result<ByteWriteStream>> getFileContentByteWriteStreamAsync(String rootedFilePath)
+    {
+        return FileSystemBase.getFileContentByteWriteStreamAsync(this, rootedFilePath);
+    }
+
+    @Override
+    public abstract AsyncFunction<Result<ByteWriteStream>> getFileContentByteWriteStreamAsync(Path rootedFilePath);
+
+    @Override
+    public Result<Boolean> setFileContent(String rootedFilePath, byte[] content)
     {
         return FileSystemBase.setFileContent(this, rootedFilePath, content);
     }
 
     @Override
-    public AsyncFunction<Result<Boolean>> setFileContent(Path rootedFilePath, byte[] content)
+    public Result<Boolean> setFileContent(Path rootedFilePath, byte[] content)
     {
         return FileSystemBase.setFileContent(this, rootedFilePath, content);
+    }
+
+    @Override
+    public AsyncFunction<Result<Boolean>> setFileContentAsync(String rootedFilePath, byte[] content)
+    {
+        return FileSystemBase.setFileContentAsync(this, rootedFilePath, content);
+    }
+
+    @Override
+    public AsyncFunction<Result<Boolean>> setFileContentAsync(Path rootedFilePath, byte[] content)
+    {
+        return FileSystemBase.setFileContentAsync(this, rootedFilePath, content);
     }
 
     /**
@@ -370,7 +454,7 @@ public abstract class FileSystemBase implements FileSystem
      * @param rootPath The path to the Root.
      * @return Whether or not a Root exists in this FileSystem with the provided path.
      */
-    public static AsyncFunction<Result<Boolean>> rootExists(FileSystem fileSystem, String rootPath)
+    public static Result<Boolean> rootExists(FileSystem fileSystem, String rootPath)
     {
         return fileSystem.rootExists(Path.parse(rootPath));
     }
@@ -380,51 +464,60 @@ public abstract class FileSystemBase implements FileSystem
      * @param rootPath The path to the Root.
      * @return Whether or not a Root exists in this FileSystem with the provided path.
      */
-    public static AsyncFunction<Result<Boolean>> rootExists(final FileSystem fileSystem, final Path rootPath)
+    public static Result<Boolean> rootExists(final FileSystem fileSystem, final Path rootPath)
     {
-        AsyncFunction<Result<Boolean>> result;
-        if (rootPath == null)
+        return fileSystem.rootExistsAsync(rootPath).awaitReturn();
+    }
+
+    /**
+     * Get whether or not a Root exists in this FileSystem with the provided path.
+     * @param rootPath The path to the Root.
+     * @return Whether or not a Root exists in this FileSystem with the provided path.
+     */
+    public static AsyncFunction<Result<Boolean>> rootExistsAsync(FileSystem fileSystem, String rootPath)
+    {
+        return fileSystem.rootExistsAsync(Path.parse(rootPath));
+    }
+
+    /**
+     * Get whether or not a Root exists in this FileSystem with the provided path.
+     * @param rootPath The path to the Root.
+     * @return Whether or not a Root exists in this FileSystem with the provided path.
+     */
+    public static AsyncFunction<Result<Boolean>> rootExistsAsync(final FileSystem fileSystem, final Path rootPath)
+    {
+        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+
+        AsyncFunction<Result<Boolean>> result = validateRootPathAsync(currentAsyncRunner, rootPath);
+        if (result == null)
         {
-            result = Async.error(fileSystem.getAsyncRunner(), new IllegalArgumentException("rootPath cannot be null."));
-        }
-        else if (!rootPath.isRooted())
-        {
-            result = Async.error(fileSystem.getAsyncRunner(), new IllegalArgumentException("rootPath must be rooted."));
-        }
-        else
-        {
-            result = asyncFunction(fileSystem, new Function1<AsyncRunner, AsyncFunction<Result<Boolean>>>()
+            final AsyncRunner fileSystemAsyncRunner = fileSystem.getAsyncRunner();
+            result = fileSystemAsyncRunner.schedule(new Function0<Result<Boolean>>()
             {
                 @Override
-                public AsyncFunction<Result<Boolean>> run(AsyncRunner asyncRunner)
+                public Result<Boolean> run()
                 {
-                    final Path onlyRootPath = rootPath.getRoot();
-                    return fileSystem.getRootsAsync()
-                        .then(new Function1<Result<Iterable<Root>>, Result<Boolean>>()
+                    Result<Boolean> rootExistsResult;
+
+                    final Result<Iterable<Root>> roots = fileSystem.getRoots();
+                    if (roots.hasError())
+                    {
+                        rootExistsResult = Result.error(roots.getError());
+                    }
+                    else
+                    {
+                        final Path onlyRootPath = rootPath.getRoot();
+                        rootExistsResult = Result.success(roots.getValue().contains(new Function1<Root, Boolean>()
                         {
                             @Override
-                            public Result<Boolean> run(Result<Iterable<Root>> getRootsResult)
+                            public Boolean run(Root root)
                             {
-                                Result<Boolean> rootExistsResult;
-                                if (getRootsResult.hasError())
-                                {
-                                    rootExistsResult = Result.error(getRootsResult.getError());
-                                }
-                                else
-                                {
-                                    final Iterable<Root> roots = getRootsResult.getValue();
-                                    rootExistsResult = Result.success(roots.contains(new Function1<Root, Boolean>()
-                                    {
-                                        @Override
-                                        public Boolean run(Root root)
-                                        {
-                                            return root.getPath().equals(onlyRootPath);
-                                        }
-                                    }));
-                                }
-                                return rootExistsResult;
+                                return root.getPath().equals(onlyRootPath);
                             }
-                        });
+                        }));
+                    }
+
+                    return rootExistsResult;
                 }
             });
         }
@@ -449,18 +542,10 @@ public abstract class FileSystemBase implements FileSystem
      */
     public static Result<Root> getRoot(FileSystem fileSystem, Path rootPath)
     {
-        Result<Root> result;
-        if (rootPath == null)
+        Result<Root> result = validateRootPath(rootPath);
+        if (result == null)
         {
-            result = Result.error(new IllegalArgumentException("rootPath cannot be null."));
-        }
-        else if (!rootPath.isRooted())
-        {
-            result = Result.error(new IllegalArgumentException("rootPath doesn't have a root specified."));
-        }
-        else
-        {
-            result = Result.success(new Root(fileSystem, rootPath));
+            result = Result.success(new Root(fileSystem, rootPath.getRoot()));
         }
         return result;
     }
@@ -544,16 +629,8 @@ public abstract class FileSystemBase implements FileSystem
     {
         final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
 
-        AsyncFunction<Result<Iterable<FileSystemEntry>>> result;
-        if (rootedFolderPath == null)
-        {
-            result = Async.error(currentAsyncRunner, new IllegalArgumentException("rootedFolderPath cannot be null."));
-        }
-        else if (!rootedFolderPath.isRooted())
-        {
-            result = Async.error(currentAsyncRunner, new IllegalArgumentException("rootedFolderPath must be rooted."));
-        }
-        else
+        AsyncFunction<Result<Iterable<FileSystemEntry>>> result = validateRootedFolderPathAsync(currentAsyncRunner, rootedFolderPath);
+        if (result == null)
         {
             final AsyncRunner fileSystemAsyncRunner = fileSystem.getAsyncRunner();
             result = fileSystemAsyncRunner.schedule(new Function0<Result<Iterable<FileSystemEntry>>>()
@@ -819,16 +896,8 @@ public abstract class FileSystemBase implements FileSystem
      */
     public static Result<Folder> getFolder(FileSystem fileSystem, Path folderPath)
     {
-        Result<Folder> result;
-        if (folderPath == null)
-        {
-            result = Result.error(new IllegalArgumentException("folderPath cannot be null."));
-        }
-        else if (!folderPath.isRooted())
-        {
-            result = Result.error(new IllegalArgumentException("folderPath doesn't have a root specified."));
-        }
-        else
+        Result<Folder> result = validateRootedFolderPath(folderPath);
+        if (result == null)
         {
             result = Result.success(new Folder(fileSystem, folderPath));
         }
@@ -945,24 +1014,8 @@ public abstract class FileSystemBase implements FileSystem
      */
     public static Result<File> getFile(FileSystem fileSystem, Path rootedFilePath)
     {
-        Result<File> result;
-        if (rootedFilePath == null)
-        {
-            result = Result.error(new IllegalArgumentException("rootedFilePath cannot be null."));
-        }
-        else if (!rootedFilePath.isRooted())
-        {
-            result = Result.error(new IllegalArgumentException("rootedFilePath must be rooted."));
-        }
-        else if (rootedFilePath.endsWith("/"))
-        {
-            result = Result.error(new IllegalArgumentException("rootedFilePath cannot end with '/'."));
-        }
-        else if (rootedFilePath.endsWith("\\"))
-        {
-            result = Result.error(new IllegalArgumentException("rootedFilePath cannot end with '\\'."));
-        }
-        else
+        Result<File> result = validateRootedFilePath(rootedFilePath);
+        if (result == null)
         {
             result = Result.success(new File(fileSystem, rootedFilePath));
         }
@@ -1034,9 +1087,29 @@ public abstract class FileSystemBase implements FileSystem
      * @param filePath The path to the file to delete.
      * @return Whether or not this function deleted the file.
      */
-    public static AsyncFunction<Result<Boolean>> deleteFile(FileSystem fileSystem, String filePath)
+    public static Result<Boolean> deleteFile(FileSystem fileSystem, String filePath)
     {
         return fileSystem.deleteFile(Path.parse(filePath));
+    }
+
+    /**
+     * Delete the file at the provided path and return whether this function deleted the file.
+     * @param filePath The path to the file to delete.
+     * @return Whether or not this function deleted the file.
+     */
+    public static Result<Boolean> deleteFile(FileSystem fileSystem, Path filePath)
+    {
+        return fileSystem.deleteFileAsync(filePath).awaitReturn();
+    }
+
+    /**
+     * Delete the file at the provided path and return whether this function deleted the file.
+     * @param filePath The path to the file to delete.
+     * @return Whether or not this function deleted the file.
+     */
+    public static AsyncFunction<Result<Boolean>> deleteFileAsync(FileSystem fileSystem, String filePath)
+    {
+        return fileSystem.deleteFileAsync(Path.parse(filePath));
     }
 
     /**
@@ -1046,9 +1119,33 @@ public abstract class FileSystemBase implements FileSystem
      * @return The date and time of the most recent modification of the given file, or null if the
      * file doesn't exist.
      */
-    public static AsyncFunction<Result<DateTime>> getFileLastModified(FileSystem fileSystem, String filePath)
+    public static Result<DateTime> getFileLastModified(FileSystem fileSystem, String filePath)
     {
         return fileSystem.getFileLastModified(Path.parse(filePath));
+    }
+
+    /**
+     * Get the date and time of the most recent modification of the given file, or null if the file
+     * doesn't exist.
+     * @param filePath The path to the file.
+     * @return The date and time of the most recent modification of the given file, or null if the
+     * file doesn't exist.
+     */
+    public static Result<DateTime> getFileLastModified(FileSystem fileSystem, Path filePath)
+    {
+        return fileSystem.getFileLastModifiedAsync(filePath).awaitReturn();
+    }
+
+    /**
+     * Get the date and time of the most recent modification of the given file, or null if the file
+     * doesn't exist.
+     * @param filePath The path to the file.
+     * @return The date and time of the most recent modification of the given file, or null if the
+     * file doesn't exist.
+     */
+    public static AsyncFunction<Result<DateTime>> getFileLastModifiedAsync(FileSystem fileSystem, String filePath)
+    {
+        return fileSystem.getFileLastModifiedAsync(Path.parse(filePath));
     }
 
     /**
@@ -1056,19 +1153,49 @@ public abstract class FileSystemBase implements FileSystem
      * @param rootedFilePath The rooted file path to the file.
      * @return A ByteReadStream to the contents of the file.
      */
-    public static AsyncFunction<Result<ByteReadStream>> getFileContentByteReadStream(FileSystem fileSystem, String rootedFilePath)
+    public static Result<ByteReadStream> getFileContentByteReadStream(FileSystem fileSystem, String rootedFilePath)
     {
         return fileSystem.getFileContentByteReadStream(Path.parse(rootedFilePath));
     }
 
-    public static AsyncFunction<Result<byte[]>> getFileContent(FileSystem fileSystem, String rootedFilePath)
+    /**
+     * Get a ByteReadStream to the file at the provided rootedFilePath.
+     * @param rootedFilePath The rooted file path to the file.
+     * @return A ByteReadStream to the contents of the file.
+     */
+    public static Result<ByteReadStream> getFileContentByteReadStream(FileSystem fileSystem, Path rootedFilePath)
+    {
+        return fileSystem.getFileContentByteReadStreamAsync(rootedFilePath).awaitReturn();
+    }
+
+    /**
+     * Get a ByteReadStream to the file at the provided rootedFilePath.
+     * @param rootedFilePath The rooted file path to the file.
+     * @return A ByteReadStream to the contents of the file.
+     */
+    public static AsyncFunction<Result<ByteReadStream>> getFileContentByteReadStreamAsync(FileSystem fileSystem, String rootedFilePath)
+    {
+        return fileSystem.getFileContentByteReadStreamAsync(Path.parse(rootedFilePath));
+    }
+
+    public static Result<byte[]> getFileContent(FileSystem fileSystem, String rootedFilePath)
     {
         return fileSystem.getFileContent(Path.parse(rootedFilePath));
     }
 
-    public static AsyncFunction<Result<byte[]>> getFileContent(FileSystem fileSystem, Path rootedFilePath)
+    public static Result<byte[]> getFileContent(FileSystem fileSystem, Path rootedFilePath)
     {
-        return fileSystem.getFileContentByteReadStream(rootedFilePath)
+        return fileSystem.getFileContentAsync(rootedFilePath).awaitReturn();
+    }
+
+    public static AsyncFunction<Result<byte[]>> getFileContentAsync(FileSystem fileSystem, String rootedFilePath)
+    {
+        return fileSystem.getFileContentAsync(Path.parse(rootedFilePath));
+    }
+
+    public static AsyncFunction<Result<byte[]>> getFileContentAsync(FileSystem fileSystem, Path rootedFilePath)
+    {
+        return fileSystem.getFileContentByteReadStreamAsync(rootedFilePath)
             .then(new Function1<Result<ByteReadStream>, Result<byte[]>>()
             {
                 @Override
@@ -1098,21 +1225,49 @@ public abstract class FileSystemBase implements FileSystem
      * @param rootedFilePath The rooted file path to the file.
      * @return A ByteReadStream to the contents of the file.
      */
-    public static AsyncFunction<Result<ByteWriteStream>> getFileContentByteWriteStream(FileSystem fileSystem, String rootedFilePath)
+    public static Result<ByteWriteStream> getFileContentByteWriteStream(FileSystem fileSystem, String rootedFilePath)
     {
         return fileSystem.getFileContentByteWriteStream(Path.parse(rootedFilePath));
     }
 
+    /**
+     * Get a ByteReadStream to the file at the provided rootedFilePath.
+     * @param rootedFilePath The rooted file path to the file.
+     * @return A ByteReadStream to the contents of the file.
+     */
+    public static Result<ByteWriteStream> getFileContentByteWriteStream(FileSystem fileSystem, Path rootedFilePath)
+    {
+        return fileSystem.getFileContentByteWriteStreamAsync(rootedFilePath).awaitReturn();
+    }
 
+    /**
+     * Get a ByteReadStream to the file at the provided rootedFilePath.
+     * @param rootedFilePath The rooted file path to the file.
+     * @return A ByteReadStream to the contents of the file.
+     */
+    public static AsyncFunction<Result<ByteWriteStream>> getFileContentByteWriteStreamAsync(FileSystem fileSystem, String rootedFilePath)
+    {
+        return fileSystem.getFileContentByteWriteStreamAsync(Path.parse(rootedFilePath));
+    }
 
-    public static AsyncFunction<Result<Boolean>> setFileContent(FileSystem fileSystem, String rootedFilePath, byte[] content)
+    public static Result<Boolean> setFileContent(FileSystem fileSystem, String rootedFilePath, byte[] content)
     {
         return fileSystem.setFileContent(Path.parse(rootedFilePath), content);
     }
 
-    public static AsyncFunction<Result<Boolean>> setFileContent(FileSystem fileSystem, Path rootedFilePath, final byte[] content)
+    public static Result<Boolean> setFileContent(FileSystem fileSystem, Path rootedFilePath, byte[] content)
     {
-        return fileSystem.getFileContentByteWriteStream(rootedFilePath)
+        return fileSystem.setFileContentAsync(rootedFilePath, content).awaitReturn();
+    }
+
+    public static AsyncFunction<Result<Boolean>> setFileContentAsync(FileSystem fileSystem, String rootedFilePath, byte[] content)
+    {
+        return fileSystem.setFileContentAsync(Path.parse(rootedFilePath), content);
+    }
+
+    public static AsyncFunction<Result<Boolean>> setFileContentAsync(FileSystem fileSystem, Path rootedFilePath, final byte[] content)
+    {
+        return fileSystem.getFileContentByteWriteStreamAsync(rootedFilePath)
             .then(new Function1<Result<ByteWriteStream>, Result<Boolean>>()
             {
                 @Override
@@ -1128,14 +1283,99 @@ public abstract class FileSystemBase implements FileSystem
                     {
                         try (final ByteWriteStream byteWriteStream = byteWriteStreamResult.getValue())
                         {
-
-                            result = Result.success(byteWriteStream.write(content));
+                            result = Result.success(content == null || content.length == 0 || byteWriteStream.write(content));
                         }
                     }
 
                     return result;
                 }
             });
+    }
+
+    public static <T> Result<T> validateRootPath(Path rootPath)
+    {
+        Result<T> result = null;
+
+        if (rootPath == null)
+        {
+            result = Result.<T>error(new IllegalArgumentException("rootPath cannot be null."));
+        }
+        else if (!rootPath.isRooted())
+        {
+            result = Result.<T>error(new IllegalArgumentException("rootPath must be rooted."));
+        }
+        else if (containsInvalidCharacters(rootPath))
+        {
+            result = Result.<T>error(new IllegalArgumentException("rootPath cannot contain invalid characters " + invalidCharacters + "."));
+        }
+
+        return result;
+    }
+
+    public static <T> AsyncFunction<Result<T>> validateRootPathAsync(AsyncRunner asyncRunner, Path rootPath)
+    {
+        final Result<T> result = validateRootPath(rootPath);
+        return result == null ? null : Async.<T>error(asyncRunner, result.getError());
+    }
+
+    public static <T> Result<T> validateRootedFolderPath(Path rootedFolderPath)
+    {
+        Result<T> result = null;
+
+        if (rootedFolderPath == null)
+        {
+            result = Result.<T>error(new IllegalArgumentException("rootedFolderPath cannot be null."));
+        }
+        else if (!rootedFolderPath.isRooted())
+        {
+            result = Result.<T>error(new IllegalArgumentException("rootedFolderPath must be rooted."));
+        }
+        else if (containsInvalidCharacters(rootedFolderPath))
+        {
+            result = Result.<T>error(new IllegalArgumentException("rootedFolderPath cannot contain invalid characters " + invalidCharacters + "."));
+        }
+
+        return result;
+    }
+
+    public static <T> AsyncFunction<Result<T>> validateRootedFolderPathAsync(AsyncRunner asyncRunner, Path rootedFolderPath)
+    {
+        final Result<T> result = validateRootedFolderPath(rootedFolderPath);
+        return result == null ? null : Async.<T>error(asyncRunner, result.getError());
+    }
+
+    public static <T> Result<T> validateRootedFilePath(Path rootedFilePath)
+    {
+        Result<T> result = null;
+
+        if (rootedFilePath == null)
+        {
+            result = Result.error(new IllegalArgumentException("rootedFilePath cannot be null."));
+        }
+        else if (!rootedFilePath.isRooted())
+        {
+            result = Result.error(new IllegalArgumentException("rootedFilePath must be rooted."));
+        }
+        else if (rootedFilePath.endsWith("/"))
+        {
+            result = Result.error(new IllegalArgumentException("rootedFilePath cannot end with '/'."));
+        }
+        else if (rootedFilePath.endsWith("\\"))
+        {
+            result = Result.error(new IllegalArgumentException("rootedFilePath cannot end with '\\'."));
+        }
+        else if (containsInvalidCharacters(rootedFilePath))
+        {
+            result = Result.<T>error(new IllegalArgumentException("rootedFilePath cannot contain invalid characters " + invalidCharacters + "."));
+        }
+
+        return result;
+    }
+
+    public static <T> AsyncFunction<Result<T>> validateRootedFilePathAsync(AsyncRunner asyncRunner, Path rootedFilePath)
+    {
+        final Result<T> result = validateRootedFilePath(rootedFilePath);
+        return result == null ? null : Async.<T>error(asyncRunner, result.getError());
     }
 
     protected static <T> AsyncFunction<T> async(FileSystem fileSystem, final Function1<AsyncRunner,T> function)
@@ -1169,4 +1409,32 @@ public abstract class FileSystemBase implements FileSystem
             })
             .thenOn(currentAsyncRunner);
     }
+
+    private static boolean containsInvalidCharacters(Path path)
+    {
+        return path != null && containsInvalidCharacters(path.toString());
+    }
+
+    private static boolean containsInvalidCharacters(String pathString)
+    {
+        boolean result = false;
+
+        if (pathString != null && !pathString.isEmpty())
+        {
+            final int pathStringLength = pathString.length();
+            for (int i = 0; i < pathStringLength; ++i)
+            {
+                final char currentCharacter = pathString.charAt(i);
+                if (invalidCharacters.contains(currentCharacter))
+                {
+                    result = true;
+                    break;
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private static final Array<Character> invalidCharacters = Array.fromValues(new Character[] { '@', '#', '?' });
 }

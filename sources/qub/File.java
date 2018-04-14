@@ -91,7 +91,7 @@ public class File extends FileSystemEntry
     @Override
     public AsyncFunction<Result<Boolean>> deleteAsync()
     {
-        return getFileSystem().deleteFile(getPath());
+        return getFileSystem().deleteFileAsync(getPath());
     }
 
     /**
@@ -100,16 +100,27 @@ public class File extends FileSystemEntry
      * @return The date and time of the most recent modification of this file, or null if this file
      * doesn't exist.
      */
-    public AsyncFunction<Result<DateTime>> getLastModified()
+    public Result<DateTime> getLastModified()
     {
         return getFileSystem().getFileLastModified(getPath());
+    }
+
+    /**
+     * Get the date and time of the most recent modification of this file, or null if this file
+     * doesn't exist.
+     * @return The date and time of the most recent modification of this file, or null if this file
+     * doesn't exist.
+     */
+    public AsyncFunction<Result<DateTime>> getLastModifiedAsync()
+    {
+        return getFileSystem().getFileLastModifiedAsync(getPath());
     }
 
     /**
      * Get a ByteReadStream to this file's contents.
      * @return A ByteReadStream to this file's contents.
      */
-    public AsyncFunction<Result<ByteReadStream>>getContentByteReadStream()
+    public Result<ByteReadStream> getContentByteReadStream()
     {
         final FileSystem fileSystem = getFileSystem();
         final Path path = getPath();
@@ -117,21 +128,51 @@ public class File extends FileSystemEntry
     }
 
     /**
+     * Get a ByteReadStream to this file's contents.
+     * @return A ByteReadStream to this file's contents.
+     */
+    public AsyncFunction<Result<ByteReadStream>> getContentByteReadStreamAsync()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        final Path path = getPath();
+        return fileSystem.getFileContentByteReadStreamAsync(path);
+    }
+
+    /**
      * Get a ByteWriteStream to this file's contents.
      * @return A ByteWriteStrema to this file's contents.
      */
-    public AsyncFunction<Result<ByteWriteStream>> getContentByteWriteStream()
+    public Result<ByteWriteStream> getContentByteWriteStream()
     {
         return getFileSystem().getFileContentByteWriteStream(getPath());
     }
 
-    public AsyncFunction<Result<byte[]>> getContents()
+    /**
+     * Get a ByteWriteStream to this file's contents.
+     * @return A ByteWriteStrema to this file's contents.
+     */
+    public AsyncFunction<Result<ByteWriteStream>> getContentByteWriteStreamAsync()
+    {
+        return getFileSystem().getFileContentByteWriteStreamAsync(getPath());
+    }
+
+    public Result<byte[]> getContents()
     {
         return getFileSystem().getFileContent(getPath());
     }
 
-    public AsyncFunction<Result<Boolean>> setContents(byte[] content)
+    public AsyncFunction<Result<byte[]>> getContentsAsync()
+    {
+        return getFileSystem().getFileContentAsync(getPath());
+    }
+
+    public Result<Boolean> setContents(byte[] content)
     {
         return getFileSystem().setFileContent(getPath(), content);
+    }
+
+    public AsyncFunction<Result<Boolean>> setContentsAsync(byte[] content)
+    {
+        return getFileSystem().setFileContentAsync(getPath(), content);
     }
 }

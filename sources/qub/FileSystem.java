@@ -17,14 +17,28 @@ public interface FileSystem
      * @param rootPath The path to the Root.
      * @return Whether or not a Root exists in this FileSystem with the provided path.
      */
-    AsyncFunction<Result<Boolean>> rootExists(String rootPath);
+    Result<Boolean> rootExists(String rootPath);
 
     /**
      * Get whether or not a Root exists in this FileSystem with the provided path.
      * @param rootPath The path to the Root.
      * @return Whether or not a Root exists in this FileSystem with the provided path.
      */
-    AsyncFunction<Result<Boolean>> rootExists(Path rootPath);
+    Result<Boolean> rootExists(Path rootPath);
+
+    /**
+     * Get whether or not a Root exists in this FileSystem with the provided path.
+     * @param rootPath The path to the Root.
+     * @return Whether or not a Root exists in this FileSystem with the provided path.
+     */
+    AsyncFunction<Result<Boolean>> rootExistsAsync(String rootPath);
+
+    /**
+     * Get whether or not a Root exists in this FileSystem with the provided path.
+     * @param rootPath The path to the Root.
+     * @return Whether or not a Root exists in this FileSystem with the provided path.
+     */
+    AsyncFunction<Result<Boolean>> rootExistsAsync(Path rootPath);
 
     /**
      * Get a reference to a Root with the provided path. The returned Root may or may not exist.
@@ -397,14 +411,28 @@ public interface FileSystem
      * @param filePath The path to the file to delete.
      * @return Whether or not this function deleted the file.
      */
-    AsyncFunction<Result<Boolean>> deleteFile(String filePath);
+    Result<Boolean> deleteFile(String filePath);
 
     /**
      * Delete the file at the provided path and return whether this function deleted the file.
      * @param filePath The path to the file to delete.
      * @return Whether or not this function deleted the file.
      */
-    AsyncFunction<Result<Boolean>> deleteFile(Path filePath);
+    Result<Boolean> deleteFile(Path filePath);
+
+    /**
+     * Delete the file at the provided path and return whether this function deleted the file.
+     * @param filePath The path to the file to delete.
+     * @return Whether or not this function deleted the file.
+     */
+    AsyncFunction<Result<Boolean>> deleteFileAsync(String filePath);
+
+    /**
+     * Delete the file at the provided path and return whether this function deleted the file.
+     * @param filePath The path to the file to delete.
+     * @return Whether or not this function deleted the file.
+     */
+    AsyncFunction<Result<Boolean>> deleteFileAsync(Path filePath);
 
     /**
      * Get the date and time of the most recent modification of the given file, or null if the file
@@ -413,7 +441,7 @@ public interface FileSystem
      * @return The date and time of the most recent modification of the given file, or null if the
      * file doesn't exist.
      */
-    AsyncFunction<Result<DateTime>> getFileLastModified(String filePath);
+    Result<DateTime> getFileLastModified(String filePath);
 
     /**
      * Get the date and time of the most recent modification of the given file, or null if the file
@@ -422,49 +450,109 @@ public interface FileSystem
      * @return The date and time of the most recent modification of the given file, or null if the
      * file doesn't exist.
      */
-    AsyncFunction<Result<DateTime>> getFileLastModified(Path filePath);
+    Result<DateTime> getFileLastModified(Path filePath);
+
+    /**
+     * Get the date and time of the most recent modification of the given file, or null if the file
+     * doesn't exist.
+     * @param filePath The path to the file.
+     * @return The date and time of the most recent modification of the given file, or null if the
+     * file doesn't exist.
+     */
+    AsyncFunction<Result<DateTime>> getFileLastModifiedAsync(String filePath);
+
+    /**
+     * Get the date and time of the most recent modification of the given file, or null if the file
+     * doesn't exist.
+     * @param filePath The path to the file.
+     * @return The date and time of the most recent modification of the given file, or null if the
+     * file doesn't exist.
+     */
+    AsyncFunction<Result<DateTime>> getFileLastModifiedAsync(Path filePath);
 
     /**
      * Get a ByteReadStream to the file at the provided rootedFilePath.
      * @param rootedFilePath The rooted file path to the file.
      * @return A ByteReadStream to the contents of the file.
      */
-    AsyncFunction<Result<ByteReadStream>> getFileContentByteReadStream(String rootedFilePath);
+    Result<ByteReadStream> getFileContentByteReadStream(String rootedFilePath);
 
     /**
      * Get a ByteReadStream to the file at the provided rootedFilePath.
      * @param rootedFilePath The rooted file path to the file.
      * @return A ByteReadStream to the contents of the file.
      */
-    AsyncFunction<Result<ByteReadStream>> getFileContentByteReadStream(Path rootedFilePath);
+    Result<ByteReadStream> getFileContentByteReadStream(Path rootedFilePath);
+
+    /**
+     * Get a ByteReadStream to the file at the provided rootedFilePath.
+     * @param rootedFilePath The rooted file path to the file.
+     * @return A ByteReadStream to the contents of the file.
+     */
+    AsyncFunction<Result<ByteReadStream>> getFileContentByteReadStreamAsync(String rootedFilePath);
+
+    /**
+     * Get a ByteReadStream to the file at the provided rootedFilePath.
+     * @param rootedFilePath The rooted file path to the file.
+     * @return A ByteReadStream to the contents of the file.
+     */
+    AsyncFunction<Result<ByteReadStream>> getFileContentByteReadStreamAsync(Path rootedFilePath);
 
     /**
      * Get the contents of the file at the provided rootedFilePath.
      * @param rootedFilePath The rooted file path to the file.
      * @return The byte[] contents of the file at the provided rootedFilePath.
      */
-    AsyncFunction<Result<byte[]>> getFileContent(String rootedFilePath);
+    Result<byte[]> getFileContent(String rootedFilePath);
 
     /**
      * Get the contents of the file at the provided rootedFilePath.
      * @param rootedFilePath The rooted file path to the file.
      * @return The byte[] contents of the file at the provided rootedFilePath.
      */
-    AsyncFunction<Result<byte[]>> getFileContent(Path rootedFilePath);
+    Result<byte[]> getFileContent(Path rootedFilePath);
+
+    /**
+     * Get the contents of the file at the provided rootedFilePath.
+     * @param rootedFilePath The rooted file path to the file.
+     * @return The byte[] contents of the file at the provided rootedFilePath.
+     */
+    AsyncFunction<Result<byte[]>> getFileContentAsync(String rootedFilePath);
+
+    /**
+     * Get the contents of the file at the provided rootedFilePath.
+     * @param rootedFilePath The rooted file path to the file.
+     * @return The byte[] contents of the file at the provided rootedFilePath.
+     */
+    AsyncFunction<Result<byte[]>> getFileContentAsync(Path rootedFilePath);
 
     /**
      * Get a ByteWriteStream to the file at the provided rootedFilePath.
      * @param rootedFilePath The rooted file path to the file.
      * @return A ByteWriteStream to the contents of the file.
      */
-    AsyncFunction<Result<ByteWriteStream>> getFileContentByteWriteStream(String rootedFilePath);
+    Result<ByteWriteStream> getFileContentByteWriteStream(String rootedFilePath);
 
     /**
      * Get a ByteReadStream to the file at the provided rootedFilePath.
      * @param rootedFilePath The rooted file path to the file.
      * @return A ByteReadStream to the contents of the file.
      */
-    AsyncFunction<Result<ByteWriteStream>> getFileContentByteWriteStream(Path rootedFilePath);
+    Result<ByteWriteStream> getFileContentByteWriteStream(Path rootedFilePath);
+
+    /**
+     * Get a ByteWriteStream to the file at the provided rootedFilePath.
+     * @param rootedFilePath The rooted file path to the file.
+     * @return A ByteWriteStream to the contents of the file.
+     */
+    AsyncFunction<Result<ByteWriteStream>> getFileContentByteWriteStreamAsync(String rootedFilePath);
+
+    /**
+     * Get a ByteReadStream to the file at the provided rootedFilePath.
+     * @param rootedFilePath The rooted file path to the file.
+     * @return A ByteReadStream to the contents of the file.
+     */
+    AsyncFunction<Result<ByteWriteStream>> getFileContentByteWriteStreamAsync(Path rootedFilePath);
 
     /**
      * Set the contents of the file at the provided rootedFilePath.
@@ -472,7 +560,7 @@ public interface FileSystem
      * @param content The byte[] contents to set.
      * @return Whether or not the file's contents were set.
      */
-    AsyncFunction<Result<Boolean>> setFileContent(String rootedFilePath, byte[] content);
+    Result<Boolean> setFileContent(String rootedFilePath, byte[] content);
 
     /**
      * Set the contents of the file at the provided rootedFilePath.
@@ -480,5 +568,21 @@ public interface FileSystem
      * @param content The byte[] contents to set.
      * @return Whether or not the file's contents were set.
      */
-    AsyncFunction<Result<Boolean>> setFileContent(Path rootedFilePath, byte[] content);
+    Result<Boolean> setFileContent(Path rootedFilePath, byte[] content);
+
+    /**
+     * Set the contents of the file at the provided rootedFilePath.
+     * @param rootedFilePath The rooted path to the file.
+     * @param content The byte[] contents to set.
+     * @return Whether or not the file's contents were set.
+     */
+    AsyncFunction<Result<Boolean>> setFileContentAsync(String rootedFilePath, byte[] content);
+
+    /**
+     * Set the contents of the file at the provided rootedFilePath.
+     * @param rootedFilePath The rooted path to the file.
+     * @param content The byte[] contents to set.
+     * @return Whether or not the file's contents were set.
+     */
+    AsyncFunction<Result<Boolean>> setFileContentAsync(Path rootedFilePath, byte[] content);
 }

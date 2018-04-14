@@ -13,7 +13,7 @@ public class InMemoryFileSystemTests
                 return fileSystem;
             });
 
-            runner.testGroup("setFileCanDelete(String,boolean)", runner.skip(), () ->
+            runner.testGroup("setFileCanDelete(String,boolean)", () ->
             {
                 runner.test("when root doesn't exist", (Test test) ->
                 {
@@ -46,7 +46,7 @@ public class InMemoryFileSystemTests
                 });
             });
 
-            runner.testGroup("deleteFile(String)", runner.skip(), () ->
+            runner.testGroup("deleteFile(String)", () ->
             {
                 runner.test("when file cannot be deleted", (Test test) ->
                 {
@@ -54,12 +54,12 @@ public class InMemoryFileSystemTests
                     fileSystem.createRoot("Z:/");
                     fileSystem.createFile("Z:/file.png");
                     test.assertTrue(fileSystem.setFileCanDelete("Z:/file.png", false));
-                    test.assertFalse(fileSystem.deleteFile("Z:/file.png").awaitReturn().getValue());
+                    test.assertFalse(fileSystem.deleteFile("Z:/file.png").getValue());
                     test.assertTrue(fileSystem.fileExists("Z:/file.png").getValue());
                 });
             });
 
-            runner.testGroup("setFolderCanDelete(String,boolean)", runner.skip(), () ->
+            runner.testGroup("setFolderCanDelete(String,boolean)", () ->
             {
                 runner.test("when root doesn't exist", (Test test) ->
                 {
@@ -91,7 +91,7 @@ public class InMemoryFileSystemTests
                 });
             });
 
-            runner.testGroup("deleteFolder(String)", runner.skip(), () ->
+            runner.testGroup("deleteFolder(String)", () ->
             {
                 runner.test("when folder cannot be deleted", (Test test) ->
                 {

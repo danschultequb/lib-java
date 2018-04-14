@@ -54,10 +54,11 @@ public class InMemoryFile
             @Override
             public Result<Boolean> dispose()
             {
+                final byte[] writtenBytes = getBytes();
+
                 final Result<Boolean> result = super.dispose();
                 if (!result.hasError() && result.getValue())
                 {
-                    final byte[] writtenBytes = getBytes();
                     InMemoryFile.this.contents = writtenBytes == null ? new byte[0] : writtenBytes;
                     InMemoryFile.this.lastModified = DateTime.localNow();
                 }

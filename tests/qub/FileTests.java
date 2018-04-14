@@ -42,7 +42,7 @@ public class FileTests
 
                 test.assertTrue(file.exists().getValue());
 
-                test.assertEqual(new byte[0], file.getContents().awaitReturn().getValue());
+                test.assertEqual(new byte[0], file.getContents().getValue());
 
                 test.assertFalse(file.create().getValue());
 
