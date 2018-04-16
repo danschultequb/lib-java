@@ -104,7 +104,7 @@ public class Root
      * @param folderRelativePath The relative path from this folder to the child folder to create.
      * @return Whether or not this function created the child folder.
      */
-    public AsyncFunction<Result<Folder>> createFolder(String folderRelativePath)
+    public Result<Folder> createFolder(String folderRelativePath)
     {
         return folder.createFolder(folderRelativePath);
     }
@@ -114,9 +114,29 @@ public class Root
      * @param folderRelativePath The relative path from this Root to the child folder to create.
      * @return Whether or not this function created the child folder.
      */
-    public AsyncFunction<Result<Folder>> createFolder(Path folderRelativePath)
+    public Result<Folder> createFolder(Path folderRelativePath)
     {
         return folder.createFolder(folderRelativePath);
+    }
+
+    /**
+     * Create a child folder of this Root with the provided relative path.
+     * @param folderRelativePath The relative path from this folder to the child folder to create.
+     * @return Whether or not this function created the child folder.
+     */
+    public AsyncFunction<Result<Folder>> createFolderAsync(String folderRelativePath)
+    {
+        return folder.createFolderAsync(folderRelativePath);
+    }
+
+    /**
+     * Create a child folder of this Root with the provided relative path.
+     * @param folderRelativePath The relative path from this Root to the child folder to create.
+     * @return Whether or not this function created the child folder.
+     */
+    public AsyncFunction<Result<Folder>> createFolderAsync(Path folderRelativePath)
+    {
+        return folder.createFolderAsync(folderRelativePath);
     }
 
     /**

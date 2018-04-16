@@ -634,50 +634,51 @@ public abstract class FileSystemBase implements FileSystem
         {
             final AsyncRunner fileSystemAsyncRunner = fileSystem.getAsyncRunner();
             result = fileSystemAsyncRunner.schedule(new Function0<Result<Iterable<FileSystemEntry>>>()
-            {
-                @Override
-                public Result<Iterable<FileSystemEntry>> run()
                 {
-                    final List<Throwable> resultErrors = new ArrayList<Throwable>();
-                    List<FileSystemEntry> resultEntries = null;
-
-                    final Folder folder = fileSystem.getFolder(rootedFolderPath).getValue();
-                    final Result<Iterable<FileSystemEntry>> folderEntriesResult = folder.getFilesAndFolders();
-
-                    boolean folderExists = true;
-                    if (folderEntriesResult.hasError())
+                    @Override
+                    public Result<Iterable<FileSystemEntry>> run()
                     {
-                        final Throwable error = folderEntriesResult.getError();
-                        folderExists = !(error instanceof FolderNotFoundException);
-                        resultErrors.add(error);
-                    }
+                        final List<Throwable> resultErrors = new ArrayList<Throwable>();
+                        List<FileSystemEntry> resultEntries = null;
 
-                    if (folderExists)
-                    {
-                        resultEntries = new ArrayList<>();
+                        final Folder folder = fileSystem.getFolder(rootedFolderPath).getValue();
+                        final Result<Iterable<FileSystemEntry>> folderEntriesResult = folder.getFilesAndFolders();
 
-                        final Queue<Folder> foldersToVisit = new ArrayListQueue<Folder>();
-                        foldersToVisit.enqueue(folder);
-
-                        while (foldersToVisit.any())
+                        boolean folderExists = true;
+                        if (folderEntriesResult.hasError())
                         {
-                            final Folder currentFolder = foldersToVisit.dequeue();
-                            final Iterable<FileSystemEntry> currentFolderEntries = currentFolder.getFilesAndFolders().getValue();
-                            for (final FileSystemEntry entry : currentFolderEntries)
-                            {
-                                resultEntries.add(entry);
+                            final Throwable error = folderEntriesResult.getError();
+                            folderExists = !(error instanceof FolderNotFoundException);
+                            resultErrors.add(error);
+                        }
 
-                                if (entry instanceof Folder)
+                        if (folderExists)
+                        {
+                            resultEntries = new ArrayList<>();
+
+                            final Queue<Folder> foldersToVisit = new ArrayListQueue<Folder>();
+                            foldersToVisit.enqueue(folder);
+
+                            while (foldersToVisit.any())
+                            {
+                                final Folder currentFolder = foldersToVisit.dequeue();
+                                final Iterable<FileSystemEntry> currentFolderEntries = currentFolder.getFilesAndFolders().getValue();
+                                for (final FileSystemEntry entry : currentFolderEntries)
                                 {
-                                    foldersToVisit.enqueue((Folder)entry);
+                                    resultEntries.add(entry);
+
+                                    if (entry instanceof Folder)
+                                    {
+                                        foldersToVisit.enqueue((Folder)entry);
+                                    }
                                 }
                             }
                         }
-                    }
 
-                    return Result.<Iterable<FileSystemEntry>>done(resultEntries, ErrorIterable.from(resultErrors));
-                }
-            });
+                        return Result.<Iterable<FileSystemEntry>>done(resultEntries, ErrorIterable.from(resultErrors));
+                    }
+                })
+                .thenOn(currentAsyncRunner);
         }
         return result;
     }

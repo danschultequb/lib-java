@@ -75,7 +75,9 @@ public class Folder extends FileSystemEntry
                 @Override
                 public Result<Boolean> run(Result<Folder> result)
                 {
-                    return Result.done(!result.hasError(), result.getError());
+                    final Throwable error = result.getError();
+                    final boolean created = !(error instanceof FolderAlreadyExistsException || error instanceof RootNotFoundException);
+                    return Result.done(created, error);
                 }
             });
     }
@@ -288,7 +290,7 @@ public class Folder extends FileSystemEntry
      * @param folderRelativePath The relative path from this folder to the child folder to create.
      * @return Whether or not this function created the child folder.
      */
-    public AsyncFunction<Result<Folder>> createFolder(String folderRelativePath)
+    public Result<Folder> createFolder(String folderRelativePath)
     {
         return createFolder(Path.parse(folderRelativePath));
     }
@@ -298,7 +300,43 @@ public class Folder extends FileSystemEntry
      * @param relativeFolderPath The relative path from this folder to the child folder to create.
      * @return Whether or not this function created the child folder.
      */
-    public AsyncFunction<Result<Folder>> createFolder(Path relativeFolderPath)
+    public Result<Folder> createFolder(Path relativeFolderPath)
+    {
+        Result<Folder> result;
+
+        if (relativeFolderPath == null)
+        {
+            result = Result.error(new IllegalArgumentException("relativeFolderPath cannot be null."));
+        }
+        else if (relativeFolderPath.isRooted())
+        {
+            result = Result.error(new IllegalArgumentException("relativeFolderPath cannot be rooted."));
+        }
+        else
+        {
+            final Path childFolderPath = getChildPath(relativeFolderPath);
+            final FileSystem fileSystem = getFileSystem();
+            result = fileSystem.createFolder(childFolderPath);
+        }
+        return result;
+    }
+
+    /**
+     * Create a child folder of this folder with the provided relative path.
+     * @param folderRelativePath The relative path from this folder to the child folder to create.
+     * @return Whether or not this function created the child folder.
+     */
+    public AsyncFunction<Result<Folder>> createFolderAsync(String folderRelativePath)
+    {
+        return createFolderAsync(Path.parse(folderRelativePath));
+    }
+
+    /**
+     * Create a child folder of this folder with the provided relative path.
+     * @param relativeFolderPath The relative path from this folder to the child folder to create.
+     * @return Whether or not this function created the child folder.
+     */
+    public AsyncFunction<Result<Folder>> createFolderAsync(Path relativeFolderPath)
     {
         AsyncFunction<Result<Folder>> result;
 

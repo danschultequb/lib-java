@@ -191,11 +191,21 @@ public class InMemoryFileSystem extends FileSystemBase
         if (result == null)
         {
             Throwable resultError = null;
-            if (!createInMemoryFolder(rootedFolderPath))
+            Folder resultFolder = null;
+            if (getInMemoryRoot(rootedFolderPath.getRoot()) == null)
             {
-                resultError = new FolderAlreadyExistsException(rootedFolderPath);
+                resultError = new RootNotFoundException(rootedFolderPath.getRoot());
             }
-            Folder resultFolder = getFolder(rootedFolderPath).getValue();
+            else
+            {
+                if (!createInMemoryFolder(rootedFolderPath))
+                {
+                    resultError = new FolderAlreadyExistsException(rootedFolderPath);
+                }
+
+                resultFolder = getFolder(rootedFolderPath).getValue();
+            }
+
             result = Async.done(currentAsyncRunner, resultFolder, resultError);
         }
         return result;
@@ -243,17 +253,27 @@ public class InMemoryFileSystem extends FileSystemBase
         AsyncFunction<Result<File>> result = validateRootedFilePathAsync(currentAsyncRunner, rootedFilePath);
         if (result == null)
         {
-            final Path parentFolderPath = rootedFilePath.getParent();
-            createInMemoryFolder(parentFolderPath);
-
-            final InMemoryFolder parentFolder = getInMemoryFolder(parentFolderPath);
-
+            File file = null;
             Throwable error = null;
-            if (!parentFolder.createFile(rootedFilePath.getSegments().last()))
+            if (getInMemoryRoot(rootedFilePath.getRoot()) == null)
             {
-                error = new FileAlreadyExistsException(rootedFilePath);
+                error = new RootNotFoundException(rootedFilePath.getRoot());
             }
-            result = Async.done(currentAsyncRunner, getFile(rootedFilePath).getValue(), error);
+            else
+            {
+                final Path parentFolderPath = rootedFilePath.getParent();
+                createInMemoryFolder(parentFolderPath);
+
+                final InMemoryFolder parentFolder = getInMemoryFolder(parentFolderPath);
+
+                if (!parentFolder.createFile(rootedFilePath.getSegments().last()))
+                {
+                    error = new FileAlreadyExistsException(rootedFilePath);
+                }
+                file = getFile(rootedFilePath).getValue();
+            }
+
+            result = Async.done(currentAsyncRunner, file, error);
         }
 
         return result;

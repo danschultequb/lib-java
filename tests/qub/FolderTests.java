@@ -4,21 +4,17 @@ public class FolderTests
 {
     public static void test(final TestRunner runner)
     {
-        runner.testGroup(Folder.class, runner.skip(), () ->
+        runner.testGroup(Folder.class, () ->
         {
             runner.test("exists()", (Test test) ->
             {
                 final Folder folder = getFolder(test);
                 
-                final Result<Boolean> folderExistsResult1 = folder.exists();
-                test.assertFalse(folderExistsResult1.hasError());
-                test.assertFalse(folderExistsResult1.getValue());
+                test.assertSuccess(false, folder.exists());
                 
                 folder.create();
                 
-                final Result<Boolean> folderExistsResult2 = folder.exists();
-                test.assertFalse(folderExistsResult2.hasError());
-                test.assertTrue(folderExistsResult2.getValue());
+                test.assertSuccess(true, folder.exists());
             });
 
             runner.testGroup("delete()", () ->
@@ -27,10 +23,9 @@ public class FolderTests
                 {
                     final Folder folder = getFolder(test);
 
-                    final Result<Boolean> deleteFolderResult = folder.delete();
-                    test.assertNull(deleteFolderResult.getValue());
-                    test.assertTrue(deleteFolderResult.getError() instanceof FolderNotFoundException);
-                    test.assertFalse(folder.exists().getValue());
+                    final Result<Boolean> deleteResult = folder.delete();
+                    test.assertFalse(deleteResult.getValue());
+                    test.assertEqual(new FolderNotFoundException("/test/folder"), deleteResult.getError());
                 });
 
                 runner.test("when folder exists", (Test test) ->
@@ -38,294 +33,132 @@ public class FolderTests
                     final Folder folder = getFolder(test);
                     folder.create();
 
-                    test.assertTrue(folder.delete().getValue());
-                    test.assertFalse(folder.exists().getValue());
+                    test.assertSuccess(true, folder.delete());
+                    test.assertSuccess(false, folder.exists());
                 });
             });
 
             runner.test("create()", (Test test) ->
             {
                 final Folder folder = getFolder(test);
-                test.assertFalse(folder.exists().getValue());
+                test.assertSuccess(false, folder.exists());
 
-                final Result<Boolean> createFolderResult1 = folder.create();
-                test.assertTrue(createFolderResult1.getValue());
-                test.assertNull(createFolderResult1.getError());
-                test.assertTrue(folder.exists().getValue());
+                test.assertSuccess(true, folder.create());
+                test.assertSuccess(true, folder.exists());
 
-                final Result<Boolean> createFolderResult2 = folder.create();
-                test.assertNull(createFolderResult2.getValue());
-                test.assertTrue(createFolderResult2.getError() instanceof FolderAlreadyExistsException);
-                test.assertTrue(folder.exists().getValue());
+                final Result<Boolean> createResult2 = folder.create();
+                test.assertFalse(createResult2.getValue());
+                test.assertEqual(new FolderAlreadyExistsException("/test/folder"), createResult2.getError());
+                test.assertSuccess(true, folder.exists());
             });
 
-//            runner.testGroup("createFolder(String)", () ->
-//            {
-//                runner.test("with null path", (Test test) ->
-//                {
-//                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-//                    fileSystem.createRoot("/");
-//
-//                    final Folder folder = fileSystem.getFolder("/test/folder");
-//                    test.assertFalse(folder.createFolder((String)null));
-//                    test.assertFalse(folder.exists());
-//                });
-//
-//                runner.test("with empty path", (Test test) ->
-//                {
-//                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-//                    fileSystem.createRoot("/");
-//
-//                    final Folder folder = fileSystem.getFolder("/test/folder");
-//                    test.assertFalse(folder.createFolder(""));
-//                    test.assertFalse(folder.exists());
-//                });
-//
-//                runner.test("with non-existing relative path", (Test test) ->
-//                {
-//                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-//                    fileSystem.createRoot("/");
-//
-//                    final Folder folder = fileSystem.getFolder("/test/folder");
-//                    test.assertTrue(folder.createFolder("thing"));
-//                    test.assertTrue(folder.exists());
-//                    test.assertTrue(folder.getFolder("thing").exists());
-//                });
-//            });
-//
-//            runner.testGroup("createFolder(Path)", () ->
-//            {
-//                runner.test("with null path", (Test test) ->
-//                {
-//                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-//                    fileSystem.createRoot("/");
-//
-//                    final Folder folder = fileSystem.getFolder("/test/folder");
-//                    test.assertFalse(folder.createFolder((Path)null));
-//                    test.assertFalse(folder.exists());
-//                });
-//
-//                runner.test("with empty path", (Test test) ->
-//                {
-//                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-//                    fileSystem.createRoot("/");
-//
-//                    final Folder folder = fileSystem.getFolder("/test/folder");
-//                    test.assertFalse(folder.createFolder(Path.parse("")));
-//                    test.assertFalse(folder.exists());
-//                });
-//
-//                runner.test("with non-existing relative path", (Test test) ->
-//                {
-//                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-//                    fileSystem.createRoot("/");
-//
-//                    final Folder folder = fileSystem.getFolder("/test/folder");
-//                    test.assertTrue(folder.createFolder(Path.parse("place")));
-//                    test.assertTrue(folder.exists());
-//                    test.assertTrue(folder.getFolder("place").exists());
-//                });
-//            });
-//
-//            runner.testGroup("createFolder(Path,Value<Folder>)", () ->
-//            {
-//                runner.test("with relative path and output folder", (Test test) ->
-//                {
-//                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-//                    fileSystem.createRoot("/");
-//
-//                    final Folder folder = fileSystem.getFolder("/test/folder");
-//                    final Value<Folder> childFolder = new Value<>();
-//                    test.assertTrue(folder.createFolder(Path.parse("place"), childFolder));
-//                    test.assertTrue(folder.exists());
-//                    test.assertNotNull(childFolder.get());
-//                    test.assertTrue(childFolder.get().exists());
-//                });
-//            });
-//
-//            runner.testGroup("createFile(String)", () ->
-//            {
-//                runner.test("with null path", (Test test) ->
-//                {
-//                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-//                    fileSystem.createRoot("/");
-//
-//                    final Folder folder = fileSystem.getFolder("/test/folder");
-//                    test.assertFalse(folder.createFile((String)null));
-//                    test.assertFalse(folder.exists());
-//                });
-//
-//                runner.test("with empty path", (Test test) ->
-//                {
-//                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-//                    fileSystem.createRoot("/");
-//
-//                    final Folder folder = fileSystem.getFolder("/test/folder");
-//                    test.assertFalse(folder.createFile(""));
-//                    test.assertFalse(folder.exists());
-//                });
-//
-//                runner.test("with non-existing relative path", (Test test) ->
-//                {
-//                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-//                    fileSystem.createRoot("/");
-//
-//                    final Folder folder = fileSystem.getFolder("/test/folder");
-//                    test.assertTrue(folder.createFile("file.xml"));
-//                    test.assertTrue(folder.exists());
-//                    test.assertTrue(folder.getFile("file.xml").exists());
-//                });
-//
-//                runner.test("with non-existing relative path in subfolder with backslash separator", (Test test) ->
-//                {
-//                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-//                    fileSystem.createRoot("/");
-//
-//                    final Folder folder = fileSystem.getFolder("/test/folder");
-//                    test.assertTrue(folder.createFile("subfolder\\file.xml"));
-//                    test.assertTrue(folder.exists());
-//                    test.assertFalse(folder.getFiles().any());
-//                    test.assertTrue(folder.getFolder("subfolder").exists());
-//                    test.assertTrue(folder.getFolder("subfolder").getFile("file.xml").exists());
-//                });
-//
-//                runner.test("with non-existing relative path in subfolder with forward slash separator", (Test test) ->
-//                {
-//                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-//                    fileSystem.createRoot("/");
-//
-//                    final Folder folder = fileSystem.getFolder("/test/folder");
-//                    test.assertTrue(folder.createFile("subfolder/file.xml"));
-//                    test.assertTrue(folder.exists());
-//                    test.assertFalse(folder.getFiles().any());
-//                    test.assertTrue(folder.getFolder("subfolder").exists());
-//                    test.assertTrue(folder.getFolder("subfolder").getFile("file.xml").exists());
-//                });
-//            });
-//
-//            runner.testGroup("createFile(String,Value<File>)", () ->
-//            {
-//                runner.test("with null path and null value", (Test test) ->
-//                {
-//                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-//                    fileSystem.createRoot("/");
-//
-//                    final Folder folder = fileSystem.getFolder("/test/folder");
-//                    test.assertFalse(folder.createFile((String)null, null));
-//                    test.assertFalse(folder.exists());
-//                });
-//
-//                runner.test("with empty path and null value", (Test test) ->
-//                {
-//                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-//                    fileSystem.createRoot("/");
-//
-//                    final Folder folder = fileSystem.getFolder("/test/folder");
-//                    test.assertFalse(folder.createFile("", null));
-//                    test.assertFalse(folder.exists());
-//                });
-//
-//                runner.test("with non-existing relative path and null value", (Test test) ->
-//                {
-//                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-//                    fileSystem.createRoot("/");
-//
-//                    final Folder folder = fileSystem.getFolder("/test/folder");
-//                    test.assertTrue(folder.createFile("file.xml", null));
-//                    test.assertTrue(folder.exists());
-//                });
-//
-//                runner.test("with subfolder relative path with backslash separator and null value", (Test test) ->
-//                {
-//                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-//                    fileSystem.createRoot("/");
-//
-//                    final Folder folder = fileSystem.getFolder("/test/folder");
-//                    test.assertTrue(folder.createFile("subfolder\\file.xml", null));
-//                    test.assertTrue(folder.exists());
-//                    test.assertFalse(folder.getFiles().any());
-//                });
-//
-//                runner.test("with subfolder relative path with forward slash separator and null value", (Test test) ->
-//                {
-//                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-//                    fileSystem.createRoot("/");
-//
-//                    final Folder folder = fileSystem.getFolder("/test/folder");
-//                    test.assertTrue(folder.createFile("subfolder/file.xml", null));
-//                    test.assertTrue(folder.exists());
-//                    test.assertFalse(folder.getFiles().any());
-//                });
-//
-//                runner.test("with null path and non-null value", (Test test) ->
-//                {
-//                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-//                    fileSystem.createRoot("/");
-//
-//                    final Folder folder = fileSystem.getFolder("/test/folder");
-//                    final Value<File> file = new Value<>();
-//                    test.assertFalse(folder.createFile((String)null, file));
-//                    test.assertFalse(folder.exists());
-//                    test.assertFalse(file.hasValue());
-//                });
-//
-//                runner.test("with empty path and non-null value", (Test test) ->
-//                {
-//                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-//                    fileSystem.createRoot("/");
-//
-//                    final Folder folder = fileSystem.getFolder("/test/folder");
-//                    final Value<File> file = new Value<>();
-//                    test.assertFalse(folder.createFile("", file));
-//                    test.assertFalse(folder.exists());
-//                    test.assertFalse(file.hasValue());
-//                });
-//
-//                runner.test("with non-existing relative path and non-null value", (Test test) ->
-//                {
-//                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-//                    fileSystem.createRoot("/");
-//
-//                    final Folder folder = fileSystem.getFolder("/test/folder");
-//                    final Value<File> file = new Value<>();
-//                    test.assertTrue(folder.createFile("file.xml", file));
-//                    test.assertTrue(folder.exists());
-//                    test.assertNotNull(file.get());
-//                    test.assertEqual(Path.parse("/test/folder/file.xml"), file.get().getPath());
-//                    test.assertTrue(file.get().exists());
-//                });
-//
-//                runner.test("with non-existing subfolder relative path with backslash separator and non-null value", (Test test) ->
-//                {
-//                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-//                    fileSystem.createRoot("/");
-//
-//                    final Folder folder = fileSystem.getFolder("/test/folder");
-//                    final Value<File> file = new Value<>();
-//                    test.assertTrue(folder.createFile("subfolder\\file.xml", file));
-//                    test.assertTrue(folder.exists());
-//                    test.assertFalse(folder.getFiles().any());
-//                    test.assertNotNull(file.get());
-//                    test.assertEqual(Path.parse("/test/folder/subfolder/file.xml"), file.get().getPath());
-//                    test.assertTrue(file.get().exists());
-//                });
-//
-//                runner.test("with non-existing subfolder relative path with forward slash separator and non-null value", (Test test) ->
-//                {
-//                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem();
-//                    fileSystem.createRoot("/");
-//
-//                    final Folder folder = fileSystem.getFolder("/test/folder");
-//                    final Value<File> file = new Value<>();
-//                    test.assertTrue(folder.createFile("subfolder/file.xml", file));
-//                    test.assertTrue(folder.exists());
-//                    test.assertFalse(folder.getFiles().any());
-//                    test.assertNotNull(file.get());
-//                    test.assertEqual(Path.parse("/test/folder/subfolder/file.xml"), file.get().getPath());
-//                    test.assertTrue(file.get().exists());
-//                });
-//            });
-//
+            runner.testGroup("createFolder(String)", () ->
+            {
+                runner.test("with null path", (Test test) ->
+                {
+                    final Folder folder = getFolder(test);
+                    test.assertError(new IllegalArgumentException("relativeFolderPath cannot be null."), folder.createFolder((String)null));
+                });
+
+                runner.test("with empty path", (Test test) ->
+                {
+                    final Folder folder = getFolder(test);
+                    test.assertError(new IllegalArgumentException("relativeFolderPath cannot be null."), folder.createFolder(""));
+                });
+
+                runner.test("with non-existing relative path", (Test test) ->
+                {
+                    final Folder folder = getFolder(test);
+
+                    final Result<Folder> result = folder.createFolder("thing");
+                    test.assertSuccess(result);
+                    test.assertEqual("/test/folder/thing", result.getValue().toString());
+
+                    test.assertSuccess(true, folder.exists());
+                    test.assertSuccess(true, result.getValue().exists());
+                });
+            });
+
+            runner.testGroup("createFolder(Path)", () ->
+            {
+                runner.test("with null path", (Test test) ->
+                {
+                    final Folder folder = getFolder(test);
+                    test.assertError(new IllegalArgumentException("relativeFolderPath cannot be null."), folder.createFolder((Path)null));
+                });
+
+                runner.test("with empty path", (Test test) ->
+                {
+                    final Folder folder = getFolder(test);
+                    test.assertError(new IllegalArgumentException("relativeFolderPath cannot be null."), folder.createFolder(Path.parse("")));
+                });
+
+                runner.test("with non-existing relative path", (Test test) ->
+                {
+                    final Folder folder = getFolder(test);
+
+                    final Result<Folder> result = folder.createFolder("place");
+                    test.assertSuccess(result);
+                    test.assertEqual("/test/folder/place", result.getValue().toString());
+
+                    test.assertSuccess(true, folder.exists());
+                    test.assertSuccess(true, result.getValue().exists());
+                });
+            });
+
+            runner.testGroup("createFile(String)", () ->
+            {
+                runner.test("with null path", (Test test) ->
+                {
+                    final Folder folder = getFolder(test);
+                    test.assertError(new IllegalArgumentException("relativeFilePath cannot be null."), folder.createFile((String)null));
+                });
+
+                runner.test("with empty path", (Test test) ->
+                {
+                    final Folder folder = getFolder(test);
+                    test.assertError(new IllegalArgumentException("relativeFilePath cannot be null."), folder.createFile(""));
+                });
+
+                runner.test("with non-existing relative path", (Test test) ->
+                {
+                    final Folder folder = getFolder(test);
+
+                    final Result<File> result = folder.createFile("file.xml");
+                    test.assertSuccess(result);
+                    test.assertEqual("/test/folder/file.xml", result.getValue().toString());
+
+                    test.assertSuccess(true, folder.exists());
+                    test.assertSuccess(true, result.getValue().exists());
+                });
+
+                runner.test("with non-existing relative path in subfolder with backslash separator", (Test test) ->
+                {
+                    final Folder folder = getFolder(test);
+
+                    final Result<File> result = folder.createFile("subfolder\\file.xml");
+                    test.assertSuccess(result);
+                    test.assertEqual("/test/folder/subfolder\\file.xml", result.getValue().toString());
+
+                    test.assertSuccess(true, folder.exists());
+                    test.assertSuccess(true, folder.getFolder("subfolder").getValue().exists());
+                    test.assertSuccess(true, result.getValue().exists());
+                });
+
+                runner.test("with non-existing relative path in subfolder with forward slash separator", (Test test) ->
+                {
+                    final Folder folder = getFolder(test);
+
+                    final Result<File> result = folder.createFile("subfolder/file.xml");
+                    test.assertSuccess(result);
+                    test.assertEqual("/test/folder/subfolder/file.xml", result.getValue().toString());
+
+                    test.assertSuccess(true, folder.exists());
+                    test.assertSuccess(true, folder.getFolder("subfolder").getValue().exists());
+                    test.assertSuccess(true, result.getValue().exists());
+                });
+            });
+
 //            runner.testGroup("createFile(Path)", () ->
 //            {
 //                runner.test("with null path", (Test test) ->
@@ -378,99 +211,6 @@ public class FolderTests
 //                    test.assertTrue(folder.createFile(Path.parse("subfolder/file.xml")));
 //                    test.assertTrue(folder.exists());
 //                    test.assertFalse(folder.getFiles().any());
-//                });
-//            });
-//
-//            runner.testGroup("createFile(Path,Value<File>)", () ->
-//            {
-//                runner.test("with null path and null value", (Test test) ->
-//                {
-//                    final Folder folder = getFolder(test);
-//                    test.assertFalse(folder.createFile((Path)null, null));
-//                    test.assertFalse(folder.exists());
-//                });
-//
-//                runner.test("with empty path and null value", (Test test) ->
-//                {
-//                    final Folder folder = getFolder(test);
-//                    test.assertFalse(folder.createFile(Path.parse(""), null));
-//                    test.assertFalse(folder.exists());
-//                });
-//
-//                runner.test("with non-existing relative path and null value", (Test test) ->
-//                {
-//                    final Folder folder = getFolder(test);
-//                    test.assertTrue(folder.createFile(Path.parse("file.xml"), null));
-//                    test.assertTrue(folder.exists());
-//                });
-//
-//                runner.test("with non-existing subfolder relative path with backslash separator and null value", (Test test) ->
-//                {
-//                    final Folder folder = getFolder(test);
-//                    test.assertTrue(folder.createFile(Path.parse("subfolder\\file.xml"), null));
-//                    test.assertTrue(folder.exists());
-//                    test.assertFalse(folder.getFiles().any());
-//                });
-//
-//                runner.test("with non-existing subfolder relative path with forward slash separator and null value", (Test test) ->
-//                {
-//                    final Folder folder = getFolder(test);
-//                    test.assertTrue(folder.createFile(Path.parse("subfolder/file.xml"), null));
-//                    test.assertTrue(folder.exists());
-//                    test.assertFalse(folder.getFiles().any());
-//                });
-//
-//                runner.test("with null path and non-null value", (Test test) ->
-//                {
-//                    final Folder folder = getFolder(test);
-//                    final Value<File> file = new Value<>();
-//                    test.assertFalse(folder.createFile((Path)null, file));
-//                    test.assertFalse(folder.exists());
-//                    test.assertFalse(file.hasValue());
-//                });
-//
-//                runner.test("with empty path and non-null value", (Test test) ->
-//                {
-//                    final Folder folder = getFolder(test);
-//                    final Value<File> file = new Value<>();
-//                    test.assertFalse(folder.createFile(Path.parse(""), file));
-//                    test.assertFalse(folder.exists());
-//                    test.assertFalse(file.hasValue());
-//                });
-//
-//                runner.test("with non-existing relative path and non-null value", (Test test) ->
-//                {
-//                    final Folder folder = getFolder(test);
-//                    final Value<File> file = new Value<>();
-//                    test.assertTrue(folder.createFile(Path.parse("file.xml"), file));
-//                    test.assertTrue(folder.exists());
-//                    test.assertNotNull(file.get());
-//                    test.assertEqual(Path.parse("/test/folder/file.xml"), file.get().getPath());
-//                    test.assertTrue(file.get().exists());
-//                });
-//
-//                runner.test("with non-existing subfolder relative path with backslash separator and non-null value", (Test test) ->
-//                {
-//                    final Folder folder = getFolder(test);
-//                    final Value<File> file = new Value<>();
-//                    test.assertTrue(folder.createFile(Path.parse("subfolder\\file.xml"), file));
-//                    test.assertTrue(folder.exists());
-//                    test.assertFalse(folder.getFiles().any());
-//                    test.assertNotNull(file.get());
-//                    test.assertEqual(Path.parse("/test/folder/subfolder/file.xml"), file.get().getPath());
-//                    test.assertTrue(file.get().exists());
-//                });
-//
-//                runner.test("with non-existing subfolder relative path with forward slash separator and non-null value", (Test test) ->
-//                {
-//                    final Folder folder = getFolder(test);
-//                    final Value<File> file = new Value<>();
-//                    test.assertTrue(folder.createFile(Path.parse("subfolder/file.xml"), file));
-//                    test.assertTrue(folder.exists());
-//                    test.assertFalse(folder.getFiles().any());
-//                    test.assertNotNull(file.get());
-//                    test.assertEqual(Path.parse("/test/folder/subfolder/file.xml"), file.get().getPath());
-//                    test.assertTrue(file.get().exists());
 //                });
 //            });
 //

@@ -4,7 +4,7 @@ public class RootTests
 {
     public static void test(final TestRunner runner)
     {
-        runner.testGroup(Root.class, runner.skip(), () ->
+        runner.testGroup(Root.class, () ->
         {
             runner.test("constructor", (Test test) ->
             {
@@ -54,31 +54,35 @@ public class RootTests
                 runner.test("with null", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    test.assertNull(root.getFolder((String)null));
+                    final Result<Folder> folder = root.getFolder((String)null);
+                    test.assertError(new IllegalArgumentException("relativeFolderPath cannot be null."), folder);
                 });
                 
                 runner.test("with empty String", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    test.assertNull(root.getFolder(""));
+                    final Result<Folder> folder = root.getFolder("");
+                    test.assertError(new IllegalArgumentException("relativeFolderPath cannot be null."), folder);
                 });
                 
                 runner.test("with relative path that doesn't exist", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    final Folder folder = root.getFolder("folderName").getValue();
-                    test.assertNotNull(folder);
-                    test.assertEqual("/folderName", folder.getPath().toString());
+                    final Result<Folder> folder = root.getFolder("folderName");
+                    test.assertSuccess(folder);
+                    test.assertEqual("/folderName", folder.getValue().toString());
                 });
 
                 runner.test("with relative path that exists", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    root.createFolder("folderName");
 
-                    final Folder folder = root.getFolder("folderName").getValue();
-                    test.assertNotNull(folder);
-                    test.assertEqual("/folderName", folder.getPath().toString());
+                    root.createFolder("folderName");
+                    test.assertEqual(0, test.getMainAsyncRunner().getScheduledTaskCount());
+
+                    final Result<Folder> folder = root.getFolder("folderName");
+                    test.assertSuccess(folder);
+                    test.assertEqual("/folderName", folder.getValue().toString());
                 });
             });
 
@@ -87,21 +91,21 @@ public class RootTests
                 runner.test("with null", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    test.assertNull(root.getFolder((Path)null));
+                    test.assertError(new IllegalArgumentException("relativeFolderPath cannot be null."), root.getFolder((Path)null));
                 });
 
                 runner.test("with empty Path", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    test.assertNull(root.getFolder(Path.parse("")));
+                    test.assertError(new IllegalArgumentException("relativeFolderPath cannot be null."), root.getFolder(Path.parse("")));
                 });
 
                 runner.test("with relative path that doesn't exist", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    final Folder folder = root.getFolder(Path.parse("folderName")).getValue();
-                    test.assertNotNull(folder);
-                    test.assertEqual("/folderName", folder.getPath().toString());
+                    final Result<Folder> folder = root.getFolder(Path.parse("folderName"));
+                    test.assertSuccess(folder);
+                    test.assertEqual("/folderName", folder.getValue().toString());
                 });
 
                 runner.test("with relative path that exists", (Test test) ->
@@ -109,9 +113,9 @@ public class RootTests
                     final Root root = getRoot(test);
                     root.createFolder("folderName");
 
-                    final Folder folder = root.getFolder(Path.parse("folderName")).getValue();
-                    test.assertNotNull(folder);
-                    test.assertEqual("/folderName", folder.getPath().toString());
+                    final Result<Folder> folder = root.getFolder(Path.parse("folderName"));
+                    test.assertSuccess(folder);
+                    test.assertEqual("/folderName", folder.getValue().toString());
                 });
             });
 
@@ -120,21 +124,23 @@ public class RootTests
                 runner.test("with null String", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    test.assertNull(root.getFile((String)null));
+                    final Result<File> file = root.getFile((String)null);
+                    test.assertError(new IllegalArgumentException("relativeFilePath cannot be null."), file);
                 });
 
                 runner.test("with empty String", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    test.assertNull(root.getFile(""));
+                    final Result<File> file = root.getFile("");
+                    test.assertError(new IllegalArgumentException("relativeFilePath cannot be null."), file);
                 });
 
                 runner.test("with relative path that doesn't exist", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    final File file = root.getFile("fileName").getValue();
-                    test.assertNotNull(file);
-                    test.assertEqual("/fileName", file.getPath().toString());
+                    final Result<File> file = root.getFile("fileName");
+                    test.assertSuccess(file);
+                    test.assertEqual("/fileName", file.getValue().toString());
                 });
 
                 runner.test("with relative path that exists", (Test test) ->
@@ -142,9 +148,9 @@ public class RootTests
                     final Root root = getRoot(test);
                     root.createFile("fileName");
 
-                    final File file = root.getFile("fileName").getValue();
-                    test.assertNotNull(file);
-                    test.assertEqual("/fileName", file.getPath().toString());
+                    final Result<File> file = root.getFile("fileName");
+                    test.assertSuccess(file);
+                    test.assertEqual("/fileName", file.getValue().toString());
                 });
             });
 
@@ -153,21 +159,23 @@ public class RootTests
                 runner.test("with null Path", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    test.assertNull(root.getFile((Path)null));
+                    final Result<File> file = root.getFile((Path)null);
+                    test.assertError(new IllegalArgumentException("relativeFilePath cannot be null."), file);
                 });
 
                 runner.test("with empty Path", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    test.assertNull(root.getFile(Path.parse("")));
+                    final Result<File> file = root.getFile(Path.parse(""));
+                    test.assertError(new IllegalArgumentException("relativeFilePath cannot be null."), file);
                 });
 
                 runner.test("with relative Path that doesn't exist", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    final File file = root.getFile(Path.parse("fileName")).getValue();
-                    test.assertNotNull(file);
-                    test.assertEqual("/fileName", file.getPath().toString());
+                    final Result<File> file = root.getFile(Path.parse("fileName"));
+                    test.assertSuccess(file);
+                    test.assertEqual("/fileName", file.getValue().toString());
                 });
 
                 runner.test("with relative Path that exists", (Test test) ->
@@ -175,9 +183,9 @@ public class RootTests
                     final Root root = getRoot(test);
                     root.createFile("fileName");
 
-                    final File file = root.getFile(Path.parse("fileName")).getValue();
-                    test.assertNotNull(file);
-                    test.assertEqual("/fileName", file.getPath().toString());
+                    final Result<File> file = root.getFile(Path.parse("fileName"));
+                    test.assertSuccess(file);
+                    test.assertEqual("/fileName", file.getValue().toString());
                 });
             });
 
@@ -186,50 +194,38 @@ public class RootTests
                 runner.test("with null String", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    final Result<Folder> result = root.createFolder((String)null).awaitReturn();
-                    test.assertNotNull(result);
-                    test.assertNull(result.getValue());
-                    test.assertTrue(result.hasError());
-                    test.assertEqual("rootedFolderPath cannot be null.", result.getErrorMessage());
+                    final Result<Folder> result = root.createFolder((String)null);
+                    test.assertError(new IllegalArgumentException("relativeFolderPath cannot be null."), result);
                 });
 
                 runner.test("with empty String", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    final Result<Folder> result = root.createFolder("").awaitReturn();
-                    test.assertNotNull(result);
-                    test.assertNull(result.getValue());
-                    test.assertTrue(result.hasError());
-                    test.assertEqual("rootedFolderPath cannot be null.", result.getErrorMessage());
+                    final Result<Folder> result = root.createFolder("");
+                    test.assertError(new IllegalArgumentException("relativeFolderPath cannot be null."), result);
                 });
 
                 runner.test("with relative Path with non-existing folder", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    final Result<Folder> result = root.createFolder("folderName").awaitReturn();
-                    test.assertNotNull(result);
-                    test.assertNotNull(result.getValue());
+                    final Result<Folder> result = root.createFolder("folderName");
+                    test.assertSuccess(result);
                     test.assertEqual("/folderName", result.getValue().toString());
-                    test.assertFalse(result.hasError());
                 });
 
                 runner.test("with relative Path when root doesn't exist", (Test test) ->
                 {
                     final Root root = getRoot(test, "C:/");
-                    final Result<Folder> result = root.createFolder("folderName").awaitReturn();
-                    test.assertNotNull(result);
-                    test.assertNull(result.getValue());
-                    test.assertTrue(result.hasError());
-                    test.assertEqual(RootNotFoundException.class, result.getError().getClass());
-                    test.assertEqual("The root \"C:/\" doesn't exist.", result.getErrorMessage());
+                    final Result<Folder> result = root.createFolder("folderName");
+                    test.assertError(new RootNotFoundException("C:"), result);
                 });
 
                 runner.test("with relative Path with folder that exists", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    root.createFolder("A").await();
+                    root.createFolder("A");
 
-                    final Result<Folder> result = root.createFolder("A").awaitReturn();
+                    final Result<Folder> result = root.createFolder("A");
                     test.assertNotNull(result);
                     test.assertNotNull(result.getValue());
                     test.assertEqual("/A", result.getValue().toString());
@@ -244,27 +240,27 @@ public class RootTests
                 runner.test("with null Path", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    final Result<Folder> result = root.createFolder((Path)null).awaitReturn();
+                    final Result<Folder> result = root.createFolder((Path)null);
                     test.assertNotNull(result);
                     test.assertNull(result.getValue());
                     test.assertTrue(result.hasError());
-                    test.assertEqual("rootedFolderPath cannot be null.", result.getErrorMessage());
+                    test.assertEqual("relativeFolderPath cannot be null.", result.getErrorMessage());
                 });
 
                 runner.test("with empty Path", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    final Result<Folder> result = root.createFolder(Path.parse("")).awaitReturn();
+                    final Result<Folder> result = root.createFolder(Path.parse(""));
                     test.assertNotNull(result);
                     test.assertNull(result.getValue());
                     test.assertTrue(result.hasError());
-                    test.assertEqual("rootedFolderPath cannot be null.", result.getErrorMessage());
+                    test.assertEqual("relativeFolderPath cannot be null.", result.getErrorMessage());
                 });
 
                 runner.test("with non-existing folder", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    final Result<Folder> result = root.createFolder(Path.parse("folderName")).awaitReturn();
+                    final Result<Folder> result = root.createFolder(Path.parse("folderName"));
                     test.assertNotNull(result);
                     test.assertNotNull(result.getValue());
                     test.assertEqual("/folderName", result.getValue().toString());
@@ -274,12 +270,8 @@ public class RootTests
                 runner.test("with non-existing folder when root doesn't exist", (Test test) ->
                 {
                     final Root root = getRoot(test, "C:/");
-                    final Result<Folder> result = root.createFolder(Path.parse("folderName")).awaitReturn();
-                    test.assertNotNull(result);
-                    test.assertNull(result.getValue());
-                    test.assertTrue(result.hasError());
-                    test.assertEqual(RootNotFoundException.class, result.getErrorType());
-                    test.assertEqual("rootedFolderPath cannot be null.", result.getErrorMessage());
+                    final Result<Folder> result = root.createFolder(Path.parse("folderName"));
+                    test.assertError(new RootNotFoundException("C:"), result);
                 });
 
                 runner.test("with existing folder", (Test test) ->
@@ -287,7 +279,7 @@ public class RootTests
                     final Root root = getRoot(test);
                     root.createFolder("A");
 
-                    final Result<Folder> result = root.createFolder(Path.parse("A")).awaitReturn();
+                    final Result<Folder> result = root.createFolder(Path.parse("A"));
                     test.assertNotNull(result);
                     test.assertNotNull(result.getValue());
                     test.assertEqual("/A", result.getValue().toString());
@@ -303,43 +295,29 @@ public class RootTests
                 {
                     final Root root = getRoot(test);
                     final Result<File> result = root.createFile((String)null);
-                    test.assertNotNull(result);
-                    test.assertNull(result.getValue());
-                    test.assertTrue(result.hasError());
-                    test.assertEqual(IllegalArgumentException.class, result.getErrorType());
-                    test.assertEqual("rootedFilePath cannot be null or empty.", result.getErrorMessage());
+                    test.assertError(new IllegalArgumentException("relativeFilePath cannot be null."), result);
                 });
 
                 runner.test("with empty String", (Test test) ->
                 {
                     final Root root = getRoot(test);
                     final Result<File> result = root.createFile("");
-                    test.assertNotNull(result);
-                    test.assertNull(result.getValue());
-                    test.assertTrue(result.hasError());
-                    test.assertEqual(IllegalArgumentException.class, result.getErrorType());
-                    test.assertEqual("rootedFilePath cannot be null or empty.", result.getErrorMessage());
+                    test.assertError(new IllegalArgumentException("relativeFilePath cannot be null."), result);
                 });
 
                 runner.test("with non-existing file", (Test test) ->
                 {
                     final Root root = getRoot(test);
                     final Result<File> result = root.createFile("fileName");
-                    test.assertNotNull(result);
-                    test.assertNotNull(result.getValue());
+                    test.assertSuccess(result);
                     test.assertEqual("/fileName", result.getValue().toString());
-                    test.assertFalse(result.hasError());
                 });
 
                 runner.test("with non-exisitng file when root doesn't exist", (Test test) ->
                 {
                     final Root root = getRoot(test, "C:/");
                     final Result<File> result = root.createFile("fileName");
-                    test.assertNotNull(result);
-                    test.assertNull(result.getValue());
-                    test.assertTrue(result.hasError());
-                    test.assertEqual(RootNotFoundException.class, result.getErrorType());
-                    test.assertEqual("The root \"C:/\" doesn't exist.", result.getErrorMessage());
+                    test.assertError(new RootNotFoundException("C:"), result);
                 });
 
                 runner.test("with existing file", (Test test) ->
@@ -363,43 +341,29 @@ public class RootTests
                 {
                     final Root root = getRoot(test);
                     final Result<File> result = root.createFile((Path)null);
-                    test.assertNotNull(result);
-                    test.assertNull(result.getValue());
-                    test.assertTrue(result.hasError());
-                    test.assertEqual(IllegalArgumentException.class, result.getErrorType());
-                    test.assertEqual("rootedFilePath cannot be null or empty.", result.getErrorMessage());
+                    test.assertError(new IllegalArgumentException("relativeFilePath cannot be null."), result);
                 });
 
                 runner.test("with empty Path", (Test test) ->
                 {
                     final Root root = getRoot(test);
                     final Result<File> result = root.createFile(Path.parse(""));
-                    test.assertNotNull(result);
-                    test.assertNull(result.getValue());
-                    test.assertTrue(result.hasError());
-                    test.assertEqual(IllegalArgumentException.class, result.getErrorType());
-                    test.assertEqual("rootedFilePath cannot be null or empty.", result.getErrorMessage());
+                    test.assertError(new IllegalArgumentException("relativeFilePath cannot be null."), result);
                 });
 
                 runner.test("with non-existing file", (Test test) ->
                 {
                     final Root root = getRoot(test);
                     final Result<File> result = root.createFile(Path.parse("fileName"));
-                    test.assertNotNull(result);
-                    test.assertNotNull(result.getValue());
+                    test.assertSuccess(result);
                     test.assertEqual("/fileName", result.getValue().toString());
-                    test.assertFalse(result.hasError());
                 });
 
                 runner.test("with non-existing file when root doesn't exist", (Test test) ->
                 {
                     final Root root = getRoot(test, "C:/");
                     final Result<File> result = root.createFile(Path.parse("fileName"));
-                    test.assertNotNull(result);
-                    test.assertNull(result.getValue());
-                    test.assertTrue(result.hasError());
-                    test.assertEqual(RootNotFoundException.class, result.getErrorType());
-                    test.assertEqual("The root at \"C:/\" doesn't exist.", result.getErrorMessage());
+                    test.assertError(new RootNotFoundException("C:"), result);
                 });
 
                 runner.test("with existing file", (Test test) ->
@@ -423,20 +387,14 @@ public class RootTests
                 {
                     final Root root = getRoot(test, "C:/");
                     final Result<Iterable<Folder>> result = root.getFolders();
-                    test.assertNotNull(result);
-                    test.assertNull(result.getValue());
-                    test.assertTrue(result.hasError());
-                    test.assertEqual(RootNotFoundException.class, result.getErrorType());
-                    test.assertEqual("The root at \"C:/\" doesn't exist.", result.getErrorMessage());
+                    test.assertError(new FolderNotFoundException("C:"), result);
                 });
 
                 runner.test("when root is empty", (Test test) ->
                 {
                     final Root root = getRoot(test);
                     final Result<Iterable<Folder>> result = root.getFolders();
-                    test.assertNotNull(result);
-                    test.assertEqual(new Array<Folder>(0), result.getValue());
-                    test.assertFalse(result.hasError());
+                    test.assertSuccess(new Array<Folder>(0), result);
                 });
 
                 runner.test("when root has a file", (Test test) ->
@@ -445,9 +403,7 @@ public class RootTests
                     root.createFile("thing.txt");
 
                     final Result<Iterable<Folder>> result = root.getFolders();
-                    test.assertNotNull(result);
-                    test.assertEqual(new Array<Folder>(0), result.getValue());
-                    test.assertFalse(result.hasError());
+                    test.assertSuccess(new Array<Folder>(0), result);
                 });
 
                 runner.test("when root has a folder", (Test test) ->
@@ -473,20 +429,14 @@ public class RootTests
                 {
                     final Root root = getRoot(test, "C:/");
                     final Result<Iterable<File>> result = root.getFiles();
-                    test.assertNotNull(result);
-                    test.assertNull(result.getValue());
-                    test.assertTrue(result.hasError());
-                    test.assertEqual(RootNotFoundException.class, result.getErrorType());
-                    test.assertEqual("The root at \"C:/\" doesn't exist.", result.getErrorMessage());
+                    test.assertError(new FolderNotFoundException("C:"), result);
                 });
 
                 runner.test("when root is empty", (Test test) ->
                 {
                     final Root root = getRoot(test);
                     final Result<Iterable<File>> result = root.getFiles();
-                    test.assertNotNull(result);
-                    test.assertEqual(new Array<File>(0), result.getValue());
-                    test.assertFalse(result.hasError());
+                    test.assertSuccess(new Array<File>(0), result);
                 });
 
                 runner.test("when root has a file", (Test test) ->
@@ -523,11 +473,7 @@ public class RootTests
                 {
                     final Root root = getRoot(test, "C:/");
                     final Result<Iterable<FileSystemEntry>> result = root.getFilesAndFolders();
-                    test.assertNotNull(result);
-                    test.assertNull(result.getValue());
-                    test.assertTrue(result.hasError());
-                    test.assertEqual(RootNotFoundException.class, result.getErrorType());
-                    test.assertEqual("The root at \"C:/\" doesn't exist.", result.getErrorMessage());
+                    test.assertError(new FolderNotFoundException("C:"), result);
 
                 });
 
@@ -535,9 +481,7 @@ public class RootTests
                 {
                     final Root root = getRoot(test);
                     final Result<Iterable<FileSystemEntry>> result = root.getFilesAndFolders();
-                    test.assertNotNull(result);
-                    test.assertEqual(new Array<FileSystemEntry>(0), result.getValue());
-                    test.assertFalse(result.hasError());
+                    test.assertSuccess(new Array<FileSystemEntry>(0), result);
                 });
 
                 runner.test("when root has a file", (Test test) ->
@@ -546,14 +490,12 @@ public class RootTests
                     root.createFile("thing.txt");
 
                     final Result<Iterable<FileSystemEntry>> result = root.getFilesAndFolders();
-                    test.assertNotNull(result);
-                    test.assertEqual(
+                    test.assertSuccess(
                         Array.fromValues(new FileSystemEntry[]
                             {
                                 root.getFile("thing.txt").getValue()
                             }),
-                        result.getValue());
-                    test.assertFalse(result.hasError());
+                        result);
                 });
 
                 runner.test("when root has a folder", (Test test) ->
@@ -562,14 +504,12 @@ public class RootTests
                     root.createFolder("things");
 
                     final Result<Iterable<FileSystemEntry>> result = root.getFilesAndFolders();
-                    test.assertNotNull(result);
-                    test.assertEqual(
+                    test.assertSuccess(
                         Array.fromValues(new FileSystemEntry[]
                             {
                                 root.getFolder("things").getValue()
                             }),
-                        result.getValue());
-                    test.assertFalse(result.hasError());
+                        result);
                 });
             });
 
@@ -579,17 +519,13 @@ public class RootTests
                 {
                     final Root root = getRoot(test, "C:/");
                     final Result<Iterable<FileSystemEntry>> result = root.getFilesAndFoldersRecursively();
-                    test.assertNotNull(result);
-                    test.assertNull(result.getValue());
-                    test.assertTrue(result.hasError());
-                    test.assertEqual(RootNotFoundException.class, result.getErrorType());
-                    test.assertEqual("The root at \"C:/\" doesn't exist.", result.getErrorMessage());
+                    test.assertError(new FolderNotFoundException("C:"), result);
                 });
 
                 runner.test("when root is empty", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    test.assertEqual(new Array<FileSystemEntry>(0), root.getFilesAndFoldersRecursively());
+                    test.assertSuccess(new Array<FileSystemEntry>(0), root.getFilesAndFoldersRecursively());
                 });
 
                 runner.test("when root has files", (Test test) ->
@@ -597,7 +533,7 @@ public class RootTests
                     final Root root = getRoot(test);
                     root.createFile("1.txt");
                     root.createFile("2.txt");
-                    test.assertEqual(
+                    test.assertSuccess(
                         Array.fromValues(new FileSystemEntry[]
                         {
                             root.getFile("1.txt").getValue(),
@@ -611,7 +547,7 @@ public class RootTests
                     final Root root = getRoot(test);
                     root.createFolder("1.txt");
                     root.createFolder("2.txt");
-                    test.assertEqual(
+                    test.assertSuccess(
                         Array.fromValues(new FileSystemEntry[]
                         {
                             root.getFolder("1.txt").getValue(),
@@ -641,8 +577,7 @@ public class RootTests
                             root.getFolder("B/C").getValue(),
                             root.getFile("B/C/4.xml").getValue()
                         });
-                    final Iterable<FileSystemEntry> actualEntries = root.getFilesAndFoldersRecursively().getValue();
-                    test.assertEqual(expectedEntries, actualEntries);
+                    test.assertSuccess(expectedEntries, root.getFilesAndFoldersRecursively());
                 });
             });
 
@@ -651,13 +586,13 @@ public class RootTests
                 runner.test("when root doesn't exist", (Test test) ->
                 {
                     final Root root = getRoot(test, "C:/");
-                    test.assertEqual(new Array<File>(0), root.getFilesRecursively());
+                    test.assertError(new FolderNotFoundException("C:"), root.getFilesRecursively());
                 });
 
                 runner.test("when root is empty", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    test.assertEqual(new Array<File>(0), root.getFilesRecursively());
+                    test.assertSuccess(new Array<File>(0), root.getFilesRecursively());
                 });
 
                 runner.test("when root has files", (Test test) ->
@@ -665,7 +600,7 @@ public class RootTests
                     final Root root = getRoot(test);
                     root.createFile("1.txt");
                     root.createFile("2.txt");
-                    test.assertEqual(
+                    test.assertSuccess(
                         Array.fromValues(new File[]
                         {
                             root.getFile("1.txt").getValue(),
@@ -679,7 +614,7 @@ public class RootTests
                     final Root root = getRoot(test);
                     root.createFolder("1.txt");
                     root.createFolder("2.txt");
-                    test.assertEqual(
+                    test.assertSuccess(
                         new Array<File>(0),
                         root.getFilesRecursively());
                 });
@@ -702,8 +637,7 @@ public class RootTests
                             root.getFile("A/5.png").getValue(),
                             root.getFile("B/C/4.xml").getValue()
                         });
-                    final Iterable<File> actualEntries = root.getFilesRecursively().getValue();
-                    test.assertEqual(expectedEntries, actualEntries);
+                    test.assertSuccess(expectedEntries, root.getFilesRecursively());
                 });
             });
 
@@ -712,13 +646,13 @@ public class RootTests
                 runner.test("when root doesn't exist", (Test test) ->
                 {
                     final Root root = getRoot(test, "C:/");
-                    test.assertEqual(new Array<Folder>(0), root.getFoldersRecursively().getValue());
+                    test.assertError(new FolderNotFoundException("C:"), root.getFoldersRecursively());
                 });
 
                 runner.test("when root is empty", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    test.assertEqual(new Array<Folder>(0), root.getFoldersRecursively().getValue());
+                    test.assertSuccess(new Array<Folder>(0), root.getFoldersRecursively());
                 });
 
                 runner.test("when root has files", (Test test) ->
@@ -726,7 +660,7 @@ public class RootTests
                     final Root root = getRoot(test);
                     root.createFile("1.txt");
                     root.createFile("2.txt");
-                    test.assertEqual(
+                    test.assertSuccess(
                         new Array<Folder>(0),
                         root.getFoldersRecursively());
                 });
@@ -736,7 +670,7 @@ public class RootTests
                     final Root root = getRoot(test);
                     root.createFolder("1.txt");
                     root.createFolder("2.txt");
-                    test.assertEqual(
+                    test.assertSuccess(
                         Array.fromValues(new Folder[]
                         {
                             root.getFolder("1.txt").getValue(),
@@ -754,15 +688,15 @@ public class RootTests
                     root.createFile("B/C/4.xml");
                     root.createFile("A/5.png");
 
-                    final Iterable<Folder> expectedEntries =
+                    final Result<Iterable<Folder>> folders = root.getFoldersRecursively();
+                    test.assertSuccess(
                         Array.fromValues(new Folder[]
                         {
                             root.getFolder("A").getValue(),
                             root.getFolder("B").getValue(),
                             root.getFolder("B/C").getValue()
-                        });
-                    final Iterable<Folder> actualEntries = root.getFoldersRecursively().getValue();
-                    test.assertEqual(expectedEntries, actualEntries);
+                        }),
+                        folders);
                 });
             });
         });
