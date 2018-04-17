@@ -273,6 +273,52 @@ public class ProcessTests
                 });
             });
 
+            runner.test("getNetwork()", (Test test) ->
+            {
+                final Process process = creator.run();
+                final Network defaultNetwork = process.getNetwork();
+                test.assertNotNull(defaultNetwork);
+                test.assertTrue(defaultNetwork instanceof JavaNetwork);
+                test.assertSame(defaultNetwork, process.getNetwork());
+            });
+
+            runner.testGroup("setNetwork(Network)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final Process process = creator.run();
+                    process.setNetwork((Network)null);
+                    test.assertNull(process.getNetwork());
+                });
+
+                runner.test("with non-null", (Test test) ->
+                {
+                    final Process process = creator.run();
+                    final Network network = new JavaNetwork(test.getMainAsyncRunner());
+                    process.setNetwork(network);
+                    test.assertSame(network, process.getNetwork());
+                });
+            });
+
+            runner.testGroup("setNetwork(Function1<AsyncRunner,Network>)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final Process process = creator.run();
+                    process.setNetwork((Function1<AsyncRunner,Network>)null);
+                    test.assertNull(process.getNetwork());
+                });
+
+                runner.test("with non-null", (Test test) ->
+                {
+                    final Process process = creator.run();
+                    process.setNetwork(JavaNetwork::new);
+                    final Network network = process.getNetwork();
+                    test.assertTrue(network instanceof JavaNetwork);
+                    test.assertSame(network, process.getNetwork());
+                });
+            });
+
             runner.test("getCurrentFolderPathString()", (Test test) ->
             {
                 final Process process = creator.run();

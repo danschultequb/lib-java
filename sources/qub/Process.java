@@ -23,6 +23,7 @@ public class Process extends DisposableBase
 
     private final Value<Random> random;
     private final Value<FileSystem> fileSystem;
+    private final Value<Network> network;
     private final Value<String> currentFolderPathString;
     private final Value<Map<String,String>> environmentVariables;
     private final Value<Synchronization> synchronization;
@@ -76,6 +77,7 @@ public class Process extends DisposableBase
         lineReadStream = new Value<>();
         random = new Value<>();
         fileSystem = new Value<>();
+        network = new Value<>();
         currentFolderPathString = new Value<>();
         environmentVariables = new Value<>();
         synchronization = new Value<>();
@@ -367,6 +369,25 @@ public class Process extends DisposableBase
     public void setFileSystem(Function1<AsyncRunner,FileSystem> creator)
     {
         setFileSystem(creator.run(getParallelAsyncRunner()));
+    }
+
+    public Network getNetwork()
+    {
+        if (!network.hasValue())
+        {
+            setNetwork(new JavaNetwork(getParallelAsyncRunner()));
+        }
+        return network.get();
+    }
+
+    public void setNetwork(Network network)
+    {
+        this.network.set(network);
+    }
+
+    public void setNetwork(Function1<AsyncRunner,Network> creator)
+    {
+        setNetwork(creator == null ? null : creator.run(getParallelAsyncRunner()));
     }
 
     public String getCurrentFolderPathString()
