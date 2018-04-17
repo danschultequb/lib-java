@@ -1,5 +1,8 @@
 package qub;
 
+/**
+ * An individual header within a HTTP request.
+ */
 public class HttpHeader
 {
     private final String name;
@@ -11,6 +14,12 @@ public class HttpHeader
         this.value = value;
     }
 
+    /**
+     * Create a new HTTP header with the provided name and value.
+     * @param name The name of the HTTP header.
+     * @param value The value of the HTTP header.
+     * @return The created HttpHeader.
+     */
     public static Result<HttpHeader> create(String name, String value)
     {
         Result<HttpHeader> result;
@@ -29,11 +38,19 @@ public class HttpHeader
         return result;
     }
 
+    /**
+     * Get the name of this HTTP header.
+     * @return
+     */
     public String getName()
     {
         return this.name;
     }
 
+    /**
+     * Get the value of this HTTP header.
+     * @return
+     */
     public String getValue()
     {
         return this.value;
@@ -45,6 +62,11 @@ public class HttpHeader
         return rhs instanceof HttpHeader && equals((HttpHeader)rhs);
     }
 
+    /**
+     * Get whether or not this HttpHeader equals the provided HttpHeader.
+     * @param rhs The HttpHeader to compare against this HttpHeader.
+     * @return Whether or not this HttpHeader equals the provided HttpHeader.
+     */
     public boolean equals(HttpHeader rhs)
     {
         return rhs != null &&
