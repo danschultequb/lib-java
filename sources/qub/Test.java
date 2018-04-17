@@ -410,6 +410,20 @@ public class Test
     }
 
     /**
+     * Assert that the provided Result object has the provided expected value and error.
+     * @param expectedValue The value that the result should have.
+     * @param expectedError The error that the reuslt should have.
+     * @param result The result to check.
+     * @param <T> The type of the value.
+     */
+    public <T> void assertDone(T expectedValue, Throwable expectedError, Result<T> result)
+    {
+        assertNotNull(result);
+        assertEqual(expectedValue, result.getValue());
+        assertEqual(expectedError, result.getError());
+    }
+
+    /**
      * Cause the test to fail instantly.
      */
     public void fail()
