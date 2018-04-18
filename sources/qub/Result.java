@@ -48,18 +48,24 @@ final public class Result<T>
         return rhs != null && Comparer.equal(value, rhs.value) && Comparer.equal(error, rhs.error);
     }
 
-    public static <T> Result<T> success(T value)
+    public static <U> Result<U> success(U value)
     {
         return Result.done(value, null);
     }
 
-    public static <T> Result<T> error(Throwable error)
+    private static final Result<Boolean> successTrue = Result.success(true);
+    public static Result<Boolean> successTrue()
+    {
+        return successTrue;
+    }
+
+    public static <U> Result<U> error(Throwable error)
     {
         return Result.done(null, error);
     }
 
-    public static <T> Result<T> done(T value, Throwable error)
+    public static <U> Result<U> done(U value, Throwable error)
     {
-        return new Result<T>(value, error);
+        return new Result<U>(value, error);
     }
 }

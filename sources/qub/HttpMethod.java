@@ -11,6 +11,8 @@ public enum HttpMethod
 
     PUT,
 
+    PATCH,
+
     DELETE,
 
     HEAD,
