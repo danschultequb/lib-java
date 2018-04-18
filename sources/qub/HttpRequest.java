@@ -7,14 +7,14 @@ public class HttpRequest
 {
     private HttpMethod method;
     private String url;
-    private final HttpHeaders headers;
+    private final MutableHttpHeaders headers;
     private ByteReadStream body;
 
     private HttpRequest(HttpMethod method, String url, Iterable<HttpHeader> headers, ByteReadStream body)
     {
         this.method = method;
         this.url = url;
-        this.headers = new HttpHeaders(headers);
+        this.headers = new MutableHttpHeaders(headers);
         this.body = body;
     }
 
@@ -91,7 +91,7 @@ public class HttpRequest
         return result;
     }
 
-    public HttpHeaders getHeaders()
+    public MutableHttpHeaders getHeaders()
     {
         return headers;
     }
