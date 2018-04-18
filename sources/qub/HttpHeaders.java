@@ -15,6 +15,19 @@ public class HttpHeaders extends IterableBase<HttpHeader>
         headerMap = new ListMap<String,HttpHeader>();
     }
 
+    public HttpHeaders(Iterable<HttpHeader> headers)
+    {
+        this();
+
+        if (headers != null && headers.any())
+        {
+            for (final HttpHeader header : headers)
+            {
+                set(header);
+            }
+        }
+    }
+
     private static String getHeaderKey(HttpHeader header)
     {
         return getHeaderKey(header.getName());
@@ -23,6 +36,27 @@ public class HttpHeaders extends IterableBase<HttpHeader>
     private static String getHeaderKey(String headerName)
     {
         return headerName.toLowerCase();
+    }
+
+    /**
+     * Set the provided header within this HTTP headers collection.
+     * @param header The header to set.
+     * @return Whether or not the header was set.
+     */
+    public Result<Boolean> set(HttpHeader header)
+    {
+        Result<Boolean> result;
+
+        if (header == null)
+        {
+            result = Result.error(new IllegalArgumentException("header cannot be null."));
+        }
+        else
+        {
+            result = set(header.getName(), header.getValue());
+        }
+
+        return result;
     }
 
     /**
@@ -74,6 +108,23 @@ public class HttpHeaders extends IterableBase<HttpHeader>
             else {
                 result = Result.success(header);
             }
+        }
+
+        return result;
+    }
+
+    public Result<String> getValue(String headerName)
+    {
+        Result<String> result;
+
+        final Result<HttpHeader> getResult = get(headerName);
+        if (getResult.hasError())
+        {
+            result = Result.error(getResult.getError());
+        }
+        else
+        {
+            result = Result.success(getResult.getValue().getValue());
         }
 
         return result;
