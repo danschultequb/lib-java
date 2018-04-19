@@ -8,22 +8,23 @@ public class HttpRequest
     private HttpMethod method;
     private String url;
     private final MutableHttpHeaders headers;
+    private int contentLength;
     private ByteReadStream body;
 
-    private HttpRequest(HttpMethod method, String url, Iterable<HttpHeader> headers, ByteReadStream body)
+    private HttpRequest(HttpMethod method, String url, Iterable<HttpHeader> headers, int contentLength, ByteReadStream body)
     {
         this.method = method;
         this.url = url;
         this.headers = new MutableHttpHeaders(headers);
-        this.body = body;
+        setBody(contentLength, body);
     }
 
     public static Result<HttpRequest> create(HttpMethod method, String url)
     {
-        return HttpRequest.create(method, url, null, null);
+        return HttpRequest.create(method, url, null, 0, null);
     }
 
-    public static Result<HttpRequest> create(HttpMethod method, String url, Iterable<HttpHeader> headers, ByteReadStream body)
+    public static Result<HttpRequest> create(HttpMethod method, String url, Iterable<HttpHeader> headers, int contentLength, ByteReadStream body)
     {
         Result<HttpRequest> result;
 
@@ -39,9 +40,21 @@ public class HttpRequest
         {
             result = Result.error(new IllegalArgumentException("url cannot be empty."));
         }
+        else if (contentLength < 0)
+        {
+            result = Result.error(new IllegalArgumentException("contentLength must be greater than or equal to 0."));
+        }
+        else if (contentLength == 0 && body != null)
+        {
+            result = Result.error(new IllegalArgumentException("If contentLength is 0, then body must be null."));
+        }
+        else if (contentLength > 0 && body == null)
+        {
+            result = Result.error(new IllegalArgumentException("If contentLength is greater than 0, then body must be non-null."));
+        }
         else
         {
-            result = Result.success(new HttpRequest(method, url, headers, body));
+            result = Result.success(new HttpRequest(method, url, headers, contentLength, body));
         }
 
         return result;
@@ -96,19 +109,54 @@ public class HttpRequest
         return headers;
     }
 
+    public int getContentLength()
+    {
+        return contentLength;
+    }
+
     public ByteReadStream getBody()
     {
         return body;
     }
 
-    public void setBody(ByteReadStream body)
+    public Result<Boolean> setBody(int contentLength, ByteReadStream body)
     {
-        this.body = body;
+        Result<Boolean> result;
+        if (contentLength < 0)
+        {
+            result = Result.error(new IllegalArgumentException("contentLength must be greater than or equal to 0."));
+        }
+        else if (contentLength == 0 && body != null)
+        {
+            result = Result.error(new IllegalArgumentException("If contentLength is 0, then body must be null."));
+        }
+        else if (contentLength > 0 && body == null)
+        {
+            result = Result.error(new IllegalArgumentException("If contentLength is greater than 0, then body must be not null."));
+        }
+        else
+        {
+            this.contentLength = contentLength;
+            this.body = body;
+
+            if (this.contentLength == 0)
+            {
+                this.headers.remove("Content-Length");
+            }
+            else
+            {
+                this.headers.set("Content-Length", Integer.toString(contentLength));
+            }
+
+            result = Result.successTrue();
+        }
+        return result;
     }
 
     public void setBody(byte[] bodyBytes)
     {
-        setBody(bodyBytes == null || bodyBytes.length == 0 ? null : new InMemoryByteReadStream(bodyBytes));
+        final int contentLength = bodyBytes == null ? 0 : bodyBytes.length;
+        setBody(contentLength, contentLength == 0 ? null : new InMemoryByteReadStream(bodyBytes));
     }
 
     public void setBody(String bodyText)

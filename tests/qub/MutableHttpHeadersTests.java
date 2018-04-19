@@ -1,6 +1,6 @@
 package qub;
 
-public class HttpHeadersTests
+public class MutableHttpHeadersTests
 {
     public static void test(TestRunner runner)
     {
@@ -184,6 +184,35 @@ public class HttpHeadersTests
                     final MutableHttpHeaders headers = new MutableHttpHeaders();
                     headers.set("header-name", "header-value");
                     test.assertSuccess("header-value", headers.getValue("HEADER-NAME"));
+                });
+            });
+
+            runner.testGroup("remove(String)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final MutableHttpHeaders headers = new MutableHttpHeaders();
+                    test.assertError(new IllegalArgumentException("headerName cannot be null."), headers.remove(null));
+                });
+
+                runner.test("with empty", (Test test) ->
+                {
+                    final MutableHttpHeaders headers = new MutableHttpHeaders();
+                    test.assertError(new IllegalArgumentException("headerName cannot be empty."), headers.remove(""));
+                });
+
+                runner.test("with not found header name", (Test test) ->
+                {
+                    final MutableHttpHeaders headers = new MutableHttpHeaders();
+                    test.assertDone(false, new KeyNotFoundException("A"), headers.remove("A"));
+                });
+
+                runner.test("with found header name", (Test test) ->
+                {
+                    final MutableHttpHeaders headers = new MutableHttpHeaders();
+                    headers.set("A", "B");
+                    test.assertSuccess(true, headers.remove("A"));
+                    test.assertDone(false, new KeyNotFoundException("A"), headers.remove("A"));
                 });
             });
         });

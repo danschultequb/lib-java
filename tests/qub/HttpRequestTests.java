@@ -47,6 +47,114 @@ public class HttpRequestTests
                 });
             });
 
+            runner.testGroup("create(HttpMethod,String,Iterable<HttpHeader>,int,ByteReadStream)", () ->
+            {
+                runner.test("with null HttpMethod", (Test test) ->
+                {
+                    final Result<HttpRequest> request = HttpRequest.create(null, "https://www.example.com", new Array<>(0), 0, null);
+                    test.assertError(new IllegalArgumentException("method cannot be null."), request);
+                });
+
+                runner.test("with null url", (Test test) ->
+                {
+                    final Result<HttpRequest> request = HttpRequest.create(HttpMethod.GET, null, new Array<>(0), 0, null);
+                    test.assertError(new IllegalArgumentException("url cannot be null."), request);
+                });
+
+                runner.test("with empty url", (Test test) ->
+                {
+                    final Result<HttpRequest> request = HttpRequest.create(HttpMethod.GET, "", new Array<>(0), 0, null);
+                    test.assertError(new IllegalArgumentException("url cannot be empty."), request);
+                });
+
+                runner.test("with invalid url", (Test test) ->
+                {
+                    final Result<HttpRequest> request = HttpRequest.create(HttpMethod.GET, "I'm not a good URL", new Array<>(0), 0, null);
+                    test.assertSuccess(request);
+                    test.assertEqual(HttpMethod.GET, request.getValue().getMethod());
+                    test.assertEqual("I'm not a good URL", request.getValue().getUrl());
+                    test.assertEqual(0, request.getValue().getHeaders().getCount());
+                    test.assertNull(request.getValue().getBody());
+                });
+
+                runner.test("with valid HttpMethod and valid url", (Test test) ->
+                {
+                    final Result<HttpRequest> request = HttpRequest.create(HttpMethod.GET, "https://www.example.com", new Array<>(0), 0, null);
+                    test.assertSuccess(request);
+                    test.assertEqual(HttpMethod.GET, request.getValue().getMethod());
+                    test.assertEqual("https://www.example.com", request.getValue().getUrl());
+                    test.assertEqual(0, request.getValue().getHeaders().getCount());
+                    test.assertNull(request.getValue().getBody());
+                });
+
+                runner.test("with null headers", (Test test) ->
+                {
+                    final Result<HttpRequest> request = HttpRequest.create(HttpMethod.GET, "https://www.example.com", null, 0, null);
+                    test.assertSuccess(request);
+                    test.assertEqual(HttpMethod.GET, request.getValue().getMethod());
+                    test.assertEqual("https://www.example.com", request.getValue().getUrl());
+                    test.assertEqual(0, request.getValue().getHeaders().getCount());
+                    test.assertNull(request.getValue().getBody());
+                });
+
+                runner.test("with empty headers", (Test test) ->
+                {
+                    final Result<HttpRequest> request = HttpRequest.create(HttpMethod.GET, "https://www.example.com", new Array<>(0), 0, null);
+                    test.assertSuccess(request);
+                    test.assertEqual(HttpMethod.GET, request.getValue().getMethod());
+                    test.assertEqual("https://www.example.com", request.getValue().getUrl());
+                    test.assertEqual(0, request.getValue().getHeaders().getCount());
+                    test.assertNull(request.getValue().getBody());
+                });
+
+                runner.test("with non-empty headers", (Test test) ->
+                {
+                    final Iterable<HttpHeader> headers = Array.fromValues(new HttpHeader[]
+                    {
+                        HttpHeader.create("A", "B").getValue()
+                    });
+                    final Result<HttpRequest> request = HttpRequest.create(HttpMethod.GET, "https://www.example.com", headers, 0, null);
+                    test.assertSuccess(request);
+                    test.assertEqual(HttpMethod.GET, request.getValue().getMethod());
+                    test.assertEqual("https://www.example.com", request.getValue().getUrl());
+                    test.assertEqual(headers, request.getValue().getHeaders());
+                    test.assertNull(request.getValue().getBody());
+                });
+
+                runner.test("with negative contentLength", (Test test) ->
+                {
+                    final Result<HttpRequest> request = HttpRequest.create(HttpMethod.GET, "https://www.example.com", null, -10, null);
+                    test.assertError(new IllegalArgumentException("contentLength must be greater than or equal to 0."), request);
+                });
+
+                runner.test("with 0 contentLength and non-null body", (Test test) ->
+                {
+                    final Result<HttpRequest> request = HttpRequest.create(HttpMethod.GET, "https://www.example.com", null, 0, new InMemoryByteReadStream());
+                    test.assertError(new IllegalArgumentException("If contentLength is 0, then body must be null."), request);
+                });
+
+                runner.test("with 5 contentLength and null body", (Test test) ->
+                {
+                    final Result<HttpRequest> request = HttpRequest.create(HttpMethod.GET, "https://www.example.com", null, 5, null);
+                    test.assertError(new IllegalArgumentException("If contentLength is greater than 0, then body must be non-null."), request);
+                });
+
+                runner.test("with 5 contentLength and non-null body", (Test test) ->
+                {
+                    final Result<HttpRequest> request = HttpRequest.create(HttpMethod.GET, "https://www.example.com", null, 5, new InMemoryByteReadStream());
+                    test.assertSuccess(request);
+                    test.assertEqual(HttpMethod.GET, request.getValue().getMethod());
+                    test.assertEqual("https://www.example.com", request.getValue().getUrl());
+                    test.assertEqual(
+                        Array.fromValues(new HttpHeader[]
+                        {
+                            HttpHeader.create("Content-Length", "5").getValue()
+                        }),
+                        request.getValue().getHeaders());
+                    test.assertNotNull(request.getValue().getBody());
+                });
+            });
+
             runner.testGroup("setMethod(HttpMethod)", () ->
             {
                 runner.test("with null", (Test test) ->
@@ -140,6 +248,54 @@ public class HttpRequestTests
                     final HttpRequest request = HttpRequest.create(HttpMethod.GET, "https://www.example.com").getValue();
                     request.setBody(new byte[] { 0, 1, 2, 3, 4 });
                     test.assertEqual(new byte[] { 0, 1, 2, 3, 4 }, request.getBody().readAllBytes());
+                });
+            });
+
+            runner.testGroup("setBody(int,ByteReadStream)", () ->
+            {
+                runner.test("with negative contentLength", (Test test) ->
+                {
+                    final HttpRequest request = HttpRequest.create(HttpMethod.POST, "https://www.example.com").getValue();
+                    test.assertError(new IllegalArgumentException("contentLength must be greater than or equal to 0."), request.setBody(-1, null));
+                    test.assertEqual(0, request.getContentLength());
+                    test.assertNull(request.getBody());
+                    test.assertError(new KeyNotFoundException("Content-Length"), request.getHeaders().get("Content-Length"));
+                });
+
+                runner.test("with 0 contentLength and null body", (Test test) ->
+                {
+                    final HttpRequest request = HttpRequest.create(HttpMethod.POST, "https://www.example.com").getValue();
+                    test.assertSuccess(true, request.setBody(0, null));
+                    test.assertEqual(0, request.getContentLength());
+                    test.assertNull(request.getBody());
+                    test.assertError(new KeyNotFoundException("Content-Length"), request.getHeaders().get("Content-Length"));
+                });
+
+                runner.test("with 0 contentLength and non-null body", (Test test) ->
+                {
+                    final HttpRequest request = HttpRequest.create(HttpMethod.POST, "https://www.example.com").getValue();
+                    test.assertError(new IllegalArgumentException("If contentLength is 0, then body must be null."), request.setBody(0, new InMemoryByteReadStream()));
+                    test.assertEqual(0, request.getContentLength());
+                    test.assertNull(request.getBody());
+                    test.assertError(new KeyNotFoundException("Content-Length"), request.getHeaders().get("Content-Length"));
+                });
+
+                runner.test("with 3 contentLength and null body", (Test test) ->
+                {
+                    final HttpRequest request = HttpRequest.create(HttpMethod.POST, "https://www.example.com").getValue();
+                    test.assertError(new IllegalArgumentException("If contentLength is greater than 0, then body must be not null."), request.setBody(3, null));
+                    test.assertEqual(0, request.getContentLength());
+                    test.assertNull(request.getBody());
+                    test.assertError(new KeyNotFoundException("Content-Length"), request.getHeaders().get("Content-Length"));
+                });
+
+                runner.test("with 3 contentLength and non-null body", (Test test) ->
+                {
+                    final HttpRequest request = HttpRequest.create(HttpMethod.POST, "https://www.example.com").getValue();
+                    test.assertSuccess(true, request.setBody(3, new InMemoryByteReadStream(new byte[] { 0, 1, 2 })));
+                    test.assertEqual(3, request.getContentLength());
+                    test.assertNotNull(request.getBody());
+                    test.assertSuccess("3", request.getHeaders().getValue("Content-Length"));
                 });
             });
         });

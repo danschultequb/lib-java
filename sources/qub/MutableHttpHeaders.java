@@ -130,6 +130,27 @@ public class MutableHttpHeaders extends IterableBase<HttpHeader> implements Http
         return result;
     }
 
+    public Result<Boolean> remove(String headerName)
+    {
+        Result<Boolean> result;
+        if (headerName == null)
+        {
+            result = Result.error(new IllegalArgumentException("headerName cannot be null."));
+        }
+        else if (headerName.isEmpty())
+        {
+            result = Result.error(new IllegalArgumentException("headerName cannot be empty."));
+        }
+        else if (!headerMap.remove(getHeaderKey(headerName)))
+        {
+            result = Result.done(false, new KeyNotFoundException(headerName));
+        }
+        else {
+            result = Result.successTrue();
+        }
+        return result;
+    }
+
     @Override
     public Iterator<HttpHeader> iterate()
     {
