@@ -106,7 +106,8 @@ public class FolderFileSystem extends FileSystemBase
     @Override
     public AsyncFunction<Result<Iterable<Root>>> getRootsAsync()
     {
-        return Async.<Iterable<Root>>success(getAsyncRunner(), Array.fromValues(new Root[]
+        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+        return currentAsyncRunner.<Iterable<Root>>success(Array.fromValues(new Root[]
         {
             new Root(this, Path.parse("/"))
         }));
@@ -158,9 +159,7 @@ public class FolderFileSystem extends FileSystemBase
     @Override
     public AsyncFunction<Result<Folder>> createFolderAsync(final Path rootedFolderPath)
     {
-        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-
-        AsyncFunction<Result<Folder>> result = validateRootedFolderPathAsync(currentAsyncRunner, rootedFolderPath);
+        AsyncFunction<Result<Folder>> result = validateRootedFolderPathAsync(rootedFolderPath);
         if (result == null)
         {
             result = innerFileSystem.createFolderAsync(getInnerPath(rootedFolderPath))
@@ -195,9 +194,7 @@ public class FolderFileSystem extends FileSystemBase
     @Override
     public AsyncFunction<Result<Boolean>> deleteFolderAsync(Path rootedFolderPath)
     {
-        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-
-        AsyncFunction<Result<Boolean>> result = validateRootedFolderPathAsync(currentAsyncRunner, rootedFolderPath);
+        AsyncFunction<Result<Boolean>> result = validateRootedFolderPathAsync(rootedFolderPath);
         if (result == null)
         {
             result = innerFileSystem.deleteFolderAsync(getInnerPath(rootedFolderPath))
@@ -225,9 +222,7 @@ public class FolderFileSystem extends FileSystemBase
     @Override
     public AsyncFunction<Result<Boolean>> fileExistsAsync(Path rootedFilePath)
     {
-        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-
-        AsyncFunction<Result<Boolean>> result = validateRootedFilePathAsync(currentAsyncRunner, rootedFilePath);
+        AsyncFunction<Result<Boolean>> result = validateRootedFilePathAsync(rootedFilePath);
         if (result == null)
         {
             result = innerFileSystem.fileExistsAsync(getInnerPath(rootedFilePath));
@@ -239,9 +234,7 @@ public class FolderFileSystem extends FileSystemBase
     @Override
     public AsyncFunction<Result<File>> createFileAsync(final Path rootedFilePath)
     {
-        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-
-        AsyncFunction<Result<File>> result = validateRootedFilePathAsync(currentAsyncRunner, rootedFilePath);
+        AsyncFunction<Result<File>> result = validateRootedFilePathAsync(rootedFilePath);
         if (result == null)
         {
             final Path innerFilePath = getInnerPath(rootedFilePath);
@@ -264,9 +257,7 @@ public class FolderFileSystem extends FileSystemBase
     @Override
     public AsyncFunction<Result<Boolean>> deleteFileAsync(final Path rootedFilePath)
     {
-        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-
-        AsyncFunction<Result<Boolean>> result = FileSystemBase.validateRootedFilePathAsync(currentAsyncRunner, rootedFilePath);
+        AsyncFunction<Result<Boolean>> result = FileSystemBase.validateRootedFilePathAsync(rootedFilePath);
         if (result == null)
         {
             result = innerFileSystem.deleteFileAsync(getInnerPath(rootedFilePath))
@@ -287,9 +278,7 @@ public class FolderFileSystem extends FileSystemBase
     @Override
     public AsyncFunction<Result<DateTime>> getFileLastModifiedAsync(final Path rootedFilePath)
     {
-        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-
-        AsyncFunction<Result<DateTime>> result = FileSystemBase.validateRootedFilePathAsync(currentAsyncRunner, rootedFilePath);
+        AsyncFunction<Result<DateTime>> result = FileSystemBase.validateRootedFilePathAsync(rootedFilePath);
         if (result == null)
         {
             result = innerFileSystem.getFileLastModifiedAsync(getInnerPath(rootedFilePath))
@@ -310,9 +299,7 @@ public class FolderFileSystem extends FileSystemBase
     @Override
     public AsyncFunction<Result<ByteReadStream>> getFileContentByteReadStreamAsync(final Path rootedFilePath)
     {
-        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-
-        AsyncFunction<Result<ByteReadStream>> result = FileSystemBase.validateRootedFilePathAsync(currentAsyncRunner, rootedFilePath);
+        AsyncFunction<Result<ByteReadStream>> result = FileSystemBase.validateRootedFilePathAsync(rootedFilePath);
         if (result == null)
         {
             result = innerFileSystem.getFileContentByteReadStreamAsync(getInnerPath(rootedFilePath))
@@ -333,9 +320,7 @@ public class FolderFileSystem extends FileSystemBase
     @Override
     public AsyncFunction<Result<ByteWriteStream>> getFileContentByteWriteStreamAsync(final Path rootedFilePath)
     {
-        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-
-        AsyncFunction<Result<ByteWriteStream>> result = FileSystemBase.validateRootedFilePathAsync(currentAsyncRunner, rootedFilePath);
+        AsyncFunction<Result<ByteWriteStream>> result = FileSystemBase.validateRootedFilePathAsync(rootedFilePath);
         if (result == null)
         {
             result = innerFileSystem.getFileContentByteWriteStreamAsync(getInnerPath(rootedFilePath))

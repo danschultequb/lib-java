@@ -46,36 +46,43 @@ public class JavaNetworkTests
                     final IPv4Address localhost = IPv4Address.parse("127.0.0.1");
                     final int port = 8080;
 
-                    final AsyncAction serverTask = network.createTCPServerAsync(localhost, port)
-                        .then((Result<TCPServer> tcpServerResult) ->
+                    final AsyncAction serverTask = asyncRunner.schedule(new Action0()
+                    {
+                        @Override
+                        public void run()
                         {
+                            final Result<TCPServer> tcpServerResult = network.createTCPServer(localhost, port);
                             test.assertSuccess(tcpServerResult);
                             try (final TCPServer tcpServer = tcpServerResult.getValue())
                             {
                                 final Result<TCPClient> acceptedClientResult = tcpServer.accept();
                                 test.assertSuccess(acceptedClientResult);
-
                                 try (final TCPClient acceptedClient = acceptedClientResult.getValue())
                                 {
                                     test.assertEqual(bytes, acceptedClient.readBytes(bytes.length));
                                     test.assertTrue(acceptedClient.write(bytes));
                                 }
                             }
-                        });
+                        }
+                    });
 
-                    final AsyncAction clientTask = network.createTCPClientAsync(localhost, port)
-                        .then((Result<TCPClient> tcpClientResult) ->
+                    final AsyncAction clientTask = asyncRunner.schedule(new Action0()
+                    {
+                        @Override
+                        public void run()
                         {
+                            final Result<TCPClient> tcpClientResult = network.createTCPClient(localhost, port);
                             test.assertSuccess(tcpClientResult);
                             try (final TCPClient tcpClient = tcpClientResult.getValue())
                             {
                                 test.assertTrue(tcpClient.write(bytes));
                                 test.assertEqual(bytes, tcpClient.readBytes(bytes.length));
                             }
-                        });
+                        }
+                    });
 
-                    serverTask.await();
                     clientTask.await();
+                    serverTask.await();
                 });
             });
 

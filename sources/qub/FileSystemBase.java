@@ -486,40 +486,40 @@ public abstract class FileSystemBase implements FileSystem
      */
     public static AsyncFunction<Result<Boolean>> rootExistsAsync(final FileSystem fileSystem, final Path rootPath)
     {
-        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-
-        AsyncFunction<Result<Boolean>> result = validateRootPathAsync(currentAsyncRunner, rootPath);
+        AsyncFunction<Result<Boolean>> result = validateRootPathAsync(rootPath);
         if (result == null)
         {
+            final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
             final AsyncRunner fileSystemAsyncRunner = fileSystem.getAsyncRunner();
             result = fileSystemAsyncRunner.schedule(new Function0<Result<Boolean>>()
-            {
-                @Override
-                public Result<Boolean> run()
                 {
-                    Result<Boolean> rootExistsResult;
+                    @Override
+                    public Result<Boolean> run()
+                    {
+                        Result<Boolean> rootExistsResult;
 
-                    final Result<Iterable<Root>> roots = fileSystem.getRoots();
-                    if (roots.hasError())
-                    {
-                        rootExistsResult = Result.error(roots.getError());
-                    }
-                    else
-                    {
-                        final Path onlyRootPath = rootPath.getRoot();
-                        rootExistsResult = Result.success(roots.getValue().contains(new Function1<Root, Boolean>()
+                        final Result<Iterable<Root>> roots = fileSystem.getRoots();
+                        if (roots.hasError())
                         {
-                            @Override
-                            public Boolean run(Root root)
+                            rootExistsResult = Result.error(roots.getError());
+                        }
+                        else
+                        {
+                            final Path onlyRootPath = rootPath.getRoot();
+                            rootExistsResult = Result.success(roots.getValue().contains(new Function1<Root, Boolean>()
                             {
-                                return root.getPath().equals(onlyRootPath);
-                            }
-                        }));
-                    }
+                                @Override
+                                public Boolean run(Root root)
+                                {
+                                    return root.getPath().equals(onlyRootPath);
+                                }
+                            }));
+                        }
 
-                    return rootExistsResult;
-                }
-            });
+                        return rootExistsResult;
+                    }
+                })
+                .thenOn(currentAsyncRunner);
         }
 
         return result;
@@ -627,11 +627,10 @@ public abstract class FileSystemBase implements FileSystem
      */
     public static AsyncFunction<Result<Iterable<FileSystemEntry>>> getFilesAndFoldersRecursivelyAsync(final FileSystem fileSystem, final Path rootedFolderPath)
     {
-        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-
-        AsyncFunction<Result<Iterable<FileSystemEntry>>> result = validateRootedFolderPathAsync(currentAsyncRunner, rootedFolderPath);
+        AsyncFunction<Result<Iterable<FileSystemEntry>>> result = validateRootedFolderPathAsync(rootedFolderPath);
         if (result == null)
         {
+            final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
             final AsyncRunner fileSystemAsyncRunner = fileSystem.getAsyncRunner();
             result = fileSystemAsyncRunner.schedule(new Function0<Result<Iterable<FileSystemEntry>>>()
                 {
@@ -1313,10 +1312,11 @@ public abstract class FileSystemBase implements FileSystem
         return result;
     }
 
-    public static <T> AsyncFunction<Result<T>> validateRootPathAsync(AsyncRunner asyncRunner, Path rootPath)
+    public static <T> AsyncFunction<Result<T>> validateRootPathAsync(Path rootPath)
     {
+        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
         final Result<T> result = validateRootPath(rootPath);
-        return result == null ? null : Async.<T>error(asyncRunner, result.getError());
+        return result == null ? null : currentAsyncRunner.<T>error(result.getError());
     }
 
     public static <T> Result<T> validateRootedFolderPath(Path rootedFolderPath)
@@ -1339,10 +1339,11 @@ public abstract class FileSystemBase implements FileSystem
         return result;
     }
 
-    public static <T> AsyncFunction<Result<T>> validateRootedFolderPathAsync(AsyncRunner asyncRunner, Path rootedFolderPath)
+    public static <T> AsyncFunction<Result<T>> validateRootedFolderPathAsync(Path rootedFolderPath)
     {
+        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
         final Result<T> result = validateRootedFolderPath(rootedFolderPath);
-        return result == null ? null : Async.<T>error(asyncRunner, result.getError());
+        return result == null ? null : currentAsyncRunner.<T>error(result.getError());
     }
 
     public static <T> Result<T> validateRootedFilePath(Path rootedFilePath)
@@ -1373,42 +1374,11 @@ public abstract class FileSystemBase implements FileSystem
         return result;
     }
 
-    public static <T> AsyncFunction<Result<T>> validateRootedFilePathAsync(AsyncRunner asyncRunner, Path rootedFilePath)
+    public static <T> AsyncFunction<Result<T>> validateRootedFilePathAsync(Path rootedFilePath)
     {
+        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
         final Result<T> result = validateRootedFilePath(rootedFilePath);
-        return result == null ? null : Async.<T>error(asyncRunner, result.getError());
-    }
-
-    protected static <T> AsyncFunction<T> async(FileSystem fileSystem, final Function1<AsyncRunner,T> function)
-    {
-        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        final AsyncRunner fileSystemAsyncRunner = fileSystem.getAsyncRunner();
-        return fileSystemAsyncRunner
-            .schedule(new Function0<T>()
-            {
-                @Override
-                public T run()
-                {
-                    return function.run(fileSystemAsyncRunner);
-                }
-            })
-            .thenOn(currentAsyncRunner);
-    }
-
-    protected static <T> AsyncFunction<T> asyncFunction(FileSystem fileSystem, final Function1<AsyncRunner,AsyncFunction<T>> function)
-    {
-        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        final AsyncRunner fileSystemAsyncRunner = fileSystem.getAsyncRunner();
-        return fileSystemAsyncRunner
-            .scheduleAsyncFunction(new Function0<AsyncFunction<T>>()
-            {
-                @Override
-                public AsyncFunction<T> run()
-                {
-                    return function.run(fileSystemAsyncRunner);
-                }
-            })
-            .thenOn(currentAsyncRunner);
+        return result == null ? null : currentAsyncRunner.<T>error(result.getError());
     }
 
     private static boolean containsInvalidCharacters(Path path)

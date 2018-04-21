@@ -123,11 +123,11 @@ public class Folder extends FileSystemEntry
         AsyncFunction<Result<Boolean>> result;
         if (relativeFolderPath == null)
         {
-            result = Async.error(currentAsyncRunner, new IllegalArgumentException("relativeFolderPath cannot be null."));
+            result = currentAsyncRunner.error(new IllegalArgumentException("relativeFolderPath cannot be null."));
         }
         else if (relativeFolderPath.isRooted())
         {
-            result = Async.error(currentAsyncRunner, new IllegalArgumentException("relativeFolderPath cannot be rooted."));
+            result = currentAsyncRunner.error(new IllegalArgumentException("relativeFolderPath cannot be rooted."));
         }
         else
         {
@@ -233,11 +233,11 @@ public class Folder extends FileSystemEntry
 
         if (relativeFilePath == null)
         {
-            result = Async.error(currentAsyncRunner, new IllegalArgumentException("relativeFilePath cannot be null."));
+            result = currentAsyncRunner.error(new IllegalArgumentException("relativeFilePath cannot be null."));
         }
         else if (relativeFilePath.isRooted())
         {
-            result = Async.error(currentAsyncRunner, new IllegalArgumentException("relativeFilePath cannot be rooted."));
+            result = currentAsyncRunner.error(new IllegalArgumentException("relativeFilePath cannot be rooted."));
         }
         else
         {
@@ -338,15 +338,16 @@ public class Folder extends FileSystemEntry
      */
     public AsyncFunction<Result<Folder>> createFolderAsync(Path relativeFolderPath)
     {
-        AsyncFunction<Result<Folder>> result;
+        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
 
+        AsyncFunction<Result<Folder>> result;
         if (relativeFolderPath == null)
         {
-            result = Async.error(getAsyncRunner(), new IllegalArgumentException("relativeFolderPath cannot be null."));
+            result = currentAsyncRunner.error(new IllegalArgumentException("relativeFolderPath cannot be null."));
         }
         else if (relativeFolderPath.isRooted())
         {
-            result = Async.error(getAsyncRunner(), new IllegalArgumentException("relativeFolderPath cannot be rooted."));
+            result = currentAsyncRunner.error(new IllegalArgumentException("relativeFolderPath cannot be rooted."));
         }
         else
         {
@@ -394,15 +395,16 @@ public class Folder extends FileSystemEntry
      */
     public AsyncFunction<Result<File>> createFileAsync(Path relativeFilePath)
     {
-        AsyncFunction<Result<File>> result;
+        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
 
+        AsyncFunction<Result<File>> result;
         if (relativeFilePath == null)
         {
-            result = Async.error(getAsyncRunner(), new IllegalArgumentException("relativeFilePath cannot be null."));
+            result = currentAsyncRunner.error(new IllegalArgumentException("relativeFilePath cannot be null."));
         }
         else if (relativeFilePath.isRooted())
         {
-            result = Async.error(getAsyncRunner(), new IllegalArgumentException("relativeFilePath cannot be rooted."));
+            result = currentAsyncRunner.error(new IllegalArgumentException("relativeFilePath cannot be rooted."));
         }
         else
         {

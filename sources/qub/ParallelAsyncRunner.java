@@ -1,11 +1,9 @@
 package qub;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
-public class ParallelAsyncRunner extends DisposableBase implements AsyncRunner
+public class ParallelAsyncRunner extends AsyncRunnerBase
 {
-    private final AtomicInteger scheduledTaskCount;
-    private final AtomicInteger runningTaskCount;
+    private final java.util.concurrent.atomic.AtomicInteger scheduledTaskCount;
+    private final java.util.concurrent.atomic.AtomicInteger runningTaskCount;
     private volatile boolean disposed;
 
     private final Action0 decrementScheduledTaskCount = new Action0()
@@ -19,8 +17,8 @@ public class ParallelAsyncRunner extends DisposableBase implements AsyncRunner
 
     public ParallelAsyncRunner()
     {
-        scheduledTaskCount = new AtomicInteger(0);
-        runningTaskCount = new AtomicInteger(0);
+        scheduledTaskCount = new java.util.concurrent.atomic.AtomicInteger(0);
+        runningTaskCount = new java.util.concurrent.atomic.AtomicInteger(0);
     }
 
     @Override
@@ -81,32 +79,6 @@ public class ParallelAsyncRunner extends DisposableBase implements AsyncRunner
             result = asyncFunction;
         }
         return result;
-    }
-
-    @Override
-    public AsyncAction scheduleAsyncAction(Function0<AsyncAction> function)
-    {
-        return schedule(new Action0()
-            {
-                @Override
-                public void run()
-                {
-                }
-            })
-            .thenAsyncAction(function);
-    }
-
-    @Override
-    public <T> AsyncFunction<T> scheduleAsyncFunction(Function0<AsyncFunction<T>> function)
-    {
-        return schedule(new Action0()
-            {
-                @Override
-                public void run()
-                {
-                }
-            })
-            .thenAsyncFunction(function);
     }
 
     @Override

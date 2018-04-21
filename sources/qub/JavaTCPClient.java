@@ -27,33 +27,36 @@ class JavaTCPClient extends AsyncDisposableBase implements TCPClient
 
     static AsyncFunction<Result<TCPClient>> createAsync(final Socket socket, final AsyncRunner asyncRunner)
     {
+        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+
         AsyncFunction<Result<TCPClient>> result;
 
         if (socket == null)
         {
-            result = Async.<TCPClient>error(asyncRunner, new IllegalArgumentException("socket cannot be null."));
+            result = currentAsyncRunner.error(new IllegalArgumentException("socket cannot be null."));
         }
         else
         {
             result = asyncRunner.schedule(new Function0<Result<TCPClient>>()
-            {
-                @Override
-                public Result<TCPClient> run()
                 {
-                    Result<TCPClient> result;
-                    try
+                    @Override
+                    public Result<TCPClient> run()
                     {
-                        final ByteReadStream socketReadStream = new InputStreamToByteReadStream(socket.getInputStream());
-                        final ByteWriteStream socketWriteStream = new OutputStreamToByteWriteStream(socket.getOutputStream());
-                        result = Result.<TCPClient>success(new JavaTCPClient(socket, asyncRunner, socketReadStream, socketWriteStream));
+                        Result<TCPClient> result;
+                        try
+                        {
+                            final ByteReadStream socketReadStream = new InputStreamToByteReadStream(socket.getInputStream());
+                            final ByteWriteStream socketWriteStream = new OutputStreamToByteWriteStream(socket.getOutputStream());
+                            result = Result.<TCPClient>success(new JavaTCPClient(socket, asyncRunner, socketReadStream, socketWriteStream));
+                        }
+                        catch (IOException e)
+                        {
+                            result = Result.error(e);
+                        }
+                        return result;
                     }
-                    catch (IOException e)
-                    {
-                        result = Result.<TCPClient>error(e);
-                    }
-                    return result;
-                }
-            });
+                })
+                .thenOn(currentAsyncRunner);
 
         }
 
@@ -67,38 +70,41 @@ class JavaTCPClient extends AsyncDisposableBase implements TCPClient
 
     static AsyncFunction<Result<TCPClient>> createAsync(final IPv4Address remoteIPAddress, final int remotePort, final AsyncRunner asyncRunner)
     {
+        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+
         AsyncFunction<Result<TCPClient>> result;
 
         if (remoteIPAddress == null)
         {
-            result = Async.<TCPClient>error(asyncRunner, new IllegalArgumentException("remoteIPAddress cannot be null."));
+            result = currentAsyncRunner.error(new IllegalArgumentException("remoteIPAddress cannot be null."));
         }
         else if (remotePort <= 0)
         {
-            result = Async.<TCPClient>error(asyncRunner, new IllegalArgumentException("remotePort must be greater than 0."));
+            result = currentAsyncRunner.error(new IllegalArgumentException("remotePort must be greater than 0."));
         }
         else
         {
             result = asyncRunner.schedule(new Function0<Result<TCPClient>>()
-            {
-                @Override
-                public Result<TCPClient> run()
                 {
-                    Result<TCPClient> result;
-                    try
+                    @Override
+                    public Result<TCPClient> run()
                     {
-                        final byte[] remoteIPAddressBytes = remoteIPAddress.toBytes();
-                        final InetAddress remoteInetAddress = InetAddress.getByAddress(remoteIPAddressBytes);
-                        final Socket socket = new Socket(remoteInetAddress, remotePort);
-                        result = JavaTCPClient.create(socket, asyncRunner);
+                        Result<TCPClient> result;
+                        try
+                        {
+                            final byte[] remoteIPAddressBytes = remoteIPAddress.toBytes();
+                            final InetAddress remoteInetAddress = InetAddress.getByAddress(remoteIPAddressBytes);
+                            final Socket socket = new Socket(remoteInetAddress, remotePort);
+                            result = JavaTCPClient.create(socket, asyncRunner);
+                        }
+                        catch (IOException e)
+                        {
+                            result = Result.error(e);
+                        }
+                        return result;
                     }
-                    catch (IOException e)
-                    {
-                        result = Result.error(e);
-                    }
-                    return result;
-                }
-            });
+                })
+                .thenOn(currentAsyncRunner);
         }
 
         return result;
@@ -378,14 +384,16 @@ class JavaTCPClient extends AsyncDisposableBase implements TCPClient
     @Override
     public AsyncFunction<Result<Boolean>> disposeAsync()
     {
+        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+
         AsyncFunction<Result<Boolean>> result;
         if (isDisposed())
         {
-            result = Async.success(AsyncRunnerRegistry.getCurrentThreadAsyncRunner(), false);
+            result = currentAsyncRunner.success(false);
         }
         else
         {
-            result = Async.invokeOn(asyncRunner, new Function0<Result<Boolean>>()
+            result = asyncRunner.schedule(new Function0<Result<Boolean>>()
                 {
                     @Override
                     public Result<Boolean> run()
@@ -398,11 +406,12 @@ class JavaTCPClient extends AsyncDisposableBase implements TCPClient
                         }
                         catch (IOException e)
                         {
-                            result = Result.<Boolean>error(e);
+                            result = Result.error(e);
                         }
                         return result;
                     }
-                });
+                })
+                .thenOn(currentAsyncRunner);
         }
         return result;
     }

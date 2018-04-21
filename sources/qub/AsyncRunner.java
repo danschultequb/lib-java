@@ -59,14 +59,34 @@ public interface AsyncRunner extends Disposable
     void schedule(PausedAsyncTask asyncTask);
 
     /**
-     * Create an AsyncFunction that returns a successful Return object with no value.
-     * @return An AsyncFunction that returns a successful Return object with no value.
+     * Create an AsyncFunction that returns a successful Result.
+     * @param <T> The type of Result to return.
+     * @return An AsyncFunction that returns a successful Result.
      */
-    //AsyncFunction<Result> success();
+    <T> AsyncFunction<Result<T>> success();
 
     /**
-     * Create an AsyncFunction that returns a successful Return object with the provided value.
-     * @return An AsyncFunction that returns a successful Return object with the provided value.
+     * Create an AsyncFunction that returns a successful Result with the provided value.
+     * @param value The value to set in the Result.
+     * @param <T> The type of the value.
+     * @return An AsyncFunction that returns a successful Result with the provided value.
      */
-    //<T> AsyncFunction<Result<T>> success(T value);
+    <T> AsyncFunction<Result<T>> success(T value);
+
+    /**
+     * Create an AsyncFunction that returns an error Result with the provided error.
+     * @param error The error.
+     * @param <T> The type of value that the result would contain if it were successful.
+     * @return An AsyncFunction that returns an error Result with the provided error.
+     */
+    <T> AsyncFunction<Result<T>> error(Throwable error);
+
+    /**
+     * Create an AsyncFunction that returns a Result with the provided value and error.
+     * @param value The value to set in the Result.
+     * @param error The error to set in the Result.
+     * @param <T> The type of the value.
+     * @return An AsyncFunction that returns a Result with the provided value and error.
+     */
+    <T> AsyncFunction<Result<T>> done(T value, Throwable error);
 }

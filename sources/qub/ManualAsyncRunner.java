@@ -1,6 +1,6 @@
 package qub;
 
-public class ManualAsyncRunner extends DisposableBase implements AsyncRunner
+public class ManualAsyncRunner extends AsyncRunnerBase
 {
     private final LockedQueue<PausedAsyncTask> scheduledTasks;
     private boolean disposed;
@@ -52,32 +52,6 @@ public class ManualAsyncRunner extends DisposableBase implements AsyncRunner
     }
 
     @Override
-    public AsyncAction scheduleAsyncAction(Function0<AsyncAction> function)
-    {
-        return schedule(new Action0()
-            {
-                @Override
-                public void run()
-                {
-                }
-            })
-            .thenAsyncAction(function);
-    }
-
-    @Override
-    public <T> AsyncFunction<T> scheduleAsyncFunction(Function0<AsyncFunction<T>> function)
-    {
-        return schedule(new Action0()
-            {
-                @Override
-                public void run()
-                {
-                }
-            })
-            .thenAsyncFunction(function);
-    }
-
-    @Override
     public void await()
     {
         while (scheduledTasks.any())
@@ -90,9 +64,9 @@ public class ManualAsyncRunner extends DisposableBase implements AsyncRunner
     @Override
     public void await(AsyncTask asyncTask)
     {
-        if (!asyncTask.isCompleted() && asyncTask.getAsyncRunner() == this)
+        if (!asyncTask.isCompleted())
         {
-            if (AsyncRunnerRegistry.getCurrentThreadAsyncRunner() == this)
+            if (asyncTask.getAsyncRunner() == this && AsyncRunnerRegistry.getCurrentThreadAsyncRunner() == this)
             {
                 // If the thread that is running this is the same thread that this ManualAsyncRunner
                 // is using, then let's help it along by executing the scheduled tasks until the

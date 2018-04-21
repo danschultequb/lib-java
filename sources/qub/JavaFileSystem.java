@@ -31,24 +31,27 @@ public class JavaFileSystem extends FileSystemBase
     @Override
     public AsyncFunction<Result<Iterable<Root>>> getRootsAsync()
     {
-        return async(this, new Function1<AsyncRunner, Result<Iterable<Root>>>()
-        {
-            @Override
-            public Result<Iterable<Root>> run(AsyncRunner asyncRunner)
+        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+        return asyncRunner.schedule(new Function0<Result<Iterable<Root>>>()
             {
-                return Result.<Iterable<Root>>success(Array.fromValues(java.io.File.listRoots())
-                    .map(new Function1<java.io.File, Root>()
-                    {
-                        @Override
-                        public Root run(java.io.File root)
+                @Override
+                public Result<Iterable<Root>> run()
+                {
+                    final java.io.File[] javaRoots = java.io.File.listRoots();
+                    return Result.<Iterable<Root>>success(Array.fromValues(javaRoots)
+                        .map(new Function1<java.io.File, Root>()
                         {
-                            final String rootPathString = root.getAbsolutePath();
-                            final String trimmedRootPathString = rootPathString.equals("/") ? rootPathString : rootPathString.substring(0, rootPathString.length() - 1);
-                            return JavaFileSystem.this.getRoot(trimmedRootPathString).getValue();
-                        }
-                    }));
-            }
-        });
+                            @Override
+                            public Root run(java.io.File root)
+                            {
+                                final String rootPathString = root.getAbsolutePath();
+                                final String trimmedRootPathString = rootPathString.equals("/") ? rootPathString : rootPathString.substring(0, rootPathString.length() - 1);
+                                return JavaFileSystem.this.getRoot(trimmedRootPathString).getValue();
+                            }
+                        }));
+                }
+            })
+            .thenOn(currentAsyncRunner);
     }
 
     @Override
@@ -56,11 +59,10 @@ public class JavaFileSystem extends FileSystemBase
     {
         final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
 
-        AsyncFunction<Result<Iterable<FileSystemEntry>>> result = FileSystemBase.validateRootedFolderPathAsync(currentAsyncRunner, rootedFolderPath);
+        AsyncFunction<Result<Iterable<FileSystemEntry>>> result = FileSystemBase.validateRootedFolderPathAsync(rootedFolderPath);
         if (result == null)
         {
-            final AsyncRunner fileSystemAsyncRunner = getAsyncRunner();
-            result = fileSystemAsyncRunner.schedule(new Function0<Result<Iterable<FileSystemEntry>>>()
+            result = asyncRunner.schedule(new Function0<Result<Iterable<FileSystemEntry>>>()
                 {
                     @Override
                     public Result<Iterable<FileSystemEntry>> run()
@@ -120,11 +122,10 @@ public class JavaFileSystem extends FileSystemBase
     {
         final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
 
-        AsyncFunction<Result<Boolean>> result = FileSystemBase.validateRootedFolderPathAsync(currentAsyncRunner, rootedFolderPath);
+        AsyncFunction<Result<Boolean>> result = FileSystemBase.validateRootedFolderPathAsync(rootedFolderPath);
         if (result == null)
         {
-            final AsyncRunner fileSystemAsyncRunner = getAsyncRunner();
-            result = fileSystemAsyncRunner.schedule(new Function0<Result<Boolean>>()
+            result = asyncRunner.schedule(new Function0<Result<Boolean>>()
                 {
                     @Override
                     public Result<Boolean> run()
@@ -144,11 +145,10 @@ public class JavaFileSystem extends FileSystemBase
     {
         final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
 
-        AsyncFunction<Result<Folder>> result = FileSystemBase.validateRootedFolderPathAsync(currentAsyncRunner, rootedFolderPath);
+        AsyncFunction<Result<Folder>> result = FileSystemBase.validateRootedFolderPathAsync(rootedFolderPath);
         if (result == null)
         {
-            final AsyncRunner fileSystemAsyncRunner = getAsyncRunner();
-            result = fileSystemAsyncRunner.schedule(new Function0<Result<Folder>>()
+            result = asyncRunner.schedule(new Function0<Result<Folder>>()
                 {
                     @Override
                     public Result<Folder> run()
@@ -186,11 +186,10 @@ public class JavaFileSystem extends FileSystemBase
     {
         final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
 
-        AsyncFunction<Result<Boolean>> result = FileSystemBase.validateRootedFolderPathAsync(currentAsyncRunner, rootedFolderPath);
+        AsyncFunction<Result<Boolean>> result = FileSystemBase.validateRootedFolderPathAsync(rootedFolderPath);
         if (result == null)
         {
-            final AsyncRunner fileSystemAsyncRunner = getAsyncRunner();
-            result = fileSystemAsyncRunner.schedule(new Function0<Result<Boolean>>()
+            result = asyncRunner.schedule(new Function0<Result<Boolean>>()
                 {
                     @Override
                     public Result<Boolean> run()
@@ -254,18 +253,18 @@ public class JavaFileSystem extends FileSystemBase
     {
         final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
 
-        AsyncFunction<Result<Boolean>> result = FileSystemBase.validateRootedFilePathAsync(currentAsyncRunner, rootedFilePath);
+        AsyncFunction<Result<Boolean>> result = FileSystemBase.validateRootedFilePathAsync(rootedFilePath);
         if (result == null)
         {
-            final AsyncRunner fileSystemAsyncRunner = getAsyncRunner();
-            result = fileSystemAsyncRunner.schedule(new Function0<Result<Boolean>>()
-            {
-                @Override
-                public Result<Boolean> run()
+            result = asyncRunner.schedule(new Function0<Result<Boolean>>()
                 {
-                    return Result.success(java.nio.file.Files.isRegularFile(java.nio.file.Paths.get(rootedFilePath.toString())));
-                }
-            });
+                    @Override
+                    public Result<Boolean> run()
+                    {
+                        return Result.success(java.nio.file.Files.isRegularFile(java.nio.file.Paths.get(rootedFilePath.toString())));
+                    }
+                })
+                .thenOn(currentAsyncRunner);
         }
         return result;
     }
@@ -275,11 +274,10 @@ public class JavaFileSystem extends FileSystemBase
     {
         final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
 
-        AsyncFunction<Result<File>> result = FileSystemBase.validateRootedFilePathAsync(currentAsyncRunner, rootedFilePath);
+        AsyncFunction<Result<File>> result = FileSystemBase.validateRootedFilePathAsync(rootedFilePath);
         if (result == null)
         {
-            final AsyncRunner fileSystemAsyncRunner = getAsyncRunner();
-            result = fileSystemAsyncRunner.schedule(new Function0<Result<File>>()
+            result = asyncRunner.schedule(new Function0<Result<File>>()
                 {
                     @Override
                     public Result<File> run()
@@ -322,11 +320,10 @@ public class JavaFileSystem extends FileSystemBase
     {
         final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
 
-        AsyncFunction<Result<Boolean>> result = FileSystemBase.validateRootedFilePathAsync(currentAsyncRunner, rootedFilePath);
+        AsyncFunction<Result<Boolean>> result = FileSystemBase.validateRootedFilePathAsync(rootedFilePath);
         if (result == null)
         {
-            final AsyncRunner fileSystemAsyncRunner = getAsyncRunner();
-            result = fileSystemAsyncRunner.schedule(new Function0<Result<Boolean>>()
+            result = asyncRunner.schedule(new Function0<Result<Boolean>>()
                 {
                     @Override
                     public Result<Boolean> run()
@@ -359,11 +356,10 @@ public class JavaFileSystem extends FileSystemBase
     {
         final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
 
-        AsyncFunction<Result<DateTime>> result = FileSystemBase.validateRootedFilePathAsync(currentAsyncRunner, rootedFilePath);
+        AsyncFunction<Result<DateTime>> result = FileSystemBase.validateRootedFilePathAsync(rootedFilePath);
         if (result == null)
         {
-            final AsyncRunner fileSystemAsyncRunner = getAsyncRunner();
-            result = fileSystemAsyncRunner.schedule(new Function0<Result<DateTime>>()
+            result = asyncRunner.schedule(new Function0<Result<DateTime>>()
                 {
                     @Override
                     public Result<DateTime> run()
@@ -396,11 +392,10 @@ public class JavaFileSystem extends FileSystemBase
     {
         final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
 
-        AsyncFunction<Result<ByteReadStream>> result = FileSystemBase.validateRootedFilePathAsync(currentAsyncRunner, rootedFilePath);
+        AsyncFunction<Result<ByteReadStream>> result = FileSystemBase.validateRootedFilePathAsync(rootedFilePath);
         if (result == null)
         {
-            final AsyncRunner fileSystemAsyncRunner = getAsyncRunner();
-            result = fileSystemAsyncRunner.schedule(new Function0<Result<ByteReadStream>>()
+            result = asyncRunner.schedule(new Function0<Result<ByteReadStream>>()
                 {
                     @Override
                     public Result<ByteReadStream> run()
@@ -435,11 +430,10 @@ public class JavaFileSystem extends FileSystemBase
     {
         final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
 
-        AsyncFunction<Result<ByteWriteStream>> result = FileSystemBase.validateRootedFilePathAsync(currentAsyncRunner, rootedFilePath);
+        AsyncFunction<Result<ByteWriteStream>> result = FileSystemBase.validateRootedFilePathAsync(rootedFilePath);
         if (result == null)
         {
-            final AsyncRunner fileSystemAsyncRunner = getAsyncRunner();
-            result = fileSystemAsyncRunner.schedule(new Function0<Result<ByteWriteStream>>()
+            result = asyncRunner.schedule(new Function0<Result<ByteWriteStream>>()
                 {
                     @Override
                     public Result<ByteWriteStream> run()
