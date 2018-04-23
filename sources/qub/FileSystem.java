@@ -96,31 +96,31 @@ public interface FileSystem
 
     /**
      * Get the files and folders (entries) at the provided folder path and its subfolders.
-     * @param folderPath The path to the folder (Root or Folder).
+     * @param rootedFolderPath The path to the folder (Root or Folder).
      * @return The files and folders (entries) at the provided folder path and its subfolders.
      */
-    Result<Iterable<FileSystemEntry>> getFilesAndFoldersRecursively(String folderPath);
+    Result<Iterable<FileSystemEntry>> getFilesAndFoldersRecursively(String rootedFolderPath);
 
     /**
      * Get the files and folders (entries) at the provided folder path and its subfolders.
-     * @param folderPath The path to the folder (Root or Folder).
+     * @param rootedFolderPath The path to the folder (Root or Folder).
      * @return The files and folders (entries) at the provided folder path and its subfolders.
      */
-    Result<Iterable<FileSystemEntry>> getFilesAndFoldersRecursively(Path folderPath);
+    Result<Iterable<FileSystemEntry>> getFilesAndFoldersRecursively(Path rootedFolderPath);
 
     /**
      * Get the files and folders (entries) at the provided folder path and its subfolders.
-     * @param folderPath The path to the folder (Root or Folder).
+     * @param rootedFolderPath The path to the folder (Root or Folder).
      * @return The files and folders (entries) at the provided folder path and its subfolders.
      */
-    AsyncFunction<Result<Iterable<FileSystemEntry>>> getFilesAndFoldersRecursivelyAsync(String folderPath);
+    AsyncFunction<Result<Iterable<FileSystemEntry>>> getFilesAndFoldersRecursivelyAsync(String rootedFolderPath);
 
     /**
      * Get the files and folders (entries) at the provided folder path and its subfolders.
-     * @param folderPath The path to the folder (Root or Folder).
+     * @param rootedFolderPath The path to the folder (Root or Folder).
      * @return The files and folders (entries) at the provided folder path and its subfolders.
      */
-    AsyncFunction<Result<Iterable<FileSystemEntry>>> getFilesAndFoldersRecursivelyAsync(Path folderPath);
+    AsyncFunction<Result<Iterable<FileSystemEntry>>> getFilesAndFoldersRecursivelyAsync(Path rootedFolderPath);
 
     /**
      * Get the folders at the provided folder path.
