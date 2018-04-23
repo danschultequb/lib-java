@@ -5,7 +5,7 @@ public class BasicAsyncFunction<T> extends BasicAsyncTask implements AsyncFuncti
     private final Function0<T> function;
     private final Value<T> functionResult;
 
-    public BasicAsyncFunction(Getable<AsyncRunner> runner, Iterable<AsyncTask> parentTasks, Function0<T> function)
+    public BasicAsyncFunction(Getable<AsyncRunner> runner, Indexable<AsyncTask> parentTasks, Function0<T> function)
     {
         super(runner, parentTasks);
 

@@ -4,7 +4,7 @@ public class BasicAsyncAction extends BasicAsyncTask implements AsyncAction
 {
     private final Action0 action;
 
-    BasicAsyncAction(Getable<AsyncRunner> runner, Iterable<AsyncTask> parentTasks, Action0 action)
+    BasicAsyncAction(Getable<AsyncRunner> runner, Indexable<AsyncTask> parentTasks, Action0 action)
     {
         super(runner, parentTasks);
 

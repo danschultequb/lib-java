@@ -3,14 +3,14 @@ package qub;
 public abstract class BasicAsyncTask implements PausedAsyncTask
 {
     private final Getable<AsyncRunner> asyncRunner;
-    private final Iterable<AsyncTask> parentTasks;
+    private final Indexable<AsyncTask> parentTasks;
     private final List<BasicAsyncTask> pausedTasks;
     private volatile Action0 afterChildTasksScheduledBeforeCompletedAction;
     private volatile Throwable incomingError;
     private volatile Throwable outgoingError;
     private volatile boolean completed;
 
-    BasicAsyncTask(Getable<AsyncRunner> asyncRunner, Iterable<AsyncTask> parentTask)
+    BasicAsyncTask(Getable<AsyncRunner> asyncRunner, Indexable<AsyncTask> parentTask)
     {
         this.asyncRunner = asyncRunner;
         this.parentTasks = parentTask;
@@ -29,7 +29,7 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
     }
 
     @Override
-    public Iterable<AsyncTask> getParentTasks()
+    public Indexable<AsyncTask> getParentTasks()
     {
         return parentTasks;
     }
@@ -45,8 +45,10 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
     {
         if (!isCompleted())
         {
-            for (final AsyncTask parentTask : getParentTasks())
+            final Indexable<AsyncTask> parentTasks = getParentTasks();
+            for (int i = 0; i < parentTasks.getCount(); ++i)
             {
+                final AsyncTask parentTask = parentTasks.get(i);
                 parentTask.await();
             }
             getAsyncRunner().await(this);

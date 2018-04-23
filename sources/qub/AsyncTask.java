@@ -15,7 +15,7 @@ public interface AsyncTask
      * Get the parent tasks that must be run before this AsyncTask can be run.
      * @return The parent tasks that must be run before this AsyncTask can be run.
      */
-    Iterable<AsyncTask> getParentTasks();
+    Indexable<AsyncTask> getParentTasks();
 
     /**
      * Get whether or not this AsyncAction has been run.
