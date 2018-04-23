@@ -112,65 +112,46 @@ public class InMemoryFileSystem extends FileSystemBase
     }
 
     @Override
-    public AsyncFunction<Result<Iterable<Root>>> getRootsAsync()
+    public Result<Iterable<Root>> getRoots()
     {
-        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        return asyncRunner.schedule(new Function0<Result<Iterable<Root>>>()
+        return Result.<Iterable<Root>>success(roots.map(new Function1<InMemoryRoot, Root>()
             {
                 @Override
-                public Result<Iterable<Root>> run()
+                public Root run(InMemoryRoot inMemoryRoot)
                 {
-                    return Result.<Iterable<Root>>success(roots.map(new Function1<InMemoryRoot, Root>()
-                    {
-                        @Override
-                        public Root run(InMemoryRoot inMemoryRoot)
-                        {
-                            return new Root(InMemoryFileSystem.this, inMemoryRoot.getPath());
-                        }
-                    }));
+                    return new Root(InMemoryFileSystem.this, inMemoryRoot.getPath());
                 }
-            })
-            .thenOn(currentAsyncRunner);
+            }));
     }
 
     @Override
-    public AsyncFunction<Result<Iterable<FileSystemEntry>>> getFilesAndFoldersAsync(final Path rootedFolderPath)
+    public Result<Iterable<FileSystemEntry>> getFilesAndFolders(Path rootedFolderPath)
     {
-        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-
-        AsyncFunction<Result<Iterable<FileSystemEntry>>> result = validateRootedFolderPathAsync(rootedFolderPath);
+        Result<Iterable<FileSystemEntry>> result = validateRootedFolderPath(rootedFolderPath);
         if (result == null)
         {
             final InMemoryFolder folder = getInMemoryFolder(rootedFolderPath);
             if (folder == null)
             {
-                result = currentAsyncRunner.error(new FolderNotFoundException(rootedFolderPath));
+                result = Result.error(new FolderNotFoundException(rootedFolderPath));
             }
             else
             {
-                result = asyncRunner.schedule(new Function0<Result<Iterable<FileSystemEntry>>>()
-                    {
-                        @Override
-                        public Result<Iterable<FileSystemEntry>> run()
-                        {
-                            final List<FileSystemEntry> entries = new ArrayList<>();
+                final List<FileSystemEntry> entries = new ArrayList<>();
 
-                            for (final InMemoryFolder inMemoryFolder : folder.getFolders())
-                            {
-                                final Path childFolderPath = rootedFolderPath.concatenateSegment(inMemoryFolder.getName());
-                                entries.add(new Folder(InMemoryFileSystem.this, childFolderPath));
-                            }
+                for (final InMemoryFolder inMemoryFolder : folder.getFolders())
+                {
+                    final Path childFolderPath = rootedFolderPath.concatenateSegment(inMemoryFolder.getName());
+                    entries.add(new Folder(InMemoryFileSystem.this, childFolderPath));
+                }
 
-                            for (final InMemoryFile inMemoryFile : folder.getFiles())
-                            {
-                                final Path childFilePath = rootedFolderPath.concatenateSegment(inMemoryFile.getName());
-                                entries.add(new File(InMemoryFileSystem.this, childFilePath));
-                            }
+                for (final InMemoryFile inMemoryFile : folder.getFiles())
+                {
+                    final Path childFilePath = rootedFolderPath.concatenateSegment(inMemoryFile.getName());
+                    entries.add(new File(InMemoryFileSystem.this, childFilePath));
+                }
 
-                            return Result.<Iterable<FileSystemEntry>>success(entries);
-                        }
-                    })
-                    .thenOn(currentAsyncRunner);
+                result = Result.<Iterable<FileSystemEntry>>success(entries);
             }
         }
         return result;

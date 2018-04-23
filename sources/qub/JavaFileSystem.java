@@ -2,13 +2,9 @@ package qub;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.file.FileVisitResult;
-import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardOpenOption;
-import java.nio.file.attribute.BasicFileAttributes;
 
 /**
  * A FileSystem implementation that interacts with a typical Windows, Linux, or MacOS device.
@@ -29,90 +25,66 @@ public class JavaFileSystem extends FileSystemBase
     }
 
     @Override
-    public AsyncFunction<Result<Iterable<Root>>> getRootsAsync()
+    public Result<Iterable<Root>> getRoots()
     {
-        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        return asyncRunner.schedule(new Function0<Result<Iterable<Root>>>()
+        final Iterable<java.io.File> javaRoots = Array.fromValues(java.io.File.listRoots());
+        return Result.success(javaRoots.map(new Function1<java.io.File, Root>()
             {
                 @Override
-                public Result<Iterable<Root>> run()
+                public Root run(java.io.File root)
                 {
-                    final java.io.File[] javaRoots = java.io.File.listRoots();
-                    return Result.<Iterable<Root>>success(Array.fromValues(javaRoots)
-                        .map(new Function1<java.io.File, Root>()
-                        {
-                            @Override
-                            public Root run(java.io.File root)
-                            {
-                                final String rootPathString = root.getAbsolutePath();
-                                final String trimmedRootPathString = rootPathString.equals("/") ? rootPathString : rootPathString.substring(0, rootPathString.length() - 1);
-                                return JavaFileSystem.this.getRoot(trimmedRootPathString).getValue();
-                            }
-                        }));
+                    final String rootPathString = root.getAbsolutePath();
+                    final String trimmedRootPathString = rootPathString.equals("/") ? rootPathString : rootPathString.substring(0, rootPathString.length() - 1);
+                    return JavaFileSystem.this.getRoot(trimmedRootPathString).getValue();
                 }
-            })
-            .thenOn(currentAsyncRunner);
+            }));
     }
 
     @Override
-    public AsyncFunction<Result<Iterable<FileSystemEntry>>> getFilesAndFoldersAsync(final Path rootedFolderPath)
+    public Result<Iterable<FileSystemEntry>> getFilesAndFolders(final Path rootedFolderPath)
     {
-        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-
-        AsyncFunction<Result<Iterable<FileSystemEntry>>> result = FileSystemBase.validateRootedFolderPathAsync(rootedFolderPath);
+        Result<Iterable<FileSystemEntry>> result = FileSystemBase.validateRootedFolderPath(rootedFolderPath);
         if (result == null)
         {
-            result = asyncRunner.schedule(new Function0<Result<Iterable<FileSystemEntry>>>()
+            Array<FileSystemEntry> filesAndFolders;
+
+            final java.io.File containerFile = new java.io.File(rootedFolderPath.toString());
+            final java.io.File[] containerEntryFiles = containerFile.listFiles();
+            if (containerEntryFiles == null)
+            {
+                result = Result.error(new FolderNotFoundException(rootedFolderPath));
+            }
+            else
+            {
+                final List<Folder> folders = new ArrayList<>();
+                final List<File> files = new ArrayList<>();
+                for (final java.io.File containerEntryFile : containerEntryFiles)
                 {
-                    @Override
-                    public Result<Iterable<FileSystemEntry>> run()
+                    final String containerEntryPathString = containerEntryFile.getAbsolutePath();
+                    final Path containerEntryPath = Path.parse(containerEntryPathString).normalize();
+                    if (containerEntryFile.isFile())
                     {
-                        Result<Iterable<FileSystemEntry>> result;
-
-                        Array<FileSystemEntry> filesAndFolders;
-
-                        final java.io.File containerFile = new java.io.File(rootedFolderPath.toString());
-                        final java.io.File[] containerEntryFiles = containerFile.listFiles();
-                        if (containerEntryFiles == null)
-                        {
-                            result = Result.error(new FolderNotFoundException(rootedFolderPath));
-                        }
-                        else
-                        {
-                            final List<Folder> folders = new ArrayList<>();
-                            final List<File> files = new ArrayList<>();
-                            for (final java.io.File containerEntryFile : containerEntryFiles)
-                            {
-                                final String containerEntryPathString = containerEntryFile.getAbsolutePath();
-                                final Path containerEntryPath = Path.parse(containerEntryPathString).normalize();
-                                if (containerEntryFile.isFile())
-                                {
-                                    files.add(getFile(containerEntryPath).getValue());
-                                }
-                                else if (containerEntryFile.isDirectory())
-                                {
-                                    folders.add(getFolder(containerEntryPath).getValue());
-                                }
-                            }
-
-                            filesAndFolders = new Array<>(containerEntryFiles.length);
-                            final int foldersCount = folders.getCount();
-                            for (int i = 0; i < foldersCount; ++i)
-                            {
-                                filesAndFolders.set(i, folders.get(i));
-                            }
-                            for (int i = 0; i < files.getCount(); ++i)
-                            {
-                                filesAndFolders.set(i + foldersCount, files.get(i));
-                            }
-
-                            result = Result.<Iterable<FileSystemEntry>>success(filesAndFolders);
-                        }
-
-                        return result;
+                        files.add(getFile(containerEntryPath).getValue());
                     }
-                })
-                .thenOn(currentAsyncRunner);
+                    else if (containerEntryFile.isDirectory())
+                    {
+                        folders.add(getFolder(containerEntryPath).getValue());
+                    }
+                }
+
+                filesAndFolders = new Array<>(containerEntryFiles.length);
+                final int foldersCount = folders.getCount();
+                for (int i = 0; i < foldersCount; ++i)
+                {
+                    filesAndFolders.set(i, folders.get(i));
+                }
+                for (int i = 0; i < files.getCount(); ++i)
+                {
+                    filesAndFolders.set(i + foldersCount, files.get(i));
+                }
+
+                result = Result.<Iterable<FileSystemEntry>>success(filesAndFolders);
+            }
         }
         return result;
     }

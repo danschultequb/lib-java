@@ -104,50 +104,44 @@ public class FolderFileSystem extends FileSystemBase
     }
 
     @Override
-    public AsyncFunction<Result<Iterable<Root>>> getRootsAsync()
+    public Result<Iterable<Root>> getRoots()
     {
-        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        return currentAsyncRunner.<Iterable<Root>>success(Array.fromValues(new Root[]
+        return Result.<Iterable<Root>>success(Array.fromValues(new Root[]
         {
             new Root(this, Path.parse("/"))
         }));
     }
 
     @Override
-    public AsyncFunction<Result<Iterable<FileSystemEntry>>> getFilesAndFoldersAsync(Path folderPath)
+    public Result<Iterable<FileSystemEntry>> getFilesAndFolders(Path folderPath)
     {
-        return innerFileSystem.getFilesAndFoldersAsync(getInnerPath(folderPath))
-            .then(new Function1<Result<Iterable<FileSystemEntry>>, Result<Iterable<FileSystemEntry>>>()
+        final Path innerFolderPath = getInnerPath(folderPath);
+        final Result<Iterable<FileSystemEntry>> innerResult = innerFileSystem.getFilesAndFolders(innerFolderPath);
+
+        final Iterable<FileSystemEntry> innerEntries = innerResult.getValue();
+        final Iterable<FileSystemEntry> resultEntries = innerEntries == null ? null : innerEntries.map(new Function1<FileSystemEntry,FileSystemEntry>()
+        {
+            @Override
+            public FileSystemEntry run(FileSystemEntry innerEntry)
             {
-                @Override
-                public Result<Iterable<FileSystemEntry>> run(Result<Iterable<FileSystemEntry>> getFilesAndFoldersResult)
-                {
-                    final Iterable<FileSystemEntry> entries = getFilesAndFoldersResult.getValue();
-                    final Iterable<FileSystemEntry> resultEntries = entries == null ? null : entries.map(new Function1<FileSystemEntry,FileSystemEntry>()
-                    {
-                        @Override
-                        public FileSystemEntry run(FileSystemEntry innerEntry)
-                        {
-                            final Path outerEntryPath = FolderFileSystem.this.getOuterPath(innerEntry.getPath());
-                            return innerEntry instanceof File ? new File(FolderFileSystem.this, outerEntryPath) : new Folder(FolderFileSystem.this, outerEntryPath);
-                        }
-                    });
+                final Path outerEntryPath = FolderFileSystem.this.getOuterPath(innerEntry.getPath());
+                return innerEntry instanceof File ? new File(FolderFileSystem.this, outerEntryPath) : new Folder(FolderFileSystem.this, outerEntryPath);
+            }
+        });
 
-                    final Throwable error = getFilesAndFoldersResult.getError();
-                    Throwable resultError;
-                    if (error instanceof FolderNotFoundException)
-                    {
-                        final Path outerPath = getOuterPath(((FolderNotFoundException)error).getFolderPath());
-                        resultError = new FolderNotFoundException(outerPath);
-                    }
-                    else
-                    {
-                        resultError = error;
-                    }
+        final Throwable innerError = innerResult.getError();
+        Throwable resultError;
+        if (innerError instanceof FolderNotFoundException)
+        {
+            final Path outerPath = getOuterPath(((FolderNotFoundException)innerError).getFolderPath());
+            resultError = new FolderNotFoundException(outerPath);
+        }
+        else
+        {
+            resultError = innerError;
+        }
 
-                    return Result.done(resultEntries, resultError);
-                }
-            });
+        return Result.done(resultEntries, resultError);
     }
 
     @Override
