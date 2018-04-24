@@ -145,188 +145,142 @@ public class FolderFileSystem extends FileSystemBase
     }
 
     @Override
-    public AsyncFunction<Result<Boolean>> folderExistsAsync(Path folderPath)
+    public Result<Boolean> folderExists(Path rootedFolderPath)
     {
-        return innerFileSystem.folderExistsAsync(getInnerPath(folderPath));
+        return innerFileSystem.folderExists(getInnerPath(rootedFolderPath));
     }
 
     @Override
-    public AsyncFunction<Result<Folder>> createFolderAsync(final Path rootedFolderPath)
+    public Result<Folder> createFolder(Path rootedFolderPath)
     {
-        AsyncFunction<Result<Folder>> result = validateRootedFolderPathAsync(rootedFolderPath);
+        Result<Folder> result = FileSystemBase.validateRootedFolderPath(rootedFolderPath);
         if (result == null)
         {
-            result = innerFileSystem.createFolderAsync(getInnerPath(rootedFolderPath))
-                .then(new Function1<Result<Folder>, Result<Folder>>()
-                {
-                    @Override
-                    public Result<Folder> run(Result<Folder> createFolderResult)
-                    {
-                        final Folder createdFolder = createFolderResult.getValue();
-                        final Folder resultFolder = (createdFolder == null ? null : new Folder(FolderFileSystem.this, getOuterPath(createdFolder.getPath())));
+            final Result<Folder> innerResult = innerFileSystem.createFolder(getInnerPath(rootedFolderPath));
 
-                        final Throwable error = createFolderResult.getError();
-                        Throwable resultError;
-                        if (error instanceof FolderAlreadyExistsException)
-                        {
-                            final Path outerPath = getOuterPath(((FolderAlreadyExistsException)error).getFolderPath());
-                            resultError = new FolderAlreadyExistsException(outerPath);
-                        }
-                        else
-                        {
-                            resultError = error;
-                        }
+            final Folder createdFolder = innerResult.getValue();
+            final Folder resultFolder = (createdFolder == null ? null : new Folder(FolderFileSystem.this, getOuterPath(createdFolder.getPath())));
 
-                        return Result.done(resultFolder, resultError);
-                    }
-                });
+            final Throwable error = innerResult.getError();
+            Throwable resultError;
+            if (error instanceof FolderAlreadyExistsException)
+            {
+                final Path outerPath = getOuterPath(((FolderAlreadyExistsException)error).getFolderPath());
+                resultError = new FolderAlreadyExistsException(outerPath);
+            }
+            else
+            {
+                resultError = error;
+            }
+
+            result = Result.done(resultFolder, resultError);
         }
 
         return result;
     }
 
     @Override
-    public AsyncFunction<Result<Boolean>> deleteFolderAsync(Path rootedFolderPath)
+    public Result<Boolean> deleteFolder(Path rootedFolderPath)
     {
-        AsyncFunction<Result<Boolean>> result = validateRootedFolderPathAsync(rootedFolderPath);
+        Result<Boolean> result = FileSystemBase.validateRootedFolderPath(rootedFolderPath);
         if (result == null)
         {
-            result = innerFileSystem.deleteFolderAsync(getInnerPath(rootedFolderPath))
-                .then(new Function1<Result<Boolean>, Result<Boolean>>()
-                {
-                    @Override
-                    public Result<Boolean> run(Result<Boolean> deleteFolderResult)
-                    {
-                        Result<Boolean> result = deleteFolderResult;
-                        if (result.getError() instanceof FolderNotFoundException)
-                        {
-                            final Path outerFolderPath = getOuterPath(((FolderNotFoundException)result.getError()).getFolderPath());
-                            result = Result.done(
-                                deleteFolderResult.getValue(),
-                                new FolderNotFoundException(outerFolderPath));
-                        }
-                        return result;
-                    }
-                });
+            result = innerFileSystem.deleteFolder(getInnerPath(rootedFolderPath));
+            if (result.getError() instanceof FolderNotFoundException)
+            {
+                final Path outerFolderPath = getOuterPath(((FolderNotFoundException)result.getError()).getFolderPath());
+                result = Result.done(
+                    result.getValue(),
+                    new FolderNotFoundException(outerFolderPath));
+            }
         }
 
         return result;
     }
 
     @Override
-    public AsyncFunction<Result<Boolean>> fileExistsAsync(Path rootedFilePath)
+    public Result<Boolean> fileExists(Path rootedFilePath)
     {
-        AsyncFunction<Result<Boolean>> result = validateRootedFilePathAsync(rootedFilePath);
+        Result<Boolean> result = validateRootedFilePath(rootedFilePath);
         if (result == null)
         {
-            result = innerFileSystem.fileExistsAsync(getInnerPath(rootedFilePath));
+            result = innerFileSystem.fileExists(getInnerPath(rootedFilePath));
         }
-
         return result;
     }
 
     @Override
-    public AsyncFunction<Result<File>> createFileAsync(final Path rootedFilePath)
+    public Result<File> createFile(Path rootedFilePath)
     {
-        AsyncFunction<Result<File>> result = validateRootedFilePathAsync(rootedFilePath);
+        Result<File> result = FileSystemBase.validateRootedFilePath(rootedFilePath);
         if (result == null)
         {
             final Path innerFilePath = getInnerPath(rootedFilePath);
-            result = innerFileSystem.createFileAsync(innerFilePath)
-                .then(new Function1<Result<File>, Result<File>>()
-                {
-                    @Override
-                    public Result<File> run(Result<File> createFileResult)
-                    {
-                        final File createdFile = createFileResult.getValue() == null ? null : new File(FolderFileSystem.this, getOuterPath(createFileResult.getValue().getPath()));
-                        final Throwable error = createFileResult.getError() instanceof FileAlreadyExistsException ? new FileAlreadyExistsException(rootedFilePath) : createFileResult.getError();
-                        return Result.done(createdFile, error);
-                    }
-                });
+            final Result<File> innerResult = innerFileSystem.createFile(innerFilePath);
+
+            final File createdFile = innerResult.getValue() == null ? null : new File(this, getOuterPath(innerResult.getValue().getPath()));
+            final Throwable error = innerResult.getError() instanceof FileAlreadyExistsException ? new FileAlreadyExistsException(rootedFilePath) : innerResult.getError();
+            result = Result.done(createdFile, error);
         }
 
         return result;
     }
 
     @Override
-    public AsyncFunction<Result<Boolean>> deleteFileAsync(final Path rootedFilePath)
+    public Result<Boolean> deleteFile(Path rootedFilePath)
     {
-        AsyncFunction<Result<Boolean>> result = FileSystemBase.validateRootedFilePathAsync(rootedFilePath);
+        Result<Boolean> result = FileSystemBase.validateRootedFilePath(rootedFilePath);
         if (result == null)
         {
-            result = innerFileSystem.deleteFileAsync(getInnerPath(rootedFilePath))
-                .then(new Function1<Result<Boolean>, Result<Boolean>>()
-                {
-                    @Override
-                    public Result<Boolean> run(Result<Boolean> deleteFileResult)
-                    {
-                        final Throwable error = deleteFileResult.getError() instanceof FileNotFoundException ? new FileNotFoundException(rootedFilePath) : deleteFileResult.getError();
-                        return Result.done(deleteFileResult.getValue(), error);
-                    }
-                });
+            result = innerFileSystem.deleteFile(getInnerPath(rootedFilePath));
+            if (result.getError() instanceof FileNotFoundException)
+            {
+                result = Result.done(result.getValue(), new FileNotFoundException(rootedFilePath));
+            }
         }
 
         return result;
     }
 
     @Override
-    public AsyncFunction<Result<DateTime>> getFileLastModifiedAsync(final Path rootedFilePath)
+    public Result<DateTime> getFileLastModified(Path rootedFilePath)
     {
-        AsyncFunction<Result<DateTime>> result = FileSystemBase.validateRootedFilePathAsync(rootedFilePath);
+        Result<DateTime> result = FileSystemBase.validateRootedFilePath(rootedFilePath);
         if (result == null)
         {
-            result = innerFileSystem.getFileLastModifiedAsync(getInnerPath(rootedFilePath))
-                .then(new Function1<Result<DateTime>, Result<DateTime>>()
-                {
-                    @Override
-                    public Result<DateTime> run(Result<DateTime> getFileLastModifiedResult)
-                    {
-                        final Throwable error = getFileLastModifiedResult.getError() instanceof FileNotFoundException ? new FileNotFoundException(rootedFilePath) : getFileLastModifiedResult.getError();
-                        return Result.done(getFileLastModifiedResult.getValue(), error);
-                    }
-                });
+            result = innerFileSystem.getFileLastModified(getInnerPath(rootedFilePath));
+            if (result.getError() instanceof FileNotFoundException)
+            {
+                result = Result.done(result.getValue(), new FileNotFoundException(rootedFilePath));
+            }
         }
 
         return result;
     }
 
     @Override
-    public AsyncFunction<Result<ByteReadStream>> getFileContentByteReadStreamAsync(final Path rootedFilePath)
+    public Result<ByteReadStream> getFileContentByteReadStream(Path rootedFilePath)
     {
-        AsyncFunction<Result<ByteReadStream>> result = FileSystemBase.validateRootedFilePathAsync(rootedFilePath);
+        Result<ByteReadStream> result = FileSystemBase.validateRootedFilePath(rootedFilePath);
         if (result == null)
         {
-            result = innerFileSystem.getFileContentByteReadStreamAsync(getInnerPath(rootedFilePath))
-                .then(new Function1<Result<ByteReadStream>, Result<ByteReadStream>>()
-                {
-                    @Override
-                    public Result<ByteReadStream> run(Result<ByteReadStream> getFileContentByteReadStreamResult)
-                    {
-                        final Throwable error = getFileContentByteReadStreamResult.getError() instanceof FileNotFoundException ? new FileNotFoundException(rootedFilePath) : getFileContentByteReadStreamResult.getError();
-                        return Result.done(getFileContentByteReadStreamResult.getValue(), error);
-                    }
-                });
+            result = innerFileSystem.getFileContentByteReadStream(getInnerPath(rootedFilePath));
+            if (result.getError() instanceof FileNotFoundException)
+            {
+                result = Result.done(result.getValue(), new FileNotFoundException(rootedFilePath));
+            }
         }
 
         return result;
     }
 
     @Override
-    public AsyncFunction<Result<ByteWriteStream>> getFileContentByteWriteStreamAsync(final Path rootedFilePath)
+    public Result<ByteWriteStream> getFileContentByteWriteStream(Path rootedFilePath)
     {
-        AsyncFunction<Result<ByteWriteStream>> result = FileSystemBase.validateRootedFilePathAsync(rootedFilePath);
+        Result<ByteWriteStream> result = FileSystemBase.validateRootedFilePath(rootedFilePath);
         if (result == null)
         {
-            result = innerFileSystem.getFileContentByteWriteStreamAsync(getInnerPath(rootedFilePath))
-                .then(new Function1<Result<ByteWriteStream>, Result<ByteWriteStream>>()
-                {
-                    @Override
-                    public Result<ByteWriteStream> run(Result<ByteWriteStream> getFileContentByteWriteStreamResult)
-                    {
-                        final Throwable error = getFileContentByteWriteStreamResult.getError() instanceof FileNotFoundException ? new FileNotFoundException(rootedFilePath) : getFileContentByteWriteStreamResult.getError();
-                        return Result.done(getFileContentByteWriteStreamResult.getValue(), error);
-                    }
-                });
+            result = innerFileSystem.getFileContentByteWriteStream(getInnerPath(rootedFilePath));
         }
 
         return result;
