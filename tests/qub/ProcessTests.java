@@ -110,7 +110,7 @@ public class ProcessTests
                     process.setInput(readStream.asByteReadStream());
 
                     final ByteReadStream byteReadStream = process.getInputAsByteReadStream();
-                    test.assertEqual(new byte[] { 104, 101, 108, 108, 111 }, byteReadStream.readBytes(5));
+                    test.assertSuccess(new byte[] { 104, 101, 108, 108, 111 }, byteReadStream.readBytes(5));
 
                     final byte[] byteBuffer = new byte[2];
                     test.assertEqual(2, byteReadStream.readBytes(byteBuffer));
@@ -156,7 +156,7 @@ public class ProcessTests
                     process.setInput(readStream);
 
                     final ByteReadStream byteReadStream = process.getInputAsByteReadStream();
-                    test.assertEqual(new byte[] { 104, 101, 108, 108, 111 }, byteReadStream.readBytes(5));
+                    test.assertSuccess(new byte[] { 104, 101, 108, 108, 111 }, byteReadStream.readBytes(5));
 
                     final byte[] byteBuffer = new byte[2];
                     test.assertEqual(2, byteReadStream.readBytes(byteBuffer));
@@ -202,7 +202,7 @@ public class ProcessTests
                     process.setInput(readStream);
 
                     final ByteReadStream byteReadStream = process.getInputAsByteReadStream();
-                    test.assertEqual(new byte[] { 104, 101, 108, 108, 111 }, byteReadStream.readBytes(5));
+                    test.assertSuccess(new byte[] { 104, 101, 108, 108, 111 }, byteReadStream.readBytes(5));
 
                     final byte[] byteBuffer = new byte[2];
                     test.assertEqual(2, byteReadStream.readBytes(byteBuffer));

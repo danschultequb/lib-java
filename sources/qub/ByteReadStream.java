@@ -7,7 +7,7 @@ public interface ByteReadStream extends Disposable, Iterator<Byte>
 {
     Result<Byte> readByte();
 
-    byte[] readBytes(int bytesToRead);
+    Result<byte[]> readBytes(int bytesToRead);
 
     int readBytes(byte[] outputBytes);
 

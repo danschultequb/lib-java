@@ -5,7 +5,7 @@ import java.io.InputStream;
 public abstract class ByteReadStreamBase extends IteratorBase<Byte> implements ByteReadStream
 {
     @Override
-    public byte[] readBytes(int bytesToRead)
+    public Result<byte[]> readBytes(int bytesToRead)
     {
         return ByteReadStreamBase.readBytes(this, bytesToRead);
     }
@@ -70,21 +70,30 @@ public abstract class ByteReadStreamBase extends IteratorBase<Byte> implements B
         return ByteReadStreamBase.asLineReadStream(this, characterEncoding, includeNewLines);
     }
 
-    public static byte[] readBytes(ByteReadStream byteReadStream, int bytesToRead)
+    public static Result<byte[]> readBytes(ByteReadStream byteReadStream, int bytesToRead)
     {
-        byte[] result = null;
-        if (bytesToRead >= 1)
+        Result<byte[]> result;
+        if (byteReadStream.isDisposed())
         {
-            result = new byte[bytesToRead];
-            final int bytesRead = byteReadStream.readBytes(result);
+            result = Result.error(new IllegalArgumentException("Cannot read bytes from a disposed ByteReadStream."));
+        }
+        else if (bytesToRead <= 0)
+        {
+            result = Result.error(new IllegalArgumentException("bytesToRead must be greater than 0."));
+        }
+        else
+        {
+            byte[] bytes = new byte[bytesToRead];
+            final int bytesRead = byteReadStream.readBytes(bytes);
             if (bytesRead < 0)
             {
-                result = null;
+                bytes = null;
             }
             else if (bytesRead < bytesToRead)
             {
-                result = Array.clone(result, 0, bytesRead);
+                bytes = Array.clone(bytes, 0, bytesRead);
             }
+            result = Result.success(bytes);
         }
         return result;
     }

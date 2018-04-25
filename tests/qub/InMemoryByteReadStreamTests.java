@@ -25,23 +25,24 @@ public class InMemoryByteReadStreamTests
             {
                 InMemoryByteReadStream readStream = new InMemoryByteReadStream();
 
-                test.assertNull(readStream.readBytes(-5));
-                test.assertNull(readStream.readBytes(0));
-                test.assertNull(readStream.readBytes(1));
-                test.assertNull(readStream.readBytes(2));
+                test.assertError(new IllegalArgumentException("bytesToRead must be greater than 0."), readStream.readBytes(-5));
+                test.assertError(new IllegalArgumentException("bytesToRead must be greater than 0."), readStream.readBytes(0));
+                test.assertSuccess(null, readStream.readBytes(1));
+                test.assertSuccess(null, readStream.readBytes(5));
 
                 readStream = new InMemoryByteReadStream(new byte[] { 0, 1, 2, 3 });
 
-                test.assertNull(readStream.readBytes(-5));
-                test.assertNull(readStream.readBytes(0));
-                test.assertEqual(new byte[] { 0 }, readStream.readBytes(1));
-                test.assertEqual(new byte[] { 1, 2 }, readStream.readBytes(2));
-                test.assertEqual(new byte[] { 3 }, readStream.readBytes(3));
-                test.assertNull(readStream.readBytes(1));
+                test.assertError(new IllegalArgumentException("bytesToRead must be greater than 0."), readStream.readBytes(-5));
+                test.assertError(new IllegalArgumentException("bytesToRead must be greater than 0."), readStream.readBytes(0));
+                test.assertSuccess(new byte[] { 0 }, readStream.readBytes(1));
+                test.assertSuccess(new byte[] { 1, 2 }, readStream.readBytes(2));
+                test.assertSuccess(new byte[] { 3 }, readStream.readBytes(3));
+                test.assertSuccess(null, readStream.readBytes(1));
+                test.assertSuccess(null, readStream.readBytes(5));
 
                 readStream.close();
 
-                test.assertNull(readStream.readBytes(1));
+                test.assertError(new IllegalArgumentException("Cannot read bytes from a disposed ByteReadStream."), readStream.readBytes(1));
             });
 
             runner.test("asLineReadStream()", (Test test) ->
