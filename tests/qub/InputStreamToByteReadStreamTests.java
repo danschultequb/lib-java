@@ -46,9 +46,9 @@ public class InputStreamToByteReadStreamTests
             {
                 final InputStreamToByteReadStream byteReadStream = getByteReadStream(2);
 
-                test.assertEqual((byte)0, byteReadStream.readByte());
-                test.assertEqual((byte)1, byteReadStream.readByte());
-                test.assertEqual(null, byteReadStream.readByte());
+                test.assertEqual((byte)0, byteReadStream.readByte().getValue());
+                test.assertEqual((byte)1, byteReadStream.readByte().getValue());
+                test.assertEqual(null, byteReadStream.readByte().getValue());
             });
             
             runner.test("readByte() with exception", (Test test) ->
@@ -57,7 +57,8 @@ public class InputStreamToByteReadStreamTests
                 inputStream.setThrowOnRead(true);
                 
                 final InputStreamToByteReadStream byteReadStream = getByteReadStream(inputStream);
-                test.assertEqual(null, byteReadStream.readByte());
+                final Result<Byte> result = byteReadStream.readByte();
+                test.assertError(new IOException(), result);
             });
             
             runner.testGroup("readBytes(byte[])", () ->

@@ -5,7 +5,7 @@ import java.io.InputStream;
 
 public interface ByteReadStream extends Disposable, Iterator<Byte>
 {
-    Byte readByte();
+    Result<Byte> readByte();
 
     byte[] readBytes(int bytesToRead);
 

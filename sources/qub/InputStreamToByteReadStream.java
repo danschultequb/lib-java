@@ -57,30 +57,31 @@ public class InputStreamToByteReadStream extends ByteReadStreamBase
     }
 
     @Override
-    public Byte readByte()
+    public Result<Byte> readByte()
     {
         hasStarted = true;
 
-        int byteAsInt = -1;
+        Result<Byte> result;
         try
         {
-            byteAsInt = inputStream.read();
+            final int byteAsInt = inputStream.read();
+            if (byteAsInt == -1)
+            {
+                current = null;
+            }
+            else
+            {
+                current = (byte)byteAsInt;
+            }
+            result = Result.success(current);
         }
         catch (IOException e)
         {
-            handleException(e);
-        }
-
-        if (byteAsInt == -1)
-        {
             current = null;
-        }
-        else
-        {
-            current = (byte)byteAsInt;
+            result = Result.error(e);
         }
 
-        return current;
+        return result;
     }
 
     @Override
@@ -151,6 +152,6 @@ public class InputStreamToByteReadStream extends ByteReadStreamBase
     @Override
     public boolean next()
     {
-        return readByte() != null;
+        return readByte().getValue() != null;
     }
 }

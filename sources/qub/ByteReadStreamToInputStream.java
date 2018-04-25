@@ -21,8 +21,20 @@ public class ByteReadStreamToInputStream extends InputStream
     @Override
     public int read() throws IOException
     {
-        final Byte byteRead = byteReadStream.readByte();
-        return byteRead == null ? -1 : byteRead.intValue();
+        final Result<Byte> byteRead = byteReadStream.readByte();
+        if (byteRead.hasError())
+        {
+            final Throwable error = byteRead.getError();
+            if (error instanceof IOException)
+            {
+                throw (IOException)error;
+            }
+            else if (error instanceof RuntimeException)
+            {
+                throw (RuntimeException)error;
+            }
+        }
+        return byteRead.getValue() == null ? -1 : byteRead.getValue().intValue();
     }
 
     @Override

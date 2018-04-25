@@ -100,14 +100,14 @@ public abstract class ByteReadStreamBase extends IteratorBase<Byte> implements B
 
         for (int i = 0; i < length; ++i)
         {
-            final Byte readByte = byteReadStream.readByte();
-            if (readByte == null)
+            final Result<Byte> readByte = byteReadStream.readByte();
+            if (readByte.hasError())
             {
                 break;
             }
             else
             {
-                outputBytes[startIndex + i] = readByte;
+                outputBytes[startIndex + i] = readByte.getValue();
                 ++bytesRead;
             }
         }
