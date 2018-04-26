@@ -42,7 +42,7 @@ public class InMemoryByteReadStreamTests
 
                 readStream.close();
 
-                test.assertError(new IllegalArgumentException("Cannot read bytes from a disposed ByteReadStream."), readStream.readBytes(1));
+                test.assertError(new IllegalArgumentException("byteReadStream cannot be disposed."), readStream.readBytes(1));
             });
 
             runner.test("asLineReadStream()", (Test test) ->

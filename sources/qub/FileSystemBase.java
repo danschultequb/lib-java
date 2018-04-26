@@ -1341,7 +1341,7 @@ public abstract class FileSystemBase implements FileSystem
             {
                 try (final ByteReadStream byteReadStream = byteReadStreamResult.getValue())
                 {
-                    result = Result.success(byteReadStream.readAllBytes());
+                    result = byteReadStream.readAllBytes();
                 }
             }
         }

@@ -247,7 +247,7 @@ public class HttpRequestTests
                 {
                     final HttpRequest request = HttpRequest.create(HttpMethod.GET, "https://www.example.com").getValue();
                     request.setBody(new byte[] { 0, 1, 2, 3, 4 });
-                    test.assertEqual(new byte[] { 0, 1, 2, 3, 4 }, request.getBody().readAllBytes());
+                    test.assertSuccess(new byte[] { 0, 1, 2, 3, 4 }, request.getBody().readAllBytes());
                 });
             });
 

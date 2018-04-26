@@ -11,7 +11,6 @@ public class InputStreamToByteReadStream extends ByteReadStreamBase
     private final InputStream inputStream;
 
     private boolean disposed;
-    private Action1<IOException> exceptionHandler;
     private boolean hasStarted;
     private Byte current;
 
@@ -85,44 +84,36 @@ public class InputStreamToByteReadStream extends ByteReadStreamBase
     }
 
     @Override
-    public int readBytes(byte[] outputBytes, int startIndex, int length)
+    public Result<Integer> readBytes(byte[] outputBytes, int startIndex, int length)
     {
         hasStarted = true;
 
-        int bytesRead = -1;
+        Result<Integer> result;
         try
         {
-            bytesRead = inputStream.read(outputBytes, startIndex, length);
+            final int bytesRead = inputStream.read(outputBytes, startIndex, length);
+            if (bytesRead == -1)
+            {
+                current = null;
+                result = Result.success(null);
+            }
+            else
+            {
+                current = outputBytes[startIndex + bytesRead - 1];
+                result = Result.success(bytesRead);
+            }
         }
         catch (IOException e)
         {
-            handleException(e);
+            result = Result.error(e);
         }
 
-        if (bytesRead == -1)
-        {
-            current = null;
-        }
-        else
-        {
-            current = outputBytes[bytesRead - 1];
-        }
-
-        return bytesRead;
+        return result;
     }
 
     @Override
     public void setExceptionHandler(Action1<IOException> exceptionHandler)
     {
-        this.exceptionHandler = exceptionHandler;
-    }
-
-    private void handleException(IOException e)
-    {
-        if (exceptionHandler != null)
-        {
-            exceptionHandler.run(e);
-        }
     }
 
     @Override

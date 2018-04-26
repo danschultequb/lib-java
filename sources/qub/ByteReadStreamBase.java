@@ -11,19 +11,19 @@ public abstract class ByteReadStreamBase extends IteratorBase<Byte> implements B
     }
 
     @Override
-    public int readBytes(byte[] outputBytes)
+    public Result<Integer> readBytes(byte[] outputBytes)
     {
         return ByteReadStreamBase.readBytes(this, outputBytes);
     }
 
     @Override
-    public int readBytes(byte[] outputBytes, int startIndex, int length)
+    public Result<Integer> readBytes(byte[] outputBytes, int startIndex, int length)
     {
         return ByteReadStreamBase.readBytes(this, outputBytes, startIndex, length);
     }
 
     @Override
-    public byte[] readAllBytes()
+    public Result<byte[]> readAllBytes()
     {
         return ByteReadStreamBase.readAllBytes(this);
     }
@@ -72,77 +72,88 @@ public abstract class ByteReadStreamBase extends IteratorBase<Byte> implements B
 
     public static Result<byte[]> readBytes(ByteReadStream byteReadStream, int bytesToRead)
     {
-        Result<byte[]> result;
-        if (byteReadStream.isDisposed())
+        Result<byte[]> result = ByteReadStreamBase.validateByteReadStream(byteReadStream);
+        if (result == null)
         {
-            result = Result.error(new IllegalArgumentException("Cannot read bytes from a disposed ByteReadStream."));
-        }
-        else if (bytesToRead <= 0)
-        {
-            result = Result.error(new IllegalArgumentException("bytesToRead must be greater than 0."));
-        }
-        else
-        {
-            byte[] bytes = new byte[bytesToRead];
-            final int bytesRead = byteReadStream.readBytes(bytes);
-            if (bytesRead < 0)
+            if (bytesToRead <= 0)
             {
-                bytes = null;
+                result = Result.error(new IllegalArgumentException("bytesToRead must be greater than 0."));
             }
-            else if (bytesRead < bytesToRead)
+            else
             {
-                bytes = Array.clone(bytes, 0, bytesRead);
+                byte[] bytes = new byte[bytesToRead];
+                final Result<Integer> readBytesResult = byteReadStream.readBytes(bytes);
+                if (readBytesResult.hasError())
+                {
+                    result = Result.error(readBytesResult.getError());
+                }
+                else
+                {
+                    final Integer bytesRead = readBytesResult.getValue();
+                    if (bytesRead == null)
+                    {
+                        bytes = null;
+                    }
+                    else if (bytesRead < bytesToRead)
+                    {
+                        bytes = Array.clone(bytes, 0, readBytesResult.getValue());
+                    }
+                    result = Result.success(bytes);
+                }
             }
-            result = Result.success(bytes);
         }
         return result;
     }
 
-    public static int readBytes(ByteReadStream byteReadStream, byte[] outputBytes)
+    public static Result<Integer> readBytes(ByteReadStream byteReadStream, byte[] outputBytes)
     {
         return byteReadStream.readBytes(outputBytes, 0, outputBytes.length);
     }
 
-    public static int readBytes(ByteReadStream byteReadStream, byte[] outputBytes, int startIndex, int length)
+    public static Result<Integer> readBytes(ByteReadStream byteReadStream, byte[] outputBytes, int startIndex, int length)
     {
-        int bytesRead = 0;
-
-        for (int i = 0; i < length; ++i)
+        Result<Integer> result = ByteReadStreamBase.validateByteReadStream(byteReadStream);
+        if (result == null)
         {
-            final Result<Byte> readByte = byteReadStream.readByte();
-            if (readByte.hasError())
+            int bytesRead = 0;
+            Throwable error = null;
+            for (int i = 0; i < length; ++i)
             {
-                break;
+                final Result<Byte> readByte = byteReadStream.readByte();
+                if (readByte.hasError())
+                {
+                    error = readByte.getError();
+                    break;
+                }
+                else
+                {
+                    outputBytes[startIndex + i] = readByte.getValue();
+                    ++bytesRead;
+                }
             }
-            else
-            {
-                outputBytes[startIndex + i] = readByte.getValue();
-                ++bytesRead;
-            }
+            result = Result.done(bytesRead, error);
         }
-
-        return bytesRead;
+        return result;
     }
 
-    public static byte[] readAllBytes(ByteReadStream byteReadStream)
+    public static Result<byte[]> readAllBytes(ByteReadStream byteReadStream)
     {
-        byte[] result = null;
-
-        if (byteReadStream != null && !byteReadStream.isDisposed())
+        Result<byte[]> result = ByteReadStreamBase.validateByteReadStream(byteReadStream);
+        if (result == null)
         {
             final List<byte[]> readByteArrays = new ArrayList<>();
             final byte[] buffer = new byte[1024];
-            int bytesRead = byteReadStream.readBytes(buffer);
+            Result<Integer> readBytesResult = byteReadStream.readBytes(buffer);
 
-            while (bytesRead > 0)
+            while (!readBytesResult.hasError() && readBytesResult.getValue() != null)
             {
+                final int bytesRead = readBytesResult.getValue();
                 readByteArrays.add(Array.clone(buffer, 0, bytesRead));
-                bytesRead = byteReadStream.readBytes(buffer);
+                readBytesResult = byteReadStream.readBytes(buffer);
             }
 
-            result = Array.merge(readByteArrays);
+            result = Result.success(Array.merge(readByteArrays));
         }
-
         return result;
     }
 
@@ -179,5 +190,19 @@ public abstract class ByteReadStreamBase extends IteratorBase<Byte> implements B
     public static LineReadStream asLineReadStream(ByteReadStream byteReadStream, CharacterEncoding encoding, boolean includeNewLines)
     {
         return byteReadStream.asCharacterReadStream(encoding).asLineReadStream(includeNewLines);
+    }
+
+    public static <T> Result<T> validateByteReadStream(ByteReadStream byteReadStream)
+    {
+        Result<T> result = null;
+        if (byteReadStream == null)
+        {
+            result = Result.error(new IllegalArgumentException("byteReadStream cannot be null."));
+        }
+        else if (byteReadStream.isDisposed())
+        {
+            result = Result.error(new IllegalArgumentException("byteReadStream cannot be disposed."));
+        }
+        return result;
     }
 }

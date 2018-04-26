@@ -68,7 +68,7 @@ public class InputStreamToByteReadStreamTests
                     final InputStreamToByteReadStream byteReadStream = getByteReadStream(0);
 
                     final byte[] buffer = new byte[10];
-                    test.assertEqual(-1, byteReadStream.readBytes(buffer));
+                    test.assertSuccess(null, byteReadStream.readBytes(buffer));
                 });
                 
                 runner.test("with bytes", (Test test) ->
@@ -76,10 +76,10 @@ public class InputStreamToByteReadStreamTests
                     final InputStreamToByteReadStream byteReadStream = getByteReadStream(3);
 
                     final byte[] buffer = new byte[10];
-                    test.assertEqual(3, byteReadStream.readBytes(buffer));
+                    test.assertSuccess(3, byteReadStream.readBytes(buffer));
                     test.assertEqual(new byte[] { 0, 1, 2, 0, 0, 0, 0, 0, 0, 0 }, buffer);
 
-                    test.assertEqual(-1, byteReadStream.readBytes(buffer));
+                    test.assertSuccess(null, byteReadStream.readBytes(buffer));
                 });
                 
                 runner.test("asCharacterReadStream()", (Test test) ->

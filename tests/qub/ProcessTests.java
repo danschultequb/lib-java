@@ -113,10 +113,10 @@ public class ProcessTests
                     test.assertSuccess(new byte[] { 104, 101, 108, 108, 111 }, byteReadStream.readBytes(5));
 
                     final byte[] byteBuffer = new byte[2];
-                    test.assertEqual(2, byteReadStream.readBytes(byteBuffer));
+                    test.assertSuccess(2, byteReadStream.readBytes(byteBuffer));
                     test.assertEqual(new byte[] { 32, 116 }, byteBuffer);
 
-                    test.assertEqual(1, byteReadStream.readBytes(byteBuffer, 1, 1));
+                    test.assertSuccess(1, byteReadStream.readBytes(byteBuffer, 1, 1));
                     test.assertEqual(new byte[] { 32, 104 }, byteBuffer);
 
                     final CharacterReadStream characterReadStream = process.getInputAsCharacterReadStream();
@@ -159,10 +159,10 @@ public class ProcessTests
                     test.assertSuccess(new byte[] { 104, 101, 108, 108, 111 }, byteReadStream.readBytes(5));
 
                     final byte[] byteBuffer = new byte[2];
-                    test.assertEqual(2, byteReadStream.readBytes(byteBuffer));
+                    test.assertSuccess(2, byteReadStream.readBytes(byteBuffer));
                     test.assertEqual(new byte[] { 32, 116 }, byteBuffer);
 
-                    test.assertEqual(1, byteReadStream.readBytes(byteBuffer, 1, 1));
+                    test.assertSuccess(1, byteReadStream.readBytes(byteBuffer, 1, 1));
                     test.assertEqual(new byte[] { 32, 104 }, byteBuffer);
 
                     final CharacterReadStream characterReadStream = process.getInputAsCharacterReadStream();
@@ -205,10 +205,10 @@ public class ProcessTests
                     test.assertSuccess(new byte[] { 104, 101, 108, 108, 111 }, byteReadStream.readBytes(5));
 
                     final byte[] byteBuffer = new byte[2];
-                    test.assertEqual(2, byteReadStream.readBytes(byteBuffer));
+                    test.assertSuccess(2, byteReadStream.readBytes(byteBuffer));
                     test.assertEqual(new byte[] { 32, 116 }, byteBuffer);
 
-                    test.assertEqual(1, byteReadStream.readBytes(byteBuffer, 1, 1));
+                    test.assertSuccess(1, byteReadStream.readBytes(byteBuffer, 1, 1));
                     test.assertEqual(new byte[] { 32, 104 }, byteBuffer);
 
                     final CharacterReadStream characterReadStream = process.getInputAsCharacterReadStream();

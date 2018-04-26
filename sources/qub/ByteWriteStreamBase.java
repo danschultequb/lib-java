@@ -101,16 +101,16 @@ public abstract class ByteWriteStreamBase extends DisposableBase implements Byte
         if (byteReadStream != null && !byteWriteStream.isDisposed() && !byteReadStream.isDisposed())
         {
             final byte[] buffer = new byte[1024];
-            int bytesRead = byteReadStream.readBytes(buffer);
+            Result<Integer> bytesRead = byteReadStream.readBytes(buffer);
 
-            if (bytesRead > 0)
+            if (bytesRead.getValue() != null && !bytesRead.hasError())
             {
                 result = true;
             }
 
-            while (bytesRead > 0)
+            while (bytesRead.getValue() != null && !bytesRead.hasError())
             {
-                byteWriteStream.write(buffer, 0, bytesRead);
+                byteWriteStream.write(buffer, 0, bytesRead.getValue());
                 bytesRead = byteReadStream.readBytes(buffer);
             }
         }

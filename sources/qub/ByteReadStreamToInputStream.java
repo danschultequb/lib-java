@@ -40,12 +40,38 @@ public class ByteReadStreamToInputStream extends InputStream
     @Override
     public int read(byte[] outputBytes) throws IOException
     {
-        return byteReadStream.readBytes(outputBytes);
+        final Result<Integer> readBytesResult = byteReadStream.readBytes(outputBytes);
+        if (readBytesResult.hasError())
+        {
+            final Throwable error = readBytesResult.getError();
+            if (error instanceof IOException)
+            {
+                throw (IOException)error;
+            }
+            else if (error instanceof RuntimeException)
+            {
+                throw (RuntimeException)error;
+            }
+        }
+        return readBytesResult.getValue() == null ? -1 : readBytesResult.getValue();
     }
 
     @Override
     public int read(byte[] outputBytes, int startIndex, int length) throws IOException
     {
-        return byteReadStream.readBytes(outputBytes, startIndex, length);
+        final Result<Integer> readBytesResult = byteReadStream.readBytes(outputBytes, startIndex, length);
+        if (readBytesResult.hasError())
+        {
+            final Throwable error = readBytesResult.getError();
+            if (error instanceof IOException)
+            {
+                throw (IOException)error;
+            }
+            else if (error instanceof RuntimeException)
+            {
+                throw (RuntimeException)error;
+            }
+        }
+        return readBytesResult.getValue() == null ? -1 : readBytesResult.getValue();
     }
 }
