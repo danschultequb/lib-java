@@ -45,11 +45,14 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
     {
         if (!isCompleted())
         {
-            final Indexable<AsyncTask> parentTasks = getParentTasks();
-            for (int i = 0; i < parentTasks.getCount(); ++i)
+            if (getAsyncRunner() == null)
             {
-                final AsyncTask parentTask = parentTasks.get(i);
-                parentTask.await();
+                final Indexable<AsyncTask> parentTasks = getParentTasks();
+                for (int i = 0; i < parentTasks.getCount(); ++i)
+                {
+                    final AsyncTask parentTask = parentTasks.get(i);
+                    parentTask.await();
+                }
             }
             getAsyncRunner().await(this);
         }

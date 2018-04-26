@@ -65,7 +65,6 @@ public class BasicAsyncActionTests
                     final AsyncAction onErrorAsyncAction = basicAsyncAction.catchError(null);
                     test.assertNull(onErrorAsyncAction);
                     test.assertEqual(0, basicAsyncAction.getPausedTaskCount());
-                    basicAsyncAction.await();
                 });
 
                 runner.test("with non-throwing parent", (Test test) ->

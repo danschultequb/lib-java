@@ -2,12 +2,12 @@ package qub;
 
 public class ManualAsyncRunner extends AsyncRunnerBase
 {
-    private final LockedQueue<PausedAsyncTask> scheduledTasks;
+    private final BlockingQueue<PausedAsyncTask> scheduledTasks;
     private boolean disposed;
 
     public ManualAsyncRunner()
     {
-        this.scheduledTasks = new LockedQueue<>(new SingleLinkListQueue<PausedAsyncTask>());
+        this.scheduledTasks = new JavaBlockingQueue<PausedAsyncTask>(null);
     }
 
     @Override
@@ -56,8 +56,12 @@ public class ManualAsyncRunner extends AsyncRunnerBase
     {
         while (scheduledTasks.any())
         {
-            final PausedAsyncTask action = scheduledTasks.dequeue();
-            action.runAndSchedulePausedTasks();
+            final Result<PausedAsyncTask> asyncTaskResult = scheduledTasks.dequeue();
+            final PausedAsyncTask asyncTask = asyncTaskResult.getValue();
+            if (asyncTask != null)
+            {
+                asyncTask.runAndSchedulePausedTasks();
+            }
         }
     }
 
@@ -71,10 +75,14 @@ public class ManualAsyncRunner extends AsyncRunnerBase
                 // If the thread that is running this is the same thread that this ManualAsyncRunner
                 // is using, then let's help it along by executing the scheduled tasks until the
                 // provided task is completed.
-                while (!asyncTask.isCompleted() && scheduledTasks.any())
+                while (!asyncTask.isCompleted())
                 {
-                    final PausedAsyncTask action = scheduledTasks.dequeue();
-                    action.runAndSchedulePausedTasks();
+                    final Result<PausedAsyncTask> asyncTaskToRunResult = scheduledTasks.dequeue();
+                    final PausedAsyncTask asyncTaskToRun = asyncTaskToRunResult.getValue();
+                    if (asyncTaskToRun != null)
+                    {
+                        asyncTaskToRun.runAndSchedulePausedTasks();
+                    }
                 }
             }
             else
