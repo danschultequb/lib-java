@@ -31,7 +31,7 @@ public class Console extends Process
         super(commandLine);
     }
 
-    public String readLine()
+    public Result<String> readLine()
     {
         final LineReadStream lineReadStream = getInputAsLineReadStream();
         return lineReadStream.readLine();

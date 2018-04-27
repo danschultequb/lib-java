@@ -104,4 +104,14 @@ final public class Result<T>
         }
         return result;
     }
+
+    public static <U> Result<U> notDisposed(Disposable disposable, String parameterName)
+    {
+        Result<U> result = null;
+        if (disposable.isDisposed())
+        {
+            result = Result.error(new IllegalArgumentException(parameterName + " must not be disposed."));
+        }
+        return result;
+    }
 }

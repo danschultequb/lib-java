@@ -3,6 +3,12 @@ package qub;
 public abstract class CharacterReadStreamBase extends IteratorBase<Character> implements CharacterReadStream
 {
     @Override
+    public void close()
+    {
+        DisposableBase.close(this);
+    }
+
+    @Override
     public Result<char[]> readCharacters(int charactersToRead)
     {
         return CharacterReadStreamBase.readCharacters(this, charactersToRead);

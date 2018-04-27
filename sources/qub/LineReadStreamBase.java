@@ -3,7 +3,7 @@ package qub;
 public abstract class LineReadStreamBase extends IteratorBase<String> implements LineReadStream
 {
     @Override
-    public String readLine()
+    public Result<String> readLine()
     {
         return LineReadStreamBase.readLine(this);
     }
@@ -27,6 +27,12 @@ public abstract class LineReadStreamBase extends IteratorBase<String> implements
     }
 
     @Override
+    public void close()
+    {
+        DisposableBase.close(this);
+    }
+
+    @Override
     public final boolean isDisposed()
     {
         return LineReadStreamBase.isDisposed(this);
@@ -38,80 +44,82 @@ public abstract class LineReadStreamBase extends IteratorBase<String> implements
         return LineReadStreamBase.asByteReadStream(this);
     }
 
-    public static String readLine(LineReadStream lineReadStream)
+    public static Result<String> readLine(LineReadStream lineReadStream)
     {
-        String result = null;
-
-        if (!lineReadStream.isDisposed())
+        Result<String> result = Result.notNull(lineReadStream, "lineReadStream");
+        if (result == null)
         {
-            int charactersRead = 0;
-            final StringBuilder builder = new StringBuilder();
-            final CharacterReadStream characterReadStream = lineReadStream.asCharacterReadStream();
-
-            if (lineReadStream.getIncludeNewLines())
+            result = Result.notDisposed(lineReadStream, "lineReadStream");
+            if (result == null)
             {
-                while (characterReadStream.next())
+                int charactersRead = 0;
+                final StringBuilder builder = new StringBuilder();
+                final CharacterReadStream characterReadStream = lineReadStream.asCharacterReadStream();
+
+                if (lineReadStream.getIncludeNewLines())
                 {
-                    final char currentCharacter = characterReadStream.getCurrent();
-                    ++charactersRead;
-                    builder.append(currentCharacter);
-                    if (currentCharacter == '\n')
+                    while (characterReadStream.next())
                     {
-                        break;
+                        final char currentCharacter = characterReadStream.getCurrent();
+                        ++charactersRead;
+                        builder.append(currentCharacter);
+                        if (currentCharacter == '\n')
+                        {
+                            break;
+                        }
                     }
                 }
-            }
-            else
-            {
-                boolean previousCharacterWasCarriageReturn = false;
-                while (characterReadStream.next())
+                else
                 {
-                    final char currentCharacter = characterReadStream.getCurrent();
-                    ++charactersRead;
-
-                    if (currentCharacter == '\r')
+                    boolean previousCharacterWasCarriageReturn = false;
+                    while (characterReadStream.next())
                     {
-                        if (previousCharacterWasCarriageReturn)
+                        final char currentCharacter = characterReadStream.getCurrent();
+                        ++charactersRead;
+
+                        if (currentCharacter == '\r')
                         {
-                            builder.append('\r');
+                            if (previousCharacterWasCarriageReturn)
+                            {
+                                builder.append('\r');
+                            }
+                            else
+                            {
+                                previousCharacterWasCarriageReturn = true;
+                            }
+                        }
+                        else if (currentCharacter != '\n')
+                        {
+                            if (previousCharacterWasCarriageReturn)
+                            {
+                                builder.append('\r');
+                            }
+                            previousCharacterWasCarriageReturn = false;
+
+                            builder.append(currentCharacter);
                         }
                         else
                         {
-                            previousCharacterWasCarriageReturn = true;
+                            previousCharacterWasCarriageReturn = false;
+                            break;
                         }
                     }
-                    else if (currentCharacter != '\n')
-                    {
-                        if (previousCharacterWasCarriageReturn)
-                        {
-                            builder.append('\r');
-                        }
-                        previousCharacterWasCarriageReturn = false;
 
-                        builder.append(currentCharacter);
-                    }
-                    else
+                    if (!characterReadStream.hasCurrent() && previousCharacterWasCarriageReturn)
                     {
-                        previousCharacterWasCarriageReturn = false;
-                        break;
+                        builder.append('\r');
                     }
                 }
 
-                if (!characterReadStream.hasCurrent() && previousCharacterWasCarriageReturn)
-                {
-                    builder.append('\r');
-                }
+                result = Result.success(charactersRead == 0 ? null : builder.toString());
             }
-
-            result = charactersRead == 0 ? null : builder.toString();
         }
-
         return result;
     }
 
     public static boolean next(LineReadStream lineReadStream)
     {
-        return lineReadStream.readLine() != null;
+        return lineReadStream.readLine().getValue() != null;
     }
 
     public static boolean hasStarted(LineReadStream lineReadStream)

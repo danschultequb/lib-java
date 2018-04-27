@@ -5,7 +5,7 @@ package qub;
  */
 public interface LineReadStream extends Disposable, Iterator<String>
 {
-    String readLine();
+    Result<String> readLine();
 
     CharacterEncoding getCharacterEncoding();
 

@@ -16,7 +16,7 @@ public class InMemoryLineReadStreamTests
                     test.assertFalse(lineReadStream.isDisposed());
                     test.assertEqual(CharacterEncoding.UTF_8, lineReadStream.getCharacterEncoding());
                     test.assertFalse(lineReadStream.getIncludeNewLines());
-                    test.assertEqual(null, lineReadStream.readLine());
+                    test.assertSuccess(null, lineReadStream.readLine());
                 });
 
                 runner.test("with \"\"", (Test test) ->
@@ -25,7 +25,7 @@ public class InMemoryLineReadStreamTests
                     test.assertFalse(lineReadStream.isDisposed());
                     test.assertEqual(CharacterEncoding.UTF_8, lineReadStream.getCharacterEncoding());
                     test.assertFalse(lineReadStream.getIncludeNewLines());
-                    test.assertEqual(null, lineReadStream.readLine());
+                    test.assertSuccess(null, lineReadStream.readLine());
                 });
 
                 runner.test("with \"abcd\"", (Test test) ->
@@ -34,8 +34,8 @@ public class InMemoryLineReadStreamTests
                     test.assertFalse(lineReadStream.isDisposed());
                     test.assertEqual(CharacterEncoding.UTF_8, lineReadStream.getCharacterEncoding());
                     test.assertFalse(lineReadStream.getIncludeNewLines());
-                    test.assertEqual("abcd", lineReadStream.readLine());
-                    test.assertEqual(null, lineReadStream.readLine());
+                    test.assertSuccess("abcd", lineReadStream.readLine());
+                    test.assertSuccess(null, lineReadStream.readLine());
                 });
 
                 runner.test("with \"\\n\\n\"", (Test test) ->
@@ -44,9 +44,9 @@ public class InMemoryLineReadStreamTests
                     test.assertFalse(lineReadStream.isDisposed());
                     test.assertEqual(CharacterEncoding.UTF_8, lineReadStream.getCharacterEncoding());
                     test.assertFalse(lineReadStream.getIncludeNewLines());
-                    test.assertEqual("", lineReadStream.readLine());
-                    test.assertEqual("", lineReadStream.readLine());
-                    test.assertEqual(null, lineReadStream.readLine());
+                    test.assertSuccess("", lineReadStream.readLine());
+                    test.assertSuccess("", lineReadStream.readLine());
+                    test.assertSuccess(null, lineReadStream.readLine());
                 });
 
                 runner.test("with " + Strings.escapeAndQuote("\r\na\rb\r\nc\r\r\n"), (Test test) ->
@@ -55,10 +55,10 @@ public class InMemoryLineReadStreamTests
                     test.assertFalse(lineReadStream.isDisposed());
                     test.assertEqual(CharacterEncoding.UTF_8, lineReadStream.getCharacterEncoding());
                     test.assertFalse(lineReadStream.getIncludeNewLines());
-                    test.assertEqual("", lineReadStream.readLine());
-                    test.assertEqual("a\rb", lineReadStream.readLine());
-                    test.assertEqual("c\r", lineReadStream.readLine());
-                    test.assertEqual(null, lineReadStream.readLine());
+                    test.assertSuccess("", lineReadStream.readLine());
+                    test.assertSuccess("a\rb", lineReadStream.readLine());
+                    test.assertSuccess("c\r", lineReadStream.readLine());
+                    test.assertSuccess(null, lineReadStream.readLine());
                 });
             });
 
@@ -66,13 +66,13 @@ public class InMemoryLineReadStreamTests
             {
                 final InMemoryLineReadStream lineReadStream = new InMemoryLineReadStream("a\nb\nc");
                 test.assertFalse(lineReadStream.isDisposed());
-                test.assertEqual("a", lineReadStream.readLine());
+                test.assertSuccess("a", lineReadStream.readLine());
                 test.assertEqual("a", lineReadStream.getCurrent());
 
                 lineReadStream.close();
                 test.assertTrue(lineReadStream.isDisposed());
                 test.assertNull(lineReadStream.getCurrent());
-                test.assertNull(lineReadStream.readLine());
+                test.assertError(new IllegalArgumentException("lineReadStream must not be disposed."), lineReadStream.readLine());
                 test.assertNull(lineReadStream.getCurrent());
             });
         });

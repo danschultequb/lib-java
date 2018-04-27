@@ -42,10 +42,11 @@ public class CharacterReadStreamToLineReadStream extends LineReadStreamBase
     }
 
     @Override
-    public String readLine()
+    public Result<String> readLine()
     {
-        current = super.readLine();
-        return current;
+        final Result<String> result = super.readLine();
+        current = result.getValue();
+        return result;
     }
 
     @Override

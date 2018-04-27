@@ -38,11 +38,11 @@ public class TCPEchoServer extends AsyncDisposableBase
                 final LineReadStream tcpClientLineReadStream = tcpClient.asLineReadStream(true);
                 final LineWriteStream tcpClientLineWriteStream = tcpClient.asLineWriteStream();
 
-                String line = tcpClientLineReadStream.readLine();
-                while (line != null)
+                Result<String> readLineResult = tcpClientLineReadStream.readLine();
+                while (readLineResult.getValue() != null)
                 {
-                    tcpClientLineWriteStream.write(line);
-                    line = tcpClientLineReadStream.readLine();
+                    tcpClientLineWriteStream.write(readLineResult.getValue());
+                    readLineResult = tcpClientLineReadStream.readLine();
                 }
             }
         }

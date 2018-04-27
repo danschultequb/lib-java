@@ -295,13 +295,13 @@ public class ProcessBuilder
             public void run(ByteReadStream byteReadStream)
             {
                 final LineReadStream lineReadStream = byteReadStream.asLineReadStream(true);
-                String errorLine;
+                String line;
                 do
                 {
-                    errorLine = lineReadStream.readLine();
-                    onLineAction.run(errorLine);
+                    line = lineReadStream.readLine().getValue();
+                    onLineAction.run(line);
                 }
-                while (errorLine != null);
+                while (line != null);
             }
         };
     }

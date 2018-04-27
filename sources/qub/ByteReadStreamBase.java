@@ -5,6 +5,12 @@ import java.io.InputStream;
 public abstract class ByteReadStreamBase extends IteratorBase<Byte> implements ByteReadStream
 {
     @Override
+    public void close()
+    {
+        DisposableBase.close(this);
+    }
+
+    @Override
     public Result<byte[]> readBytes(int bytesToRead)
     {
         return ByteReadStreamBase.readBytes(this, bytesToRead);

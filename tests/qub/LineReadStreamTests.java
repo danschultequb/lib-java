@@ -43,7 +43,7 @@ public class LineReadStreamTests
                 {
                     final LineReadStream lineReadStream = creator.run("test");
                     lineReadStream.close();
-                    test.assertNull(lineReadStream.readLine());
+                    test.assertError(new IllegalArgumentException("lineReadStream must not be disposed."), lineReadStream.readLine());
                 });
 
                 runner.testGroup("check CharacterReadStream.getCurrent()", () ->
@@ -101,11 +101,13 @@ public class LineReadStreamTests
                             final int expectedLineCount = expectedLines == null ? 0 : expectedLines.length;
                             for (int i = 0; i < expectedLineCount; ++i)
                             {
-                                test.assertEqual(Strings.escape(expectedLines[i]), Strings.escape(lineReadStream.readLine()));
+                                final Result<String> readLineResult = lineReadStream.readLine();
+                                test.assertSuccess(readLineResult);
+                                test.assertEqual(Strings.escape(expectedLines[i]), Strings.escape(readLineResult.getValue()));
                                 assertLineReadStream(test, lineReadStream, false, true, expectedLines[i]);
                             }
 
-                            test.assertNull(lineReadStream.readLine());
+                            test.assertSuccess(lineReadStream.readLine());
                             assertLineReadStream(test, lineReadStream, false, true, null);
                         }
                     });
