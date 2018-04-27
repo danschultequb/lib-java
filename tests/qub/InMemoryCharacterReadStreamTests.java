@@ -9,8 +9,8 @@ public class InMemoryCharacterReadStreamTests
             runner.test("readCharacters(int)", (Test test) ->
             {
                 final InMemoryCharacterReadStream characterReadStream = new InMemoryCharacterReadStream("abc");
-                test.assertEqual(new char[] { 'a', 'b', 'c' }, characterReadStream.readCharacters(20));
-                test.assertNull(characterReadStream.readCharacters(1));
+                test.assertSuccess(new char[] { 'a', 'b', 'c' }, characterReadStream.readCharacters(20));
+                test.assertSuccess(null, characterReadStream.readCharacters(1));
             });
 
             runner.test("readCharacters(char[])", (Test test) ->
@@ -18,13 +18,13 @@ public class InMemoryCharacterReadStreamTests
                 final InMemoryCharacterReadStream characterReadStream = new InMemoryCharacterReadStream("abc");
                 final char[] characters = new char[2];
 
-                test.assertEqual(2, characterReadStream.readCharacters(characters));
+                test.assertSuccess(2, characterReadStream.readCharacters(characters));
                 test.assertEqual(new char[] { 'a', 'b' }, characters);
 
-                test.assertEqual(1, characterReadStream.readCharacters(characters));
+                test.assertSuccess(1, characterReadStream.readCharacters(characters));
                 test.assertEqual(new char[] { 'c', 'b' }, characters);
 
-                test.assertEqual(-1, characterReadStream.readCharacters(characters));
+                test.assertSuccess(null, characterReadStream.readCharacters(characters));
                 test.assertEqual(new char[] { 'c', 'b' }, characters);
             });
 

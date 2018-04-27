@@ -80,54 +80,82 @@ class InputStreamReaderToCharacterReadStream extends CharacterReadStreamBase
     }
 
     @Override
-    public int readCharacters(char[] characters)
+    public Result<Integer> readCharacters(char[] characters)
     {
-        hasStarted = true;
+        Result<Integer> result = Result.notNull(characters, "characters");
+        if (result == null)
+        {
+            result = Result.greaterThan(0, characters.length, "characters.length");
+            if (result == null)
+            {
+                hasStarted = true;
 
-        int result = -1;
-        try
-        {
-            result = reader.read(characters);
-        }
-        catch (Exception ignored)
-        {
-        }
+                Integer charactersRead = null;
+                Throwable error = null;
+                try
+                {
+                    charactersRead = reader.read(characters);
+                }
+                catch (Exception e)
+                {
+                    error = e;
+                }
 
-        if (result < 0)
-        {
-            current = null;
-        }
-        else if (result > 0)
-        {
-            current = characters[result - 1];
-        }
+                if (charactersRead != null)
+                {
+                    if (charactersRead < 0)
+                    {
+                        current = null;
+                        charactersRead = null;
+                    }
+                    else if (charactersRead > 0)
+                    {
+                        current = characters[charactersRead - 1];
+                    }
+                }
 
+                result = Result.done(charactersRead, error);
+            }
+        }
         return result;
     }
 
     @Override
-    public int readCharacters(char[] characters, int startIndex, int length)
+    public Result<Integer> readCharacters(char[] characters, int startIndex, int length)
     {
-        hasStarted = true;
+        Result<Integer> result = Result.notNull(characters, "characters");
+        if (result == null)
+        {
+            result = Result.between(0, startIndex, characters.length - 1, "startIndex");
+            if (result == null)
+            {
+                result = Result.between(1, length, characters.length - startIndex, "length");
+                if (result == null)
+                {
+                    hasStarted = true;
 
-        int result = -1;
-        try
-        {
-            result = reader.read(characters, startIndex, length);
-        }
-        catch (Exception ignored)
-        {
-        }
+                    int charactersRead = -1;
+                    try
+                    {
+                        charactersRead = reader.read(characters, startIndex, length);
+                        result = Result.success(charactersRead);
+                    }
+                    catch (Exception e)
+                    {
+                        result = Result.error(e);
+                    }
 
-        if (result < 0)
-        {
-            current = null;
+                    if (charactersRead < 0)
+                    {
+                        current = null;
+                    }
+                    else if (charactersRead > 0)
+                    {
+                        current = characters[startIndex + charactersRead - 1];
+                    }
+                }
+            }
         }
-        else if (result > 0)
-        {
-            current = characters[startIndex + result - 1];
-        }
-
         return result;
     }
 

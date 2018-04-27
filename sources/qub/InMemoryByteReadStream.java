@@ -13,6 +13,4 @@ public class InMemoryByteReadStream extends InputStreamToByteReadStream
     {
         super(new ByteArrayInputStream(bytes == null ? new byte[0] : bytes));
     }
-
-
 }

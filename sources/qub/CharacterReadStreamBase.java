@@ -3,25 +3,25 @@ package qub;
 public abstract class CharacterReadStreamBase extends IteratorBase<Character> implements CharacterReadStream
 {
     @Override
-    public char[] readCharacters(int charactersToRead)
+    public Result<char[]> readCharacters(int charactersToRead)
     {
         return CharacterReadStreamBase.readCharacters(this, charactersToRead);
     }
 
     @Override
-    public int readCharacters(char[] characters)
+    public Result<Integer> readCharacters(char[] characters)
     {
         return CharacterReadStreamBase.readCharacters(this, characters);
     }
 
     @Override
-    public int readCharacters(char[] characters, int startIndex, int length)
+    public Result<Integer> readCharacters(char[] characters, int startIndex, int length)
     {
         return CharacterReadStreamBase.readCharacters(this, characters, startIndex, length);
     }
 
     @Override
-    public String readString(int charactersToRead)
+    public Result<String> readString(int charactersToRead)
     {
         return CharacterReadStreamBase.readString(this, charactersToRead);
     }
@@ -38,58 +38,112 @@ public abstract class CharacterReadStreamBase extends IteratorBase<Character> im
         return CharacterReadStreamBase.asLineReadStream(this, includeNewLines);
     }
 
-    public static char[] readCharacters(CharacterReadStream characterReadStream, int charactersToRead)
+    public static Result<char[]> readCharacters(CharacterReadStream characterReadStream, int charactersToRead)
     {
-        char[] result = null;
-        if (1 <= charactersToRead)
+        Result<char[]> result = Result.notNull(characterReadStream, "characterReadStream");
+        if (result == null)
         {
-            result = new char[charactersToRead];
-            final int charactersRead = characterReadStream.readCharacters(result);
-            if (charactersRead < 0)
+            result = Result.greaterThan(0, charactersToRead, "charactersToRead");
+            if (result == null)
             {
-                result = null;
-            }
-            else if (charactersRead < charactersToRead)
-            {
-                result = Array.clone(result, 0, charactersRead);
+                char[] buffer = new char[charactersToRead];
+                final Result<Integer> readCharactersResult = characterReadStream.readCharacters(buffer);
+                if (readCharactersResult.hasError())
+                {
+                    result = Result.error(readCharactersResult.getError());
+                }
+                else
+                {
+                    final Integer charactersRead = readCharactersResult.getValue();
+                    if (charactersRead == null)
+                    {
+                        buffer = null;
+                    }
+                    else if (charactersRead < charactersToRead)
+                    {
+                        buffer = Array.clone(buffer, 0, charactersRead);
+                    }
+                    result = Result.success(buffer);
+                }
             }
         }
         return result;
     }
 
-    public static int readCharacters(CharacterReadStream characterReadStream, char[] characters)
+    public static Result<Integer> readCharacters(CharacterReadStream characterReadStream, char[] characters)
     {
-        return characterReadStream.readCharacters(characters, 0, characters == null ? 0 : characters.length);
-    }
-
-    public static int readCharacters(CharacterReadStream characterReadStream, char[] characters, int startIndex, int length)
-    {
-        int charactersRead = 0;
-
-        Result<Character> readCharacterResult;
-        Character character;
-        for (int i = 0; i < length; ++i)
+        Result<Integer> result = Result.notNull(characterReadStream, "characterReadStream");
+        if (result == null)
         {
-            readCharacterResult = characterReadStream.readCharacter();
-            character = readCharacterResult.getValue();
-            if (character == null)
+            result = Result.notNull(characters, "characters");
+            if (result == null)
             {
-                break;
-            }
-            else
-            {
-                characters[startIndex + i] = character;
-                ++charactersRead;
+                result = Result.greaterThan(0, characters.length, "characters.length");
+                if (result == null)
+                {
+                    result = characterReadStream.readCharacters(characters, 0, characters.length);
+                }
             }
         }
-
-        return charactersRead;
+        return result;
     }
 
-    public static String readString(CharacterReadStream characterReadStream, int charactersToRead)
+    public static Result<Integer> readCharacters(CharacterReadStream characterReadStream, char[] characters, int startIndex, int length)
     {
-        final char[] characters = characterReadStream.readCharacters(charactersToRead);
-        return characters == null ? null : new String(characters);
+        Result<Integer> result = Result.notNull(characterReadStream, "characterReadStream");
+        if (result == null)
+        {
+            result = Result.notNull(characters, "characters");
+            if (result == null)
+            {
+                result = Result.between(0, startIndex, characters.length - 1, "startIndex");
+                if (result == null)
+                {
+                    result = Result.between(1, length, characters.length - startIndex, "length");
+                    if (result == null)
+                    {
+                        int charactersRead = 0;
+
+                        Result<Character> readCharacterResult;
+                        Character character;
+                        for (int i = 0; i < length; ++i)
+                        {
+                            readCharacterResult = characterReadStream.readCharacter();
+                            character = readCharacterResult.getValue();
+                            if (character == null)
+                            {
+                                break;
+                            }
+                            else
+                            {
+                                characters[startIndex + i] = character;
+                                ++charactersRead;
+                            }
+                        }
+
+                        result = Result.success(charactersRead == 0 ? null : charactersRead);
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    public static Result<String> readString(CharacterReadStream characterReadStream, int charactersToRead)
+    {
+        Result<String> result = Result.notNull(characterReadStream, "characterReadStream");
+        if (result == null)
+        {
+            result = Result.greaterThan(0, charactersToRead, "charactersToRead");
+            if (result == null)
+            {
+                final Result<char[]> readCharactersResult = characterReadStream.readCharacters(charactersToRead);
+                final char[] characters = readCharactersResult.getValue();
+                final String resultString = characters == null ? null : new String(characters);
+                result = Result.done(resultString, readCharactersResult.getError());
+            }
+        }
+        return result;
     }
 
     public static LineReadStream asLineReadStream(CharacterReadStream characterReadStream)

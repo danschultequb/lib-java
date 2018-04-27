@@ -120,16 +120,16 @@ public class ProcessTests
                     test.assertEqual(new byte[] { 32, 104 }, byteBuffer);
 
                     final CharacterReadStream characterReadStream = process.getInputAsCharacterReadStream();
-                    test.assertEqual(new char[] { 'e', 'r', 'e' }, characterReadStream.readCharacters(3));
+                    test.assertSuccess(new char[] { 'e', 'r', 'e' }, characterReadStream.readCharacters(3));
 
                     final char[] characterBuffer = new char[4];
-                    test.assertEqual(4, characterReadStream.readCharacters(characterBuffer));
+                    test.assertSuccess(4, characterReadStream.readCharacters(characterBuffer));
                     test.assertEqual(new char[] { ' ', 'm', 'y', ' ' }, characterBuffer);
 
-                    test.assertEqual(2, characterReadStream.readCharacters(characterBuffer, 0, 2));
+                    test.assertSuccess(2, characterReadStream.readCharacters(characterBuffer, 0, 2));
                     test.assertEqual(new char[] { 'g', 'o', 'y', ' ' }, characterBuffer);
 
-                    test.assertEqual("od fr", characterReadStream.readString(5));
+                    test.assertSuccess("od fr", characterReadStream.readString(5));
                 });
             });
 
@@ -166,16 +166,16 @@ public class ProcessTests
                     test.assertEqual(new byte[] { 32, 104 }, byteBuffer);
 
                     final CharacterReadStream characterReadStream = process.getInputAsCharacterReadStream();
-                    test.assertEqual(new char[] { 'e', 'r', 'e' }, characterReadStream.readCharacters(3));
+                    test.assertSuccess(new char[] { 'e', 'r', 'e' }, characterReadStream.readCharacters(3));
 
                     final char[] characterBuffer = new char[4];
-                    test.assertEqual(4, characterReadStream.readCharacters(characterBuffer));
+                    test.assertSuccess(4, characterReadStream.readCharacters(characterBuffer));
                     test.assertEqual(new char[] { ' ', 'm', 'y', ' ' }, characterBuffer);
 
-                    test.assertEqual(2, characterReadStream.readCharacters(characterBuffer, 0, 2));
+                    test.assertSuccess(2, characterReadStream.readCharacters(characterBuffer, 0, 2));
                     test.assertEqual(new char[] { 'g', 'o', 'y', ' ' }, characterBuffer);
 
-                    test.assertEqual("od fr", characterReadStream.readString(5));
+                    test.assertSuccess("od fr", characterReadStream.readString(5));
                 });
             });
 
@@ -212,16 +212,16 @@ public class ProcessTests
                     test.assertEqual(new byte[] { 32, 104 }, byteBuffer);
 
                     final CharacterReadStream characterReadStream = process.getInputAsCharacterReadStream();
-                    test.assertEqual(new char[] { 'e', 'r', 'e' }, characterReadStream.readCharacters(3));
+                    test.assertSuccess(new char[] { 'e', 'r', 'e' }, characterReadStream.readCharacters(3));
 
                     final char[] characterBuffer = new char[4];
-                    test.assertEqual(4, characterReadStream.readCharacters(characterBuffer));
+                    test.assertSuccess(4, characterReadStream.readCharacters(characterBuffer));
                     test.assertEqual(new char[] { ' ', 'm', 'y', ' ' }, characterBuffer);
 
-                    test.assertEqual(2, characterReadStream.readCharacters(characterBuffer, 0, 2));
+                    test.assertSuccess(2, characterReadStream.readCharacters(characterBuffer, 0, 2));
                     test.assertEqual(new char[] { 'g', 'o', 'y', ' ' }, characterBuffer);
 
-                    test.assertEqual("od fr", characterReadStream.readString(5));
+                    test.assertSuccess("od fr", characterReadStream.readString(5));
                 });
             });
 

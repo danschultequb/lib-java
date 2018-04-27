@@ -1,7 +1,5 @@
 package qub;
 
-import java.io.IOException;
-
 public class InputStreamReaderToCharacterReadStreamTests
 {
     public static void test(TestRunner runner)
@@ -20,7 +18,7 @@ public class InputStreamReaderToCharacterReadStreamTests
                 inputStream.setThrowOnRead(true);
 
                 final InputStreamReaderToCharacterReadStream characterReadStream = getCharacterReadStream(inputStream);
-                test.assertDone(null, new IOException(), characterReadStream.readCharacter());
+                test.assertError(new java.io.IOException(), characterReadStream.readCharacter());
                 assertCharacterReadStream(test, characterReadStream, false, true, null);
             });
             
@@ -30,13 +28,13 @@ public class InputStreamReaderToCharacterReadStreamTests
                 final InputStreamReaderToCharacterReadStream characterReadStream = getCharacterReadStream(byteReadStream);
                 final char[] characters = new char[5];
 
-                int charactersRead = characterReadStream.readCharacters(characters);
-                test.assertEqual(5, charactersRead);
+                Result<Integer> charactersRead = characterReadStream.readCharacters(characters);
+                test.assertSuccess(5, charactersRead);
                 test.assertEqual(new char[] { 'a', 'b', 'c', 'd', 'e' }, characters);
                 assertCharacterReadStream(test, characterReadStream, false, true, 'e');
 
                 charactersRead = characterReadStream.readCharacters(characters);
-                test.assertEqual(2, charactersRead);
+                test.assertSuccess(2, charactersRead);
                 test.assertEqual(new char[] { 'f', 'g', 'c', 'd', 'e' }, characters);
                 assertCharacterReadStream(test, characterReadStream, false, true, 'g');
             });
@@ -49,8 +47,8 @@ public class InputStreamReaderToCharacterReadStreamTests
                 final InputStreamReaderToCharacterReadStream characterReadStream = getCharacterReadStream(inputStream);
 
                 final char[] characters = new char[5];
-                int charactersRead = characterReadStream.readCharacters(characters);
-                test.assertEqual(-1, charactersRead);
+                Result<Integer> charactersRead = characterReadStream.readCharacters(characters);
+                test.assertError(new java.io.IOException(), charactersRead);
                 test.assertEqual(new char[5], characters);
                 assertCharacterReadStream(test, characterReadStream, false, true, null);
             });
@@ -61,12 +59,12 @@ public class InputStreamReaderToCharacterReadStreamTests
                 final InputStreamReaderToCharacterReadStream characterReadStream = getCharacterReadStream(byteReadStream);
                 final char[] characters = new char[5];
 
-                int charactersRead = characterReadStream.readCharacters(characters, 2, 3);
-                test.assertEqual(3, charactersRead);
+                Result<Integer> charactersRead = characterReadStream.readCharacters(characters, 2, 3);
+                test.assertSuccess(3, charactersRead);
                 test.assertEqual(new char[] { (char)0, (char)0, 'a', 'b', 'c' }, characters);
 
                 charactersRead = characterReadStream.readCharacters(characters, 1, 4);
-                test.assertEqual(4, charactersRead);
+                test.assertSuccess(4, charactersRead);
                 test.assertEqual(new char[] { (char)0, 'd', 'e', 'f', 'g' }, characters);
             });
             
@@ -78,8 +76,8 @@ public class InputStreamReaderToCharacterReadStreamTests
                 final InputStreamReaderToCharacterReadStream characterReadStream = getCharacterReadStream(inputStream);
 
                 final char[] characters = new char[5];
-                int charactersRead = characterReadStream.readCharacters(characters, 3, 1);
-                test.assertEqual(-1, charactersRead);
+                Result<Integer> charactersRead = characterReadStream.readCharacters(characters, 3, 1);
+                test.assertError(new java.io.IOException(), charactersRead);
                 test.assertEqual(new char[5], characters);
             });
             

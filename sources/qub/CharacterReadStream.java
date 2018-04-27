@@ -4,13 +4,13 @@ public interface CharacterReadStream extends Disposable, Iterator<Character>
 {
     Result<Character> readCharacter();
 
-    char[] readCharacters(int charactersToRead);
+    Result<char[]> readCharacters(int charactersToRead);
 
-    int readCharacters(char[] characters);
+    Result<Integer> readCharacters(char[] characters);
 
-    int readCharacters(char[] characters, int startIndex, int length);
+    Result<Integer> readCharacters(char[] characters, int startIndex, int length);
 
-    String readString(int charactersToRead);
+    Result<String> readString(int charactersToRead);
 
     CharacterEncoding getEncoding();
 
