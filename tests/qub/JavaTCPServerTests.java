@@ -17,13 +17,13 @@ public class JavaTCPServerTests
                 runner.test("with -1 port", (Test test) ->
                 {
                     final Result<TCPServer> tcpServer = JavaTCPServer.create(-1, test.getParallelAsyncRunner());
-                    test.assertError(new IllegalArgumentException("localPort must be greater than 0."), tcpServer);
+                    test.assertError(new IllegalArgumentException("localPort (-1) must be between 1 and 65535."), tcpServer);
                 });
 
                 runner.test("with 0 port", (Test test) ->
                 {
                     final Result<TCPServer> tcpServer = JavaTCPServer.create(0, test.getParallelAsyncRunner());
-                    test.assertError(new IllegalArgumentException("localPort must be greater than 0."), tcpServer);
+                    test.assertError(new IllegalArgumentException("localPort (0) must be between 1 and 65535."), tcpServer);
                 });
 
                 runner.test("with null asyncRunner", (Test test) ->
@@ -67,13 +67,13 @@ public class JavaTCPServerTests
                 runner.test("with 127.0.0.1 and -1 port", (Test test) ->
                 {
                     final Result<TCPServer> tcpServer = JavaTCPServer.create(IPv4Address.parse("127.0.0.1"), -1, test.getParallelAsyncRunner());
-                    test.assertError(new IllegalArgumentException("localPort must be greater than 0."), tcpServer);
+                    test.assertError(new IllegalArgumentException("localPort (-1) must be between 1 and 65535."), tcpServer);
                 });
 
                 runner.test("with 127.0.0.1 and 0 port", (Test test) ->
                 {
                     final Result<TCPServer> tcpServer = JavaTCPServer.create(IPv4Address.parse("127.0.0.1"), 0, test.getParallelAsyncRunner());
-                    test.assertError(new IllegalArgumentException("localPort must be greater than 0."), tcpServer);
+                    test.assertError(new IllegalArgumentException("localPort (0) must be between 1 and 65535."), tcpServer);
                 });
 
                 runner.test("with 127.0.0.1, " + port.incrementAndGet() + " port, and null asyncRunner", (Test test) ->

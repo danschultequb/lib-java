@@ -22,42 +22,47 @@ class JavaTCPClient extends AsyncDisposableBase implements TCPClient
 
     static Result<TCPClient> create(Socket socket, AsyncRunner asyncRunner)
     {
-        return createAsync(socket, asyncRunner).awaitReturn();
+        Result<TCPClient> result = Result.notNull(socket, "socket");
+        if (result == null)
+        {
+            result = Result.notNull(asyncRunner, "asyncRunner");
+            if (result == null)
+            {
+                try
+                {
+                    final ByteReadStream socketReadStream = new InputStreamToByteReadStream(socket.getInputStream());
+                    final ByteWriteStream socketWriteStream = new OutputStreamToByteWriteStream(socket.getOutputStream());
+                    result = Result.<TCPClient>success(new JavaTCPClient(socket, asyncRunner, socketReadStream, socketWriteStream));
+                }
+                catch (IOException e)
+                {
+                    result = Result.error(e);
+                }
+            }
+        }
+        return result;
     }
 
     static AsyncFunction<Result<TCPClient>> createAsync(final Socket socket, final AsyncRunner asyncRunner)
     {
         final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
 
-        AsyncFunction<Result<TCPClient>> result;
-
-        if (socket == null)
+        AsyncFunction<Result<TCPClient>> result = currentAsyncRunner.notNull(socket, "socket");
+        if (result == null)
         {
-            result = currentAsyncRunner.error(new IllegalArgumentException("socket cannot be null."));
-        }
-        else
-        {
-            result = asyncRunner.schedule(new Function0<Result<TCPClient>>()
-                {
-                    @Override
-                    public Result<TCPClient> run()
+            result = currentAsyncRunner.notNull(asyncRunner, "asyncRunner");
+            if (result == null)
+            {
+                asyncRunner.schedule(new Function0<Result<TCPClient>>()
                     {
-                        Result<TCPClient> result;
-                        try
+                        @Override
+                        public Result<TCPClient> run()
                         {
-                            final ByteReadStream socketReadStream = new InputStreamToByteReadStream(socket.getInputStream());
-                            final ByteWriteStream socketWriteStream = new OutputStreamToByteWriteStream(socket.getOutputStream());
-                            result = Result.<TCPClient>success(new JavaTCPClient(socket, asyncRunner, socketReadStream, socketWriteStream));
+                            return JavaTCPClient.create(socket, asyncRunner);
                         }
-                        catch (IOException e)
-                        {
-                            result = Result.error(e);
-                        }
-                        return result;
-                    }
-                })
-                .thenOn(currentAsyncRunner);
-
+                    })
+                    .thenOn(currentAsyncRunner);
+            }
         }
 
         return result;
@@ -65,46 +70,56 @@ class JavaTCPClient extends AsyncDisposableBase implements TCPClient
 
     static Result<TCPClient> create(IPv4Address remoteIPAddress, int remotePort, AsyncRunner asyncRunner)
     {
-        return createAsync(remoteIPAddress, remotePort, asyncRunner).awaitReturn();
+        Result<TCPClient> result = Result.notNull(remoteIPAddress, "remoteIPAddress");
+        if (result == null)
+        {
+            result = Result.between(1, remotePort, 65535, "remotePort");
+            if (result == null)
+            {
+                result = Result.notNull(asyncRunner, "asyncRunner");
+                if (result == null)
+                {
+                    try
+                    {
+                        final byte[] remoteIPAddressBytes = remoteIPAddress.toBytes();
+                        final InetAddress remoteInetAddress = InetAddress.getByAddress(remoteIPAddressBytes);
+                        final Socket socket = new Socket(remoteInetAddress, remotePort);
+                        result = JavaTCPClient.create(socket, asyncRunner);
+                    }
+                    catch (IOException e)
+                    {
+                        result = Result.error(e);
+                    }
+                }
+            }
+        }
+        return result;
     }
 
     static AsyncFunction<Result<TCPClient>> createAsync(final IPv4Address remoteIPAddress, final int remotePort, final AsyncRunner asyncRunner)
     {
         final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
 
-        AsyncFunction<Result<TCPClient>> result;
-
-        if (remoteIPAddress == null)
+        AsyncFunction<Result<TCPClient>> result = currentAsyncRunner.notNull(remoteIPAddress, "remoteIPAddress");
+        if (result == null)
         {
-            result = currentAsyncRunner.error(new IllegalArgumentException("remoteIPAddress cannot be null."));
-        }
-        else if (remotePort <= 0)
-        {
-            result = currentAsyncRunner.error(new IllegalArgumentException("remotePort must be greater than 0."));
-        }
-        else
-        {
-            result = asyncRunner.schedule(new Function0<Result<TCPClient>>()
+            result = currentAsyncRunner.between(1, remotePort, 65535, "remotePort");
+            if (result == null)
+            {
+                result = currentAsyncRunner.notNull(asyncRunner, "asyncRunner");
+                if (result == null)
                 {
-                    @Override
-                    public Result<TCPClient> run()
-                    {
-                        Result<TCPClient> result;
-                        try
+                    result = asyncRunner.schedule(new Function0<Result<TCPClient>>()
                         {
-                            final byte[] remoteIPAddressBytes = remoteIPAddress.toBytes();
-                            final InetAddress remoteInetAddress = InetAddress.getByAddress(remoteIPAddressBytes);
-                            final Socket socket = new Socket(remoteInetAddress, remotePort);
-                            result = JavaTCPClient.create(socket, asyncRunner);
-                        }
-                        catch (IOException e)
-                        {
-                            result = Result.error(e);
-                        }
-                        return result;
-                    }
-                })
-                .thenOn(currentAsyncRunner);
+                            @Override
+                            public Result<TCPClient> run()
+                            {
+                                return JavaTCPClient.create(remoteIPAddress, remotePort, asyncRunner);
+                            }
+                        })
+                        .thenOn(currentAsyncRunner);
+                }
+            }
         }
 
         return result;
@@ -376,42 +391,36 @@ class JavaTCPClient extends AsyncDisposableBase implements TCPClient
     }
 
     @Override
+    public AsyncRunner getAsyncRunner()
+    {
+        return asyncRunner;
+    }
+
+    @Override
     public boolean isDisposed()
     {
         return socket.isClosed();
     }
 
     @Override
-    public AsyncFunction<Result<Boolean>> disposeAsync()
+    public Result<Boolean> dispose()
     {
-        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-
-        AsyncFunction<Result<Boolean>> result;
+        Result<Boolean> result;
         if (isDisposed())
         {
-            result = currentAsyncRunner.success(false);
+            result = Result.successFalse();
         }
         else
         {
-            result = asyncRunner.schedule(new Function0<Result<Boolean>>()
-                {
-                    @Override
-                    public Result<Boolean> run()
-                    {
-                        Result<Boolean> result;
-                        try
-                        {
-                            socket.close();
-                            result = Result.success(true);
-                        }
-                        catch (IOException e)
-                        {
-                            result = Result.error(e);
-                        }
-                        return result;
-                    }
-                })
-                .thenOn(currentAsyncRunner);
+            try
+            {
+                socket.close();
+                result = Result.successTrue();
+            }
+            catch (IOException e)
+            {
+                result = Result.error(e);
+            }
         }
         return result;
     }

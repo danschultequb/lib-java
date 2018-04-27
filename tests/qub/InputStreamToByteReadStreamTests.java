@@ -88,7 +88,7 @@ public class InputStreamToByteReadStreamTests
 
                     final CharacterReadStream characterReadStream = byteReadStream.asCharacterReadStream();
 
-                    test.assertEqual('a', characterReadStream.readCharacter());
+                    test.assertSuccess('a', characterReadStream.readCharacter());
                 });
                 
                 runner.testGroup("asCharacterReadStream(CharacterEncoding)", () ->
@@ -106,7 +106,7 @@ public class InputStreamToByteReadStreamTests
 
                         final CharacterReadStream characterReadStream = byteReadStream.asCharacterReadStream(CharacterEncoding.US_ASCII);
 
-                        test.assertEqual('a', characterReadStream.readCharacter());
+                        test.assertSuccess('a', characterReadStream.readCharacter());
                     });
                 });
 

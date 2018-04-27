@@ -66,9 +66,12 @@ public abstract class CharacterReadStreamBase extends IteratorBase<Character> im
     {
         int charactersRead = 0;
 
+        Result<Character> readCharacterResult;
+        Character character;
         for (int i = 0; i < length; ++i)
         {
-            final Character character = characterReadStream.readCharacter();
+            readCharacterResult = characterReadStream.readCharacter();
+            character = readCharacterResult.getValue();
             if (character == null)
             {
                 break;

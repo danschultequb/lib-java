@@ -175,7 +175,6 @@ public class TestRunnerBase implements TestRunner
                 }
                 finally
                 {
-                    test.await();
                     AsyncRunnerRegistry.setCurrentThreadAsyncRunner(process.getMainAsyncRunner());
                 }
 

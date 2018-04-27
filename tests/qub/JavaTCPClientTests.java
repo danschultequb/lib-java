@@ -31,13 +31,13 @@ public class JavaTCPClientTests
                 runner.test("with -1 remotePort", (Test test) ->
                 {
                     final Result<TCPClient> tcpClient = JavaTCPClient.create(IPv4Address.localhost, -1, test.getParallelAsyncRunner());
-                    test.assertError(new IllegalArgumentException("remotePort must be greater than 0."), tcpClient);
+                    test.assertError(new IllegalArgumentException("remotePort (-1) must be between 1 and 65535."), tcpClient);
                 });
 
                 runner.test("with 0 remotePort", (Test test) ->
                 {
                     final Result<TCPClient> tcpClient = JavaTCPClient.create(IPv4Address.localhost, 0, test.getParallelAsyncRunner());
-                    test.assertError(new IllegalArgumentException("remotePort must be greater than 0."), tcpClient);
+                    test.assertError(new IllegalArgumentException("remotePort (0) must be between 1 and 65535."), tcpClient);
                 });
 
                 runner.test("with valid arguments but no server listening", (Test test) ->

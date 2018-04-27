@@ -9,58 +9,64 @@ public class TCPEchoServer extends AsyncDisposableBase
         this.tcpServer = tcpServer;
     }
 
-    public static Result<TCPEchoServer> create(Network network, int port)
+    public static Result<TCPEchoServer> create(Network network, int localPort)
     {
-        Result<TCPEchoServer> result;
-
-        final Result<TCPServer> tcpServerResult = network.createTCPServer(port);
-        if (tcpServerResult.hasError())
+        Result<TCPEchoServer> result = Result.notNull(network, "network");
+        if (result == null)
         {
-            result = Result.error(tcpServerResult.getError());
+            final Result<TCPServer> tcpServerResult = network.createTCPServer(localPort);
+            if (tcpServerResult.hasError())
+            {
+                result = Result.error(tcpServerResult.getError());
+            }
+            else
+            {
+                final TCPEchoServer tcpEchoServer = new TCPEchoServer(tcpServerResult.getValue());
+                result = Result.success(tcpEchoServer);
+            }
         }
-        else
-        {
-            final TCPEchoServer tcpEchoServer = new TCPEchoServer(tcpServerResult.getValue());
-            result = Result.success(tcpEchoServer);
-        }
-
         return result;
     }
 
     public void echo()
     {
-        echoAsync().await();
+        final Result<TCPClient> acceptResult = tcpServer.accept();
+        if (!acceptResult.hasError())
+        {
+            try (final TCPClient tcpClient = acceptResult.getValue())
+            {
+                final LineReadStream tcpClientLineReadStream = tcpClient.asLineReadStream(true);
+                final LineWriteStream tcpClientLineWriteStream = tcpClient.asLineWriteStream();
+
+                String line = tcpClientLineReadStream.readLine();
+                while (line != null)
+                {
+                    tcpClientLineWriteStream.write(line);
+                    line = tcpClientLineReadStream.readLine();
+                }
+            }
+        }
     }
 
     public AsyncAction echoAsync()
     {
-        return tcpServer.acceptAsync()
-            .then(new Action1<Result<TCPClient>>()
+        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+        final AsyncRunner tcpServerAsyncRunner = tcpServer.getAsyncRunner();
+        return tcpServerAsyncRunner.schedule(new Action0()
             {
                 @Override
-                public void run(Result<TCPClient> tcpClientResult)
+                public void run()
                 {
-                    //MAIN
-                    if (!tcpClientResult.hasError())
-                    {
-                        try (final TCPClient tcpClient = tcpClientResult.getValue())
-                        {
-                            final LineReadStream tcpClientLineReadStream = tcpClient.asLineReadStream(true);
-                            final LineWriteStream tcpClientLineWriteStream = tcpClient.asLineWriteStream();
-
-                            //BLOCKING
-                            String line = tcpClientLineReadStream.readLine();
-                            while (line != null)
-                            {
-                                //BLOCKING
-                                tcpClientLineWriteStream.write(line);
-                                //BLOCKING
-                                line = tcpClientLineReadStream.readLine();
-                            }
-                        }
-                    }
+                    echo();
                 }
-            });
+            })
+            .thenOn(currentAsyncRunner);
+    }
+
+    @Override
+    public AsyncRunner getAsyncRunner()
+    {
+        return tcpServer.getAsyncRunner();
     }
 
     @Override
@@ -70,8 +76,8 @@ public class TCPEchoServer extends AsyncDisposableBase
     }
 
     @Override
-    public AsyncFunction<Result<Boolean>> disposeAsync()
+    public Result<Boolean> dispose()
     {
-        return tcpServer.disposeAsync();
+        return tcpServer.dispose();
     }
 }

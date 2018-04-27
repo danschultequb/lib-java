@@ -101,19 +101,6 @@ public class Process extends DisposableBase
         return parallelAsyncRunner;
     }
 
-    public void await()
-    {
-        while (mainAsyncRunner.getScheduledTaskCount() > 0 || (parallelAsyncRunner != null && parallelAsyncRunner.getScheduledTaskCount() > 0))
-        {
-            mainAsyncRunner.await();
-
-            if (parallelAsyncRunner != null)
-            {
-                parallelAsyncRunner.await();
-            }
-        }
-    }
-
     public Indexable<String> getCommandLineArgumentStrings()
     {
         return commandLine.getArgumentStrings();

@@ -89,4 +89,27 @@ public interface AsyncRunner extends Disposable
      * @return An AsyncFunction that returns a Result with the provided value and error.
      */
     <T> AsyncFunction<Result<T>> done(T value, Throwable error);
+
+    /**
+     * Create an AsyncFunction that returns an error Result if the provided value is null.
+     * @param value The value to check.
+     * @param parameterName The name of the parameter that the value comes from.
+     * @param <T> The type of the Result that the return value must match.
+     * @return An AsyncFunction if the provided value is null, or null if the provided value is not
+     * null.
+     */
+    <T> AsyncFunction<Result<T>> notNull(Object value, String parameterName);
+
+    /**
+     * Create an AsyncFunction that returns an error Result if the provided value is not between the
+     * provided lowerBound and upperBound (inclusive).
+     * @param lowerBound The lower bound value.
+     * @param value The value to check.
+     * @param upperBound The upper bound value.
+     * @param parameterName The name of the parameter that the value comes from.
+     * @param <T> The type of the Result that the return value must match.
+     * @return An AsyncFunction if the provided value is not between the lower and upper bounds, or
+     * null if the provided value is between the lower and upper bounds.
+     */
+    <T> AsyncFunction<Result<T>> between(int lowerBound, int value, int upperBound, String parameterName);
 }

@@ -1,5 +1,7 @@
 package qub;
 
+import java.io.IOException;
+
 public class InputStreamReaderToCharacterReadStreamTests
 {
     public static void test(TestRunner runner)
@@ -18,7 +20,7 @@ public class InputStreamReaderToCharacterReadStreamTests
                 inputStream.setThrowOnRead(true);
 
                 final InputStreamReaderToCharacterReadStream characterReadStream = getCharacterReadStream(inputStream);
-                test.assertNull(characterReadStream.readCharacter());
+                test.assertDone(null, new IOException(), characterReadStream.readCharacter());
                 assertCharacterReadStream(test, characterReadStream, false, true, null);
             });
             

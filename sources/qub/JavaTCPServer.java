@@ -11,7 +11,6 @@ class JavaTCPServer extends AsyncDisposableBase implements TCPServer
 
     private final ServerSocket serverSocket;
     private final AsyncRunner asyncRunner;
-    private boolean disposed;
 
     JavaTCPServer(ServerSocket serverSocket, AsyncRunner asyncRunner)
     {
@@ -21,14 +20,22 @@ class JavaTCPServer extends AsyncDisposableBase implements TCPServer
 
     static Result<TCPServer> create(int localPort, AsyncRunner asyncRunner)
     {
-        Result<TCPServer> result;
-        if (asyncRunner == null)
+        Result<TCPServer> result = Result.between(1, localPort, 65535, "localPort");
+        if (result == null)
         {
-            result = Result.error(new IllegalArgumentException("asyncRunner cannot be null."));
-        }
-        else
-        {
-            result = createAsync(localPort, asyncRunner).awaitReturn();
+            result = Result.notNull(asyncRunner, "asyncRunner");
+            if (result == null)
+            {
+                try
+                {
+                    final ServerSocket serverSocket = new ServerSocket(localPort, tcpClientBacklog);
+                    result = Result.<TCPServer>success(new JavaTCPServer(serverSocket, asyncRunner));
+                }
+                catch (IOException e)
+                {
+                    result = Result.error(e);
+                }
+            }
         }
         return result;
     }
@@ -37,52 +44,50 @@ class JavaTCPServer extends AsyncDisposableBase implements TCPServer
     {
         final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
 
-        AsyncFunction<Result<TCPServer>> result;
-
-        if (localPort <= 0)
+        AsyncFunction<Result<TCPServer>> result = currentAsyncRunner.between(1, localPort, 65535, "localPort");
+        if (result == null)
         {
-            result = currentAsyncRunner.error(new IllegalArgumentException("localPort must be greater than 0."));
-        }
-        else if (localPort >= 65536)
-        {
-            result = currentAsyncRunner.error(new IllegalArgumentException("localPort must be less than 65536."));
-        }
-        else
-        {
-            result = asyncRunner.schedule(new Function0<Result<TCPServer>>()
-                {
-                    @Override
-                    public Result<TCPServer> run()
+            result = currentAsyncRunner.notNull(asyncRunner, "asyncRunner");
+            if (result == null)
+            {
+                result = asyncRunner.schedule(new Function0<Result<TCPServer>>()
                     {
-                        Result<TCPServer> result;
-                        try
+                        @Override
+                        public Result<TCPServer> run()
                         {
-                            final ServerSocket serverSocket = new ServerSocket(localPort, tcpClientBacklog);
-                            result = Result.<TCPServer>success(new JavaTCPServer(serverSocket, asyncRunner));
+                            return JavaTCPServer.create(localPort, asyncRunner);
                         }
-                        catch (IOException e)
-                        {
-                            result = Result.error(e);
-                        }
-                        return result;
-                    }
-                })
-                .thenOn(currentAsyncRunner);
+                    })
+                    .thenOn(currentAsyncRunner);
+            }
         }
-
         return result;
     }
 
     static Result<TCPServer> create(IPv4Address localIPAddress, int localPort, AsyncRunner asyncRunner)
     {
-        Result<TCPServer> result;
-        if (asyncRunner == null)
+        Result<TCPServer> result = Result.notNull(localIPAddress, "localIPAddress");
+        if (result == null)
         {
-            result = Result.error(new IllegalArgumentException("asyncRunner cannot be null."));
-        }
-        else
-        {
-            result = createAsync(localIPAddress, localPort, asyncRunner).awaitReturn();
+            result = Result.between(1, localPort, 65535, "localPort");
+            if (result == null)
+            {
+                result = Result.notNull(asyncRunner, "asyncRunner");
+                if (result == null)
+                {
+                    try
+                    {
+                        final byte[] localIPAddressBytes = localIPAddress.toBytes();
+                        final InetAddress localInetAddress = InetAddress.getByAddress(localIPAddressBytes);
+                        final ServerSocket serverSocket = new ServerSocket(localPort, tcpClientBacklog, localInetAddress);
+                        result = Result.<TCPServer>success(new JavaTCPServer(serverSocket, asyncRunner));
+                    }
+                    catch (IOException e)
+                    {
+                        result = Result.error(e);
+                    }
+                }
+            }
         }
         return result;
     }
@@ -91,43 +96,26 @@ class JavaTCPServer extends AsyncDisposableBase implements TCPServer
     {
         final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
 
-        AsyncFunction<Result<TCPServer>> result;
-
-        if (localIPAddress == null)
+        AsyncFunction<Result<TCPServer>> result = currentAsyncRunner.notNull(localIPAddress, "localIPAddress");
+        if (result == null)
         {
-            result = currentAsyncRunner.error(new IllegalArgumentException("localIPAddress cannot be null."));
-        }
-        else if (localPort <= 0)
-        {
-            result = currentAsyncRunner.error(new IllegalArgumentException("localPort must be greater than 0."));
-        }
-        else if (localPort >= 65536)
-        {
-            result = currentAsyncRunner.error(new IllegalArgumentException("localPort must be less than 65536."));
-        }
-        else
-        {
-            result = asyncRunner.schedule(new Function0<Result<TCPServer>>()
+            result = currentAsyncRunner.between(1, localPort, 65535, "localPort");
+            if (result == null)
+            {
+                result = currentAsyncRunner.notNull(asyncRunner, "asyncRunner");
+                if (result == null)
                 {
-                    @Override
-                    public Result<TCPServer> run()
-                    {
-                        Result<TCPServer> result;
-                        try
+                    result = asyncRunner.schedule(new Function0<Result<TCPServer>>()
                         {
-                            final byte[] localIPAddressBytes = localIPAddress.toBytes();
-                            final InetAddress localInetAddress = InetAddress.getByAddress(localIPAddressBytes);
-                            final ServerSocket serverSocket = new ServerSocket(localPort, tcpClientBacklog, localInetAddress);
-                            result = Result.<TCPServer>success(new JavaTCPServer(serverSocket, asyncRunner));
-                        }
-                        catch (IOException e)
-                        {
-                            result = Result.error(e);
-                        }
-                        return result;
-                    }
-                })
-                .thenOn(currentAsyncRunner);
+                            @Override
+                            public Result<TCPServer> run()
+                            {
+                                return JavaTCPServer.create(localIPAddress, localPort, asyncRunner);
+                            }
+                        })
+                        .thenOn(currentAsyncRunner);
+                }
+            }
         }
 
         return result;
@@ -136,7 +124,17 @@ class JavaTCPServer extends AsyncDisposableBase implements TCPServer
     @Override
     public Result<TCPClient> accept()
     {
-        return acceptAsync().awaitReturn();
+        Result<TCPClient> result;
+        try
+        {
+            final Socket socket = serverSocket.accept();
+            result = JavaTCPClient.create(socket, asyncRunner);
+        }
+        catch (IOException e)
+        {
+            result = Result.<TCPClient>error(e);
+        }
+        return result;
     }
 
     @Override
@@ -149,17 +147,7 @@ class JavaTCPServer extends AsyncDisposableBase implements TCPServer
                 @Override
                 public Result<TCPClient> run()
                 {
-                    Result<TCPClient> result;
-                    try
-                    {
-                        final Socket socket = serverSocket.accept();
-                        result = JavaTCPClient.create(socket, asyncRunner);
-                    }
-                    catch (IOException e)
-                    {
-                        result = Result.<TCPClient>error(e);
-                    }
-                    return result;
+                    return accept();
                 }
             })
             .thenOn(currentAsyncRunner);
@@ -168,42 +156,35 @@ class JavaTCPServer extends AsyncDisposableBase implements TCPServer
     @Override
     public boolean isDisposed()
     {
-        return disposed;
+        return serverSocket.isClosed();
     }
 
     @Override
-    public AsyncFunction<Result<Boolean>> disposeAsync()
+    public Result<Boolean> dispose()
     {
-        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-
-        AsyncFunction<Result<Boolean>> result;
-        if (disposed)
+        Result<Boolean> result;
+        if (isDisposed())
         {
-            result = currentAsyncRunner.success(false);
+            result = Result.successFalse();
         }
         else
         {
-            disposed = true;
-            result = asyncRunner.schedule(new Function0<Result<Boolean>>()
-                {
-                    @Override
-                    public Result<Boolean> run()
-                    {
-                        Result<Boolean> result;
-                        try
-                        {
-                            serverSocket.close();
-                            result = Result.success(true);
-                        }
-                        catch (IOException e)
-                        {
-                            result = Result.<Boolean>error(e);
-                        }
-                        return result;
-                    }
-                })
-                .thenOn(currentAsyncRunner);
+            try
+            {
+                serverSocket.close();
+                result = Result.successTrue();
+            }
+            catch (IOException e)
+            {
+                result = Result.<Boolean>error(e);
+            }
         }
         return result;
+    }
+
+    @Override
+    public AsyncRunner getAsyncRunner()
+    {
+        return asyncRunner;
     }
 }

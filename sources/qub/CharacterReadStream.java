@@ -2,7 +2,7 @@ package qub;
 
 public interface CharacterReadStream extends Disposable, Iterator<Character>
 {
-    Character readCharacter();
+    Result<Character> readCharacter();
 
     char[] readCharacters(int charactersToRead);
 

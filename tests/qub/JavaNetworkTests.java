@@ -19,14 +19,14 @@ public class JavaNetworkTests
                 {
                     final JavaNetwork network = new JavaNetwork(test.getParallelAsyncRunner());
                     final Result<TCPClient> tcpClientResult = network.createTCPClient(IPv4Address.parse("127.0.0.1"), -1);
-                    test.assertError(new IllegalArgumentException("remotePort must be greater than 0."), tcpClientResult);
+                    test.assertError(new IllegalArgumentException("remotePort (-1) must be between 1 and 65535."), tcpClientResult);
                 });
 
                 runner.test("with 0 remotePort", (Test test) ->
                 {
                     final JavaNetwork network = new JavaNetwork(test.getParallelAsyncRunner());
                     final Result<TCPClient> tcpClientResult = network.createTCPClient(IPv4Address.parse("127.0.0.1"), 0);
-                    test.assertError(new IllegalArgumentException("remotePort must be greater than 0."), tcpClientResult);
+                    test.assertError(new IllegalArgumentException("remotePort (0) must be between 1 and 65535."), tcpClientResult);
                 });
 
                 runner.test("with valid arguments but no server listening", (Test test) ->
@@ -92,16 +92,14 @@ public class JavaNetworkTests
                 {
                     final JavaNetwork network = new JavaNetwork(test.getParallelAsyncRunner());
                     final Result<TCPServer> tcpServerResult = network.createTCPServer(-1);
-                    test.assertTrue(tcpServerResult.hasError());
-                    test.assertEqual("localPort must be greater than 0.", tcpServerResult.getErrorMessage());
+                    test.assertError(new IllegalArgumentException("localPort (-1) must be between 1 and 65535."), tcpServerResult);
                 });
 
                 runner.test("with 0 localPort", (Test test) ->
                 {
                     final JavaNetwork network = new JavaNetwork(test.getParallelAsyncRunner());
                     final Result<TCPServer> tcpServerResult = network.createTCPServer(0);
-                    test.assertTrue(tcpServerResult.hasError());
-                    test.assertEqual("localPort must be greater than 0.", tcpServerResult.getErrorMessage());
+                    test.assertError(new IllegalArgumentException("localPort (0) must be between 1 and 65535."), tcpServerResult);
                 });
 
                 runner.test("with 8088 localPort", (Test test) ->

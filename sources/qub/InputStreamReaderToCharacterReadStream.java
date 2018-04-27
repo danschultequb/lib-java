@@ -53,10 +53,11 @@ class InputStreamReaderToCharacterReadStream extends CharacterReadStreamBase
     }
 
     @Override
-    public Character readCharacter()
+    public Result<Character> readCharacter()
     {
         hasStarted = true;
 
+        Throwable error = null;
         try
         {
             final int characterAsInt = reader.read();
@@ -69,12 +70,13 @@ class InputStreamReaderToCharacterReadStream extends CharacterReadStreamBase
                 current = null;
             }
         }
-        catch (Exception ignored)
+        catch (Exception e)
         {
             current = null;
+            error = e;
         }
 
-        return current;
+        return Result.done(current, error);
     }
 
     @Override
@@ -162,6 +164,6 @@ class InputStreamReaderToCharacterReadStream extends CharacterReadStreamBase
     @Override
     public boolean next()
     {
-        return readCharacter() != null;
+        return readCharacter().getValue() != null;
     }
 }

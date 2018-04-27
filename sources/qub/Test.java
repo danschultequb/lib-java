@@ -61,11 +61,6 @@ public class Test
         return process.getParallelAsyncRunner();
     }
 
-    public void await()
-    {
-        process.await();
-    }
-
     @Override
     public String toString()
     {

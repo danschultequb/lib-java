@@ -53,6 +53,12 @@ final public class Result<T>
         return Result.done(value, null);
     }
 
+    private static final Result<Boolean> successFalse = Result.success(false);
+    public static Result<Boolean> successFalse()
+    {
+        return successFalse;
+    }
+
     private static final Result<Boolean> successTrue = Result.success(true);
     public static Result<Boolean> successTrue()
     {
@@ -67,5 +73,25 @@ final public class Result<T>
     public static <U> Result<U> done(U value, Throwable error)
     {
         return new Result<U>(value, error);
+    }
+
+    public static <U> Result<U> notNull(Object value, String parameterName)
+    {
+        Result<U> result = null;
+        if (value == null)
+        {
+            result = Result.error(new IllegalArgumentException(parameterName + " cannot be null."));
+        }
+        return result;
+    }
+
+    public static <U> Result<U> between(int lowerBound, int value, int upperBound, String parameterName)
+    {
+        Result<U> result = null;
+        if (value < lowerBound || upperBound < value)
+        {
+            result = Result.error(new IllegalArgumentException(parameterName + " (" + value + ") must be between " + lowerBound + " and " + upperBound + "."));
+        }
+        return result;
     }
 }

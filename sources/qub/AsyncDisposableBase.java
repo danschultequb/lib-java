@@ -3,13 +3,23 @@ package qub;
 public abstract class AsyncDisposableBase extends DisposableBase implements AsyncDisposable
 {
     @Override
-    final public Result<Boolean> dispose()
+    final public AsyncFunction<Result<Boolean>> disposeAsync()
     {
-        return AsyncDisposableBase.dispose(this);
+        return disposeAsync(this);
     }
 
-    public static Result<Boolean> dispose(AsyncDisposable disposable)
+    public static AsyncFunction<Result<Boolean>> disposeAsync(final AsyncDisposable disposable)
     {
-        return disposable.disposeAsync().awaitReturn();
+        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+        final AsyncRunner disposableAsyncRunner = disposable.getAsyncRunner();
+        return disposableAsyncRunner.schedule(new Function0<Result<Boolean>>()
+            {
+                @Override
+                public Result<Boolean> run()
+                {
+                    return disposable.dispose();
+                }
+            })
+            .thenOn(currentAsyncRunner);
     }
 }

@@ -58,4 +58,18 @@ public abstract class AsyncRunnerBase extends DisposableBase implements AsyncRun
             }
         });
     }
+
+    @Override
+    public <T> AsyncFunction<Result<T>> notNull(Object value, String parameterName)
+    {
+        final Result<T> innerResult = Result.notNull(value, parameterName);
+        return innerResult == null ? null : done(innerResult.getValue(), innerResult.getError());
+    }
+
+    @Override
+    public <T> AsyncFunction<Result<T>> between(int lowerBound, int value, int upperBound, String parameterName)
+    {
+        final Result<T> innerResult = Result.between(lowerBound, value, upperBound, parameterName);
+        return innerResult == null ? null : done(innerResult.getValue(), innerResult.getError());
+    }
 }
