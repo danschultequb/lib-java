@@ -198,32 +198,25 @@ class JavaTCPClient extends AsyncDisposableBase implements TCPClient
     }
 
     @Override
-    public void setExceptionHandler(Action1<IOException> exceptionHandler)
-    {
-        socketReadStream.setExceptionHandler(exceptionHandler);
-        socketWriteStream.setExceptionHandler(exceptionHandler);
-    }
-
-    @Override
-    public boolean write(byte toWrite)
+    public Result<Boolean> write(byte toWrite)
     {
         return socketWriteStream.write(toWrite);
     }
 
     @Override
-    public boolean write(byte[] toWrite)
+    public Result<Boolean> write(byte[] toWrite)
     {
         return socketWriteStream.write(toWrite);
     }
 
     @Override
-    public boolean write(byte[] toWrite, int startIndex, int length)
+    public Result<Boolean> write(byte[] toWrite, int startIndex, int length)
     {
         return socketWriteStream.write(toWrite, startIndex, length);
     }
 
     @Override
-    public boolean writeAll(ByteReadStream byteReadStream)
+    public Result<Boolean> writeAll(ByteReadStream byteReadStream)
     {
         return socketWriteStream.writeAll(byteReadStream);
     }

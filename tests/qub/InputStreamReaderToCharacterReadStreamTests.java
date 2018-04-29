@@ -85,13 +85,20 @@ public class InputStreamReaderToCharacterReadStreamTests
             {
                 final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream();
                 final InputStreamReaderToCharacterReadStream characterReadStream = getCharacterReadStream(byteReadStream);
-                characterReadStream.close();
-                test.assertTrue(characterReadStream.isDisposed());
-                test.assertTrue(byteReadStream.isDisposed());
+                try
+                {
+                    characterReadStream.close();
+                    test.assertTrue(characterReadStream.isDisposed());
+                    test.assertTrue(byteReadStream.isDisposed());
 
-                characterReadStream.close();
-                test.assertTrue(characterReadStream.isDisposed());
-                test.assertTrue(byteReadStream.isDisposed());
+                    characterReadStream.close();
+                    test.assertTrue(characterReadStream.isDisposed());
+                    test.assertTrue(byteReadStream.isDisposed());
+                }
+                catch (Exception e)
+                {
+                    test.fail(e);
+                }
             });
             
             runner.test("asByteReadStream()", (Test test) ->

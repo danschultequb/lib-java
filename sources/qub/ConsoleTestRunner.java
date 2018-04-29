@@ -169,35 +169,35 @@ public class ConsoleTestRunner extends Console implements TestRunner
     }
 
     @Override
-    public boolean write(String line, Object... formattedStringArguments)
+    public Result<Boolean> write(String line, Object... formattedStringArguments)
     {
-        boolean result = true;
+        Result<Boolean> result = Result.successTrue();
 
         if (onNewLine)
         {
             result = super.write(currentIndent);
         }
 
-        if (result)
+        if (Booleans.isTrue(result.getValue()))
         {
             result = super.write(line, formattedStringArguments);
-            onNewLine = line != null && line.endsWith("\n");
+            onNewLine = (line != null && line.endsWith("\n"));
         }
 
         return result;
     }
 
     @Override
-    public boolean writeLine(String line, Object... formattedStringArguments)
+    public Result<Boolean> writeLine(String line, Object... formattedStringArguments)
     {
-        boolean result = true;
+        Result<Boolean> result = Result.successTrue();
 
         if (onNewLine)
         {
             result = super.write(currentIndent);
         }
 
-        if (result)
+        if (Booleans.isTrue(result.getValue()))
         {
             result = super.writeLine(line, formattedStringArguments);
             onNewLine = true;
@@ -428,6 +428,10 @@ public class ConsoleTestRunner extends Console implements TestRunner
             console.writeLine("Tests Duration: " + totalTestsDuration.toSeconds().toString("0.0"));
 
             testsFailed = console.getFailedTestCount();
+        }
+        catch (Exception ignored)
+        {
+            testsFailed = -1;
         }
 
         System.exit(testsFailed);

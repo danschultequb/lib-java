@@ -7,19 +7,17 @@ import java.io.IOException;
  */
 public interface ByteWriteStream extends Disposable
 {
-    void setExceptionHandler(Action1<IOException> exceptionHandler);
-
     /**
      * Write the provided byte to this ByteWriteStream.
      * @param toWrite The byte to write to this stream.
      */
-    boolean write(byte toWrite);
+    Result<Boolean> write(byte toWrite);
 
     /**
      * Write the provided bytes to this ByteWriteStream.
      * @param toWrite The bytes to write to this stream.
      */
-    boolean write(byte[] toWrite);
+    Result<Boolean> write(byte[] toWrite);
 
     /**
      * Write the provided subsection of bytes to this ByteWriteStream.
@@ -27,14 +25,14 @@ public interface ByteWriteStream extends Disposable
      * @param startIndex The start index of the subsection inside toWrite to write.
      * @param length The number of bytes to write.
      */
-    boolean write(byte[] toWrite, int startIndex, int length);
+    Result<Boolean> write(byte[] toWrite, int startIndex, int length);
 
     /**
      * Write all of the bytes from the provided byteReadStream to this ByteWriteStream.
      * @param byteReadStream The ByteReadStream to read from.
      * @return Whether or not the write was successful.
      */
-    boolean writeAll(ByteReadStream byteReadStream);
+    Result<Boolean> writeAll(ByteReadStream byteReadStream);
 
     /**
      * Convert this ByteWriteStream to a CharacterWriteStream that uses UTF-8 for its character

@@ -30,14 +30,14 @@ public class ByteWriteStreamToCharacterWriteStream extends CharacterWriteStreamB
     }
 
     @Override
-    public boolean write(char character)
+    public Result<Boolean> write(char character)
     {
         final byte[] characterBytes = characterEncoding.encode(character);
         return byteWriteStream.write(characterBytes);
     }
 
     @Override
-    public boolean write(String toWrite, Object... formattedStringArguments)
+    public Result<Boolean> write(String toWrite, Object... formattedStringArguments)
     {
         if (CharacterWriteStreamBase.shouldFormat(toWrite, formattedStringArguments))
         {

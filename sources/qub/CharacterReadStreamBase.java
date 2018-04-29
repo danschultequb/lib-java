@@ -3,7 +3,7 @@ package qub;
 public abstract class CharacterReadStreamBase extends IteratorBase<Character> implements CharacterReadStream
 {
     @Override
-    public void close()
+    public void close() throws Exception
     {
         DisposableBase.close(this);
     }

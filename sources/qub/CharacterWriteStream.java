@@ -4,9 +4,9 @@ public interface CharacterWriteStream extends Disposable
 {
     CharacterEncoding getCharacterEncoding();
 
-    boolean write(char toWrite);
+    Result<Boolean> write(char toWrite);
 
-    boolean write(String toWrite, Object... formattedStringArguments);
+    Result<Boolean> write(String toWrite, Object... formattedStringArguments);
 
     /**
      * Convert this CharacterWriteStream to a ByteWriteStream.

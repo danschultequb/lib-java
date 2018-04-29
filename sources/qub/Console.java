@@ -37,9 +37,9 @@ public class Console extends Process
         return lineReadStream.readLine();
     }
 
-    public boolean write(byte toWrite)
+    public Result<Boolean> write(byte toWrite)
     {
-        boolean result = false;
+        Result<Boolean> result = Result.successFalse();
 
         final ByteWriteStream writeStream = getOutputAsByteWriteStream();
         if (writeStream != null)
@@ -50,87 +50,111 @@ public class Console extends Process
         return result;
     }
 
-    public boolean write(byte[] toWrite)
+    public Result<Boolean> write(byte[] toWrite)
     {
-        boolean result = false;
+        Result<Boolean> result;
 
         final ByteWriteStream writeStream = getOutputAsByteWriteStream();
         if (writeStream != null)
         {
             result = writeStream.write(toWrite);
         }
+        else
+        {
+            result = Result.successFalse();
+        }
 
         return result;
     }
 
-    public boolean write(byte[] toWrite, int startIndex, int length)
+    public Result<Boolean> write(byte[] toWrite, int startIndex, int length)
     {
-        boolean result = false;
+        Result<Boolean> result;
 
         final ByteWriteStream writeStream = getOutputAsByteWriteStream();
         if (writeStream != null)
         {
             result = writeStream.write(toWrite, startIndex, length);
         }
+        else
+        {
+            result = Result.successFalse();
+        }
 
         return result;
     }
 
-    public boolean write(char toWrite)
+    public Result<Boolean> write(char toWrite)
     {
-        boolean result = false;
+        Result<Boolean> result;
 
         final CharacterWriteStream writeStream = getOutputAsCharacterWriteStream();
         if (writeStream != null)
         {
             result = writeStream.write(toWrite);
         }
+        else
+        {
+            result = Result.successFalse();
+        }
 
         return result;
     }
 
-    public boolean write(String toWrite, Object... formattedStringArguments)
+    public Result<Boolean> write(String toWrite, Object... formattedStringArguments)
     {
-        boolean result = false;
+        Result<Boolean> result;
 
         final CharacterWriteStream writeStream = getOutputAsCharacterWriteStream();
         if (writeStream != null)
         {
             result = writeStream.write(toWrite, formattedStringArguments);
         }
+        else
+        {
+            result = Result.successFalse();
+        }
 
         return result;
     }
 
-    public boolean writeLine()
+    public Result<Boolean> writeLine()
     {
-        boolean result = false;
+        Result<Boolean> result;
 
         final LineWriteStream writeStream = getOutputAsLineWriteStream();
         if (writeStream != null)
         {
             result = writeStream.writeLine();
         }
+        else
+        {
+            result = Result.successFalse();
+        }
 
         return result;
     }
 
-    public boolean writeLine(String toWrite, Object... formattedStringArguments)
+    public Result<Boolean> writeLine(String toWrite, Object... formattedStringArguments)
     {
-        boolean result = false;
+        Result<Boolean> result;
 
         final LineWriteStream writeStream = getOutputAsLineWriteStream();
         if (writeStream != null)
         {
-            writeStream.writeLine(toWrite, formattedStringArguments);
+            result = writeStream.writeLine(toWrite, formattedStringArguments);
+        }
+        else
+        {
+            result = Result.successFalse();
         }
 
         return result;
     }
 
-    public boolean writeError(byte toWrite)
+    public Result<Boolean> writeError(byte toWrite)
     {
-        boolean result = false;
+        Result<Boolean> result = Result.successFalse();
 
         final ByteWriteStream writeStream = getErrorAsByteWriteStream();
         if (writeStream != null)
@@ -141,89 +165,105 @@ public class Console extends Process
         return result;
     }
 
-    public boolean writeError(byte[] toWrite)
+    public Result<Boolean> writeError(byte[] toWrite)
     {
-        boolean result = false;
+        Result<Boolean> result;
 
         final ByteWriteStream writeStream = getErrorAsByteWriteStream();
         if (writeStream != null)
         {
             result = writeStream.write(toWrite);
         }
+        else
+        {
+            result = Result.successFalse();
+        }
 
         return result;
     }
 
-    public boolean writeError(byte[] toWrite, int startIndex, int length)
+    public Result<Boolean> writeError(byte[] toWrite, int startIndex, int length)
     {
-        boolean result = false;
+        Result<Boolean> result;
 
         final ByteWriteStream writeStream = getErrorAsByteWriteStream();
         if (writeStream != null)
         {
             result = writeStream.write(toWrite, startIndex, length);
         }
+        else
+        {
+            result = Result.successFalse();
+        }
 
         return result;
     }
 
-    public boolean writeError(char toWrite)
+    public Result<Boolean> writeError(char toWrite)
     {
-        boolean result = false;
+        Result<Boolean> result;
 
         final CharacterWriteStream writeStream = getErrorAsCharacterWriteStream();
         if (writeStream != null)
         {
             result = writeStream.write(toWrite);
         }
+        else
+        {
+            result = Result.successFalse();
+        }
 
         return result;
     }
 
-    public boolean writeError(String toWrite, Object... formattedStringArguments)
+    public Result<Boolean> writeError(String toWrite, Object... formattedStringArguments)
     {
-        boolean result = false;
+        Result<Boolean> result;
 
         final CharacterWriteStream writeStream = getErrorAsCharacterWriteStream();
         if (writeStream != null)
         {
             result = writeStream.write(toWrite, formattedStringArguments);
         }
+        else
+        {
+            result = Result.successFalse();
+        }
 
         return result;
     }
 
-    public boolean writeErrorLine()
+    public Result<Boolean> writeErrorLine()
     {
-        boolean result = false;
+        Result<Boolean> result;
 
         final LineWriteStream writeStream = getErrorAsLineWriteStream();
         if (writeStream != null)
         {
             result = writeStream.writeLine();
         }
+        else
+        {
+            result = Result.successFalse();
+        }
 
         return result;
     }
 
-    public boolean writeErrorLine(String toWrite, Object... formattedStringArguments)
+    public Result<Boolean> writeErrorLine(String toWrite, Object... formattedStringArguments)
     {
-        boolean result = false;
+        Result<Boolean> result;
 
         final LineWriteStream writeStream = getErrorAsLineWriteStream();
         if (writeStream != null)
         {
-            writeStream.writeLine(toWrite, formattedStringArguments);
+            result = writeStream.writeLine(toWrite, formattedStringArguments);
+        }
+        else
+        {
+            result = Result.successFalse();
         }
 
         return result;
-    }
-
-    public static void main(String[] args, Action1<Console> mainAction)
-    {
-        try (final Console console = new Console(args))
-        {
-            mainAction.run(console);
-        }
     }
 }

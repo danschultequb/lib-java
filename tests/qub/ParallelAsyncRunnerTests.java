@@ -14,6 +14,10 @@ public class ParallelAsyncRunnerTests
                 {
                     test.assertEqual(0, runner1.getScheduledTaskCount());
                 }
+                catch (Exception e)
+                {
+                    test.fail(e);
+                }
             });
         });
     }

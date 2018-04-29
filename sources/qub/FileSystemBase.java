@@ -1343,6 +1343,10 @@ public abstract class FileSystemBase implements FileSystem
                 {
                     result = byteReadStream.readAllBytes();
                 }
+                catch (Exception e)
+                {
+                    result = Result.error(e);
+                }
             }
         }
 
@@ -1432,7 +1436,19 @@ public abstract class FileSystemBase implements FileSystem
             {
                 try (final ByteWriteStream byteWriteStream = byteWriteStreamResult.getValue())
                 {
-                    result = Result.success(content == null || content.length == 0 || byteWriteStream.write(content));
+                    if (content == null || content.length == 0)
+                    {
+                        // If we want to set the file to have no/empty contents.
+                        result = Result.successTrue();
+                    }
+                    else
+                    {
+                        result = byteWriteStream.write(content);
+                    }
+                }
+                catch (Exception e)
+                {
+                    result = Result.error(e);
                 }
             }
         }

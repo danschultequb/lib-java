@@ -45,7 +45,7 @@ public class InMemoryCharacterWriteStream extends CharacterWriteStreamBase
     }
 
     @Override
-    public boolean write(char toWrite)
+    public Result<Boolean> write(char toWrite)
     {
         final CharacterEncoding characterEncoding = getCharacterEncoding();
         final byte[] bytes = characterEncoding.encode(toWrite);
@@ -53,7 +53,7 @@ public class InMemoryCharacterWriteStream extends CharacterWriteStreamBase
     }
 
     @Override
-    public boolean write(String toWrite, Object... formattedStringArguments)
+    public Result<Boolean> write(String toWrite, Object... formattedStringArguments)
     {
         if (CharacterWriteStreamBase.shouldFormat(toWrite, formattedStringArguments))
         {

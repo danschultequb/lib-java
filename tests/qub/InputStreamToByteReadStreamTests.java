@@ -19,8 +19,8 @@ public class InputStreamToByteReadStreamTests
             
             runner.test("close()", (Test test) ->
             {
-                closeTest(test, getInputStream(0), true);
-                closeTest(test, getInputStream(5), true);
+                closeTest(test, getInputStream(0), true, null);
+                closeTest(test, getInputStream(5), true, null);
 
                 final ByteArrayInputStream closedInputStream = getInputStream(1);
                 try
@@ -31,15 +31,22 @@ public class InputStreamToByteReadStreamTests
                 {
                     test.fail(e);
                 }
-                closeTest(test, closedInputStream, true);
+                closeTest(test, closedInputStream, true, null);
 
                 final InputStreamToByteReadStream closedReadStream = getByteReadStream(1);
-                closedReadStream.close();
-                closeTest(test, closedReadStream, true);
+                try
+                {
+                    closedReadStream.close();
+                }
+                catch (Exception e)
+                {
+                    test.fail(e);
+                }
+                closeTest(test, closedReadStream, true, null);
 
                 final TestStubInputStream testStubInputStream = new TestStubInputStream();
                 testStubInputStream.setThrowOnClose(true);
-                closeTest(test, testStubInputStream, true);
+                closeTest(test, testStubInputStream, true, new IOException());
             });
 
             runner.test("readByte()", (Test test) ->
@@ -156,22 +163,26 @@ public class InputStreamToByteReadStreamTests
         test.assertEqual(current, byteReadStream.getCurrent());
     }
 
-    private static void closeTest(Test test, InputStream inputStream)
+    private static void closeTest(Test test, InputStream inputStream, boolean expectedIsDisposed, Throwable expectedError)
     {
         final InputStreamToByteReadStream readStream = getByteReadStream(inputStream);
-        closeTest(test, readStream, true);
-        assertByteReadStream(test, readStream, false, false, null);
+        closeTest(test, readStream, expectedIsDisposed, expectedError);
     }
 
-    private static void closeTest(Test test, InputStream inputStream, boolean expectedIsDisposed)
+    private static void closeTest(Test test, InputStreamToByteReadStream readStream, boolean expectedIsDisposed, Throwable expectedError)
     {
-        final InputStreamToByteReadStream readStream = getByteReadStream(inputStream);
-        closeTest(test, readStream, expectedIsDisposed);
-    }
-
-    private static void closeTest(Test test, InputStreamToByteReadStream readStream, boolean expectedIsDisposed)
-    {
-        readStream.close();
+        try
+        {
+            readStream.close();
+            if (expectedError != null)
+            {
+                test.fail("Expected an Exception to be thrown.");
+            }
+        }
+        catch (Exception e)
+        {
+            test.assertEqual(expectedError, e);
+        }
         test.assertEqual(expectedIsDisposed, readStream.isDisposed());
     }
 }

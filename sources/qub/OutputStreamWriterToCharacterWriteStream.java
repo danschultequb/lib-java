@@ -1,6 +1,5 @@
 package qub;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 
@@ -12,15 +11,6 @@ public class OutputStreamWriterToCharacterWriteStream extends CharacterWriteStre
 
     OutputStreamWriterToCharacterWriteStream(ByteWriteStream byteWriteStream, CharacterEncoding characterEncoding)
     {
-        byteWriteStream.setExceptionHandler(new Action1<IOException>()
-        {
-            @Override
-            public void run(IOException e)
-            {
-                throw new RuntimeException(e);
-            }
-        });
-
         this.byteWriteStream = byteWriteStream;
         final OutputStream outputStream = new ByteWriteStreamToOutputStream(byteWriteStream);
         this.writer = new OutputStreamWriter(outputStream, characterEncoding.getCharset());
@@ -34,38 +24,40 @@ public class OutputStreamWriterToCharacterWriteStream extends CharacterWriteStre
     }
 
     @Override
-    public final boolean write(char toWrite)
+    public final Result<Boolean> write(char toWrite)
     {
-        boolean result = false;
+        Result<Boolean> result;
         try
         {
             writer.write(toWrite);
             writer.flush();
-            result = true;
+            result = Result.successTrue();
         }
-        catch (Exception ignored)
+        catch (Exception e)
         {
+            result = Result.error(e);
         }
         return result;
     }
 
     @Override
-    public final boolean write(String toWrite, Object... formattedStringArguments)
+    public final Result<Boolean> write(String toWrite, Object... formattedStringArguments)
     {
         if (CharacterWriteStreamBase.shouldFormat(toWrite, formattedStringArguments))
         {
             toWrite = String.format(toWrite, formattedStringArguments);
         }
 
-        boolean result = false;
+        Result<Boolean> result;
         try
         {
             writer.write(toWrite);
             writer.flush();
-            result = true;
+            result = Result.successTrue();
         }
-        catch (Exception ignored)
+        catch (Exception e)
         {
+            result = Result.error(e);
         }
         return result;
     }

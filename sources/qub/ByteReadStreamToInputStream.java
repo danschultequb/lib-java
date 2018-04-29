@@ -13,9 +13,10 @@ public class ByteReadStreamToInputStream extends InputStream
     }
 
     @Override
-    public void close()
+    public void close() throws IOException
     {
-        byteReadStream.close();
+        final Result<Boolean> result = byteReadStream.dispose();
+        result.throwError(IOException.class);
     }
 
     @Override

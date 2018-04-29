@@ -17,9 +17,9 @@ public class TCPEchoServerTests
                 final Network network = new JavaNetwork(asyncRunner);
                 try (final TCPEchoServer echoServer = TCPEchoServer.create(network, port.incrementAndGet()).getValue())
                 {
-                    asyncRunner.schedule(echoServer::echo);
+                    final AsyncFunction<Result<Boolean>> echoTask = asyncRunner.schedule(echoServer::echo);
 
-                    asyncRunner.schedule(() ->
+                    final AsyncAction clientTask = asyncRunner.schedule(() ->
                     {
                         try (final TCPClient tcpClient = network.createTCPClient(IPv4Address.localhost, port.get()).getValue())
                         {
@@ -32,9 +32,19 @@ public class TCPEchoServerTests
                             tcpClientLineWriteStream.writeLine("World");
                             test.assertEqual("World", tcpClientLineReadStream.readLine());
                         }
+                        catch (Exception e)
+                        {
+                            test.fail(e);
+                        }
                     });
 
-                    asyncRunner.await();
+                    clientTask.await();
+                    final Result<Boolean> serverResult = echoTask.awaitReturn();
+                    test.assertSuccess(true, serverResult);
+                }
+                catch (Exception e)
+                {
+                    test.fail(e);
                 }
             });
 
@@ -61,11 +71,19 @@ public class TCPEchoServerTests
                             tcpClientLineWriteStream.writeLine("World");
                             test.assertEqual("World", tcpClientLineReadStream.readLine());
                         }
+                        catch (Exception e)
+                        {
+                            test.fail(e);
+                        }
                     });
 
                     //MAIN
                     echoServerTask.await();
                     clientTask.await();
+                }
+                catch (Exception e)
+                {
+                    test.fail(e);
                 }
             });
         });

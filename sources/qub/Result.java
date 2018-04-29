@@ -36,6 +36,31 @@ final public class Result<T>
         return error == null ? null : error.getMessage();
     }
 
+    final public void throwError()
+    {
+        Exceptions.throwAsRuntime(error);
+    }
+
+    @SuppressWarnings("unchecked")
+    final public <U extends Exception> void throwError(Class<U> exceptionType) throws U
+    {
+        if (error != null)
+        {
+            if (exceptionType != null && Types.isSubTypeOf(error, exceptionType))
+            {
+                throw (U)error;
+            }
+            else if (error instanceof RuntimeException)
+            {
+                throw (RuntimeException)error;
+            }
+            else
+            {
+                throw new RuntimeException(error);
+            }
+        }
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     public boolean equals(Object rhs)

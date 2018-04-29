@@ -5,7 +5,7 @@ import java.io.InputStream;
 public abstract class ByteReadStreamBase extends IteratorBase<Byte> implements ByteReadStream
 {
     @Override
-    public void close()
+    public final void close() throws Exception
     {
         DisposableBase.close(this);
     }

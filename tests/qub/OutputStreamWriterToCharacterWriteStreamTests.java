@@ -1,5 +1,7 @@
 package qub;
 
+import java.io.IOException;
+
 public class OutputStreamWriterToCharacterWriteStreamTests
 {
     public static void test(final TestRunner runner)
@@ -20,7 +22,7 @@ public class OutputStreamWriterToCharacterWriteStreamTests
                 {
                     InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
                     final OutputStreamWriterToCharacterWriteStream characterWriteStream = getCharacterWriteStream(byteWriteStream);
-                    test.assertTrue(characterWriteStream.write('a'));
+                    test.assertSuccess(true, characterWriteStream.write('a'));
                     test.assertEqual(new byte[] { 97 }, byteWriteStream.getBytes());
                 });
                 
@@ -29,7 +31,7 @@ public class OutputStreamWriterToCharacterWriteStreamTests
                     TestStubOutputStream outputStream = new TestStubOutputStream();
                     OutputStreamToByteWriteStream byteWriteStream = new OutputStreamToByteWriteStream(outputStream);
                     final OutputStreamWriterToCharacterWriteStream characterWriteStream = getCharacterWriteStream(byteWriteStream);
-                    test.assertFalse(characterWriteStream.write('a'));
+                    test.assertError(new IOException(), characterWriteStream.write('a'));
                 });
             });
             
@@ -39,7 +41,7 @@ public class OutputStreamWriterToCharacterWriteStreamTests
                 {
                     InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
                     final OutputStreamWriterToCharacterWriteStream characterWriteStream = getCharacterWriteStream(byteWriteStream);
-                    test.assertTrue(characterWriteStream.write("test"));
+                    test.assertSuccess(true, characterWriteStream.write("test"));
                     test.assertEqual(new byte[] { 116, 101, 115, 116 }, byteWriteStream.getBytes());
                 });
                 
@@ -48,7 +50,7 @@ public class OutputStreamWriterToCharacterWriteStreamTests
                     TestStubOutputStream outputStream = new TestStubOutputStream();
                     OutputStreamToByteWriteStream byteWriteStream = new OutputStreamToByteWriteStream(outputStream);
                     final OutputStreamWriterToCharacterWriteStream characterWriteStream = getCharacterWriteStream(byteWriteStream);
-                    test.assertFalse(characterWriteStream.write("test again"));
+                    test.assertError(new IOException(), characterWriteStream.write("test again"));
                 });
             });
             
@@ -58,13 +60,20 @@ public class OutputStreamWriterToCharacterWriteStreamTests
                 {
                     InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
                     final OutputStreamWriterToCharacterWriteStream characterWriteStream = getCharacterWriteStream(byteWriteStream);
-                    characterWriteStream.close();
-                    test.assertTrue(characterWriteStream.isDisposed());
-                    test.assertTrue(byteWriteStream.isDisposed());
+                    try
+                    {
+                        characterWriteStream.close();
+                        test.assertTrue(characterWriteStream.isDisposed());
+                        test.assertTrue(byteWriteStream.isDisposed());
 
-                    characterWriteStream.close();
-                    test.assertTrue(characterWriteStream.isDisposed());
-                    test.assertTrue(byteWriteStream.isDisposed());
+                        characterWriteStream.close();
+                        test.assertTrue(characterWriteStream.isDisposed());
+                        test.assertTrue(byteWriteStream.isDisposed());
+                    }
+                    catch (Exception e)
+                    {
+                        test.fail(e);
+                    }
                 });
                 
                 runner.test("with exception", (Test test) ->
@@ -72,7 +81,14 @@ public class OutputStreamWriterToCharacterWriteStreamTests
                     TestStubOutputStream outputStream = new TestStubOutputStream();
                     OutputStreamToByteWriteStream byteWriteStream = new OutputStreamToByteWriteStream(outputStream);
                     final OutputStreamWriterToCharacterWriteStream characterWriteStream = getCharacterWriteStream(byteWriteStream);
-                    characterWriteStream.close();
+                    try
+                    {
+                        characterWriteStream.close();
+                        test.fail("Expected an exception to be thrown.");
+                    }
+                    catch (Exception e)
+                    {
+                    }
                     test.assertTrue(characterWriteStream.isDisposed());
                     test.assertTrue(byteWriteStream.isDisposed());
                 });

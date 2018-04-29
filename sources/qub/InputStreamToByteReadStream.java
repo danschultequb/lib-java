@@ -20,12 +20,6 @@ public class InputStreamToByteReadStream extends ByteReadStreamBase
     }
 
     @Override
-    final public void close()
-    {
-        DisposableBase.close(this);
-    }
-
-    @Override
     final public boolean isDisposed()
     {
         return disposed;
@@ -109,11 +103,6 @@ public class InputStreamToByteReadStream extends ByteReadStreamBase
         }
 
         return result;
-    }
-
-    @Override
-    public void setExceptionHandler(Action1<IOException> exceptionHandler)
-    {
     }
 
     @Override

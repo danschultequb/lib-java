@@ -16,11 +16,18 @@ public class InMemoryByteWriteStreamTests
             runner.test("close()", (Test test) ->
             {
                 final InMemoryByteWriteStream writeStream = new InMemoryByteWriteStream();
-                writeStream.close();
-                test.assertTrue(writeStream.isDisposed());
-                test.assertNull(writeStream.getBytes());
-                writeStream.close();
-                test.assertNull(writeStream.getBytes());
+                try
+                {
+                    writeStream.close();
+                    test.assertTrue(writeStream.isDisposed());
+                    test.assertNull(writeStream.getBytes());
+                    writeStream.close();
+                    test.assertNull(writeStream.getBytes());
+                }
+                catch (Exception e)
+                {
+                    test.fail(e);
+                }
             });
             
             runner.test("write(byte)", (Test test) ->
@@ -56,7 +63,7 @@ public class InMemoryByteWriteStreamTests
             runner.test("writeAll(ByteReadStream)", (Test test) ->
             {
                 final InMemoryByteWriteStream writeStream = new InMemoryByteWriteStream();
-                test.assertFalse(writeStream.writeAll(null));
+                test.assertError(new IllegalArgumentException("byteReadStream cannot be null."), writeStream.writeAll(null));
                 test.assertEqual(new byte[0], writeStream.getBytes());
             });
             

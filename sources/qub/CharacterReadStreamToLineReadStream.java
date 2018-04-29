@@ -50,12 +50,6 @@ public class CharacterReadStreamToLineReadStream extends LineReadStreamBase
     }
 
     @Override
-    public void close()
-    {
-        DisposableBase.close(this);
-    }
-
-    @Override
     public Result<Boolean> dispose()
     {
         current = null;

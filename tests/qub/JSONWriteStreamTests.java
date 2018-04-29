@@ -18,13 +18,20 @@ public class JSONWriteStreamTests
                 final InMemoryLineWriteStream inMemoryWriteStream = new InMemoryLineWriteStream();
                 final JSONWriteStream writeStream = new JSONWriteStream(inMemoryWriteStream);
 
-                writeStream.close();
-                test.assertTrue(writeStream.isDisposed());
-                test.assertTrue(inMemoryWriteStream.isDisposed());
+                try
+                {
+                    writeStream.close();
+                    test.assertTrue(writeStream.isDisposed());
+                    test.assertTrue(inMemoryWriteStream.isDisposed());
 
-                writeStream.close();
-                test.assertTrue(writeStream.isDisposed());
-                test.assertTrue(inMemoryWriteStream.isDisposed());
+                    writeStream.close();
+                    test.assertTrue(writeStream.isDisposed());
+                    test.assertTrue(inMemoryWriteStream.isDisposed());
+                }
+                catch (Exception e)
+                {
+                    test.fail(e);
+                }
             });
 
             runner.testGroup("writeBoolean(boolean)", () ->

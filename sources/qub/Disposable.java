@@ -2,7 +2,7 @@ package qub;
 
 public interface Disposable extends AutoCloseable
 {
-    void close();
+    void close() throws Exception;
     
     boolean isDisposed();
 

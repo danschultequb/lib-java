@@ -28,10 +28,16 @@ public class TCPEchoServer extends AsyncDisposableBase
         return result;
     }
 
-    public void echo()
+    public Result<Boolean> echo()
     {
+        Result<Boolean> result = Result.successTrue();
+
         final Result<TCPClient> acceptResult = tcpServer.accept();
-        if (!acceptResult.hasError())
+        if (acceptResult.hasError())
+        {
+            result = Result.error(acceptResult.getError());
+        }
+        else
         {
             try (final TCPClient tcpClient = acceptResult.getValue())
             {
@@ -45,7 +51,13 @@ public class TCPEchoServer extends AsyncDisposableBase
                     readLineResult = tcpClientLineReadStream.readLine();
                 }
             }
+            catch (Exception e)
+            {
+                result = Result.error(e);
+            }
         }
+
+        return result;
     }
 
     public AsyncAction echoAsync()
@@ -57,7 +69,14 @@ public class TCPEchoServer extends AsyncDisposableBase
                 @Override
                 public void run()
                 {
-                    echo();
+                    try
+                    {
+                        echo();
+                    }
+                    catch (Exception e)
+                    {
+                        Exceptions.throwAsRuntime(e);
+                    }
                 }
             })
             .thenOn(currentAsyncRunner);

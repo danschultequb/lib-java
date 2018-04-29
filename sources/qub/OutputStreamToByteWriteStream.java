@@ -7,7 +7,6 @@ public class OutputStreamToByteWriteStream extends ByteWriteStreamBase
 {
     private final OutputStream outputStream;
     private boolean disposed;
-    private Action1<IOException> exceptionHandler;
 
     public OutputStreamToByteWriteStream(OutputStream outputStream)
     {
@@ -20,48 +19,40 @@ public class OutputStreamToByteWriteStream extends ByteWriteStreamBase
     }
 
     @Override
-    public void setExceptionHandler(Action1<IOException> exceptionHandler)
+    public Result<Boolean> write(byte toWrite)
     {
-        this.exceptionHandler = exceptionHandler;
-    }
-
-    @Override
-    public boolean write(byte toWrite)
-    {
-        boolean result = false;
+        Result<Boolean> result;
         try
         {
             outputStream.write(toWrite);
             outputStream.flush();
-            result = true;
+            result = Result.successTrue();
         }
         catch (IOException e)
         {
-            if (exceptionHandler != null)
-            {
-                exceptionHandler.run(e);
-            }
+            result = Result.error(e);
         }
         return result;
     }
 
     @Override
-    public boolean write(byte[] toWrite)
+    public Result<Boolean> write(byte[] toWrite)
     {
-        boolean result = false;
-        if (toWrite != null && toWrite.length > 0)
+        Result<Boolean> result = Result.notNull(toWrite, "toWrite");
+        if (result == null)
         {
-            try
+            result = Result.greaterThan(0, toWrite.length, "toWrite.length");
+            if (result == null)
             {
-                outputStream.write(toWrite);
-                outputStream.flush();
-                result = true;
-            }
-            catch (IOException e)
-            {
-                if (exceptionHandler != null)
+                try
                 {
-                    exceptionHandler.run(e);
+                    outputStream.write(toWrite);
+                    outputStream.flush();
+                    result = Result.successTrue();
+                }
+                catch (IOException e)
+                {
+                    result = Result.error(e);
                 }
             }
         }
@@ -69,22 +60,31 @@ public class OutputStreamToByteWriteStream extends ByteWriteStreamBase
     }
 
     @Override
-    public boolean write(byte[] toWrite, int startIndex, int length)
+    public Result<Boolean> write(byte[] toWrite, int startIndex, int length)
     {
-        boolean result = false;
-        if (toWrite != null && length > 0 && 0 <= startIndex && startIndex + length <= toWrite.length)
+        Result<Boolean> result = Result.notNull(toWrite, "toWrite");
+        if (result == null)
         {
-            try
+            result = Result.greaterThan(0, toWrite.length, "toWrite.length");
+            if (result == null)
             {
-                outputStream.write(toWrite, startIndex, length);
-                outputStream.flush();
-                result = true;
-            }
-            catch (IOException e)
-            {
-                if (exceptionHandler != null)
+                result = Result.between(0, startIndex, toWrite.length - 1, "startIndex");
+                if (result == null)
                 {
-                    exceptionHandler.run(e);
+                    result = Result.between(1, length, toWrite.length - startIndex, "length");
+                    if (result == null)
+                    {
+                        try
+                        {
+                            outputStream.write(toWrite, startIndex, length);
+                            outputStream.flush();
+                            result = Result.successTrue();
+                        }
+                        catch (IOException e)
+                        {
+                            result = Result.error(e);
+                        }
+                    }
                 }
             }
         }

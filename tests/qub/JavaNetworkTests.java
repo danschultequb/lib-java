@@ -46,38 +46,42 @@ public class JavaNetworkTests
                     final IPv4Address localhost = IPv4Address.parse("127.0.0.1");
                     final int port = 8080;
 
-                    final AsyncAction serverTask = asyncRunner.schedule(new Action0()
+                    final AsyncAction serverTask = asyncRunner.schedule(() ->
                     {
-                        @Override
-                        public void run()
+                        final Result<TCPServer> tcpServerResult = network.createTCPServer(localhost, port);
+                        test.assertSuccess(tcpServerResult);
+                        try (final TCPServer tcpServer = tcpServerResult.getValue())
                         {
-                            final Result<TCPServer> tcpServerResult = network.createTCPServer(localhost, port);
-                            test.assertSuccess(tcpServerResult);
-                            try (final TCPServer tcpServer = tcpServerResult.getValue())
+                            final Result<TCPClient> acceptedClientResult = tcpServer.accept();
+                            test.assertSuccess(acceptedClientResult);
+                            try (final TCPClient acceptedClient = acceptedClientResult.getValue())
                             {
-                                final Result<TCPClient> acceptedClientResult = tcpServer.accept();
-                                test.assertSuccess(acceptedClientResult);
-                                try (final TCPClient acceptedClient = acceptedClientResult.getValue())
-                                {
-                                    test.assertEqual(bytes, acceptedClient.readBytes(bytes.length));
-                                    test.assertTrue(acceptedClient.write(bytes));
-                                }
+                                test.assertEqual(bytes, acceptedClient.readBytes(bytes.length));
+                                test.assertSuccess(true, acceptedClient.write(bytes));
                             }
+                            catch (Exception e)
+                            {
+                                test.fail(e);
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            test.fail(e);
                         }
                     });
 
-                    final AsyncAction clientTask = asyncRunner.schedule(new Action0()
+                    final AsyncAction clientTask = asyncRunner.schedule(() ->
                     {
-                        @Override
-                        public void run()
+                        final Result<TCPClient> tcpClientResult = network.createTCPClient(localhost, port);
+                        test.assertSuccess(tcpClientResult);
+                        try (final TCPClient tcpClient = tcpClientResult.getValue())
                         {
-                            final Result<TCPClient> tcpClientResult = network.createTCPClient(localhost, port);
-                            test.assertSuccess(tcpClientResult);
-                            try (final TCPClient tcpClient = tcpClientResult.getValue())
-                            {
-                                test.assertTrue(tcpClient.write(bytes));
-                                test.assertEqual(bytes, tcpClient.readBytes(bytes.length));
-                            }
+                            test.assertSuccess(true, tcpClient.write(bytes));
+                            test.assertEqual(bytes, tcpClient.readBytes(bytes.length));
+                        }
+                        catch (Exception e)
+                        {
+                            test.fail(e);
                         }
                     });
 

@@ -1,6 +1,5 @@
 package qub;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
@@ -19,14 +18,6 @@ class InputStreamReaderToCharacterReadStream extends CharacterReadStreamBase
     InputStreamReaderToCharacterReadStream(ByteReadStream byteReadStream, CharacterEncoding characterEncoding)
     {
         this.byteReadStream = byteReadStream;
-        byteReadStream.setExceptionHandler(new Action1<IOException>()
-        {
-            @Override
-            public void run(IOException e)
-            {
-                throw new RuntimeException(e);
-            }
-        });
         this.characterEncoding = characterEncoding;
 
         final InputStream inputStream = byteReadStream.asInputStream();
@@ -35,7 +26,7 @@ class InputStreamReaderToCharacterReadStream extends CharacterReadStreamBase
     }
 
     @Override
-    public void close()
+    public void close() throws Exception
     {
         DisposableBase.close(this);
     }

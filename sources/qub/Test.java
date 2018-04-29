@@ -439,7 +439,7 @@ public class Test
      * Cause the test to fail instantly with the message from the provided Exception.
      * @param e The Exception that caused the test failure.
      */
-    public void fail(Exception e)
+    public void fail(Throwable e)
     {
         String failMessage = e.getClass().getSimpleName();
         final String eMessage = e.getMessage();

@@ -69,7 +69,14 @@ public class InMemoryLineReadStreamTests
                 test.assertSuccess("a", lineReadStream.readLine());
                 test.assertEqual("a", lineReadStream.getCurrent());
 
-                lineReadStream.close();
+                try
+                {
+                    lineReadStream.close();
+                }
+                catch (Exception e)
+                {
+                    test.fail(e);
+                }
                 test.assertTrue(lineReadStream.isDisposed());
                 test.assertNull(lineReadStream.getCurrent());
                 test.assertError(new IllegalArgumentException("lineReadStream must not be disposed."), lineReadStream.readLine());

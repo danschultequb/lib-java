@@ -30,11 +30,18 @@ public class LineReadStreamTests
             runner.test("close()", (Test test) ->
             {
                 final LineReadStream lineReadStream = creator.run(null);
-                lineReadStream.close();
-                assertLineReadStream(test, lineReadStream, true, false, null);
+                try
+                {
+                    lineReadStream.close();
+                    assertLineReadStream(test, lineReadStream, true, false, null);
 
-                lineReadStream.close();
-                assertLineReadStream(test, lineReadStream, true, false, null);
+                    lineReadStream.close();
+                    assertLineReadStream(test, lineReadStream, true, false, null);
+                }
+                catch (Exception e)
+                {
+                    test.fail(e);
+                }
             });
 
             runner.testGroup("readLine()", () ->
@@ -42,7 +49,14 @@ public class LineReadStreamTests
                 runner.test("when closed", (Test test) ->
                 {
                     final LineReadStream lineReadStream = creator.run("test");
-                    lineReadStream.close();
+                    try
+                    {
+                        lineReadStream.close();
+                    }
+                    catch (Exception e)
+                    {
+                        test.fail(e);
+                    }
                     test.assertError(new IllegalArgumentException("lineReadStream must not be disposed."), lineReadStream.readLine());
                 });
 
@@ -56,6 +70,10 @@ public class LineReadStreamTests
                             lineReadStream.readLine();
                             test.assertNull(characterReadStream.getCurrent());
                         }
+                        catch (Exception e)
+                        {
+                            test.fail(e);
+                        }
                     });
 
                     runner.test("with " + Strings.escapeAndQuote("") + " and false include new lines", (Test test) ->
@@ -66,6 +84,10 @@ public class LineReadStreamTests
                             lineReadStream.readLine();
                             test.assertNull(characterReadStream.getCurrent());
                         }
+                        catch (Exception e)
+                        {
+                            test.fail(e);
+                        }
                     });
 
                     runner.test("with " + Strings.escapeAndQuote("abc") + " and false include new lines", (Test test) ->
@@ -75,6 +97,10 @@ public class LineReadStreamTests
                             final CharacterReadStream characterReadStream = lineReadStream.asCharacterReadStream();
                             lineReadStream.readLine();
                             test.assertNull(characterReadStream.getCurrent());
+                        }
+                        catch (Exception e)
+                        {
+                            test.fail(e);
                         }
                     });
 
@@ -88,6 +114,10 @@ public class LineReadStreamTests
 
                             lineReadStream.readLine();
                             test.assertNull(characterReadStream.getCurrent());
+                        }
+                        catch (Exception e)
+                        {
+                            test.fail(e);
                         }
                     });
                 });
@@ -109,6 +139,10 @@ public class LineReadStreamTests
 
                             test.assertSuccess(lineReadStream.readLine());
                             assertLineReadStream(test, lineReadStream, false, true, null);
+                        }
+                        catch (Exception e)
+                        {
+                            test.fail(e);
                         }
                     });
                 };

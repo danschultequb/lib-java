@@ -15,10 +15,17 @@ public class InMemoryByteReadStreamTests
             runner.test("close()", (Test test) ->
             {
                 final InMemoryByteReadStream readStream = new InMemoryByteReadStream();
-                readStream.close();
-                test.assertTrue(readStream.isDisposed());
-                readStream.close();
-                test.assertTrue(readStream.isDisposed());
+                try
+                {
+                    readStream.close();
+                    test.assertTrue(readStream.isDisposed());
+                    readStream.close();
+                    test.assertTrue(readStream.isDisposed());
+                }
+                catch (Exception e)
+                {
+                    test.fail(e);
+                }
             });
             
             runner.test("readBytes(int)", (Test test) ->
@@ -40,7 +47,14 @@ public class InMemoryByteReadStreamTests
                 test.assertSuccess(null, readStream.readBytes(1));
                 test.assertSuccess(null, readStream.readBytes(5));
 
-                readStream.close();
+                try
+                {
+                    readStream.close();
+                }
+                catch (Exception e)
+                {
+                    test.fail(e);
+                }
 
                 test.assertError(new IllegalArgumentException("byteReadStream cannot be disposed."), readStream.readBytes(1));
             });

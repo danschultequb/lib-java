@@ -1,7 +1,5 @@
 package qub;
 
-import java.io.IOException;
-
 public interface ByteReadStream extends Disposable, Iterator<Byte>
 {
     Result<Byte> readByte();
@@ -13,8 +11,6 @@ public interface ByteReadStream extends Disposable, Iterator<Byte>
     Result<Integer> readBytes(byte[] outputBytes, int startIndex, int length);
 
     Result<byte[]> readAllBytes();
-
-    void setExceptionHandler(Action1<IOException> exceptionHandler);
 
     java.io.InputStream asInputStream();
 

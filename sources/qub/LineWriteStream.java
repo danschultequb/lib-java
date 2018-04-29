@@ -6,13 +6,13 @@ public interface LineWriteStream extends Disposable
 
     String getLineSeparator();
 
-    boolean write(char toWrite);
+    Result<Boolean> write(char toWrite);
 
-    boolean write(String toWrite, Object... formattedStringArguments);
+    Result<Boolean> write(String toWrite, Object... formattedStringArguments);
 
-    boolean writeLine();
+    Result<Boolean> writeLine();
 
-    boolean writeLine(String toWrite, Object... formattedStringArguments);
+    Result<Boolean> writeLine(String toWrite, Object... formattedStringArguments);
 
     ByteWriteStream asByteWriteStream();
 

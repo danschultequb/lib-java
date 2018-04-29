@@ -1,7 +1,5 @@
 package qub;
 
-import java.io.IOException;
-import java.net.SocketException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class JavaTCPServerTests
@@ -119,8 +117,12 @@ public class JavaTCPServerTests
                     {
                         try (final TCPClient tcpClient = JavaTCPClient.create(ipAddress, port.get(), asyncRunner).getValue())
                         {
-                            test.assertTrue(tcpClient.write(bytes));
+                            test.assertSuccess(true, tcpClient.write(bytes));
                             clientReadBytes.set(tcpClient.readBytes(bytes.length).getValue());
+                        }
+                        catch (Exception e)
+                        {
+                            test.fail(e);
                         }
                     });
 
@@ -133,8 +135,16 @@ public class JavaTCPServerTests
                         {
                             final Result<byte[]> serverReadBytes = serverClient.readBytes(bytes.length);
                             test.assertSuccess(bytes, serverReadBytes);
-                            test.assertTrue(serverClient.write(serverReadBytes.getValue()));
+                            test.assertSuccess(true, serverClient.write(serverReadBytes.getValue()));
                         }
+                        catch (Exception e)
+                        {
+                            test.fail(e);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        test.fail(e);
                     }
 
                     clientTask.await();
@@ -172,9 +182,13 @@ public class JavaTCPServerTests
                             try (final TCPClient tcpClient = JavaTCPClient.create(ipAddress, port.get(), asyncRunner).getValue())
                             {
                                 // Block
-                                test.assertTrue(tcpClient.write(bytes));
+                                test.assertSuccess(true, tcpClient.write(bytes));
                                 // Block
                                 clientReadBytes.set(tcpClient.readBytes(bytes.length).getValue());
+                            }
+                            catch (Exception e)
+                            {
+                                test.fail(e);
                             }
                         });
 
@@ -194,7 +208,11 @@ public class JavaTCPServerTests
                                     test.assertSuccess(bytes, serverReadBytes);
 
                                     // Block
-                                    test.assertTrue(serverClient.write(serverReadBytes.getValue()));
+                                    test.assertSuccess(true, serverClient.write(serverReadBytes.getValue()));
+                                }
+                                catch (Exception e)
+                                {
+                                    test.fail(e);
                                 }
                             });
 
@@ -204,6 +222,10 @@ public class JavaTCPServerTests
                         clientTask.await();
 
                         test.assertEqual(bytes, clientReadBytes.get());
+                    }
+                    catch (Exception e)
+                    {
+                        test.fail(e);
                     }
                 });
             });
@@ -239,10 +261,18 @@ public class JavaTCPServerTests
                                 final Result<byte[]> clientReadBytes = tcpClient.readBytes(bytes.length);
                                 test.assertSuccess(bytes, clientReadBytes);
                             }
+                            catch (Exception e)
+                            {
+                                test.fail(e);
+                            }
                         });
 
                         serverTask.await();
                         clientTask.await();
+                    }
+                    catch (Exception e)
+                    {
+                        test.fail(e);
                     }
                 });
             });

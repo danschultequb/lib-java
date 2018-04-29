@@ -115,6 +115,9 @@ public class ManualAsyncRunner extends AsyncRunnerBase
             AsyncRunnerRegistry.setCurrentThreadAsyncRunner(runner);
             action.run(runner);
         }
+        catch (Exception ignored)
+        {
+        }
         finally
         {
             if (runnerBackup == null)
@@ -137,8 +140,16 @@ public class ManualAsyncRunner extends AsyncRunnerBase
     @Override
     public Result<Boolean> dispose()
     {
-        final Result<Boolean> result = Result.success(!disposed);
-        disposed = true;
+        Result<Boolean> result;
+        if (disposed)
+        {
+            result = Result.successFalse();
+        }
+        else
+        {
+            disposed = true;
+            result = Result.successTrue();
+        }
         return result;
     }
 }

@@ -3,19 +3,19 @@ package qub;
 public abstract class ByteWriteStreamBase extends DisposableBase implements ByteWriteStream
 {
     @Override
-    public boolean write(byte[] toWrite)
+    public Result<Boolean> write(byte[] toWrite)
     {
         return ByteWriteStreamBase.write(this, toWrite);
     }
 
     @Override
-    public boolean write(byte[] toWrite, int startIndex, int length)
+    public Result<Boolean> write(byte[] toWrite, int startIndex, int length)
     {
         return ByteWriteStreamBase.write(this, toWrite, startIndex, length);
     }
 
     @Override
-    public boolean writeAll(ByteReadStream byteReadStream)
+    public Result<Boolean> writeAll(ByteReadStream byteReadStream)
     {
         return ByteWriteStreamBase.writeAll(this, byteReadStream);
     }
@@ -60,9 +60,22 @@ public abstract class ByteWriteStreamBase extends DisposableBase implements Byte
      * Write the provided bytes to this ByteWriteStream.
      * @param toWrite The bytes to write to this stream.
      */
-    public static boolean write(ByteWriteStream byteWriteStream, byte[] toWrite)
+    public static Result<Boolean> write(ByteWriteStream byteWriteStream, byte[] toWrite)
     {
-        return byteWriteStream.write(toWrite, 0, toWrite == null ? 0 : toWrite.length);
+        Result<Boolean> result = Result.notNull(byteWriteStream, "byteWriteStream");
+        if (result == null)
+        {
+            result = Result.notNull(toWrite, "toWrite");
+            if (result == null)
+            {
+                result = Result.greaterThan(0, toWrite.length, "toWrite.length");
+                if (result == null)
+                {
+                    result = byteWriteStream.write(toWrite, 0, toWrite.length);
+                }
+            }
+        }
+        return result;
     }
 
     /**
@@ -71,18 +84,33 @@ public abstract class ByteWriteStreamBase extends DisposableBase implements Byte
      * @param startIndex The start index of the subsection inside toWrite to write.
      * @param length The number of bytes to write.
      */
-    public static boolean write(ByteWriteStream byteWriteStream, byte[] toWrite, int startIndex, int length)
+    public static Result<Boolean> write(ByteWriteStream byteWriteStream, byte[] toWrite, int startIndex, int length)
     {
-        boolean result = true;
-        if (toWrite != null && length > 0)
+        Result<Boolean> result = Result.notNull(byteWriteStream, "byteWriteStream");
+        if (result == null)
         {
-            final int afterEndIndex = Math.minimum(startIndex + length, toWrite.length);
-            for (int i = startIndex; i < afterEndIndex; ++i)
+            result = Result.notNull(toWrite, "toWrite");
+            if (result == null)
             {
-                result = byteWriteStream.write(toWrite[i]);
-                if (!result)
+                result = Result.greaterThan(0, toWrite.length, "toWrite.length");
+                if (result == null)
                 {
-                    break;
+                    result = Result.between(0, startIndex, toWrite.length - 1, "startIndex");
+                    if (result == null)
+                    {
+                        result = Result.between(1, length, toWrite.length - startIndex, "length");
+                        if (result == null)
+                        {
+                            for (int i = startIndex; i < startIndex + length; ++i)
+                            {
+                                result = byteWriteStream.write(toWrite[i]);
+                                if (result.getValue() == null || !result.getValue())
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -94,24 +122,31 @@ public abstract class ByteWriteStreamBase extends DisposableBase implements Byte
      * @param byteReadStream The ByteReadStream to read from.
      * @return Whether or not the write was successful.
      */
-    public static boolean writeAll(ByteWriteStream byteWriteStream, ByteReadStream byteReadStream)
+    public static Result<Boolean> writeAll(ByteWriteStream byteWriteStream, ByteReadStream byteReadStream)
     {
-        boolean result = false;
-
-        if (byteReadStream != null && !byteWriteStream.isDisposed() && !byteReadStream.isDisposed())
+        Result<Boolean> result = Result.notNull(byteWriteStream, "byteWriteStream");
+        if (result == null)
         {
-            final byte[] buffer = new byte[1024];
-            Result<Integer> bytesRead = byteReadStream.readBytes(buffer);
-
-            if (bytesRead.getValue() != null && !bytesRead.hasError())
+            result = Result.notNull(byteReadStream, "byteReadStream");
+            if (result == null)
             {
-                result = true;
-            }
+                result = Result.notDisposed(byteReadStream, "byteReadStream");
+                if (result == null)
+                {
+                    final byte[] buffer = new byte[1024];
+                    Result<Integer> bytesRead = byteReadStream.readBytes(buffer);
 
-            while (bytesRead.getValue() != null && !bytesRead.hasError())
-            {
-                byteWriteStream.write(buffer, 0, bytesRead.getValue());
-                bytesRead = byteReadStream.readBytes(buffer);
+                    while (bytesRead.getValue() != null && !bytesRead.hasError())
+                    {
+                        byteWriteStream.write(buffer, 0, bytesRead.getValue());
+                        bytesRead = byteReadStream.readBytes(buffer);
+                    }
+
+                    if (bytesRead.hasError())
+                    {
+                        result = Result.error(bytesRead.getError());
+                    }
+                }
             }
         }
 

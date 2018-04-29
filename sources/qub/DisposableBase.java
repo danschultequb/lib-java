@@ -3,13 +3,14 @@ package qub;
 public abstract class DisposableBase implements Disposable
 {
     @Override
-    final public void close()
+    final public void close() throws Exception
     {
         DisposableBase.close(this);
     }
 
-    public static void close(Disposable disposable)
+    public static void close(Disposable disposable) throws Exception
     {
-        disposable.dispose();
+        final Result<Boolean> result = disposable.dispose();
+        result.throwError(Exception.class);
     }
 }

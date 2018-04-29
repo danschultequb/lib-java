@@ -68,10 +68,18 @@ public class JavaTCPClientTests
                                 tcpClient.asLineWriteStream().writeLine("abcdef");
                                 test.assertEqual("abcdef", tcpClient.asLineReadStream().readLine());
                             }
+                            catch (Exception e)
+                            {
+                                test.fail(e);
+                            }
                         });
 
                         serverTask.await();
                         clientTask.await();
+                    }
+                    catch (Exception e)
+                    {
+                        test.fail(e);
                     }
                 });
             });

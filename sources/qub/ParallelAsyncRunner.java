@@ -109,12 +109,12 @@ public class ParallelAsyncRunner extends AsyncRunnerBase
         Result<Boolean> result;
         if (disposed)
         {
-            result = Result.success(false);
+            result = Result.successFalse();
         }
         else
         {
             disposed = true;
-            result = Result.success(true);
+            result = Result.successTrue();
         }
         return result;
     }

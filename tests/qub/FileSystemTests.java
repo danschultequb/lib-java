@@ -1384,7 +1384,7 @@ public class FileSystemTests
                 runner.test("with existing rooted path and empty contents", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    fileSystem.setFileContent("/A.txt", new byte[] { 0, 1 });
+                    test.assertSuccess(true, fileSystem.setFileContent("/A.txt", new byte[] { 0, 1 }));
 
                     final Result<Boolean> result = fileSystem.setFileContent(Path.parse("/A.txt"), new byte[0]);
                     test.assertSuccess(true, result);
