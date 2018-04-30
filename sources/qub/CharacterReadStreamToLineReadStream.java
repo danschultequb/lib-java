@@ -55,4 +55,10 @@ public class CharacterReadStreamToLineReadStream extends LineReadStreamBase
         current = null;
         return characterReadStream.dispose();
     }
+
+    @Override
+    public AsyncRunner getAsyncRunner()
+    {
+        return characterReadStream.getAsyncRunner();
+    }
 }

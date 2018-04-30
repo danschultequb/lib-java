@@ -27,6 +27,12 @@ public abstract class LineReadStreamBase extends IteratorBase<String> implements
     }
 
     @Override
+    public final AsyncFunction<Result<Boolean>> disposeAsync()
+    {
+        return AsyncDisposableBase.disposeAsync(this);
+    }
+
+    @Override
     public final void close() throws Exception
     {
         DisposableBase.close(this);
