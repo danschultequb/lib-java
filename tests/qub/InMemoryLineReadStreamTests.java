@@ -7,6 +7,7 @@ public class InMemoryLineReadStreamTests
         runner.testGroup(InMemoryLineReadStream.class, () ->
         {
             LineReadStreamTests.test(runner, InMemoryLineReadStream::new);
+            AsyncDisposableTests.test(runner, (AsyncRunner asyncRunner) -> new InMemoryLineReadStream("", asyncRunner));
 
             runner.testGroup("constructor(String)", () ->
             {

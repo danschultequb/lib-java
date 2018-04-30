@@ -4,11 +4,21 @@ public class InMemoryLineReadStream extends CharacterReadStreamToLineReadStream
 {
     public InMemoryLineReadStream(String text)
     {
-        super(new InMemoryCharacterReadStream(text));
+        this(text, (AsyncRunner)null);
+    }
+
+    public InMemoryLineReadStream(String text, AsyncRunner asyncRunner)
+    {
+        super(new InMemoryCharacterReadStream(text, asyncRunner));
     }
 
     public InMemoryLineReadStream(String text, boolean includeNewLines)
     {
-        super(new InMemoryCharacterReadStream(text), includeNewLines);
+        this(text, includeNewLines, (AsyncRunner)null);
+    }
+
+    public InMemoryLineReadStream(String text, boolean includeNewLines, AsyncRunner asyncRunner)
+    {
+        super(new InMemoryCharacterReadStream(text, asyncRunner), includeNewLines);
     }
 }

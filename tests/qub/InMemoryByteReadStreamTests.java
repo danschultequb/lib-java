@@ -6,6 +6,8 @@ public class InMemoryByteReadStreamTests
     {
         runner.testGroup(InMemoryByteReadStream.class, () ->
         {
+            AsyncDisposableTests.test(runner, InMemoryByteReadStream::new);
+
             runner.test("constructor()", (Test test) ->
             {
                 final InMemoryByteReadStream readStream = new InMemoryByteReadStream();
