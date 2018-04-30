@@ -1,6 +1,6 @@
 package qub;
 
-public interface ByteReadStream extends Disposable, Iterator<Byte>
+public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
 {
     Result<Byte> readByte();
 

@@ -278,7 +278,7 @@ public class Process extends DisposableBase
     {
         if (!byteReadStream.hasValue())
         {
-            setInput(new InputStreamToByteReadStream(System.in));
+            setInput(new InputStreamToByteReadStream(System.in, getParallelAsyncRunner()));
         }
         return byteReadStream.get();
     }

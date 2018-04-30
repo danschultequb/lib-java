@@ -1,6 +1,7 @@
 package qub;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -288,10 +289,9 @@ public class JavaFileSystem extends FileSystemBase
         {
             try
             {
-                result = Result.<ByteReadStream>success(
-                    new InputStreamToByteReadStream(
-                        java.nio.file.Files.newInputStream(
-                            java.nio.file.Paths.get(rootedFilePath.toString()))));
+                final InputStream fileContentsInputStream = java.nio.file.Files.newInputStream(
+                    java.nio.file.Paths.get(rootedFilePath.toString()));
+                result = Result.<ByteReadStream>success(new InputStreamToByteReadStream(fileContentsInputStream, asyncRunner));
             }
             catch (java.nio.file.NoSuchFileException e)
             {

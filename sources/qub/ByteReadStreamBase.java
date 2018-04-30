@@ -5,6 +5,12 @@ import java.io.InputStream;
 public abstract class ByteReadStreamBase extends IteratorBase<Byte> implements ByteReadStream
 {
     @Override
+    public final AsyncFunction<Result<Boolean>> disposeAsync()
+    {
+        return AsyncDisposableBase.disposeAsync(this);
+    }
+
+    @Override
     public final void close() throws Exception
     {
         DisposableBase.close(this);

@@ -17,7 +17,7 @@ public class InputStreamReaderToCharacterReadStreamTests
                 final TestStubInputStream inputStream = new TestStubInputStream();
                 inputStream.setThrowOnRead(true);
 
-                final InputStreamReaderToCharacterReadStream characterReadStream = getCharacterReadStream(inputStream);
+                final InputStreamReaderToCharacterReadStream characterReadStream = getCharacterReadStream(test, inputStream);
                 test.assertError(new java.io.IOException(), characterReadStream.readCharacter());
                 assertCharacterReadStream(test, characterReadStream, false, true, null);
             });
@@ -44,7 +44,7 @@ public class InputStreamReaderToCharacterReadStreamTests
                 final TestStubInputStream inputStream = new TestStubInputStream();
                 inputStream.setThrowOnRead(true);
 
-                final InputStreamReaderToCharacterReadStream characterReadStream = getCharacterReadStream(inputStream);
+                final InputStreamReaderToCharacterReadStream characterReadStream = getCharacterReadStream(test, inputStream);
 
                 final char[] characters = new char[5];
                 Result<Integer> charactersRead = characterReadStream.readCharacters(characters);
@@ -73,7 +73,7 @@ public class InputStreamReaderToCharacterReadStreamTests
                 final TestStubInputStream inputStream = new TestStubInputStream();
                 inputStream.setThrowOnRead(true);
 
-                final InputStreamReaderToCharacterReadStream characterReadStream = getCharacterReadStream(inputStream);
+                final InputStreamReaderToCharacterReadStream characterReadStream = getCharacterReadStream(test, inputStream);
 
                 final char[] characters = new char[5];
                 Result<Integer> charactersRead = characterReadStream.readCharacters(characters, 3, 1);
@@ -126,9 +126,9 @@ public class InputStreamReaderToCharacterReadStreamTests
         });
     }
 
-    private static InputStreamReaderToCharacterReadStream getCharacterReadStream(TestStubInputStream inputStream)
+    private static InputStreamReaderToCharacterReadStream getCharacterReadStream(Test test, TestStubInputStream inputStream)
     {
-        final ByteReadStream byteReadStream = new InputStreamToByteReadStream(inputStream);
+        final ByteReadStream byteReadStream = new InputStreamToByteReadStream(inputStream, test.getMainAsyncRunner());
         return getCharacterReadStream(byteReadStream);
     }
 

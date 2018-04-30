@@ -30,7 +30,7 @@ class JavaTCPClient extends AsyncDisposableBase implements TCPClient
             {
                 try
                 {
-                    final ByteReadStream socketReadStream = new InputStreamToByteReadStream(socket.getInputStream());
+                    final ByteReadStream socketReadStream = new InputStreamToByteReadStream(socket.getInputStream(), asyncRunner);
                     final ByteWriteStream socketWriteStream = new OutputStreamToByteWriteStream(socket.getOutputStream());
                     result = Result.<TCPClient>success(new JavaTCPClient(socket, asyncRunner, socketReadStream, socketWriteStream));
                 }

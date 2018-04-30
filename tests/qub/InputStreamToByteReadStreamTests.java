@@ -13,7 +13,7 @@ public class InputStreamToByteReadStreamTests
             runner.test("constructor(InputStream)", (Test test) ->
             {
                 final ByteArrayInputStream inputStream = getInputStream(5);
-                final InputStreamToByteReadStream readStream = new InputStreamToByteReadStream(inputStream);
+                final InputStreamToByteReadStream readStream = new InputStreamToByteReadStream(inputStream, test.getMainAsyncRunner());
                 assertByteReadStream(test, readStream, false, false, null);
             });
             
@@ -33,7 +33,7 @@ public class InputStreamToByteReadStreamTests
                 }
                 closeTest(test, closedInputStream, true, null);
 
-                final InputStreamToByteReadStream closedReadStream = getByteReadStream(1);
+                final InputStreamToByteReadStream closedReadStream = getByteReadStream(test, 1);
                 try
                 {
                     closedReadStream.close();
@@ -51,7 +51,7 @@ public class InputStreamToByteReadStreamTests
 
             runner.test("readByte()", (Test test) ->
             {
-                final InputStreamToByteReadStream byteReadStream = getByteReadStream(2);
+                final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, 2);
 
                 test.assertEqual((byte)0, byteReadStream.readByte().getValue());
                 test.assertEqual((byte)1, byteReadStream.readByte().getValue());
@@ -63,7 +63,7 @@ public class InputStreamToByteReadStreamTests
                 final TestStubInputStream inputStream = new TestStubInputStream();
                 inputStream.setThrowOnRead(true);
                 
-                final InputStreamToByteReadStream byteReadStream = getByteReadStream(inputStream);
+                final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, inputStream);
                 final Result<Byte> result = byteReadStream.readByte();
                 test.assertError(new IOException(), result);
             });
@@ -72,7 +72,7 @@ public class InputStreamToByteReadStreamTests
             {
                 runner.test("with no bytes", (Test test) ->
                 {
-                    final InputStreamToByteReadStream byteReadStream = getByteReadStream(0);
+                    final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, 0);
 
                     final byte[] buffer = new byte[10];
                     test.assertSuccess(null, byteReadStream.readBytes(buffer));
@@ -80,7 +80,7 @@ public class InputStreamToByteReadStreamTests
                 
                 runner.test("with bytes", (Test test) ->
                 {
-                    final InputStreamToByteReadStream byteReadStream = getByteReadStream(3);
+                    final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, 3);
 
                     final byte[] buffer = new byte[10];
                     test.assertSuccess(3, byteReadStream.readBytes(buffer));
@@ -91,7 +91,7 @@ public class InputStreamToByteReadStreamTests
                 
                 runner.test("asCharacterReadStream()", (Test test) ->
                 {
-                    final InputStreamToByteReadStream byteReadStream = getByteReadStream(new ByteArrayInputStream("abcd".getBytes()));
+                    final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, new ByteArrayInputStream("abcd".getBytes()));
 
                     final CharacterReadStream characterReadStream = byteReadStream.asCharacterReadStream();
 
@@ -102,14 +102,14 @@ public class InputStreamToByteReadStreamTests
                 {
                     runner.test("with null encoding", (Test test) ->
                     {
-                        final InputStreamToByteReadStream byteReadStream = getByteReadStream(10);
+                        final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, 10);
 
                         test.assertNull(byteReadStream.asCharacterReadStream((CharacterEncoding)null));
                     });
 
                     runner.test("with non-null encoding", (Test test) ->
                     {
-                        final InputStreamToByteReadStream byteReadStream = getByteReadStream(new ByteArrayInputStream("abcd".getBytes()));
+                        final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, new ByteArrayInputStream("abcd".getBytes()));
 
                         final CharacterReadStream characterReadStream = byteReadStream.asCharacterReadStream(CharacterEncoding.US_ASCII);
 
@@ -119,7 +119,7 @@ public class InputStreamToByteReadStreamTests
 
                 runner.test("next()", (Test test) ->
                 {
-                    final InputStreamToByteReadStream byteReadStream = getByteReadStream(5);
+                    final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, 5);
 
                     for (int i = 0; i < 5; ++i)
                     {
@@ -144,14 +144,14 @@ public class InputStreamToByteReadStreamTests
         return new ByteArrayInputStream(bytes);
     }
 
-    private static InputStreamToByteReadStream getByteReadStream(int byteCount)
+    private static InputStreamToByteReadStream getByteReadStream(Test test, int byteCount)
     {
-        return getByteReadStream(getInputStream(byteCount));
+        return getByteReadStream(test, getInputStream(byteCount));
     }
 
-    private static InputStreamToByteReadStream getByteReadStream(InputStream inputStream)
+    private static InputStreamToByteReadStream getByteReadStream(Test test, InputStream inputStream)
     {
-        return new InputStreamToByteReadStream(inputStream);
+        return new InputStreamToByteReadStream(inputStream, test.getMainAsyncRunner());
     }
 
     private static void assertByteReadStream(Test test, ByteReadStream byteReadStream, boolean isDisposed, boolean hasStarted, Byte current)
@@ -165,7 +165,7 @@ public class InputStreamToByteReadStreamTests
 
     private static void closeTest(Test test, InputStream inputStream, boolean expectedIsDisposed, Throwable expectedError)
     {
-        final InputStreamToByteReadStream readStream = getByteReadStream(inputStream);
+        final InputStreamToByteReadStream readStream = getByteReadStream(test, inputStream);
         closeTest(test, readStream, expectedIsDisposed, expectedError);
     }
 

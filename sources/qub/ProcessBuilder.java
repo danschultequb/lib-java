@@ -428,7 +428,7 @@ public class ProcessBuilder
                     @Override
                     public void run()
                     {
-                        redirectOutputAction.run(new InputStreamToByteReadStream(process.getInputStream()));
+                        redirectOutputAction.run(new InputStreamToByteReadStream(process.getInputStream(), asyncRunner));
                     }
                 });
             }
@@ -440,7 +440,7 @@ public class ProcessBuilder
                     @Override
                     public void run()
                     {
-                        redirectErrorAction.run(new InputStreamToByteReadStream(process.getErrorStream()));
+                        redirectErrorAction.run(new InputStreamToByteReadStream(process.getErrorStream(), asyncRunner));
                     }
                 });
             }

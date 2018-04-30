@@ -8,15 +8,23 @@ import java.io.InputStream;
  */
 public class InputStreamToByteReadStream extends ByteReadStreamBase
 {
+    private final AsyncRunner asyncRunner;
     private final InputStream inputStream;
 
     private boolean disposed;
     private boolean hasStarted;
     private Byte current;
 
-    public InputStreamToByteReadStream(InputStream inputStream)
+    public InputStreamToByteReadStream(InputStream inputStream, AsyncRunner asyncRunner)
     {
+        this.asyncRunner = asyncRunner;
         this.inputStream = inputStream;
+    }
+
+    @Override
+    public AsyncRunner getAsyncRunner()
+    {
+        return asyncRunner;
     }
 
     @Override
