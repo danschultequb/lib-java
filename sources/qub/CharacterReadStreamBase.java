@@ -3,6 +3,12 @@ package qub;
 public abstract class CharacterReadStreamBase extends IteratorBase<Character> implements CharacterReadStream
 {
     @Override
+    public AsyncFunction<Result<Boolean>> disposeAsync()
+    {
+        return AsyncDisposableBase.disposeAsync(this);
+    }
+
+    @Override
     public void close() throws Exception
     {
         DisposableBase.close(this);

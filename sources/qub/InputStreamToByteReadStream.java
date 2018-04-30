@@ -114,12 +114,6 @@ public class InputStreamToByteReadStream extends ByteReadStreamBase
     }
 
     @Override
-    public CharacterReadStream asCharacterReadStream(CharacterEncoding characterEncoding)
-    {
-        return characterEncoding == null ? null : new InputStreamReaderToCharacterReadStream(this, characterEncoding);
-    }
-
-    @Override
     public boolean hasStarted()
     {
         return hasStarted;

@@ -26,6 +26,12 @@ class InputStreamReaderToCharacterReadStream extends CharacterReadStreamBase
     }
 
     @Override
+    public AsyncRunner getAsyncRunner()
+    {
+        return byteReadStream.getAsyncRunner();
+    }
+
+    @Override
     public void close() throws Exception
     {
         DisposableBase.close(this);
