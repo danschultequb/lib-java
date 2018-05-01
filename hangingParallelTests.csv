@@ -1,1 +1,2 @@
+"BasicAsyncAction -> BasicAsyncTask -> await() -> with parent task and no child tasks on parallel async runner",2
 "BasicAsyncAction -> BasicAsyncTask -> asyncFunction()",2
