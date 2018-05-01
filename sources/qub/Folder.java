@@ -34,6 +34,12 @@ public class Folder extends FileSystemEntry
     }
 
     @Override
+    public Result<Boolean> delete()
+    {
+        return getFileSystem().deleteFolder(getPath());
+    }
+
+    @Override
     public AsyncFunction<Result<Boolean>> deleteAsync()
     {
         return getFileSystem().deleteFolderAsync(getPath());
@@ -60,7 +66,10 @@ public class Folder extends FileSystemEntry
      */
     public Result<Boolean> create()
     {
-        return createAsync().awaitReturn();
+        final Result<Folder> createResult = getFileSystem().createFolder(getPath());
+        final Throwable error = createResult.getError();
+        final boolean created = !(error instanceof FolderAlreadyExistsException || error instanceof RootNotFoundException);
+        return Result.done(created, error);
     }
 
     /**

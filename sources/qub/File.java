@@ -51,7 +51,10 @@ public class File extends FileSystemEntry
      */
     public Result<Boolean> create()
     {
-        return createAsync().awaitReturn();
+        final Result<File> createResult = getFileSystem().createFile(getPath());
+        final Throwable error = createResult.getError();
+        final boolean created = !(error instanceof FileAlreadyExistsException || error instanceof RootNotFoundException);
+        return Result.done(created, error);
     }
 
     /**
@@ -65,7 +68,9 @@ public class File extends FileSystemEntry
             @Override
             public Result<Boolean> run(Result<File> createResult)
             {
-                return Result.done(!createResult.hasError(), createResult.getError());
+                final Throwable error = createResult.getError();
+                final boolean created = !(error instanceof FileAlreadyExistsException || error instanceof RootNotFoundException);
+                return Result.done(created, error);
             }
         });
     }
@@ -86,6 +91,12 @@ public class File extends FileSystemEntry
     public AsyncFunction<Result<Boolean>> existsAsync()
     {
         return getFileSystem().fileExistsAsync(getPath());
+    }
+
+    @Override
+    public Result<Boolean> delete()
+    {
+        return getFileSystem().deleteFile(getPath());
     }
 
     @Override
