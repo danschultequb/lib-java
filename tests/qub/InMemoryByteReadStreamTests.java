@@ -29,6 +29,83 @@ public class InMemoryByteReadStreamTests
                     test.fail(e);
                 }
             });
+
+            runner.testGroup("readByte()", () ->
+            {
+                runner.test("with no bytes to read", (Test test) ->
+                {
+                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream();
+
+                    test.assertSuccess(null, byteReadStream.readByte());
+                });
+
+                runner.test("with one byte to read", (Test test) ->
+                {
+                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream(new byte[] { 10 });
+
+                    test.assertSuccess((byte)10, byteReadStream.readByte());
+                    test.assertSuccess(null, byteReadStream.readByte());
+                });
+
+                runner.test("with two bytes to read", (Test test) ->
+                {
+                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream(new byte[] { 10, 20 });
+
+                    test.assertSuccess((byte)10, byteReadStream.readByte());
+                    test.assertSuccess((byte)20, byteReadStream.readByte());
+                    test.assertSuccess(null, byteReadStream.readByte());
+                });
+
+                runner.test("with disposed ByteReadStream", (Test test) ->
+                {
+                    final InMemoryByteReadStream readStream = new InMemoryByteReadStream();
+                    readStream.dispose();
+
+                    test.assertError(new IllegalArgumentException("byteReadStream cannot be disposed."), readStream.readByte());
+                });
+            });
+
+            runner.testGroup("readByteAsync()", () ->
+            {
+                runner.test("with no AsyncRunner assigned", (Test test) ->
+                {
+                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream();
+
+                    test.assertError(new IllegalArgumentException("Cannot invoke ByteReadStream asynchronous functions when an AsyncRunner was not provided when the ByteReadStream was created."), byteReadStream.readByteAsync().awaitReturn());
+                });
+
+                runner.test("with no bytes to read", (Test test) ->
+                {
+                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream(test.getMainAsyncRunner());
+
+                    test.assertSuccess(null, byteReadStream.readByteAsync().awaitReturn());
+                });
+
+                runner.test("with one byte to read", (Test test) ->
+                {
+                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream(new byte[] { 10 }, test.getMainAsyncRunner());
+
+                    test.assertSuccess((byte)10, byteReadStream.readByteAsync().awaitReturn());
+                    test.assertSuccess(null, byteReadStream.readByteAsync().awaitReturn());
+                });
+
+                runner.test("with two bytes to read", (Test test) ->
+                {
+                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream(new byte[] { 10, 20 }, test.getMainAsyncRunner());
+
+                    test.assertSuccess((byte)10, byteReadStream.readByteAsync().awaitReturn());
+                    test.assertSuccess((byte)20, byteReadStream.readByteAsync().awaitReturn());
+                    test.assertSuccess(null, byteReadStream.readByteAsync().awaitReturn());
+                });
+
+                runner.test("with disposed ByteReadStream", (Test test) ->
+                {
+                    final InMemoryByteReadStream readStream = new InMemoryByteReadStream(test.getMainAsyncRunner());
+                    readStream.dispose();
+
+                    test.assertError(new IllegalArgumentException("byteReadStream cannot be disposed."), readStream.readByteAsync().awaitReturn());
+                });
+            });
             
             runner.test("readBytes(int)", (Test test) ->
             {

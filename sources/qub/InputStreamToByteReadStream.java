@@ -62,26 +62,28 @@ public class InputStreamToByteReadStream extends ByteReadStreamBase
     {
         hasStarted = true;
 
-        Result<Byte> result;
-        try
+        Result<Byte> result = ByteReadStreamBase.validateByteReadStream(this);
+        if (result == null)
         {
-            final int byteAsInt = inputStream.read();
-            if (byteAsInt == -1)
+            try
+            {
+                final int byteAsInt = inputStream.read();
+                if (byteAsInt == -1)
+                {
+                    current = null;
+                }
+                else
+                {
+                    current = (byte)byteAsInt;
+                }
+                result = Result.success(current);
+            }
+            catch (IOException e)
             {
                 current = null;
+                result = Result.error(e);
             }
-            else
-            {
-                current = (byte)byteAsInt;
-            }
-            result = Result.success(current);
         }
-        catch (IOException e)
-        {
-            current = null;
-            result = Result.error(e);
-        }
-
         return result;
     }
 

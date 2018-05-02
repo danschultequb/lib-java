@@ -1,2 +1,4 @@
+"BasicAsyncFunction -> BasicAsyncTask -> await() -> when parent tasks change during task execution on parallel async runner",1
+"BasicAsyncAction -> BasicAsyncTask -> await() -> when parent tasks change during task execution on parallel async runner",1
 "BasicAsyncAction -> BasicAsyncTask -> await() -> with parent task and no child tasks on parallel async runner",2
-"BasicAsyncAction -> BasicAsyncTask -> asyncFunction()",2
+"BasicAsyncAction -> BasicAsyncTask -> asyncFunction()",3

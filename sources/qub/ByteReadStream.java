@@ -2,7 +2,17 @@ package qub;
 
 public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
 {
+    /**
+     * Read a single byte from this stream. This will block until a byte is available.
+     * @return The single byte that was read, or an error if a byte could not be read.
+     */
     Result<Byte> readByte();
+
+    /**
+     * Read a single byte from this stream.
+     * @return The single byte that was read, or an error if a byte could not be read.
+     */
+    AsyncFunction<Result<Byte>> readByteAsync();
 
     Result<byte[]> readBytes(int bytesToRead);
 

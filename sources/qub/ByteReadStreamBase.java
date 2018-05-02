@@ -17,6 +17,12 @@ public abstract class ByteReadStreamBase extends IteratorBase<Byte> implements B
     }
 
     @Override
+    public AsyncFunction<Result<Byte>> readByteAsync()
+    {
+        return ByteReadStreamBase.readByteAsync(this);
+    }
+
+    @Override
     public Result<byte[]> readBytes(int bytesToRead)
     {
         return ByteReadStreamBase.readBytes(this, bytesToRead);
@@ -80,6 +86,23 @@ public abstract class ByteReadStreamBase extends IteratorBase<Byte> implements B
     public LineReadStream asLineReadStream(CharacterEncoding characterEncoding, boolean includeNewLines)
     {
         return ByteReadStreamBase.asLineReadStream(this, characterEncoding, includeNewLines);
+    }
+
+    public static AsyncFunction<Result<Byte>> readByteAsync(final ByteReadStream byteReadStream)
+    {
+        AsyncFunction<Result<Byte>> result = ByteReadStreamBase.validateByteReadStreamAsync(byteReadStream);
+        if (result == null)
+        {
+            result = async(byteReadStream, new Function0<Result<Byte>>()
+            {
+                @Override
+                public Result<Byte> run()
+                {
+                    return byteReadStream.readByte();
+                }
+            });
+        }
+        return result;
     }
 
     public static Result<byte[]> readBytes(ByteReadStream byteReadStream, int bytesToRead)
@@ -214,6 +237,31 @@ public abstract class ByteReadStreamBase extends IteratorBase<Byte> implements B
         else if (byteReadStream.isDisposed())
         {
             result = Result.error(new IllegalArgumentException("byteReadStream cannot be disposed."));
+        }
+        return result;
+    }
+
+    public static <T> AsyncFunction<Result<T>> validateByteReadStreamAsync(ByteReadStream byteReadStream)
+    {
+        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+        final Result<T> result = ByteReadStreamBase.validateByteReadStream(byteReadStream);
+        return result == null ? null : currentAsyncRunner.<T>error(result.getError());
+    }
+
+    private static <T> AsyncFunction<Result<T>> async(ByteReadStream byteReadStream, Function0<Result<T>> function)
+    {
+        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+        final AsyncRunner streamAsyncRunner = byteReadStream.getAsyncRunner();
+
+        AsyncFunction<Result<T>> result;
+        if (streamAsyncRunner == null)
+        {
+            result = currentAsyncRunner.error(new IllegalArgumentException("Cannot invoke ByteReadStream asynchronous functions when an AsyncRunner was not provided when the ByteReadStream was created."));
+        }
+        else
+        {
+            result = streamAsyncRunner.schedule(function)
+                .thenOn(currentAsyncRunner);
         }
         return result;
     }

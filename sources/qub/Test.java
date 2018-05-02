@@ -387,9 +387,9 @@ public class Test
      */
     public <T> void assertSuccess(T expectedValue, Result<T> result)
     {
-        assertNotNull(result);
-        assertEqual(expectedValue, result.getValue());
-        assertFalse(result.hasError());
+        assertNotNull(result, "A successful Result should not be null");
+        assertEqual(expectedValue, result.getValue(), "Unexpected successful Result value");
+        assertNull(result.getError(), "A successful Result should not have an error");
     }
 
     /**
