@@ -111,15 +111,15 @@ public class InMemoryByteReadStreamTests
             {
                 InMemoryByteReadStream readStream = new InMemoryByteReadStream();
 
-                test.assertError(new IllegalArgumentException("bytesToRead must be greater than 0."), readStream.readBytes(-5));
-                test.assertError(new IllegalArgumentException("bytesToRead must be greater than 0."), readStream.readBytes(0));
+                test.assertError(new IllegalArgumentException("bytesToRead (-5) must be greater than 0."), readStream.readBytes(-5));
+                test.assertError(new IllegalArgumentException("bytesToRead (0) must be greater than 0."), readStream.readBytes(0));
                 test.assertSuccess(null, readStream.readBytes(1));
                 test.assertSuccess(null, readStream.readBytes(5));
 
                 readStream = new InMemoryByteReadStream(new byte[] { 0, 1, 2, 3 });
 
-                test.assertError(new IllegalArgumentException("bytesToRead must be greater than 0."), readStream.readBytes(-5));
-                test.assertError(new IllegalArgumentException("bytesToRead must be greater than 0."), readStream.readBytes(0));
+                test.assertError(new IllegalArgumentException("bytesToRead (-5) must be greater than 0."), readStream.readBytes(-5));
+                test.assertError(new IllegalArgumentException("bytesToRead (0) must be greater than 0."), readStream.readBytes(0));
                 test.assertSuccess(new byte[] { 0 }, readStream.readBytes(1));
                 test.assertSuccess(new byte[] { 1, 2 }, readStream.readBytes(2));
                 test.assertSuccess(new byte[] { 3 }, readStream.readBytes(3));

@@ -144,6 +144,12 @@ class JavaTCPClient extends AsyncDisposableBase implements TCPClient
     }
 
     @Override
+    public AsyncFunction<Result<byte[]>> readBytesAsync(int bytesToRead)
+    {
+        return socketReadStream.readBytesAsync(bytesToRead);
+    }
+
+    @Override
     public Result<Integer> readBytes(byte[] outputBytes)
     {
         return socketReadStream.readBytes(outputBytes);

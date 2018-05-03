@@ -72,4 +72,11 @@ public abstract class AsyncRunnerBase extends DisposableBase implements AsyncRun
         final Result<T> innerResult = Result.between(lowerBound, value, upperBound, parameterName);
         return innerResult == null ? null : done(innerResult.getValue(), innerResult.getError());
     }
+
+    @Override
+    public <T> AsyncFunction<Result<T>> greaterThan(int lowerBound, int value, String parameterName)
+    {
+        final Result<T> innerResult = Result.greaterThan(lowerBound, value, parameterName);
+        return innerResult == null ? null : done(innerResult.getValue(), innerResult.getError());
+    }
 }

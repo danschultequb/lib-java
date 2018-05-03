@@ -112,4 +112,16 @@ public interface AsyncRunner extends Disposable
      * null if the provided value is between the lower and upper bounds.
      */
     <T> AsyncFunction<Result<T>> between(int lowerBound, int value, int upperBound, String parameterName);
+
+    /**
+     * Create an AsyncFunction that returns an error Result if the provided value is not greater
+     * than the provided lowerBound.
+     * @param lowerBound The lower bound value.
+     * @param value The value to check.
+     * @param parameterName The name of the parameter that the value comes from.
+     * @param <T> The type of the Result that the return value must match.
+     * @return An AsyncFunction if the provided value is not greater than the lower bound, or null
+     * if the provided value is greater than the lower bound.
+     */
+    <T> AsyncFunction<Result<T>> greaterThan(int lowerBound, int value, String parameterName);
 }

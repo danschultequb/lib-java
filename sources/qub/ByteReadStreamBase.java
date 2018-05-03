@@ -29,6 +29,12 @@ public abstract class ByteReadStreamBase extends IteratorBase<Byte> implements B
     }
 
     @Override
+    public AsyncFunction<Result<byte[]>> readBytesAsync(int bytesToRead)
+    {
+        return ByteReadStreamBase.readBytesAsync(this, bytesToRead);
+    }
+
+    @Override
     public Result<Integer> readBytes(byte[] outputBytes)
     {
         return ByteReadStreamBase.readBytes(this, outputBytes);
@@ -110,11 +116,8 @@ public abstract class ByteReadStreamBase extends IteratorBase<Byte> implements B
         Result<byte[]> result = ByteReadStreamBase.validateByteReadStream(byteReadStream);
         if (result == null)
         {
-            if (bytesToRead <= 0)
-            {
-                result = Result.error(new IllegalArgumentException("bytesToRead must be greater than 0."));
-            }
-            else
+            result = Result.greaterThan(0, bytesToRead, "bytesToRead");
+            if (result == null)
             {
                 byte[] bytes = new byte[bytesToRead];
                 final Result<Integer> readBytesResult = byteReadStream.readBytes(bytes);
@@ -137,6 +140,30 @@ public abstract class ByteReadStreamBase extends IteratorBase<Byte> implements B
                 }
             }
         }
+        return result;
+    }
+
+    public static AsyncFunction<Result<byte[]>> readBytesAsync(final ByteReadStream byteReadStream, final int bytesToRead)
+    {
+        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+
+        AsyncFunction<Result<byte[]>> result = currentAsyncRunner.notNull(byteReadStream, "byteReadStream");
+        if (result == null)
+        {
+            result = currentAsyncRunner.greaterThan(0, bytesToRead, "bytesToRead");
+            if (result == null)
+            {
+                result = async(byteReadStream, new Function0<Result<byte[]>>()
+                {
+                    @Override
+                    public Result<byte[]> run()
+                    {
+                        return byteReadStream.readBytes(bytesToRead);
+                    }
+                });
+            }
+        }
+
         return result;
     }
 
