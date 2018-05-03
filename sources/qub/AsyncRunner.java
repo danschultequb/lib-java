@@ -91,6 +91,14 @@ public interface AsyncRunner extends Disposable
     <T> AsyncFunction<Result<T>> done(T value, Throwable error);
 
     /**
+     * Create an AsyncFunction that resolves to the provided Result.
+     * @param result The Result to resolve to.
+     * @param <T> The type of the Result.
+     * @return An AsyncFunction that resolves to the provided Result.
+     */
+    <T> AsyncFunction<Result<T>> done(Result<T> result);
+
+    /**
      * Create an AsyncFunction that returns an error Result if the provided value is null.
      * @param value The value to check.
      * @param parameterName The name of the parameter that the value comes from.

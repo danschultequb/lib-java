@@ -37,24 +37,30 @@ public abstract class AsyncRunnerBase extends DisposableBase implements AsyncRun
     @Override
     public <T> AsyncFunction<Result<T>> success(final T value)
     {
-        return done(value, null);
+        return done(Result.success(value));
     }
 
     @Override
     public <T> AsyncFunction<Result<T>> error(Throwable error)
     {
-        return done(null, error);
+        return done(Result.<T>error(error));
     }
 
     @Override
     public <T> AsyncFunction<Result<T>> done(final T value, final Throwable error)
+    {
+        return done(Result.done(value, error));
+    }
+
+    @Override
+    public <T> AsyncFunction<Result<T>> done(final Result<T> result)
     {
         return schedule(new Function0<Result<T>>()
         {
             @Override
             public Result<T> run()
             {
-                return Result.done(value, error);
+                return result;
             }
         });
     }
@@ -63,20 +69,20 @@ public abstract class AsyncRunnerBase extends DisposableBase implements AsyncRun
     public <T> AsyncFunction<Result<T>> notNull(Object value, String parameterName)
     {
         final Result<T> innerResult = Result.notNull(value, parameterName);
-        return innerResult == null ? null : done(innerResult.getValue(), innerResult.getError());
+        return innerResult == null ? null : done(innerResult);
     }
 
     @Override
     public <T> AsyncFunction<Result<T>> between(int lowerBound, int value, int upperBound, String parameterName)
     {
         final Result<T> innerResult = Result.between(lowerBound, value, upperBound, parameterName);
-        return innerResult == null ? null : done(innerResult.getValue(), innerResult.getError());
+        return innerResult == null ? null : done(innerResult);
     }
 
     @Override
     public <T> AsyncFunction<Result<T>> greaterThan(int lowerBound, int value, String parameterName)
     {
         final Result<T> innerResult = Result.greaterThan(lowerBound, value, parameterName);
-        return innerResult == null ? null : done(innerResult.getValue(), innerResult.getError());
+        return innerResult == null ? null : done(innerResult);
     }
 }

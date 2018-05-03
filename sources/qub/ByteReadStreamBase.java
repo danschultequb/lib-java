@@ -17,6 +17,9 @@ public abstract class ByteReadStreamBase extends IteratorBase<Byte> implements B
     }
 
     @Override
+    public abstract Result<Byte> readByte();
+
+    @Override
     public AsyncFunction<Result<Byte>> readByteAsync()
     {
         return ByteReadStreamBase.readByteAsync(this);
@@ -38,6 +41,12 @@ public abstract class ByteReadStreamBase extends IteratorBase<Byte> implements B
     public Result<Integer> readBytes(byte[] outputBytes)
     {
         return ByteReadStreamBase.readBytes(this, outputBytes);
+    }
+
+    @Override
+    public AsyncFunction<Result<Integer>> readBytesAsync(byte[] outputBytes)
+    {
+        return ByteReadStreamBase.readBytesAsync(this, outputBytes);
     }
 
     @Override
@@ -147,7 +156,7 @@ public abstract class ByteReadStreamBase extends IteratorBase<Byte> implements B
     {
         final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
 
-        AsyncFunction<Result<byte[]>> result = currentAsyncRunner.notNull(byteReadStream, "byteReadStream");
+        AsyncFunction<Result<byte[]>> result = ByteReadStreamBase.validateByteReadStreamAsync(byteReadStream);
         if (result == null)
         {
             result = currentAsyncRunner.greaterThan(0, bytesToRead, "bytesToRead");
@@ -169,7 +178,40 @@ public abstract class ByteReadStreamBase extends IteratorBase<Byte> implements B
 
     public static Result<Integer> readBytes(ByteReadStream byteReadStream, byte[] outputBytes)
     {
-        return byteReadStream.readBytes(outputBytes, 0, outputBytes.length);
+        Result<Integer> result = ByteReadStreamBase.validateByteReadStream(byteReadStream);
+        if (result == null)
+        {
+            result = ByteReadStreamBase.validateOutputBytes(outputBytes);
+            if (result == null)
+            {
+                result = byteReadStream.readBytes(outputBytes, 0, outputBytes.length);
+            }
+        }
+        return result;
+    }
+
+    public static AsyncFunction<Result<Integer>> readBytesAsync(final ByteReadStream byteReadStream, final byte[] outputBytes)
+    {
+        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+
+        AsyncFunction<Result<Integer>> result = ByteReadStreamBase.validateByteReadStreamAsync(byteReadStream);
+        if (result == null)
+        {
+            result = ByteReadStreamBase.validateOutputBytesAsync(outputBytes);
+            if (result == null)
+            {
+                result = async(byteReadStream, new Function0<Result<Integer>>()
+                {
+                    @Override
+                    public Result<Integer> run()
+                    {
+                        return byteReadStream.readBytes(outputBytes);
+                    }
+                });
+            }
+        }
+
+        return result;
     }
 
     public static Result<Integer> readBytes(ByteReadStream byteReadStream, byte[] outputBytes, int startIndex, int length)
@@ -272,6 +314,23 @@ public abstract class ByteReadStreamBase extends IteratorBase<Byte> implements B
     {
         final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
         final Result<T> result = ByteReadStreamBase.validateByteReadStream(byteReadStream);
+        return result == null ? null : currentAsyncRunner.<T>error(result.getError());
+    }
+
+    public static <T> Result<T> validateOutputBytes(byte[] outputBytes)
+    {
+        Result<T> result = Result.notNull(outputBytes, "outputBytes");
+        if (result == null)
+        {
+            result = Result.greaterThan(0, outputBytes.length, "outputBytes.length");
+        }
+        return result;
+    }
+
+    public static <T> AsyncFunction<Result<T>> validateOutputBytesAsync(byte[] outputBytes)
+    {
+        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+        Result<T> result = ByteReadStreamBase.validateOutputBytes(outputBytes);
         return result == null ? null : currentAsyncRunner.<T>error(result.getError());
     }
 

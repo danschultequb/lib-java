@@ -16,7 +16,7 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
     AsyncFunction<Result<Byte>> readByteAsync();
 
     /**
-     * Read up to the provided bytesToRead number of bytes from this stream. If less bytes than
+     * Read up to the provided bytesToRead number of bytes from this stream. If fewer bytes than
      * bytesToRead are available, then fewer than bytesToRead bytes will be returned. If no bytes
      * are available, then this function will block until bytes become available.
      * @param bytesToRead The maximum number of bytes to read from this stream.
@@ -25,7 +25,7 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
     Result<byte[]> readBytes(int bytesToRead);
 
     /**
-     * Read up to the provided bytesToRead number of bytes from this stream. If less bytes than
+     * Read up to the provided bytesToRead number of bytes from this stream. If fewer bytes than
      * bytesToRead are available, then fewer than bytesToRead bytes will be returned. If no bytes
      * are available, then this function will not resolve until bytes become available.
      * @param bytesToRead The maximum number of bytes to read from this stream.
@@ -33,7 +33,21 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
      */
     AsyncFunction<Result<byte[]>> readBytesAsync(int bytesToRead);
 
+    /**
+     * Read available bytes into the provided byte[] and return the number of bytes that were read.
+     * If no bytes are available, then this function will not return until bytes become available.
+     * @param outputBytes The byte array to read bytes into.
+     * @return The number of bytes that were read, or an error if bytes could not be read.
+     */
     Result<Integer> readBytes(byte[] outputBytes);
+
+    /**
+     * Read available bytes into the provided byte[] and return the number of bytes that were read.
+     * If no bytes are available, then this function will not resolve until bytes become available.
+     * @param outputBytes The byte array to read bytes into.
+     * @return The number of bytes that were read, or an error if bytes could not be read.
+     */
+    AsyncFunction<Result<Integer>> readBytesAsync(byte[] outputBytes);
 
     Result<Integer> readBytes(byte[] outputBytes, int startIndex, int length);
 
