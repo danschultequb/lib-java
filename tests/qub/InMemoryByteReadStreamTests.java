@@ -71,7 +71,7 @@ public class InMemoryByteReadStreamTests
                 {
                     final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream();
 
-                    test.assertError(new IllegalArgumentException("Cannot invoke ByteReadStream asynchronous functions when an AsyncRunner was not provided when the ByteReadStream was created."), byteReadStream.readByteAsync().awaitReturn());
+                    test.assertError(new IllegalArgumentException("Cannot invoke ByteReadStream asynchronous functions when the ByteReadStream was not provided an AsyncRunner to its constructor."), byteReadStream.readByteAsync().awaitReturn());
                 });
 
                 runner.test("with no bytes to read", (Test test) ->
@@ -136,6 +136,39 @@ public class InMemoryByteReadStreamTests
                 }
 
                 test.assertError(new IllegalArgumentException("byteReadStream cannot be disposed."), readStream.readBytes(1));
+            });
+
+
+
+            runner.test("readBytesAsync(int)", (Test test) ->
+            {
+                InMemoryByteReadStream readStream = new InMemoryByteReadStream(test.getMainAsyncRunner());
+
+                test.assertError(new IllegalArgumentException("bytesToRead (-5) must be greater than 0."), readStream.readBytesAsync(-5).awaitReturn());
+                test.assertError(new IllegalArgumentException("bytesToRead (0) must be greater than 0."), readStream.readBytesAsync(0).awaitReturn());
+                test.assertSuccess(null, readStream.readBytesAsync(1).awaitReturn());
+                test.assertSuccess(null, readStream.readBytesAsync(5).awaitReturn());
+
+                readStream = new InMemoryByteReadStream(new byte[] { 0, 1, 2, 3 }, test.getMainAsyncRunner());
+
+                test.assertError(new IllegalArgumentException("bytesToRead (-5) must be greater than 0."), readStream.readBytesAsync(-5).awaitReturn());
+                test.assertError(new IllegalArgumentException("bytesToRead (0) must be greater than 0."), readStream.readBytesAsync(0).awaitReturn());
+                test.assertSuccess(new byte[] { 0 }, readStream.readBytesAsync(1).awaitReturn());
+                test.assertSuccess(new byte[] { 1, 2 }, readStream.readBytesAsync(2).awaitReturn());
+                test.assertSuccess(new byte[] { 3 }, readStream.readBytesAsync(3).awaitReturn());
+                test.assertSuccess(null, readStream.readBytesAsync(1).awaitReturn());
+                test.assertSuccess(null, readStream.readBytesAsync(5).awaitReturn());
+
+                try
+                {
+                    readStream.close();
+                }
+                catch (Exception e)
+                {
+                    test.fail(e);
+                }
+
+                test.assertError(new IllegalArgumentException("byteReadStream cannot be disposed."), readStream.readBytesAsync(1).awaitReturn());
             });
 
             runner.test("asLineReadStream()", (Test test) ->

@@ -283,7 +283,7 @@ public abstract class ByteReadStreamBase extends IteratorBase<Byte> implements B
         AsyncFunction<Result<T>> result;
         if (streamAsyncRunner == null)
         {
-            result = currentAsyncRunner.error(new IllegalArgumentException("Cannot invoke ByteReadStream asynchronous functions when an AsyncRunner was not provided when the ByteReadStream was created."));
+            result = currentAsyncRunner.error(new IllegalArgumentException("Cannot invoke ByteReadStream asynchronous functions when the ByteReadStream was not provided an AsyncRunner to its constructor."));
         }
         else
         {
