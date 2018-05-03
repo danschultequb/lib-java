@@ -56,9 +56,21 @@ public abstract class ByteReadStreamBase extends IteratorBase<Byte> implements B
     }
 
     @Override
+    public AsyncFunction<Result<Integer>> readBytesAsync(byte[] outputBytes, int startIndex, int length)
+    {
+        return ByteReadStreamBase.readBytesAsync(this, outputBytes, startIndex, length);
+    }
+
+    @Override
     public Result<byte[]> readAllBytes()
     {
         return ByteReadStreamBase.readAllBytes(this);
+    }
+
+    @Override
+    public AsyncFunction<Result<byte[]>> readAllBytesAsync()
+    {
+        return ByteReadStreamBase.readAllBytesAsync(this);
     }
 
     @Override
@@ -219,23 +231,64 @@ public abstract class ByteReadStreamBase extends IteratorBase<Byte> implements B
         Result<Integer> result = ByteReadStreamBase.validateByteReadStream(byteReadStream);
         if (result == null)
         {
-            int bytesRead = 0;
-            Throwable error = null;
-            for (int i = 0; i < length; ++i)
+            result = ByteReadStreamBase.validateOutputBytes(outputBytes);
+            if (result == null)
             {
-                final Result<Byte> readByte = byteReadStream.readByte();
-                if (readByte.hasError())
+                result = ByteReadStreamBase.validateStartIndex(startIndex, outputBytes);
+                if (result == null)
                 {
-                    error = readByte.getError();
-                    break;
-                }
-                else
-                {
-                    outputBytes[startIndex + i] = readByte.getValue();
-                    ++bytesRead;
+                    result = ByteReadStreamBase.validateLength(length, outputBytes, startIndex);
+                    if (result == null)
+                    {
+                        int bytesRead = 0;
+                        Throwable error = null;
+                        for (int i = 0; i < length; ++i)
+                        {
+                            final Result<Byte> readByte = byteReadStream.readByte();
+                            if (readByte.hasError())
+                            {
+                                error = readByte.getError();
+                                break;
+                            }
+                            else
+                            {
+                                outputBytes[startIndex + i] = readByte.getValue();
+                                ++bytesRead;
+                            }
+                        }
+                        result = Result.done(bytesRead, error);
+                    }
                 }
             }
-            result = Result.done(bytesRead, error);
+        }
+        return result;
+    }
+
+    public static AsyncFunction<Result<Integer>> readBytesAsync(final ByteReadStream byteReadStream, final byte[] outputBytes, final int startIndex, final int length)
+    {
+        AsyncFunction<Result<Integer>> result = ByteReadStreamBase.validateByteReadStreamAsync(byteReadStream);
+        if (result == null)
+        {
+            result = ByteReadStreamBase.validateOutputBytesAsync(outputBytes);
+            if (result == null)
+            {
+                result = ByteReadStreamBase.validateStartIndexAsync(startIndex, outputBytes);
+                if (result == null)
+                {
+                    result = ByteReadStreamBase.validateLengthAsync(length, outputBytes, startIndex);
+                    if (result == null)
+                    {
+                        result = async(byteReadStream, new Function0<Result<Integer>>()
+                        {
+                            @Override
+                            public Result<Integer> run()
+                            {
+                                return byteReadStream.readBytes(outputBytes, startIndex, length);
+                            }
+                        });
+                    }
+                }
+            }
         }
         return result;
     }
@@ -257,6 +310,23 @@ public abstract class ByteReadStreamBase extends IteratorBase<Byte> implements B
             }
 
             result = Result.success(Array.merge(readByteArrays));
+        }
+        return result;
+    }
+
+    public static AsyncFunction<Result<byte[]>> readAllBytesAsync(final ByteReadStream byteReadStream)
+    {
+        AsyncFunction<Result<byte[]>> result = ByteReadStreamBase.validateByteReadStreamAsync(byteReadStream);
+        if (result == null)
+        {
+            result = async(byteReadStream, new Function0<Result<byte[]>>()
+            {
+                @Override
+                public Result<byte[]> run()
+                {
+                    return byteReadStream.readAllBytes();
+                }
+            });
         }
         return result;
     }
@@ -314,7 +384,7 @@ public abstract class ByteReadStreamBase extends IteratorBase<Byte> implements B
     {
         final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
         final Result<T> result = ByteReadStreamBase.validateByteReadStream(byteReadStream);
-        return result == null ? null : currentAsyncRunner.<T>error(result.getError());
+        return result == null ? null : currentAsyncRunner.done(result);
     }
 
     public static <T> Result<T> validateOutputBytes(byte[] outputBytes)
@@ -330,8 +400,32 @@ public abstract class ByteReadStreamBase extends IteratorBase<Byte> implements B
     public static <T> AsyncFunction<Result<T>> validateOutputBytesAsync(byte[] outputBytes)
     {
         final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        Result<T> result = ByteReadStreamBase.validateOutputBytes(outputBytes);
-        return result == null ? null : currentAsyncRunner.<T>error(result.getError());
+        final Result<T> result = ByteReadStreamBase.validateOutputBytes(outputBytes);
+        return result == null ? null : currentAsyncRunner.done(result);
+    }
+
+    public static <T> Result<T> validateStartIndex(int startIndex, byte[] outputBytes)
+    {
+        return Result.between(0, startIndex, outputBytes.length - 1, "startIndex");
+    }
+
+    public static <T> AsyncFunction<Result<T>> validateStartIndexAsync(int startIndex, byte[] outputBytes)
+    {
+        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+        final Result<T> result = ByteReadStreamBase.validateStartIndex(startIndex, outputBytes);
+        return result == null ? null : currentAsyncRunner.done(result);
+    }
+
+    public static <T> Result<T> validateLength(int length, byte[] outputBytes, int startIndex)
+    {
+        return Result.between(1, length, outputBytes.length - startIndex, "length");
+    }
+
+    public static <T> AsyncFunction<Result<T>> validateLengthAsync(int length, byte[] outputBytes, int startIndex)
+    {
+        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+        final Result<T> result = ByteReadStreamBase.validateLength(length, outputBytes, startIndex);
+        return result == null ? null : currentAsyncRunner.done(result);
     }
 
     private static <T> AsyncFunction<Result<T>> async(ByteReadStream byteReadStream, Function0<Result<T>> function)

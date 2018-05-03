@@ -60,13 +60,13 @@ public class InputStreamToByteReadStream extends ByteReadStreamBase
     @Override
     public Result<Byte> readByte()
     {
-        hasStarted = true;
-
         Result<Byte> result = ByteReadStreamBase.validateByteReadStream(this);
         if (result == null)
         {
             try
             {
+                hasStarted = true;
+
                 final int byteAsInt = inputStream.read();
                 if (byteAsInt == -1)
                 {
@@ -90,28 +90,42 @@ public class InputStreamToByteReadStream extends ByteReadStreamBase
     @Override
     public Result<Integer> readBytes(byte[] outputBytes, int startIndex, int length)
     {
-        hasStarted = true;
-
-        Result<Integer> result;
-        try
+        Result<Integer> result = ByteReadStreamBase.validateByteReadStream(this);
+        if (result == null)
         {
-            final int bytesRead = inputStream.read(outputBytes, startIndex, length);
-            if (bytesRead == -1)
+            result = ByteReadStreamBase.validateOutputBytes(outputBytes);
+            if (result == null)
             {
-                current = null;
-                result = Result.success(null);
-            }
-            else
-            {
-                current = outputBytes[startIndex + bytesRead - 1];
-                result = Result.success(bytesRead);
+                result = ByteReadStreamBase.validateStartIndex(startIndex, outputBytes);
+                if (result == null)
+                {
+                    result = ByteReadStreamBase.validateLength(length, outputBytes, startIndex);
+                    if (result == null)
+                    {
+                        try
+                        {
+                            hasStarted = true;
+
+                            final int bytesRead = inputStream.read(outputBytes, startIndex, length);
+                            if (bytesRead == -1)
+                            {
+                                current = null;
+                                result = Result.success(null);
+                            }
+                            else
+                            {
+                                current = outputBytes[startIndex + bytesRead - 1];
+                                result = Result.success(bytesRead);
+                            }
+                        }
+                        catch (IOException e)
+                        {
+                            result = Result.error(e);
+                        }
+                    }
+                }
             }
         }
-        catch (IOException e)
-        {
-            result = Result.error(e);
-        }
-
         return result;
     }
 
