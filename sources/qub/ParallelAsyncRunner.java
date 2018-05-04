@@ -3,28 +3,40 @@ package qub;
 public class ParallelAsyncRunner extends AsyncRunnerBase
 {
     private final java.util.concurrent.atomic.AtomicInteger scheduledTaskCount;
-    private final java.util.concurrent.atomic.AtomicInteger runningTaskCount;
+    private final SpinMutex spinMutex;
     private volatile boolean disposed;
-
-    private final Action0 decrementScheduledTaskCount = new Action0()
-    {
-        @Override
-        public void run()
-        {
-            scheduledTaskCount.decrementAndGet();
-        }
-    };
 
     public ParallelAsyncRunner()
     {
         scheduledTaskCount = new java.util.concurrent.atomic.AtomicInteger(0);
-        runningTaskCount = new java.util.concurrent.atomic.AtomicInteger(0);
+        spinMutex = new SpinMutex();
     }
 
     @Override
     public int getScheduledTaskCount()
     {
-        return scheduledTaskCount.get();
+        return spinMutex.criticalSection(new Function0<Integer>()
+        {
+            @Override
+            public Integer run()
+            {
+                return scheduledTaskCount.get();
+            }
+        });
+    }
+
+    @Override
+    public void markCompleted(final Setable<Boolean> asyncTaskCompleted)
+    {
+        spinMutex.criticalSection(new Action0()
+        {
+            @Override
+            public void run()
+            {
+                asyncTaskCompleted.set(true);
+                scheduledTaskCount.decrementAndGet();
+            }
+        });
     }
 
     @Override
@@ -32,19 +44,23 @@ public class ParallelAsyncRunner extends AsyncRunnerBase
     {
         if (!disposed)
         {
-            scheduledTaskCount.incrementAndGet();
+            spinMutex.criticalSection(new Action0()
+            {
+                @Override
+                public void run()
+                {
+                    scheduledTaskCount.incrementAndGet();
+                }
+            });
             new java.lang.Thread(new Action0()
             {
                 @Override
                 public void run()
                 {
-                    runningTaskCount.incrementAndGet();
                     AsyncRunnerRegistry.setCurrentThreadAsyncRunner(ParallelAsyncRunner.this);
                     try
                     {
-                        asyncTask.setAfterChildTasksScheduledBeforeCompletedAction(decrementScheduledTaskCount);
                         asyncTask.runAndSchedulePausedTasks();
-                        runningTaskCount.decrementAndGet();
                     }
                     finally
                     {
@@ -84,7 +100,7 @@ public class ParallelAsyncRunner extends AsyncRunnerBase
     @Override
     public void await()
     {
-        while (scheduledTaskCount.get() > 0 || runningTaskCount.get() > 0)
+        while (getScheduledTaskCount() > 0)
         {
         }
     }

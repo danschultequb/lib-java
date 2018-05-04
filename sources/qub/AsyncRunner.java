@@ -12,6 +12,12 @@ public interface AsyncRunner extends Disposable
     int getScheduledTaskCount();
 
     /**
+     * Atomically mark the provided Setable to true and decrement the number of scheduled tasks.
+     * @param asyncTaskCompleted
+     */
+    void markCompleted(Setable<Boolean> asyncTaskCompleted);
+
+    /**
      * Block until all scheduled actions/functions are run to completion.
      */
     void await();

@@ -18,13 +18,6 @@ public interface PausedAsyncTask extends AsyncTask
     void schedule();
 
     /**
-     * Set the action that will be run after this task's paused child tasks have been scheduled, but
-     * before this task is marked as being completed.
-     * @param afterChildTasksScheduledBeforeCompletedAction The action to run.
-     */
-    void setAfterChildTasksScheduledBeforeCompletedAction(Action0 afterChildTasksScheduledBeforeCompletedAction);
-
-    /**
      * Run this PausedAsyncTask and schedule all of the PausedAsyncTasks waiting on this
      * PausedAsyncTask.
      */

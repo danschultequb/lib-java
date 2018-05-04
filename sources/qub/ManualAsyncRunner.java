@@ -17,6 +17,12 @@ public class ManualAsyncRunner extends AsyncRunnerBase
     }
 
     @Override
+    public void markCompleted(final Setable<Boolean> asyncTaskCompleted)
+    {
+        asyncTaskCompleted.set(true);
+    }
+
+    @Override
     public void schedule(PausedAsyncTask asyncTask)
     {
         if (!disposed)

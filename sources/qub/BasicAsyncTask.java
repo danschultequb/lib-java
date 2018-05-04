@@ -5,16 +5,16 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
     private final Getable<AsyncRunner> asyncRunner;
     private final Indexable<AsyncTask> parentTasks;
     private final List<BasicAsyncTask> pausedTasks;
-    private volatile Action0 afterChildTasksScheduledBeforeCompletedAction;
+    private final Value<Boolean> completed;
     private volatile Throwable incomingError;
     private volatile Throwable outgoingError;
-    private volatile boolean completed;
 
     BasicAsyncTask(Getable<AsyncRunner> asyncRunner, Indexable<AsyncTask> parentTask)
     {
         this.asyncRunner = asyncRunner;
         this.parentTasks = parentTask;
         this.pausedTasks = new SingleLinkList<>();
+        this.completed = new Value<Boolean>(false);
     }
 
     @Override
@@ -32,12 +32,6 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
     public Indexable<AsyncTask> getParentTasks()
     {
         return parentTasks;
-    }
-
-    @Override
-    public void setAfterChildTasksScheduledBeforeCompletedAction(Action0 afterChildTasksScheduledBeforeCompletedAction)
-    {
-        this.afterChildTasksScheduledBeforeCompletedAction = afterChildTasksScheduledBeforeCompletedAction;
     }
 
     @Override
@@ -70,7 +64,7 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
     @Override
     public boolean isCompleted()
     {
-        return completed;
+        return completed.get();
     }
 
     @Override
@@ -336,12 +330,7 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
             pausedTask.schedule();
         }
 
-        if (afterChildTasksScheduledBeforeCompletedAction != null)
-        {
-            afterChildTasksScheduledBeforeCompletedAction.run();
-        }
-
-        completed = true;
+        getAsyncRunner().markCompleted(completed);
     }
 
     protected abstract void runTask();
