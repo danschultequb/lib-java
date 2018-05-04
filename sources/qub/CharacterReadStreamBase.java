@@ -15,9 +15,24 @@ public abstract class CharacterReadStreamBase extends IteratorBase<Character> im
     }
 
     @Override
+    public abstract Result<Character> readCharacter();
+
+    @Override
+    public AsyncFunction<Result<Character>> readCharacterAsync()
+    {
+        return CharacterReadStreamBase.readCharacterAsync(this);
+    }
+
+    @Override
     public Result<char[]> readCharacters(int charactersToRead)
     {
         return CharacterReadStreamBase.readCharacters(this, charactersToRead);
+    }
+
+    @Override
+    public AsyncFunction<Result<char[]>> readCharactersAsync(int charactersToRead)
+    {
+        return CharacterReadStreamBase.readCharactersAsync(this, charactersToRead);
     }
 
     @Override
@@ -27,15 +42,33 @@ public abstract class CharacterReadStreamBase extends IteratorBase<Character> im
     }
 
     @Override
+    public AsyncFunction<Result<Integer>> readCharactersAsync(char[] characters)
+    {
+        return CharacterReadStreamBase.readCharactersAsync(this, characters);
+    }
+
+    @Override
     public Result<Integer> readCharacters(char[] characters, int startIndex, int length)
     {
         return CharacterReadStreamBase.readCharacters(this, characters, startIndex, length);
     }
 
     @Override
+    public AsyncFunction<Result<Integer>> readCharactersAsync(char[] characters, int startIndex, int length)
+    {
+        return CharacterReadStreamBase.readCharactersAsync(this, characters, startIndex, length);
+    }
+
+    @Override
     public Result<String> readString(int charactersToRead)
     {
         return CharacterReadStreamBase.readString(this, charactersToRead);
+    }
+
+    @Override
+    public AsyncFunction<Result<String>> readStringAsync(int charactersToRead)
+    {
+        return CharacterReadStreamBase.readStringAsync(this, charactersToRead);
     }
 
     @Override
@@ -50,9 +83,26 @@ public abstract class CharacterReadStreamBase extends IteratorBase<Character> im
         return CharacterReadStreamBase.asLineReadStream(this, includeNewLines);
     }
 
+    public static AsyncFunction<Result<Character>> readCharacterAsync(final CharacterReadStream characterReadStream)
+    {
+        AsyncFunction<Result<Character>> result = CharacterReadStreamBase.validateCharacterReadStreamAsync(characterReadStream);
+        if (result == null)
+        {
+            result = async(characterReadStream, new Function0<Result<Character>>()
+            {
+                @Override
+                public Result<Character> run()
+                {
+                    return characterReadStream.readCharacter();
+                }
+            });
+        }
+        return result;
+    }
+
     public static Result<char[]> readCharacters(CharacterReadStream characterReadStream, int charactersToRead)
     {
-        Result<char[]> result = Result.notNull(characterReadStream, "characterReadStream");
+        Result<char[]> result = CharacterReadStreamBase.validateCharacterReadStream(characterReadStream);
         if (result == null)
         {
             result = Result.greaterThan(0, charactersToRead, "charactersToRead");
@@ -82,36 +132,70 @@ public abstract class CharacterReadStreamBase extends IteratorBase<Character> im
         return result;
     }
 
-    public static Result<Integer> readCharacters(CharacterReadStream characterReadStream, char[] characters)
+    public static AsyncFunction<Result<char[]>> readCharactersAsync(final CharacterReadStream characterReadStream, final int charactersToRead)
     {
-        Result<Integer> result = Result.notNull(characterReadStream, "characterReadStream");
+        AsyncFunction<Result<char[]>> result = CharacterReadStreamBase.validateCharacterReadStreamAsync(characterReadStream);
         if (result == null)
         {
-            result = Result.notNull(characters, "characters");
+            result = async(characterReadStream, new Function0<Result<char[]>>()
+            {
+                @Override
+                public Result<char[]> run()
+                {
+                    return characterReadStream.readCharacters(charactersToRead);
+                }
+            });
+        }
+        return result;
+    }
+
+    public static Result<Integer> readCharacters(CharacterReadStream characterReadStream, char[] outputCharacters)
+    {
+        Result<Integer> result = CharacterReadStreamBase.validateCharacterReadStream(characterReadStream);
+        if (result == null)
+        {
+            result = CharacterReadStreamBase.validateOutputCharacters(outputCharacters);
             if (result == null)
             {
-                result = Result.greaterThan(0, characters.length, "characters.length");
-                if (result == null)
-                {
-                    result = characterReadStream.readCharacters(characters, 0, characters.length);
-                }
+                result = characterReadStream.readCharacters(outputCharacters, 0, outputCharacters.length);
             }
         }
         return result;
     }
 
-    public static Result<Integer> readCharacters(CharacterReadStream characterReadStream, char[] characters, int startIndex, int length)
+    public static AsyncFunction<Result<Integer>> readCharactersAsync(final CharacterReadStream characterReadStream, final char[] outputCharacters)
     {
-        Result<Integer> result = Result.notNull(characterReadStream, "characterReadStream");
+        AsyncFunction<Result<Integer>> result = CharacterReadStreamBase.validateCharacterReadStreamAsync(characterReadStream);
         if (result == null)
         {
-            result = Result.notNull(characters, "characters");
+            result = CharacterReadStreamBase.validateOutputCharactersAsync(outputCharacters);
             if (result == null)
             {
-                result = Result.between(0, startIndex, characters.length - 1, "startIndex");
+                result = async(characterReadStream, new Function0<Result<Integer>>()
+                {
+                    @Override
+                    public Result<Integer> run()
+                    {
+                        return characterReadStream.readCharacters(outputCharacters);
+                    }
+                });
+            }
+        }
+        return result;
+    }
+
+    public static Result<Integer> readCharacters(CharacterReadStream characterReadStream, char[] outputCharacters, int startIndex, int length)
+    {
+        Result<Integer> result = CharacterReadStreamBase.validateCharacterReadStream(characterReadStream);
+        if (result == null)
+        {
+            result = CharacterReadStreamBase.validateOutputCharacters(outputCharacters);
+            if (result == null)
+            {
+                result = Result.between(0, startIndex, outputCharacters.length - 1, "startIndex");
                 if (result == null)
                 {
-                    result = Result.between(1, length, characters.length - startIndex, "length");
+                    result = Result.between(1, length, outputCharacters.length - startIndex, "length");
                     if (result == null)
                     {
                         int charactersRead = 0;
@@ -128,7 +212,7 @@ public abstract class CharacterReadStreamBase extends IteratorBase<Character> im
                             }
                             else
                             {
-                                characters[startIndex + i] = character;
+                                outputCharacters[startIndex + i] = character;
                                 ++charactersRead;
                             }
                         }
@@ -141,9 +225,30 @@ public abstract class CharacterReadStreamBase extends IteratorBase<Character> im
         return result;
     }
 
+    public static AsyncFunction<Result<Integer>> readCharactersAsync(final CharacterReadStream characterReadStream, final char[] outputCharacters, final int startIndex, final int length)
+    {
+        AsyncFunction<Result<Integer>> result = CharacterReadStreamBase.validateCharacterReadStreamAsync(characterReadStream);
+        if (result == null)
+        {
+            result = CharacterReadStreamBase.validateOutputCharactersAsync(outputCharacters);
+            if (result == null)
+            {
+                result = async(characterReadStream, new Function0<Result<Integer>>()
+                {
+                    @Override
+                    public Result<Integer> run()
+                    {
+                        return characterReadStream.readCharacters(outputCharacters, startIndex, length);
+                    }
+                });
+            }
+        }
+        return result;
+    }
+
     public static Result<String> readString(CharacterReadStream characterReadStream, int charactersToRead)
     {
-        Result<String> result = Result.notNull(characterReadStream, "characterReadStream");
+        Result<String> result = CharacterReadStreamBase.validateCharacterReadStream(characterReadStream);
         if (result == null)
         {
             result = Result.greaterThan(0, charactersToRead, "charactersToRead");
@@ -158,6 +263,23 @@ public abstract class CharacterReadStreamBase extends IteratorBase<Character> im
         return result;
     }
 
+    public static AsyncFunction<Result<String>> readStringAsync(final CharacterReadStream characterReadStream, final int charactersToRead)
+    {
+        AsyncFunction<Result<String>> result = CharacterReadStreamBase.validateCharacterReadStreamAsync(characterReadStream);
+        if (result == null)
+        {
+            result = async(characterReadStream, new Function0<Result<String>>()
+            {
+                @Override
+                public Result<String> run()
+                {
+                    return characterReadStream.readString(charactersToRead);
+                }
+            });
+        }
+        return result;
+    }
+
     public static LineReadStream asLineReadStream(CharacterReadStream characterReadStream)
     {
         return new CharacterReadStreamToLineReadStream(characterReadStream);
@@ -166,5 +288,57 @@ public abstract class CharacterReadStreamBase extends IteratorBase<Character> im
     public static LineReadStream asLineReadStream(CharacterReadStream characterReadStream, boolean includeNewLines)
     {
         return new CharacterReadStreamToLineReadStream(characterReadStream, includeNewLines);
+    }
+
+    public static <T> Result<T> validateCharacterReadStream(CharacterReadStream characterReadStream)
+    {
+        Result<T> result = Result.notNull(characterReadStream, "characterReadStream");
+        if (result == null)
+        {
+            result = Result.equal(false, characterReadStream.isDisposed(), "characterReadStream.isDisposed()");
+        }
+        return result;
+    }
+
+    public static <T> AsyncFunction<Result<T>> validateCharacterReadStreamAsync(CharacterReadStream characterReadStream)
+    {
+        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+        final Result<T> result = CharacterReadStreamBase.validateCharacterReadStream(characterReadStream);
+        return result == null ? null : currentAsyncRunner.done(result);
+    }
+
+    public static <T> Result<T> validateOutputCharacters(char[] outputCharacters)
+    {
+        Result<T> result = Result.notNull(outputCharacters, "outputCharacters");
+        if (result == null)
+        {
+            result = Result.greaterThan(0, outputCharacters.length, "outputCharacters.length");
+        }
+        return result;
+    }
+
+    public static <T> AsyncFunction<Result<T>> validateOutputCharactersAsync(char[] outputCharacters)
+    {
+        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+        final Result<T> result = CharacterReadStreamBase.validateOutputCharacters(outputCharacters);
+        return result == null ? null : currentAsyncRunner.done(result);
+    }
+
+    private static <T> AsyncFunction<Result<T>> async(CharacterReadStream characterReadStream, Function0<Result<T>> function)
+    {
+        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+        final AsyncRunner streamAsyncRunner = characterReadStream.getAsyncRunner();
+
+        AsyncFunction<Result<T>> result;
+        if (streamAsyncRunner == null)
+        {
+            result = currentAsyncRunner.error(new IllegalArgumentException("Cannot invoke CharacterReadStream asynchronous functions when the CharacterReadStream hasn't been assigned an AsyncRunner."));
+        }
+        else
+        {
+            result = streamAsyncRunner.schedule(function)
+                .thenOn(currentAsyncRunner);
+        }
+        return result;
     }
 }

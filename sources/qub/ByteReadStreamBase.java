@@ -368,14 +368,10 @@ public abstract class ByteReadStreamBase extends IteratorBase<Byte> implements B
 
     public static <T> Result<T> validateByteReadStream(ByteReadStream byteReadStream)
     {
-        Result<T> result = null;
-        if (byteReadStream == null)
+        Result<T> result = Result.notNull(byteReadStream, "byteReadStream");
+        if (result == null)
         {
-            result = Result.error(new IllegalArgumentException("byteReadStream cannot be null."));
-        }
-        else if (byteReadStream.isDisposed())
-        {
-            result = Result.error(new IllegalArgumentException("byteReadStream cannot be disposed."));
+            result = Result.equal(false, byteReadStream.isDisposed(), "byteReadStream.isDisposed()");
         }
         return result;
     }
@@ -436,7 +432,7 @@ public abstract class ByteReadStreamBase extends IteratorBase<Byte> implements B
         AsyncFunction<Result<T>> result;
         if (streamAsyncRunner == null)
         {
-            result = currentAsyncRunner.error(new IllegalArgumentException("Cannot invoke ByteReadStream asynchronous functions when the ByteReadStream was not provided an AsyncRunner to its constructor."));
+            result = currentAsyncRunner.error(new IllegalArgumentException("Cannot invoke ByteReadStream asynchronous functions when the ByteReadStream has not been assigned an AsyncRunner."));
         }
         else
         {

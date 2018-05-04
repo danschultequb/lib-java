@@ -54,7 +54,7 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
 
     /**
      * Read up to length available bytes into the provided byte[] at the provided startIndex and
-     * reutrn the number of bytes that were read. If no bytes are available, then this function will
+     * return the number of bytes that were read. If no bytes are available, then this function will
      * not return until bytes become available.
      * @param outputBytes The byte[] to read bytes into.
      * @param startIndex The start index in in outputBytes to start writing bytes to.

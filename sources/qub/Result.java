@@ -100,6 +100,16 @@ final public class Result<T>
         return new Result<U>(value, error);
     }
 
+    public static <T,U> Result<U> equal(T expectedValue, T value, String parameterName)
+    {
+        Result<U> result = null;
+        if (!Comparer.equal(expectedValue, value))
+        {
+            result = Result.error(new IllegalArgumentException(parameterName + " (" + value + ") must be " + expectedValue + "."));
+        }
+        return result;
+    }
+
     public static <U> Result<U> notNull(Object value, String parameterName)
     {
         Result<U> result = null;

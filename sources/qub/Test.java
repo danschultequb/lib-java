@@ -366,7 +366,7 @@ public class Test
      * Assert that the provided Result object is a successful Result.
      * @param result The Result to check.
      */
-    public void assertSuccess(final Result<?> result)
+    public <T> void assertSuccess(final Result<T> result)
     {
         assertNotNull(result);
         assertFalse(result.hasError(), new Function0<String>()
@@ -380,6 +380,16 @@ public class Test
     }
 
     /**
+     * Assert that the provided Result object is a successful Result.
+     * @param result The Result to check.
+     */
+    public <T> void assertSuccessAsync(AsyncFunction<Result<T>> result)
+    {
+        assertNotNull(result);
+        assertSuccess(result.awaitReturn());
+    }
+
+    /**
      * Assert that the provided Result object is a successful Result with the provided value.
      * @param expectedValue The value that we expect the Result to have.
      * @param result The Result to check.
@@ -388,8 +398,20 @@ public class Test
     public <T> void assertSuccess(T expectedValue, Result<T> result)
     {
         assertNotNull(result, "A successful Result should not be null");
-        assertEqual(expectedValue, result.getValue(), "Unexpected successful Result value");
         assertNull(result.getError(), "A successful Result should not have an error");
+        assertEqual(expectedValue, result.getValue(), "Unexpected successful Result value");
+    }
+
+    /**
+     * Assert that the provided Result object is a successful Result with the provided value.
+     * @param expectedValue The value that we expect the Result to have.
+     * @param result The Result to check.
+     * @param <T> The type of value that the Result has.
+     */
+    public <T> void assertSuccessAsync(T expectedValue, AsyncFunction<Result<T>> result)
+    {
+        assertNotNull(result, "A successful Result should not be null");
+        assertSuccess(expectedValue, result.awaitReturn());
     }
 
     /**
@@ -397,11 +419,22 @@ public class Test
      * @param expectedError The error that the result should have.
      * @param result The result to check.
      */
-    public void assertError(Throwable expectedError, Result<?> result)
+    public <T> void assertError(Throwable expectedError, Result<T> result)
     {
         assertNotNull(result);
         assertNull(result.getValue());
         assertEqual(expectedError, result.getError());
+    }
+
+    /**
+     * Assert that the provided Result object has the provided expected error.
+     * @param expectedError The error that the result should have.
+     * @param result The result to check.
+     */
+    public <T> void assertErrorAsync(Throwable expectedError, AsyncFunction<Result<T>> result)
+    {
+        assertNotNull(result);
+        assertError(expectedError, result.awaitReturn());
     }
 
     /**
