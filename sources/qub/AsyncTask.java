@@ -12,10 +12,30 @@ public interface AsyncTask
     AsyncRunner getAsyncRunner();
 
     /**
-     * Get the parent tasks that must be run before this AsyncTask can be run.
-     * @return The parent tasks that must be run before this AsyncTask can be run.
+     * Get the number of parent tasks for this AsyncTask.
+     * @return
      */
-    Indexable<AsyncTask> getParentTasks();
+    int getParentTaskCount();
+
+    /**
+     * Get the parent task at the provided index.
+     * @param index The parent task index.
+     * @return The parent task at the provided index.
+     */
+    AsyncTask getParentTask(int index);
+
+    /**
+     * Get whether or not the provided AsyncTask is a parent task of this AsyncTask.
+     * @param asyncTask The AsyncTask to check.
+     * @return Whether or not the provided AsyncTask is a parent task of this AsyncTask.
+     */
+    boolean parentTasksContain(AsyncTask asyncTask);
+
+    /**
+     * Add the provided AsyncTask as a parent task of this AsyncTask.
+     * @param parentTask The AsyncTask to add as a parent of this AsyncTask.
+     */
+    void addParentTask(AsyncTask parentTask);
 
     /**
      * Get whether or not this AsyncAction has been run.

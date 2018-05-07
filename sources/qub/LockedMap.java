@@ -5,6 +5,11 @@ public class LockedMap<TKey,TValue> implements Map<TKey,TValue>
     private final Map<TKey,TValue> innerMap;
     private final SpinMutex mutex;
 
+    public LockedMap(Map<TKey,TValue> innerMap)
+    {
+        this(innerMap, new SpinMutex());
+    }
+
     public LockedMap(Map<TKey,TValue> innerMap, SpinMutex mutex)
     {
         this.innerMap = innerMap;

@@ -4,9 +4,9 @@ public class BasicAsyncAction extends BasicAsyncTask implements AsyncAction
 {
     private final Action0 action;
 
-    BasicAsyncAction(Getable<AsyncRunner> runner, Indexable<AsyncTask> parentTasks, Action0 action)
+    BasicAsyncAction(Getable<AsyncRunner> runner, Action0 action)
     {
-        super(runner, parentTasks);
+        super(runner);
 
         this.action = action;
     }
@@ -25,7 +25,9 @@ public class BasicAsyncAction extends BasicAsyncTask implements AsyncAction
 
     private AsyncAction catchErrorOnInner(Getable<AsyncRunner> asyncRunner, Action1<Throwable> action)
     {
-        return scheduleOrEnqueue(new BasicAsyncActionErrorHandler(asyncRunner, Array.fromValues(new AsyncTask[] { this }), action));
+        final BasicAsyncActionErrorHandler asyncAction = new BasicAsyncActionErrorHandler(asyncRunner, action);
+        asyncAction.addParentTask(this);
+        return scheduleOrEnqueue(asyncAction);
     }
 
     @Override

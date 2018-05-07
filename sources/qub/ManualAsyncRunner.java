@@ -37,7 +37,7 @@ public class ManualAsyncRunner extends AsyncRunnerBase
         AsyncAction result = null;
         if (action != null)
         {
-            final BasicAsyncAction asyncAction = new BasicAsyncAction(new Value<AsyncRunner>(this), new Array<AsyncTask>(0), action);
+            final BasicAsyncAction asyncAction = new BasicAsyncAction(new Value<AsyncRunner>(this), action);
             asyncAction.schedule();
             result = asyncAction;
         }
@@ -50,7 +50,7 @@ public class ManualAsyncRunner extends AsyncRunnerBase
         AsyncFunction<T> result = null;
         if (function != null)
         {
-            final BasicAsyncFunction<T> asyncFunction = new BasicAsyncFunction<>(new Value<AsyncRunner>(this), new Array<AsyncTask>(0), function);
+            final BasicAsyncFunction<T> asyncFunction = new BasicAsyncFunction<>(new Value<AsyncRunner>(this), function);
             asyncFunction.schedule();
             result = asyncFunction;
         }

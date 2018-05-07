@@ -11,7 +11,7 @@ public class BasicAsyncActionTests
             runner.test("constructor(Getable<AsyncRunner>,Getable<AsyncTask>,Action0)", (Test test) ->
             {
                 final AsyncRunner asyncRunner = test.getMainAsyncRunner();
-                final BasicAsyncAction basicAsyncAction = new BasicAsyncAction(new Value<>(asyncRunner), new Array<AsyncTask>(0), () -> {});
+                final BasicAsyncAction basicAsyncAction = new BasicAsyncAction(new Value<>(asyncRunner), () -> {});
                 test.assertSame(asyncRunner, basicAsyncAction.getAsyncRunner());
                 test.assertEqual(0, asyncRunner.getScheduledTaskCount());
                 test.assertEqual(0, basicAsyncAction.getPausedTaskCount());
@@ -348,7 +348,7 @@ public class BasicAsyncActionTests
 
     private static BasicAsyncAction create(AsyncRunner asyncRunner)
     {
-        return new BasicAsyncAction(new Value<>(asyncRunner), new Array<AsyncTask>(0), () -> {});
+        return new BasicAsyncAction(new Value<>(asyncRunner), () -> {});
     }
 
     private static BasicAsyncAction createScheduled(AsyncRunner runner)

@@ -6,7 +6,7 @@ public class LockedMapTests
     {
         runner.testGroup(LockedMap.class, () ->
         {
-            MapTests.test(runner, () -> new LockedMap<>(new ListMap<>(), new SpinMutex()), true, true);
+            MapTests.test(runner, () -> new LockedMap<>(new ListMap<>()), true, true);
         });
     }
 }

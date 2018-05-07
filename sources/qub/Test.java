@@ -61,12 +61,6 @@ public class Test
         return process.getParallelAsyncRunner();
     }
 
-    @Override
-    public String toString()
-    {
-        return this.getFullName();
-    }
-
     /**
      * Assert that the provided value is true. If it is not true, then a TestAssertionFailure will
      * be thrown.

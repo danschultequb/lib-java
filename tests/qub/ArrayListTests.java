@@ -4,7 +4,7 @@ public class ArrayListTests
 {
     public static void test(final TestRunner runner)
     {
-        runner.testGroup("ArrayList<T>", () ->
+        runner.testGroup(ArrayList.class, () ->
         {
             ListTests.test(runner, (Integer count) ->
             {

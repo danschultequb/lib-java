@@ -11,7 +11,7 @@ public class BasicAsyncFunctionTests
             runner.test("constructor(Getable<AsyncRunner>,Getable<AsyncTask>,Function0<T>)", (Test test) ->
             {
                 final AsyncRunner asyncRunner = test.getMainAsyncRunner();
-                final BasicAsyncFunction<Integer> basicAsyncFunction = new BasicAsyncFunction<>(new Value<>(asyncRunner), new Array<AsyncTask>(0), () -> 0);
+                final BasicAsyncFunction<Integer> basicAsyncFunction = new BasicAsyncFunction<>(new Value<>(asyncRunner), () -> 0);
                 test.assertEqual(0, asyncRunner.getScheduledTaskCount());
                 test.assertEqual(0, basicAsyncFunction.getPausedTaskCount());
                 test.assertFalse(basicAsyncFunction.isCompleted());
@@ -716,7 +716,7 @@ public class BasicAsyncFunctionTests
     
     private static BasicAsyncFunction<Integer> create(AsyncRunner runner)
     {
-        return new BasicAsyncFunction<>(new Value<>(runner), new Array<AsyncTask>(0), () -> 0);
+        return new BasicAsyncFunction<>(new Value<>(runner), () -> 0);
     }
 
     private static BasicAsyncFunction<Integer> create(Test test)

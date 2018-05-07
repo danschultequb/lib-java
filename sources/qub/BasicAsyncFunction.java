@@ -5,9 +5,9 @@ public class BasicAsyncFunction<T> extends BasicAsyncTask implements AsyncFuncti
     private final Function0<T> function;
     private final Value<T> functionResult;
 
-    public BasicAsyncFunction(Getable<AsyncRunner> runner, Indexable<AsyncTask> parentTasks, Function0<T> function)
+    public BasicAsyncFunction(Getable<AsyncRunner> runner, Function0<T> function)
     {
-        super(runner, parentTasks);
+        super(runner);
 
         this.function = function;
         this.functionResult = new Value<>();
@@ -183,9 +183,8 @@ public class BasicAsyncFunction<T> extends BasicAsyncTask implements AsyncFuncti
     private AsyncFunction<T> catchErrorAsyncFunctionOnInner(final Getable<AsyncRunner> asyncRunner, Function1<Throwable,AsyncFunction<T>> function)
     {
         final Value<AsyncRunner> resultAsyncRunner = new Value<AsyncRunner>();
-        final List<AsyncTask> resultParentTasks = new SingleLinkList<AsyncTask>();
         final Value<T> resultReturnValue = new Value<T>();
-        final BasicAsyncFunction<T> result = new BasicAsyncFunction<T>(resultAsyncRunner, resultParentTasks, new Function0<T>()
+        final BasicAsyncFunction<T> result = new BasicAsyncFunction<T>(resultAsyncRunner, new Function0<T>()
         {
             @Override
             public T run()
@@ -194,7 +193,7 @@ public class BasicAsyncFunction<T> extends BasicAsyncTask implements AsyncFuncti
             }
         });
 
-        resultParentTasks.add(this.catchErrorOnInner(asyncRunner, function)
+        result.addParentTask(this.catchErrorOnInner(asyncRunner, function)
             .then(new Action1<AsyncFunction<T>>()
             {
                 @Override
@@ -209,7 +208,7 @@ public class BasicAsyncFunction<T> extends BasicAsyncTask implements AsyncFuncti
                     {
                         resultAsyncRunner.set(asyncFunctionResult.getAsyncRunner());
                         result.setIncomingError(asyncFunctionResult.getOutgoingError());
-                        resultParentTasks.add(asyncFunctionResult.then(new Action1<T>()
+                        result.addParentTask(asyncFunctionResult.then(new Action1<T>()
                         {
                             @Override
                             public void run(T asyncFunctionResultResult)

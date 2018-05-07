@@ -941,7 +941,7 @@ public class BasicAsyncTaskTests
                 {
                     final AsyncRunner asyncRunner = test.getMainAsyncRunner();
                     final BasicAsyncTask asyncTask = createScheduled(creator, asyncRunner);
-                    test.assertEmpty(asyncTask.getParentTasks());
+                    test.assertEqual(0, asyncTask.getParentTaskCount());
 
                     asyncTask.await();
                     test.assertTrue(asyncTask.isCompleted());
@@ -952,7 +952,7 @@ public class BasicAsyncTaskTests
                 {
                     final AsyncRunner asyncRunner = test.getParallelAsyncRunner();
                     final BasicAsyncTask asyncTask = createScheduled(creator, asyncRunner);
-                    test.assertEmpty(asyncTask.getParentTasks());
+                    test.assertEqual(0, asyncTask.getParentTaskCount());
 
                     asyncTask.await();
 
@@ -965,13 +965,15 @@ public class BasicAsyncTaskTests
                     final AsyncRunner asyncRunner = test.getMainAsyncRunner();
                     final BasicAsyncTask parentTask = createScheduled(creator, asyncRunner);
                     final BasicAsyncAction asyncAction = (BasicAsyncAction)parentTask.then(() -> {});
-                    test.assertEqual(Array.fromValues(new AsyncTask[] { parentTask }), asyncAction.getParentTasks());
+                    test.assertEqual(1, asyncAction.getParentTaskCount());
+                    test.assertEqual(parentTask, asyncAction.getParentTask(0));
                     test.assertFalse(parentTask.isCompleted());
                     test.assertFalse(asyncAction.isCompleted());
 
                     asyncAction.await();
 
-                    test.assertEqual(Array.fromValues(new AsyncTask[] { parentTask }), asyncAction.getParentTasks());
+                    test.assertEqual(1, asyncAction.getParentTaskCount());
+                    test.assertEqual(parentTask, asyncAction.getParentTask(0));
                     test.assertTrue(parentTask.isCompleted());
                     test.assertTrue(asyncAction.isCompleted());
                     test.assertEqual(0, asyncRunner.getScheduledTaskCount());
@@ -982,11 +984,13 @@ public class BasicAsyncTaskTests
                     final AsyncRunner asyncRunner = test.getParallelAsyncRunner();
                     final BasicAsyncTask parentTask = createScheduled(creator, asyncRunner);
                     final AsyncAction asyncAction = parentTask.then(() -> {});
-                    test.assertEqual(Array.fromValues(new AsyncTask[] { parentTask }), asyncAction.getParentTasks());
+                    test.assertEqual(1, asyncAction.getParentTaskCount());
+                    test.assertEqual(parentTask, asyncAction.getParentTask(0));
 
                     asyncAction.await();
 
-                    test.assertEqual(Array.fromValues(new AsyncTask[] { parentTask }), asyncAction.getParentTasks());
+                    test.assertEqual(1, asyncAction.getParentTaskCount());
+                    test.assertEqual(parentTask, asyncAction.getParentTask(0));
                     test.assertTrue(parentTask.isCompleted());
                     test.assertTrue(asyncAction.isCompleted());
                     test.assertEqual(0, asyncRunner.getScheduledTaskCount());
@@ -997,17 +1001,18 @@ public class BasicAsyncTaskTests
                     final AsyncRunner asyncRunner = test.getMainAsyncRunner();
                     final BasicAsyncTask parentTask = createScheduled(creator, asyncRunner);
                     final AsyncAction asyncAction = parentTask.thenAsyncAction(() -> asyncRunner.schedule(() -> {}));
-                    test.assertTrue(asyncAction.getParentTasks().contains(parentTask));
-                    test.assertEqual(2, asyncAction.getParentTasks().getCount());
+                    test.assertTrue(asyncAction.parentTasksContain(parentTask));
+                    test.assertEqual(2, asyncAction.getParentTaskCount());
 
                     asyncAction.await();
 
-                    test.assertTrue(asyncAction.getParentTasks().contains(parentTask));
-                    test.assertEqual(3, asyncAction.getParentTasks().getCount());
+                    test.assertTrue(asyncAction.parentTasksContain(parentTask));
+                    test.assertEqual(3, asyncAction.getParentTaskCount());
                     test.assertTrue(parentTask.isCompleted());
                     test.assertTrue(asyncAction.isCompleted());
-                    for (final AsyncTask asyncActionParentTask : asyncAction.getParentTasks())
+                    for (int i = 0; i < asyncAction.getParentTaskCount(); ++i)
                     {
+                        final AsyncTask asyncActionParentTask = asyncAction.getParentTask(i);
                         test.assertTrue(asyncActionParentTask.isCompleted());
                     }
                     test.assertEqual(0, asyncRunner.getScheduledTaskCount());
@@ -1017,17 +1022,19 @@ public class BasicAsyncTaskTests
                 {
                     final AsyncRunner asyncRunner = test.getParallelAsyncRunner();
                     final BasicAsyncTask parentTask = createScheduled(creator, asyncRunner);
-                    final AsyncAction asyncAction = parentTask.thenAsyncAction(() -> asyncRunner.schedule(() -> {}));
-                    test.assertTrue(asyncAction.getParentTasks().contains(parentTask));
-                    test.assertTrue(2 <= asyncAction.getParentTasks().getCount());
+                    final AsyncAction asyncAction = parentTask.thenAsyncAction(() ->
+                    {
+                        return asyncRunner.schedule(() -> {});
+                    });
+                    test.assertTrue(asyncAction.parentTasksContain(parentTask));
+                    test.assertTrue(2 <= asyncAction.getParentTaskCount());
 
                     asyncAction.await();
 
-                    test.assertTrue(asyncAction.getParentTasks().contains(parentTask));
-                    test.assertEqual(3, asyncAction.getParentTasks().getCount());
+                    test.assertTrue(asyncAction.parentTasksContain(parentTask));
+                    test.assertEqual(3, asyncAction.getParentTaskCount());
                     test.assertTrue(parentTask.isCompleted());
                     test.assertTrue(asyncAction.isCompleted());
-                    test.assertEqual(Array.fromValues(new boolean[] { true, true, true }), asyncAction.getParentTasks().map(AsyncTask::isCompleted));
                     test.assertEqual(0, asyncRunner.getScheduledTaskCount());
                 });
 
@@ -1036,16 +1043,18 @@ public class BasicAsyncTaskTests
                     final AsyncRunner asyncRunner = test.getMainAsyncRunner();
                     final BasicAsyncTask asyncTask = createScheduled(creator, asyncRunner);
                     final AsyncAction childAsyncAction = asyncTask.then(() -> {});
-                    test.assertEmpty(asyncTask.getParentTasks());
+                    test.assertEqual(0, asyncTask.getParentTaskCount());
                     test.assertFalse(asyncTask.isCompleted());
-                    test.assertEqual(Array.fromValues(new AsyncTask[] { asyncTask }), childAsyncAction.getParentTasks());
+                    test.assertEqual(1, childAsyncAction.getParentTaskCount());
+                    test.assertEqual(asyncTask, childAsyncAction.getParentTask(0));
                     test.assertFalse(childAsyncAction.isCompleted());
 
                     asyncTask.await();
 
                     test.assertTrue(asyncTask.isCompleted());
                     test.assertEqual(1, asyncRunner.getScheduledTaskCount());
-                    test.assertEqual(Array.fromValues(new AsyncTask[] { asyncTask }), childAsyncAction.getParentTasks());
+                    test.assertEqual(1, childAsyncAction.getParentTaskCount());
+                    test.assertEqual(asyncTask, childAsyncAction.getParentTask(0));
                     test.assertFalse(childAsyncAction.isCompleted());
 
                     asyncRunner.await();
@@ -1058,15 +1067,16 @@ public class BasicAsyncTaskTests
                     final AsyncAction childAsyncAction = asyncTask.then(() -> {});
                     int asyncRunnerScheduledTaskCount = asyncRunner.getScheduledTaskCount();
                     test.assertTrue(0 <= asyncRunnerScheduledTaskCount && asyncRunnerScheduledTaskCount <= 2);
-                    test.assertEmpty(asyncTask.getParentTasks());
-                    test.assertEqual(Array.fromValues(new AsyncTask[] { asyncTask }), childAsyncAction.getParentTasks());
+                    test.assertEqual(1, childAsyncAction.getParentTaskCount());
+                    test.assertEqual(asyncTask, childAsyncAction.getParentTask(0));
 
                     asyncTask.await();
 
                     asyncRunnerScheduledTaskCount = asyncRunner.getScheduledTaskCount();
                     test.assertTrue(0 <= asyncRunnerScheduledTaskCount && asyncRunnerScheduledTaskCount <= 1);
                     test.assertTrue(asyncTask.isCompleted());
-                    test.assertEqual(Array.fromValues(new AsyncTask[] { asyncTask }), childAsyncAction.getParentTasks());
+                    test.assertEqual(1, childAsyncAction.getParentTaskCount());
+                    test.assertEqual(asyncTask, childAsyncAction.getParentTask(0));
 
                     asyncRunner.await();
 
@@ -1080,11 +1090,12 @@ public class BasicAsyncTaskTests
 
                 final AsyncFunction<Integer> asyncFunction1 = parallelAsyncRunner.schedule(() -> 1 );
                 test.assertNotNull(asyncFunction1);
-                test.assertEqual(new Array<AsyncTask>(0), asyncFunction1.getParentTasks());
+                test.assertEqual(0, asyncFunction1.getParentTaskCount());
 
                 final AsyncFunction<Integer> asyncFunction2 = asyncFunction1.thenOn(mainAsyncRunner);
                 test.assertNotNull(asyncFunction2);
-                test.assertEqual(Array.fromValues(new AsyncTask[] { asyncFunction1 }), asyncFunction2.getParentTasks());
+                test.assertEqual(1, asyncFunction2.getParentTaskCount());
+                test.assertEqual(asyncFunction1, asyncFunction2.getParentTask(0));
 
                 test.assertEqual(1, asyncFunction1.awaitReturn());
 
@@ -1107,12 +1118,13 @@ public class BasicAsyncTaskTests
 
                 final AsyncFunction<Integer> asyncFunction1 = parallelAsyncRunner.scheduleAsyncFunction(() -> parallelAsyncRunner.schedule(() -> 1));
                 test.assertNotNull(asyncFunction1);
-                final int asyncFunction1ParentTaskCount = asyncFunction1.getParentTasks().getCount();
+                final int asyncFunction1ParentTaskCount = asyncFunction1.getParentTaskCount();
                 test.assertTrue(1 <= asyncFunction1ParentTaskCount && asyncFunction1ParentTaskCount <= 2, "Expected 1 <= asyncFunction1ParentTaskCount <= 2, Actual: " + asyncFunction1ParentTaskCount);
 
                 final AsyncFunction<Integer> asyncFunction2 = asyncFunction1.thenOn(mainAsyncRunner);
                 test.assertNotNull(asyncFunction2);
-                test.assertEqual(Array.fromValues(new AsyncTask[] { asyncFunction1 }), asyncFunction2.getParentTasks());
+                test.assertEqual(1, asyncFunction2.getParentTaskCount());
+                test.assertEqual(asyncFunction1, asyncFunction2.getParentTask(0));
 
                 test.assertEqual(1, asyncFunction1.awaitReturn());
 
