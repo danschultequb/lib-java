@@ -3,7 +3,7 @@ package qub;
 public class ParallelAsyncRunner extends AsyncRunnerBase
 {
     private final java.util.concurrent.atomic.AtomicInteger scheduledTaskCount;
-    private final SpinMutex spinMutex;
+    private final Mutex spinMutex;
     private volatile boolean disposed;
 
     public ParallelAsyncRunner()

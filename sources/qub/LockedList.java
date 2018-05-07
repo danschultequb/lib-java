@@ -3,7 +3,7 @@ package qub;
 public class LockedList<T> implements List<T>
 {
     private final List<T> innerList;
-    private final SpinMutex mutex;
+    private final Mutex mutex;
 
     public LockedList(List<T> innerList)
     {

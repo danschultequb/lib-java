@@ -3,14 +3,14 @@ package qub;
 public class LockedQueue<T> implements Queue<T>
 {
     private final Queue<T> innerQueue;
-    private final SpinMutex mutex;
+    private final Mutex mutex;
 
     public LockedQueue(Queue<T> innerQueue)
     {
         this(innerQueue, new SpinMutex());
     }
 
-    public LockedQueue(Queue<T> innerQueue, SpinMutex mutex)
+    public LockedQueue(Queue<T> innerQueue, Mutex mutex)
     {
         this.innerQueue = innerQueue;
         this.mutex = mutex;

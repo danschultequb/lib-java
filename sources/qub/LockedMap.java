@@ -3,14 +3,14 @@ package qub;
 public class LockedMap<TKey,TValue> implements Map<TKey,TValue>
 {
     private final Map<TKey,TValue> innerMap;
-    private final SpinMutex mutex;
+    private final Mutex mutex;
 
     public LockedMap(Map<TKey,TValue> innerMap)
     {
         this(innerMap, new SpinMutex());
     }
 
-    public LockedMap(Map<TKey,TValue> innerMap, SpinMutex mutex)
+    public LockedMap(Map<TKey,TValue> innerMap, Mutex mutex)
     {
         this.innerMap = innerMap;
         this.mutex = mutex;

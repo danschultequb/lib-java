@@ -6,7 +6,7 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
     private final List<AsyncTask> parentTasks;
     private final List<BasicAsyncTask> pausedTasks;
     private final Value<Boolean> completed;
-    private final SpinMutex mutex;
+    private final Mutex mutex;
     private volatile Throwable incomingError;
     private volatile Throwable outgoingError;
 
