@@ -57,13 +57,11 @@ public class ManualAsyncRunner extends AsyncRunnerBase
         return result;
     }
 
-    @Override
     public void await()
     {
         while (scheduledTasks.any())
         {
-            final Result<PausedAsyncTask> asyncTaskResult = scheduledTasks.dequeue();
-            final PausedAsyncTask asyncTask = asyncTaskResult.getValue();
+            final PausedAsyncTask asyncTask = scheduledTasks.dequeue().getValue();
             if (asyncTask != null)
             {
                 asyncTask.runAndSchedulePausedTasks();

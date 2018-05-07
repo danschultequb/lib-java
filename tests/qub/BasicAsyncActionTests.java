@@ -39,10 +39,10 @@ public class BasicAsyncActionTests
 
                 runner.test("with different AsyncRunner", (Test test) ->
                 {
-                    final AsyncRunner mainRunner = test.getMainAsyncRunner();
+                    final ManualAsyncRunner mainRunner = new ManualAsyncRunner();
                     final BasicAsyncAction basicAsyncAction = createScheduled(mainRunner);
 
-                    final AsyncRunner otherRunner = new ManualAsyncRunner();
+                    final ManualAsyncRunner otherRunner = new ManualAsyncRunner();
                     final AsyncAction thenAsyncAction = basicAsyncAction.thenOn(otherRunner);
                     test.assertNotNull(thenAsyncAction);
                     test.assertNotSame(basicAsyncAction, thenAsyncAction);
@@ -69,7 +69,7 @@ public class BasicAsyncActionTests
 
                 runner.test("with non-throwing parent", (Test test) ->
                 {
-                    final AsyncRunner asyncRunner = test.getMainAsyncRunner();
+                    final ManualAsyncRunner asyncRunner = new ManualAsyncRunner();
                     final BasicAsyncAction basicAsyncAction = createScheduled(asyncRunner);
 
                     final Value<Integer> value = new Value<>();
@@ -87,7 +87,7 @@ public class BasicAsyncActionTests
 
                 runner.test("with throwing parent", (Test test) ->
                 {
-                    final AsyncRunner asyncRunner = test.getMainAsyncRunner();
+                    final ManualAsyncRunner asyncRunner = new ManualAsyncRunner();
                     final BasicAsyncAction basicAsyncAction = createScheduled(asyncRunner);
 
                     final Value<Boolean> value = new Value<>();
@@ -131,8 +131,8 @@ public class BasicAsyncActionTests
 
                 runner.test("with non-throwing parent", (Test test) ->
                 {
-                    final AsyncRunner asyncRunner1 = test.getMainAsyncRunner();
-                    final AsyncRunner asyncRunner2 = new ManualAsyncRunner();
+                    final ManualAsyncRunner asyncRunner1 = new ManualAsyncRunner();
+                    final ManualAsyncRunner asyncRunner2 = new ManualAsyncRunner();
 
                     final BasicAsyncAction basicAsyncAction = createScheduled(asyncRunner1);
 
@@ -156,8 +156,8 @@ public class BasicAsyncActionTests
 
                 runner.test("with throwing parent", (Test test) ->
                 {
-                    final AsyncRunner asyncRunner1 = test.getMainAsyncRunner();
-                    final AsyncRunner asyncRunner2 = new ManualAsyncRunner();
+                    final ManualAsyncRunner asyncRunner1 = new ManualAsyncRunner();
+                    final ManualAsyncRunner asyncRunner2 = new ManualAsyncRunner();
 
                     final BasicAsyncAction basicAsyncAction = createScheduled(asyncRunner1);
 
@@ -197,7 +197,7 @@ public class BasicAsyncActionTests
 
                 runner.test("with non-throwing parent", (Test test) ->
                 {
-                    final AsyncRunner asyncRunner = test.getMainAsyncRunner();
+                    final ManualAsyncRunner asyncRunner = new ManualAsyncRunner();
                     final BasicAsyncAction basicAsyncAction = createScheduled(asyncRunner);
 
                     final Value<Boolean> value1 = new Value<>();
@@ -220,7 +220,7 @@ public class BasicAsyncActionTests
 
                 runner.test("with throwing parent", (Test test) ->
                 {
-                    final AsyncRunner asyncRunner = test.getMainAsyncRunner();
+                    final ManualAsyncRunner asyncRunner = new ManualAsyncRunner();
                     final BasicAsyncAction basicAsyncAction = createScheduled(asyncRunner);
 
                     final Value<Boolean> value1 = new Value<>();
@@ -271,8 +271,8 @@ public class BasicAsyncActionTests
 
                 runner.test("with non-throwing parent", (Test test) ->
                 {
-                    final AsyncRunner asyncRunner1 = test.getMainAsyncRunner();
-                    final AsyncRunner asyncRunner2 = new ManualAsyncRunner();
+                    final ManualAsyncRunner asyncRunner1 = new ManualAsyncRunner();
+                    final ManualAsyncRunner asyncRunner2 = new ManualAsyncRunner();
                     final BasicAsyncAction basicAsyncAction = createScheduled(asyncRunner1);
 
                     final Value<Boolean> value1 = new Value<>();
@@ -303,8 +303,8 @@ public class BasicAsyncActionTests
 
                 runner.test("with throwing parent", (Test test) ->
                 {
-                    final AsyncRunner asyncRunner1 = test.getMainAsyncRunner();
-                    final AsyncRunner asyncRunner2 = new ManualAsyncRunner();
+                    final ManualAsyncRunner asyncRunner1 = new ManualAsyncRunner();
+                    final ManualAsyncRunner asyncRunner2 = new ManualAsyncRunner();
                     final BasicAsyncAction basicAsyncAction = createScheduled(asyncRunner1);
 
                     final Value<Boolean> value1 = new Value<>();

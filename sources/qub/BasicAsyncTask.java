@@ -218,8 +218,6 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
                             @Override
                             public void run(Throwable error)
                             {
-                                // Thread 3
-                                System.out.println("T3");
                                 result.setOutgoingError(error);
                             }
                         })
@@ -228,8 +226,6 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
                             @Override
                             public void run()
                             {
-                                // Thread 4
-                                System.out.println("T4");
                                 result.schedule();
                             }
                         }));
@@ -240,8 +236,6 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
                 @Override
                 public void run(Throwable error)
                 {
-                    // Thread 5
-                    System.out.println("T5");
                     result.setOutgoingError(error);
                     resultAsyncRunner.set(runner.get());
                     result.schedule();

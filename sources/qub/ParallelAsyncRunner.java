@@ -33,8 +33,8 @@ public class ParallelAsyncRunner extends AsyncRunnerBase
             @Override
             public void run()
             {
-                asyncTaskCompleted.set(true);
                 scheduledTaskCount.decrementAndGet();
+                asyncTaskCompleted.set(true);
             }
         });
     }
@@ -95,14 +95,6 @@ public class ParallelAsyncRunner extends AsyncRunnerBase
             result = asyncFunction;
         }
         return result;
-    }
-
-    @Override
-    public void await()
-    {
-        while (getScheduledTaskCount() > 0)
-        {
-        }
     }
 
     @Override

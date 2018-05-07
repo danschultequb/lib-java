@@ -18,11 +18,6 @@ public interface AsyncRunner extends Disposable
     void markCompleted(Setable<Boolean> asyncTaskCompleted);
 
     /**
-     * Block until all scheduled actions/functions are run to completion.
-     */
-    void await();
-
-    /**
      * Block until the provided AsyncTask is completed.
      * @param asyncTask The AsyncTask to wait for.
      */
