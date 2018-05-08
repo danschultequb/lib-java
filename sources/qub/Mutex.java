@@ -50,4 +50,10 @@ public interface Mutex
      * @return
      */
     Disposable criticalSection();
+
+    /**
+     * Create a new condition that can be used to block until certain constraints are true.
+     * @return A new condition.
+     */
+    MutexCondition createCondition();
 }

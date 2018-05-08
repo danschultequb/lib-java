@@ -66,4 +66,10 @@ public class SpinMutex extends MutexBase
         final long threadId = Thread.currentThread().getId();
         return acquiredByThreadId.compareAndSet(threadId, -1);
     }
+
+    @Override
+    public MutexCondition createCondition()
+    {
+        return new SpinMutexCondition(this);
+    }
 }

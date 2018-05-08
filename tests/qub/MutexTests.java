@@ -41,14 +41,10 @@ public class MutexTests
                     final Mutex mutex = creator.run();
                     mutex.acquire();
 
-                    test.getParallelAsyncRunner().schedule(new Action0()
+                    test.getParallelAsyncRunner().schedule(() ->
                     {
-                        @Override
-                        public void run()
-                        {
-                            test.assertFalse(mutex.tryAcquire());
-                            test.assertTrue(mutex.isAcquired());
-                        }
+                        test.assertFalse(mutex.tryAcquire());
+                        test.assertTrue(mutex.isAcquired());
                     }).await();
 
                     test.assertTrue(mutex.isAcquired());
@@ -132,6 +128,53 @@ public class MutexTests
                     test.assertTrue(mutex.isAcquired());
                 }
                 test.assertFalse(mutex.isAcquired());
+            });
+
+            runner.testGroup(MutexCondition.class, () ->
+            {
+                runner.test("await() and signalAll()", (Test test) ->
+                {
+                    final Mutex mutex = creator.run();
+                    final MutexCondition condition = mutex.createCondition();
+                    final List<Integer> valueList = new ArrayList<Integer>();
+                    final int count = 10;
+
+                    final AsyncRunner parallelAsyncRunner = test.getParallelAsyncRunner();
+
+                    final List<AsyncTask> producers = new ArrayList<AsyncTask>();
+                    for (int i = 0; i < count; ++i)
+                    {
+                        final int currentValue = i;
+                        producers.add(parallelAsyncRunner.schedule(() ->
+                        {
+                            try (final Disposable criticalSection = mutex.criticalSection())
+                            {
+                                valueList.add(currentValue);
+                                condition.signalAll();
+                            }
+                        }));
+                    }
+
+                    final List<Integer> resultList = new ArrayList<Integer>();
+                    try (final Disposable criticalSection = mutex.criticalSection())
+                    {
+                        while (resultList.getCount() < count)
+                        {
+                            while (!valueList.any())
+                            {
+                                condition.await();
+                            }
+
+                            resultList.add(valueList.removeFirst());
+                        }
+                    }
+
+                    for (int i = 0; i < count; ++i)
+                    {
+                        test.assertTrue(resultList.contains(i), "Result list " + resultList + " does not contain " + i + ".");
+                    }
+                    test.assertEqual(count, resultList.getCount());
+                });
             });
         });
     }

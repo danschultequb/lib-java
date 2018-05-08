@@ -4,19 +4,19 @@ public class InMemoryGateTests
 {
     public static void test(TestRunner runner)
     {
-        runner.testGroup(InMemoryGate.class, () ->
+        runner.testGroup(SpinGate.class, () ->
         {
             runner.testGroup("constructor(boolean)", () ->
             {
                 runner.test("with true", (Test test) ->
                 {
-                    final InMemoryGate gate = new InMemoryGate(true);
+                    final SpinGate gate = new SpinGate(true);
                     test.assertTrue(gate.isOpen());
                 });
 
                 runner.test("with false", (Test test) ->
                 {
-                    final InMemoryGate gate = new InMemoryGate(false);
+                    final SpinGate gate = new SpinGate(false);
                     test.assertFalse(gate.isOpen());
                 });
             });
@@ -25,14 +25,14 @@ public class InMemoryGateTests
             {
                 runner.test("when open", (Test test) ->
                 {
-                    final InMemoryGate gate = new InMemoryGate(true);
+                    final SpinGate gate = new SpinGate(true);
                     test.assertFalse(gate.open());
                     test.assertTrue(gate.isOpen());
                 });
 
                 runner.test("when closed", (Test test) ->
                 {
-                    final InMemoryGate gate = new InMemoryGate(false);
+                    final SpinGate gate = new SpinGate(false);
                     test.assertTrue(gate.open());
                     test.assertTrue(gate.isOpen());
                 });
@@ -42,14 +42,14 @@ public class InMemoryGateTests
             {
                 runner.test("when closed", (Test test) ->
                 {
-                    final InMemoryGate gate = new InMemoryGate(false);
+                    final SpinGate gate = new SpinGate(false);
                     test.assertFalse(gate.close());
                     test.assertFalse(gate.isOpen());
                 });
 
                 runner.test("when open", (Test test) ->
                 {
-                    final InMemoryGate gate = new InMemoryGate(true);
+                    final SpinGate gate = new SpinGate(true);
                     test.assertTrue(gate.close());
                     test.assertFalse(gate.isOpen());
                 });

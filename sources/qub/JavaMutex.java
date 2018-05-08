@@ -44,4 +44,10 @@ public class JavaMutex extends MutexBase
         }
         return result;
     }
+
+    @Override
+    public MutexCondition createCondition()
+    {
+        return new JavaMutexCondition(lock.newCondition());
+    }
 }

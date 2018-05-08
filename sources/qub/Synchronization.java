@@ -19,6 +19,6 @@ public class Synchronization
      */
     public Gate createGate(boolean isOpen)
     {
-        return new InMemoryGate(isOpen);
+        return new SpinGate(isOpen);
     }
 }

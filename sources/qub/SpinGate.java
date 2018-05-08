@@ -5,15 +5,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * A Gate concurrency primitive that can be closed (all threads block) or opened (all threads pass).
  */
-public class InMemoryGate implements Gate
+public class SpinGate implements Gate
 {
     private final AtomicBoolean open;
 
     /**
-     * Create a new InMemoryGate with the provided initial state.
-     * @param open Whether or not this InMemoryGate is initialized to open or closed.
+     * Create a new SpinGate with the provided initial state.
+     * @param open Whether or not this SpinGate is initialized to open or closed.
      */
-    public InMemoryGate(boolean open)
+    public SpinGate(boolean open)
     {
         this.open = new AtomicBoolean(open);
     }
