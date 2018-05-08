@@ -1,6 +1,6 @@
 package qub;
 
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * A mutex/lock that can be used to synchronize access to shared resources between multiple threads.
@@ -9,14 +9,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class SpinMutex extends MutexBase
 {
-    private final AtomicBoolean acquired;
+    private final AtomicLong acquiredByThreadId;
 
     /**
      * Create a new SpinMutex that is ready to be acquired.
      */
     public SpinMutex()
     {
-        acquired = new AtomicBoolean(false);
+        acquiredByThreadId = new AtomicLong(-1);
     }
 
     /**
@@ -26,7 +26,7 @@ public class SpinMutex extends MutexBase
     @Override
     public boolean isAcquired()
     {
-        return acquired.get();
+        return acquiredByThreadId.get() != -1;
     }
 
     /**
@@ -36,8 +36,12 @@ public class SpinMutex extends MutexBase
     @Override
     public void acquire()
     {
-        while (!tryAcquire())
+        final long threadId = Thread.currentThread().getId();
+        while (!acquiredByThreadId.compareAndSet(-1, threadId))
         {
+            while (isAcquired())
+            {
+            }
         }
     }
 
@@ -48,7 +52,8 @@ public class SpinMutex extends MutexBase
     @Override
     public boolean tryAcquire()
     {
-        return acquired.compareAndSet(false, true);
+        final long threadId = Thread.currentThread().getId();
+        return acquiredByThreadId.compareAndSet(-1, threadId);
     }
 
     /**
@@ -58,6 +63,7 @@ public class SpinMutex extends MutexBase
     @Override
     public boolean release()
     {
-        return acquired.compareAndSet(true, false);
+        final long threadId = Thread.currentThread().getId();
+        return acquiredByThreadId.compareAndSet(threadId, -1);
     }
 }
