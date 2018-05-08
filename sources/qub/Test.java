@@ -357,6 +357,34 @@ public class Test
     }
 
     /**
+     * Assert that when the provided action is run it throws an exception that is equal to the
+     * provided exception.
+     * @param action The action to run.
+     * @param expectedException The expected exception.
+     */
+    public void assertThrows(Action0 action, RuntimeException expectedException)
+    {
+        Throwable exceptionThrown = null;
+        try
+        {
+            action.run();
+        }
+        catch (RuntimeException e)
+        {
+            exceptionThrown = e;
+        }
+
+        if (exceptionThrown == null)
+        {
+            throw new TestAssertionFailure(getFullName(), new String[] { "Expected an exception of type " + expectedException.getClass() + " to be thrown." });
+        }
+        else if (!Comparer.equal(expectedException, exceptionThrown))
+        {
+            throw new TestAssertionFailure(getFullName(), getMessageLines("Incorrect exception thrown", expectedException, exceptionThrown));
+        }
+    }
+
+    /**
      * Assert that the provided Result object is a successful Result.
      * @param result The Result to check.
      */

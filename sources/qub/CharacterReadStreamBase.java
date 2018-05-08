@@ -9,7 +9,7 @@ public abstract class CharacterReadStreamBase extends IteratorBase<Character> im
     }
 
     @Override
-    public void close() throws Exception
+    public void close()
     {
         DisposableBase.close(this);
     }

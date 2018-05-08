@@ -53,7 +53,7 @@ public class SpinMutex extends MutexBase
     public boolean tryAcquire()
     {
         final long threadId = Thread.currentThread().getId();
-        return acquiredByThreadId.compareAndSet(-1, threadId);
+        return acquiredByThreadId.get() == threadId || acquiredByThreadId.compareAndSet(-1, threadId);
     }
 
     /**

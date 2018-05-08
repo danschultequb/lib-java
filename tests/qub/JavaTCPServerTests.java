@@ -188,10 +188,6 @@ public class JavaTCPServerTests
                                 // Block
                                 clientReadBytes.set(tcpClient.readBytes(bytes.length).getValue());
                             }
-                            catch (Exception e)
-                            {
-                                test.fail(e);
-                            }
                         });
 
                         final AsyncRunner currentThreadAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
@@ -212,10 +208,6 @@ public class JavaTCPServerTests
                                     // Block
                                     test.assertSuccess(true, serverClient.write(serverReadBytes.getValue()));
                                 }
-                                catch (Exception e)
-                                {
-                                    test.fail(e);
-                                }
                             });
 
                         // Block
@@ -224,10 +216,6 @@ public class JavaTCPServerTests
                         clientTask.await();
 
                         test.assertEqual(bytes, clientReadBytes.get());
-                    }
-                    catch (Exception e)
-                    {
-                        test.fail(e);
                     }
                 });
             });

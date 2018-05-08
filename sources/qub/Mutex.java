@@ -44,4 +44,10 @@ public interface Mutex
      * @return The return value from the function.
      */
     <T> T criticalSection(Function0<T> function);
+
+    /**
+     * Acquire this mutex and return a Disposable that will release this mutex when it is disposed.
+     * @return
+     */
+    Disposable criticalSection();
 }

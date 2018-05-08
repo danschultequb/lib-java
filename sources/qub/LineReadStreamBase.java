@@ -33,7 +33,7 @@ public abstract class LineReadStreamBase extends IteratorBase<String> implements
     }
 
     @Override
-    public final void close() throws Exception
+    public final void close()
     {
         DisposableBase.close(this);
     }

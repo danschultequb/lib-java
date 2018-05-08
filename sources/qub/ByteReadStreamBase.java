@@ -11,7 +11,7 @@ public abstract class ByteReadStreamBase extends IteratorBase<Byte> implements B
     }
 
     @Override
-    public final void close() throws Exception
+    public final void close()
     {
         DisposableBase.close(this);
     }

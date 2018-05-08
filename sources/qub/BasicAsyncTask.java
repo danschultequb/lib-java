@@ -73,14 +73,10 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
     @Override
     public boolean parentTasksContain(final AsyncTask parentTask)
     {
-        return mutex.criticalSection(new Function0<Boolean>()
+        try (final Disposable criticalSection = mutex.criticalSection())
         {
-            @Override
-            public Boolean run()
-            {
-                return parentTasks.contains(parentTask);
-            }
-        });
+            return parentTasks.contains(parentTask);
+        }
     }
 
     @Override
@@ -98,6 +94,10 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
             }
             getAsyncRunner().await(this);
         }
+        if (outgoingError != null)
+        {
+            throw new AwaitException(outgoingError);
+        }
     }
 
     /**
@@ -106,14 +106,10 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
      */
     public int getPausedTaskCount()
     {
-        return mutex.criticalSection(new Function0<Integer>()
+        try (final Disposable criticalSection = mutex.criticalSection())
         {
-            @Override
-            public Integer run()
-            {
-                return pausedTasks.getCount();
-            }
-        });
+            return pausedTasks.getCount();
+        }
     }
 
     @Override
@@ -357,23 +353,19 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
 
     protected <T extends BasicAsyncTask> T scheduleOrEnqueue(final T asyncTask)
     {
-        return mutex.criticalSection(new Function0<T>()
+        try (final Disposable criticalSection = mutex.criticalSection())
         {
-            @Override
-            public T run()
+            if (isCompleted())
             {
-                if (isCompleted())
-                {
-                    asyncTask.setIncomingError(getOutgoingError());
-                    asyncTask.schedule();
-                }
-                else
-                {
-                    pausedTasks.add(asyncTask);
-                }
-                return asyncTask;
+                asyncTask.setIncomingError(getOutgoingError());
+                asyncTask.schedule();
             }
-        });
+            else
+            {
+                pausedTasks.add(asyncTask);
+            }
+            return asyncTask;
+        }
     }
 
     @Override
@@ -383,27 +375,23 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
         {
             runTask();
         }
-        catch (Throwable error)
+        catch (RuntimeException error)
         {
             setOutgoingError(error);
         }
 
         final Throwable outgoingError = getOutgoingError();
 
-        mutex.criticalSection(new Action0()
+        try (final Disposable criticalSection = mutex.criticalSection())
         {
-            @Override
-            public void run()
+            while (pausedTasks.any())
             {
-                while (pausedTasks.any())
-                {
-                    final BasicAsyncTask pausedTask = pausedTasks.removeFirst();
-                    pausedTask.setIncomingError(outgoingError);
-                    pausedTask.schedule();
-                }
-                getAsyncRunner().markCompleted(completed);
+                final BasicAsyncTask pausedTask = pausedTasks.removeFirst();
+                pausedTask.setIncomingError(outgoingError);
+                pausedTask.schedule();
             }
-        });
+            getAsyncRunner().markCompleted(completed);
+        }
     }
 
     protected abstract void runTask();

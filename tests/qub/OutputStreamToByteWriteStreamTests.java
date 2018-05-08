@@ -21,29 +21,22 @@ public class OutputStreamToByteWriteStreamTests
                 runner.test("with no exception", (Test test) ->
                 {
                     final OutputStreamToByteWriteStream writeStream = getWriteStream(new ByteArrayOutputStream());
-                    try
-                    {
-                        writeStream.close();
-                    }
-                    catch (Exception e)
-                    {
-                        test.fail(e);
-                    }
+                    writeStream.close();
                     test.assertTrue(writeStream.isDisposed());
                 });
 
                 runner.test("with exception", (Test test) ->
                 {
                     final OutputStreamToByteWriteStream writeStream = getWriteStream(new TestStubOutputStream());
-                    try
-                    {
-                        writeStream.close();
-                        test.fail("Expected an exception to be thrown.");
-                    }
-                    catch (Exception e)
-                    {
-                        test.assertEqual(new IOException(), e);
-                    }
+                    test.assertThrows(new Action0()
+                        {
+                            @Override
+                            public void run()
+                            {
+                                writeStream.close();
+                            }
+                        },
+                        new RuntimeException(new IOException()));
                     test.assertTrue(writeStream.isDisposed());
                 });
             });

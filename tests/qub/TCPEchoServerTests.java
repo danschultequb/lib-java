@@ -27,24 +27,16 @@ public class TCPEchoServerTests
                             final LineReadStream tcpClientLineReadStream = tcpClient.asLineReadStream();
 
                             tcpClientLineWriteStream.writeLine("Hello");
-                            test.assertEqual("Hello", tcpClientLineReadStream.readLine());
+                            test.assertSuccess("Hello", tcpClientLineReadStream.readLine());
 
                             tcpClientLineWriteStream.writeLine("World");
-                            test.assertEqual("World", tcpClientLineReadStream.readLine());
-                        }
-                        catch (Exception e)
-                        {
-                            test.fail(e);
+                            test.assertSuccess("World", tcpClientLineReadStream.readLine());
                         }
                     });
 
                     clientTask.await();
                     final Result<Boolean> serverResult = echoTask.awaitReturn();
                     test.assertSuccess(true, serverResult);
-                }
-                catch (Exception e)
-                {
-                    test.fail(e);
                 }
             });
 
@@ -59,31 +51,21 @@ public class TCPEchoServerTests
 
                     final AsyncAction clientTask = asyncRunner.schedule(() ->
                     {
-                        //PARALLEL
                         try (final TCPClient tcpClient = network.createTCPClient(IPv4Address.localhost, port.get()).getValue())
                         {
                             final LineWriteStream tcpClientLineWriteStream = tcpClient.asLineWriteStream();
                             final LineReadStream tcpClientLineReadStream = tcpClient.asLineReadStream();
 
                             tcpClientLineWriteStream.writeLine("Hello");
-                            test.assertEqual("Hello", tcpClientLineReadStream.readLine());
+                            test.assertSuccess("Hello", tcpClientLineReadStream.readLine());
 
                             tcpClientLineWriteStream.writeLine("World");
-                            test.assertEqual("World", tcpClientLineReadStream.readLine());
-                        }
-                        catch (Exception e)
-                        {
-                            test.fail(e);
+                            test.assertSuccess("World", tcpClientLineReadStream.readLine());
                         }
                     });
 
-                    //MAIN
                     echoServerTask.await();
                     clientTask.await();
-                }
-                catch (Exception e)
-                {
-                    test.fail(e);
                 }
             });
         });

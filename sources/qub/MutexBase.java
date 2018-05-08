@@ -37,4 +37,37 @@ public abstract class MutexBase implements Mutex
         }
         return result;
     }
+
+    @Override
+    public Disposable criticalSection()
+    {
+        acquire();
+        return new DisposableBase()
+        {
+            private boolean disposed;
+
+            @Override
+            public boolean isDisposed()
+            {
+                return disposed;
+            }
+
+            @Override
+            public Result<Boolean> dispose()
+            {
+                Result<Boolean> result;
+                if (!disposed)
+                {
+                    disposed = true;
+                    result = Result.successTrue();
+                    release();
+                }
+                else
+                {
+                    result = Result.successFalse();
+                }
+                return result;
+            }
+        };
+    }
 }

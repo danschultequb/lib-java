@@ -36,19 +36,12 @@ public class InputStreamToByteReadStreamTests
                 closeTest(test, closedInputStream, true, null);
 
                 final InputStreamToByteReadStream closedReadStream = getByteReadStream(test, 1);
-                try
-                {
-                    closedReadStream.close();
-                }
-                catch (Exception e)
-                {
-                    test.fail(e);
-                }
+                closedReadStream.close();
                 closeTest(test, closedReadStream, true, null);
 
                 final TestStubInputStream testStubInputStream = new TestStubInputStream();
                 testStubInputStream.setThrowOnClose(true);
-                closeTest(test, testStubInputStream, true, new IOException());
+                closeTest(test, testStubInputStream, true, new RuntimeException(new IOException()));
             });
 
             runner.test("readByte()", (Test test) ->

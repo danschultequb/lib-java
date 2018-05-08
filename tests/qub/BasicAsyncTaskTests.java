@@ -45,11 +45,11 @@ public class BasicAsyncTaskTests
                 {
                     final AsyncRunner asyncRunner = test.getMainAsyncRunner();
                     final BasicAsyncTask basicAsyncTask = createScheduled(creator, asyncRunner);
-                    final AsyncAction thenAsyncAction = basicAsyncTask.then((Action0)() -> { throw new RuntimeException("This exception should be swallowed by the AsyncRunner."); });
+                    final AsyncAction thenAsyncAction = basicAsyncTask.then((Action0)() -> { throw new RuntimeException("abc"); });
                     test.assertNotNull(thenAsyncAction);
                     test.assertEqual(1, basicAsyncTask.getPausedTaskCount());
 
-                    thenAsyncAction.await();
+                    test.assertThrows(thenAsyncAction::await, new AwaitException(new RuntimeException("abc")));
 
                     test.assertTrue(basicAsyncTask.isCompleted());
                     test.assertEqual(0, basicAsyncTask.getPausedTaskCount());
@@ -57,9 +57,7 @@ public class BasicAsyncTaskTests
                     test.assertNull(basicAsyncTask.getOutgoingError());
                     test.assertTrue(thenAsyncAction.isCompleted());
                     test.assertNull(thenAsyncAction.getIncomingError());
-                    test.assertNotNull(thenAsyncAction.getOutgoingError());
-                    test.assertEqual(RuntimeException.class, thenAsyncAction.getOutgoingError().getClass());
-                    test.assertEqual("This exception should be swallowed by the AsyncRunner.", thenAsyncAction.getOutgoingError().getMessage());
+                    test.assertEqual(new RuntimeException("abc"), thenAsyncAction.getOutgoingError());
                 });
             });
 
@@ -103,28 +101,26 @@ public class BasicAsyncTaskTests
                 {
                     final AsyncRunner asyncRunner = test.getMainAsyncRunner();
                     final BasicAsyncTask basicAsyncTask = createScheduled(creator, asyncRunner);
-                    final AsyncFunction<Integer> thenAsyncFunction = basicAsyncTask.then(() ->
+                    final AsyncFunction<Integer> thenAsyncFunction = basicAsyncTask.then(new Function0<Integer>()
+                    {
+                        @Override
+                        public Integer run()
                         {
-                            if (1 + 1 == 2)
-                            {
-                                throw new RuntimeException("This exception should be swallowed by the AsyncRunner.");
-                            }
-                            return 0;
-                        });
+                            throw new RuntimeException("d");
+                        }
+                    });
                     test.assertNotNull(thenAsyncFunction);
                     test.assertEqual(1, basicAsyncTask.getPausedTaskCount());
 
-                    thenAsyncFunction.await();
+                    test.assertThrows(thenAsyncFunction::await, new AwaitException(new RuntimeException("d")));
+                    test.assertThrows(thenAsyncFunction::awaitReturn, new AwaitException(new RuntimeException("d")));
 
                     test.assertEqual(0, basicAsyncTask.getPausedTaskCount());
                     test.assertNull(basicAsyncTask.getIncomingError());
                     test.assertNull(basicAsyncTask.getOutgoingError());
                     test.assertTrue(thenAsyncFunction.isCompleted());
                     test.assertNull(thenAsyncFunction.getIncomingError());
-                    test.assertNotNull(thenAsyncFunction.getOutgoingError());
-                    test.assertEqual(RuntimeException.class, thenAsyncFunction.getOutgoingError().getClass());
-                    test.assertEqual("This exception should be swallowed by the AsyncRunner.", thenAsyncFunction.getOutgoingError().getMessage());
-                    test.assertNull(thenAsyncFunction.awaitReturn());
+                    test.assertEqual(new RuntimeException("d"), thenAsyncFunction.getOutgoingError());
                 });
             });
 
@@ -302,13 +298,13 @@ public class BasicAsyncTaskTests
                     final ManualAsyncRunner asyncRunner1 = new ManualAsyncRunner();
                     final ManualAsyncRunner asyncRunner2 = new ManualAsyncRunner();
                     final BasicAsyncTask basicAsyncTask = createScheduled(creator, asyncRunner1);
-                    final AsyncFunction<Integer> thenAsyncFunction = basicAsyncTask.thenOn(asyncRunner2, () ->
+                    final AsyncFunction<Integer> thenAsyncFunction = basicAsyncTask.thenOn(asyncRunner2, new Function0<Integer>()
                     {
-                        if (1 + 1 == 2)
+                        @Override
+                        public Integer run()
                         {
-                            throw new RuntimeException("This exception should be swallowed by the AsyncRunner.");
+                            throw new RuntimeException("ef");
                         }
-                        return 0;
                     });
                     test.assertNotNull(thenAsyncFunction);
                     test.assertEqual(1, basicAsyncTask.getPausedTaskCount());
@@ -333,9 +329,8 @@ public class BasicAsyncTaskTests
                     test.assertTrue(thenAsyncFunction.isCompleted());
                     test.assertNull(thenAsyncFunction.getIncomingError());
                     test.assertNotNull(thenAsyncFunction.getOutgoingError());
-                    test.assertEqual(RuntimeException.class, thenAsyncFunction.getOutgoingError().getClass());
-                    test.assertEqual("This exception should be swallowed by the AsyncRunner.", thenAsyncFunction.getOutgoingError().getMessage());
-                    test.assertNull(thenAsyncFunction.awaitReturn());
+                    test.assertEqual(new RuntimeException("ef"), thenAsyncFunction.getOutgoingError());
+                    test.assertThrows(thenAsyncFunction::awaitReturn, new AwaitException(new RuntimeException("ef")));
                 });
             });
 
@@ -408,7 +403,7 @@ public class BasicAsyncTaskTests
                     test.assertNotNull(thenAsyncAction);
                     test.assertEqual(1, basicAsyncTask.getPausedTaskCount());
 
-                    thenAsyncAction.await();
+                    test.assertThrows(thenAsyncAction::await, new AwaitException(new RuntimeException("ABC")));
 
                     test.assertEqual(0, basicAsyncTask.getPausedTaskCount());
                     test.assertTrue(basicAsyncTask.isCompleted());
@@ -416,8 +411,7 @@ public class BasicAsyncTaskTests
                     test.assertTrue(thenAsyncAction.isCompleted());
                     test.assertNull(thenAsyncAction.getIncomingError());
                     test.assertNotNull(thenAsyncAction.getOutgoingError());
-                    test.assertEqual(RuntimeException.class, thenAsyncAction.getOutgoingError().getClass());
-                    test.assertEqual("ABC", thenAsyncAction.getOutgoingError().getMessage());
+                    test.assertEqual(new RuntimeException("ABC"), thenAsyncAction.getOutgoingError());
                     test.assertFalse(value.hasValue());
                 });
 
@@ -441,7 +435,7 @@ public class BasicAsyncTaskTests
                     test.assertNotNull(thenAsyncAction);
                     test.assertEqual(1, basicAsyncTask.getPausedTaskCount());
 
-                    thenAsyncAction.await();
+                    test.assertThrows(thenAsyncAction::await, new AwaitException(new RuntimeException("ABC")));
 
                     test.assertEqual(0, basicAsyncTask.getPausedTaskCount());
                     test.assertTrue(basicAsyncTask.isCompleted());
@@ -449,8 +443,7 @@ public class BasicAsyncTaskTests
                     test.assertTrue(thenAsyncAction.isCompleted());
                     test.assertNull(thenAsyncAction.getIncomingError());
                     test.assertNotNull(thenAsyncAction.getOutgoingError());
-                    test.assertEqual(RuntimeException.class, thenAsyncAction.getOutgoingError().getClass());
-                    test.assertEqual("ABC", thenAsyncAction.getOutgoingError().getMessage());
+                    test.assertEqual(new RuntimeException("ABC"), thenAsyncAction.getOutgoingError());
                     test.assertFalse(value.hasValue());
                 });
             });
@@ -546,7 +539,8 @@ public class BasicAsyncTaskTests
                     test.assertNotNull(thenAsyncFunction);
                     test.assertEqual(1, basicAsyncTask.getPausedTaskCount());
 
-                    thenAsyncFunction.await();
+                    test.assertThrows(thenAsyncFunction::await, new AwaitException(new RuntimeException("ABC")));
+                    test.assertThrows(thenAsyncFunction::awaitReturn, new AwaitException(new RuntimeException("ABC")));
 
                     test.assertEqual(0, basicAsyncTask.getPausedTaskCount());
                     test.assertTrue(basicAsyncTask.isCompleted());
@@ -554,10 +548,8 @@ public class BasicAsyncTaskTests
                     test.assertTrue(thenAsyncFunction.isCompleted());
                     test.assertNull(thenAsyncFunction.getIncomingError());
                     test.assertNotNull(thenAsyncFunction.getOutgoingError());
-                    test.assertEqual(RuntimeException.class, thenAsyncFunction.getOutgoingError().getClass());
-                    test.assertEqual("ABC", thenAsyncFunction.getOutgoingError().getMessage());
+                    test.assertEqual(new RuntimeException("ABC"), thenAsyncFunction.getOutgoingError());
                     test.assertFalse(value.hasValue());
-                    test.assertNull(thenAsyncFunction.awaitReturn());
                 });
 
                 runner.test("with exception throwing inner function", (Test test) ->
@@ -581,7 +573,8 @@ public class BasicAsyncTaskTests
                     test.assertNotNull(thenAsyncFunction);
                     test.assertEqual(1, basicAsyncTask.getPausedTaskCount());
 
-                    thenAsyncFunction.await();
+                    test.assertThrows(thenAsyncFunction::await, new AwaitException(new RuntimeException("ABC")));
+                    test.assertThrows(thenAsyncFunction::awaitReturn, new AwaitException(new RuntimeException("ABC")));
 
                     test.assertEqual(0, basicAsyncTask.getPausedTaskCount());
                     test.assertTrue(basicAsyncTask.isCompleted());
@@ -589,10 +582,8 @@ public class BasicAsyncTaskTests
                     test.assertTrue(thenAsyncFunction.isCompleted());
                     test.assertNull(thenAsyncFunction.getIncomingError());
                     test.assertNotNull(thenAsyncFunction.getOutgoingError());
-                    test.assertEqual(RuntimeException.class, thenAsyncFunction.getOutgoingError().getClass());
-                    test.assertEqual("ABC", thenAsyncFunction.getOutgoingError().getMessage());
+                    test.assertEqual(new RuntimeException("ABC"), thenAsyncFunction.getOutgoingError());
                     test.assertFalse(value.hasValue());
-                    test.assertNull(thenAsyncFunction.awaitReturn());
                 });
             });
 

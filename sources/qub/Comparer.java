@@ -83,7 +83,8 @@ public final class Comparer
         if (!result && arg1 != null && arg2 != null)
         {
             result = Comparer.equal(arg1.getClass(), arg2.getClass()) &&
-                Comparer.equal(arg1.getMessage(), arg2.getMessage());
+                Comparer.equal(arg1.getMessage(), arg2.getMessage()) &&
+                Comparer.equal(arg1.getCause(), arg2.getCause());
         }
         return result;
     }

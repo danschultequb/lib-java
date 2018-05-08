@@ -56,17 +56,9 @@ public class JavaNetworkTests
                             test.assertSuccess(acceptedClientResult);
                             try (final TCPClient acceptedClient = acceptedClientResult.getValue())
                             {
-                                test.assertEqual(bytes, acceptedClient.readBytes(bytes.length));
+                                test.assertSuccess(bytes, acceptedClient.readBytes(bytes.length));
                                 test.assertSuccess(true, acceptedClient.write(bytes));
                             }
-                            catch (Exception e)
-                            {
-                                test.fail(e);
-                            }
-                        }
-                        catch (Exception e)
-                        {
-                            test.fail(e);
                         }
                     });
 
@@ -77,11 +69,7 @@ public class JavaNetworkTests
                         try (final TCPClient tcpClient = tcpClientResult.getValue())
                         {
                             test.assertSuccess(true, tcpClient.write(bytes));
-                            test.assertEqual(bytes, tcpClient.readBytes(bytes.length));
-                        }
-                        catch (Exception e)
-                        {
-                            test.fail(e);
+                            test.assertSuccess(bytes, tcpClient.readBytes(bytes.length));
                         }
                     });
 
