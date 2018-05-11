@@ -1,5 +1,7 @@
 package qub;
 
+import java.io.InputStream;
+
 /**
  * A ReadStream interface that reads bytes.
  */
@@ -90,7 +92,11 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
      */
     AsyncFunction<Result<byte[]>> readAllBytesAsync();
 
-    java.io.InputStream asInputStream();
+    /**
+     * Convert this ByteReadStream to a java.io.InputStream.
+     * @return A java.io.InputStream representation of this ByteReadStream.
+     */
+    InputStream asInputStream();
 
     CharacterReadStream asCharacterReadStream();
 

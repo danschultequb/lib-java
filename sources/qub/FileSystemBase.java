@@ -577,16 +577,6 @@ public abstract class FileSystemBase implements FileSystem
      * @param rootedFolderPath The path to the folder (Root or Folder).
      * @return The files and folders (entries) at the provided folder path.
      */
-    public static Result<Iterable<FileSystemEntry>> getFilesAndFolders(FileSystem fileSystem, Path rootedFolderPath)
-    {
-        return fileSystem.getFilesAndFoldersAsync(rootedFolderPath).awaitReturn();
-    }
-
-    /**
-     * Get the files and folders (entries) at the provided folder path.
-     * @param rootedFolderPath The path to the folder (Root or Folder).
-     * @return The files and folders (entries) at the provided folder path.
-     */
     public static AsyncFunction<Result<Iterable<FileSystemEntry>>> getFilesAndFoldersAsync(FileSystem fileSystem, String rootedFolderPath)
     {
         return fileSystem.getFilesAndFoldersAsync(Path.parse(rootedFolderPath));
@@ -658,14 +648,22 @@ public abstract class FileSystemBase implements FileSystem
                 while (foldersToVisit.any())
                 {
                     final Folder currentFolder = foldersToVisit.dequeue();
-                    final Iterable<FileSystemEntry> currentFolderEntries = currentFolder.getFilesAndFolders().getValue();
-                    for (final FileSystemEntry entry : currentFolderEntries)
+                    final Result<Iterable<FileSystemEntry>> getFilesAndFoldersResult = currentFolder.getFilesAndFolders();
+                    if (getFilesAndFoldersResult.hasError())
                     {
-                        resultEntries.add(entry);
-
-                        if (entry instanceof Folder)
+                        resultErrors.add(getFilesAndFoldersResult.getError());
+                    }
+                    else
+                    {
+                        final Iterable<FileSystemEntry> currentFolderEntries = getFilesAndFoldersResult.getValue();
+                        for (final FileSystemEntry entry : currentFolderEntries)
                         {
-                            foldersToVisit.enqueue((Folder)entry);
+                            resultEntries.add(entry);
+
+                            if (entry instanceof Folder)
+                            {
+                                foldersToVisit.enqueue((Folder)entry);
+                            }
                         }
                     }
                 }

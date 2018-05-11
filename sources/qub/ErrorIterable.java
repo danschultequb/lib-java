@@ -28,6 +28,23 @@ public class ErrorIterable extends Throwable implements Iterable<Throwable>
     }
 
     @Override
+    public String toString()
+    {
+        return IterableBase.toString(this);
+    }
+
+    @Override
+    public boolean equals(Object rhs)
+    {
+        return rhs instanceof ErrorIterable && equals((ErrorIterable)rhs);
+    }
+
+    public boolean equals(ErrorIterable rhs)
+    {
+        return IterableBase.equals(this, rhs);
+    }
+
+    @Override
     public Iterator<Throwable> iterate()
     {
         return errors.iterate();

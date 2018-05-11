@@ -30,6 +30,10 @@
     </properties>
 
     <build>
+        <sourceDirectory>${basedir}/sources</sourceDirectory>
+        <testSourceDirectory>${basedir}/tests</testSourceDirectory>
+        <outputDirectory>${basedir}/outputs/sources</outputDirectory>
+        <testOutputDirectory>${basedir}/outputs/tests</testOutputDirectory>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

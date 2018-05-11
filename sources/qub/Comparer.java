@@ -80,7 +80,7 @@ public final class Comparer
     public static boolean equal(Throwable arg1, Throwable arg2)
     {
         boolean result = arg1 == arg2;
-        if (!result && arg1 != null && arg2 != null)
+        if (!result && arg1 != null && arg2 != null && !arg1.equals(arg2))
         {
             result = Comparer.equal(arg1.getClass(), arg2.getClass()) &&
                 Comparer.equal(arg1.getMessage(), arg2.getMessage()) &&

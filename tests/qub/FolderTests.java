@@ -22,10 +22,7 @@ public class FolderTests
                 runner.test("when folder doesn't exist", (Test test) ->
                 {
                     final Folder folder = getFolder(test);
-
-                    final Result<Boolean> deleteResult = folder.delete();
-                    test.assertFalse(deleteResult.getValue());
-                    test.assertEqual(new FolderNotFoundException("/test/folder"), deleteResult.getError());
+                    test.assertDone(false, new FolderNotFoundException("/test/folder"), folder.delete());
                 });
 
                 runner.test("when folder exists", (Test test) ->

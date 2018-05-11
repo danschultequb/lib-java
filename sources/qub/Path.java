@@ -111,7 +111,7 @@ public class Path
         }
         else
         {
-            result = new Path(value + toConcatenate, false);
+            result = new Path(value + toConcatenate.toString(), false);
         }
         return result;
     }
@@ -407,6 +407,88 @@ public class Path
             }
         }
 
+        return result;
+    }
+
+    /**
+     * Resolve any current path (.) or parent path (..) segments in this Path.
+     * @return
+     */
+    public Result<Path> resolve()
+    {
+        Result<Path> result = null;
+
+        final Path normalizedPath = this.normalize();
+        final boolean isRooted = normalizedPath.isRooted();
+        final List<String> resolvedSegments = ArrayList.fromValues(normalizedPath.getSegments());
+        for (int i = 1; i < resolvedSegments.getCount(); ++i)
+        {
+            final String currentSegment = resolvedSegments.get(i);
+            if (currentSegment.equals("."))
+            {
+                resolvedSegments.removeAt(i);
+                i -= 1;
+            }
+            else if (currentSegment.equals(".."))
+            {
+                if (isRooted && i == 1)
+                {
+                    result = Result.error(new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+                    break;
+                }
+                else if (!resolvedSegments.get(i - 1).equals(".."))
+                {
+                    resolvedSegments.removeAt(i);
+                    resolvedSegments.removeAt(i - 1);
+                    i -= 2;
+                }
+            }
+        }
+
+        if (result == null)
+        {
+            final StringBuilder builder = new StringBuilder();
+            String previousResolvedSegment = null;
+            for (final String resolvedSegment : resolvedSegments)
+            {
+                if (previousResolvedSegment != null && !previousResolvedSegment.equals("/"))
+                {
+                    builder.append('/');
+                }
+                builder.append(resolvedSegment);
+                previousResolvedSegment = resolvedSegment;
+            }
+            String resultPathString = builder.toString();
+            if (!resultPathString.equals("/") && (normalizedPath.endsWith("/") || (resultPathString.endsWith(":") && resolvedSegments.getCount() == 1)))
+            {
+                builder.append('/');
+            }
+            result = Result.success(new Path(builder.toString(), true));
+        }
+        return result;
+    }
+
+    public Result<Path> resolve(String relativePathString)
+    {
+        return resolve(Path.parse(relativePathString));
+    }
+
+    public Result<Path> resolve(Path relativePath)
+    {
+        Result<Path> result;
+        if (relativePath == null)
+        {
+            result = this.resolve();
+        }
+        else if (relativePath.isRooted())
+        {
+            result = Result.<Path>error(new IllegalArgumentException("Cannot resolve a rooted path (" + relativePath.toString() + ")."));
+        }
+        else
+        {
+            final Path concatenatedPath = this.concatenateSegment(relativePath);
+            result = concatenatedPath.resolve();
+        }
         return result;
     }
 

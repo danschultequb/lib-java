@@ -293,6 +293,65 @@ public class PathTests
                 relativeToTest.run("C:/a/b/c.d", "C:/a/z", "../b/c.d");
                 relativeToTest.run("C:/a/b/c.d", "C:/a/z/y", "../../b/c.d");
             });
+
+            runner.testGroup("resolve()", () ->
+            {
+                final Action3<String,String,Throwable> resolveTest = (String pathString, String expectedResolvedPathString, Throwable expectedError) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(pathString), (Test test) ->
+                    {
+                        final Path path = Path.parse(pathString);
+                        final Path expectedResolvedPath = Path.parse(expectedResolvedPathString);
+                        test.assertDone(expectedResolvedPath, expectedError, path.resolve());
+                    });
+                };
+
+                resolveTest.run("/", "/", null);
+                resolveTest.run("\\", "/", null);
+                resolveTest.run("C:/", "C:/", null);
+                resolveTest.run("C:\\", "C:/", null);
+                resolveTest.run("/apples", "/apples", null);
+                resolveTest.run("/apples/", "/apples/", null);
+                resolveTest.run("/apples\\", "/apples/", null);
+                resolveTest.run("C:/bananas/", "C:/bananas/", null);
+                resolveTest.run("/a/b/c/../d/./e", "/a/b/d/e", null);
+                resolveTest.run("/.", "/", null);
+                resolveTest.run("/folder/../", "/", null);
+                resolveTest.run("C:/a/../b/../c/..", "C:/", null);
+                resolveTest.run("C:/a/../b/../c/../", "C:/", null);
+                resolveTest.run("C:/a/../test.txt", "C:/test.txt", null);
+                resolveTest.run("C:\\a\\../test.txt", "C:/test.txt", null);
+                resolveTest.run("/..", null, new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+                resolveTest.run("\\..", null, new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+                resolveTest.run("C:/..", null, new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+                resolveTest.run("F:\\..", null, new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+                resolveTest.run("/a/../..", null, new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+                resolveTest.run("\\b/../..", null, new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+                resolveTest.run("C:/c/../..", null, new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+                resolveTest.run("F:\\d/../..", null, new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+            });
+
+            runner.testGroup("resolve(String)", () ->
+            {
+                final Action4<String,String,String,Throwable> resolveTest = (String basePathString, String argumentPathString, String expectedPathString, Throwable expectedError) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(basePathString) + " and " + Strings.escapeAndQuote(argumentPathString), (Test test) ->
+                    {
+                        final Path basePath = Path.parse(basePathString);
+                        final Path expectedResolvedPath = Path.parse(expectedPathString);
+                        test.assertDone(expectedResolvedPath, expectedError, basePath.resolve(argumentPathString));
+                    });
+                };
+
+                resolveTest.run("/", null, "/", null);
+                resolveTest.run("/", "", "/", null);
+                resolveTest.run("/", "C:/", null, new IllegalArgumentException("Cannot resolve a rooted path (C:/)."));
+                resolveTest.run("/", "a/b", "/a/b", null);
+                resolveTest.run("D:\\z\\", "t/u.png", "D:/z/t/u.png", null);
+                resolveTest.run("/a/b/c", "..", "/a/b", null);
+                resolveTest.run("C:\\a\\b\\..\\c", "../../test.txt", "C:/test.txt", null);
+                resolveTest.run("C:\\a\\b\\..\\c", "../../../test.txt", null, new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+            });
         });
     }
 }

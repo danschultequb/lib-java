@@ -444,8 +444,8 @@ public class Test
     public <T> void assertError(Throwable expectedError, Result<T> result)
     {
         assertNotNull(result);
-        assertNull(result.getValue());
         assertEqual(expectedError, result.getError());
+        assertNull(result.getValue());
     }
 
     /**
@@ -469,8 +469,8 @@ public class Test
     public <T> void assertDone(T expectedValue, Throwable expectedError, Result<T> result)
     {
         assertNotNull(result);
-        assertEqual(expectedValue, result.getValue());
         assertEqual(expectedError, result.getError());
+        assertEqual(expectedValue, result.getValue());
     }
 
     /**

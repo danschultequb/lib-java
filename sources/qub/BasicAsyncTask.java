@@ -115,7 +115,10 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
     @Override
     public boolean isCompleted()
     {
-        return completed.get();
+        try (final Disposable criticalSection = mutex.criticalSection())
+        {
+            return completed.get();
+        }
     }
 
     @Override
@@ -355,7 +358,7 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
     {
         try (final Disposable criticalSection = mutex.criticalSection())
         {
-            if (isCompleted())
+            if (completed.get())
             {
                 asyncTask.setIncomingError(getOutgoingError());
                 asyncTask.schedule();

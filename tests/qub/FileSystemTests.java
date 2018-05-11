@@ -83,21 +83,12 @@ public class FileSystemTests
 
                         if (expectedEntryPaths == null)
                         {
-                            test.assertNull(result.getValue());
+                            test.assertError(expectedError, result);
                         }
                         else
                         {
+                            test.assertSuccess(result);
                             test.assertEqual(Array.fromValues(expectedEntryPaths), result.getValue().map(FileSystemEntry::toString));
-                        }
-
-                        if (expectedError == null)
-                        {
-                            test.assertNull(result.getError());
-                        }
-                        else
-                        {
-                            test.assertEqual(expectedError.getClass(), result.getErrorType());
-                            test.assertEqual(expectedError.getMessage(), result.getErrorMessage());
                         }
                     });
                 };
@@ -122,6 +113,11 @@ public class FileSystemTests
                     },
                     new String[] { "/folderA", "/file1.txt" },
                     null);
+                getFilesAndFoldersTest.run(
+                    "/..",
+                    null,
+                    null,
+                    new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
             });
 
             runner.testGroup("getFilesAndFolders(Path)", () ->
@@ -140,20 +136,12 @@ public class FileSystemTests
 
                         if (expectedEntryPaths == null)
                         {
-                            test.assertNull(result.getValue());
-                        }
-                        else
-                        {
-                            test.assertEqual(Array.fromValues(expectedEntryPaths), result.getValue().map(FileSystemEntry::toString));
-                        }
-
-                        if (expectedError == null)
-                        {
-                            test.assertNull(result.getError());
-                        }
-                        else
-                        {
                             test.assertError(expectedError, result);
+                        }
+                        else
+                        {
+                            test.assertSuccess(result);
+                            test.assertEqual(Array.fromValues(expectedEntryPaths), result.getValue().map(FileSystemEntry::toString));
                         }
                     });
                 };
@@ -178,6 +166,11 @@ public class FileSystemTests
                     },
                     new String[] { "/folderA", "/file1.txt" },
                     null);
+                getFilesAndFoldersTest.run(
+                    "/..",
+                    null,
+                    null,
+                    new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
             });
 
             runner.testGroup("getFolders(String)", () ->
