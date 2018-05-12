@@ -624,52 +624,60 @@ public abstract class FileSystemBase implements FileSystem
         Result<Iterable<FileSystemEntry>> result = FileSystemBase.validateRootedFolderPath(rootedFolderPath);
         if (result == null)
         {
-            final List<Throwable> resultErrors = new ArrayList<Throwable>();
-            List<FileSystemEntry> resultEntries = null;
-
-            final Folder folder = fileSystem.getFolder(rootedFolderPath).getValue();
-            final Result<Iterable<FileSystemEntry>> folderEntriesResult = folder.getFilesAndFolders();
-
-            boolean folderExists = true;
-            if (folderEntriesResult.hasError())
+            final Result<Path> resolvedRootedFolderPath = rootedFolderPath.resolve();
+            if (resolvedRootedFolderPath.hasError())
             {
-                final Throwable error = folderEntriesResult.getError();
-                folderExists = !(error instanceof FolderNotFoundException);
-                resultErrors.add(error);
+                result = Result.error(resolvedRootedFolderPath.getError());
             }
-
-            if (folderExists)
+            else
             {
-                resultEntries = new ArrayList<>();
+                final List<Throwable> resultErrors = new ArrayList<Throwable>();
+                List<FileSystemEntry> resultEntries = null;
 
-                final Queue<Folder> foldersToVisit = new ArrayListQueue<Folder>();
-                foldersToVisit.enqueue(folder);
+                final Folder folder = fileSystem.getFolder(resolvedRootedFolderPath.getValue()).getValue();
+                final Result<Iterable<FileSystemEntry>> folderEntriesResult = folder.getFilesAndFolders();
 
-                while (foldersToVisit.any())
+                boolean folderExists = true;
+                if (folderEntriesResult.hasError())
                 {
-                    final Folder currentFolder = foldersToVisit.dequeue();
-                    final Result<Iterable<FileSystemEntry>> getFilesAndFoldersResult = currentFolder.getFilesAndFolders();
-                    if (getFilesAndFoldersResult.hasError())
-                    {
-                        resultErrors.add(getFilesAndFoldersResult.getError());
-                    }
-                    else
-                    {
-                        final Iterable<FileSystemEntry> currentFolderEntries = getFilesAndFoldersResult.getValue();
-                        for (final FileSystemEntry entry : currentFolderEntries)
-                        {
-                            resultEntries.add(entry);
+                    final Throwable error = folderEntriesResult.getError();
+                    folderExists = !(error instanceof FolderNotFoundException);
+                    resultErrors.add(error);
+                }
 
-                            if (entry instanceof Folder)
+                if (folderExists)
+                {
+                    resultEntries = new ArrayList<>();
+
+                    final Queue<Folder> foldersToVisit = new ArrayListQueue<Folder>();
+                    foldersToVisit.enqueue(folder);
+
+                    while (foldersToVisit.any())
+                    {
+                        final Folder currentFolder = foldersToVisit.dequeue();
+                        final Result<Iterable<FileSystemEntry>> getFilesAndFoldersResult = currentFolder.getFilesAndFolders();
+                        if (getFilesAndFoldersResult.hasError())
+                        {
+                            resultErrors.add(getFilesAndFoldersResult.getError());
+                        }
+                        else
+                        {
+                            final Iterable<FileSystemEntry> currentFolderEntries = getFilesAndFoldersResult.getValue();
+                            for (final FileSystemEntry entry : currentFolderEntries)
                             {
-                                foldersToVisit.enqueue((Folder)entry);
+                                resultEntries.add(entry);
+
+                                if (entry instanceof Folder)
+                                {
+                                    foldersToVisit.enqueue((Folder)entry);
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            result = Result.<Iterable<FileSystemEntry>>done(resultEntries, ErrorIterable.from(resultErrors));
+                result = Result.<Iterable<FileSystemEntry>>done(resultEntries, ErrorIterable.from(resultErrors));
+            }
         }
 
         return result;
@@ -945,7 +953,15 @@ public abstract class FileSystemBase implements FileSystem
         Result<Folder> result = validateRootedFolderPath(rootedFolderPath);
         if (result == null)
         {
-            result = Result.success(new Folder(fileSystem, rootedFolderPath));
+            final Result<Path> resolvedRootedFolderPath = rootedFolderPath.resolve();
+            if (resolvedRootedFolderPath.hasError())
+            {
+                result = Result.error(resolvedRootedFolderPath.getError());
+            }
+            else
+            {
+                result = Result.success(new Folder(fileSystem, resolvedRootedFolderPath.getValue()));
+            }
         }
         return result;
     }
@@ -1099,7 +1115,15 @@ public abstract class FileSystemBase implements FileSystem
         Result<File> result = validateRootedFilePath(rootedFilePath);
         if (result == null)
         {
-            result = Result.success(new File(fileSystem, rootedFilePath));
+            final Result<Path> resolvedRootedFilePath = rootedFilePath.resolve();
+            if (resolvedRootedFilePath.hasError())
+            {
+                result = Result.error(resolvedRootedFilePath.getError());
+            }
+            else
+            {
+                result = Result.success(new File(fileSystem, resolvedRootedFilePath.getValue()));
+            }
         }
         return result;
     }

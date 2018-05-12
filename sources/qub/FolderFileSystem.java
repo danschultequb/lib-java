@@ -98,7 +98,12 @@ public class FolderFileSystem extends FileSystemBase
 
     private Path getOuterPath(Path innerPath)
     {
-        return Path.parse(innerPath.toString().substring(baseFolderPath.toString().length()));
+        String outerPathString = innerPath.toString().substring(baseFolderPath.toString().length());
+        if (outerPathString.isEmpty())
+        {
+            outerPathString = "/";
+        }
+        return Path.parse(outerPathString);
     }
 
     @Override
@@ -221,6 +226,10 @@ public class FolderFileSystem extends FileSystemBase
             {
                 result = Result.error(innerFolderPath.getError());
             }
+            else if (innerFolderPath.getValue().equals(baseFolderPath))
+            {
+                result = Result.done(false, new IllegalArgumentException("Cannot delete a root folder (" + rootedFolderPath.resolve().getValue() + ")."));
+            }
             else
             {
                 result = innerFileSystem.deleteFolder(innerFolderPath.getValue());
@@ -296,7 +305,7 @@ public class FolderFileSystem extends FileSystemBase
                 result = innerFileSystem.deleteFile(innerFilePath.getValue());
                 if (result.getError() instanceof FileNotFoundException)
                 {
-                    result = Result.done(result.getValue(), new FileNotFoundException(rootedFilePath));
+                    result = Result.done(result.getValue(), new FileNotFoundException(getOuterPath(innerFilePath.getValue())));
                 }
             }
         }
@@ -320,7 +329,7 @@ public class FolderFileSystem extends FileSystemBase
                 result = innerFileSystem.getFileLastModified(innerFilePath.getValue());
                 if (result.getError() instanceof FileNotFoundException)
                 {
-                    result = Result.done(result.getValue(), new FileNotFoundException(rootedFilePath));
+                    result = Result.done(result.getValue(), new FileNotFoundException(getOuterPath(innerFilePath.getValue())));
                 }
             }
         }
@@ -344,7 +353,7 @@ public class FolderFileSystem extends FileSystemBase
                 result = innerFileSystem.getFileContentByteReadStream(innerFilePath.getValue());
                 if (result.getError() instanceof FileNotFoundException)
                 {
-                    result = Result.done(result.getValue(), new FileNotFoundException(rootedFilePath));
+                    result = Result.done(result.getValue(), new FileNotFoundException(getOuterPath(innerFilePath.getValue())));
                 }
             }
         }

@@ -95,6 +95,7 @@ public class FileSystemTests
 
                 getFilesAndFoldersTest.run(null, null, null, new IllegalArgumentException("rootedFolderPath cannot be null."));
                 getFilesAndFoldersTest.run("", null, null, new IllegalArgumentException("rootedFolderPath cannot be null."));
+                getFilesAndFoldersTest.run("/", null, new String[0], null);
                 getFilesAndFoldersTest.run(
                     "/folderA",
                     (FileSystem fileSystem) ->
@@ -118,6 +119,11 @@ public class FileSystemTests
                     null,
                     null,
                     new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+                getFilesAndFoldersTest.run(
+                    "/a/..",
+                    null,
+                    new String[0],
+                    null);
             });
 
             runner.testGroup("getFilesAndFolders(Path)", () ->
@@ -171,6 +177,11 @@ public class FileSystemTests
                     null,
                     null,
                     new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+                getFilesAndFoldersTest.run(
+                    "/a/..",
+                    null,
+                    new String[0],
+                    null);
             });
 
             runner.testGroup("getFolders(String)", () ->
@@ -186,6 +197,7 @@ public class FileSystemTests
 
                 getFoldersTest.run(null, new IllegalArgumentException("rootedFolderPath cannot be null."));
                 getFoldersTest.run("", new IllegalArgumentException("rootedFolderPath cannot be null."));
+                getFoldersTest.run("/..", new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
             });
 
             runner.testGroup("getFoldersRecursively(String)", () ->
@@ -272,6 +284,16 @@ public class FileSystemTests
                         fileSystem.createFile("/test/folder/A/5.png");
                     },
                     new String[] { "/test/folder/A", "/test/folder/B", "/test/folder/B/C" },
+                    null);
+                getFoldersRecursivelyTest.run(
+                    "/..",
+                    null,
+                    null,
+                    new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+                getFoldersRecursivelyTest.run(
+                    "/a/..",
+                    null,
+                    new String[0],
                     null);
             });
 
@@ -360,6 +382,16 @@ public class FileSystemTests
                     },
                     new String[] { "/test/folder/A", "/test/folder/B", "/test/folder/B/C" },
                     null);
+                getFoldersRecursivelyTest.run(
+                    "/..",
+                    null,
+                    null,
+                    new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+                getFoldersRecursivelyTest.run(
+                    "/a/..",
+                    null,
+                    new String[0],
+                    null);
             });
 
             runner.testGroup("getFiles(String)", () ->
@@ -398,6 +430,16 @@ public class FileSystemTests
 
                 getFilesTest.run(null, null, null, new IllegalArgumentException("rootedFolderPath cannot be null."));
                 getFilesTest.run("", null, null, new IllegalArgumentException("rootedFolderPath cannot be null."));
+                getFilesTest.run(
+                    "/..",
+                    null,
+                    null,
+                    new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+                getFilesTest.run(
+                    "/a/..",
+                    null,
+                    new String[0],
+                    null);
             });
 
             runner.testGroup("getFiles(Path)", () ->
@@ -436,6 +478,16 @@ public class FileSystemTests
 
                 getFilesTest.run(null, null, null, new IllegalArgumentException("rootedFolderPath cannot be null."));
                 getFilesTest.run("", null, null, new IllegalArgumentException("rootedFolderPath cannot be null."));
+                getFilesTest.run(
+                    "/..",
+                    null,
+                    null,
+                    new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+                getFilesTest.run(
+                    "/a/..",
+                    null,
+                    new String[0],
+                    null);
             });
 
             runner.testGroup("getFilesRecursively(String)", () ->
@@ -526,35 +578,47 @@ public class FileSystemTests
                         "/test/folder/B/C/4.xml"
                     },
                     null);
+                getFilesRecursivelyTest.run(
+                    "/..",
+                    null,
+                    null,
+                    new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+                getFilesRecursivelyTest.run(
+                    "/a/..",
+                    null,
+                    new String[0],
+                    null);
             });
 
             runner.testGroup("getFolder(String)", () ->
             {
-                final Action2<String,Boolean> getFolderTest = (String folderPath, Boolean folderExpected) ->
+                final Action3<String,String,Throwable> getFolderTest = (String folderPathString, String expectedFolderPathString, Throwable expectedError) ->
                 {
-                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
+                    runner.test("with " + Strings.escapeAndQuote(folderPathString), (Test test) ->
                     {
                         final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                        final Folder folder = fileSystem.getFolder(folderPath).getValue();
-                        if (folderExpected)
+                        final Result<Folder> folder = fileSystem.getFolder(folderPathString);
+                        if (expectedError == null)
                         {
-                            test.assertNotNull(folder);
-                            test.assertEqual(folderPath, folder.toString());
+                            test.assertSuccess(folder);
+                            test.assertEqual(expectedFolderPathString, folder.getValue().toString());
                         }
                         else
                         {
-                            test.assertNull(folder);
+                            test.assertError(expectedError, folder);
                         }
                     });
                 };
 
-                getFolderTest.run(null, false);
-                getFolderTest.run("", false);
-                getFolderTest.run("a/b/c", false);
-                getFolderTest.run("/", true);
-                getFolderTest.run("\\", true);
-                getFolderTest.run("Z:\\", true);
-                getFolderTest.run("/a/b", true);
+                getFolderTest.run(null, null, new IllegalArgumentException("rootedFolderPath cannot be null."));
+                getFolderTest.run("", null, new IllegalArgumentException("rootedFolderPath cannot be null."));
+                getFolderTest.run("a/b/c", null, new IllegalArgumentException("rootedFolderPath must be rooted."));
+                getFolderTest.run("/", "/", null);
+                getFolderTest.run("\\", "/", null);
+                getFolderTest.run("Z:\\", "Z:/", null);
+                getFolderTest.run("/a/b", "/a/b", null);
+                getFolderTest.run("/..", null, new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+                getFolderTest.run("/a/..", "/", null);
             });
 
             runner.testGroup("folderExists(String)", () ->
@@ -645,6 +709,16 @@ public class FileSystemTests
                     (FileSystem fileSystem) -> fileSystem.createFolder("/folderName"),
                     true,
                     null);
+                folderExistsTest.run(
+                    "/..",
+                    null,
+                    null,
+                    new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+                folderExistsTest.run(
+                    "/a/..",
+                    null,
+                    true,
+                    null);
             });
 
             runner.testGroup("createFolder(String)", () ->
@@ -677,6 +751,18 @@ public class FileSystemTests
                     (FileSystem fileSystem) -> fileSystem.createFolder("/folder"),
                     "/folder",
                     new FolderAlreadyExistsException("/folder"));
+                createFolderTest.run(
+                    "with rooted path that resolves outside of its root",
+                    "/..",
+                    null,
+                    null,
+                    new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+                createFolderTest.run(
+                    "with rooted path that resolves back to the root",
+                    "/a/..",
+                    null,
+                    "/",
+                    new FolderAlreadyExistsException("/"));
             });
 
             runner.testGroup("createFolder(Path)", () ->
@@ -709,6 +795,18 @@ public class FileSystemTests
                     (FileSystem fileSystem) -> fileSystem.createFolder("/folder"),
                     "/folder",
                     new FolderAlreadyExistsException("/folder"));
+                createFolderTest.run(
+                    "with rooted path that resolves outside of its root",
+                    "/..",
+                    null,
+                    null,
+                    new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+                createFolderTest.run(
+                    "with rooted path that resolves back to the root",
+                    "/a/..",
+                    null,
+                    "/",
+                    new FolderAlreadyExistsException("/"));
             });
 
             runner.testGroup("deleteFolder(String)", () ->
@@ -750,6 +848,16 @@ public class FileSystemTests
                     },
                     true,
                     null);
+                deleteFolderTest.run(
+                    "/..",
+                    null,
+                    null,
+                    new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+                deleteFolderTest.run(
+                    "/a/..",
+                    null,
+                    false,
+                    new IllegalArgumentException("Cannot delete a root folder (/)."));
             });
 
             runner.testGroup("deleteFolder(Path)", () ->
@@ -791,6 +899,16 @@ public class FileSystemTests
                     },
                     true,
                     null);
+                deleteFolderTest.run(
+                    "/..",
+                    null,
+                    null,
+                    new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+                deleteFolderTest.run(
+                    "/a/..",
+                    null,
+                    false,
+                    new IllegalArgumentException("Cannot delete a root folder (/)."));
             });
 
             runner.testGroup("getFile(String)", () ->
@@ -814,6 +932,8 @@ public class FileSystemTests
                 getFileTest.run("\\", null, new IllegalArgumentException("rootedFilePath cannot end with '\\'."));
                 getFileTest.run("Z:\\", null, new IllegalArgumentException("rootedFilePath cannot end with '\\'."));
                 getFileTest.run("/a/b", "/a/b", null);
+                getFileTest.run("/../test.txt", null, new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+                getFileTest.run("/a/../test.txt", "/test.txt", null);
             });
 
             runner.testGroup("getFile(Path)", () ->
@@ -837,6 +957,8 @@ public class FileSystemTests
                 getFileTest.run("\\", null, new IllegalArgumentException("rootedFilePath cannot end with '\\'."));
                 getFileTest.run("Z:\\", null, new IllegalArgumentException("rootedFilePath cannot end with '\\'."));
                 getFileTest.run("/a/b", "/a/b", null);
+                getFileTest.run("/../test.txt", null, new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+                getFileTest.run("/a/../test.txt", "/test.txt", null);
             });
 
             runner.testGroup("fileExists(String)", () ->
@@ -874,6 +996,16 @@ public class FileSystemTests
                     "/fileName",
                     (FileSystem fileSystem) -> fileSystem.createFile("/fileName"),
                     true,
+                    null);
+                fileExistsTest.run(
+                    "/../file.txt",
+                    null,
+                    null,
+                    new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+                fileExistsTest.run(
+                    "/a/../file.txt",
+                    null,
+                    false,
                     null);
             });
 
@@ -913,6 +1045,16 @@ public class FileSystemTests
                     (FileSystem fileSystem) -> fileSystem.createFile("/fileName"),
                     true,
                     null);
+                fileExistsTest.run(
+                    "/../file.txt",
+                    null,
+                    null,
+                    new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+                fileExistsTest.run(
+                    "/a/../file.txt",
+                    null,
+                    false,
+                    null);
             });
 
             runner.testGroup("createFile(String)", () ->
@@ -946,6 +1088,16 @@ public class FileSystemTests
                     "/things.txt",
                     new FileAlreadyExistsException("/things.txt"));
                 createFileTest.run("/\u0000?#!.txt", null, null, new IllegalArgumentException("rootedFilePath cannot contain invalid characters [@,#,?]."));
+                createFileTest.run(
+                    "/../file.txt",
+                    null,
+                    null,
+                    new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+                createFileTest.run(
+                    "/a/../file.txt",
+                    null,
+                    "/file.txt",
+                    null);
             });
 
             runner.testGroup("createFile(Path)", () ->
@@ -979,6 +1131,16 @@ public class FileSystemTests
                     "/things.txt",
                     new FileAlreadyExistsException("/things.txt"));
                 createFileTest.run("/\u0000?#!.txt", null, null, new IllegalArgumentException("rootedFilePath cannot contain invalid characters [@,#,?]."));
+                createFileTest.run(
+                    "/../file.txt",
+                    null,
+                    null,
+                    new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+                createFileTest.run(
+                    "/a/../file.txt",
+                    null,
+                    "/file.txt",
+                    null);
             });
 
             runner.testGroup("deleteFile(String)", () ->
@@ -1011,6 +1173,16 @@ public class FileSystemTests
                     (FileSystem fileSystem) -> fileSystem.createFile("/iexist.txt"),
                     true,
                     null);
+                deleteFileTest.run(
+                    "/../file.txt",
+                    null,
+                    null,
+                    new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+                deleteFileTest.run(
+                    "/a/../file.txt",
+                    null,
+                    false,
+                    new FileNotFoundException("/file.txt"));
             });
 
             runner.testGroup("getFileLastModified(String)", () ->
@@ -1038,6 +1210,16 @@ public class FileSystemTests
                 getFileLastModifiedTest.run("", null, null, new IllegalArgumentException("rootedFilePath cannot be null."));
                 getFileLastModifiedTest.run("relativeFile.txt", null, null, new IllegalArgumentException("rootedFilePath must be rooted."));
                 getFileLastModifiedTest.run("/idontexist.txt", null, null, new FileNotFoundException("/idontexist.txt"));
+                getFileLastModifiedTest.run(
+                    "/../file.txt",
+                    null,
+                    null,
+                    new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+                getFileLastModifiedTest.run(
+                    "/a/../file.txt",
+                    null,
+                    null,
+                    new FileNotFoundException("/file.txt"));
 
                 runner.test("with existing rooted path", (Test test) ->
                 {
@@ -1077,6 +1259,16 @@ public class FileSystemTests
                 getFileLastModifiedTest.run("", null, null, new IllegalArgumentException("rootedFilePath cannot be null."));
                 getFileLastModifiedTest.run("relativeFile.txt", null, null, new IllegalArgumentException("rootedFilePath must be rooted."));
                 getFileLastModifiedTest.run("/idontexist.txt", null, null, new FileNotFoundException("/idontexist.txt"));
+                getFileLastModifiedTest.run(
+                    "/../file.txt",
+                    null,
+                    null,
+                    new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+                getFileLastModifiedTest.run(
+                    "/a/../file.txt",
+                    null,
+                    null,
+                    new FileNotFoundException("/file.txt"));
 
                 runner.test("with existing rooted path", (Test test) ->
                 {
@@ -1097,55 +1289,51 @@ public class FileSystemTests
                 {
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
                     final Result<byte[]> result = fileSystem.getFileContent((String)null);
-                    test.assertNotNull(result);
-                    test.assertNull(result.getValue());
-                    test.assertTrue(result.hasError());
-                    test.assertEqual(IllegalArgumentException.class, result.getErrorType());
-                    test.assertEqual("rootedFilePath cannot be null.", result.getErrorMessage());
+                    test.assertError(new IllegalArgumentException("rootedFilePath cannot be null."), result);
                 });
 
                 runner.test("with empty path", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
                     final Result<byte[]> result = fileSystem.getFileContent("");
-                    test.assertNotNull(result);
-                    test.assertNull(result.getValue());
-                    test.assertTrue(result.hasError());
-                    test.assertEqual(IllegalArgumentException.class, result.getErrorType());
-                    test.assertEqual("rootedFilePath cannot be null.", result.getErrorMessage());
+                    test.assertError(new IllegalArgumentException("rootedFilePath cannot be null."), result);
                 });
 
                 runner.test("with relative path", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
                     final Result<byte[]> result = fileSystem.getFileContent("thing.txt");
-                    test.assertNotNull(result);
-                    test.assertNull(result.getValue());
-                    test.assertTrue(result.hasError());
-                    test.assertEqual(IllegalArgumentException.class, result.getErrorType());
-                    test.assertEqual("rootedFilePath must be rooted.", result.getErrorMessage());
+                    test.assertError(new IllegalArgumentException("rootedFilePath must be rooted."), result);
                 });
 
                 runner.test("with non-existing rooted path", (Test test) ->
                 {
                     FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
                     final Result<byte[]> result = fileSystem.getFileContent("/thing.txt");
-                    test.assertNotNull(result);
-                    test.assertNull(result.getValue());
-                    test.assertTrue(result.hasError());
-                    test.assertEqual(FileNotFoundException.class, result.getErrorType());
-                    test.assertEqual("The file at \"/thing.txt\" doesn't exist.", result.getErrorMessage());
+                    test.assertError(new FileNotFoundException("/thing.txt"), result);
                 });
 
                 runner.test("with existing rooted path with no contents", (Test test) ->
                 {
-                    FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
                     fileSystem.createFile("/thing.txt");
 
                     final Result<byte[]> result = fileSystem.getFileContent("/thing.txt");
-                    test.assertNotNull(result);
-                    test.assertEqual(new byte[0], result.getValue());
-                    test.assertFalse(result.hasError());
+                    test.assertSuccess(new byte[0], result);
+                });
+
+                runner.test("with rooted path resolved outside the root", (Test test) ->
+                {
+                    FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final Result<byte[]> result = fileSystem.getFileContent("/../thing.txt");
+                    test.assertError(new IllegalArgumentException("Cannot resolve a rooted path outside of its root."), result);
+                });
+
+                runner.test("with rooted path resolved inside the root", (Test test) ->
+                {
+                    FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final Result<byte[]> result = fileSystem.getFileContent("/a/../thing.txt");
+                    test.assertError(new FileNotFoundException("/thing.txt"), result);
                 });
             });
 
@@ -1198,6 +1386,20 @@ public class FileSystemTests
 
                     final Result<byte[]> result = fileSystem.getFileContent(Path.parse("/thing.txt"));
                     test.assertSuccess(new byte[0], result);
+                });
+
+                runner.test("with rooted path resolved outside the root", (Test test) ->
+                {
+                    FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final Result<byte[]> result = fileSystem.getFileContent("/../thing.txt");
+                    test.assertError(new IllegalArgumentException("Cannot resolve a rooted path outside of its root."), result);
+                });
+
+                runner.test("with rooted path resolved inside the root", (Test test) ->
+                {
+                    FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final Result<byte[]> result = fileSystem.getFileContent("/a/../thing.txt");
+                    test.assertError(new FileNotFoundException("/thing.txt"), result);
                 });
             });
 
@@ -1312,6 +1514,21 @@ public class FileSystemTests
                     test.assertTrue(fileSystem.fileExists("/A.txt").getValue());
                     test.assertEqual(new byte[] { 0, 1, 2 }, fileSystem.getFileContent("/A.txt").getValue());
                 });
+
+                runner.test("with rooted path resolved outside the root", (Test test) ->
+                {
+                    FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final Result<Boolean> result = fileSystem.setFileContent("/../thing.txt", new byte[] { 0, 1, 2 });
+                    test.assertError(new IllegalArgumentException("Cannot resolve a rooted path outside of its root."), result);
+                });
+
+                runner.test("with rooted path resolved inside the root", (Test test) ->
+                {
+                    FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final Result<Boolean> result = fileSystem.setFileContent("/a/../thing.txt", new byte[] { 0, 1, 2 });
+                    test.assertSuccess(true, result);
+                    test.assertSuccess(new byte[] { 0, 1, 2 }, fileSystem.getFileContent("/thing.txt"));
+                });
             });
 
             runner.testGroup("setFileContent(Path,byte[])", () ->
@@ -1407,6 +1624,21 @@ public class FileSystemTests
 
                     test.assertTrue(fileSystem.fileExists("/A.txt").getValue());
                     test.assertEqual(new byte[] { 0, 1, 2 }, fileSystem.getFileContent("/A.txt").getValue());
+                });
+
+                runner.test("with rooted path resolved outside the root", (Test test) ->
+                {
+                    FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final Result<Boolean> result = fileSystem.setFileContent(Path.parse("/../thing.txt"), new byte[] { 0, 1, 2 });
+                    test.assertError(new IllegalArgumentException("Cannot resolve a rooted path outside of its root."), result);
+                });
+
+                runner.test("with rooted path resolved inside the root", (Test test) ->
+                {
+                    FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final Result<Boolean> result = fileSystem.setFileContent(Path.parse("/a/../thing.txt"), new byte[] { 0, 1, 2 });
+                    test.assertSuccess(true, result);
+                    test.assertSuccess(new byte[] { 0, 1, 2 }, fileSystem.getFileContent("/thing.txt"));
                 });
             });
 

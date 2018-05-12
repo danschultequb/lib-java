@@ -474,7 +474,6 @@ public class RootTests
                     final Root root = getRoot(test, "C:/");
                     final Result<Iterable<FileSystemEntry>> result = root.getFilesAndFolders();
                     test.assertError(new FolderNotFoundException("C:"), result);
-
                 });
 
                 runner.test("when root is empty", (Test test) ->
@@ -519,7 +518,7 @@ public class RootTests
                 {
                     final Root root = getRoot(test, "C:/");
                     final Result<Iterable<FileSystemEntry>> result = root.getFilesAndFoldersRecursively();
-                    test.assertError(new FolderNotFoundException("C:"), result);
+                    test.assertError(new FolderNotFoundException("C:/"), result);
                 });
 
                 runner.test("when root is empty", (Test test) ->
@@ -586,7 +585,7 @@ public class RootTests
                 runner.test("when root doesn't exist", (Test test) ->
                 {
                     final Root root = getRoot(test, "C:/");
-                    test.assertError(new FolderNotFoundException("C:"), root.getFilesRecursively());
+                    test.assertError(new FolderNotFoundException("C:/"), root.getFilesRecursively());
                 });
 
                 runner.test("when root is empty", (Test test) ->
@@ -646,7 +645,7 @@ public class RootTests
                 runner.test("when root doesn't exist", (Test test) ->
                 {
                     final Root root = getRoot(test, "C:/");
-                    test.assertError(new FolderNotFoundException("C:"), root.getFoldersRecursively());
+                    test.assertError(new FolderNotFoundException("C:/"), root.getFoldersRecursively());
                 });
 
                 runner.test("when root is empty", (Test test) ->

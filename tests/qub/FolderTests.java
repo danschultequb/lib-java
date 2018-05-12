@@ -135,7 +135,7 @@ public class FolderTests
 
                     final Result<File> result = folder.createFile("subfolder\\file.xml");
                     test.assertSuccess(result);
-                    test.assertEqual("/test/folder/subfolder\\file.xml", result.getValue().toString());
+                    test.assertEqual("/test/folder/subfolder/file.xml", result.getValue().toString());
 
                     test.assertSuccess(true, folder.exists());
                     test.assertSuccess(true, folder.getFolder("subfolder").getValue().exists());
@@ -189,7 +189,7 @@ public class FolderTests
 
                     final Result<File> result = folder.createFile(Path.parse("subfolder\\file.xml"));
                     test.assertSuccess(result);
-                    test.assertEqual("/test/folder/subfolder\\file.xml", result.getValue().toString());
+                    test.assertEqual("/test/folder/subfolder/file.xml", result.getValue().toString());
                     test.assertSuccess(true, folder.exists());
                     test.assertSuccess(true, folder.getFolder("subfolder").getValue().exists());
                     test.assertSuccess(true, result.getValue().exists());

@@ -171,7 +171,7 @@ public class PathTests
                     test.assertEqual(new String[] { "/", "test1" }, Array.toStringArray(pathSegments));
 
                     final Path normalizedPath = path.normalize();
-                    test.assertEqual("/test1/", normalizedPath.toString());
+                    test.assertEqual("/test1", normalizedPath.toString());
                     final Indexable<String> normalizedPathSegments = normalizedPath.getSegments();
                     test.assertNotNull(normalizedPathSegments);
                     test.assertEqual(new String[] { "/", "test1" }, Array.toStringArray(normalizedPathSegments));

@@ -33,7 +33,7 @@ public class InMemoryFileSystemTests
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner());
                     fileSystem.createRoot("C:\\");
                     fileSystem.createFolder("C:\\folder");
-                    test.assertError(new FileNotFoundException("C:\\folder\\file.bmp"), fileSystem.setFileCanDelete("C:\\folder\\file.bmp", true));
+                    test.assertError(new FileNotFoundException("C:/folder/file.bmp"), fileSystem.setFileCanDelete("C:\\folder\\file.bmp", true));
                 });
                 
                 runner.test("when file exists", (Test test) ->

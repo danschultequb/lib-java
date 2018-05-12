@@ -328,7 +328,12 @@ public class Path
                 }
             }
 
-            final String normalizedPathString = normalizedPathStringBuilder.toString();
+            String normalizedPathString = normalizedPathStringBuilder.toString();
+            if (normalizedPathString.endsWith("/") && !normalizedPathString.equals("/") && !normalizedPathString.endsWith(":/"))
+            {
+                normalizedPathString = normalizedPathString.substring(0, normalizedPathString.length() - 1);
+            }
+
             if (normalizedPathString.equals(value))
             {
                 normalizedPath = this;
