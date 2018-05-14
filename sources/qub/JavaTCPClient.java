@@ -1,11 +1,10 @@
 package qub;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 
-class JavaTCPClient extends AsyncDisposableBase implements TCPClient
+class JavaTCPClient extends TCPClientBase
 {
     private final Socket socket;
     private final AsyncRunner asyncRunner;
@@ -25,7 +24,7 @@ class JavaTCPClient extends AsyncDisposableBase implements TCPClient
         Result<TCPClient> result = Result.notNull(socket, "socket");
         if (result == null)
         {
-            result = Result.notNull(asyncRunner, "asyncRunner");
+            result = TCPClientBase.validateAsyncRunner(asyncRunner);
             if (result == null)
             {
                 try
@@ -70,13 +69,13 @@ class JavaTCPClient extends AsyncDisposableBase implements TCPClient
 
     static Result<TCPClient> create(IPv4Address remoteIPAddress, int remotePort, AsyncRunner asyncRunner)
     {
-        Result<TCPClient> result = Result.notNull(remoteIPAddress, "remoteIPAddress");
+        Result<TCPClient> result = TCPClientBase.validateRemoteIPAddress(remoteIPAddress);
         if (result == null)
         {
-            result = Result.between(1, remotePort, 65535, "remotePort");
+            result = TCPClientBase.validateRemotePort(remotePort);
             if (result == null)
             {
-                result = Result.notNull(asyncRunner, "asyncRunner");
+                result = TCPClientBase.validateAsyncRunner(asyncRunner);
                 if (result == null)
                 {
                     try
@@ -126,291 +125,15 @@ class JavaTCPClient extends AsyncDisposableBase implements TCPClient
     }
 
     @Override
-    public Result<Byte> readByte()
+    protected ByteReadStream getReadStream()
     {
-        return socketReadStream.readByte();
+        return socketReadStream;
     }
 
     @Override
-    public AsyncFunction<Result<Byte>> readByteAsync()
+    protected ByteWriteStream getWriteStream()
     {
-        return socketReadStream.readByteAsync();
-    }
-
-    @Override
-    public Result<byte[]> readBytes(int bytesToRead)
-    {
-        return socketReadStream.readBytes(bytesToRead);
-    }
-
-    @Override
-    public AsyncFunction<Result<byte[]>> readBytesAsync(int bytesToRead)
-    {
-        return socketReadStream.readBytesAsync(bytesToRead);
-    }
-
-    @Override
-    public Result<Integer> readBytes(byte[] outputBytes)
-    {
-        return socketReadStream.readBytes(outputBytes);
-    }
-
-    @Override
-    public AsyncFunction<Result<Integer>> readBytesAsync(byte[] outputBytes)
-    {
-        return socketReadStream.readBytesAsync(outputBytes);
-    }
-
-    @Override
-    public Result<Integer> readBytes(byte[] outputBytes, int startIndex, int length)
-    {
-        return socketReadStream.readBytes(outputBytes, startIndex, length);
-    }
-
-    @Override
-    public AsyncFunction<Result<Integer>> readBytesAsync(byte[] outputBytes, int startIndex, int length)
-    {
-        return socketReadStream.readBytesAsync(outputBytes, startIndex, length);
-    }
-
-    @Override
-    public Result<byte[]> readAllBytes()
-    {
-        return socketReadStream.readAllBytes();
-    }
-
-    @Override
-    public AsyncFunction<Result<byte[]>> readAllBytesAsync()
-    {
-        return socketReadStream.readAllBytesAsync();
-    }
-
-    @Override
-    public InputStream asInputStream()
-    {
-        return socketReadStream.asInputStream();
-    }
-
-    @Override
-    public CharacterReadStream asCharacterReadStream()
-    {
-        return socketReadStream.asCharacterReadStream();
-    }
-
-    @Override
-    public CharacterReadStream asCharacterReadStream(CharacterEncoding characterEncoding)
-    {
-        return socketReadStream.asCharacterReadStream(characterEncoding);
-    }
-
-    @Override
-    public LineReadStream asLineReadStream()
-    {
-        return socketReadStream.asLineReadStream();
-    }
-
-    @Override
-    public LineReadStream asLineReadStream(CharacterEncoding characterEncoding)
-    {
-        return socketReadStream.asLineReadStream(characterEncoding);
-    }
-
-    @Override
-    public LineReadStream asLineReadStream(boolean includeNewLines)
-    {
-        return socketReadStream.asLineReadStream(includeNewLines);
-    }
-
-    @Override
-    public LineReadStream asLineReadStream(CharacterEncoding characterEncoding, boolean includeNewLines)
-    {
-        return socketReadStream.asLineReadStream(characterEncoding, includeNewLines);
-    }
-
-    @Override
-    public Result<Boolean> write(byte toWrite)
-    {
-        return socketWriteStream.write(toWrite);
-    }
-
-    @Override
-    public Result<Boolean> write(byte[] toWrite)
-    {
-        return socketWriteStream.write(toWrite);
-    }
-
-    @Override
-    public Result<Boolean> write(byte[] toWrite, int startIndex, int length)
-    {
-        return socketWriteStream.write(toWrite, startIndex, length);
-    }
-
-    @Override
-    public Result<Boolean> writeAll(ByteReadStream byteReadStream)
-    {
-        return socketWriteStream.writeAll(byteReadStream);
-    }
-
-    @Override
-    public CharacterWriteStream asCharacterWriteStream()
-    {
-        return socketWriteStream.asCharacterWriteStream();
-    }
-
-    @Override
-    public CharacterWriteStream asCharacterWriteStream(CharacterEncoding characterEncoding)
-    {
-        return socketWriteStream.asCharacterWriteStream(characterEncoding);
-    }
-
-    @Override
-    public LineWriteStream asLineWriteStream()
-    {
-        return socketWriteStream.asLineWriteStream();
-    }
-
-    @Override
-    public LineWriteStream asLineWriteStream(CharacterEncoding characterEncoding)
-    {
-        return socketWriteStream.asLineWriteStream(characterEncoding);
-    }
-
-    @Override
-    public LineWriteStream asLineWriteStream(String lineSeparator)
-    {
-        return socketWriteStream.asLineWriteStream(lineSeparator);
-    }
-
-    @Override
-    public LineWriteStream asLineWriteStream(CharacterEncoding characterEncoding, String lineSeparator)
-    {
-        return socketWriteStream.asLineWriteStream(characterEncoding, lineSeparator);
-    }
-
-    @Override
-    public void ensureHasStarted()
-    {
-        socketReadStream.ensureHasStarted();
-    }
-
-    @Override
-    public boolean hasStarted()
-    {
-        return socketReadStream.hasStarted();
-    }
-
-    @Override
-    public boolean hasCurrent()
-    {
-        return socketReadStream.hasCurrent();
-    }
-
-    @Override
-    public Byte getCurrent()
-    {
-        return socketReadStream.getCurrent();
-    }
-
-    @Override
-    public boolean next()
-    {
-        return socketReadStream.next();
-    }
-
-    @Override
-    public Byte takeCurrent()
-    {
-        return socketReadStream.takeCurrent();
-    }
-
-    @Override
-    public boolean any()
-    {
-        return socketReadStream.any();
-    }
-
-    @Override
-    public int getCount()
-    {
-        return socketReadStream.getCount();
-    }
-
-    @Override
-    public Byte first()
-    {
-        return socketReadStream.first();
-    }
-
-    @Override
-    public Byte first(Function1<Byte, Boolean> condition)
-    {
-        return socketReadStream.first(condition);
-    }
-
-    @Override
-    public Byte last()
-    {
-        return socketReadStream.last();
-    }
-
-    @Override
-    public Byte last(Function1<Byte, Boolean> condition)
-    {
-        return socketReadStream.last(condition);
-    }
-
-    @Override
-    public boolean contains(Byte value)
-    {
-        return socketReadStream.contains(value);
-    }
-
-    @Override
-    public boolean contains(Function1<Byte, Boolean> condition)
-    {
-        return socketReadStream.contains(condition);
-    }
-
-    @Override
-    public Iterator<Byte> take(int toTake)
-    {
-        return socketReadStream.take(toTake);
-    }
-
-    @Override
-    public Iterator<Byte> skip(int toSkip)
-    {
-        return socketReadStream.skip(toSkip);
-    }
-
-    @Override
-    public Iterator<Byte> skipUntil(Function1<Byte, Boolean> condition)
-    {
-        return socketReadStream.skipUntil(condition);
-    }
-
-    @Override
-    public Iterator<Byte> where(Function1<Byte, Boolean> condition)
-    {
-        return socketReadStream.where(condition);
-    }
-
-    @Override
-    public <U> Iterator<U> map(Function1<Byte, U> conversion)
-    {
-        return socketReadStream.map(conversion);
-    }
-
-    @Override
-    public <U> Iterator<U> instanceOf(Class<U> type)
-    {
-        return socketReadStream.instanceOf(type);
-    }
-
-    @Override
-    public java.util.Iterator<Byte> iterator()
-    {
-        return socketReadStream.iterator();
+        return socketWriteStream;
     }
 
     @Override
