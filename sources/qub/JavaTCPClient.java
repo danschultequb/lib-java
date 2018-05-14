@@ -42,31 +42,6 @@ class JavaTCPClient extends TCPClientBase
         return result;
     }
 
-    static AsyncFunction<Result<TCPClient>> createAsync(final Socket socket, final AsyncRunner asyncRunner)
-    {
-        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-
-        AsyncFunction<Result<TCPClient>> result = currentAsyncRunner.notNull(socket, "socket");
-        if (result == null)
-        {
-            result = currentAsyncRunner.notNull(asyncRunner, "asyncRunner");
-            if (result == null)
-            {
-                asyncRunner.schedule(new Function0<Result<TCPClient>>()
-                    {
-                        @Override
-                        public Result<TCPClient> run()
-                        {
-                            return JavaTCPClient.create(socket, asyncRunner);
-                        }
-                    })
-                    .thenOn(currentAsyncRunner);
-            }
-        }
-
-        return result;
-    }
-
     static Result<TCPClient> create(IPv4Address remoteIPAddress, int remotePort, AsyncRunner asyncRunner)
     {
         Result<TCPClient> result = TCPClientBase.validateRemoteIPAddress(remoteIPAddress);
@@ -92,35 +67,6 @@ class JavaTCPClient extends TCPClientBase
                 }
             }
         }
-        return result;
-    }
-
-    static AsyncFunction<Result<TCPClient>> createAsync(final IPv4Address remoteIPAddress, final int remotePort, final AsyncRunner asyncRunner)
-    {
-        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-
-        AsyncFunction<Result<TCPClient>> result = currentAsyncRunner.notNull(remoteIPAddress, "remoteIPAddress");
-        if (result == null)
-        {
-            result = currentAsyncRunner.between(1, remotePort, 65535, "remotePort");
-            if (result == null)
-            {
-                result = currentAsyncRunner.notNull(asyncRunner, "asyncRunner");
-                if (result == null)
-                {
-                    result = asyncRunner.schedule(new Function0<Result<TCPClient>>()
-                        {
-                            @Override
-                            public Result<TCPClient> run()
-                            {
-                                return JavaTCPClient.create(remoteIPAddress, remotePort, asyncRunner);
-                            }
-                        })
-                        .thenOn(currentAsyncRunner);
-                }
-            }
-        }
-
         return result;
     }
 

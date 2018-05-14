@@ -16,9 +16,16 @@ class JavaNetwork implements Network
     }
 
     @Override
-    public AsyncFunction<Result<TCPClient>> createTCPClientAsync(IPv4Address remoteIPAddress, int remotePort)
+    public AsyncFunction<Result<TCPClient>> createTCPClientAsync(final IPv4Address remoteIPAddress, final int remotePort)
     {
-        return JavaTCPClient.createAsync(remoteIPAddress, remotePort, getAsyncRunner());
+        return async(getAsyncRunner(), new Function0<Result<TCPClient>>()
+        {
+            @Override
+            public Result<TCPClient> run()
+            {
+                return createTCPClient(remoteIPAddress, remotePort);
+            }
+        });
     }
 
     @Override
@@ -28,9 +35,16 @@ class JavaNetwork implements Network
     }
 
     @Override
-    public AsyncFunction<Result<TCPServer>> createTCPServerAsync(int localPort)
+    public AsyncFunction<Result<TCPServer>> createTCPServerAsync(final int localPort)
     {
-        return JavaTCPServer.createAsync(localPort, getAsyncRunner());
+        return async(getAsyncRunner(), new Function0<Result<TCPServer>>()
+        {
+            @Override
+            public Result<TCPServer> run()
+            {
+                return createTCPServer(localPort);
+            }
+        });
     }
 
     @Override
@@ -40,14 +54,38 @@ class JavaNetwork implements Network
     }
 
     @Override
-    public AsyncFunction<Result<TCPServer>> createTCPServerAsync(IPv4Address localIPAddress, int localPort)
+    public AsyncFunction<Result<TCPServer>> createTCPServerAsync(final IPv4Address localIPAddress, final int localPort)
     {
-        return JavaTCPServer.createAsync(localIPAddress, localPort, getAsyncRunner());
+        return async(getAsyncRunner(), new Function0<Result<TCPServer>>()
+        {
+            @Override
+            public Result<TCPServer> run()
+            {
+                return createTCPServer(localIPAddress, localPort);
+            }
+        });
     }
 
     @Override
     public AsyncRunner getAsyncRunner()
     {
         return asyncRunner;
+    }
+
+    private static <T> AsyncFunction<Result<T>> async(AsyncRunner asyncRunner, Function0<Result<T>> function)
+    {
+        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+
+        AsyncFunction<Result<T>> result = currentAsyncRunner.notNull(asyncRunner, "asyncRunner");
+        if (result == null)
+        {
+            result = currentAsyncRunner.equal(false, asyncRunner.isDisposed(), "asyncRunner.isDisposed()");
+            if (result == null)
+            {
+                result = asyncRunner.schedule(function).thenOn(currentAsyncRunner);
+            }
+        }
+
+        return result;
     }
 }

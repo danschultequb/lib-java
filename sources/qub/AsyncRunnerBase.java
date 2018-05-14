@@ -73,6 +73,13 @@ public abstract class AsyncRunnerBase extends DisposableBase implements AsyncRun
     }
 
     @Override
+    public <T,U> AsyncFunction<Result<U>> equal(T expectedValue, T actualValue, String parameterName)
+    {
+        final Result<U> innerResult = Result.equal(expectedValue, actualValue, parameterName);
+        return innerResult == null ? null : done(innerResult);
+    }
+
+    @Override
     public <T> AsyncFunction<Result<T>> between(int lowerBound, int value, int upperBound, String parameterName)
     {
         final Result<T> innerResult = Result.between(lowerBound, value, upperBound, parameterName);

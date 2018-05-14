@@ -109,6 +109,19 @@ public interface AsyncRunner extends Disposable
      */
     <T> AsyncFunction<Result<T>> notNull(Object value, String parameterName);
 
+
+    /**
+     * Create an AsyncFunction that returns an error Result if the provided values are not equal.
+     * @param expectedValue The expected value.
+     * @param value The actual value.
+     * @param parameterName The name of the parameter that contains the provided value.
+     * @param <T> The type of the values being compared.
+     * @param <U> The type that is contained within the returned Result.
+     * @return An AsyncFunction if the provided values are not equal, or null if the provided values
+     * are equal.
+     */
+    <T,U> AsyncFunction<Result<U>> equal(T expectedValue, T value, String parameterName);
+
     /**
      * Create an AsyncFunction that returns an error Result if the provided value is not between the
      * provided lowerBound and upperBound (inclusive).
