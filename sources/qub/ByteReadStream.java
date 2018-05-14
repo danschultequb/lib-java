@@ -25,7 +25,8 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
      * bytesToRead are available, then fewer than bytesToRead bytes will be returned. If no bytes
      * are available, then this function will block until bytes become available.
      * @param bytesToRead The maximum number of bytes to read from this stream.
-     * @return The bytes that were read, or an error if bytes could not be read.
+     * @return The bytes that were read, null if the end of the stream has been reached, or an error
+     * if bytes could not be read.
      */
     Result<byte[]> readBytes(int bytesToRead);
 
@@ -34,7 +35,8 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
      * bytesToRead are available, then fewer than bytesToRead bytes will be returned. If no bytes
      * are available, then this function will not resolve until bytes become available.
      * @param bytesToRead The maximum number of bytes to read from this stream.
-     * @return The bytes that were read, or an error if bytes could not be read.
+     * @return The bytes that were read, null if the end of the stream has been reached, or an error
+     * if bytes could not be read.
      */
     AsyncFunction<Result<byte[]>> readBytesAsync(int bytesToRead);
 
@@ -42,7 +44,8 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
      * Read available bytes into the provided byte[] and return the number of bytes that were read.
      * If no bytes are available, then this function will not return until bytes become available.
      * @param outputBytes The byte array to read bytes into.
-     * @return The number of bytes that were read, or an error if bytes could not be read.
+     * @return The number of bytes that were read, null if the end of the stream has been reached,
+     * or an error if bytes could not be read.
      */
     Result<Integer> readBytes(byte[] outputBytes);
 
@@ -50,7 +53,8 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
      * Read available bytes into the provided byte[] and return the number of bytes that were read.
      * If no bytes are available, then this function will not resolve until bytes become available.
      * @param outputBytes The byte array to read bytes into.
-     * @return The number of bytes that were read, or an error if bytes could not be read.
+     * @return The number of bytes that were read, null if the end of the stream has been reached,
+     * or an error if bytes could not be read.
      */
     AsyncFunction<Result<Integer>> readBytesAsync(byte[] outputBytes);
 
@@ -61,7 +65,8 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
      * @param outputBytes The byte[] to read bytes into.
      * @param startIndex The start index in in outputBytes to start writing bytes to.
      * @param length The maximum number of bytes to read.
-     * @return The number of bytes that were read.
+     * @return The number of bytes that were read, null if the end of the stream has been reached,
+     * or an error if bytes could not be read.
      */
     Result<Integer> readBytes(byte[] outputBytes, int startIndex, int length);
 
@@ -72,7 +77,8 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
      * @param outputBytes The byte[] to read bytes into.
      * @param startIndex The start index in in outputBytes to start writing bytes to.
      * @param length The maximum number of bytes to read.
-     * @return The number of bytes that were read.
+     * @return The number of bytes that were read, null if the end of the stream has been reached,
+     * or an error if bytes could not be read.
      */
     AsyncFunction<Result<Integer>> readBytesAsync(byte[] outputBytes, int startIndex, int length);
 
@@ -80,7 +86,8 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
      * Read all of the bytes in this stream. The termination of the stream is marked when getByte()
      * returns a null Byte. This function will not return until all of the bytes in the stream have
      * been read.
-     * @return All of the bytes in this stream.
+     * @return All of the bytes in this stream, null if the end of the stream has been reached, or
+     * an error if bytes could not be read.
      */
     Result<byte[]> readAllBytes();
 
@@ -88,7 +95,8 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
      * Read all of the bytes in this stream. The termination of the stream is marked when getByte()
      * returns a null Byte. This function will not resolve until all of the bytes in the stream have
      * been read.
-     * @return All of the bytes in this stream.
+     * @return All of the bytes in this stream, null if the end of the stream has been reached, or
+     * an error if bytes could not be read.
      */
     AsyncFunction<Result<byte[]>> readAllBytesAsync();
 

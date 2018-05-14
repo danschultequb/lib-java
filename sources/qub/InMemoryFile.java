@@ -44,7 +44,7 @@ public class InMemoryFile
      */
     public ByteReadStream getContentByteReadStream()
     {
-        return new InMemoryByteReadStream(contents);
+        return new InMemoryByteReadStream(contents).endOfStream();
     }
 
     public ByteWriteStream getContentByteWriteStream()

@@ -302,7 +302,7 @@ public abstract class ByteReadStreamBase extends IteratorBase<Byte> implements B
             final byte[] buffer = new byte[1024];
             Result<Integer> readBytesResult = byteReadStream.readBytes(buffer);
 
-            while (!readBytesResult.hasError() && readBytesResult.getValue() != null)
+            while (!readBytesResult.hasError() && readBytesResult.getValue() != null && readBytesResult.getValue() != -1)
             {
                 final int bytesRead = readBytesResult.getValue();
                 readByteArrays.add(Array.clone(buffer, 0, bytesRead));

@@ -526,10 +526,28 @@ public class Test
             nextMessageIndex = 1;
         }
 
-        messageLines[nextMessageIndex] = "Expected: " + expected;
+        final String expectedString = toString(expected);
+        final String actualString = toString(actual);
+        messageLines[nextMessageIndex] = "Expected: " + addType(expected, actual, expectedString, actualString);
         ++nextMessageIndex;
-        messageLines[nextMessageIndex] = "Actual:   " + actual;
+        messageLines[nextMessageIndex] = "Actual:   " + addType(actual, expected, actualString, expectedString);
 
         return messageLines;
+    }
+
+    private static String toString(Object value)
+    {
+        String valueString = value == null ? "null" : Strings.escape(value.toString());
+        if (value instanceof String)
+        {
+            valueString = Strings.quote(valueString);
+        }
+        return valueString;
+    }
+
+    private static String addType(Object value, Object otherValue, String valueString, String otherValueString)
+    {
+        return valueString + (value == null || !valueString.equals(otherValueString) ? "" : " (" + value.getClass().getName() + ")");
+
     }
 }

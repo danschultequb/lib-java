@@ -25,12 +25,12 @@ public class ByteReadStreamToInputStreamTests
 
             runner.test("read()", (Test test) ->
             {
-                final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream();
+                final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream(new byte[] { 10, 11, 12 });
                 final ByteReadStreamToInputStream inputStream = new ByteReadStreamToInputStream(byteReadStream);
                 try
                 {
                     final int byteRead = inputStream.read();
-                    test.assertEqual(-1, byteRead);
+                    test.assertEqual(10, byteRead);
                 }
                 catch (IOException e)
                 {
@@ -40,14 +40,18 @@ public class ByteReadStreamToInputStreamTests
 
             runner.test("read(byte[])", (Test test) ->
             {
-                final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream();
+                final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream(new byte[] { 100 });
                 final ByteReadStreamToInputStream inputStream = new ByteReadStreamToInputStream(byteReadStream);
                 final byte[] bytes = new byte[100];
                 try
                 {
                     final int bytesRead = inputStream.read(bytes);
-                    test.assertEqual(-1, bytesRead);
-                    test.assertEqual(new byte[100], bytes);
+                    test.assertEqual(1, bytesRead);
+                    test.assertEqual((byte)100, bytes[0]);
+                    for (int i = 1; i < bytes.length; ++i)
+                    {
+                        test.assertEqual((byte)0, bytes[i]);
+                    }
                 }
                 catch (IOException e)
                 {

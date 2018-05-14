@@ -34,14 +34,14 @@ public class InMemoryByteReadStreamTests
             {
                 runner.test("with no bytes to read", (Test test) ->
                 {
-                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream();
+                    final InMemoryByteReadStream byteReadStream = create(test);
 
                     test.assertSuccess(null, byteReadStream.readByte());
                 });
 
                 runner.test("with one byte to read", (Test test) ->
                 {
-                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream(new byte[] { 10 });
+                    final InMemoryByteReadStream byteReadStream = create(new byte[] { 10 }, test);
 
                     test.assertSuccess((byte)10, byteReadStream.readByte());
                     test.assertSuccess(null, byteReadStream.readByte());
@@ -49,7 +49,7 @@ public class InMemoryByteReadStreamTests
 
                 runner.test("with two bytes to read", (Test test) ->
                 {
-                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream(new byte[] { 10, 20 });
+                    final InMemoryByteReadStream byteReadStream = create(new byte[] { 10, 20 }, test);
 
                     test.assertSuccess((byte)10, byteReadStream.readByte());
                     test.assertSuccess((byte)20, byteReadStream.readByte());
@@ -58,7 +58,7 @@ public class InMemoryByteReadStreamTests
 
                 runner.test("with disposed ByteReadStream", (Test test) ->
                 {
-                    final InMemoryByteReadStream readStream = new InMemoryByteReadStream();
+                    final InMemoryByteReadStream readStream = create(test);
                     readStream.dispose();
 
                     test.assertError(new IllegalArgumentException("byteReadStream.isDisposed() (true) must be false."), readStream.readByte());
@@ -69,21 +69,21 @@ public class InMemoryByteReadStreamTests
             {
                 runner.test("with no AsyncRunner assigned", (Test test) ->
                 {
-                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream();
+                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream((AsyncRunner)null);
 
                     test.assertError(new IllegalArgumentException("Cannot invoke ByteReadStream asynchronous functions when the ByteReadStream has not been assigned an AsyncRunner."), byteReadStream.readByteAsync().awaitReturn());
                 });
 
                 runner.test("with no bytes to read", (Test test) ->
                 {
-                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream(test.getMainAsyncRunner());
+                    final InMemoryByteReadStream byteReadStream = create(test);
 
                     test.assertSuccess(null, byteReadStream.readByteAsync().awaitReturn());
                 });
 
                 runner.test("with one byte to read", (Test test) ->
                 {
-                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream(new byte[] { 10 }, test.getMainAsyncRunner());
+                    final InMemoryByteReadStream byteReadStream = create(new byte[] { 10 }, test);
 
                     test.assertSuccess((byte)10, byteReadStream.readByteAsync().awaitReturn());
                     test.assertSuccess(null, byteReadStream.readByteAsync().awaitReturn());
@@ -91,7 +91,7 @@ public class InMemoryByteReadStreamTests
 
                 runner.test("with two bytes to read", (Test test) ->
                 {
-                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream(new byte[] { 10, 20 }, test.getMainAsyncRunner());
+                    final InMemoryByteReadStream byteReadStream = create(new byte[] { 10, 20 }, test);
 
                     test.assertSuccess((byte)10, byteReadStream.readByteAsync().awaitReturn());
                     test.assertSuccess((byte)20, byteReadStream.readByteAsync().awaitReturn());
@@ -100,7 +100,7 @@ public class InMemoryByteReadStreamTests
 
                 runner.test("with disposed ByteReadStream", (Test test) ->
                 {
-                    final InMemoryByteReadStream readStream = new InMemoryByteReadStream(test.getMainAsyncRunner());
+                    final InMemoryByteReadStream readStream = create(test);
                     readStream.dispose();
 
                     test.assertError(new IllegalArgumentException("byteReadStream.isDisposed() (true) must be false."), readStream.readByteAsync().awaitReturn());
@@ -109,14 +109,14 @@ public class InMemoryByteReadStreamTests
             
             runner.test("readBytes(int)", (Test test) ->
             {
-                InMemoryByteReadStream readStream = new InMemoryByteReadStream();
+                InMemoryByteReadStream readStream = create(test);
 
                 test.assertError(new IllegalArgumentException("bytesToRead (-5) must be greater than 0."), readStream.readBytes(-5));
                 test.assertError(new IllegalArgumentException("bytesToRead (0) must be greater than 0."), readStream.readBytes(0));
                 test.assertSuccess(null, readStream.readBytes(1));
                 test.assertSuccess(null, readStream.readBytes(5));
 
-                readStream = new InMemoryByteReadStream(new byte[] { 0, 1, 2, 3 });
+                readStream = create(new byte[] { 0, 1, 2, 3 }, test);
 
                 test.assertError(new IllegalArgumentException("bytesToRead (-5) must be greater than 0."), readStream.readBytes(-5));
                 test.assertError(new IllegalArgumentException("bytesToRead (0) must be greater than 0."), readStream.readBytes(0));
@@ -140,14 +140,14 @@ public class InMemoryByteReadStreamTests
 
             runner.test("readBytesAsync(int)", (Test test) ->
             {
-                InMemoryByteReadStream readStream = new InMemoryByteReadStream(test.getMainAsyncRunner());
+                InMemoryByteReadStream readStream = create(test);
 
                 test.assertError(new IllegalArgumentException("bytesToRead (-5) must be greater than 0."), readStream.readBytesAsync(-5).awaitReturn());
                 test.assertError(new IllegalArgumentException("bytesToRead (0) must be greater than 0."), readStream.readBytesAsync(0).awaitReturn());
                 test.assertSuccess(null, readStream.readBytesAsync(1).awaitReturn());
                 test.assertSuccess(null, readStream.readBytesAsync(5).awaitReturn());
 
-                readStream = new InMemoryByteReadStream(new byte[] { 0, 1, 2, 3 }, test.getMainAsyncRunner());
+                readStream = create(new byte[] { 0, 1, 2, 3 }, test);
 
                 test.assertError(new IllegalArgumentException("bytesToRead (-5) must be greater than 0."), readStream.readBytesAsync(-5).awaitReturn());
                 test.assertError(new IllegalArgumentException("bytesToRead (0) must be greater than 0."), readStream.readBytesAsync(0).awaitReturn());
@@ -173,7 +173,7 @@ public class InMemoryByteReadStreamTests
             {
                 runner.test("with disposed ByteReadStream", (Test test) ->
                 {
-                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream();
+                    final InMemoryByteReadStream byteReadStream = create(test);
                     byteReadStream.dispose();
 
                     final byte[] outputBytes = new byte[10];
@@ -183,21 +183,21 @@ public class InMemoryByteReadStreamTests
 
                 runner.test("with null outputBytes", (Test test) ->
                 {
-                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream();
+                    final InMemoryByteReadStream byteReadStream = create(test);
                     final byte[] outputBytes = null;
                     test.assertError(new IllegalArgumentException("outputBytes cannot be null."), byteReadStream.readBytes(outputBytes));
                 });
 
                 runner.test("with empty outputBytes", (Test test) ->
                 {
-                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream();
+                    final InMemoryByteReadStream byteReadStream = create(test);
                     final byte[] outputBytes = new byte[0];
                     test.assertError(new IllegalArgumentException("outputBytes.length (0) must be greater than 0."), byteReadStream.readBytes(outputBytes));
                 });
 
                 runner.test("with no bytes to read", (Test test) ->
                 {
-                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream();
+                    final InMemoryByteReadStream byteReadStream = create(test);
                     final byte[] outputBytes = new byte[10];
                     test.assertSuccess(null, byteReadStream.readBytes(outputBytes));
                     test.assertEqual(new byte[10], outputBytes);
@@ -205,7 +205,7 @@ public class InMemoryByteReadStreamTests
 
                 runner.test("with fewer bytes to read than outputBytes", (Test test) ->
                 {
-                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream(new byte[] { 1, 2, 3, 4 });
+                    final InMemoryByteReadStream byteReadStream = create(new byte[] { 1, 2, 3, 4 }, test);
                     final byte[] outputBytes = new byte[10];
                     test.assertSuccess(4, byteReadStream.readBytes(outputBytes));
                     test.assertEqual(new byte[] { 1, 2, 3, 4, 0, 0, 0, 0, 0, 0 }, outputBytes);
@@ -214,7 +214,7 @@ public class InMemoryByteReadStreamTests
 
                 runner.test("with equal number of bytes to read to outputBytes", (Test test) ->
                 {
-                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
+                    final InMemoryByteReadStream byteReadStream = create(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, test);
                     final byte[] outputBytes = new byte[10];
                     test.assertSuccess(10, byteReadStream.readBytes(outputBytes));
                     test.assertEqual(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, outputBytes);
@@ -223,7 +223,7 @@ public class InMemoryByteReadStreamTests
 
                 runner.test("with more bytes to read than outputBytes", (Test test) ->
                 {
-                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 });
+                    final InMemoryByteReadStream byteReadStream = create(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 }, test);
                     final byte[] outputBytes = new byte[10];
                     test.assertSuccess(10, byteReadStream.readBytes(outputBytes));
                     test.assertEqual(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, outputBytes);
@@ -235,7 +235,7 @@ public class InMemoryByteReadStreamTests
             {
                 runner.test("with disposed ByteReadStream", (Test test) ->
                 {
-                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream(test.getMainAsyncRunner());
+                    final InMemoryByteReadStream byteReadStream = create(test);
                     byteReadStream.dispose();
 
                     final byte[] outputBytes = new byte[10];
@@ -245,21 +245,21 @@ public class InMemoryByteReadStreamTests
 
                 runner.test("with null outputBytes", (Test test) ->
                 {
-                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream(test.getMainAsyncRunner());
+                    final InMemoryByteReadStream byteReadStream = create(test);
                     final byte[] outputBytes = null;
                     test.assertError(new IllegalArgumentException("outputBytes cannot be null."), byteReadStream.readBytesAsync(outputBytes).awaitReturn());
                 });
 
                 runner.test("with empty outputBytes", (Test test) ->
                 {
-                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream(test.getMainAsyncRunner());
+                    final InMemoryByteReadStream byteReadStream = create(test);
                     final byte[] outputBytes = new byte[0];
                     test.assertError(new IllegalArgumentException("outputBytes.length (0) must be greater than 0."), byteReadStream.readBytesAsync(outputBytes).awaitReturn());
                 });
 
                 runner.test("with no bytes to read", (Test test) ->
                 {
-                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream(test.getMainAsyncRunner());
+                    final InMemoryByteReadStream byteReadStream = create(test);
                     final byte[] outputBytes = new byte[10];
                     test.assertSuccess(null, byteReadStream.readBytesAsync(outputBytes).awaitReturn());
                     test.assertEqual(new byte[10], outputBytes);
@@ -267,7 +267,7 @@ public class InMemoryByteReadStreamTests
 
                 runner.test("with fewer bytes to read than outputBytes", (Test test) ->
                 {
-                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream(new byte[] { 1, 2, 3, 4 }, test.getMainAsyncRunner());
+                    final InMemoryByteReadStream byteReadStream = create(new byte[] { 1, 2, 3, 4 }, test);
                     final byte[] outputBytes = new byte[10];
                     test.assertSuccess(4, byteReadStream.readBytesAsync(outputBytes).awaitReturn());
                     test.assertEqual(new byte[] { 1, 2, 3, 4, 0, 0, 0, 0, 0, 0 }, outputBytes);
@@ -276,7 +276,7 @@ public class InMemoryByteReadStreamTests
 
                 runner.test("with equal number of bytes to read to outputBytes", (Test test) ->
                 {
-                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, test.getMainAsyncRunner());
+                    final InMemoryByteReadStream byteReadStream = create(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, test);
                     final byte[] outputBytes = new byte[10];
                     test.assertSuccess(10, byteReadStream.readBytesAsync(outputBytes).awaitReturn());
                     test.assertEqual(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, outputBytes);
@@ -285,7 +285,7 @@ public class InMemoryByteReadStreamTests
 
                 runner.test("with more bytes to read than outputBytes", (Test test) ->
                 {
-                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 }, test.getMainAsyncRunner());
+                    final InMemoryByteReadStream byteReadStream = create(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 }, test);
                     final byte[] outputBytes = new byte[10];
                     test.assertSuccess(10, byteReadStream.readBytesAsync(outputBytes).awaitReturn());
                     test.assertEqual(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, outputBytes);
@@ -297,7 +297,7 @@ public class InMemoryByteReadStreamTests
             {
                 runner.test("with disposed ByteReadStream", (Test test) ->
                 {
-                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream();
+                    final InMemoryByteReadStream byteReadStream = create(test);
                     byteReadStream.dispose();
 
                     final byte[] outputBytes = new byte[10];
@@ -307,56 +307,56 @@ public class InMemoryByteReadStreamTests
 
                 runner.test("with null outputBytes", (Test test) ->
                 {
-                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream();
+                    final InMemoryByteReadStream byteReadStream = create(test);
                     final byte[] outputBytes = null;
                     test.assertError(new IllegalArgumentException("outputBytes cannot be null."), byteReadStream.readBytes(outputBytes, 1, 3));
                 });
 
                 runner.test("with empty outputBytes", (Test test) ->
                 {
-                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream();
+                    final InMemoryByteReadStream byteReadStream = create(test);
                     final byte[] outputBytes = new byte[0];
                     test.assertError(new IllegalArgumentException("outputBytes.length (0) must be greater than 0."), byteReadStream.readBytes(outputBytes, 1, 3));
                 });
 
                 runner.test("with negative startIndex", (Test test) ->
                 {
-                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream();
+                    final InMemoryByteReadStream byteReadStream = create(test);
                     final byte[] outputBytes = new byte[10];
                     test.assertError(new IllegalArgumentException("startIndex (-2) must be between 0 and 9."), byteReadStream.readBytes(outputBytes, -2, 3));
                 });
 
                 runner.test("with startIndex equal to outputBytes.length", (Test test) ->
                 {
-                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream();
+                    final InMemoryByteReadStream byteReadStream = create(test);
                     final byte[] outputBytes = new byte[10];
                     test.assertError(new IllegalArgumentException("startIndex (10) must be between 0 and 9."), byteReadStream.readBytes(outputBytes, outputBytes.length, 3));
                 });
 
                 runner.test("with negative length", (Test test) ->
                 {
-                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream();
+                    final InMemoryByteReadStream byteReadStream = create(test);
                     final byte[] outputBytes = new byte[10];
                     test.assertError(new IllegalArgumentException("length (-1) must be between 1 and 9."), byteReadStream.readBytes(outputBytes, 1, -1));
                 });
 
                 runner.test("with zero length", (Test test) ->
                 {
-                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream();
+                    final InMemoryByteReadStream byteReadStream = create(test);
                     final byte[] outputBytes = new byte[10];
                     test.assertError(new IllegalArgumentException("length (0) must be between 1 and 9."), byteReadStream.readBytes(outputBytes, 1, 0));
                 });
 
                 runner.test("with length greater than outputBytes.length - startIndex", (Test test) ->
                 {
-                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream();
+                    final InMemoryByteReadStream byteReadStream = create(test);
                     final byte[] outputBytes = new byte[10];
                     test.assertError(new IllegalArgumentException("length (10) must be between 1 and 9."), byteReadStream.readBytes(outputBytes, 1, 10));
                 });
 
                 runner.test("with no bytes to read", (Test test) ->
                 {
-                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream();
+                    final InMemoryByteReadStream byteReadStream = create(test);
                     final byte[] outputBytes = new byte[10];
                     test.assertSuccess(null, byteReadStream.readBytes(outputBytes, 1, 3));
                     test.assertEqual(new byte[10], outputBytes);
@@ -364,7 +364,7 @@ public class InMemoryByteReadStreamTests
 
                 runner.test("with fewer bytes to read than length", (Test test) ->
                 {
-                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream(new byte[] { 1, 2, 3, 4 });
+                    final InMemoryByteReadStream byteReadStream = create(new byte[] { 1, 2, 3, 4 }, test);
                     final byte[] outputBytes = new byte[10];
                     test.assertSuccess(4, byteReadStream.readBytes(outputBytes, 0, 10));
                     test.assertEqual(new byte[] { 1, 2, 3, 4, 0, 0, 0, 0, 0, 0 }, outputBytes);
@@ -373,7 +373,7 @@ public class InMemoryByteReadStreamTests
 
                 runner.test("with equal number of bytes to read to length", (Test test) ->
                 {
-                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
+                    final InMemoryByteReadStream byteReadStream = create(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, test);
                     final byte[] outputBytes = new byte[10];
                     test.assertSuccess(10, byteReadStream.readBytes(outputBytes, 0, 10));
                     test.assertEqual(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, outputBytes);
@@ -382,7 +382,7 @@ public class InMemoryByteReadStreamTests
 
                 runner.test("with more bytes to read than length", (Test test) ->
                 {
-                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 });
+                    final InMemoryByteReadStream byteReadStream = create(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 }, test);
                     final byte[] outputBytes = new byte[10];
                     test.assertSuccess(10, byteReadStream.readBytes(outputBytes, 0, 10));
                     test.assertEqual(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, outputBytes);
@@ -394,7 +394,7 @@ public class InMemoryByteReadStreamTests
             {
                 runner.test("with disposed ByteReadStream", (Test test) ->
                 {
-                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream(test.getMainAsyncRunner());
+                    final InMemoryByteReadStream byteReadStream = create(test);
                     byteReadStream.dispose();
 
                     final byte[] outputBytes = new byte[10];
@@ -404,56 +404,56 @@ public class InMemoryByteReadStreamTests
 
                 runner.test("with null outputBytes", (Test test) ->
                 {
-                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream(test.getMainAsyncRunner());
+                    final InMemoryByteReadStream byteReadStream = create(test);
                     final byte[] outputBytes = null;
                     test.assertError(new IllegalArgumentException("outputBytes cannot be null."), byteReadStream.readBytesAsync(outputBytes, 1, 3).awaitReturn());
                 });
 
                 runner.test("with empty outputBytes", (Test test) ->
                 {
-                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream(test.getMainAsyncRunner());
+                    final InMemoryByteReadStream byteReadStream = create(test);
                     final byte[] outputBytes = new byte[0];
                     test.assertError(new IllegalArgumentException("outputBytes.length (0) must be greater than 0."), byteReadStream.readBytesAsync(outputBytes, 1, 3).awaitReturn());
                 });
 
                 runner.test("with negative startIndex", (Test test) ->
                 {
-                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream(test.getMainAsyncRunner());
+                    final InMemoryByteReadStream byteReadStream = create(test);
                     final byte[] outputBytes = new byte[10];
                     test.assertError(new IllegalArgumentException("startIndex (-2) must be between 0 and 9."), byteReadStream.readBytesAsync(outputBytes, -2, 3).awaitReturn());
                 });
 
                 runner.test("with startIndex equal to outputBytes.length", (Test test) ->
                 {
-                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream(test.getMainAsyncRunner());
+                    final InMemoryByteReadStream byteReadStream = create(test);
                     final byte[] outputBytes = new byte[10];
                     test.assertError(new IllegalArgumentException("startIndex (10) must be between 0 and 9."), byteReadStream.readBytesAsync(outputBytes, outputBytes.length, 3).awaitReturn());
                 });
 
                 runner.test("with negative length", (Test test) ->
                 {
-                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream(test.getMainAsyncRunner());
+                    final InMemoryByteReadStream byteReadStream = create(test);
                     final byte[] outputBytes = new byte[10];
                     test.assertError(new IllegalArgumentException("length (-1) must be between 1 and 9."), byteReadStream.readBytesAsync(outputBytes, 1, -1).awaitReturn());
                 });
 
                 runner.test("with zero length", (Test test) ->
                 {
-                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream(test.getMainAsyncRunner());
+                    final InMemoryByteReadStream byteReadStream = create(test);
                     final byte[] outputBytes = new byte[10];
                     test.assertError(new IllegalArgumentException("length (0) must be between 1 and 9."), byteReadStream.readBytesAsync(outputBytes, 1, 0).awaitReturn());
                 });
 
                 runner.test("with length greater than outputBytes.length - startIndex", (Test test) ->
                 {
-                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream(test.getMainAsyncRunner());
+                    final InMemoryByteReadStream byteReadStream = create(test);
                     final byte[] outputBytes = new byte[10];
                     test.assertError(new IllegalArgumentException("length (10) must be between 1 and 9."), byteReadStream.readBytesAsync(outputBytes, 1, 10).awaitReturn());
                 });
 
                 runner.test("with no bytes to read", (Test test) ->
                 {
-                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream(test.getMainAsyncRunner());
+                    final InMemoryByteReadStream byteReadStream = create(test);
                     final byte[] outputBytes = new byte[10];
                     test.assertSuccess(null, byteReadStream.readBytesAsync(outputBytes, 1, 3).awaitReturn());
                     test.assertEqual(new byte[10], outputBytes);
@@ -461,7 +461,7 @@ public class InMemoryByteReadStreamTests
 
                 runner.test("with fewer bytes to read than length", (Test test) ->
                 {
-                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream(new byte[] { 1, 2, 3, 4 }, test.getMainAsyncRunner());
+                    final InMemoryByteReadStream byteReadStream = create(new byte[] { 1, 2, 3, 4 }, test);
                     final byte[] outputBytes = new byte[10];
                     test.assertSuccess(4, byteReadStream.readBytesAsync(outputBytes, 0, 10).awaitReturn());
                     test.assertEqual(new byte[] { 1, 2, 3, 4, 0, 0, 0, 0, 0, 0 }, outputBytes);
@@ -470,7 +470,7 @@ public class InMemoryByteReadStreamTests
 
                 runner.test("with equal number of bytes to read to length", (Test test) ->
                 {
-                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, test.getMainAsyncRunner());
+                    final InMemoryByteReadStream byteReadStream = create(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, test);
                     final byte[] outputBytes = new byte[10];
                     test.assertSuccess(10, byteReadStream.readBytesAsync(outputBytes, 0, 10).awaitReturn());
                     test.assertEqual(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, outputBytes);
@@ -479,7 +479,7 @@ public class InMemoryByteReadStreamTests
 
                 runner.test("with more bytes to read than length", (Test test) ->
                 {
-                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 }, test.getMainAsyncRunner());
+                    final InMemoryByteReadStream byteReadStream = create(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 }, test);
                     final byte[] outputBytes = new byte[10];
                     test.assertSuccess(10, byteReadStream.readBytesAsync(outputBytes, 0, 10).awaitReturn());
                     test.assertEqual(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, outputBytes);
@@ -491,14 +491,14 @@ public class InMemoryByteReadStreamTests
             {
                 runner.test("with disposed ByteReadStream", (Test test) ->
                 {
-                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream();
+                    final InMemoryByteReadStream byteReadStream = create(test);
                     byteReadStream.dispose();
                     test.assertError(new IllegalArgumentException("byteReadStream.isDisposed() (true) must be false."), byteReadStream.readAllBytes());
                 });
 
                 runner.test("with no bytes to read", (Test test) ->
                 {
-                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream();
+                    final InMemoryByteReadStream byteReadStream = create(test);
                     test.assertSuccess(new byte[0], byteReadStream.readAllBytes());
                 });
             });
@@ -507,21 +507,21 @@ public class InMemoryByteReadStreamTests
             {
                 runner.test("with disposed ByteReadStream", (Test test) ->
                 {
-                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream(test.getMainAsyncRunner());
+                    final InMemoryByteReadStream byteReadStream = create(test);
                     byteReadStream.dispose();
                     test.assertError(new IllegalArgumentException("byteReadStream.isDisposed() (true) must be false."), byteReadStream.readAllBytesAsync().awaitReturn());
                 });
 
                 runner.test("with no bytes to read", (Test test) ->
                 {
-                    final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream(test.getMainAsyncRunner());
+                    final InMemoryByteReadStream byteReadStream = create(test);
                     test.assertSuccess(new byte[0], byteReadStream.readAllBytesAsync().awaitReturn());
                 });
             });
 
             runner.test("asLineReadStream()", (Test test) ->
             {
-                final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream();
+                final InMemoryByteReadStream byteReadStream = create(test);
                 final LineReadStream lineReadStream = byteReadStream.asLineReadStream();
                 test.assertEqual(CharacterEncoding.UTF_8, lineReadStream.getCharacterEncoding());
                 test.assertFalse(lineReadStream.getIncludeNewLines());
@@ -530,7 +530,7 @@ public class InMemoryByteReadStreamTests
 
             runner.test("asLineReadStream(CharacterEncoding)", (Test test) ->
             {
-                final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream();
+                final InMemoryByteReadStream byteReadStream = create(test);
                 final LineReadStream lineReadStream = byteReadStream.asLineReadStream(CharacterEncoding.US_ASCII);
                 test.assertEqual(CharacterEncoding.US_ASCII, lineReadStream.getCharacterEncoding());
                 test.assertFalse(lineReadStream.getIncludeNewLines());
@@ -539,7 +539,7 @@ public class InMemoryByteReadStreamTests
 
             runner.test("asLineReadStream(boolean)", (Test test) ->
             {
-                final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream();
+                final InMemoryByteReadStream byteReadStream = create(test);
                 final LineReadStream lineReadStream = byteReadStream.asLineReadStream(true);
                 test.assertEqual(CharacterEncoding.UTF_8, lineReadStream.getCharacterEncoding());
                 test.assertTrue(lineReadStream.getIncludeNewLines());
@@ -548,12 +548,22 @@ public class InMemoryByteReadStreamTests
 
             runner.test("asLineReadStream(CharacterEncoding,boolean)", (Test test) ->
             {
-                final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream();
+                final InMemoryByteReadStream byteReadStream = create(test);
                 final LineReadStream lineReadStream = byteReadStream.asLineReadStream(CharacterEncoding.UTF_8, false);
                 test.assertEqual(CharacterEncoding.UTF_8, lineReadStream.getCharacterEncoding());
                 test.assertFalse(lineReadStream.getIncludeNewLines());
                 test.assertSame(byteReadStream, lineReadStream.asByteReadStream());
             });
         });
+    }
+
+    private static InMemoryByteReadStream create(Test test)
+    {
+        return create(null, test);
+    }
+
+    private static InMemoryByteReadStream create(byte[] contents, Test test)
+    {
+        return new InMemoryByteReadStream(contents, test.getMainAsyncRunner()).endOfStream();
     }
 }

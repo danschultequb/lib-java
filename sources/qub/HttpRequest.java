@@ -156,7 +156,7 @@ public class HttpRequest
     public void setBody(byte[] bodyBytes)
     {
         final int contentLength = bodyBytes == null ? 0 : bodyBytes.length;
-        setBody(contentLength, contentLength == 0 ? null : new InMemoryByteReadStream(bodyBytes));
+        setBody(contentLength, contentLength == 0 ? null : new InMemoryByteReadStream(bodyBytes).endOfStream());
     }
 
     public void setBody(String bodyText)
