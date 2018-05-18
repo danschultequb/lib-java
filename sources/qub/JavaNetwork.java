@@ -1,6 +1,10 @@
 package qub;
 
-class JavaNetwork implements Network
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.Socket;
+
+class JavaNetwork extends NetworkBase
 {
     private final AsyncRunner asyncRunner;
 
@@ -12,20 +16,30 @@ class JavaNetwork implements Network
     @Override
     public Result<TCPClient> createTCPClient(IPv4Address remoteIPAddress, int remotePort)
     {
-        return JavaTCPClient.create(remoteIPAddress, remotePort, getAsyncRunner());
-    }
-
-    @Override
-    public AsyncFunction<Result<TCPClient>> createTCPClientAsync(final IPv4Address remoteIPAddress, final int remotePort)
-    {
-        return async(getAsyncRunner(), new Function0<Result<TCPClient>>()
+        Result<TCPClient> result = NetworkBase.validateRemoteIPAddress(remoteIPAddress);
+        if (result == null)
         {
-            @Override
-            public Result<TCPClient> run()
+            result = NetworkBase.validateRemotePort(remotePort);
+            if (result == null)
             {
-                return createTCPClient(remoteIPAddress, remotePort);
+                result = NetworkBase.validateAsyncRunner(asyncRunner);
+                if (result == null)
+                {
+                    try
+                    {
+                        final byte[] remoteIPAddressBytes = remoteIPAddress.toBytes();
+                        final InetAddress remoteInetAddress = InetAddress.getByAddress(remoteIPAddressBytes);
+                        final Socket socket = new Socket(remoteInetAddress, remotePort);
+                        result = JavaTCPClient.create(socket, asyncRunner);
+                    }
+                    catch (IOException e)
+                    {
+                        result = Result.error(e);
+                    }
+                }
             }
-        });
+        }
+        return result;
     }
 
     @Override
@@ -35,57 +49,14 @@ class JavaNetwork implements Network
     }
 
     @Override
-    public AsyncFunction<Result<TCPServer>> createTCPServerAsync(final int localPort)
-    {
-        return async(getAsyncRunner(), new Function0<Result<TCPServer>>()
-        {
-            @Override
-            public Result<TCPServer> run()
-            {
-                return createTCPServer(localPort);
-            }
-        });
-    }
-
-    @Override
     public Result<TCPServer> createTCPServer(IPv4Address localIPAddress, int localPort)
     {
         return JavaTCPServer.create(localIPAddress, localPort, getAsyncRunner());
     }
 
     @Override
-    public AsyncFunction<Result<TCPServer>> createTCPServerAsync(final IPv4Address localIPAddress, final int localPort)
-    {
-        return async(getAsyncRunner(), new Function0<Result<TCPServer>>()
-        {
-            @Override
-            public Result<TCPServer> run()
-            {
-                return createTCPServer(localIPAddress, localPort);
-            }
-        });
-    }
-
-    @Override
     public AsyncRunner getAsyncRunner()
     {
         return asyncRunner;
-    }
-
-    private static <T> AsyncFunction<Result<T>> async(AsyncRunner asyncRunner, Function0<Result<T>> function)
-    {
-        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-
-        AsyncFunction<Result<T>> result = currentAsyncRunner.notNull(asyncRunner, "asyncRunner");
-        if (result == null)
-        {
-            result = currentAsyncRunner.equal(false, asyncRunner.isDisposed(), "asyncRunner.isDisposed()");
-            if (result == null)
-            {
-                result = asyncRunner.schedule(function).thenOn(currentAsyncRunner);
-            }
-        }
-
-        return result;
     }
 }

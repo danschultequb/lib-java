@@ -443,9 +443,9 @@ public class Test
      */
     public <T> void assertError(Throwable expectedError, Result<T> result)
     {
-        assertNotNull(result);
-        assertEqual(expectedError, result.getError());
-        assertNull(result.getValue());
+        assertNotNull(result, "The Result object should not be null.");
+        assertEqual(expectedError, result.getError(), "Unexpected error.");
+        assertNull(result.getValue(), "The Result's value should be null.");
     }
 
     /**
@@ -455,7 +455,7 @@ public class Test
      */
     public <T> void assertErrorAsync(Throwable expectedError, AsyncFunction<Result<T>> result)
     {
-        assertNotNull(result);
+        assertNotNull(result, "The Result object should not be null.");
         assertError(expectedError, result.awaitReturn());
     }
 
@@ -468,7 +468,7 @@ public class Test
      */
     public <T> void assertDone(T expectedValue, Throwable expectedError, Result<T> result)
     {
-        assertNotNull(result);
+        assertNotNull(result, "The Result object should not be null.");
         assertEqual(expectedError, result.getError());
         assertEqual(expectedValue, result.getValue());
     }

@@ -114,10 +114,11 @@ public class JavaTCPServerTests
                     final byte[] bytes = new byte[] { 1, 2, 3, 4, 5, 6 };
                     final AsyncRunner asyncRunner = test.getParallelAsyncRunner();
 
+                    final Network network = new JavaNetwork(asyncRunner);
                     final Value<byte[]> clientReadBytes = new Value<>();
                     final AsyncAction clientTask = asyncRunner.schedule(() ->
                     {
-                        try (final TCPClient tcpClient = JavaTCPClient.create(ipAddress, port.get(), asyncRunner).getValue())
+                        try (final TCPClient tcpClient = network.createTCPClient(ipAddress, port.get()).getValue())
                         {
                             test.assertSuccess(true, tcpClient.write(bytes));
                             clientReadBytes.set(tcpClient.readBytes(bytes.length).getValue());
@@ -128,7 +129,7 @@ public class JavaTCPServerTests
                         }
                     });
 
-                    try (final TCPServer tcpServer = JavaTCPServer.create(ipAddress, port.get(), asyncRunner).getValue())
+                    try (final TCPServer tcpServer = network.createTCPServer(ipAddress, port.get()).getValue())
                     {
                         final Result<TCPClient> acceptResult = tcpServer.accept();
                         test.assertSuccess(acceptResult);
@@ -173,15 +174,15 @@ public class JavaTCPServerTests
                     final IPv4Address ipAddress = IPv4Address.parse("127.0.0.1");
                     final byte[] bytes = new byte[] { 1, 2, 3, 4, 5, 6 };
                     final AsyncRunner asyncRunner = test.getParallelAsyncRunner();
-
+                    final Network network = new JavaNetwork(asyncRunner);
                     final Value<byte[]> clientReadBytes = new Value<>();
 
-                    try (final TCPServer tcpServer = JavaTCPServer.create(ipAddress, port.get(), asyncRunner).getValue())
+                    try (final TCPServer tcpServer = network.createTCPServer(ipAddress, port.get()).getValue())
                     {
                         final AsyncAction clientTask = asyncRunner.schedule(() ->
                         {
                             // Parallel
-                            try (final TCPClient tcpClient = JavaTCPClient.create(ipAddress, port.get(), asyncRunner).getValue())
+                            try (final TCPClient tcpClient = network.createTCPClient(ipAddress, port.get()).getValue())
                             {
                                 // Block
                                 test.assertSuccess(true, tcpClient.write(bytes));
@@ -226,8 +227,9 @@ public class JavaTCPServerTests
                 {
                     final byte[] bytes = new byte[] { 10, 20, 30, 40, 50 };
                     final AsyncRunner asyncRunner = test.getParallelAsyncRunner();
+                    final Network network = new JavaNetwork(asyncRunner);
 
-                    try (final TCPServer tcpServer = JavaTCPServer.create(IPv4Address.localhost, port.get(), asyncRunner).getValue())
+                    try (final TCPServer tcpServer = network.createTCPServer(IPv4Address.localhost, port.get()).getValue())
                     {
                         final AsyncAction serverTask = tcpServer.acceptAsync()
                             .then((Result<TCPClient> tcpClientResult) ->
@@ -245,7 +247,7 @@ public class JavaTCPServerTests
                         {
                             // The tcpClient code needs to be in a different thread because the
                             // tcpServer runs its acceptAsync().then() action on the main thread.
-                            try (final TCPClient tcpClient = JavaTCPClient.create(IPv4Address.localhost, port.get(), asyncRunner).getValue())
+                            try (final TCPClient tcpClient = network.createTCPClient(IPv4Address.localhost, port.get()).getValue())
                             {
                                 tcpClient.write(bytes);
                                 final Result<byte[]> clientReadBytes = tcpClient.readBytes(bytes.length);

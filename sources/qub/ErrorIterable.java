@@ -1,6 +1,6 @@
 package qub;
 
-public class ErrorIterable extends Throwable implements Iterable<Throwable>
+public class ErrorIterable extends RuntimeException implements Iterable<Throwable>
 {
     private final Iterable<Throwable> errors;
 
@@ -9,16 +9,16 @@ public class ErrorIterable extends Throwable implements Iterable<Throwable>
         this.errors = errors;
     }
 
-    public static Throwable from(Iterable<Throwable> errors)
+    public static RuntimeException from(Iterable<Throwable> errors)
     {
-        Throwable result;
+        RuntimeException result;
         if (errors == null || !errors.any())
         {
             result = null;
         }
         else if (errors.getCount() == 1)
         {
-            result = errors.first();
+            result = Exceptions.asRuntime(errors.first());
         }
         else
         {

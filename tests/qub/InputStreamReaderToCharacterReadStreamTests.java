@@ -24,7 +24,7 @@ public class InputStreamReaderToCharacterReadStreamTests
             
             runner.test("readCharacters(char[])", (Test test) ->
             {
-                final InMemoryByteReadStream byteReadStream = createByteReadStream("abcdefg", test);
+                final InMemoryByteStream byteReadStream = createByteReadStream("abcdefg", test);
                 final InputStreamReaderToCharacterReadStream characterReadStream = getCharacterReadStream(byteReadStream);
                 final char[] characters = new char[5];
 
@@ -55,7 +55,7 @@ public class InputStreamReaderToCharacterReadStreamTests
             
             runner.test("readCharacters(char[],int,int)", (Test test) ->
             {
-                final InMemoryByteReadStream byteReadStream = createByteReadStream("abcdefg", test);
+                final InMemoryByteStream byteReadStream = createByteReadStream("abcdefg", test);
                 final InputStreamReaderToCharacterReadStream characterReadStream = getCharacterReadStream(byteReadStream);
                 final char[] characters = new char[5];
 
@@ -83,7 +83,7 @@ public class InputStreamReaderToCharacterReadStreamTests
             
             runner.test("close()", (Test test) ->
             {
-                final InMemoryByteReadStream byteReadStream = createByteReadStream("", test);
+                final InMemoryByteStream byteReadStream = createByteReadStream("", test);
                 final InputStreamReaderToCharacterReadStream characterReadStream = getCharacterReadStream(byteReadStream);
                 try
                 {
@@ -103,7 +103,7 @@ public class InputStreamReaderToCharacterReadStreamTests
             
             runner.test("asByteReadStream()", (Test test) ->
             {
-                final InMemoryByteReadStream byteReadStream = createByteReadStream("", test);
+                final InMemoryByteStream byteReadStream = createByteReadStream("", test);
                 final InputStreamReaderToCharacterReadStream characterReadStream = getCharacterReadStream(byteReadStream);
                 final ByteReadStream asByteReadStream = characterReadStream.asByteReadStream();
                 test.assertNotNull(asByteReadStream);
@@ -126,9 +126,9 @@ public class InputStreamReaderToCharacterReadStreamTests
         });
     }
 
-    private static InMemoryByteReadStream createByteReadStream(String contents, Test test)
+    private static InMemoryByteStream createByteReadStream(String contents, Test test)
     {
-        return new InMemoryByteReadStream(CharacterEncoding.UTF_8.encode(contents), test.getMainAsyncRunner()).endOfStream();
+        return new InMemoryByteStream(CharacterEncoding.UTF_8.encode(contents), test.getMainAsyncRunner()).endOfStream();
     }
 
     private static InputStreamReaderToCharacterReadStream getCharacterReadStream(Test test, TestStubInputStream inputStream)

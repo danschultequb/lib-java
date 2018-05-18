@@ -19,62 +19,6 @@ public class JavaTCPClientTests
                     test.assertError(new IllegalArgumentException("socket cannot be null."), tcpClientResult);
                 });
             });
-
-            runner.testGroup("create(IPv4Address,int)", () ->
-            {
-                runner.test("with null remoteIPAddress", (Test test) ->
-                {
-                    final Result<TCPClient> tcpClient = JavaTCPClient.create(null, 80, test.getParallelAsyncRunner());
-                    test.assertError(new IllegalArgumentException("remoteIPAddress cannot be null."), tcpClient);
-                });
-
-                runner.test("with -1 remotePort", (Test test) ->
-                {
-                    final Result<TCPClient> tcpClient = JavaTCPClient.create(IPv4Address.localhost, -1, test.getParallelAsyncRunner());
-                    test.assertError(new IllegalArgumentException("remotePort (-1) must be between 1 and 65535."), tcpClient);
-                });
-
-                runner.test("with 0 remotePort", (Test test) ->
-                {
-                    final Result<TCPClient> tcpClient = JavaTCPClient.create(IPv4Address.localhost, 0, test.getParallelAsyncRunner());
-                    test.assertError(new IllegalArgumentException("remotePort (0) must be between 1 and 65535."), tcpClient);
-                });
-
-                runner.test("with valid arguments but no server listening", (Test test) ->
-                {
-                    final Result<TCPClient> tcpClientResult = JavaTCPClient.create(IPv4Address.localhost, port.incrementAndGet(), test.getParallelAsyncRunner());
-                    test.assertError(new java.net.ConnectException("Connection refused: connect"), tcpClientResult);
-                });
-
-                runner.test("with valid arguments and with listening server", (Test test) ->
-                {
-                    final AsyncRunner asyncRunner = test.getParallelAsyncRunner();
-
-                    final Network network = new JavaNetwork(asyncRunner);
-                    final Result<TCPEchoServer> echoServerResult = TCPEchoServer.create(network, port.incrementAndGet());
-                    test.assertSuccess(echoServerResult);
-
-                    try (final TCPEchoServer echoServer = echoServerResult.getValue())
-                    {
-                        final AsyncAction serverTask = echoServer.echoAsync();
-
-                        final AsyncAction clientTask = asyncRunner.schedule(() ->
-                        {
-                            final Result<TCPClient> tcpClientResult = JavaTCPClient.create(IPv4Address.localhost, port.get(), test.getParallelAsyncRunner());
-                            test.assertSuccess(tcpClientResult);
-
-                            try (final TCPClient tcpClient = tcpClientResult.getValue())
-                            {
-                                tcpClient.asLineWriteStream().writeLine("abcdef");
-                                test.assertSuccess("abcdef", tcpClient.asLineReadStream().readLine());
-                            }
-                        });
-
-                        serverTask.await();
-                        clientTask.await();
-                    }
-                });
-            });
         });
     }
 }

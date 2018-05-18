@@ -11,7 +11,7 @@ public class FakeTCPClient extends TCPClientBase
     private final ByteWriteStream socketWriteStream;
     private boolean disposed;
 
-    private FakeTCPClient(AsyncRunner asyncRunner, IPv4Address localIPAddress, int localPort, IPv4Address remoteIPAddress, int remotePort, ByteReadStream socketReadStream, ByteWriteStream socketWriteStream)
+    FakeTCPClient(AsyncRunner asyncRunner, IPv4Address localIPAddress, int localPort, IPv4Address remoteIPAddress, int remotePort, ByteReadStream socketReadStream, ByteWriteStream socketWriteStream)
     {
         this.asyncRunner = asyncRunner;
         this.localIPAddress = localIPAddress;
@@ -20,39 +20,6 @@ public class FakeTCPClient extends TCPClientBase
         this.remotePort = remotePort;
         this.socketReadStream = socketReadStream;
         this.socketWriteStream = socketWriteStream;
-    }
-
-    static Result<TCPClient> create(IPv4Address localIPAddress, int localPort, IPv4Address remoteIPAddress, int remotePort, ByteReadStream readStream, ByteWriteStream writeStream, AsyncRunner asyncRunner)
-    {
-        Result<TCPClient> result = FakeTCPClient.validateLocalIPAddress(localIPAddress);
-        if (result == null)
-        {
-            result = TCPClientBase.validateLocalPort(localPort);
-            if (result == null)
-            {
-                result = TCPClientBase.validateRemoteIPAddress(remoteIPAddress);
-                if (result == null)
-                {
-                    result = TCPClientBase.validateRemotePort(remotePort);
-                    if (result == null)
-                    {
-                        result = TCPClientBase.validateReadStream(readStream);
-                        if (result == null)
-                        {
-                            result = TCPClientBase.validateWriteStream(writeStream);
-                            if (result == null)
-                            {
-                                result = TCPClientBase.validateAsyncRunner(asyncRunner);
-                                {
-                                    result = Result.<TCPClient>success(new FakeTCPClient(asyncRunner, localIPAddress, localPort, remoteIPAddress, remotePort, readStream, writeStream));
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return result;
     }
 
     @Override

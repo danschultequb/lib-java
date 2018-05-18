@@ -92,4 +92,41 @@ public abstract class AsyncRunnerBase extends DisposableBase implements AsyncRun
         final Result<T> innerResult = Result.greaterThan(lowerBound, value, parameterName);
         return innerResult == null ? null : done(innerResult);
     }
+
+    /**
+     * Await all of the provided AsyncActions.
+     * @param asyncActions The AsyncActions to await.
+     */
+    public static void awaitAll(AsyncAction... asyncActions)
+    {
+        awaitAll(Array.fromValues(asyncActions));
+    }
+
+    /**
+     * Await all of the provided AsyncActions. The AsyncActions will be awaited in the order that
+     * they are iterated over in the provided Iterable.
+     * @param asyncActions The AsyncActions to await.
+     */
+    public static void awaitAll(Iterable<AsyncAction> asyncActions)
+    {
+        if (asyncActions != null && asyncActions.any())
+        {
+            final List<Throwable> errors = new ArrayList<Throwable>();
+            for (final AsyncAction asyncAction : asyncActions)
+            {
+                try
+                {
+                    asyncAction.await();
+                }
+                catch (Throwable error)
+                {
+                    errors.add(error);
+                }
+            }
+            if (errors.any())
+            {
+                throw ErrorIterable.from(errors);
+            }
+        }
+    }
 }

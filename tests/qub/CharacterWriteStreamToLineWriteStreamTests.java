@@ -17,7 +17,7 @@ public class CharacterWriteStreamToLineWriteStreamTests
 
             runner.test("write(String)", (Test test) ->
             {
-                final InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
+                final InMemoryByteStream byteWriteStream = new InMemoryByteStream();
                 final InMemoryCharacterWriteStream characterWriteStream = new InMemoryCharacterWriteStream(byteWriteStream);
                 final CharacterWriteStreamToLineWriteStream lineWriteStream = getLineWriteStream(characterWriteStream);
                 test.assertSuccess(true, lineWriteStream.write("tuv"));
@@ -27,7 +27,7 @@ public class CharacterWriteStreamToLineWriteStreamTests
 
             runner.test("write(String,Object...)", (Test test) ->
             {
-                final InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
+                final InMemoryByteStream byteWriteStream = new InMemoryByteStream();
                 final InMemoryCharacterWriteStream characterWriteStream = new InMemoryCharacterWriteStream(byteWriteStream);
                 final CharacterWriteStreamToLineWriteStream lineWriteStream = getLineWriteStream(characterWriteStream);
                 test.assertSuccess(true, lineWriteStream.write("%s == %d", "1", 2));
@@ -37,7 +37,7 @@ public class CharacterWriteStreamToLineWriteStreamTests
 
             runner.test("writeLine()", (Test test) ->
             {
-                final InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
+                final InMemoryByteStream byteWriteStream = new InMemoryByteStream();
                 final InMemoryCharacterWriteStream characterWriteStream = new InMemoryCharacterWriteStream(byteWriteStream);
                 final CharacterWriteStreamToLineWriteStream lineWriteStream = getLineWriteStream(characterWriteStream);
                 test.assertSuccess(true, lineWriteStream.writeLine());
@@ -47,7 +47,7 @@ public class CharacterWriteStreamToLineWriteStreamTests
 
             runner.test("writeLine(String,Object...)", (Test test) ->
             {
-                final InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
+                final InMemoryByteStream byteWriteStream = new InMemoryByteStream();
                 final InMemoryCharacterWriteStream characterWriteStream = new InMemoryCharacterWriteStream(byteWriteStream);
                 final CharacterWriteStreamToLineWriteStream lineWriteStream = getLineWriteStream(characterWriteStream);
                 test.assertSuccess(true, lineWriteStream.writeLine("hello"));

@@ -10,7 +10,7 @@ public class ByteReadStreamToInputStreamTests
         {
             runner.test("close()", (Test test) ->
             {
-                final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream();
+                final InMemoryByteStream byteReadStream = new InMemoryByteStream();
                 final ByteReadStreamToInputStream inputStream = new ByteReadStreamToInputStream(byteReadStream);
                 try
                 {
@@ -25,7 +25,7 @@ public class ByteReadStreamToInputStreamTests
 
             runner.test("read()", (Test test) ->
             {
-                final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream(new byte[] { 10, 11, 12 });
+                final InMemoryByteStream byteReadStream = new InMemoryByteStream(new byte[] { 10, 11, 12 });
                 final ByteReadStreamToInputStream inputStream = new ByteReadStreamToInputStream(byteReadStream);
                 try
                 {
@@ -40,7 +40,7 @@ public class ByteReadStreamToInputStreamTests
 
             runner.test("read(byte[])", (Test test) ->
             {
-                final InMemoryByteReadStream byteReadStream = new InMemoryByteReadStream(new byte[] { 100 });
+                final InMemoryByteStream byteReadStream = new InMemoryByteStream(new byte[] { 100 });
                 final ByteReadStreamToInputStream inputStream = new ByteReadStreamToInputStream(byteReadStream);
                 final byte[] bytes = new byte[100];
                 try

@@ -29,10 +29,10 @@ public class InMemoryCharacterReadStream extends InputStreamReaderToCharacterRea
 
     public InMemoryCharacterReadStream(String text, CharacterEncoding encoding, AsyncRunner asyncRunner)
     {
-        this(new InMemoryByteReadStream(encoding.encode(text), asyncRunner).endOfStream(), encoding);
+        this(new InMemoryByteStream(encoding.encode(text), asyncRunner).endOfStream(), encoding);
     }
 
-    public InMemoryCharacterReadStream(InMemoryByteReadStream byteReadStream, CharacterEncoding encoding)
+    public InMemoryCharacterReadStream(InMemoryByteStream byteReadStream, CharacterEncoding encoding)
     {
         super(byteReadStream, encoding);
     }

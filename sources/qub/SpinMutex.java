@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class SpinMutex extends MutexBase
 {
     private final AtomicLong acquiredByThreadId;
+    private final AtomicLong acquiredCount;
 
     /**
      * Create a new SpinMutex that is ready to be acquired.
@@ -17,6 +18,7 @@ public class SpinMutex extends MutexBase
     public SpinMutex()
     {
         acquiredByThreadId = new AtomicLong(-1);
+        acquiredCount = new AtomicLong(0);
     }
 
     /**
@@ -37,12 +39,16 @@ public class SpinMutex extends MutexBase
     public void acquire()
     {
         final long threadId = Thread.currentThread().getId();
-        while (!acquiredByThreadId.compareAndSet(-1, threadId))
+        if (acquiredByThreadId.get() != threadId)
         {
-            while (isAcquired())
+            while (!acquiredByThreadId.compareAndSet(-1, threadId))
             {
+                while (isAcquired())
+                {
+                }
             }
         }
+        acquiredCount.incrementAndGet();
     }
 
     /**
@@ -53,7 +59,12 @@ public class SpinMutex extends MutexBase
     public boolean tryAcquire()
     {
         final long threadId = Thread.currentThread().getId();
-        return acquiredByThreadId.get() == threadId || acquiredByThreadId.compareAndSet(-1, threadId);
+        final boolean acquired = acquiredByThreadId.get() == threadId || acquiredByThreadId.compareAndSet(-1, threadId);
+        if (acquired)
+        {
+            acquiredCount.incrementAndGet();
+        }
+        return acquired;
     }
 
     /**
@@ -64,7 +75,16 @@ public class SpinMutex extends MutexBase
     public boolean release()
     {
         final long threadId = Thread.currentThread().getId();
-        return acquiredByThreadId.compareAndSet(threadId, -1);
+        boolean result = false;
+        if (acquiredByThreadId.get() == threadId)
+        {
+            if (acquiredCount.decrementAndGet() == 0)
+            {
+                acquiredByThreadId.compareAndSet(threadId, -1);
+                result = true;
+            }
+        }
+        return result;
     }
 
     @Override

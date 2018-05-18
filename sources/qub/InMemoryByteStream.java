@@ -1,6 +1,6 @@
 package qub;
 
-public class InMemoryByteReadStream extends ByteReadStreamBase
+public class InMemoryByteStream extends ByteReadStreamBase implements ByteWriteStream
 {
     private final AsyncRunner asyncRunner;
     private boolean disposed;
@@ -11,22 +11,22 @@ public class InMemoryByteReadStream extends ByteReadStreamBase
     private final Mutex mutex;
     private final MutexCondition bytesAvailable;
 
-    public InMemoryByteReadStream()
+    public InMemoryByteStream()
     {
         this(null, null);
     }
 
-    public InMemoryByteReadStream(AsyncRunner asyncRunner)
+    public InMemoryByteStream(AsyncRunner asyncRunner)
     {
         this(null, asyncRunner);
     }
 
-    public InMemoryByteReadStream(byte[] bytes)
+    public InMemoryByteStream(byte[] bytes)
     {
         this(bytes, null);
     }
 
-    public InMemoryByteReadStream(byte[] bytes, AsyncRunner asyncRunner)
+    public InMemoryByteStream(byte[] bytes, AsyncRunner asyncRunner)
     {
         this.asyncRunner = asyncRunner;
         this.bytes = new ArrayList<Byte>();
@@ -39,6 +39,16 @@ public class InMemoryByteReadStream extends ByteReadStreamBase
         }
         this.mutex = new SpinMutex();
         this.bytesAvailable = this.mutex.createCondition();
+    }
+
+    /**
+     * Get the bytes currently in this InMemoryByteStream. This will not change the streams
+     * contents.
+     * @return The bytes currently in this InMemoryByteStream.
+     */
+    public byte[] getBytes()
+    {
+        return !isDisposed() ? Array.toByteArray(bytes) : null;
     }
 
     @Override
@@ -192,9 +202,9 @@ public class InMemoryByteReadStream extends ByteReadStreamBase
     /**
      * Mark that this stream has reached the end of its content. Future reads from this stream will
      * return null.
-     * @return This InMemoryByteReadStream.
+     * @return This InMemoryByteStream.
      */
-    public InMemoryByteReadStream endOfStream()
+    public InMemoryByteStream endOfStream()
     {
         try (final Disposable criticalSection = mutex.criticalSection())
         {
@@ -205,5 +215,125 @@ public class InMemoryByteReadStream extends ByteReadStreamBase
             }
             return this;
         }
+    }
+
+    @Override
+    public Result<Boolean> write(byte toWrite)
+    {
+        Result<Boolean> result = InMemoryByteStream.validateNotEndOfStream(this);
+        if (result == null)
+        {
+            result = DisposableBase.validateNotDisposed(this, "byteWriteStream");
+            if (result == null)
+            {
+                try (final Disposable criticalSection = mutex.criticalSection())
+                {
+                    bytes.add(toWrite);
+                    bytesAvailable.signalAll();
+                }
+                result = Result.successTrue();
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public Result<Boolean> write(byte[] toWrite)
+    {
+        Result<Boolean> result = InMemoryByteStream.validateNotEndOfStream(this);
+        if (result == null)
+        {
+            try (final Disposable criticalSection = mutex.criticalSection())
+            {
+                result = ByteWriteStreamBase.write(this, toWrite);
+                if (!result.hasError())
+                {
+                    bytesAvailable.signalAll();
+                }
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public Result<Boolean> write(byte[] toWrite, int startIndex, int length)
+    {
+        Result<Boolean> result = InMemoryByteStream.validateNotEndOfStream(this);
+        if (result == null)
+        {
+            try (final Disposable criticalSection = mutex.criticalSection())
+            {
+                result = ByteWriteStreamBase.write(this, toWrite, startIndex, length);
+                if (!result.hasError())
+                {
+                    bytesAvailable.signalAll();
+                }
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public Result<Boolean> writeAll(ByteReadStream byteReadStream)
+    {
+        Result<Boolean> result = InMemoryByteStream.validateNotEndOfStream(this);
+        if (result == null)
+        {
+            try (final Disposable criticalSection = mutex.criticalSection())
+            {
+                result = ByteWriteStreamBase.writeAll(this, byteReadStream);
+                if (!result.hasError())
+                {
+                    bytesAvailable.signalAll();
+                }
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public CharacterWriteStream asCharacterWriteStream()
+    {
+        return ByteWriteStreamBase.asCharacterWriteStream(this);
+    }
+
+    @Override
+    public CharacterWriteStream asCharacterWriteStream(CharacterEncoding encoding)
+    {
+        return ByteWriteStreamBase.asCharacterWriteStream(this, encoding);
+    }
+
+    @Override
+    public LineWriteStream asLineWriteStream()
+    {
+        return ByteWriteStreamBase.asLineWriteStream(this);
+    }
+
+    @Override
+    public LineWriteStream asLineWriteStream(CharacterEncoding encoding)
+    {
+        return ByteWriteStreamBase.asLineWriteStream(this, encoding);
+    }
+
+    @Override
+    public LineWriteStream asLineWriteStream(String lineSeparator)
+    {
+        return ByteWriteStreamBase.asLineWriteStream(this, lineSeparator);
+    }
+
+    @Override
+    public LineWriteStream asLineWriteStream(CharacterEncoding encoding, String lineSeparator)
+    {
+        return ByteWriteStreamBase.asLineWriteStream(this, encoding, lineSeparator);
+    }
+
+    private static <T> Result<T> validateNotEndOfStream(InMemoryByteStream byteWriteStream)
+    {
+        Result<T> result = null;
+        if (byteWriteStream.endOfStream)
+        {
+            result = Result.error(new IllegalStateException("Cannot write to a InMemoryByteStream that has been marked as ended."));
+        }
+        return result;
     }
 }

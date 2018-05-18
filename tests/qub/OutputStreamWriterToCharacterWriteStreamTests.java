@@ -10,7 +10,7 @@ public class OutputStreamWriterToCharacterWriteStreamTests
         {
             runner.test("constructor", (Test test) ->
             {
-                final ByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
+                final ByteWriteStream byteWriteStream = new InMemoryByteStream();
                 final OutputStreamWriterToCharacterWriteStream characterWriteStream = new OutputStreamWriterToCharacterWriteStream(byteWriteStream, CharacterEncoding.US_ASCII);
                 test.assertSame(byteWriteStream, characterWriteStream.asByteWriteStream());
                 test.assertSame(CharacterEncoding.US_ASCII, characterWriteStream.getCharacterEncoding());
@@ -20,7 +20,7 @@ public class OutputStreamWriterToCharacterWriteStreamTests
             {
                 runner.test("with no exception", (Test test) ->
                 {
-                    InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
+                    InMemoryByteStream byteWriteStream = new InMemoryByteStream();
                     final OutputStreamWriterToCharacterWriteStream characterWriteStream = getCharacterWriteStream(byteWriteStream);
                     test.assertSuccess(true, characterWriteStream.write('a'));
                     test.assertEqual(new byte[] { 97 }, byteWriteStream.getBytes());
@@ -39,7 +39,7 @@ public class OutputStreamWriterToCharacterWriteStreamTests
             {
                 runner.test("with no exception", (Test test) ->
                 {
-                    InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
+                    InMemoryByteStream byteWriteStream = new InMemoryByteStream();
                     final OutputStreamWriterToCharacterWriteStream characterWriteStream = getCharacterWriteStream(byteWriteStream);
                     test.assertSuccess(true, characterWriteStream.write("test"));
                     test.assertEqual(new byte[] { 116, 101, 115, 116 }, byteWriteStream.getBytes());
@@ -58,7 +58,7 @@ public class OutputStreamWriterToCharacterWriteStreamTests
             {
                 runner.test("with no exception", (Test test) ->
                 {
-                    InMemoryByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
+                    InMemoryByteStream byteWriteStream = new InMemoryByteStream();
                     final OutputStreamWriterToCharacterWriteStream characterWriteStream = getCharacterWriteStream(byteWriteStream);
                     try
                     {
@@ -96,7 +96,7 @@ public class OutputStreamWriterToCharacterWriteStreamTests
             
             runner.test("asByteWriteStream()", (Test test) ->
             {
-                final ByteWriteStream byteWriteStream = new InMemoryByteWriteStream();
+                final ByteWriteStream byteWriteStream = new InMemoryByteStream();
                 final OutputStreamWriterToCharacterWriteStream characterWriteStream = getCharacterWriteStream(byteWriteStream);
                 test.assertSame(byteWriteStream, characterWriteStream.asByteWriteStream());
             });
@@ -122,7 +122,7 @@ public class OutputStreamWriterToCharacterWriteStreamTests
 
     private static OutputStreamWriterToCharacterWriteStream getCharacterWriteStream()
     {
-        return getCharacterWriteStream(new InMemoryByteWriteStream());
+        return getCharacterWriteStream(new InMemoryByteStream());
     }
 
     private static OutputStreamWriterToCharacterWriteStream getCharacterWriteStream(ByteWriteStream byteWriteStream)

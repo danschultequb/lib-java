@@ -62,17 +62,13 @@ public abstract class ByteWriteStreamBase extends DisposableBase implements Byte
      */
     public static Result<Boolean> write(ByteWriteStream byteWriteStream, byte[] toWrite)
     {
-        Result<Boolean> result = Result.notNull(byteWriteStream, "byteWriteStream");
+        Result<Boolean> result = DisposableBase.validateNotDisposed(byteWriteStream, "byteWriteStream");
         if (result == null)
         {
-            result = Result.notNull(toWrite, "toWrite");
+            result = ByteWriteStreamBase.validateToWrite(toWrite);
             if (result == null)
             {
-                result = Result.greaterThan(0, toWrite.length, "toWrite.length");
-                if (result == null)
-                {
-                    result = byteWriteStream.write(toWrite, 0, toWrite.length);
-                }
+                result = byteWriteStream.write(toWrite, 0, toWrite.length);
             }
         }
         return result;
@@ -86,28 +82,24 @@ public abstract class ByteWriteStreamBase extends DisposableBase implements Byte
      */
     public static Result<Boolean> write(ByteWriteStream byteWriteStream, byte[] toWrite, int startIndex, int length)
     {
-        Result<Boolean> result = Result.notNull(byteWriteStream, "byteWriteStream");
+        Result<Boolean> result = DisposableBase.validateNotDisposed(byteWriteStream, "byteWriteStream");
         if (result == null)
         {
-            result = Result.notNull(toWrite, "toWrite");
+            result = ByteWriteStreamBase.validateToWrite(toWrite);
             if (result == null)
             {
-                result = Result.greaterThan(0, toWrite.length, "toWrite.length");
+                result = ByteWriteStreamBase.validateStartIndex(startIndex, toWrite);
                 if (result == null)
                 {
-                    result = Result.between(0, startIndex, toWrite.length - 1, "startIndex");
+                    result = ByteWriteStreamBase.validateLength(length, toWrite, startIndex);
                     if (result == null)
                     {
-                        result = Result.between(1, length, toWrite.length - startIndex, "length");
-                        if (result == null)
+                        for (int i = startIndex; i < startIndex + length; ++i)
                         {
-                            for (int i = startIndex; i < startIndex + length; ++i)
+                            result = byteWriteStream.write(toWrite[i]);
+                            if (result.getValue() == null || !result.getValue())
                             {
-                                result = byteWriteStream.write(toWrite[i]);
-                                if (result.getValue() == null || !result.getValue())
-                                {
-                                    break;
-                                }
+                                break;
                             }
                         }
                     }
@@ -124,28 +116,28 @@ public abstract class ByteWriteStreamBase extends DisposableBase implements Byte
      */
     public static Result<Boolean> writeAll(ByteWriteStream byteWriteStream, ByteReadStream byteReadStream)
     {
-        Result<Boolean> result = Result.notNull(byteWriteStream, "byteWriteStream");
+        Result<Boolean> result = DisposableBase.validateNotDisposed(byteWriteStream, "byteWriteStream");
         if (result == null)
         {
-            result = Result.notNull(byteReadStream, "byteReadStream");
+            result = DisposableBase.validateNotDisposed(byteReadStream, "byteReadStream");
             if (result == null)
             {
-                result = Result.notDisposed(byteReadStream, "byteReadStream");
-                if (result == null)
+                final byte[] buffer = new byte[1024];
+                Result<Integer> bytesRead = byteReadStream.readBytes(buffer);
+
+                while (bytesRead.getValue() != null && !bytesRead.hasError())
                 {
-                    final byte[] buffer = new byte[1024];
-                    Result<Integer> bytesRead = byteReadStream.readBytes(buffer);
+                    byteWriteStream.write(buffer, 0, bytesRead.getValue());
+                    bytesRead = byteReadStream.readBytes(buffer);
+                }
 
-                    while (bytesRead.getValue() != null && !bytesRead.hasError())
-                    {
-                        byteWriteStream.write(buffer, 0, bytesRead.getValue());
-                        bytesRead = byteReadStream.readBytes(buffer);
-                    }
-
-                    if (bytesRead.hasError())
-                    {
-                        result = Result.error(bytesRead.getError());
-                    }
+                if (bytesRead.hasError())
+                {
+                    result = Result.error(bytesRead.getError());
+                }
+                else
+                {
+                    result = Result.successTrue();
                 }
             }
         }
@@ -218,5 +210,48 @@ public abstract class ByteWriteStreamBase extends DisposableBase implements Byte
     {
         final CharacterWriteStream characterWriteStream = byteWriteStream.asCharacterWriteStream(encoding);
         return characterWriteStream == null ? null : characterWriteStream.asLineWriteStream(lineSeparator);
+    }
+
+    /**
+     * Validate that the provided byte[].
+     * @param toWrite The byte[] to validate.
+     * @param <T> The type of Result that will be returned.
+     * @return The validation result of the byte[], or null if the byte[] was valid.
+     */
+    public static <T> Result<T> validateToWrite(byte[] toWrite)
+    {
+        Result<T> result = Result.notNull(toWrite, "toWrite");
+        if (result == null)
+        {
+            result = Result.greaterThan(0, toWrite.length, "toWrite.length");
+        }
+        return result;
+    }
+
+    /**
+     * Validate that the provided startIndex is between 0 and the last index of the provided toWrite
+     * byte[].
+     * @param startIndex The startIndex to validate.
+     * @param toWrite The byte[] that startIndex indexes into.
+     * @param <T> The type of Result to return.
+     * @return The validation result of the startIndex, or null if the startIndex was valid.
+     */
+    public static <T> Result<T> validateStartIndex(int startIndex, byte[] toWrite)
+    {
+        return Result.between(0, startIndex, toWrite.length - 1, "startIndex");
+    }
+
+    /**
+     * Validate that the provided length is between 1 and the length of the toWrite array minus the
+     * startIndex.
+     * @param length The length to validate.
+     * @param toWrite The byte[] that contains the bytes to write.
+     * @param startIndex The start index into the byte[].
+     * @param <T> The type of Result to return.
+     * @return The validation result of the length, or null if the length was valid.
+     */
+    public static <T> Result<T> validateLength(int length, byte[] toWrite, int startIndex)
+    {
+        return Result.between(1, length, toWrite.length - startIndex, "length");
     }
 }

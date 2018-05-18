@@ -129,7 +129,7 @@ public class HttpRequestTests
 
                 runner.test("with 0 contentLength and non-null body", (Test test) ->
                 {
-                    final Result<HttpRequest> request = HttpRequest.create(HttpMethod.GET, "https://www.example.com", null, 0, new InMemoryByteReadStream());
+                    final Result<HttpRequest> request = HttpRequest.create(HttpMethod.GET, "https://www.example.com", null, 0, new InMemoryByteStream());
                     test.assertError(new IllegalArgumentException("If contentLength is 0, then body must be null."), request);
                 });
 
@@ -141,7 +141,7 @@ public class HttpRequestTests
 
                 runner.test("with 5 contentLength and non-null body", (Test test) ->
                 {
-                    final Result<HttpRequest> request = HttpRequest.create(HttpMethod.GET, "https://www.example.com", null, 5, new InMemoryByteReadStream());
+                    final Result<HttpRequest> request = HttpRequest.create(HttpMethod.GET, "https://www.example.com", null, 5, new InMemoryByteStream());
                     test.assertSuccess(request);
                     test.assertEqual(HttpMethod.GET, request.getValue().getMethod());
                     test.assertEqual("https://www.example.com", request.getValue().getUrl());
@@ -274,7 +274,7 @@ public class HttpRequestTests
                 runner.test("with 0 contentLength and non-null body", (Test test) ->
                 {
                     final HttpRequest request = HttpRequest.create(HttpMethod.POST, "https://www.example.com").getValue();
-                    test.assertError(new IllegalArgumentException("If contentLength is 0, then body must be null."), request.setBody(0, new InMemoryByteReadStream()));
+                    test.assertError(new IllegalArgumentException("If contentLength is 0, then body must be null."), request.setBody(0, new InMemoryByteStream()));
                     test.assertEqual(0, request.getContentLength());
                     test.assertNull(request.getBody());
                     test.assertError(new KeyNotFoundException("Content-Length"), request.getHeaders().get("Content-Length"));
@@ -292,7 +292,7 @@ public class HttpRequestTests
                 runner.test("with 3 contentLength and non-null body", (Test test) ->
                 {
                     final HttpRequest request = HttpRequest.create(HttpMethod.POST, "https://www.example.com").getValue();
-                    test.assertSuccess(true, request.setBody(3, new InMemoryByteReadStream(new byte[] { 0, 1, 2 })));
+                    test.assertSuccess(true, request.setBody(3, new InMemoryByteStream(new byte[] { 0, 1, 2 })));
                     test.assertEqual(3, request.getContentLength());
                     test.assertNotNull(request.getBody());
                     test.assertSuccess("3", request.getHeaders().getValue("Content-Length"));

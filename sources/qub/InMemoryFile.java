@@ -44,12 +44,12 @@ public class InMemoryFile
      */
     public ByteReadStream getContentByteReadStream()
     {
-        return new InMemoryByteReadStream(contents).endOfStream();
+        return new InMemoryByteStream(contents).endOfStream();
     }
 
     public ByteWriteStream getContentByteWriteStream()
     {
-        return new InMemoryByteWriteStream()
+        return new InMemoryByteStream()
         {
             @Override
             public Result<Boolean> dispose()

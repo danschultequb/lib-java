@@ -2,33 +2,33 @@ package qub;
 
 public class InMemoryCharacterWriteStream extends CharacterWriteStreamBase
 {
-    private final InMemoryByteWriteStream byteWriteStream;
+    private final InMemoryByteStream byteStream;
     private final CharacterEncoding characterEncoding;
 
     public InMemoryCharacterWriteStream()
     {
-        this(new InMemoryByteWriteStream());
+        this(new InMemoryByteStream());
     }
 
-    public InMemoryCharacterWriteStream(InMemoryByteWriteStream byteWriteStream)
+    public InMemoryCharacterWriteStream(InMemoryByteStream byteStream)
     {
-        this(byteWriteStream, CharacterEncoding.UTF_8);
+        this(byteStream, CharacterEncoding.UTF_8);
     }
 
     public InMemoryCharacterWriteStream(CharacterEncoding characterEncoding)
     {
-        this(new InMemoryByteWriteStream(), characterEncoding);
+        this(new InMemoryByteStream(), characterEncoding);
     }
 
-    public InMemoryCharacterWriteStream(InMemoryByteWriteStream byteWriteStream, CharacterEncoding characterEncoding)
+    public InMemoryCharacterWriteStream(InMemoryByteStream byteStream, CharacterEncoding characterEncoding)
     {
-        this.byteWriteStream = byteWriteStream;
+        this.byteStream = byteStream;
         this.characterEncoding = characterEncoding;
     }
 
     public byte[] getBytes()
     {
-        return byteWriteStream.getBytes();
+        return byteStream.getBytes();
     }
 
     public String getText()
@@ -49,7 +49,7 @@ public class InMemoryCharacterWriteStream extends CharacterWriteStreamBase
     {
         final CharacterEncoding characterEncoding = getCharacterEncoding();
         final byte[] bytes = characterEncoding.encode(toWrite);
-        return byteWriteStream.write(bytes);
+        return byteStream.write(bytes);
     }
 
     @Override
@@ -61,24 +61,24 @@ public class InMemoryCharacterWriteStream extends CharacterWriteStreamBase
         }
         final CharacterEncoding characterEncoding = getCharacterEncoding();
         final byte[] bytes = characterEncoding.encode(toWrite);
-        return byteWriteStream.write(bytes);
+        return byteStream.write(bytes);
     }
 
     @Override
     public ByteWriteStream asByteWriteStream()
     {
-        return byteWriteStream;
+        return byteStream;
     }
 
     @Override
     public boolean isDisposed()
     {
-        return byteWriteStream.isDisposed();
+        return byteStream.isDisposed();
     }
 
     @Override
     public Result<Boolean> dispose()
     {
-        return byteWriteStream.dispose();
+        return byteStream.dispose();
     }
 }
