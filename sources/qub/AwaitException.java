@@ -8,6 +8,6 @@ public class AwaitException extends RuntimeException
 {
     public AwaitException(Throwable cause)
     {
-        super(cause);
+        super("", cause);
     }
 }

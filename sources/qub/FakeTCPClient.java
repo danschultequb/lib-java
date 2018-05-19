@@ -2,6 +2,7 @@ package qub;
 
 public class FakeTCPClient extends TCPClientBase
 {
+    private final FakeNetwork network;
     private final AsyncRunner asyncRunner;
     private final IPv4Address localIPAddress;
     private final int localPort;
@@ -11,8 +12,9 @@ public class FakeTCPClient extends TCPClientBase
     private final ByteWriteStream socketWriteStream;
     private boolean disposed;
 
-    FakeTCPClient(AsyncRunner asyncRunner, IPv4Address localIPAddress, int localPort, IPv4Address remoteIPAddress, int remotePort, ByteReadStream socketReadStream, ByteWriteStream socketWriteStream)
+    FakeTCPClient(FakeNetwork network, AsyncRunner asyncRunner, IPv4Address localIPAddress, int localPort, IPv4Address remoteIPAddress, int remotePort, ByteReadStream socketReadStream, ByteWriteStream socketWriteStream)
     {
+        this.network = network;
         this.asyncRunner = asyncRunner;
         this.localIPAddress = localIPAddress;
         this.localPort = localPort;
@@ -58,6 +60,8 @@ public class FakeTCPClient extends TCPClientBase
         {
             disposed = true;
 
+            network.clientDisposed(getLocalIPAddress(), getLocalPort());
+
             final List<Throwable> errors = new ArrayList<Throwable>();
 
             result = socketReadStream.dispose();
@@ -82,5 +86,29 @@ public class FakeTCPClient extends TCPClientBase
             }
         }
         return result;
+    }
+
+    @Override
+    public IPv4Address getLocalIPAddress()
+    {
+        return localIPAddress;
+    }
+
+    @Override
+    public int getLocalPort()
+    {
+        return localPort;
+    }
+
+    @Override
+    public IPv4Address getRemoteIPAddress()
+    {
+        return remoteIPAddress;
+    }
+
+    @Override
+    public int getRemotePort()
+    {
+        return remotePort;
     }
 }

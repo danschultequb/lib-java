@@ -156,11 +156,10 @@ public class TestRunnerBase implements TestRunner
                     {
                         final List<String> messageLines = new SingleLinkList<>();
                         messageLines.add("Unhandled Exception: " + e.getClass().getName());
-
                         final String message = e.getMessage();
-                        if (message != null && !message.isEmpty())
+                        if (!Strings.isNullOrEmpty(message))
                         {
-                            messageLines.add("Message: " + e.getMessage());
+                            messageLines.add("Message: " + message);
                         }
                         failure = new TestAssertionFailure(test.getFullName(), Array.toStringArray(messageLines), e);
                     }

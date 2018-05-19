@@ -36,22 +36,23 @@ public class NetworkTests
                     test.assertError(new java.net.ConnectException("Connection refused: connect"), tcpClientResult);
                 });
 
-                runner.test("with valid arguments and server listening", runner.skip(), (Test test) ->
+                runner.test("with valid arguments and server listening", (Test test) ->
                 {
                     final AsyncRunner asyncRunner = test.getParallelAsyncRunner();
                     final Network network = creator.run(test);
 
                     final byte[] bytes = new byte[] { 1, 2, 3, 4, 5 };
 
-                    final IPv4Address localhost = IPv4Address.parse("127.0.0.1");
                     final int port = 8080;
 
                     final AsyncAction serverTask = asyncRunner.schedule(() ->
                     {
-                        final Result<TCPServer> tcpServerResult = network.createTCPServer(localhost, port);
+                        final Result<TCPServer> tcpServerResult = network.createTCPServer(IPv4Address.localhost, port);
                         test.assertSuccess(tcpServerResult);
                         try (final TCPServer tcpServer = tcpServerResult.getValue())
                         {
+                            test.assertEqual(IPv4Address.localhost, tcpServer.getLocalIPAddress());
+                            test.assertEqual(port, tcpServer.getLocalPort());
                             final Result<TCPClient> acceptedClientResult = tcpServer.accept();
                             test.assertSuccess(acceptedClientResult);
                             try (final TCPClient acceptedClient = acceptedClientResult.getValue())
@@ -64,10 +65,14 @@ public class NetworkTests
 
                     final AsyncAction clientTask = asyncRunner.schedule(() ->
                     {
-                        final Result<TCPClient> tcpClientResult = network.createTCPClient(localhost, port);
+                        final Result<TCPClient> tcpClientResult = network.createTCPClient(IPv4Address.localhost, port);
                         test.assertSuccess(tcpClientResult);
                         try (final TCPClient tcpClient = tcpClientResult.getValue())
                         {
+                            test.assertEqual(IPv4Address.localhost, tcpClient.getLocalIPAddress());
+                            test.assertNotEqual(port, tcpClient.getLocalPort());
+                            test.assertEqual(IPv4Address.localhost, tcpClient.getRemoteIPAddress());
+                            test.assertEqual(port, tcpClient.getRemotePort());
                             test.assertSuccess(true, tcpClient.write(bytes));
                             test.assertSuccess(bytes, tcpClient.readBytes(bytes.length));
                         }

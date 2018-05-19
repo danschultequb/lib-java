@@ -2,20 +2,36 @@ package qub;
 
 public class FakeTCPServer extends AsyncDisposableBase implements TCPServer
 {
+    private final IPv4Address localIPAddress;
+    private final int localPort;
+    private final FakeNetwork network;
     private final AsyncRunner asyncRunner;
     private final Mutex mutex;
-    private final MutexCondition hasConnectionRequests;
-    private final Queue<FakeConnectionRequest> connectionRequests;
-    private final List<Integer> localPortsInUse;
+    private final MutexCondition hasClientsToAccept;
+    private final List<FakeTCPClient> clientsToAccept;
     private volatile boolean disposed;
 
-    public FakeTCPServer(AsyncRunner asyncRunner)
+    public FakeTCPServer(IPv4Address localIPAddress, int localPort, FakeNetwork network, AsyncRunner asyncRunner)
     {
+        this.localIPAddress = localIPAddress;
+        this.localPort = localPort;
+        this.network = network;
         this.asyncRunner = asyncRunner;
         mutex = new SpinMutex();
-        hasConnectionRequests = mutex.createCondition();
-        connectionRequests = new ArrayListQueue<FakeConnectionRequest>();
-        localPortsInUse = new ArrayList<Integer>();
+        hasClientsToAccept = mutex.createCondition();
+        clientsToAccept = new ArrayList<FakeTCPClient>();
+    }
+
+    @Override
+    public IPv4Address getLocalIPAddress()
+    {
+        return localIPAddress;
+    }
+
+    @Override
+    public int getLocalPort()
+    {
+        return localPort;
     }
 
     @Override
@@ -23,12 +39,17 @@ public class FakeTCPServer extends AsyncDisposableBase implements TCPServer
     {
         try (final Disposable criticalSection = mutex.criticalSection())
         {
-            while (!disposed && !connectionRequests.any())
+            while (!disposed && !clientsToAccept.any())
             {
-                hasConnectionRequests.await();
+                hasClientsToAccept.await();
             }
 
-            return null;
+            Result<TCPClient> result = Result.equal(false, disposed, "tcpServer.isDisposed()");
+            if (result == null)
+            {
+                result = Result.<TCPClient>success(clientsToAccept.removeFirst());
+            }
+            return result;
         }
     }
 
@@ -85,9 +106,19 @@ public class FakeTCPServer extends AsyncDisposableBase implements TCPServer
             else
             {
                 disposed = true;
+                network.serverDisposed(localIPAddress, localPort);
                 result = Result.successTrue();
             }
             return result;
+        }
+    }
+
+    public void addIncomingClient(FakeTCPClient incomingClient)
+    {
+        try (final Disposable criticalSection = mutex.criticalSection())
+        {
+            clientsToAccept.add(incomingClient);
+            hasClientsToAccept.signalAll();
         }
     }
 }

@@ -122,6 +122,22 @@ class JavaTCPServer extends AsyncDisposableBase implements TCPServer
     }
 
     @Override
+    public IPv4Address getLocalIPAddress()
+    {
+        String inetAddressString = serverSocket.getInetAddress().toString();
+        if (inetAddressString.startsWith("/")) {
+            inetAddressString = inetAddressString.substring(1);
+        }
+        return IPv4Address.parse(inetAddressString);
+    }
+
+    @Override
+    public int getLocalPort()
+    {
+        return serverSocket.getLocalPort();
+    }
+
+    @Override
     public Result<TCPClient> accept()
     {
         Result<TCPClient> result;

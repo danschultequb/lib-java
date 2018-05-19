@@ -109,19 +109,7 @@ public class ConsoleTestRunner extends Console implements TestRunner
             public void run(Test test, TestAssertionFailure failure)
             {
                 ConsoleTestRunner.this.writeLine(" - Failed");
-                ConsoleTestRunner.this.increaseIndent();
-
-                for (final String messageLine : failure.getMessageLines())
-                {
-                    if (messageLine != null)
-                    {
-                        ConsoleTestRunner.this.writeLine(messageLine);
-                    }
-                }
-
-                ConsoleTestRunner.this.decreaseIndent();
-
-                ConsoleTestRunner.this.writeStackTrace(failure);
+                writeFailure(failure);
             }
         });
         testRunner.setOnTestSkipped(new Action1<Test>()
@@ -204,6 +192,78 @@ public class ConsoleTestRunner extends Console implements TestRunner
         }
 
         return result;
+    }
+
+    private void writeFailure(TestAssertionFailure failure)
+    {
+        increaseIndent();
+        for (final String messageLine : failure.getMessageLines())
+        {
+            if (messageLine != null)
+            {
+                writeLine(messageLine);
+            }
+        }
+        writeStackTrace(failure);
+        decreaseIndent();
+
+        Throwable cause = failure.getCause();
+        if (cause != null)
+        {
+            writeFailureCause(cause);
+        }
+    }
+
+    private void writeFailureCause(Throwable cause)
+    {
+        if (cause instanceof ErrorIterable)
+        {
+            final ErrorIterable errors = (ErrorIterable)cause;
+
+            writeLine("Caused by:");
+            int causeNumber = 0;
+            for (final Throwable innerCause : errors)
+            {
+                ++causeNumber;
+                write(causeNumber + ") " + innerCause.getClass().getName());
+
+                increaseIndent();
+                if (!Strings.isNullOrEmpty(innerCause.getMessage()))
+                {
+                    writeLine("Message: " + innerCause.getMessage());
+                }
+                writeStackTrace(innerCause);
+                decreaseIndent();
+
+                final Throwable nextCause = innerCause.getCause();
+                if (nextCause != null && nextCause != innerCause)
+                {
+                    increaseIndent();
+                    writeFailureCause(nextCause);
+                    decreaseIndent();
+                }
+            }
+        }
+        else
+        {
+            writeLine("Caused by: " + cause.getClass().getName());
+
+            increaseIndent();
+            if (!Strings.isNullOrEmpty(cause.getMessage()))
+            {
+                writeLine("Message: " + cause.getMessage());
+            }
+            writeStackTrace(cause);
+            decreaseIndent();
+
+            final Throwable nextCause = cause.getCause();
+            if (nextCause != null && nextCause != cause)
+            {
+                increaseIndent();
+                writeFailureCause(nextCause);
+                decreaseIndent();
+            }
+        }
     }
 
     @Override
@@ -319,16 +379,7 @@ public class ConsoleTestRunner extends Console implements TestRunner
                 writeLine(testFailureNumber + ") " + failure.getFullTestName());
                 ++testFailureNumber;
                 increaseIndent();
-                increaseIndent();
-                for (final String messageLine : failure.getMessageLines())
-                {
-                    if (messageLine != null)
-                    {
-                        writeLine(messageLine);
-                    }
-                }
-                writeStackTrace(failure);
-                decreaseIndent();
+                writeFailure(failure);
                 decreaseIndent();
 
                 writeLine();

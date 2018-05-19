@@ -1,5 +1,7 @@
 package qub;
 
+import java.net.InetSocketAddress;
+
 class JavaTCPClient extends TCPClientBase
 {
     private final java.net.Socket socket;
@@ -83,5 +85,39 @@ class JavaTCPClient extends TCPClientBase
             }
         }
         return result;
+    }
+
+    @Override
+    public IPv4Address getLocalIPAddress()
+    {
+        String localInetAddressString = socket.getLocalAddress().toString();
+        if (localInetAddressString.startsWith("/")) {
+            localInetAddressString = localInetAddressString.substring(1);
+        }
+        return IPv4Address.parse(localInetAddressString);
+    }
+
+    @Override
+    public int getLocalPort()
+    {
+        return socket.getLocalPort();
+    }
+
+    @Override
+    public IPv4Address getRemoteIPAddress()
+    {
+        final InetSocketAddress remoteInetSocketAddress = (InetSocketAddress)socket.getRemoteSocketAddress();
+        String remoteInetAddressString = remoteInetSocketAddress.getAddress().toString();
+        if (remoteInetAddressString.startsWith("/")) {
+            remoteInetAddressString = remoteInetAddressString.substring(1);
+        }
+        return IPv4Address.parse(remoteInetAddressString);
+    }
+
+    @Override
+    public int getRemotePort()
+    {
+        final InetSocketAddress remoteInetSocketAddress = (InetSocketAddress)socket.getRemoteSocketAddress();
+        return remoteInetSocketAddress.getPort();
     }
 }

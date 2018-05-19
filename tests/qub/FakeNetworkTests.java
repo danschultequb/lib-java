@@ -7,6 +7,10 @@ public class FakeNetworkTests
         runner.testGroup(FakeNetwork.class, () ->
         {
             NetworkTests.test(runner, (Test test) -> new FakeNetwork(test.getParallelAsyncRunner()));
+
+            runner.test("dispose created FakeTCPServer", (Test test) -> {
+
+            });
         });
     }
 }

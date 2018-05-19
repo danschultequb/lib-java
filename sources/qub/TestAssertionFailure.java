@@ -7,7 +7,6 @@ public class TestAssertionFailure extends RuntimeException
 {
     private final String fullTestName;
     private final String[] messageLines;
-    private final Throwable innerException;
 
     /**
      * Create a new TestAssertionFailure with the provided message lines.
@@ -23,13 +22,13 @@ public class TestAssertionFailure extends RuntimeException
      * Create a new TestAssertionFailure with the provided message lines.
      * @param fullTestName The full name of the test that failed.
      * @param messageLines The lines to display that will explain the test assertion failure.
-     * @param innerException The exception that caused the test to fail.
+     * @param cause The exception that caused the test to fail.
      */
-    public TestAssertionFailure(String fullTestName, String[] messageLines, Throwable innerException)
+    public TestAssertionFailure(String fullTestName, String[] messageLines, Throwable cause)
     {
+        super(cause);
         this.fullTestName = fullTestName;
         this.messageLines = messageLines;
-        this.innerException = innerException;
     }
 
     /**
@@ -48,11 +47,5 @@ public class TestAssertionFailure extends RuntimeException
     public String[] getMessageLines()
     {
         return messageLines;
-    }
-
-    @Override
-    public StackTraceElement[] getStackTrace()
-    {
-        return innerException != null ? innerException.getStackTrace() : super.getStackTrace();
     }
 }

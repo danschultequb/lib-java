@@ -61,15 +61,49 @@ public class FakeNetwork extends NetworkBase
                         }
                         else
                         {
-                            final InMemoryByteStream clientToServer = new InMemoryByteStream(asyncRunner);
-                            final InMemoryByteStream serverToClient = new InMemoryByteStream(asyncRunner);
-                            final FakeTCPClient tcpClient = new FakeTCPClient(asyncRunner, clientLocalIPAddress, clientLocalPort, remoteIPAddress, remotePort, serverToClient, clientToServer);
+                            int serverClientLocalPort = 65535;
+                            while (1 <= serverClientLocalPort && !isAvailable(remoteIPAddress, serverClientLocalPort))
+                            {
+                                --serverClientLocalPort;
+                            }
+
+                            if (serverClientLocalPort < 1)
+                            {
+                                result = Result.error(new IllegalStateException("No more ports available on IP address " + remoteIPAddress));
+                            }
+                            else
+                            {
+                                final InMemoryByteStream clientToServer = new InMemoryByteStream(asyncRunner);
+                                final InMemoryByteStream serverToClient = new InMemoryByteStream(asyncRunner);
+
+                                final FakeTCPClient tcpClient = new FakeTCPClient(this, asyncRunner, clientLocalIPAddress, clientLocalPort, remoteIPAddress, remotePort, serverToClient, clientToServer);
+                                addLocalTCPClient(tcpClient);
+
+                                final FakeTCPClient serverTCPClient = new FakeTCPClient(this, asyncRunner, remoteIPAddress, serverClientLocalPort, clientLocalIPAddress, clientLocalPort, clientToServer, serverToClient);
+                                addLocalTCPClient(serverTCPClient);
+
+                                remoteTCPServer.addIncomingClient(serverTCPClient);
+
+                                result = Result.<TCPClient>success(tcpClient);
+                            }
                         }
                     }
                 }
             }
         }
         return result;
+    }
+
+    private void addLocalTCPClient(FakeTCPClient tcpClient)
+    {
+        final IPv4Address localIPAddress = tcpClient.getLocalIPAddress();
+        Map<Integer,FakeTCPClient> localClients = boundTCPClients.get(localIPAddress);
+        if (localClients == null)
+        {
+            localClients = new ListMap<>();
+            boundTCPClients.set(localIPAddress, localClients);
+        }
+        localClients.set(tcpClient.getLocalPort(), tcpClient);
     }
 
     @Override
@@ -95,7 +129,7 @@ public class FakeNetwork extends NetworkBase
                     }
                     else
                     {
-                        final FakeTCPServer tcpServer = new FakeTCPServer(asyncRunner);
+                        final FakeTCPServer tcpServer = new FakeTCPServer(localIPAddress, localPort, this, asyncRunner);
 
                         Map<Integer, FakeTCPServer> localTCPServers = boundTCPServers.get(localIPAddress);
                         if (localTCPServers == null)
@@ -113,7 +147,23 @@ public class FakeNetwork extends NetworkBase
         return result;
     }
 
-    private boolean isAvailable(IPv4Address ipAddress, int port)
+    public void serverDisposed(IPv4Address ipAddress, int port)
+    {
+        try (final Disposable criticalSection = mutex.criticalSection())
+        {
+            boundTCPServers.get(ipAddress).remove(port);
+        }
+    }
+
+    public void clientDisposed(IPv4Address ipAddress, int port)
+    {
+        try (final Disposable criticalSection = mutex.criticalSection())
+        {
+            boundTCPClients.get(ipAddress).remove(port);
+        }
+    }
+
+    public boolean isAvailable(IPv4Address ipAddress, int port)
     {
         boolean result = true;
 
