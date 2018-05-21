@@ -22,6 +22,12 @@ public class ListMap<TKey,TValue> extends MapBase<TKey,TValue>
     }
 
     @Override
+    public boolean containsKey(TKey key)
+    {
+        return getEntry(key) != null;
+    }
+
+    @Override
     public TValue get(TKey key)
     {
         final MutableMapEntry<TKey,TValue> entry = getEntry(key);

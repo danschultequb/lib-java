@@ -8,6 +8,13 @@ package qub;
 public interface Map<TKey,TValue> extends Iterable<MapEntry<TKey,TValue>>
 {
     /**
+     * Get whether or not the provided key exists in this Map.
+     * @param key The key to check.
+     * @return Whether or not the provided key exists in this Map.
+     */
+    boolean containsKey(TKey key);
+
+    /**
      * Get the value associated with the provided key, or null if the key doesn't exist in the map.
      * @param key The key to get the value for.
      * @return The value associated with the provided key, or null if the key doesn't exist in the

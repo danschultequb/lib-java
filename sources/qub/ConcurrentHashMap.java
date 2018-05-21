@@ -12,6 +12,12 @@ public class ConcurrentHashMap<TKey,TValue> extends MapBase<TKey,TValue>
     }
 
     @Override
+    public boolean containsKey(TKey key)
+    {
+        return javaMap.containsKey(key);
+    }
+
+    @Override
     public TValue get(TKey key)
     {
         return javaMap.get(key);

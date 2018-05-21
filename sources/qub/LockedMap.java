@@ -17,6 +17,15 @@ public class LockedMap<TKey,TValue> implements Map<TKey,TValue>
     }
 
     @Override
+    public boolean containsKey(TKey key)
+    {
+        try (final Disposable criticalSection = mutex.criticalSection())
+        {
+            return innerMap.containsKey(key);
+        }
+    }
+
+    @Override
     public TValue get(final TKey key)
     {
         return mutex.criticalSection(new Function0<TValue>()

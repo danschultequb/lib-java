@@ -3,6 +3,16 @@ package qub;
 public class Strings
 {
     /**
+     * Get an Iterator for the characters in the provided text.
+     * @param text The text to iterate.
+     * @return The Iterator over the characters in the provided text.
+     */
+    public static Iterator<Character> iterate(String text)
+    {
+        return new StringIterator(text);
+    }
+
+    /**
      * Check if the provided text String contains any of the provided characters.
      * @param text The text to search in.
      * @param characters The characters to search for.
@@ -30,6 +40,11 @@ public class Strings
         return result;
     }
 
+    /**
+     * Escape the provided character if it is an escaped character (such as '\n' or '\t').
+     * @param character The character to escape.
+     * @return The escaped character.
+     */
     public static String escape(char character)
     {
         String result;
@@ -70,6 +85,11 @@ public class Strings
         return result;
     }
 
+    /**
+     * Escape any escaped characters (such as '\n' or '\t') in the provided text.
+     * @param text The text to escape.
+     * @return The escaped text.
+     */
     public static String escape(String text)
     {
         String result;
@@ -90,6 +110,11 @@ public class Strings
         return result;
     }
 
+    /**
+     * Surround the provided text with double quotes.
+     * @param text The text to quote.
+     * @return The quoted text.
+     */
     public static String quote(String text)
     {
         return text == null ? null : '\"' + text + '\"';
