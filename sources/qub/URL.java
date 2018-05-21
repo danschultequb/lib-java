@@ -139,14 +139,71 @@ public class URL
         }
         else
         {
-            final String queryParameterName = "queryParameterName";
-            final String queryParameterEqualsSign = "queryParameterEqualsSign";
-            final String queryParameterValue = "queryParameterValue";
-            String currentState = queryParameterName;
-            for (final char character : Strings.iterate(queryString))
+
+            final String queryParameterNameState = "queryParameterNameState";
+            final String queryParameterValueState = "queryParameterValueState";
+            String currentState = queryParameterNameState;
+            final Map<String,String> query = new ListMap<String,String>();
+            final StringBuilder queryParameterName = new StringBuilder();
+            final StringBuilder queryParameterValue = new StringBuilder();
+            final Iterator<Character> characters = Strings.iterate(queryString);
+            characters.next();
+            if (characters.getCurrent() == '?')
             {
-                switch ()
+                characters.next();
             }
+            for (final char character : characters)
+            {
+                if (currentState == queryParameterNameState)
+                {
+                    if (character ==  '=')
+                    {
+                        currentState = queryParameterValueState;
+                    }
+                    else if (character == '&')
+                    {
+                        if (queryParameterName.length() > 0)
+                        {
+                            query.set(queryParameterName.toString(), null);
+                            queryParameterName.setLength(0);
+                            queryParameterValue.setLength(0);
+                        }
+                    }
+                    else
+                    {
+                        queryParameterName.append(character);
+                    }
+                }
+                else
+                {
+                    if (character == '&')
+                    {
+                        if (queryParameterName.length() > 0)
+                        {
+                            query.set(queryParameterName.toString(), queryParameterValue.toString());
+                            queryParameterName.setLength(0);
+                            queryParameterValue.setLength(0);
+                        }
+                        currentState = queryParameterNameState;
+                    }
+                    else
+                    {
+                        queryParameterValue.append(character);
+                    }
+                }
+            }
+            if (queryParameterName.length() > 0)
+            {
+                if (currentState == queryParameterNameState)
+                {
+                    query.set(queryParameterName.toString(), null);
+                }
+                else
+                {
+                    query.set(queryParameterName.toString(), queryParameterValue.toString());
+                }
+            }
+            this.query = query;
         }
     }
 
@@ -197,5 +254,73 @@ public class URL
     public void setFragment(String fragment)
     {
         this.fragment = Strings.isNullOrEmpty(fragment) ? null : fragment;
+    }
+
+    @Override
+    public String toString()
+    {
+        final StringBuilder builder = new StringBuilder();
+
+        if (scheme != null)
+        {
+            builder.append(scheme);
+            builder.append("://");
+        }
+
+        if (host != null)
+        {
+            builder.append(host);
+        }
+
+        if (port != null)
+        {
+            builder.append(':');
+            builder.append(port);
+        }
+
+        if (path != null)
+        {
+            if (!path.startsWith("/"))
+            {
+                builder.append('/');
+            }
+            builder.append(path);
+        }
+
+        if (query != null)
+        {
+            builder.append('?');
+            boolean addedQueryParameter = false;
+            for (final MapEntry<String,String> queryParameter : query)
+            {
+                if (!addedQueryParameter)
+                {
+                    addedQueryParameter = true;
+                }
+                else
+                {
+                    builder.append('&');
+                }
+
+                builder.append(queryParameter.getKey());
+                final String queryParameterValue = queryParameter.getValue();
+                if (queryParameterValue != null)
+                {
+                    builder.append('=');
+                    builder.append(queryParameterValue);
+                }
+            }
+        }
+
+        if (fragment != null)
+        {
+            if (!fragment.startsWith("#"))
+            {
+                builder.append('#');
+            }
+            builder.append(fragment);
+        }
+
+        return builder.toString();
     }
 }
