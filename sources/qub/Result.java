@@ -120,6 +120,19 @@ final public class Result<T>
         return result;
     }
 
+    public static <U> Result<U> notNullAndNotEmpty(String value, String parameterName)
+    {
+        Result<U> result = Result.notNull(value, parameterName);
+        if (result == null)
+        {
+            if (value.isEmpty())
+            {
+                result = Result.error(new IllegalArgumentException(parameterName + " cannot be empty."));
+            }
+        }
+        return result;
+    }
+
     public static <U> Result<U> greaterThan(int lowerBound, int value, String parameterName)
     {
         Result<U> result = null;

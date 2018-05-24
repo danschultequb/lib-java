@@ -470,6 +470,417 @@ public class URLTests
                     test.assertEqual("www.example.com#firstHeading", url.toString());
                 });
             });
+
+            runner.testGroup("parse(String)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final Result<URL> urlResult = URL.parse(null);
+                    test.assertError(new IllegalArgumentException("urlString cannot be null."), urlResult);
+                });
+
+                runner.test("with \"\"", (Test test) ->
+                {
+                    final Result<URL> urlResult = URL.parse("");
+                    test.assertError(new IllegalArgumentException("urlString cannot be empty."), urlResult);
+                });
+
+                runner.test("with \"http\"", (Test test) ->
+                {
+                    final Result<URL> urlResult = URL.parse("http");
+                    test.assertSuccess(urlResult);
+                    final URL url = urlResult.getValue();
+                    test.assertEqual("http", url.toString());
+                    test.assertEqual(null, url.getScheme());
+                    test.assertEqual("http", url.getHost());
+                    test.assertEqual(null, url.getPort());
+                    test.assertEqual(null, url.getPath());
+                    test.assertEqual(null, url.getQuery());
+                    test.assertEqual(null, url.getFragment());
+                });
+
+                runner.test("with \"http:\"", (Test test) ->
+                {
+                    final Result<URL> urlResult = URL.parse("http:");
+                    test.assertError(new IllegalArgumentException("Could not parse \"http:\" into a URL because it is missing a port number."), urlResult);
+                });
+
+                runner.test("with \"http:81\"", (Test test) ->
+                {
+                    final Result<URL> urlResult = URL.parse("http:81");
+                    test.assertSuccess(urlResult);
+                    final URL url = urlResult.getValue();
+                    test.assertEqual("http:81", url.toString());
+                    test.assertEqual(null, url.getScheme());
+                    test.assertEqual("http", url.getHost());
+                    test.assertEqual(81, url.getPort());
+                    test.assertEqual(null, url.getPath());
+                    test.assertEqual(null, url.getQuery());
+                    test.assertEqual(null, url.getFragment());
+                });
+
+                runner.test("with \"http:/\"", (Test test) ->
+                {
+                    final Result<URL> urlResult = URL.parse("http:/");
+                    test.assertError(new IllegalArgumentException("Could not parse \"http:/\" into a URL because it is missing the second forward slash after the scheme."), urlResult);
+                });
+
+                runner.test("with \"http://\"", (Test test) ->
+                {
+                    final Result<URL> urlResult = URL.parse("http://");
+                    test.assertSuccess(urlResult);
+                    final URL url = urlResult.getValue();
+                    test.assertEqual("http://", url.toString());
+                    test.assertEqual("http", url.getScheme());
+                    test.assertEqual(null, url.getHost());
+                    test.assertEqual(null, url.getPort());
+                    test.assertEqual(null, url.getPath());
+                    test.assertEqual(null, url.getQuery());
+                    test.assertEqual(null, url.getFragment());
+                });
+
+                runner.test("with \"http://:\"", (Test test) ->
+                {
+                    final Result<URL> urlResult = URL.parse("http://:");
+                    test.assertError(new IllegalArgumentException("Could not parse \"http://:\" into a URL because no host was specified before the port."), urlResult);
+                });
+
+                runner.test("with \"http:///\"", (Test test) ->
+                {
+                    final Result<URL> urlResult = URL.parse("http:///");
+                    test.assertError(new IllegalArgumentException("Could not parse \"http:///\" into a URL because no host was specified before the path."), urlResult);
+                });
+
+                runner.test("with \"http://?\"", (Test test) ->
+                {
+                    final Result<URL> urlResult = URL.parse("http://?");
+                    test.assertError(new IllegalArgumentException("Could not parse \"http://?\" into a URL because no host was specified before the query."), urlResult);
+                });
+
+                runner.test("with \"http://#\"", (Test test) ->
+                {
+                    final Result<URL> urlResult = URL.parse("http://#");
+                    test.assertError(new IllegalArgumentException("Could not parse \"http://#\" into a URL because no host was specified before the fragment."), urlResult);
+                });
+
+                runner.test("with \"http://www\"", (Test test) ->
+                {
+                    final Result<URL> urlResult = URL.parse("http://www");
+                    test.assertSuccess(urlResult);
+                    final URL url = urlResult.getValue();
+                    test.assertEqual("http://www", url.toString());
+                    test.assertEqual("http", url.getScheme());
+                    test.assertEqual("www", url.getHost());
+                    test.assertEqual(null, url.getPort());
+                    test.assertEqual(null, url.getPath());
+                    test.assertEqual(null, url.getQuery());
+                    test.assertEqual(null, url.getFragment());
+                });
+
+                runner.test("with \"http://www.example.com\"", (Test test) ->
+                {
+                    final Result<URL> urlResult = URL.parse("http://www.example.com");
+                    test.assertSuccess(urlResult);
+                    final URL url = urlResult.getValue();
+                    test.assertEqual("http://www.example.com", url.toString());
+                    test.assertEqual("http", url.getScheme());
+                    test.assertEqual("www.example.com", url.getHost());
+                    test.assertEqual(null, url.getPort());
+                    test.assertEqual(null, url.getPath());
+                    test.assertEqual(null, url.getQuery());
+                    test.assertEqual(null, url.getFragment());
+                });
+
+                runner.test("with \"http://www.example.com:\"", (Test test) ->
+                {
+                    final Result<URL> urlResult = URL.parse("http://www.example.com:");
+                    test.assertError(new IllegalArgumentException("Could not parse \"http://www.example.com:\" into a URL because it is missing its port number."), urlResult);
+                });
+
+                runner.test("with \"http://www.example.com:20\"", (Test test) ->
+                {
+                    final Result<URL> urlResult = URL.parse("http://www.example.com:20");
+                    test.assertSuccess(urlResult);
+                    final URL url = urlResult.getValue();
+                    test.assertEqual("http", url.getScheme());
+                    test.assertEqual("www.example.com", url.getHost());
+                    test.assertEqual(20, url.getPort());
+                    test.assertEqual(null, url.getPath());
+                    test.assertEqual(null, url.getQuery());
+                    test.assertEqual(null, url.getFragment());
+                    test.assertEqual("http://www.example.com:20", url.toString());
+                });
+
+                runner.test("with \"http://www.example.com:20/\"", (Test test) ->
+                {
+                    final Result<URL> urlResult = URL.parse("http://www.example.com:20/");
+                    test.assertSuccess(urlResult);
+                    final URL url = urlResult.getValue();
+                    test.assertEqual("http", url.getScheme());
+                    test.assertEqual("www.example.com", url.getHost());
+                    test.assertEqual(20, url.getPort());
+                    test.assertEqual("/", url.getPath());
+                    test.assertEqual(null, url.getQuery());
+                    test.assertEqual(null, url.getFragment());
+                    test.assertEqual("http://www.example.com:20/", url.toString());
+                });
+
+                runner.test("with \"http://www.example.com/\"", (Test test) ->
+                {
+                    final Result<URL> urlResult = URL.parse("http://www.example.com/");
+                    test.assertSuccess(urlResult);
+                    final URL url = urlResult.getValue();
+                    test.assertEqual("http", url.getScheme());
+                    test.assertEqual("www.example.com", url.getHost());
+                    test.assertEqual(null, url.getPort());
+                    test.assertEqual("/", url.getPath());
+                    test.assertEqual(null, url.getQuery());
+                    test.assertEqual(null, url.getFragment());
+                    test.assertEqual("http://www.example.com/", url.toString());
+                });
+
+                runner.test("with \"http://www.example.com:20/a/index.html\"", (Test test) ->
+                {
+                    final Result<URL> urlResult = URL.parse("http://www.example.com:20/a/index.html");
+                    test.assertSuccess(urlResult);
+                    final URL url = urlResult.getValue();
+                    test.assertEqual("http", url.getScheme());
+                    test.assertEqual("www.example.com", url.getHost());
+                    test.assertEqual(20, url.getPort());
+                    test.assertEqual("/a/index.html", url.getPath());
+                    test.assertEqual(null, url.getQuery());
+                    test.assertEqual(null, url.getFragment());
+                    test.assertEqual("http://www.example.com:20/a/index.html", url.toString());
+                });
+
+                runner.test("with \"http://www.example.com/b/page.htm\"", (Test test) ->
+                {
+                    final Result<URL> urlResult = URL.parse("http://www.example.com/b/page.htm");
+                    test.assertSuccess(urlResult);
+                    final URL url = urlResult.getValue();
+                    test.assertEqual("http", url.getScheme());
+                    test.assertEqual("www.example.com", url.getHost());
+                    test.assertEqual(null, url.getPort());
+                    test.assertEqual("/b/page.htm", url.getPath());
+                    test.assertEqual(null, url.getQuery());
+                    test.assertEqual(null, url.getFragment());
+                    test.assertEqual("http://www.example.com/b/page.htm", url.toString());
+                });
+
+                runner.test("with \"http://www.example.com:20?\"", (Test test) ->
+                {
+                    final Result<URL> urlResult = URL.parse("http://www.example.com:20?");
+                    test.assertSuccess(urlResult);
+                    final URL url = urlResult.getValue();
+                    test.assertEqual("http", url.getScheme());
+                    test.assertEqual("www.example.com", url.getHost());
+                    test.assertEqual(20, url.getPort());
+                    test.assertEqual(null, url.getPath());
+                    test.assertEqual(null, url.getQuery());
+                    test.assertEqual(null, url.getFragment());
+                    test.assertEqual("http://www.example.com:20", url.toString());
+                });
+
+                runner.test("with \"http://www.example.com:20?q1\"", (Test test) ->
+                {
+                    final Result<URL> urlResult = URL.parse("http://www.example.com:20?q1");
+                    test.assertSuccess(urlResult);
+                    final URL url = urlResult.getValue();
+                    test.assertEqual("http", url.getScheme());
+                    test.assertEqual("www.example.com", url.getHost());
+                    test.assertEqual(20, url.getPort());
+                    test.assertEqual(null, url.getPath());
+                    test.assertEqual("q1", url.getQuery());
+                    test.assertEqual(null, url.getFragment());
+                    test.assertEqual("http://www.example.com:20?q1", url.toString());
+                });
+
+                runner.test("with \"http://www.example.com:20?q1=\"", (Test test) ->
+                {
+                    final Result<URL> urlResult = URL.parse("http://www.example.com:20?q1=");
+                    test.assertSuccess(urlResult);
+                    final URL url = urlResult.getValue();
+                    test.assertEqual("http", url.getScheme());
+                    test.assertEqual("www.example.com", url.getHost());
+                    test.assertEqual(20, url.getPort());
+                    test.assertEqual(null, url.getPath());
+                    test.assertEqual("q1=", url.getQuery());
+                    test.assertEqual(null, url.getFragment());
+                    test.assertEqual("http://www.example.com:20?q1=", url.toString());
+                });
+
+                runner.test("with \"http://www.example.com:20?q1=v1\"", (Test test) ->
+                {
+                    final Result<URL> urlResult = URL.parse("http://www.example.com:20?q1=v1");
+                    test.assertSuccess(urlResult);
+                    final URL url = urlResult.getValue();
+                    test.assertEqual("http", url.getScheme());
+                    test.assertEqual("www.example.com", url.getHost());
+                    test.assertEqual(20, url.getPort());
+                    test.assertEqual(null, url.getPath());
+                    test.assertEqual("q1=v1", url.getQuery());
+                    test.assertEqual(null, url.getFragment());
+                    test.assertEqual("http://www.example.com:20?q1=v1", url.toString());
+                });
+
+                runner.test("with \"http://www.example.com:20/?\"", (Test test) ->
+                {
+                    final Result<URL> urlResult = URL.parse("http://www.example.com:20/?");
+                    test.assertSuccess(urlResult);
+                    final URL url = urlResult.getValue();
+                    test.assertEqual("http", url.getScheme());
+                    test.assertEqual("www.example.com", url.getHost());
+                    test.assertEqual(20, url.getPort());
+                    test.assertEqual("/", url.getPath());
+                    test.assertEqual(null, url.getQuery());
+                    test.assertEqual(null, url.getFragment());
+                    test.assertEqual("http://www.example.com:20/", url.toString());
+                });
+
+                runner.test("with \"http://www.example.com:20/?q2\"", (Test test) ->
+                {
+                    final Result<URL> urlResult = URL.parse("http://www.example.com:20/?q2");
+                    test.assertSuccess(urlResult);
+                    final URL url = urlResult.getValue();
+                    test.assertEqual("http", url.getScheme());
+                    test.assertEqual("www.example.com", url.getHost());
+                    test.assertEqual(20, url.getPort());
+                    test.assertEqual("/", url.getPath());
+                    test.assertEqual("q2", url.getQuery());
+                    test.assertEqual(null, url.getFragment());
+                    test.assertEqual("http://www.example.com:20/?q2", url.toString());
+                });
+
+                runner.test("with \"http://www.example.com/?q3=v3&q3.1=v3.1\"", (Test test) ->
+                {
+                    final Result<URL> urlResult = URL.parse("http://www.example.com/?q3=v3&q3.1=v3.1");
+                    test.assertSuccess(urlResult);
+                    final URL url = urlResult.getValue();
+                    test.assertEqual("http", url.getScheme());
+                    test.assertEqual("www.example.com", url.getHost());
+                    test.assertEqual(null, url.getPort());
+                    test.assertEqual("/", url.getPath());
+                    test.assertEqual("q3=v3&q3.1=v3.1", url.getQuery());
+                    test.assertEqual(null, url.getFragment());
+                    test.assertEqual("http://www.example.com/?q3=v3&q3.1=v3.1", url.toString());
+                });
+
+                runner.test("with \"http://www.example.com:20#\"", (Test test) ->
+                {
+                    final Result<URL> urlResult = URL.parse("http://www.example.com:20#");
+                    test.assertSuccess(urlResult);
+                    final URL url = urlResult.getValue();
+                    test.assertEqual("http", url.getScheme());
+                    test.assertEqual("www.example.com", url.getHost());
+                    test.assertEqual(20, url.getPort());
+                    test.assertEqual(null, url.getPath());
+                    test.assertEqual(null, url.getQuery());
+                    test.assertEqual("#", url.getFragment());
+                    test.assertEqual("http://www.example.com:20#", url.toString());
+                });
+
+                runner.test("with \"http://www.example.com:20#fragment\"", (Test test) ->
+                {
+                    final Result<URL> urlResult = URL.parse("http://www.example.com:20#fragment");
+                    test.assertSuccess(urlResult);
+                    final URL url = urlResult.getValue();
+                    test.assertEqual("http", url.getScheme());
+                    test.assertEqual("www.example.com", url.getHost());
+                    test.assertEqual(20, url.getPort());
+                    test.assertEqual(null, url.getPath());
+                    test.assertEqual(null, url.getQuery());
+                    test.assertEqual("#fragment", url.getFragment());
+                    test.assertEqual("http://www.example.com:20#fragment", url.toString());
+                });
+
+                runner.test("with \"http://www.example.com:20/#\"", (Test test) ->
+                {
+                    final Result<URL> urlResult = URL.parse("http://www.example.com:20/#");
+                    test.assertSuccess(urlResult);
+                    final URL url = urlResult.getValue();
+                    test.assertEqual("http", url.getScheme());
+                    test.assertEqual("www.example.com", url.getHost());
+                    test.assertEqual(20, url.getPort());
+                    test.assertEqual("/", url.getPath());
+                    test.assertEqual(null, url.getQuery());
+                    test.assertEqual("#", url.getFragment());
+                    test.assertEqual("http://www.example.com:20/#", url.toString());
+                });
+
+                runner.test("with \"http://www.example.com:20/#fragment\"", (Test test) ->
+                {
+                    final Result<URL> urlResult = URL.parse("http://www.example.com:20/#fragment");
+                    test.assertSuccess(urlResult);
+                    final URL url = urlResult.getValue();
+                    test.assertEqual("http", url.getScheme());
+                    test.assertEqual("www.example.com", url.getHost());
+                    test.assertEqual(20, url.getPort());
+                    test.assertEqual("/", url.getPath());
+                    test.assertEqual(null, url.getQuery());
+                    test.assertEqual("#fragment", url.getFragment());
+                    test.assertEqual("http://www.example.com:20/#fragment", url.toString());
+                });
+
+                runner.test("with \"http://www.example.com/#fragment\"", (Test test) ->
+                {
+                    final Result<URL> urlResult = URL.parse("http://www.example.com/#fragment");
+                    test.assertSuccess(urlResult);
+                    final URL url = urlResult.getValue();
+                    test.assertEqual("http", url.getScheme());
+                    test.assertEqual("www.example.com", url.getHost());
+                    test.assertEqual(null, url.getPort());
+                    test.assertEqual("/", url.getPath());
+                    test.assertEqual(null, url.getQuery());
+                    test.assertEqual("#fragment", url.getFragment());
+                    test.assertEqual("http://www.example.com/#fragment", url.toString());
+                });
+
+                runner.test("with \"http://www.example.com:8080/index.html?a=b&c=d#fragmentthing\"", (Test test) ->
+                {
+                    final Result<URL> urlResult = URL.parse("http://www.example.com:8080/index.html?a=b&c=d#fragmentthing");
+                    test.assertSuccess(urlResult);
+                    final URL url = urlResult.getValue();
+                    test.assertEqual("http", url.getScheme());
+                    test.assertEqual("www.example.com", url.getHost());
+                    test.assertEqual(8080, url.getPort());
+                    test.assertEqual("/index.html", url.getPath());
+                    test.assertEqual("a=b&c=d", url.getQuery());
+                    test.assertEqual("#fragmentthing", url.getFragment());
+                    test.assertEqual("http://www.example.com:8080/index.html?a=b&c=d#fragmentthing", url.toString());
+                });
+
+                runner.test("with \".\"", (Test test) ->
+                {
+                    final Result<URL> urlResult = URL.parse(".");
+                    test.assertError(new IllegalArgumentException("A URL must begin with either a scheme (such as \"http\") or a host (such as \"www.example.com\"), not \".\"."), urlResult);
+                });
+
+                runner.test("with \"%\"", (Test test) ->
+                {
+                    final Result<URL> urlResult = URL.parse("%");
+                    test.assertError(new IllegalArgumentException("A URL must begin with either a scheme (such as \"http\") or a host (such as \"www.example.com\"), not \"%\"."), urlResult);
+                });
+
+                runner.test("with \"www.example.com\"", (Test test) ->
+                {
+                    final Result<URL> urlResult = URL.parse("www.example.com");
+                    test.assertSuccess(urlResult);
+                    final URL url = urlResult.getValue();
+                    test.assertEqual(null, url.getScheme());
+                    test.assertEqual("www.example.com", url.getHost());
+                    test.assertEqual(null, url.getPort());
+                    test.assertEqual(null, url.getPath());
+                    test.assertEqual(null, url.getQuery());
+                    test.assertEqual(null, url.getFragment());
+                    test.assertEqual("www.example.com", url.toString());
+                });
+
+                runner.test("with \"http:*\"", (Test test) ->
+                {
+                    final Result<URL> urlResult = URL.parse("http:*");
+                    test.assertError(new IllegalArgumentException("After the scheme or host (http) and a colon, the following text must be either a forward slash or a port number."), urlResult);
+                });
+            });
         });
     }
 }
