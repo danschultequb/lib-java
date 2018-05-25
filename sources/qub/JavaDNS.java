@@ -1,0 +1,36 @@
+package qub;
+
+/**
+ * A DNS implementation that resolves hosts by making real DNS queries against the network.
+ */
+public class JavaDNS extends DNSBase
+{
+    @Override
+    public Result<IPv4Address> resolveHost(String host)
+    {
+        Result<IPv4Address> result = Result.notNullAndNotEmpty(host, "host");
+        if (result == null)
+        {
+            try
+            {
+                final java.net.InetAddress inetAddress = java.net.InetAddress.getByName(host);
+                String inetAddressString = inetAddress.toString();
+                if (inetAddressString != null)
+                {
+                    final int forwardSlashIndex = inetAddressString.indexOf('/');
+                    if (0 <= forwardSlashIndex)
+                    {
+                        inetAddressString = inetAddressString.substring(forwardSlashIndex + 1);
+                    }
+                }
+                final IPv4Address ipAddress = IPv4Address.parse(inetAddressString);
+                result = Result.success(ipAddress);
+            }
+            catch (java.net.UnknownHostException e)
+            {
+                result = Result.error(e);
+            }
+        }
+        return result;
+    }
+}

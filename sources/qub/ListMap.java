@@ -21,6 +21,16 @@ public class ListMap<TKey,TValue> extends MapBase<TKey,TValue>
         });
     }
 
+    public ListMap<TKey,TValue> clone()
+    {
+        final ListMap<TKey,TValue> result = new ListMap<TKey,TValue>();
+        for (final MapEntry<TKey,TValue> entry : this)
+        {
+            result.set(entry.getKey(), entry.getValue());
+        }
+        return result;
+    }
+
     @Override
     public boolean containsKey(TKey key)
     {

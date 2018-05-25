@@ -9,11 +9,27 @@ public class URL
     private String host;
     private Integer port;
     private String path;
-    private Map<String,String> query;
+    private ListMap<String,String> query;
     private String fragment;
 
     URL()
     {
+    }
+
+    /**
+     * Create a clone of this URL.
+     * @return A new clone of this URL.
+     */
+    public URL clone()
+    {
+        final URL result = new URL();
+        result.scheme = this.scheme;
+        result.host = this.host;
+        result.port = this.port;
+        result.path = this.path;
+        result.query = this.query == null ? null : this.query.clone();
+        result.fragment = this.fragment;
+        return result;
     }
 
     /**
@@ -141,7 +157,7 @@ public class URL
         {
 
             QueryParseState currentState = QueryParseState.QueryParameterName;
-            final Map<String,String> query = new ListMap<String,String>();
+            final ListMap<String,String> query = new ListMap<String,String>();
             final StringBuilder queryParameterName = new StringBuilder();
             final StringBuilder queryParameterValue = new StringBuilder();
             final Iterator<Character> characters = Strings.iterate(queryString);

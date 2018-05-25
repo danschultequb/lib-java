@@ -11,6 +11,16 @@ public class ConcurrentHashMap<TKey,TValue> extends MapBase<TKey,TValue>
         javaMap = new java.util.concurrent.ConcurrentHashMap<TKey,TValue>();
     }
 
+    public ConcurrentHashMap<TKey,TValue> clone()
+    {
+        final ConcurrentHashMap<TKey,TValue> result = new ConcurrentHashMap<TKey,TValue>();
+        for (final MapEntry<TKey,TValue> entry : this)
+        {
+            result.set(entry.getKey(), entry.getValue());
+        }
+        return result;
+    }
+
     @Override
     public boolean containsKey(TKey key)
     {
