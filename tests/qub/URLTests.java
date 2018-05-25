@@ -597,6 +597,12 @@ public class URLTests
                     test.assertError(new IllegalArgumentException("Could not parse \"http://www.example.com:\" into a URL because it is missing its port number."), urlResult);
                 });
 
+                runner.test("with \"http://www.example.com:whoops\"", (Test test) ->
+                {
+                    final Result<URL> urlResult = URL.parse("http://www.example.com:whoops");
+                    test.assertError(new IllegalArgumentException("Could not parse \"http://www.example.com:whoops\" into a URL because the port specified was not a number."), urlResult);
+                });
+
                 runner.test("with \"http://www.example.com:20\"", (Test test) ->
                 {
                     final Result<URL> urlResult = URL.parse("http://www.example.com:20");
@@ -609,6 +615,12 @@ public class URLTests
                     test.assertEqual(null, url.getQuery());
                     test.assertEqual(null, url.getFragment());
                     test.assertEqual("http://www.example.com:20", url.toString());
+                });
+
+                runner.test("with \"http://www.example.com:20^\"", (Test test) ->
+                {
+                    final Result<URL> urlResult = URL.parse("http://www.example.com:20^");
+                    test.assertError(new IllegalArgumentException("Expected \"/\", \"?\", or \"#\", but found \"^\" instead."), urlResult);
                 });
 
                 runner.test("with \"http://www.example.com:20/\"", (Test test) ->
@@ -665,6 +677,34 @@ public class URLTests
                     test.assertEqual(null, url.getQuery());
                     test.assertEqual(null, url.getFragment());
                     test.assertEqual("http://www.example.com/b/page.htm", url.toString());
+                });
+
+                runner.test("with \"http://www.example.com?\"", (Test test) ->
+                {
+                    final Result<URL> urlResult = URL.parse("http://www.example.com?");
+                    test.assertSuccess(urlResult);
+                    final URL url = urlResult.getValue();
+                    test.assertEqual("http", url.getScheme());
+                    test.assertEqual("www.example.com", url.getHost());
+                    test.assertEqual(null, url.getPort());
+                    test.assertEqual(null, url.getPath());
+                    test.assertEqual(null, url.getQuery());
+                    test.assertEqual(null, url.getFragment());
+                    test.assertEqual("http://www.example.com", url.toString());
+                });
+
+                runner.test("with \"http://www.example.com#\"", (Test test) ->
+                {
+                    final Result<URL> urlResult = URL.parse("http://www.example.com#");
+                    test.assertSuccess(urlResult);
+                    final URL url = urlResult.getValue();
+                    test.assertEqual("http", url.getScheme());
+                    test.assertEqual("www.example.com", url.getHost());
+                    test.assertEqual(null, url.getPort());
+                    test.assertEqual(null, url.getPath());
+                    test.assertEqual(null, url.getQuery());
+                    test.assertEqual("#", url.getFragment());
+                    test.assertEqual("http://www.example.com#", url.toString());
                 });
 
                 runner.test("with \"http://www.example.com:20?\"", (Test test) ->
@@ -879,6 +919,12 @@ public class URLTests
                 {
                     final Result<URL> urlResult = URL.parse("http:*");
                     test.assertError(new IllegalArgumentException("After the scheme or host (http) and a colon, the following text must be either a forward slash or a port number."), urlResult);
+                });
+
+                runner.test("with \"http:/*\"", (Test test) ->
+                {
+                    final Result<URL> urlResult = URL.parse("http:/*");
+                    test.assertError(new IllegalArgumentException("Could not parse \"http:/*\" into a URL because the scheme (http) must be followed by \"://\"."), urlResult);
                 });
             });
         });

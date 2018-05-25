@@ -564,14 +564,7 @@ public class URL
                         break;
 
                     case Port:
-                        if (builder.length() == 0)
-                        {
-                            result = Result.error(new IllegalArgumentException("Could not parse \"" + urlString + "\" into a URL because it is missing its port number."));
-                        }
-                        else
-                        {
-                            url.setPort(Integer.parseInt(builder.toString()));
-                        }
+                        result = Result.error(new IllegalArgumentException("Could not parse \"" + urlString + "\" into a URL because it is missing its port number."));
                         break;
 
                     case PathQueryOrFragment:
