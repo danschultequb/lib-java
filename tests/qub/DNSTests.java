@@ -32,6 +32,12 @@ public class DNSTests
                     test.assertSuccess(IPv4Address.parse("93.184.216.34"), dns.resolveHost("www.example.com"));
                 });
 
+                runner.test("with \"spam.example.com\"", (Test test) ->
+                {
+                    final DNS dns = creator.run();
+                    test.assertError(new java.net.UnknownHostException("spam.example.com"), dns.resolveHost("spam.example.com"));
+                });
+
                 runner.test("with \"example.com\"", (Test test) ->
                 {
                     final DNS dns = creator.run();
@@ -41,13 +47,13 @@ public class DNSTests
                 runner.test("with \"com\"", (Test test) ->
                 {
                     final DNS dns = creator.run();
-                    test.assertError(new java.net.UnknownHostException("No such host is known (com)"), dns.resolveHost("com"));
+                    test.assertError(new java.net.UnknownHostException("com"), dns.resolveHost("com"));
                 });
 
                 runner.test("with \"www.notavalidwebpageurlidontexist.com\"", (Test test) ->
                 {
                     final DNS dns = creator.run();
-                    test.assertError(new java.net.UnknownHostException("No such host is known (www.notavalidwebpageurlidontexist.com)"), dns.resolveHost("www.notavalidwebpageurlidontexist.com"));
+                    test.assertError(new java.net.UnknownHostException("www.notavalidwebpageurlidontexist.com"), dns.resolveHost("www.notavalidwebpageurlidontexist.com"));
                 });
             });
         });

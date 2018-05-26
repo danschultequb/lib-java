@@ -3,7 +3,7 @@ package qub;
 /**
  * A DNS implementation that resolves hosts by making real DNS queries against the network.
  */
-public class JavaDNS extends DNSBase
+public class JavaDNS implements DNS
 {
     @Override
     public Result<IPv4Address> resolveHost(String host)
@@ -28,7 +28,7 @@ public class JavaDNS extends DNSBase
             }
             catch (java.net.UnknownHostException e)
             {
-                result = Result.error(e);
+                result = Result.error(new java.net.UnknownHostException(host));
             }
         }
         return result;

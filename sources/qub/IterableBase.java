@@ -111,7 +111,7 @@ public abstract class IterableBase<T> implements Iterable<T>
     }
 
     @Override
-    public final boolean equals(Iterable<T> rhs)
+    public boolean equals(Iterable<T> rhs)
     {
         return IterableBase.equals(this, rhs);
     }

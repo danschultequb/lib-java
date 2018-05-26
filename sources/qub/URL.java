@@ -271,6 +271,22 @@ public class URL
     }
 
     @Override
+    public boolean equals(Object rhs)
+    {
+        return rhs instanceof URL && equals((URL)rhs);
+    }
+
+    public boolean equals(URL rhs)
+    {
+        return rhs != null &&
+            Comparer.equal(scheme, rhs.scheme) &&
+            Comparer.equal(host, rhs.host) &&
+            Comparer.equal(port, rhs.port) &&
+            Comparer.equal(query, rhs.query) &&
+            Comparer.equal(fragment, rhs.fragment);
+    }
+
+    @Override
     public String toString()
     {
         final StringBuilder builder = new StringBuilder();
