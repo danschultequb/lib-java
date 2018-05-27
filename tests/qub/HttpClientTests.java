@@ -40,6 +40,7 @@ public class HttpClientTests
                     test.assertNotNull(httpResponse.getBody());
                     final String bodyString = httpResponse.getBody().asCharacterReadStream().readString(3000).getValue();
                     test.assertNotNull(bodyString);
+                    test.assertTrue(bodyString.startsWith("<!doctype html>"));
                     test.assertTrue(bodyString.contains("<html>"));
                     test.assertTrue(bodyString.contains("<h1>Example Domain</h1>"));
                     test.assertTrue(bodyString.contains("</html>"));
