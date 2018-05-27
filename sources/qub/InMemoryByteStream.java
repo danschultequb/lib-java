@@ -52,6 +52,12 @@ public class InMemoryByteStream extends ByteReadStreamBase implements ByteWriteS
     }
 
     @Override
+    public int getCount()
+    {
+        return bytes.getCount();
+    }
+
+    @Override
     public Result<Byte> readByte()
     {
         Result<Byte> result = ByteReadStreamBase.validateByteReadStream(this);

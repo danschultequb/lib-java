@@ -11,6 +11,8 @@ public interface LineReadStream extends AsyncDisposable, Iterator<String>
 
     boolean getIncludeNewLines();
 
+    void setIncludeNewLines(boolean includeNewLines);
+
     ByteReadStream asByteReadStream();
 
     CharacterReadStream asCharacterReadStream();

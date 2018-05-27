@@ -61,6 +61,11 @@ public class Test
         return process.getParallelAsyncRunner();
     }
 
+    public Network getNetwork()
+    {
+        return process.getNetwork();
+    }
+
     /**
      * Assert that the provided value is true. If it is not true, then a TestAssertionFailure will
      * be thrown.

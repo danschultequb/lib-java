@@ -42,9 +42,9 @@ public interface List<T> extends MutableIndexable<T>
     T removeAt(int index);
 
     /**
-     * Remove and return the first value in this ArrayList. If this ArrayList is empty, then null
-     * will be returned.
-     * @return The value that was removed, or null if the ArrayList was empty.
+     * Remove and return the first value in this List. If this List is empty, then null will be
+     * returned.
+     * @return The value that was removed, or null if the List was empty.
      */
     T removeFirst();
 
@@ -55,6 +55,13 @@ public interface List<T> extends MutableIndexable<T>
      * @return The element that was removed, or null if no element matched the condition.
      */
     T removeFirst(Function1<T,Boolean> condition);
+
+    /**
+     * Remove and return the last value in this List. If this List is empty, then null will be
+     * returned.
+     * @return The value that was removed, or null if the List was empty.
+     */
+    T removeLast();
 
     /**
      * Remove all of the elements from this List.

@@ -39,6 +39,12 @@ public abstract class ListBase<T> extends IndexableBase<T> implements List<T>
     }
 
     @Override
+    public T removeLast()
+    {
+        return ListBase.removeLast(this);
+    }
+
+    @Override
     public void clear()
     {
         ListBase.clear(this);
@@ -119,6 +125,12 @@ public abstract class ListBase<T> extends IndexableBase<T> implements List<T>
     {
         final int removeIndex = list.indexOf(condition);
         return removeIndex < 0 ? null : list.removeAt(removeIndex);
+    }
+
+    public static <T> T removeLast(List<T> list)
+    {
+        final int count = list.getCount();
+        return count == 0 ? null : list.removeAt(count - 1);
     }
 
     public static <T> void clear(List<T> list)

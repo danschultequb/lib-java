@@ -7,10 +7,14 @@ import java.net.Socket;
 class JavaNetwork extends NetworkBase
 {
     private final AsyncRunner asyncRunner;
+    private final BasicHttpClient httpClient;
+    private final DNS dns;
 
     JavaNetwork(AsyncRunner asyncRunner)
     {
         this.asyncRunner = asyncRunner;
+        httpClient = new BasicHttpClient(this);
+        dns = new JavaDNS();
     }
 
     @Override
@@ -52,6 +56,18 @@ class JavaNetwork extends NetworkBase
     public Result<TCPServer> createTCPServer(IPv4Address localIPAddress, int localPort)
     {
         return JavaTCPServer.create(localIPAddress, localPort, getAsyncRunner());
+    }
+
+    @Override
+    public HttpClient getHttpClient()
+    {
+        return httpClient;
+    }
+
+    @Override
+    public DNS getDNS()
+    {
+        return dns;
     }
 
     @Override

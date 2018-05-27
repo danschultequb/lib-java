@@ -16,24 +16,20 @@ public class HttpRequestTests
 
                 runner.test("with null url", (Test test) ->
                 {
-                    final Result<HttpRequest> request = HttpRequest.create(HttpMethod.GET, null);
-                    test.assertError(new IllegalArgumentException("url cannot be null."), request);
+                    final Result<HttpRequest> request = HttpRequest.create(HttpMethod.GET, (String)null);
+                    test.assertError(new IllegalArgumentException("urlString cannot be null."), request);
                 });
 
                 runner.test("with empty url", (Test test) ->
                 {
                     final Result<HttpRequest> request = HttpRequest.create(HttpMethod.GET, "");
-                    test.assertError(new IllegalArgumentException("url cannot be empty."), request);
+                    test.assertError(new IllegalArgumentException("urlString cannot be empty."), request);
                 });
 
                 runner.test("with invalid url", (Test test) ->
                 {
                     final Result<HttpRequest> request = HttpRequest.create(HttpMethod.GET, "I'm not a good URL");
-                    test.assertSuccess(request);
-                    test.assertEqual(HttpMethod.GET, request.getValue().getMethod());
-                    test.assertEqual("I'm not a good URL", request.getValue().getUrl());
-                    test.assertEqual(0, request.getValue().getHeaders().getCount());
-                    test.assertNull(request.getValue().getBody());
+                    test.assertError(new IllegalArgumentException("A URL must begin with either a scheme (such as \"http\") or a host (such as \"www.example.com\"), not \"'\"."), request);
                 });
 
                 runner.test("with valid HttpMethod and valid url", (Test test) ->
@@ -41,7 +37,7 @@ public class HttpRequestTests
                     final Result<HttpRequest> request = HttpRequest.create(HttpMethod.GET, "https://www.example.com");
                     test.assertSuccess(request);
                     test.assertEqual(HttpMethod.GET, request.getValue().getMethod());
-                    test.assertEqual("https://www.example.com", request.getValue().getUrl());
+                    test.assertEqual(URL.parse("https://www.example.com").getValue(), request.getValue().getUrl());
                     test.assertEqual(0, request.getValue().getHeaders().getCount());
                     test.assertNull(request.getValue().getBody());
                 });
@@ -57,24 +53,20 @@ public class HttpRequestTests
 
                 runner.test("with null url", (Test test) ->
                 {
-                    final Result<HttpRequest> request = HttpRequest.create(HttpMethod.GET, null, new Array<>(0), 0, null);
-                    test.assertError(new IllegalArgumentException("url cannot be null."), request);
+                    final Result<HttpRequest> request = HttpRequest.create(HttpMethod.GET, (String)null, new Array<>(0), 0, null);
+                    test.assertError(new IllegalArgumentException("urlString cannot be null."), request);
                 });
 
                 runner.test("with empty url", (Test test) ->
                 {
                     final Result<HttpRequest> request = HttpRequest.create(HttpMethod.GET, "", new Array<>(0), 0, null);
-                    test.assertError(new IllegalArgumentException("url cannot be empty."), request);
+                    test.assertError(new IllegalArgumentException("urlString cannot be empty."), request);
                 });
 
                 runner.test("with invalid url", (Test test) ->
                 {
                     final Result<HttpRequest> request = HttpRequest.create(HttpMethod.GET, "I'm not a good URL", new Array<>(0), 0, null);
-                    test.assertSuccess(request);
-                    test.assertEqual(HttpMethod.GET, request.getValue().getMethod());
-                    test.assertEqual("I'm not a good URL", request.getValue().getUrl());
-                    test.assertEqual(0, request.getValue().getHeaders().getCount());
-                    test.assertNull(request.getValue().getBody());
+                    test.assertError(new IllegalArgumentException("A URL must begin with either a scheme (such as \"http\") or a host (such as \"www.example.com\"), not \"'\"."), request);
                 });
 
                 runner.test("with valid HttpMethod and valid url", (Test test) ->
@@ -82,7 +74,7 @@ public class HttpRequestTests
                     final Result<HttpRequest> request = HttpRequest.create(HttpMethod.GET, "https://www.example.com", new Array<>(0), 0, null);
                     test.assertSuccess(request);
                     test.assertEqual(HttpMethod.GET, request.getValue().getMethod());
-                    test.assertEqual("https://www.example.com", request.getValue().getUrl());
+                    test.assertEqual(URL.parse("https://www.example.com").getValue(), request.getValue().getUrl());
                     test.assertEqual(0, request.getValue().getHeaders().getCount());
                     test.assertNull(request.getValue().getBody());
                 });
@@ -92,7 +84,7 @@ public class HttpRequestTests
                     final Result<HttpRequest> request = HttpRequest.create(HttpMethod.GET, "https://www.example.com", null, 0, null);
                     test.assertSuccess(request);
                     test.assertEqual(HttpMethod.GET, request.getValue().getMethod());
-                    test.assertEqual("https://www.example.com", request.getValue().getUrl());
+                    test.assertEqual(URL.parse("https://www.example.com").getValue(), request.getValue().getUrl());
                     test.assertEqual(0, request.getValue().getHeaders().getCount());
                     test.assertNull(request.getValue().getBody());
                 });
@@ -102,7 +94,7 @@ public class HttpRequestTests
                     final Result<HttpRequest> request = HttpRequest.create(HttpMethod.GET, "https://www.example.com", new Array<>(0), 0, null);
                     test.assertSuccess(request);
                     test.assertEqual(HttpMethod.GET, request.getValue().getMethod());
-                    test.assertEqual("https://www.example.com", request.getValue().getUrl());
+                    test.assertEqual(URL.parse("https://www.example.com").getValue(), request.getValue().getUrl());
                     test.assertEqual(0, request.getValue().getHeaders().getCount());
                     test.assertNull(request.getValue().getBody());
                 });
@@ -116,7 +108,7 @@ public class HttpRequestTests
                     final Result<HttpRequest> request = HttpRequest.create(HttpMethod.GET, "https://www.example.com", headers, 0, null);
                     test.assertSuccess(request);
                     test.assertEqual(HttpMethod.GET, request.getValue().getMethod());
-                    test.assertEqual("https://www.example.com", request.getValue().getUrl());
+                    test.assertEqual(URL.parse("https://www.example.com").getValue(), request.getValue().getUrl());
                     test.assertEqual(headers, request.getValue().getHeaders());
                     test.assertNull(request.getValue().getBody());
                 });
@@ -124,7 +116,7 @@ public class HttpRequestTests
                 runner.test("with negative contentLength", (Test test) ->
                 {
                     final Result<HttpRequest> request = HttpRequest.create(HttpMethod.GET, "https://www.example.com", null, -10, null);
-                    test.assertError(new IllegalArgumentException("contentLength must be greater than or equal to 0."), request);
+                    test.assertError(new IllegalArgumentException("contentLength (-10) must be greater than or equal to 0."), request);
                 });
 
                 runner.test("with 0 contentLength and non-null body", (Test test) ->
@@ -144,7 +136,7 @@ public class HttpRequestTests
                     final Result<HttpRequest> request = HttpRequest.create(HttpMethod.GET, "https://www.example.com", null, 5, new InMemoryByteStream());
                     test.assertSuccess(request);
                     test.assertEqual(HttpMethod.GET, request.getValue().getMethod());
-                    test.assertEqual("https://www.example.com", request.getValue().getUrl());
+                    test.assertEqual(URL.parse("https://www.example.com").getValue(), request.getValue().getUrl());
                     test.assertEqual(
                         Array.fromValues(new HttpHeader[]
                         {
@@ -177,29 +169,29 @@ public class HttpRequestTests
                 runner.test("with null", (Test test) ->
                 {
                     final HttpRequest request = HttpRequest.create(HttpMethod.GET, "https://www.example.com").getValue();
-                    test.assertError(new IllegalArgumentException("url cannot be null."), request.setUrl(null));
-                    test.assertEqual("https://www.example.com", request.getUrl());
+                    test.assertError(new IllegalArgumentException("urlString cannot be null."), request.setUrl((String)null));
+                    test.assertEqual(URL.parse("https://www.example.com").getValue(), request.getUrl());
                 });
 
                 runner.test("with empty", (Test test) ->
                 {
                     final HttpRequest request = HttpRequest.create(HttpMethod.GET, "https://www.example.com").getValue();
-                    test.assertError(new IllegalArgumentException("url cannot be empty."), request.setUrl(""));
-                    test.assertEqual("https://www.example.com", request.getUrl());
+                    test.assertError(new IllegalArgumentException("urlString cannot be empty."), request.setUrl(""));
+                    test.assertEqual(URL.parse("https://www.example.com").getValue(), request.getUrl());
                 });
 
                 runner.test("with invalid URL", (Test test) ->
                 {
                     final HttpRequest request = HttpRequest.create(HttpMethod.GET, "https://www.example.com").getValue();
-                    test.assertSuccess(true, request.setUrl("I'm not a valid url"));
-                    test.assertEqual("I'm not a valid url", request.getUrl());
+                    test.assertError(new IllegalArgumentException("A URL must begin with either a scheme (such as \"http\") or a host (such as \"www.example.com\"), not \"'\"."), request.setUrl("I'm not a valid url"));
+                    test.assertEqual(URL.parse("https://www.example.com").getValue(), request.getUrl());
                 });
 
                 runner.test("with valid URL", (Test test) ->
                 {
                     final HttpRequest request = HttpRequest.create(HttpMethod.GET, "https://www.example.com").getValue();
                     test.assertSuccess(true, request.setUrl("http://www.google.com"));
-                    test.assertEqual("http://www.google.com", request.getUrl());
+                    test.assertEqual(URL.parse("http://www.google.com").getValue(), request.getUrl());
                 });
             });
 

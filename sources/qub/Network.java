@@ -15,4 +15,8 @@ public interface Network
     Result<TCPServer> createTCPServer(IPv4Address localIPAddress, int localPort);
 
     AsyncFunction<Result<TCPServer>> createTCPServerAsync(IPv4Address localIPAddress, int localPort);
+
+    HttpClient getHttpClient();
+
+    DNS getDNS();
 }

@@ -23,7 +23,8 @@ public abstract class TCPClientBase extends AsyncDisposableBase implements TCPCl
     @Override
     public Result<byte[]> readBytes(int bytesToRead)
     {
-        return getReadStream().readBytes(bytesToRead);
+        final ByteReadStream readStream = getReadStream();
+        return readStream.readBytes(bytesToRead);
     }
 
     @Override

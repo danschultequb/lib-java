@@ -6,12 +6,12 @@ package qub;
 public class HttpRequest
 {
     private HttpMethod method;
-    private String url;
+    private URL url;
     private final MutableHttpHeaders headers;
     private int contentLength;
     private ByteReadStream body;
 
-    private HttpRequest(HttpMethod method, String url, Iterable<HttpHeader> headers, int contentLength, ByteReadStream body)
+    private HttpRequest(HttpMethod method, URL url, Iterable<HttpHeader> headers, int contentLength, ByteReadStream body)
     {
         this.method = method;
         this.url = url;
@@ -19,44 +19,67 @@ public class HttpRequest
         setBody(contentLength, body);
     }
 
-    public static Result<HttpRequest> create(HttpMethod method, String url)
+    public static Result<HttpRequest> create(HttpMethod method, String urlString)
+    {
+        Result<HttpRequest> result;
+        final Result<URL> url = URL.parse(urlString);
+        if (url.hasError())
+        {
+            result = Result.error(url.getError());
+        }
+        else
+        {
+            result = create(method, url.getValue());
+        }
+        return result;
+    }
+
+    public static Result<HttpRequest> create(HttpMethod method, URL url)
     {
         return HttpRequest.create(method, url, null, 0, null);
     }
 
-    public static Result<HttpRequest> create(HttpMethod method, String url, Iterable<HttpHeader> headers, int contentLength, ByteReadStream body)
+    public static Result<HttpRequest> create(HttpMethod method, String urlString, Iterable<HttpHeader> headers, int contentLength, ByteReadStream body)
     {
         Result<HttpRequest> result;
-
-        if (method == null)
+        final Result<URL> url = URL.parse(urlString);
+        if (url.hasError())
         {
-            result = Result.error(new IllegalArgumentException("method cannot be null."));
-        }
-        else if (url == null)
-        {
-            result = Result.error(new IllegalArgumentException("url cannot be null."));
-        }
-        else if (url.isEmpty())
-        {
-            result = Result.error(new IllegalArgumentException("url cannot be empty."));
-        }
-        else if (contentLength < 0)
-        {
-            result = Result.error(new IllegalArgumentException("contentLength must be greater than or equal to 0."));
-        }
-        else if (contentLength == 0 && body != null)
-        {
-            result = Result.error(new IllegalArgumentException("If contentLength is 0, then body must be null."));
-        }
-        else if (contentLength > 0 && body == null)
-        {
-            result = Result.error(new IllegalArgumentException("If contentLength is greater than 0, then body must be non-null."));
+            result = Result.error(url.getError());
         }
         else
         {
-            result = Result.success(new HttpRequest(method, url, headers, contentLength, body));
+            result = create(method, url.getValue(), headers, contentLength, body);
         }
+        return result;
+    }
 
+    public static Result<HttpRequest> create(HttpMethod method, URL url, Iterable<HttpHeader> headers, int contentLength, ByteReadStream body)
+    {
+        Result<HttpRequest> result = Result.notNull(method, "method");
+        if (result == null)
+        {
+            result = Result.notNull(url, "url");
+            if (result == null)
+            {
+                result = Result.greaterThanOrEqualTo(0, contentLength, "contentLength");
+                if (result == null)
+                {
+                    if (contentLength == 0 && body != null)
+                    {
+                        result = Result.error(new IllegalArgumentException("If contentLength is 0, then body must be null."));
+                    }
+                    else if (contentLength > 0 && body == null)
+                    {
+                        result = Result.error(new IllegalArgumentException("If contentLength is greater than 0, then body must be non-null."));
+                    }
+                    else
+                    {
+                        result = Result.success(new HttpRequest(method, url, headers, contentLength, body));
+                    }
+                }
+            }
+        }
         return result;
     }
 
@@ -80,23 +103,30 @@ public class HttpRequest
         return result;
     }
 
-    public String getUrl()
+    public URL getUrl()
     {
         return url;
     }
 
-    public Result<Boolean> setUrl(String url)
+    public Result<Boolean> setUrl(String urlString)
     {
         Result<Boolean> result;
-        if (url == null)
+        final Result<URL> url = URL.parse(urlString);
+        if (url.hasError())
         {
-            result = Result.error(new IllegalArgumentException("url cannot be null."));
-        }
-        else if (url.isEmpty())
-        {
-            result = Result.error(new IllegalArgumentException("url cannot be empty."));
+            result = Result.error(url.getError());
         }
         else
+        {
+            result = setUrl(url.getValue());
+        }
+        return result;
+    }
+
+    public Result<Boolean> setUrl(URL url)
+    {
+        Result<Boolean> result = Result.notNull(url, "url");
+        if (result == null)
         {
             this.url = url;
             result = Result.successTrue();

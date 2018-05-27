@@ -143,6 +143,16 @@ final public class Result<T>
         return result;
     }
 
+    public static <U> Result<U> greaterThanOrEqualTo(int lowerBound, int value, String parameterName)
+    {
+        Result<U> result = null;
+        if (value < lowerBound)
+        {
+            result = Result.error(new IllegalArgumentException(parameterName + " (" + value + ") must be greater than or equal to " + lowerBound + "."));
+        }
+        return result;
+    }
+
     public static <U> Result<U> between(int lowerBound, int value, int upperBound, String parameterName)
     {
         Result<U> result = null;

@@ -8,6 +8,8 @@ public class FakeNetwork extends NetworkBase
     private final Mutex mutex;
     private final Map<IPv4Address,Map<Integer,FakeTCPClient>> boundTCPClients;
     private final Map<IPv4Address,Map<Integer,FakeTCPServer>> boundTCPServers;
+    private final FakeDNS dns;
+    private final HttpClient httpClient;
 
     public FakeNetwork(AsyncRunner asyncRunner)
     {
@@ -15,6 +17,8 @@ public class FakeNetwork extends NetworkBase
         mutex = new SpinMutex();
         boundTCPClients = new ListMap<>();
         boundTCPServers = new ListMap<>();
+        dns = new FakeDNS();
+        httpClient = new BasicHttpClient(this);
     }
 
     @Override
@@ -145,6 +149,18 @@ public class FakeNetwork extends NetworkBase
             }
         }
         return result;
+    }
+
+    @Override
+    public HttpClient getHttpClient()
+    {
+        return httpClient;
+    }
+
+    @Override
+    public FakeDNS getDNS()
+    {
+        return dns;
     }
 
     public void serverDisposed(IPv4Address ipAddress, int port)

@@ -15,6 +15,12 @@ public class JavaList<T> extends ListBase<T>
     }
 
     @Override
+    public int getCount()
+    {
+        return list.size();
+    }
+
+    @Override
     public void add(T value)
     {
         list.add(value);

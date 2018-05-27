@@ -121,6 +121,15 @@ public class LockedList<T> implements List<T>
     }
 
     @Override
+    public T removeLast()
+    {
+        try (final Disposable criticalSection = mutex.criticalSection())
+        {
+            return innerList.removeLast();
+        }
+    }
+
+    @Override
     public void clear()
     {
         mutex.criticalSection(new Action0()

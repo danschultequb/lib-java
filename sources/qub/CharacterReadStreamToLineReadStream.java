@@ -3,7 +3,7 @@ package qub;
 public class CharacterReadStreamToLineReadStream extends LineReadStreamBase
 {
     private final CharacterReadStream characterReadStream;
-    private final boolean includeNewLines;
+    private boolean includeNewLines;
     private String current;
 
     public CharacterReadStreamToLineReadStream(CharacterReadStream readStream)
@@ -21,6 +21,12 @@ public class CharacterReadStreamToLineReadStream extends LineReadStreamBase
     public boolean getIncludeNewLines()
     {
         return includeNewLines;
+    }
+
+    @Override
+    public void setIncludeNewLines(boolean includeNewLines)
+    {
+        this.includeNewLines = includeNewLines;
     }
 
     @Override
