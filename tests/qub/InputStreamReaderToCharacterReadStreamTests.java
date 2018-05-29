@@ -8,7 +8,7 @@ public class InputStreamReaderToCharacterReadStreamTests
         {
             runner.test("constructor(ByteReadStream,CharacterEncoding)", (Test test) ->
             {
-                final InputStreamReaderToCharacterReadStream characterReadStream = new InputStreamReaderToCharacterReadStream(createByteReadStream("", test), CharacterEncoding.UTF_8);
+                final InputStreamReaderToCharacterReadStream characterReadStream = new InputStreamReaderToCharacterReadStream(createByteReadStream("", test), CharacterEncoding.US_ASCII);
                 assertCharacterReadStream(test, characterReadStream, false, false, null);
             });
             
@@ -128,7 +128,7 @@ public class InputStreamReaderToCharacterReadStreamTests
 
     private static InMemoryByteStream createByteReadStream(String contents, Test test)
     {
-        return new InMemoryByteStream(CharacterEncoding.UTF_8.encode(contents), test.getMainAsyncRunner()).endOfStream();
+        return new InMemoryByteStream(CharacterEncoding.US_ASCII.encode(contents).getValue(), test.getMainAsyncRunner()).endOfStream();
     }
 
     private static InputStreamReaderToCharacterReadStream getCharacterReadStream(Test test, TestStubInputStream inputStream)
@@ -139,7 +139,7 @@ public class InputStreamReaderToCharacterReadStreamTests
 
     private static InputStreamReaderToCharacterReadStream getCharacterReadStream(ByteReadStream byteReadStream)
     {
-        return new InputStreamReaderToCharacterReadStream(byteReadStream, CharacterEncoding.UTF_8);
+        return new InputStreamReaderToCharacterReadStream(byteReadStream, CharacterEncoding.US_ASCII);
     }
 
     private static void assertCharacterReadStream(Test test, CharacterReadStream characterReadStream, boolean isDisposed, boolean hasStarted, Character current)

@@ -19,7 +19,7 @@ public class InMemoryCharacterReadStream extends InputStreamReaderToCharacterRea
 
     public InMemoryCharacterReadStream(String text, AsyncRunner asyncRunner)
     {
-        this(text, CharacterEncoding.UTF_8, asyncRunner);
+        this(text, CharacterEncoding.US_ASCII, asyncRunner);
     }
 
     public InMemoryCharacterReadStream(String text, CharacterEncoding encoding)
@@ -29,7 +29,7 @@ public class InMemoryCharacterReadStream extends InputStreamReaderToCharacterRea
 
     public InMemoryCharacterReadStream(String text, CharacterEncoding encoding, AsyncRunner asyncRunner)
     {
-        this(new InMemoryByteStream(encoding.encode(text), asyncRunner).endOfStream(), encoding);
+        this(new InMemoryByteStream(encoding.encode(text).getValue(), asyncRunner).endOfStream(), encoding);
     }
 
     public InMemoryCharacterReadStream(InMemoryByteStream byteReadStream, CharacterEncoding encoding)

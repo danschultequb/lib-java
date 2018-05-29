@@ -127,6 +127,6 @@ public class OutputStreamWriterToCharacterWriteStreamTests
 
     private static OutputStreamWriterToCharacterWriteStream getCharacterWriteStream(ByteWriteStream byteWriteStream)
     {
-        return new OutputStreamWriterToCharacterWriteStream(byteWriteStream, CharacterEncoding.UTF_8);
+        return new OutputStreamWriterToCharacterWriteStream(byteWriteStream, CharacterEncoding.US_ASCII);
     }
 }

@@ -3,6 +3,7 @@ package qub;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * A class for reading characters from a stream.
@@ -21,7 +22,7 @@ class InputStreamReaderToCharacterReadStream extends CharacterReadStreamBase
         this.characterEncoding = characterEncoding;
 
         final InputStream inputStream = byteReadStream.asInputStream();
-        final Charset charset = characterEncoding.getCharset();
+        final Charset charset = StandardCharsets.US_ASCII;
         this.reader = new InputStreamReader(inputStream, charset);
     }
 

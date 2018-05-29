@@ -12,7 +12,7 @@ public class InMemoryCharacterWriteStream extends CharacterWriteStreamBase
 
     public InMemoryCharacterWriteStream(InMemoryByteStream byteStream)
     {
-        this(byteStream, CharacterEncoding.UTF_8);
+        this(byteStream, CharacterEncoding.US_ASCII);
     }
 
     public InMemoryCharacterWriteStream(CharacterEncoding characterEncoding)
@@ -35,7 +35,7 @@ public class InMemoryCharacterWriteStream extends CharacterWriteStreamBase
     {
         final CharacterEncoding characterEncoding = getCharacterEncoding();
         final byte[] bytes = getBytes();
-        return characterEncoding.decode(bytes);
+        return bytes == null || bytes.length == 0 ? "" : characterEncoding.decodeAsString(bytes).getValue();
     }
 
     @Override
@@ -60,7 +60,7 @@ public class InMemoryCharacterWriteStream extends CharacterWriteStreamBase
             toWrite = String.format(toWrite, formattedStringArguments);
         }
         final CharacterEncoding characterEncoding = getCharacterEncoding();
-        final byte[] bytes = characterEncoding.encode(toWrite);
+        final byte[] bytes = characterEncoding.encode(toWrite).getValue();
         return byteStream.write(bytes);
     }
 

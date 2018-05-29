@@ -338,7 +338,7 @@ public abstract class ByteReadStreamBase extends IteratorBase<Byte> implements B
 
     public static CharacterReadStream asCharacterReadStream(ByteReadStream byteReadStream)
     {
-        return byteReadStream.asCharacterReadStream(CharacterEncoding.UTF_8);
+        return byteReadStream.asCharacterReadStream(CharacterEncoding.US_ASCII);
     }
 
     public static CharacterReadStream asCharacterReadStream(ByteReadStream byteReadStream, CharacterEncoding encoding)

@@ -38,7 +38,7 @@ public class BasicHttpClient implements HttpClient
                         try (final TCPClient tcpClient = tcpClientResult.getValue())
                         {
                             final InMemoryByteStream requestByteStream = new InMemoryByteStream();
-                            final LineWriteStream requestStream = requestByteStream.asLineWriteStream(CharacterEncoding.UTF_8, "\r\n");
+                            final LineWriteStream requestStream = requestByteStream.asLineWriteStream(CharacterEncoding.US_ASCII, "\r\n");
                             requestStream.writeLine("%s %s HTTP/1.1", request.getMethod(), request.getUrl());
                             for (final HttpHeader header : request.getHeaders())
                             {
@@ -159,6 +159,6 @@ public class BasicHttpClient implements HttpClient
             }
         }
 
-        return CharacterEncoding.UTF_8.decode(Array.toByteArray(buffer));
+        return !buffer.any() ? "" : CharacterEncoding.US_ASCII.decodeAsString(Array.toByteArray(buffer)).getValue();
     }
 }

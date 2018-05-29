@@ -519,7 +519,7 @@ public class InMemoryByteStreamTests
             {
                 final InMemoryByteStream stream = create(test);
                 final LineReadStream lineReadStream = stream.asLineReadStream();
-                test.assertEqual(CharacterEncoding.UTF_8, lineReadStream.getCharacterEncoding());
+                test.assertEqual(CharacterEncoding.US_ASCII, lineReadStream.getCharacterEncoding());
                 test.assertFalse(lineReadStream.getIncludeNewLines());
                 test.assertSame(stream, lineReadStream.asByteReadStream());
             });
@@ -537,7 +537,7 @@ public class InMemoryByteStreamTests
             {
                 final InMemoryByteStream stream = create(test);
                 final LineReadStream lineReadStream = stream.asLineReadStream(true);
-                test.assertEqual(CharacterEncoding.UTF_8, lineReadStream.getCharacterEncoding());
+                test.assertEqual(CharacterEncoding.US_ASCII, lineReadStream.getCharacterEncoding());
                 test.assertTrue(lineReadStream.getIncludeNewLines());
                 test.assertSame(stream, lineReadStream.asByteReadStream());
             });
@@ -545,8 +545,8 @@ public class InMemoryByteStreamTests
             runner.test("asLineReadStream(CharacterEncoding,boolean)", (Test test) ->
             {
                 final InMemoryByteStream stream = create(test);
-                final LineReadStream lineReadStream = stream.asLineReadStream(CharacterEncoding.UTF_8, false);
-                test.assertEqual(CharacterEncoding.UTF_8, lineReadStream.getCharacterEncoding());
+                final LineReadStream lineReadStream = stream.asLineReadStream(CharacterEncoding.US_ASCII, false);
+                test.assertEqual(CharacterEncoding.US_ASCII, lineReadStream.getCharacterEncoding());
                 test.assertFalse(lineReadStream.getIncludeNewLines());
                 test.assertSame(stream, lineReadStream.asByteReadStream());
             });

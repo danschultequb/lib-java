@@ -9,7 +9,7 @@ public class ProcessTests
             runner.test("getEncoding()", (Test test) ->
             {
                 final Process process = creator.run();
-                test.assertEqual(CharacterEncoding.UTF_8, process.getCharacterEncoding());
+                test.assertEqual(CharacterEncoding.US_ASCII, process.getCharacterEncoding());
 
                 process.setCharacterEncoding(CharacterEncoding.US_ASCII);
                 test.assertEqual(CharacterEncoding.US_ASCII, process.getCharacterEncoding());

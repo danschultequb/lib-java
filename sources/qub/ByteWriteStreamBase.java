@@ -152,7 +152,7 @@ public abstract class ByteWriteStreamBase extends DisposableBase implements Byte
      */
     public static CharacterWriteStream asCharacterWriteStream(ByteWriteStream byteWriteStream)
     {
-        return byteWriteStream.asCharacterWriteStream(CharacterEncoding.UTF_8);
+        return byteWriteStream.asCharacterWriteStream(CharacterEncoding.US_ASCII);
     }
 
     /**

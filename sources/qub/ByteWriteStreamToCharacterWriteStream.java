@@ -39,12 +39,22 @@ public class ByteWriteStreamToCharacterWriteStream extends CharacterWriteStreamB
     @Override
     public Result<Boolean> write(String toWrite, Object... formattedStringArguments)
     {
-        if (CharacterWriteStreamBase.shouldFormat(toWrite, formattedStringArguments))
+        Result<Boolean> result = Result.notNullAndNotEmpty(toWrite, "toWrite");
+        if (result == null)
         {
-            toWrite = String.format(toWrite, formattedStringArguments);
+            if (CharacterWriteStreamBase.shouldFormat(toWrite, formattedStringArguments))
+            {
+                toWrite = String.format(toWrite, formattedStringArguments);
+            }
+
+            result = Result.notNullAndNotEmpty(toWrite, "toWrite after formatting arguments");
+            if (result == null)
+            {
+                final byte[] stringBytes = characterEncoding.encode(toWrite).getValue();
+                result = byteWriteStream.write(stringBytes);
+            }
         }
-        final byte[] stringBytes = characterEncoding.encode(toWrite);
-        return byteWriteStream.write(stringBytes);
+        return result;
     }
 
     @Override

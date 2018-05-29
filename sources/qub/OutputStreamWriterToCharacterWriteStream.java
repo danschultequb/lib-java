@@ -2,6 +2,7 @@ package qub;
 
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 
 public class OutputStreamWriterToCharacterWriteStream extends CharacterWriteStreamBase
 {
@@ -13,7 +14,7 @@ public class OutputStreamWriterToCharacterWriteStream extends CharacterWriteStre
     {
         this.byteWriteStream = byteWriteStream;
         final OutputStream outputStream = new ByteWriteStreamToOutputStream(byteWriteStream);
-        this.writer = new OutputStreamWriter(outputStream, characterEncoding.getCharset());
+        this.writer = new OutputStreamWriter(outputStream, StandardCharsets.US_ASCII);
         this.characterEncoding = characterEncoding;
     }
 

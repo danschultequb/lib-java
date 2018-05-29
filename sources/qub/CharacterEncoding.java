@@ -1,56 +1,78 @@
 package qub;
 
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-
 /**
  * An encoding that converts between characters and bytes.
  */
-public class CharacterEncoding
+public abstract class CharacterEncoding
 {
-    public static final CharacterEncoding US_ASCII = new CharacterEncoding(StandardCharsets.US_ASCII);
-    public static final CharacterEncoding UTF_8 = new CharacterEncoding(StandardCharsets.UTF_8);
+    public static final CharacterEncoding US_ASCII = new USASCIICharacterEncoding();
 
-    private final Charset charset;
-
-    private CharacterEncoding(Charset charset)
-    {
-        this.charset = charset;
-    }
-
-    Charset getCharset()
-    {
-        return charset;
-    }
-
+    /**
+     * Encode the provided character as a byte[].
+     * @param character The character to encode.
+     * @return The encoded character as bytes.
+     */
     public byte[] encode(char character)
     {
-        return encode(Character.toString(character));
+        return encode(new char[] { character }).getValue();
     }
 
-    public byte[] encode(String text)
+    /**
+     * Encode the provided String of characters into a byte[].
+     * @param text The text to encode.
+     * @return The encoded text as bytes.
+     */
+    public Result<byte[]> encode(String text)
     {
-        byte[] result = null;
-        if (text != null)
+        Result<byte[]> result = Result.notNullAndNotEmpty(text, "text");
+        if (result == null)
         {
-            final ByteBuffer byteBuffer = charset.encode(text);
-            result = new byte[byteBuffer.limit()];
-            byteBuffer.get(result);
+            result = encode(text.toCharArray());
         }
         return result;
     }
 
-    public String decode(byte[] bytes)
+    /**
+     * Encode the provided character array into a byte[].
+     * @param characters The characters to encode.
+     * @return The encoded characters as bytes.
+     */
+    public abstract Result<byte[]> encode(char[] characters);
+
+    /**
+     * Decode the provided byte[] into a char[].
+     * @param bytes The byte[] to decode.
+     * @return The characters from the decoded byte[].
+     */
+    public abstract Result<char[]> decode(byte[] bytes);
+
+    /**
+     * Decode the provided byte[] into a String.
+     * @param bytes The byte[] to decode.
+     * @return The String from the decoded byte[].
+     */
+    public Result<String> decodeAsString(byte[] bytes)
     {
-        String result = null;
-        if (bytes != null)
-        {
-            final ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
-            final CharBuffer charBuffer = charset.decode(byteBuffer);
-            result = charBuffer.toString();
-        }
-        return result;
+        final Result<char[]> result = decode(bytes);
+        final char[] decodedCharacters = result.getValue();
+        return Result.done(decodedCharacters == null ? null : new String(decodedCharacters), result.getError());
+    }
+
+    /**
+     * Decode the next character from the provided byte Iterator.
+     * @param bytes The bytes to get the next character from.
+     * @return The next character.
+     */
+    public abstract Result<Character> decodeNextCharacter(Iterator<Byte> bytes);
+
+    @Override
+    public boolean equals(Object rhs)
+    {
+        return rhs instanceof CharacterEncoding && equals((CharacterEncoding)rhs);
+    }
+
+    public boolean equals(CharacterEncoding rhs)
+    {
+        return rhs != null && getClass().equals(rhs.getClass());
     }
 }

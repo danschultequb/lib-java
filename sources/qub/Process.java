@@ -120,7 +120,7 @@ public class Process extends DisposableBase
     {
         if (!characterEncoding.hasValue())
         {
-            characterEncoding.set(CharacterEncoding.UTF_8);
+            characterEncoding.set(CharacterEncoding.US_ASCII);
         }
         return characterEncoding.get();
     }

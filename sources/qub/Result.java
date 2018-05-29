@@ -133,6 +133,32 @@ final public class Result<T>
         return result;
     }
 
+    public static <U> Result<U> notNullAndNotEmpty(byte[] value, String parameterName)
+    {
+        Result<U> result = Result.notNull(value, parameterName);
+        if (result == null)
+        {
+            if (value.length == 0)
+            {
+                result = Result.error(new IllegalArgumentException(parameterName + " cannot be empty."));
+            }
+        }
+        return result;
+    }
+
+    public static <U> Result<U> notNullAndNotEmpty(char[] value, String parameterName)
+    {
+        Result<U> result = Result.notNull(value, parameterName);
+        if (result == null)
+        {
+            if (value.length == 0)
+            {
+                result = Result.error(new IllegalArgumentException(parameterName + " cannot be empty."));
+            }
+        }
+        return result;
+    }
+
     public static <U> Result<U> greaterThan(int lowerBound, int value, String parameterName)
     {
         Result<U> result = null;

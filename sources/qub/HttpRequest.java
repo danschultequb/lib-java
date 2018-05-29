@@ -191,6 +191,7 @@ public class HttpRequest
 
     public void setBody(String bodyText)
     {
-        setBody(Strings.isNullOrEmpty(bodyText) ? null : CharacterEncoding.UTF_8.encode(bodyText));
+        final Result<byte[]> bodyBytes = CharacterEncoding.US_ASCII.encode(bodyText);
+        setBody(bodyBytes.hasError() ? null : bodyBytes.getValue());
     }
 }
