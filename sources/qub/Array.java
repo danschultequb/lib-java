@@ -624,6 +624,16 @@ public class Array<T> extends IndexableBase<T> implements MutableIndexable<T>
      */
     public static String toString(char[] array)
     {
+        return Array.toString(array, null);
+    }
+
+    /**
+     * Get the String representation of the elements within the provided char array.
+     * @param array The char array to convert to a String.
+     * @return The String representation of the elements within the provided char array.
+     */
+    public static String toString(char[] array, Function1<Character,String> characterTransform)
+    {
         final StringBuilder builder = new StringBuilder();
 
         if (array == null)
@@ -645,7 +655,14 @@ public class Array<T> extends IndexableBase<T> implements MutableIndexable<T>
                 {
                     builder.append(',');
                 }
-                builder.append(element);
+                if (characterTransform != null)
+                {
+                    builder.append(characterTransform.run(element));
+                }
+                else
+                {
+                    builder.append(element);
+                }
             }
 
             builder.append(']');

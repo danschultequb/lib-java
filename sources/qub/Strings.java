@@ -40,50 +40,7 @@ public class Strings
         return result;
     }
 
-    /**
-     * Escape the provided character if it is an escaped character (such as '\n' or '\t').
-     * @param character The character to escape.
-     * @return The escaped character.
-     */
-    public static String escape(char character)
-    {
-        String result;
-        switch (character)
-        {
-            case '\b':
-                result = "\\b";
-                break;
 
-            case '\f':
-                result = "\\f";
-                break;
-
-            case '\n':
-                result = "\\n";
-                break;
-
-            case '\r':
-                result = "\\r";
-                break;
-
-            case '\t':
-                result = "\\t";
-                break;
-
-            case '\'':
-                result = "\\\'";
-                break;
-
-            case '\"':
-                result = "\\\"";
-                break;
-
-            default:
-                result = Character.toString(character);
-                break;
-        }
-        return result;
-    }
 
     /**
      * Escape any escaped characters (such as '\n' or '\t') in the provided text.
@@ -103,7 +60,7 @@ public class Strings
             final int textLength = text.length();
             for (int i = 0; i < textLength; ++i)
             {
-                builder.append(Strings.escape(text.charAt(i)));
+                builder.append(Characters.escape(text.charAt(i)));
             }
             result = builder.toString();
         }

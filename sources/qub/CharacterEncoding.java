@@ -12,9 +12,9 @@ public abstract class CharacterEncoding
      * @param character The character to encode.
      * @return The encoded character as bytes.
      */
-    public byte[] encode(char character)
+    public Result<byte[]> encode(char character)
     {
-        return encode(new char[] { character }).getValue();
+        return encode(new char[] { character });
     }
 
     /**

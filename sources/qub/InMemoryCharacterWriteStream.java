@@ -47,9 +47,18 @@ public class InMemoryCharacterWriteStream extends CharacterWriteStreamBase
     @Override
     public Result<Boolean> write(char toWrite)
     {
+        Result<Boolean> result;
         final CharacterEncoding characterEncoding = getCharacterEncoding();
-        final byte[] bytes = characterEncoding.encode(toWrite);
-        return byteStream.write(bytes);
+        final Result<byte[]> bytes = characterEncoding.encode(toWrite);
+        if (bytes.hasError())
+        {
+            result = Result.error(bytes.getError());
+        }
+        else
+        {
+            result = byteStream.write(bytes.getValue());
+        }
+        return result;
     }
 
     @Override

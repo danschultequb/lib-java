@@ -32,8 +32,17 @@ public class ByteWriteStreamToCharacterWriteStream extends CharacterWriteStreamB
     @Override
     public Result<Boolean> write(char character)
     {
-        final byte[] characterBytes = characterEncoding.encode(character);
-        return byteWriteStream.write(characterBytes);
+        Result<Boolean> result;
+        final Result<byte[]> characterBytes = characterEncoding.encode(character);
+        if (characterBytes.hasError())
+        {
+            result = Result.error(characterBytes.getError());
+        }
+        else
+        {
+            result = byteWriteStream.write(characterBytes.getValue());
+        }
+        return result;
     }
 
     @Override
