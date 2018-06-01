@@ -55,11 +55,11 @@ public class HttpClientTests
                     test.assertSuccess(httpResponseResult);
 
                     final HttpResponse httpResponse = httpResponseResult.getValue();
-                    test.assertEqual("HTTP/1.1", httpResponse.getHttpVersion());
+                    test.assertTrue(httpResponse.getHttpVersion().equals("HTTP/1.0") || httpResponse.getHttpVersion().equals("HTTP/1.1"));
                     test.assertEqual(302, httpResponse.getStatusCode());
                     test.assertEqual("Found", httpResponse.getReasonPhrase());
                     test.assertNotNull(httpResponse.getHeaders());
-                    test.assertSuccess("https://www.treasurydirect.govhttp://www.treasurydirect.gov/TA_WS/securities/auctioned?format=json&type=Bill", httpResponse.getHeaders().getValue("location"));
+                    test.assertSuccess("https://http://www.treasurydirect.gov/TA_WS/securities/auctioned?format=json&type=Bill", httpResponse.getHeaders().getValue("location"));
                     test.assertSuccess("0", httpResponse.getHeaders().getValue("content-length"));
                     test.assertNull(httpResponse.getBody());
                 });

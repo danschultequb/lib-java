@@ -63,7 +63,8 @@ public class BasicHttpClient implements HttpClient
                             }
                             else
                             {
-                                String statusLine = readLine(tcpClient);
+                                final LineReadStream responseLineReadStream = tcpClient.asLineReadStream(false);
+                                String statusLine = responseLineReadStream.readLine().getValue();
                                 final int httpVersionLength = statusLine.indexOf(' ');
 
                                 final String httpVersion = statusLine.substring(0, httpVersionLength);
@@ -78,7 +79,7 @@ public class BasicHttpClient implements HttpClient
 
                                 final MutableHttpHeaders responseHeaders = new MutableHttpHeaders();
 
-                                String headerLine = readLine(tcpClient);
+                                String headerLine = responseLineReadStream.readLine().getValue();
                                 while (!headerLine.isEmpty())
                                 {
                                     final int colonIndex = headerLine.indexOf(':');
@@ -86,7 +87,7 @@ public class BasicHttpClient implements HttpClient
                                     final String headerValue = headerLine.substring(colonIndex + 1).trim();
                                     responseHeaders.set(headerName, headerValue);
 
-                                    headerLine = readLine(tcpClient);
+                                    headerLine = responseLineReadStream.readLine().getValue();
                                 }
 
                                 InMemoryByteStream responseBodyStream = null;

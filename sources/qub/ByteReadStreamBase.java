@@ -343,7 +343,7 @@ public abstract class ByteReadStreamBase extends IteratorBase<Byte> implements B
 
     public static CharacterReadStream asCharacterReadStream(ByteReadStream byteReadStream, CharacterEncoding encoding)
     {
-        return byteReadStream == null || encoding == null ? null : new InputStreamReaderToCharacterReadStream(byteReadStream, encoding);
+        return byteReadStream == null || encoding == null ? null : new BasicCharacterReadStream(byteReadStream, encoding);
     }
 
     public static LineReadStream asLineReadStream(ByteReadStream byteReadStream)

@@ -202,7 +202,8 @@ public class InMemoryByteStream extends ByteReadStreamBase implements ByteWriteS
     @Override
     public boolean next()
     {
-        return readByte() != null;
+        final Result<Byte> byteRead = readByte();
+        return !byteRead.hasError() && byteRead.getValue() != null;
     }
 
     /**

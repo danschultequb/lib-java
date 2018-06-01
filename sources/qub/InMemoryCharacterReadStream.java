@@ -1,6 +1,6 @@
 package qub;
 
-public class InMemoryCharacterReadStream extends InputStreamReaderToCharacterReadStream
+public class InMemoryCharacterReadStream extends BasicCharacterReadStream
 {
     public InMemoryCharacterReadStream()
     {
