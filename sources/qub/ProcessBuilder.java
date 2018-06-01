@@ -294,7 +294,7 @@ public class ProcessBuilder
             @Override
             public void run(ByteReadStream byteReadStream)
             {
-                final LineReadStream lineReadStream = byteReadStream.asLineReadStream(true);
+                final LineReadStream lineReadStream = byteReadStream.asLineReadStream(true).getValue();
                 String line;
                 do
                 {

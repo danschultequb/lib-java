@@ -104,17 +104,17 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
      * Convert this ByteReadStream to a java.io.InputStream.
      * @return A java.io.InputStream representation of this ByteReadStream.
      */
-    InputStream asInputStream();
+    Result<InputStream> asInputStream();
 
-    CharacterReadStream asCharacterReadStream();
+    Result<CharacterReadStream> asCharacterReadStream();
 
-    CharacterReadStream asCharacterReadStream(CharacterEncoding characterEncoding);
+    Result<CharacterReadStream> asCharacterReadStream(CharacterEncoding characterEncoding);
 
-    LineReadStream asLineReadStream();
+    Result<LineReadStream> asLineReadStream();
 
-    LineReadStream asLineReadStream(CharacterEncoding characterEncoding);
+    Result<LineReadStream> asLineReadStream(CharacterEncoding characterEncoding);
 
-    LineReadStream asLineReadStream(boolean includeNewLines);
+    Result<LineReadStream> asLineReadStream(boolean includeNewLines);
 
-    LineReadStream asLineReadStream(CharacterEncoding characterEncoding, boolean includeNewLines);
+    Result<LineReadStream> asLineReadStream(CharacterEncoding characterEncoding, boolean includeNewLines);
 }

@@ -38,7 +38,7 @@ public class HttpClientTests
                     test.assertNotNull(httpResponse.getHeaders());
                     test.assertSuccess("1270", httpResponse.getHeaders().getValue("content-length"));
                     test.assertNotNull(httpResponse.getBody());
-                    final String bodyString = httpResponse.getBody().asCharacterReadStream().readString(3000).getValue();
+                    final String bodyString = httpResponse.getBody().asCharacterReadStream().getValue().readString(3000).getValue();
                     test.assertNotNull(bodyString);
                     test.assertTrue(bodyString.startsWith("<!doctype html>"));
                     test.assertTrue(bodyString.contains("<html>"));
@@ -59,7 +59,9 @@ public class HttpClientTests
                     test.assertEqual(302, httpResponse.getStatusCode());
                     test.assertEqual("Found", httpResponse.getReasonPhrase());
                     test.assertNotNull(httpResponse.getHeaders());
-                    test.assertSuccess("https://http://www.treasurydirect.gov/TA_WS/securities/auctioned?format=json&type=Bill", httpResponse.getHeaders().getValue("location"));
+                    final Result<String> locationHeader = httpResponse.getHeaders().getValue("location");
+                    test.assertSuccess(locationHeader);
+                    test.assertTrue(locationHeader.getValue().startsWith("https://www.treasurydirect.gov"), "Location header value \"" + locationHeader.getValue() + "\" should have started with \"https://www.treasurydirect.gov\".");
                     test.assertSuccess("0", httpResponse.getHeaders().getValue("content-length"));
                     test.assertNull(httpResponse.getBody());
                 });

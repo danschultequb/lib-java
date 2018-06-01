@@ -63,7 +63,7 @@ public class BasicHttpClient implements HttpClient
                             }
                             else
                             {
-                                final LineReadStream responseLineReadStream = tcpClient.asLineReadStream(false);
+                                final LineReadStream responseLineReadStream = tcpClient.asLineReadStream(false).getValue();
                                 String statusLine = responseLineReadStream.readLine().getValue();
                                 final int httpVersionLength = statusLine.indexOf(' ');
 

@@ -247,7 +247,7 @@ public class Process extends DisposableBase
      */
     public void setInput(ByteReadStream readStream)
     {
-        setInput(readStream == null ? null : readStream.asLineReadStream(getCharacterEncoding(), getIncludeNewLines()));
+        setInput(readStream == null ? null : readStream.asLineReadStream(getCharacterEncoding(), getIncludeNewLines()).getValue());
     }
 
     /**
