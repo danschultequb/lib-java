@@ -8,6 +8,7 @@ public class FakeNetwork extends NetworkBase
     private final Mutex mutex;
     private final Map<IPv4Address,Map<Integer,FakeTCPClient>> boundTCPClients;
     private final Map<IPv4Address,Map<Integer,FakeTCPServer>> boundTCPServers;
+    private final Map<InMemoryByteStream,Integer> streamReferenceCounts;
     private final FakeDNS dns;
     private final HttpClient httpClient;
 
@@ -17,6 +18,7 @@ public class FakeNetwork extends NetworkBase
         mutex = new SpinMutex();
         boundTCPClients = new ListMap<>();
         boundTCPServers = new ListMap<>();
+        streamReferenceCounts = new ListMap<>();
         dns = new FakeDNS();
         httpClient = new BasicHttpClient(this);
     }
@@ -77,8 +79,8 @@ public class FakeNetwork extends NetworkBase
                             }
                             else
                             {
-                                final InMemoryByteStream clientToServer = new InMemoryByteStream(asyncRunner);
-                                final InMemoryByteStream serverToClient = new InMemoryByteStream(asyncRunner);
+                                final InMemoryByteStream clientToServer = createNetworkStream();
+                                final InMemoryByteStream serverToClient = createNetworkStream();
 
                                 final FakeTCPClient tcpClient = new FakeTCPClient(this, asyncRunner, clientLocalIPAddress, clientLocalPort, remoteIPAddress, remotePort, serverToClient, clientToServer);
                                 addLocalTCPClient(tcpClient);
@@ -96,6 +98,27 @@ public class FakeNetwork extends NetworkBase
             }
         }
         return result;
+    }
+
+    private InMemoryByteStream createNetworkStream()
+    {
+        final InMemoryByteStream networkStream = new InMemoryByteStream(asyncRunner);
+        streamReferenceCounts.set(networkStream, 2);
+        return networkStream;
+    }
+
+    private void decrementNetworkStream(InMemoryByteStream networkStream)
+    {
+        final int currentStreamReferenceCount = streamReferenceCounts.get(networkStream);
+        if (currentStreamReferenceCount == 1)
+        {
+            networkStream.dispose();
+            streamReferenceCounts.remove(networkStream);
+        }
+        else
+        {
+            streamReferenceCounts.set(networkStream, currentStreamReferenceCount - 1);
+        }
     }
 
     private void addLocalTCPClient(FakeTCPClient tcpClient)
@@ -171,11 +194,13 @@ public class FakeNetwork extends NetworkBase
         }
     }
 
-    public void clientDisposed(IPv4Address ipAddress, int port)
+    public void clientDisposed(FakeTCPClient tcpClient)
     {
         try (final Disposable criticalSection = mutex.criticalSection())
         {
-            boundTCPClients.get(ipAddress).remove(port);
+            decrementNetworkStream((InMemoryByteStream)tcpClient.getReadStream());
+            decrementNetworkStream((InMemoryByteStream)tcpClient.getWriteStream());
+            boundTCPClients.get(tcpClient.getLocalIPAddress()).remove(tcpClient.getLocalPort());
         }
     }
 

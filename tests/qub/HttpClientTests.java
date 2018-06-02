@@ -61,7 +61,7 @@ public class HttpClientTests
                     test.assertNotNull(httpResponse.getHeaders());
                     final Result<String> locationHeader = httpResponse.getHeaders().getValue("location");
                     test.assertSuccess(locationHeader);
-                    test.assertTrue(locationHeader.getValue().startsWith("https://www.treasurydirect.gov"), "Location header value \"" + locationHeader.getValue() + "\" should have started with \"https://www.treasurydirect.gov\".");
+                    test.assertEndsWith(locationHeader.getValue(), "www.treasurydirect.gov/TA_WS/securities/auctioned?format=json&type=Bill", "Incorrect Location header");
                     test.assertSuccess("0", httpResponse.getHeaders().getValue("content-length"));
                     test.assertNull(httpResponse.getBody());
                 });

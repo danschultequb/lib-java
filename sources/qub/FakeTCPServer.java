@@ -106,7 +106,7 @@ public class FakeTCPServer extends AsyncDisposableBase implements TCPServer
             else
             {
                 disposed = true;
-                network.serverDisposed(localIPAddress, localPort);
+                network.serverDisposed(getLocalIPAddress(), getLocalPort());
                 result = Result.successTrue();
             }
             return result;

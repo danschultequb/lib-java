@@ -197,13 +197,7 @@ public class ConsoleTestRunner extends Console implements TestRunner
     private void writeFailure(TestAssertionFailure failure)
     {
         increaseIndent();
-        for (final String messageLine : failure.getMessageLines())
-        {
-            if (messageLine != null)
-            {
-                writeLine(messageLine);
-            }
-        }
+        writeMessageLines(failure);
         writeStackTrace(failure);
         decreaseIndent();
 
@@ -211,6 +205,29 @@ public class ConsoleTestRunner extends Console implements TestRunner
         if (cause != null)
         {
             writeFailureCause(cause);
+        }
+    }
+
+    private void writeMessageLines(TestAssertionFailure failure)
+    {
+        for (final String messageLine : failure.getMessageLines())
+        {
+            if (messageLine != null)
+            {
+                writeLine(messageLine);
+            }
+        }
+    }
+
+    private void writeMessage(Throwable throwable)
+    {
+        if (throwable instanceof TestAssertionFailure)
+        {
+            writeMessageLines((TestAssertionFailure)throwable);
+        }
+        else if (!Strings.isNullOrEmpty(throwable.getMessage()))
+        {
+            writeLine("Message: " + throwable.getMessage());
         }
     }
 
@@ -228,10 +245,7 @@ public class ConsoleTestRunner extends Console implements TestRunner
                 write(causeNumber + ") " + innerCause.getClass().getName());
 
                 increaseIndent();
-                if (!Strings.isNullOrEmpty(innerCause.getMessage()))
-                {
-                    writeLine("Message: " + innerCause.getMessage());
-                }
+                writeMessage(innerCause);
                 writeStackTrace(innerCause);
                 decreaseIndent();
 
@@ -249,10 +263,7 @@ public class ConsoleTestRunner extends Console implements TestRunner
             writeLine("Caused by: " + cause.getClass().getName());
 
             increaseIndent();
-            if (!Strings.isNullOrEmpty(cause.getMessage()))
-            {
-                writeLine("Message: " + cause.getMessage());
-            }
+            writeMessage(cause);
             writeStackTrace(cause);
             decreaseIndent();
 

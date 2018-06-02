@@ -101,13 +101,37 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
     AsyncFunction<Result<byte[]>> readAllBytesAsync();
 
     /**
+     * Read bytes from this ByteReadStream until the provided stopByte is encountered. The stopByte
+     * will be included in the returned byte[].
+     * @param stopByte The byte that will cause the reading to stop.
+     * @return The bytes that were read up to (and including) the provided stopByte.
+     */
+    Result<byte[]> readBytesUntil(byte stopByte);
+
+    /**
+     * Read bytes from this ByteReadStream until the provided stopByte is encountered. The stopByte
+     * will be included in the returned byte[].
+     * @param stopByte The byte that will cause the reading to stop.
+     * @return The bytes that were read up to (and including) the provided stopByte.
+     */
+    AsyncFunction<Result<byte[]>> readBytesUntilAsync(byte stopByte);
+
+    /**
      * Convert this ByteReadStream to a java.io.InputStream.
      * @return A java.io.InputStream representation of this ByteReadStream.
      */
     Result<InputStream> asInputStream();
 
+    /**
+     * Conert this ByteReadStream to a CharacterReadStream using the default CharacterEncoding.
+     * @return A CharacterReadStream that uses the default CharacterEncoding.
+     */
     Result<CharacterReadStream> asCharacterReadStream();
 
+    /**
+     * Conert this ByteReadStream to a CharacterReadStream using the provided CharacterEncoding.
+     * @return A CharacterReadStream that uses the provided CharacterEncoding.
+     */
     Result<CharacterReadStream> asCharacterReadStream(CharacterEncoding characterEncoding);
 
     Result<LineReadStream> asLineReadStream();

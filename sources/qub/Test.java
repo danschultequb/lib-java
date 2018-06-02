@@ -390,6 +390,32 @@ public class Test
     }
 
     /**
+     * Assert that the provided value ends with the provided suffix.
+     * @param value The value to check.
+     * @param suffix The suffix to look for at the end of the provided value.
+     */
+    public void assertEndsWith(String value, String suffix)
+    {
+        if (value == null || !value.endsWith(suffix))
+        {
+            throw new TestAssertionFailure(getFullName(), new String[] { "Expected " + Strings.escapeAndQuote(value) + " to end with " + Strings.escapeAndQuote(suffix) + "." });
+        }
+    }
+
+    /**
+     * Assert that the provided value ends with the provided suffix.
+     * @param value The value to check.
+     * @param suffix The suffix to look for at the end of the provided value.
+     */
+    public void assertEndsWith(String value, String suffix, String message)
+    {
+        if (value == null || !value.endsWith(suffix))
+        {
+            throw new TestAssertionFailure(getFullName(), new String[] { message, "Expected " + Strings.escapeAndQuote(value) + " to end with " + Strings.escapeAndQuote(suffix) + "." });
+        }
+    }
+
+    /**
      * Assert that the provided Result object is a successful Result.
      * @param result The Result to check.
      */

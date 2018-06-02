@@ -41,6 +41,25 @@ final public class Result<T>
         Exceptions.throwAsRuntime(error);
     }
 
+    @Override
+    public String toString()
+    {
+        String result = "";
+        if (error == null)
+        {
+            result = "value: " + (value == null ? "null" : value.toString());
+        }
+        else
+        {
+            if (value != null)
+            {
+                result = "value: " + value.toString() + ",";
+            }
+            result += "error: " + error.toString();
+        }
+        return result;
+    }
+
     @SuppressWarnings("unchecked")
     final public <U extends Exception> void throwError(Class<U> exceptionType) throws U
     {

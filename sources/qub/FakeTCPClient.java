@@ -60,7 +60,7 @@ public class FakeTCPClient extends TCPClientBase
         {
             disposed = true;
 
-            network.clientDisposed(getLocalIPAddress(), getLocalPort());
+            network.clientDisposed(this);
 
             final List<Throwable> errors = new ArrayList<Throwable>();
 
