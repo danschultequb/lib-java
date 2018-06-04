@@ -105,6 +105,12 @@ public class ErrorIterable extends RuntimeException implements Iterable<Throwabl
     }
 
     @Override
+    public Iterable<Throwable> takeLast(int toTake)
+    {
+        return errors.takeLast(toTake);
+    }
+
+    @Override
     public Iterable<Throwable> skip(int toSkip)
     {
         return errors.skip(toSkip);

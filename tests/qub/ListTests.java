@@ -4,13 +4,13 @@ public abstract class ListTests
 {
     public static void test(final TestRunner runner, final Function1<Integer,List<Integer>> createList)
     {
-        runner.testGroup("List<T>", () ->
+        runner.testGroup(List.class, () ->
         {
             IndexableTests.test(runner, createList::run);
 
             runner.testGroup("add()", () ->
             {
-                runner.test("multiple values", test ->
+                runner.test("multiple values", (Test test) ->
                 {
                     final List<Integer> list = createList.run(0);
                     test.assertEqual(0, list.getCount());
@@ -26,7 +26,7 @@ public abstract class ListTests
                     }
                 });
 
-                runner.test("after removing the only value in the List", test ->
+                runner.test("after removing the only value in the List", (Test test) ->
                 {
                     final List<Integer> list = createList.run(1);
                     list.removeFirst(Math.isEven);
@@ -36,7 +36,7 @@ public abstract class ListTests
                 });
             });
 
-            runner.test("addAll()", test ->
+            runner.test("addAll()", (Test test) ->
             {
                 final List<Integer> list = createList.run(0);
                 test.assertEqual(0, list.getCount());
@@ -110,7 +110,7 @@ public abstract class ListTests
                 }
             });
 
-            runner.test("set()", test ->
+            runner.test("set()", (Test test) ->
             {
                 final List<Integer> list = createList.run(0);
                 for (int i = -1; i <= 1; ++i)
@@ -137,21 +137,21 @@ public abstract class ListTests
 
             runner.testGroup("remove()", () ->
             {
-                runner.test("with null", test ->
+                runner.test("with null", (Test test) ->
                 {
                     final List<Integer> list = createList.run(10);
                     test.assertFalse(list.remove(null));
                     test.assertEqual(10, list.getCount());
                 });
 
-                runner.test("with not found", test ->
+                runner.test("with not found", (Test test) ->
                 {
                     final List<Integer> list = createList.run(10);
                     test.assertFalse(list.remove(20));
                     test.assertEqual(10, list.getCount());
                 });
 
-                runner.test("with found", test ->
+                runner.test("with found", (Test test) ->
                 {
                     final List<Integer> list = createList.run(5);
                     test.assertTrue(list.remove(3));
@@ -160,7 +160,7 @@ public abstract class ListTests
                 });
             });
 
-            runner.test("removeAt()", test ->
+            runner.test("removeAt()", (Test test) ->
             {
                 final List<Integer> list = createList.run(0);
                 for (int i = -1; i <= 1; ++i)
@@ -187,20 +187,20 @@ public abstract class ListTests
 
             runner.testGroup("removeFirst()", () ->
             {
-                runner.test("with empty List", test ->
+                runner.test("with empty List", (Test test) ->
                 {
                     final List<Integer> list = createList.run(0);
                     test.assertNull(list.removeFirst());
                 });
 
-                runner.test("with single value List", test ->
+                runner.test("with single value List", (Test test) ->
                 {
                     final List<Integer> list = createList.run(1);
                     test.assertEqual(0, list.removeFirst());
                     test.assertNull(list.removeFirst());
                 });
 
-                runner.test("with multiple value List", test ->
+                runner.test("with multiple value List", (Test test) ->
                 {
                     final List<Integer> list = createList.run(3);
                     test.assertEqual(0, list.removeFirst());
@@ -212,38 +212,38 @@ public abstract class ListTests
 
             runner.testGroup("removeFirst() with condition", () ->
             {
-                runner.test("with null condition and empty List", test ->
+                runner.test("with null condition and empty List", (Test test) ->
                 {
                     final List<Integer> list = createList.run(0);
                     test.assertNull(list.removeFirst(null));
                 });
 
-                runner.test("with null condition and non-empty List", test ->
+                runner.test("with null condition and non-empty List", (Test test) ->
                 {
                     final List<Integer> list = createList.run(4);
                     test.assertNull(list.removeFirst(null));
                 });
 
-                runner.test("with non-matching condition and empty List", test ->
+                runner.test("with non-matching condition and empty List", (Test test) ->
                 {
                     final List<Integer> list = createList.run(0);
                     test.assertNull(list.removeFirst(Math.isOdd));
                 });
 
-                runner.test("with non-matching condition and non-empty List", test ->
+                runner.test("with non-matching condition and non-empty List", (Test test) ->
                 {
                     final List<Integer> list = createList.run(1);
                     test.assertNull(list.removeFirst(Math.isOdd));
                 });
 
-                runner.test("with matching condition and non-empty List", test ->
+                runner.test("with matching condition and non-empty List", (Test test) ->
                 {
                     final List<Integer> list = createList.run(4);
                     test.assertEqual(1, list.removeFirst(Math.isOdd));
                     test.assertEqual(new int[] { 0, 2, 3 }, Array.toIntArray(list));
                 });
 
-                runner.test("with matching condition and single-value List", test ->
+                runner.test("with matching condition and single-value List", (Test test) ->
                 {
                     final List<Integer> list = createList.run(1);
                     test.assertEqual(0, list.removeFirst(Math.isEven));
@@ -251,7 +251,7 @@ public abstract class ListTests
                 });
             });
 
-            runner.test("clear()", test ->
+            runner.test("clear()", (Test test) ->
             {
                 final List<Integer> list = createList.run(0);
                 list.clear();
@@ -265,6 +265,84 @@ public abstract class ListTests
 
                 list.clear();
                 test.assertEqual(0, list.getCount());
+            });
+            
+            runner.testGroup("endsWith(T)", () ->
+            {
+                runner.test("with empty List and null", (Test test) ->
+                {
+                    final List<Integer> list = createList.run(0);
+                    test.assertFalse(list.endsWith((Integer)null));
+                });
+
+                runner.test("with empty List and 7", (Test test) ->
+                {
+                    final List<Integer> list = createList.run(0);
+                    test.assertFalse(list.endsWith((Integer)null));
+                });
+
+                runner.test("with non-empty List and null", (Test test) ->
+                {
+                    final List<Integer> list = createList.run(10);
+                    test.assertFalse(list.endsWith((Integer)null));
+                });
+
+                runner.test("with non-empty List and non-matching value", (Test test) ->
+                {
+                    final List<Integer> list = createList.run(10);
+                    test.assertFalse(list.endsWith(3));
+                });
+
+                runner.test("with non-empty List and matching value", (Test test) ->
+                {
+                    final List<Integer> list = createList.run(10);
+                    test.assertTrue(list.endsWith(9));
+                });
+            });
+
+            runner.testGroup("endsWith(Iterable<T>)", () ->
+            {
+                runner.test("with empty List and null Iterable", (Test test) ->
+                {
+                    final List<Integer> list = createList.run(0);
+                    test.assertFalse(list.endsWith((Iterable<Integer>)null));
+                });
+
+                runner.test("with empty List and [7]", (Test test) ->
+                {
+                    final List<Integer> list = createList.run(0);
+                    test.assertFalse(list.endsWith(Array.fromValues(new int[] { 7 })));
+                });
+
+                runner.test("with non-empty List and null", (Test test) ->
+                {
+                    final List<Integer> list = createList.run(10);
+                    test.assertFalse(list.endsWith((Iterable<Integer>)null));
+                });
+
+                runner.test("with non-empty List and non-matching value", (Test test) ->
+                {
+                    final List<Integer> list = createList.run(10);
+                    test.assertFalse(list.endsWith(Array.fromValues(new int[] { 3 })));
+                });
+
+                runner.test("with non-empty List and non-matching multiple values", (Test test) ->
+                {
+                    final List<Integer> list = createList.run(10);
+                    test.assertFalse(list.endsWith(Array.fromValues(new int[] { 8, 9, 10 })));
+                });
+
+                runner.test("with non-empty List and matching single value", (Test test) ->
+                {
+                    final List<Integer> list = createList.run(10);
+                    test.assertTrue(list.endsWith(Array.fromValues(new int[] { 9 })));
+                });
+
+                runner.test("with non-empty List and matching multiple values", (Test test) ->
+                {
+                    final List<Integer> list = createList.run(10);
+                    test.assertTrue(list.endsWith(Array.fromValues(new int[] { 5, 6, 7, 8, 9 })));
+                });
             });
         });
     }

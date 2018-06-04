@@ -47,7 +47,7 @@ final public class Result<T>
         String result = "";
         if (error == null)
         {
-            result = "value: " + (value == null ? "null" : value.toString());
+            result = "value: " + Objects.toString(value);
         }
         else
         {
@@ -145,6 +145,19 @@ final public class Result<T>
         if (result == null)
         {
             if (value.isEmpty())
+            {
+                result = Result.error(new IllegalArgumentException(parameterName + " cannot be empty."));
+            }
+        }
+        return result;
+    }
+
+    public static <T,U> Result<U> notNullAndNotEmpty(Iterable<T> value, String parameterName)
+    {
+        Result<U> result = Result.notNull(value, parameterName);
+        if (result == null)
+        {
+            if (!value.any())
             {
                 result = Result.error(new IllegalArgumentException(parameterName + " cannot be empty."));
             }

@@ -74,6 +74,13 @@ public interface Iterable<T> extends java.lang.Iterable<T>
     Iterable<T> take(int toTake);
 
     /**
+     * Create a new Iterable that restricts this Iterable to a fixed number of values from the end.
+     * @param toTake The number of values to constrain this Iterable to.
+     * @return A new Iterable that restricts this iterable to a fixed number of values from the end.
+     */
+    Iterable<T> takeLast(int toTake);
+
+    /**
      * Create a new Iterable that will skip over the first toSkip number of elements in this
      * Iterable and then return the remaining elements.
      * @param toSkip The number of elements to skip.

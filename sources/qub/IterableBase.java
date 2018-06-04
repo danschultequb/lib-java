@@ -57,6 +57,12 @@ public abstract class IterableBase<T> implements Iterable<T>
     }
 
     @Override
+    public final Iterable<T> takeLast(int toTake)
+    {
+        return IterableBase.takeLast(this, toTake);
+    }
+
+    @Override
     public final Iterable<T> skip(int toSkip)
     {
         return IterableBase.skip(this, toSkip);
@@ -214,6 +220,17 @@ public abstract class IterableBase<T> implements Iterable<T>
     public static <T> Iterable<T> take(Iterable<T> iterable, int toTake)
     {
         return new TakeIterable<>(iterable, toTake);
+    }
+
+    /**
+     * Create a new Iterable that restricts this Iterable to a fixed number of values from the end.
+     * @param toTake The number of values to constrain this Iterable to.
+     * @return A new Iterable that restricts this Iterable to a fixed number of values from end.
+     */
+    public static <T> Iterable<T> takeLast(Iterable<T> iterable, int toTake)
+    {
+        final int iterableCount = iterable.getCount();
+        return iterable.skip(iterableCount - toTake).take(toTake);
     }
 
     /**
@@ -390,7 +407,7 @@ public abstract class IterableBase<T> implements Iterable<T>
                 {
                     addedAValue = true;
                 }
-                builder.append(value == null ? "null" : value.toString());
+                builder.append(Objects.toString(value));
             }
 
             builder.append(']');

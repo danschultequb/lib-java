@@ -18,7 +18,7 @@ public class IterableTests
 
     public static void test(final TestRunner runner, final Function1<Integer,Iterable<Integer>> createIterable)
     {
-        runner.testGroup("Iterable<T>", () ->
+        runner.testGroup(Iterable.class, () ->
         {
             runner.testGroup("iterate()", () ->
             {
@@ -349,6 +349,124 @@ public class IterableTests
                     final Iterable<Integer> iterable = createIterable.run(4);
 
                     final Iterable<Integer> takeIterable = iterable.take(14);
+                    test.assertTrue(takeIterable.any());
+                    test.assertEqual(4, takeIterable.getCount());
+
+                    final Iterator<Integer> takeIterator = takeIterable.iterate();
+                    test.assertTrue(takeIterator.any());
+                    test.assertEqual(4, takeIterator.getCount());
+                });
+            });
+
+            runner.testGroup("takeLast()", () ->
+            {
+                runner.test("with empty Iterable and negative toTake value", (Test test) ->
+                {
+                    final Iterable<Integer> iterable = createIterable.run(0);
+                    // Some iterables cannot be empty (such as SingleLinkNodes), so they will return null when
+                    // an Iterable with 0 elements is requested.
+                    if (iterable != null)
+                    {
+                        final Iterable<Integer> takeIterable = iterable.takeLast(-1);
+                        test.assertFalse(takeIterable.any());
+                        test.assertEqual(0, takeIterable.getCount());
+
+                        final Iterator<Integer> takeIterator = takeIterable.iterate();
+                        test.assertFalse(takeIterator.any());
+                        test.assertEqual(0, takeIterator.getCount());
+                    }
+                });
+
+                runner.test("with empty Iterable and zero toTake value", (Test test) ->
+                {
+                    final Iterable<Integer> iterable = createIterable.run(0);
+                    // Some iterables cannot be empty (such as SingleLinkNodes), so they will return null when
+                    // an Iterable with 0 elements is requested.
+                    if (iterable != null)
+                    {
+                        final Iterable<Integer> takeIterable = iterable.takeLast(0);
+                        test.assertFalse(takeIterable.any());
+                        test.assertEqual(0, takeIterable.getCount());
+
+                        final Iterator<Integer> takeIterator = takeIterable.iterate();
+                        test.assertFalse(takeIterator.any());
+                        test.assertEqual(0, takeIterator.getCount());
+                    }
+                });
+
+                runner.test("with empty Iterable and positive toTake value", (Test test) ->
+                {
+                    final Iterable<Integer> iterable = createIterable.run(0);
+                    // Some iterables cannot be empty (such as SingleLinkNodes), so they will return null when
+                    // an Iterable with 0 elements is requested.
+                    if (iterable != null)
+                    {
+                        final Iterable<Integer> takeIterable = iterable.takeLast(3);
+                        test.assertFalse(takeIterable.any());
+                        test.assertEqual(0, takeIterable.getCount());
+
+                        final Iterator<Integer> takeIterator = takeIterable.iterate();
+                        test.assertFalse(takeIterator.any());
+                        test.assertEqual(0, takeIterator.getCount());
+                    }
+                });
+
+                runner.test("with non-empty Iterable and negative toTake value", (Test test) ->
+                {
+                    final Iterable<Integer> iterable = createIterable.run(4);
+                    final Iterable<Integer> takeIterable = iterable.takeLast(-1);
+                    test.assertFalse(takeIterable.any());
+                    test.assertEqual(0, takeIterable.getCount());
+
+                    final Iterator<Integer> takeIterator = takeIterable.iterate();
+                    test.assertFalse(takeIterator.any());
+                    test.assertEqual(0, takeIterator.getCount());
+                });
+
+                runner.test("with non-empty Iterable and zero toTake value", (Test test) ->
+                {
+                    final Iterable<Integer> iterable = createIterable.run(4);
+
+                    final Iterable<Integer> takeIterable = iterable.takeLast(0);
+                    test.assertFalse(takeIterable.any());
+                    test.assertEqual(0, takeIterable.getCount());
+
+                    final Iterator<Integer> takeIterator = takeIterable.iterate();
+                    test.assertFalse(takeIterator.any());
+                    test.assertEqual(0, takeIterator.getCount());
+                });
+
+                runner.test("with non-empty Iterable and positive less than Iterable count toTake value", (Test test) ->
+                {
+                    final Iterable<Integer> iterable = createIterable.run(4);
+
+                    final Iterable<Integer> takeIterable = iterable.takeLast(3);
+                    test.assertTrue(takeIterable.any());
+                    test.assertEqual(3, takeIterable.getCount());
+
+                    final Iterator<Integer> takeIterator = takeIterable.iterate();
+                    test.assertTrue(takeIterator.any());
+                    test.assertEqual(3, takeIterator.getCount());
+                });
+
+                runner.test("with non-empty Iterable and positive equal to Iterable count toTake value", (Test test) ->
+                {
+                    final Iterable<Integer> iterable = createIterable.run(4);
+
+                    final Iterable<Integer> takeIterable = iterable.takeLast(iterable.getCount());
+                    test.assertTrue(takeIterable.any());
+                    test.assertEqual(4, takeIterable.getCount());
+
+                    final Iterator<Integer> takeIterator = takeIterable.iterate();
+                    test.assertTrue(takeIterator.any());
+                    test.assertEqual(4, takeIterator.getCount());
+                });
+
+                runner.test("with non-empty Iterable and positive greater than Iterable count toTake value", (Test test) ->
+                {
+                    final Iterable<Integer> iterable = createIterable.run(4);
+
+                    final Iterable<Integer> takeIterable = iterable.takeLast(14);
                     test.assertTrue(takeIterable.any());
                     test.assertEqual(4, takeIterable.getCount());
 

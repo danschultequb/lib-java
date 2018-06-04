@@ -76,13 +76,25 @@ public abstract class ByteReadStreamBase extends IteratorBase<Byte> implements B
     @Override
     public Result<byte[]> readBytesUntil(byte stopByte)
     {
-        return ByteReadStreamBase.readUntil(this, stopByte);
+        return ByteReadStreamBase.readBytesUntil(this, stopByte);
     }
 
     @Override
     public AsyncFunction<Result<byte[]>> readBytesUntilAsync(byte stopByte)
     {
-        return ByteReadStreamBase.readUntilAsync(this, stopByte);
+        return ByteReadStreamBase.readBytesUntilAsync(this, stopByte);
+    }
+
+    @Override
+    public Result<byte[]> readBytesUntil(Iterable<Byte> stopBytes)
+    {
+        return ByteReadStreamBase.readBytesUntil(this, stopBytes);
+    }
+
+    @Override
+    public AsyncFunction<Result<byte[]>> readBytesUntilAsync(Iterable<Byte> stopBytes)
+    {
+        return ByteReadStreamBase.readBytesUntilAsync(this, stopBytes);
     }
 
     @Override
@@ -343,43 +355,17 @@ public abstract class ByteReadStreamBase extends IteratorBase<Byte> implements B
         return result;
     }
 
-    public static Result<byte[]> readUntil(ByteReadStream byteReadStream, byte stopByte)
+    public static Result<byte[]> readBytesUntil(ByteReadStream byteReadStream, byte stopByte)
     {
         Result<byte[]> result = ByteReadStreamBase.validateByteReadStream(byteReadStream);
         if (result == null)
         {
-            final List<Byte> bytesReadList = new ArrayList<Byte>();
-            do
-            {
-                final Result<Byte> byteReadResult = byteReadStream.readByte();
-                if (byteReadResult.hasError())
-                {
-                    result = Result.error(byteReadResult.getError());
-                }
-                else
-                {
-                    final Byte byteRead = byteReadResult.getValue();
-                    if (byteRead != null)
-                    {
-                        bytesReadList.add(byteRead);
-                    }
-                    if (byteRead == null || byteRead == stopByte)
-                    {
-                        byte[] bytesReadArray = null;
-                        if (bytesReadList.any())
-                        {
-                            bytesReadArray = Array.toByteArray(bytesReadList);
-                        }
-                        result = Result.success(bytesReadArray);
-                    }
-                }
-            }
-            while (result == null);
+            result = byteReadStream.readBytesUntil(Array.fromValues(new byte[] { stopByte }));
         }
         return result;
     }
 
-    public static AsyncFunction<Result<byte[]>> readUntilAsync(final ByteReadStream byteReadStream, final byte stopByte)
+    public static AsyncFunction<Result<byte[]>> readBytesUntilAsync(final ByteReadStream byteReadStream, final byte stopByte)
     {
         AsyncFunction<Result<byte[]>> result = ByteReadStreamBase.validateByteReadStreamAsync(byteReadStream);
         if (result == null)
@@ -390,6 +376,63 @@ public abstract class ByteReadStreamBase extends IteratorBase<Byte> implements B
                 public Result<byte[]> run()
                 {
                     return byteReadStream.readBytesUntil(stopByte);
+                }
+            });
+        }
+        return result;
+    }
+
+    public static Result<byte[]> readBytesUntil(ByteReadStream byteReadStream, Iterable<Byte> stopBytes)
+    {
+        Result<byte[]> result = ByteReadStreamBase.validateByteReadStream(byteReadStream);
+        if (result == null)
+        {
+            result = Result.notNullAndNotEmpty(stopBytes, "stopBytes");
+            if (result == null)
+            {
+                final List<Byte> bytesReadList = new ArrayList<Byte>();
+                do
+                {
+                    final Result<Byte> byteReadResult = byteReadStream.readByte();
+                    if (byteReadResult.hasError())
+                    {
+                        result = Result.error(byteReadResult.getError());
+                    }
+                    else
+                    {
+                        final Byte byteRead = byteReadResult.getValue();
+                        if (byteRead != null)
+                        {
+                            bytesReadList.add(byteRead);
+                        }
+                        if (byteRead == null || bytesReadList.endsWith(stopBytes))
+                        {
+                            byte[] bytesReadArray = null;
+                            if (bytesReadList.any())
+                            {
+                                bytesReadArray = Array.toByteArray(bytesReadList);
+                            }
+                            result = Result.success(bytesReadArray);
+                        }
+                    }
+                }
+                while (result == null);
+            }
+        }
+        return result;
+    }
+
+    public static AsyncFunction<Result<byte[]>> readBytesUntilAsync(final ByteReadStream byteReadStream, final Iterable<Byte> stopBytes)
+    {
+        AsyncFunction<Result<byte[]>> result = ByteReadStreamBase.validateByteReadStreamAsync(byteReadStream);
+        if (result == null)
+        {
+            result = async(byteReadStream, new Function0<Result<byte[]>>()
+            {
+                @Override
+                public Result<byte[]> run()
+                {
+                    return byteReadStream.readBytesUntil(stopBytes);
                 }
             });
         }

@@ -214,6 +214,12 @@ public class LockedMap<TKey,TValue> implements Map<TKey,TValue>
     }
 
     @Override
+    public Iterable<MapEntry<TKey, TValue>> takeLast(int toTake)
+    {
+        return IterableBase.takeLast(this, toTake);
+    }
+
+    @Override
     public Iterable<MapEntry<TKey, TValue>> skip(int toSkip)
     {
         return IterableBase.skip(this, toSkip);

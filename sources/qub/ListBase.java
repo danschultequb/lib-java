@@ -50,6 +50,28 @@ public abstract class ListBase<T> extends IndexableBase<T> implements List<T>
         ListBase.clear(this);
     }
 
+    @Override
+    public boolean endsWith(T value)
+    {
+        final int count = getCount();
+        return count > 0 && Comparer.equal(get(count - 1), value);
+    }
+
+    @Override
+    public boolean endsWith(Iterable<T> values)
+    {
+        boolean result = false;
+
+        final int count = getCount();
+        final int valuesCount = values == null ? 0 : values.getCount();
+        if (count >= valuesCount)
+        {
+            result = this.takeLast(valuesCount).equals(values);
+        }
+
+        return result;
+    }
+
     /**
      * Add the provided values at the end of this List.
      * @param values The values to add.

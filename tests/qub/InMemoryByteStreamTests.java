@@ -575,6 +575,66 @@ public class InMemoryByteStreamTests
                 });
             });
 
+            runner.testGroup("readBytesUntil(Iterable<Byte>)", () ->
+            {
+                runner.test("with disposed ByteReadStream", (Test test) ->
+                {
+                    final InMemoryByteStream stream = create(test);
+                    stream.dispose();
+                    test.assertError(new IllegalArgumentException("byteReadStream.isDisposed() (true) must be false."), stream.readBytesUntil(Array.fromValues(new byte[] { 5 })));
+                });
+
+                runner.test("with no bytes to read", (Test test) ->
+                {
+                    final InMemoryByteStream stream = create(test);
+                    test.assertSuccess(null, stream.readBytesUntil(Array.fromValues(new byte[] { 5 })));
+                });
+
+                runner.test("with bytes but not the stopByte", (Test test) ->
+                {
+                    final InMemoryByteStream stream = create(new byte[] { 0, 1, 2, 3, 4, 6, 7, 8, 9 }, test);
+                    test.assertSuccess(new byte[] { 0, 1, 2, 3, 4, 6, 7, 8, 9 }, stream.readBytesUntil(Array.fromValues(new byte[] { 5 })));
+                    test.assertNull(stream.getCurrent());
+                });
+
+                runner.test("with bytes including the stopByte", (Test test) ->
+                {
+                    final InMemoryByteStream stream = create(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }, test);
+                    test.assertSuccess(new byte[] { 0, 1, 2, 3, 4, 5 }, stream.readBytesUntil(Array.fromValues(new byte[] { 5 })));
+                    test.assertEqual((byte)5, stream.getCurrent());
+                });
+            });
+
+            runner.testGroup("readBytesUntilAsync(Iterable<Byte>)", () ->
+            {
+                runner.test("with disposed ByteReadStream", (Test test) ->
+                {
+                    final InMemoryByteStream stream = create(test);
+                    stream.dispose();
+                    test.assertError(new IllegalArgumentException("byteReadStream.isDisposed() (true) must be false."), stream.readBytesUntilAsync(Array.fromValues(new byte[] { 5 })).awaitReturn());
+                });
+
+                runner.test("with no bytes to read", (Test test) ->
+                {
+                    final InMemoryByteStream stream = create(test);
+                    test.assertSuccess(null, stream.readBytesUntilAsync(Array.fromValues(new byte[] { 5 })).awaitReturn());
+                });
+
+                runner.test("with bytes but not the stopBytes", (Test test) ->
+                {
+                    final InMemoryByteStream stream = create(new byte[] { 0, 1, 2, 3, 4, 6, 7, 8, 9 }, test);
+                    test.assertSuccess(new byte[] { 0, 1, 2, 3, 4, 6, 7, 8, 9 }, stream.readBytesUntilAsync(Array.fromValues(new byte[] { 6, 6 })).awaitReturn());
+                    test.assertNull(stream.getCurrent());
+                });
+
+                runner.test("with bytes including the stopBytes", (Test test) ->
+                {
+                    final InMemoryByteStream stream = create(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }, test);
+                    test.assertSuccess(new byte[] { 0, 1, 2, 3, 4, 5 }, stream.readBytesUntilAsync(Array.fromValues(new byte[] { 3, 4, 5 })).awaitReturn());
+                    test.assertEqual((byte)5, stream.getCurrent());
+                });
+            });
+
             runner.test("asLineReadStream()", (Test test) ->
             {
                 final InMemoryByteStream stream = create(test);

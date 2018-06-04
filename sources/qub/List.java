@@ -67,4 +67,18 @@ public interface List<T> extends MutableIndexable<T>
      * Remove all of the elements from this List.
      */
     void clear();
+
+    /**
+     * Get whether or not this List ends with the provided value.
+     * @param value The value to look for at the end of this List.
+     * @return Whether or not this List ends with the provided value.
+     */
+    boolean endsWith(T value);
+
+    /**
+     * Get whether or not this List ends with the provided values.
+     * @param values The values to look for at the end of this List.
+     * @return Whether or not this List ends with the provided values.
+     */
+    boolean endsWith(Iterable<T> values);
 }

@@ -143,6 +143,24 @@ public class LockedList<T> implements List<T>
     }
 
     @Override
+    public boolean endsWith(T value)
+    {
+        try (final Disposable criticalSection = mutex.criticalSection())
+        {
+            return innerList.endsWith(value);
+        }
+    }
+
+    @Override
+    public boolean endsWith(Iterable<T> values)
+    {
+        try (final Disposable criticalSection = mutex.criticalSection())
+        {
+            return innerList.endsWith(values);
+        }
+    }
+
+    @Override
     public void set(final int index, final T value)
     {
         mutex.criticalSection(new Action0()
@@ -315,6 +333,12 @@ public class LockedList<T> implements List<T>
     public Iterable<T> take(final int toTake)
     {
         return ListBase.take(this, toTake);
+    }
+
+    @Override
+    public Iterable<T> takeLast(int toTake)
+    {
+        return ListBase.takeLast(this, toTake);
     }
 
     @Override

@@ -61,29 +61,7 @@ public class FakeTCPClient extends TCPClientBase
             disposed = true;
 
             network.clientDisposed(this);
-
-            final List<Throwable> errors = new ArrayList<Throwable>();
-
-            result = socketReadStream.dispose();
-            if (result.hasError())
-            {
-                errors.add(result.getError());
-            }
-
-            result = socketWriteStream.dispose();
-            if (result.hasError())
-            {
-                errors.add(result.getError());
-            }
-
-            if (errors.any())
-            {
-                result = Result.error(ErrorIterable.from(errors));
-            }
-            else
-            {
-                result = Result.successTrue();
-            }
+            result = Result.successTrue();
         }
         return result;
     }
