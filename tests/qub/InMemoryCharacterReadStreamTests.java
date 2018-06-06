@@ -560,6 +560,50 @@ public class InMemoryCharacterReadStreamTests
                 });
             });
 
+            runner.testGroup("readLine()", () ->
+            {
+                runner.test("when closed", (Test test) ->
+                {
+                    final InMemoryCharacterReadStream characterReadStream = new InMemoryCharacterReadStream("test");
+                    try
+                    {
+                        characterReadStream.close();
+                    }
+                    catch (Exception e)
+                    {
+                        test.fail(e);
+                    }
+                    test.assertError(new IllegalArgumentException("characterReadStream.isDisposed() (true) must be false."), characterReadStream.readLine());
+                });
+
+                final Action2<String,String[]> readLineTest = (String text, String[] expectedLines) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(text), (Test test) ->
+                    {
+                        try (final InMemoryCharacterReadStream characterReadStream = new InMemoryCharacterReadStream(text))
+                        {
+                            final int expectedLineCount = expectedLines == null ? 0 : expectedLines.length;
+                            for (int i = 0; i < expectedLineCount; ++i)
+                            {
+                                final Result<String> readLineResult = characterReadStream.readLine();
+                                test.assertSuccess(readLineResult);
+                                test.assertEqual(Strings.escape(expectedLines[i]), Strings.escape(readLineResult.getValue()));
+                            }
+                        }
+                    });
+                };
+
+                readLineTest.run("\n", new String[] { "" });
+                readLineTest.run("\r\n", new String[] { "" });
+                readLineTest.run("a\n", new String[] { "a" });
+                readLineTest.run("a\r\n", new String[] { "a" });
+                readLineTest.run("a\nb\n", new String[] { "a", "b" });
+                readLineTest.run("a\r\nb\n", new String[] { "a", "b" });
+                readLineTest.run("a\r\r\r\r\rb", new String[] { "a\r\r\r\r\rb"});
+                readLineTest.run("a\r\r\r\r\r\n", new String[] { "a\r\r\r\r"});
+                readLineTest.run("a\nb\r\nc\n", new String[] { "a", "b", "c" });
+            });
+
             runner.test("asLineReadStream()", (Test test) ->
             {
                 final InMemoryCharacterReadStream characterReadStream = new InMemoryCharacterReadStream();

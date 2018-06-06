@@ -72,6 +72,18 @@ public abstract class CharacterReadStreamBase extends IteratorBase<Character> im
     }
 
     @Override
+    public Result<String> readLine()
+    {
+        return CharacterReadStreamBase.readLine(this);
+    }
+
+    @Override
+    public AsyncFunction<Result<String>> readLineAsync()
+    {
+        return CharacterReadStreamBase.readLineAsync(this);
+    }
+
+    @Override
     public LineReadStream asLineReadStream()
     {
         return CharacterReadStreamBase.asLineReadStream(this);
@@ -274,6 +286,70 @@ public abstract class CharacterReadStreamBase extends IteratorBase<Character> im
                 public Result<String> run()
                 {
                     return characterReadStream.readString(charactersToRead);
+                }
+            });
+        }
+        return result;
+    }
+
+    public static Result<String> readLine(CharacterReadStream characterReadStream)
+    {
+        Result<String> result = CharacterReadStreamBase.validateCharacterReadStream(characterReadStream);
+        if (result == null)
+        {
+            final StringBuilder builder = new StringBuilder();
+            Throwable error = null;
+            do
+            {
+                final Result<Character> character = characterReadStream.readCharacter();
+                if (character.hasError())
+                {
+                    error = character.getError();
+                }
+
+                if (character.getValue() != null)
+                {
+                    builder.append(character.getValue());
+                }
+                else
+                {
+                    break;
+                }
+            }
+            while(error == null && builder.charAt(builder.length() - 1) != '\n');
+
+            final int builderLength = builder.length();
+            if (builderLength >= 1)
+            {
+                if (builder.charAt(builderLength - 1) == '\n')
+                {
+                    if (builderLength >= 2 && builder.charAt(builderLength - 2) == '\r')
+                    {
+                        builder.setLength(builderLength - 2);
+                    }
+                    else
+                    {
+                        builder.setLength(builderLength - 1);
+                    }
+                }
+            }
+
+            result = Result.done(builderLength == 0 ? null : builder.toString(), error);
+        }
+        return result;
+    }
+
+    public static AsyncFunction<Result<String>> readLineAsync(final CharacterReadStream characterReadStream)
+    {
+        AsyncFunction<Result<String>> result = CharacterReadStreamBase.validateCharacterReadStreamAsync(characterReadStream);
+        if (result == null)
+        {
+            result = async(characterReadStream, new Function0<Result<String>>()
+            {
+                @Override
+                public Result<String> run()
+                {
+                    return characterReadStream.readLine();
                 }
             });
         }
