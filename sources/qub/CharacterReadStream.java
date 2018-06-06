@@ -98,20 +98,6 @@ public interface CharacterReadStream extends AsyncDisposable, Iterator<Character
      */
     AsyncFunction<Result<String>> readStringAsync(int charactersToRead);
 
-    /**
-     * Read the next line from this CharacterReadStream.
-     * @return The next line from this CharacterReadStream, or null if this CharacterReadStream is
-     * at the end of its stream.
-     */
-    Result<String> readLine();
-
-    /**
-     * Read the next line from this CharacterReadStream.
-     * @return The next line from this CharacterReadStream, or null if this CharacterReadStream is
-     * at the end of its stream.
-     */
-    AsyncFunction<Result<String>> readLineAsync();
-
     CharacterEncoding getEncoding();
 
     ByteReadStream asByteReadStream();
