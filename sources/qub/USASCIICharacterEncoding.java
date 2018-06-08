@@ -27,7 +27,7 @@ public class USASCIICharacterEncoding extends CharacterEncoding
             final char[] decodedCharacters = new char[bytes.length];
             for (int i = 0; i < bytes.length; ++i)
             {
-                decodedCharacters[i] = (char)bytes[i];
+                decodedCharacters[i] = (char)Bytes.toUnsignedInt(bytes[i]);
             }
             result = Result.success(decodedCharacters);
         }
@@ -46,7 +46,7 @@ public class USASCIICharacterEncoding extends CharacterEncoding
             }
             else
             {
-                result = Result.success((char)bytes.getCurrent().byteValue());
+                result = Result.success((char)Bytes.toUnsignedInt(bytes.getCurrent()));
             }
         }
         return result;

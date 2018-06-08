@@ -308,6 +308,64 @@ public class Array<T> extends IndexableBase<T> implements MutableIndexable<T>
     }
 
     /**
+     * Convert the provided character Iterator into a char array.
+     * @param characters The character Iterator to convert to a char array.
+     * @return The char array.
+     */
+    public static char[] toCharArray(Iterator<Character> characters)
+    {
+        char[] result;
+        if (characters == null)
+        {
+            result = null;
+        }
+        else if (!characters.any())
+        {
+            result = new char[0];
+        }
+        else
+        {
+            final ArrayList<Character> list = new ArrayList<>();
+            for (final Character value : characters)
+            {
+                list.add(value);
+            }
+
+            result = toCharArray(list);
+        }
+        return result;
+    }
+
+    /**
+     * Convert the provided character Iterable into a char array.
+     * @param characters The character Iterable to convert to a char array.
+     * @return The char array.
+     */
+    public static char[] toCharArray(Iterable<Character> characters)
+    {
+        char[] result;
+        if (characters == null)
+        {
+            result = null;
+        }
+        else if (!characters.any())
+        {
+            result = new char[0];
+        }
+        else
+        {
+            result = new char[characters.getCount()];
+            int index = 0;
+            for (final Character value : characters)
+            {
+                result[index] = value;
+                ++index;
+            }
+        }
+        return result;
+    }
+
+    /**
      * Convert the provided int Iterator into a int array.
      * @param ints The int Iterator to convert to an int array.
      * @return The int array.
