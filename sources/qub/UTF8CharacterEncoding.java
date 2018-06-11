@@ -1,7 +1,5 @@
 package qub;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 public class UTF8CharacterEncoding extends CharacterEncoding
 {
     /**
@@ -155,28 +153,36 @@ public class UTF8CharacterEncoding extends CharacterEncoding
                 }
                 else
                 {
-                    final Byte secondByte = bytes.getCurrent();
-                    final int secondByteSignificantBitCount = Bytes.getSignificantBitCount(secondByte);
-                    if (secondByteSignificantBitCount != 1)
+                    final int unsignedFirstByte = Bytes.toUnsignedInt(firstByte);
+                    if (0xD8 <= unsignedFirstByte && unsignedFirstByte <= 0xDF)
                     {
-                        result = Result.done(replacementCharacter, new IllegalArgumentException("Expected continuation byte (10xxxxxx), but found " + Bytes.toHexString(secondByte) + " instead."));
+                        result = Result.done(replacementCharacter, new IllegalArgumentException("Byte " + Bytes.toHexString(firstByte, true) + " is invalid because bytes between 0xD800 and 0xDFFF are reserved in UTF-8 encoding."));
                     }
                     else
                     {
-                        final int firstByteLastFiveBits = Bytes.toUnsignedInt(firstByte) & 0x1F;
-                        final int secondByteLastSixBits = Bytes.toUnsignedInt(secondByte) & 0x3F;
-                        final int resultBits = (firstByteLastFiveBits << 6) | secondByteLastSixBits;
-                        result = Result.success((char)resultBits);
+                        final Byte secondByte = bytes.getCurrent();
+                        final int secondByteSignificantBitCount = Bytes.getSignificantBitCount(secondByte);
+                        if (secondByteSignificantBitCount != 1)
+                        {
+                            result = Result.done(replacementCharacter, new IllegalArgumentException("Expected continuation byte (10xxxxxx), but found " + Bytes.toHexString(secondByte) + " instead."));
+                        }
+                        else
+                        {
+                            final int firstByteLastFiveBits = Bytes.toUnsignedInt(firstByte) & 0x1F;
+                            final int secondByteLastSixBits = Bytes.toUnsignedInt(secondByte) & 0x3F;
+                            final int resultBits = (firstByteLastFiveBits << 6) | secondByteLastSixBits;
+                            result = Result.success((char)resultBits);
+                        }
                     }
                 }
                 break;
 
-            case 3:
-                result = Result.error(new NotImplementedException());
-                break;
-
             default:
-                result = Result.error(new NotImplementedException());
+                for (int i = 1; bytes.hasCurrent() && i < expectedBytesInCharacter; ++i)
+                {
+                    bytes.next();
+                }
+                result = Result.done(replacementCharacter, new NotSupportedException("Decoding UTF-8 encoded byte streams with characters composed of 3 or more bytes are not supported."));
                 break;
         }
 

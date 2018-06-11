@@ -87,6 +87,13 @@ public class UTF8CharacterEncodingTests
                 decodeTest.run(new byte[]{97}, new char[]{'a'}, null);
                 decodeTest.run(new byte[]{122, 121, 122}, new char[]{'z', 'y', 'z'}, null);
                 decodeTest.run(new byte[] { -62, -124 }, new char[] { (char)132 }, null);
+                decodeTest.run(new byte[] { (byte)0xD8, 0x00, 97 }, new char[] { UTF8CharacterEncoding.replacementCharacter, 'a' }, new IllegalArgumentException("Byte 0xD8 is invalid because bytes between 0xD800 and 0xDFFF are reserved in UTF-8 encoding."));
+                decodeTest.run(new byte[] { (byte)0xD8, 0x01, 98 }, new char[] { UTF8CharacterEncoding.replacementCharacter, 'b' }, new IllegalArgumentException("Byte 0xD8 is invalid because bytes between 0xD800 and 0xDFFF are reserved in UTF-8 encoding."));
+                decodeTest.run(new byte[] { (byte)0xDA, 0x01, 99 }, new char[] { UTF8CharacterEncoding.replacementCharacter, 'c' }, new IllegalArgumentException("Byte 0xDA is invalid because bytes between 0xD800 and 0xDFFF are reserved in UTF-8 encoding."));
+                decodeTest.run(new byte[] { (byte)0xDF, (byte)0xFE, 100 }, new char[] { UTF8CharacterEncoding.replacementCharacter, 'd' }, new IllegalArgumentException("Byte 0xDF is invalid because bytes between 0xD800 and 0xDFFF are reserved in UTF-8 encoding."));
+                decodeTest.run(new byte[] { (byte)0xDF, (byte)0xFF, 101 }, new char[] { UTF8CharacterEncoding.replacementCharacter, 'e' }, new IllegalArgumentException("Byte 0xDF is invalid because bytes between 0xD800 and 0xDFFF are reserved in UTF-8 encoding."));
+                decodeTest.run(new byte[] { (byte)0xE0, (byte)0x80, (byte)0x81, 102 }, new char[] { UTF8CharacterEncoding.replacementCharacter, 'f' }, new NotSupportedException("Decoding UTF-8 encoded byte streams with characters composed of 3 or more bytes are not supported."));
+                decodeTest.run(new byte[] { (byte)0xF0, (byte)0x80, (byte)0x81, (byte)0x82, 103 }, new char[] { UTF8CharacterEncoding.replacementCharacter, 'g' }, new NotSupportedException("Decoding UTF-8 encoded byte streams with characters composed of 3 or more bytes are not supported."));
             });
 
             runner.testGroup("decodeAsString(byte[])", () ->
