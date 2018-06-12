@@ -14,7 +14,7 @@ public class LineReadStreamTests
                 {
                     final LineReadStream lineReadStream = creatorWithIncludeNewLines.run(null, false);
                     assertLineReadStream(test, lineReadStream, false, false, null);
-                    test.assertEqual(CharacterEncoding.US_ASCII, lineReadStream.getCharacterEncoding());
+                    test.assertEqual(CharacterEncoding.UTF_8, lineReadStream.getCharacterEncoding());
                     test.assertFalse(lineReadStream.getIncludeNewLines());
                 });
 
@@ -22,7 +22,7 @@ public class LineReadStreamTests
                 {
                     final LineReadStream lineReadStream = creatorWithIncludeNewLines.run(null, true);
                     assertLineReadStream(test, lineReadStream, false, false, null);
-                    test.assertEqual(CharacterEncoding.US_ASCII, lineReadStream.getCharacterEncoding());
+                    test.assertEqual(CharacterEncoding.UTF_8, lineReadStream.getCharacterEncoding());
                     test.assertTrue(lineReadStream.getIncludeNewLines());
                 });
             });

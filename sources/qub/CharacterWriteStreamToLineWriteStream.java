@@ -16,11 +16,6 @@ public class CharacterWriteStreamToLineWriteStream extends LineWriteStreamBase
         this.lineSeparator = lineSeparator;
     }
 
-    protected CharacterWriteStream getCharacterWriteStream()
-    {
-        return characterWriteStream;
-    }
-
     @Override
     public String getLineSeparator()
     {

@@ -6,7 +6,7 @@ package qub;
 public abstract class CharacterEncoding
 {
     public static final CharacterEncoding US_ASCII = new USASCIICharacterEncoding();
-    public static final CharacterEncoding UTF8 = new UTF8CharacterEncoding();
+    public static final CharacterEncoding UTF_8 = new UTF8CharacterEncoding();
 
     /**
      * Encode the provided character as a byte[].

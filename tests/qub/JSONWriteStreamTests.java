@@ -41,7 +41,7 @@ public class JSONWriteStreamTests
                     final InMemoryLineWriteStream inMemoryWriteStream = new InMemoryLineWriteStream();
                     final JSONWriteStream writeStream = new JSONWriteStream(inMemoryWriteStream);
                     writeStream.writeBoolean(false);
-                    test.assertEqual("false", inMemoryWriteStream.getText());
+                    test.assertSuccess("false", inMemoryWriteStream.getText());
                 });
 
                 runner.test("with true", test ->
@@ -49,7 +49,7 @@ public class JSONWriteStreamTests
                     final InMemoryLineWriteStream inMemoryWriteStream = new InMemoryLineWriteStream();
                     final JSONWriteStream writeStream = new JSONWriteStream(inMemoryWriteStream);
                     writeStream.writeBoolean(true);
-                    test.assertEqual("true", inMemoryWriteStream.getText());
+                    test.assertSuccess("true", inMemoryWriteStream.getText());
                 });
             });
 
@@ -58,7 +58,7 @@ public class JSONWriteStreamTests
                 final InMemoryLineWriteStream inMemoryWriteStream = new InMemoryLineWriteStream();
                 final JSONWriteStream writeStream = new JSONWriteStream(inMemoryWriteStream);
                 writeStream.writeNull();
-                test.assertEqual("null", inMemoryWriteStream.getText());
+                test.assertSuccess("null", inMemoryWriteStream.getText());
             });
 
             runner.testGroup("writeNumber(double)", () ->
@@ -68,7 +68,7 @@ public class JSONWriteStreamTests
                     final InMemoryLineWriteStream inMemoryWriteStream = new InMemoryLineWriteStream();
                     final JSONWriteStream writeStream = new JSONWriteStream(inMemoryWriteStream);
                     writeStream.writeNumber(-12.3);
-                    test.assertEqual("-12.3", inMemoryWriteStream.getText());
+                    test.assertSuccess("-12.3", inMemoryWriteStream.getText());
                 });
 
                 runner.test("with negative zero", test ->
@@ -76,7 +76,7 @@ public class JSONWriteStreamTests
                     final InMemoryLineWriteStream inMemoryWriteStream = new InMemoryLineWriteStream();
                     final JSONWriteStream writeStream = new JSONWriteStream(inMemoryWriteStream);
                     writeStream.writeNumber(-0.0);
-                    test.assertEqual("-0.0", inMemoryWriteStream.getText());
+                    test.assertSuccess("-0.0", inMemoryWriteStream.getText());
                 });
 
                 runner.test("with positive zero", test ->
@@ -84,7 +84,7 @@ public class JSONWriteStreamTests
                     final InMemoryLineWriteStream inMemoryWriteStream = new InMemoryLineWriteStream();
                     final JSONWriteStream writeStream = new JSONWriteStream(inMemoryWriteStream);
                     writeStream.writeNumber(0.0);
-                    test.assertEqual("0.0", inMemoryWriteStream.getText());
+                    test.assertSuccess("0.0", inMemoryWriteStream.getText());
                 });
 
                 runner.test("with positive", test ->
@@ -92,7 +92,7 @@ public class JSONWriteStreamTests
                     final InMemoryLineWriteStream inMemoryWriteStream = new InMemoryLineWriteStream();
                     final JSONWriteStream writeStream = new JSONWriteStream(inMemoryWriteStream);
                     writeStream.writeNumber(1234567.8);
-                    test.assertEqual("1234567.8", inMemoryWriteStream.getText());
+                    test.assertSuccess("1234567.8", inMemoryWriteStream.getText());
                 });
             });
 
@@ -103,7 +103,7 @@ public class JSONWriteStreamTests
                     final InMemoryLineWriteStream inMemoryWriteStream = new InMemoryLineWriteStream();
                     final JSONWriteStream writeStream = new JSONWriteStream(inMemoryWriteStream);
                     writeStream.writeNumber(-123);
-                    test.assertEqual("-123", inMemoryWriteStream.getText());
+                    test.assertSuccess("-123", inMemoryWriteStream.getText());
                 });
 
                 runner.test("with negative zero", test ->
@@ -111,7 +111,7 @@ public class JSONWriteStreamTests
                     final InMemoryLineWriteStream inMemoryWriteStream = new InMemoryLineWriteStream();
                     final JSONWriteStream writeStream = new JSONWriteStream(inMemoryWriteStream);
                     writeStream.writeNumber(-0);
-                    test.assertEqual("0", inMemoryWriteStream.getText());
+                    test.assertSuccess("0", inMemoryWriteStream.getText());
                 });
 
                 runner.test("with positive zero", test ->
@@ -119,7 +119,7 @@ public class JSONWriteStreamTests
                     final InMemoryLineWriteStream inMemoryWriteStream = new InMemoryLineWriteStream();
                     final JSONWriteStream writeStream = new JSONWriteStream(inMemoryWriteStream);
                     writeStream.writeNumber(0);
-                    test.assertEqual("0", inMemoryWriteStream.getText());
+                    test.assertSuccess("0", inMemoryWriteStream.getText());
                 });
 
                 runner.test("with positive", test ->
@@ -127,7 +127,7 @@ public class JSONWriteStreamTests
                     final InMemoryLineWriteStream inMemoryWriteStream = new InMemoryLineWriteStream();
                     final JSONWriteStream writeStream = new JSONWriteStream(inMemoryWriteStream);
                     writeStream.writeNumber(1234567);
-                    test.assertEqual("1234567", inMemoryWriteStream.getText());
+                    test.assertSuccess("1234567", inMemoryWriteStream.getText());
                 });
             });
 
@@ -138,7 +138,7 @@ public class JSONWriteStreamTests
                     final InMemoryLineWriteStream inMemoryWriteStream = new InMemoryLineWriteStream();
                     final JSONWriteStream writeStream = new JSONWriteStream(inMemoryWriteStream);
                     writeStream.writeQuotedString(null);
-                    test.assertEqual("\"\"", inMemoryWriteStream.getText());
+                    test.assertSuccess("\"\"", inMemoryWriteStream.getText());
                 });
 
                 runner.test("with empty", test ->
@@ -146,7 +146,7 @@ public class JSONWriteStreamTests
                     final InMemoryLineWriteStream inMemoryWriteStream = new InMemoryLineWriteStream();
                     final JSONWriteStream writeStream = new JSONWriteStream(inMemoryWriteStream);
                     writeStream.writeQuotedString("");
-                    test.assertEqual("\"\"", inMemoryWriteStream.getText());
+                    test.assertSuccess("\"\"", inMemoryWriteStream.getText());
                 });
 
                 runner.test("with non-empty", test ->
@@ -154,7 +154,7 @@ public class JSONWriteStreamTests
                     final InMemoryLineWriteStream inMemoryWriteStream = new InMemoryLineWriteStream();
                     final JSONWriteStream writeStream = new JSONWriteStream(inMemoryWriteStream);
                     writeStream.writeQuotedString("test");
-                    test.assertEqual("\"test\"", inMemoryWriteStream.getText());
+                    test.assertSuccess("\"test\"", inMemoryWriteStream.getText());
                 });
             });
 
@@ -165,7 +165,7 @@ public class JSONWriteStreamTests
                     final InMemoryLineWriteStream inMemoryWriteStream = new InMemoryLineWriteStream();
                     final JSONWriteStream writeStream = new JSONWriteStream(inMemoryWriteStream);
                     writeStream.writeObject();
-                    test.assertEqual("{}", inMemoryWriteStream.getText());
+                    test.assertSuccess("{}", inMemoryWriteStream.getText());
                 });
 
                 runner.test("with null action", test ->
@@ -173,7 +173,7 @@ public class JSONWriteStreamTests
                     final InMemoryLineWriteStream inMemoryWriteStream = new InMemoryLineWriteStream();
                     final JSONWriteStream writeStream = new JSONWriteStream(inMemoryWriteStream);
                     writeStream.writeObject(null);
-                    test.assertEqual("{}", inMemoryWriteStream.getText());
+                    test.assertSuccess("{}", inMemoryWriteStream.getText());
                 });
 
                 runner.test("with empty action", test ->
@@ -181,7 +181,7 @@ public class JSONWriteStreamTests
                     final InMemoryLineWriteStream inMemoryWriteStream = new InMemoryLineWriteStream();
                     final JSONWriteStream writeStream = new JSONWriteStream(inMemoryWriteStream);
                     writeStream.writeObject((JSONObjectWriteStream objectWriteStream) -> {});
-                    test.assertEqual("{}", inMemoryWriteStream.getText());
+                    test.assertSuccess("{}", inMemoryWriteStream.getText());
                 });
 
                 runner.test("with null property", test ->
@@ -192,7 +192,7 @@ public class JSONWriteStreamTests
                     {
                         objectWriteStream.writeNullProperty("apples");
                     });
-                    test.assertEqual("{\"apples\":null}", inMemoryWriteStream.getText());
+                    test.assertSuccess("{\"apples\":null}", inMemoryWriteStream.getText());
                 });
 
                 runner.test("with boolean properties", test ->
@@ -204,7 +204,7 @@ public class JSONWriteStreamTests
                         objectWriteStream.writeBooleanProperty("apples", false);
                         objectWriteStream.writeBooleanProperty("oranges", true);
                     });
-                    test.assertEqual("{\"apples\":false,\"oranges\":true}", inMemoryWriteStream.getText());
+                    test.assertSuccess("{\"apples\":false,\"oranges\":true}", inMemoryWriteStream.getText());
                 });
 
                 runner.test("with quoted string property", test ->
@@ -215,7 +215,7 @@ public class JSONWriteStreamTests
                     {
                         objectWriteStream.writeQuotedStringProperty("apples", "oranges");
                     });
-                    test.assertEqual("{\"apples\":\"oranges\"}", inMemoryWriteStream.getText());
+                    test.assertSuccess("{\"apples\":\"oranges\"}", inMemoryWriteStream.getText());
                 });
 
                 runner.test("with integer property", test ->
@@ -226,7 +226,7 @@ public class JSONWriteStreamTests
                     {
                         objectWriteStream.writeNumberProperty("apples", 15);
                     });
-                    test.assertEqual("{\"apples\":15}", inMemoryWriteStream.getText());
+                    test.assertSuccess("{\"apples\":15}", inMemoryWriteStream.getText());
                 });
 
                 runner.test("with double property", test ->
@@ -237,7 +237,7 @@ public class JSONWriteStreamTests
                     {
                         objectWriteStream.writeNumberProperty("apples", 15.5);
                     });
-                    test.assertEqual("{\"apples\":15.5}", inMemoryWriteStream.getText());
+                    test.assertSuccess("{\"apples\":15.5}", inMemoryWriteStream.getText());
                 });
 
                 runner.test("with object property", test ->
@@ -248,7 +248,7 @@ public class JSONWriteStreamTests
                     {
                         objectWriteStream.writeObjectProperty("apples", (JSONObjectWriteStream objectWriteStream2) -> {});
                     });
-                    test.assertEqual("{\"apples\":{}}", inMemoryWriteStream.getText());
+                    test.assertSuccess("{\"apples\":{}}", inMemoryWriteStream.getText());
                 });
 
                 runner.test("with array property", test ->
@@ -259,7 +259,7 @@ public class JSONWriteStreamTests
                     {
                         objectWriteStream.writeArrayProperty("apples", (JSONArrayWriteStream arrayWriteStream) -> {});
                     });
-                    test.assertEqual("{\"apples\":[]}", inMemoryWriteStream.getText());
+                    test.assertSuccess("{\"apples\":[]}", inMemoryWriteStream.getText());
                 });
             });
 
@@ -270,7 +270,7 @@ public class JSONWriteStreamTests
                     final InMemoryLineWriteStream inMemoryWriteStream = new InMemoryLineWriteStream();
                     final JSONWriteStream writeStream = new JSONWriteStream(inMemoryWriteStream);
                     writeStream.writeArray();
-                    test.assertEqual("[]", inMemoryWriteStream.getText());
+                    test.assertSuccess("[]", inMemoryWriteStream.getText());
                 });
 
                 runner.test("with null action", test ->
@@ -278,7 +278,7 @@ public class JSONWriteStreamTests
                     final InMemoryLineWriteStream inMemoryWriteStream = new InMemoryLineWriteStream();
                     final JSONWriteStream writeStream = new JSONWriteStream(inMemoryWriteStream);
                     writeStream.writeArray(null);
-                    test.assertEqual("[]", inMemoryWriteStream.getText());
+                    test.assertSuccess("[]", inMemoryWriteStream.getText());
                 });
 
                 runner.test("with empty action", test ->
@@ -286,7 +286,7 @@ public class JSONWriteStreamTests
                     final InMemoryLineWriteStream inMemoryWriteStream = new InMemoryLineWriteStream();
                     final JSONWriteStream writeStream = new JSONWriteStream(inMemoryWriteStream);
                     writeStream.writeArray((JSONArrayWriteStream arrayWriteStream) -> {});
-                    test.assertEqual("[]", inMemoryWriteStream.getText());
+                    test.assertSuccess("[]", inMemoryWriteStream.getText());
                 });
 
                 runner.test("with null element", test ->
@@ -297,7 +297,7 @@ public class JSONWriteStreamTests
                     {
                         arrayWriteStream.writeNull();
                     });
-                    test.assertEqual("[null]", inMemoryWriteStream.getText());
+                    test.assertSuccess("[null]", inMemoryWriteStream.getText());
                 });
 
                 runner.test("with boolean elements", test ->
@@ -309,7 +309,7 @@ public class JSONWriteStreamTests
                         arrayWriteStream.writeBoolean(false);
                         arrayWriteStream.writeBoolean(true);
                     });
-                    test.assertEqual("[false,true]", inMemoryWriteStream.getText());
+                    test.assertSuccess("[false,true]", inMemoryWriteStream.getText());
                 });
 
                 runner.test("with quoted string element", test ->
@@ -320,7 +320,7 @@ public class JSONWriteStreamTests
                     {
                         arrayWriteStream.writeQuotedString("oranges");
                     });
-                    test.assertEqual("[\"oranges\"]", inMemoryWriteStream.getText());
+                    test.assertSuccess("[\"oranges\"]", inMemoryWriteStream.getText());
                 });
 
                 runner.test("with integer element", test ->
@@ -331,7 +331,7 @@ public class JSONWriteStreamTests
                     {
                         arrayWriteStream.writeNumber(15);
                     });
-                    test.assertEqual("[15]", inMemoryWriteStream.getText());
+                    test.assertSuccess("[15]", inMemoryWriteStream.getText());
                 });
 
                 runner.test("with double element", test ->
@@ -342,7 +342,7 @@ public class JSONWriteStreamTests
                     {
                         arrayWriteStream.writeNumber(15.5);
                     });
-                    test.assertEqual("[15.5]", inMemoryWriteStream.getText());
+                    test.assertSuccess("[15.5]", inMemoryWriteStream.getText());
                 });
 
                 runner.test("with object element", test ->
@@ -353,7 +353,7 @@ public class JSONWriteStreamTests
                     {
                         arrayWriteStream.writeObject((JSONObjectWriteStream objectWriteStream) -> {});
                     });
-                    test.assertEqual("[{}]", inMemoryWriteStream.getText());
+                    test.assertSuccess("[{}]", inMemoryWriteStream.getText());
                 });
 
                 runner.test("with array element", test ->
@@ -364,7 +364,7 @@ public class JSONWriteStreamTests
                     {
                         arrayWriteStream.writeArray((JSONArrayWriteStream arrayWriteStream2) -> {});
                     });
-                    test.assertEqual("[[]]", inMemoryWriteStream.getText());
+                    test.assertSuccess("[[]]", inMemoryWriteStream.getText());
                 });
             });
         });

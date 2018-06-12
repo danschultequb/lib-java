@@ -22,10 +22,10 @@ public class InMemoryLineWriteStreamTests
             runner.test("getText()", (Test test) ->
             {
                 final InMemoryLineWriteStream writeStream = new InMemoryLineWriteStream();
-                test.assertEqual("", writeStream.getText());
+                test.assertSuccess("", writeStream.getText());
 
                 writeStream.writeLine("hello");
-                test.assertEqual("hello\n", writeStream.getText());
+                test.assertSuccess("hello\n", writeStream.getText());
             });
         });
     }

@@ -135,7 +135,7 @@ public abstract class LineReadStreamBase extends IteratorBase<String> implements
 
     public static CharacterEncoding getCharacterEncoding(LineReadStream lineReadStream)
     {
-        return lineReadStream.asCharacterReadStream().getEncoding();
+        return lineReadStream.asCharacterReadStream().getCharacterEncoding();
     }
 
     public static boolean isDisposed(LineReadStream lineReadStream)

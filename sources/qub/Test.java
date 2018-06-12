@@ -579,6 +579,5 @@ public class Test
     private static String addType(Object value, Object otherValue, String valueString, String otherValueString)
     {
         return valueString + (value == null || !valueString.equals(otherValueString) ? "" : " (" + value.getClass().getName() + ")");
-
     }
 }

@@ -98,7 +98,7 @@ public interface CharacterReadStream extends AsyncDisposable, Iterator<Character
      */
     AsyncFunction<Result<String>> readStringAsync(int charactersToRead);
 
-    CharacterEncoding getEncoding();
+    CharacterEncoding getCharacterEncoding();
 
     ByteReadStream asByteReadStream();
 

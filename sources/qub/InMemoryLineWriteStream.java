@@ -2,44 +2,44 @@ package qub;
 
 public class InMemoryLineWriteStream extends CharacterWriteStreamToLineWriteStream
 {
+    private final InMemoryCharacterStream characterStream;
+
     public InMemoryLineWriteStream()
     {
-        this(new InMemoryCharacterWriteStream());
+        this(new InMemoryCharacterStream());
     }
 
-    public InMemoryLineWriteStream(CharacterEncoding encoding)
+    public InMemoryLineWriteStream(CharacterEncoding characterEncoding)
     {
-        this(new InMemoryCharacterWriteStream(encoding));
+        this(new InMemoryCharacterStream(characterEncoding));
     }
 
-    public InMemoryLineWriteStream(CharacterEncoding encoding, String lineSeparator)
+    public InMemoryLineWriteStream(CharacterEncoding characterEncoding, String lineSeparator)
     {
-        this(new InMemoryCharacterWriteStream(encoding), lineSeparator);
+        this(new InMemoryCharacterStream(characterEncoding), lineSeparator);
     }
 
-    public InMemoryLineWriteStream(InMemoryCharacterWriteStream characterWriteStream)
+    public InMemoryLineWriteStream(InMemoryCharacterStream characterStream)
     {
-        super(characterWriteStream);
+        super(characterStream);
+
+        this.characterStream = characterStream;
     }
 
-    public InMemoryLineWriteStream(InMemoryCharacterWriteStream characterWriteStream, String lineSeparator)
+    public InMemoryLineWriteStream(InMemoryCharacterStream characterStream, String lineSeparator)
     {
-        super(characterWriteStream, lineSeparator);
-    }
+        super(characterStream, lineSeparator);
 
-    @Override
-    protected InMemoryCharacterWriteStream getCharacterWriteStream()
-    {
-        return (InMemoryCharacterWriteStream)super.getCharacterWriteStream();
+        this.characterStream = characterStream;
     }
 
     public byte[] getBytes()
     {
-        return getCharacterWriteStream().getBytes();
+        return characterStream.getBytes();
     }
 
-    public String getText()
+    public Result<String> getText()
     {
-        return getCharacterWriteStream().getText();
+        return characterStream.getText();
     }
 }

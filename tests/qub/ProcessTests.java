@@ -6,7 +6,7 @@ public class ProcessTests
     {
         runner.testGroup(Process.class, () ->
         {
-            runner.test("getEncoding()", (Test test) ->
+            runner.test("getCharacterEncoding()", (Test test) ->
             {
                 final Process process = creator.run();
                 test.assertEqual(CharacterEncoding.US_ASCII, process.getCharacterEncoding());
@@ -106,7 +106,7 @@ public class ProcessTests
                 runner.test("with non-null", (Test test) ->
                 {
                     final Process process = creator.run();
-                    final InMemoryCharacterReadStream readStream = new InMemoryCharacterReadStream("hello there my good friend\nHow are you?\r\nI'm alright.");
+                    final InMemoryCharacterStream readStream = new InMemoryCharacterStream("hello there my good friend\nHow are you?\r\nI'm alright.");
                     process.setInput(readStream.asByteReadStream());
 
                     final ByteReadStream byteReadStream = process.getInputAsByteReadStream();
@@ -152,7 +152,7 @@ public class ProcessTests
                 runner.test("with non-null", (Test test) ->
                 {
                     final Process process = creator.run();
-                    final InMemoryCharacterReadStream readStream = new InMemoryCharacterReadStream("hello there my good friend\nHow are you?\r\nI'm alright.");
+                    final InMemoryCharacterStream readStream = new InMemoryCharacterStream("hello there my good friend\nHow are you?\r\nI'm alright.");
                     process.setInput(readStream);
 
                     final ByteReadStream byteReadStream = process.getInputAsByteReadStream();

@@ -54,7 +54,7 @@ public class ConsoleTests
 
                         console.write(toWrite);
 
-                        test.assertEqual(expectedText, output.getText());
+                        test.assertSuccess(expectedText, output.getText());
                     });
                 };
 
@@ -73,7 +73,7 @@ public class ConsoleTests
 
                         console.write(toWrite, formattedStringArguments);
 
-                        test.assertEqual(expectedText, output.getText());
+                        test.assertSuccess(expectedText, output.getText());
                     });
                 };
 

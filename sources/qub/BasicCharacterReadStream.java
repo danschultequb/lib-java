@@ -25,7 +25,7 @@ public class BasicCharacterReadStream extends CharacterReadStreamBase
     }
 
     @Override
-    public CharacterEncoding getEncoding()
+    public CharacterEncoding getCharacterEncoding()
     {
         return characterEncoding;
     }
