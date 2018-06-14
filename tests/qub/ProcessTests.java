@@ -198,7 +198,7 @@ public class ProcessTests
                 runner.test("with non-null", (Test test) ->
                 {
                     final Process process = creator.run();
-                    final InMemoryLineReadStream readStream = new InMemoryLineReadStream("hello there my good friend\nHow are you?\r\nI'm alright.");
+                    final InMemoryLineStream readStream = new InMemoryLineStream("hello there my good friend\nHow are you?\r\nI'm alright.");
                     process.setInput(readStream);
 
                     final ByteReadStream byteReadStream = process.getInputAsByteReadStream();

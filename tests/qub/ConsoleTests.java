@@ -49,7 +49,7 @@ public class ConsoleTests
                     runner.test("with " + Strings.escapeAndQuote(toWrite) + " and no formatted string arguments", (Test test) ->
                     {
                         final Console console = new Console();
-                        final InMemoryLineWriteStream output = new InMemoryLineWriteStream();
+                        final InMemoryLineStream output = new InMemoryLineStream();
                         console.setOutput(output);
 
                         console.write(toWrite);
@@ -68,7 +68,7 @@ public class ConsoleTests
                     runner.test("with " + Strings.escapeAndQuote(toWrite) + " and " + (formattedStringArguments == null ? "null" : Array.fromValues(formattedStringArguments).toString()) + " formatted string arguments", (Test test) ->
                     {
                         final Console console = new Console();
-                        final InMemoryLineWriteStream output = new InMemoryLineWriteStream();
+                        final InMemoryLineStream output = new InMemoryLineStream();
                         console.setOutput(output);
 
                         console.write(toWrite, formattedStringArguments);
@@ -97,7 +97,7 @@ public class ConsoleTests
                     runner.test("with " + Strings.escapeAndQuote(toWrite) + " and " + (formattedStringArguments == null ? "null" : Array.fromValues(formattedStringArguments).toString()) + " formatted string arguments", (Test test) ->
                     {
                         final Console console = new Console();
-                        final InMemoryLineWriteStream output = new InMemoryLineWriteStream();
+                        final InMemoryLineStream output = new InMemoryLineStream();
                         console.setOutput(output);
 
                         try

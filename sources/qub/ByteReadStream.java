@@ -122,6 +122,22 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
      * @param stopBytes The bytes that will cause the reading to stop.
      * @return The bytes that were read up to (and including) the provided stopBytes.
      */
+    Result<byte[]> readBytesUntil(byte[] stopBytes);
+
+    /**
+     * Read bytes from this ByteReadStream until the provided stopBytes sequence is encountered. The
+     * stopByte sequence will be included in the returned byte[].
+     * @param stopBytes The bytes that will cause the reading to stop.
+     * @return The bytes that were read up to (and including) the provided stopBytes.
+     */
+    AsyncFunction<Result<byte[]>> readBytesUntilAsync(byte[] stopBytes);
+
+    /**
+     * Read bytes from this ByteReadStream until the provided stopBytes sequence is encountered. The
+     * stopByte sequence will be included in the returned byte[].
+     * @param stopBytes The bytes that will cause the reading to stop.
+     * @return The bytes that were read up to (and including) the provided stopBytes.
+     */
     Result<byte[]> readBytesUntil(Iterable<Byte> stopBytes);
 
     /**

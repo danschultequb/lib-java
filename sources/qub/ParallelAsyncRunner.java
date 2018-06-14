@@ -52,7 +52,7 @@ public class ParallelAsyncRunner extends AsyncRunnerBase
                     scheduledTaskCount.incrementAndGet();
                 }
             });
-            new java.lang.Thread(new Action0()
+            final java.lang.Thread thread = new java.lang.Thread(new Action0()
             {
                 @Override
                 public void run()
@@ -67,7 +67,8 @@ public class ParallelAsyncRunner extends AsyncRunnerBase
                         AsyncRunnerRegistry.removeCurrentThreadAsyncRunner();
                     }
                 }
-            }).start();
+            });
+            thread.start();
         }
     }
 

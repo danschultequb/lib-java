@@ -1,17 +1,17 @@
 package qub;
 
-public class CharacterReadStreamToLineReadStream extends LineReadStreamBase
+public class BasicLineReadStream extends LineReadStreamBase
 {
     private final CharacterReadStream characterReadStream;
     private boolean includeNewLines;
     private String current;
 
-    public CharacterReadStreamToLineReadStream(CharacterReadStream readStream)
+    public BasicLineReadStream(CharacterReadStream readStream)
     {
         this(readStream, false);
     }
 
-    public CharacterReadStreamToLineReadStream(CharacterReadStream characterReadStream, boolean includeNewLines)
+    public BasicLineReadStream(CharacterReadStream characterReadStream, boolean includeNewLines)
     {
         this.characterReadStream = characterReadStream;
         this.includeNewLines = includeNewLines;

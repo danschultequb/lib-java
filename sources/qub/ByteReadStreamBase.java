@@ -74,15 +74,27 @@ public abstract class ByteReadStreamBase extends IteratorBase<Byte> implements B
     }
 
     @Override
-    public Result<byte[]> readBytesUntil(byte stopByte)
+    final public Result<byte[]> readBytesUntil(byte stopByte)
     {
         return ByteReadStreamBase.readBytesUntil(this, stopByte);
     }
 
     @Override
-    public AsyncFunction<Result<byte[]>> readBytesUntilAsync(byte stopByte)
+    final public AsyncFunction<Result<byte[]>> readBytesUntilAsync(byte stopByte)
     {
         return ByteReadStreamBase.readBytesUntilAsync(this, stopByte);
+    }
+
+    @Override
+    final public Result<byte[]> readBytesUntil(byte[] stopBytes)
+    {
+        return ByteReadStreamBase.readBytesUntil(this, stopBytes);
+    }
+
+    @Override
+    final public AsyncFunction<Result<byte[]>> readBytesUntilAsync(byte[] stopBytes)
+    {
+        return ByteReadStreamBase.readBytesUntilAsync(this, stopBytes);
     }
 
     @Override
@@ -376,6 +388,33 @@ public abstract class ByteReadStreamBase extends IteratorBase<Byte> implements B
                 public Result<byte[]> run()
                 {
                     return byteReadStream.readBytesUntil(stopByte);
+                }
+            });
+        }
+        return result;
+    }
+
+    public static Result<byte[]> readBytesUntil(ByteReadStream byteReadStream, byte[] stopBytes)
+    {
+        Result<byte[]> result = ByteReadStreamBase.validateByteReadStream(byteReadStream);
+        if (result == null)
+        {
+            result = byteReadStream.readBytesUntil(stopBytes == null ? null : Array.fromValues(stopBytes));
+        }
+        return result;
+    }
+
+    public static AsyncFunction<Result<byte[]>> readBytesUntilAsync(final ByteReadStream byteReadStream, final byte[] stopBytes)
+    {
+        AsyncFunction<Result<byte[]>> result = ByteReadStreamBase.validateByteReadStreamAsync(byteReadStream);
+        if (result == null)
+        {
+            result = async(byteReadStream, new Function0<Result<byte[]>>()
+            {
+                @Override
+                public Result<byte[]> run()
+                {
+                    return byteReadStream.readBytesUntil(stopBytes);
                 }
             });
         }

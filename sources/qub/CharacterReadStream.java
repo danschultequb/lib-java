@@ -79,6 +79,54 @@ public interface CharacterReadStream extends AsyncDisposable, Iterator<Character
     AsyncFunction<Result<Integer>> readCharactersAsync(char[] outputCharacters, int startIndex, int length);
 
     /**
+     * Read characters from this stream until the end of the stream or until the provided value is
+     * read.
+     * @param value The value that will trigger the end of reading.
+     * @return The characters read up until reading the provided value.
+     */
+    Result<char[]> readCharactersUntil(char value);
+
+    /**
+     * Read characters from this stream until the end of the stream or until the provided value is
+     * read.
+     * @param value The value that will trigger the end of reading.
+     * @return The characters read up until reading the provided value.
+     */
+    AsyncFunction<Result<char[]>> readCharactersUntilAsync(char value);
+
+    /**
+     * Read characters from this stream until the end of the stream or until the provided value is
+     * read.
+     * @param value The value that will trigger the end of reading.
+     * @return The characters read up until reading the provided value.
+     */
+    Result<char[]> readCharactersUntil(String value);
+
+    /**
+     * Read characters from this stream until the end of the stream or until the provided value is
+     * read.
+     * @param value The value that will trigger the end of reading.
+     * @return The characters read up until reading the provided value.
+     */
+    AsyncFunction<Result<char[]>> readCharactersUntilAsync(String value);
+
+    /**
+     * Read characters from this stream until the end of the stream or until the provided values is
+     * read.
+     * @param values The values that will trigger the end of reading.
+     * @return The characters read up until reading the provided values.
+     */
+    Result<char[]> readCharactersUntil(char[] values);
+
+    /**
+     * Read characters from this stream until the end of the stream or until the provided values is
+     * read.
+     * @param values The values that will trigger the end of reading.
+     * @return The characters read up until reading the provided values.
+     */
+    AsyncFunction<Result<char[]>> readCharactersUntilAsync(char[] values);
+
+    /**
      * Read up to the provided charactersToRead number of characters from this stream. If fewer
      * characters than charactersToRead are available, then fewer than charactersToRead characters
      * will be returned. If no characters are available, then this function will block until
@@ -97,6 +145,54 @@ public interface CharacterReadStream extends AsyncDisposable, Iterator<Character
      * @return The characters that were read, or an error if characters could not be read.
      */
     AsyncFunction<Result<String>> readStringAsync(int charactersToRead);
+
+    /**
+     * Read characters from this stream until the end of the stream or until the provided value is
+     * read.
+     * @param value The value that will trigger the end of reading.
+     * @return The characters read up until reading the provided value.
+     */
+    Result<String> readStringUntil(char value);
+
+    /**
+     * Read characters from this stream until the end of the stream or until the provided value is
+     * read.
+     * @param value The value that will trigger the end of reading.
+     * @return The characters read up until reading the provided value.
+     */
+    AsyncFunction<Result<String>> readStringUntilAsync(char value);
+
+    /**
+     * Read characters from this stream until the end of the stream or until the provided values is
+     * read.
+     * @param values The values that will trigger the end of reading.
+     * @return The characters read up until reading the provided values.
+     */
+    Result<String> readStringUntil(char[] values);
+
+    /**
+     * Read characters from this stream until the end of the stream or until the provided values is
+     * read.
+     * @param values The values that will trigger the end of reading.
+     * @return The characters read up until reading the provided values.
+     */
+    AsyncFunction<Result<String>> readStringUntilAsync(char[] values);
+
+    /**
+     * Read characters from this stream until the end of the stream or until the provided value is
+     * read.
+     * @param value The value that will trigger the end of reading.
+     * @return The characters read up until reading the provided value.
+     */
+    Result<String> readStringUntil(String value);
+
+    /**
+     * Read characters from this stream until the end of the stream or until the provided value is
+     * read.
+     * @param value The value that will trigger the end of reading.
+     * @return The characters read up until reading the provided value.
+     */
+    AsyncFunction<Result<String>> readStringUntilAsync(String value);
 
     CharacterEncoding getCharacterEncoding();
 

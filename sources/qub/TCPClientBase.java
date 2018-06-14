@@ -82,6 +82,18 @@ public abstract class TCPClientBase extends AsyncDisposableBase implements TCPCl
     }
 
     @Override
+    public Result<byte[]> readBytesUntil(byte[] stopBytes)
+    {
+        return getReadStream().readBytesUntil(stopBytes);
+    }
+
+    @Override
+    public AsyncFunction<Result<byte[]>> readBytesUntilAsync(byte[] stopBytes)
+    {
+        return getReadStream().readBytesUntilAsync(stopBytes);
+    }
+
+    @Override
     public Result<byte[]> readBytesUntil(Iterable<Byte> stopBytes)
     {
         return getReadStream().readBytesUntil(stopBytes);
