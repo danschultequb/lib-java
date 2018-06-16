@@ -28,6 +28,46 @@ public class DoubleLinkList<T> extends ListBase<T>
         }
     }
 
+    @Override
+    public Result<Boolean> insert(int insertIndex, T value)
+    {
+        Result<Boolean> result = ListBase.validateInsertIndex(this, insertIndex);
+        if (result == null)
+        {
+            if (insertIndex == getCount())
+            {
+                add(value);
+            }
+            else
+            {
+                final DoubleLinkNode<T> nodeToInsert = new DoubleLinkNode<>(value);
+
+                if (insertIndex == 0)
+                {
+                    nodeToInsert.setNext(head);
+                    head.setPrevious(nodeToInsert);
+                    head = nodeToInsert;
+                }
+                else
+                {
+                    DoubleLinkNode<T> currentNode = head;
+                    for (int currentNodeIndex = 0; currentNodeIndex < insertIndex; ++currentNodeIndex)
+                    {
+                        currentNode = currentNode.getNext();
+                    }
+
+                    currentNode.getPrevious().setNext(nodeToInsert);
+                    nodeToInsert.setPrevious(currentNode.getPrevious());
+
+                    currentNode.setPrevious(nodeToInsert);
+                    nodeToInsert.setNext(currentNode);
+                }
+            }
+            result = Result.successTrue();
+        }
+        return result;
+    }
+
     private DoubleLinkNode<T> getNode(int index)
     {
         DoubleLinkNode<T> result = null;

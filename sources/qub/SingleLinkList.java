@@ -36,6 +36,42 @@ public class SingleLinkList<T> extends ListBase<T>
     }
 
     @Override
+    public Result<Boolean> insert(int insertIndex, T value)
+    {
+        Result<Boolean> result = ListBase.validateInsertIndex(this, insertIndex);
+        if (result == null)
+        {
+            if (insertIndex == getCount())
+            {
+                add(value);
+            }
+            else
+            {
+                final SingleLinkNode<T> nodeToAdd = new SingleLinkNode<>(value);
+
+                if (insertIndex == 0)
+                {
+                    nodeToAdd.setNext(head);
+                    head = nodeToAdd;
+                }
+                else
+                {
+                    SingleLinkNode<T> currentNode = head;
+                    for (int currentNodeIndex = 0; currentNodeIndex < insertIndex - 1; ++currentNodeIndex)
+                    {
+                        currentNode = currentNode.getNext();
+                    }
+
+                    nodeToAdd.setNext(currentNode.getNext());
+                    currentNode.setNext(nodeToAdd);
+                }
+            }
+            result = Result.successTrue();
+        }
+        return result;
+    }
+
+    @Override
     public void set(int index, T value)
     {
         final SingleLinkNode<T> node = getNode(index);

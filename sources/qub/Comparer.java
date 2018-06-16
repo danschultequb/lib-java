@@ -371,4 +371,54 @@ public final class Comparer
     {
         return lowerBound <= value && value <= upperBound;
     }
+
+    /**
+     * Get whether or not the provided lhs value is less than the provided rhs value.
+     * @param lhs The first value to compare.
+     * @param rhs The second value to compare.
+     * @param <T> The type of the values to compare.
+     * @return Whether or not the provided lhs value is less than the provided rhs value.
+     */
+    public static <T extends Comparable<T>> boolean lessThan(T lhs, T rhs)
+    {
+        return lhs == null ? rhs != null : lhs.lessThan(rhs);
+    }
+
+    /**
+     * Get whether or not the provided lhs value is less than or equal to the provided rhs value.
+     * @param lhs The first value to compare.
+     * @param rhs The second value to compare.
+     * @param <T> The type of the values to compare.
+     * @return Whether or not the provided lhs value is less than or equal to the provided rhs
+     * value.
+     */
+    public static <T extends Comparable<T>> boolean lessThanOrEqualTo(T lhs, T rhs)
+    {
+        return lhs == null || lhs.lessThanOrEqualTo(rhs);
+    }
+
+    /**
+     * Get whether or not the provided lhs value is greater than or equal to the provided rhs value.
+     * @param lhs The first value to compare.
+     * @param rhs The second value to compare.
+     * @param <T> The type of the values to compare.
+     * @return Whether or not the provided lhs value is greater than or equal to the provided rhs
+     * value.
+     */
+    public static <T extends Comparable<T>> boolean greaterThanOrEqualTo(T lhs, T rhs)
+    {
+        return lhs == rhs || lhs.greaterThanOrEqualTo(rhs);
+    }
+
+    /**
+     * Get whether or not the provided lhs value is greater than the provided rhs value.
+     * @param lhs The first value to compare.
+     * @param rhs The second value to compare.
+     * @param <T> The type of the values to compare.
+     * @return Whether or not the provided lhs value is greater than the provided rhs value.
+     */
+    public static <T extends Comparable<T>> boolean greaterThan(T lhs, T rhs)
+    {
+        return lhs != null && lhs.greaterThan(rhs);
+    }
 }

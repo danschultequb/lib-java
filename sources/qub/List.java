@@ -9,6 +9,13 @@ public interface List<T> extends MutableIndexable<T>
     void add(T value);
 
     /**
+     * Insert the provided value into this List at the provided insertIndex.
+     * @param insertIndex The insertIndex to insert the provided value at.
+     * @param value The value to insert into the List.
+     */
+    Result<Boolean> insert(int insertIndex, T value);
+
+    /**
      * Add the provided values at the end of this List.
      * @param values The values to add.
      */

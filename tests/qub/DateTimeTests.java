@@ -377,6 +377,62 @@ public class DateTimeTests
                     test.assertFalse(dateTime.greaterThan(DateTime.utc(11)));
                 });
             });
+
+            runner.testGroup("plus(Duration)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final DateTime dateTime = DateTime.utc(10);
+                    test.assertThrows(() -> dateTime.plus(null), new NullPointerException());
+                });
+
+                runner.test("with 0 seconds", (Test test) ->
+                {
+                    final DateTime dateTime = DateTime.utc(10);
+                    test.assertSame(dateTime, dateTime.plus(Duration.seconds(0)));
+                });
+
+                runner.test("with 10 seconds", (Test test) ->
+                {
+                    final DateTime dateTime = DateTime.utc(10);
+                    test.assertEqual(DateTime.utc(10010), dateTime.plus(Duration.seconds(10)));
+                });
+
+                runner.test("with -2 milliseconds", (Test test) ->
+                {
+                    final DateTime dateTime = DateTime.utc(10);
+                    test.assertEqual(DateTime.utc(8), dateTime.plus(Duration.milliseconds(-2)));
+                });
+            });
+
+            runner.testGroup("minus(Duration)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final DateTime dateTime = DateTime.utc(10);
+                    test.assertThrows(
+                        () -> dateTime.minus((Duration)null),
+                        new NullPointerException());
+                });
+
+                runner.test("with 0 seconds", (Test test) ->
+                {
+                    final DateTime dateTime = DateTime.utc(10);
+                    test.assertSame(dateTime, dateTime.minus(Duration.seconds(0)));
+                });
+
+                runner.test("with 10 seconds", (Test test) ->
+                {
+                    final DateTime dateTime = DateTime.utc(10010);
+                    test.assertEqual(DateTime.utc(10), dateTime.minus(Duration.seconds(10)));
+                });
+
+                runner.test("with -2 milliseconds", (Test test) ->
+                {
+                    final DateTime dateTime = DateTime.utc(10);
+                    test.assertEqual(DateTime.utc(12), dateTime.minus(Duration.milliseconds(-2)));
+                });
+            });
         });
     }
 }

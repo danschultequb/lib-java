@@ -5,7 +5,7 @@ import java.text.DecimalFormat;
 /**
  * A period of time.
  */
-public class Duration
+public class Duration extends ComparableBase<Duration>
 {
     private static final double WeeksToDays = 7.0;
     private static final double DaysToHours = 24.0;
@@ -443,6 +443,20 @@ public class Duration
         return convertTo(DurationUnits.Weeks);
     }
 
+    /**
+     * Negate this Duration's value.
+     * @return The negated Duration.
+     */
+    public Duration negate()
+    {
+        Duration result = this;
+        if (result.getValue() != 0)
+        {
+            result = new Duration(-value, units);
+        }
+        return result;
+    }
+
     public Duration plus(Duration rhs)
     {
         Duration result = this;
@@ -520,6 +534,8 @@ public class Duration
         return result;
     }
 
+
+
     @Override
     public String toString()
     {
@@ -546,5 +562,11 @@ public class Duration
             result = value == convertedRhs.value;
         }
         return result;
+    }
+
+    @Override
+    public Comparison compareTo(Duration value)
+    {
+        return value == null ? Comparison.GreaterThan : Comparison.from(getValue() - value.convertTo(getUnits()).getValue());
     }
 }

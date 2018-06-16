@@ -214,7 +214,11 @@ final public class Result<T>
     public static <U> Result<U> between(int lowerBound, int value, int upperBound, String parameterName)
     {
         Result<U> result = null;
-        if (value < lowerBound || upperBound < value)
+        if (lowerBound == upperBound)
+        {
+            result = Result.equal(lowerBound, value, parameterName);
+        }
+        else if (value < lowerBound || upperBound < value)
         {
             result = Result.error(new IllegalArgumentException(parameterName + " (" + value + ") must be between " + lowerBound + " and " + upperBound + "."));
         }

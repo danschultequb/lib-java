@@ -143,8 +143,7 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
         this.outgoingError = outgoingError;
     }
 
-    @Override
-    public void schedule()
+    protected void schedule()
     {
         getAsyncRunner().schedule(this);
     }

@@ -19,14 +19,19 @@ public class LockedList<T> implements List<T>
     @Override
     public void add(final T value)
     {
-        mutex.criticalSection(new Action0()
+        try (final Disposable criticalSection = mutex.criticalSection())
         {
-            @Override
-            public void run()
-            {
-                innerList.add(value);
-            }
-        });
+            innerList.add(value);
+        }
+    }
+
+    @Override
+    public Result<Boolean> insert(int insertIndex, T value)
+    {
+        try (final Disposable criticalSection = mutex.criticalSection())
+        {
+            return innerList.insert(insertIndex, value);
+        }
     }
 
     @Override

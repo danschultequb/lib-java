@@ -45,6 +45,12 @@ public class CSVDocument extends ListBase<CSVRow>
     }
 
     @Override
+    public Result<Boolean> insert(int insertIndex, CSVRow value)
+    {
+        return rows.insert(insertIndex, value);
+    }
+
+    @Override
     public void set(int rowIndex, CSVRow row)
     {
         rows.set(rowIndex, row);

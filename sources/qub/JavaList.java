@@ -27,6 +27,18 @@ public class JavaList<T> extends ListBase<T>
     }
 
     @Override
+    public Result<Boolean> insert(int insertIndex, T value)
+    {
+        Result<Boolean> result = ListBase.validateInsertIndex(this, insertIndex);
+        if (result == null)
+        {
+            list.add(insertIndex, value);
+            result = Result.successTrue();
+        }
+        return result;
+    }
+
+    @Override
     public void set(int index, T value)
     {
         if (inBounds(index))

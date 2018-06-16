@@ -361,6 +361,58 @@ public class Test
         }
     }
 
+    public <T extends Comparable<T>> void assertLessThan(T lhs, T rhs)
+    {
+        assertLessThan(lhs, rhs, null);
+    }
+
+    public <T extends Comparable<T>> void assertLessThan(T lhs, T rhs, String message)
+    {
+        if (!Comparer.lessThan(lhs, rhs))
+        {
+            throw new TestAssertionFailure(getFullName(), getMessageLines(message, "less than " + Objects.toString(rhs), lhs));
+        }
+    }
+
+    public <T extends Comparable<T>> void assertLessThanOrEqualTo(T lhs, T rhs)
+    {
+        assertLessThanOrEqualTo(lhs, rhs, null);
+    }
+
+    public <T extends Comparable<T>> void assertLessThanOrEqualTo(T lhs, T rhs, String message)
+    {
+        if (!Comparer.lessThanOrEqualTo(lhs, rhs))
+        {
+            throw new TestAssertionFailure(getFullName(), getMessageLines(message, "less than or equal to " + Objects.toString(rhs), lhs));
+        }
+    }
+
+    public <T extends Comparable<T>> void assertGreaterThanOrEqualTo(T lhs, T rhs)
+    {
+        assertGreaterThanOrEqualTo(lhs, rhs, null);
+    }
+
+    public <T extends Comparable<T>> void assertGreaterThanOrEqualTo(T lhs, T rhs, String message)
+    {
+        if (!Comparer.greaterThanOrEqualTo(lhs, rhs))
+        {
+            throw new TestAssertionFailure(getFullName(), getMessageLines(message, "greater than or equal to " + Objects.toString(rhs), lhs));
+        }
+    }
+
+    public <T extends Comparable<T>> void assertGreaterThan(T lhs, T rhs)
+    {
+        assertGreaterThan(lhs, rhs, null);
+    }
+
+    public <T extends Comparable<T>> void assertGreaterThan(T lhs, T rhs, String message)
+    {
+        if (!Comparer.greaterThan(lhs, rhs))
+        {
+            throw new TestAssertionFailure(getFullName(), getMessageLines(message, "greater than " + Objects.toString(rhs), lhs));
+        }
+    }
+
     /**
      * Assert that when the provided action is run it throws an exception that is equal to the
      * provided exception.

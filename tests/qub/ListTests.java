@@ -36,6 +36,85 @@ public abstract class ListTests
                 });
             });
 
+            runner.testGroup("insert(int,T)", () ->
+            {
+                runner.test("with negative index when empty", (Test test) ->
+                {
+                    final List<Integer> list = createList.run(0);
+                    if (list != null)
+                    {
+                        final Result<Boolean> result = list.insert(-1, 20);
+                        test.assertError(new IllegalArgumentException("insertIndex (-1) must be 0."), result);
+                        test.assertEqual(Array.fromValues(new Integer[0]), list);
+                    }
+                });
+
+                runner.test("with 0 index when empty", (Test test) ->
+                {
+                    final List<Integer> list = createList.run(0);
+                    if (list != null)
+                    {
+                        final Result<Boolean> result = list.insert(0, 20);
+                        test.assertSuccess(true, result);
+                        test.assertEqual(Array.fromValues(new Integer[] { 20 }), list);
+                    }
+                });
+
+                runner.test("with positive index when empty", (Test test) ->
+                {
+                    final List<Integer> list = createList.run(0);
+                    if (list != null)
+                    {
+                        final Result<Boolean> result = list.insert(1, 20);
+                        test.assertError(new IllegalArgumentException("insertIndex (1) must be 0."), result);
+                        test.assertEqual(Array.fromValues(new Integer[0]), list);
+                    }
+                });
+
+                runner.test("with negative index when not empty", (Test test) ->
+                {
+                    final List<Integer> list = createList.run(4);
+                    final Result<Boolean> result = list.insert(-1, 20);
+                    test.assertError(new IllegalArgumentException("insertIndex (-1) must be between 0 and 4."), result);
+                    test.assertEqual(Array.fromValues(new Integer[] { 0, 1, 2, 3 }), list);
+                });
+
+                runner.test("with 0 index when not empty", (Test test) ->
+                {
+                    final List<Integer> list = createList.run(3);
+                    final Result<Boolean> result = list.insert(0, 20);
+                    test.assertSuccess(true, result);
+                    test.assertEqual(Array.fromValues(new Integer[] { 20, 0, 1, 2 }), list);
+                });
+
+                runner.test("with positive index less than list count when not empty", (Test test) ->
+                {
+                    final List<Integer> list = createList.run(5);
+                    if (list != null)
+                    {
+                        final Result<Boolean> result = list.insert(2, 20);
+                        test.assertSuccess(true, result);
+                        test.assertEqual(Array.fromValues(new Integer[] { 0, 1, 20, 2, 3, 4 }), list);
+                    }
+                });
+
+                runner.test("with positive index equal to list count when not empty", (Test test) ->
+                {
+                    final List<Integer> list = createList.run(4);
+                    final Result<Boolean> result = list.insert(4, 20);
+                    test.assertSuccess(true, result);
+                    test.assertEqual(Array.fromValues(new Integer[] { 0, 1, 2, 3, 20 }), list);
+                });
+
+                runner.test("with positive index greater than list count when not empty", (Test test) ->
+                {
+                    final List<Integer> list = createList.run(4);
+                    final Result<Boolean> result = list.insert(5, 20);
+                    test.assertError(new IllegalArgumentException("insertIndex (5) must be between 0 and 4."), result);
+                    test.assertEqual(Array.fromValues(new Integer[] { 0, 1, 2, 3 }), list);
+                });
+            });
+
             runner.test("addAll()", (Test test) ->
             {
                 final List<Integer> list = createList.run(0);

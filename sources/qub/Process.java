@@ -28,6 +28,7 @@ public class Process extends DisposableBase
     private final Value<Map<String,String>> environmentVariables;
     private final Value<Synchronization> synchronization;
     private final Value<Function0<Stopwatch>> stopwatchCreator;
+    private final Value<Clock> clock;
 
     private final AsyncRunner mainAsyncRunner;
     private volatile AsyncRunner parallelAsyncRunner;
@@ -82,6 +83,7 @@ public class Process extends DisposableBase
         environmentVariables = new Value<>();
         synchronization = new Value<>();
         stopwatchCreator = new Value<>();
+        clock = new Value<>();
 
         this.mainAsyncRunner = mainAsyncRunner;
         AsyncRunnerRegistry.setCurrentThreadAsyncRunner(mainAsyncRunner);
@@ -503,6 +505,28 @@ public class Process extends DisposableBase
             });
         }
         return stopwatchCreator.get() == null ? null : stopwatchCreator.get().run();
+    }
+
+    /**
+     * Set the Clock object that this Process will use.
+     * @param clock The Clock object that this Process will use.
+     */
+    public void setClock(Clock clock)
+    {
+        this.clock.set(clock);
+    }
+
+    /**
+     * Get the Clock object that has been assigned to this Process.
+     * @return The Clock object that has been assigned to this Process.
+     */
+    public Clock getClock()
+    {
+        if (!clock.hasValue())
+        {
+            clock.set(new JavaClock(getMainAsyncRunner(), getParallelAsyncRunner()));
+        }
+        return clock.get();
     }
 
     /**

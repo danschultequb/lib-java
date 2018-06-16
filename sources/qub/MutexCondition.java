@@ -8,7 +8,7 @@ public interface MutexCondition
     Result<Boolean> await();
 
     /**
-     * Signal any awaiting threads that this condition is now satisfied.
+     * Signal any awaiting threads that this condition is getCurrentDateTime satisfied.
      */
     void signalAll();
 }

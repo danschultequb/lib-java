@@ -117,6 +117,11 @@ public abstract class ListBase<T> extends IndexableBase<T> implements List<T>
         }
     }
 
+    public static <T,U> Result<T> validateInsertIndex(List<U> list, int insertIndex)
+    {
+        return Result.between(0, insertIndex, list.getCount(), "insertIndex");
+    }
+
     /**
      * Remove the first value in this List that is equal to the provided value.
      * @param value The value to remove.

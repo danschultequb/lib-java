@@ -25,6 +25,12 @@ public class CSVRow extends ListBase<String>
     }
 
     @Override
+    public Result<Boolean> insert(int insertIndex, String value)
+    {
+        return cells.insert(insertIndex, value);
+    }
+
+    @Override
     public void set(int index, String value)
     {
         cells.set(index, value);

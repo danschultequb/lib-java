@@ -174,6 +174,21 @@ public class DurationTests
                 convertToWithValueTest.run(Double.MAX_VALUE, DurationUnits.Nanoseconds, DurationUnits.Weeks, 2.972376215050125E293);
             });
 
+            runner.testGroup("negate()", () ->
+            {
+                runner.test("with 0 value", (Test test) ->
+                {
+                    final Duration duration = Duration.seconds(0);
+                    test.assertSame(duration, duration.negate());
+                });
+
+                runner.test("with non-0 value", (Test test) ->
+                {
+                    final Duration duration = Duration.hours(10);
+                    test.assertEqual(Duration.hours(-10), duration.negate());
+                });
+            });
+
             runner.testGroup("plus()", () ->
             {
                 runner.test("with null", (Test test) ->

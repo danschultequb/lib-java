@@ -61,11 +61,16 @@ public class ManualAsyncRunner extends AsyncRunnerBase
     {
         while (scheduledTasks.any())
         {
-            final PausedAsyncTask asyncTask = scheduledTasks.dequeue().getValue();
-            if (asyncTask != null)
-            {
-                asyncTask.runAndSchedulePausedTasks();
-            }
+            awaitNext();
+        }
+    }
+
+    public void awaitNext()
+    {
+        final PausedAsyncTask asyncTask = scheduledTasks.dequeue().getValue();
+        if (asyncTask != null)
+        {
+            asyncTask.runAndSchedulePausedTasks();
         }
     }
 

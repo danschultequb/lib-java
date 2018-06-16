@@ -432,6 +432,33 @@ public class ProcessTests
                 });
             });
 
+            runner.testGroup("getClock()", () ->
+            {
+                runner.test("with default", (Test test) ->
+                {
+                    final Process process = creator.run();
+                    final Clock clock = process.getClock();
+                    test.assertNotNull(clock);
+                    test.assertTrue(clock instanceof JavaClock);
+                });
+
+                runner.test("with null", (Test test) ->
+                {
+                    final Process process = creator.run();
+                    process.setClock(null);
+                    test.assertNull(process.getClock());
+                });
+
+                runner.test("with manual", (Test test) ->
+                {
+                    final Process process = creator.run();
+                    process.setClock(ManualClock.create(test.getMainAsyncRunner(), DateTime.date(123, 4, 5)).getValue());
+                    final Clock clock = process.getClock();
+                    test.assertNotNull(clock);
+                    test.assertTrue(clock instanceof ManualClock);
+                });
+            });
+
             runner.testGroup("getProcessBuilder(String)", () ->
             {
                 runner.test("with null string", (Test test) ->

@@ -13,11 +13,6 @@ public interface PausedAsyncTask extends AsyncTask
     void setIncomingError(Throwable incomingError);
 
     /**
-     * Schedule this PausedAsyncTask to run on the AsyncRunner that created it.
-     */
-    void schedule();
-
-    /**
      * Run this PausedAsyncTask and schedule all of the PausedAsyncTasks waiting on this
      * PausedAsyncTask.
      */
