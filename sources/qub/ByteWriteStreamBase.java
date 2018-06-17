@@ -223,7 +223,7 @@ public abstract class ByteWriteStreamBase extends DisposableBase implements Byte
         Result<T> result = Result.notNull(toWrite, "toWrite");
         if (result == null)
         {
-            result = Result.greaterThan(0, toWrite.length, "toWrite.length");
+            result = Result.greaterThan(toWrite.length, 0, "toWrite.length");
         }
         return result;
     }

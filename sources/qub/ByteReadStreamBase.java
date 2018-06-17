@@ -173,7 +173,7 @@ public abstract class ByteReadStreamBase extends IteratorBase<Byte> implements B
         Result<byte[]> result = ByteReadStreamBase.validateByteReadStream(byteReadStream);
         if (result == null)
         {
-            result = Result.greaterThan(0, bytesToRead, "bytesToRead");
+            result = Result.greaterThan(bytesToRead, 0, "bytesToRead");
             if (result == null)
             {
                 byte[] bytes = new byte[bytesToRead];
@@ -207,7 +207,7 @@ public abstract class ByteReadStreamBase extends IteratorBase<Byte> implements B
         AsyncFunction<Result<byte[]>> result = ByteReadStreamBase.validateByteReadStreamAsync(byteReadStream);
         if (result == null)
         {
-            result = currentAsyncRunner.greaterThan(0, bytesToRead, "bytesToRead");
+            result = currentAsyncRunner.greaterThan(bytesToRead, 0, "bytesToRead");
             if (result == null)
             {
                 result = async(byteReadStream, new Function0<Result<byte[]>>()
@@ -589,7 +589,7 @@ public abstract class ByteReadStreamBase extends IteratorBase<Byte> implements B
         Result<T> result = Result.notNull(outputBytes, "outputBytes");
         if (result == null)
         {
-            result = Result.greaterThan(0, outputBytes.length, "outputBytes.length");
+            result = Result.greaterThan(outputBytes.length, 0, "outputBytes.length");
         }
         return result;
     }

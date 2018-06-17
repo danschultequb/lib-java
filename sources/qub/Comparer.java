@@ -373,6 +373,19 @@ public final class Comparer
     }
 
     /**
+     * Return whether or not the provided value is greater than or equal to the provided lowerBound
+     * and is less than or equal to the provided upper bound.
+     * @param lowerBound The lower bound.
+     * @param value The value to compare.
+     * @param upperBound The upper bound.
+     * @return Whether or not the value is between the provided lower and upper bounds.
+     */
+    public static boolean between(long lowerBound, long value, long upperBound)
+    {
+        return lowerBound <= value && value <= upperBound;
+    }
+
+    /**
      * Get whether or not the provided lhs value is less than the provided rhs value.
      * @param lhs The first value to compare.
      * @param rhs The second value to compare.
@@ -398,16 +411,26 @@ public final class Comparer
     }
 
     /**
-     * Get whether or not the provided lhs value is greater than or equal to the provided rhs value.
-     * @param lhs The first value to compare.
-     * @param rhs The second value to compare.
+     * Get whether or not the provided value is greater than or equal to the lowerBound.
+     * @param value The value to compare.
+     * @param lowerBound The second value to compare.
      * @param <T> The type of the values to compare.
-     * @return Whether or not the provided lhs value is greater than or equal to the provided rhs
-     * value.
+     * @return Whether or not the value is greater than or equal to the provided lowerBound.
      */
-    public static <T extends Comparable<T>> boolean greaterThanOrEqualTo(T lhs, T rhs)
+    public static <T extends Comparable<T>> boolean greaterThanOrEqualTo(T value, T lowerBound)
     {
-        return lhs == rhs || lhs.greaterThanOrEqualTo(rhs);
+        return value == lowerBound || value.greaterThanOrEqualTo(lowerBound);
+    }
+
+    /**
+     * Get whether or not the provided value is greater than or equal to the lowerBound.
+     * @param value The value to compare.
+     * @param lowerBound The second value to compare.
+     * @return Whether or not the value is greater than or equal to the provided lowerBound.
+     */
+    public static boolean greaterThanOrEqualTo(int value, int lowerBound)
+    {
+        return value >= lowerBound;
     }
 
     /**

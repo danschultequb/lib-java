@@ -62,7 +62,7 @@ public class HttpRequest
             result = Result.notNull(url, "url");
             if (result == null)
             {
-                result = Result.greaterThanOrEqualTo(0, contentLength, "contentLength");
+                result = Result.greaterThanOrEqualTo(contentLength, 0, "contentLength");
                 if (result == null)
                 {
                     if (contentLength == 0 && body != null)

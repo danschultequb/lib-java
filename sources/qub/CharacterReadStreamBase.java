@@ -177,7 +177,7 @@ public abstract class CharacterReadStreamBase extends IteratorBase<Character> im
         Result<char[]> result = CharacterReadStreamBase.validateCharacterReadStream(characterReadStream);
         if (result == null)
         {
-            result = Result.greaterThan(0, charactersToRead, "charactersToRead");
+            result = Result.greaterThan(charactersToRead, 0, "charactersToRead");
             if (result == null)
             {
                 char[] buffer = new char[charactersToRead];
@@ -458,7 +458,7 @@ public abstract class CharacterReadStreamBase extends IteratorBase<Character> im
         Result<String> result = CharacterReadStreamBase.validateCharacterReadStream(characterReadStream);
         if (result == null)
         {
-            result = Result.greaterThan(0, charactersToRead, "charactersToRead");
+            result = Result.greaterThan(charactersToRead, 0, "charactersToRead");
             if (result == null)
             {
                 final Result<char[]> readCharactersResult = characterReadStream.readCharacters(charactersToRead);
@@ -615,7 +615,7 @@ public abstract class CharacterReadStreamBase extends IteratorBase<Character> im
         Result<T> result = Result.notNull(outputCharacters, "outputCharacters");
         if (result == null)
         {
-            result = Result.greaterThan(0, outputCharacters.length, "outputCharacters.length");
+            result = Result.greaterThan(outputCharacters.length, 0, "outputCharacters.length");
         }
         return result;
     }

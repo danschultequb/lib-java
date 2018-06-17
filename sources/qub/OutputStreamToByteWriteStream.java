@@ -41,7 +41,7 @@ public class OutputStreamToByteWriteStream extends ByteWriteStreamBase
         Result<Boolean> result = Result.notNull(toWrite, "toWrite");
         if (result == null)
         {
-            result = Result.greaterThan(0, toWrite.length, "toWrite.length");
+            result = Result.greaterThan(toWrite.length, 0, "toWrite.length");
             if (result == null)
             {
                 try
@@ -65,7 +65,7 @@ public class OutputStreamToByteWriteStream extends ByteWriteStreamBase
         Result<Boolean> result = Result.notNull(toWrite, "toWrite");
         if (result == null)
         {
-            result = Result.greaterThan(0, toWrite.length, "toWrite.length");
+            result = Result.greaterThan(toWrite.length, 0, "toWrite.length");
             if (result == null)
             {
                 result = Result.between(0, startIndex, toWrite.length - 1, "startIndex");

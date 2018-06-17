@@ -191,7 +191,7 @@ final public class Result<T>
         return result;
     }
 
-    public static <U> Result<U> greaterThan(int lowerBound, int value, String parameterName)
+    public static <U> Result<U> greaterThan(int value, int lowerBound, String parameterName)
     {
         Result<U> result = null;
         if (value <= lowerBound)
@@ -201,12 +201,12 @@ final public class Result<T>
         return result;
     }
 
-    public static <U> Result<U> greaterThanOrEqualTo(int lowerBound, int value, String parameterName)
+    public static <U> Result<U> greaterThanOrEqualTo(int value, int lowerBound, String parameterName)
     {
         Result<U> result = null;
-        if (value < lowerBound)
+        if (!Comparer.greaterThanOrEqualTo(value, lowerBound))
         {
-            result = Result.error(new IllegalArgumentException(parameterName + " (" + value + ") must be greater than or equal to " + lowerBound + "."));
+            result = Result.error(new IllegalArgumentException(AssertionMessages.greaterThanOrEqualTo(value, lowerBound, parameterName)));
         }
         return result;
     }
@@ -220,7 +220,7 @@ final public class Result<T>
         }
         else if (value < lowerBound || upperBound < value)
         {
-            result = Result.error(new IllegalArgumentException(parameterName + " (" + value + ") must be between " + lowerBound + " and " + upperBound + "."));
+            result = Result.error(new IllegalArgumentException(AssertionMessages.between(lowerBound, value, upperBound, parameterName)));
         }
         return result;
     }
