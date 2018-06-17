@@ -444,4 +444,33 @@ public final class Comparer
     {
         return lhs != null && lhs.greaterThan(rhs);
     }
+
+    /**
+     * Assert that the provided value contains only the provided characters. It doesn't have to
+     * contain all of the characters and it can contain multiple instances of each character, but
+     * each character in the provided value must be contained in the provided set of characters.
+     * @param value The value to check.
+     * @param characters The characters to allow.
+     * @preCondition value != null
+     * @preCondition characters != null && characters.length > 0
+     */
+    public static boolean containsOnly(String value, char[] characters)
+    {
+        PreCondition.assertNotNull(value, "value");
+        PreCondition.assertNotNullAndNotEmpty(characters, "characters");
+
+        boolean result = true;
+        final int valueLength = value.length();
+        for (int i = 0; i < valueLength; ++i)
+        {
+            final char valueCharacter = value.charAt(i);
+            if (!Array.contains(characters, valueCharacter))
+            {
+                result = false;
+                break;
+            }
+        }
+
+        return result;
+    }
 }

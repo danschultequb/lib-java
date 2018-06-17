@@ -1,9 +1,9 @@
 package qub;
 
 /**
- * A set of pre-conditions that a method must satisfy before it can be run.
+ * A set of post-conditions that a method must satisfy before it can return.
  */
-public class PreCondition
+public class PostCondition
 {
     /**
      * Assert that the provided value is true.
@@ -14,7 +14,7 @@ public class PreCondition
     {
         if (!value)
         {
-            throw new PreConditionFailure(message);
+            throw new PostConditionFailure(message);
         }
     }
 
@@ -23,46 +23,12 @@ public class PreCondition
      * @param value The value to check.
      * @param variableName The name of the variable that contains value.
      * @param <T> The type of value.
-     * @preCondition variableName != null && variableName.length() > 0
-     * @postCondition value != null
      */
     public static <T> void assertNotNull(T value, String variableName)
     {
         if (value == null)
         {
-            throw new PreConditionFailure(AssertionMessages.notNull(variableName));
-        }
-    }
-
-    /**
-     * Assert that the provided value is not null and not empty.
-     * @param value The value to check.
-     * @param variableName The name of the variable that contains value.
-     * @preCondition variableName != null && variableName.length() > 0
-     * @postCondition value != null && value.length() != 0
-     */
-    public static void assertNotNullAndNotEmpty(String value, String variableName)
-    {
-        assertNotNull(value, variableName);
-        if (value.length() == 0)
-        {
-            throw new PreConditionFailure(AssertionMessages.notEmpty(variableName));
-        }
-    }
-
-    /**
-     * Assert that the provided value is not null and not empty.
-     * @param value The value to check.
-     * @param variableName The name of the variable that contains value.
-     * @preCondition variableName != null && variableName.length() > 0
-     * @postCondition value != null && value.length != 0
-     */
-    public static void assertNotNullAndNotEmpty(char[] value, String variableName)
-    {
-        assertNotNull(value, variableName);
-        if (value.length == 0)
-        {
-            throw new PreConditionFailure(AssertionMessages.notEmpty(variableName));
+            throw new PostConditionFailure(AssertionMessages.notNull(variableName));
         }
     }
 
@@ -76,7 +42,7 @@ public class PreCondition
     {
         if (!Comparer.equal(expectedValue, value))
         {
-            throw new PreConditionFailure(AssertionMessages.equal(expectedValue, value, variableName));
+            throw new PostConditionFailure(AssertionMessages.equal(expectedValue, value, variableName));
         }
     }
 
@@ -90,7 +56,7 @@ public class PreCondition
     {
         if (!Comparer.equal(expectedValue, value))
         {
-            throw new PreConditionFailure(AssertionMessages.equal(expectedValue, value, variableName));
+            throw new PostConditionFailure(AssertionMessages.equal(expectedValue, value, variableName));
         }
     }
 
@@ -104,7 +70,7 @@ public class PreCondition
     {
         if (!Comparer.equal(expectedValue, value))
         {
-            throw new PreConditionFailure(AssertionMessages.equal(expectedValue, value, variableName));
+            throw new PostConditionFailure(AssertionMessages.equal(expectedValue, value, variableName));
         }
     }
 
@@ -118,7 +84,7 @@ public class PreCondition
     {
         if (!Comparer.greaterThanOrEqualTo(value, lowerBound))
         {
-            throw new PreConditionFailure(AssertionMessages.greaterThanOrEqualTo(value, lowerBound, variableName));
+            throw new PostConditionFailure(AssertionMessages.greaterThanOrEqualTo(value, lowerBound, variableName));
         }
     }
 
@@ -135,26 +101,7 @@ public class PreCondition
     {
         if (!Comparer.between(lowerBound, value, upperBound))
         {
-            throw new PreConditionFailure(AssertionMessages.between(lowerBound, value, upperBound, variableName));
-        }
-    }
-
-    /**
-     * Assert that the provided value contains only the provided characters. It doesn't have to
-     * contain all of the characters and it can contain multiple instances of each character, but
-     * each character in the provided value must be contained in the provided set of characters.
-     * @param value The value to check.
-     * @param characters The characters to allow.
-     * @param variableName The name of the variable that produced value.
-     * @preCondition value != null
-     * @preCondition characters != null && characters.length > 0
-     * @preCondition variableName != null && variableName.length() > 0
-     */
-    public static void assertContainsOnly(String value, char[] characters, String variableName)
-    {
-        if (!Comparer.containsOnly(value, characters))
-        {
-            throw new PreConditionFailure(AssertionMessages.containsOnly(value, characters, variableName));
+            throw new PostConditionFailure(AssertionMessages.between(lowerBound, value, upperBound, variableName));
         }
     }
 }

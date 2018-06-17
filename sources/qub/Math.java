@@ -32,6 +32,17 @@ public class Math {
     }
 
     /**
+     * Get the minimum value between the two provided long integers.
+     * @param lhs The first value.
+     * @param rhs The second value.
+     * @return The minimum value between the two provided long integers.
+     */
+    public static long minimum(long lhs, long rhs)
+    {
+        return lhs < rhs ? lhs : rhs;
+    }
+
+    /**
      * Get the maximum value between the two provided integers.
      * @param lhs The first value.
      * @param rhs The second value.

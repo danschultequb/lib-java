@@ -560,6 +560,45 @@ public class Array<T> extends IndexableBase<T> implements MutableIndexable<T>
     }
 
     /**
+     * Get a new int[] that is a clone of the provided toClone int[].
+     * @param toClone The int[] to clone.
+     * @return The cloned int[].
+     */
+    public static int[] clone(int[] toClone)
+    {
+        return clone(toClone, 0, toClone == null ? 0 : toClone.length);
+    }
+
+    /**
+     * Get a new int[] that is a clone of the provided toClone int[].
+     * @param toClone The int[] to clone.
+     * @param startIndex The index to start cloning from.
+     * @param length The number of characters from toClone to clone.
+     * @return The cloned int[].
+     */
+    public static int[] clone(int[] toClone, int startIndex, int length)
+    {
+        int[] result;
+
+        if (toClone == null || length < 0 || startIndex < 0 || toClone.length < startIndex)
+        {
+            result = null;
+        }
+        else if (toClone.length == 0)
+        {
+            result = toClone;
+        }
+        else
+        {
+            final int resultLength = Math.minimum(toClone.length - startIndex, length);
+            result = new int[resultLength];
+            System.arraycopy(toClone, startIndex, result, 0, resultLength);
+        }
+
+        return result;
+    }
+
+    /**
      * Copy the contents of the copyFrom byte[] to the copyTo byte[] starting at the
      * copyToStartIndex.
      * @param copyFrom The byte[] to copy from.
@@ -727,5 +766,28 @@ public class Array<T> extends IndexableBase<T> implements MutableIndexable<T>
         }
 
         return builder.toString();
+    }
+
+    /**
+     * Get whether or not the provided array contains the provided value.
+     * @param array The array to check.
+     * @param value The value to look for.
+     * @return Whether or not the provided array contains the provided value.
+     */
+    public static boolean contains(char[] array, char value)
+    {
+        boolean result = false;
+        if (array != null)
+        {
+            for (int i = 0; i < array.length; ++i)
+            {
+                if (array[i] == value)
+                {
+                    result = true;
+                    break;
+                }
+            }
+        }
+        return result;
     }
 }
