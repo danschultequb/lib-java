@@ -131,12 +131,56 @@ public class Math {
      */
     public static double round(double value, double scale)
     {
-//        final java.math.BigDecimal valueDecimal = new java.math.BigDecimal(value);
-//        final java.math.BigDecimal scaleDecimal = new java.math.BigDecimal(scale);
-//        final java.math.BigDecimal scaledValue = valueDecimal.divide(scaleDecimal);
-//        final java.math.BigDecimal roundedScaledValue = scaledValue.setScale(0, RoundingMode.HALF_UP);
-//        final java.math.BigDecimal resultDecimal = roundedScaledValue.multiply(scaleDecimal);
-//        return resultDecimal.doubleValue();
         return round(value / scale) * scale;
+    }
+
+    /**
+     * Get the remainder when value is divided by scale.
+     * @param value The dividend value.
+     * @param scale The divisor value.
+     * @return The remainder value.
+     */
+    public static int modulo(int value, int scale)
+    {
+        PreCondition.assertNotEqual(0, scale, "scale");
+
+        int result;
+        if (0 <= value && 0 <= scale)
+        {
+            result = value % scale;
+        }
+        else
+        {
+            result = value - (scale * (int)Math.floor((double)value / (double)scale));
+        }
+
+        PostCondition.assertBetween(0, result, scale, "result");
+
+        return result;
+    }
+
+    /**
+     * Get the remainder when value is divided by scale.
+     * @param value The dividend value.
+     * @param scale The divisor value.
+     * @return The remainder value.
+     */
+    public static long modulo(long value, long scale)
+    {
+        PreCondition.assertNotEqual(0, scale, "scale");
+
+        long result;
+        if (0 <= value && 0 <= scale)
+        {
+            result = value % scale;
+        }
+        else
+        {
+            result = value - (scale * (long)Math.floor((double)value / (double)scale));
+        }
+
+        PostCondition.assertBetween(0, result, scale, "result");
+
+        return result;
     }
 }

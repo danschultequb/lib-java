@@ -109,6 +109,72 @@ public class PreCondition
     }
 
     /**
+     * Assert that value is not equal to the provided expectedValue.
+     * @param expectedValue The expected value that value should not be equal to.
+     * @param value The value that should not equal expectedValue.
+     * @param variableName The name of the variable that contains the value.
+     */
+    public static void assertNotEqual(int expectedValue, int value, String variableName)
+    {
+        if (Comparer.equal(expectedValue, value))
+        {
+            throw new PreConditionFailure(AssertionMessages.notEqual(expectedValue, value, variableName));
+        }
+    }
+
+    /**
+     * Assert that value is not equal to the provided expectedValue.
+     * @param expectedValue The expected value that value should not be equal to.
+     * @param value The value that should not equal expectedValue.
+     * @param variableName The name of the variable that contains the value.
+     */
+    public static void assertNotEqual(long expectedValue, long value, String variableName)
+    {
+        if (Comparer.equal(expectedValue, value))
+        {
+            throw new PreConditionFailure(AssertionMessages.notEqual(expectedValue, value, variableName));
+        }
+    }
+
+    public static void assertOneOf(char value, char[] allowedValues, String variableName)
+    {
+        if (!Array.contains(allowedValues, value))
+        {
+            throw new PreConditionFailure(AssertionMessages.oneOf(value, allowedValues, variableName));
+        }
+    }
+
+    public static void assertOneOf(int value, int[] allowedValues, String variableName)
+    {
+        if (!Array.contains(allowedValues, value))
+        {
+            throw new PreConditionFailure(AssertionMessages.oneOf(value, allowedValues, variableName));
+        }
+    }
+
+    public static void assertOneOf(long value, long[] allowedValues, String variableName)
+    {
+        if (!Array.contains(allowedValues, value))
+        {
+            throw new PreConditionFailure(AssertionMessages.oneOf(value, allowedValues, variableName));
+        }
+    }
+
+    /**
+     * Assert that value is less than or equal to upperBound.
+     * @param value The value to ensure is less than or equal to upperBound.
+     * @param upperBound The upper bound to ensure that the value is less than or equal to.
+     * @param variableName The name of the variable that contains the value.
+     */
+    public static void assertLessThanOrEqualTo(int value, int upperBound, String variableName)
+    {
+        if (!Comparer.lessThanOrEqualTo(value, upperBound))
+        {
+            throw new PreConditionFailure(AssertionMessages.greaterThanOrEqualTo(value, upperBound, variableName));
+        }
+    }
+
+    /**
      * Assert that value is greater than or equal to lowerBound.
      * @param value The value to ensure is greater than or equal to lowerBound.
      * @param lowerBound The lower bound to ensure that the value is greater than or equal to.

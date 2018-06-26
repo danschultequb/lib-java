@@ -369,7 +369,9 @@ public final class Comparer
      */
     public static boolean between(int lowerBound, int value, int upperBound)
     {
-        return lowerBound <= value && value <= upperBound;
+        return lowerBound > upperBound
+           ? between(upperBound, value, lowerBound)
+           : lowerBound <= value && value <= upperBound;
     }
 
     /**
@@ -382,7 +384,9 @@ public final class Comparer
      */
     public static boolean between(long lowerBound, long value, long upperBound)
     {
-        return lowerBound <= value && value <= upperBound;
+        return lowerBound > upperBound
+           ? between(upperBound, value, lowerBound)
+           : lowerBound <= value && value <= upperBound;
     }
 
     /**
@@ -408,6 +412,17 @@ public final class Comparer
     public static <T extends Comparable<T>> boolean lessThanOrEqualTo(T lhs, T rhs)
     {
         return lhs == null || lhs.lessThanOrEqualTo(rhs);
+    }
+
+    /**
+     * Get whether or not the provided lhs value is less than or equal to the provided rhs value.
+     * @param value The value to compare.
+     * @param upperBound The second value to compare.
+     * @return Whether or not the provided value is less than or equal to the provided upperBound.
+     */
+    public static boolean lessThanOrEqualTo(int value, int upperBound)
+    {
+        return value <= upperBound;
     }
 
     /**
@@ -446,8 +461,8 @@ public final class Comparer
     }
 
     /**
-     * Assert that the provided value contains only the provided characters. It doesn't have to
-     * contain all of the characters and it can contain multiple instances of each character, but
+     * Get whether or not the provided value contains only the provided characters. It doesn't have
+     * to contain all of the characters and it can contain multiple instances of each character, but
      * each character in the provided value must be contained in the provided set of characters.
      * @param value The value to check.
      * @param characters The characters to allow.

@@ -83,6 +83,53 @@ public class StringsTests
                 escapeAndQuoteTest.run("\b\f\n\r\t", "\"\\b\\f\\n\\r\\t\"");
                 escapeAndQuoteTest.run("\"", "\"\\\"\"");
             });
+
+            runner.testGroup("repeat(String,int)", () ->
+            {
+                runner.test("with \"\" and 10", (Test test) ->
+                {
+                    test.assertEqual("", Strings.repeat("", 10));
+                });
+
+                runner.test("with \"a\" and -1", (Test test) ->
+                {
+                    test.assertThrows(() -> Strings.repeat("a", -1));
+                });
+
+                runner.test("with \"a\" and 0", (Test test) ->
+                {
+                    test.assertEqual("", Strings.repeat("a", 0));
+                });
+
+                runner.test("with \"a\" and 1", (Test test) ->
+                {
+                    test.assertEqual("a", Strings.repeat("a", 1));
+                });
+
+                runner.test("with \"a\" and 2", (Test test) ->
+                {
+                    test.assertEqual("aa", Strings.repeat("a", 2));
+                });
+
+                runner.test("with \"a\" and 3", (Test test) ->
+                {
+                    test.assertEqual("aaa", Strings.repeat("a", 3));
+                });
+                runner.test("with \"ab\" and 1", (Test test) ->
+                {
+                    test.assertEqual("ab", Strings.repeat("ab", 1));
+                });
+
+                runner.test("with \"ab\" and 2", (Test test) ->
+                {
+                    test.assertEqual("abab", Strings.repeat("ab", 2));
+                });
+
+                runner.test("with \"ab\" and 3", (Test test) ->
+                {
+                    test.assertEqual("ababab", Strings.repeat("ab", 3));
+                });
+            });
         });
     }
 }

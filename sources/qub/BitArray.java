@@ -65,7 +65,7 @@ public class BitArray
 
         final int chunk = chunks[bitIndexToChunkIndex(bitIndex)];
         final int chunkBitOffset = bitIndexToChunkBitOffset(bitIndex);
-        return (chunk >>> (bitsPerChunk - 1 - chunkBitOffset)) & 0x1;
+        return Integers.getBit(chunk, chunkBitOffset);
     }
 
     /**
@@ -80,24 +80,11 @@ public class BitArray
     public void setBit(long bitIndex, int value)
     {
         PreCondition.assertBetween(0, bitIndex, getBitCount() - 1, "bitIndex");
-        PreCondition.assertTrue(value == 0 || value == 1, "value (" + value + ") must be either 0 or 1.");
+        PreCondition.assertOneOf(value, new int[] { 0, 1 }, "value");
 
         final int chunkIndex = bitIndexToChunkIndex(bitIndex);
-        int chunk = chunks[chunkIndex];
-
         final int chunkBitOffset = bitIndexToChunkBitOffset(bitIndex);
-        if (value == 0)
-        {
-            final int mask = getAllOnExceptMask(chunkBitOffset);
-            chunk &= mask;
-        }
-        else
-        {
-            final int mask = getAllOffExceptMask(chunkBitOffset);
-            chunk |= mask;
-        }
-
-        chunks[chunkIndex] = chunk;
+        chunks[chunkIndex] = Integers.setBit(chunks[chunkIndex], chunkBitOffset, value);
     }
 
     /**
@@ -107,7 +94,7 @@ public class BitArray
      */
     public void setAllBits(int value)
     {
-        PreCondition.assertTrue(value == 0 || value == 1, "value (" + value + ") must be either 0 or 1.");
+        PreCondition.assertOneOf(value, new int[] { 0, 1 }, "value");
 
         final int chunkValue = (value == 0 ? 0x00000000 : 0xFFFFFFFF);
         for (int i = 0; i < getChunkCount(); ++i)
@@ -117,7 +104,7 @@ public class BitArray
     }
 
     /**
-     * Copy all of the bits from the copyFrom BitArray to this BitArray.
+     * Copy the bits from the copyFrom BitArray to this BitArray.
      * @param copyFrom The BitArray to copy from.
      * @param copyFromStartIndex The index to start reading from.
      * @param copyToStartIndex The index to start writing to.
@@ -137,6 +124,188 @@ public class BitArray
     }
 
     /**
+     * Copy the bits from the copyFrom int to this BitArray.
+     * @param copyFrom The int to copy from.
+     * @param copyToStartIndex The index to start writing to.
+     * @param copyLength The number of bits to copy. Bits will be copied from the least significant
+     *                   side of the int.
+     */
+    public void copyFrom(int copyFrom, long copyToStartIndex, int copyLength)
+    {
+        PreCondition.assertBetween(0, copyToStartIndex, this.getBitCount() - 1, "copyToStartIndex");
+        PreCondition.assertBetween(1, copyLength, Integer.SIZE, "copyLength");
+
+        while (copyLength > 0)
+        {
+            this.setBit(copyToStartIndex + copyLength - 1, copyFrom & 0x1);
+            copyFrom = copyFrom >>> 1;
+            --copyLength;
+        }
+    }
+
+    /**
+     * Rotate the bits in this BitArray the one space to the left.
+     */
+    public void rotateLeft()
+    {
+        rotateLeft(1);
+    }
+
+    /**
+     * Rotate the bits in this BitArray the provided number of spaces to the left.
+     * @param bitsToRotate The number of bit spaces to rotate.
+     * @preCondition bitsToRotate >= 0
+     */
+    public void rotateLeft(long bitsToRotate)
+    {
+        rotateLeft(bitsToRotate, 0, getBitCount());
+    }
+
+    /**
+     * Rotate the bits in this BitArray the provided number of spaces to the left starting at the
+     * provided startIndex and going for the provided length.
+     * @param bitsToRotate The number of bit spaces to rotate.
+     * @preCondition bitsToRotate >= 0
+     */
+    public void rotateLeft(long bitsToRotate, long startIndex, long length)
+    {
+        PreCondition.assertBetween(0, startIndex, getBitCount() - 1, "startIndex");
+        PreCondition.assertBetween(1, length, getBitCount() - startIndex, "length");
+
+        if (bitsToRotate % getBitCount() != 0)
+        {
+            final BitArray temp = BitArray.fromBitCount(length);
+            for (long i = 0; i < length; ++i)
+            {
+                final long getIndex = startIndex + Math.modulo(i + bitsToRotate, length);
+                temp.setBit(i, this.getBit(getIndex));
+            }
+            this.copyFrom(temp, 0, startIndex, length);
+        }
+    }
+
+    /**
+     * Rotate the bits in this BitArray the one space to the right.
+     */
+    public void rotateRight()
+    {
+        rotateRight(1);
+    }
+
+    /**
+     * Rotate the bits in this BitArray the provided number of spaces to the right.
+     * @param bitsToRotate The number of bit spaces to rotate.
+     * @preCondition bitsToRotate >= 0
+     */
+    public void rotateRight(long bitsToRotate)
+    {
+        rotateRight(bitsToRotate, 0, getBitCount());
+    }
+
+    /**
+     * Rotate the bits in this BitArray the provided number of spaces to the right starting at the
+     * provided startIndex and going for the provided length.
+     * @param bitsToRotate The number of bit spaces to rotate.
+     * @preCondition bitsToRotate >= 0
+     */
+    public void rotateRight(long bitsToRotate, long startIndex, long length)
+    {
+        PreCondition.assertBetween(0, startIndex, getBitCount() - 1, "startIndex");
+        PreCondition.assertBetween(1, length, getBitCount() - startIndex, "length");
+
+        rotateLeft(-bitsToRotate, startIndex, length);
+    }
+
+    /**
+     * Perform an xor operation between this BitArray and the provided BitArray and return the
+     * result.
+     * @param rhs The right hand side of the xor operation.
+     * @return The result of the xor operation.
+     * @preCondition rhs != null
+     * @preCondition getBitCount() == rhs.getBitCount()
+     * @postCondition result != null
+     * @postCondition getBitCount() == result.getBitCount()
+     */
+    public BitArray xor(BitArray rhs)
+    {
+        PreCondition.assertNotNull(rhs, "rhs");
+        PreCondition.assertEqual(getBitCount(), rhs.getBitCount(), "rhs.getBitCount()");
+
+        final long bitCount = getBitCount();
+        final BitArray result = BitArray.fromBitCount(bitCount);
+        for (long i = 0; i < bitCount; ++i)
+        {
+            result.setBit(i, (getBit(i) + rhs.getBit(i)) % 2);
+        }
+
+        PostCondition.assertNotNull(result, "result");
+        PostCondition.assertEqual(getBitCount(), result.getBitCount(), "result.getBitCount()");
+
+        return result;
+    }
+
+    /**
+     * Get the permutation of this BitArray by using the provided bitIndex permutation mapping. The
+     * value at each element of the bitIndexPermutations array is an index into this BitArray. For
+     * example, if this method were given the permutation array [4, 2, 0, 3, 1], then the result
+     * would be a BitArray with this BitArray's 5th bit (the first bit in the array is at index 0,
+     * so the 5th bit is at index 4), 3nd bit, 1st bit, 4th bit, and then 2nd
+     * bit.
+     * @param bitIndexPermutations The bit index permutation mapping.
+     * @return The result of applying the provided permutation to this BitArray.
+     */
+    public BitArray permuteByBitIndex(long[] bitIndexPermutations)
+    {
+        PreCondition.assertNotNull(bitIndexPermutations, "bitIndexPermutations");
+
+        final BitArray result = BitArray.fromBitCount(bitIndexPermutations.length);
+        for (int i = 0; i < bitIndexPermutations.length; ++i)
+        {
+            final long bitIndex = bitIndexPermutations[i];
+            result.setBit(i, getBit(bitIndex));
+        }
+
+        PostCondition.assertNotNull(result, "result");
+        PostCondition.assertEqual(bitIndexPermutations.length, result.getBitCount(), "result.getBitCount()");
+
+        return result;
+    }
+
+    /**
+     * Get the permutation of this BitArray by using the provided bitNumber permutation mapping. The
+     * value at each element of the bitNumberPermutations array is a reference to a bit in this
+     * BitArray. For example, if this method were given the permutation array [5, 3, 1, 4, 2], then
+     * the result would be a BitArray with this BitArray's 5th bit, 3nd bit, 1st bit, 4th bit, and
+     * then 2nd bit.
+     * @param bitNumberPermutations The bit number permutation mapping.
+     * @return The result of applying the provided permutation to this BitArray.
+     */
+    public BitArray permuteByBitNumber(long[] bitNumberPermutations)
+    {
+        return permuteByBitNumber(0, getBitCount(), bitNumberPermutations);
+    }
+
+    public BitArray permuteByBitNumber(long startIndex, long length, long[] bitNumberPermutations)
+    {
+        PreCondition.assertBetween(0, startIndex, getBitCount() - 1, "startIndex");
+        PreCondition.assertBetween(1, length, getBitCount() - startIndex, "length");
+        PreCondition.assertNotNull(bitNumberPermutations, "bitNumberPermutations");
+
+        final BitArray result = BitArray.fromBitCount(bitNumberPermutations.length);
+        for (int i = 0; i < bitNumberPermutations.length; ++i)
+        {
+            final long bitNumber = bitNumberPermutations[i];
+            final long bitIndex = bitNumber - 1;
+            result.setBit(i, getBit(startIndex + bitIndex));
+        }
+
+        PostCondition.assertNotNull(result, "result");
+        PostCondition.assertEqual(bitNumberPermutations.length, result.getBitCount(), "result.getBitCount()");
+
+        return result;
+    }
+
+    /**
      * Get the String representation of this BitArray.
      * @return The String representation of this BitArray.
      */
@@ -144,6 +313,38 @@ public class BitArray
     public String toString()
     {
         return toBitString();
+    }
+
+    /**
+     * Get the integer representation of this BitArray.
+     * @return The integer representation of this BitArray.
+     */
+    public int toInteger()
+    {
+        return toInteger(0, getBitCount());
+    }
+
+    /**
+     * Get the integer representation of the subsection of this BitArray.
+     * @param startIndex The start index of the subsection.
+     * @param length The number of bits in the subsection.
+     * @return The integer representation of this BitArray.
+     */
+    public int toInteger(int startIndex, long length)
+    {
+        PreCondition.assertBetween(0, startIndex, getBitCount() - 1, "startIndex");
+        PreCondition.assertBetween(1, length, Math.minimum(getBitCount() - startIndex, Integer.SIZE), "length");
+
+        int mask = 1;
+        for (int i = 1; i < length; ++i)
+        {
+            mask = (mask << 1) | 0x1;
+        }
+
+        final int resultBeforeMask = this.chunks[0] >>> (bitsPerChunk - (startIndex + length));
+        final int result = resultBeforeMask & mask;
+
+        return result;
     }
 
     /**
@@ -157,6 +358,23 @@ public class BitArray
         for (long i = 0; i < bitCount; ++i)
         {
             builder.append(getBit(i));
+        }
+        return builder.toString();
+    }
+
+    public String toHexString()
+    {
+        final StringBuilder builder = new StringBuilder();
+        for (int chunk : chunks)
+        {
+            builder.append(Integers.toHexString(chunk, false));
+        }
+        final long lastChunkBitCount = bitCount % bitsPerChunk;
+        if (lastChunkBitCount != 0)
+        {
+            final int lastChunkHexCharCount = (int)Math.ceiling(lastChunkBitCount / 4.0);
+            final int charsToRemove = (bitsPerChunk / 4) - lastChunkHexCharCount;
+            builder.setLength(builder.length() - charsToRemove);
         }
         return builder.toString();
     }
@@ -220,6 +438,24 @@ public class BitArray
         return result;
     }
 
+    public static BitArray fromHexString(String hexString)
+    {
+        PreCondition.assertNotNullAndNotEmpty(hexString, "hexString");
+
+        final BitArray result = BitArray.fromBitCount(hexString.length() * 4);
+        for (int i = 0; i < hexString.length(); ++i)
+        {
+            final char c = hexString.charAt(i);
+            final int cInt = Integers.fromHexChar(c);
+            result.copyFrom(cInt, i * 4, 4);
+        }
+
+        PostCondition.assertNotNull(result, "result");
+        PostCondition.assertEqual(hexString.length() * 4, result.getBitCount(), "result.getBitCount()");
+
+        return result;
+    }
+
     public static BitArray fromIntArray(long bitCount, int[] bits)
     {
         PreCondition.assertNotNull(bits, "bits");
@@ -237,86 +473,5 @@ public class BitArray
     private static int bitIndexToChunkBitOffset(long bitIndex)
     {
         return (int)(bitIndex % bitsPerChunk);
-    }
-
-
-    private static final int[] allOnExceptMasks = new int[]
-    {
-        0x7FFFFFFF,
-        0xBFFFFFFF,
-        0xDFFFFFFF,
-        0xEFFFFFFF,
-        0xF7FFFFFF,
-        0xFBFFFFFF,
-        0xFDFFFFFF,
-        0xFEFFFFFF,
-        0xFF7FFFFF,
-        0xFFBFFFFF,
-        0xFFDFFFFF,
-        0xFFEFFFFF,
-        0xFFF7FFFF,
-        0xFFFBFFFF,
-        0xFFFDFFFF,
-        0xFFFEFFFF,
-        0xFFFF7FFF,
-        0xFFFFBFFF,
-        0xFFFFDFFF,
-        0xFFFFEFFF,
-        0xFFFFF7FF,
-        0xFFFFFBFF,
-        0xFFFFFDFF,
-        0xFFFFFEFF,
-        0xFFFFFF7F,
-        0xFFFFFFBF,
-        0xFFFFFFDF,
-        0xFFFFFFEF,
-        0xFFFFFFF7,
-        0xFFFFFFFB,
-        0xFFFFFFFD,
-        0xFFFFFFFE
-    };
-    private static int getAllOnExceptMask(int bitOffset)
-    {
-        return allOnExceptMasks[bitOffset];
-    }
-
-    private static final int[] allOffExceptMasks = new int[]
-    {
-        0x80000000,
-        0x40000000,
-        0x20000000,
-        0x10000000,
-        0x08000000,
-        0x04000000,
-        0x02000000,
-        0x01000000,
-        0x00800000,
-        0x00400000,
-        0x00200000,
-        0x00100000,
-        0x00080000,
-        0x00040000,
-        0x00020000,
-        0x00010000,
-        0x00008000,
-        0x00004000,
-        0x00002000,
-        0x00001000,
-        0x00000800,
-        0x00000400,
-        0x00000200,
-        0x00000100,
-        0x00000080,
-        0x00000040,
-        0x00000020,
-        0x00000010,
-        0x00000008,
-        0x00000004,
-        0x00000002,
-        0x00000001
-    };
-    private static int getAllOffExceptMask(int bitOffset)
-    {
-        return allOffExceptMasks[bitOffset];
     }
 }

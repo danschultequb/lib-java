@@ -74,6 +74,22 @@ public class PostCondition
         }
     }
 
+    public static void assertOneOf(int value, int[] allowedValues, String variableName)
+    {
+        if (!Array.contains(allowedValues, value))
+        {
+            throw new PostConditionFailure(AssertionMessages.oneOf(value, allowedValues, variableName));
+        }
+    }
+
+    public static void assertOneOf(long value, long[] allowedValues, String variableName)
+    {
+        if (!Array.contains(allowedValues, value))
+        {
+            throw new PostConditionFailure(AssertionMessages.oneOf(value, allowedValues, variableName));
+        }
+    }
+
     /**
      * Assert that value is greater than or equal to lowerBound.
      * @param value The value to ensure is greater than or equal to lowerBound.
@@ -99,7 +115,11 @@ public class PostCondition
      */
     public static void assertBetween(long lowerBound, long value, long upperBound, String variableName)
     {
-        if (!Comparer.between(lowerBound, value, upperBound))
+        if (upperBound < lowerBound)
+        {
+            assertBetween(upperBound, value, lowerBound, variableName);
+        }
+        else if (!Comparer.between(lowerBound, value, upperBound))
         {
             throw new PostConditionFailure(AssertionMessages.between(lowerBound, value, upperBound, variableName));
         }

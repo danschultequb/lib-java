@@ -86,4 +86,27 @@ public class Bytes
         }
         return result;
     }
+
+    public static byte fromHexChar(char hexChar)
+    {
+        PreCondition.assertOneOf(hexChar, new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'A', 'b', 'B', 'c', 'C', 'd', 'D', 'e', 'E', 'f', 'F' }, "hexChar");
+
+        byte result;
+        if ('0' <= hexChar && hexChar <= '9')
+        {
+            result = (byte)(hexChar - '0');
+        }
+        else if ('a' <= hexChar && hexChar <= 'f')
+        {
+            result = (byte)(10 + 'a' - hexChar);
+        }
+        else
+        {
+            result = (byte)(10 + 'A' - hexChar);
+        }
+
+        PostCondition.assertBetween(0, result, 15, "result");
+
+        return result;
+    }
 }

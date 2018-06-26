@@ -20,6 +20,11 @@ public class AssertionMessages
         return variableName + " (" + value + ") must be " + expectedValue + ".";
     }
 
+    public static <T> String notEqual(T expectedValue, T value, String variableName)
+    {
+        return variableName + " (" + value + ") must not be " + expectedValue + ".";
+    }
+
     public static <T> String greaterThanOrEqualTo(T value, T lowerBound, String variableName)
     {
         return variableName + " (" + value + ") must be greater than or equal to " + lowerBound + ".";
@@ -33,5 +38,53 @@ public class AssertionMessages
     public static String containsOnly(String value, char[] characters, String variableName)
     {
         return variableName + " (" + value + ") must contain only " + Array.toString(characters) + ".";
+    }
+
+    public static String oneOf(char value, char[] values, String variableName)
+    {
+        final StringBuilder builder = new StringBuilder();
+        builder.append(variableName + " (" + value + ") must be either");
+        for (int i = 0; i < values.length - 1; ++i)
+        {
+            builder.append(" " + values[i]);
+            if (values.length > 2)
+            {
+                builder.append(",");
+            }
+        }
+        builder.append(" or " + values[values.length - 1] + ".");
+        return builder.toString();
+    }
+
+    public static String oneOf(int value, int[] values, String variableName)
+    {
+        final StringBuilder builder = new StringBuilder();
+        builder.append(variableName + " (" + value + ") must be either");
+        for (int i = 0; i < values.length - 1; ++i)
+        {
+            builder.append(" " + values[i]);
+            if (values.length > 2)
+            {
+                builder.append(",");
+            }
+        }
+        builder.append(" or " + values[values.length - 1] + ".");
+        return builder.toString();
+    }
+
+    public static String oneOf(long value, long[] values, String variableName)
+    {
+        final StringBuilder builder = new StringBuilder();
+        builder.append(variableName + " (" + value + ") must be either");
+        for (int i = 0; i < values.length - 1; ++i)
+        {
+            builder.append(" " + values[i]);
+            if (values.length > 2)
+            {
+                builder.append(",");
+            }
+        }
+        builder.append(" or " + values[values.length - 1] + ".");
+        return builder.toString();
     }
 }

@@ -169,6 +169,149 @@ public class MathTests
 
                 roundTest.run(123.456, 0.01, 123.46);
             });
+
+            runner.testGroup("modulo(int,int)", () ->
+            {
+                final Action3<Integer,Integer,Integer> moduloTest = (Integer value, Integer scale, Integer expected) ->
+                {
+                    runner.test("with " + value + " and " + scale, (Test test) ->
+                    {
+                        test.assertEqual(expected, Math.modulo(value, scale));
+                    });
+                };
+
+                moduloTest.run(-4, -3, -1);
+                moduloTest.run(-3, -3, 0);
+                moduloTest.run(-2, -3, -2);
+                moduloTest.run(-1, -3, -1);
+                moduloTest.run(0, -3, 0);
+                moduloTest.run(1, -3, -2);
+                moduloTest.run(2, -3, -1);
+                moduloTest.run(3, -3, 0);
+                moduloTest.run(4, -3, -2);
+
+                moduloTest.run(-4, -2, 0);
+                moduloTest.run(-3, -2, -1);
+                moduloTest.run(-2, -2, 0);
+                moduloTest.run(-1, -2, -1);
+                moduloTest.run(0, -2, 0);
+                moduloTest.run(1, -2, -1);
+                moduloTest.run(2, -2, 0);
+                moduloTest.run(3, -2, -1);
+                moduloTest.run(4, -2, 0);
+
+                moduloTest.run(-4, -1, 0);
+                moduloTest.run(-3, -1, 0);
+                moduloTest.run(-2, -1, 0);
+                moduloTest.run(-1, -1, 0);
+                moduloTest.run(0, -1, 0);
+                moduloTest.run(1, -1, 0);
+                moduloTest.run(2, -1, 0);
+                moduloTest.run(3, -1, 0);
+                moduloTest.run(4, -1, 0);
+
+                moduloTest.run(-2, 1, 0);
+                moduloTest.run(-1, 1, 0);
+                moduloTest.run(0, 1, 0);
+                moduloTest.run(1, 1, 0);
+                moduloTest.run(2, 1, 0);
+
+                moduloTest.run(-4, 2, 0);
+                moduloTest.run(-3, 2, 1);
+                moduloTest.run(-2, 2, 0);
+                moduloTest.run(-1, 2, 1);
+                moduloTest.run(0, 2, 0);
+                moduloTest.run(1, 2, 1);
+                moduloTest.run(2, 2, 0);
+                moduloTest.run(3, 2, 1);
+                moduloTest.run(4, 2, 0);
+
+                moduloTest.run(-4, 3, 2);
+                moduloTest.run(-3, 3, 0);
+                moduloTest.run(-2, 3, 1);
+                moduloTest.run(-1, 3, 2);
+                moduloTest.run(0, 3, 0);
+                moduloTest.run(1, 3, 1);
+                moduloTest.run(2, 3, 2);
+                moduloTest.run(3, 3, 0);
+                moduloTest.run(4, 3, 1);
+            });
+
+            runner.testGroup("modulo(long,long)", () ->
+            {
+                runner.test("with 1 and 0", (Test test) ->
+                {
+                    test.assertThrows(() -> Math.modulo(1L, 0L));
+                });
+
+                final Action3<Long,Long,Long> moduloTest = (Long value, Long scale, Long expected) ->
+                {
+                    runner.test("with " + value + " and " + scale, (Test test) ->
+                    {
+                        test.assertEqual(expected, Math.modulo(value, scale));
+                    });
+                };
+
+                moduloTest.run(-4L, -3L, -1L);
+                moduloTest.run(-3L, -3L, 0L);
+                moduloTest.run(-2L, -3L, -2L);
+                moduloTest.run(-1L, -3L, -1L);
+                moduloTest.run(0L, -3L, 0L);
+                moduloTest.run(1L, -3L, -2L);
+                moduloTest.run(2L, -3L, -1L);
+                moduloTest.run(3L, -3L, 0L);
+                moduloTest.run(4L, -3L, -2L);
+
+                moduloTest.run(-4L, -2L, 0L);
+                moduloTest.run(-3L, -2L, -1L);
+                moduloTest.run(-2L, -2L, 0L);
+                moduloTest.run(-1L, -2L, -1L);
+                moduloTest.run(0L, -2L, 0L);
+                moduloTest.run(1L, -2L, -1L);
+                moduloTest.run(2L, -2L, 0L);
+                moduloTest.run(3L, -2L, -1L);
+                moduloTest.run(4L, -2L, 0L);
+
+                moduloTest.run(-4L, -1L, 0L);
+                moduloTest.run(-3L, -1L, 0L);
+                moduloTest.run(-2L, -1L, 0L);
+                moduloTest.run(-1L, -1L, 0L);
+                moduloTest.run(0L, -1L, 0L);
+                moduloTest.run(1L, -1L, 0L);
+                moduloTest.run(2L, -1L, 0L);
+                moduloTest.run(3L, -1L, 0L);
+                moduloTest.run(4L, -1L, 0L);
+
+                moduloTest.run(-4L, 1L, 0L);
+                moduloTest.run(-3L, 1L, 0L);
+                moduloTest.run(-2L, 1L, 0L);
+                moduloTest.run(-1L, 1L, 0L);
+                moduloTest.run(0L, 1L, 0L);
+                moduloTest.run(1L, 1L, 0L);
+                moduloTest.run(2L, 1L, 0L);
+                moduloTest.run(3L, 1L, 0L);
+                moduloTest.run(4L, 1L, 0L);
+
+                moduloTest.run(-4L, 2L, 0L);
+                moduloTest.run(-3L, 2L, 1L);
+                moduloTest.run(-2L, 2L, 0L);
+                moduloTest.run(-1L, 2L, 1L);
+                moduloTest.run(0L, 2L, 0L);
+                moduloTest.run(1L, 2L, 1L);
+                moduloTest.run(2L, 2L, 0L);
+                moduloTest.run(3L, 2L, 1L);
+                moduloTest.run(4L, 2L, 0L);
+
+                moduloTest.run(-4L, 3L, 2L);
+                moduloTest.run(-3L, 3L, 0L);
+                moduloTest.run(-2L, 3L, 1L);
+                moduloTest.run(-1L, 3L, 2L);
+                moduloTest.run(0L, 3L, 0L);
+                moduloTest.run(1L, 3L, 1L);
+                moduloTest.run(2L, 3L, 2L);
+                moduloTest.run(3L, 3L, 0L);
+                moduloTest.run(4L, 3L, 1L);
+            });
         });
     }
 }

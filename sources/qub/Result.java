@@ -218,6 +218,10 @@ final public class Result<T>
         {
             result = Result.equal(lowerBound, value, parameterName);
         }
+        else if (upperBound < lowerBound)
+        {
+            result = Result.between(upperBound, value, lowerBound, parameterName);
+        }
         else if (value < lowerBound || upperBound < value)
         {
             result = Result.error(new IllegalArgumentException(AssertionMessages.between(lowerBound, value, upperBound, parameterName)));

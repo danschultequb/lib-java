@@ -769,12 +769,112 @@ public class Array<T> extends IndexableBase<T> implements MutableIndexable<T>
     }
 
     /**
+     * Get the String representation of the elements within the provided long array.
+     * @param array The long array to convert to a String.
+     * @return The String representation of the elements within the provided long array.
+     */
+    public static String toString(long[] array)
+    {
+        return Array.toString(array, null);
+    }
+
+    /**
+     * Get the String representation of the elements within the provided long array.
+     * @param array The long array to convert to a String.
+     * @return The String representation of the elements within the provided long array.
+     */
+    public static String toString(long[] array, Function1<Long,String> characterTransform)
+    {
+        final StringBuilder builder = new StringBuilder();
+
+        if (array == null)
+        {
+            builder.append("null");
+        }
+        else
+        {
+            builder.append('[');
+
+            boolean addedFirstElement = false;
+            for (final long element : array)
+            {
+                if (!addedFirstElement)
+                {
+                    addedFirstElement = true;
+                }
+                else
+                {
+                    builder.append(',');
+                }
+                if (characterTransform != null)
+                {
+                    builder.append(characterTransform.run(element));
+                }
+                else
+                {
+                    builder.append(element);
+                }
+            }
+
+            builder.append(']');
+        }
+
+        return builder.toString();
+    }
+
+    /**
      * Get whether or not the provided array contains the provided value.
      * @param array The array to check.
      * @param value The value to look for.
      * @return Whether or not the provided array contains the provided value.
      */
     public static boolean contains(char[] array, char value)
+    {
+        boolean result = false;
+        if (array != null)
+        {
+            for (int i = 0; i < array.length; ++i)
+            {
+                if (array[i] == value)
+                {
+                    result = true;
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Get whether or not the provided array contains the provided value.
+     * @param array The array to check.
+     * @param value The value to look for.
+     * @return Whether or not the provided array contains the provided value.
+     */
+    public static boolean contains(int[] array, int value)
+    {
+        boolean result = false;
+        if (array != null)
+        {
+            for (int i = 0; i < array.length; ++i)
+            {
+                if (array[i] == value)
+                {
+                    result = true;
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Get whether or not the provided array contains the provided value.
+     * @param array The array to check.
+     * @param value The value to look for.
+     * @return Whether or not the provided array contains the provided value.
+     */
+    public static boolean contains(long[] array, long value)
     {
         boolean result = false;
         if (array != null)

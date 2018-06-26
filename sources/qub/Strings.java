@@ -13,6 +13,16 @@ public class Strings
     }
 
     /**
+     * Get the number of characters in the provided String.
+     * @param value The value.
+     * @return The number of characters.
+     */
+    public static int getLength(String value)
+    {
+        return value == null ? 0 : value.length();
+    }
+
+    /**
      * Check if the provided text String contains any of the provided characters.
      * @param text The text to search in.
      * @param characters The characters to search for.
@@ -95,5 +105,55 @@ public class Strings
     public static boolean isNullOrEmpty(String text)
     {
         return text == null || text.isEmpty();
+    }
+
+    /**
+     * Repeat the provided value String a specified number of times.
+     * @param value The value to repeat.
+     * @param repetitions The number of times to repeat the value.
+     * @return The repeated string.
+     */
+    public static String repeat(String value, int repetitions)
+    {
+        PreCondition.assertNotNull(value, "value");
+        PreCondition.assertGreaterThanOrEqualTo(repetitions, 0, "repetitions");
+
+        final StringBuilder builder = new StringBuilder(value.length() * repetitions);
+        if (!Strings.isNullOrEmpty(value))
+        {
+            for (int i = 0; i < repetitions; ++i)
+            {
+                builder.append(value);
+            }
+        }
+        final String result = builder.toString();
+
+        PostCondition.assertNotNull(result, "result");
+        PostCondition.assertEqual(Strings.getLength(value) * repetitions, result.length(), "result.length()");
+
+        return builder.toString();
+    }
+
+    /**
+     * Repeat the provided value String a specified number of times.
+     * @param value The value to repeat.
+     * @param repetitions The number of times to repeat the value.
+     * @return The repeated string.
+     */
+    public static String repeat(char value, int repetitions)
+    {
+        PreCondition.assertGreaterThanOrEqualTo(0, repetitions, "repetitions");
+
+        final StringBuilder builder = new StringBuilder(repetitions);
+        for (int i = 0; i < repetitions; ++i)
+        {
+            builder.append(value);
+        }
+        final String result = builder.toString();
+
+        PostCondition.assertNotNull(result, "result");
+        PostCondition.assertEqual(repetitions, result.length(), "result.length()");
+
+        return builder.toString();
     }
 }
