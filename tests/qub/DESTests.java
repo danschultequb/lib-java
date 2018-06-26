@@ -121,7 +121,7 @@ public class DESTests
                         final BitArray initializationVectorBits = BitArray.fromHexString(initializationVector);
 
                         final BitArray ciphertextBits = des.encrypt(initializationVectorBits, plaintextBits);
-
+                        test.assertNotNull(ciphertextBits);
                         test.assertEqual(expectedCiphertext, ciphertextBits.toHexString());
                     });
                 };
@@ -133,6 +133,32 @@ public class DESTests
                 encryptTest.run("6F6F746865722074", "0E329232EA6D0D73", "47F269A4D6438190");
                 encryptTest.run("68616E2076617365", "0E329232EA6D0D73", "D9D52F78F5358499");
                 encryptTest.run("6C696E650D0A0000", "0E329232EA6D0D73", "828AC9B453E0E653");
+            });
+
+            runner.testGroup("decrypt(BitArray,BitArray)", () ->
+            {
+                final Action3<String,String,String> decryptTest = (String ciphertext, String initializationVector, String expectedPlaintext) ->
+                {
+                    runner.test("with ciphertext " + Strings.quote(ciphertext) + " and initialization vector " + Strings.quote(initializationVector), (Test test) ->
+                    {
+                        final DES des = new DES();
+
+                        final BitArray ciphertextBits = BitArray.fromHexString(ciphertext);
+                        final BitArray initializationVectorBits = BitArray.fromHexString(initializationVector);
+
+                        final BitArray plaintextBits = des.decrypt(initializationVectorBits, ciphertextBits);
+                        test.assertNotNull(plaintextBits);
+                        test.assertEqual(expectedPlaintext, plaintextBits.toHexString());
+                    });
+                };
+
+                decryptTest.run("0000000000000000", "0E329232EA6D0D73", "8787878787878787");
+                decryptTest.run("85E813540F0AB405", "133457799BBCDFF1", "0123456789ABCDEF");
+                decryptTest.run("C0999FDDE378D7ED", "0E329232EA6D0D73", "596F7572206C6970");
+                decryptTest.run("727DA00BCA5A84EE", "0E329232EA6D0D73", "732061726520736D");
+                decryptTest.run("47F269A4D6438190", "0E329232EA6D0D73", "6F6F746865722074");
+                decryptTest.run("D9D52F78F5358499", "0E329232EA6D0D73", "68616E2076617365");
+                decryptTest.run("828AC9B453E0E653", "0E329232EA6D0D73", "6C696E650D0A0000");
             });
         });
     }
