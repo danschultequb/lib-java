@@ -7,6 +7,7 @@ package qub;
 public class DES
 {
     private static final int blockSize = 64;
+    private static final int iterationCount = 16;
 
     static final long[] initialPermutationBitNumbers = new long[]
     {
@@ -172,78 +173,19 @@ public class DES
         PreCondition.assertNotNull(plaintext, "plaintext");
         PreCondition.assertEqual(blockSize, plaintext.getBitCount(), "plaintext.getBitCount()");
 
-        final BitArray key = initializationVector;
-
-        final int iterationCount = 16;
-
-        final BitArray[] kArray = new BitArray[iterationCount + 1];
-        kArray[0] = key.permuteByBitNumber(permutedChoice1BitNumbers);
-        final long kSize = kArray[0].getBitCount();
-
-        for (int i = 1; i <= iterationCount; ++i)
-        {
-            final int bitsToRotate = iterationShiftCounts[i - 1];
-            kArray[i] = kArray[i - 1].clone();
-            kArray[i].rotateLeft(bitsToRotate, 0, kSize / 2);
-            kArray[i].rotateLeft(bitsToRotate, kSize / 2, kSize / 2);
-        }
+        final BitArray[] kArray = getKArray(initializationVector);
 
         final BitArray[] lrArray = new BitArray[iterationCount + 1];
-
-        final BitArray initialPermutation = plaintext.permuteByBitNumber(initialPermutationBitNumbers);
-        lrArray[0] = initialPermutation;
-        final long lrSize = lrArray[0].getBitCount();
+        lrArray[0] = plaintext.permuteByBitNumber(initialPermutationBitNumbers);
 
         for (int i = 1; i <= iterationCount; ++i)
         {
             final BitArray iterationK = kArray[i].permuteByBitNumber(permutedChoice2BitNumbers);
-
             final BitArray lrPrevious = lrArray[i - 1];
-
-            final BitArray lPrevious = BitArray.fromBitCount(lrSize / 2);
-            lPrevious.copyFrom(lrPrevious, 0, 0, lrSize / 2);
-
-            final BitArray rPrevious = BitArray.fromBitCount(lrSize / 2);
-            rPrevious.copyFrom(lrPrevious, lrSize / 2, 0, lrSize / 2);
-
-            // Rn-1 copied to Ln
-            final BitArray lNext = rPrevious.clone();
-
-            // Rn-1 through E
-            final BitArray rAfterE = rPrevious.permuteByBitNumber(eBitSelectionBitNumbersTable);
-
-            // Before S functions
-            final BitArray sInput = rAfterE.xor(iterationK);
-
-            // S functions
-            final BitArray sOutput = BitArray.fromBitCount(lrSize / 2);
-            for (int sIndex = 0; sIndex < 8; ++sIndex)
-            {
-                final BitArray b = BitArray.fromBitCount(6);
-                b.copyFrom(sInput, sIndex * 6, 0, 6);
-
-                final int row = (b.getBit(0) << 1) | b.getBit(5);
-                final int column = b.toInteger(1, 4);
-                final int sValueIndex = (row * 16) + column;
-                final int sValue = sFunctions[sIndex][sValueIndex];
-
-                sOutput.copyFrom(sValue, sIndex * 4, 4);
-            }
-            final BitArray sOutputAfterP = sOutput.permuteByBitNumber(pFunction);
-
-            // Ln-1 xor f(Rn-1, Kn)
-            final BitArray rNext = lPrevious.xor(sOutputAfterP);
-
-            final BitArray lrNext = BitArray.fromBitCount(lrSize);
-            lrNext.copyFrom(lNext, 0, 0, lrSize / 2);
-            lrNext.copyFrom(rNext, 0, lrSize / 2, lrSize / 2);
-
-            lrArray[i] = lrNext;
+            lrArray[i] = getLRNextAfterIteration(lrPrevious, iterationK);
         }
 
-        final BitArray preoutput = getPreOutput(lrArray[iterationCount]);
-
-        final BitArray result = preoutput.permuteByBitNumber(initialPermutationInverseBitNumbers);
+        final BitArray result = getFinalResult(lrArray[iterationCount]);
 
         PostCondition.assertNotNull(result, "result");
         PostCondition.assertEqual(blockSize, result.getBitCount(), "result.getBitCount()");
@@ -263,85 +205,49 @@ public class DES
     public BitArray decrypt(BitArray initializationVector, BitArray ciphertext)
     {
         PreCondition.assertNotNull(initializationVector, "initializationVector");
-        PreCondition.assertOneOf(initializationVector.getBitCount(), new long[] { 56, 64 }, "initializationVector.getBitCount()");
+        PreCondition.assertEqual(blockSize, initializationVector.getBitCount(), "initializationVector.getBitCount()");
         PreCondition.assertNotNull(ciphertext, "ciphertext");
-        PreCondition.assertEqual(64, ciphertext.getBitCount(), "ciphertext.getBitCount()");
+        PreCondition.assertEqual(blockSize, ciphertext.getBitCount(), "ciphertext.getBitCount()");
 
-        final BitArray key = initializationVector;
-
-        final int iterationCount = 16;
-
-        final BitArray[] kArray = new BitArray[iterationCount + 1];
-        kArray[0] = key.permuteByBitNumber(permutedChoice1BitNumbers);
-        final long kSize = kArray[0].getBitCount();
-
-        for (int i = 1; i <= iterationCount; ++i)
-        {
-            final int bitsToRotate = iterationShiftCounts[i - 1];
-            kArray[i] = kArray[i - 1].clone();
-            kArray[i].rotateLeft(bitsToRotate, 0, kSize / 2);
-            kArray[i].rotateLeft(bitsToRotate, kSize / 2, kSize / 2);
-        }
+        final BitArray[] kArray = getKArray(initializationVector);
 
         final BitArray[] lrArray = new BitArray[iterationCount + 1];
-
-        final BitArray initialPermutation = ciphertext.permuteByBitNumber(initialPermutationBitNumbers);
-        lrArray[0] = initialPermutation;
-        final long lrSize = lrArray[0].getBitCount();
+        lrArray[0] = ciphertext.permuteByBitNumber(initialPermutationBitNumbers);
 
         for (int i = 1; i <= iterationCount; ++i)
         {
             final BitArray iterationK = kArray[kArray.length - i].permuteByBitNumber(permutedChoice2BitNumbers);
-
             final BitArray lrPrevious = lrArray[i - 1];
-
-            final BitArray lPrevious = BitArray.fromBitCount(lrSize / 2);
-            lPrevious.copyFrom(lrPrevious, 0, 0, lrSize / 2);
-
-            final BitArray rPrevious = BitArray.fromBitCount(lrSize / 2);
-            rPrevious.copyFrom(lrPrevious, lrSize / 2, 0, lrSize / 2);
-
-            // Rn copied to Ln-1
-            final BitArray lNext = rPrevious.clone();
-
-            // Rn through E
-            final BitArray rAfterE = rPrevious.permuteByBitNumber(eBitSelectionBitNumbersTable);
-
-            // Before S functions
-            final BitArray sInput = rAfterE.xor(iterationK);
-
-            // S functions
-            final BitArray sOutput = BitArray.fromBitCount(lrSize / 2);
-            for (int sIndex = 0; sIndex < 8; ++sIndex)
-            {
-                final BitArray b = BitArray.fromBitCount(6);
-                b.copyFrom(sInput, sIndex * 6, 0, 6);
-
-                final int row = (b.getBit(0) << 1) | b.getBit(5);
-                final int column = b.toInteger(1, 4);
-                final int sValueIndex = (row * 16) + column;
-                final int sValue = sFunctions[sIndex][sValueIndex];
-
-                sOutput.copyFrom(sValue, sIndex * 4, 4);
-            }
-            final BitArray sOutputAfterP = sOutput.permuteByBitNumber(pFunction);
-
-            // Ln xor f(Rn, Kn)
-            final BitArray rNext = lPrevious.xor(sOutputAfterP);
-
-            final BitArray lrNext = BitArray.fromBitCount(lrSize);
-            lrNext.copyFrom(lNext, 0, 0, lrSize / 2);
-            lrNext.copyFrom(rNext, 0, lrSize / 2, lrSize / 2);
-
-            lrArray[i] = lrNext;
+            lrArray[i] = getLRNextAfterIteration(lrPrevious, iterationK);
         }
 
-        final BitArray preoutput = getPreOutput(lrArray[iterationCount]);
-
-        final BitArray result = preoutput.permuteByBitNumber(initialPermutationInverseBitNumbers);
+        final BitArray result = getFinalResult(lrArray[iterationCount]);
 
         PostCondition.assertNotNull(result, "result");
         PostCondition.assertEqual(64, result.getBitCount(), "result.getBitCount()");
+
+        return result;
+    }
+
+    BitArray[] getKArray(BitArray initializationVector)
+    {
+        PreCondition.assertNotNull(initializationVector, "initializationVector");
+        PreCondition.assertEqual(64, initializationVector.getBitCount(), "initializationVector.getBitCount()");
+
+        final BitArray[] result = new BitArray[iterationCount + 1];
+        result[0] = initializationVector.permuteByBitNumber(permutedChoice1BitNumbers);
+        final long kSize = result[0].getBitCount();
+
+        for (int i = 1; i <= iterationCount; ++i)
+        {
+            final int bitsToRotate = iterationShiftCounts[i - 1];
+            result[i] = result[i - 1].clone();
+            result[i].rotateLeft(bitsToRotate, 0, kSize / 2);
+            result[i].rotateLeft(bitsToRotate, kSize / 2, kSize / 2);
+        }
+
+        PostCondition.assertNotNull(result, "result");
+        PostCondition.assertEqual(iterationCount + 1, result.length, "result.length");
 
         return result;
     }
@@ -372,6 +278,73 @@ public class DES
         final BitArray result = BitArray.fromBitCount(blockSize);
         result.copyFrom(lr, blockSize / 2, 0, blockSize / 2);
         result.copyFrom(lr, 0, blockSize / 2, blockSize / 2);
+
+        PostCondition.assertNotNull(result, "result");
+        PostCondition.assertEqual(blockSize, result.getBitCount(), "result.getBitCount()");
+
+        return result;
+    }
+
+    BitArray getLRNextAfterIteration(BitArray lrPrevious, BitArray iterationK)
+    {
+        PreCondition.assertNotNull(lrPrevious, "lrPrevious");
+        PreCondition.assertEqual(blockSize, lrPrevious.getBitCount(), "lrPrevious.getBitCount()");
+        PreCondition.assertNotNull(iterationK, "iterationK");
+        PreCondition.assertEqual(48, iterationK.getBitCount(), "iterationK.getBitCount()");
+
+        final long lrSize = lrPrevious.getBitCount();
+
+        final BitArray lPrevious = BitArray.fromBitCount(lrSize / 2);
+        lPrevious.copyFrom(lrPrevious, 0, 0, lrSize / 2);
+
+        final BitArray rPrevious = BitArray.fromBitCount(lrSize / 2);
+        rPrevious.copyFrom(lrPrevious, lrSize / 2, 0, lrSize / 2);
+
+        // Rn copied to Ln-1
+        final BitArray lNext = rPrevious.clone();
+
+        // Rn through E
+        final BitArray rAfterE = rPrevious.permuteByBitNumber(eBitSelectionBitNumbersTable);
+
+        // Before S functions
+        final BitArray sInput = rAfterE.xor(iterationK);
+
+        // S functions
+        final BitArray sOutput = BitArray.fromBitCount(lrSize / 2);
+        for (int sIndex = 0; sIndex < 8; ++sIndex)
+        {
+            final BitArray b = BitArray.fromBitCount(6);
+            b.copyFrom(sInput, sIndex * 6, 0, 6);
+
+            final int row = (b.getBit(0) << 1) | b.getBit(5);
+            final int column = b.toInteger(1, 4);
+            final int sValueIndex = (row * 16) + column;
+            final int sValue = sFunctions[sIndex][sValueIndex];
+
+            sOutput.copyFrom(sValue, sIndex * 4, 4);
+        }
+        final BitArray sOutputAfterP = sOutput.permuteByBitNumber(pFunction);
+
+        // Ln xor f(Rn, Kn)
+        final BitArray rNext = lPrevious.xor(sOutputAfterP);
+
+        final BitArray result = BitArray.fromBitCount(lrSize);
+        result.copyFrom(lNext, 0, 0, lrSize / 2);
+        result.copyFrom(rNext, 0, lrSize / 2, lrSize / 2);
+
+        PostCondition.assertNotNull(result, "result");
+        PostCondition.assertEqual(blockSize, result.getBitCount(), "result.getBitCount()");
+
+        return result;
+    }
+
+    public BitArray getFinalResult(BitArray lr)
+    {
+        PreCondition.assertNotNull(lr, "lr");
+        PreCondition.assertEqual(blockSize, lr.getBitCount(), "lr.getBitCount()");
+
+        final BitArray preoutput = getPreOutput(lr);
+        final BitArray result = preoutput.permuteByBitNumber(initialPermutationInverseBitNumbers);
 
         PostCondition.assertNotNull(result, "result");
         PostCondition.assertEqual(blockSize, result.getBitCount(), "result.getBitCount()");
