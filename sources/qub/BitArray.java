@@ -217,6 +217,60 @@ public class BitArray
     }
 
     /**
+     * Shift the bits in this BitArray one position to the left.
+     */
+    public void shiftLeft()
+    {
+        shiftLeft(1);
+    }
+
+    /**
+     * Shift the bits in this BitArray bitsToShift positions to the left.
+     * @param bitsToShift The number of positions to shift the bits to the left.
+     */
+    public void shiftLeft(long bitsToShift)
+    {
+        shiftLeft(bitsToShift, 0, getBitCount());
+    }
+
+    /**
+     * Shift the bits in this BitArray in the provided range bitsToShift positions to the left.
+     * @param bitsToShift The number of positions to shift the bits to the left.
+     * @param startIndex The index to start shifting bits at.
+     * @param length The number of bits to shift.
+     */
+    public void shiftLeft(long bitsToShift, long startIndex, long length)
+    {
+        PreCondition.assertBetween(0, startIndex, getBitCount() - 1, "startIndex");
+        PreCondition.assertBetween(1, length, getBitCount() - startIndex, "length");
+
+        final BitArray tempBits = BitArray.fromBitCount(length);
+        final long afterRangeEndIndex = startIndex + length;
+        for (long i = 0; i < length; ++i)
+        {
+            final long indexToGetFrom = startIndex + i + bitsToShift;
+            final int valueToSet = (indexToGetFrom < startIndex || afterRangeEndIndex <= indexToGetFrom ? 0 : getBit(indexToGetFrom));
+            tempBits.setBit(i, valueToSet);
+        }
+        this.copyFrom(tempBits, 0, startIndex, length);
+    }
+
+    public void shiftRight()
+    {
+        shiftLeft(-1);
+    }
+
+    public void shiftRight(long bitsToShift)
+    {
+        shiftLeft(-bitsToShift);
+    }
+
+    public void shiftRight(long bitsToShift, long startIndex, long length)
+    {
+        shiftLeft(-bitsToShift, startIndex, length);
+    }
+
+    /**
      * Perform an xor operation between this BitArray and the provided BitArray and return the
      * result.
      * @param rhs The right hand side of the xor operation.

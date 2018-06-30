@@ -436,6 +436,122 @@ public class BitArrayTests
                 });
             });
 
+            runner.testGroup("shiftLeft()", () ->
+            {
+                runner.test("with 0", (Test test) ->
+                {
+                    final BitArray bits = BitArray.fromBitString("0");
+                    bits.shiftLeft();
+                    test.assertEqual("0", bits.toBitString());
+                });
+
+                runner.test("with 1", (Test test) ->
+                {
+                    final BitArray bits = BitArray.fromBitString("1");
+                    bits.shiftLeft();
+                    test.assertEqual("0", bits.toBitString());
+                });
+
+                runner.test("with 101100111000", (Test test) ->
+                {
+                    final BitArray bits = BitArray.fromBitString("101100111000");
+                    bits.shiftLeft();
+                    test.assertEqual("011001110000", bits.toBitString());
+                });
+            });
+
+            runner.testGroup("shiftLeft(long)", () ->
+            {
+                runner.test("with 0 and 2", (Test test) ->
+                {
+                    final BitArray bits = BitArray.fromBitString("0");
+                    bits.shiftLeft(2);
+                    test.assertEqual("0", bits.toBitString());
+                });
+
+                runner.test("with 1 and 2", (Test test) ->
+                {
+                    final BitArray bits = BitArray.fromBitString("1");
+                    bits.shiftLeft(2);
+                    test.assertEqual("0", bits.toBitString());
+                });
+
+                runner.test("with 101100111000", (Test test) ->
+                {
+                    final BitArray bits = BitArray.fromBitString("101100111000");
+                    bits.shiftLeft(2);
+                    test.assertEqual("110011100000", bits.toBitString());
+                });
+            });
+
+            runner.testGroup("shiftLeft(long,long,long)", () ->
+            {
+                runner.test("with 101100111000, 2, 3, and 4", (Test test) ->
+                {
+                    final BitArray bits = BitArray.fromBitString("101100111000");
+                    bits.shiftLeft(2, 3, 4);
+                    test.assertEqual("101010011000", bits.toBitString());
+                });
+            });
+
+            runner.testGroup("shiftRight()", () ->
+            {
+                runner.test("with 0", (Test test) ->
+                {
+                    final BitArray bits = BitArray.fromBitString("0");
+                    bits.shiftRight();
+                    test.assertEqual("0", bits.toBitString());
+                });
+
+                runner.test("with 1", (Test test) ->
+                {
+                    final BitArray bits = BitArray.fromBitString("1");
+                    bits.shiftRight();
+                    test.assertEqual("0", bits.toBitString());
+                });
+
+                runner.test("with 101100111000", (Test test) ->
+                {
+                    final BitArray bits = BitArray.fromBitString("101100111000");
+                    bits.shiftRight();
+                    test.assertEqual("010110011100", bits.toBitString());
+                });
+            });
+
+            runner.testGroup("shiftRight(long)", () ->
+            {
+                runner.test("with 0 and 2", (Test test) ->
+                {
+                    final BitArray bits = BitArray.fromBitString("0");
+                    bits.shiftRight(2);
+                    test.assertEqual("0", bits.toBitString());
+                });
+
+                runner.test("with 1 and 2", (Test test) ->
+                {
+                    final BitArray bits = BitArray.fromBitString("1");
+                    bits.shiftRight(2);
+                    test.assertEqual("0", bits.toBitString());
+                });
+
+                runner.test("with 101100111000 and 2", (Test test) ->
+                {
+                    final BitArray bits = BitArray.fromBitString("101100111000");
+                    bits.shiftRight(2);
+                    test.assertEqual("001011001110", bits.toBitString());
+                });
+            });
+
+            runner.testGroup("shiftRight(long,long,long)", () ->
+            {
+                runner.test("with 101100111000, 2, 3, and 4", (Test test) ->
+                {
+                    final BitArray bits = BitArray.fromBitString("101100111000");
+                    bits.shiftRight(2, 3, 4);
+                    test.assertEqual("101001011000", bits.toBitString());
+                });
+            });
+
             runner.testGroup("xor(BitArray)", () ->
             {
                 runner.test("with \"11010\" and null", (Test test) ->
