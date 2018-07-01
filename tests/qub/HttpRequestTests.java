@@ -215,7 +215,7 @@ public class HttpRequestTests
                 {
                     final HttpRequest request = HttpRequest.create(HttpMethod.GET, "https://www.example.com").getValue();
                     request.setBody("hello");
-                    test.assertSuccess("hello", request.getBody().asLineReadStream().getValue().readLine());
+                    test.assertSuccess("hello", request.getBody().asLineReadStream().readLine());
                 });
             });
 

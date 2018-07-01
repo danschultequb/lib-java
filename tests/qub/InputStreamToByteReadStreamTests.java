@@ -88,7 +88,7 @@ public class InputStreamToByteReadStreamTests
                 {
                     final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, new ByteArrayInputStream("abcd".getBytes()));
 
-                    final CharacterReadStream characterReadStream = byteReadStream.asCharacterReadStream().getValue();
+                    final CharacterReadStream characterReadStream = byteReadStream.asCharacterReadStream();
 
                     test.assertSuccess('a', characterReadStream.readCharacter());
                 });
@@ -99,14 +99,15 @@ public class InputStreamToByteReadStreamTests
                     {
                         final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, 10);
 
-                        test.assertError(new IllegalArgumentException("characterEncoding cannot be null."), byteReadStream.asCharacterReadStream((CharacterEncoding)null));
+                        test.assertThrows(() -> byteReadStream.asCharacterReadStream((CharacterEncoding)null),
+                                          new PreConditionFailure("characterEncoding cannot be null."));
                     });
 
                     runner.test("with non-null encoding", (Test test) ->
                     {
                         final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, new ByteArrayInputStream("abcd".getBytes()));
 
-                        final CharacterReadStream characterReadStream = byteReadStream.asCharacterReadStream(CharacterEncoding.US_ASCII).getValue();
+                        final CharacterReadStream characterReadStream = byteReadStream.asCharacterReadStream(CharacterEncoding.US_ASCII);
 
                         test.assertSuccess('a', characterReadStream.readCharacter());
                     });

@@ -41,7 +41,7 @@ public class TCPEchoServer extends AsyncDisposableBase
         {
             try (final TCPClient tcpClient = acceptResult.getValue())
             {
-                final LineReadStream tcpClientLineReadStream = tcpClient.asLineReadStream(true).getValue();
+                final LineReadStream tcpClientLineReadStream = tcpClient.asLineReadStream(true);
                 final LineWriteStream tcpClientLineWriteStream = tcpClient.asLineWriteStream();
 
                 Result<String> readLineResult = tcpClientLineReadStream.readLine();

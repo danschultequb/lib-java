@@ -24,7 +24,7 @@ public class TCPEchoServerTests
                         try (final TCPClient tcpClient = network.createTCPClient(IPv4Address.localhost, port.get()).getValue())
                         {
                             final LineWriteStream tcpClientLineWriteStream = tcpClient.asLineWriteStream();
-                            final LineReadStream tcpClientLineReadStream = tcpClient.asLineReadStream().getValue();
+                            final LineReadStream tcpClientLineReadStream = tcpClient.asLineReadStream();
 
                             tcpClientLineWriteStream.writeLine("Hello");
                             test.assertSuccess("Hello", tcpClientLineReadStream.readLine());
@@ -54,7 +54,7 @@ public class TCPEchoServerTests
                         try (final TCPClient tcpClient = network.createTCPClient(IPv4Address.localhost, port.get()).getValue())
                         {
                             final LineWriteStream tcpClientLineWriteStream = tcpClient.asLineWriteStream();
-                            final LineReadStream tcpClientLineReadStream = tcpClient.asLineReadStream().getValue();
+                            final LineReadStream tcpClientLineReadStream = tcpClient.asLineReadStream();
 
                             tcpClientLineWriteStream.writeLine("Hello");
                             test.assertSuccess("Hello", tcpClientLineReadStream.readLine());

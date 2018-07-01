@@ -38,7 +38,7 @@ public class HttpClientTests
                     test.assertNotNull(httpResponse.getHeaders());
                     test.assertSuccess("1270", httpResponse.getHeaders().getValue("content-length"));
                     test.assertNotNull(httpResponse.getBody());
-                    final String bodyString = httpResponse.getBody().asCharacterReadStream().getValue().readString(3000).getValue();
+                    final String bodyString = httpResponse.getBody().asCharacterReadStream().readString(3000).getValue();
                     test.assertNotNull(bodyString);
                     test.assertTrue(bodyString.startsWith("<!doctype html>"));
                     test.assertTrue(bodyString.contains("<html>"));

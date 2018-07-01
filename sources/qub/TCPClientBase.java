@@ -106,43 +106,43 @@ public abstract class TCPClientBase extends AsyncDisposableBase implements TCPCl
     }
 
     @Override
-    public Result<InputStream> asInputStream()
+    public InputStream asInputStream()
     {
         return getReadStream().asInputStream();
     }
 
     @Override
-    public Result<CharacterReadStream> asCharacterReadStream()
+    public CharacterReadStream asCharacterReadStream()
     {
         return getReadStream().asCharacterReadStream();
     }
 
     @Override
-    public Result<CharacterReadStream> asCharacterReadStream(CharacterEncoding characterEncoding)
+    public CharacterReadStream asCharacterReadStream(CharacterEncoding characterEncoding)
     {
         return getReadStream().asCharacterReadStream(characterEncoding);
     }
 
     @Override
-    public Result<LineReadStream> asLineReadStream()
+    public LineReadStream asLineReadStream()
     {
         return getReadStream().asLineReadStream();
     }
 
     @Override
-    public Result<LineReadStream> asLineReadStream(CharacterEncoding characterEncoding)
+    public LineReadStream asLineReadStream(CharacterEncoding characterEncoding)
     {
         return getReadStream().asLineReadStream(characterEncoding);
     }
 
     @Override
-    public Result<LineReadStream> asLineReadStream(boolean includeNewLines)
+    public LineReadStream asLineReadStream(boolean includeNewLines)
     {
         return getReadStream().asLineReadStream(includeNewLines);
     }
 
     @Override
-    public Result<LineReadStream> asLineReadStream(CharacterEncoding characterEncoding, boolean includeNewLines)
+    public LineReadStream asLineReadStream(CharacterEncoding characterEncoding, boolean includeNewLines)
     {
         return getReadStream().asLineReadStream(characterEncoding, includeNewLines);
     }

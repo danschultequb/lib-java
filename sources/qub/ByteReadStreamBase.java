@@ -110,43 +110,43 @@ public abstract class ByteReadStreamBase extends IteratorBase<Byte> implements B
     }
 
     @Override
-    public Result<InputStream> asInputStream()
+    public InputStream asInputStream()
     {
         return ByteReadStreamBase.asInputStream(this);
     }
 
     @Override
-    public Result<CharacterReadStream> asCharacterReadStream()
+    public CharacterReadStream asCharacterReadStream()
     {
         return ByteReadStreamBase.asCharacterReadStream(this);
     }
 
     @Override
-    public Result<CharacterReadStream> asCharacterReadStream(CharacterEncoding characterEncoding)
+    public CharacterReadStream asCharacterReadStream(CharacterEncoding characterEncoding)
     {
         return ByteReadStreamBase.asCharacterReadStream(this, characterEncoding);
     }
 
     @Override
-    public Result<LineReadStream> asLineReadStream()
+    public LineReadStream asLineReadStream()
     {
         return ByteReadStreamBase.asLineReadStream(this);
     }
 
     @Override
-    public Result<LineReadStream> asLineReadStream(CharacterEncoding characterEncoding)
+    public LineReadStream asLineReadStream(CharacterEncoding characterEncoding)
     {
         return ByteReadStreamBase.asLineReadStream(this, characterEncoding);
     }
 
     @Override
-    public Result<LineReadStream> asLineReadStream(boolean includeNewLines)
+    public LineReadStream asLineReadStream(boolean includeNewLines)
     {
         return ByteReadStreamBase.asLineReadStream(this, includeNewLines);
     }
 
     @Override
-    public Result<LineReadStream> asLineReadStream(CharacterEncoding characterEncoding, boolean includeNewLines)
+    public LineReadStream asLineReadStream(CharacterEncoding characterEncoding, boolean includeNewLines)
     {
         return ByteReadStreamBase.asLineReadStream(this, characterEncoding, includeNewLines);
     }
@@ -478,93 +478,50 @@ public abstract class ByteReadStreamBase extends IteratorBase<Byte> implements B
         return result;
     }
 
-    public static Result<InputStream> asInputStream(ByteReadStream byteReadStream)
+    public static InputStream asInputStream(ByteReadStream byteReadStream)
     {
-        Result<InputStream> result = Result.notNull(byteReadStream, "byteReadStream");
-        if (result == null)
-        {
-            result = Result.<InputStream>success(new ByteReadStreamToInputStream(byteReadStream));
-        }
-        return result;
+        PreCondition.assertNotNull(byteReadStream, "byteReadStream");
+
+        return new ByteReadStreamToInputStream(byteReadStream);
     }
 
-    public static Result<CharacterReadStream> asCharacterReadStream(ByteReadStream byteReadStream)
+    public static CharacterReadStream asCharacterReadStream(ByteReadStream byteReadStream)
     {
+        PreCondition.assertNotNull(byteReadStream, "byteReadStream");
+
         return byteReadStream.asCharacterReadStream(CharacterEncoding.US_ASCII);
     }
 
-    public static Result<CharacterReadStream> asCharacterReadStream(ByteReadStream byteReadStream, CharacterEncoding characterEncoding)
+    public static CharacterReadStream asCharacterReadStream(ByteReadStream byteReadStream, CharacterEncoding characterEncoding)
     {
-        Result<CharacterReadStream> result = Result.notNull(byteReadStream, "byteReadStream");
-        if (result == null)
-        {
-            result = Result.notNull(characterEncoding, "characterEncoding");
-            if (result == null)
-            {
-                result = Result.<CharacterReadStream>success(new BasicCharacterReadStream(byteReadStream, characterEncoding));
-            }
-        }
-        return result;
+        PreCondition.assertNotNull(byteReadStream, "byteReadStream");
+        PreCondition.assertNotNull(characterEncoding, "characterEncoding");
+
+        return new BasicCharacterReadStream(byteReadStream, characterEncoding);
     }
 
-    public static Result<LineReadStream> asLineReadStream(ByteReadStream byteReadStream)
+    public static LineReadStream asLineReadStream(ByteReadStream byteReadStream)
     {
-        Result<LineReadStream> result;
-        final Result<CharacterReadStream> characterReadStream = asCharacterReadStream(byteReadStream);
-        if (characterReadStream.hasError())
-        {
-            result = Result.error(characterReadStream.getError());
-        }
-        else
-        {
-            result = Result.success(characterReadStream.getValue().asLineReadStream());
-        }
-        return result;
+        final CharacterReadStream characterReadStream = asCharacterReadStream(byteReadStream);
+        return characterReadStream.asLineReadStream();
     }
 
-    public static Result<LineReadStream> asLineReadStream(ByteReadStream byteReadStream, CharacterEncoding characterEncoding)
+    public static LineReadStream asLineReadStream(ByteReadStream byteReadStream, CharacterEncoding characterEncoding)
     {
-        Result<LineReadStream> result;
-        final Result<CharacterReadStream> characterReadStream = asCharacterReadStream(byteReadStream, characterEncoding);
-        if (characterReadStream.hasError())
-        {
-            result = Result.error(characterReadStream.getError());
-        }
-        else
-        {
-            result = Result.success(characterReadStream.getValue().asLineReadStream());
-        }
-        return result;
+        final CharacterReadStream characterReadStream = asCharacterReadStream(byteReadStream, characterEncoding);
+        return characterReadStream.asLineReadStream();
     }
 
-    public static Result<LineReadStream> asLineReadStream(ByteReadStream byteReadStream, boolean includeNewLines)
+    public static LineReadStream asLineReadStream(ByteReadStream byteReadStream, boolean includeNewLines)
     {
-        Result<LineReadStream> result;
-        final Result<CharacterReadStream> characterReadStream = asCharacterReadStream(byteReadStream);
-        if (characterReadStream.hasError())
-        {
-            result = Result.error(characterReadStream.getError());
-        }
-        else
-        {
-            result = Result.success(characterReadStream.getValue().asLineReadStream(includeNewLines));
-        }
-        return result;
+        final CharacterReadStream characterReadStream = asCharacterReadStream(byteReadStream);
+        return characterReadStream.asLineReadStream(includeNewLines);
     }
 
-    public static Result<LineReadStream> asLineReadStream(ByteReadStream byteReadStream, CharacterEncoding characterEncoding, boolean includeNewLines)
+    public static LineReadStream asLineReadStream(ByteReadStream byteReadStream, CharacterEncoding characterEncoding, boolean includeNewLines)
     {
-        Result<LineReadStream> result;
-        final Result<CharacterReadStream> characterReadStream = asCharacterReadStream(byteReadStream, characterEncoding);
-        if (characterReadStream.hasError())
-        {
-            result = Result.error(characterReadStream.getError());
-        }
-        else
-        {
-            result = Result.success(characterReadStream.getValue().asLineReadStream(includeNewLines));
-        }
-        return result;
+        final CharacterReadStream characterReadStream = asCharacterReadStream(byteReadStream, characterEncoding);
+        return characterReadStream.asLineReadStream(includeNewLines);
     }
 
     public static <T> Result<T> validateByteReadStream(ByteReadStream byteReadStream)
