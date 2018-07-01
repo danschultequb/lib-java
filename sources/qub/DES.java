@@ -6,7 +6,7 @@ package qub;
  */
 public class DES
 {
-    private static final int blockSize = 64;
+    public static final int blockSize = 64;
     private static final int iterationCount = 16;
 
     static final long[] initialPermutationBitNumbers = new long[]
