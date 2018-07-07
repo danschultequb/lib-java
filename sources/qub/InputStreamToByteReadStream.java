@@ -146,10 +146,4 @@ public class InputStreamToByteReadStream extends ByteReadStreamBase
     {
         return current;
     }
-
-    @Override
-    public boolean next()
-    {
-        return readByte().getValue() != null;
-    }
 }

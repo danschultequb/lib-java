@@ -120,6 +120,7 @@ public class InMemoryByteStream extends ByteReadStreamBase implements ByteWriteS
                                 if (!bytes.any())
                                 {
                                     bytesRead = null;
+                                    current = null;
                                 }
                                 else
                                 {
@@ -197,13 +198,6 @@ public class InMemoryByteStream extends ByteReadStreamBase implements ByteWriteS
     public Byte getCurrent()
     {
         return current;
-    }
-
-    @Override
-    public boolean next()
-    {
-        final Result<Byte> byteRead = readByte();
-        return !byteRead.hasError() && byteRead.getValue() != null;
     }
 
     /**

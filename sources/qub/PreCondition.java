@@ -6,6 +6,19 @@ package qub;
 public class PreCondition
 {
     /**
+     * Assert that the provided value is false.
+     * @param value The value that must be false.
+     * @param expressionName The name of expression that produced the boolean value.
+     */
+    public static void assertFalse(boolean value, String expressionName)
+    {
+        if (value)
+        {
+            throw new PreConditionFailure(expressionName + " must be false.");
+        }
+    }
+
+    /**
      * Assert that the provided value is true.
      * @param value The value that must be true.
      * @param message The error message if value is not true.

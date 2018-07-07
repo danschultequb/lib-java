@@ -110,6 +110,13 @@ public abstract class ByteReadStreamBase extends IteratorBase<Byte> implements B
     }
 
     @Override
+    final public boolean next()
+    {
+        final Result<Byte> byteRead = readByte();
+        return !byteRead.hasError() && byteRead.getValue() != null;
+    }
+
+    @Override
     public InputStream asInputStream()
     {
         return ByteReadStreamBase.asInputStream(this);

@@ -63,7 +63,8 @@ public class BasicHttpClient implements HttpClient
                             }
                             else
                             {
-                                final LineReadStream responseLineReadStream = tcpClient.asLineReadStream(false);
+                                final BufferedByteReadStream bufferedByteReadStream = new BufferedByteReadStream(tcpClient);
+                                final LineReadStream responseLineReadStream = bufferedByteReadStream.asLineReadStream(false);
                                 String statusLine = responseLineReadStream.readLine().getValue();
                                 final int httpVersionLength = statusLine.indexOf(' ');
 
@@ -103,7 +104,7 @@ public class BasicHttpClient implements HttpClient
                                         int bytesToRead = contentLength;
                                         while (result == null && 0 < bytesToRead)
                                         {
-                                            final Result<byte[]> responseBody = tcpClient.readBytes(bytesToRead);
+                                            final Result<byte[]> responseBody = bufferedByteReadStream.readBytes(bytesToRead);
                                             if (responseBody.hasError())
                                             {
                                                 result = Result.error(responseBody.getError());
