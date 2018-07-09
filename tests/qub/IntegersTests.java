@@ -35,10 +35,50 @@ public class IntegersTests
                     });
                 };
 
+                rotateLeftTest.run(0x01010101, 0, 0x01010101);
+                rotateLeftTest.run(0x01010101, 32, 0x01010101);
+                rotateLeftTest.run(0x01010101, 64, 0x01010101);
+                rotateLeftTest.run(0x01010101, -32, 0x01010101);
+                rotateLeftTest.run(0x01010101, -64, 0x01010101);
                 rotateLeftTest.run(0x00000000, 3, 0x00000000);
                 rotateLeftTest.run(0x00000001, 2, 0x00000004);
                 rotateLeftTest.run(0x00000002, 7, 0x00000100);
                 rotateLeftTest.run(0x00000004, -1, 0x00000002);
+            });
+
+            runner.testGroup("rotateRight(int)", () ->
+            {
+                final Action2<Integer,Integer> rotateRightTest = (Integer value, Integer expected) ->
+                {
+                    runner.test("with 0x" + Integers.toHexString(value), (Test test) ->
+                    {
+                        test.assertEqual(expected, Integers.rotateRight(value));
+                    });
+                };
+
+                rotateRightTest.run(0x00000000, 0x00000000);
+                rotateRightTest.run(0x00000001, 0x80000000);
+                rotateRightTest.run(0x00000002, 0x00000001);
+                rotateRightTest.run(0x00000004, 0x00000002);
+                rotateRightTest.run(0x80000000, 0x40000000);
+                rotateRightTest.run(0xFFFFFFFF, 0xFFFFFFFF);
+                rotateRightTest.run(0xFFFFFFFE, 0x7FFFFFFF);
+            });
+
+            runner.testGroup("rotateRight(int,int)", () ->
+            {
+                final Action3<Integer,Integer,Integer> rotateRightTest = (Integer value, Integer places, Integer expected) ->
+                {
+                    runner.test("with 0x" + Integers.toHexString(value) + " rotated " + places + " places", (Test test) ->
+                    {
+                        test.assertEqual(expected, Integers.rotateRight(value, places));
+                    });
+                };
+
+                rotateRightTest.run(0x00000000, 3, 0x00000000);
+                rotateRightTest.run(0x00000001, 2, 0x40000000);
+                rotateRightTest.run(0x00000002, 7, 0x04000000);
+                rotateRightTest.run(0x00000004, -1, 0x00000008);
             });
 
             runner.testGroup("fromHexChar(char)", () ->
