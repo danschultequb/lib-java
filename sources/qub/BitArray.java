@@ -13,10 +13,10 @@ public class BitArray
 
     private BitArray(long bitCount)
     {
-        this(bitCount, new int[(int)Math.ceiling(bitCount / 32.0)]);
+        this(new int[(int)Math.ceiling(bitCount / 32.0)], bitCount);
     }
 
-    private BitArray(long bitCount, int[] chunks)
+    private BitArray(int[] chunks, long bitCount)
     {
         this.bitCount = bitCount;
         this.chunks = chunks;
@@ -28,7 +28,7 @@ public class BitArray
      */
     public BitArray clone()
     {
-        return BitArray.fromIntArray(bitCount, chunks);
+        return BitArray.fromIntArray(chunks, bitCount);
     }
 
     /**
@@ -510,13 +510,54 @@ public class BitArray
         return result;
     }
 
-    public static BitArray fromIntArray(long bitCount, int[] bits)
+    public static BitArray fromByteArray(byte[] bits)
     {
         PreCondition.assertNotNull(bits, "bits");
-        PreCondition.assertGreaterThanOrEqualTo(bits.length, 1, "bits.length");
-        PreCondition.assertBetween((bits.length - 1) * Integer.SIZE + 1, bitCount, bits.length * Integer.SIZE, "bitCount");
 
-        return new BitArray(bitCount, Array.clone(bits));
+        final BitArray result = BitArray.fromByteArray(bits, bits.length * Byte.SIZE);
+
+        PostCondition.assertNotNull(result, "result");
+        PostCondition.assertEqual(bits.length * Byte.SIZE, result.getBitCount(), "result.getBitCount()");
+
+        return result;
+    }
+
+    public static BitArray fromByteArray(byte[] bits, long bitCount)
+    {
+        PreCondition.assertNotNull(bits, "bits");
+        PreCondition.assertBetween(bits.length == 0 ? 0 : ((bits.length - 1) * Byte.SIZE) + 1, bitCount, bits.length == 0 ? 0 : bits.length * Byte.SIZE, "bitCount");
+        PreCondition.assertLessThanOrEqualTo(bitCount, bits.length * Byte.SIZE, "bitCount");
+
+        final int[] resultBits = new int[(int)Math.ceiling((double)bitCount / (double)Integer.SIZE)];
+        for (int byteIndex = 0; byteIndex < bits.length; ++byteIndex)
+        {
+            final int leftShift = (3 - (byteIndex % 4)) * Byte.SIZE;
+            final byte currentByte = bits[byteIndex];
+            final int shiftedByte = Bytes.toUnsignedInt(currentByte) << leftShift;
+
+            final int intIndex = byteIndex / 4;
+            resultBits[intIndex] |= shiftedByte;
+        }
+
+        final BitArray result = new BitArray(resultBits, bitCount);
+
+        PostCondition.assertNotNull(result, "result");
+        PostCondition.assertEqual(bitCount, result.getBitCount(), "result.getBitCount()");
+
+        return result;
+    }
+
+    public static BitArray fromIntArray(int[] bits, long bitCount)
+    {
+        PreCondition.assertNotNull(bits, "bits");
+        PreCondition.assertBetween(bits.length == 0 ? 0 : ((bits.length - 1) * Integer.SIZE) + 1, bitCount, bits.length == 0 ? 0 : bits.length * Integer.SIZE, "bitCount");
+
+        final BitArray result = new BitArray(Array.clone(bits), bitCount);
+
+        PostCondition.assertNotNull(result, "result");
+        PostCondition.assertEqual(bitCount, result.getBitCount(), "result.getBitCount()");
+
+        return result;
     }
 
     private static int bitIndexToChunkIndex(long bitIndex)

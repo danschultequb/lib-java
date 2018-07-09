@@ -31,6 +31,60 @@ public class Integers
                 Integers.compare(lhs.intValue(), rhs.intValue());
     }
 
+    /**
+     * Rotate the bits in the value to the left.
+     * @param value The value to rotate.
+     * @return The rotated value.
+     */
+    public static int rotateLeft(int value)
+    {
+        return rotateLeft(value, 1);
+    }
+
+    /**
+     * Rotate the bits in the value to the left.
+     * @param value The value to rotate.
+     * @param places The number of bit places to rotate to the left.
+     * @return The rotated value.
+     */
+    public static int rotateLeft(int value, int places)
+    {
+        int result = value;
+
+        if (value != 0 && value != -1)
+        {
+            final int leftShift = Math.modulo(places, Integer.SIZE);
+            if (leftShift != 0)
+            {
+                final int rightShift = Integer.SIZE - leftShift;
+                result = (value << leftShift) | (value >>> rightShift);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Rotate the bits in the value to the right.
+     * @param value The value to rotate.
+     * @return The rotated value.
+     */
+    public static int rotateRight(int value)
+    {
+        return rotateRight(value, 1);
+    }
+
+    /**
+     * Rotate the bits in the value to the right.
+     * @param value The value to rotate.
+     * @param places The number of bit places to rotate to the right.
+     * @return The rotated value.
+     */
+    public static int rotateRight(int value, int places)
+    {
+        return rotateLeft(value, -places);
+    }
+
     public static String toHexString(int value)
     {
         return toHexString(value, false);

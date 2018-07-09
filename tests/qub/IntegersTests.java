@@ -6,6 +6,41 @@ public class IntegersTests
     {
         runner.testGroup(Integers.class, () ->
         {
+            runner.testGroup("rotateLeft(int)", () ->
+            {
+                final Action2<Integer,Integer> rotateLeftTest = (Integer value, Integer expected) ->
+                {
+                    runner.test("with 0x" + Integers.toHexString(value), (Test test) ->
+                    {
+                        test.assertEqual(expected, Integers.rotateLeft(value));
+                    });
+                };
+
+                rotateLeftTest.run(0x00000000, 0x00000000);
+                rotateLeftTest.run(0x00000001, 0x00000002);
+                rotateLeftTest.run(0x00000002, 0x00000004);
+                rotateLeftTest.run(0x00000004, 0x00000008);
+                rotateLeftTest.run(0x80000000, 0x00000001);
+                rotateLeftTest.run(0xFFFFFFFF, 0xFFFFFFFF);
+                rotateLeftTest.run(0xFFFFFFFE, 0xFFFFFFFD);
+            });
+
+            runner.testGroup("rotateLeft(int,int)", () ->
+            {
+                final Action3<Integer,Integer,Integer> rotateLeftTest = (Integer value, Integer places, Integer expected) ->
+                {
+                    runner.test("with 0x" + Integers.toHexString(value) + " rotated " + places + " places", (Test test) ->
+                    {
+                        test.assertEqual(expected, Integers.rotateLeft(value, places));
+                    });
+                };
+
+                rotateLeftTest.run(0x00000000, 3, 0x00000000);
+                rotateLeftTest.run(0x00000001, 2, 0x00000004);
+                rotateLeftTest.run(0x00000002, 7, 0x00000100);
+                rotateLeftTest.run(0x00000004, -1, 0x00000002);
+            });
+
             runner.testGroup("fromHexChar(char)", () ->
             {
                 runner.test("with '0'", (Test test) ->

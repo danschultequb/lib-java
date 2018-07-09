@@ -25,9 +25,24 @@ public class AssertionMessages
         return variableName + " (" + value + ") must not be " + expectedValue + ".";
     }
 
+    public static <T> String lessThan(T value, T upperBound, String variableName)
+    {
+        return variableName + " (" + value + ") must be less than " + upperBound + ".";
+    }
+
+    public static <T> String lessThanOrEqualTo(T value, T upperBound, String variableName)
+    {
+        return variableName + " (" + value + ") must be less than or equal to " + upperBound + ".";
+    }
+
     public static <T> String greaterThanOrEqualTo(T value, T lowerBound, String variableName)
     {
         return variableName + " (" + value + ") must be greater than or equal to " + lowerBound + ".";
+    }
+
+    public static <T> String greaterThan(T value, T lowerBound, String variableName)
+    {
+        return variableName + " (" + value + ") must be greater than " + lowerBound + ".";
     }
 
     public static <T> String between(T lowerBound, T value, T upperBound, String variableName)

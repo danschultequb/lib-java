@@ -426,6 +426,17 @@ public final class Comparer
     }
 
     /**
+     * Get whether or not the provided lhs value is less than or equal to the provided rhs value.
+     * @param value The value to compare.
+     * @param upperBound The second value to compare.
+     * @return Whether or not the provided value is less than or equal to the provided upperBound.
+     */
+    public static boolean lessThanOrEqualTo(long value, long upperBound)
+    {
+        return value <= upperBound;
+    }
+
+    /**
      * Get whether or not the provided value is greater than or equal to the lowerBound.
      * @param value The value to compare.
      * @param lowerBound The second value to compare.

@@ -768,6 +768,45 @@ public class BitArrayTests
                 });
             });
 
+            runner.testGroup("fromByteArray(byte[])", () ->
+            {
+                runner.test("with []", (Test test) ->
+                {
+                    final BitArray bits = BitArray.fromByteArray(new byte[0]);
+                    test.assertEqual("", bits.toBitString());
+                });
+
+                runner.test("with [0]", (Test test) ->
+                {
+                    final BitArray bits = BitArray.fromByteArray(new byte[] { 0 });
+                    test.assertEqual("00", bits.toHexString());
+                });
+
+                runner.test("with [-1]", (Test test) ->
+                {
+                    final BitArray bits = BitArray.fromByteArray(new byte[] { -1 });
+                    test.assertEqual("FF", bits.toHexString());
+                });
+
+                runner.test("with [-1, 0]", (Test test) ->
+                {
+                    final BitArray bits = BitArray.fromByteArray(new byte[] { -1, 0 });
+                    test.assertEqual("FF00", bits.toHexString());
+                });
+
+                runner.test("with [-1, 0, -2, 1]", (Test test) ->
+                {
+                    final BitArray bits = BitArray.fromByteArray(new byte[] { -1, 0, -2, 1 });
+                    test.assertEqual("FF00FE01", bits.toHexString());
+                });
+
+                runner.test("with [-1, 0, -1, 0, -2, 1, -2, 1, -3]", (Test test) ->
+                {
+                    final BitArray bits = BitArray.fromByteArray(new byte[] { -1, 0, -1, 0, -2, 1, -2, 1, -3 });
+                    test.assertEqual("FF00FF00FE01FE01FD", bits.toHexString());
+                });
+            });
+
             runner.testGroup("toInteger()", () ->
             {
                 for (int i = 1; i <= 32; ++i)
