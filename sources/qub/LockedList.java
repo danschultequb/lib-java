@@ -17,7 +17,7 @@ public class LockedList<T> implements List<T>
     }
 
     @Override
-    public void add(final T value)
+    public void add(T value)
     {
         try (final Disposable criticalSection = mutex.criticalSection())
         {
@@ -35,94 +35,66 @@ public class LockedList<T> implements List<T>
     }
 
     @Override
-    public void addAll(final T[] values)
+    public void addAll(T[] values)
     {
-        mutex.criticalSection(new Action0()
+        try (final Disposable criticalSection = mutex.criticalSection())
         {
-            @Override
-            public void run()
-            {
-                innerList.addAll(values);
-            }
-        });
+            innerList.addAll(values);
+        }
     }
 
     @Override
-    public void addAll(final Iterator<T> values)
+    public void addAll(Iterator<T> values)
     {
-        mutex.criticalSection(new Action0()
+        try (final Disposable criticalSection = mutex.criticalSection())
         {
-            @Override
-            public void run()
-            {
-                innerList.addAll(values);
-            }
-        });
+            innerList.addAll(values);
+        }
     }
 
     @Override
-    public void addAll(final Iterable<T> values)
+    public void addAll(Iterable<T> values)
     {
-        mutex.criticalSection(new Action0()
+        try (final Disposable criticalSection = mutex.criticalSection())
         {
-            @Override
-            public void run()
-            {
-                innerList.addAll(values);
-            }
-        });
+            innerList.addAll(values);
+        }
     }
 
     @Override
-    public boolean remove(final T value)
+    public boolean remove(T value)
     {
-        return mutex.criticalSection(new Function0<Boolean>()
+        try (final Disposable criticalSection = mutex.criticalSection())
         {
-            @Override
-            public Boolean run()
-            {
-                return innerList.remove(value);
-            }
-        });
+            return innerList.remove(value);
+        }
     }
 
     @Override
-    public T removeAt(final int index)
+    public T removeAt(int index)
     {
-        return mutex.criticalSection(new Function0<T>()
+        try (final Disposable criticalSection = mutex.criticalSection())
         {
-            @Override
-            public T run()
-            {
-                return innerList.removeAt(index);
-            }
-        });
+            return innerList.removeAt(index);
+        }
     }
 
     @Override
     public T removeFirst()
     {
-        return mutex.criticalSection(new Function0<T>()
+        try (final Disposable criticalSection = mutex.criticalSection())
         {
-            @Override
-            public T run()
-            {
-                return innerList.removeFirst();
-            }
-        });
+            return innerList.removeFirst();
+        }
     }
 
     @Override
-    public T removeFirst(final Function1<T, Boolean> condition)
+    public T removeFirst(Function1<T, Boolean> condition)
     {
-        return mutex.criticalSection(new Function0<T>()
+        try (final Disposable criticalSection = mutex.criticalSection())
         {
-            @Override
-            public T run()
-            {
-                return innerList.removeFirst(condition);
-            }
-        });
+            return innerList.removeFirst(condition);
+        }
     }
 
     @Override
@@ -137,14 +109,10 @@ public class LockedList<T> implements List<T>
     @Override
     public void clear()
     {
-        mutex.criticalSection(new Action0()
+        try (final Disposable criticalSection = mutex.criticalSection())
         {
-            @Override
-            public void run()
-            {
-                innerList.clear();
-            }
-        });
+            innerList.clear();
+        }
     }
 
     @Override
@@ -166,94 +134,72 @@ public class LockedList<T> implements List<T>
     }
 
     @Override
-    public void set(final int index, final T value)
+    public void set(int index, T value)
     {
-        mutex.criticalSection(new Action0()
+        try (final Disposable criticalSection = mutex.criticalSection())
         {
-            @Override
-            public void run()
-            {
-                innerList.set(index, value);
-            }
-        });
+            innerList.set(index, value);
+        }
     }
 
     @Override
-    public T get(final int index)
+    public T get(int index)
     {
-        return mutex.criticalSection(new Function0<T>()
+        try (final Disposable criticalSection = mutex.criticalSection())
         {
-            @Override
-            public T run()
-            {
-                return innerList.get(index);
-            }
-        });
+            return innerList.get(index);
+        }
     }
 
     @Override
-    public int indexOf(final Function1<T, Boolean> condition)
+    public Indexable<T> getRange(int startIndex, int length)
     {
-        return mutex.criticalSection(new Function0<Integer>()
-        {
-            @Override
-            public Integer run()
-            {
-                return innerList.indexOf(condition);
-            }
-        });
+        return IndexableBase.getRange(this, startIndex, length);
     }
 
     @Override
-    public int indexOf(final T value)
+    public int indexOf(Function1<T, Boolean> condition)
     {
-        return mutex.criticalSection(new Function0<Integer>()
+        try (final Disposable criticalSection = mutex.criticalSection())
         {
-            @Override
-            public Integer run()
-            {
-                return innerList.indexOf(value);
-            }
-        });
+            return innerList.indexOf(condition);
+        }
+    }
+
+    @Override
+    public int indexOf(T value)
+    {
+        try (final Disposable criticalSection = mutex.criticalSection())
+        {
+            return innerList.indexOf(value);
+        }
     }
 
     @Override
     public Iterator<T> iterate()
     {
-        return mutex.criticalSection(new Function0<Iterator<T>>()
+        try (final Disposable criticalSection = mutex.criticalSection())
         {
-            @Override
-            public Iterator<T> run()
-            {
-                return innerList.iterate();
-            }
-        });
+            return innerList.iterate();
+        }
     }
 
     @Override
     public boolean any()
     {
-        return mutex.criticalSection(new Function0<Boolean>()
+        try (final Disposable criticalSection = mutex.criticalSection())
         {
-            @Override
-            public Boolean run()
-            {
-                return innerList.any();
-            }
-        });
+            return innerList.any();
+        }
     }
 
     @Override
     public int getCount()
     {
-        return mutex.criticalSection(new Function0<Integer>()
+        try (final Disposable criticalSection = mutex.criticalSection())
         {
-            @Override
-            public Integer run()
-            {
-                return innerList.getCount();
-            }
-        });
+            return innerList.getCount();
+        }
     }
 
     @Override
@@ -335,7 +281,7 @@ public class LockedList<T> implements List<T>
     }
 
     @Override
-    public Iterable<T> take(final int toTake)
+    public Indexable<T> take(final int toTake)
     {
         return ListBase.take(this, toTake);
     }
@@ -347,7 +293,7 @@ public class LockedList<T> implements List<T>
     }
 
     @Override
-    public Iterable<T> skip(final int toSkip)
+    public Indexable<T> skip(final int toSkip)
     {
         return ListBase.skip(this, toSkip);
     }

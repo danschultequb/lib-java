@@ -663,7 +663,7 @@ public class Test
 
         if (exceptionThrown == null)
         {
-            throw new TestAssertionFailure(getFullName(), new String[] { "Expected an exception of type " + expectedException.getClass() + " to be thrown." });
+            throw new TestAssertionFailure(getFullName(), new String[] { "Expected a " + expectedException.getClass().getCanonicalName() + " to be thrown with the message \"" + expectedException.getMessage() + "\"." });
         }
         else if (!Comparer.equal(expectedException, exceptionThrown))
         {
@@ -850,7 +850,7 @@ public class Test
 
     private static String toString(Object value)
     {
-        String valueString = value == null ? "null" : Strings.escape(value.toString());
+        String valueString = Strings.escape(Objects.toString(value));
         if (value instanceof String)
         {
             valueString = Strings.quote(valueString);

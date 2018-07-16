@@ -1101,9 +1101,9 @@ public class ArrayTests
 
                 toStringTest.run(null, "null");
                 toStringTest.run(new char[0], "[]");
-                toStringTest.run(new char[] { 'a' }, "[a]");
-                toStringTest.run(new char[] { 'b', 'c' }, "[b,c]");
-                toStringTest.run(new char[] { 'd', 'e', 'f' }, "[d,e,f]");
+                toStringTest.run(new char[] { 'a' }, "['a']");
+                toStringTest.run(new char[] { 'b', 'c' }, "['b','c']");
+                toStringTest.run(new char[] { 'd', 'e', 'f' }, "['d','e','f']");
             });
         });
     }

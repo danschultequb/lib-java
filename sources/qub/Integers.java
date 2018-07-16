@@ -7,6 +7,21 @@ public class Integers
     }
 
     /**
+     * The number of bits in an int/Integer.
+     */
+    public static final int bitCount = 32;
+
+    /**
+     * The number of bytes in an int/Integer.
+     */
+    public static final int byteCount = 4;
+
+    /**
+     * The number of hex characters in an int/Integer.
+     */
+    public static final int hexCharCount = 8;
+
+    /**
      * Compare the two provided ints.
      * @param lhs The first int to compare.
      * @param rhs The second int to compare.
@@ -92,7 +107,7 @@ public class Integers
 
     public static String toHexString(int value, boolean trimLeadingZeros)
     {
-        final StringBuilder builder = new StringBuilder(8);
+        final StringBuilder builder = new StringBuilder(hexCharCount);
         if (trimLeadingZeros)
         {
             do
@@ -104,7 +119,7 @@ public class Integers
         }
         else
         {
-            for (int i = 0; i < 8; ++i)
+            for (int i = 0; i < hexCharCount; ++i)
             {
                 builder.insert(0, Bytes.toHexChar(value & 0xF));
                 value = value >>> 4;
@@ -116,7 +131,7 @@ public class Integers
     public static int fromHexString(String hexString)
     {
         PreCondition.assertNotNullAndNotEmpty(hexString, "hexString");
-        PreCondition.assertBetween(1, hexString.length(), 8, "hexString.length()");
+        PreCondition.assertBetween(1, hexString.length(), hexCharCount, "hexString.length()");
 
         int result = 0;
         for (int i = 0; i < hexString.length(); ++i)

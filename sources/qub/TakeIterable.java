@@ -17,7 +17,7 @@ class TakeIterable<T> extends IterableBase<T>
 
     @Override
     public Iterator<T> iterate() {
-        return new TakeIterator<>(innerIterable.iterate(), toTake);
+        return innerIterable.iterate().take(toTake);
     }
 
     @Override

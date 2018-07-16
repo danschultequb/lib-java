@@ -104,6 +104,17 @@ public class BitArray
     }
 
     /**
+     * Set the last bits of this BitArray to be the bits in the provided value.
+     * @param value The long of bits to assign to the end of this BitArray.
+     */
+    public void setLastBitsFromLong(long value)
+    {
+        PreCondition.assertGreaterThanOrEqualTo(getBitCount(), Long.SIZE, "getBitCount()");
+
+        copyFrom(value, getBitCount() - Long.SIZE, Long.SIZE);
+    }
+
+    /**
      * Copy the bits from the copyFrom BitArray to this BitArray.
      * @param copyFrom The BitArray to copy from.
      * @param copyFromStartIndex The index to start reading from.
@@ -124,20 +135,20 @@ public class BitArray
     }
 
     /**
-     * Copy the bits from the copyFrom int to this BitArray.
-     * @param copyFrom The int to copy from.
+     * Copy the bits from the copyFrom long to this BitArray.
+     * @param copyFrom The long to copy from.
      * @param copyToStartIndex The index to start writing to.
      * @param copyLength The number of bits to copy. Bits will be copied from the least significant
-     *                   side of the int.
+     *                   side of the long.
      */
-    public void copyFrom(int copyFrom, long copyToStartIndex, int copyLength)
+    public void copyFrom(long copyFrom, long copyToStartIndex, int copyLength)
     {
         PreCondition.assertBetween(0, copyToStartIndex, this.getBitCount() - 1, "copyToStartIndex");
-        PreCondition.assertBetween(1, copyLength, Integer.SIZE, "copyLength");
+        PreCondition.assertBetween(1, copyLength, Long.SIZE, "copyLength");
 
         while (copyLength > 0)
         {
-            this.setBit(copyToStartIndex + copyLength - 1, copyFrom & 0x1);
+            this.setBit(copyToStartIndex + copyLength - 1, (int)(copyFrom & 0x1));
             copyFrom = copyFrom >>> 1;
             --copyLength;
         }
@@ -360,6 +371,78 @@ public class BitArray
     }
 
     /**
+     * Create a new BitArray that is the result of concatenating this BitArray with the provided
+     * BitArray.
+     * @param rhs The BitArray to concatenate to the end of this BitArray.
+     * @return The concatenated BitArray.
+     */
+    public BitArray concatenate(BitArray rhs)
+    {
+        PreCondition.assertNotNull(rhs, "rhs");
+
+        final long thisBitCount = this.getBitCount();
+        final long rhsBitCount = rhs.getBitCount();
+        final BitArray result = BitArray.fromBitCount(thisBitCount + rhsBitCount);
+        if (thisBitCount > 0)
+        {
+            result.copyFrom(this, 0, 0, thisBitCount);
+        }
+        if (rhsBitCount > 0)
+        {
+            result.copyFrom(rhs, 0, thisBitCount, rhsBitCount);
+        }
+
+        PostCondition.assertNotNull(result, "result");
+        PostCondition.assertEqual(getBitCount() + rhs.getBitCount(), result.getBitCount(), "result.getBitCount()");
+
+        return result;
+    }
+
+    public Iterator<Integer> iterate()
+    {
+        final Iterator<Integer> result = new BitArrayIterator(this);
+
+        PostCondition.assertNotNull(result, "result");
+        PostCondition.assertFalse(result.hasStarted(), "result.hasStarted()");
+
+        return result;
+    }
+
+    /**
+     * Iterate through this BitArray by blocking several bits together.
+     * @param blockBitCount The size of each block.
+     * @return An Iterator that will iterate through the blocks in this BitArray.
+     */
+    public Iterator<BitArray> iterateBlocks(long blockBitCount)
+    {
+        PreCondition.assertGreaterThanOrEqualTo(blockBitCount, 1, "blockBitCount");
+        PreCondition.assertEqual(0, getBitCount() % blockBitCount, "getBitCount() % blockBitCount");
+
+        final Iterator<BitArray> result = new BitArrayBlockIterator(this, blockBitCount);
+
+        PostCondition.assertNotNull(result, "result");
+        PostCondition.assertFalse(result.hasStarted(), "result.hasStarted()");
+
+        return result;
+    }
+
+    /**
+     * Iterate through this BitArray by blocking in 32-bit blocks and treating them as integers.
+     * @return An Iterator that will iterate through the integer-sized blocks in this BitArray.
+     */
+    public Iterator<Integer> iterateIntegers()
+    {
+        PreCondition.assertEqual(0, getBitCount() % Integer.SIZE, "getBitCount() % Integer.SIZE");
+
+        final Iterator<Integer> result = Array.fromValues(chunks).iterate();
+
+        PostCondition.assertNotNull(result, "result");
+        PostCondition.assertFalse(result.hasStarted(), "result.hasStarted()");
+
+        return result;
+    }
+
+    /**
      * Get the String representation of this BitArray.
      * @return The String representation of this BitArray.
      */
@@ -463,7 +546,7 @@ public class BitArray
      */
     public static BitArray fromBitCount(long bitCount)
     {
-        PreCondition.assertBetween(1, bitCount, maximumBitCount, "bitCount");
+        PreCondition.assertBetween(0, bitCount, maximumBitCount, "bitCount");
 
         return new BitArray(bitCount);
     }
@@ -477,7 +560,7 @@ public class BitArray
      */
     public static BitArray fromBitString(String bits)
     {
-        PreCondition.assertNotNullAndNotEmpty(bits, "bits");
+        PreCondition.assertNotNull(bits, "bits");
         PreCondition.assertContainsOnly(bits, new char[] { '0', '1' }, "bits");
 
         final BitArray result = BitArray.fromBitCount(bits.length());
@@ -494,7 +577,7 @@ public class BitArray
 
     public static BitArray fromHexString(String hexString)
     {
-        PreCondition.assertNotNullAndNotEmpty(hexString, "hexString");
+        PreCondition.assertNotNull(hexString, "hexString");
 
         final BitArray result = BitArray.fromBitCount(hexString.length() * 4);
         for (int i = 0; i < hexString.length(); ++i)

@@ -11,6 +11,14 @@ public interface Indexable<T> extends Iterable<T>
     T get(int index);
 
     /**
+     * Get the values over the provided range.
+     * @param startIndex The index at which to start the range.
+     * @param length The number of values to include in the range.
+     * @return The values over the provided range.
+     */
+    Indexable<T> getRange(int startIndex, int length);
+
+    /**
      * Get the index of the first element in this Indexable that satisfies the provided condition,
      * or -1 if no element matches the condition.
      * @param condition The condition to compare against the elements in this Indexable.
@@ -27,6 +35,22 @@ public interface Indexable<T> extends Iterable<T>
      * equals the provided value.
      */
     int indexOf(T value);
+
+    /**
+     * Create a new Indexable that restricts this Indexable to a fixed number of values.
+     * @param toTake The number of values to constrain this Indexable to.
+     * @return A new Indexable that restricts this Indexable to a fixed number of values.
+     */
+    Indexable<T> take(int toTake);
+
+    /**
+     * Create a new Indexable that will skip over the first toSkip number of elements in this
+     * Indexable and then return the remaining elements.
+     * @param toSkip The number of elements to skip.
+     * @return A new Indexable that will skip over the first toSkip number of elements in this
+     * Indexable and then return the remaining elements.
+     */
+    Indexable<T> skip(int toSkip);
 
     /**
      * Convert this Indexable into an Indexable that returns values of type U instead of type T.

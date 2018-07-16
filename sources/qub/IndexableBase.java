@@ -3,6 +3,12 @@ package qub;
 public abstract class IndexableBase<T> extends IterableBase<T> implements Indexable<T>
 {
     @Override
+    public Indexable<T> getRange(int startIndex, int length)
+    {
+        return IndexableBase.getRange(this, startIndex, length);
+    }
+
+    @Override
     public final int indexOf(Function1<T, Boolean> condition)
     {
         return IndexableBase.indexOf(this, condition);
@@ -15,9 +21,26 @@ public abstract class IndexableBase<T> extends IterableBase<T> implements Indexa
     }
 
     @Override
+    public Indexable<T> take(int toTake)
+    {
+        return IndexableBase.take(this, toTake);
+    }
+
+    @Override
+    public Indexable<T> skip(int toSkip)
+    {
+        return IndexableBase.skip(this, toSkip);
+    }
+
+    @Override
     public final <U> Indexable<U> map(Function1<T,U> conversion)
     {
         return IndexableBase.map(this, conversion);
+    }
+
+    public static <T> Indexable<T> getRange(Indexable<T> indexable, int startIndex, int length)
+    {
+        return indexable.skip(startIndex).take(length);
     }
 
     /**
@@ -66,6 +89,16 @@ public abstract class IndexableBase<T> extends IterableBase<T> implements Indexa
                 return Comparer.equal(element, value);
             }
         });
+    }
+
+    public static <T> Indexable<T> take(Indexable<T> indexable, int toTake)
+    {
+        return new TakeIndexable<>(indexable, toTake);
+    }
+
+    public static <T> Indexable<T> skip(Indexable<T> indexable, int toSkip)
+    {
+        return toSkip <= 0 ? indexable : new SkipIndexable<>(indexable, toSkip);
     }
 
     /**

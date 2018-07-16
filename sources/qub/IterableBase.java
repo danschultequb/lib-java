@@ -51,7 +51,7 @@ public abstract class IterableBase<T> implements Iterable<T>
     }
 
     @Override
-    public final Iterable<T> take(int toTake)
+    public Iterable<T> take(int toTake)
     {
         return IterableBase.take(this, toTake);
     }
@@ -63,7 +63,7 @@ public abstract class IterableBase<T> implements Iterable<T>
     }
 
     @Override
-    public final Iterable<T> skip(int toSkip)
+    public Iterable<T> skip(int toSkip)
     {
         return IterableBase.skip(this, toSkip);
     }

@@ -6,7 +6,14 @@ public class Bytes
     {
     }
 
+    public static final int bitCount = 8;
+
     public static int toUnsignedInt(byte value)
+    {
+        return 0xFF & value;
+    }
+
+    public static long toUnsignedLong(byte value)
     {
         return 0xFF & value;
     }

@@ -721,7 +721,14 @@ public class Array<T> extends IndexableBase<T> implements MutableIndexable<T>
      */
     public static String toString(char[] array)
     {
-        return Array.toString(array, null);
+        return Array.toString(array, new Function1<Character,String>()
+        {
+            @Override
+            public String run(Character arg1)
+            {
+                return "'" + arg1 + "'";
+            }
+        });
     }
 
     /**
@@ -769,6 +776,114 @@ public class Array<T> extends IndexableBase<T> implements MutableIndexable<T>
     }
 
     /**
+     * Get the String representation of the elements within the provided short array.
+     * @param array The short array to convert to a String.
+     * @return The String representation of the elements within the provided short array.
+     */
+    public static String toString(short[] array)
+    {
+        return Array.toString(array, null);
+    }
+
+    /**
+     * Get the String representation of the elements within the provided short array.
+     * @param array The short array to convert to a String.
+     * @return The String representation of the elements within the provided short array.
+     */
+    public static String toString(short[] array, Function1<Short,String> valueTransform)
+    {
+        final StringBuilder builder = new StringBuilder();
+
+        if (array == null)
+        {
+            builder.append("null");
+        }
+        else
+        {
+            builder.append('[');
+
+            boolean addedFirstElement = false;
+            for (final short element : array)
+            {
+                if (!addedFirstElement)
+                {
+                    addedFirstElement = true;
+                }
+                else
+                {
+                    builder.append(',');
+                }
+                if (valueTransform != null)
+                {
+                    builder.append(valueTransform.run(element));
+                }
+                else
+                {
+                    builder.append(element);
+                }
+            }
+
+            builder.append(']');
+        }
+
+        return builder.toString();
+    }
+
+    /**
+     * Get the String representation of the elements within the provided int array.
+     * @param array The int array to convert to a String.
+     * @return The String representation of the elements within the provided int array.
+     */
+    public static String toString(int[] array)
+    {
+        return Array.toString(array, null);
+    }
+
+    /**
+     * Get the String representation of the elements within the provided int array.
+     * @param array The int array to convert to a String.
+     * @return The String representation of the elements within the provided int array.
+     */
+    public static String toString(int[] array, Function1<Integer,String> valueTransform)
+    {
+        final StringBuilder builder = new StringBuilder();
+
+        if (array == null)
+        {
+            builder.append("null");
+        }
+        else
+        {
+            builder.append('[');
+
+            boolean addedFirstElement = false;
+            for (final int element : array)
+            {
+                if (!addedFirstElement)
+                {
+                    addedFirstElement = true;
+                }
+                else
+                {
+                    builder.append(',');
+                }
+                if (valueTransform != null)
+                {
+                    builder.append(valueTransform.run(element));
+                }
+                else
+                {
+                    builder.append(element);
+                }
+            }
+
+            builder.append(']');
+        }
+
+        return builder.toString();
+    }
+
+    /**
      * Get the String representation of the elements within the provided long array.
      * @param array The long array to convert to a String.
      * @return The String representation of the elements within the provided long array.
@@ -783,7 +898,7 @@ public class Array<T> extends IndexableBase<T> implements MutableIndexable<T>
      * @param array The long array to convert to a String.
      * @return The String representation of the elements within the provided long array.
      */
-    public static String toString(long[] array, Function1<Long,String> characterTransform)
+    public static String toString(long[] array, Function1<Long,String> valueTransform)
     {
         final StringBuilder builder = new StringBuilder();
 
@@ -806,9 +921,117 @@ public class Array<T> extends IndexableBase<T> implements MutableIndexable<T>
                 {
                     builder.append(',');
                 }
-                if (characterTransform != null)
+                if (valueTransform != null)
                 {
-                    builder.append(characterTransform.run(element));
+                    builder.append(valueTransform.run(element));
+                }
+                else
+                {
+                    builder.append(element);
+                }
+            }
+
+            builder.append(']');
+        }
+
+        return builder.toString();
+    }
+
+    /**
+     * Get the String representation of the elements within the provided float array.
+     * @param array The float array to convert to a String.
+     * @return The String representation of the elements within the provided float array.
+     */
+    public static String toString(float[] array)
+    {
+        return Array.toString(array, null);
+    }
+
+    /**
+     * Get the String representation of the elements within the provided float array.
+     * @param array The float array to convert to a String.
+     * @return The String representation of the elements within the provided float array.
+     */
+    public static String toString(float[] array, Function1<Float,String> valueTransform)
+    {
+        final StringBuilder builder = new StringBuilder();
+
+        if (array == null)
+        {
+            builder.append("null");
+        }
+        else
+        {
+            builder.append('[');
+
+            boolean addedFirstElement = false;
+            for (final float element : array)
+            {
+                if (!addedFirstElement)
+                {
+                    addedFirstElement = true;
+                }
+                else
+                {
+                    builder.append(',');
+                }
+                if (valueTransform != null)
+                {
+                    builder.append(valueTransform.run(element));
+                }
+                else
+                {
+                    builder.append(element);
+                }
+            }
+
+            builder.append(']');
+        }
+
+        return builder.toString();
+    }
+
+    /**
+     * Get the String representation of the elements within the provided double array.
+     * @param array The double array to convert to a String.
+     * @return The String representation of the elements within the provided double array.
+     */
+    public static String toString(double[] array)
+    {
+        return Array.toString(array, null);
+    }
+
+    /**
+     * Get the String representation of the elements within the provided double array.
+     * @param array The double array to convert to a String.
+     * @return The String representation of the elements within the provided double array.
+     */
+    public static String toString(double[] array, Function1<Double,String> valueTransform)
+    {
+        final StringBuilder builder = new StringBuilder();
+
+        if (array == null)
+        {
+            builder.append("null");
+        }
+        else
+        {
+            builder.append('[');
+
+            boolean addedFirstElement = false;
+            for (final double element : array)
+            {
+                if (!addedFirstElement)
+                {
+                    addedFirstElement = true;
+                }
+                else
+                {
+                    builder.append(',');
+                }
+                if (valueTransform != null)
+                {
+                    builder.append(valueTransform.run(element));
                 }
                 else
                 {

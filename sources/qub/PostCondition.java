@@ -6,6 +6,19 @@ package qub;
 public class PostCondition
 {
     /**
+     * Assert that the provided value is false.
+     * @param value The value that must be false.
+     * @param message The error message if value is not false.
+     */
+    public static void assertFalse(boolean value, String message)
+    {
+        if (value)
+        {
+            throw new PostConditionFailure(message);
+        }
+    }
+
+    /**
      * Assert that the provided value is true.
      * @param value The value that must be true.
      * @param message The error message if value is not true.
@@ -97,6 +110,20 @@ public class PostCondition
      * @param variableName The name of the variable that contains the value.
      */
     public static void assertGreaterThanOrEqualTo(int value, int lowerBound, String variableName)
+    {
+        if (!Comparer.greaterThanOrEqualTo(value, lowerBound))
+        {
+            throw new PostConditionFailure(AssertionMessages.greaterThanOrEqualTo(value, lowerBound, variableName));
+        }
+    }
+
+    /**
+     * Assert that value is greater than or equal to lowerBound.
+     * @param value The value to ensure is greater than or equal to lowerBound.
+     * @param lowerBound The lower bound to ensure that the value is greater than or equal to.
+     * @param variableName The name of the variable that contains the value.
+     */
+    public static void assertGreaterThanOrEqualTo(long value, long lowerBound, String variableName)
     {
         if (!Comparer.greaterThanOrEqualTo(value, lowerBound))
         {

@@ -6,20 +6,43 @@ public class BitArrayTests
     {
         runner.testGroup(BitArray.class, () ->
         {
+            runner.testGroup("clone()", () ->
+            {
+                runner.test("with " + Strings.escapeAndQuote(""), (Test test) ->
+                {
+                    final BitArray bits = BitArray.fromBitString("");
+                    final BitArray clone = bits.clone();
+                    test.assertNotSame(bits, clone);
+                    test.assertEqual(bits, clone);
+                });
+
+                runner.test("with " + Strings.escapeAndQuote("1"), (Test test) ->
+                {
+                    final BitArray bits = BitArray.fromBitString("1");
+                    final BitArray clone = bits.clone();
+                    test.assertNotSame(bits, clone);
+                    test.assertEqual(bits, clone);
+
+                    bits.setBit(0, 0);
+                    test.assertEqual("0", bits.toBitString());
+                    test.assertEqual("1", clone.toBitString());
+                });
+            });
+
             runner.testGroup("fromBitCount(long)", () ->
             {
                 runner.test("with -1 bitCount", (Test test) ->
                 {
                     test.assertThrows(
                         () -> BitArray.fromBitCount(-1),
-                        new PreConditionFailure("bitCount (-1) must be between 1 and 68719476704."));
+                        new PreConditionFailure("bitCount (-1) must be between 0 and 68719476704."));
                 });
 
                 runner.test("with 0 bitCount", (Test test) ->
                 {
-                    test.assertThrows(
-                        () -> BitArray.fromBitCount(0),
-                        new PreConditionFailure("bitCount (0) must be between 1 and 68719476704."));
+                    final BitArray bits = BitArray.fromBitCount(0);
+                    test.assertNotNull(bits);
+                    test.assertEqual(0, bits.getBitCount());
                 });
 
                 runner.test("with 1 bitCount", (Test test) ->
@@ -87,14 +110,14 @@ public class BitArrayTests
                 {
                     test.assertThrows(
                         () -> BitArray.fromBitCount(68719476705L),
-                        new PreConditionFailure("bitCount (68719476705) must be between 1 and 68719476704."));
+                        new PreConditionFailure("bitCount (68719476705) must be between 0 and 68719476704."));
                 });
 
                 runner.test("with 68719476706 bitCount", (Test test) ->
                 {
                     test.assertThrows(
                         () -> BitArray.fromBitCount(68719476706L),
-                        new PreConditionFailure("bitCount (68719476706) must be between 1 and 68719476704."));
+                        new PreConditionFailure("bitCount (68719476706) must be between 0 and 68719476704."));
                 });
             });
 
@@ -239,6 +262,37 @@ public class BitArrayTests
                     final BitArray block = BitArray.fromBitCount(3);
                     block.setAllBits(1);
                     test.assertEqual("111", block.toString());
+                });
+            });
+
+            runner.testGroup("setLastBitsFromLong(long)", () ->
+            {
+                runner.test("with less than 64 bits", (Test test) ->
+                {
+                    final BitArray bits = BitArray.fromBitCount(63);
+                    test.assertThrows(() -> bits.setLastBitsFromLong(1));
+                    test.assertEqual(BitArray.fromBitCount(63), bits);
+                });
+
+                runner.test("with 64-bit BitArray and 1", (Test test) ->
+                {
+                    final BitArray bits = BitArray.fromBitCount(64);
+                    bits.setLastBitsFromLong(1);
+                    test.assertEqual(BitArray.fromHexString("0000000000000001"), bits);
+                });
+
+                runner.test("with 72-bit BitArray and 2", (Test test) ->
+                {
+                    final BitArray bits = BitArray.fromBitCount(72);
+                    bits.setLastBitsFromLong(2);
+                    test.assertEqual(BitArray.fromHexString("000000000000000002"), bits);
+                });
+
+                runner.test("with 80-bit BitArray and 16", (Test test) ->
+                {
+                    final BitArray bits = BitArray.fromBitCount(80);
+                    bits.setLastBitsFromLong(16);
+                    test.assertEqual(BitArray.fromHexString("00000000000000000010"), bits);
                 });
             });
 
@@ -574,6 +628,243 @@ public class BitArrayTests
                     test.assertEqual(BitArray.fromBitString("10000"), bits.xor(rhs));
                     test.assertEqual(BitArray.fromBitString("10000"), rhs.xor(bits));
                 });
+            });
+
+            runner.testGroup("permuteByBitIndex(long[])", () ->
+            {
+                runner.test("with bit indexes than reference indexes greater than bits in the BitArray", (Test test) ->
+                {
+                    final BitArray bits = BitArray.fromBitString("");
+                    test.assertThrows(() -> bits.permuteByBitIndex(new long[] { 0 }));
+                });
+
+                runner.test("with empty bit indexes and empty BitArray", (Test test) ->
+                {
+                    final BitArray bits = BitArray.fromBitString("");
+                    final BitArray permutedBits = bits.permuteByBitIndex(new long[0]);
+                    test.assertEqual("", bits.toBitString());
+                    test.assertEqual("", permutedBits.toBitString());
+                });
+
+                runner.test("with equal number of bit indexes and bits in the BitArray", (Test test) ->
+                {
+                    final BitArray bits = BitArray.fromBitString("010011");
+                    final BitArray permutedBits = bits.permuteByBitIndex(new long[] { 1, 4, 5, 0, 2, 3 });
+                    test.assertEqual("010011", bits.toBitString());
+                    test.assertEqual("111000", permutedBits.toBitString());
+                });
+
+                runner.test("with fewer number of bit indexes than bits in the BitArray", (Test test) ->
+                {
+                    final BitArray bits = BitArray.fromBitString("010011");
+                    final BitArray permutedBits = bits.permuteByBitIndex(new long[] { 5, 0 });
+                    test.assertEqual("010011", bits.toBitString());
+                    test.assertEqual("10", permutedBits.toBitString());
+                });
+
+                runner.test("with greater number of bit indexes than bits in the BitArray", (Test test) ->
+                {
+                    final BitArray bits = BitArray.fromBitString("010");
+                    final BitArray permutedBits = bits.permuteByBitIndex(new long[] { 1, 2, 1, 2, 1 });
+                    test.assertEqual("010", bits.toBitString());
+                    test.assertEqual("10101", permutedBits.toBitString());
+                });
+            });
+
+            runner.testGroup("permuteByBitNumber(long[])", () ->
+            {
+                runner.test("with bit numbers than reference negative indexes in the BitArray", (Test test) ->
+                {
+                    final BitArray bits = BitArray.fromBitString("");
+                    test.assertThrows(() -> bits.permuteByBitNumber(new long[] { 0 }));
+                });
+
+                runner.test("with bit numbers that reference indexes greater than bits in the BitArray", (Test test) ->
+                {
+                    final BitArray bits = BitArray.fromBitString("");
+                    test.assertThrows(() -> bits.permuteByBitNumber(new long[] { 1 }));
+                });
+
+                runner.test("with empty bit numbers and empty BitArray", (Test test) ->
+                {
+                    final BitArray bits = BitArray.fromBitString("");
+                    final BitArray permutedBits = bits.permuteByBitNumber(new long[0]);
+                    test.assertEqual("", bits.toBitString());
+                    test.assertEqual("", permutedBits.toBitString());
+                });
+
+                runner.test("with equal number of bit numbers and bits in the BitArray", (Test test) ->
+                {
+                    final BitArray bits = BitArray.fromBitString("010011");
+                    final BitArray permutedBits = bits.permuteByBitNumber(new long[] { 2, 5, 6, 1, 3, 4 });
+                    test.assertEqual("010011", bits.toBitString());
+                    test.assertEqual("111000", permutedBits.toBitString());
+                });
+
+                runner.test("with fewer number of bit numbers than bits in the BitArray", (Test test) ->
+                {
+                    final BitArray bits = BitArray.fromBitString("010011");
+                    final BitArray permutedBits = bits.permuteByBitNumber(new long[] { 6, 1 });
+                    test.assertEqual("010011", bits.toBitString());
+                    test.assertEqual("10", permutedBits.toBitString());
+                });
+
+                runner.test("with greater number of bit numbers than bits in the BitArray", (Test test) ->
+                {
+                    final BitArray bits = BitArray.fromBitString("010");
+                    final BitArray permutedBits = bits.permuteByBitNumber(new long[] { 2, 3, 2, 3, 2 });
+                    test.assertEqual("010", bits.toBitString());
+                    test.assertEqual("10101", permutedBits.toBitString());
+                });
+            });
+
+            runner.testGroup("concatenate(BitArray)", () ->
+            {
+                runner.test("with 101 and null", (Test test) ->
+                {
+                    final BitArray bits = BitArray.fromBitString("101");
+                    final BitArray rhs = null;
+                    test.assertThrows(() -> bits.concatenate(rhs));
+                });
+
+                runner.test("with 101 and empty", (Test test) ->
+                {
+                    final BitArray bits = BitArray.fromBitString("101");
+                    final BitArray rhs = BitArray.fromBitString("");
+                    final BitArray result = bits.concatenate(rhs);
+                    test.assertEqual(bits, result);
+                    test.assertNotSame(bits, result);
+                });
+
+                runner.test("with 101 and 01", (Test test) ->
+                {
+                    final BitArray bits = BitArray.fromBitString("101");
+                    final BitArray rhs = BitArray.fromBitString("01");
+                    final BitArray result = bits.concatenate(rhs);
+                    test.assertEqual(BitArray.fromBitString("10101"), result);
+                });
+
+                runner.test("with empty and 10", (Test test) ->
+                {
+                    final BitArray bits = BitArray.fromBitString("");
+                    final BitArray rhs = BitArray.fromBitString("10");
+                    final BitArray result = bits.concatenate(rhs);
+                    test.assertEqual(BitArray.fromBitString("10"), result);
+                });
+            });
+
+            runner.testGroup("iterate()", () ->
+            {
+                final Action2<String,int[]> iterateTest = (String bitString, int[] expectedBits) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(bitString), (Test test) ->
+                    {
+                        final BitArray bits = BitArray.fromBitString(bitString);
+
+                        final Iterator<Integer> iterator = bits.iterate();
+                        test.assertNotNull(iterator);
+                        test.assertFalse(iterator.hasStarted());
+                        test.assertFalse(iterator.hasCurrent());
+
+                        for (int expectedBit : expectedBits)
+                        {
+                            test.assertTrue(iterator.next());
+                            test.assertTrue(iterator.hasStarted());
+                            test.assertTrue(iterator.hasCurrent());
+                            test.assertEqual(expectedBit, iterator.getCurrent());
+                        }
+
+                        for (int i = 0; i < 2; ++i)
+                        {
+                            test.assertFalse(iterator.next());
+                            test.assertTrue(iterator.hasStarted());
+                            test.assertFalse(iterator.hasCurrent());
+                            test.assertNull(iterator.getCurrent());
+                        }
+                    });
+                };
+
+                iterateTest.run("", new int[0]);
+                iterateTest.run("0", new int[] { 0 });
+                iterateTest.run("1", new int[] { 1 });
+                iterateTest.run("010011", new int[] { 0, 1, 0, 0, 1, 1 });
+            });
+
+            runner.testGroup("iterateBlocks()", () ->
+            {
+                final Action3<String,Integer,String[]> iterateBlocksTest = (String bitString, Integer blockSize, String[] expectedBlocks) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(bitString) + " and " + blockSize + "-bit blocks", (Test test) ->
+                    {
+                        final BitArray bits = BitArray.fromBitString(bitString);
+
+                        final Iterator<BitArray> blocks = bits.iterateBlocks(blockSize);
+                        test.assertNotNull(blocks);
+                        test.assertFalse(blocks.hasStarted());
+                        test.assertFalse(blocks.hasCurrent());
+
+                        for (final String expectedBlock : expectedBlocks)
+                        {
+                            test.assertTrue(blocks.next());
+                            test.assertTrue(blocks.hasStarted());
+                            test.assertTrue(blocks.hasCurrent());
+                            test.assertNotNull(blocks.getCurrent());
+                            test.assertEqual(expectedBlock, blocks.getCurrent().toBitString());
+                        }
+
+                        for (int i = 0; i < 2; ++i)
+                        {
+                            test.assertFalse(blocks.next());
+                            test.assertTrue(blocks.hasStarted());
+                            test.assertFalse(blocks.hasCurrent());
+                            test.assertNull(blocks.getCurrent());
+                        }
+                    });
+                };
+
+                iterateBlocksTest.run("", 1, new String[0]);
+                iterateBlocksTest.run("", 2, new String[0]);
+                iterateBlocksTest.run("11010", 1, new String[] { "1", "1", "0", "1", "0" });
+                iterateBlocksTest.run("000111", 3, new String[] { "000", "111" });
+            });
+
+            runner.testGroup("iterateIntegers()", () ->
+            {
+                final Action2<String,int[]> iterateIntegersTest = (String hexString, int[] expectedIntegers) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(hexString), (Test test) ->
+                    {
+                        final BitArray bits = BitArray.fromHexString(hexString);
+
+                        final Iterator<Integer> integers = bits.iterateIntegers();
+                        test.assertNotNull(integers);
+                        test.assertFalse(integers.hasStarted());
+                        test.assertFalse(integers.hasCurrent());
+
+                        for (final int expectedInteger : expectedIntegers)
+                        {
+                            test.assertTrue(integers.next());
+                            test.assertTrue(integers.hasStarted());
+                            test.assertTrue(integers.hasCurrent());
+                            test.assertNotNull(integers.getCurrent());
+                            test.assertEqual(expectedInteger, integers.getCurrent());
+                        }
+
+                        for (int i = 0; i < 2; ++i)
+                        {
+                            test.assertFalse(integers.next());
+                            test.assertTrue(integers.hasStarted());
+                            test.assertFalse(integers.hasCurrent());
+                            test.assertNull(integers.getCurrent());
+                        }
+                    });
+                };
+
+                iterateIntegersTest.run("", new int[0]);
+                iterateIntegersTest.run("00000000", new int[] { 0 });
+                iterateIntegersTest.run("FFFFFFFF", new int[] { -1 });
+                iterateIntegersTest.run("00000001", new int[] { 1 });
+                iterateIntegersTest.run("00000000000000010000000200000003", new int[] { 0, 1, 2, 3 });
             });
 
             runner.testGroup("toString()", () ->
