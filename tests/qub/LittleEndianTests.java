@@ -238,65 +238,463 @@ public class LittleEndianTests
                 encodeDoubleArrayTest.run(new double[] { 0, 1, 2 }, new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -16, 63, 0, 0, 0, 0, 0, 0, 0, 64 });
             });
 
-//            public static TestGroup createTests()
-//            {
-//                retval.add(new Test("DecodeAsShort")
-//                {
-//                    public void run()
-//                    {
-//                        final LittleEndian e = new LittleEndian();
-//
-//                        Test.Assert.Equal((short)0, e.decodeAsShort(new byte[] { 0, 0 }));
-//
-//                        Test.Assert.Equal((short)1, e.decodeAsShort(new byte[] { 1, 0 }));
-//                        Test.Assert.Equal((short)16, e.decodeAsShort(new byte[] { 16, 0 }));
-//                        Test.Assert.Equal((short)64, e.decodeAsShort(new byte[] { 64, 0 }));
-//                        Test.Assert.Equal((short)128, e.decodeAsShort(new byte[] { -128, 0 }));
-//
-//                        Test.Assert.Equal((short)256, e.decodeAsShort(new byte[] { 0, 1 }));
-//                        Test.Assert.Equal((short)4096, e.decodeAsShort(new byte[] { 0, 16 }));
-//                        Test.Assert.Equal((short)16384, e.decodeAsShort(new byte[] { 0, 64 }));
-//                        Test.Assert.Equal((short)-32768, e.decodeAsShort(new byte[] { 0, -128 }));
-//
-//                        Test.Assert.Equal((short)-1, e.decodeAsShort(new byte[] { -1, -1 }));
-//                    }
-//                });
-//                retval.add(new Test("DecodeAsInt")
-//                {
-//                    public void run()
-//                    {
-//                        final LittleEndian e = new LittleEndian();
-//
-//                        Test.Assert.Equal((int)0, e.decodeAsInt(new byte[] { 0, 0, 0, 0 }));
-//
-//                        Test.Assert.Equal((int)1, e.decodeAsInt(new byte[] { 1, 0, 0, 0 }));
-//                        Test.Assert.Equal((int)16, e.decodeAsInt(new byte[] { 16, 0, 0, 0 }));
-//                        Test.Assert.Equal((int)64, e.decodeAsInt(new byte[] { 64, 0, 0, 0 }));
-//                        Test.Assert.Equal((int)128, e.decodeAsInt(new byte[] { -128, 0, 0, 0 }));
-//
-//                        Test.Assert.Equal((int)256, e.decodeAsInt(new byte[] { 0, 1, 0, 0 }));
-//                        Test.Assert.Equal((int)4096, e.decodeAsInt(new byte[] { 0, 16, 0, 0 }));
-//                        Test.Assert.Equal((int)16384, e.decodeAsInt(new byte[] { 0, 64, 0, 0 }));
-//                        Test.Assert.Equal((int)32768, e.decodeAsInt(new byte[] { 0, -128, 0, 0 }));
-//
-//                        Test.Assert.Equal((int)65536, e.decodeAsInt(new byte[] { 0, 0, 1, 0 }));
-//                        Test.Assert.Equal((int)1048576, e.decodeAsInt(new byte[] { 0, 0, 16, 0 }));
-//                        Test.Assert.Equal((int)4194304, e.decodeAsInt(new byte[] { 0, 0, 64, 0 }));
-//                        Test.Assert.Equal((int)8388608, e.decodeAsInt(new byte[] { 0, 0, -128, 0 }));
-//
-//                        Test.Assert.Equal((int)16777216, e.decodeAsInt(new byte[] { 0, 0, 0, 1 }));
-//                        Test.Assert.Equal((int)268435456, e.decodeAsInt(new byte[] { 0, 0, 0, 16 }));
-//                        Test.Assert.Equal((int)1073741824, e.decodeAsInt(new byte[] { 0, 0, 0, 64 }));
-//                        Test.Assert.Equal((int)-2147483648, e.decodeAsInt(new byte[] { 0, 0, 0, -128 }));
-//
-//                        Test.Assert.Equal((int)-1, e.decodeAsInt(new byte[] { -1, -1, -1, -1 }));
-//                    }
-//                });
-//
-//                Debug.PostCondition.NotNullOrEmpty(retval);
-//
-//                return retval;
-//            }
+            runner.testGroup("decodeAsShort(byte[])", () ->
+            {
+                final Action2<byte[],Short> decodeAsShortTest = (byte[] values, Short expected) ->
+                {
+                    runner.test("with " + Objects.toString(values), (Test test) ->
+                    {
+                        test.assertEqual(expected, byteOrder.decodeAsShort(values));
+                    });
+                };
+
+                decodeAsShortTest.run(new byte[] { 0, 0 }, (short)0);
+                decodeAsShortTest.run(new byte[] { 1, 0 }, (short)1);
+                decodeAsShortTest.run(new byte[] { 16, 0 }, (short)16);
+                decodeAsShortTest.run(new byte[] { 64, 0 }, (short)64);
+                decodeAsShortTest.run(new byte[] { -128, 0 }, (short)128);
+                decodeAsShortTest.run(new byte[] { 0, 1 }, (short)256);
+                decodeAsShortTest.run(new byte[] { 0, 16 }, (short)4096);
+                decodeAsShortTest.run(new byte[] { 0, 64 }, (short)16384);
+                decodeAsShortTest.run(new byte[] { 0, -128 }, (short)-32768);
+                decodeAsShortTest.run(new byte[] { -1, -1 }, (short)-1);
+            });
+
+            runner.testGroup("decodeAsShort(Indexable<Byte>)", () ->
+            {
+                final Action2<byte[],Short> decodeAsShortTest = (byte[] values, Short expected) ->
+                {
+                    runner.test("with " + Objects.toString(values), (Test test) ->
+                    {
+                        test.assertEqual(expected, byteOrder.decodeAsShort(Array.fromValues(values)));
+                    });
+                };
+
+                decodeAsShortTest.run(new byte[] { 0, 0 }, (short)0);
+                decodeAsShortTest.run(new byte[] { 1, 0 }, (short)1);
+                decodeAsShortTest.run(new byte[] { 16, 0 }, (short)16);
+                decodeAsShortTest.run(new byte[] { 64, 0 }, (short)64);
+                decodeAsShortTest.run(new byte[] { -128, 0 }, (short)128);
+                decodeAsShortTest.run(new byte[] { 0, 1 }, (short)256);
+                decodeAsShortTest.run(new byte[] { 0, 16 }, (short)4096);
+                decodeAsShortTest.run(new byte[] { 0, 64 }, (short)16384);
+                decodeAsShortTest.run(new byte[] { 0, -128 }, (short)-32768);
+                decodeAsShortTest.run(new byte[] { -1, -1 }, (short)-1);
+            });
+
+            runner.testGroup("decodeAsInteger(byte[])", () ->
+            {
+                final Action2<byte[],Integer> decodeAsIntegerTest = (byte[] values, Integer expected) ->
+                {
+                    runner.test("with " + Objects.toString(values), (Test test) ->
+                    {
+                        test.assertEqual(expected, byteOrder.decodeAsInteger(values));
+                    });
+                };
+
+                decodeAsIntegerTest.run(new byte[] { 0, 0, 0, 0 }, 0);
+                decodeAsIntegerTest.run(new byte[] { 1, 0, 0, 0 }, 1);
+                decodeAsIntegerTest.run(new byte[] { 16, 0, 0, 0 }, 16);
+                decodeAsIntegerTest.run(new byte[] { 64, 0, 0, 0 }, 64);
+                decodeAsIntegerTest.run(new byte[] { -128, 0, 0, 0 }, 128);
+                decodeAsIntegerTest.run(new byte[] { 0, 1, 0, 0 }, 256);
+                decodeAsIntegerTest.run(new byte[] { 0, 4, 0, 0 }, 1024);
+                decodeAsIntegerTest.run(new byte[] { 0, 8, 0, 0 }, 2048);
+                decodeAsIntegerTest.run(new byte[] { 0, 16, 0, 0 }, 4096);
+                decodeAsIntegerTest.run(new byte[] { 0, 32, 0, 0 }, 8192);
+                decodeAsIntegerTest.run(new byte[] { 0, 64, 0, 0 }, 16384);
+                decodeAsIntegerTest.run(new byte[] { 0, -128, 0, 0 }, 32768);
+                decodeAsIntegerTest.run(new byte[] { 0, 0, 1, 0 }, 65536);
+                decodeAsIntegerTest.run(new byte[] { 0, 0, 16, 0 }, 1048576);
+                decodeAsIntegerTest.run(new byte[] { 0, 0, 64, 0 }, 4194304);
+                decodeAsIntegerTest.run(new byte[] { 0, 0, -128, 0 }, 8388608);
+                decodeAsIntegerTest.run(new byte[] { 0, 0, 0, 1 }, 16777216);
+                decodeAsIntegerTest.run(new byte[] { 0, 0, 0, 16 }, 268435456);
+                decodeAsIntegerTest.run(new byte[] { 0, 0, 0, 64 }, 1073741824);
+                decodeAsIntegerTest.run(new byte[] { 0, 0, 0, -128 }, -2147483648);
+                decodeAsIntegerTest.run(new byte[] { -1, -1, -1, -1 }, -1);
+            });
+
+            runner.testGroup("decodeAsInteger(Indexable<byte>)", () ->
+            {
+                final Action2<byte[],Integer> decodeAsIntegerTest = (byte[] values, Integer expected) ->
+                {
+                    runner.test("with " + Objects.toString(values), (Test test) ->
+                    {
+                        test.assertEqual(expected, byteOrder.decodeAsInteger(Array.fromValues(values)));
+                    });
+                };
+
+                decodeAsIntegerTest.run(new byte[] { 0, 0, 0, 0 }, 0);
+                decodeAsIntegerTest.run(new byte[] { 1, 0, 0, 0 }, 1);
+                decodeAsIntegerTest.run(new byte[] { 16, 0, 0, 0 }, 16);
+                decodeAsIntegerTest.run(new byte[] { 64, 0, 0, 0 }, 64);
+                decodeAsIntegerTest.run(new byte[] { -128, 0, 0, 0 }, 128);
+                decodeAsIntegerTest.run(new byte[] { 0, 1, 0, 0 }, 256);
+                decodeAsIntegerTest.run(new byte[] { 0, 4, 0, 0 }, 1024);
+                decodeAsIntegerTest.run(new byte[] { 0, 8, 0, 0 }, 2048);
+                decodeAsIntegerTest.run(new byte[] { 0, 16, 0, 0 }, 4096);
+                decodeAsIntegerTest.run(new byte[] { 0, 32, 0, 0 }, 8192);
+                decodeAsIntegerTest.run(new byte[] { 0, 64, 0, 0 }, 16384);
+                decodeAsIntegerTest.run(new byte[] { 0, -128, 0, 0 }, 32768);
+                decodeAsIntegerTest.run(new byte[] { 0, 0, 1, 0 }, 65536);
+                decodeAsIntegerTest.run(new byte[] { 0, 0, 16, 0 }, 1048576);
+                decodeAsIntegerTest.run(new byte[] { 0, 0, 64, 0 }, 4194304);
+                decodeAsIntegerTest.run(new byte[] { 0, 0, -128, 0 }, 8388608);
+                decodeAsIntegerTest.run(new byte[] { 0, 0, 0, 1 }, 16777216);
+                decodeAsIntegerTest.run(new byte[] { 0, 0, 0, 16 }, 268435456);
+                decodeAsIntegerTest.run(new byte[] { 0, 0, 0, 64 }, 1073741824);
+                decodeAsIntegerTest.run(new byte[] { 0, 0, 0, -128 }, -2147483648);
+                decodeAsIntegerTest.run(new byte[] { -1, -1, -1, -1 }, -1);
+            });
+
+            runner.testGroup("decodeAsLong(byte[])", () ->
+            {
+                final Action2<byte[],Long> decodeAsLongTest = (byte[] values, Long expected) ->
+                {
+                    runner.test("with " + Objects.toString(values), (Test test) ->
+                    {
+                        test.assertEqual(expected, byteOrder.decodeAsLong(values));
+                    });
+                };
+
+                decodeAsLongTest.run(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 }, 0L);
+                decodeAsLongTest.run(new byte[] { 1, 0, 0, 0, 0, 0, 0, 0 }, 1L);
+                decodeAsLongTest.run(new byte[] { 16, 0, 0, 0, 0, 0, 0, 0 }, 16L);
+                decodeAsLongTest.run(new byte[] { 64, 0, 0, 0, 0, 0, 0, 0 }, 64L);
+                decodeAsLongTest.run(new byte[] { -128, 0, 0, 0, 0, 0, 0, 0 }, 128L);
+                decodeAsLongTest.run(new byte[] { 0, 1, 0, 0, 0, 0, 0, 0 }, 256L);
+                decodeAsLongTest.run(new byte[] { 0, 4, 0, 0, 0, 0, 0, 0 }, 1024L);
+                decodeAsLongTest.run(new byte[] { 0, 8, 0, 0, 0, 0, 0, 0 }, 2048L);
+                decodeAsLongTest.run(new byte[] { 0, 16, 0, 0, 0, 0, 0, 0 }, 4096L);
+                decodeAsLongTest.run(new byte[] { 0, 32, 0, 0, 0, 0, 0, 0 }, 8192L);
+                decodeAsLongTest.run(new byte[] { 0, 64, 0, 0, 0, 0, 0, 0 }, 16384L);
+                decodeAsLongTest.run(new byte[] { 0, -128, 0, 0, 0, 0, 0, 0 }, 32768L);
+                decodeAsLongTest.run(new byte[] { 0, 0, 1, 0, 0, 0, 0, 0 }, 65536L);
+                decodeAsLongTest.run(new byte[] { 0, 0, 16, 0, 0, 0, 0, 0 }, 1048576L);
+                decodeAsLongTest.run(new byte[] { 0, 0, 64, 0, 0, 0, 0, 0 }, 4194304L);
+                decodeAsLongTest.run(new byte[] { 0, 0, -128, 0, 0, 0, 0, 0 }, 8388608L);
+                decodeAsLongTest.run(new byte[] { 0, 0, 0, 1, 0, 0, 0, 0 }, 16777216L);
+                decodeAsLongTest.run(new byte[] { 0, 0, 0, 16, 0, 0, 0, 0 }, 268435456L);
+                decodeAsLongTest.run(new byte[] { 0, 0, 0, 64, 0, 0, 0, 0 }, 1073741824L);
+                decodeAsLongTest.run(new byte[] { 0, 0, 0, -128, 0, 0, 0, 0 }, 2147483648L);
+                decodeAsLongTest.run(new byte[] { -1, -1, -1, -1, -1, -1, -1, -1 }, -1L);
+            });
+
+            runner.testGroup("decodeAsLong(Indexable<Byte>)", () ->
+            {
+                final Action2<byte[],Long> decodeAsLongTest = (byte[] values, Long expected) ->
+                {
+                    runner.test("with " + Objects.toString(values), (Test test) ->
+                    {
+                        test.assertEqual(expected, byteOrder.decodeAsLong(Array.fromValues(values)));
+                    });
+                };
+
+                decodeAsLongTest.run(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 }, 0L);
+                decodeAsLongTest.run(new byte[] { 1, 0, 0, 0, 0, 0, 0, 0 }, 1L);
+                decodeAsLongTest.run(new byte[] { 16, 0, 0, 0, 0, 0, 0, 0 }, 16L);
+                decodeAsLongTest.run(new byte[] { 64, 0, 0, 0, 0, 0, 0, 0 }, 64L);
+                decodeAsLongTest.run(new byte[] { -128, 0, 0, 0, 0, 0, 0, 0 }, 128L);
+                decodeAsLongTest.run(new byte[] { 0, 1, 0, 0, 0, 0, 0, 0 }, 256L);
+                decodeAsLongTest.run(new byte[] { 0, 4, 0, 0, 0, 0, 0, 0 }, 1024L);
+                decodeAsLongTest.run(new byte[] { 0, 8, 0, 0, 0, 0, 0, 0 }, 2048L);
+                decodeAsLongTest.run(new byte[] { 0, 16, 0, 0, 0, 0, 0, 0 }, 4096L);
+                decodeAsLongTest.run(new byte[] { 0, 32, 0, 0, 0, 0, 0, 0 }, 8192L);
+                decodeAsLongTest.run(new byte[] { 0, 64, 0, 0, 0, 0, 0, 0 }, 16384L);
+                decodeAsLongTest.run(new byte[] { 0, -128, 0, 0, 0, 0, 0, 0 }, 32768L);
+                decodeAsLongTest.run(new byte[] { 0, 0, 1, 0, 0, 0, 0, 0 }, 65536L);
+                decodeAsLongTest.run(new byte[] { 0, 0, 16, 0, 0, 0, 0, 0 }, 1048576L);
+                decodeAsLongTest.run(new byte[] { 0, 0, 64, 0, 0, 0, 0, 0 }, 4194304L);
+                decodeAsLongTest.run(new byte[] { 0, 0, -128, 0, 0, 0, 0, 0 }, 8388608L);
+                decodeAsLongTest.run(new byte[] { 0, 0, 0, 1, 0, 0, 0, 0 }, 16777216L);
+                decodeAsLongTest.run(new byte[] { 0, 0, 0, 16, 0, 0, 0, 0 }, 268435456L);
+                decodeAsLongTest.run(new byte[] { 0, 0, 0, 64, 0, 0, 0, 0 }, 1073741824L);
+                decodeAsLongTest.run(new byte[] { 0, 0, 0, -128, 0, 0, 0, 0 }, 2147483648L);
+                decodeAsLongTest.run(new byte[] { -1, -1, -1, -1, -1, -1, -1, -1 }, -1L);
+            });
+
+            runner.testGroup("decodeAsFloat(byte[])", () ->
+            {
+                final Action2<byte[],Float> decodeAsFloatTest = (byte[] values, Float expected) ->
+                {
+                    runner.test("with " + Objects.toString(values), (Test test) ->
+                    {
+                        test.assertEqual(expected, byteOrder.decodeAsFloat(values));
+                    });
+                };
+
+                decodeAsFloatTest.run(new byte[] { 0, 0, 0, 0 }, 0f);
+                decodeAsFloatTest.run(new byte[] { 0, 0, -128, 63 }, 1f);
+                decodeAsFloatTest.run(new byte[] { 0, 0, -128, 65 }, 16f);
+                decodeAsFloatTest.run(new byte[] { 0, 0, -128, 66 }, 64f);
+                decodeAsFloatTest.run(new byte[] { 0, 0, 0, 67 }, 128f);
+                decodeAsFloatTest.run(new byte[] { 0, 0, -128, 67 }, 256f);
+                decodeAsFloatTest.run(new byte[] { 0, 0, -128, 68 }, 1024f);
+                decodeAsFloatTest.run(new byte[] { 0, 0, 0, 69 }, 2048f);
+                decodeAsFloatTest.run(new byte[] { 0, 0, -128, 69 }, 4096f);
+                decodeAsFloatTest.run(new byte[] { 0, 0, 0, 70 }, 8192f);
+                decodeAsFloatTest.run(new byte[] { 0, 0, -128, 70 }, 16384f);
+                decodeAsFloatTest.run(new byte[] { 0, 0, 0, 71 }, 32768f);
+                decodeAsFloatTest.run(new byte[] { 0, 0, -128, 71 }, 65536f);
+                decodeAsFloatTest.run(new byte[] { 0, 0, -128, 73 }, 1048576f);
+                decodeAsFloatTest.run(new byte[] { 0, 0, -128, 74 }, 4194304f);
+                decodeAsFloatTest.run(new byte[] { 0, 0, 0, 75 }, 8388608f);
+                decodeAsFloatTest.run(new byte[] { 0, 0, -128, 75 }, 16777216f);
+                decodeAsFloatTest.run(new byte[] { 0, 0, -128, 77 }, 268435456f);
+                decodeAsFloatTest.run(new byte[] { 0, 0, -128, 78 }, 1073741824f);
+                decodeAsFloatTest.run(new byte[] { 0, 0, 0, 79 }, 2147483648f);
+                decodeAsFloatTest.run(new byte[] { 0, 0, -128, -65 }, -1f);
+            });
+
+            runner.testGroup("decodeAsFloat(Indexable<Byte>)", () ->
+            {
+                final Action2<byte[],Float> decodeAsFloatTest = (byte[] values, Float expected) ->
+                {
+                    runner.test("with " + Objects.toString(values), (Test test) ->
+                    {
+                        test.assertEqual(expected, byteOrder.decodeAsFloat(Array.fromValues(values)));
+                    });
+                };
+
+                decodeAsFloatTest.run(new byte[] { 0, 0, 0, 0 }, 0f);
+                decodeAsFloatTest.run(new byte[] { 0, 0, -128, 63 }, 1f);
+                decodeAsFloatTest.run(new byte[] { 0, 0, -128, 65 }, 16f);
+                decodeAsFloatTest.run(new byte[] { 0, 0, -128, 66 }, 64f);
+                decodeAsFloatTest.run(new byte[] { 0, 0, 0, 67 }, 128f);
+                decodeAsFloatTest.run(new byte[] { 0, 0, -128, 67 }, 256f);
+                decodeAsFloatTest.run(new byte[] { 0, 0, -128, 68 }, 1024f);
+                decodeAsFloatTest.run(new byte[] { 0, 0, 0, 69 }, 2048f);
+                decodeAsFloatTest.run(new byte[] { 0, 0, -128, 69 }, 4096f);
+                decodeAsFloatTest.run(new byte[] { 0, 0, 0, 70 }, 8192f);
+                decodeAsFloatTest.run(new byte[] { 0, 0, -128, 70 }, 16384f);
+                decodeAsFloatTest.run(new byte[] { 0, 0, 0, 71 }, 32768f);
+                decodeAsFloatTest.run(new byte[] { 0, 0, -128, 71 }, 65536f);
+                decodeAsFloatTest.run(new byte[] { 0, 0, -128, 73 }, 1048576f);
+                decodeAsFloatTest.run(new byte[] { 0, 0, -128, 74 }, 4194304f);
+                decodeAsFloatTest.run(new byte[] { 0, 0, 0, 75 }, 8388608f);
+                decodeAsFloatTest.run(new byte[] { 0, 0, -128, 75 }, 16777216f);
+                decodeAsFloatTest.run(new byte[] { 0, 0, -128, 77 }, 268435456f);
+                decodeAsFloatTest.run(new byte[] { 0, 0, -128, 78 }, 1073741824f);
+                decodeAsFloatTest.run(new byte[] { 0, 0, 0, 79 }, 2147483648f);
+                decodeAsFloatTest.run(new byte[] { 0, 0, -128, -65 }, -1f);
+            });
+
+            runner.testGroup("decodeAsDouble(byte[])", () ->
+            {
+                final Action2<byte[],Double> decodeAsDoubleTest = (byte[] values, Double expected) ->
+                {
+                    runner.test("with " + Objects.toString(values), (Test test) ->
+                    {
+                        test.assertEqual(expected, byteOrder.decodeAsDouble(values));
+                    });
+                };
+
+                decodeAsDoubleTest.run(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 }, 0.0);
+                decodeAsDoubleTest.run(new byte[] { 0, 0, 0, 0, 0, 0, -16, 63 }, 1.0);
+                decodeAsDoubleTest.run(new byte[] { 0, 0, 0, 0, 0, 0, 48, 64 }, 16.0);
+                decodeAsDoubleTest.run(new byte[] { 0, 0, 0, 0, 0, 0, 80, 64 }, 64.0);
+                decodeAsDoubleTest.run(new byte[] { 0, 0, 0, 0, 0, 0, 96, 64 }, 128.0);
+                decodeAsDoubleTest.run(new byte[] { 0, 0, 0, 0, 0, 0, 112, 64 }, 256.0);
+                decodeAsDoubleTest.run(new byte[] { 0, 0, 0, 0, 0, 0, -112, 64 }, 1024.0);
+                decodeAsDoubleTest.run(new byte[] { 0, 0, 0, 0, 0, 0, -96, 64 }, 2048.0);
+                decodeAsDoubleTest.run(new byte[] { 0, 0, 0, 0, 0, 0, -80, 64 }, 4096.0);
+                decodeAsDoubleTest.run(new byte[] { 0, 0, 0, 0, 0, 0, -64, 64 }, 8192.0);
+                decodeAsDoubleTest.run(new byte[] { 0, 0, 0, 0, 0, 0, -48, 64 }, 16384.0);
+                decodeAsDoubleTest.run(new byte[] { 0, 0, 0, 0, 0, 0, -32, 64 }, 32768.0);
+                decodeAsDoubleTest.run(new byte[] { 0, 0, 0, 0, 0, 0, -16, 64 }, 65536.0);
+                decodeAsDoubleTest.run(new byte[] { 0, 0, 0, 0, 0, 0, 48, 65 }, 1048576.0);
+                decodeAsDoubleTest.run(new byte[] { 0, 0, 0, 0, 0, 0, 80, 65 }, 4194304.0);
+                decodeAsDoubleTest.run(new byte[] { 0, 0, 0, 0, 0, 0, 96, 65 }, 8388608.0);
+                decodeAsDoubleTest.run(new byte[] { 0, 0, 0, 0, 0, 0, 112, 65 }, 16777216.0);
+                decodeAsDoubleTest.run(new byte[] { 0, 0, 0, 0, 0, 0, -80, 65 }, 268435456.0);
+                decodeAsDoubleTest.run(new byte[] { 0, 0, 0, 0, 0, 0, -48, 65 }, 1073741824.0);
+                decodeAsDoubleTest.run(new byte[] { 0, 0, 0, 0, 0, 0, -32, 65 }, 2147483648.0);
+                decodeAsDoubleTest.run(new byte[] { 0, 0, 0, 0, 0, 0, -16, -65 }, -1.0);
+            });
+
+            runner.testGroup("decodeAsDouble(Indexable<Byte>)", () ->
+            {
+                final Action2<byte[],Double> decodeAsDoubleTest = (byte[] values, Double expected) ->
+                {
+                    runner.test("with " + Objects.toString(values), (Test test) ->
+                    {
+                        test.assertEqual(expected, byteOrder.decodeAsDouble(Array.fromValues(values)));
+                    });
+                };
+
+                decodeAsDoubleTest.run(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 }, 0.0);
+                decodeAsDoubleTest.run(new byte[] { 0, 0, 0, 0, 0, 0, -16, 63 }, 1.0);
+                decodeAsDoubleTest.run(new byte[] { 0, 0, 0, 0, 0, 0, 48, 64 }, 16.0);
+                decodeAsDoubleTest.run(new byte[] { 0, 0, 0, 0, 0, 0, 80, 64 }, 64.0);
+                decodeAsDoubleTest.run(new byte[] { 0, 0, 0, 0, 0, 0, 96, 64 }, 128.0);
+                decodeAsDoubleTest.run(new byte[] { 0, 0, 0, 0, 0, 0, 112, 64 }, 256.0);
+                decodeAsDoubleTest.run(new byte[] { 0, 0, 0, 0, 0, 0, -112, 64 }, 1024.0);
+                decodeAsDoubleTest.run(new byte[] { 0, 0, 0, 0, 0, 0, -96, 64 }, 2048.0);
+                decodeAsDoubleTest.run(new byte[] { 0, 0, 0, 0, 0, 0, -80, 64 }, 4096.0);
+                decodeAsDoubleTest.run(new byte[] { 0, 0, 0, 0, 0, 0, -64, 64 }, 8192.0);
+                decodeAsDoubleTest.run(new byte[] { 0, 0, 0, 0, 0, 0, -48, 64 }, 16384.0);
+                decodeAsDoubleTest.run(new byte[] { 0, 0, 0, 0, 0, 0, -32, 64 }, 32768.0);
+                decodeAsDoubleTest.run(new byte[] { 0, 0, 0, 0, 0, 0, -16, 64 }, 65536.0);
+                decodeAsDoubleTest.run(new byte[] { 0, 0, 0, 0, 0, 0, 48, 65 }, 1048576.0);
+                decodeAsDoubleTest.run(new byte[] { 0, 0, 0, 0, 0, 0, 80, 65 }, 4194304.0);
+                decodeAsDoubleTest.run(new byte[] { 0, 0, 0, 0, 0, 0, 96, 65 }, 8388608.0);
+                decodeAsDoubleTest.run(new byte[] { 0, 0, 0, 0, 0, 0, 112, 65 }, 16777216.0);
+                decodeAsDoubleTest.run(new byte[] { 0, 0, 0, 0, 0, 0, -80, 65 }, 268435456.0);
+                decodeAsDoubleTest.run(new byte[] { 0, 0, 0, 0, 0, 0, -48, 65 }, 1073741824.0);
+                decodeAsDoubleTest.run(new byte[] { 0, 0, 0, 0, 0, 0, -32, 65 }, 2147483648.0);
+                decodeAsDoubleTest.run(new byte[] { 0, 0, 0, 0, 0, 0, -16, -65 }, -1.0);
+            });
+
+            runner.testGroup("decodeAsShortArray(byte[])", () ->
+            {
+                final Action2<byte[],short[]> decodeAsShortArrayTest = (byte[] values, short[] expected) ->
+                {
+                    runner.test("with " + Objects.toString(values), (Test test) ->
+                    {
+                        test.assertEqual(expected, byteOrder.decodeAsShortArray(values));
+                    });
+                };
+
+                decodeAsShortArrayTest.run(new byte[0], new short[0]);
+                decodeAsShortArrayTest.run(new byte[] { 0, 0 }, new short[] { 0 });
+                decodeAsShortArrayTest.run(new byte[] { 0, 0, 1, 0, 2, 0 }, new short[] { 0, 1, 2 });
+            });
+
+            runner.testGroup("decodeAsShortArray(Indexable<Byte>)", () ->
+            {
+                final Action2<byte[],short[]> decodeAsShortArrayTest = (byte[] values, short[] expected) ->
+                {
+                    runner.test("with " + Objects.toString(values), (Test test) ->
+                    {
+                        test.assertEqual(expected, byteOrder.decodeAsShortArray(Array.fromValues(values)));
+                    });
+                };
+
+                decodeAsShortArrayTest.run(new byte[0], new short[0]);
+                decodeAsShortArrayTest.run(new byte[] { 0, 0 }, new short[] { 0 });
+                decodeAsShortArrayTest.run(new byte[] { 0, 0, 1, 0, 2, 0 }, new short[] { 0, 1, 2 });
+            });
+
+            runner.testGroup("decodeAsIntegerArray(byte[])", () ->
+            {
+                final Action2<byte[],int[]> decodeAsIntegerArrayTest = (byte[] values, int[] expected) ->
+                {
+                    runner.test("with " + Objects.toString(values), (Test test) ->
+                    {
+                        test.assertEqual(expected, byteOrder.decodeAsIntegerArray(values));
+                    });
+                };
+
+                decodeAsIntegerArrayTest.run(new byte[0], new int[0]);
+                decodeAsIntegerArrayTest.run(new byte[] { 0, 0, 0, 0 }, new int[] { 0 });
+                decodeAsIntegerArrayTest.run(new byte[] { 0, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0 }, new int[] { 0, 1, 2 });
+            });
+
+            runner.testGroup("decodeAsIntegerArray(Indexable<Byte>)", () ->
+            {
+                final Action2<byte[],int[]> decodeAsIntegerArrayTest = (byte[] values, int[] expected) ->
+                {
+                    runner.test("with " + Objects.toString(values), (Test test) ->
+                    {
+                        test.assertEqual(expected, byteOrder.decodeAsIntegerArray(Array.fromValues(values)));
+                    });
+                };
+
+                decodeAsIntegerArrayTest.run(new byte[0], new int[0]);
+                decodeAsIntegerArrayTest.run(new byte[] { 0, 0, 0, 0 }, new int[] { 0 });
+                decodeAsIntegerArrayTest.run(new byte[] { 0, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0 }, new int[] { 0, 1, 2 });
+            });
+
+            runner.testGroup("decodeAsLongArray(byte[])", () ->
+            {
+                final Action2<byte[],long[]> decodeAsLongArrayTest = (byte[] values, long[] expected) ->
+                {
+                    runner.test("with " + Objects.toString(values), (Test test) ->
+                    {
+                        test.assertEqual(expected, byteOrder.decodeAsLongArray(values));
+                    });
+                };
+
+                decodeAsLongArrayTest.run(new byte[0], new long[0]);
+                decodeAsLongArrayTest.run(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 }, new long[] { 0 });
+                decodeAsLongArrayTest.run(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0 }, new long[] { 0, 1, 2 });
+            });
+
+            runner.testGroup("decodeAsLongArray(Indexable<Byte>)", () ->
+            {
+                final Action2<byte[],long[]> decodeAsLongArrayTest = (byte[] values, long[] expected) ->
+                {
+                    runner.test("with " + Objects.toString(values), (Test test) ->
+                    {
+                        test.assertEqual(expected, byteOrder.decodeAsLongArray(Array.fromValues(values)));
+                    });
+                };
+
+                decodeAsLongArrayTest.run(new byte[0], new long[0]);
+                decodeAsLongArrayTest.run(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 }, new long[] { 0 });
+                decodeAsLongArrayTest.run(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0 }, new long[] { 0, 1, 2 });
+            });
+
+            runner.testGroup("decodeAsFloatArray(byte[])", () ->
+            {
+                final Action2<byte[],float[]> decodeAsFloatArrayTest = (byte[] values, float[] expected) ->
+                {
+                    runner.test("with " + Objects.toString(values), (Test test) ->
+                    {
+                        test.assertEqual(expected, byteOrder.decodeAsFloatArray(values));
+                    });
+                };
+
+                decodeAsFloatArrayTest.run(new byte[0], new float[0]);
+                decodeAsFloatArrayTest.run(new byte[] { 0, 0, 0, 0 }, new float[] { 0 });
+                decodeAsFloatArrayTest.run(new byte[] { 0, 0, 0, 0, 0, 0, -128, 63, 0, 0, 0, 64 }, new float[] { 0, 1, 2 });
+            });
+
+            runner.testGroup("decodeAsFloatArray(Indexable<Byte>)", () ->
+            {
+                final Action2<byte[],float[]> decodeAsFloatArrayTest = (byte[] values, float[] expected) ->
+                {
+                    runner.test("with " + Objects.toString(values), (Test test) ->
+                    {
+                        test.assertEqual(expected, byteOrder.decodeAsFloatArray(Array.fromValues(values)));
+                    });
+                };
+
+                decodeAsFloatArrayTest.run(new byte[0], new float[0]);
+                decodeAsFloatArrayTest.run(new byte[] { 0, 0, 0, 0 }, new float[] { 0 });
+                decodeAsFloatArrayTest.run(new byte[] { 0, 0, 0, 0, 0, 0, -128, 63, 0, 0, 0, 64 }, new float[] { 0, 1, 2 });
+            });
+
+            runner.testGroup("decodeAsDoubleArray(byte[])", () ->
+            {
+                final Action2<byte[],double[]> decodeAsDoubleArrayTest = (byte[] values, double[] expected) ->
+                {
+                    runner.test("with " + Objects.toString(values), (Test test) ->
+                    {
+                        test.assertEqual(expected, byteOrder.decodeAsDoubleArray(values));
+                    });
+                };
+
+                decodeAsDoubleArrayTest.run(new byte[0], new double[0]);
+                decodeAsDoubleArrayTest.run(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 }, new double[] { 0 });
+                decodeAsDoubleArrayTest.run(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -16, 63, 0, 0, 0, 0, 0, 0, 0, 64 }, new double[] { 0, 1, 2 });
+            });
+
+            runner.testGroup("decodeAsDoubleArray(Indexable<Byte>)", () ->
+            {
+                final Action2<byte[],double[]> decodeAsDoubleArrayTest = (byte[] values, double[] expected) ->
+                {
+                    runner.test("with " + Objects.toString(values), (Test test) ->
+                    {
+                        test.assertEqual(expected, byteOrder.decodeAsDoubleArray(Array.fromValues(values)));
+                    });
+                };
+
+                decodeAsDoubleArrayTest.run(new byte[0], new double[0]);
+                decodeAsDoubleArrayTest.run(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 }, new double[] { 0 });
+                decodeAsDoubleArrayTest.run(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -16, 63, 0, 0, 0, 0, 0, 0, 0, 64 }, new double[] { 0, 1, 2 });
+            });
         });
     }
 }

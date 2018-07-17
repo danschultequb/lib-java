@@ -76,21 +76,19 @@ public class LittleEndian extends ByteOrder
     }
 
     @Override
-    public int decodeAsInt(byte[] bytes)
+    public int decodeAsInteger(byte[] bytes)
     {
         PreCondition.assertNotNull(bytes, "bytes");
         PreCondition.assertEqual(Integers.byteCount, bytes.length, "bytes.length");
 
-        final int result = (Bytes.toUnsignedInt(bytes[0]) <<  0) |
-                               (Bytes.toUnsignedInt(bytes[1]) <<  8) |
-                               (Bytes.toUnsignedInt(bytes[2]) << 16) |
-                               (Bytes.toUnsignedInt(bytes[3]) << 24);
-
-        return result;
+        return (Bytes.toUnsignedInt(bytes[0]) <<  0) |
+               (Bytes.toUnsignedInt(bytes[1]) <<  8) |
+               (Bytes.toUnsignedInt(bytes[2]) << 16) |
+               (Bytes.toUnsignedInt(bytes[3]) << 24);
     }
 
     @Override
-    public int decodeAsInt(Indexable<Byte> bytes)
+    public int decodeAsInteger(Indexable<Byte> bytes)
     {
         PreCondition.assertNotNull(bytes, "bytes");
         PreCondition.assertEqual(Integers.byteCount, bytes.getCount(), "bytes.getCount()");

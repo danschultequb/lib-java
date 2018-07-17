@@ -125,9 +125,9 @@ public abstract class ByteOrder
 
     public abstract short decodeAsShort(Indexable<Byte> bytes);
 
-    public abstract int decodeAsInt(byte[] bytes);
+    public abstract int decodeAsInteger(byte[] bytes);
 
-    public abstract int decodeAsInt(Indexable<Byte> bytes);
+    public abstract int decodeAsInteger(Indexable<Byte> bytes);
 
     public abstract long decodeAsLong(byte[] bytes);
 
@@ -138,7 +138,7 @@ public abstract class ByteOrder
         PreCondition.assertNotNull(bytes, "bytes");
         PreCondition.assertEqual(Floats.byteCount, bytes.length, "bytes.length");
 
-        final int intBits = decodeAsInt(bytes);
+        final int intBits = decodeAsInteger(bytes);
         final float result = Float.intBitsToFloat(intBits);
 
         return result;
@@ -149,7 +149,7 @@ public abstract class ByteOrder
         PreCondition.assertNotNull(bytes, "bytes");
         PreCondition.assertEqual(Floats.byteCount, bytes.getCount(), "bytes.getCount()");
 
-        final int intBits = decodeAsInt(bytes);
+        final int intBits = decodeAsInteger(bytes);
         final float result = Float.intBitsToFloat(intBits);
 
         return result;
@@ -211,7 +211,7 @@ public abstract class ByteOrder
         return result;
     }
 
-    public int[] decodeAsIntArray(byte[] bytes)
+    public int[] decodeAsIntegerArray(byte[] bytes)
     {
         PreCondition.assertNotNull(bytes, "bytes");
         PreCondition.assertEqual(0, bytes.length % Integers.byteCount, "bytes.length % Integers.byteCount");
@@ -219,7 +219,7 @@ public abstract class ByteOrder
         final int[] result = new int[bytes.length / Integers.byteCount];
         for(int i = 0; i < result.length; ++i)
         {
-            result[i] = decodeAsInt(ByteArray.getRange(bytes, i * Integers.byteCount, Integers.byteCount));
+            result[i] = decodeAsInteger(ByteArray.getRange(bytes, i * Integers.byteCount, Integers.byteCount));
         }
 
         PostCondition.assertNotNull(result, "result");
@@ -228,7 +228,7 @@ public abstract class ByteOrder
         return result;
     }
 
-    public int[] decodeAsIntArray(Indexable<Byte> bytes)
+    public int[] decodeAsIntegerArray(Indexable<Byte> bytes)
     {
         PreCondition.assertNotNull(bytes, "bytes");
         PreCondition.assertEqual(0, bytes.getCount() % Integers.byteCount, "bytes.getCount() % Integers.byteCount");
@@ -236,7 +236,7 @@ public abstract class ByteOrder
         final int[] result = new int[bytes.getCount() / Integers.byteCount];
         for(int i = 0; i < result.length; ++i)
         {
-            result[i] = decodeAsInt(bytes.getRange(i * Integers.byteCount, Integers.byteCount));
+            result[i] = decodeAsInteger(bytes.getRange(i * Integers.byteCount, Integers.byteCount));
         }
 
         PostCondition.assertNotNull(result, "result");
