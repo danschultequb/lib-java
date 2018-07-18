@@ -8,6 +8,36 @@ public abstract class ByteOrder
 {
     public static final LittleEndian LittleEndian = new LittleEndian();
 
+    public static final BigEndian BigEndian = new BigEndian();
+
+    public static final BigEndian Network = ByteOrder.BigEndian;
+
+    public static final BigEndian Java = ByteOrder.BigEndian;
+
+    /**
+     * Convert the provided big-endian short to a little-endian short.
+     * @param bigEndianShort The big-endian short to convert to a little-endian short.
+     * @return The converted little-endian short.
+     */
+    public static short toLittleEndianShort(short bigEndianShort)
+    {
+        return (short)((bigEndianShort & 0xff00) >>> (1 * Bytes.bitCount) |
+                       (bigEndianShort & 0x00ff) << (1 * Bytes.bitCount));
+    }
+
+    /**
+     * Convert the provided big-endian integer to a little-endian integer.
+     * @param bigEndianInteger The big-endian integer to convert to a little-endian integer.
+     * @return The converted little-endian integer.
+     */
+    public static int toLittleEndianInteger(int bigEndianInteger)
+    {
+        return (bigEndianInteger & 0xff000000) >>> (3 * Bytes.bitCount) |
+               (bigEndianInteger & 0x00ff0000) >>> (1 * Bytes.bitCount) |
+               (bigEndianInteger & 0x0000ff00) << (1 * Bytes.bitCount) |
+               (bigEndianInteger & 0x000000ff) << (3 * Bytes.bitCount);
+    }
+
     public abstract byte[] encodeShort(short value);
 
     public abstract byte[] encodeInteger(int value);
