@@ -21,7 +21,7 @@ public class MD5Tests
                 {
                     final BitArray expectedPadding = BitArray.fromBitCount(511);
                     expectedPadding.setBit(0, 1);
-                    expectedPadding.setLastBitsFromLong(1);
+                    expectedPadding.setLastBitsFromLong(ByteOrder.toLittleEndianLong(1));
                     test.assertEqual(expectedPadding, md5.getPaddingFromBitCount(1));
                 });
 
@@ -29,7 +29,7 @@ public class MD5Tests
                 {
                     final BitArray expectedPadding = BitArray.fromBitCount(510);
                     expectedPadding.setBit(0, 1);
-                    expectedPadding.setLastBitsFromLong(2);
+                    expectedPadding.setLastBitsFromLong(ByteOrder.toLittleEndianLong(2));
                     test.assertEqual(expectedPadding, md5.getPaddingFromBitCount(2));
                 });
 
@@ -37,7 +37,7 @@ public class MD5Tests
                 {
                     final BitArray expectedPadding = BitArray.fromBitCount(509);
                     expectedPadding.setBit(0, 1);
-                    expectedPadding.setLastBitsFromLong(3);
+                    expectedPadding.setLastBitsFromLong(ByteOrder.toLittleEndianLong(3));
                     test.assertEqual(expectedPadding, md5.getPaddingFromBitCount(3));
                 });
 
@@ -45,7 +45,7 @@ public class MD5Tests
                 {
                     final BitArray expectedPadding = BitArray.fromBitCount(508);
                     expectedPadding.setBit(0, 1);
-                    expectedPadding.setLastBitsFromLong(4);
+                    expectedPadding.setLastBitsFromLong(ByteOrder.toLittleEndianLong(4));
                     test.assertEqual(expectedPadding, md5.getPaddingFromBitCount(4));
                 });
 
@@ -53,7 +53,7 @@ public class MD5Tests
                 {
                     final BitArray expectedPadding = BitArray.fromBitCount(67);
                     expectedPadding.setBit(0, 1);
-                    expectedPadding.setLastBitsFromLong(445);
+                    expectedPadding.setLastBitsFromLong(ByteOrder.toLittleEndianLong(445));
                     test.assertEqual(expectedPadding, md5.getPaddingFromBitCount(445));
                 });
 
@@ -61,7 +61,7 @@ public class MD5Tests
                 {
                     final BitArray expectedPadding = BitArray.fromBitCount(66);
                     expectedPadding.setBit(0, 1);
-                    expectedPadding.setLastBitsFromLong(446);
+                    expectedPadding.setLastBitsFromLong(ByteOrder.toLittleEndianLong(446));
                     test.assertEqual(expectedPadding, md5.getPaddingFromBitCount(446));
                 });
 
@@ -69,7 +69,7 @@ public class MD5Tests
                 {
                     final BitArray expectedPadding = BitArray.fromBitCount(65);
                     expectedPadding.setBit(0, 1);
-                    expectedPadding.setLastBitsFromLong(447);
+                    expectedPadding.setLastBitsFromLong(ByteOrder.toLittleEndianLong(447));
                     test.assertEqual(expectedPadding, md5.getPaddingFromBitCount(447));
                 });
 
@@ -77,7 +77,7 @@ public class MD5Tests
                 {
                     final BitArray expectedPadding = BitArray.fromBitCount(576);
                     expectedPadding.setBit(0, 1);
-                    expectedPadding.setLastBitsFromLong(448);
+                    expectedPadding.setLastBitsFromLong(ByteOrder.toLittleEndianLong(448));
                     test.assertEqual(expectedPadding, md5.getPaddingFromBitCount(448));
                 });
 
@@ -85,7 +85,7 @@ public class MD5Tests
                 {
                     final BitArray expectedPadding = BitArray.fromBitCount(575);
                     expectedPadding.setBit(0, 1);
-                    expectedPadding.setLastBitsFromLong(449);
+                    expectedPadding.setLastBitsFromLong(ByteOrder.toLittleEndianLong(449));
                     test.assertEqual(expectedPadding, md5.getPaddingFromBitCount(449));
                 });
 
@@ -93,7 +93,7 @@ public class MD5Tests
                 {
                     final BitArray expectedPadding = BitArray.fromBitCount(574);
                     expectedPadding.setBit(0, 1);
-                    expectedPadding.setLastBitsFromLong(450);
+                    expectedPadding.setLastBitsFromLong(ByteOrder.toLittleEndianLong(450));
                     test.assertEqual(expectedPadding, md5.getPaddingFromBitCount(450));
                 });
 
@@ -101,7 +101,7 @@ public class MD5Tests
                 {
                     final BitArray expectedPadding = BitArray.fromBitCount(573);
                     expectedPadding.setBit(0, 1);
-                    expectedPadding.setLastBitsFromLong(451);
+                    expectedPadding.setLastBitsFromLong(ByteOrder.toLittleEndianLong(451));
                     test.assertEqual(expectedPadding, md5.getPaddingFromBitCount(451));
                 });
 
@@ -109,7 +109,7 @@ public class MD5Tests
                 {
                     final BitArray expectedPadding = BitArray.fromBitCount(514);
                     expectedPadding.setBit(0, 1);
-                    expectedPadding.setLastBitsFromLong(510);
+                    expectedPadding.setLastBitsFromLong(ByteOrder.toLittleEndianLong(510));
                     test.assertEqual(expectedPadding, md5.getPaddingFromBitCount(510));
                 });
 
@@ -117,7 +117,7 @@ public class MD5Tests
                 {
                     final BitArray expectedPadding = BitArray.fromBitCount(513);
                     expectedPadding.setBit(0, 1);
-                    expectedPadding.setLastBitsFromLong(511);
+                    expectedPadding.setLastBitsFromLong(ByteOrder.toLittleEndianLong(511));
                     test.assertEqual(expectedPadding, md5.getPaddingFromBitCount(511));
                 });
 
@@ -125,7 +125,7 @@ public class MD5Tests
                 {
                     final BitArray expectedPadding = BitArray.fromBitCount(512);
                     expectedPadding.setBit(0, 1);
-                    expectedPadding.setLastBitsFromLong(512);
+                    expectedPadding.setLastBitsFromLong(ByteOrder.toLittleEndianLong(512));
                     test.assertEqual(expectedPadding, md5.getPaddingFromBitCount(512));
                 });
 
@@ -133,7 +133,7 @@ public class MD5Tests
                 {
                     final BitArray expectedPadding = BitArray.fromBitCount(511);
                     expectedPadding.setBit(0, 1);
-                    expectedPadding.setLastBitsFromLong(513);
+                    expectedPadding.setLastBitsFromLong(ByteOrder.toLittleEndianLong(513));
                     test.assertEqual(expectedPadding, md5.getPaddingFromBitCount(513));
                 });
             });

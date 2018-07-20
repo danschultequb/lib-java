@@ -79,6 +79,8 @@ public class Bytes
      */
     public static char toHexChar(int value)
     {
+        PreCondition.assertBetween(0, value, 15, "value");
+
         char result = UTF8CharacterEncoding.replacementCharacter;
         if (0 <= value)
         {
@@ -91,6 +93,33 @@ public class Bytes
                 result = (char)('A' + value - 10);
             }
         }
+
+        return result;
+    }
+
+    /**
+     * Get the hex character representation of the provided value. If the provided value is not
+     * between 0 and 15 (inclusive), then the replacement character will be returned.
+     * @param value The value to convert to a hex character.
+     * @return The hex character associated with the provided value.
+     */
+    public static char toHexChar(long value)
+    {
+        PreCondition.assertBetween(0, value, 15, "value");
+
+        char result = UTF8CharacterEncoding.replacementCharacter;
+        if (0 <= value)
+        {
+            if (value <= 9)
+            {
+                result = (char)('0' + value);
+            }
+            else if (value <= 15)
+            {
+                result = (char)('A' + value - 10);
+            }
+        }
+
         return result;
     }
 

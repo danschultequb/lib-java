@@ -38,6 +38,23 @@ public abstract class ByteOrder
                (bigEndianInteger & 0x000000ff) << (3 * Bytes.bitCount);
     }
 
+    /**
+     * Convert the provided big-endian long to a little-endian long.
+     * @param bigEndianLong The big-endian long to convert to a little-endian long.
+     * @return The converted little-endian long.
+     */
+    public static long toLittleEndianLong(long bigEndianLong)
+    {
+        return (bigEndianLong & 0xff00000000000000L) >>> (7 * Bytes.bitCount) |
+               (bigEndianLong & 0x00ff000000000000L) >>> (5 * Bytes.bitCount) |
+               (bigEndianLong & 0x0000ff0000000000L) >>> (3 * Bytes.bitCount) |
+               (bigEndianLong & 0x000000ff00000000L) >>> (1 * Bytes.bitCount) |
+               (bigEndianLong & 0x00000000ff000000L) << (1 * Bytes.bitCount) |
+               (bigEndianLong & 0x0000000000ff0000L) << (3 * Bytes.bitCount) |
+               (bigEndianLong & 0x000000000000ff00L) << (5 * Bytes.bitCount) |
+               (bigEndianLong & 0x00000000000000ffL) << (7 * Bytes.bitCount);
+    }
+
     public abstract byte[] encodeShort(short value);
 
     public abstract byte[] encodeInteger(int value);

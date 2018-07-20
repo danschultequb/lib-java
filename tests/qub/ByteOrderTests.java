@@ -30,78 +30,69 @@ public class ByteOrderTests
 
             runner.testGroup("toLittleEndianShort(short)", () ->
             {
-                runner.test("with 0x0000", (Test test) ->
+                final Action2<Short,Short> toLittleEndianShortTest = (Short value, Short expected) ->
                 {
-                    test.assertEqual((short)0x0000, ByteOrder.toLittleEndianShort((short)0x0000));
-                });
+                    runner.test("with 0x" + Shorts.toHexString(value), (Test test) ->
+                    {
+                        test.assertEqual(Shorts.toHexString(expected), Shorts.toHexString(ByteOrder.toLittleEndianShort(value)));
+                    });
+                };
 
-                runner.test("with 0x0001", (Test test) ->
-                {
-                    test.assertEqual((short)0x0100, ByteOrder.toLittleEndianShort((short)0x0001));
-                });
-
-                runner.test("with 0x0010", (Test test) ->
-                {
-                    test.assertEqual((short)0x1000, ByteOrder.toLittleEndianShort((short)0x0010));
-                });
-
-                runner.test("with 0x0100", (Test test) ->
-                {
-                    test.assertEqual((short)0x0001, ByteOrder.toLittleEndianShort((short)0x0100));
-                });
-
-                runner.test("with 0x1000", (Test test) ->
-                {
-                    test.assertEqual((short)0x0010, ByteOrder.toLittleEndianShort((short)0x1000));
-                });
+                toLittleEndianShortTest.run((short)0x0000, (short)0x0000);
+                toLittleEndianShortTest.run((short)0x0001, (short)0x0100);
+                toLittleEndianShortTest.run((short)0x0010, (short)0x1000);
+                toLittleEndianShortTest.run((short)0x0100, (short)0x0001);
+                toLittleEndianShortTest.run((short)0x1000, (short)0x0010);
             });
 
             runner.testGroup("toLittleEndianInteger(int)", () ->
             {
-                runner.test("with 0x00000000", (Test test) ->
+                final Action2<Integer,Integer> toLittleEndianIntegerTest = (Integer value, Integer expected) ->
                 {
-                    test.assertEqual(0x00000000, ByteOrder.toLittleEndianInteger(0x00000000));
-                });
+                    runner.test("with 0x" + Integers.toHexString(value), (Test test) ->
+                    {
+                        test.assertEqual(Integers.toHexString(expected), Integers.toHexString(ByteOrder.toLittleEndianInteger(value)));
+                    });
+                };
 
-                runner.test("with 0x00000001", (Test test) ->
-                {
-                    test.assertEqual(0x01000000, ByteOrder.toLittleEndianInteger(0x00000001));
-                });
+                toLittleEndianIntegerTest.run(0x00000000, 0x00000000);
+                toLittleEndianIntegerTest.run(0x00000001, 0x01000000);
+                toLittleEndianIntegerTest.run(0x00000010, 0x10000000);
+                toLittleEndianIntegerTest.run(0x00000100, 0x00010000);
+                toLittleEndianIntegerTest.run(0x00001000, 0x00100000);
+                toLittleEndianIntegerTest.run(0x00010000, 0x00000100);
+                toLittleEndianIntegerTest.run(0x00100000, 0x00001000);
+                toLittleEndianIntegerTest.run(0x01000000, 0x00000001);
+                toLittleEndianIntegerTest.run(0x10000000, 0x00000010);
+            });
 
-                runner.test("with 0x00000010", (Test test) ->
+            runner.testGroup("toLittleEndianLong(long)", () ->
+            {
+                final Action2<Long,Long> toLittleEndianLongTest = (Long value, Long expected) ->
                 {
-                    test.assertEqual(0x10000000, ByteOrder.toLittleEndianInteger(0x00000010));
-                });
+                    runner.test("with 0x" + Longs.toHexString(value), (Test test) ->
+                    {
+                        test.assertEqual(Longs.toHexString(expected), Longs.toHexString(ByteOrder.toLittleEndianLong(value)));
+                    });
+                };
 
-                runner.test("with 0x00000100", (Test test) ->
-                {
-                    test.assertEqual(0x00010000, ByteOrder.toLittleEndianInteger(0x00000100));
-                });
-
-                runner.test("with 0x00001000", (Test test) ->
-                {
-                    test.assertEqual(0x00100000, ByteOrder.toLittleEndianInteger(0x00001000));
-                });
-
-                runner.test("with 0x00010000", (Test test) ->
-                {
-                    test.assertEqual(0x00000100, ByteOrder.toLittleEndianInteger(0x00010000));
-                });
-
-                runner.test("with 0x00100000", (Test test) ->
-                {
-                    test.assertEqual(0x00001000, ByteOrder.toLittleEndianInteger(0x00100000));
-                });
-
-                runner.test("with 0x01000000", (Test test) ->
-                {
-                    test.assertEqual(0x00000001, ByteOrder.toLittleEndianInteger(0x01000000));
-                });
-
-                runner.test("with 0x10000000", (Test test) ->
-                {
-                    test.assertEqual(0x00000010, ByteOrder.toLittleEndianInteger(0x10000000));
-                });
+                toLittleEndianLongTest.run(0x0000000000000000L, 0x0000000000000000L);
+                toLittleEndianLongTest.run(0x0000000000000001L, 0x0100000000000000L);
+                toLittleEndianLongTest.run(0x0000000000000010L, 0x1000000000000000L);
+                toLittleEndianLongTest.run(0x0000000000000100L, 0x0001000000000000L);
+                toLittleEndianLongTest.run(0x0000000000001000L, 0x0010000000000000L);
+                toLittleEndianLongTest.run(0x0000000000010000L, 0x0000010000000000L);
+                toLittleEndianLongTest.run(0x0000000000100000L, 0x0000100000000000L);
+                toLittleEndianLongTest.run(0x0000000001000000L, 0x0000000100000000L);
+                toLittleEndianLongTest.run(0x0000000010000000L, 0x0000001000000000L);
+                toLittleEndianLongTest.run(0x0000000100000000L, 0x0000000001000000L);
+                toLittleEndianLongTest.run(0x0000001000000000L, 0x0000000010000000L);
+                toLittleEndianLongTest.run(0x0000010000000000L, 0x0000000000010000L);
+                toLittleEndianLongTest.run(0x0000100000000000L, 0x0000000000100000L);
+                toLittleEndianLongTest.run(0x0001000000000000L, 0x0000000000000100L);
+                toLittleEndianLongTest.run(0x0010000000000000L, 0x0000000000001000L);
+                toLittleEndianLongTest.run(0x0100000000000000L, 0x0000000000000001L);
+                toLittleEndianLongTest.run(0x1000000000000000L, 0x0000000000000010L);
             });
         });
     }

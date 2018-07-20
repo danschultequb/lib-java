@@ -88,6 +88,19 @@ public class BytesTests
 
             runner.testGroup("toHexChar(int)", () ->
             {
+                final Action1<Integer> toHexCharFailureTest = (Integer value) ->
+                {
+                    runner.test("with " + value, (Test test) ->
+                    {
+                        test.assertThrows(() -> Bytes.toHexChar(value));
+                    });
+                };
+
+                toHexCharFailureTest.run(-2);
+                toHexCharFailureTest.run(-1);
+                toHexCharFailureTest.run(16);
+                toHexCharFailureTest.run(17);
+
                 final Action2<Integer,Character> toHexCharTest = (Integer value, Character expected) ->
                 {
                     runner.test("with " + value, (Test test) ->
@@ -96,21 +109,47 @@ public class BytesTests
                     });
                 };
 
-                toHexCharTest.run(-2, UTF8CharacterEncoding.replacementCharacter);
-                toHexCharTest.run(-1, UTF8CharacterEncoding.replacementCharacter);
+                for (int i = 0; i <= 9; ++i)
+                {
+                    toHexCharTest.run(i, (char)('0' + i));
+                }
+                for (int i = 10; i <= 15; ++i)
+                {
+                    toHexCharTest.run(i, (char)('A' + i - 10));
+                }
+            });
+
+            runner.testGroup("toHexChar(long)", () ->
+            {
+                final Action1<Integer> toHexCharFailureTest = (Integer value) ->
+                {
+                    runner.test("with " + value, (Test test) ->
+                    {
+                        test.assertThrows(() -> Bytes.toHexChar(value.longValue()));
+                    });
+                };
+
+                toHexCharFailureTest.run(-2);
+                toHexCharFailureTest.run(-1);
+                toHexCharFailureTest.run(16);
+                toHexCharFailureTest.run(17);
+
+                final Action2<Integer,Character> toHexCharTest = (Integer value, Character expected) ->
+                {
+                    runner.test("with " + value, (Test test) ->
+                    {
+                        test.assertEqual(expected, Bytes.toHexChar(value.longValue()));
+                    });
+                };
 
                 for (int i = 0; i <= 9; ++i)
                 {
                     toHexCharTest.run(i, (char)('0' + i));
                 }
-
                 for (int i = 10; i <= 15; ++i)
                 {
                     toHexCharTest.run(i, (char)('A' + i - 10));
                 }
-
-                toHexCharTest.run(16, UTF8CharacterEncoding.replacementCharacter);
-                toHexCharTest.run(17, UTF8CharacterEncoding.replacementCharacter);
             });
         });
     }
