@@ -79,7 +79,9 @@ public class ManualAsyncRunner extends AsyncRunnerBase
     {
         if (!asyncTask.isCompleted())
         {
-            if (asyncTask.getAsyncRunner() == this && AsyncRunnerRegistry.getCurrentThreadAsyncRunner() == this)
+            final AsyncRunner asyncTaskRunner = asyncTask.getAsyncRunner();
+            final AsyncRunner currentThreadAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+            if (asyncTaskRunner == this && currentThreadAsyncRunner == this)
             {
                 // If the thread that is running this is the same thread that this ManualAsyncRunner
                 // is using, then let's help it along by executing the scheduled tasks until the

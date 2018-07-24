@@ -60,6 +60,21 @@ public interface AsyncRunner extends Disposable
     void schedule(PausedAsyncTask asyncTask);
 
     /**
+     * Get an action that will run when the provided asyncActions all complete.
+     * @param asyncActions The asyncActions that must complete before the returned AsyncAction will
+     *                     be run.
+     * @return An AsyncAction that will be run when the provided asyncActions all complete.
+     */
+    AsyncAction whenAll(AsyncAction... asyncActions);
+
+    /**
+     * Await all of the provided AsyncActions. The AsyncActions will be awaited in the order that
+     * they are iterated over in the provided Iterable.
+     * @param asyncActions The AsyncActions to await.
+     */
+    void awaitAll(AsyncAction... asyncActions);
+
+    /**
      * Create an AsyncFunction that returns a successful Result.
      * @param <T> The type of Result to return.
      * @return An AsyncFunction that returns a successful Result.

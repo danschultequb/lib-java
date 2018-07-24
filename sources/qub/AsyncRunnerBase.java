@@ -1,10 +1,14 @@
 package qub;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public abstract class AsyncRunnerBase extends DisposableBase implements AsyncRunner
 {
     @Override
     public AsyncAction scheduleAsyncAction(Function0<AsyncAction> function)
     {
+        PreCondition.assertNotNull(function, "function");
+
         return schedule(new Action0()
             {
                 @Override
@@ -18,6 +22,8 @@ public abstract class AsyncRunnerBase extends DisposableBase implements AsyncRun
     @Override
     public <T> AsyncFunction<T> scheduleAsyncFunction(Function0<AsyncFunction<T>> function)
     {
+        PreCondition.assertNotNull(function, "function");
+
         return schedule(new Action0()
             {
                 @Override
@@ -29,13 +35,80 @@ public abstract class AsyncRunnerBase extends DisposableBase implements AsyncRun
     }
 
     @Override
+    public AsyncAction whenAll(AsyncAction... asyncActions)
+    {
+        PreCondition.assertNotNullAndNotEmpty(asyncActions, "asyncActions");
+
+        final BasicAsyncAction result = new BasicAsyncAction(new Value<AsyncRunner>(this), null);
+        final int asyncActionsCount = asyncActions.length;
+        final AtomicInteger completedAsyncActions = new AtomicInteger(0);
+        final List<Throwable> errors = new ArrayList<>();
+        final Action0 onCompleted = new Action0()
+        {
+            @Override
+            public void run()
+            {
+                completedAsyncActions.incrementAndGet();
+                if (completedAsyncActions.get() == asyncActionsCount)
+                {
+                    if (errors.any())
+                    {
+                        result.setIncomingError(ErrorIterable.from(errors));
+                    }
+                    result.schedule();
+                }
+            }
+        };
+        for (final AsyncAction asyncAction : asyncActions)
+        {
+            result.addParentTask(asyncAction);
+            asyncAction
+                .then(onCompleted)
+                .catchError(new Action1<Throwable>()
+                {
+                    @Override
+                    public void run(Throwable error)
+                    {
+                        errors.add(error);
+                        onCompleted.run();
+                    }
+                });
+        }
+        return result;
+    }
+
+    @Override
+    public void awaitAll(AsyncAction... asyncActions)
+    {
+        if (asyncActions != null && asyncActions.length > 0)
+        {
+            final List<Throwable> errors = new ArrayList<Throwable>();
+            for (final AsyncAction asyncAction : asyncActions)
+            {
+                try
+                {
+                    asyncAction.await();
+                }
+                catch (Throwable error)
+                {
+                    errors.add(error);
+                }
+            }
+            if (errors.any())
+            {
+                throw ErrorIterable.from(errors);
+            }
+        }
+    }
+
+    @Override
     public <T> AsyncFunction<Result<T>> success()
     {
         return done(null, null);
     }
 
     @Override
-    public <T> AsyncFunction<Result<T>> success(final T value)
+    public <T> AsyncFunction<Result<T>> success(T value)
     {
         return done(Result.success(value));
     }
@@ -47,22 +120,18 @@ public abstract class AsyncRunnerBase extends DisposableBase implements AsyncRun
     }
 
     @Override
-    public <T> AsyncFunction<Result<T>> done(final T value, final Throwable error)
+    public <T> AsyncFunction<Result<T>> done(T value, Throwable error)
     {
         return done(Result.done(value, error));
     }
 
     @Override
-    public <T> AsyncFunction<Result<T>> done(final Result<T> result)
+    public <T> AsyncFunction<Result<T>> done(Result<T> asyncResult)
     {
-        return schedule(new Function0<Result<T>>()
-        {
-            @Override
-            public Result<T> run()
-            {
-                return result;
-            }
-        });
+        final BasicAsyncFunction<Result<T>> result = new BasicAsyncFunction<>(new Value<AsyncRunner>(this), null);
+        result.markCompleted();
+        result.setFunctionResult(asyncResult);
+        return result;
     }
 
     @Override
@@ -91,42 +160,5 @@ public abstract class AsyncRunnerBase extends DisposableBase implements AsyncRun
     {
         final Result<T> innerResult = Result.greaterThan(lowerBound, value, parameterName);
         return innerResult == null ? null : done(innerResult);
-    }
-
-    /**
-     * Await all of the provided AsyncActions.
-     * @param asyncActions The AsyncActions to await.
-     */
-    public static void awaitAll(AsyncAction... asyncActions)
-    {
-        awaitAll(Array.fromValues(asyncActions));
-    }
-
-    /**
-     * Await all of the provided AsyncActions. The AsyncActions will be awaited in the order that
-     * they are iterated over in the provided Iterable.
-     * @param asyncActions The AsyncActions to await.
-     */
-    public static void awaitAll(Iterable<AsyncAction> asyncActions)
-    {
-        if (asyncActions != null && asyncActions.any())
-        {
-            final List<Throwable> errors = new ArrayList<Throwable>();
-            for (final AsyncAction asyncAction : asyncActions)
-            {
-                try
-                {
-                    asyncAction.await();
-                }
-                catch (Throwable error)
-                {
-                    errors.add(error);
-                }
-            }
-            if (errors.any())
-            {
-                throw ErrorIterable.from(errors);
-            }
-        }
     }
 }

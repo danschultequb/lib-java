@@ -78,7 +78,7 @@ public class NetworkTests
                         }
                     });
 
-                    AsyncRunnerBase.awaitAll(clientTask, serverTask);
+                    asyncRunner.awaitAll(clientTask, serverTask);
                 });
             });
 

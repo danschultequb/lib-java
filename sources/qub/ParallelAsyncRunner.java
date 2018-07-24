@@ -26,17 +26,13 @@ public class ParallelAsyncRunner extends AsyncRunnerBase
     }
 
     @Override
-    public void markCompleted(final Setable<Boolean> asyncTaskCompleted)
+    public void markCompleted(Setable<Boolean> asyncTaskCompleted)
     {
-        spinMutex.criticalSection(new Action0()
+        try (final Disposable criticalSection = spinMutex.criticalSection())
         {
-            @Override
-            public void run()
-            {
-                scheduledTaskCount.decrementAndGet();
-                asyncTaskCompleted.set(true);
-            }
-        });
+            scheduledTaskCount.decrementAndGet();
+            asyncTaskCompleted.set(true);
+        }
     }
 
     @Override

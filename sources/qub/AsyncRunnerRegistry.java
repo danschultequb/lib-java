@@ -35,6 +35,29 @@ public class AsyncRunnerRegistry
         asyncRunners.set(threadId, runner);
     }
 
+    public static void withCurrentThreadAsyncRunner(AsyncRunner runner, Action0 action)
+    {
+        final long currentThreadId = getCurrentThreadId();
+        withThreadAsyncRunner(currentThreadId, runner, action);
+    }
+
+    public static void withThreadAsyncRunner(long threadId, AsyncRunner runner, Action0 action)
+    {
+        final AsyncRunner backup = getThreadAsyncRunner(threadId);
+        setThreadAsyncRunner(threadId, runner);
+        try
+        {
+            if (action != null)
+            {
+                action.run();
+            }
+        }
+        finally
+        {
+            setThreadAsyncRunner(threadId, backup);
+        }
+    }
+
     public static boolean removeCurrentThreadAsyncRunner()
     {
         final long currentThreadId = getCurrentThreadId();

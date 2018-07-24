@@ -10,7 +10,6 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
     private volatile Throwable incomingError;
     private volatile Throwable outgoingError;
 
-
     BasicAsyncTask(Getable<AsyncRunner> asyncRunner)
     {
         this.asyncRunner = asyncRunner;
@@ -18,6 +17,11 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
         this.pausedTasks = LockedList.from(new SingleLinkList<BasicAsyncTask>());
         this.completed = new Value<Boolean>(false);
         this.mutex = new SpinMutex();
+    }
+
+    protected void markCompleted()
+    {
+        completed.set(true);
     }
 
     @Override
