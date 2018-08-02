@@ -1,7 +1,7 @@
 package qub;
 
 /**
- * A Stopwatch implementation that uses Java's built in nanoTime() function.
+ * A Stopwatch implementation that uses Java10's built in nanoTime() function.
  */
 public class JavaStopwatch implements Stopwatch
 {

@@ -33,6 +33,10 @@ public class Objects
         {
             result = Array.toString((double[])value);
         }
+        else if (value instanceof Object[])
+        {
+            result = Array.toString((Object[])value);
+        }
         else
         {
             result = value.toString();

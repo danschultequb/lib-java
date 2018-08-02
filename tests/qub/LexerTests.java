@@ -6,70 +6,71 @@ public class LexerTests
     {
         runner.testGroup("Lexer", () ->
         {
-            runner.testGroup("single lex tests", () ->
+            runner.testGroup("next()", () ->
             {
-                final Action2<String,Lex> singleLexTest = (String text, Lex expectedLex) ->
+                final Action2<String,Lex[]> nextTest = (String text, Lex[] expectedLexes) ->
                 {
                     runner.test("with " + Strings.escapeAndQuote(text), (Test test) ->
                     {
                         final Lexer lexer = new Lexer(text);
                         assertLexer(test, lexer, false, null);
 
-                        test.assertTrue(lexer.next());
-                        assertLexer(test, lexer, true, expectedLex);
+                        for (final Lex expectedLex : expectedLexes)
+                        {
+                            test.assertTrue(lexer.next());
+                            assertLexer(test, lexer, true, expectedLex);
+                        }
 
-                        test.assertFalse(lexer.next());
-                        assertLexer(test, lexer, true, null);
+                        for (int i = 0; i < 2; ++i)
+                        {
+                            test.assertFalse(lexer.next());
+                            assertLexer(test, lexer, true, null);
+                        }
                     });
                 };
+                
+                nextTest.run(null, new Lex[0]);
+                nextTest.run("", new Lex[0]);
 
-                singleLexTest.run("{", Lex.leftCurlyBracket(0));
-                singleLexTest.run("}", Lex.rightCurlyBracket(0));
-                singleLexTest.run("[", Lex.leftSquareBracket(0));
-                singleLexTest.run("]", Lex.rightSquareBracket(0));
-                singleLexTest.run("<", Lex.leftAngleBracket(0));
-                singleLexTest.run(">", Lex.rightAngleBracket(0));
-                singleLexTest.run("(", Lex.leftParenthesis(0));
-                singleLexTest.run(")", Lex.rightParenthesis(0));
-                singleLexTest.run("xyz", Lex.letters("xyz", 0));
-                singleLexTest.run("\'", Lex.singleQuote(0));
-                singleLexTest.run("\"", Lex.doubleQuote(0));
-                singleLexTest.run("0123456789", Lex.digits("0123456789", 0));
-                singleLexTest.run(",", Lex.comma(0));
-                singleLexTest.run(":", Lex.colon(0));
-                singleLexTest.run(";", Lex.semicolon(0));
-                singleLexTest.run("!", Lex.exclamationPoint(0));
-                singleLexTest.run("\\", Lex.backslash(0));
-                singleLexTest.run("/", Lex.forwardSlash(0));
-                singleLexTest.run("?", Lex.questionMark(0));
-                singleLexTest.run("-", Lex.dash(0));
-                singleLexTest.run("+", Lex.plus(0));
-                singleLexTest.run("=", Lex.equalsSign(0));
-                singleLexTest.run(".", Lex.period(0));
-                singleLexTest.run("_", Lex.underscore(0));
-                singleLexTest.run("&", Lex.ampersand(0));
-                singleLexTest.run("|", Lex.verticalBar(0));
-                singleLexTest.run(" ", Lex.space(0));
-                singleLexTest.run("\t", Lex.tab(0));
-                singleLexTest.run("\r", Lex.carriageReturn(0));
-                singleLexTest.run("\n", Lex.newLine(0));
-                singleLexTest.run("\r\n", Lex.carriageReturnNewLine(0));
-                singleLexTest.run("*", Lex.asterisk(0));
-                singleLexTest.run("%", Lex.percent(0));
-                singleLexTest.run("#", Lex.hash(0));
-                singleLexTest.run("^", Lex.unrecognized('^', 0));
-            });
+                nextTest.run("{", new Lex[] { Lex.leftCurlyBracket(0) });
+                nextTest.run("}", new Lex[] { Lex.rightCurlyBracket(0) });
+                nextTest.run("[", new Lex[] { Lex.leftSquareBracket(0) });
+                nextTest.run("]", new Lex[] { Lex.rightSquareBracket(0) });
+                nextTest.run("<", new Lex[] { Lex.leftAngleBracket(0) });
+                nextTest.run(">", new Lex[] { Lex.rightAngleBracket(0) });
+                nextTest.run("(", new Lex[] { Lex.leftParenthesis(0) });
+                nextTest.run(")", new Lex[] { Lex.rightParenthesis(0) });
+                nextTest.run("xyz", new Lex[] { Lex.letters("xyz", 0) });
+                nextTest.run("\'", new Lex[] { Lex.singleQuote(0) });
+                nextTest.run("\"", new Lex[] { Lex.doubleQuote(0) });
+                nextTest.run("0123456789", new Lex[] { Lex.digits("0123456789", 0) });
+                nextTest.run(",", new Lex[] { Lex.comma(0) });
+                nextTest.run(":", new Lex[] { Lex.colon(0) });
+                nextTest.run(";", new Lex[] { Lex.semicolon(0) });
+                nextTest.run("!", new Lex[] { Lex.exclamationPoint(0) });
+                nextTest.run("\\", new Lex[] { Lex.backslash(0) });
+                nextTest.run("/", new Lex[] { Lex.forwardSlash(0) });
+                nextTest.run("?", new Lex[] { Lex.questionMark(0) });
+                nextTest.run("-", new Lex[] { Lex.dash(0) });
+                nextTest.run("+", new Lex[] { Lex.plus(0) });
+                nextTest.run("=", new Lex[] { Lex.equalsSign(0) });
+                nextTest.run(".", new Lex[] { Lex.period(0) });
+                nextTest.run("_", new Lex[] { Lex.underscore(0) });
+                nextTest.run("&", new Lex[] { Lex.ampersand(0) });
+                nextTest.run("|", new Lex[] { Lex.verticalBar(0) });
+                nextTest.run(" ", new Lex[] { Lex.space(0) });
+                nextTest.run("\t", new Lex[] { Lex.tab(0) });
+                nextTest.run("\r", new Lex[] { Lex.carriageReturn(0) });
+                nextTest.run("\n", new Lex[] { Lex.newLine(0) });
+                nextTest.run("\r\n", new Lex[] { Lex.carriageReturnNewLine(0) });
+                nextTest.run("\r ", new Lex[] { Lex.carriageReturn(0), Lex.space(1) });
+                nextTest.run("*", new Lex[] { Lex.asterisk(0) });
+                nextTest.run("%", new Lex[] { Lex.percent(0) });
+                nextTest.run("#", new Lex[] { Lex.hash(0) });
+                nextTest.run("^", new Lex[] { Lex.unrecognized('^', 0) });
 
-            runner.test("with right curly bracket", (Test test) ->
-            {
-                final Lexer lexer = new Lexer("}");
-                assertLexer(test, lexer, false, null);
-
-                test.assertTrue(lexer.next());
-                assertLexer(test, lexer, true, Lex.rightCurlyBracket(0));
-
-                test.assertFalse(lexer.next());
-                assertLexer(test, lexer, true, null);
+                nextTest.run("abc123", new Lex[] { Lex.letters("abc", 0), Lex.digits("123", 3) });
+                nextTest.run("5.6.7", new Lex[] { Lex.digits("5", 0), Lex.period(1), Lex.digits("6", 2), Lex.period(3), Lex.digits("7", 4) });
             });
         });
     }

@@ -1,7 +1,7 @@
 package qub;
 
 /**
- * A random number generator that uses Java's internal Random class.
+ * A random number generator that uses Java10's internal Random class.
  */
 public class JavaRandom extends RandomBase
 {

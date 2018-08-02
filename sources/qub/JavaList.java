@@ -100,10 +100,10 @@ public class JavaList<T> extends ListBase<T>
     }
 
     /**
-     * Wrap the provided Java List as a Qub List.
-     * @param list The Java List to wrap.
+     * Wrap the provided Java10 List as a Qub List.
+     * @param list The Java10 List to wrap.
      * @param <T> The type contained by the List.
-     * @return The Qub List that wraps the provided Java List, or null if a null Java List is
+     * @return The Qub List that wraps the provided Java10 List, or null if a null Java10 List is
      * provided.
      */
     public static <T> List<T> wrap(java.util.List<T> list)

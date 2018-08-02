@@ -22,7 +22,7 @@ public class ByteOrderTests
                 test.assertSame(ByteOrder.Network, ByteOrder.BigEndian);
             });
 
-            runner.test("Java", (Test test) ->
+            runner.test("Java10", (Test test) ->
             {
                 test.assertNotNull(ByteOrder.Java);
                 test.assertSame(ByteOrder.Java, ByteOrder.BigEndian);

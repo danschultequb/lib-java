@@ -1046,6 +1046,60 @@ public class Array<T> extends IndexableBase<T> implements MutableIndexable<T>
     }
 
     /**
+     * Get the String representation of the elements within the provided T array.
+     * @param array The T array to convert to a String.
+     * @return The String representation of the elements within the provided T array.
+     */
+    public static <T> String toString(T[] array)
+    {
+        return Array.toString(array, null);
+    }
+
+    /**
+     * Get the String representation of the elements within the provided T array.
+     * @param array The T array to convert to a String.
+     * @return The String representation of the elements within the provided T array.
+     */
+    public static <T> String toString(T[] array, Function1<T,String> valueTransform)
+    {
+        final StringBuilder builder = new StringBuilder();
+
+        if (array == null)
+        {
+            builder.append("null");
+        }
+        else
+        {
+            builder.append('[');
+
+            boolean addedFirstElement = false;
+            for (final T element : array)
+            {
+                if (!addedFirstElement)
+                {
+                    addedFirstElement = true;
+                }
+                else
+                {
+                    builder.append(',');
+                }
+                if (valueTransform != null)
+                {
+                    builder.append(valueTransform.run(element));
+                }
+                else
+                {
+                    builder.append(Objects.toString(element));
+                }
+            }
+
+            builder.append(']');
+        }
+
+        return builder.toString();
+    }
+
+    /**
      * Get whether or not the provided array contains the provided value.
      * @param array The array to check.
      * @param value The value to look for.

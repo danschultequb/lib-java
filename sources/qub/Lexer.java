@@ -37,19 +37,25 @@ public class Lexer extends IteratorBase<Lex>
     @Override
     public boolean next()
     {
-        int lexStartIndex;
+        int lexStartIndex = 0;
         if (!hasStarted)
         {
-            lexStartIndex = 0;
             hasStarted = true;
-            characters.next();
+            if (!characters.hasStarted())
+            {
+                characters.next();
+            }
         }
-        else
+        else if (current != null)
         {
             lexStartIndex = current.getAfterEndIndex();
         }
 
-        if (characters.hasCurrent())
+        if (!characters.hasCurrent())
+        {
+            current = null;
+        }
+        else
         {
             switch (characters.getCurrent())
             {
@@ -218,11 +224,11 @@ public class Lexer extends IteratorBase<Lex>
                 default:
                     if(Lex.isLetter(characters.getCurrent()))
                     {
-                        current = Lex.letters(readLetters(characters), lexStartIndex);
+                        current = Lex.letters(readWhile(characters, Lex.isLetter), lexStartIndex);
                     }
                     else if(Lex.isDigit(characters.getCurrent()))
                     {
-                        current = Lex.digits(readDigits(characters), lexStartIndex);
+                        current = Lex.digits(readWhile(characters, Lex.isDigit), lexStartIndex);
                     }
                     else
                     {
@@ -232,34 +238,17 @@ public class Lexer extends IteratorBase<Lex>
                     break;
             }
         }
-        else
-        {
-            current = null;
-        }
 
         return hasCurrent();
-    }
-
-    private static String readLetters(Iterator<Character> characters)
-    {
-        return readWhile(characters, Lex.isLetter);
-    }
-
-    private static String readDigits(Iterator<Character> characters)
-    {
-        return readWhile(characters, Lex.isDigit);
     }
 
     private static String readWhile(Iterator<Character> characters, Function1<Character,Boolean> condition)
     {
         final StringBuilder result = new StringBuilder();
-
-        if (characters.hasCurrent() && condition.run(characters.getCurrent())) {
-            result.append(characters.getCurrent());
-        }
+        result.append(characters.getCurrent().charValue());
 
         while (characters.next() && condition.run(characters.getCurrent())) {
-            result.append(characters.getCurrent());
+            result.append(characters.getCurrent().charValue());
         }
 
         return result.toString();

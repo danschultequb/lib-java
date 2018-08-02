@@ -1,7 +1,7 @@
 package qub;
 
 /**
- * A BlockingQueue implementation that uses a built-in Java implementation.
+ * A BlockingQueue implementation that uses a built-in Java10 implementation.
  * @param <T> The type of value stored in the Queue.
  */
 public class JavaBlockingQueue<T> implements BlockingQueue<T>
