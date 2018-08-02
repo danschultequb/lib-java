@@ -107,6 +107,18 @@ public class JavaTests
                         JavaIssues.expectedPackagePathLetters(new Span(8, 1)),
                         JavaIssues.expectedTypeDefinition(new Span(8, 1))
                     });
+                parseTest.run("package qub",
+                    new JavaSegment[]
+                    {
+                        new JavaSegment(JavaSegmentType.Package,
+                            Lex.letters("package", 0),
+                            Lex.space(7),
+                            Lex.letters("qub", 8))
+                    },
+                    new Issue[]
+                    {
+                        JavaIssues.missingStatementSemicolon(new Span(8, 3))
+                    });
                 parseTest.run("package qub;",
                     new JavaSegment[]
                     {
