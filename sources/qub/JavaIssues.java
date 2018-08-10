@@ -6,9 +6,9 @@ public class JavaIssues
     {
     }
 
-    public static Issue missingPackagePath(Span span)
+    public static Issue missingPackagePathSegment(Span span)
     {
-        return Issue.error("Missing package path.", span);
+        return Issue.error("Missing package path segment.", span);
     }
 
     public static Issue expectedWhitespaceBetweenPackageAndPackagePath(Span span)
@@ -16,9 +16,14 @@ public class JavaIssues
         return Issue.error("Expected whitespace between the 'package' keyword and the package path.", span);
     }
 
-    public static Issue expectedPackagePathLetters(Span span)
+    public static Issue expectedPackagePathIdentifier(Span span)
     {
-        return Issue.error("Expected the package's path to consist only of letters and periods.", span);
+        return Issue.error("Expected a package path segment.", span);
+    }
+
+    public static Issue expectedPackagePathSeparatorOrSemicolon(Span span)
+    {
+        return Issue.error("Expected a package path separator ('.') or a semicolon (';').", span);
     }
 
     public static Issue missingStatementSemicolon(Span span)

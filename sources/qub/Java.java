@@ -99,7 +99,7 @@ public class Java
 
         if (!lexer.hasCurrent())
         {
-            addIssue(onIssue, JavaIssues.missingPackagePath(packageLex.getSpan()));
+            addIssue(onIssue, JavaIssues.missingPackagePathSegment(packageLex.getSpan()));
         }
         else if (!isWhitespace(lexer.getCurrent()))
         {
@@ -110,27 +110,62 @@ public class Java
             skipWhitespace(lexer, lexes);
             if (!lexer.hasCurrent())
             {
-                addIssue(onIssue, JavaIssues.missingPackagePath(packageLex.getSpan()));
+                addIssue(onIssue, JavaIssues.missingPackagePathSegment(packageLex.getSpan()));
             }
             else if (lexer.getCurrent().getType() != LexType.Letters)
             {
-                addIssue(onIssue, JavaIssues.expectedPackagePathLetters(lexer.getCurrent().getSpan()));
+                addIssue(onIssue, JavaIssues.expectedPackagePathIdentifier(lexer.getCurrent().getSpan()));
             }
             else
             {
                 lexes.add(lexer.takeCurrent());
 
-                if (!lexer.hasCurrent())
+                boolean expectedIdentifier = false;
+                while (true)
                 {
-                    addIssue(onIssue, JavaIssues.missingStatementSemicolon(lexes.last(isNotWhitespace).getSpan()));
-                }
-                else if (lexer.getCurrent().getType() != LexType.Semicolon)
-                {
-                    addIssue(onIssue, JavaIssues.expectedStatementSemicolon(lexer.getCurrent().getSpan()));
-                }
-                else
-                {
-                    lexes.add(lexer.takeCurrent());
+                    skipWhitespace(lexer, lexes);
+
+                    if (!lexer.hasCurrent())
+                    {
+                        final Span lastNonWhitespaceLexSpan = lexes.last(isNotWhitespace).getSpan();
+                        if (expectedIdentifier)
+                        {
+                            addIssue(onIssue, JavaIssues.missingPackagePathSegment(lastNonWhitespaceLexSpan));
+                        }
+                        addIssue(onIssue, JavaIssues.missingStatementSemicolon(lastNonWhitespaceLexSpan));
+                        break;
+                    }
+                    else
+                    {
+                        final LexType type = lexer.getCurrent().getType();
+                        final Span span = lexer.getCurrent().getSpan();
+                        lexes.add(lexer.takeCurrent());
+
+                        if (type == LexType.Period)
+                        {
+                            if (expectedIdentifier)
+                            {
+                                addIssue(onIssue, JavaIssues.expectedPackagePathIdentifier(span));
+                            }
+                            expectedIdentifier = true;
+                        }
+                        else if (type == LexType.Letters)
+                        {
+                            if (!expectedIdentifier)
+                            {
+                                addIssue(onIssue, JavaIssues.expectedPackagePathSeparatorOrSemicolon(span));
+                            }
+                            expectedIdentifier = false;
+                        }
+                        else if (type == LexType.Semicolon)
+                        {
+                            if (expectedIdentifier)
+                            {
+                                addIssue(onIssue, JavaIssues.expectedPackagePathIdentifier(span));
+                            }
+                            break;
+                        }
+                    }
                 }
             }
         }

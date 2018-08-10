@@ -70,7 +70,7 @@ public class JavaTests
                     },
                     new Issue[]
                     {
-                        JavaIssues.missingPackagePath(new Span(0, 7))
+                        JavaIssues.missingPackagePathSegment(new Span(0, 7))
                     });
                 parseTest.run("package123",
                     new JavaSegment[]
@@ -92,7 +92,7 @@ public class JavaTests
                     },
                     new Issue[]
                     {
-                        JavaIssues.missingPackagePath(new Span(0, 7))
+                        JavaIssues.missingPackagePathSegment(new Span(0, 7))
                     });
                 parseTest.run("package 0",
                     new JavaSegment[]
@@ -104,7 +104,7 @@ public class JavaTests
                     },
                     new Issue[]
                     {
-                        JavaIssues.expectedPackagePathLetters(new Span(8, 1)),
+                        JavaIssues.expectedPackagePathIdentifier(new Span(8, 1)),
                         JavaIssues.expectedTypeDefinition(new Span(8, 1))
                     });
                 parseTest.run("package qub",
@@ -128,6 +128,73 @@ public class JavaTests
                             Lex.letters("qub", 8),
                             Lex.semicolon(11))
                     },
+                    null);
+                parseTest.run("package\nqub;",
+                    new JavaSegment[]
+                        {
+                            new JavaSegment(JavaSegmentType.Package,
+                                Lex.letters("package", 0),
+                                Lex.newLine(7),
+                                Lex.letters("qub", 8),
+                                Lex.semicolon(11))
+                        },
+                    null);
+                parseTest.run("package my.",
+                    new JavaSegment[]
+                        {
+                            new JavaSegment(JavaSegmentType.Package,
+                                Lex.letters("package", 0),
+                                Lex.space(7),
+                                Lex.letters("my", 8),
+                                Lex.period(10))
+                        },
+                    new Issue[]
+                        {
+                            JavaIssues.missingPackagePathSegment(new Span(10, 1)),
+                            JavaIssues.missingStatementSemicolon(new Span(10, 1))
+                        });
+                parseTest.run("package my.;",
+                    new JavaSegment[]
+                        {
+                            new JavaSegment(JavaSegmentType.Package,
+                                Lex.letters("package", 0),
+                                Lex.space(7),
+                                Lex.letters("my", 8),
+                                Lex.period(10),
+                                Lex.semicolon(11))
+                        },
+                    new Issue[]
+                        {
+                            JavaIssues.expectedPackagePathIdentifier(new Span(11, 1))
+                        });
+                parseTest.run("package my.qub;",
+                    new JavaSegment[]
+                        {
+                            new JavaSegment(JavaSegmentType.Package,
+                                Lex.letters("package", 0),
+                                Lex.space(7),
+                                Lex.letters("my", 8),
+                                Lex.period(10),
+                                Lex.letters("qub", 11),
+                                Lex.semicolon(14))
+                        },
+                    null);
+                parseTest.run("package my  .   qub;",
+                    new JavaSegment[]
+                        {
+                            new JavaSegment(JavaSegmentType.Package,
+                                Lex.letters("package", 0),
+                                Lex.space(7),
+                                Lex.letters("my", 8),
+                                Lex.space(10),
+                                Lex.space(11),
+                                Lex.period(12),
+                                Lex.space(13),
+                                Lex.space(14),
+                                Lex.space(15),
+                                Lex.letters("qub", 16),
+                                Lex.semicolon(19))
+                        },
                     null);
             });
         });
