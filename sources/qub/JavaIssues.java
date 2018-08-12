@@ -18,12 +18,27 @@ public class JavaIssues
 
     public static Issue expectedPackagePathIdentifier(Span span)
     {
-        return Issue.error("Expected a package path segment.", span);
+        return Issue.error("Expected a package path identifier.", span);
     }
 
     public static Issue expectedPackagePathSeparatorOrSemicolon(Span span)
     {
         return Issue.error("Expected a package path separator ('.') or a semicolon (';').", span);
+    }
+
+    public static Issue missingImportPathIdentifier(Span span)
+    {
+        return Issue.error("Missing an import path identifier.", span);
+    }
+
+    public static Issue expectedImportPathIdentifier(Span span)
+    {
+        return Issue.error("Expected an import path identifier.", span);
+    }
+
+    public static Issue expectedImportPathSeparatorOrSemicolon(Span span)
+    {
+        return Issue.error("Expected an import path separator ('.') or a semicolon (';').", span);
     }
 
     public static Issue missingStatementSemicolon(Span span)

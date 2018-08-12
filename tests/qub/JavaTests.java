@@ -167,6 +167,83 @@ public class JavaTests
                         {
                             JavaIssues.expectedPackagePathIdentifier(new Span(11, 1))
                         });
+                parseTest.run("package my..;",
+                    new JavaSegment[]
+                        {
+                            new JavaSegment(JavaSegmentType.Package,
+                                Lex.letters("package", 0),
+                                Lex.space(7),
+                                Lex.letters("my", 8),
+                                Lex.period(10),
+                                Lex.period(11),
+                                Lex.semicolon(12))
+                        },
+                    new Issue[]
+                        {
+                            JavaIssues.expectedPackagePathIdentifier(new Span(11, 1)),
+                            JavaIssues.expectedPackagePathIdentifier(new Span(12, 1))
+                        });
+                parseTest.run("package my123;",
+                    new JavaSegment[]
+                        {
+                            new JavaSegment(JavaSegmentType.Package,
+                                Lex.letters("package", 0),
+                                Lex.space(7),
+                                Lex.letters("my", 8),
+                                Lex.digits("123", 10),
+                                Lex.semicolon(13))
+                        },
+                    new Issue[]
+                        {
+                            JavaIssues.expectedPackagePathSeparatorOrSemicolon(new Span(10, 3))
+                        });
+                parseTest.run("package my123qub;",
+                    new JavaSegment[]
+                        {
+                            new JavaSegment(JavaSegmentType.Package,
+                                Lex.letters("package", 0),
+                                Lex.space(7),
+                                Lex.letters("my", 8),
+                                Lex.digits("123", 10),
+                                Lex.letters("qub", 13),
+                                Lex.semicolon(16))
+                        },
+                    new Issue[]
+                        {
+                            JavaIssues.expectedPackagePathSeparatorOrSemicolon(new Span(10, 3)),
+                            JavaIssues.expectedPackagePathSeparatorOrSemicolon(new Span(13, 3))
+                        });
+                parseTest.run("package my qub;",
+                    new JavaSegment[]
+                        {
+                            new JavaSegment(JavaSegmentType.Package,
+                                Lex.letters("package", 0),
+                                Lex.space(7),
+                                Lex.letters("my", 8),
+                                Lex.space(10),
+                                Lex.letters("qub", 11),
+                                Lex.semicolon(14))
+                        },
+                    new Issue[]
+                        {
+                            JavaIssues.expectedPackagePathSeparatorOrSemicolon(new Span(11, 3))
+                        });
+                parseTest.run("package my.123;",
+                    new JavaSegment[]
+                        {
+                            new JavaSegment(JavaSegmentType.Package,
+                                Lex.letters("package", 0),
+                                Lex.space(7),
+                                Lex.letters("my", 8),
+                                Lex.period(10),
+                                Lex.digits("123", 11),
+                                Lex.semicolon(14))
+                        },
+                    new Issue[]
+                        {
+                            JavaIssues.expectedPackagePathIdentifier(new Span(11, 3)),
+                            JavaIssues.expectedPackagePathIdentifier(new Span(14, 1))
+                        });
                 parseTest.run("package my.qub;",
                     new JavaSegment[]
                         {
@@ -196,6 +273,149 @@ public class JavaTests
                                 Lex.semicolon(19))
                         },
                     null);
+
+                parseTest.run("import",
+                    new JavaSegment[]
+                        {
+                            new JavaSegment(JavaSegmentType.Import,
+                                Lex.letters("import", 0))
+                        },
+                    new Issue[]
+                        {
+                            JavaIssues.missingImportPathIdentifier(new Span(0, 6))
+                        });
+                parseTest.run("import ",
+                    new JavaSegment[]
+                        {
+                            new JavaSegment(JavaSegmentType.Import,
+                                Lex.letters("import", 0),
+                                Lex.space(6))
+                        },
+                    new Issue[]
+                        {
+                            JavaIssues.missingImportPathIdentifier(new Span(0, 6))
+                        });
+                parseTest.run("import;",
+                    new JavaSegment[]
+                        {
+                            new JavaSegment(JavaSegmentType.Import,
+                                Lex.letters("import", 0),
+                                Lex.semicolon(6))
+                        },
+                    new Issue[]
+                        {
+                            JavaIssues.expectedImportPathIdentifier(new Span(6, 1))
+                        });
+                parseTest.run("import static",
+                    new JavaSegment[]
+                        {
+                            new JavaSegment(JavaSegmentType.StaticImport,
+                                Lex.letters("import", 0),
+                                Lex.space(6),
+                                Lex.letters("static", 7))
+                        },
+                    new Issue[]
+                        {
+                            JavaIssues.missingImportPathIdentifier(new Span(7, 6)),
+                            JavaIssues.missingStatementSemicolon(new Span(7, 6))
+                        });
+                parseTest.run("import toads",
+                    new JavaSegment[]
+                        {
+                            new JavaSegment(JavaSegmentType.Import,
+                                Lex.letters("import", 0),
+                                Lex.space(6),
+                                Lex.letters("toads", 7))
+                        },
+                    new Issue[]
+                        {
+                            JavaIssues.missingStatementSemicolon(new Span(7, 5))
+                        });
+                parseTest.run("import toads;",
+                    new JavaSegment[]
+                        {
+                            new JavaSegment(JavaSegmentType.Import,
+                                Lex.letters("import", 0),
+                                Lex.space(6),
+                                Lex.letters("toads", 7),
+                                Lex.semicolon(12))
+                        },
+                    null);
+                parseTest.run("import toads.;",
+                    new JavaSegment[]
+                        {
+                            new JavaSegment(JavaSegmentType.Import,
+                                Lex.letters("import", 0),
+                                Lex.space(6),
+                                Lex.letters("toads", 7),
+                                Lex.period(12),
+                                Lex.semicolon(13))
+                        },
+                    new Issue[]
+                        {
+                            JavaIssues.expectedImportPathIdentifier(new Span(13, 1))
+                        });
+                parseTest.run("import .;",
+                    new JavaSegment[]
+                        {
+                            new JavaSegment(JavaSegmentType.Import,
+                                Lex.letters("import", 0),
+                                Lex.space(6),
+                                Lex.period(7),
+                                Lex.semicolon(8))
+                        },
+                    new Issue[]
+                        {
+                            JavaIssues.expectedImportPathIdentifier(new Span(7, 1)),
+                            JavaIssues.expectedImportPathIdentifier(new Span(8, 1))
+                        });
+                parseTest.run("import my qub;",
+                    new JavaSegment[]
+                        {
+                            new JavaSegment(JavaSegmentType.Import,
+                                Lex.letters("import", 0),
+                                Lex.space(6),
+                                Lex.letters("my", 7),
+                                Lex.space(9),
+                                Lex.letters("qub", 10),
+                                Lex.semicolon(13))
+                        },
+                    new Issue[]
+                        {
+                            JavaIssues.expectedImportPathSeparatorOrSemicolon(new Span(10, 3))
+                        });
+                parseTest.run("import my123qub;",
+                    new JavaSegment[]
+                        {
+                            new JavaSegment(JavaSegmentType.Import,
+                                Lex.letters("import", 0),
+                                Lex.space(6),
+                                Lex.letters("my", 7),
+                                Lex.digits("123", 9),
+                                Lex.letters("qub", 12),
+                                Lex.semicolon(15))
+                        },
+                    new Issue[]
+                        {
+                            JavaIssues.expectedImportPathSeparatorOrSemicolon(new Span(9, 3)),
+                            JavaIssues.expectedImportPathSeparatorOrSemicolon(new Span(12, 3))
+                        });
+                parseTest.run("import my.123;",
+                    new JavaSegment[]
+                        {
+                            new JavaSegment(JavaSegmentType.Import,
+                                Lex.letters("import", 0),
+                                Lex.space(6),
+                                Lex.letters("my", 7),
+                                Lex.period(9),
+                                Lex.digits("123", 10),
+                                Lex.semicolon(13))
+                        },
+                    new Issue[]
+                        {
+                            JavaIssues.expectedImportPathIdentifier(new Span(10, 3)),
+                            JavaIssues.expectedImportPathIdentifier(new Span(13, 1))
+                        });
             });
         });
     }

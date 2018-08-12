@@ -58,6 +58,10 @@ public class Java
                 {
                     result = parsePackage(lexer, onIssue);
                 }
+                else if (lexer.getCurrent().toString().equals("import"))
+                {
+                    result = parseImport(lexer, onIssue);
+                }
                 else
                 {
                     final Lex unrecognizedSegmentLex = lexer.takeCurrent();
@@ -165,6 +169,17 @@ public class Java
                             }
                             break;
                         }
+                        else
+                        {
+                            if (expectedIdentifier)
+                            {
+                                addIssue(onIssue, JavaIssues.expectedPackagePathIdentifier(span));
+                            }
+                            else
+                            {
+                                addIssue(onIssue, JavaIssues.expectedPackagePathSeparatorOrSemicolon(span));
+                            }
+                        }
                     }
                 }
             }
@@ -176,6 +191,101 @@ public class Java
         PostCondition.assertEqual(JavaSegmentType.Package, result.getType(), "result.getType()");
         PostCondition.assertNotNullAndNotEmpty(result.getLexes(), "result.getLexes()");
         PostCondition.assertEqual("package", result.getLexes().first().toString(), "result.getLexes().first().toString()");
+
+        return result;
+    }
+
+    private static JavaSegment parseImport(Lexer lexer, Action1<Issue> onIssue)
+    {
+        PreCondition.assertNotNull(lexer, "lexer");
+        PreCondition.assertTrue(lexer.hasCurrent(), "lexer.hasCurrent()");
+        PreCondition.assertEqual("import", lexer.getCurrent().toString(), "lexer.getCurrent().toString()");
+
+        JavaSegmentType segmentType = JavaSegmentType.Import;
+        final List<Lex> lexes = new ArrayList<Lex>();
+        lexes.add(lexer.takeCurrent());
+
+        skipWhitespace(lexer, lexes);
+
+        if (!lexer.hasCurrent())
+        {
+            addIssue(onIssue, JavaIssues.missingImportPathIdentifier(lexes.last(isNotWhitespace).getSpan()));
+        }
+        else
+        {
+            if (lexer.getCurrent().getType() == LexType.Letters && lexer.getCurrent().toString().equals("static"))
+            {
+                segmentType = JavaSegmentType.StaticImport;
+                lexes.add(lexer.takeCurrent());
+            }
+
+            boolean expectedIdentifier = true;
+            boolean expectedSemicolon = false;
+            while (true)
+            {
+                skipWhitespace(lexer, lexes);
+
+                if (!lexer.hasCurrent())
+                {
+                    final Span lastNonWhitespaceLexSpan = lexes.last(isNotWhitespace).getSpan();
+                    if (expectedIdentifier)
+                    {
+                        addIssue(onIssue, JavaIssues.missingImportPathIdentifier(lastNonWhitespaceLexSpan));
+                    }
+                    addIssue(onIssue, JavaIssues.missingStatementSemicolon(lastNonWhitespaceLexSpan));
+                    break;
+                }
+                else
+                {
+                    final LexType type = lexer.getCurrent().getType();
+                    final Span span = lexer.getCurrent().getSpan();
+                    lexes.add(lexer.takeCurrent());
+
+                    if (type == LexType.Period)
+                    {
+                        if (expectedIdentifier)
+                        {
+                            addIssue(onIssue, JavaIssues.expectedImportPathIdentifier(span));
+                        }
+                        expectedIdentifier = true;
+                    }
+                    else if (type == LexType.Letters)
+                    {
+                        if (!expectedIdentifier)
+                        {
+                            addIssue(onIssue, JavaIssues.expectedImportPathSeparatorOrSemicolon(span));
+                        }
+                        expectedIdentifier = false;
+                    }
+                    else if (type == LexType.Semicolon)
+                    {
+                        if (expectedIdentifier)
+                        {
+                            addIssue(onIssue, JavaIssues.expectedImportPathIdentifier(span));
+                        }
+                        break;
+                    }
+                    else
+                    {
+                        if (expectedIdentifier)
+                        {
+                            addIssue(onIssue, JavaIssues.expectedImportPathIdentifier(span));
+                        }
+                        else
+                        {
+                            addIssue(onIssue, JavaIssues.expectedImportPathSeparatorOrSemicolon(span));
+                        }
+                    }
+                }
+            }
+        }
+
+        final JavaSegment result = new JavaSegment(segmentType, lexes);
+
+        PostCondition.assertNotNull(result, "result");
+        PostCondition.assertOneOf(result.getType(), new JavaSegmentType[] { JavaSegmentType.Import, JavaSegmentType.StaticImport }, "result.getType()");
+        PostCondition.assertNotNullAndNotEmpty(result.getLexes(), "result.getLexes()");
+        PostCondition.assertEqual("import", result.getLexes().first().toString(), "result.getLexes().first().toString()");
 
         return result;
     }

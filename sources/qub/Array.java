@@ -1167,4 +1167,27 @@ public class Array<T> extends IndexableBase<T> implements MutableIndexable<T>
         }
         return result;
     }
+
+    /**
+     * Get whether or not the provided array contains the provided value.
+     * @param array The array to check.
+     * @param value The value to look for.
+     * @return Whether or not the provided array contains the provided value.
+     */
+    public static <T> boolean contains(T[] array, T value)
+    {
+        boolean result = false;
+        if (array != null)
+        {
+            for (int i = 0; i < array.length; ++i)
+            {
+                if (Comparer.equal(array[i], value))
+                {
+                    result = true;
+                    break;
+                }
+            }
+        }
+        return result;
+    }
 }

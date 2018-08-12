@@ -102,4 +102,20 @@ public class AssertionMessages
         builder.append(" or " + values[values.length - 1] + ".");
         return builder.toString();
     }
+
+    public static <T> String oneOf(T value, T[] values, String variableName)
+    {
+        final StringBuilder builder = new StringBuilder();
+        builder.append(variableName + " (" + value + ") must be either");
+        for (int i = 0; i < values.length - 1; ++i)
+        {
+            builder.append(" " + values[i]);
+            if (values.length > 2)
+            {
+                builder.append(",");
+            }
+        }
+        builder.append(" or " + values[values.length - 1] + ".");
+        return builder.toString();
+    }
 }
