@@ -416,6 +416,133 @@ public class JavaTests
                             JavaIssues.expectedImportPathIdentifier(new Span(10, 3)),
                             JavaIssues.expectedImportPathIdentifier(new Span(13, 1))
                         });
+                parseTest.run("import my.qub;",
+                    new JavaSegment[]
+                        {
+                            new JavaSegment(JavaSegmentType.Import,
+                                Lex.letters("import", 0),
+                                Lex.space(6),
+                                Lex.letters("my", 7),
+                                Lex.period(9),
+                                Lex.letters("qub", 10),
+                                Lex.semicolon(13))
+                        },
+                    null);
+                parseTest.run("import static my.qub;",
+                    new JavaSegment[]
+                        {
+                            new JavaSegment(JavaSegmentType.StaticImport,
+                                Lex.letters("import", 0),
+                                Lex.space(6),
+                                Lex.letters("static", 7),
+                                Lex.space(13),
+                                Lex.letters("my", 14),
+                                Lex.period(16),
+                                Lex.letters("qub", 17),
+                                Lex.semicolon(20))
+                        },
+                    null);
+                parseTest.run("import my.*;",
+                    new JavaSegment[]
+                        {
+                            new JavaSegment(JavaSegmentType.StaticImport,
+                                Lex.letters("import", 0),
+                                Lex.space(6),
+                                Lex.letters("my", 7),
+                                Lex.period(9),
+                                Lex.asterisk(10),
+                                Lex.semicolon(11))
+                        },
+                    null);
+                parseTest.run("import static my.*;",
+                    new JavaSegment[]
+                        {
+                            new JavaSegment(JavaSegmentType.StaticImport,
+                                Lex.letters("import", 0),
+                                Lex.space(6),
+                                Lex.letters("static", 7),
+                                Lex.space(13),
+                                Lex.letters("my", 14),
+                                Lex.period(16),
+                                Lex.asterisk(17),
+                                Lex.semicolon(18))
+                        },
+                    null);
+                parseTest.run("import my.*",
+                    new JavaSegment[]
+                        {
+                            new JavaSegment(JavaSegmentType.StaticImport,
+                                Lex.letters("import", 0),
+                                Lex.space(6),
+                                Lex.letters("my", 7),
+                                Lex.period(9),
+                                Lex.asterisk(10))
+                        },
+                    new Issue[]
+                        {
+                            JavaIssues.missingStatementSemicolon(new Span(10, 1))
+                        });
+                parseTest.run("import my.*.",
+                    new JavaSegment[]
+                        {
+                            new JavaSegment(JavaSegmentType.StaticImport,
+                                Lex.letters("import", 0),
+                                Lex.space(6),
+                                Lex.letters("my", 7),
+                                Lex.period(9),
+                                Lex.asterisk(10),
+                                Lex.period(11))
+                        },
+                    new Issue[]
+                        {
+                            JavaIssues.expectedStatementSemicolon(new Span(11, 1))
+                        });
+                parseTest.run("import my.*.abc",
+                    new JavaSegment[]
+                        {
+                            new JavaSegment(JavaSegmentType.StaticImport,
+                                Lex.letters("import", 0),
+                                Lex.space(6),
+                                Lex.letters("my", 7),
+                                Lex.period(9),
+                                Lex.asterisk(10),
+                                Lex.period(11),
+                                Lex.letters("abc", 12))
+                        },
+                    new Issue[]
+                        {
+                            JavaIssues.expectedStatementSemicolon(new Span(11, 1)),
+                            JavaIssues.expectedStatementSemicolon(new Span(12, 3))
+                        });
+                parseTest.run("import my.*abc",
+                    new JavaSegment[]
+                        {
+                            new JavaSegment(JavaSegmentType.StaticImport,
+                                Lex.letters("import", 0),
+                                Lex.space(6),
+                                Lex.letters("my", 7),
+                                Lex.period(9),
+                                Lex.asterisk(10),
+                                Lex.letters("abc", 11))
+                        },
+                    new Issue[]
+                        {
+                            JavaIssues.expectedStatementSemicolon(new Span(11, 3))
+                        });
+                parseTest.run("import my*;",
+                    new JavaSegment[]
+                        {
+                            new JavaSegment(JavaSegmentType.StaticImport,
+                                Lex.letters("import", 0),
+                                Lex.space(6),
+                                Lex.letters("my", 7),
+                                Lex.asterisk(9),
+                                Lex.semicolon(10))
+                        },
+                    new Issue[]
+                        {
+                            JavaIssues.expectedImportPathSeparatorOrSemicolon(new Span(9, 1))
+                        });
             });
         });
     }

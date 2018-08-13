@@ -221,6 +221,7 @@ public class Java
 
             boolean expectedIdentifier = true;
             boolean expectedSemicolon = false;
+            boolean addedExpectedSemicolonError = false;
             while (true)
             {
                 skipWhitespace(lexer, lexes);
@@ -232,7 +233,10 @@ public class Java
                     {
                         addIssue(onIssue, JavaIssues.missingImportPathIdentifier(lastNonWhitespaceLexSpan));
                     }
-                    addIssue(onIssue, JavaIssues.missingStatementSemicolon(lastNonWhitespaceLexSpan));
+                    if (!addedExpectedSemicolonError)
+                    {
+                        addIssue(onIssue, JavaIssues.missingStatementSemicolon(lastNonWhitespaceLexSpan));
+                    }
                     break;
                 }
                 else
@@ -241,7 +245,19 @@ public class Java
                     final Span span = lexer.getCurrent().getSpan();
                     lexes.add(lexer.takeCurrent());
 
-                    if (type == LexType.Period)
+                    if (expectedSemicolon)
+                    {
+                        if (type != LexType.Semicolon)
+                        {
+                            addedExpectedSemicolonError = true;
+                            addIssue(onIssue, JavaIssues.expectedStatementSemicolon(span));
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                    else if (type == LexType.Period)
                     {
                         if (expectedIdentifier)
                         {
@@ -256,6 +272,15 @@ public class Java
                             addIssue(onIssue, JavaIssues.expectedImportPathSeparatorOrSemicolon(span));
                         }
                         expectedIdentifier = false;
+                    }
+                    else if (type == LexType.Asterisk)
+                    {
+                        if (!expectedIdentifier)
+                        {
+                            addIssue(onIssue, JavaIssues.expectedImportPathSeparatorOrSemicolon(span));
+                        }
+                        expectedIdentifier = false;
+                        expectedSemicolon = true;
                     }
                     else if (type == LexType.Semicolon)
                     {
