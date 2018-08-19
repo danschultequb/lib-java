@@ -543,6 +543,113 @@ public class JavaTests
                         {
                             JavaIssues.expectedImportPathSeparatorOrSemicolon(new Span(9, 1))
                         });
+
+                parseTest.run("class",
+                    new JavaSegment[]
+                        {
+                            new JavaSegment(JavaSegmentType.Class,
+                                Lex.letters("class", 0))
+                        },
+                    new Issue[]
+                        {
+                            JavaIssues.missingClassName(new Span(0, 5))
+                        });
+                parseTest.run("class ",
+                    new JavaSegment[]
+                        {
+                            new JavaSegment(JavaSegmentType.Class,
+                                Lex.letters("class", 0),
+                                Lex.space(5))
+                        },
+                    new Issue[]
+                        {
+                            JavaIssues.missingClassName(new Span(0, 5))
+                        });
+                parseTest.run("class 123",
+                    new JavaSegment[]
+                        {
+                            new JavaSegment(JavaSegmentType.Class,
+                                Lex.letters("class", 0),
+                                Lex.space(5),
+                                Lex.digits("123", 6))
+                        },
+                    new Issue[]
+                        {
+                            JavaIssues.expectedClassName(new Span(6, 3))
+                        });
+                parseTest.run("class MyClass",
+                    new JavaSegment[]
+                        {
+                            new JavaSegment(JavaSegmentType.Class,
+                                Lex.letters("class", 0),
+                                Lex.space(5),
+                                Lex.letters("MyClass", 6))
+                        },
+                    new Issue[]
+                        {
+                            JavaIssues.missingLeftCurlyBracket(new Span(6, 7))
+                        });
+                parseTest.run("class MyClass ",
+                    new JavaSegment[]
+                        {
+                            new JavaSegment(JavaSegmentType.Class,
+                                Lex.letters("class", 0),
+                                Lex.space(5),
+                                Lex.letters("MyClass", 6),
+                                Lex.space(13))
+                        },
+                    new Issue[]
+                        {
+                            JavaIssues.missingLeftCurlyBracket(new Span(6, 7))
+                        });
+                parseTest.run("class MyClass {",
+                    new JavaSegment[]
+                        {
+                            new JavaSegment(JavaSegmentType.Class,
+                                Lex.letters("class", 0),
+                                Lex.space(5),
+                                Lex.letters("MyClass", 6),
+                                Lex.space(13),
+                                Lex.leftCurlyBracket(14))
+                        },
+                    new Issue[]
+                        {
+                            JavaIssues.missingRightCurlyBracket(new Span(14, 1))
+                        });
+                parseTest.run("class MyClass {}",
+                    new JavaSegment[]
+                        {
+                            new JavaSegment(JavaSegmentType.Class,
+                                Lex.letters("class", 0),
+                                Lex.space(5),
+                                Lex.letters("MyClass", 6),
+                                Lex.space(13),
+                                Lex.leftCurlyBracket(14),
+                                Lex.rightCurlyBracket(15))
+                        },
+                    null);
+
+                parseTest.run("package qub;\nimport java.lang.Thread;",
+                    new JavaSegment[]
+                        {
+                            new JavaSegment(JavaSegmentType.Package,
+                                Lex.letters("package", 0),
+                                Lex.space(7),
+                                Lex.letters("qub", 8),
+                                Lex.semicolon(11)),
+                            new JavaSegment(JavaSegmentType.Whitespace,
+                                Lex.newLine(12)),
+                            new JavaSegment(JavaSegmentType.Import,
+                                Lex.letters("import", 13),
+                                Lex.space(19),
+                                Lex.letters("java", 20),
+                                Lex.period(24),
+                                Lex.letters("lang", 25),
+                                Lex.period(29),
+                                Lex.letters("Thread", 30),
+                                Lex.semicolon(36))
+                        },
+                    null);
             });
         });
     }

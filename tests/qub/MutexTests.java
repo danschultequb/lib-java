@@ -132,6 +132,7 @@ public class MutexTests
 
             runner.testGroup(MutexCondition.class, () ->
             {
+                // Lingering async action failures: 1
                 runner.test("await() and signalAll()", (Test test) ->
                 {
                     final Mutex mutex = creator.run();

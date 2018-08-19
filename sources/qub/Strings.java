@@ -156,4 +156,54 @@ public class Strings
 
         return builder.toString();
     }
+
+    /**
+     * Concatenate the two strings together into a single string. Null values will be treated as an
+     * empty string.
+     * @param lhs The first string.
+     * @param rhs The second string.
+     * @return The concatenated string.
+     */
+    public static String concatenate(String lhs, String rhs)
+    {
+        String result = "";
+        if (lhs != null)
+        {
+            result += lhs;
+        }
+        if (rhs != null)
+        {
+            result += rhs;
+        }
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    /**
+     * Join the provided String values with the provided separator character between them.
+     * @param separator The character to insert between the string values.
+     * @param values The String values to join together.
+     * @return The joined string values.
+     */
+    public static String join(char separator, java.lang.Iterable<String> values)
+    {
+        final StringBuilder builder = new StringBuilder();
+        if (values != null)
+        {
+            for (final String value : values)
+            {
+                if (builder.length() > 0)
+                {
+                    builder.append(separator);
+                }
+                if (value != null)
+                {
+                    builder.append(value);
+                }
+            }
+        }
+        return builder.toString();
+    }
 }

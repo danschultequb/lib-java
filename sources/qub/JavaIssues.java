@@ -60,4 +60,29 @@ public class JavaIssues
     {
         return Issue.error("Expected type definition.", span);
     }
+
+    public static Issue missingClassName(Span span)
+    {
+        return Issue.error("Missing class name.", span);
+    }
+
+    public static Issue expectedClassName(Span span)
+    {
+        return Issue.error("Expected class name.", span);
+    }
+
+    public static Issue missingLeftCurlyBracket(Span span)
+    {
+        return Issue.error("Missing left curly bracket ('{').", span);
+    }
+
+    public static Issue expectedLeftCurlyBracket(Span span)
+    {
+        return Issue.error("Expected left curly bracket ('{').", span);
+    }
+
+    public static Issue missingRightCurlyBracket(Span span)
+    {
+        return Issue.error("Missing right curly bracket ('}').", span);
+    }
 }

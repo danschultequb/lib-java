@@ -62,6 +62,10 @@ public class Java
                 {
                     result = parseImport(lexer, onIssue);
                 }
+                else if (lexer.getCurrent().toString().equals("class"))
+                {
+                    result = parseClass(lexer, onIssue);
+                }
                 else
                 {
                     final Lex unrecognizedSegmentLex = lexer.takeCurrent();
@@ -311,6 +315,143 @@ public class Java
         PostCondition.assertOneOf(result.getType(), new JavaSegmentType[] { JavaSegmentType.Import, JavaSegmentType.StaticImport }, "result.getType()");
         PostCondition.assertNotNullAndNotEmpty(result.getLexes(), "result.getLexes()");
         PostCondition.assertEqual("import", result.getLexes().first().toString(), "result.getLexes().first().toString()");
+
+        return result;
+    }
+
+    private static JavaSegment parseClass(Lexer lexer, Action1<Issue> onIssue)
+    {
+        PreCondition.assertNotNull(lexer, "lexer");
+        PreCondition.assertTrue(lexer.hasCurrent(), "lexer.hasCurrent()");
+        PreCondition.assertEqual("class", lexer.getCurrent().toString(), "lexer.getCurrent().toString()");
+
+        final List<Lex> lexes = new ArrayList<Lex>();
+        lexes.add(lexer.takeCurrent());
+
+        skipWhitespace(lexer, lexes);
+
+        if (!lexer.hasCurrent())
+        {
+            addIssue(onIssue, JavaIssues.missingClassName(lexes.last(isNotWhitespace).getSpan()));
+        }
+        else
+        {
+            Lex className = null;
+            Lex leftCurlyBracket = null;
+            Lex rightCurlyBracket = null;
+
+            boolean addedExpectedClassNameIssue = false;
+            while (className == null && leftCurlyBracket == null && rightCurlyBracket == null)
+            {
+                skipWhitespace(lexer, lexes);
+                if (!lexer.hasCurrent())
+                {
+                    if (!addedExpectedClassNameIssue)
+                    {
+                        addIssue(onIssue, JavaIssues.missingClassName(lexes.last(isNotWhitespace).getSpan()));
+                    }
+                    break;
+                }
+                else
+                {
+                    if (lexer.getCurrent().getType() == LexType.Letters)
+                    {
+                        className = lexer.getCurrent();
+                    }
+                    else
+                    {
+                        addedExpectedClassNameIssue = true;
+                        addIssue(onIssue, JavaIssues.expectedClassName(lexer.getCurrent().getSpan()));
+                        if (lexer.getCurrent().getType() == LexType.LeftCurlyBracket)
+                        {
+                            leftCurlyBracket = lexer.getCurrent();
+                        }
+                        else if (lexer.getCurrent().getType() == LexType.RightCurlyBracket)
+                        {
+                            rightCurlyBracket = lexer.getCurrent();
+                        }
+                    }
+
+                    lexes.add(lexer.takeCurrent());
+                }
+            }
+
+            if (!lexer.hasCurrent())
+            {
+                if (className != null)
+                {
+                    addIssue(onIssue, JavaIssues.missingLeftCurlyBracket(lexes.last(isNotWhitespace).getSpan()));
+                }
+            }
+            else
+            {
+                while (leftCurlyBracket == null && rightCurlyBracket == null)
+                {
+                    skipWhitespace(lexer, lexes);
+                    if (!lexer.hasCurrent())
+                    {
+                        addIssue(onIssue, JavaIssues.missingLeftCurlyBracket(lexes.last(isNotWhitespace).getSpan()));
+                        break;
+                    }
+                    else
+                    {
+                        if (lexer.getCurrent().getType() == LexType.LeftCurlyBracket)
+                        {
+                            leftCurlyBracket = lexer.getCurrent();
+                        }
+                        else
+                        {
+                            addIssue(onIssue, JavaIssues.expectedLeftCurlyBracket(lexer.getCurrent().getSpan()));
+                            if (lexer.getCurrent().getType() == LexType.RightCurlyBracket)
+                            {
+                                rightCurlyBracket = lexer.getCurrent();
+                            }
+                        }
+
+                        lexes.add(lexer.takeCurrent());
+                    }
+                }
+            }
+
+            if (leftCurlyBracket != null)
+            {
+                if (!lexer.hasCurrent())
+                {
+                    addIssue(onIssue, JavaIssues.missingRightCurlyBracket(lexes.last(isNotWhitespace).getSpan()));
+                }
+                else
+                {
+                    while (rightCurlyBracket == null)
+                    {
+                        skipWhitespace(lexer, lexes);
+                        if (!lexer.hasCurrent())
+                        {
+                            addIssue(onIssue, JavaIssues.missingRightCurlyBracket(lexes.last(isNotWhitespace).getSpan()));
+                            break;
+                        }
+                        else
+                        {
+                            if (lexer.getCurrent().getType() == LexType.RightCurlyBracket)
+                            {
+                                rightCurlyBracket = lexer.getCurrent();
+                            }
+                            else
+                            {
+                                addIssue(onIssue, JavaIssues.expectedLeftCurlyBracket(lexer.getCurrent().getSpan()));
+                            }
+
+                            lexes.add(lexer.takeCurrent());
+                        }
+                    }
+                }
+            }
+        }
+
+        final JavaSegment result = new JavaSegment(JavaSegmentType.Class, lexes);
+
+        PostCondition.assertNotNull(result, "result");
+        PostCondition.assertEqual(JavaSegmentType.Class, result.getType(), "result.getType()");
+        PostCondition.assertEqual("class", result.getLexes().first().toString(), "result.getLexes().first().toString()");
 
         return result;
     }

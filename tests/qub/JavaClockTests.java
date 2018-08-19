@@ -32,6 +32,7 @@ public class JavaClockTests
                     test.assertTrue(value.get());
                 });
 
+                // Lingering async action failures: 2
                 runner.test("with zero Duration", (Test test) ->
                 {
                     final JavaClock clock = createClock(test);
