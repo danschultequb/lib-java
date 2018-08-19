@@ -4,7 +4,7 @@ public class JavaHttpClientTests
 {
     private static HttpClient createHttpClient(Test test)
     {
-        return new JavaHttpClient();
+        return new JavaHttpClient(test.getNetwork());
     }
 
     public static void test(TestRunner runner)

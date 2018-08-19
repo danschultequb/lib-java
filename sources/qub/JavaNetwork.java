@@ -7,13 +7,13 @@ import java.net.Socket;
 class JavaNetwork extends NetworkBase
 {
     private final AsyncRunner asyncRunner;
-    private final BasicHttpClient httpClient;
+    private final JavaHttpClient httpClient;
     private final DNS dns;
 
     JavaNetwork(AsyncRunner asyncRunner)
     {
         this.asyncRunner = asyncRunner;
-        httpClient = new BasicHttpClient(this);
+        httpClient = new JavaHttpClient(this);
         dns = new JavaDNS();
     }
 

@@ -10,6 +10,13 @@ import java.util.Map;
  */
 public class JavaHttpClient implements HttpClient
 {
+    private final Network network;
+
+    public JavaHttpClient(Network network)
+    {
+        this.network = network;
+    }
+
     @Override
     public Result<HttpResponse> send(HttpRequest request)
     {
@@ -53,7 +60,7 @@ public class JavaHttpClient implements HttpClient
                     resultHeaders.set(responseHeader.getKey(), Strings.join(',', responseHeader.getValue()));
                 }
 
-                InMemoryByteStream resultBody = new InMemoryByteStream();
+                InMemoryByteStream resultBody = new InMemoryByteStream(network.getAsyncRunner());
                 final ByteReadStream responseBody = new InputStreamToByteReadStream((400 <= statusCode && statusCode <= 599) ? urlConnection.getErrorStream() : urlConnection.getInputStream(), null);
                 resultBody.writeAll(responseBody);
                 responseBody.close();

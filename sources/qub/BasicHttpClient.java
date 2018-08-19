@@ -139,28 +139,4 @@ public class BasicHttpClient implements HttpClient
         }
         return result;
     }
-
-    private static String readLine(ByteReadStream byteReadStream)
-    {
-        final List<Byte> buffer = new ArrayList<>();
-        while (byteReadStream.next())
-        {
-            buffer.add(byteReadStream.getCurrent());
-            if (byteReadStream.getCurrent() == '\n')
-            {
-                break;
-            }
-        }
-
-        if (buffer.last() == (byte)'\n')
-        {
-            buffer.removeLast();
-            if (buffer.last() == (byte)'\r')
-            {
-                buffer.removeLast();
-            }
-        }
-
-        return !buffer.any() ? "" : CharacterEncoding.US_ASCII.decodeAsString(Array.toByteArray(buffer)).getValue();
-    }
 }
