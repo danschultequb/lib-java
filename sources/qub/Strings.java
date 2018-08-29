@@ -22,6 +22,21 @@ public class Strings
         return value == null ? 0 : value.length();
     }
 
+    public static boolean startsWith(String text, String prefix)
+    {
+        return !Strings.isNullOrEmpty(text) && !Strings.isNullOrEmpty(prefix) && text.startsWith(prefix);
+    }
+
+    public static boolean endsWith(String text, String suffix)
+    {
+        return !Strings.isNullOrEmpty(text) && !Strings.isNullOrEmpty(suffix) && text.endsWith(suffix);
+    }
+
+    public static boolean contains(String text, String substring)
+    {
+        return !Strings.isNullOrEmpty(text) && !Strings.isNullOrEmpty(substring) && text.contains(substring);
+    }
+
     /**
      * Check if the provided text String contains any of the provided characters.
      * @param text The text to search in.

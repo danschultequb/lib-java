@@ -26,6 +26,12 @@ public class GUID
         return uuid.toString();
     }
 
+    @Override
+    public int hashCode()
+    {
+        return uuid.hashCode();
+    }
+
     public static GUID createRandom()
     {
         return new GUID(java.util.UUID.randomUUID());

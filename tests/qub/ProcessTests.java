@@ -472,10 +472,6 @@ public class ProcessTests
                         test.assertEqual(IllegalArgumentException.class, result.getErrorType());
                         test.assertEqual("executablePath cannot be null.", result.getErrorMessage());
                     }
-                    catch (Exception e)
-                    {
-                        test.fail(e);
-                    }
                 });
 
                 runner.test("with empty string", (Test test) ->
@@ -489,10 +485,6 @@ public class ProcessTests
                         test.assertEqual(IllegalArgumentException.class, result.getErrorType());
                         test.assertEqual("executablePath cannot be null.", result.getErrorMessage());
                     }
-                    catch (Exception e)
-                    {
-                        test.fail(e);
-                    }
                 });
 
                 runner.test("with path with file extension relative to the current folder", (Test test) ->
@@ -504,10 +496,6 @@ public class ProcessTests
                         test.assertEqual(process.getCurrentFolder().getValue().getFile("pom.xml").getValue(), builder.getExecutableFile());
                         test.assertEqual(0, builder.getArgumentCount());
                     }
-                    catch (Exception e)
-                    {
-                        test.fail(e);
-                    }
                 });
 
                 runner.test("with path without file extension relative to the current folder", (Test test) ->
@@ -518,10 +506,6 @@ public class ProcessTests
                         test.assertNotNull(builder);
                         test.assertEqual(process.getCurrentFolder().getValue().getFile("pom.xml").getValue(), builder.getExecutableFile());
                         test.assertEqual(0, builder.getArgumentCount());
-                    }
-                    catch (Exception e)
-                    {
-                        test.fail(e);
                     }
                 });
 
@@ -535,10 +519,6 @@ public class ProcessTests
                         test.assertEqual(process.getCurrentFolder().getValue().getFile("pom.xml").getValue(), builder.getExecutableFile());
                         test.assertEqual(0, builder.getArgumentCount());
                     }
-                    catch (Exception e)
-                    {
-                        test.fail(e);
-                    }
                 });
 
                 runner.test("with rooted path without file extension", (Test test) ->
@@ -550,10 +530,6 @@ public class ProcessTests
                         test.assertNotNull(builder);
                         test.assertEqual(process.getCurrentFolder().getValue().getFile("pom.xml").getValue(), builder.getExecutableFile());
                         test.assertEqual(0, builder.getArgumentCount());
-                    }
-                    catch (Exception e)
-                    {
-                        test.fail(e);
                     }
                 });
 
@@ -569,10 +545,6 @@ public class ProcessTests
                             test.assertEqual(2, builder.run());
                         }
                     }
-                    catch (Exception e)
-                    {
-                        test.fail(e);
-                    }
                 });
 
                 runner.test("with path with file extension relative to PATH environment variable", (Test test) ->
@@ -586,10 +558,6 @@ public class ProcessTests
                             test.assertEqual(0, builder.getArgumentCount());
                             test.assertEqual(2, builder.run());
                         }
-                    }
-                    catch (Exception e)
-                    {
-                        test.fail(e);
                     }
                 });
 
@@ -611,10 +579,6 @@ public class ProcessTests
                             test.assertTrue(outputString.contains("javac <options> <source files>"));
                             test.assertTrue(outputString.contains("Terminate compilation if warnings occur"));
                         }
-                    }
-                    catch (Exception e)
-                    {
-                        test.fail(e);
                     }
                 });
 
@@ -659,6 +623,18 @@ public class ProcessTests
                         }
                     }
                 });
+            });
+
+            runner.test("createWindow()", (Test test) ->
+            {
+                Window window;
+                try (final Process process = creator.run())
+                {
+                    window = process.createWindow();
+                    test.assertNotNull(window);
+                    test.assertFalse(window.isDisposed());
+                }
+                test.assertTrue(window.isDisposed());
             });
         });
     }

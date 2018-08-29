@@ -36,14 +36,14 @@ public class HttpClientTests
                     test.assertEqual(200, httpResponse.getStatusCode());
                     test.assertEqual("OK", httpResponse.getReasonPhrase());
                     test.assertNotNull(httpResponse.getHeaders());
-                    test.assertSuccess("1270", httpResponse.getHeaders().getValue("content-length"));
+                    test.assertSuccess("1164", httpResponse.getHeaders().getValue("content-length"));
                     test.assertNotNull(httpResponse.getBody());
                     final String bodyString = httpResponse.getBody().asCharacterReadStream().readString(3000).getValue();
                     test.assertNotNull(bodyString);
-                    test.assertTrue(bodyString.startsWith("<!doctype html>"));
-                    test.assertTrue(bodyString.contains("<html>"));
-                    test.assertTrue(bodyString.contains("<h1>Example Domain</h1>"));
-                    test.assertTrue(bodyString.contains("</html>"));
+                    test.assertStartsWith(bodyString, "<!DOCTYPE html>");
+                    test.assertContains(bodyString, "<div>");
+                    test.assertContains(bodyString, "<h1>Example Domain</h1>");
+                    test.assertContains(bodyString, "</div>");
                 });
 
                 runner.test("with GET request to http://www.treasurydirect.gov/TA_WS/securities/auctioned?format=json&type=Bill", (Test test) ->

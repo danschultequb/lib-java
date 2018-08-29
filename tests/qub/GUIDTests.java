@@ -45,6 +45,12 @@ public class GUIDTests
                 test.assertEqual(guidString, GUID.parseString(guidString).toString());
             });
 
+            runner.test("hashCode()", (Test test) ->
+            {
+                final GUID hashCodeGuid = GUID.createRandom();
+                test.assertEqual(hashCodeGuid.hashCode(), hashCodeGuid.hashCode());
+            });
+
             runner.test("createRandom()", (Test test) ->
             {
                 test.assertNotEqual(GUID.createRandom(), GUID.createRandom());

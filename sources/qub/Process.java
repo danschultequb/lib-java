@@ -30,6 +30,8 @@ public class Process extends DisposableBase
     private final Value<Function0<Stopwatch>> stopwatchCreator;
     private final Value<Clock> clock;
 
+    private final List<Window> windows;
+
     private final AsyncRunner mainAsyncRunner;
     private volatile AsyncRunner parallelAsyncRunner;
 
@@ -84,6 +86,8 @@ public class Process extends DisposableBase
         synchronization = new Value<>();
         stopwatchCreator = new Value<>();
         clock = new Value<>();
+
+        windows = new ArrayList<>();
 
         this.mainAsyncRunner = mainAsyncRunner;
         AsyncRunnerRegistry.setCurrentThreadAsyncRunner(mainAsyncRunner);
@@ -273,8 +277,8 @@ public class Process extends DisposableBase
     }
 
     /**
-     * Get the TextReadStream that is assigned to this Console.
-     * @return The TextReadStream that is assigned to this Console.
+     * Get the ByteReadStream that is assigned to this Console.
+     * @return The ByteReadStream that is assigned to this Console.
      */
     public ByteReadStream getInputAsByteReadStream()
     {
@@ -285,6 +289,10 @@ public class Process extends DisposableBase
         return byteReadStream.get();
     }
 
+    /**
+     * Get the CharacterReadStream that is assigned to this Console.
+     * @return The CharacterReadStream that is assigned to this Console.
+     */
     public CharacterReadStream getInputAsCharacterReadStream()
     {
         if (!characterReadStream.hasValue())
@@ -294,6 +302,10 @@ public class Process extends DisposableBase
         return characterReadStream.get();
     }
 
+    /**
+     * Get the LineReadStream that is assigned to this Console.
+     * @return The LineReadStream that is assigned to this Console.
+     */
     public LineReadStream getInputAsLineReadStream()
     {
         if (!lineReadStream.hasValue())
@@ -530,6 +542,21 @@ public class Process extends DisposableBase
     }
 
     /**
+     * Create a new Window for this application. The Window will not be visible until
+     * setVisible() is called.
+     * @return The created Window.
+     */
+    public Window createWindow()
+    {
+        final Window result = new Window();
+        windows.add(result);
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    /**
      * Get a ProcessBuilder that references the provided executablePath.
      * @param executablePath The path to the executable to run from the returned ProcessBuilder.
      * @return The ProcessBuilder.
@@ -696,34 +723,30 @@ public class Process extends DisposableBase
         Result<Boolean> result;
         if (disposed)
         {
-            result = Result.<Boolean>success(false);
+            result = Result.success(false);
         }
         else
         {
             disposed = true;
 
             Throwable error = null;
-            try
+            for (final Window window : windows)
             {
-                mainAsyncRunner.close();
-            }
-            catch (Throwable e)
-            {
-                error = e;
-            }
-            finally
-            {
-                if (parallelAsyncRunner != null)
+                final Result<Boolean> windowDisposedResult = window.dispose();
+                if (windowDisposedResult.hasError())
                 {
-                    try
-                    {
-                        parallelAsyncRunner.close();
-                    }
-                    catch (Exception e)
-                    {
-                        error = (error == null ? e : ErrorIterable.from(Array.fromValues(new Throwable[] { error, e })));
-                    }
+                    error = ErrorIterable.from(error, windowDisposedResult.getError());
                 }
+            }
+
+            if (mainAsyncRunner != null)
+            {
+                error = ErrorIterable.from(error, mainAsyncRunner.dispose().getError());
+            }
+
+            if (parallelAsyncRunner != null)
+            {
+                error = ErrorIterable.from(error, parallelAsyncRunner.dispose().getError());
             }
 
             result = Result.done(disposed, error);

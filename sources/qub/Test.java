@@ -61,9 +61,22 @@ public class Test
         return process.getParallelAsyncRunner();
     }
 
+    /**
+     * Get the Network that has been assigned to this Test.
+     * @return The Network that has been assigned to this Test.
+     */
     public Network getNetwork()
     {
         return process.getNetwork();
+    }
+
+    /**
+     * Get the Clock that has been assigned to this Test.
+     * @return The Clock that has been assigned to this Test.
+     */
+    public Clock getClock()
+    {
+        return process.getClock();
     }
 
     /**
@@ -750,13 +763,39 @@ public class Test
     }
 
     /**
+     * Assert that the provided value starts with the provided prefix.
+     * @param value The value to check.
+     * @param prefix The prefix to look for at the beginning of the provided value.
+     */
+    public void assertStartsWith(String value, String prefix)
+    {
+        if (!Strings.startsWith(value, prefix))
+        {
+            throw new TestAssertionFailure(getFullName(), new String[] { "Expected " + Strings.escapeAndQuote(value) + " to start with " + Strings.escapeAndQuote(prefix) + "." });
+        }
+    }
+
+    /**
+     * Assert that the provided value starts with the provided prefix.
+     * @param value The value to check.
+     * @param prefix The prefix to look for at the beginning of the provided value.
+     */
+    public void assertStartsWith(String value, String prefix, String message)
+    {
+        if (!Strings.startsWith(value, prefix))
+        {
+            throw new TestAssertionFailure(getFullName(), new String[] { message, "Expected " + Strings.escapeAndQuote(value) + " to start with " + Strings.escapeAndQuote(prefix) + "." });
+        }
+    }
+
+    /**
      * Assert that the provided value ends with the provided suffix.
      * @param value The value to check.
      * @param suffix The suffix to look for at the end of the provided value.
      */
     public void assertEndsWith(String value, String suffix)
     {
-        if (value == null || !value.endsWith(suffix))
+        if (!Strings.endsWith(value, suffix))
         {
             throw new TestAssertionFailure(getFullName(), new String[] { "Expected " + Strings.escapeAndQuote(value) + " to end with " + Strings.escapeAndQuote(suffix) + "." });
         }
@@ -769,9 +808,25 @@ public class Test
      */
     public void assertEndsWith(String value, String suffix, String message)
     {
-        if (value == null || !value.endsWith(suffix))
+        if (!Strings.endsWith(value, suffix))
         {
             throw new TestAssertionFailure(getFullName(), new String[] { message, "Expected " + Strings.escapeAndQuote(value) + " to end with " + Strings.escapeAndQuote(suffix) + "." });
+        }
+    }
+
+    public void assertContains(String value, String substring)
+    {
+        if (!Strings.contains(value, substring))
+        {
+            throw new TestAssertionFailure(getFullName(), new String[] { "Expected " + Strings.escapeAndQuote(value) + " to contain " + Strings.escapeAndQuote(substring) + "." });
+        }
+    }
+
+    public void assertContains(String value, String substring, String message)
+    {
+        if (!Strings.contains(value, substring))
+        {
+            throw new TestAssertionFailure(getFullName(), new String[] { message, "Expected " + Strings.escapeAndQuote(value) + " to contain " + Strings.escapeAndQuote(substring) + "." });
         }
     }
 

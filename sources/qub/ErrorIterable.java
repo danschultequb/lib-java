@@ -9,21 +9,54 @@ public class ErrorIterable extends RuntimeException implements Iterable<Throwabl
         this.errors = errors;
     }
 
+    public static RuntimeException from(Throwable error, Throwable... extraErrors)
+    {
+        final Array<Throwable> errorArray = new Array<>(1 + (extraErrors == null ? 0 : extraErrors.length));
+        errorArray.set(0, error);
+        if (extraErrors != null)
+        {
+            for (int i = 0; i < extraErrors.length; ++i)
+            {
+                errorArray.set(i + 1, extraErrors[i]);
+            }
+        }
+        return ErrorIterable.from(errorArray);
+    }
+
     public static RuntimeException from(Iterable<Throwable> errors)
     {
         RuntimeException result;
-        if (errors == null || !errors.any())
+
+        final List<Throwable> errorList = new ArrayList<>();
+        if (errors != null)
+        {
+            for (final Throwable error : errors)
+            {
+                if (error instanceof ErrorIterable)
+                {
+                    errorList.addAll((ErrorIterable)error);
+                }
+                else if (error != null)
+                {
+                    errorList.add(error);
+                }
+            }
+        }
+
+        final int errorListCount = errorList.getCount();
+        if (errorListCount == 0)
         {
             result = null;
         }
-        else if (errors.getCount() == 1)
+        else if (errorListCount == 1)
         {
-            result = Exceptions.asRuntime(errors.first());
+            result = Exceptions.asRuntime(errorList.first());
         }
         else
         {
-            result = new ErrorIterable(errors);
+            result = new ErrorIterable(errorList);
         }
+
         return result;
     }
 
