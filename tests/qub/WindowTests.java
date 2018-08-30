@@ -2,13 +2,18 @@ package qub;
 
 public class WindowTests
 {
+    private static Window createWindow(Test test)
+    {
+        return new Window(test.getMainAsyncRunner());
+    }
+
     public static void test(TestRunner runner)
     {
         runner.testGroup(Window.class, () ->
         {
             runner.test("constructor", (Test test) ->
             {
-                try (final Window window = new Window())
+                try (final Window window = createWindow(test))
                 {
                     test.assertFalse(window.isDisposed());
                     test.assertFalse(window.isVisible());
@@ -23,7 +28,7 @@ public class WindowTests
 
             runner.test("setVisible()", (Test test) ->
             {
-                 try (final Window window = new Window())
+                 try (final Window window = createWindow(test))
                  {
                      window.setVisible(true);
                      test.assertTrue(window.isVisible());
@@ -43,7 +48,7 @@ public class WindowTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    try (final Window window = new Window())
+                    try (final Window window = createWindow(test))
                     {
                         test.assertThrows(() -> window.setTitle(null));
                     }
@@ -51,7 +56,7 @@ public class WindowTests
 
                 runner.test("with empty", (Test test) ->
                 {
-                    try (final Window window = new Window())
+                    try (final Window window = createWindow(test))
                     {
                         window.setTitle("");
                         test.assertEqual("", window.getTitle());
@@ -60,7 +65,7 @@ public class WindowTests
 
                 runner.test("with non-empty", (Test test) ->
                 {
-                    try (final Window window = new Window())
+                    try (final Window window = createWindow(test))
                     {
                         window.setTitle("Apples and Bananas");
                         test.assertEqual("Apples and Bananas", window.getTitle());

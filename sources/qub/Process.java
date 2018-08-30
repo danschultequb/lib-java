@@ -548,7 +548,7 @@ public class Process extends DisposableBase
      */
     public Window createWindow()
     {
-        final Window result = new Window();
+        final Window result = new Window(getMainAsyncRunner());
         windows.add(result);
 
         PostCondition.assertNotNull(result, "result");

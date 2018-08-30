@@ -1,15 +1,69 @@
 package qub;
 
 import javax.swing.JFrame;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 
 public class Window extends DisposableBase
 {
+    private final AsyncRunner mainAsyncRunner;
+    private final BasicAsyncAction windowClosedTask;
     private final JFrame jFrame;
     private boolean disposed;
 
-    public Window()
+    public Window(AsyncRunner mainAsyncRunner)
     {
-        jFrame = new JFrame();
+        this.mainAsyncRunner = mainAsyncRunner;
+        this.windowClosedTask = new BasicAsyncAction(mainAsyncRunner);
+
+        this.jFrame = new JFrame();
+        this.jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.jFrame.addWindowListener(new WindowListener()
+        {
+            @Override
+            public void windowOpened(WindowEvent e)
+            {
+            }
+
+            @Override
+            public void windowClosing(WindowEvent e)
+            {
+            }
+
+            @Override
+            public void windowClosed(WindowEvent e)
+            {
+                dispose();
+            }
+
+            @Override
+            public void windowIconified(WindowEvent e)
+            {
+            }
+
+            @Override
+            public void windowDeiconified(WindowEvent e)
+            {
+            }
+
+            @Override
+            public void windowActivated(WindowEvent e)
+            {
+            }
+
+            @Override
+            public void windowDeactivated(WindowEvent e)
+            {
+            }
+        });
+    }
+
+    /**
+     * Wait for this Window to close. This will block the current thread.
+     */
+    public void awaitClose()
+    {
+        windowClosedTask.await();
     }
 
     /**
@@ -72,6 +126,9 @@ public class Window extends DisposableBase
             disposed = true;
 
             jFrame.dispose();
+
+            windowClosedTask.schedule();
+            awaitClose();
 
             result = Result.successTrue();
         }
