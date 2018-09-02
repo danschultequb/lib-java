@@ -76,4 +76,14 @@ public class Characters
     {
         return text == null ? null : '\'' + text + '\'';
     }
+
+    /**
+     * Get the lower-cased version of the provided character.
+     * @param value The character.
+     * @return The lower-cased version of the provided character.
+     */
+    public static char toLowerCase(char value)
+    {
+        return Character.toLowerCase(value);
+    }
 }

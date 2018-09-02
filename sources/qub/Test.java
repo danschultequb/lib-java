@@ -780,6 +780,19 @@ public class Test
      * @param value The value to check.
      * @param prefix The prefix to look for at the beginning of the provided value.
      */
+    public void assertStartsWith(String value, String prefix, CharacterComparer characterComparer)
+    {
+        if (!Strings.startsWith(value, prefix, characterComparer))
+        {
+            throw new TestAssertionFailure(getFullName(), new String[] { "Expected " + Strings.escapeAndQuote(value) + " to start with " + Strings.escapeAndQuote(prefix) + "." });
+        }
+    }
+
+    /**
+     * Assert that the provided value starts with the provided prefix.
+     * @param value The value to check.
+     * @param prefix The prefix to look for at the beginning of the provided value.
+     */
     public void assertStartsWith(String value, String prefix, String message)
     {
         if (!Strings.startsWith(value, prefix))

@@ -2,15 +2,49 @@ package qub;
 
 public class VersionNumber
 {
+    private final String text;
     private final Integer major;
     private final Integer minor;
     private final Integer patch;
+    private final String suffix;
 
-    VersionNumber(Integer major, Integer minor, Integer patch)
+    public VersionNumber(int major)
     {
+        this(major, null);
+    }
+
+    public VersionNumber(int major, String suffix)
+    {
+        this(Strings.concatenate("" + major, suffix), major, null, null, suffix);
+    }
+
+    public VersionNumber(int major, int minor)
+    {
+        this(major, minor, null);
+    }
+
+    public VersionNumber(int major, int minor, String suffix)
+    {
+        this(Strings.concatenate(major + "." + minor, suffix), major, minor, null, suffix);
+    }
+
+    public VersionNumber(int major, int minor, int patch)
+    {
+        this(major, minor, patch, null);
+    }
+
+    public VersionNumber(int major, int minor, int patch, String suffix)
+    {
+        this(Strings.concatenate(major + "." + minor + "." + patch, suffix), major, minor, patch, suffix);
+    }
+
+    VersionNumber(String text, Integer major, Integer minor, Integer patch, String suffix)
+    {
+        this.text = text;
         this.major = major;
         this.minor = minor;
         this.patch = patch;
+        this.suffix = suffix;
     }
 
     public Integer getMajor()
@@ -28,31 +62,48 @@ public class VersionNumber
         return patch;
     }
 
+    public String getSuffix()
+    {
+        return suffix;
+    }
+
+    @Override
     public String toString()
     {
-        String result = major.toString();
-        if (minor != null)
-        {
-            result += '.' + minor.toString();
-            if (patch != null)
-            {
-                result += '.' + patch.toString();
-            }
-        }
+        final String result = text;
+
+        PostCondition.assertNotNull(result, "result");
+
         return result;
     }
 
     public static VersionNumber parse(String versionNumberString)
     {
+        return parse(versionNumberString, null);
+    }
+
+    public static VersionNumber parse(String versionNumberString, Action1<Issue> onIssue)
+    {
+        PreCondition.assertNotNull(versionNumberString, "versionNumberString");
+
         final Lexer lexer = new Lexer(versionNumberString);
         Integer major = null;
         Integer minor = null;
         Integer patch = null;
+        String suffix = null;
 
-        if (lexer.next())
+        if (!lexer.next())
+        {
+            Issue.onIssue(onIssue, Issue.error("Missing major version digits", new Span(0, 0)));
+        }
+        else
         {
             final Lex majorLex = lexer.getCurrent();
-            if (majorLex.getType() == LexType.Digits)
+            if (majorLex.getType() != LexType.Digits)
+            {
+                Issue.onIssue(onIssue, Issue.error("Expected major version digits.", majorLex.getSpan()));
+            }
+            else
             {
                 major = Integer.parseInt(majorLex.toString());
                 if (lexer.next() && lexer.getCurrent().getType() == LexType.Period && lexer.next())
@@ -67,13 +118,28 @@ public class VersionNumber
                             if (patchLex.getType() == LexType.Digits)
                             {
                                 patch = Integer.parseInt(patchLex.toString());
+                                lexer.next();
                             }
                         }
                     }
                 }
             }
+
+            final StringBuilder suffixBuilder = new StringBuilder();
+            while (lexer.hasCurrent())
+            {
+                suffixBuilder.append(lexer.takeCurrent().toString());
+            }
+            if (suffixBuilder.length() > 0)
+            {
+                suffix = suffixBuilder.toString();
+            }
         }
 
-        return major == null ? null : new VersionNumber(major, minor, patch);
+        final VersionNumber result = new VersionNumber(versionNumberString, major, minor, patch, suffix);
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
     }
 }

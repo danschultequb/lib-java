@@ -27,6 +27,29 @@ public class Strings
         return !Strings.isNullOrEmpty(text) && !Strings.isNullOrEmpty(prefix) && text.startsWith(prefix);
     }
 
+    public static boolean startsWith(String text, String prefix, CharacterComparer characterComparer)
+    {
+        boolean result = false;
+        if (!Strings.isNullOrEmpty(text) && !Strings.isNullOrEmpty(text))
+        {
+            final int textLength = text.length();
+            final int prefixLength = prefix.length();
+            if (prefixLength <= textLength)
+            {
+                result = true;
+                for (int i = 0; i < prefixLength; ++i)
+                {
+                    if (!characterComparer.equal(text.charAt(i), prefix.charAt(i)))
+                    {
+                        result = false;
+                        break;
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
     public static boolean endsWith(String text, String suffix)
     {
         return !Strings.isNullOrEmpty(text) && !Strings.isNullOrEmpty(suffix) && text.endsWith(suffix);

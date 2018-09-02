@@ -100,6 +100,16 @@ public class Integers
         return rotateLeft(value, -places);
     }
 
+    /**
+     * Get the String representation of the provided value.
+     * @param value The value.
+     * @return The String representation of the provided value.
+     */
+    public static String toString(int value)
+    {
+        return Integer.toString(value);
+    }
+
     public static String toHexString(int value)
     {
         return toHexString(value, false);

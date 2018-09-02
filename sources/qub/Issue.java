@@ -73,4 +73,17 @@ public class Issue
         Warning,
         Error
     }
+
+    /**
+     * If the provided Action is not null, then invoke it with the provided issue.
+     * @param onIssue The Action to invoke if it is not null.
+     * @param issue The issue.
+     */
+    public static void onIssue(Action1<Issue> onIssue, Issue issue)
+    {
+        if (onIssue != null)
+        {
+            onIssue.run(issue);
+        }
+    }
 }
