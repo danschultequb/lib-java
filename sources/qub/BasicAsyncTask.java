@@ -106,10 +106,7 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
     {
         if (!isCompleted())
         {
-            if (getAsyncRunner() == null)
-            {
-                awaitParentTasks();
-            }
+            awaitParentTasks();
             getAsyncRunner().await(this);
         }
         if (outgoingError != null)
@@ -224,6 +221,7 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
         final BasicAsyncAction result = new BasicAsyncAction(resultAsyncRunner, null);
         result.addParentTask(this);
 
+        
         result.addParentTask(this.thenOnInner(runner, function)
             .then(new Action1<AsyncAction>()
             {
