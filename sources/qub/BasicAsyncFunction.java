@@ -207,7 +207,10 @@ public class BasicAsyncFunction<T> extends BasicAsyncTask implements AsyncFuncti
                     else
                     {
                         resultAsyncRunner.set(asyncFunctionResult.getAsyncRunner());
-                        result.setIncomingError(asyncFunctionResult.getOutgoingError());
+                        if (asyncFunctionResult.getOutgoingError() != null)
+                        {
+                            result.setIncomingError(asyncFunctionResult.getOutgoingError());
+                        }
                         result.addParentTask(asyncFunctionResult.then(new Action1<T>()
                         {
                             @Override

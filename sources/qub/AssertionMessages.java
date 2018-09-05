@@ -5,6 +5,11 @@ package qub;
  */
 public class AssertionMessages
 {
+    public static String nullMessage(String expressionName)
+    {
+        return expressionName + " must be null.";
+    }
+
     public static String notNull(String variableName)
     {
         return variableName + " cannot be null.";

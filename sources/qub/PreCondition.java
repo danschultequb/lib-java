@@ -32,6 +32,22 @@ public class PreCondition
     }
 
     /**
+     * Assert that the provided value is null.
+     * @param value The value to check.
+     * @param expressionName The name of the variable that contains value.
+     * @param <T> The type of value.
+     * @preCondition expressionName != null && expressionName.length() > 0
+     * @postCondition value == null
+     */
+    public static <T> void assertNull(T value, String expressionName)
+    {
+        if (value != null)
+        {
+            throw new PreConditionFailure(AssertionMessages.nullMessage(expressionName));
+        }
+    }
+
+    /**
      * Assert that the provided value is not null.
      * @param value The value to check.
      * @param variableName The name of the variable that contains value.

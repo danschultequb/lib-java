@@ -83,6 +83,24 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
         }
     }
 
+    private void awaitParentTasks()
+    {
+        for (int i = 0; i < getParentTaskCount(); ++i)
+        {
+            final AsyncTask parentTask = getParentTask(i);
+            try
+            {
+                parentTask.await();
+            }
+            catch (AwaitException ignored)
+            {
+                // It's okay to ignore this AwaitException because the parent task will have set
+                // this task's IncomingException. That means that when this task awaits/runs, it
+                // will react to the IncomingException.
+            }
+        }
+    }
+
     @Override
     public void await()
     {
@@ -90,11 +108,7 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
         {
             if (getAsyncRunner() == null)
             {
-                for (int i = 0; i < getParentTaskCount(); ++i)
-                {
-                    final AsyncTask parentTask = getParentTask(i);
-                    parentTask.await();
-                }
+                awaitParentTasks();
             }
             getAsyncRunner().await(this);
         }
@@ -133,6 +147,9 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
 
     public void setIncomingError(Throwable incomingError)
     {
+        PreCondition.assertNotNull(incomingError, "incomingError");
+        PreCondition.assertNull(this.incomingError, "this.incomingError");
+
         this.incomingError = incomingError;
     }
 
@@ -341,7 +358,10 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
                     else
                     {
                         resultAsyncRunner.set(asyncFunctionResult.getAsyncRunner());
-                        result.setIncomingError(asyncFunctionResult.getOutgoingError());
+                        if (asyncFunctionResult.getOutgoingError() != null)
+                        {
+                            result.setIncomingError(asyncFunctionResult.getOutgoingError());
+                        }
                         result.addParentTask(asyncFunctionResult.then(new Action0()
                         {
                             @Override
@@ -363,7 +383,10 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
         {
             if (completed.get())
             {
-                asyncTask.setIncomingError(getOutgoingError());
+                if (getOutgoingError() != null)
+                {
+                    asyncTask.setIncomingError(getOutgoingError());
+                }
                 asyncTask.schedule();
             }
             else
@@ -377,6 +400,8 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
     @Override
     public void runAndSchedulePausedTasks()
     {
+        awaitParentTasks();
+
         try
         {
             runTask();
@@ -393,7 +418,10 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
             while (pausedTasks.any())
             {
                 final BasicAsyncTask pausedTask = pausedTasks.removeFirst();
-                pausedTask.setIncomingError(outgoingError);
+                if (outgoingError != null)
+                {
+                    pausedTask.setIncomingError(outgoingError);
+                }
                 pausedTask.schedule();
             }
             getAsyncRunner().markCompleted(completed);
