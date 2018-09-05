@@ -9,13 +9,7 @@ public abstract class AsyncRunnerBase extends DisposableBase implements AsyncRun
     {
         PreCondition.assertNotNull(function, "function");
 
-        return schedule(new Action0()
-            {
-                @Override
-                public void run()
-                {
-                }
-            })
+        return schedule(Actions.empty)
             .thenAsyncAction(function);
     }
 
@@ -24,13 +18,7 @@ public abstract class AsyncRunnerBase extends DisposableBase implements AsyncRun
     {
         PreCondition.assertNotNull(function, "function");
 
-        return schedule(new Action0()
-            {
-                @Override
-                public void run()
-                {
-                }
-            })
+        return schedule(Actions.empty)
             .thenAsyncFunction(function);
     }
 

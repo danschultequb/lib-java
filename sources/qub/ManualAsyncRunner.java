@@ -17,93 +17,90 @@ public class ManualAsyncRunner extends AsyncRunnerBase
     }
 
     @Override
-    public void markCompleted(final Setable<Boolean> asyncTaskCompleted)
+    public void markCompleted(Setable<Boolean> asyncTaskCompleted)
     {
+        PreCondition.assertNotNull(asyncTaskCompleted, "asyncTaskCompleted");
+
         asyncTaskCompleted.set(true);
     }
 
     @Override
     public void schedule(PausedAsyncTask asyncTask)
     {
-        if (!disposed)
-        {
-            scheduledTasks.enqueue(asyncTask);
-        }
+        PreCondition.assertNotNull(asyncTask, "asyncTask");
+        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+
+        scheduledTasks.enqueue(asyncTask);
     }
 
     @Override
     public AsyncAction schedule(Action0 action)
     {
-        AsyncAction result = null;
-        if (action != null)
-        {
-            final BasicAsyncAction asyncAction = new BasicAsyncAction(new Value<AsyncRunner>(this), action);
-            asyncAction.schedule();
-            result = asyncAction;
-        }
+        PreCondition.assertNotNull(action, "action");
+        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+
+        final BasicAsyncAction result = new BasicAsyncAction(new Value<AsyncRunner>(this), action);
+        schedule(result);
+
+        PostCondition.assertNotNull(result, "result");
+
         return result;
     }
 
     @Override
     public <T> AsyncFunction<T> schedule(Function0<T> function)
     {
-        AsyncFunction<T> result = null;
-        if (function != null)
-        {
-            final BasicAsyncFunction<T> asyncFunction = new BasicAsyncFunction<>(new Value<AsyncRunner>(this), function);
-            asyncFunction.schedule();
-            result = asyncFunction;
-        }
+        PreCondition.assertNotNull(function, "function");
+        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+
+        final BasicAsyncFunction<T> result = new BasicAsyncFunction<>(new Value<AsyncRunner>(this), function);
+        schedule(result);
+
+        PostCondition.assertNotNull(result, "result");
+
         return result;
+    }
+
+    private void dequeueAndRunNextTask()
+    {
+        final Result<PausedAsyncTask> asyncTask = scheduledTasks.dequeue();
+        asyncTask.throwError();
+        asyncTask.getValue().runAndSchedulePausedTasks();
     }
 
     public void await()
     {
         while (scheduledTasks.any())
         {
-            awaitNext();
-        }
-    }
-
-    public void awaitNext()
-    {
-        final PausedAsyncTask asyncTask = scheduledTasks.dequeue().getValue();
-        if (asyncTask != null)
-        {
-            asyncTask.runAndSchedulePausedTasks();
+            dequeueAndRunNextTask();
         }
     }
 
     @Override
     public void await(AsyncTask asyncTask)
     {
-        if (!asyncTask.isCompleted())
+        PreCondition.assertNotNull(asyncTask, "asyncTask");
+        PreCondition.assertFalse(asyncTask.isCompleted(), "asyncTask.isCompleted()");
+        PreCondition.assertSame(this, asyncTask.getAsyncRunner(), "asyncTask.getAsyncRunner()");
+
+        final AsyncRunner currentThreadAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+        if (currentThreadAsyncRunner == this)
         {
-            final AsyncRunner asyncTaskRunner = asyncTask.getAsyncRunner();
-            final AsyncRunner currentThreadAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-            if (asyncTaskRunner == this && currentThreadAsyncRunner == this)
+            // If the thread that is running this is the same thread that this ManualAsyncRunner
+            // is using, then let's help it along by executing the scheduled tasks until the
+            // provided task is completed.
+            while (!asyncTask.isCompleted())
             {
-                // If the thread that is running this is the same thread that this ManualAsyncRunner
-                // is using, then let's help it along by executing the scheduled tasks until the
-                // provided task is completed.
-                while (!asyncTask.isCompleted())
-                {
-                    final Result<PausedAsyncTask> asyncTaskToRunResult = scheduledTasks.dequeue();
-                    final PausedAsyncTask asyncTaskToRun = asyncTaskToRunResult.getValue();
-                    if (asyncTaskToRun != null)
-                    {
-                        asyncTaskToRun.runAndSchedulePausedTasks();
-                    }
-                }
+                dequeueAndRunNextTask();
             }
-            else
+        }
+        else
+        {
+            // If the thread that is running this is not the same thread that this
+            // ManualAsyncRunner is using, then let's just wait for the task to be completed by
+            // the thread that this ManualAsyncRunner is using.
+            while (!asyncTask.isCompleted())
             {
-                // If the thread that is running this is not the same thread that this
-                // ManualAsyncRunner is using, then let's just wait for the task to be completed by
-                // the thread that this ManualAsyncRunner is using.
-                while (!asyncTask.isCompleted())
-                {
-                }
             }
         }
     }
@@ -119,15 +116,10 @@ public class ManualAsyncRunner extends AsyncRunnerBase
     public static void withRegistered(Action1<ManualAsyncRunner> action)
     {
         final AsyncRunner runnerBackup = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-
-
         try (final ManualAsyncRunner runner = new ManualAsyncRunner())
         {
             AsyncRunnerRegistry.setCurrentThreadAsyncRunner(runner);
             action.run(runner);
-        }
-        catch (Exception ignored)
-        {
         }
         finally
         {
@@ -151,16 +143,11 @@ public class ManualAsyncRunner extends AsyncRunnerBase
     @Override
     public Result<Boolean> dispose()
     {
-        Result<Boolean> result;
-        if (disposed)
-        {
-            result = Result.successFalse();
-        }
-        else
-        {
-            disposed = true;
-            result = Result.successTrue();
-        }
+        final Result<Boolean> result = (disposed ? Result.successFalse() : Result.successTrue());
+        disposed = true;
+
+        PostCondition.assertTrue(isDisposed(), "isDisposed()");
+
         return result;
     }
 }

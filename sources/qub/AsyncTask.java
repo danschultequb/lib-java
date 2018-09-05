@@ -6,8 +6,8 @@ package qub;
 public interface AsyncTask
 {
     /**
-     * Get the AsyncRunner that will run this AsyncAction.
-     * @return The runner that will run this AsyncAction.
+     * Get the AsyncRunner that will run this AsyncTask.
+     * @return The runner that will run this AsyncTask.
      */
     AsyncRunner getAsyncRunner();
 

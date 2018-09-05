@@ -111,6 +111,14 @@ public class PreCondition
         }
     }
 
+    public static <T> void assertSame(T expectedValue, T value, String expressionName)
+    {
+        if (expectedValue != value)
+        {
+            throw new PreConditionFailure(AssertionMessages.same(expectedValue, value, expressionName));
+        }
+    }
+
     /**
      * Assert that value is equal to the provided expectedValue.
      * @param expectedValue The expected value that value should be equal to.

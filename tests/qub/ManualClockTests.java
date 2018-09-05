@@ -8,23 +8,22 @@ public class ManualClockTests
     {
         runner.testGroup(ManualClock.class, () ->
         {
-            runner.testGroup("create()", () ->
+            runner.testGroup("constructor", () ->
             {
                 runner.test("with null mainAsyncRunner", (Test test) ->
                 {
-                    test.assertError(new IllegalArgumentException("mainAsyncRunner cannot be null."), ManualClock.create(null, currentDateTime));
+                    test.assertThrows(() -> new ManualClock(null, currentDateTime));
                 });
 
                 runner.test("with null currentDateTime", (Test test) ->
                 {
-                    test.assertError(new IllegalArgumentException("currentDateTime cannot be null."), ManualClock.create(test.getMainAsyncRunner(), null));
+                    test.assertThrows(() -> new ManualClock(test.getMainAsyncRunner(), null));
                 });
 
                 runner.test("with non-null currentDateTime", (Test test) ->
                 {
-                    final Result<ManualClock> clock = ManualClock.create(test.getMainAsyncRunner(), currentDateTime);
-                    test.assertSuccess(clock);
-                    test.assertEqual(currentDateTime, clock.getValue().getCurrentDateTime());
+                    final ManualClock clock = new ManualClock(test.getMainAsyncRunner(), currentDateTime);
+                    test.assertEqual(currentDateTime, clock.getCurrentDateTime());
                 });
             });
 
@@ -33,7 +32,7 @@ public class ManualClockTests
                 runner.test("with null", (Test test) ->
                 {
                     final ManualClock clock = createClock(test);
-                    test.assertThrows(() -> clock.advance(null), new NullPointerException());
+                    test.assertThrows(() -> clock.advance(null));
                 });
 
                 runner.test("with 0 seconds", (Test test) ->
@@ -57,9 +56,7 @@ public class ManualClockTests
                 {
                     final ManualClock clock = createClock(test);
                     final Value<Boolean> value = new Value<>();
-                    test.assertThrows(
-                        () -> clock.scheduleAfter(null, () -> value.set(true)).await(),
-                        new NullPointerException());
+                    test.assertThrows(() -> clock.scheduleAfter(null, () -> value.set(true)).await());
                 });
 
                 runner.test("with negative Duration", (Test test) ->
@@ -105,7 +102,7 @@ public class ManualClockTests
 
                 runner.test("with multiple actions at the same positive Duration", (Test test) ->
                 {
-                    final ManualAsyncRunner mainAsyncRunner = new ManualAsyncRunner();
+                    final AsyncRunner mainAsyncRunner = test.getMainAsyncRunner();
                     final ManualClock clock = createClock(mainAsyncRunner);
                     final Value<Integer> value = new Value<>();
 
@@ -120,13 +117,13 @@ public class ManualClockTests
                     test.assertEqual(DateTime.local(50), clock.getCurrentDateTime());
                     test.assertEqual(2, mainAsyncRunner.getScheduledTaskCount());
 
-                    mainAsyncRunner.awaitNext();
+                    asyncAction1.await();
                     test.assertTrue(value.hasValue());
                     test.assertEqual(1, value.get());
                     test.assertTrue(asyncAction1.isCompleted());
                     test.assertFalse(asyncAction2.isCompleted());
 
-                    mainAsyncRunner.awaitNext();
+                    asyncAction2.await();
                     test.assertTrue(value.hasValue());
                     test.assertEqual(2, value.get());
                     test.assertTrue(asyncAction1.isCompleted());
@@ -135,7 +132,7 @@ public class ManualClockTests
 
                 runner.test("with action before an existing action", (Test test) ->
                 {
-                    final ManualAsyncRunner mainAsyncRunner = new ManualAsyncRunner();
+                    final AsyncRunner mainAsyncRunner = test.getMainAsyncRunner();
                     final ManualClock clock = createClock(mainAsyncRunner);
                     final Value<DateTime> value = new Value<>();
 
@@ -150,7 +147,7 @@ public class ManualClockTests
                     test.assertEqual(DateTime.local(49), clock.getCurrentDateTime());
                     test.assertEqual(1, mainAsyncRunner.getScheduledTaskCount());
 
-                    mainAsyncRunner.awaitNext();
+                    asyncAction2.await();
                     test.assertTrue(value.hasValue());
                     test.assertEqual(DateTime.local(49), value.get());
                     test.assertFalse(asyncAction1.isCompleted());
@@ -161,7 +158,7 @@ public class ManualClockTests
                     test.assertEqual(DateTime.local(54), clock.getCurrentDateTime());
                     test.assertEqual(1, mainAsyncRunner.getScheduledTaskCount());
 
-                    mainAsyncRunner.awaitNext();
+                    asyncAction1.await();
                     test.assertTrue(value.hasValue());
                     test.assertEqual(DateTime.local(54), value.get());
                     test.assertTrue(asyncAction1.isCompleted());
@@ -174,9 +171,7 @@ public class ManualClockTests
                 runner.test("with null DateTime", (Test test) ->
                 {
                     final ManualClock clock = createClock(test);
-                    test.assertThrows(
-                        () -> clock.scheduleAt(null, () -> {}),
-                        new NullPointerException());
+                    test.assertThrows(() -> clock.scheduleAt(null, () -> {}));
                 });
 
                 runner.test("with DateTime before now", (Test test) ->
@@ -244,6 +239,6 @@ public class ManualClockTests
 
     private static ManualClock createClock(AsyncRunner mainAsyncRunner)
     {
-        return ManualClock.create(mainAsyncRunner, currentDateTime).getValue();
+        return new ManualClock(mainAsyncRunner, currentDateTime);
     }
 }

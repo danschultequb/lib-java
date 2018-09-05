@@ -15,6 +15,11 @@ public class AssertionMessages
         return variableName + " cannot be empty.";
     }
 
+    public static <T> String same(T expectedValue, T value, String expressionName)
+    {
+        return expressionName + " (" + value + ") must be the same object as " + expectedValue + ".";
+    }
+
     public static <T> String equal(T expectedValue, T value, String variableName)
     {
         return variableName + " (" + value + ") must be " + expectedValue + ".";

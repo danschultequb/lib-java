@@ -9,28 +9,17 @@ public class ManualClock implements Clock
     private final List<PausedTask> pausedTasks;
     private DateTime currentDateTime;
 
-    private ManualClock(AsyncRunner mainAsyncRunner, DateTime currentDateTime)
-    {
-        this.mainAsyncRunner = mainAsyncRunner;
-        this.pausedTasks = new ArrayList<>();
-        this.currentDateTime = currentDateTime;
-    }
-
     /**
      * Create a new ManualClock object that starts at the provided current date and time.
      */
-    public static Result<ManualClock> create(AsyncRunner mainAsyncRunner, DateTime currentDateTime)
+    public ManualClock(AsyncRunner mainAsyncRunner, DateTime currentDateTime)
     {
-        Result<ManualClock> result = Result.notNull(mainAsyncRunner, "mainAsyncRunner");
-        if (result == null)
-        {
-            result = Result.notNull(currentDateTime, "currentDateTime");
-            if (result == null)
-            {
-                result = Result.success(new ManualClock(mainAsyncRunner, currentDateTime));
-            }
-        }
-        return result;
+        PreCondition.assertNotNull(mainAsyncRunner, "mainAsyncRunner");
+        PreCondition.assertNotNull(currentDateTime, "currentDateTime");
+
+        this.mainAsyncRunner = mainAsyncRunner;
+        this.pausedTasks = new ArrayList<>();
+        this.currentDateTime = currentDateTime;
     }
 
     /**
@@ -52,6 +41,9 @@ public class ManualClock implements Clock
     @Override
     public AsyncAction scheduleAt(DateTime dateTime, Action0 action)
     {
+        PreCondition.assertNotNull(dateTime, "dateTime");
+        PreCondition.assertNotNull(action, "action");
+
         AsyncAction result;
         if (dateTime.lessThanOrEqualTo(getCurrentDateTime()))
         {
@@ -91,6 +83,9 @@ public class ManualClock implements Clock
     @Override
     public AsyncAction scheduleAfter(Duration duration, Action0 action)
     {
+        PreCondition.assertNotNull(duration, "duration");
+        PreCondition.assertNotNull(action, "action");
+
         final DateTime dateTime = getCurrentDateTime().plus(duration);
         return scheduleAt(dateTime, action);
     }
@@ -101,6 +96,8 @@ public class ManualClock implements Clock
      */
     public void advance(Duration duration)
     {
+        PreCondition.assertNotNull(duration, "duration");
+
         currentDateTime = currentDateTime.plus(duration);
         while (pausedTasks.any() && pausedTasks.first().getScheduledAt().lessThanOrEqualTo(currentDateTime))
         {

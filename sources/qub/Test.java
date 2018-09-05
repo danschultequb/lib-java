@@ -843,6 +843,14 @@ public class Test
         }
     }
 
+    public <T> void assertOneOf(T[] possibleValues, T value)
+    {
+        if (!Array.contains(possibleValues, value))
+        {
+            throw new TestAssertionFailure(getFullName(), new String[] { AssertionMessages.oneOf(value, possibleValues, "Actual value")});
+        }
+    }
+
     /**
      * Assert that the provided Result object is a successful Result.
      * @param result The Result to check.

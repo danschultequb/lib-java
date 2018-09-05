@@ -28,6 +28,8 @@ public class ParallelAsyncRunner extends AsyncRunnerBase
     @Override
     public void markCompleted(Setable<Boolean> asyncTaskCompleted)
     {
+        PreCondition.assertNotNull(asyncTaskCompleted, "asyncTaskCompleted");
+
         try (final Disposable criticalSection = spinMutex.criticalSection())
         {
             scheduledTaskCount.decrementAndGet();
@@ -38,6 +40,9 @@ public class ParallelAsyncRunner extends AsyncRunnerBase
     @Override
     public void schedule(final PausedAsyncTask asyncTask)
     {
+        PreCondition.assertNotNull(asyncTask, "asyncTask");
+        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+
         if (!disposed)
         {
             spinMutex.criticalSection(new Action0()
@@ -71,26 +76,26 @@ public class ParallelAsyncRunner extends AsyncRunnerBase
     @Override
     public AsyncAction schedule(Action0 action)
     {
-        AsyncAction result = null;
-        if (action != null)
-        {
-            final BasicAsyncAction asyncAction = new BasicAsyncAction(new Value<AsyncRunner>(this), action);
-            asyncAction.schedule();
-            result = asyncAction;
-        }
+        PreCondition.assertNotNull(action, "action");
+
+        final BasicAsyncAction result = new BasicAsyncAction(new Value<AsyncRunner>(this), action);
+        schedule(result);
+
+        PostCondition.assertNotNull(result, "result");
+
         return result;
     }
 
     @Override
     public <T> AsyncFunction<T> schedule(Function0<T> function)
     {
-        AsyncFunction<T> result = null;
-        if (function != null)
-        {
-            final BasicAsyncFunction<T> asyncFunction = new BasicAsyncFunction<T>(new Value<AsyncRunner>(this), function);
-            asyncFunction.schedule();
-            result = asyncFunction;
-        }
+        PreCondition.assertNotNull(function, "function");
+
+        final BasicAsyncFunction<T> result = new BasicAsyncFunction<T>(new Value<AsyncRunner>(this), function);
+        schedule(result);
+
+        PostCondition.assertNotNull(result, "result");
+
         return result;
     }
 

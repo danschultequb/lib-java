@@ -6,33 +6,53 @@ public class AsyncRunnerTests
     {
         runner.testGroup(AsyncRunner.class, () ->
         {
+            runner.testGroup("markCompleted(Setable<Boolean>)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    try (final AsyncRunner asyncRunner = createAsyncRunner.run())
+                    {
+                        test.assertThrows(() -> asyncRunner.markCompleted(null));
+                    }
+                });
+
+                runner.test("with non-null", (Test test) ->
+                {
+                    try (final AsyncRunner asyncRunner = createAsyncRunner.run())
+                    {
+                        final Value<Boolean> value = new Value<>();
+                        asyncRunner.markCompleted(value);
+                        test.assertTrue(value.get());
+                    }
+                });
+            });
+
             runner.testGroup("schedule()", () ->
             {
                 runner.test("with null Action0", (Test test) ->
                 {
-                    try (final AsyncRunner runner1 = createAsyncRunner.run())
+                    try (final AsyncRunner asyncRunner = createAsyncRunner.run())
                     {
-                        final AsyncAction asyncAction = runner1.schedule((Action0)null);
-                        test.assertNull(asyncAction);
-                        test.assertEqual(0, runner1.getScheduledTaskCount());
-                    }
-                    catch (Exception e)
-                    {
-                        test.fail(e);
+                        test.assertThrows(() -> asyncRunner.schedule((Action0)null));
+                        test.assertEqual(0, asyncRunner.getScheduledTaskCount());
                     }
                 });
                 
                 runner.test("with null Function0", (Test test) ->
                 {
-                    try (final AsyncRunner runner1 = createAsyncRunner.run())
+                    try (final AsyncRunner asyncRunner = createAsyncRunner.run())
                     {
-                        final AsyncFunction<Integer> asyncFunction = runner1.schedule((Function0<Integer>)null);
-                        test.assertNull(asyncFunction);
-                        test.assertEqual(0, runner1.getScheduledTaskCount());
+                        test.assertThrows(() -> asyncRunner.schedule((Function0<Integer>)null));
+                        test.assertEqual(0, asyncRunner.getScheduledTaskCount());
                     }
-                    catch (Exception e)
+                });
+
+                runner.test("with null PausedAsyncTask", (Test test) ->
+                {
+                    try (final AsyncRunner asyncRunner = createAsyncRunner.run())
                     {
-                        test.fail(e);
+                        test.assertThrows(() -> asyncRunner.schedule((PausedAsyncTask)null));
+                        test.assertEqual(0, asyncRunner.getScheduledTaskCount());
                     }
                 });
             });
@@ -264,6 +284,15 @@ public class AsyncRunnerTests
                         });
                     }
                 });
+            });
+
+            runner.test("dispose()", (Test test) ->
+            {
+                try (final AsyncRunner asyncRunner = createAsyncRunner.run())
+                {
+                    test.assertSuccess(true, asyncRunner.dispose());
+                    test.assertSuccess(false, asyncRunner.dispose());
+                }
             });
 
             runner.test("success()", (Test test) ->

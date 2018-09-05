@@ -904,9 +904,9 @@ public class BasicAsyncTaskTests
             {
                 runner.test("when completed on main async runner", (Test test) ->
                 {
-                    final ManualAsyncRunner asyncRunner = new ManualAsyncRunner();
+                    final AsyncRunner asyncRunner = test.getMainAsyncRunner();
                     final BasicAsyncTask asyncTask = createScheduled(creator, asyncRunner);
-                    asyncRunner.await();
+                    asyncTask.await();
                     test.assertTrue(asyncTask.isCompleted());
 
                     asyncTask.await();
@@ -916,9 +916,9 @@ public class BasicAsyncTaskTests
 
                 runner.test("when completed on parallel async runner", (Test test) ->
                 {
-                    final ManualAsyncRunner asyncRunner = new ManualAsyncRunner();
+                    final AsyncRunner asyncRunner = test.getParallelAsyncRunner();
                     final BasicAsyncTask asyncTask = createScheduled(creator, asyncRunner);
-                    asyncRunner.await();
+                    asyncTask.await();
                     test.assertTrue(asyncTask.isCompleted());
 
                     asyncTask.await();
@@ -1070,6 +1070,19 @@ public class BasicAsyncTaskTests
                     childAsyncAction.await();
 
                     test.assertTrue(childAsyncAction.isCompleted());
+                });
+
+                runner.test("with manual task awaiting parallel task", (Test test) ->
+                {
+                    final AsyncRunner mainAsyncRunner = test.getMainAsyncRunner();
+                    final AsyncRunner parallelAsyncRunner = test.getParallelAsyncRunner();
+
+                    final AsyncTask parallelTask = createScheduled(creator, parallelAsyncRunner);
+                    final AsyncTask manualTask = mainAsyncRunner.schedule(parallelTask::await);
+                    manualTask.await();
+
+                    test.assertTrue(manualTask.isCompleted());
+                    test.assertTrue(parallelTask.isCompleted());
                 });
             });
 

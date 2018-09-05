@@ -36,7 +36,9 @@ public class HttpClientTests
                     test.assertEqual(200, httpResponse.getStatusCode());
                     test.assertEqual("OK", httpResponse.getReasonPhrase());
                     test.assertNotNull(httpResponse.getHeaders());
-                    test.assertSuccess("1270", httpResponse.getHeaders().getValue("content-length"));
+                    final Result<String> contentLengthResult = httpResponse.getHeaders().getValue("content-length");
+                    test.assertSuccess(contentLengthResult);
+                    test.assertOneOf(new String[] { "1164", "1270" }, contentLengthResult.getValue());
                     test.assertNotNull(httpResponse.getBody());
                     final String bodyString = httpResponse.getBody().asCharacterReadStream().readString(3000).getValue();
                     test.assertNotNull(bodyString);
