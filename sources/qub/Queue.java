@@ -25,6 +25,18 @@ public interface Queue<T>
     void enqueue(T value);
 
     /**
+     * Add all of the provided values to the Queue.
+     * @param values The values to add to the Queue.
+     */
+    void enqueueAll(T[] values);
+
+    /**
+     * Add all of the provided values to the Queue.
+     * @param values The values to add to the Queue.
+     */
+    void enqueueAll(Iterable<T> values);
+
+    /**
      * Remove and return the next value from the Queue. If there are no values in the Queue, then
      * null will be returned.
      * @return The next value from the Queue or null if the Queue is empty.

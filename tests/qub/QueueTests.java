@@ -33,6 +33,60 @@ public class QueueTests
                 test.assertEqual(0, queue.getCount());
             });
 
+            runner.testGroup("enqueueAll(T[])", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final Queue<Integer> queue = createQueue.run();
+                    test.assertThrows(() -> queue.enqueueAll((Integer[])null));
+                });
+
+                runner.test("with empty", (Test test) ->
+                {
+                    final Queue<Integer> queue = createQueue.run();
+                    queue.enqueueAll(new Integer[0]);
+                    test.assertEqual(0, queue.getCount());
+                });
+
+                runner.test("with non-empty", (Test test) ->
+                {
+                    final Queue<Integer> queue = createQueue.run();
+                    queue.enqueueAll(new Integer[] { 0, 1, 2 });
+                    test.assertEqual(3, queue.getCount());
+                    for (int i = 0; i < 3; ++i)
+                    {
+                        test.assertEqual(i, queue.dequeue());
+                    }
+                });
+            });
+
+            runner.testGroup("enqueueAll(Iterable<T>)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final Queue<Integer> queue = createQueue.run();
+                    test.assertThrows(() -> queue.enqueueAll((Iterable<Integer>)null));
+                });
+
+                runner.test("with empty", (Test test) ->
+                {
+                    final Queue<Integer> queue = createQueue.run();
+                    queue.enqueueAll(new Array<>(0));
+                    test.assertEqual(0, queue.getCount());
+                });
+
+                runner.test("with non-empty", (Test test) ->
+                {
+                    final Queue<Integer> queue = createQueue.run();
+                    queue.enqueueAll(Array.fromValues(new Integer[] { 0, 1, 2 }));
+                    test.assertEqual(3, queue.getCount());
+                    for (int i = 0; i < 3; ++i)
+                    {
+                        test.assertEqual(i, queue.dequeue());
+                    }
+                });
+            });
+
             runner.test("peek()", test ->
             {
                 final Queue<Integer> queue = createQueue.run();

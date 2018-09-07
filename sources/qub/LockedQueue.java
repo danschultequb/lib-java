@@ -57,6 +57,28 @@ public class LockedQueue<T> implements Queue<T>
     }
 
     @Override
+    public void enqueueAll(T[] values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        try (final Disposable criticalSection = mutex.criticalSection())
+        {
+            innerQueue.enqueueAll(values);
+        }
+    }
+
+    @Override
+    public void enqueueAll(Iterable<T> values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        try (final Disposable criticalSection = mutex.criticalSection())
+        {
+            innerQueue.enqueueAll(values);
+        }
+    }
+
+    @Override
     public T dequeue()
     {
         return mutex.criticalSection(new Function0<T>()
