@@ -192,6 +192,155 @@ public class VersionNumberTests
                     test.assertEqual("5.6.7", versionNumber.toString());
                 });
             });
+
+            runner.testGroup("compareTo(VersionNumber)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final VersionNumber versionNumber = VersionNumber.parse("1.2.3");
+                    test.assertEqual(Comparison.GreaterThan, versionNumber.compareTo(null));
+                });
+
+                runner.test("with same", (Test test) ->
+                {
+                    final VersionNumber versionNumber = VersionNumber.parse("1.2.3");
+                    test.assertEqual(Comparison.Equal, versionNumber.compareTo(versionNumber));
+                });
+
+                runner.test("with equal", (Test test) ->
+                {
+                    final VersionNumber versionNumber = VersionNumber.parse("1.2.3");
+                    test.assertEqual(Comparison.Equal, versionNumber.compareTo(VersionNumber.parse("1.2.3")));
+                });
+
+                runner.test("with lower major version", (Test test) ->
+                {
+                    final VersionNumber versionNumber = VersionNumber.parse("1.2.3");
+                    test.assertEqual(Comparison.GreaterThan, versionNumber.compareTo(VersionNumber.parse("0.2.3")));
+                });
+
+                runner.test("with higher major version", (Test test) ->
+                {
+                    final VersionNumber versionNumber = VersionNumber.parse("1.2.3");
+                    test.assertEqual(Comparison.LessThan, versionNumber.compareTo(VersionNumber.parse("4.2.3")));
+                });
+
+                runner.test("with lower minor version", (Test test) ->
+                {
+                    final VersionNumber versionNumber = VersionNumber.parse("1.2.3");
+                    test.assertEqual(Comparison.GreaterThan, versionNumber.compareTo(VersionNumber.parse("1.0.3")));
+                });
+
+                runner.test("with higher minor version", (Test test) ->
+                {
+                    final VersionNumber versionNumber = VersionNumber.parse("1.2.3");
+                    test.assertEqual(Comparison.LessThan, versionNumber.compareTo(VersionNumber.parse("1.5.3")));
+                });
+
+                runner.test("with lower patch version", (Test test) ->
+                {
+                    final VersionNumber versionNumber = VersionNumber.parse("1.2.3");
+                    test.assertEqual(Comparison.GreaterThan, versionNumber.compareTo(VersionNumber.parse("1.2.0")));
+                });
+
+                runner.test("with higher patch version", (Test test) ->
+                {
+                    final VersionNumber versionNumber = VersionNumber.parse("1.2.3");
+                    test.assertEqual(Comparison.LessThan, versionNumber.compareTo(VersionNumber.parse("1.2.10")));
+                });
+
+                runner.test("with lower suffix", (Test test) ->
+                {
+                    final VersionNumber versionNumber = VersionNumber.parse("1.2.3-beta");
+                    test.assertEqual(Comparison.GreaterThan, versionNumber.compareTo(VersionNumber.parse("1.2.0-alpha")));
+                });
+
+                runner.test("with higher suffix", (Test test) ->
+                {
+                    final VersionNumber versionNumber = VersionNumber.parse("1.2.3-beta");
+                    test.assertEqual(Comparison.LessThan, versionNumber.compareTo(VersionNumber.parse("1.2.10-preview")));
+                });
+            });
+
+            runner.testGroup("equals(Object)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final VersionNumber versionNumber = VersionNumber.parse("10.4.8");
+                    test.assertFalse(versionNumber.equals((Object)null));
+                });
+
+                runner.test("with String", (Test test) ->
+                {
+                    final VersionNumber versionNumber = VersionNumber.parse("10.4.8");
+                    test.assertFalse(versionNumber.equals((Object)"10.4.8"));
+                });
+
+                runner.test("with same", (Test test) ->
+                {
+                    final VersionNumber versionNumber = VersionNumber.parse("10.4.8");
+                    test.assertTrue(versionNumber.equals((Object)versionNumber));
+                });
+
+                runner.test("with equal", (Test test) ->
+                {
+                    final VersionNumber versionNumber = VersionNumber.parse("10.4.8");
+                    test.assertTrue(versionNumber.equals((Object)VersionNumber.parse(versionNumber.toString())));
+                });
+
+                runner.test("with different", (Test test) ->
+                {
+                    final VersionNumber versionNumber = VersionNumber.parse("10.4.8");
+                    test.assertFalse(versionNumber.equals((Object)VersionNumber.parse("1.2.3")));
+                });
+            });
+
+            runner.testGroup("equals(VersionNumber)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final VersionNumber versionNumber = VersionNumber.parse("10.4.8");
+                    test.assertFalse(versionNumber.equals((VersionNumber)null));
+                });
+
+                runner.test("with same", (Test test) ->
+                {
+                    final VersionNumber versionNumber = VersionNumber.parse("10.4.8");
+                    test.assertTrue(versionNumber.equals(versionNumber));
+                });
+
+                runner.test("with equal", (Test test) ->
+                {
+                    final VersionNumber versionNumber = VersionNumber.parse("10.4.8");
+                    test.assertTrue(versionNumber.equals(VersionNumber.parse(versionNumber.toString())));
+                });
+
+                runner.test("with different", (Test test) ->
+                {
+                    final VersionNumber versionNumber = VersionNumber.parse("10.4.8");
+                    test.assertFalse(versionNumber.equals(VersionNumber.parse("1.2.3")));
+                });
+            });
+
+            runner.testGroup("hashCode()", () ->
+            {
+                runner.test("with same", (Test test) ->
+                {
+                    final VersionNumber versionNumber = VersionNumber.parse("1.2.3");
+                    test.assertEqual(versionNumber.hashCode(), versionNumber.hashCode());
+                });
+
+                runner.test("with equal", (Test test) ->
+                {
+                    final VersionNumber versionNumber = VersionNumber.parse("1.2.3");
+                    test.assertEqual(versionNumber.hashCode(), VersionNumber.parse(versionNumber.toString()).hashCode());
+                });
+            });
+            runner.test("hashCode()", (Test test) ->
+            {
+                final VersionNumber versionNumber = VersionNumber.parse("1.2.3");
+                test.assertEqual(versionNumber.hashCode(), versionNumber.hashCode());
+            });
         });
     }
 }

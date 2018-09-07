@@ -1,6 +1,6 @@
 package qub;
 
-public class VersionNumber
+public class VersionNumber extends ComparableBase<VersionNumber>
 {
     private final String text;
     private final Integer major;
@@ -77,6 +77,23 @@ public class VersionNumber
         return result;
     }
 
+    @Override
+    public boolean equals(Object rhs)
+    {
+        return rhs instanceof VersionNumber && equals((VersionNumber)rhs);
+    }
+
+    public boolean equals(VersionNumber rhs)
+    {
+        return rhs != null && Strings.equal(text, rhs.text);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return text.hashCode();
+    }
+
     public static VersionNumber parse(String versionNumberString)
     {
         return parse(versionNumberString, null);
@@ -137,6 +154,36 @@ public class VersionNumber
         }
 
         final VersionNumber result = new VersionNumber(versionNumberString, major, minor, patch, suffix);
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    @Override
+    public Comparison compareTo(VersionNumber rhs)
+    {
+        Comparison result;
+        if (rhs == null)
+        {
+            result = Comparison.GreaterThan;
+        }
+        else
+        {
+            result = Integers.compare(this.getMajor(), rhs.getMajor());
+            if (result == Comparison.Equal)
+            {
+                result = Integers.compare(this.getMinor(), rhs.getMinor());
+                if (result == Comparison.Equal)
+                {
+                    result = Integers.compare(this.getPatch(), rhs.getPatch());
+                    if (result == Comparison.Equal)
+                    {
+                        result = Strings.compare(this.getSuffix(), rhs.getSuffix());
+                    }
+                }
+            }
+        }
 
         PostCondition.assertNotNull(result, "result");
 

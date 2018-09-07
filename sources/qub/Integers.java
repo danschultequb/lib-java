@@ -21,6 +21,31 @@ public class Integers
      */
     public static final int hexCharCount = 8;
 
+    public static boolean equal(int lhs, int rhs)
+    {
+        return lhs == rhs;
+    }
+
+    public static boolean equal(Integer lhs, Integer rhs)
+    {
+        return Comparer.equal(lhs, rhs);
+    }
+
+    public static boolean lessThan(int lhs, int rhs)
+    {
+        return lhs < rhs;
+    }
+
+    public static boolean lessThan(Integer lhs, Integer rhs)
+    {
+        return compare(lhs, rhs) == Comparison.LessThan;
+    }
+
+    public static boolean lessThanOrEqualTo(Integer lhs, Integer rhs)
+    {
+        return compare(lhs, rhs) != Comparison.GreaterThan;
+    }
+
     /**
      * Compare the two provided ints.
      * @param lhs The first int to compare.

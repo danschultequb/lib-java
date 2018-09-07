@@ -244,4 +244,34 @@ public class Strings
         }
         return builder.toString();
     }
+
+    public static boolean equal(String lhs, String rhs)
+    {
+        return Comparer.equal(lhs, rhs);
+    }
+
+    public static Comparison compare(String lhs, String rhs)
+    {
+        Comparison result;
+        if (lhs == rhs)
+        {
+            result = Comparison.Equal;
+        }
+        else if (lhs == null)
+        {
+            result = Comparison.LessThan;
+        }
+        else if (rhs == null)
+        {
+            result = Comparison.GreaterThan;
+        }
+        else
+        {
+            result = Comparison.from(lhs.compareTo(rhs));
+        }
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
 }
