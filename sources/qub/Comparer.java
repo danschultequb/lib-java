@@ -482,6 +482,40 @@ public final class Comparer
         return lhs != null && lhs.greaterThan(rhs);
     }
 
+    public static <T extends Comparable<T>> T minimum(Iterable<T> values)
+    {
+        return Comparer.minimum(values, new Function2<T,T,Comparison>()
+        {
+            @Override
+            public Comparison run(T lhs, T rhs)
+            {
+                return lhs.compareTo(rhs);
+            }
+        });
+    }
+
+    public static <T> T minimum(Iterable<T> values, Function2<T,T,Comparison> comparer)
+    {
+        return values.minimum(comparer);
+    }
+
+    public static <T extends Comparable<T>> T maximum(Iterable<T> values)
+    {
+        return Comparer.maximum(values, new Function2<T,T,Comparison>()
+        {
+            @Override
+            public Comparison run(T lhs, T rhs)
+            {
+                return lhs.compareTo(rhs);
+            }
+        });
+    }
+
+    public static <T> T maximum(Iterable<T> values, Function2<T,T,Comparison> comparer)
+    {
+        return values.maximum(comparer);
+    }
+
     /**
      * Get whether or not the provided value contains only the provided characters. It doesn't have
      * to contain all of the characters and it can contain multiple instances of each character, but
