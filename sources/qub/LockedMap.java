@@ -268,6 +268,18 @@ public class LockedMap<TKey,TValue> implements Map<TKey,TValue>
     }
 
     @Override
+    public MapEntry<TKey,TValue> minimum(Function2<MapEntry<TKey,TValue>,MapEntry<TKey,TValue>,Comparison> comparer)
+    {
+        return IterableBase.minimum(this, comparer);
+    }
+
+    @Override
+    public MapEntry<TKey,TValue> maximum(Function2<MapEntry<TKey,TValue>,MapEntry<TKey,TValue>,Comparison> comparer)
+    {
+        return IterableBase.maximum(this, comparer);
+    }
+
+    @Override
     public boolean equals(Object rhs)
     {
         return IterableBase.equals(this, rhs);

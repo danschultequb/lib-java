@@ -1035,6 +1035,15 @@ public class IterableTests
                 });
             });
 
+            runner.testGroup("minimum()", () ->
+            {
+                runner.test("with null comparer", (Test test) ->
+                {
+                    final Iterable<Integer> iterable = createIterable.run(1);
+                    test.assertThrows(() -> iterable.minimum(null));
+                });
+            });
+
             runner.testGroup("equals()", () ->
             {
                 runner.test("with empty Iterable and null", (Test test) ->

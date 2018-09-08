@@ -323,21 +323,33 @@ public class LockedList<T> implements List<T>
     }
 
     @Override
-    public Iterable<T> where(final Function1<T, Boolean> condition)
+    public Iterable<T> where(Function1<T, Boolean> condition)
     {
-        return ListBase.where(this, condition);
+        return IterableBase.where(this, condition);
     }
 
     @Override
-    public <U> Indexable<U> map(final Function1<T, U> conversion)
+    public <U> Indexable<U> map(Function1<T, U> conversion)
     {
         return ListBase.map(this, conversion);
     }
 
     @Override
-    public <U> Iterable<U> instanceOf(final Class<U> type)
+    public <U> Iterable<U> instanceOf(Class<U> type)
     {
         return ListBase.instanceOf(this, type);
+    }
+
+    @Override
+    public T minimum(Function2<T,T,Comparison> comparer)
+    {
+        return ListBase.minimum(this, comparer);
+    }
+
+    @Override
+    public T maximum(Function2<T,T,Comparison> comparer)
+    {
+        return ListBase.maximum(this, comparer);
     }
 
     @Override

@@ -111,6 +111,18 @@ public abstract class IterableBase<T> implements Iterable<T>
     }
 
     @Override
+    public final T minimum(Function2<T,T,Comparison> comparer)
+    {
+        return IterableBase.minimum(this, comparer);
+    }
+
+    @Override
+    public final T maximum(Function2<T,T,Comparison> comparer)
+    {
+        return IterableBase.maximum(this, comparer);
+    }
+
+    @Override
     public final boolean equals(Object rhs)
     {
         return IterableBase.equals(this, rhs);
@@ -326,6 +338,52 @@ public abstract class IterableBase<T> implements Iterable<T>
     public static <T,U> Iterable<U> instanceOf(Iterable<T> iterable, Class<U> type)
     {
         return new InstanceOfIterable<>(iterable, type);
+    }
+
+    public static <T> T minimum(Iterable<T> iterable, Function2<T,T,Comparison> comparer)
+    {
+        PreCondition.assertNotNull(comparer, "comparer");
+
+        T result = null;
+
+        final Iterator<T> iterator = iterable.iterate();
+        if (iterator.next())
+        {
+            result = iterator.takeCurrent();
+            while (iterator.hasCurrent())
+            {
+                final T current = iterator.takeCurrent();
+                if (comparer.run(current, result) == Comparison.LessThan)
+                {
+                    result = current;
+                }
+            }
+        }
+
+        return result;
+    }
+
+    public static <T> T maximum(Iterable<T> iterable, Function2<T,T,Comparison> comparer)
+    {
+        PreCondition.assertNotNull(comparer, "comparer");
+
+        T result = null;
+
+        final Iterator<T> iterator = iterable.iterate();
+        if (iterator.next())
+        {
+            result = iterator.takeCurrent();
+            while (iterator.hasCurrent())
+            {
+                final T current = iterator.takeCurrent();
+                if (comparer.run(current, result) == Comparison.GreaterThan)
+                {
+                    result = current;
+                }
+            }
+        }
+
+        return result;
     }
 
     /**

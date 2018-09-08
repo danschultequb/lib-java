@@ -192,6 +192,18 @@ public class ErrorIterable extends RuntimeException implements Iterable<Throwabl
     }
 
     @Override
+    public Throwable minimum(Function2<Throwable,Throwable,Comparison> comparer)
+    {
+        return errors.minimum(comparer);
+    }
+
+    @Override
+    public Throwable maximum(Function2<Throwable,Throwable,Comparison> comparer)
+    {
+        return errors.maximum(comparer);
+    }
+
+    @Override
     public boolean equals(Iterable<Throwable> rhs)
     {
         return errors.equals(rhs);

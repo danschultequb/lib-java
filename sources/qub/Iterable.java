@@ -152,6 +152,20 @@ public interface Iterable<T> extends java.lang.Iterable<T>
     <U> Iterable<U> instanceOf(Class<U> type);
 
     /**
+     * Get the value in this Iterable that is the maximum based on the provided comparer function.
+     * @param comparer The function to use to compare the values in this Iterable.
+     * @return The maximum value in this Iterable based on the provided comparer function.
+     */
+    T minimum(Function2<T,T,Comparison> comparer);
+
+    /**
+     * Get the value in this Iterable that is the maximum based on the provided comparer function.
+     * @param comparer The function to use to compare the values in this Iterable.
+     * @return The maximum value in this Iterable based on the provided comparer function.
+     */
+    T maximum(Function2<T,T,Comparison> comparer);
+
+    /**
      * Get the String representation of this Iterable.
      * @return The String representation of this Iterable.
      */

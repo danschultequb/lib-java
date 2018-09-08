@@ -118,18 +118,22 @@ public class JavaTCPServerTests
                     final Value<byte[]> clientReadBytes = new Value<>();
                     final AsyncAction clientTask = asyncRunner.schedule(() ->
                     {
-                        try (final TCPClient tcpClient = network.createTCPClient(ipAddress, port.get()).getValue())
+                        final Result<TCPClient> tcpClientResult = network.createTCPClient(ipAddress, port.get());
+                        test.assertSuccess(tcpClientResult);
+                        try (final TCPClient tcpClient = tcpClientResult.getValue())
                         {
                             test.assertSuccess(true, tcpClient.write(bytes));
                             clientReadBytes.set(tcpClient.readBytes(bytes.length).getValue());
                         }
-                        catch (Exception e)
-                        {
-                            test.fail(e);
-                        }
                     });
 
-                    try (final TCPServer tcpServer = network.createTCPServer(ipAddress, port.get()).getValue())
+                    Result<TCPServer> tcpServerResult = network.createTCPServer(ipAddress, port.get());
+                    while (tcpServerResult.hasError() && tcpServerResult.getError() instanceof java.net.BindException)
+                    {
+                        tcpServerResult = network.createTCPServer(ipAddress, port.incrementAndGet());
+                    }
+                    test.assertSuccess(tcpServerResult);
+                    try (final TCPServer tcpServer = tcpServerResult.getValue())
                     {
                         final Result<TCPClient> acceptResult = tcpServer.accept();
                         test.assertSuccess(acceptResult);
@@ -140,14 +144,6 @@ public class JavaTCPServerTests
                             test.assertSuccess(bytes, serverReadBytes);
                             test.assertSuccess(true, serverClient.write(serverReadBytes.getValue()));
                         }
-                        catch (Exception e)
-                        {
-                            test.fail(e);
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        test.fail(e);
                     }
 
                     clientTask.await();
