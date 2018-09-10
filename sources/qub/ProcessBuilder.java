@@ -7,7 +7,7 @@ import java.io.IOException;
  */
 public class ProcessBuilder
 {
-    private final AsyncRunner asyncRunner;
+    private final AsyncRunner parallelAsyncRunner;
     private final File executableFile;
     private Folder workingFolder;
     private final List<String> arguments;
@@ -18,9 +18,12 @@ public class ProcessBuilder
      * Create a new ProcessBuilder with the provided executable file.
      * @param executableFile The file to execute.
      */
-    ProcessBuilder(AsyncRunner asyncRunner, File executableFile)
+    ProcessBuilder(AsyncRunner parallelAsyncRunner, File executableFile)
     {
-        this.asyncRunner = asyncRunner;
+        PreCondition.assertNotNull(parallelAsyncRunner, "parallelAsyncRunner");
+        PreCondition.assertNotNull(executableFile, "executableFile");
+
+        this.parallelAsyncRunner = parallelAsyncRunner;
         this.executableFile = executableFile;
         this.arguments = new ArrayList<>();
     }
@@ -423,24 +426,24 @@ public class ProcessBuilder
 
             if (redirectOutputAction != null)
             {
-                outputAction = asyncRunner.schedule(new Action0()
+                outputAction = parallelAsyncRunner.schedule(new Action0()
                 {
                     @Override
                     public void run()
                     {
-                        redirectOutputAction.run(new InputStreamToByteReadStream(process.getInputStream(), asyncRunner));
+                        redirectOutputAction.run(new InputStreamToByteReadStream(process.getInputStream(), parallelAsyncRunner));
                     }
                 });
             }
 
             if (redirectErrorAction != null)
             {
-                errorAction = asyncRunner.schedule(new Action0()
+                errorAction = parallelAsyncRunner.schedule(new Action0()
                 {
                     @Override
                     public void run()
                     {
-                        redirectErrorAction.run(new InputStreamToByteReadStream(process.getErrorStream(), asyncRunner));
+                        redirectErrorAction.run(new InputStreamToByteReadStream(process.getErrorStream(), parallelAsyncRunner));
                     }
                 });
             }
@@ -460,5 +463,22 @@ public class ProcessBuilder
         }
 
         return result;
+    }
+
+    /**
+     * Create a process with this ProcessBuilder's properties and wait for the process to complete.
+     * @return The exit code of the Process, or null if the process couldn't start.
+     */
+    public AsyncFunction<Integer> runAsync()
+    {
+        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+        return parallelAsyncRunner.schedule(new Function0<Integer>()
+        {
+            @Override
+            public Integer run()
+            {
+                return ProcessBuilder.this.run();
+            }
+        }).thenOn(currentAsyncRunner);
     }
 }

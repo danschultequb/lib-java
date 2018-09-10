@@ -70,6 +70,11 @@ public class Test
         return process.getNetwork();
     }
 
+    public FileSystem getFileSystem()
+    {
+        return process.getFileSystem();
+    }
+
     /**
      * Get the Clock that has been assigned to this Test.
      * @return The Clock that has been assigned to this Test.
