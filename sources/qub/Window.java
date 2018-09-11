@@ -4,11 +4,12 @@ import javax.swing.JFrame;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
-public class Window extends DisposableBase
+public class Window extends DisposableBase implements UIElementParent
 {
     private final AsyncRunner mainAsyncRunner;
     private final BasicAsyncAction windowClosedTask;
     private final JFrame jFrame;
+    private UIElement content;
     private boolean disposed;
 
     public Window(AsyncRunner mainAsyncRunner)
@@ -106,6 +107,27 @@ public class Window extends DisposableBase
         PostCondition.assertEqual(title, getTitle(), "getTitle()");
     }
 
+    public void setContent(javax.swing.JComponent content)
+    {
+        PreCondition.assertNotNull(content, "content");
+
+        jFrame.setContentPane(content);
+    }
+
+    public void setContent(UIElement uiElement)
+    {
+        PreCondition.assertNotNull(uiElement, "uiElement");
+
+        if (content != null)
+        {
+            content.setParent(null);
+        }
+        content = uiElement;
+        uiElement.setParent(this);
+
+        setContent(new UIElementToJComponentAdapter(uiElement));
+    }
+
     @Override
     public boolean isDisposed()
     {
@@ -136,5 +158,11 @@ public class Window extends DisposableBase
         PostCondition.assertNotNull(result, "result");
 
         return result;
+    }
+
+    @Override
+    public void repaint()
+    {
+        jFrame.repaint();
     }
 }

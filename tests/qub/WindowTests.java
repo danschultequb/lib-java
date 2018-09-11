@@ -75,6 +75,28 @@ public class WindowTests
                     }
                 });
             });
+
+            runner.testGroup("setContent(javax.swing.JComponent)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    try (final Window window = createWindow(test))
+                    {
+                        test.assertThrows(() -> window.setContent((javax.swing.JComponent)null));
+                    }
+                });
+            });
+
+            runner.testGroup("setContent(UIElement)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    try (final Window window = createWindow(test))
+                    {
+                        test.assertThrows(() -> window.setContent((UIElement)null));
+                    }
+                });
+            });
         });
     }
 }
