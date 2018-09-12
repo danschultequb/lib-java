@@ -336,6 +336,156 @@ public class Test
         assertEqual(expected, actual, null);
     }
 
+    /**
+     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestAssertionFailure
+     * will be thrown.
+     * @param expected The first value to compare.
+     * @param actual The second value to compare.
+     */
+    public void assertEqual(float expected, float actual)
+    {
+        assertEqual(expected, actual, null);
+    }
+
+    /**
+     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestAssertionFailure
+     * will be thrown.
+     * @param expected The first value to compare.
+     * @param actual The second value to compare.
+     */
+    public void assertEqual(float expected, float actual, String message)
+    {
+        if (expected != actual)
+        {
+            throw new TestAssertionFailure(getFullName(), getMessageLines(message, expected, actual));
+        }
+    }
+
+    /**
+     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestAssertionFailure
+     * will be thrown.
+     * @param expected The first value to compare.
+     * @param actual The second value to compare.
+     */
+    public void assertEqual(float expected, Float actual)
+    {
+        assertEqual(expected, actual, null);
+    }
+
+    /**
+     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestAssertionFailure
+     * will be thrown.
+     * @param expected The first value to compare.
+     * @param actual The second value to compare.
+     */
+    public void assertEqual(float expected, Float actual, String message)
+    {
+        if (expected != actual)
+        {
+            throw new TestAssertionFailure(getFullName(), getMessageLines(message, expected, actual));
+        }
+    }
+
+    /**
+     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestAssertionFailure
+     * will be thrown.
+     * @param expected The first value to compare.
+     * @param actual The second value to compare.
+     */
+    public void assertEqual(Float expected, float actual)
+    {
+        assertEqual(expected, actual, null);
+    }
+
+    /**
+     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestAssertionFailure
+     * will be thrown.
+     * @param expected The first value to compare.
+     * @param actual The second value to compare.
+     */
+    public void assertEqual(Float expected, float actual, String message)
+    {
+        if (expected != actual)
+        {
+            throw new TestAssertionFailure(getFullName(), getMessageLines(message, expected, actual));
+        }
+    }
+
+    /**
+     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestAssertionFailure
+     * will be thrown.
+     * @param expected The first value to compare.
+     * @param actual The second value to compare.
+     */
+    public void assertEqual(double expected, double actual)
+    {
+        assertEqual(expected, actual, null);
+    }
+
+    /**
+     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestAssertionFailure
+     * will be thrown.
+     * @param expected The first value to compare.
+     * @param actual The second value to compare.
+     */
+    public void assertEqual(double expected, double actual, String message)
+    {
+        if (expected != actual)
+        {
+            throw new TestAssertionFailure(getFullName(), getMessageLines(message, expected, actual));
+        }
+    }
+
+    /**
+     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestAssertionFailure
+     * will be thrown.
+     * @param expected The first value to compare.
+     * @param actual The second value to compare.
+     */
+    public void assertEqual(double expected, Double actual)
+    {
+        assertEqual(expected, actual, null);
+    }
+
+    /**
+     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestAssertionFailure
+     * will be thrown.
+     * @param expected The first value to compare.
+     * @param actual The second value to compare.
+     */
+    public void assertEqual(double expected, Double actual, String message)
+    {
+        if (expected != actual)
+        {
+            throw new TestAssertionFailure(getFullName(), getMessageLines(message, expected, actual));
+        }
+    }
+
+    /**
+     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestAssertionFailure
+     * will be thrown.
+     * @param expected The first value to compare.
+     * @param actual The second value to compare.
+     */
+    public void assertEqual(Double expected, double actual)
+    {
+        assertEqual(expected, actual, null);
+    }
+
+    /**
+     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestAssertionFailure
+     * will be thrown.
+     * @param expected The first value to compare.
+     * @param actual The second value to compare.
+     */
+    public void assertEqual(Double expected, double actual, String message)
+    {
+        if (expected != actual)
+        {
+            throw new TestAssertionFailure(getFullName(), getMessageLines(message, expected, actual));
+        }
+    }
+
     public void assertEqual(Throwable expected, Throwable actual)
     {
         assertEqual(expected, actual, null);

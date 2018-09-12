@@ -3,7 +3,7 @@ package qub;
 /**
  * The different types of duration units.
  */
-public enum DurationUnits
+public enum DurationUnit
 {
     /**
      * One billionth of a second.

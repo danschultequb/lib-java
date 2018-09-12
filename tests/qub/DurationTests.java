@@ -9,9 +9,9 @@ public class DurationTests
             runner.test("constructor()", (Test test) ->
             {
                 assertDuration(test,
-                    new Duration(1234, DurationUnits.Hours),
+                    new Duration(1234, DurationUnit.Hours),
                     1234,
-                    DurationUnits.Hours);
+                    DurationUnit.Hours);
             });
 
             runner.test("nanoseconds()", (Test test) ->
@@ -19,7 +19,7 @@ public class DurationTests
                 assertDuration(test,
                     Duration.nanoseconds(0.57),
                     0.57,
-                    DurationUnits.Nanoseconds);
+                    DurationUnit.Nanoseconds);
             });
 
             runner.test("microseconds()", (Test test) ->
@@ -27,7 +27,7 @@ public class DurationTests
                 assertDuration(test,
                     Duration.microseconds(0.1),
                     0.1,
-                    DurationUnits.Microseconds);
+                    DurationUnit.Microseconds);
             });
 
             runner.test("milliseconds()", (Test test) ->
@@ -35,7 +35,7 @@ public class DurationTests
                 assertDuration(test,
                     Duration.milliseconds(0.2),
                     0.2,
-                    DurationUnits.Milliseconds);
+                    DurationUnit.Milliseconds);
             });
 
             runner.test("seconds()", (Test test) ->
@@ -43,7 +43,7 @@ public class DurationTests
                 assertDuration(test,
                     Duration.seconds(0.3),
                     0.3,
-                    DurationUnits.Seconds);
+                    DurationUnit.Seconds);
             });
 
             runner.test("minutes()", (Test test) ->
@@ -51,7 +51,7 @@ public class DurationTests
                 assertDuration(test,
                     Duration.minutes(0.3),
                     0.3,
-                    DurationUnits.Minutes);
+                    DurationUnit.Minutes);
             });
 
             runner.test("hours()", (Test test) ->
@@ -59,7 +59,7 @@ public class DurationTests
                 assertDuration(test,
                     Duration.hours(0.4),
                     0.4,
-                    DurationUnits.Hours);
+                    DurationUnit.Hours);
             });
 
             runner.test("days()", (Test test) ->
@@ -67,7 +67,7 @@ public class DurationTests
                 assertDuration(test,
                     Duration.days(0.5),
                     0.5,
-                    DurationUnits.Days);
+                    DurationUnit.Days);
             });
 
             runner.test("weeks()", (Test test) ->
@@ -75,12 +75,12 @@ public class DurationTests
                 assertDuration(test,
                     Duration.weeks(0.6),
                     0.6,
-                    DurationUnits.Weeks);
+                    DurationUnit.Weeks);
             });
 
             runner.testGroup("convertTo()", () ->
             {
-                final Action4<Double,DurationUnits,DurationUnits,Double> convertToWithValueTest = (Double startValue, DurationUnits startUnits, DurationUnits targetUnits, Double expectedValue) ->
+                final Action4<Double,DurationUnit,DurationUnit,Double> convertToWithValueTest = (Double startValue, DurationUnit startUnits, DurationUnit targetUnits, Double expectedValue) ->
                 {
                     runner.test("from " + startValue + " " + startUnits + " to " + targetUnits, (Test test) ->
                     {
@@ -94,84 +94,84 @@ public class DurationTests
                     });
                 };
 
-                final Action3<DurationUnits,DurationUnits,Double> convertToTest = (DurationUnits startUnits, DurationUnits targetUnits, Double expectedValue) ->
+                final Action3<DurationUnit,DurationUnit,Double> convertToTest = (DurationUnit startUnits, DurationUnit targetUnits, Double expectedValue) ->
                 {
                     convertToWithValueTest.run(1.0, startUnits, targetUnits, expectedValue);
                 };
 
-                convertToTest.run(DurationUnits.Nanoseconds, DurationUnits.Nanoseconds, 1.0);
-                convertToTest.run(DurationUnits.Nanoseconds, DurationUnits.Microseconds, 0.001);
-                convertToTest.run(DurationUnits.Nanoseconds, DurationUnits.Milliseconds, 0.000001);
-                convertToTest.run(DurationUnits.Nanoseconds, DurationUnits.Seconds, 0.000000001);
-                convertToTest.run(DurationUnits.Nanoseconds, DurationUnits.Minutes, 0.000000000016666666666666667);
-                convertToTest.run(DurationUnits.Nanoseconds, DurationUnits.Hours, 0.0000000000002777777777777778);
-                convertToTest.run(DurationUnits.Nanoseconds, DurationUnits.Days, 0.000000000000011574074074074074);
-                convertToTest.run(DurationUnits.Nanoseconds, DurationUnits.Weeks, 0.0000000000000016534391534391534);
+                convertToTest.run(DurationUnit.Nanoseconds, DurationUnit.Nanoseconds, 1.0);
+                convertToTest.run(DurationUnit.Nanoseconds, DurationUnit.Microseconds, 0.001);
+                convertToTest.run(DurationUnit.Nanoseconds, DurationUnit.Milliseconds, 0.000001);
+                convertToTest.run(DurationUnit.Nanoseconds, DurationUnit.Seconds, 0.000000001);
+                convertToTest.run(DurationUnit.Nanoseconds, DurationUnit.Minutes, 0.000000000016666666666666667);
+                convertToTest.run(DurationUnit.Nanoseconds, DurationUnit.Hours, 0.0000000000002777777777777778);
+                convertToTest.run(DurationUnit.Nanoseconds, DurationUnit.Days, 0.000000000000011574074074074074);
+                convertToTest.run(DurationUnit.Nanoseconds, DurationUnit.Weeks, 0.0000000000000016534391534391534);
 
-                convertToTest.run(DurationUnits.Microseconds, DurationUnits.Nanoseconds, 1000.0);
-                convertToTest.run(DurationUnits.Microseconds, DurationUnits.Microseconds, 1.0);
-                convertToTest.run(DurationUnits.Microseconds, DurationUnits.Milliseconds, 0.001);
-                convertToTest.run(DurationUnits.Microseconds, DurationUnits.Seconds, 0.000001);
-                convertToTest.run(DurationUnits.Microseconds, DurationUnits.Minutes, 0.000000016666666666666667);
-                convertToTest.run(DurationUnits.Microseconds, DurationUnits.Hours, 0.00000000027777777777777777);
-                convertToTest.run(DurationUnits.Microseconds, DurationUnits.Days, 0.000000000011574074074074074);
-                convertToTest.run(DurationUnits.Microseconds, DurationUnits.Weeks, 0.0000000000016534391534391534);
+                convertToTest.run(DurationUnit.Microseconds, DurationUnit.Nanoseconds, 1000.0);
+                convertToTest.run(DurationUnit.Microseconds, DurationUnit.Microseconds, 1.0);
+                convertToTest.run(DurationUnit.Microseconds, DurationUnit.Milliseconds, 0.001);
+                convertToTest.run(DurationUnit.Microseconds, DurationUnit.Seconds, 0.000001);
+                convertToTest.run(DurationUnit.Microseconds, DurationUnit.Minutes, 0.000000016666666666666667);
+                convertToTest.run(DurationUnit.Microseconds, DurationUnit.Hours, 0.00000000027777777777777777);
+                convertToTest.run(DurationUnit.Microseconds, DurationUnit.Days, 0.000000000011574074074074074);
+                convertToTest.run(DurationUnit.Microseconds, DurationUnit.Weeks, 0.0000000000016534391534391534);
 
-                convertToTest.run(DurationUnits.Milliseconds, DurationUnits.Nanoseconds, 1000000.0);
-                convertToTest.run(DurationUnits.Milliseconds, DurationUnits.Microseconds, 1000.0);
-                convertToTest.run(DurationUnits.Milliseconds, DurationUnits.Milliseconds, 1.0);
-                convertToTest.run(DurationUnits.Milliseconds, DurationUnits.Seconds, 0.001);
-                convertToTest.run(DurationUnits.Milliseconds, DurationUnits.Minutes, 0.000016666666666666667);
-                convertToTest.run(DurationUnits.Milliseconds, DurationUnits.Hours, 0.00000027777777777777776);
-                convertToTest.run(DurationUnits.Milliseconds, DurationUnits.Days, 0.000000011574074074074074);
-                convertToTest.run(DurationUnits.Milliseconds, DurationUnits.Weeks, 0.0000000016534391534391535);
+                convertToTest.run(DurationUnit.Milliseconds, DurationUnit.Nanoseconds, 1000000.0);
+                convertToTest.run(DurationUnit.Milliseconds, DurationUnit.Microseconds, 1000.0);
+                convertToTest.run(DurationUnit.Milliseconds, DurationUnit.Milliseconds, 1.0);
+                convertToTest.run(DurationUnit.Milliseconds, DurationUnit.Seconds, 0.001);
+                convertToTest.run(DurationUnit.Milliseconds, DurationUnit.Minutes, 0.000016666666666666667);
+                convertToTest.run(DurationUnit.Milliseconds, DurationUnit.Hours, 0.00000027777777777777776);
+                convertToTest.run(DurationUnit.Milliseconds, DurationUnit.Days, 0.000000011574074074074074);
+                convertToTest.run(DurationUnit.Milliseconds, DurationUnit.Weeks, 0.0000000016534391534391535);
 
-                convertToTest.run(DurationUnits.Seconds, DurationUnits.Nanoseconds, 1000000000.0);
-                convertToTest.run(DurationUnits.Seconds, DurationUnits.Microseconds, 1000000.0);
-                convertToTest.run(DurationUnits.Seconds, DurationUnits.Milliseconds, 1000.0);
-                convertToTest.run(DurationUnits.Seconds, DurationUnits.Seconds, 1.0);
-                convertToTest.run(DurationUnits.Seconds, DurationUnits.Minutes, 0.016666666666666666);
-                convertToTest.run(DurationUnits.Seconds, DurationUnits.Hours, 0.0002777777777777778);
-                convertToTest.run(DurationUnits.Seconds, DurationUnits.Days, 0.000011574074074074073);
-                convertToTest.run(DurationUnits.Seconds, DurationUnits.Weeks, 0.0000016534391534391535);
+                convertToTest.run(DurationUnit.Seconds, DurationUnit.Nanoseconds, 1000000000.0);
+                convertToTest.run(DurationUnit.Seconds, DurationUnit.Microseconds, 1000000.0);
+                convertToTest.run(DurationUnit.Seconds, DurationUnit.Milliseconds, 1000.0);
+                convertToTest.run(DurationUnit.Seconds, DurationUnit.Seconds, 1.0);
+                convertToTest.run(DurationUnit.Seconds, DurationUnit.Minutes, 0.016666666666666666);
+                convertToTest.run(DurationUnit.Seconds, DurationUnit.Hours, 0.0002777777777777778);
+                convertToTest.run(DurationUnit.Seconds, DurationUnit.Days, 0.000011574074074074073);
+                convertToTest.run(DurationUnit.Seconds, DurationUnit.Weeks, 0.0000016534391534391535);
 
-                convertToTest.run(DurationUnits.Minutes, DurationUnits.Nanoseconds, 60000000000.0);
-                convertToTest.run(DurationUnits.Minutes, DurationUnits.Microseconds, 60000000.0);
-                convertToTest.run(DurationUnits.Minutes, DurationUnits.Milliseconds, 60000.0);
-                convertToTest.run(DurationUnits.Minutes, DurationUnits.Seconds, 60.0);
-                convertToTest.run(DurationUnits.Minutes, DurationUnits.Minutes, 1.0);
-                convertToTest.run(DurationUnits.Minutes, DurationUnits.Hours, 0.016666666666666666);
-                convertToTest.run(DurationUnits.Minutes, DurationUnits.Days, 0.0006944444444444445);
-                convertToTest.run(DurationUnits.Minutes, DurationUnits.Weeks, 0.0000992063492063492);
+                convertToTest.run(DurationUnit.Minutes, DurationUnit.Nanoseconds, 60000000000.0);
+                convertToTest.run(DurationUnit.Minutes, DurationUnit.Microseconds, 60000000.0);
+                convertToTest.run(DurationUnit.Minutes, DurationUnit.Milliseconds, 60000.0);
+                convertToTest.run(DurationUnit.Minutes, DurationUnit.Seconds, 60.0);
+                convertToTest.run(DurationUnit.Minutes, DurationUnit.Minutes, 1.0);
+                convertToTest.run(DurationUnit.Minutes, DurationUnit.Hours, 0.016666666666666666);
+                convertToTest.run(DurationUnit.Minutes, DurationUnit.Days, 0.0006944444444444445);
+                convertToTest.run(DurationUnit.Minutes, DurationUnit.Weeks, 0.0000992063492063492);
 
-                convertToTest.run(DurationUnits.Hours, DurationUnits.Nanoseconds, 3600000000000.0);
-                convertToTest.run(DurationUnits.Hours, DurationUnits.Microseconds, 3600000000.0);
-                convertToTest.run(DurationUnits.Hours, DurationUnits.Milliseconds, 3600000.0);
-                convertToTest.run(DurationUnits.Hours, DurationUnits.Seconds, 3600.0);
-                convertToTest.run(DurationUnits.Hours, DurationUnits.Minutes, 60.0);
-                convertToTest.run(DurationUnits.Hours, DurationUnits.Hours, 1.0);
-                convertToTest.run(DurationUnits.Hours, DurationUnits.Days, 0.041666666666666664);
-                convertToTest.run(DurationUnits.Hours, DurationUnits.Weeks, 0.005952380952380952);
+                convertToTest.run(DurationUnit.Hours, DurationUnit.Nanoseconds, 3600000000000.0);
+                convertToTest.run(DurationUnit.Hours, DurationUnit.Microseconds, 3600000000.0);
+                convertToTest.run(DurationUnit.Hours, DurationUnit.Milliseconds, 3600000.0);
+                convertToTest.run(DurationUnit.Hours, DurationUnit.Seconds, 3600.0);
+                convertToTest.run(DurationUnit.Hours, DurationUnit.Minutes, 60.0);
+                convertToTest.run(DurationUnit.Hours, DurationUnit.Hours, 1.0);
+                convertToTest.run(DurationUnit.Hours, DurationUnit.Days, 0.041666666666666664);
+                convertToTest.run(DurationUnit.Hours, DurationUnit.Weeks, 0.005952380952380952);
 
-                convertToTest.run(DurationUnits.Days, DurationUnits.Nanoseconds, 86400000000000.0);
-                convertToTest.run(DurationUnits.Days, DurationUnits.Microseconds, 86400000000.0);
-                convertToTest.run(DurationUnits.Days, DurationUnits.Milliseconds, 86400000.0);
-                convertToTest.run(DurationUnits.Days, DurationUnits.Seconds, 86400.0);
-                convertToTest.run(DurationUnits.Days, DurationUnits.Minutes, 1440.0);
-                convertToTest.run(DurationUnits.Days, DurationUnits.Hours, 24.0);
-                convertToTest.run(DurationUnits.Days, DurationUnits.Days, 1.0);
-                convertToTest.run(DurationUnits.Days, DurationUnits.Weeks, 0.14285714285714285);
+                convertToTest.run(DurationUnit.Days, DurationUnit.Nanoseconds, 86400000000000.0);
+                convertToTest.run(DurationUnit.Days, DurationUnit.Microseconds, 86400000000.0);
+                convertToTest.run(DurationUnit.Days, DurationUnit.Milliseconds, 86400000.0);
+                convertToTest.run(DurationUnit.Days, DurationUnit.Seconds, 86400.0);
+                convertToTest.run(DurationUnit.Days, DurationUnit.Minutes, 1440.0);
+                convertToTest.run(DurationUnit.Days, DurationUnit.Hours, 24.0);
+                convertToTest.run(DurationUnit.Days, DurationUnit.Days, 1.0);
+                convertToTest.run(DurationUnit.Days, DurationUnit.Weeks, 0.14285714285714285);
 
-                convertToTest.run(DurationUnits.Weeks, DurationUnits.Nanoseconds, 604800000000000.0);
-                convertToTest.run(DurationUnits.Weeks, DurationUnits.Microseconds, 604800000000.0);
-                convertToTest.run(DurationUnits.Weeks, DurationUnits.Milliseconds, 604800000.0);
-                convertToTest.run(DurationUnits.Weeks, DurationUnits.Seconds, 604800.0);
-                convertToTest.run(DurationUnits.Weeks, DurationUnits.Minutes, 10080.0);
-                convertToTest.run(DurationUnits.Weeks, DurationUnits.Hours, 168.0);
-                convertToTest.run(DurationUnits.Weeks, DurationUnits.Days, 7.0);
-                convertToTest.run(DurationUnits.Weeks, DurationUnits.Weeks, 1.0);
+                convertToTest.run(DurationUnit.Weeks, DurationUnit.Nanoseconds, 604800000000000.0);
+                convertToTest.run(DurationUnit.Weeks, DurationUnit.Microseconds, 604800000000.0);
+                convertToTest.run(DurationUnit.Weeks, DurationUnit.Milliseconds, 604800000.0);
+                convertToTest.run(DurationUnit.Weeks, DurationUnit.Seconds, 604800.0);
+                convertToTest.run(DurationUnit.Weeks, DurationUnit.Minutes, 10080.0);
+                convertToTest.run(DurationUnit.Weeks, DurationUnit.Hours, 168.0);
+                convertToTest.run(DurationUnit.Weeks, DurationUnit.Days, 7.0);
+                convertToTest.run(DurationUnit.Weeks, DurationUnit.Weeks, 1.0);
 
-                convertToWithValueTest.run(Double.MAX_VALUE, DurationUnits.Nanoseconds, DurationUnits.Weeks, 2.972376215050125E293);
+                convertToWithValueTest.run(Double.MAX_VALUE, DurationUnit.Nanoseconds, DurationUnit.Weeks, 2.972376215050125E293);
             });
 
             runner.testGroup("negate()", () ->
@@ -243,15 +243,7 @@ public class DurationTests
             {
                 runner.test("by zero", (Test test) ->
                 {
-                    try
-                    {
-                        Duration.nanoseconds(50).dividedBy(0);
-                        test.fail("Expected ArithmeticException");
-                    }
-                    catch (ArithmeticException e)
-                    {
-                        test.assertEqual("/ by zero", e.getMessage());
-                    }
+                    test.assertThrows(() -> Duration.nanoseconds(50).dividedBy(0));
                 });
 
                 final Action3<Duration,Double,Duration> dividedByTest = (Duration dividend, Double divisor, Duration expectedQuotient) ->
@@ -271,27 +263,12 @@ public class DurationTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    try
-                    {
-                        Duration.seconds(10).dividedBy(null);
-                        test.fail("Expected NullPointerException");
-                    }
-                    catch (NullPointerException ignored)
-                    {
-                    }
+                    test.assertThrows(() -> Duration.seconds(10).dividedBy(null));
                 });
 
                 runner.test("with zero", (Test test) ->
                 {
-                    try
-                    {
-                        Duration.seconds(10).dividedBy(0);
-                        test.fail("Expected ArithmeticException");
-                    }
-                    catch (ArithmeticException e)
-                    {
-                        test.assertEqual("/ by zero", e.getMessage());
-                    }
+                    test.assertThrows(() -> Duration.seconds(10).dividedBy(Duration.seconds(0)));
                 });
 
                 final Action3<Duration,Duration,Double> dividedByTest = (Duration dividend, Duration divisor, Double expectedQuotient) ->
@@ -449,14 +426,14 @@ public class DurationTests
         });
     }
 
-    private static void assertDuration(Test test, Duration duration, double expectedValue, DurationUnits expectedUnits)
+    private static void assertDuration(Test test, Duration duration, double expectedValue, DurationUnit expectedUnits)
     {
         test.assertNotNull(duration);
         test.assertEqual(expectedValue, duration.getValue());
         test.assertEqual(expectedUnits, duration.getUnits());
     }
 
-    private static void assertDuration(Test test, Duration duration, double expectedValue, DurationUnits expectedUnits, double marginOfError)
+    private static void assertDuration(Test test, Duration duration, double expectedValue, DurationUnit expectedUnits, double marginOfError)
     {
         test.assertNotNull(duration);
         test.assertEqual(expectedValue, duration.getValue(), marginOfError);

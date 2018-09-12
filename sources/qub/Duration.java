@@ -74,49 +74,51 @@ public class Duration extends ComparableBase<Duration>
 
     public static Duration nanoseconds(double value)
     {
-        return new Duration(value, DurationUnits.Nanoseconds);
+        return new Duration(value, DurationUnit.Nanoseconds);
     }
 
     public static Duration microseconds(double value)
     {
-        return new Duration(value, DurationUnits.Microseconds);
+        return new Duration(value, DurationUnit.Microseconds);
     }
 
     public static Duration milliseconds(double value)
     {
-        return new Duration(value, DurationUnits.Milliseconds);
+        return new Duration(value, DurationUnit.Milliseconds);
     }
 
     public static Duration seconds(double value)
     {
-        return new Duration(value, DurationUnits.Seconds);
+        return new Duration(value, DurationUnit.Seconds);
     }
 
     public static Duration minutes(double value)
     {
-        return new Duration(value, DurationUnits.Minutes);
+        return new Duration(value, DurationUnit.Minutes);
     }
 
     public static Duration hours(double value)
     {
-        return new Duration(value, DurationUnits.Hours);
+        return new Duration(value, DurationUnit.Hours);
     }
 
     public static Duration days(double value)
     {
-        return new Duration(value, DurationUnits.Days);
+        return new Duration(value, DurationUnit.Days);
     }
 
     public static Duration weeks(double value)
     {
-        return new Duration(value, DurationUnits.Weeks);
+        return new Duration(value, DurationUnit.Weeks);
     }
 
     private final double value;
-    private final DurationUnits units;
+    private final DurationUnit units;
 
-    public Duration(double value, DurationUnits units)
+    public Duration(double value, DurationUnit units)
     {
+        PreCondition.assertNotNull(units, "units");
+
         this.value = value;
         this.units = units;
     }
@@ -126,12 +128,12 @@ public class Duration extends ComparableBase<Duration>
         return value;
     }
 
-    public DurationUnits getUnits()
+    public DurationUnit getUnits()
     {
         return units;
     }
 
-    public Duration convertTo(DurationUnits destinationUnits)
+    public Duration convertTo(DurationUnit destinationUnits)
     {
         Duration result = this;
         switch (units)
@@ -405,42 +407,42 @@ public class Duration extends ComparableBase<Duration>
 
     public Duration toNanoseconds()
     {
-        return convertTo(DurationUnits.Nanoseconds);
+        return convertTo(DurationUnit.Nanoseconds);
     }
 
     public Duration toMicroseconds()
     {
-        return convertTo(DurationUnits.Microseconds);
+        return convertTo(DurationUnit.Microseconds);
     }
 
     public Duration toMilliseconds()
     {
-        return convertTo(DurationUnits.Milliseconds);
+        return convertTo(DurationUnit.Milliseconds);
     }
 
     public Duration toSeconds()
     {
-        return convertTo(DurationUnits.Seconds);
+        return convertTo(DurationUnit.Seconds);
     }
 
     public Duration toMinutes()
     {
-        return convertTo(DurationUnits.Minutes);
+        return convertTo(DurationUnit.Minutes);
     }
 
     public Duration toHours()
     {
-        return convertTo(DurationUnits.Hours);
+        return convertTo(DurationUnit.Hours);
     }
 
     public Duration toDays()
     {
-        return convertTo(DurationUnits.Days);
+        return convertTo(DurationUnit.Days);
     }
 
     public Duration toWeeks()
     {
-        return convertTo(DurationUnits.Weeks);
+        return convertTo(DurationUnit.Weeks);
     }
 
     /**
@@ -475,24 +477,20 @@ public class Duration extends ComparableBase<Duration>
 
     public Duration dividedBy(double rhs)
     {
-        Duration result;
-        if (rhs == 0)
-        {
-            throw new ArithmeticException("/ by zero");
-        }
-        else if (rhs == 1)
-        {
-            result = this;
-        }
-        else
-        {
-            result = new Duration(value / rhs, units);
-        }
+        PreCondition.assertNotEqual(0.0, rhs, "rhs");
+
+        final Duration result = (rhs == 1 ? this : new Duration(value / rhs, units));
+
+        PostCondition.assertNotNull(result, "result");
+
         return result;
     }
 
     public double dividedBy(Duration rhs)
     {
+        PreCondition.assertNotNull(rhs, "rhs");
+        PreCondition.assertNotEqual(0, rhs.getValue(), "rhs.getValue()");
+
         final Duration convertedRhs = rhs.convertTo(units);
         return value / convertedRhs.value;
     }
