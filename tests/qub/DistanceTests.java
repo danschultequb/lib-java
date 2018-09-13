@@ -73,6 +73,51 @@ public class DistanceTests
                 kilometersTest.run(17.0);
             });
 
+            runner.testGroup("inches(double)", () ->
+            {
+                final Action1<Double> inchesTest = (Double value) ->
+                {
+                    runner.test("with " + value, (Test test) ->
+                    {
+                        assertDistance(test, Distance.inches(value), value, DistanceUnit.Inches);
+                    });
+                };
+
+                inchesTest.run(-4.0);
+                inchesTest.run(0.0);
+                inchesTest.run(17.0);
+            });
+
+            runner.testGroup("feet(double)", () ->
+            {
+                final Action1<Double> feetTest = (Double value) ->
+                {
+                    runner.test("with " + value, (Test test) ->
+                    {
+                        assertDistance(test, Distance.feet(value), value, DistanceUnit.Feet);
+                    });
+                };
+
+                feetTest.run(-4.0);
+                feetTest.run(0.0);
+                feetTest.run(17.0);
+            });
+
+            runner.testGroup("miles(double)", () ->
+            {
+                final Action1<Double> milesTest = (Double value) ->
+                {
+                    runner.test("with " + value, (Test test) ->
+                    {
+                        assertDistance(test, Distance.miles(value), value, DistanceUnit.Miles);
+                    });
+                };
+
+                milesTest.run(-4.0);
+                milesTest.run(0.0);
+                milesTest.run(17.0);
+            });
+
             runner.testGroup("convertTo(DistanceUnit)", () ->
             {
                 runner.test("with null", (Test test) ->
@@ -93,21 +138,62 @@ public class DistanceTests
                 convertToTest.run(Distance.millimeters(5), DistanceUnit.Centimeters, 0.5);
                 convertToTest.run(Distance.millimeters(1500), DistanceUnit.Meters, 1.5);
                 convertToTest.run(Distance.millimeters(3), DistanceUnit.Kilometers, 0.000003);
+                convertToTest.run(Distance.millimeters(7), DistanceUnit.Inches, 0.2755905511811024);
+                convertToTest.run(Distance.millimeters(12345), DistanceUnit.Feet, 40.50196850393701);
+                convertToTest.run(Distance.millimeters(967), DistanceUnit.Miles, 0.0006008659428935019);
 
                 convertToTest.run(Distance.centimeters(373), DistanceUnit.Millimeters, 3730.0);
                 convertToTest.run(Distance.centimeters(5), DistanceUnit.Centimeters, 5.0);
                 convertToTest.run(Distance.centimeters(1500), DistanceUnit.Meters, 15.0);
                 convertToTest.run(Distance.centimeters(3), DistanceUnit.Kilometers, 0.000030000000000000004);
+                convertToTest.run(Distance.centimeters(7), DistanceUnit.Inches, 2.755905511811023);
+                convertToTest.run(Distance.centimeters(12345), DistanceUnit.Feet, 405.0196850393701);
+                convertToTest.run(Distance.centimeters(967), DistanceUnit.Miles, 0.006008659428935019);
 
                 convertToTest.run(Distance.meters(373), DistanceUnit.Millimeters, 373000.0);
                 convertToTest.run(Distance.meters(5), DistanceUnit.Centimeters, 500.0);
                 convertToTest.run(Distance.meters(1500), DistanceUnit.Meters, 1500.0);
                 convertToTest.run(Distance.meters(3), DistanceUnit.Kilometers, 0.003);
+                convertToTest.run(Distance.meters(7), DistanceUnit.Inches, 275.59055118110234);
+                convertToTest.run(Distance.meters(12345), DistanceUnit.Feet, 40501.96850393701);
+                convertToTest.run(Distance.meters(967), DistanceUnit.Miles, 0.600865942893502);
+                convertToTest.run(Distance.meters(1600), DistanceUnit.Miles, 0.9941939075797345);
 
                 convertToTest.run(Distance.kilometers(373), DistanceUnit.Millimeters, 373000000.0);
                 convertToTest.run(Distance.kilometers(5), DistanceUnit.Centimeters, 500000.0);
                 convertToTest.run(Distance.kilometers(1500), DistanceUnit.Meters, 1500000.0);
                 convertToTest.run(Distance.kilometers(3), DistanceUnit.Kilometers, 3.0);
+                convertToTest.run(Distance.kilometers(7), DistanceUnit.Inches, 275590.55118110235);
+                convertToTest.run(Distance.kilometers(12345), DistanceUnit.Feet, 40501968.503937006);
+                convertToTest.run(Distance.kilometers(967), DistanceUnit.Miles, 600.8659428935019);
+                convertToTest.run(Distance.kilometers(1), DistanceUnit.Miles, 0.621371192237334);
+                convertToTest.run(Distance.kilometers(5), DistanceUnit.Miles, 3.1068559611866697);
+
+                convertToTest.run(Distance.inches(373), DistanceUnit.Millimeters, 9474.199999999999);
+                convertToTest.run(Distance.inches(5), DistanceUnit.Centimeters, 12.7);
+                convertToTest.run(Distance.inches(1500), DistanceUnit.Meters, 38.1);
+                convertToTest.run(Distance.inches(3), DistanceUnit.Kilometers, 0.00007620000000000001);
+                convertToTest.run(Distance.inches(7), DistanceUnit.Inches, 7.0);
+                convertToTest.run(Distance.inches(12345), DistanceUnit.Feet, 1028.75);
+                convertToTest.run(Distance.inches(967), DistanceUnit.Miles, 0.015261994949494949);
+
+                convertToTest.run(Distance.feet(373), DistanceUnit.Millimeters, 113690.40000000001);
+                convertToTest.run(Distance.feet(5), DistanceUnit.Centimeters, 152.4);
+                convertToTest.run(Distance.feet(1500), DistanceUnit.Meters, 457.20000000000005);
+                convertToTest.run(Distance.feet(3), DistanceUnit.Kilometers, 0.0009144000000000001);
+                convertToTest.run(Distance.feet(7), DistanceUnit.Inches, 84.0);
+                convertToTest.run(Distance.feet(12345), DistanceUnit.Feet, 12345.0);
+                convertToTest.run(Distance.feet(967), DistanceUnit.Miles, 0.1831439393939394);
+
+                convertToTest.run(Distance.miles(373), DistanceUnit.Millimeters, 600285312.0);
+                convertToTest.run(Distance.miles(5), DistanceUnit.Centimeters, 804672.0000000001);
+                convertToTest.run(Distance.miles(1500), DistanceUnit.Meters, 2414015.9999999995);
+                convertToTest.run(Distance.miles(1), DistanceUnit.Meters, 1609.3439999999998);
+                convertToTest.run(Distance.miles(3), DistanceUnit.Kilometers, 4.828032);
+                convertToTest.run(Distance.miles(3.1), DistanceUnit.Kilometers, 4.988966400000001);
+                convertToTest.run(Distance.miles(7), DistanceUnit.Inches, 443520.0);
+                convertToTest.run(Distance.miles(12345), DistanceUnit.Feet, 65181600.0);
+                convertToTest.run(Distance.miles(967), DistanceUnit.Miles, 967.0);
             });
 
             runner.testGroup("toMillimeters()", () ->
@@ -130,6 +216,21 @@ public class DistanceTests
                 runner.test("from Kilometers", (Test test) ->
                 {
                     assertDistance(test, Distance.kilometers(3).toMillimeters(), 3000000, DistanceUnit.Millimeters);
+                });
+
+                runner.test("from Inches", (Test test) ->
+                {
+                    assertDistance(test, Distance.inches(3).toMillimeters(), 76.19999999999999, DistanceUnit.Millimeters);
+                });
+
+                runner.test("from Feet", (Test test) ->
+                {
+                    assertDistance(test, Distance.feet(3).toMillimeters(), 914.4000000000001, DistanceUnit.Millimeters);
+                });
+
+                runner.test("from Miles", (Test test) ->
+                {
+                    assertDistance(test, Distance.miles(3).toMillimeters(), 4828032.0, DistanceUnit.Millimeters);
                 });
             });
 
@@ -154,6 +255,21 @@ public class DistanceTests
                 {
                     assertDistance(test, Distance.kilometers(3).toCentimeters(), 300000, DistanceUnit.Centimeters);
                 });
+
+                runner.test("from Inches", (Test test) ->
+                {
+                    assertDistance(test, Distance.inches(3).toCentimeters(), 7.62, DistanceUnit.Centimeters);
+                });
+
+                runner.test("from Feet", (Test test) ->
+                {
+                    assertDistance(test, Distance.feet(3).toCentimeters(), 91.44, DistanceUnit.Centimeters);
+                });
+
+                runner.test("from Miles", (Test test) ->
+                {
+                    assertDistance(test, Distance.miles(3).toCentimeters(), 482803.20000000007, DistanceUnit.Centimeters);
+                });
             });
 
             runner.testGroup("toMeters()", () ->
@@ -177,6 +293,21 @@ public class DistanceTests
                 {
                     assertDistance(test, Distance.kilometers(3).toMeters(), 3000, DistanceUnit.Meters);
                 });
+
+                runner.test("from Inches", (Test test) ->
+                {
+                    assertDistance(test, Distance.inches(3).toMeters(), 0.07619999999999999, DistanceUnit.Meters);
+                });
+
+                runner.test("from Feet", (Test test) ->
+                {
+                    assertDistance(test, Distance.feet(3).toMeters(), 0.9144000000000001, DistanceUnit.Meters);
+                });
+
+                runner.test("from Miles", (Test test) ->
+                {
+                    assertDistance(test, Distance.miles(3).toMeters(), 4828.031999999999, DistanceUnit.Meters);
+                });
             });
 
             runner.testGroup("toKilometers()", () ->
@@ -199,6 +330,135 @@ public class DistanceTests
                 runner.test("from Kilometers", (Test test) ->
                 {
                     assertDistance(test, Distance.kilometers(3).toKilometers(), 3, DistanceUnit.Kilometers);
+                });
+
+                runner.test("from Inches", (Test test) ->
+                {
+                    assertDistance(test, Distance.inches(3).toKilometers(), 0.00007620000000000001, DistanceUnit.Kilometers);
+                });
+
+                runner.test("from Feet", (Test test) ->
+                {
+                    assertDistance(test, Distance.feet(3).toKilometers(), 0.0009144000000000001, DistanceUnit.Kilometers);
+                });
+
+                runner.test("from Miles", (Test test) ->
+                {
+                    assertDistance(test, Distance.miles(3).toKilometers(), 4.828032, DistanceUnit.Kilometers);
+                });
+            });
+
+            runner.testGroup("toInches()", () ->
+            {
+                runner.test("from Millimeters", (Test test) ->
+                {
+                    assertDistance(test, Distance.millimeters(3).toInches(), 0.11811023622047244, DistanceUnit.Inches);
+                });
+
+                runner.test("from Centimeters", (Test test) ->
+                {
+                    assertDistance(test, Distance.centimeters(3).toInches(), 1.1811023622047243, DistanceUnit.Inches);
+                });
+
+                runner.test("from Meters", (Test test) ->
+                {
+                    assertDistance(test, Distance.meters(3).toInches(), 118.11023622047244, DistanceUnit.Inches);
+                });
+
+                runner.test("from Kilometers", (Test test) ->
+                {
+                    assertDistance(test, Distance.kilometers(3).toInches(), 118110.23622047243, DistanceUnit.Inches);
+                });
+
+                runner.test("from Inches", (Test test) ->
+                {
+                    assertDistance(test, Distance.inches(3).toInches(), 3, DistanceUnit.Inches);
+                });
+
+                runner.test("from Feet", (Test test) ->
+                {
+                    assertDistance(test, Distance.feet(3).toInches(), 36.0, DistanceUnit.Inches);
+                });
+
+                runner.test("from Miles", (Test test) ->
+                {
+                    assertDistance(test, Distance.miles(3).toInches(), 190080.0, DistanceUnit.Inches);
+                });
+            });
+
+            runner.testGroup("toFeet()", () ->
+            {
+                runner.test("from Millimeters", (Test test) ->
+                {
+                    assertDistance(test, Distance.millimeters(3).toFeet(), 0.00984251968503937, DistanceUnit.Feet);
+                });
+
+                runner.test("from Centimeters", (Test test) ->
+                {
+                    assertDistance(test, Distance.centimeters(3).toFeet(), 0.09842519685039369, DistanceUnit.Feet);
+                });
+
+                runner.test("from Meters", (Test test) ->
+                {
+                    assertDistance(test, Distance.meters(3).toFeet(), 9.84251968503937, DistanceUnit.Feet);
+                });
+
+                runner.test("from Kilometers", (Test test) ->
+                {
+                    assertDistance(test, Distance.kilometers(3).toFeet(), 9842.51968503937, DistanceUnit.Feet);
+                });
+
+                runner.test("from Inches", (Test test) ->
+                {
+                    assertDistance(test, Distance.inches(3).toFeet(), 0.25, DistanceUnit.Feet);
+                });
+
+                runner.test("from Feet", (Test test) ->
+                {
+                    assertDistance(test, Distance.feet(3).toFeet(), 3, DistanceUnit.Feet);
+                });
+
+                runner.test("from Miles", (Test test) ->
+                {
+                    assertDistance(test, Distance.miles(3).toFeet(), 15840.0, DistanceUnit.Feet);
+                });
+            });
+
+            runner.testGroup("toMiles()", () ->
+            {
+                runner.test("from Millimeters", (Test test) ->
+                {
+                    assertDistance(test, Distance.millimeters(3).toMiles(), 0.000001864113576712002, DistanceUnit.Miles);
+                });
+
+                runner.test("from Centimeters", (Test test) ->
+                {
+                    assertDistance(test, Distance.centimeters(3).toMiles(), 0.00001864113576712002, DistanceUnit.Miles);
+                });
+
+                runner.test("from Meters", (Test test) ->
+                {
+                    assertDistance(test, Distance.meters(3).toMiles(), 0.001864113576712002, DistanceUnit.Miles);
+                });
+
+                runner.test("from Kilometers", (Test test) ->
+                {
+                    assertDistance(test, Distance.kilometers(3).toMiles(), 1.8641135767120018, DistanceUnit.Miles);
+                });
+
+                runner.test("from Inches", (Test test) ->
+                {
+                    assertDistance(test, Distance.inches(3).toMiles(), 0.00004734848484848485, DistanceUnit.Miles);
+                });
+
+                runner.test("from Feet", (Test test) ->
+                {
+                    assertDistance(test, Distance.feet(3).toMiles(), 0.0005681818181818182, DistanceUnit.Miles);
+                });
+
+                runner.test("from Miles", (Test test) ->
+                {
+                    assertDistance(test, Distance.miles(3).toMiles(), 3, DistanceUnit.Miles);
                 });
             });
 

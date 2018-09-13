@@ -11,5 +11,11 @@ public enum DistanceUnit
 
     Meters,
 
-    Kilometers
+    Kilometers,
+
+    Inches,
+
+    Feet,
+
+    Miles
 }

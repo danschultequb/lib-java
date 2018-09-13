@@ -10,19 +10,67 @@ public class Distance extends ComparableBase<Distance>
     private static final double KilometersToMeters = 1000;
     private static final double MetersToCentimeters = 100;
     private static final double CentimetersToMillimeters = 10;
+    private static final double MilesToFeet = 5280;
+    private static final double FeetToInches = 12;
+    private static final double InchesToCentimeters = 2.54;
 
     private static final double KilometersToCentimeters = KilometersToMeters * MetersToCentimeters;
     private static final double KilometersToMillimeters = KilometersToCentimeters * CentimetersToMillimeters;
+    private static final double KilometersToInches = KilometersToCentimeters / InchesToCentimeters;
+    private static final double KilometersToFeet = KilometersToInches / FeetToInches;
+    private static final double KilometersToMiles = KilometersToFeet / MilesToFeet;
 
     private static final double MetersToKilometers = 1.0 / KilometersToMeters;
     private static final double MetersToMillimeters = MetersToCentimeters * CentimetersToMillimeters;
+    private static final double MetersToInches = MetersToCentimeters / InchesToCentimeters;
+    private static final double MetersToFeet = MetersToInches / FeetToInches;
+    private static final double MetersToMiles = MetersToFeet / MilesToFeet;
 
     private static final double CentimetersToKilometers = 1.0 / KilometersToCentimeters;
     private static final double CentimetersToMeters = 1.0 / MetersToCentimeters;
+    private static final double CentimeterstoInches = 1.0 / InchesToCentimeters;
+    private static final double CentimetersToFeet = CentimeterstoInches / FeetToInches;
+    private static final double CentimetersToMiles = CentimetersToFeet / MilesToFeet;
 
     private static final double MillimetersToKilometers = 1.0 / KilometersToMillimeters;
     private static final double MillimetersToMeters = 1.0 / MetersToMillimeters;
     private static final double MillimetersToCentimeters = 1.0 / CentimetersToMillimeters;
+    private static final double MillimetersToInches = MillimetersToCentimeters / InchesToCentimeters;
+    private static final double MillimetersToFeet = MillimetersToInches / FeetToInches;
+    private static final double MillimetersToMiles = MillimetersToFeet / MilesToFeet;
+
+    private static final double InchesToKilometers = 1.0 / KilometersToInches;
+    private static final double InchesToMeters = 1.0 / MetersToInches;
+    private static final double InchesToMillimeters = 1.0 / MillimetersToInches;
+    private static final double InchesToFeet = 1.0 / FeetToInches;
+    private static final double InchesToMiles = InchesToFeet / MilesToFeet;
+
+    private static final double FeetToKilometers = 1.0 / KilometersToFeet;
+    private static final double FeetToMeters = 1.0 / MetersToFeet;
+    private static final double FeetToCentimeters = 1.0 / CentimetersToFeet;
+    private static final double FeetToMillimeters = 1.0 / MillimetersToFeet;
+    private static final double FeetToMiles = 1.0 / MilesToFeet;
+
+    private static final double MilesToKilometers = 1.0 / KilometersToMiles;
+    private static final double MilesToMeters = 1.0 / MetersToMiles;
+    private static final double MilesToCentimeters = 1.0 / CentimetersToMiles;
+    private static final double MilesToMillimeters = 1.0 / MillimetersToMiles;
+    private static final double MilesToInches = 1.0 / InchesToMiles;
+
+    public static Distance miles(double value)
+    {
+        return new Distance(value, DistanceUnit.Miles);
+    }
+
+    public static Distance feet(double value)
+    {
+        return new Distance(value, DistanceUnit.Feet);
+    }
+
+    public static Distance inches(double value)
+    {
+        return new Distance(value, DistanceUnit.Inches);
+    }
 
     public static Distance millimeters(double value)
     {
@@ -87,6 +135,18 @@ public class Distance extends ComparableBase<Distance>
                     case Kilometers:
                         result = new Distance(value * MillimetersToKilometers, destinationUnits);
                         break;
+
+                    case Inches:
+                        result = new Distance(value * MillimetersToInches, destinationUnits);
+                        break;
+
+                    case Feet:
+                        result = new Distance(value * MillimetersToFeet, destinationUnits);
+                        break;
+
+                    case Miles:
+                        result = new Distance(value * MillimetersToMiles, destinationUnits);
+                        break;
                 }
                 break;
 
@@ -103,6 +163,18 @@ public class Distance extends ComparableBase<Distance>
 
                     case Kilometers:
                         result = new Distance(value * CentimetersToKilometers, destinationUnits);
+                        break;
+
+                    case Inches:
+                        result = new Distance(value * CentimeterstoInches, destinationUnits);
+                        break;
+
+                    case Feet:
+                        result = new Distance(value * CentimetersToFeet, destinationUnits);
+                        break;
+
+                    case Miles:
+                        result = new Distance(value * CentimetersToMiles, destinationUnits);
                         break;
                 }
                 break;
@@ -121,6 +193,18 @@ public class Distance extends ComparableBase<Distance>
                     case Kilometers:
                         result = new Distance(value * MetersToKilometers, destinationUnits);
                         break;
+
+                    case Inches:
+                        result = new Distance(value * MetersToInches, destinationUnits);
+                        break;
+
+                    case Feet:
+                        result = new Distance(value * MetersToFeet, destinationUnits);
+                        break;
+
+                    case Miles:
+                        result = new Distance(value * MetersToMiles, destinationUnits);
+                        break;
                 }
                 break;
 
@@ -137,6 +221,105 @@ public class Distance extends ComparableBase<Distance>
 
                     case Meters:
                         result = new Distance(value * KilometersToMeters, destinationUnits);
+                        break;
+
+                    case Inches:
+                        result = new Distance(value * KilometersToInches, destinationUnits);
+                        break;
+
+                    case Feet:
+                        result = new Distance(value * KilometersToFeet, destinationUnits);
+                        break;
+
+                    case Miles:
+                        result = new Distance(value * KilometersToMiles, destinationUnits);
+                        break;
+                }
+                break;
+
+            case Inches:
+                switch (destinationUnits)
+                {
+                    case Millimeters:
+                        result = new Distance(value * InchesToMillimeters, destinationUnits);
+                        break;
+
+                    case Centimeters:
+                        result = new Distance(value * InchesToCentimeters, destinationUnits);
+                        break;
+
+                    case Meters:
+                        result = new Distance(value * InchesToMeters, destinationUnits);
+                        break;
+
+                    case Kilometers:
+                        result = new Distance(value * InchesToKilometers, destinationUnits);
+                        break;
+
+                    case Feet:
+                        result = new Distance(value * InchesToFeet, destinationUnits);
+                        break;
+
+                    case Miles:
+                        result = new Distance(value * InchesToMiles, destinationUnits);
+                        break;
+                }
+                break;
+
+            case Feet:
+                switch (destinationUnits)
+                {
+                    case Millimeters:
+                        result = new Distance(value * FeetToMillimeters, destinationUnits);
+                        break;
+
+                    case Centimeters:
+                        result = new Distance(value * FeetToCentimeters, destinationUnits);
+                        break;
+
+                    case Meters:
+                        result = new Distance(value * FeetToMeters, destinationUnits);
+                        break;
+
+                    case Kilometers:
+                        result = new Distance(value * FeetToKilometers, destinationUnits);
+                        break;
+
+                    case Inches:
+                        result = new Distance(value * FeetToInches, destinationUnits);
+                        break;
+
+                    case Miles:
+                        result = new Distance(value * FeetToMiles, destinationUnits);
+                        break;
+                }
+                break;
+
+            case Miles:
+                switch (destinationUnits)
+                {
+                    case Millimeters:
+                        result = new Distance(value * MilesToMillimeters, destinationUnits);
+                        break;
+
+                    case Centimeters:
+                        result = new Distance(value * MilesToCentimeters, destinationUnits);
+                        break;
+
+                    case Meters:
+                        result = new Distance(value * MilesToMeters, destinationUnits);
+                        break;
+
+                    case Kilometers:
+                        result = new Distance(value * MilesToKilometers, destinationUnits);
+                        break;
+
+                    case Inches:
+                        result = new Distance(value * MilesToInches, destinationUnits);
+                        break;
+
+                    case Feet:
+                        result = new Distance(value * MilesToFeet, destinationUnits);
                         break;
                 }
                 break;
@@ -165,6 +348,21 @@ public class Distance extends ComparableBase<Distance>
     public Distance toKilometers()
     {
         return convertTo(DistanceUnit.Kilometers);
+    }
+
+    public Distance toInches()
+    {
+        return convertTo(DistanceUnit.Inches);
+    }
+
+    public Distance toFeet()
+    {
+        return convertTo(DistanceUnit.Feet);
+    }
+
+    public Distance toMiles()
+    {
+        return convertTo(DistanceUnit.Miles);
     }
 
     public Distance negate()
