@@ -36,4 +36,15 @@ public class UIText implements UIElement
     {
         this.parentElement = parentElement;
     }
+
+    @Override
+    public Window getParentWindow()
+    {
+        UIElementParent parent = parentElement;
+        while (parent != null && !(parent instanceof Window))
+        {
+            parent = parent.getParentElement();
+        }
+        return (Window)parent;
+    }
 }

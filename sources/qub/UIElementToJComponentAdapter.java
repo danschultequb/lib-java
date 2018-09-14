@@ -19,7 +19,8 @@ public class UIElementToJComponentAdapter extends javax.swing.JComponent
 
         super.paint(graphics);
 
-        final Graphics2DtoUIPainterAdapter painter = new Graphics2DtoUIPainterAdapter((java.awt.Graphics2D)graphics);
+        final Window parentWindow = uiElement.getParentWindow();
+        final Graphics2DtoUIPainterAdapter painter = new Graphics2DtoUIPainterAdapter((java.awt.Graphics2D)graphics, parentWindow);
         uiElement.paint(painter);
     }
 }

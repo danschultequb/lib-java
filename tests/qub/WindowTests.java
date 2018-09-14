@@ -4,7 +4,7 @@ public class WindowTests
 {
     private static Window createWindow(Test test)
     {
-        return new Window(test.getMainAsyncRunner());
+        return new Window(test.getMainAsyncRunner(), test.getDisplays());
     }
 
     public static void test(TestRunner runner)

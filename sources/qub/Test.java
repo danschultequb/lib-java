@@ -85,6 +85,15 @@ public class Test
     }
 
     /**
+     * Get the Displays that have been assigned to this Test.
+     * @return The Displays that have been assigned to this Test.
+     */
+    public Iterable<Display> getDisplays()
+    {
+        return process.getDisplays();
+    }
+
+    /**
      * Assert that the provided value is true. If it is not true, then a TestAssertionFailure will
      * be thrown.
      * @param value The value to assert is true.

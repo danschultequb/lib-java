@@ -30,6 +30,7 @@ public class Process extends DisposableBase
     private final Value<Function0<Stopwatch>> stopwatchCreator;
     private final Value<Clock> clock;
     private final Value<Iterable<Display>> displays;
+    private final Value<Boolean> useDisplayScaling;
 
     private final List<Window> windows;
 
@@ -88,6 +89,7 @@ public class Process extends DisposableBase
         stopwatchCreator = new Value<>();
         clock = new Value<>();
         displays = new Value<>();
+        useDisplayScaling = new Value<>();
 
         windows = new ArrayList<>();
 
@@ -562,6 +564,8 @@ public class Process extends DisposableBase
         {
             final java.awt.Toolkit toolkit = java.awt.Toolkit.getDefaultToolkit();
             final int dpi = toolkit.getScreenResolution();
+            double horizontalDpi = dpi;
+            double verticalDpi = dpi;
 
             final java.awt.GraphicsEnvironment graphicsEnvironment = java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment();
             final java.awt.GraphicsDevice[] graphicsDevices = graphicsEnvironment.getScreenDevices();
@@ -569,12 +573,22 @@ public class Process extends DisposableBase
 
             if (graphicsDevices != null)
             {
+                final boolean useDisplayScaling = getUseDisplayScaling();
                 for (final java.awt.GraphicsDevice graphicsDevice : graphicsDevices)
                 {
                     if (graphicsDevice != null)
                     {
+                        final java.awt.GraphicsConfiguration graphicsConfiguration = graphicsDevice.getDefaultConfiguration();
+                        double displayHorizontalDpi = dpi;
+                        double displayVerticalDpi = dpi;
+                        if (!useDisplayScaling)
+                        {
+                            final java.awt.geom.AffineTransform defaultTransform = graphicsConfiguration.getDefaultTransform();
+                            displayHorizontalDpi /= defaultTransform.getScaleX();
+                            displayVerticalDpi /= defaultTransform.getScaleY();
+                        }
                         final java.awt.DisplayMode displayMode = graphicsDevice.getDisplayMode();
-                        displayList.add(new Display(displayMode.getWidth(), displayMode.getHeight(), dpi, dpi));
+                        displayList.add(new Display(displayMode.getWidth(), displayMode.getHeight(), displayHorizontalDpi, displayVerticalDpi));
                     }
                 }
             }
@@ -584,6 +598,20 @@ public class Process extends DisposableBase
         return displays.get();
     }
 
+    public void setUseDisplayScaling(boolean useDisplayScaling)
+    {
+        this.useDisplayScaling.set(useDisplayScaling);
+    }
+
+    public boolean getUseDisplayScaling()
+    {
+        if (!useDisplayScaling.hasValue())
+        {
+            useDisplayScaling.set(true);
+        }
+        return useDisplayScaling.get();
+    }
+
     /**
      * Create a new Window for this application. The Window will not be visible until
      * setVisible() is called.
@@ -591,7 +619,7 @@ public class Process extends DisposableBase
      */
     public Window createWindow()
     {
-        final Window result = new Window(getMainAsyncRunner());
+        final Window result = new Window(getMainAsyncRunner(), getDisplays());
         windows.add(result);
 
         PostCondition.assertNotNull(result, "result");

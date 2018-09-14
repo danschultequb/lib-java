@@ -7,14 +7,19 @@ import java.awt.event.WindowListener;
 public class Window extends DisposableBase implements UIElementParent
 {
     private final AsyncRunner mainAsyncRunner;
+    private final Iterable<Display> displays;
     private final BasicAsyncAction windowClosedTask;
     private final JFrame jFrame;
     private UIElement content;
     private boolean disposed;
 
-    public Window(AsyncRunner mainAsyncRunner)
+    public Window(AsyncRunner mainAsyncRunner, Iterable<Display> displays)
     {
+        PreCondition.assertNotNull(mainAsyncRunner, "mainAsyncRunner");
+        PreCondition.assertNotNull(displays, "displays");
+
         this.mainAsyncRunner = mainAsyncRunner;
+        this.displays = displays;
         this.windowClosedTask = new BasicAsyncAction(mainAsyncRunner);
 
         this.jFrame = new JFrame();
@@ -164,5 +169,21 @@ public class Window extends DisposableBase implements UIElementParent
     public void repaint()
     {
         jFrame.repaint();
+    }
+
+    @Override
+    public UIElementParent getParentElement()
+    {
+        return this;
+    }
+
+    public double convertHorizontalDistanceToPixels(Distance horizontalDistance)
+    {
+        return displays.first().convertHorizontalDistanceToPixels(horizontalDistance);
+    }
+
+    public double convertVerticalDistanceToPixels(Distance verticalDistance)
+    {
+        return displays.first().convertVerticalDistanceToPixels(verticalDistance);
     }
 }

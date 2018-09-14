@@ -64,4 +64,28 @@ public class Display
     {
         return Distance.inches(heightInPixels / verticalDpi);
     }
+
+    public double convertHorizontalDistanceToPixels(Distance horizontalDistance)
+    {
+        PreCondition.assertNotNull(horizontalDistance, "horizontalDistance");
+
+        final Distance horizontalDistanceInInches = horizontalDistance.toInches();
+        final double result = horizontalDistanceInInches.getValue() * horizontalDpi;
+
+        PostCondition.assertGreaterThanOrEqualTo(result, 0.0, "result");
+
+        return result;
+    }
+
+    public double convertVerticalDistanceToPixels(Distance verticalDistance)
+    {
+        PreCondition.assertNotNull(verticalDistance, "verticalDistance");
+
+        final Distance verticalDistanceInInches = verticalDistance.toInches();
+        final double result = verticalDistanceInInches.getValue() * verticalDpi;
+
+        PostCondition.assertGreaterThanOrEqualTo(result, 0.0, "result");
+
+        return result;
+    }
 }
