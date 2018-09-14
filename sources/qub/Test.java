@@ -854,6 +854,19 @@ public class Test
         }
     }
 
+    public <T extends Comparable<T>> void assertGreaterThanOrEqualTo(double lhs, double rhs)
+    {
+        assertGreaterThanOrEqualTo(lhs, rhs, null);
+    }
+
+    public <T extends Comparable<T>> void assertGreaterThanOrEqualTo(double lhs, double rhs, String message)
+    {
+        if (!(lhs >= rhs))
+        {
+            throw new TestAssertionFailure(getFullName(), getMessageLines(message, "greater than or equal to " + Objects.toString(rhs), lhs));
+        }
+    }
+
     public <T extends Comparable<T>> void assertGreaterThan(T lhs, T rhs)
     {
         assertGreaterThan(lhs, rhs, null);

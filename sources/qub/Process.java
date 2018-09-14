@@ -29,6 +29,7 @@ public class Process extends DisposableBase
     private final Value<Synchronization> synchronization;
     private final Value<Function0<Stopwatch>> stopwatchCreator;
     private final Value<Clock> clock;
+    private final Value<Iterable<Display>> displays;
 
     private final List<Window> windows;
 
@@ -86,6 +87,7 @@ public class Process extends DisposableBase
         synchronization = new Value<>();
         stopwatchCreator = new Value<>();
         clock = new Value<>();
+        displays = new Value<>();
 
         windows = new ArrayList<>();
 
@@ -539,6 +541,47 @@ public class Process extends DisposableBase
             clock.set(new JavaClock(getMainAsyncRunner(), getParallelAsyncRunner()));
         }
         return clock.get();
+    }
+
+    /**
+     * Set the displays Iterable that this Process will use.
+     * @param displays The displays Iterable that this Process will use.
+     */
+    public void setDisplays(Iterable<Display> displays)
+    {
+        this.displays.set(displays);
+    }
+
+    /**
+     * Get the displays that have been assigned to this Process.
+     * @return The displays that have been assigned to this Process.
+     */
+    public Iterable<Display> getDisplays()
+    {
+        if (!displays.hasValue())
+        {
+            final java.awt.Toolkit toolkit = java.awt.Toolkit.getDefaultToolkit();
+            final int dpi = toolkit.getScreenResolution();
+
+            final java.awt.GraphicsEnvironment graphicsEnvironment = java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment();
+            final java.awt.GraphicsDevice[] graphicsDevices = graphicsEnvironment.getScreenDevices();
+            final List<Display> displayList = new ArrayList<>();
+
+            if (graphicsDevices != null)
+            {
+                for (final java.awt.GraphicsDevice graphicsDevice : graphicsDevices)
+                {
+                    if (graphicsDevice != null)
+                    {
+                        final java.awt.DisplayMode displayMode = graphicsDevice.getDisplayMode();
+                        displayList.add(new Display(displayMode.getWidth(), displayMode.getHeight(), dpi, dpi));
+                    }
+                }
+            }
+
+            displays.set(displayList);
+        }
+        return displays.get();
     }
 
     /**

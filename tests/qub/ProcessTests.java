@@ -459,6 +459,25 @@ public class ProcessTests
                 });
             });
 
+            runner.testGroup("getDisplays()", () ->
+            {
+                runner.test("with default", (Test test) ->
+                {
+                    final Process process = creator.run();
+                    final Iterable<Display> displays = process.getDisplays();
+                    test.assertNotNull(displays);
+                    test.assertGreaterThanOrEqualTo(displays.getCount(), 1);
+                    for (final Display display : displays)
+                    {
+                        test.assertNotNull(display);
+                        test.assertGreaterThanOrEqualTo(display.getWidthInPixels(), 1);
+                        test.assertGreaterThanOrEqualTo(display.getHeightInPixels(), 1);
+                        test.assertGreaterThanOrEqualTo(display.getHorizontalDpi(), 1);
+                        test.assertGreaterThanOrEqualTo(display.getVerticalDpi(), 1);
+                    }
+                });
+            });
+
             runner.testGroup("getProcessBuilder(String)", () ->
             {
                 runner.test("with null string", (Test test) ->

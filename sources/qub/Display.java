@@ -2,12 +2,12 @@ package qub;
 
 public class Display
 {
-    private final int widthInPixels;
-    private final int heightInPixels;
+    private final double widthInPixels;
+    private final double heightInPixels;
     private final double horizontalDpi;
     private final double verticalDpi;
 
-    public Display(int widthInPixels, int heightInPixels, double horizontalDpi, double verticalDpi)
+    public Display(double widthInPixels, double heightInPixels, double horizontalDpi, double verticalDpi)
     {
         this.widthInPixels = widthInPixels;
         this.heightInPixels = heightInPixels;
@@ -19,7 +19,7 @@ public class Display
      * Get the number of pixels that are contained by a horizontal line across this Display.
      * @return The number of pixels that are contained by a horizontal line acorss this Display.
      */
-    public int getWidthInPixels()
+    public double getWidthInPixels()
     {
         return widthInPixels;
     }
@@ -28,7 +28,7 @@ public class Display
      * Get the number of pixels that are contained by a vertical line across this Display.
      * @return The number of pixels that are contained by a vertical line across this Display.
      */
-    public int getHeightInPixels()
+    public double getHeightInPixels()
     {
         return heightInPixels;
     }
