@@ -7,7 +7,7 @@ public class BasicAsyncFunction<T> extends BasicAsyncTask implements AsyncFuncti
 
     public BasicAsyncFunction(Getable<AsyncRunner> runner, Function0<T> function)
     {
-        super(runner);
+        super(runner, null);
 
         this.function = function;
         this.functionResult = new Value<>();

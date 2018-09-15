@@ -74,11 +74,11 @@ public class ParallelAsyncRunner extends AsyncRunnerBase
     }
 
     @Override
-    public AsyncAction schedule(Action0 action)
+    public AsyncAction schedule(String label, Action0 action)
     {
         PreCondition.assertNotNull(action, "action");
 
-        final BasicAsyncAction result = new BasicAsyncAction(new Value<AsyncRunner>(this), action);
+        final BasicAsyncAction result = new BasicAsyncAction(new Value<AsyncRunner>(this), label, action);
         schedule(result);
 
         PostCondition.assertNotNull(result, "result");

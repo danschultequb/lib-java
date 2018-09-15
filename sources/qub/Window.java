@@ -8,22 +8,21 @@ public class Window extends DisposableBase implements UIElementParent
 {
     private final AsyncRunner mainAsyncRunner;
     private final Iterable<Display> displays;
-    private final BasicAsyncAction windowClosedTask;
+    private BasicAsyncAction windowClosedTask;
     private final JFrame jFrame;
     private UIElement content;
-    private boolean disposed;
+    private volatile boolean disposed;
 
-    public Window(AsyncRunner mainAsyncRunner, Iterable<Display> displays)
+    public Window(final AsyncRunner mainAsyncRunner, Iterable<Display> displays)
     {
         PreCondition.assertNotNull(mainAsyncRunner, "mainAsyncRunner");
         PreCondition.assertNotNull(displays, "displays");
 
         this.mainAsyncRunner = mainAsyncRunner;
         this.displays = displays;
-        this.windowClosedTask = new BasicAsyncAction(mainAsyncRunner);
 
         this.jFrame = new JFrame();
-        this.jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.jFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         this.jFrame.addWindowListener(new WindowListener()
         {
             @Override
@@ -39,7 +38,17 @@ public class Window extends DisposableBase implements UIElementParent
             @Override
             public void windowClosed(WindowEvent e)
             {
-                dispose();
+                if (!isDisposed())
+                {
+                    mainAsyncRunner.schedule("WindowListener.windowClose()", new Action0()
+                    {
+                        @Override
+                        public void run()
+                        {
+                            dispose();
+                        }
+                    }).await();
+                }
             }
 
             @Override
@@ -69,25 +78,29 @@ public class Window extends DisposableBase implements UIElementParent
      */
     public void awaitClose()
     {
+        PreCondition.assertTrue(isOpen(), "isOpen()");
+
         windowClosedTask.await();
     }
 
     /**
-     * Get whether or not this Window is visible.
-     * @return Whether or not this Window is visible.
+     * Open this Window so that it is visible.
      */
-    public boolean isVisible()
+    public void open()
     {
-        return jFrame.isVisible();
+        PreCondition.assertFalse(isOpen(), "isOpen()");
+
+        windowClosedTask = new BasicAsyncAction(mainAsyncRunner, "Window Closed Task");
+        jFrame.setVisible(true);
     }
 
     /**
-     * Set whether or not this Window is visible.
-     * @param visible Whether or not this Window is visible.
+     * Get whether or not this Window is open.
+     * @return Whether or not this Window is open.
      */
-    public void setVisible(boolean visible)
+    public boolean isOpen()
     {
-        jFrame.setVisible(visible);
+        return windowClosedTask != null && !isDisposed();
     }
 
     /**
@@ -114,23 +127,26 @@ public class Window extends DisposableBase implements UIElementParent
 
     public void setContent(javax.swing.JComponent content)
     {
-        PreCondition.assertNotNull(content, "content");
-
-        jFrame.setContentPane(content);
+        setContent(new JComponentToUIElementAdapter(content));
     }
 
     public void setContent(UIElement uiElement)
     {
         PreCondition.assertNotNull(uiElement, "uiElement");
 
-        if (content != null)
+        if (content != uiElement)
         {
-            content.setParent(null);
-        }
-        content = uiElement;
-        uiElement.setParent(this);
+            if (content != null)
+            {
+                content.setParent(null);
+            }
+            content = uiElement;
+            uiElement.setParent(this);
 
-        setContent(new UIElementToJComponentAdapter(uiElement));
+            jFrame.setContentPane(new UIElementToJComponentAdapter(uiElement));
+
+            repaint();
+        }
     }
 
     @Override
@@ -152,10 +168,15 @@ public class Window extends DisposableBase implements UIElementParent
         {
             disposed = true;
 
-            jFrame.dispose();
-
-            windowClosedTask.schedule();
-            awaitClose();
+            if (jFrame.isVisible())
+            {
+                jFrame.dispose();
+            }
+            if (windowClosedTask != null)
+            {
+                windowClosedTask.schedule();
+                windowClosedTask.await();
+            }
 
             result = Result.successTrue();
         }
@@ -173,6 +194,12 @@ public class Window extends DisposableBase implements UIElementParent
 
     @Override
     public UIElementParent getParentElement()
+    {
+        return this;
+    }
+
+    @Override
+    public Window getParentWindow()
     {
         return this;
     }

@@ -1,34 +1,29 @@
 package qub;
 
-public class UIText implements UIElement
+public class JComponentToUIElementAdapter implements UIElement
 {
+    private final javax.swing.JComponent jComponent;
     private UIElementParent parentElement;
-    private String text;
 
-    public UIText(String text)
+    public JComponentToUIElementAdapter(javax.swing.JComponent jComponent)
     {
-        this(null, text);
+        this(null, jComponent);
     }
 
-    public UIText(UIElementParent parentElement, String text)
+    public JComponentToUIElementAdapter(UIElementParent parentElement, javax.swing.JComponent jComponent)
     {
-        PreCondition.assertNotNullAndNotEmpty(text, "text");
+        PreCondition.assertNotNull(jComponent, "jComponent");
 
-        setParent(parentElement);
-        setText(text);
+        this.jComponent = jComponent;
     }
 
-    public void setText(String text)
-    {
-        PreCondition.assertNotNullAndNotEmpty(text, "text");
-
-        this.text = text;
-    }
 
     @Override
     public void paint(UIPainter painter)
     {
-        painter.drawText(text, Distance.inches(1), Distance.inches(2));
+        PreCondition.assertNotNull(painter, "painter");
+
+        jComponent.paint(new UIPainterToGraphics2DAdapter(painter));
     }
 
     @Override

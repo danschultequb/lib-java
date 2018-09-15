@@ -34,12 +34,12 @@ public class ManualAsyncRunner extends AsyncRunnerBase
     }
 
     @Override
-    public AsyncAction schedule(Action0 action)
+    public AsyncAction schedule(String label, Action0 action)
     {
         PreCondition.assertNotNull(action, "action");
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
-        final BasicAsyncAction result = new BasicAsyncAction(new Value<AsyncRunner>(this), action);
+        final BasicAsyncAction result = new BasicAsyncAction(new Value<AsyncRunner>(this), label, action);
         schedule(result);
 
         PostCondition.assertNotNull(result, "result");

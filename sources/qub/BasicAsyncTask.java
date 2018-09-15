@@ -7,16 +7,18 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
     private final List<BasicAsyncTask> pausedTasks;
     private final Value<Boolean> completed;
     private final Mutex mutex;
+    private final String label;
     private volatile Throwable incomingError;
     private volatile Throwable outgoingError;
 
-    BasicAsyncTask(Getable<AsyncRunner> asyncRunner)
+    BasicAsyncTask(Getable<AsyncRunner> asyncRunner, String label)
     {
         this.asyncRunner = asyncRunner;
         this.parentTasks = new SingleLinkList<AsyncTask>();
         this.pausedTasks = LockedList.from(new SingleLinkList<BasicAsyncTask>());
         this.completed = new Value<Boolean>(false);
         this.mutex = new SpinMutex();
+        this.label = label;
     }
 
     protected void markCompleted()
@@ -426,4 +428,21 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
     }
 
     protected abstract void runTask();
+
+    @Override
+    public String toString()
+    {
+        final StringBuilder builder = new StringBuilder();
+        if (!Strings.isNullOrEmpty(label))
+        {
+            builder.append(label);
+            builder.append(' ');
+        }
+        builder.append(super.toString());
+        final String result = builder.toString();
+
+        PostCondition.assertNotNullAndNotEmpty(result, "result");
+
+        return result;
+    }
 }

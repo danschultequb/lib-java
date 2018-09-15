@@ -16,31 +16,30 @@ public class WindowTests
                 try (final Window window = createWindow(test))
                 {
                     test.assertFalse(window.isDisposed());
-                    test.assertFalse(window.isVisible());
+                    test.assertFalse(window.isOpen());
                     test.assertEqual("", window.getTitle());
 
                     test.assertSuccess(true, window.dispose());
                     test.assertTrue(window.isDisposed());
-                    test.assertFalse(window.isVisible());
+                    test.assertFalse(window.isOpen());
                     test.assertEqual("", window.getTitle());
                 }
             });
 
-            runner.test("setVisible()", (Test test) ->
+            runner.test("open()", (Test test) ->
             {
                  try (final Window window = createWindow(test))
                  {
-                     window.setVisible(true);
-                     test.assertTrue(window.isVisible());
+                     test.assertFalse(window.isOpen());
+                     test.assertFalse(window.isDisposed());
 
-                     window.setVisible(false);
-                     test.assertFalse(window.isVisible());
+                     window.open();
+                     test.assertTrue(window.isOpen());
+                     test.assertFalse(window.isDisposed());
 
-                     window.setVisible(true);
-                     test.assertTrue(window.isVisible());
-
-                     test.assertSuccess(true, window.dispose());
-                     test.assertFalse(window.isVisible());
+                     window.dispose();
+                     test.assertFalse(window.isOpen());
+                     test.assertTrue(window.isDisposed());
                  }
             });
 
@@ -85,6 +84,15 @@ public class WindowTests
                         test.assertThrows(() -> window.setContent((javax.swing.JComponent)null));
                     }
                 });
+
+                runner.test("with JButton", (Test test) ->
+                {
+                    try (final Window window = createWindow(test))
+                    {
+                        window.setContent(new javax.swing.JButton("Hello"));
+                        window.open();
+                    }
+                });
             });
 
             runner.testGroup("setContent(UIElement)", () ->
@@ -94,6 +102,26 @@ public class WindowTests
                     try (final Window window = createWindow(test))
                     {
                         test.assertThrows(() -> window.setContent((UIElement)null));
+                    }
+                });
+
+                runner.test("with UIText", (Test test) ->
+                {
+                    try (final Window window = createWindow(test))
+                    {
+                        window.setContent(new UIText("Hello World!"));
+                        window.open();
+                    }
+                });
+            });
+
+            runner.testGroup("awaitClose()", () ->
+            {
+                runner.test("when not open", (Test test) ->
+                {
+                    try (final Window window = createWindow(test))
+                    {
+                        test.assertThrows(() -> window.awaitClose());
                     }
                 });
             });

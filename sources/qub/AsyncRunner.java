@@ -31,6 +31,14 @@ public interface AsyncRunner extends Disposable
     AsyncAction schedule(Action0 action);
 
     /**
+     * Schedule the provided action to run asynchronously.
+     * @param label The label to associate with the action.
+     * @param action The action to run asynchronously.
+     * @return A reference to the scheduled action.
+     */
+    AsyncAction schedule(String label, Action0 action);
+
+    /**
      * Schedule the provided function to run asynchronously.
      * @param function The function to run asynchronously.
      * @param <T> The type that will be returned from the asynchronous function.

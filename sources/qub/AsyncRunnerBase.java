@@ -5,6 +5,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 public abstract class AsyncRunnerBase extends DisposableBase implements AsyncRunner
 {
     @Override
+    public AsyncAction schedule(Action0 action)
+    {
+        return schedule(null, action);
+    }
+
+    @Override
     public AsyncAction scheduleAsyncAction(Function0<AsyncAction> function)
     {
         PreCondition.assertNotNull(function, "function");

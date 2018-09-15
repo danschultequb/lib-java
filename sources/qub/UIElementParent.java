@@ -12,4 +12,12 @@ public interface UIElementParent
      * @return This UIElementParent's parent.
      */
     UIElementParent getParentElement();
+
+    /**
+     * Get the Window that contains this UIElement. If this UIElement has not been assigned to a
+     * Window, then null will be returned.
+     * @return The Window that contains this UIElement, or null if this UIElement has not been
+     * assigned to a Window.
+     */
+    Window getParentWindow();
 }

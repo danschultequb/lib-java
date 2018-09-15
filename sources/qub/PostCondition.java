@@ -62,6 +62,22 @@ public class PostCondition
     }
 
     /**
+     * Assert that the provided value is not null and not empty.
+     * @param value The value to check.
+     * @param variableName The name of the variable that contains value.
+     * @preCondition variableName != null && variableName.length() > 0
+     * @postCondition value != null && value.length() > 0
+     */
+    public static <T> void assertNotNullAndNotEmpty(String value, String variableName)
+    {
+        assertNotNull(value, variableName);
+        if (value.length() == 0)
+        {
+            throw new PreConditionFailure(AssertionMessages.notEmpty(variableName));
+        }
+    }
+
+    /**
      * Assert that value is equal to the provided expectedValue.
      * @param expectedValue The expected value that value should be equal to.
      * @param value The value that should equal expectedValue.

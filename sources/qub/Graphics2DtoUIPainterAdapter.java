@@ -15,9 +15,17 @@ public class Graphics2DtoUIPainterAdapter implements UIPainter
     }
 
     @Override
-    public void drawText(String text)
+    public void drawText(String text, double baselineXInPixels, double baselineYInPixels)
     {
-        graphics.drawString(text, 0, 20);
+        graphics.drawString(text, (float)baselineXInPixels, (float)baselineYInPixels);
+    }
+
+    @Override
+    public void drawText(String text, Distance baselineX, Distance baselineY)
+    {
+        final double baselineXInPixels = parentWindow.convertHorizontalDistanceToPixels(baselineX);
+        final double baselineYInPixels = parentWindow.convertVerticalDistanceToPixels(baselineY);
+        drawText(text, baselineXInPixels, baselineYInPixels);
     }
 
     @Override
@@ -34,5 +42,11 @@ public class Graphics2DtoUIPainterAdapter implements UIPainter
         final double endXInPixels = parentWindow.convertHorizontalDistanceToPixels(endX);
         final double endYInPixels = parentWindow.convertVerticalDistanceToPixels(endY);
         drawLine(startXInPixels, startYInPixels, endXInPixels, endYInPixels);
+    }
+
+    @Override
+    public String toString()
+    {
+        return graphics.toString();
     }
 }
