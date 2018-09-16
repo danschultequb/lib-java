@@ -28,7 +28,8 @@ public class UIText implements UIElement
     @Override
     public void paint(UIPainter painter)
     {
-        painter.drawText(text, Distance.inches(1), Distance.inches(2));
+        painter.drawText("Apples", Distance.inches(1), Distance.inches(2));
+        painter.drawText("Bananas", Distance.inches(0.5), Distance.inches(1));
     }
 
     @Override

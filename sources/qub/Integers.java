@@ -208,9 +208,19 @@ public class Integers
      */
     public static int getBit(int value, int bitIndex)
     {
-        PreCondition.assertBetween(0, bitIndex, Integer.SIZE - 1, "bitIndex");
+        PreCondition.assertBetween(0, bitIndex, Integers.bitCount - 1, "bitIndex");
 
-        return (value >>> ((Integer.SIZE - 1) - bitIndex)) & 0x1;
+        return (value >>> ((Integers.bitCount - 1) - bitIndex)) & 0x1;
+    }
+
+    public static int getBits(int value, int startIndex, int length)
+    {
+        PreCondition.assertBetween(0, startIndex, Integers.bitCount - 1, "startIndex");
+        PreCondition.assertBetween(1, length, Integers.bitCount - startIndex, "length");
+
+        final int result = 0;
+
+        return result;
     }
 
     /**

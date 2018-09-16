@@ -89,6 +89,7 @@ public class Window extends DisposableBase implements UIElementParent
     public void open()
     {
         PreCondition.assertFalse(isOpen(), "isOpen()");
+        PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
         windowClosedTask = new BasicAsyncAction(mainAsyncRunner, "Window Closed Task");
         jFrame.setVisible(true);
@@ -145,7 +146,10 @@ public class Window extends DisposableBase implements UIElementParent
 
             jFrame.setContentPane(new UIElementToJComponentAdapter(uiElement));
 
-            repaint();
+            if (isOpen())
+            {
+                repaint();
+            }
         }
     }
 

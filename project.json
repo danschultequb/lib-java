@@ -1,13 +1,10 @@
 {
   "publisher": "qub",
   "project": "qub-java",
-  "version": "0.2.24",
+  "version": "0.2.25",
   "java": {
     "sources": {
       "version": "1.7"
-    },
-    "tests": {
-      "version": "1.8"
     }
   }
 }

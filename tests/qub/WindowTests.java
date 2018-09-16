@@ -4,7 +4,17 @@ public class WindowTests
 {
     private static Window createWindow(Test test)
     {
-        return new Window(test.getMainAsyncRunner(), test.getDisplays());
+        return createWindow(test, true);
+    }
+
+    private static Window createWindow(Test test, boolean addTitle)
+    {
+        final Window result = new Window(test.getMainAsyncRunner(), test.getDisplays());
+        if (addTitle)
+        {
+            result.setTitle(test.getFullName());
+        }
+        return result;
     }
 
     public static void test(TestRunner runner)
@@ -13,7 +23,7 @@ public class WindowTests
         {
             runner.test("constructor", (Test test) ->
             {
-                try (final Window window = createWindow(test))
+                try (final Window window = createWindow(test, false))
                 {
                     test.assertFalse(window.isDisposed());
                     test.assertFalse(window.isOpen());
@@ -26,21 +36,35 @@ public class WindowTests
                 }
             });
 
-            runner.test("open()", (Test test) ->
+            runner.testGroup("open()", () ->
             {
-                 try (final Window window = createWindow(test))
-                 {
-                     test.assertFalse(window.isOpen());
-                     test.assertFalse(window.isDisposed());
+                runner.test("when not open or disposed", (Test test) ->
+                {
+                    try (final Window window = createWindow(test))
+                    {
+                        window.open();
+                        test.assertTrue(window.isOpen());
+                        test.assertFalse(window.isDisposed());
+                    }
+                });
 
-                     window.open();
-                     test.assertTrue(window.isOpen());
-                     test.assertFalse(window.isDisposed());
+                runner.test("when already open", (Test test) ->
+                {
+                    try (final Window window = createWindow(test))
+                    {
+                        window.open();
+                        test.assertThrows(() -> window.open());
+                    }
+                });
 
-                     window.dispose();
-                     test.assertFalse(window.isOpen());
-                     test.assertTrue(window.isDisposed());
-                 }
+                runner.test("when disposed", (Test test) ->
+                {
+                    try (final Window window = createWindow(test))
+                    {
+                        window.dispose();
+                        test.assertThrows(() -> window.open());
+                    }
+                });
             });
 
             runner.testGroup("setTitle()", () ->
@@ -89,8 +113,11 @@ public class WindowTests
                 {
                     try (final Window window = createWindow(test))
                     {
-                        window.setContent(new javax.swing.JButton("Hello"));
+                        final javax.swing.JButton button = new javax.swing.JButton("Hello");
+                        button.setSize(200, 300);
+                        window.setContent(button);
                         window.open();
+                        window.awaitClose();
                     }
                 });
             });
@@ -105,12 +132,13 @@ public class WindowTests
                     }
                 });
 
-                runner.test("with UIText", (Test test) ->
+                runner.test("with UIText", runner.skip(), (Test test) ->
                 {
                     try (final Window window = createWindow(test))
                     {
                         window.setContent(new UIText("Hello World!"));
                         window.open();
+                        window.awaitClose();
                     }
                 });
             });
@@ -121,6 +149,36 @@ public class WindowTests
                 {
                     try (final Window window = createWindow(test))
                     {
+                        test.assertThrows(() -> window.awaitClose());
+                    }
+                });
+
+                runner.test("when not opened but disposed", (Test test) ->
+                {
+                    try (final Window window = createWindow(test))
+                    {
+                        window.dispose();
+                        test.assertThrows(() -> window.awaitClose());
+                    }
+                });
+
+                runner.test("when open but not disposed", runner.skip(), (Test test) ->
+                {
+                    try (final Window window = createWindow(test))
+                    {
+                        window.open();
+                        window.awaitClose();
+                        test.assertFalse(window.isOpen());
+                        test.assertTrue(window.isDisposed());
+                    }
+                });
+
+                runner.test("when opened but then disposed", (Test test) ->
+                {
+                    try (final Window window = createWindow(test))
+                    {
+                        window.open();
+                        window.dispose();
                         test.assertThrows(() -> window.awaitClose());
                     }
                 });

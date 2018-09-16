@@ -20,13 +20,13 @@ public class UIPainterToGraphics2DAdapter extends java.awt.Graphics2D
     @Override
     public void translate(int x, int y)
     {
-        throw new NotSupportedException();
+        painter.translate(x, y);
     }
 
     @Override
     public void translate(double tx, double ty)
     {
-        throw new NotSupportedException();
+        painter.translate(tx, ty);
     }
 
     @Override
@@ -116,13 +116,16 @@ public class UIPainterToGraphics2DAdapter extends java.awt.Graphics2D
     @Override
     public java.awt.Color getColor()
     {
-        throw new NotSupportedException();
+        final Color color = painter.getColor();
+        return new java.awt.Color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
     }
 
     @Override
     public void setColor(java.awt.Color c)
     {
-        throw new NotSupportedException();
+        PreCondition.assertNotNull(c, "c");
+
+        painter.setColor(Color.rgba(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()));
     }
 
     @Override
@@ -140,13 +143,16 @@ public class UIPainterToGraphics2DAdapter extends java.awt.Graphics2D
     @Override
     public java.awt.Font getFont()
     {
-        throw new NotSupportedException();
+        final Font font = painter.getFont();
+        return new java.awt.Font(font.getName(), font.getStyle(), font.getSize());
     }
 
     @Override
     public void setFont(java.awt.Font font)
     {
-        throw new NotSupportedException();
+        PreCondition.assertNotNull(font, "font");
+
+        painter.setFont(new Font(font.getFontName(), font.getStyle(), font.getSize()));
     }
 
     @Override
@@ -158,7 +164,8 @@ public class UIPainterToGraphics2DAdapter extends java.awt.Graphics2D
     @Override
     public java.awt.Rectangle getClipBounds()
     {
-        throw new NotSupportedException();
+        final Rectangle clipBounds = painter.getClipBounds();
+        return new java.awt.Rectangle(clipBounds.getTopLeftXInPixels(), clipBounds.getTopLeftYInPixels(), clipBounds.getWidthInPixels(), clipBounds.getHeightInPixels());
     }
 
     @Override
@@ -428,7 +435,7 @@ public class UIPainterToGraphics2DAdapter extends java.awt.Graphics2D
     @Override
     public void dispose()
     {
-        throw new NotSupportedException();
+        painter.dispose();
     }
 
     @Override
