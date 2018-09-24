@@ -65,6 +65,11 @@ public class AssertionMessages
         return variableName + " (" + value + ") must contain only " + Array.toString(characters) + ".";
     }
 
+    public static String instanceOf(Object value, Class<?> type, String variableName)
+    {
+        return variableName + " (" + Types.getFullTypeName(value) + ") must be of type " + Types.getFullTypeName(type) + ".";
+    }
+
     public static String oneOf(char value, char[] values, String variableName)
     {
         final StringBuilder builder = new StringBuilder();

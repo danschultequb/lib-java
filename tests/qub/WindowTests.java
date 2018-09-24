@@ -1,5 +1,8 @@
 package qub;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 public class WindowTests
 {
     private static Window createWindow(Test test)
@@ -109,11 +112,19 @@ public class WindowTests
                     }
                 });
 
-                runner.test("with JButton", (Test test) ->
+                runner.test("with JButton", runner.skip(), (Test test) ->
                 {
                     try (final Window window = createWindow(test))
                     {
                         final javax.swing.JButton button = new javax.swing.JButton("Hello");
+                        button.addActionListener(new ActionListener()
+                        {
+                            @Override
+                            public void actionPerformed(ActionEvent e)
+                            {
+                                System.out.println("Button click");
+                            }
+                        });
                         button.setSize(200, 300);
                         window.setContent(button);
                         window.open();

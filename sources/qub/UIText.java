@@ -53,4 +53,9 @@ public class UIText implements UIElement
 
         return parentElement.getParentWindow();
     }
+
+    @Override
+    public void handleMouseEvent(MouseEvent event)
+    {
+    }
 }

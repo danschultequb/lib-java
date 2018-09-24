@@ -65,7 +65,7 @@ final public class Result<T>
     {
         if (error != null)
         {
-            if (exceptionType != null && Types.isSubTypeOf(error, exceptionType))
+            if (exceptionType != null && Types.instanceOf(error, exceptionType))
             {
                 throw (U)error;
             }

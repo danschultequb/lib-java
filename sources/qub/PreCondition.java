@@ -334,4 +334,12 @@ public class PreCondition
             throw new PreConditionFailure(AssertionMessages.containsOnly(value, characters, variableName));
         }
     }
+
+    public static void assertInstanceOf(Object value, Class<?> type, String variableName)
+    {
+        if (!Types.instanceOf(value, type))
+        {
+            throw new PreConditionFailure(AssertionMessages.instanceOf(value, type, variableName));
+        }
+    }
 }

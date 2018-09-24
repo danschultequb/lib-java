@@ -20,7 +20,7 @@ class InstanceOfIterator<TInner,TOuter> extends IteratorBase<TOuter>
             while (innerIterator.hasCurrent())
             {
                 final TInner innerCurrent = innerIterator.getCurrent();
-                if (Types.isSubTypeOf(innerCurrent, type))
+                if (innerCurrent != null && Types.instanceOf(innerCurrent, type))
                 {
                     foundMatch = true;
                     break;

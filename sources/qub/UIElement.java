@@ -26,4 +26,10 @@ public interface UIElement
      * assigned to a Window.
      */
     Window getParentWindow();
+
+    /**
+     * Respond to a mouse-related event.
+     * @param event The mouse-related event.
+     */
+    void handleMouseEvent(MouseEvent event);
 }

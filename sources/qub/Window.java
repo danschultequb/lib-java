@@ -1,6 +1,8 @@
 package qub;
 
 import javax.swing.JFrame;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
@@ -144,7 +146,10 @@ public class Window extends DisposableBase implements UIElementParent
             content = uiElement;
             uiElement.setParent(this);
 
-            jFrame.setContentPane(new UIElementToJComponentAdapter(uiElement));
+            final Value<Integer> value = new Value<>();
+
+            final UIElementToJComponentAdapter adapter = new UIElementToJComponentAdapter(uiElement);
+            jFrame.setContentPane(adapter);
 
             if (isOpen())
             {
