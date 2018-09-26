@@ -15,7 +15,7 @@ public class HttpClientTests
                     test.assertError(new IllegalArgumentException("request cannot be null."), response);
                 });
 
-                runner.test("with unknown host", (Test test) ->
+                runner.test("with unknown host", runner.hasNetworkConnection(), (Test test) ->
                 {
                     final HttpClient httpClient = creator.run(test);
                     final HttpRequest httpRequest = HttpRequest.create(HttpMethod.GET, "http://www.idontexistbecauseimnotagoodurl.com").getValue();
@@ -23,7 +23,7 @@ public class HttpClientTests
                     test.assertError(new java.net.UnknownHostException("www.idontexistbecauseimnotagoodurl.com"), httpResponse);
                 });
 
-                runner.test("with GET request to www.example.com", (Test test) ->
+                runner.test("with GET request to www.example.com", runner.hasNetworkConnection(), (Test test) ->
                 {
                     final HttpClient httpClient = creator.run(test);
                     final HttpRequest httpRequest = HttpRequest.create(HttpMethod.GET, "http://www.example.com").getValue();
@@ -48,7 +48,7 @@ public class HttpClientTests
                     test.assertContains(bodyString, "</div>");
                 });
 
-                runner.test("with GET request to http://www.treasurydirect.gov/TA_WS/securities/auctioned?format=json&type=Bill", (Test test) ->
+                runner.test("with GET request to http://www.treasurydirect.gov/TA_WS/securities/auctioned?format=json&type=Bill", runner.hasNetworkConnection(), (Test test) ->
                 {
                     final HttpClient httpClient = creator.run(test);
                     final HttpRequest httpRequest = HttpRequest.create(HttpMethod.GET, "http://www.treasurydirect.gov/TA_WS/securities/auctioned?format=json&type=Bill").getValue();

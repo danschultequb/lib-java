@@ -15,7 +15,7 @@ public class JavaHttpClientTests
 
             runner.testGroup("send(HttpRequest)", () ->
             {
-                runner.test("with GET request to https://www.treasurydirect.gov/TA_WS/securities/auctioned?format=json&type=Bill", (Test test) ->
+                runner.test("with GET request to https://www.treasurydirect.gov/TA_WS/securities/auctioned?format=json&type=Bill", runner.hasNetworkConnection(), (Test test) ->
                 {
                     final HttpClient httpClient = createHttpClient(test);
                     final HttpRequest httpRequest = HttpRequest.create(HttpMethod.GET, "https://www.treasurydirect.gov/TA_WS/securities/auctioned?format=json&type=Bill").getValue();

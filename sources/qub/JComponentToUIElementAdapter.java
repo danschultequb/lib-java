@@ -1,5 +1,7 @@
 package qub;
 
+import java.awt.Rectangle;
+
 public class JComponentToUIElementAdapter implements UIElement
 {
     private final javax.swing.JComponent jComponent;
@@ -15,35 +17,39 @@ public class JComponentToUIElementAdapter implements UIElement
         PreCondition.assertNotNull(jComponent, "jComponent");
 
         this.jComponent = jComponent;
-        final Class<?> awtContainerClass = java.awt.Container.class;
-        try
+        final javax.swing.JPanel container = new javax.swing.JPanel()
         {
-            final java.lang.reflect.Field parentField = awtContainerClass.getDeclaredField("parent");
-            final boolean accessible = parentField.isAccessible();
-            try
+            @Override
+            public void repaint(long tm, int x, int y, int width, int height)
             {
-                parentField.setAccessible(true);
-                parentField.set(jComponent, new javax.swing.JComponent()
-                {
-                    @Override
-                    public void repaint(long tm, int x, int y, int width, int height)
-                    {
-                        JComponentToUIElementAdapter.this.repaint();
-                    }
-                });
+                JComponentToUIElementAdapter.this.repaint();
             }
-            finally
+
+            @Override
+            public void repaint(Rectangle r)
             {
-                if (!accessible)
-                {
-                    parentField.setAccessible(accessible);
-                }
+                JComponentToUIElementAdapter.this.repaint();
             }
-        }
-        catch (NoSuchFieldException | IllegalAccessException e)
-        {
-            jComponent.getClass();
-        }
+
+            @Override
+            public void repaint()
+            {
+                JComponentToUIElementAdapter.this.repaint();
+            }
+
+            @Override
+            public void repaint(long tm)
+            {
+                JComponentToUIElementAdapter.this.repaint();
+            }
+
+            @Override
+            public void repaint(int x, int y, int width, int height)
+            {
+                JComponentToUIElementAdapter.this.repaint();
+            }
+        };
+        container.add(jComponent);
     }
 
     @Override
@@ -57,9 +63,10 @@ public class JComponentToUIElementAdapter implements UIElement
     @Override
     public void repaint()
     {
-        PreCondition.assertNotNull(parentElement, "parentElement");
-
-        parentElement.repaint();
+        if (parentElement != null)
+        {
+            parentElement.repaint();
+        }
     }
 
     @Override

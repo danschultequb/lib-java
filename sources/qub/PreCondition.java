@@ -127,6 +127,22 @@ public class PreCondition
         }
     }
 
+    /**
+     * Assert that the provided value is not null and not empty.
+     * @param value The value to check.
+     * @param variableName The name of the variable that contains value.
+     * @preCondition variableName != null && variableName.length > 0
+     * @postCondition value != null && value.length > 0
+     */
+    public static <T> void assertNotNullAndNotEmpty(Iterable<T> value, String variableName)
+    {
+        assertNotNull(value, variableName);
+        if (!value.any())
+        {
+            throw new PreConditionFailure(AssertionMessages.notEmpty(variableName));
+        }
+    }
+
     public static <T> void assertSame(T expectedValue, T value, String expressionName)
     {
         if (expectedValue != value)
@@ -264,6 +280,20 @@ public class PreCondition
      * @param variableName The name of the variable that contains the value.
      */
     public static void assertLessThanOrEqualTo(long value, long upperBound, String variableName)
+    {
+        if (!Comparer.lessThanOrEqualTo(value, upperBound))
+        {
+            throw new PreConditionFailure(AssertionMessages.lessThanOrEqualTo(value, upperBound, variableName));
+        }
+    }
+
+    /**
+     * Assert that value is less than or equal to upperBound.
+     * @param value The value to ensure is less than or equal to upperBound.
+     * @param upperBound The upper bound to ensure that the value is less than or equal to.
+     * @param variableName The name of the variable that contains the value.
+     */
+    public static <T extends Comparable<T>> void assertLessThanOrEqualTo(T value, T upperBound, String variableName)
     {
         if (!Comparer.lessThanOrEqualTo(value, upperBound))
         {

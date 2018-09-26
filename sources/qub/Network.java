@@ -18,5 +18,11 @@ public interface Network
 
     HttpClient getHttpClient();
 
+    /**
+     * Get whether or not this device is connected to a network.
+     * @return Whether or not this device is connected to a network.
+     */
+    Result<Boolean> isConnected();
+
     DNS getDNS();
 }

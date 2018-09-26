@@ -4,7 +4,7 @@ public class Graphics2DUIPainter extends java.awt.Graphics2D implements UIPainte
 {
     private final java.awt.Graphics2D graphics;
     private final Window parentWindow;
-    private boolean disposed;
+    private final List<java.awt.geom.AffineTransform> savedTransforms;
 
     public Graphics2DUIPainter(java.awt.Graphics2D graphics, Window parentWindow)
     {
@@ -13,6 +13,7 @@ public class Graphics2DUIPainter extends java.awt.Graphics2D implements UIPainte
 
         this.graphics = graphics;
         this.parentWindow = parentWindow;
+        this.savedTransforms = new ArrayList<>();
     }
 
     @Override
@@ -446,6 +447,15 @@ public class Graphics2DUIPainter extends java.awt.Graphics2D implements UIPainte
     }
 
     @Override
+    public void drawText(String text, Point2D baseline)
+    {
+        PreCondition.assertNotNullAndNotEmpty(text, "text");
+        PreCondition.assertNotNull(baseline, "baseline");
+
+        drawText(text, baseline.getX(), baseline.getY());
+    }
+
+    @Override
     public void drawText(String text, Distance baselineX, Distance baselineY)
     {
         final double baselineXInPixels = parentWindow.convertHorizontalDistanceToPixels(baselineX);
@@ -471,5 +481,27 @@ public class Graphics2DUIPainter extends java.awt.Graphics2D implements UIPainte
         final int widthInPixels = (int)parentWindow.convertHorizontalDistanceToPixels(width);
         final int heightInPixels = (int)parentWindow.convertVerticalDistanceToPixels(height);
         drawRect(topLeftXInPixels, topLeftYInPixels, widthInPixels, heightInPixels);
+    }
+
+    @Override
+    public void translate(Distance x, Distance y)
+    {
+        final double xInPixels = parentWindow.convertHorizontalDistanceToPixels(x);
+        final double yInPixels = parentWindow.convertVerticalDistanceToPixels(y);
+        graphics.translate(xInPixels, yInPixels);
+    }
+
+    @Override
+    public void saveTransform()
+    {
+        savedTransforms.add(graphics.getTransform());
+    }
+
+    @Override
+    public void restoreTransform()
+    {
+        PreCondition.assertNotNullAndNotEmpty(savedTransforms, "savedTransforms");
+
+        graphics.setTransform(savedTransforms.removeLast());
     }
 }

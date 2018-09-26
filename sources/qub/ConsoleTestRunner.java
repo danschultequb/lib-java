@@ -1,8 +1,5 @@
 package qub;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
 /**
  * A Console object that is used for running unit tests for other applications.
  */
@@ -284,6 +281,18 @@ public class ConsoleTestRunner extends Console implements TestRunner
     }
 
     @Override
+    public Skip skip(boolean toSkip)
+    {
+        return testRunner.skip(toSkip);
+    }
+
+    @Override
+    public Skip skip(boolean toSkip, String message)
+    {
+        return testRunner.skip(toSkip, message);
+    }
+
+    @Override
     public Skip skip(String message)
     {
         return testRunner.skip(message);
@@ -326,6 +335,12 @@ public class ConsoleTestRunner extends Console implements TestRunner
     }
 
     @Override
+    public void test(String testName, boolean shouldRun, Action1<Test> testAction)
+    {
+        testRunner.test(testName, shouldRun, testAction);
+    }
+
+    @Override
     public void beforeTest(Action0 beforeTestAction)
     {
         testRunner.beforeTest(beforeTestAction);
@@ -335,6 +350,12 @@ public class ConsoleTestRunner extends Console implements TestRunner
     public void afterTest(Action0 afterTestAction)
     {
         testRunner.afterTest(afterTestAction);
+    }
+
+    @Override
+    public boolean hasNetworkConnection()
+    {
+        return testRunner.hasNetworkConnection();
     }
 
     /**
@@ -451,7 +472,7 @@ public class ConsoleTestRunner extends Console implements TestRunner
                             console.write("Looking for static test(TestRunner) method in \"" + fullClassName + "\"...");
                         }
 
-                        Method testMethod = null;
+                        java.lang.reflect.Method testMethod = null;
                         try
                         {
                             testMethod = testClass.getMethod("test", TestRunner.class);
@@ -474,7 +495,7 @@ public class ConsoleTestRunner extends Console implements TestRunner
                             {
                                 testMethod.invoke(null, console);
                             }
-                            catch (IllegalAccessException | InvocationTargetException e)
+                            catch (IllegalAccessException | java.lang.reflect.InvocationTargetException e)
                             {
                                 e.printStackTrace();
                             }

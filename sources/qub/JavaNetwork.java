@@ -65,6 +65,26 @@ class JavaNetwork extends NetworkBase
     }
 
     @Override
+    public Result<Boolean> isConnected()
+    {
+        final DNS dns = getDNS();
+        final Result<IPv4Address> resolvedIpAddress = dns.resolveHost("www.google.com");
+        Result<Boolean> result;
+        if (resolvedIpAddress.hasError())
+        {
+            result = Result.done(false, resolvedIpAddress.getError());
+        }
+        else
+        {
+            result = Result.successTrue();
+        }
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    @Override
     public DNS getDNS()
     {
         return dns;

@@ -57,6 +57,8 @@ public class Distance extends ComparableBase<Distance>
     private static final double MilesToMillimeters = 1.0 / MillimetersToMiles;
     private static final double MilesToInches = 1.0 / InchesToMiles;
 
+    public static final Distance zero = Distance.inches(0);
+
     public static Distance miles(double value)
     {
         return new Distance(value, DistanceUnit.Miles);

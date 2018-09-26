@@ -41,6 +41,18 @@ public class TestRunnerBase implements TestRunner
     }
 
     @Override
+    public Skip skip(boolean toSkip)
+    {
+        return toSkip ? skip() : null;
+    }
+
+    @Override
+    public Skip skip(boolean toSkip, String message)
+    {
+        return toSkip ? skip(message) : null;
+    }
+
+    @Override
     public Skip skip(String message)
     {
         return new Skip(message);
@@ -186,6 +198,13 @@ public class TestRunnerBase implements TestRunner
     }
 
     @Override
+    public void test(String testName, boolean shouldRun, Action1<Test> testAction)
+    {
+        final Skip skip = shouldRun ? null : skip();
+        test(testName, skip, testAction);
+    }
+
+    @Override
     public void beforeTest(Action0 beforeTestAction)
     {
         if (beforeTestAction != null)
@@ -227,6 +246,12 @@ public class TestRunnerBase implements TestRunner
                 }
             };
         }
+    }
+
+    @Override
+    public boolean hasNetworkConnection()
+    {
+        return process.getNetwork().isConnected().getValue();
     }
 
     /**

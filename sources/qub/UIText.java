@@ -3,6 +3,7 @@ package qub;
 public class UIText implements UIElement
 {
     private UIElementParent parentElement;
+    private Distance padding;
     private String text;
 
     public UIText(String text)
@@ -18,6 +19,25 @@ public class UIText implements UIElement
         setText(text);
     }
 
+    @Override
+    public void setParent(UIElementParent parentElement)
+    {
+        this.parentElement = parentElement;
+    }
+
+    public Distance getPadding()
+    {
+        return padding;
+    }
+
+    public void setPadding(Distance padding)
+    {
+        PreCondition.assertNotNull(padding, "padding");
+        PreCondition.assertLessThanOrEqualTo(Distance.zero, padding, "padding");
+
+        this.padding = padding;
+    }
+
     public void setText(String text)
     {
         PreCondition.assertNotNullAndNotEmpty(text, "text");
@@ -28,8 +48,23 @@ public class UIText implements UIElement
     @Override
     public void paint(UIPainter painter)
     {
-        painter.drawText("Apples", Distance.inches(1), Distance.inches(2));
-        painter.drawText("Bananas", Distance.inches(0.5), Distance.inches(1));
+        final boolean applyPadding = padding.getValue() > 0;
+        if (applyPadding)
+        {
+            painter.saveTransform();
+            painter.translate(padding, padding);
+        }
+        try
+        {
+            painter.drawText(text, Distance.zero, Distance.zero);
+        }
+        finally
+        {
+            if (applyPadding)
+            {
+                painter.restoreTransform();
+            }
+        }
     }
 
     @Override
@@ -38,12 +73,6 @@ public class UIText implements UIElement
         PreCondition.assertNotNull(parentElement, "parentElement");
 
         parentElement.repaint();
-    }
-
-    @Override
-    public void setParent(UIElementParent parentElement)
-    {
-        this.parentElement = parentElement;
     }
 
     @Override

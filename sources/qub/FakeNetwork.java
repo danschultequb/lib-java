@@ -181,6 +181,12 @@ public class FakeNetwork extends NetworkBase
     }
 
     @Override
+    public Result<Boolean> isConnected()
+    {
+        return Result.successTrue();
+    }
+
+    @Override
     public FakeDNS getDNS()
     {
         return dns;
