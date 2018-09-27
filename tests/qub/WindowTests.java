@@ -147,7 +147,9 @@ public class WindowTests
                 {
                     try (final Window window = createWindow(test))
                     {
-                        window.setContent(new UIText("Hello World!"));
+                        final UIText uiText = new UIText("Hello World!");
+                        uiText.setFontSize(Distance.fontPoints(14));
+                        window.setContent(uiText);
                         window.open();
                         window.awaitClose();
                     }

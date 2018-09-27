@@ -330,6 +330,20 @@ public class PreCondition
     }
 
     /**
+     * Assert that value is greater than lowerBound.
+     * @param value The value to ensure is greater than lowerBound.
+     * @param lowerBound The lower bound to ensure that the value is greater than.
+     * @param variableName The name of the variable that contains the value.
+     */
+    public static <T extends Comparable<T>> void assertGreaterThan(T value, T lowerBound, String variableName)
+    {
+        if (!Comparer.greaterThan(value, lowerBound))
+        {
+            throw new PreConditionFailure(AssertionMessages.greaterThanOrEqualTo(value, lowerBound, variableName));
+        }
+    }
+
+    /**
      * Assert that the provided value is greater than or equal to the provided lowerBound and is
      * less than or equal to the provided upper bound.
      * @param lowerBound The lower bound.

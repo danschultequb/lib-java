@@ -8,4 +8,16 @@ public interface MutableIndexable<T> extends Indexable<T>
      * @param value The value to set at the provided index.
      */
     void set(int index, T value);
+
+    /**
+     * Set the first value in this MutableIndexable.
+     * @param value The value to set the first index.
+     */
+    void setFirst(T value);
+
+    /**
+     * Set the last value in this MutableIndexable.
+     * @param value The value to set at the last index.
+     */
+    void setLast(T value);
 }

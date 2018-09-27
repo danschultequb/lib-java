@@ -5,6 +5,7 @@ public class UIText implements UIElement
     private UIElementParent parentElement;
     private Distance padding;
     private String text;
+    private Distance fontSize;
 
     public UIText(String text)
     {
@@ -26,11 +27,6 @@ public class UIText implements UIElement
         this.parentElement = parentElement;
     }
 
-    public Distance getPadding()
-    {
-        return padding;
-    }
-
     public void setPadding(Distance padding)
     {
         PreCondition.assertNotNull(padding, "padding");
@@ -46,22 +42,41 @@ public class UIText implements UIElement
         this.text = text;
     }
 
+    public void setFontSize(Distance fontSize)
+    {
+        PreCondition.assertTrue(fontSize == null || fontSize.getValue() > 0, "fontSize == null || fontSize.getValue() > 0");
+
+        this.fontSize = fontSize;
+    }
+
     @Override
     public void paint(UIPainter painter)
     {
-        final Distance padding = getPadding();
         final boolean applyPadding = (padding != null && padding.getValue() != 0);
         if (applyPadding)
         {
             painter.saveTransform();
             painter.translate(padding, padding);
         }
+
+        final boolean applyFontSize = (fontSize != null);
+        if (applyFontSize)
+        {
+            painter.saveFont();
+            painter.setFontSize(fontSize);
+        }
+
         try
         {
             painter.drawText(text);
         }
         finally
         {
+            if (applyFontSize)
+            {
+                painter.restoreFont();
+            }
+
             if (applyPadding)
             {
                 painter.restoreTransform();

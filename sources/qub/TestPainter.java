@@ -6,7 +6,8 @@ package qub;
 public class TestPainter implements UIPainter
 {
     private final List<PainterAction> actions;
-    private final List<Vector2D> translation;
+    private final List<Vector2D> translations;
+    private final List<Distance> fontSizes;
 
     /**
      * Create a new TestPainter.
@@ -14,12 +15,18 @@ public class TestPainter implements UIPainter
     public TestPainter()
     {
         this.actions = new ArrayList<>();
-        this.translation = ArrayList.fromValues(new Vector2D[] { Vector2D.zero });
+        this.translations = ArrayList.fromValues(new Vector2D[] { Vector2D.zero });
+        this.fontSizes = ArrayList.fromValues(new Distance[] { Distance.fontPoints(14) });
     }
 
     private Vector2D getTranslation()
     {
-        return translation.last();
+        return translations.last();
+    }
+
+    private Distance getFontSize()
+    {
+        return fontSizes.last();
     }
 
     private Distance transformX(Distance value)
@@ -46,7 +53,7 @@ public class TestPainter implements UIPainter
     @Override
     public void drawText(String text, Point2D topLeft)
     {
-        actions.add(new DrawTextAction(text, transform(topLeft)));
+        actions.add(new DrawTextAction(text, transform(topLeft), getFontSize()));
     }
 
     @Override
@@ -60,7 +67,7 @@ public class TestPainter implements UIPainter
     @Override
     public void drawText(String text, Distance topLeftX, Distance topLeftY)
     {
-        actions.add(new DrawTextAction(text, transformX(topLeftX), transformY(topLeftY)));
+        drawText(text, new Point2D(topLeftX, topLeftY));
     }
 
     @Override
@@ -79,21 +86,43 @@ public class TestPainter implements UIPainter
     public void translate(Distance x, Distance y)
     {
         final Vector2D currentTranslation = getTranslation();
-        final int savedTranslationCount = translation.getCount();
-        translation.set(savedTranslationCount - 1, currentTranslation.plusVector(x, y));
+        translations.setLast(currentTranslation.plusVector(x, y));
     }
 
     @Override
     public void saveTransform()
     {
-        translation.add(translation.last());
+        translations.add(getTranslation());
     }
 
     @Override
     public void restoreTransform()
     {
-        PreCondition.assertLessThanOrEqualTo(translation.getCount(), 2, "translation.getCount()");
+        PreCondition.assertLessThanOrEqualTo(translations.getCount(), 2, "translations.getCount()");
 
-        translation.removeLast();
+        translations.removeLast();
+    }
+
+    @Override
+    public void setFontSize(Distance fontSize)
+    {
+        PreCondition.assertNotNull(fontSize, "fonstSize");
+        PreCondition.assertGreaterThan(fontSize, Distance.zero, "fontSize");
+
+        fontSizes.setLast(fontSize);
+    }
+
+    @Override
+    public void saveFont()
+    {
+        fontSizes.add(fontSizes.last());
+    }
+
+    @Override
+    public void restoreFont()
+    {
+        PreCondition.assertGreaterThanOrEqualTo(fontSizes.getCount(), 2, "fontSizes.getCount()");
+
+        fontSizes.removeLast();
     }
 }

@@ -5,6 +5,7 @@ public class Graphics2DUIPainter extends java.awt.Graphics2D implements UIPainte
     private final java.awt.Graphics2D graphics;
     private final Window parentWindow;
     private final List<java.awt.geom.AffineTransform> savedTransforms;
+    private final List<java.awt.Font> savedFonts;
 
     public Graphics2DUIPainter(java.awt.Graphics2D graphics, Window parentWindow)
     {
@@ -14,6 +15,7 @@ public class Graphics2DUIPainter extends java.awt.Graphics2D implements UIPainte
         this.graphics = graphics;
         this.parentWindow = parentWindow;
         this.savedTransforms = new ArrayList<>();
+        this.savedFonts = new ArrayList<>();
     }
 
     @Override
@@ -518,5 +520,32 @@ public class Graphics2DUIPainter extends java.awt.Graphics2D implements UIPainte
         PreCondition.assertNotNullAndNotEmpty(savedTransforms, "savedTransforms");
 
         graphics.setTransform(savedTransforms.removeLast());
+    }
+
+    @Override
+    public void setFontSize(Distance fontSize)
+    {
+        PreCondition.assertNotNull(fontSize, "fontSize");
+        PreCondition.assertGreaterThan(fontSize, Distance.zero, "fontSize");
+
+        final float fontSizeInFontPoints = (float)fontSize.toFontPoints().getValue();
+
+        final java.awt.Font currentFont = graphics.getFont();
+        final java.awt.Font newFont = currentFont.deriveFont(fontSizeInFontPoints);
+        graphics.setFont(newFont);
+    }
+
+    @Override
+    public void saveFont()
+    {
+        savedFonts.add(graphics.getFont());
+    }
+
+    @Override
+    public void restoreFont()
+    {
+        PreCondition.assertNotNullAndNotEmpty(savedFonts, "savedFonts");
+
+        graphics.setFont(savedFonts.removeLast());
     }
 }

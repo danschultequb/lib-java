@@ -4,7 +4,7 @@ package qub;
  * A basic Array data structure that holds a fixed number of elements.
  * @param <T> The type of element contained by this Array.
  */
-public class Array<T> extends IndexableBase<T> implements MutableIndexable<T>
+public class Array<T> extends MutableIndexableBase<T>
 {
     private final Object[] data;
 

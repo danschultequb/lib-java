@@ -1,6 +1,6 @@
 package qub;
 
-public class ByteArray extends IndexableBase<Byte> implements MutableIndexable<Byte>
+public class ByteArray extends MutableIndexableBase<Byte>
 {
     private final byte[] bytes;
     private final int startIndex;

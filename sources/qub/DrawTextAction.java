@@ -7,19 +7,23 @@ public class DrawTextAction implements PainterAction
 {
     private final String text;
     private final Point2D baseline;
+    private final Distance fontSize;
 
     /**
      * Create a new DrawTextAction.
      * @param text The text to draw.
      * @param baseline The baseline point that the text will be drawn at.
+     * @param fontSize The size of the font that will be drawn.
      */
-    public DrawTextAction(String text, Point2D baseline)
+    public DrawTextAction(String text, Point2D baseline, Distance fontSize)
     {
         PreCondition.assertNotNullAndNotEmpty(text, "text");
         PreCondition.assertNotNull(baseline, "baseline");
+        PreCondition.assertNotNull(fontSize, "fontSize");
 
         this.text = text;
         this.baseline = baseline;
+        this.fontSize = fontSize;
     }
 
     /**
@@ -27,15 +31,18 @@ public class DrawTextAction implements PainterAction
      * @param text The text to draw.
      * @param baselineX The baseline x-coordinate that the text will be drawn at.
      * @param baselineY The baseline y-coordinate that the text will be drawn at.
+     * @param fontSize The size of the font that will be drawn.
      */
-    public DrawTextAction(String text, Distance baselineX, Distance baselineY)
+    public DrawTextAction(String text, Distance baselineX, Distance baselineY, Distance fontSize)
     {
         PreCondition.assertNotNullAndNotEmpty(text, "text");
         PreCondition.assertNotNull(baselineX, "baselineX");
         PreCondition.assertNotNull(baselineY, "baselineY");
+        PreCondition.assertNotNull(fontSize, "fontSize");
 
         this.text = text;
         this.baseline = new Point2D(baselineX, baselineY);
+        this.fontSize = fontSize;
     }
 
     /**
@@ -74,6 +81,15 @@ public class DrawTextAction implements PainterAction
         return baseline.getY();
     }
 
+    /**
+     * Get the size of the font that will be drawn.
+     * @return The size of the font that will be drawn.
+     */
+    public Distance getFontSize()
+    {
+        return fontSize;
+    }
+
     @Override
     public boolean equals(Object rhs)
     {
@@ -82,6 +98,9 @@ public class DrawTextAction implements PainterAction
 
     public boolean equals(DrawTextAction rhs)
     {
-        return rhs != null && text.equals(rhs.text) && baseline.equals(rhs.baseline);
+        return rhs != null &&
+            text.equals(rhs.text) &&
+            baseline.equals(rhs.baseline) &&
+            fontSize.equals(rhs.fontSize);
     }
 }

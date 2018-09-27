@@ -143,6 +143,24 @@ public class LockedList<T> implements List<T>
     }
 
     @Override
+    public void setFirst(T value)
+    {
+        try (final Disposable criticalSection = mutex.criticalSection())
+        {
+            innerList.setFirst(value);
+        }
+    }
+
+    @Override
+    public void setLast(T value)
+    {
+        try (final Disposable criticalSection = mutex.criticalSection())
+        {
+            innerList.setLast(value);
+        }
+    }
+
+    @Override
     public T get(int index)
     {
         try (final Disposable criticalSection = mutex.criticalSection())

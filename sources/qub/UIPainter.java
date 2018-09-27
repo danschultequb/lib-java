@@ -62,4 +62,20 @@ public interface UIPainter
      * Restore the most recently saved transform.
      */
     void restoreTransform();
+
+    /**
+     * Set the font size that this UIPainter will draw text with.
+     * @param fontSize The font size that this UIPainter will draw text with.
+     */
+    void setFontSize(Distance fontSize);
+
+    /**
+     * Save the current font so that it can be restored later.
+     */
+    void saveFont();
+
+    /**
+     * Restore the most recently saved font.
+     */
+    void restoreFont();
 }
