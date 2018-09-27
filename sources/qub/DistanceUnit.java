@@ -17,5 +17,7 @@ public enum DistanceUnit
 
     Feet,
 
-    Miles
+    Miles,
+
+    FontPoints
 }

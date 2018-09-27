@@ -118,6 +118,21 @@ public class DistanceTests
                 milesTest.run(17.0);
             });
 
+            runner.testGroup("fontPoints(double)", () ->
+            {
+                final Action1<Double> fontPointsTest = (Double value) ->
+                {
+                    runner.test("with " + value, (Test test) ->
+                    {
+                        assertDistance(test, Distance.fontPoints(value), value, DistanceUnit.FontPoints);
+                    });
+                };
+
+                fontPointsTest.run(-4.0);
+                fontPointsTest.run(0.0);
+                fontPointsTest.run(17.0);
+            });
+
             runner.testGroup("convertTo(DistanceUnit)", () ->
             {
                 runner.test("with null", (Test test) ->
@@ -141,6 +156,7 @@ public class DistanceTests
                 convertToTest.run(Distance.millimeters(7), DistanceUnit.Inches, 0.2755905511811024);
                 convertToTest.run(Distance.millimeters(12345), DistanceUnit.Feet, 40.50196850393701);
                 convertToTest.run(Distance.millimeters(967), DistanceUnit.Miles, 0.0006008659428935019);
+                convertToTest.run(Distance.millimeters(967), DistanceUnit.FontPoints, 2741.102362204724);
 
                 convertToTest.run(Distance.centimeters(373), DistanceUnit.Millimeters, 3730.0);
                 convertToTest.run(Distance.centimeters(5), DistanceUnit.Centimeters, 5.0);
@@ -149,6 +165,7 @@ public class DistanceTests
                 convertToTest.run(Distance.centimeters(7), DistanceUnit.Inches, 2.755905511811023);
                 convertToTest.run(Distance.centimeters(12345), DistanceUnit.Feet, 405.0196850393701);
                 convertToTest.run(Distance.centimeters(967), DistanceUnit.Miles, 0.006008659428935019);
+                convertToTest.run(Distance.centimeters(967), DistanceUnit.FontPoints, 27411.023622047243);
 
                 convertToTest.run(Distance.meters(373), DistanceUnit.Millimeters, 373000.0);
                 convertToTest.run(Distance.meters(5), DistanceUnit.Centimeters, 500.0);
@@ -158,6 +175,7 @@ public class DistanceTests
                 convertToTest.run(Distance.meters(12345), DistanceUnit.Feet, 40501.96850393701);
                 convertToTest.run(Distance.meters(967), DistanceUnit.Miles, 0.600865942893502);
                 convertToTest.run(Distance.meters(1600), DistanceUnit.Miles, 0.9941939075797345);
+                convertToTest.run(Distance.meters(34), DistanceUnit.FontPoints, 96377.95275590553);
 
                 convertToTest.run(Distance.kilometers(373), DistanceUnit.Millimeters, 373000000.0);
                 convertToTest.run(Distance.kilometers(5), DistanceUnit.Centimeters, 500000.0);
@@ -168,6 +186,7 @@ public class DistanceTests
                 convertToTest.run(Distance.kilometers(967), DistanceUnit.Miles, 600.8659428935019);
                 convertToTest.run(Distance.kilometers(1), DistanceUnit.Miles, 0.621371192237334);
                 convertToTest.run(Distance.kilometers(5), DistanceUnit.Miles, 3.1068559611866697);
+                convertToTest.run(Distance.kilometers(5), DistanceUnit.FontPoints, 14173228.346456692);
 
                 convertToTest.run(Distance.inches(373), DistanceUnit.Millimeters, 9474.199999999999);
                 convertToTest.run(Distance.inches(5), DistanceUnit.Centimeters, 12.7);
@@ -176,6 +195,7 @@ public class DistanceTests
                 convertToTest.run(Distance.inches(7), DistanceUnit.Inches, 7.0);
                 convertToTest.run(Distance.inches(12345), DistanceUnit.Feet, 1028.75);
                 convertToTest.run(Distance.inches(967), DistanceUnit.Miles, 0.015261994949494949);
+                convertToTest.run(Distance.inches(10), DistanceUnit.FontPoints, 720.0);
 
                 convertToTest.run(Distance.feet(373), DistanceUnit.Millimeters, 113690.40000000001);
                 convertToTest.run(Distance.feet(5), DistanceUnit.Centimeters, 152.4);
@@ -184,6 +204,7 @@ public class DistanceTests
                 convertToTest.run(Distance.feet(7), DistanceUnit.Inches, 84.0);
                 convertToTest.run(Distance.feet(12345), DistanceUnit.Feet, 12345.0);
                 convertToTest.run(Distance.feet(967), DistanceUnit.Miles, 0.1831439393939394);
+                convertToTest.run(Distance.feet(12), DistanceUnit.FontPoints, 10368.0);
 
                 convertToTest.run(Distance.miles(373), DistanceUnit.Millimeters, 600285312.0);
                 convertToTest.run(Distance.miles(5), DistanceUnit.Centimeters, 804672.0000000001);
@@ -194,6 +215,16 @@ public class DistanceTests
                 convertToTest.run(Distance.miles(7), DistanceUnit.Inches, 443520.0);
                 convertToTest.run(Distance.miles(12345), DistanceUnit.Feet, 65181600.0);
                 convertToTest.run(Distance.miles(967), DistanceUnit.Miles, 967.0);
+                convertToTest.run(Distance.miles(9), DistanceUnit.FontPoints, 41057280.0);
+
+                convertToTest.run(Distance.fontPoints(373), DistanceUnit.Millimeters, 131.5861111111111);
+                convertToTest.run(Distance.fontPoints(5), DistanceUnit.Centimeters, 0.17638888888888887);
+                convertToTest.run(Distance.fontPoints(1500), DistanceUnit.Meters, 0.5291666666666667);
+                convertToTest.run(Distance.fontPoints(3), DistanceUnit.Kilometers, 0.0000010583333333333333);
+                convertToTest.run(Distance.fontPoints(7), DistanceUnit.Inches, 0.09722222222222221);
+                convertToTest.run(Distance.fontPoints(12345), DistanceUnit.Feet, 14.288194444444443);
+                convertToTest.run(Distance.fontPoints(967), DistanceUnit.Miles, 0.00021197215207631874);
+                convertToTest.run(Distance.fontPoints(12), DistanceUnit.FontPoints, 12.0);
             });
 
             runner.testGroup("toMillimeters()", () ->
@@ -459,6 +490,44 @@ public class DistanceTests
                 runner.test("from Miles", (Test test) ->
                 {
                     assertDistance(test, Distance.miles(3).toMiles(), 3, DistanceUnit.Miles);
+                });
+            });
+
+            runner.testGroup("toFontPoints()", () ->
+            {
+                runner.test("from Millimeters", (Test test) ->
+                {
+                    assertDistance(test, Distance.millimeters(3).toFontPoints(), 8.503937007874015, DistanceUnit.FontPoints);
+                });
+
+                runner.test("from Centimeters", (Test test) ->
+                {
+                    assertDistance(test, Distance.centimeters(3).toFontPoints(), 85.03937007874015, DistanceUnit.FontPoints);
+                });
+
+                runner.test("from Meters", (Test test) ->
+                {
+                    assertDistance(test, Distance.meters(3).toFontPoints(), 8503.937007874018, DistanceUnit.FontPoints);
+                });
+
+                runner.test("from Kilometers", (Test test) ->
+                {
+                    assertDistance(test, Distance.kilometers(3).toFontPoints(), 8503937.007874016, DistanceUnit.FontPoints);
+                });
+
+                runner.test("from Inches", (Test test) ->
+                {
+                    assertDistance(test, Distance.inches(3).toFontPoints(), 216.0, DistanceUnit.FontPoints);
+                });
+
+                runner.test("from Feet", (Test test) ->
+                {
+                    assertDistance(test, Distance.feet(3).toFontPoints(), 2592.0, DistanceUnit.FontPoints);
+                });
+
+                runner.test("from Miles", (Test test) ->
+                {
+                    assertDistance(test, Distance.miles(3).toFontPoints(), 13685760.0, DistanceUnit.FontPoints);
                 });
             });
 

@@ -447,20 +447,35 @@ public class Graphics2DUIPainter extends java.awt.Graphics2D implements UIPainte
     }
 
     @Override
-    public void drawText(String text, Point2D baseline)
+    public void drawText(String text)
     {
         PreCondition.assertNotNullAndNotEmpty(text, "text");
-        PreCondition.assertNotNull(baseline, "baseline");
 
-        drawText(text, baseline.getX(), baseline.getY());
+        drawText(text, Point2D.zero);
     }
 
     @Override
-    public void drawText(String text, Distance baselineX, Distance baselineY)
+    public void drawText(String text, Point2D topLeft)
     {
-        final double baselineXInPixels = parentWindow.convertHorizontalDistanceToPixels(baselineX);
-        final double baselineYInPixels = parentWindow.convertVerticalDistanceToPixels(baselineY);
-        drawString(text, (float)baselineXInPixels, (float)baselineYInPixels);
+        PreCondition.assertNotNullAndNotEmpty(text, "text");
+        PreCondition.assertNotNull(topLeft, "baseline");
+
+        drawText(text, topLeft.getX(), topLeft.getY());
+    }
+
+    @Override
+    public void drawText(String text, Distance topLeftX, Distance topLeftY)
+    {
+        final double topLeftXInPixels = parentWindow.convertHorizontalDistanceToPixels(topLeftX);
+        final double topLeftYInPixels = parentWindow.convertVerticalDistanceToPixels(topLeftY);
+
+        final java.awt.FontMetrics fontMetrics = graphics.getFontMetrics();
+        final java.awt.font.LineMetrics lineMetrics = fontMetrics.getLineMetrics(text, this);
+        final double lineMetricsAscent = lineMetrics.getAscent();
+
+        final double baselineYInPixels = topLeftYInPixels + lineMetricsAscent;
+
+        drawString(text, (float)topLeftXInPixels, (float)baselineYInPixels);
     }
 
     @Override

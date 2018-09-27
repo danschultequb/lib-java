@@ -6,19 +6,25 @@ package qub;
 public interface UIPainter
 {
     /**
-     * Draw the provided text at the provided baseline point.
+     * Draw the provided text using the UIPainter's current transform to position it.
      * @param text The text to draw.
-     * @param baseline The baseline point to draw the text at.
      */
-    void drawText(String text, Point2D baseline);
+    void drawText(String text);
 
     /**
-     * Draw the provided text at the provided baseline x-and-y-coordinates.
+     * Draw the provided text at the provided top-left point.
      * @param text The text to draw.
-     * @param baselineX The baseline x-coordinate to draw the text at.
-     * @param baselineY The baseline y-coordinate to draw the text at.
+     * @param topLeft The top-left point to draw the text at.
      */
-    void drawText(String text, Distance baselineX, Distance baselineY);
+    void drawText(String text, Point2D topLeft);
+
+    /**
+     * Draw the provided text at the provided top-left x-and-y-coordinates.
+     * @param text The text to draw.
+     * @param topLeftX The top-left x-coordinate to draw the text at.
+     * @param topLeftY The top-left y-coordinate to draw the text at.
+     */
+    void drawText(String text, Distance topLeftX, Distance topLeftY);
 
     /**
      * Draw a line from the provided start x-and-y-coordinates to the provided end

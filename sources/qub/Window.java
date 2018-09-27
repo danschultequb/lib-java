@@ -1,19 +1,16 @@
 package qub;
 
-import javax.swing.JFrame;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
+import java.awt.*;
 
 public class Window extends DisposableBase implements UIElementParent
 {
     private final AsyncRunner mainAsyncRunner;
     private final Iterable<Display> displays;
     private BasicAsyncAction windowClosedTask;
-    private final JFrame jFrame;
+    private final javax.swing.JFrame jFrame;
     private UIElement content;
     private volatile boolean disposed;
+    private Function1<java.awt.Graphics2D,UIPainter> painterCreator;
 
     public Window(final AsyncRunner mainAsyncRunner, Iterable<Display> displays)
     {
@@ -23,22 +20,31 @@ public class Window extends DisposableBase implements UIElementParent
         this.mainAsyncRunner = mainAsyncRunner;
         this.displays = displays;
 
-        this.jFrame = new JFrame();
-        this.jFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        this.jFrame.addWindowListener(new WindowListener()
+        this.painterCreator = new Function1<Graphics2D,UIPainter>()
         {
             @Override
-            public void windowOpened(WindowEvent e)
+            public UIPainter run(Graphics2D graphics)
+            {
+                return new Graphics2DUIPainter(graphics, Window.this);
+            }
+        };
+
+        this.jFrame = new javax.swing.JFrame();
+        this.jFrame.setDefaultCloseOperation(javax.swing.JFrame.DISPOSE_ON_CLOSE);
+        this.jFrame.addWindowListener(new java.awt.event.WindowListener()
+        {
+            @Override
+            public void windowOpened(java.awt.event.WindowEvent e)
             {
             }
 
             @Override
-            public void windowClosing(WindowEvent e)
+            public void windowClosing(java.awt.event.WindowEvent e)
             {
             }
 
             @Override
-            public void windowClosed(WindowEvent e)
+            public void windowClosed(java.awt.event.WindowEvent e)
             {
                 if (!isDisposed())
                 {
@@ -54,23 +60,39 @@ public class Window extends DisposableBase implements UIElementParent
             }
 
             @Override
-            public void windowIconified(WindowEvent e)
+            public void windowIconified(java.awt.event.WindowEvent e)
             {
             }
 
             @Override
-            public void windowDeiconified(WindowEvent e)
+            public void windowDeiconified(java.awt.event.WindowEvent e)
             {
             }
 
             @Override
-            public void windowActivated(WindowEvent e)
+            public void windowActivated(java.awt.event.WindowEvent e)
             {
             }
 
             @Override
-            public void windowDeactivated(WindowEvent e)
+            public void windowDeactivated(java.awt.event.WindowEvent e)
             {
+            }
+        });
+        jFrame.setContentPane(new javax.swing.JPanel()
+        {
+            @Override
+            public void paint(Graphics graphics)
+            {
+                PreCondition.assertInstanceOf(graphics, java.awt.Graphics2D.class, "graphics");
+
+                super.paint(graphics);
+
+                if (content != null)
+                {
+                    final UIPainter painter = painterCreator.run((java.awt.Graphics2D)graphics);
+                    content.paint(painter);
+                }
             }
         });
     }
@@ -107,6 +129,36 @@ public class Window extends DisposableBase implements UIElementParent
     }
 
     /**
+     * Set the painter that will be used for this Window.
+     * @param painter The painter that will be used for this Window.
+     */
+    public void setPainter(final UIPainter painter)
+    {
+        PreCondition.assertNotNull(painter, "painter");
+
+        setPainterCreator(new Function1<Graphics2D,UIPainter>()
+        {
+            @Override
+            public UIPainter run(Graphics2D graphics)
+            {
+                return painter;
+            }
+        });
+    }
+
+    /**
+     * Set the function that will be used to create the painter that this Window will use.
+     * @param painterCreator The function that will be used to create the painter that this Window
+     *                       will use.
+     */
+    public void setPainterCreator(Function1<java.awt.Graphics2D,UIPainter> painterCreator)
+    {
+        PreCondition.assertNotNull(painterCreator, "painterCreator");
+
+        this.painterCreator = painterCreator;
+    }
+
+    /**
      * Get the title of this Window.
      * @return The title of this Window.
      */
@@ -128,9 +180,13 @@ public class Window extends DisposableBase implements UIElementParent
         PostCondition.assertEqual(title, getTitle(), "getTitle()");
     }
 
+    /**
+     * Set the content of this Window to be the provided Swing JComponent.
+     * @param content The new content of this Window.
+     */
     public void setContent(javax.swing.JComponent content)
     {
-        setContent(new JComponentToUIElementAdapter(content));
+        throw new NotSupportedException();
     }
 
     public void setContent(UIElement uiElement)
@@ -145,11 +201,6 @@ public class Window extends DisposableBase implements UIElementParent
             }
             content = uiElement;
             uiElement.setParent(this);
-
-            final Value<Integer> value = new Value<>();
-
-            final UIElementToJComponentAdapter adapter = new UIElementToJComponentAdapter(uiElement);
-            jFrame.setContentPane(adapter);
 
             if (isOpen())
             {

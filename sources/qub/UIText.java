@@ -16,6 +16,7 @@ public class UIText implements UIElement
         PreCondition.assertNotNullAndNotEmpty(text, "text");
 
         setParent(parentElement);
+        setPadding(Distance.inches(0));
         setText(text);
     }
 
@@ -48,7 +49,8 @@ public class UIText implements UIElement
     @Override
     public void paint(UIPainter painter)
     {
-        final boolean applyPadding = padding.getValue() > 0;
+        final Distance padding = getPadding();
+        final boolean applyPadding = (padding != null && padding.getValue() != 0);
         if (applyPadding)
         {
             painter.saveTransform();
@@ -56,7 +58,7 @@ public class UIText implements UIElement
         }
         try
         {
-            painter.drawText(text, Distance.zero, Distance.zero);
+            painter.drawText(text);
         }
         finally
         {

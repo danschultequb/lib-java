@@ -44,15 +44,23 @@ public class TestPainter implements UIPainter
     }
 
     @Override
-    public void drawText(String text, Point2D baseline)
+    public void drawText(String text, Point2D topLeft)
     {
-        actions.add(new DrawTextAction(text, transform(baseline)));
+        actions.add(new DrawTextAction(text, transform(topLeft)));
     }
 
     @Override
-    public void drawText(String text, Distance baselineX, Distance baselineY)
+    public void drawText(String text)
     {
-        actions.add(new DrawTextAction(text, transformX(baselineX), transformY(baselineY)));
+        PreCondition.assertNotNullAndNotEmpty(text, "text");
+
+        drawText(text, Distance.zero, Distance.zero);
+    }
+
+    @Override
+    public void drawText(String text, Distance topLeftX, Distance topLeftY)
+    {
+        actions.add(new DrawTextAction(text, transformX(topLeftX), transformY(topLeftY)));
     }
 
     @Override
