@@ -3,44 +3,40 @@ package qub;
 /**
  * A UIPainter that records the actions that are performed while drawing UIElements.
  */
-public class TestPainter implements UIPainter
+public class FakePainter implements UIPainter
 {
     private final List<PainterAction> actions;
     private final List<Vector2D> translations;
     private final List<Distance> fontSizes;
 
     /**
-     * Create a new TestPainter.
+     * Create a new FakePainter.
      */
-    public TestPainter()
+    public FakePainter()
     {
         this.actions = new ArrayList<>();
         this.translations = ArrayList.fromValues(new Vector2D[] { Vector2D.zero });
         this.fontSizes = ArrayList.fromValues(new Distance[] { Distance.fontPoints(14) });
     }
 
-    private Vector2D getTranslation()
+    public void clearActions()
+    {
+        actions.clear();
+    }
+
+    public Indexable<PainterAction> getActions()
+    {
+        return actions;
+    }
+
+    public Vector2D getTranslation()
     {
         return translations.last();
     }
 
-    private Distance getFontSize()
+    public Distance getFontSize()
     {
         return fontSizes.last();
-    }
-
-    private Distance transformX(Distance value)
-    {
-        PreCondition.assertNotNull(value, "value");
-
-        return getTranslation().getX().plus(value);
-    }
-
-    private Distance transformY(Distance value)
-    {
-        PreCondition.assertNotNull(value, "value");
-
-        return getTranslation().getY().plus(value);
     }
 
     private Point2D transform(Point2D point)
@@ -61,7 +57,7 @@ public class TestPainter implements UIPainter
     {
         PreCondition.assertNotNullAndNotEmpty(text, "text");
 
-        drawText(text, Distance.zero, Distance.zero);
+        drawText(text, Point2D.zero);
     }
 
     @Override
@@ -71,15 +67,26 @@ public class TestPainter implements UIPainter
     }
 
     @Override
+    public void drawLine(Point2D start, Point2D end)
+    {
+        actions.add(new DrawLineAction(transform(start), transform(end)));
+    }
+
+    @Override
     public void drawLine(Distance startX, Distance startY, Distance endX, Distance endY)
     {
-        actions.add(new DrawLineAction(transformX(startX), transformY(startY), transformX(endX), transformY(endY)));
+        drawLine(new Point2D(startX, startY), new Point2D(endX, endY));
     }
 
     @Override
     public void drawRectangle(Distance topLeftX, Distance topLeftY, Distance width, Distance height)
     {
+        PreCondition.assertNotNull(topLeftX, "topLeftX");
+        PreCondition.assertNotNull(topLeftY, "topLeftY");
+        PreCondition.assertGreaterThan(width, Distance.zero, "width");
+        PreCondition.assertGreaterThan(height, Distance.zero, "height");
 
+        actions.add(new DrawRectangleAction(new Point2D(topLeftX, topLeftY), width, height));
     }
 
     @Override
@@ -115,7 +122,7 @@ public class TestPainter implements UIPainter
     @Override
     public void saveFont()
     {
-        fontSizes.add(fontSizes.last());
+        fontSizes.add(getFontSize());
     }
 
     @Override

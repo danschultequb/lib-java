@@ -1,8 +1,5 @@
 package qub;
 
-import java.io.FileNotFoundException;
-import java.nio.file.Paths;
-
 /**
  * A Console platform that can be used to write Console applications.
  */
@@ -399,7 +396,7 @@ public class Process extends DisposableBase
     {
         if (!currentFolderPathString.hasValue())
         {
-            currentFolderPathString.set(Paths.get(".").toAbsolutePath().normalize().toString());
+            currentFolderPathString.set(java.nio.file.Paths.get(".").toAbsolutePath().normalize().toString());
         }
         return currentFolderPathString.get();
     }
@@ -619,7 +616,7 @@ public class Process extends DisposableBase
      */
     public Window createWindow()
     {
-        final Window result = new Window(getMainAsyncRunner(), getDisplays());
+        final Window result = new JavaWindow(getMainAsyncRunner(), getDisplays());
         windows.add(result);
 
         PostCondition.assertNotNull(result, "result");

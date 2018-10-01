@@ -3,11 +3,11 @@ package qub;
 public class Graphics2DUIPainter extends java.awt.Graphics2D implements UIPainter
 {
     private final java.awt.Graphics2D graphics;
-    private final Window parentWindow;
+    private final JavaWindow parentWindow;
     private final List<java.awt.geom.AffineTransform> savedTransforms;
     private final List<java.awt.Font> savedFonts;
 
-    public Graphics2DUIPainter(java.awt.Graphics2D graphics, Window parentWindow)
+    public Graphics2DUIPainter(java.awt.Graphics2D graphics, JavaWindow parentWindow)
     {
         PreCondition.assertNotNull(graphics, "graphics");
         PreCondition.assertNotNull(parentWindow, "parentWindow");
@@ -478,6 +478,15 @@ public class Graphics2DUIPainter extends java.awt.Graphics2D implements UIPainte
         final double baselineYInPixels = topLeftYInPixels + lineMetricsAscent;
 
         drawString(text, (float)topLeftXInPixels, (float)baselineYInPixels);
+    }
+
+    @Override
+    public void drawLine(Point2D start, Point2D end)
+    {
+        PreCondition.assertNotNull(start, "start");
+        PreCondition.assertNotNull(end, "end");
+
+        drawLine(start.getX(), start.getY(), end.getX(), end.getY());
     }
 
     @Override

@@ -88,6 +88,12 @@ public class DrawLineAction implements PainterAction
     }
 
     @Override
+    public String toString()
+    {
+        return "{type:\"DrawLineAction\",\"start\": \"" + start + "\",\"end\":" + end + "\"}";
+    }
+
+    @Override
     public boolean equals(Object rhs)
     {
         return rhs instanceof DrawLineAction && equals((DrawLineAction)rhs);
@@ -95,6 +101,14 @@ public class DrawLineAction implements PainterAction
 
     public boolean equals(DrawLineAction rhs)
     {
-        return rhs != null && start.equals(rhs.start) && end.equals(rhs.end);
+        return rhs != null &&
+                   start.equals(rhs.start) &&
+                   end.equals(rhs.end);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return start.hashCode() ^ end.hashCode();
     }
 }

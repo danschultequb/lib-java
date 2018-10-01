@@ -213,6 +213,36 @@ public class Test
     }
 
     /**
+     * Assert that the provided value is not null and not empty.
+     * @param value The value to check.
+     * @preCondition variableName != null && variableName.length() > 0
+     * @postCondition value != null && value.length() != 0
+     */
+    public void assertNotNullAndNotEmpty(String value)
+    {
+        assertNotNull(value);
+        if (value.length() == 0)
+        {
+            throw new TestAssertionFailure(getFullName(), getMessageLines(AssertionMessages.notEmpty("Actual value"), "not null and not empty", value));
+        }
+    }
+
+    /**
+     * Assert that the provided value is not null and not empty.
+     * @param value The value to check.
+     * @preCondition variableName != null && variableName.length() > 0
+     * @postCondition value != null && value.length() != 0
+     */
+    public void assertNotNullAndNotEmpty(Iterable<?> value)
+    {
+        assertNotNull(value);
+        if (!value.any())
+        {
+            throw new TestAssertionFailure(getFullName(), getMessageLines(AssertionMessages.notEmpty("Actual value"), "not null and not empty", value));
+        }
+    }
+
+    /**
      * Assert that the provided values are equal. If they are not equal, then a TestAssertionFailure
      * will be thrown.
      * @param expected The first value to compare.
@@ -1025,6 +1055,14 @@ public class Test
         if (!Array.contains(possibleValues, value))
         {
             throw new TestAssertionFailure(getFullName(), new String[] { AssertionMessages.oneOf(value, possibleValues, "Actual value")});
+        }
+    }
+
+    public void assertInstanceOf(Object value, Class<?> type)
+    {
+        if (!Types.instanceOf(value, type))
+        {
+            throw new TestAssertionFailure(getFullName(), new String[] { AssertionMessages.instanceOf(value, type, "Actual value") });
         }
     }
 

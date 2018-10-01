@@ -27,6 +27,13 @@ public interface UIPainter
     void drawText(String text, Distance topLeftX, Distance topLeftY);
 
     /**
+     * Draw a line from the provided start point to the provided end point.
+     * @param start The point to start the line at.
+     * @param end The point to end the line at.
+     */
+    void drawLine(Point2D start, Point2D end);
+
+    /**
      * Draw a line from the provided start x-and-y-coordinates to the provided end
      * x-and-y-coordinates.
      * @param startX The x-coordinate to start the line at.

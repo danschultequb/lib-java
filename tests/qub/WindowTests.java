@@ -1,198 +1,124 @@
 package qub;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
 public class WindowTests
 {
-    private static Window createWindow(Test test)
-    {
-        return createWindow(test, true);
-    }
-
-    private static Window createWindow(Test test, boolean addTitle)
-    {
-        final Window result = new Window(test.getMainAsyncRunner(), test.getDisplays());
-        if (addTitle)
-        {
-            result.setTitle(test.getFullName());
-        }
-        return result;
-    }
-
-    public static void test(TestRunner runner)
+    public static void test(TestRunner runner, Function1<Test,Window> windowCreator)
     {
         runner.testGroup(Window.class, () ->
         {
-            runner.test("constructor", (Test test) ->
-            {
-                try (final Window window = createWindow(test, false))
-                {
-                    test.assertFalse(window.isDisposed());
-                    test.assertFalse(window.isOpen());
-                    test.assertEqual("", window.getTitle());
-
-                    test.assertSuccess(true, window.dispose());
-                    test.assertTrue(window.isDisposed());
-                    test.assertFalse(window.isOpen());
-                    test.assertEqual("", window.getTitle());
-                }
-            });
-
             runner.testGroup("open()", () ->
             {
-                runner.test("when not open or disposed", (Test test) ->
+                runner.test("when not open and not disposed", (Test test) ->
                 {
-                    try (final Window window = createWindow(test))
+                    try (final Window window = windowCreator.run(test))
                     {
                         window.open();
                         test.assertTrue(window.isOpen());
-                        test.assertFalse(window.isDisposed());
                     }
                 });
 
-                runner.test("when already open", (Test test) ->
+                runner.test("when open but not disposed", (Test test) ->
                 {
-                    try (final Window window = createWindow(test))
+                    try (final Window window = windowCreator.run(test))
                     {
                         window.open();
-                        test.assertThrows(() -> window.open());
+                        test.assertTrue(window.isOpen());
+
+                        test.assertThrows(window::open);
+                        test.assertTrue(window.isOpen());
                     }
                 });
 
-                runner.test("when disposed", (Test test) ->
+                runner.test("when not open but disposed", (Test test) ->
                 {
-                    try (final Window window = createWindow(test))
+                    try (final Window window = windowCreator.run(test))
                     {
                         window.dispose();
-                        test.assertThrows(() -> window.open());
-                    }
-                });
-            });
+                        test.assertFalse(window.isOpen());
+                        test.assertTrue(window.isDisposed());
 
-            runner.testGroup("setTitle()", () ->
-            {
-                runner.test("with null", (Test test) ->
-                {
-                    try (final Window window = createWindow(test))
-                    {
-                        test.assertThrows(() -> window.setTitle(null));
-                    }
-                });
-
-                runner.test("with empty", (Test test) ->
-                {
-                    try (final Window window = createWindow(test))
-                    {
-                        window.setTitle("");
-                        test.assertEqual("", window.getTitle());
-                    }
-                });
-
-                runner.test("with non-empty", (Test test) ->
-                {
-                    try (final Window window = createWindow(test))
-                    {
-                        window.setTitle("Apples and Bananas");
-                        test.assertEqual("Apples and Bananas", window.getTitle());
-
-                        window.dispose();
-                        test.assertEqual("Apples and Bananas", window.getTitle());
-                    }
-                });
-            });
-
-            runner.testGroup("setContent(javax.swing.JComponent)", () ->
-            {
-                runner.test("with null", (Test test) ->
-                {
-                    try (final Window window = createWindow(test))
-                    {
-                        test.assertThrows(() -> window.setContent((javax.swing.JComponent)null));
-                    }
-                });
-
-                runner.test("with JButton", runner.skip(), (Test test) ->
-                {
-                    try (final Window window = createWindow(test))
-                    {
-                        final javax.swing.JButton button = new javax.swing.JButton("Hello");
-                        button.addActionListener(new ActionListener()
-                        {
-                            @Override
-                            public void actionPerformed(ActionEvent e)
-                            {
-                                System.out.println("Button click");
-                            }
-                        });
-                        button.setSize(200, 300);
-                        window.setContent(button);
-                        window.open();
-                        window.awaitClose();
-                    }
-                });
-            });
-
-            runner.testGroup("setContent(UIElement)", () ->
-            {
-                runner.test("with null", (Test test) ->
-                {
-                    try (final Window window = createWindow(test))
-                    {
-                        test.assertThrows(() -> window.setContent((UIElement)null));
-                    }
-                });
-
-                runner.test("with UIText", runner.skip(), (Test test) ->
-                {
-                    try (final Window window = createWindow(test))
-                    {
-                        final UIText uiText = new UIText("Hello World!");
-                        uiText.setFontSize(Distance.fontPoints(14));
-                        window.setContent(uiText);
-                        window.open();
-                        window.awaitClose();
-                    }
-                });
-            });
-
-            runner.testGroup("awaitClose()", () ->
-            {
-                runner.test("when not open", (Test test) ->
-                {
-                    try (final Window window = createWindow(test))
-                    {
-                        test.assertThrows(() -> window.awaitClose());
-                    }
-                });
-
-                runner.test("when not opened but disposed", (Test test) ->
-                {
-                    try (final Window window = createWindow(test))
-                    {
-                        window.dispose();
-                        test.assertThrows(() -> window.awaitClose());
-                    }
-                });
-
-                runner.test("when open but not disposed", runner.skip(), (Test test) ->
-                {
-                    try (final Window window = createWindow(test))
-                    {
-                        window.open();
-                        window.awaitClose();
+                        test.assertThrows(window::open);
                         test.assertFalse(window.isOpen());
                         test.assertTrue(window.isDisposed());
                     }
                 });
 
-                runner.test("when opened but then disposed", (Test test) ->
+                runner.test("when open and disposed", (Test test) ->
                 {
-                    try (final Window window = createWindow(test))
+                    try (final Window window = windowCreator.run(test))
                     {
                         window.open();
                         window.dispose();
-                        test.assertThrows(() -> window.awaitClose());
+                        test.assertFalse(window.isOpen());
+                        test.assertTrue(window.isDisposed());
+
+                        test.assertThrows(window::open);
+                        test.assertFalse(window.isOpen());
+                        test.assertTrue(window.isDisposed());
+                    }
+                });
+            });
+
+            runner.testGroup("setPainter(UIPainter)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    try (final Window window = windowCreator.run(test))
+                    {
+                        test.assertThrows(() -> window.setPainter(null));
+                    }
+                });
+
+                runner.test("with non-null", (Test test) ->
+                {
+                    try (final Window window = windowCreator.run(test))
+                    {
+                        window.setPainter(new FakePainter());
+                    }
+                });
+            });
+
+            runner.testGroup("repaint()", () ->
+            {
+                runner.test("before open with no content", (Test test) ->
+                {
+                    try (final Window window = windowCreator.run(test))
+                    {
+                        final FakePainter painter = new FakePainter();
+                        window.setPainter(painter);
+
+                        window.repaint();
+
+                        test.assertFalse(painter.getActions().any());
+                    }
+                });
+
+                runner.test("before open with content", (Test test) ->
+                {
+                    try (final Window window = windowCreator.run(test))
+                    {
+                        final FakePainter painter = new FakePainter();
+                        window.setPainter(painter);
+                        window.setContent(new UIText("ABC"));
+
+                        window.repaint();
+
+                        test.assertFalse(painter.getActions().any());
+                    }
+                });
+
+                runner.test("after open with no content", (Test test) ->
+                {
+                    try (final Window window = windowCreator.run(test))
+                    {
+                        final FakePainter painter = new FakePainter();
+                        window.setPainter(painter);
+
+                        window.open();
+                        test.assertFalse(painter.getActions().any());
+
+                        window.repaint();
+                        test.assertFalse(painter.getActions().any());
                     }
                 });
             });

@@ -1,47 +1,47 @@
 package qub;
 
 /**
- * A PainterAction that can draw text at a specified baseline point.
+ * A PainterAction that can draw text at a specified topLeft point.
  */
 public class DrawTextAction implements PainterAction
 {
     private final String text;
-    private final Point2D baseline;
+    private final Point2D topLeft;
     private final Distance fontSize;
 
     /**
      * Create a new DrawTextAction.
      * @param text The text to draw.
-     * @param baseline The baseline point that the text will be drawn at.
+     * @param topLeft The top-left point that the text will be drawn at.
      * @param fontSize The size of the font that will be drawn.
      */
-    public DrawTextAction(String text, Point2D baseline, Distance fontSize)
+    public DrawTextAction(String text, Point2D topLeft, Distance fontSize)
     {
         PreCondition.assertNotNullAndNotEmpty(text, "text");
-        PreCondition.assertNotNull(baseline, "baseline");
+        PreCondition.assertNotNull(topLeft, "topLeft");
         PreCondition.assertNotNull(fontSize, "fontSize");
 
         this.text = text;
-        this.baseline = baseline;
+        this.topLeft = topLeft;
         this.fontSize = fontSize;
     }
 
     /**
      * Create a new DrawTextAction.
      * @param text The text to draw.
-     * @param baselineX The baseline x-coordinate that the text will be drawn at.
-     * @param baselineY The baseline y-coordinate that the text will be drawn at.
+     * @param topLeftX The top-left x-coordinate that the text will be drawn at.
+     * @param topLeftY The top-left y-coordinate that the text will be drawn at.
      * @param fontSize The size of the font that will be drawn.
      */
-    public DrawTextAction(String text, Distance baselineX, Distance baselineY, Distance fontSize)
+    public DrawTextAction(String text, Distance topLeftX, Distance topLeftY, Distance fontSize)
     {
         PreCondition.assertNotNullAndNotEmpty(text, "text");
-        PreCondition.assertNotNull(baselineX, "baselineX");
-        PreCondition.assertNotNull(baselineY, "baselineY");
+        PreCondition.assertNotNull(topLeftX, "topLeftX");
+        PreCondition.assertNotNull(topLeftY, "topLeftY");
         PreCondition.assertNotNull(fontSize, "fontSize");
 
         this.text = text;
-        this.baseline = new Point2D(baselineX, baselineY);
+        this.topLeft = new Point2D(topLeftX, topLeftY);
         this.fontSize = fontSize;
     }
 
@@ -55,30 +55,30 @@ public class DrawTextAction implements PainterAction
     }
 
     /**
-     * Get the baseline point that the text will be drawn at.
-     * @return The baseline point that the text will be drawn at.
+     * Get the top-left point that the text will be drawn at.
+     * @return The top-left point that the text will be drawn at.
      */
-    public Point2D getBaseline()
+    public Point2D getTopLeft()
     {
-        return baseline;
+        return topLeft;
     }
 
     /**
-     * Get the baseline x-coordinate that the text will be drawn at.
-     * @return The baseline x-coordinate that the text will be drawn at.
+     * Get the top-left x-coordinate that the text will be drawn at.
+     * @return The top-left x-coordinate that the text will be drawn at.
      */
-    public Distance getBaselineX()
+    public Distance getTopLeftX()
     {
-        return baseline.getX();
+        return topLeft.getX();
     }
 
     /**
-     * Get the baseline y-coordinate that the text will be drawn at.
-     * @return The baseline y-coordinate that the text will be drawn at.
+     * Get the top-left y-coordinate that the text will be drawn at.
+     * @return The top-left y-coordinate that the text will be drawn at.
      */
-    public Distance getBaselineY()
+    public Distance getTopLeftY()
     {
-        return baseline.getY();
+        return topLeft.getY();
     }
 
     /**
@@ -91,6 +91,12 @@ public class DrawTextAction implements PainterAction
     }
 
     @Override
+    public String toString()
+    {
+        return "{type:\"DrawTextAction\",\"text\": \"" + text + "\",\"topLeft\":" + topLeft + ",\"fontSize\":\"" + fontSize + "\"}";
+    }
+
+    @Override
     public boolean equals(Object rhs)
     {
         return rhs instanceof DrawTextAction && equals((DrawTextAction)rhs);
@@ -100,7 +106,13 @@ public class DrawTextAction implements PainterAction
     {
         return rhs != null &&
             text.equals(rhs.text) &&
-            baseline.equals(rhs.baseline) &&
+            topLeft.equals(rhs.topLeft) &&
             fontSize.equals(rhs.fontSize);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return text.hashCode() ^ topLeft.hashCode() ^ fontSize.hashCode();
     }
 }

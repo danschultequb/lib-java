@@ -21,7 +21,7 @@ public class UIButton implements UIElement
     }
 
     @Override
-    public Window getParentWindow()
+    public JavaWindow getParentWindow()
     {
         return null;
     }
