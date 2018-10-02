@@ -39,4 +39,16 @@ public interface Window extends UIElementParent, Disposable
      * @return The width of this Window (including the Window's frame).
      */
     Distance getWidth();
+
+    /**
+     * Set the height of this Window (including the Window's frame).
+     * @param height The height of this Window (including the Window's frame).
+     */
+    void setHeight(Distance height);
+
+    /**
+     * Get the height of this Window (including the Window's frame).
+     * @return The height of this Window (including the Window's frame).
+     */
+    Distance getHeight();
 }

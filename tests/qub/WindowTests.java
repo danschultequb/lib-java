@@ -199,13 +199,72 @@ public class WindowTests
                     }
                 });
 
-                runner.test("with positive", (Test test) ->
+                runner.test("with positive with useDisplayScaling", (Test test) ->
                 {
                     try (final Window window = windowCreator.run(test))
                     {
                         window.open();
                         window.setWidth(Distance.inches(5));
                         test.assertEqual(Distance.inches(5), window.getWidth());
+                    }
+                });
+
+                runner.test("with positive larger than the screen width", (Test test) ->
+                {
+                    try (final Window window = windowCreator.run(test))
+                    {
+                        window.open();
+                        window.setWidth(Distance.miles(3));
+                        test.assertOneOf(new Distance[] { Distance.miles(3), Distance.inches(6.744791666666667) }, window.getWidth());
+                    }
+                });
+            });
+
+            runner.testGroup("setHeight(Distance)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    try (final Window window = windowCreator.run(test))
+                    {
+                        test.assertThrows(() -> window.setHeight(null));
+                    }
+                });
+
+                runner.test("with negative", (Test test) ->
+                {
+                    try (final Window window = windowCreator.run(test))
+                    {
+                        test.assertThrows(() -> window.setHeight(Distance.inches(-1)));
+                    }
+                });
+
+                runner.test("with zero", (Test test) ->
+                {
+                    try (final Window window = windowCreator.run(test))
+                    {
+                        window.open();
+                        window.setHeight(Distance.zero);
+                        test.assertOneOf(new Distance[] { Distance.zero, Distance.inches(0.3697916666666667) }, window.getHeight());
+                    }
+                });
+
+                runner.test("with positive", (Test test) ->
+                {
+                    try (final Window window = windowCreator.run(test))
+                    {
+                        window.open();
+                        window.setHeight(Distance.inches(3));
+                        test.assertEqual(Distance.inches(3), window.getHeight());
+                    }
+                });
+
+                runner.test("with positive larger than the screen height", (Test test) ->
+                {
+                    try (final Window window = windowCreator.run(test))
+                    {
+                        window.open();
+                        window.setHeight(Distance.miles(3));
+                        test.assertOneOf(new Distance[] { Distance.miles(3), Distance.inches(3.828125) }, window.getHeight());
                     }
                 });
             });

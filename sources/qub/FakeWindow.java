@@ -7,11 +7,13 @@ public class FakeWindow extends WindowBase
     private UIPainter painter;
     private UIElement content;
     private Distance width;
+    private Distance height;
 
     public FakeWindow()
     {
         painter = new FakePainter();
         width = Distance.zero;
+        height = Distance.zero;
     }
 
     @Override
@@ -92,5 +94,19 @@ public class FakeWindow extends WindowBase
     public Distance getWidth()
     {
         return width;
+    }
+
+    @Override
+    public void setHeight(Distance height)
+    {
+        PreCondition.assertGreaterThanOrEqualTo(height, Distance.zero, "height");
+
+        this.height = height;
+    }
+
+    @Override
+    public Distance getHeight()
+    {
+        return height;
     }
 }

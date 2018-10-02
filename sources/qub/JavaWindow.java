@@ -165,7 +165,7 @@ public class JavaWindow extends WindowBase
         PreCondition.assertGreaterThanOrEqualTo(width, Distance.zero, "width");
 
         final int widthInPixels = (int)convertHorizontalDistanceToPixels(width);
-        final int heightInPixels = jFrame.getWidth();
+        final int heightInPixels = jFrame.getHeight();
         jFrame.setSize(widthInPixels, heightInPixels);
     }
 
@@ -174,6 +174,27 @@ public class JavaWindow extends WindowBase
     {
         final int widthInPixels = jFrame.getWidth();
         final Distance result = convertHorizontalPixelsToDistance(widthInPixels);
+
+        PostCondition.assertGreaterThanOrEqualTo(result, Distance.zero, "result");
+
+        return result;
+    }
+
+    @Override
+    public void setHeight(Distance height)
+    {
+        PreCondition.assertGreaterThanOrEqualTo(height, Distance.zero, "height");
+
+        final int widthInPixels = jFrame.getWidth();
+        final int heightInPixels = (int)convertVerticalDistanceToPixels(height);
+        jFrame.setSize(widthInPixels, heightInPixels);
+    }
+
+    @Override
+    public Distance getHeight()
+    {
+        final int heightInPixels = jFrame.getHeight();
+        final Distance result = convertVerticalPixelsToDistance(heightInPixels);
 
         PostCondition.assertGreaterThanOrEqualTo(result, Distance.zero, "result");
 
@@ -277,7 +298,12 @@ public class JavaWindow extends WindowBase
 
     public double convertHorizontalDistanceToPixels(Distance horizontalDistance)
     {
-        return displays.first().convertHorizontalDistanceToPixels(horizontalDistance);
+        return convertHorizontalDistanceToPixels(horizontalDistance, true);
+    }
+
+    public double convertHorizontalDistanceToPixels(Distance horizontalDistance, boolean useDisplayScaling)
+    {
+        return displays.first().convertHorizontalDistanceToPixels(horizontalDistance, useDisplayScaling);
     }
 
     public Distance convertHorizontalPixelsToDistance(double horizontalPixels)
@@ -287,6 +313,16 @@ public class JavaWindow extends WindowBase
 
     public double convertVerticalDistanceToPixels(Distance verticalDistance)
     {
-        return displays.first().convertVerticalDistanceToPixels(verticalDistance);
+        return convertVerticalDistanceToPixels(verticalDistance, true);
+    }
+
+    public double convertVerticalDistanceToPixels(Distance verticalDistance, boolean useDisplayScaling)
+    {
+        return displays.first().convertVerticalDistanceToPixels(verticalDistance, useDisplayScaling);
+    }
+
+    public Distance convertVerticalPixelsToDistance(double verticalPixels)
+    {
+        return displays.first().convertVerticalPixelsToDistance(verticalPixels);
     }
 }
