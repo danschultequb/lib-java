@@ -93,7 +93,7 @@ public class DrawTextAction implements PainterAction
     @Override
     public String toString()
     {
-        return "{type:\"DrawTextAction\",\"text\": \"" + text + "\",\"topLeft\":" + topLeft + ",\"fontSize\":\"" + fontSize + "\"}";
+        return "{type:\"DrawTextAction\",\"text\":\"" + text + "\",\"topLeft\":\"" + topLeft + "\",\"fontSize\":\"" + fontSize + "\"}";
     }
 
     @Override

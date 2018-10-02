@@ -54,6 +54,29 @@ public class UITextTests
                     final UIText text = new UIText("apples");
                     test.assertThrows(() -> text.repaint());
                 });
+
+                runner.test("with parentElement", (Test test) ->
+                {
+                    final FakePainter painter = new FakePainter();
+                    final FakeWindow window = new FakeWindow();
+                    window.setPainter(painter);
+
+                    final UIText text = new UIText("apples");
+                    window.setContent(text);
+                    test.assertSame(window, text.getParentWindow());
+
+                    window.open();
+                    painter.clearActions();
+
+                    text.repaint();
+
+                    test.assertEqual(
+                        Array.fromValues(new PainterAction[]
+                        {
+                            new DrawTextAction("apples", Point2D.zero, Distance.fontPoints(14))
+                        }),
+                        painter.getActions());
+                });
             });
 
             runner.testGroup("getParentWindow()", () ->

@@ -330,6 +330,34 @@ public class PreCondition
     }
 
     /**
+     * Assert that value is greater than or equal to lowerBound.
+     * @param value The value to ensure is greater than or equal to lowerBound.
+     * @param lowerBound The lower bound to ensure that the value is greater than or equal to.
+     * @param variableName The name of the variable that contains the value.
+     */
+    public static void assertGreaterThanOrEqualTo(double value, double lowerBound, String variableName)
+    {
+        if (!Comparer.greaterThanOrEqualTo(value, lowerBound))
+        {
+            throw new PreConditionFailure(AssertionMessages.greaterThanOrEqualTo(value, lowerBound, variableName));
+        }
+    }
+
+    /**
+     * Assert that value is greater than or equal to lowerBound.
+     * @param value The value to ensure is greater than or equal to lowerBound.
+     * @param lowerBound The lower bound to ensure that the value is greater than or equal to.
+     * @param variableName The name of the variable that contains the value.
+     */
+    public static <T extends Comparable<T>> void assertGreaterThanOrEqualTo(T value, T lowerBound, String variableName)
+    {
+        if (!Comparer.greaterThanOrEqualTo(value, lowerBound))
+        {
+            throw new PreConditionFailure(AssertionMessages.greaterThanOrEqualTo(value, lowerBound, variableName));
+        }
+    }
+
+    /**
      * Assert that value is greater than lowerBound.
      * @param value The value to ensure is greater than lowerBound.
      * @param lowerBound The lower bound to ensure that the value is greater than.
@@ -339,7 +367,7 @@ public class PreCondition
     {
         if (!Comparer.greaterThan(value, lowerBound))
         {
-            throw new PreConditionFailure(AssertionMessages.greaterThanOrEqualTo(value, lowerBound, variableName));
+            throw new PreConditionFailure(AssertionMessages.greaterThan(value, lowerBound, variableName));
         }
     }
 

@@ -72,7 +72,19 @@ public class Display
         final Distance horizontalDistanceInInches = horizontalDistance.toInches();
         final double result = horizontalDistanceInInches.getValue() * horizontalDpi;
 
-        PostCondition.assertGreaterThanOrEqualTo(result, 0.0, "result");
+        PostCondition.assertGreaterThanOrEqualTo(result, 0, "result");
+
+        return result;
+    }
+
+    public Distance convertHorizontalPixelsToDistance(double horizontalPixels)
+    {
+        PreCondition.assertGreaterThanOrEqualTo(horizontalPixels, 0, "horizontalPixels");
+
+        final double distanceValue = horizontalPixels / horizontalDpi;
+        final Distance result = Distance.inches(distanceValue);
+
+        PostCondition.assertGreaterThanOrEqualTo(result, Distance.zero, "result");
 
         return result;
     }

@@ -159,6 +159,27 @@ public class JavaWindow extends WindowBase
         this.painterCreator = painterCreator;
     }
 
+    @Override
+    public void setWidth(Distance width)
+    {
+        PreCondition.assertGreaterThanOrEqualTo(width, Distance.zero, "width");
+
+        final int widthInPixels = (int)convertHorizontalDistanceToPixels(width);
+        final int heightInPixels = jFrame.getWidth();
+        jFrame.setSize(widthInPixels, heightInPixels);
+    }
+
+    @Override
+    public Distance getWidth()
+    {
+        final int widthInPixels = jFrame.getWidth();
+        final Distance result = convertHorizontalPixelsToDistance(widthInPixels);
+
+        PostCondition.assertGreaterThanOrEqualTo(result, Distance.zero, "result");
+
+        return result;
+    }
+
     /**
      * Get the title of this Window.
      * @return The title of this Window.
@@ -257,6 +278,11 @@ public class JavaWindow extends WindowBase
     public double convertHorizontalDistanceToPixels(Distance horizontalDistance)
     {
         return displays.first().convertHorizontalDistanceToPixels(horizontalDistance);
+    }
+
+    public Distance convertHorizontalPixelsToDistance(double horizontalPixels)
+    {
+        return displays.first().convertHorizontalPixelsToDistance(horizontalPixels);
     }
 
     public double convertVerticalDistanceToPixels(Distance verticalDistance)

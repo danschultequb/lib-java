@@ -27,4 +27,16 @@ public interface Window extends UIElementParent, Disposable
      * @param painter The painter that will be used for this Window.
      */
     void setPainter(UIPainter painter);
+
+    /**
+     * Set the width of this Window (including the Window's frame).
+     * @param width The width of this Window (including the Window's frame).
+     */
+    void setWidth(Distance width);
+
+    /**
+     * Get the width of this Window (including the Window's frame).
+     * @return The width of this Window (including the Window's frame).
+     */
+    Distance getWidth();
 }

@@ -6,10 +6,12 @@ public class FakeWindow extends WindowBase
     private boolean disposed;
     private UIPainter painter;
     private UIElement content;
+    private Distance width;
 
     public FakeWindow()
     {
         painter = new FakePainter();
+        width = Distance.zero;
     }
 
     @Override
@@ -76,5 +78,19 @@ public class FakeWindow extends WindowBase
 
             repaint();
         }
+    }
+
+    @Override
+    public void setWidth(Distance width)
+    {
+        PreCondition.assertGreaterThanOrEqualTo(width, Distance.zero, "width");
+
+        this.width = width;
+    }
+
+    @Override
+    public Distance getWidth()
+    {
+        return width;
     }
 }
