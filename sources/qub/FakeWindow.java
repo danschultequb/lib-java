@@ -33,8 +33,24 @@ public class FakeWindow extends WindowBase
     @Override
     public Result<Boolean> dispose()
     {
-        final Result<Boolean> result = !disposed ? Result.successTrue() : Result.successFalse();
-        disposed = true;
+        Result<Boolean> result;
+        if (disposed)
+        {
+            result = Result.successFalse();
+        }
+        else
+        {
+            disposed = true;
+
+            setContent(null);
+
+            result = Result.successTrue();
+        }
+
+        PostCondition.assertNotNull(result, "result");
+        PostCondition.assertTrue(isDisposed(), "isDisposed()");
+        PostCondition.assertNull(getContent(), "getContent()");
+
         return result;
     }
 
@@ -67,7 +83,7 @@ public class FakeWindow extends WindowBase
     @Override
     public void setContent(UIElement uiElement)
     {
-        PreCondition.assertNotNull(uiElement, "uiElement");
+        PreCondition.assertTrue(!isDisposed() || uiElement == null, "!isDisposed() || uiElement == null");
 
         if (content != uiElement)
         {
@@ -75,11 +91,22 @@ public class FakeWindow extends WindowBase
             {
                 content.setParent(null);
             }
+
             content = uiElement;
-            uiElement.setParent(this);
+
+            if (uiElement != null)
+            {
+                uiElement.setParent(this);
+            }
 
             repaint();
         }
+    }
+
+    @Override
+    public UIElement getContent()
+    {
+        return content;
     }
 
     @Override

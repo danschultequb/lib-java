@@ -86,7 +86,7 @@ public class JavaWindow extends WindowBase
 
                 super.paint(graphics);
 
-                if (content != null)
+                if (content != null && isOpen())
                 {
                     final UIPainter painter = painterCreator.run((java.awt.Graphics2D)graphics);
                     content.paint(painter);
@@ -235,7 +235,7 @@ public class JavaWindow extends WindowBase
     @Override
     public void setContent(UIElement uiElement)
     {
-        PreCondition.assertNotNull(uiElement, "uiElement");
+        PreCondition.assertTrue(!isDisposed() || uiElement == null, "!isDisposed() || uiElement == null");
 
         if (content != uiElement)
         {
@@ -243,14 +243,25 @@ public class JavaWindow extends WindowBase
             {
                 content.setParent(null);
             }
+
             content = uiElement;
-            uiElement.setParent(this);
+
+            if (uiElement != null)
+            {
+                uiElement.setParent(this);
+            }
 
             if (isOpen())
             {
                 repaint();
             }
         }
+    }
+
+    @Override
+    public UIElement getContent()
+    {
+        return content;
     }
 
     @Override
@@ -282,10 +293,14 @@ public class JavaWindow extends WindowBase
                 windowClosedTask.await();
             }
 
+            setContent((UIElement)null);
+
             result = Result.successTrue();
         }
 
         PostCondition.assertNotNull(result, "result");
+        PostCondition.assertTrue(isDisposed(), "isDisposed()");
+        PostCondition.assertNull(getContent(), "getContent()");
 
         return result;
     }

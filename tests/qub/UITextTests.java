@@ -6,6 +6,58 @@ public class UITextTests
     {
         runner.testGroup(UIText.class, () ->
         {
+            runner.testGroup("constructor(String)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    test.assertThrows(() -> new UIText(null));
+                });
+
+                runner.test("with empty", (Test test) ->
+                {
+                    final UIText text = new UIText("");
+                    test.assertEqual("", text.getText());
+                    test.assertEqual(Distance.zero, text.getPadding());
+                    test.assertNull(text.getParentWindow());
+                    test.assertEqual(Distance.zero, text.getWidth());
+                });
+
+                runner.test("with non-empty", (Test test) ->
+                {
+                    final UIText text = new UIText("test");
+                    test.assertEqual("test", text.getText());
+                    test.assertEqual(Distance.zero, text.getPadding());
+                    test.assertNull(text.getParentWindow());
+                    test.assertEqual(Distance.zero, text.getWidth());
+                });
+            });
+
+            runner.testGroup("setParent(UIElementParent)", () ->
+            {
+                runner.test("from null to null", (Test test) ->
+                {
+                    final UIText text = new UIText("a");
+                    test.assertNull(text.getParent());
+
+                    text.setParent(null);
+
+                    test.assertNull(text.getParent());
+                });
+
+                runner.test("from null to non-null", (Test test) ->
+                {
+                    try (final FakeWindow window = new FakeWindow())
+                    {
+                        final UIText text = new UIText("a");
+
+                        text.setParent(window);
+
+                        test.assertSame(window, text.getParent());
+                        test.assertSame(window, text.getParentWindow());
+                    }
+                });
+            });
+
             runner.testGroup("paint(UIPainter)", () ->
             {
                 runner.test("with null painter", (Test test) ->
@@ -84,15 +136,52 @@ public class UITextTests
                 runner.test("with no parentElement", (Test test) ->
                 {
                     final UIText text = new UIText("apples");
-                    test.assertThrows(() -> text.getParentWindow());
+                    test.assertNull(text.getParentWindow());
                 });
 
                 runner.test("with parentElement", (Test test) ->
                 {
-                    final FakeWindow window = new FakeWindow();
+                    try (final FakeWindow window = new FakeWindow())
+                    {
+                        final UIText text = new UIText("apples");
+                        text.setParent(window);
+                        test.assertSame(window, text.getParentWindow());
+                    }
+                });
+
+                runner.test("after the parent window has been disposed", (Test test) ->
+                {
                     final UIText text = new UIText("apples");
-                    text.setParent(window);
-                    test.assertSame(window, text.getParentWindow());
+                    try (final FakeWindow window = new FakeWindow())
+                    {
+                        text.setParent(window);
+                        test.assertSame(window, text.getParent());
+                        test.assertSame(window, text.getParentWindow());
+                    }
+                    test.assertNull(text.getParent());
+                    test.assertNull(text.getParentWindow());
+                });
+            });
+
+            runner.testGroup("setWidth(Distance)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final UIText text = new UIText("apples");
+                    test.assertThrows(() -> text.setWidth(null));
+                });
+
+                runner.test("with negative", (Test test) ->
+                {
+                    final UIText text = new UIText("apples");
+                    test.assertThrows(() -> text.setWidth(Distance.millimeters(-0.1)));
+                });
+
+                runner.test("with zero", (Test test) ->
+                {
+                    final UIText text = new UIText("apples");
+                    text.setWidth(Distance.zero);
+                    test.assertEqual(Distance.zero, text.getWidth());
                 });
             });
         });

@@ -6,6 +6,50 @@ public class WindowTests
     {
         runner.testGroup(Window.class, () ->
         {
+            runner.testGroup("dispose()", () ->
+            {
+                runner.test("when not open and with no content", (Test test) ->
+                {
+                    try (final Window window = windowCreator.run(test))
+                    {
+                        test.assertSuccess(true, window.dispose());
+                        test.assertFalse(window.isOpen());
+                        test.assertTrue(window.isDisposed());
+                    }
+                });
+
+                runner.test("when open and with no content", (Test test) ->
+                {
+                    try (final Window window = windowCreator.run(test))
+                    {
+                        window.open();
+                        test.assertTrue(window.isOpen());
+
+                        test.assertSuccess(true, window.dispose());
+
+                        test.assertFalse(window.isOpen());
+                        test.assertTrue(window.isDisposed());
+                    }
+                });
+
+                runner.test("when not open and with content", (Test test) ->
+                {
+                    try (final Window window = windowCreator.run(test))
+                    {
+                        final UIText text = new UIText("test");
+                        window.setContent(text);
+                        test.assertSame(window, text.getParent());
+                        test.assertSame(window, text.getParentWindow());
+
+                        test.assertSuccess(true, window.dispose());
+
+                        test.assertNull(window.getContent());
+                        test.assertNull(text.getParent());
+                        test.assertNull(text.getParentWindow());
+                    }
+                });
+            });
+
             runner.testGroup("open()", () ->
             {
                 runner.test("when not open and not disposed", (Test test) ->
@@ -65,7 +109,8 @@ public class WindowTests
                 {
                     try (final Window window = windowCreator.run(test))
                     {
-                        test.assertThrows(() -> window.setContent(null));
+                        window.setContent(null);
+                        test.assertNull(window.getContent());
                     }
                 });
 
@@ -75,6 +120,8 @@ public class WindowTests
                     {
                         final UIText text = new UIText("abc");
                         window.setContent(text);
+                        test.assertSame(text, window.getContent());
+                        test.assertSame(window, text.getParent());
                         test.assertSame(window, text.getParentWindow());
                     }
                 });
@@ -85,9 +132,15 @@ public class WindowTests
                     {
                         final UIText text = new UIText("abc");
                         window.setContent(text);
-
-                        test.assertThrows(() -> window.setContent(null));
+                        test.assertSame(text, window.getContent());
+                        test.assertSame(window, text.getParent());
                         test.assertSame(window, text.getParentWindow());
+
+                        window.setContent(null);
+
+                        test.assertNull(window.getContent());
+                        test.assertNull(text.getParent());
+                        test.assertNull(text.getParentWindow());
                     }
                 });
 
@@ -101,8 +154,36 @@ public class WindowTests
                         final UIText text2 = new UIText("xyz");
                         window.setContent(text2);
 
-                        test.assertThrows(() -> text1.getParentWindow());
+                        test.assertNull(text1.getParent());
+                        test.assertNull(text1.getParentWindow());
+                        test.assertSame(text2, window.getContent());
+                        test.assertSame(window, text2.getParent());
                         test.assertSame(window, text2.getParentWindow());
+                    }
+                });
+
+                runner.test("to null when disposed", (Test test) ->
+                {
+                    try (final Window window = windowCreator.run(test))
+                    {
+                        window.dispose();
+
+                        window.setContent(null);
+                        test.assertNull(window.getContent());
+                    }
+                });
+
+                runner.test("to non-null when disposed", (Test test) ->
+                {
+                    try (final Window window = windowCreator.run(test))
+                    {
+                        window.dispose();
+                        final UIText text = new UIText("apples");
+
+                        test.assertThrows(() -> window.setContent(text));
+
+                        test.assertNull(window.getContent());
+                        test.assertNull(text.getParent());
                     }
                 });
             });

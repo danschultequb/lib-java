@@ -18,9 +18,15 @@ public interface Window extends UIElementParent, Disposable
 
     /**
      * Set the content of this Window.
-     * @param uiElement The content.
+     * @param uiElement The content of this Window.
      */
     void setContent(UIElement uiElement);
+
+    /**
+     * Get the content of this Window.
+     * @return The content of this Window.
+     */
+    UIElement getContent();
 
     /**
      * Set the painter that will be used for this Window.

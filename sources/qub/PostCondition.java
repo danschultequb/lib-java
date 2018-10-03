@@ -32,12 +32,24 @@ public class PostCondition
     }
 
     /**
+     * Assert that the provided value is null.
+     * @param value The value to check.
+     * @param expressionName The name of the expression that produced the value.
+     */
+    public static void assertNull(Object value, String expressionName)
+    {
+        if (value != null)
+        {
+            throw new PostConditionFailure(AssertionMessages.nullMessage(expressionName));
+        }
+    }
+
+    /**
      * Assert that the provided value is not null.
      * @param value The value to check.
      * @param variableName The name of the variable that contains value.
-     * @param <T> The type of value.
      */
-    public static <T> void assertNotNull(T value, String variableName)
+    public static void assertNotNull(Object value, String variableName)
     {
         if (value == null)
         {
