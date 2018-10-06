@@ -61,9 +61,16 @@ public interface UIPainter
     void translate(Distance x, Distance y);
 
     /**
-     * Save the current transformation so that it can be restored later.
+     * Translate all proceeding operations y Distance down.
+     * @param y The vertical Distance to translate proceeding operations.
      */
-    void saveTransform();
+    void translateY(Distance y);
+
+    /**
+     * Save the current transformation so that it can be restored later.
+     * @return A Disposable that when disposed will restore the saved transform.
+     */
+    Disposable saveTransform();
 
     /**
      * Restore the most recently saved transform.

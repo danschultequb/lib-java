@@ -57,4 +57,19 @@ public interface Window extends UIElementParent, Disposable
      * @return The height of this Window (including the Window's frame).
      */
     Distance getHeight();
+
+    /**
+     * Get the width of the text using the default font.
+     * @param text The text to measure.
+     * @return The width of the text using the default font.
+     */
+    Distance getTextWidth(String text);
+
+    /**
+     * Get the width of the text using the provided font.
+     * @param text The text to measure.
+     * @param font The font to use to measure the text.
+     * @return The width of the text using the provided font.
+     */
+    Distance getTextWidth(String text, java.awt.Font font);
 }

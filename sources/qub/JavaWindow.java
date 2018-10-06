@@ -1,5 +1,8 @@
 package qub;
 
+import java.awt.Font;
+import java.awt.image.BufferedImage;
+
 public class JavaWindow extends WindowBase
 {
     private final AsyncRunner mainAsyncRunner;
@@ -201,6 +204,73 @@ public class JavaWindow extends WindowBase
         return result;
     }
 
+    @Override
+    public Distance getTextWidth(String text)
+    {
+        Distance result;
+        if (Strings.isNullOrEmpty(text))
+        {
+            result = Distance.zero;
+        }
+        else
+        {
+            final java.awt.Graphics imageGraphics = createImageGraphics();
+            try
+            {
+                final java.awt.Font defaultFont = imageGraphics.getFont();
+                result = getTextWidth(text, imageGraphics, defaultFont);
+            }
+            finally
+            {
+                imageGraphics.dispose();
+            }
+        }
+
+        PostCondition.assertGreaterThanOrEqualTo(result, Distance.zero, "result");
+
+        return result;
+    }
+
+    @Override
+    public Distance getTextWidth(String text, java.awt.Font font)
+    {
+        PreCondition.assertNotNull(font, "font");
+
+        Distance result;
+        if (Strings.isNullOrEmpty(text))
+        {
+            result = Distance.zero;
+        }
+        else
+        {
+            final java.awt.Graphics imageGraphics = createImageGraphics();
+            try
+            {
+                result = getTextWidth(text, imageGraphics, font);
+            }
+            finally
+            {
+                imageGraphics.dispose();
+            }
+        }
+
+        PostCondition.assertGreaterThanOrEqualTo(result, Distance.zero, "result");
+
+        return result;
+    }
+
+    private Distance getTextWidth(String text, java.awt.Graphics graphics, java.awt.Font font)
+    {
+        final java.awt.FontMetrics fontMetrics = graphics.getFontMetrics(font);
+        final java.awt.geom.Rectangle2D stringBounds = fontMetrics.getStringBounds(text, graphics);
+        final double widthInPixels = stringBounds.getWidth();
+        final Distance result = convertVerticalPixelsToDistance(widthInPixels);
+
+        PostCondition.assertGreaterThan(result, Distance.zero, "result");
+
+        return result;
+    }
+
     /**
      * Get the title of this Window.
      * @return The title of this Window.
@@ -339,5 +409,15 @@ public class JavaWindow extends WindowBase
     public Distance convertVerticalPixelsToDistance(double verticalPixels)
     {
         return displays.first().convertVerticalPixelsToDistance(verticalPixels);
+    }
+
+    private static java.awt.Graphics createImageGraphics()
+    {
+        final java.awt.image.BufferedImage image = new java.awt.image.BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+        final java.awt.Graphics result = image.getGraphics();
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
     }
 }

@@ -518,9 +518,23 @@ public class Graphics2DUIPainter extends java.awt.Graphics2D implements UIPainte
     }
 
     @Override
-    public void saveTransform()
+    public void translateY(Distance y)
+    {
+        translate(Distance.zero, y);
+    }
+
+    @Override
+    public Disposable saveTransform()
     {
         savedTransforms.add(graphics.getTransform());
+        return new BasicDisposable()
+        {
+            @Override
+            protected void onDispose()
+            {
+                restoreTransform();
+            }
+        };
     }
 
     @Override

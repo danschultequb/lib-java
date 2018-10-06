@@ -97,9 +97,23 @@ public class FakePainter implements UIPainter
     }
 
     @Override
-    public void saveTransform()
+    public void translateY(Distance y)
+    {
+        translate(Distance.zero, y);
+    }
+
+    @Override
+    public Disposable saveTransform()
     {
         translations.add(getTranslation());
+        return new BasicDisposable()
+        {
+            @Override
+            protected void onDispose()
+            {
+                restoreTransform();
+            }
+        };
     }
 
     @Override

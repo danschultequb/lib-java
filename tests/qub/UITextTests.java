@@ -6,29 +6,50 @@ public class UITextTests
     {
         runner.testGroup(UIText.class, () ->
         {
+            runner.test("constructor()", (Test test) ->
+            {
+                final UIText text = new UIText();
+                test.assertNull(text.getText());
+                test.assertNull(text.getPadding());
+                test.assertNull(text.getParentWindow());
+                test.assertNull(text.getFontSize());
+                test.assertEqual(Distance.inches(1), text.getWidth());
+                test.assertEqual(Distance.inches(1), text.getHeight());
+            });
+
             runner.testGroup("constructor(String)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> new UIText(null));
+                    final UIText text = new UIText(null);
+                    test.assertNull(text.getText());
+                    test.assertNull(text.getPadding());
+                    test.assertNull(text.getParentWindow());
+                    test.assertNull(text.getFontSize());
+                    test.assertEqual(Distance.inches(1), text.getWidth());
+                    test.assertEqual(Distance.inches(1), text.getHeight());
                 });
 
                 runner.test("with empty", (Test test) ->
                 {
                     final UIText text = new UIText("");
                     test.assertEqual("", text.getText());
-                    test.assertEqual(Distance.zero, text.getPadding());
+                    test.assertNull(text.getPadding());
                     test.assertNull(text.getParentWindow());
-                    test.assertEqual(Distance.zero, text.getWidth());
+                    test.assertNull(text.getFontSize());
+                    test.assertEqual(Distance.inches(1), text.getWidth());
+                    test.assertEqual(Distance.inches(1), text.getHeight());
                 });
 
                 runner.test("with non-empty", (Test test) ->
                 {
                     final UIText text = new UIText("test");
                     test.assertEqual("test", text.getText());
-                    test.assertEqual(Distance.zero, text.getPadding());
+                    test.assertNull(text.getPadding());
                     test.assertNull(text.getParentWindow());
-                    test.assertEqual(Distance.zero, text.getWidth());
+                    test.assertNull(text.getFontSize());
+                    test.assertEqual(Distance.inches(1), text.getWidth());
+                    test.assertEqual(Distance.inches(1), text.getHeight());
                 });
             });
 
@@ -58,6 +79,37 @@ public class UITextTests
                 });
             });
 
+            runner.testGroup("setPadding(Distance)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final UIText text = new UIText("test");
+                    text.setPadding(null);
+                    test.assertNull(text.getPadding());
+                });
+
+                runner.test("with negative", (Test test) ->
+                {
+                    final UIText text = new UIText("test");
+                    test.assertThrows(() -> text.setPadding(Distance.inches(-5)));
+                    test.assertNull(text.getPadding());
+                });
+
+                runner.test("with zero", (Test test) ->
+                {
+                    final UIText text = new UIText("test");
+                    text.setPadding(Distance.zero);
+                    test.assertEqual(Distance.zero, text.getPadding());
+                });
+
+                runner.test("with positive", (Test test) ->
+                {
+                    final UIText text = new UIText("test");
+                    text.setPadding(Distance.inches(1));
+                    test.assertEqual(Distance.inches(1), text.getPadding());
+                });
+            });
+
             runner.testGroup("paint(UIPainter)", () ->
             {
                 runner.test("with null painter", (Test test) ->
@@ -69,6 +121,22 @@ public class UITextTests
                 runner.test("with no padding or font size", (Test test) ->
                 {
                     final UIText text = new UIText("ABC");
+
+                    final FakePainter painter = new FakePainter();
+                    text.paint(painter);
+
+                    test.assertEqual(
+                        Array.fromValues(new PainterAction[]
+                        {
+                            new DrawTextAction("ABC", Point2D.zero, Distance.fontPoints(14))
+                        }),
+                        painter.getActions());
+                });
+
+                runner.test("with zero padding and no font size", (Test test) ->
+                {
+                    final UIText text = new UIText("ABC");
+                    text.setPadding(Distance.zero);
 
                     final FakePainter painter = new FakePainter();
                     text.paint(painter);
@@ -154,7 +222,8 @@ public class UITextTests
                     final UIText text = new UIText("apples");
                     try (final FakeWindow window = new FakeWindow())
                     {
-                        text.setParent(window);
+                        window.setContent(text);
+                        test.assertSame(text, window.getContent());
                         test.assertSame(window, text.getParent());
                         test.assertSame(window, text.getParentWindow());
                     }
@@ -168,7 +237,7 @@ public class UITextTests
                 runner.test("with null", (Test test) ->
                 {
                     final UIText text = new UIText("apples");
-                    test.assertThrows(() -> text.setWidth(null));
+                    test.assertThrows(() -> text.setWidth((Distance)null));
                 });
 
                 runner.test("with negative", (Test test) ->
@@ -182,6 +251,42 @@ public class UITextTests
                     final UIText text = new UIText("apples");
                     text.setWidth(Distance.zero);
                     test.assertEqual(Distance.zero, text.getWidth());
+                });
+
+                runner.test("with positive", (Test test) ->
+                {
+                    final UIText text = new UIText("apples");
+                    text.setWidth(Distance.inches(3));
+                    test.assertEqual(Distance.inches(3), text.getWidth());
+                });
+            });
+
+            runner.testGroup("setHeight(Distance)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final UIText text = new UIText("apples");
+                    test.assertThrows(() -> text.setHeight((Distance)null));
+                });
+
+                runner.test("with negative", (Test test) ->
+                {
+                    final UIText text = new UIText("apples");
+                    test.assertThrows(() -> text.setHeight(Distance.millimeters(-0.1)));
+                });
+
+                runner.test("with zero", (Test test) ->
+                {
+                    final UIText text = new UIText("apples");
+                    text.setHeight(Distance.zero);
+                    test.assertEqual(Distance.zero, text.getHeight());
+                });
+
+                runner.test("with positive", (Test test) ->
+                {
+                    final UIText text = new UIText("apples");
+                    text.setHeight(Distance.inches(3));
+                    test.assertEqual(Distance.inches(3), text.getHeight());
                 });
             });
         });

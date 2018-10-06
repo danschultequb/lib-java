@@ -84,12 +84,48 @@ public class JComponentToUIElementAdapter implements UIElement
     }
 
     @Override
-    public void handleMouseEvent(MouseEvent event)
+    public Distance getWidth()
     {
-        PreCondition.assertInstanceOf(event, JavaMouseEvent.class, "event");
+        return null;
+    }
 
-        final java.awt.event.MouseEvent javaMouseEvent = ((JavaMouseEvent)event).getJavaEvent();
-        javaMouseEvent.setSource(jComponent);
-        jComponent.dispatchEvent(javaMouseEvent);
+    @Override
+    public void setWidth(Distance width)
+    {
+
+    }
+
+    @Override
+    public void setWidth(UIWidth width)
+    {
+
+    }
+
+//    @Override
+//    public void handleMouseEvent(MouseEvent event)
+//    {
+//        PreCondition.assertInstanceOf(event, JavaMouseEvent.class, "event");
+//
+//        final java.awt.event.MouseEvent javaMouseEvent = ((JavaMouseEvent)event).getJavaEvent();
+//        javaMouseEvent.setSource(jComponent);
+//        jComponent.dispatchEvent(javaMouseEvent);
+//    }
+
+    @Override
+    public Distance getHeight()
+    {
+        return null;
+    }
+
+    @Override
+    public void setHeight(Distance height)
+    {
+
+    }
+
+    @Override
+    public void setHeight(UIHeight height)
+    {
+
     }
 }

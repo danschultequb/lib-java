@@ -45,6 +45,16 @@ public class AssertionMessages
         return variableName + " (" + value + ") must be less than or equal to " + upperBound + ".";
     }
 
+    public static <T> String nullOrGreaterThanOrEqualTo(T value, T lowerBound, String expressionName)
+    {
+        return expressionName + " (" + value + ") must be null or greater than or equal to " + lowerBound + ".";
+    }
+
+    public static <T> String nullOrGreaterThan(T value, T lowerBound, String expressionName)
+    {
+        return expressionName + " (" + value + ") must be null or greater than " + lowerBound + ".";
+    }
+
     public static <T> String greaterThanOrEqualTo(T value, T lowerBound, String variableName)
     {
         return variableName + " (" + value + ") must be greater than or equal to " + lowerBound + ".";

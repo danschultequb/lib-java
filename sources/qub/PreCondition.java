@@ -358,6 +358,34 @@ public class PreCondition
     }
 
     /**
+     * Assert that value is null or greater than or equal to lowerBound.
+     * @param value The value to ensure is null or greater than or equal to lowerBound.
+     * @param lowerBound The lower bound to ensure that the value is greater than or equal to.
+     * @param expressionName The name of the variable that contains the value.
+     */
+    public static <T extends Comparable<T>> void assertNullOrGreaterThanOrEqualTo(T value, T lowerBound, String expressionName)
+    {
+        if (value != null && !Comparer.greaterThanOrEqualTo(value, lowerBound))
+        {
+            throw new PreConditionFailure(AssertionMessages.nullOrGreaterThanOrEqualTo(value, lowerBound, expressionName));
+        }
+    }
+
+    /**
+     * Assert that value is null or greater than lowerBound.
+     * @param value The value to ensure is null or greater than lowerBound.
+     * @param lowerBound The lower bound to ensure that the value is greater than.
+     * @param expressionName The name of the variable that contains the value.
+     */
+    public static <T extends Comparable<T>> void assertNullOrGreaterThan(T value, T lowerBound, String expressionName)
+    {
+        if (value != null && !Comparer.greaterThan(value, lowerBound))
+        {
+            throw new PreConditionFailure(AssertionMessages.nullOrGreaterThan(value, lowerBound, expressionName));
+        }
+    }
+
+    /**
      * Assert that value is greater than lowerBound.
      * @param value The value to ensure is greater than lowerBound.
      * @param lowerBound The lower bound to ensure that the value is greater than.

@@ -1,5 +1,7 @@
 package qub;
 
+import java.awt.Font;
+
 public class FakeWindow extends WindowBase
 {
     private boolean opened;
@@ -135,5 +137,17 @@ public class FakeWindow extends WindowBase
     public Distance getHeight()
     {
         return height;
+    }
+
+    @Override
+    public Distance getTextWidth(String text)
+    {
+        return null;
+    }
+
+    @Override
+    public Distance getTextWidth(String text, Font font)
+    {
+        return null;
     }
 }

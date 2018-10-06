@@ -6,15 +6,19 @@ public class UIText implements UIElement
     private Distance padding;
     private String text;
     private Distance fontSize;
-    private Distance width;
+    private UIWidth width;
+    private UIHeight height;
+
+    public UIText()
+    {
+        this(null);
+    }
 
     public UIText(String text)
     {
-        PreCondition.assertNotNull(text, "text");
-
-        setPadding(Distance.zero);
         setText(text);
-        setWidth(Distance.zero);
+        setWidth(Distance.inches(1));
+        setHeight(Distance.inches(1));
     }
 
     @Override
@@ -38,8 +42,7 @@ public class UIText implements UIElement
      */
     public void setPadding(Distance padding)
     {
-        PreCondition.assertNotNull(padding, "padding");
-        PreCondition.assertLessThanOrEqualTo(Distance.zero, padding, "padding");
+        PreCondition.assertNullOrGreaterThanOrEqualTo(padding, Distance.zero, "padding");
 
         this.padding = padding;
     }
@@ -59,8 +62,6 @@ public class UIText implements UIElement
      */
     public void setText(String text)
     {
-        PreCondition.assertNotNull(text, "text");
-
         this.text = text;
     }
 
@@ -88,7 +89,7 @@ public class UIText implements UIElement
      */
     public void setFontSize(Distance fontSize)
     {
-        PreCondition.assertTrue(fontSize == null || fontSize.getValue() > 0, "fontSize == null || fontSize.getValue() > 0");
+        PreCondition.assertNullOrGreaterThan(fontSize, Distance.zero, "fontSize");
 
         this.fontSize = fontSize;
     }
@@ -96,6 +97,8 @@ public class UIText implements UIElement
     @Override
     public void paint(UIPainter painter)
     {
+        PreCondition.assertNotNull(painter, "painter");
+
         final boolean applyPadding = (padding != null && padding.getValue() != 0);
         if (applyPadding)
         {
@@ -142,11 +145,6 @@ public class UIText implements UIElement
         return parentElement == null ? null : parentElement.getParentWindow();
     }
 
-    @Override
-    public void handleMouseEvent(MouseEvent event)
-    {
-    }
-
     /**
      * Set the width of this UIElement (including the padding).
      * @param width The width of this UIElement (including the padding).
@@ -154,6 +152,14 @@ public class UIText implements UIElement
     public void setWidth(Distance width)
     {
         PreCondition.assertGreaterThanOrEqualTo(width, Distance.zero, "width");
+
+        setWidth(UIWidth.fixed(width));
+    }
+
+    @Override
+    public void setWidth(UIWidth width)
+    {
+        PreCondition.assertNotNull(width, "width");
 
         this.width = width;
     }
@@ -164,6 +170,28 @@ public class UIText implements UIElement
      */
     public Distance getWidth()
     {
-        return width;
+        return width.getWidth(this);
+    }
+
+    @Override
+    public Distance getHeight()
+    {
+        return height.getHeight(this);
+    }
+
+    @Override
+    public void setHeight(Distance height)
+    {
+        PreCondition.assertGreaterThanOrEqualTo(height, Distance.zero, "height");
+
+        setHeight(UIHeight.fixed(height));
+    }
+
+    @Override
+    public void setHeight(UIHeight height)
+    {
+        PreCondition.assertNotNull(height, "height");
+
+        this.height = height;
     }
 }

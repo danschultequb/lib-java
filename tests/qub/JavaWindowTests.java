@@ -101,25 +101,6 @@ public class JavaWindowTests
                 });
             });
 
-            runner.testGroup("setContent(UIElement)", () ->
-            {
-                runner.test("with null", (Test test) ->
-                {
-                    try (final JavaWindow window = createWindow(test))
-                    {
-                        test.assertThrows(() -> window.setContent((UIElement)null));
-                    }
-                });
-
-                runner.test("with UIText", (Test test) ->
-                {
-                    try (final JavaWindow window = createWindow(test))
-                    {
-                        window.setContent(new UIText("Hello World!"));
-                    }
-                });
-            });
-
             runner.testGroup("awaitClose()", () ->
             {
                 runner.test("when not open", (Test test) ->

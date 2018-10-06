@@ -34,6 +34,6 @@ public class UIElementToJComponentAdapter extends javax.swing.JComponent
     @Override
     protected void processMouseEvent(java.awt.event.MouseEvent e)
     {
-        uiElement.handleMouseEvent(new JavaMouseEvent(e));
+//        uiElement.handleMouseEvent(new JavaMouseEvent(e));
     }
 }
