@@ -212,6 +212,20 @@ public class PostCondition
     }
 
     /**
+     * Assert that value is null or greater than or equal to lowerBound.
+     * @param value The value to ensure is null or greater than or equal to lowerBound.
+     * @param lowerBound The lower bound to ensure that the value is greater than or equal to.
+     * @param variableName The name of the variable that contains the value.
+     */
+    public static <T extends Comparable<T>> void assertNullOrGreaterThanOrEqualTo(T value, T lowerBound, String variableName)
+    {
+        if (!Comparer.nullOrGreaterThanOrEqualTo(value, lowerBound))
+        {
+            throw new PostConditionFailure(AssertionMessages.nullOrGreaterThanOrEqualTo(value, lowerBound, variableName));
+        }
+    }
+
+    /**
      * Assert that value is greater than lowerBound.
      * @param value The value to ensure is greater than lowerBound.
      * @param lowerBound The lower bound to ensure that the value is greater than.

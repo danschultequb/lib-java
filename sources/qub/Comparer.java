@@ -390,6 +390,21 @@ public final class Comparer
     }
 
     /**
+     * Return whether or not the provided value is greater than or equal to the provided lowerBound
+     * and is less than or equal to the provided upper bound.
+     * @param lowerBound The lower bound.
+     * @param value The value to compare.
+     * @param upperBound The upper bound.
+     * @return Whether or not the value is between the provided lower and upper bounds.
+     */
+    public static boolean between(double lowerBound, double value, double upperBound)
+    {
+        return lowerBound > upperBound
+                   ? between(upperBound, value, lowerBound)
+                   : lowerBound <= value && value <= upperBound;
+    }
+
+    /**
      * Get whether or not the provided lhs value is less than the provided rhs value.
      * @param lhs The first value to compare.
      * @param rhs The second value to compare.
@@ -446,6 +461,18 @@ public final class Comparer
     public static <T extends Comparable<T>> boolean greaterThanOrEqualTo(T value, T lowerBound)
     {
         return value == lowerBound || value.greaterThanOrEqualTo(lowerBound);
+    }
+
+    /**
+     * Get whether or not the provided value is null or greater than or equal to the lowerBound.
+     * @param value The value to compare.
+     * @param lowerBound The second value to compare.
+     * @param <T> The type of the values to compare.
+     * @return Whether or not the value is null or greater than or equal to the provided lowerBound.
+     */
+    public static <T extends Comparable<T>> boolean nullOrGreaterThanOrEqualTo(T value, T lowerBound)
+    {
+        return value == null || greaterThanOrEqualTo(value, lowerBound);
     }
 
     /**

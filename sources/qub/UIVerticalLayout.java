@@ -57,6 +57,15 @@ public class UIVerticalLayout implements UIElement, UIElementParent
     }
 
     @Override
+    public void parentWindowChanged(Window previousParentWindow, Window newParentWindow)
+    {
+        for (final UIElement childElement : childElements)
+        {
+            childElement.parentWindowChanged(previousParentWindow, newParentWindow);
+        }
+    }
+
+    @Override
     public Distance getWidth()
     {
         return null;
@@ -94,5 +103,18 @@ public class UIVerticalLayout implements UIElement, UIElementParent
         PreCondition.assertNotNull(height, "height");
 
         this.height = height;
+    }
+
+    @Override
+    public void setSize(Distance width, Distance height)
+    {
+
+    }
+
+    public void add(UIElement element)
+    {
+        PreCondition.assertNotNull(element, "element");
+
+        childElements.add(element);
     }
 }

@@ -24,7 +24,7 @@ public abstract class BasicDisposable extends DisposableBase
             disposed = true;
             result = Result.successTrue();
         }
-        return null;
+        return result;
     }
 
     protected abstract void onDispose();

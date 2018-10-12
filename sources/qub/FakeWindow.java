@@ -1,21 +1,19 @@
 package qub;
 
-import java.awt.Font;
-
 public class FakeWindow extends WindowBase
 {
     private boolean opened;
     private boolean disposed;
     private UIPainter painter;
     private UIElement content;
-    private Distance width;
-    private Distance height;
+    private Size2D size;
+    private Display display;
 
     public FakeWindow()
     {
         painter = new FakePainter();
-        width = Distance.zero;
-        height = Distance.zero;
+        size = Size2D.zero;
+        display = new Display(1000, 1000, 100, 100);
     }
 
     @Override
@@ -92,13 +90,19 @@ public class FakeWindow extends WindowBase
             if (content != null)
             {
                 content.setParent(null);
+                content.parentWindowChanged(this, null);
             }
 
             content = uiElement;
 
             if (uiElement != null)
             {
+                final Window previousParentWindow = uiElement.getParentWindow();
                 uiElement.setParent(this);
+                if (previousParentWindow != this)
+                {
+                    uiElement.parentWindowChanged(previousParentWindow, this);
+                }
             }
 
             repaint();
@@ -116,13 +120,13 @@ public class FakeWindow extends WindowBase
     {
         PreCondition.assertGreaterThanOrEqualTo(width, Distance.zero, "width");
 
-        this.width = width;
+        setSize(getSize().changeWidth(width));
     }
 
     @Override
     public Distance getWidth()
     {
-        return width;
+        return size.getWidth();
     }
 
     @Override
@@ -130,24 +134,72 @@ public class FakeWindow extends WindowBase
     {
         PreCondition.assertGreaterThanOrEqualTo(height, Distance.zero, "height");
 
-        this.height = height;
+        setSize(getSize().changeHeight(height));
     }
 
     @Override
     public Distance getHeight()
     {
-        return height;
+        return size.getHeight();
     }
 
     @Override
-    public Distance getTextWidth(String text)
+    public Size2D getSize()
     {
-        return null;
+        return size;
     }
 
     @Override
-    public Distance getTextWidth(String text, Font font)
+    public void setSize(Distance width, Distance height)
     {
-        return null;
+        PreCondition.assertGreaterThanOrEqualTo(width, Distance.zero, "width");
+        PreCondition.assertGreaterThanOrEqualTo(height, Distance.zero, "height");
+
+        setSize(new Size2D(width, height));
+    }
+
+    @Override
+    public void setSize(Size2D size)
+    {
+        PreCondition.assertNotNull(size, "size");
+
+        this.size = size;
+    }
+
+    public void setDisplay(Display display)
+    {
+        PreCondition.assertNotNull(display, "display");
+
+        this.display = display;
+    }
+
+    @Override
+    public double convertHorizontalDistanceToPixels(Distance horizontalDistance)
+    {
+        return display.convertHorizontalDistanceToPixels(horizontalDistance);
+    }
+
+    @Override
+    public Distance convertHorizontalPixelsToDistance(double horizontalPixels)
+    {
+        return display.convertHorizontalPixelsToDistance(horizontalPixels);
+    }
+
+    @Override
+    public double convertVerticalDistanceToPixels(Distance verticalDistance)
+    {
+        return display.convertVerticalDistanceToPixels(verticalDistance);
+    }
+
+    @Override
+    public Distance convertVerticalPixelsToDistance(double verticalPixels)
+    {
+        return display.convertVerticalPixelsToDistance(verticalPixels);
+    }
+
+    @Override
+    public Size2D convertPixelsToSize2D(double horizontalPixels, double verticalPixels)
+    {
+        return display.convertPixelsToSize2D(horizontalPixels, verticalPixels);
     }
 }

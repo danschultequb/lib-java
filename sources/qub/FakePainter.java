@@ -7,7 +7,8 @@ public class FakePainter implements UIPainter
 {
     private final List<PainterAction> actions;
     private final List<Vector2D> translations;
-    private final List<Distance> fontSizes;
+    private final List<Font> fonts;
+    private final List<Color> colors;
 
     /**
      * Create a new FakePainter.
@@ -16,7 +17,8 @@ public class FakePainter implements UIPainter
     {
         this.actions = new ArrayList<>();
         this.translations = ArrayList.fromValues(new Vector2D[] { Vector2D.zero });
-        this.fontSizes = ArrayList.fromValues(new Distance[] { Distance.fontPoints(14) });
+        this.fonts = ArrayList.fromValues(new Font[] { new Font(Distance.fontPoints(14)) });
+        this.colors = ArrayList.fromValues(new Color[] { Color.black });
     }
 
     public void clearActions()
@@ -34,9 +36,19 @@ public class FakePainter implements UIPainter
         return translations.last();
     }
 
+    public Font getFont()
+    {
+        return fonts.last();
+    }
+
     public Distance getFontSize()
     {
-        return fontSizes.last();
+        return getFont().getSize();
+    }
+
+    public Color getColor()
+    {
+        return colors.last();
     }
 
     private Point2D transform(Point2D point)
@@ -49,7 +61,7 @@ public class FakePainter implements UIPainter
     @Override
     public void drawText(String text, Point2D topLeft)
     {
-        actions.add(new DrawTextAction(text, transform(topLeft), getFontSize()));
+        actions.add(new DrawTextAction(text, transform(topLeft), getFontSize(), getColor()));
     }
 
     @Override
@@ -79,6 +91,12 @@ public class FakePainter implements UIPainter
     }
 
     @Override
+    public void drawRectangle(Distance width, Distance height)
+    {
+        drawRectangle(Distance.zero, Distance.zero, width, height);
+    }
+
+    @Override
     public void drawRectangle(Distance topLeftX, Distance topLeftY, Distance width, Distance height)
     {
         PreCondition.assertNotNull(topLeftX, "topLeftX");
@@ -86,7 +104,24 @@ public class FakePainter implements UIPainter
         PreCondition.assertGreaterThan(width, Distance.zero, "width");
         PreCondition.assertGreaterThan(height, Distance.zero, "height");
 
-        actions.add(new DrawRectangleAction(new Point2D(topLeftX, topLeftY), width, height));
+        actions.add(new DrawRectangleAction(new Point2D(topLeftX, topLeftY), width, height, getColor()));
+    }
+
+    @Override
+    public void fillRectangle(Distance width, Distance height)
+    {
+        fillRectangle(Distance.zero, Distance.zero, width, height);
+    }
+
+    @Override
+    public void fillRectangle(Distance topLeftX, Distance topLeftY, Distance width, Distance height)
+    {
+        PreCondition.assertNotNull(topLeftX, "topLeftX");
+        PreCondition.assertNotNull(topLeftY, "topLeftY");
+        PreCondition.assertGreaterThan(width, Distance.zero, "width");
+        PreCondition.assertGreaterThan(height, Distance.zero, "height");
+
+        actions.add(new FillRectangleAction(new Point2D(topLeftX, topLeftY), width, height, getColor()));
     }
 
     @Override
@@ -119,31 +154,76 @@ public class FakePainter implements UIPainter
     @Override
     public void restoreTransform()
     {
-        PreCondition.assertLessThanOrEqualTo(translations.getCount(), 2, "translations.getCount()");
+        PreCondition.assertGreaterThanOrEqualTo(translations.getCount(), 2, "translations.getCount()");
 
         translations.removeLast();
     }
 
     @Override
-    public void setFontSize(Distance fontSize)
+    public void setFont(Font font)
     {
-        PreCondition.assertNotNull(fontSize, "fonstSize");
-        PreCondition.assertGreaterThan(fontSize, Distance.zero, "fontSize");
+        PreCondition.assertNotNull(font, "font");
 
-        fontSizes.setLast(fontSize);
+        fonts.setLast(font);
     }
 
     @Override
-    public void saveFont()
+    public void setFontSize(Distance fontSize)
     {
-        fontSizes.add(getFontSize());
+        PreCondition.assertGreaterThanOrEqualTo(fontSize, Distance.zero, "fontSize");
+
+        setFont(getFont().changeSize(fontSize));
+    }
+
+    @Override
+    public Disposable saveFont()
+    {
+        fonts.add(getFont());
+        return new BasicDisposable()
+        {
+            @Override
+            protected void onDispose()
+            {
+                restoreFont();
+            }
+        };
     }
 
     @Override
     public void restoreFont()
     {
-        PreCondition.assertGreaterThanOrEqualTo(fontSizes.getCount(), 2, "fontSizes.getCount()");
+        PreCondition.assertGreaterThanOrEqualTo(fonts.getCount(), 2, "fontSizes.getCount()");
 
-        fontSizes.removeLast();
+        fonts.removeLast();
+    }
+
+    @Override
+    public void setColor(Color color)
+    {
+        PreCondition.assertNotNull(color, "color");
+
+        colors.setLast(color);
+    }
+
+    @Override
+    public Disposable saveColor()
+    {
+        colors.add(getColor());
+        return new BasicDisposable()
+        {
+            @Override
+            protected void onDispose()
+            {
+                restoreColor();
+            }
+        };
+    }
+
+    @Override
+    public void restoreColor()
+    {
+        PreCondition.assertNotNullAndNotEmpty(colors, "colors");
+
+        colors.removeLast();
     }
 }

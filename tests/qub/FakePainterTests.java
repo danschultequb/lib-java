@@ -55,7 +55,7 @@ public class FakePainterTests
                     test.assertEqual(
                         Array.fromValues(new PainterAction[]
                         {
-                            new DrawTextAction("kittens", Point2D.zero, Distance.fontPoints(14))
+                            new DrawTextAction("kittens", Point2D.zero, Distance.fontPoints(14), Color.black)
                         }),
                         painter.getActions());
                 });
@@ -94,11 +94,12 @@ public class FakePainterTests
                 runner.test("with non-empty text", (Test test) ->
                 {
                     final FakePainter painter = new FakePainter();
+                    painter.setColor(Color.green);
                     painter.drawText("kittens", Distance.inches(3), Distance.inches(4));
                     test.assertEqual(
                         Array.fromValues(new PainterAction[]
                         {
-                            new DrawTextAction("kittens", new Point2D(Distance.inches(3), Distance.inches(4)), Distance.fontPoints(14))
+                            new DrawTextAction("kittens", new Point2D(Distance.inches(3), Distance.inches(4)), Distance.fontPoints(14), Color.green)
                         }),
                         painter.getActions());
                 });
@@ -134,7 +135,7 @@ public class FakePainterTests
                     test.assertEqual(
                         Array.fromValues(new PainterAction[]
                         {
-                            new DrawTextAction("kittens", new Point2D(Distance.inches(0.1), Distance.inches(0.2)), Distance.fontPoints(14))
+                            new DrawTextAction("kittens", new Point2D(Distance.inches(0.1), Distance.inches(0.2)), Distance.fontPoints(14), Color.black)
                         }),
                         painter.getActions());
                 });
@@ -265,9 +266,130 @@ public class FakePainterTests
                     test.assertEqual(
                         Array.fromValues(new PainterAction[]
                         {
-                            new DrawRectangleAction(Point2D.zero, Distance.inches(1), Distance.inches(2))
+                            new DrawRectangleAction(Point2D.zero, Distance.inches(1), Distance.inches(2), Color.black)
                         }),
                         painter.getActions());
+                });
+            });
+
+            runner.testGroup("fillRectangle(Distance,Distance)", () ->
+            {
+                runner.test("with null width", (Test test) ->
+                {
+                    final FakePainter painter = new FakePainter();
+                    test.assertThrows(() -> painter.fillRectangle(null, Distance.miles(1)));
+                });
+
+                runner.test("with negative width", (Test test) ->
+                {
+                    final FakePainter painter = new FakePainter();
+                    test.assertThrows(() -> painter.fillRectangle(Distance.millimeters(-1), Distance.miles(1)));
+                });
+
+                runner.test("with null height", (Test test) ->
+                {
+                    final FakePainter painter = new FakePainter();
+                    test.assertThrows(() -> painter.fillRectangle(Distance.inches(10), null));
+                });
+
+                runner.test("with negative width", (Test test) ->
+                {
+                    final FakePainter painter = new FakePainter();
+                    test.assertThrows(() -> painter.fillRectangle(Distance.inches(10), Distance.centimeters(-10)));
+                });
+
+                runner.test("with positive width and height", (Test test) ->
+                {
+                    final FakePainter painter = new FakePainter();
+
+                    painter.fillRectangle(Distance.inches(1), Distance.inches(3));
+
+                    test.assertEqual(
+                        Array.fromValues(new PainterAction[]
+                        {
+                            new FillRectangleAction(Point2D.zero, Distance.inches(1), Distance.inches(3), Color.black)
+                        }),
+                        painter.getActions());
+                });
+
+                runner.test("with positive width and height and color", (Test test) ->
+                {
+                    final FakePainter painter = new FakePainter();
+                    painter.setColor(Color.green);
+
+                    painter.fillRectangle(Distance.inches(1), Distance.inches(3));
+
+                    test.assertEqual(
+                        Array.fromValues(new PainterAction[]
+                        {
+                            new FillRectangleAction(Point2D.zero, Distance.inches(1), Distance.inches(3), Color.green)
+                        }),
+                        painter.getActions());
+                });
+            });
+
+            runner.testGroup("translate(Distance,Distance)", () ->
+            {
+                runner.test("with null x", (Test test) ->
+                {
+                    final FakePainter painter = new FakePainter();
+                    test.assertThrows(() -> painter.translate(null, Distance.zero));
+                    test.assertEqual(Vector2D.zero, painter.getTranslation());
+                });
+
+                runner.test("with null y", (Test test) ->
+                {
+                    final FakePainter painter = new FakePainter();
+                    test.assertThrows(() -> painter.translate(Distance.zero, null));
+                    test.assertEqual(Vector2D.zero, painter.getTranslation());
+                });
+
+                runner.test("with zero x and zero y", (Test test) ->
+                {
+                    final FakePainter painter = new FakePainter();
+                    painter.translate(Distance.zero, Distance.zero);
+                    test.assertEqual(Vector2D.zero, painter.getTranslation());
+                });
+            });
+
+            runner.testGroup("saveTransform()", () ->
+            {
+                runner.test("when no changes happen between save and restore", (Test test) ->
+                {
+                    final FakePainter painter = new FakePainter();
+                    final Disposable disposable = painter.saveTransform();
+                    test.assertNotNull(disposable);
+                    test.assertEqual(Vector2D.zero, painter.getTranslation());
+                    test.assertSuccess(true, disposable.dispose());
+                    test.assertEqual(Vector2D.zero, painter.getTranslation());
+                    test.assertSuccess(false, disposable.dispose());
+                    test.assertEqual(Vector2D.zero, painter.getTranslation());
+                });
+
+                runner.test("when changes happen between save and restore", (Test test) ->
+                {
+                    final FakePainter painter = new FakePainter();
+                    final Disposable disposable = painter.saveTransform();
+                    test.assertNotNull(disposable);
+                    test.assertEqual(Vector2D.zero, painter.getTranslation());
+
+                    painter.translate(Distance.inches(1), Distance.inches(2));
+                    test.assertEqual(new Vector2D(Distance.inches(1), Distance.inches(2)), painter.getTranslation());
+
+                    test.assertSuccess(true, disposable.dispose());
+                    test.assertEqual(Vector2D.zero, painter.getTranslation());
+                    test.assertSuccess(false, disposable.dispose());
+                    test.assertEqual(Vector2D.zero, painter.getTranslation());
+                });
+            });
+
+            runner.testGroup("restoreTransform()", () ->
+            {
+                runner.test("when no saves have happened", (Test test) ->
+                {
+                    final FakePainter painter = new FakePainter();
+                    test.assertThrows(() -> painter.restoreTransform());
+                    test.assertEqual(Vector2D.zero, painter.getTranslation());
                 });
             });
         });

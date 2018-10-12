@@ -28,6 +28,13 @@ public interface UIElement
     Window getParentWindow();
 
     /**
+     * A function that is called when the UIElement's parent window changes.
+     * @param previousParentWindow The previous parent window.
+     * @param newParentWindow The new parent window.
+     */
+    void parentWindowChanged(Window previousParentWindow, Window newParentWindow);
+
+    /**
      * Respond to a mouse-related event.
      * @param event The mouse-related event.
      */
@@ -68,4 +75,11 @@ public interface UIElement
      * @param height The new height of this UIElement.
      */
     void setHeight(UIHeight height);
+
+    /**
+     * Set the width and height of this UIElement.
+     * @param width The new width of this UIElement.
+     * @param height The new height of this UIElement.
+     */
+    void setSize(Distance width, Distance height);
 }

@@ -9,6 +9,11 @@ public class Display
     private final double horizontalScale;
     private final double verticalScale;
 
+    public Display(double widthInPixels, double heightInPixels, double horizontalDpi, double verticalDpi)
+    {
+        this(widthInPixels, heightInPixels, horizontalDpi, verticalDpi, 1, 1);
+    }
+
     public Display(double widthInPixels, double heightInPixels, double horizontalDpi, double verticalDpi, double horizontalScale, double verticalScale)
     {
         this.widthInPixels = widthInPixels;
@@ -43,17 +48,7 @@ public class Display
      */
     public double getHorizontalDpi()
     {
-        return getHorizontalDpi(true);
-    }
-
-    public double getHorizontalDpi(boolean useDisplayScaling)
-    {
-        double result = horizontalDpi;
-        if (!useDisplayScaling)
-        {
-            result /= horizontalScale;
-        }
-        return result;
+        return horizontalDpi / horizontalScale;
     }
 
     /**
@@ -62,17 +57,7 @@ public class Display
      */
     public double getVerticalDpi()
     {
-        return getVerticalDpi(true);
-    }
-
-    public double getVerticalDpi(boolean useDisplayScaling)
-    {
-        double result = verticalDpi;
-        if (!useDisplayScaling)
-        {
-            result /= verticalScale;
-        }
-        return result;
+        return verticalDpi / verticalScale;
     }
 
     /**
@@ -99,12 +84,12 @@ public class Display
         return verticalScale;
     }
 
-    public double convertHorizontalDistanceToPixels(Distance horizontalDistance, boolean useDisplayScaling)
+    public double convertHorizontalDistanceToPixels(Distance horizontalDistance)
     {
         PreCondition.assertNotNull(horizontalDistance, "horizontalDistance");
 
         final Distance horizontalDistanceInInches = horizontalDistance.toInches();
-        final double result = horizontalDistanceInInches.getValue() * getHorizontalDpi(useDisplayScaling);
+        final double result = horizontalDistanceInInches.getValue() * getHorizontalDpi();
 
         PostCondition.assertGreaterThanOrEqualTo(result, 0, "result");
 
@@ -123,12 +108,12 @@ public class Display
         return result;
     }
 
-    public double convertVerticalDistanceToPixels(Distance verticalDistance, boolean useDisplayScaling)
+    public double convertVerticalDistanceToPixels(Distance verticalDistance)
     {
         PreCondition.assertNotNull(verticalDistance, "verticalDistance");
 
         final Distance verticalDistanceInInches = verticalDistance.toInches();
-        final double result = verticalDistanceInInches.getValue() * getVerticalDpi(useDisplayScaling);
+        final double result = verticalDistanceInInches.getValue() * getVerticalDpi();
 
         PostCondition.assertGreaterThanOrEqualTo(result, 0, "result");
 
@@ -143,6 +128,20 @@ public class Display
         final Distance result = Distance.inches(distanceValue);
 
         PostCondition.assertGreaterThanOrEqualTo(result, Distance.zero, "result");
+
+        return result;
+    }
+
+    public Size2D convertPixelsToSize2D(double horizontalPixels, double verticalPixels)
+    {
+        PreCondition.assertGreaterThanOrEqualTo(horizontalPixels, 0, "horizontalPixels");
+        PreCondition.assertGreaterThanOrEqualTo(verticalPixels, 0, "verticalPixels");
+
+        final Distance horizontalDistance = convertHorizontalPixelsToDistance(horizontalPixels);
+        final Distance verticalDistance = convertVerticalPixelsToDistance(verticalPixels);
+        final Size2D result = new Size2D(horizontalDistance, verticalDistance);
+
+        PostCondition.assertNotNull(result, "result");
 
         return result;
     }

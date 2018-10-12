@@ -128,7 +128,7 @@ public class UITextTests
                     test.assertEqual(
                         Array.fromValues(new PainterAction[]
                         {
-                            new DrawTextAction("ABC", Point2D.zero, Distance.fontPoints(14))
+                            new DrawTextAction("ABC", Point2D.zero, Distance.fontPoints(14), Color.black)
                         }),
                         painter.getActions());
                 });
@@ -144,7 +144,7 @@ public class UITextTests
                     test.assertEqual(
                         Array.fromValues(new PainterAction[]
                         {
-                            new DrawTextAction("ABC", Point2D.zero, Distance.fontPoints(14))
+                            new DrawTextAction("ABC", Point2D.zero, Distance.fontPoints(14), Color.black)
                         }),
                         painter.getActions());
                 });
@@ -161,7 +161,25 @@ public class UITextTests
                     test.assertEqual(
                         Array.fromValues(new PainterAction[]
                         {
-                            new DrawTextAction("Tulips", new Point2D(Distance.inches(3), Distance.inches(3)), Distance.millimeters(5))
+                            new DrawTextAction("Tulips", new Point2D(Distance.inches(3), Distance.inches(3)), Distance.millimeters(5), Color.black)
+                        }),
+                        painter.getActions());
+                });
+
+                runner.test("with background color", (Test test) ->
+                {
+                    final UIText text = new UIText("Answers");
+                    text.setSize(Distance.inches(2), Distance.inches(0.5));
+                    text.setBackground(Color.red);
+
+                    final FakePainter painter = new FakePainter();
+                    text.paint(painter);
+
+                    test.assertEqual(
+                        Array.fromValues(new PainterAction[]
+                        {
+                            new FillRectangleAction(Point2D.zero, Distance.inches(2), Distance.inches(0.5), Color.red),
+                            new DrawTextAction("Answers", Point2D.zero, Distance.fontPoints(14), Color.black)
                         }),
                         painter.getActions());
                 });
@@ -193,7 +211,7 @@ public class UITextTests
                     test.assertEqual(
                         Array.fromValues(new PainterAction[]
                         {
-                            new DrawTextAction("apples", Point2D.zero, Distance.fontPoints(14))
+                            new DrawTextAction("apples", Point2D.zero, Distance.fontPoints(14), Color.black)
                         }),
                         painter.getActions());
                 });
@@ -287,6 +305,55 @@ public class UITextTests
                     final UIText text = new UIText("apples");
                     text.setHeight(Distance.inches(3));
                     test.assertEqual(Distance.inches(3), text.getHeight());
+                });
+            });
+
+            runner.testGroup("getContentWidth()", () ->
+            {
+                runner.test("with no parentWindow", (Test test) ->
+                {
+                    final UIText text = new UIText("test");
+                    test.assertNull(text.getContentWidth());
+                });
+
+                runner.test("with parentWindow", (Test test) ->
+                {
+                    final UIText text = new UIText("test");
+                    final FakeWindow window = new FakeWindow();
+                    window.setContent(text);
+
+                    test.assertEqual(Distance.inches(0.2), text.getContentWidth());
+                });
+
+                runner.test("with changed parentWindow and no UIText font", (Test test) ->
+                {
+                    final UIText text = new UIText("test");
+
+                    final FakeWindow window1 = new FakeWindow();
+                    window1.setContent(text);
+                    test.assertEqual(Distance.inches(0.2), text.getContentWidth());
+
+                    final FakeWindow window2 = new FakeWindow();
+                    window2.setDisplay(new Display(1000, 1000, 200, 200));
+                    window2.setContent(text);
+                    test.assertEqual(Distance.inches(0.1), text.getContentWidth());
+                });
+
+                runner.test("with changed parentWindow and UIText font", (Test test) ->
+                {
+                    final UIText text = new UIText("test");
+                    text.setFontSize(Distance.fontPoints(14));
+
+                    final FakeWindow window1 = new FakeWindow();
+                    window1.setContent(text);
+                    test.assertEqual(Distance.inches(0.23), text.getContentWidth());
+                    test.assertEqual(Distance.inches(0.17609375), text.getContentHeight());
+
+                    final FakeWindow window2 = new FakeWindow();
+                    window2.setDisplay(new Display(1000, 1000, 200, 200));
+                    window2.setContent(text);
+                    test.assertEqual(Distance.inches(0.115), text.getContentWidth());
+                    test.assertEqual(Distance.inches(0.088046875), text.getContentHeight());
                 });
             });
         });

@@ -1,13 +1,13 @@
 package qub;
 
-public class DrawRectangleAction implements PainterAction
+public class FillRectangleAction implements PainterAction
 {
     private final Point2D topLeft;
     private final Distance width;
     private final Distance height;
     private final Color color;
 
-    public DrawRectangleAction(Point2D topLeft, Distance width, Distance height, Color color)
+    public FillRectangleAction(Point2D topLeft, Distance width, Distance height, Color color)
     {
         PreCondition.assertNotNull(topLeft, "topLeft");
         PreCondition.assertNotNull(width, "width");
@@ -43,16 +43,16 @@ public class DrawRectangleAction implements PainterAction
     @Override
     public String toString()
     {
-        return "{type:\"DrawRectangleAction\",\"topLeft\": \"" + topLeft + "\",\"width\":" + width + "\",\"height\":\"" + height + "\",\"color\":\"" + color + "\"}";
+        return "{type:\"FillRectangleAction\",\"topLeft\": \"" + topLeft + "\",\"width\":" + width + "\",\"height\":\"" + height + "\",\"color\":\"" + color + "\"}";
     }
 
     @Override
     public boolean equals(Object rhs)
     {
-        return rhs instanceof DrawRectangleAction && equals((DrawRectangleAction)rhs);
+        return rhs instanceof FillRectangleAction && equals((FillRectangleAction)rhs);
     }
 
-    public boolean equals(DrawRectangleAction rhs)
+    public boolean equals(FillRectangleAction rhs)
     {
         return rhs != null &&
             topLeft.equals(rhs.topLeft) &&
@@ -64,6 +64,6 @@ public class DrawRectangleAction implements PainterAction
     @Override
     public int hashCode()
     {
-        return topLeft.hashCode() ^ width.hashCode() ^ height.hashCode();
+        return Hash.getHashCode(topLeft, width, height, color);
     }
 }

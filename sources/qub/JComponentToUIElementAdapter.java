@@ -1,7 +1,5 @@
 package qub;
 
-import java.awt.Rectangle;
-
 public class JComponentToUIElementAdapter implements UIElement
 {
     private final javax.swing.JComponent jComponent;
@@ -26,7 +24,7 @@ public class JComponentToUIElementAdapter implements UIElement
             }
 
             @Override
-            public void repaint(Rectangle r)
+            public void repaint(java.awt.Rectangle r)
             {
                 JComponentToUIElementAdapter.this.repaint();
             }
@@ -84,6 +82,11 @@ public class JComponentToUIElementAdapter implements UIElement
     }
 
     @Override
+    public void parentWindowChanged(Window previousParentWindow, Window newParentWindow)
+    {
+    }
+
+    @Override
     public Distance getWidth()
     {
         return null;
@@ -125,6 +128,12 @@ public class JComponentToUIElementAdapter implements UIElement
 
     @Override
     public void setHeight(UIHeight height)
+    {
+
+    }
+
+    @Override
+    public void setSize(Distance width, Distance height)
     {
 
     }

@@ -1,8 +1,5 @@
 package qub;
 
-import java.awt.Font;
-import java.awt.image.BufferedImage;
-
 public class JavaWindow extends WindowBase
 {
     private final AsyncRunner mainAsyncRunner;
@@ -205,70 +202,32 @@ public class JavaWindow extends WindowBase
     }
 
     @Override
-    public Distance getTextWidth(String text)
+    public Size2D getSize()
     {
-        Distance result;
-        if (Strings.isNullOrEmpty(text))
-        {
-            result = Distance.zero;
-        }
-        else
-        {
-            final java.awt.Graphics imageGraphics = createImageGraphics();
-            try
-            {
-                final java.awt.Font defaultFont = imageGraphics.getFont();
-                result = getTextWidth(text, imageGraphics, defaultFont);
-            }
-            finally
-            {
-                imageGraphics.dispose();
-            }
-        }
+        final Size2D result = new Size2D(getWidth(), getHeight());
 
-        PostCondition.assertGreaterThanOrEqualTo(result, Distance.zero, "result");
+        PostCondition.assertNotNull(result, "result");
 
         return result;
     }
 
     @Override
-    public Distance getTextWidth(String text, java.awt.Font font)
+    public void setSize(Distance width, Distance height)
     {
-        PreCondition.assertNotNull(font, "font");
+        PreCondition.assertGreaterThanOrEqualTo(width, Distance.zero, "width");
+        PreCondition.assertGreaterThanOrEqualTo(height, Distance.zero, "height");
 
-        Distance result;
-        if (Strings.isNullOrEmpty(text))
-        {
-            result = Distance.zero;
-        }
-        else
-        {
-            final java.awt.Graphics imageGraphics = createImageGraphics();
-            try
-            {
-                result = getTextWidth(text, imageGraphics, font);
-            }
-            finally
-            {
-                imageGraphics.dispose();
-            }
-        }
-
-        PostCondition.assertGreaterThanOrEqualTo(result, Distance.zero, "result");
-
-        return result;
+        final int widthInPixels = (int)convertHorizontalDistanceToPixels(width);
+        final int heightInPixels = (int)convertVerticalDistanceToPixels(height);
+        jFrame.setSize(widthInPixels, heightInPixels);
     }
 
-    private Distance getTextWidth(String text, java.awt.Graphics graphics, java.awt.Font font)
+    @Override
+    public void setSize(Size2D size)
     {
-        final java.awt.FontMetrics fontMetrics = graphics.getFontMetrics(font);
-        final java.awt.geom.Rectangle2D stringBounds = fontMetrics.getStringBounds(text, graphics);
-        final double widthInPixels = stringBounds.getWidth();
-        final Distance result = convertVerticalPixelsToDistance(widthInPixels);
+        PreCondition.assertNotNull(size, "size");
 
-        PostCondition.assertGreaterThan(result, Distance.zero, "result");
-
-        return result;
+        setSize(size.getWidth(), size.getHeight());
     }
 
     /**
@@ -381,43 +340,43 @@ public class JavaWindow extends WindowBase
         jFrame.repaint();
     }
 
+    @Override
     public double convertHorizontalDistanceToPixels(Distance horizontalDistance)
     {
-        return convertHorizontalDistanceToPixels(horizontalDistance, true);
+        PreCondition.assertNotNullAndNotEmpty(displays, "displays");
+
+        return displays.first().convertHorizontalDistanceToPixels(horizontalDistance);
     }
 
-    public double convertHorizontalDistanceToPixels(Distance horizontalDistance, boolean useDisplayScaling)
-    {
-        return displays.first().convertHorizontalDistanceToPixels(horizontalDistance, useDisplayScaling);
-    }
-
+    @Override
     public Distance convertHorizontalPixelsToDistance(double horizontalPixels)
     {
+        PreCondition.assertNotNullAndNotEmpty(displays, "displays");
+
         return displays.first().convertHorizontalPixelsToDistance(horizontalPixels);
     }
 
+    @Override
     public double convertVerticalDistanceToPixels(Distance verticalDistance)
     {
-        return convertVerticalDistanceToPixels(verticalDistance, true);
+        PreCondition.assertNotNullAndNotEmpty(displays, "displays");
+
+        return displays.first().convertVerticalDistanceToPixels(verticalDistance);
     }
 
-    public double convertVerticalDistanceToPixels(Distance verticalDistance, boolean useDisplayScaling)
-    {
-        return displays.first().convertVerticalDistanceToPixels(verticalDistance, useDisplayScaling);
-    }
-
+    @Override
     public Distance convertVerticalPixelsToDistance(double verticalPixels)
     {
+        PreCondition.assertNotNullAndNotEmpty(displays, "displays");
+
         return displays.first().convertVerticalPixelsToDistance(verticalPixels);
     }
 
-    private static java.awt.Graphics createImageGraphics()
+    @Override
+    public Size2D convertPixelsToSize2D(double horizontalPixels, double verticalPixels)
     {
-        final java.awt.image.BufferedImage image = new java.awt.image.BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
-        final java.awt.Graphics result = image.getGraphics();
+        PreCondition.assertNotNullAndNotEmpty(displays, "displays");
 
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+        return displays.first().convertPixelsToSize2D(horizontalPixels, verticalPixels);
     }
 }

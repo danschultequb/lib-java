@@ -44,7 +44,15 @@ public interface UIPainter
     void drawLine(Distance startX, Distance startY, Distance endX, Distance endY);
 
     /**
-     * Draw a rectangle from the provided top-left-x-and-y-coordinates with the provided with and
+     * Draw a rectangle from the painter's origin (top left corner) with the provided width and
+     * height.
+     * @param width The width of the rectangle.
+     * @param height The height of the rectangle.
+     */
+    void drawRectangle(Distance width, Distance height);
+
+    /**
+     * Draw a rectangle from the provided top-left-x-and-y-coordinates with the provided width and
      * height.
      * @param topLeftX The top-left-x-coordinate of the rectangle.
      * @param topLeftY The top-left-y-coordinate of the rectangle.
@@ -52,6 +60,24 @@ public interface UIPainter
      * @param height The height of the rectangle.
      */
     void drawRectangle(Distance topLeftX, Distance topLeftY, Distance width, Distance height);
+
+    /**
+     * Fill a rectangle from the painter's origin (top left corner) with the provided width and
+     * height.
+     * @param width The width of the rectangle.
+     * @param height The height of the rectangle.
+     */
+    void fillRectangle(Distance width, Distance height);
+
+    /**
+     * Fill a rectangle from the provided top-left-x-and-y-coordinates with the provided width and
+     * height.
+     * @param topLeftX The top-left-x-coordinate of the rectangle.
+     * @param topLeftY The top-left-y-coordinate of the rectangle.
+     * @param width The width of the rectangle.
+     * @param height The height of the rectangle.
+     */
+    void fillRectangle(Distance topLeftX, Distance topLeftY, Distance width, Distance height);
 
     /**
      * Translate all proceeding operations x Distance to the right and y Distance down.
@@ -78,6 +104,12 @@ public interface UIPainter
     void restoreTransform();
 
     /**
+     * Set the font that this UIPainter will draw text with.
+     * @param font The font that this UIPainter will draw text with.
+     */
+    void setFont(Font font);
+
+    /**
      * Set the font size that this UIPainter will draw text with.
      * @param fontSize The font size that this UIPainter will draw text with.
      */
@@ -85,11 +117,29 @@ public interface UIPainter
 
     /**
      * Save the current font so that it can be restored later.
+     * @return A Disposable that when disposed will restore the saved font.
      */
-    void saveFont();
+    Disposable saveFont();
 
     /**
      * Restore the most recently saved font.
      */
     void restoreFont();
+
+    /**
+     * Set the color that the UIPainter will draw and fill with.
+     * @param color The color that the UIPainter will draw and fill with.
+     */
+    void setColor(Color color);
+
+    /**
+     * Save the current color so that it can be restored later.
+     * @return A Disposable that when disposed will restore the saved color.
+     */
+    Disposable saveColor();
+
+    /**
+     * Restore the most recently saved color.
+     */
+    void restoreColor();
 }

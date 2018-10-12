@@ -6,6 +6,7 @@ public class Graphics2DUIPainter extends java.awt.Graphics2D implements UIPainte
     private final JavaWindow parentWindow;
     private final List<java.awt.geom.AffineTransform> savedTransforms;
     private final List<java.awt.Font> savedFonts;
+    private final List<java.awt.Color> savedColors;
 
     public Graphics2DUIPainter(java.awt.Graphics2D graphics, JavaWindow parentWindow)
     {
@@ -16,6 +17,7 @@ public class Graphics2DUIPainter extends java.awt.Graphics2D implements UIPainte
         this.parentWindow = parentWindow;
         this.savedTransforms = new ArrayList<>();
         this.savedFonts = new ArrayList<>();
+        this.savedColors = new ArrayList<>();
     }
 
     @Override
@@ -500,6 +502,12 @@ public class Graphics2DUIPainter extends java.awt.Graphics2D implements UIPainte
     }
 
     @Override
+    public void drawRectangle(Distance width, Distance height)
+    {
+        drawRectangle(Distance.zero, Distance.zero, width, height);
+    }
+
+    @Override
     public void drawRectangle(Distance topLeftX, Distance topLeftY, Distance width, Distance height)
     {
         final int topLeftXInPixels = (int)parentWindow.convertHorizontalDistanceToPixels(topLeftX);
@@ -507,6 +515,22 @@ public class Graphics2DUIPainter extends java.awt.Graphics2D implements UIPainte
         final int widthInPixels = (int)parentWindow.convertHorizontalDistanceToPixels(width);
         final int heightInPixels = (int)parentWindow.convertVerticalDistanceToPixels(height);
         drawRect(topLeftXInPixels, topLeftYInPixels, widthInPixels, heightInPixels);
+    }
+
+    @Override
+    public void fillRectangle(Distance width, Distance height)
+    {
+        fillRectangle(Distance.zero, Distance.zero, width, height);
+    }
+
+    @Override
+    public void fillRectangle(Distance topLeftX, Distance topLeftY, Distance width, Distance height)
+    {
+        final int topLeftXInPixels = (int)parentWindow.convertHorizontalDistanceToPixels(topLeftX);
+        final int topLeftYInPixels = (int)parentWindow.convertVerticalDistanceToPixels(topLeftY);
+        final int widthInPixels = (int)parentWindow.convertHorizontalDistanceToPixels(width);
+        final int heightInPixels = (int)parentWindow.convertVerticalDistanceToPixels(height);
+        fillRect(topLeftXInPixels, topLeftYInPixels, widthInPixels, heightInPixels);
     }
 
     @Override
@@ -546,12 +570,11 @@ public class Graphics2DUIPainter extends java.awt.Graphics2D implements UIPainte
     }
 
     @Override
-    public void setFontSize(Distance fontSize)
+    public void setFont(Font font)
     {
-        PreCondition.assertNotNull(fontSize, "fontSize");
-        PreCondition.assertGreaterThan(fontSize, Distance.zero, "fontSize");
+        PreCondition.assertNotNull(font, "font");
 
-        final float fontSizeInFontPoints = (float)fontSize.toFontPoints().getValue();
+        final float fontSizeInFontPoints = (float)font.getSize().toFontPoints().getValue();
 
         final java.awt.Font currentFont = graphics.getFont();
         final java.awt.Font newFont = currentFont.deriveFont(fontSizeInFontPoints);
@@ -559,9 +582,25 @@ public class Graphics2DUIPainter extends java.awt.Graphics2D implements UIPainte
     }
 
     @Override
-    public void saveFont()
+    public void setFontSize(Distance fontSize)
+    {
+        PreCondition.assertGreaterThanOrEqualTo(fontSize, Distance.zero, "fontSize");
+
+        setFont(new Font(fontSize));
+    }
+
+    @Override
+    public Disposable saveFont()
     {
         savedFonts.add(graphics.getFont());
+        return new BasicDisposable()
+        {
+            @Override
+            protected void onDispose()
+            {
+                restoreFont();
+            }
+        };
     }
 
     @Override
@@ -570,5 +609,40 @@ public class Graphics2DUIPainter extends java.awt.Graphics2D implements UIPainte
         PreCondition.assertNotNullAndNotEmpty(savedFonts, "savedFonts");
 
         graphics.setFont(savedFonts.removeLast());
+    }
+
+    @Override
+    public void setColor(Color color)
+    {
+        PreCondition.assertNotNull(color, "color");
+
+        final float red = (float)color.getRed();
+        final float green = (float)color.getGreen();
+        final float blue = (float)color.getBlue();
+        final float alpha = (float)color.getAlpha();
+        final java.awt.Color javaColor = new java.awt.Color(red, green, blue, alpha);
+        graphics.setColor(javaColor);
+    }
+
+    @Override
+    public Disposable saveColor()
+    {
+        savedColors.add(graphics.getColor());
+        return new BasicDisposable()
+        {
+            @Override
+            protected void onDispose()
+            {
+                restoreColor();
+            }
+        };
+    }
+
+    @Override
+    public void restoreColor()
+    {
+        PreCondition.assertNotNullAndNotEmpty(savedColors, "savedColors");
+
+        graphics.setColor(savedColors.removeLast());
     }
 }

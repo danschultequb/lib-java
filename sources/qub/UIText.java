@@ -5,9 +5,11 @@ public class UIText implements UIElement
     private UIElementParent parentElement;
     private Distance padding;
     private String text;
-    private Distance fontSize;
+    private Font font;
     private UIWidth width;
     private UIHeight height;
+    private Color background;
+    private Size2D contentSize;
 
     public UIText()
     {
@@ -80,7 +82,7 @@ public class UIText implements UIElement
      */
     public Distance getFontSize()
     {
-        return fontSize;
+        return font == null ? null : font.getSize();
     }
 
     /**
@@ -91,7 +93,32 @@ public class UIText implements UIElement
     {
         PreCondition.assertNullOrGreaterThan(fontSize, Distance.zero, "fontSize");
 
-        this.fontSize = fontSize;
+        if (font == null)
+        {
+            font = new Font(fontSize);
+        }
+        else
+        {
+            font = font.changeSize(fontSize);
+        }
+    }
+
+    /**
+     * Get the background that will be painted behind the text.
+     * @return The background that will be painted behind the text.
+     */
+    public Color getBackground()
+    {
+        return background;
+    }
+
+    /**
+     * Set the background that will be painted behind the text.
+     * @param background The background that will be painted behind the text.
+     */
+    public void setBackground(Color background)
+    {
+        this.background = background;
     }
 
     @Override
@@ -106,11 +133,23 @@ public class UIText implements UIElement
             painter.translate(padding, padding);
         }
 
-        final boolean applyFontSize = (fontSize != null);
-        if (applyFontSize)
+        final boolean applyFont = (font != null);
+        if (applyFont)
         {
             painter.saveFont();
-            painter.setFontSize(fontSize);
+            painter.setFont(font);
+        }
+
+        final Distance width = getWidth();
+        final Distance height = getHeight();
+        final Color background = getBackground();
+        if (width != null && height != null && background != null)
+        {
+            try (final Disposable savedColor = painter.saveColor())
+            {
+                painter.setColor(background);
+                painter.fillRectangle(width, height);
+            }
         }
 
         try
@@ -119,7 +158,7 @@ public class UIText implements UIElement
         }
         finally
         {
-            if (applyFontSize)
+            if (applyFont)
             {
                 painter.restoreFont();
             }
@@ -143,6 +182,15 @@ public class UIText implements UIElement
     public Window getParentWindow()
     {
         return parentElement == null ? null : parentElement.getParentWindow();
+    }
+
+    @Override
+    public void parentWindowChanged(Window previousParentWindow, Window newParentWindow)
+    {
+        if (newParentWindow != null)
+        {
+            contentSize = newParentWindow.getTextSize(text, font);
+        }
     }
 
     /**
@@ -193,5 +241,27 @@ public class UIText implements UIElement
         PreCondition.assertNotNull(height, "height");
 
         this.height = height;
+    }
+
+    @Override
+    public void setSize(Distance width, Distance height)
+    {
+        setWidth(width);
+        setHeight(height);
+    }
+
+    public Distance getContentWidth()
+    {
+        return contentSize == null ? null : contentSize.getWidth();
+    }
+
+    public Distance getContentHeight()
+    {
+        return contentSize == null ? null : contentSize.getHeight();
+    }
+
+    public Size2D getContentSize()
+    {
+        return contentSize;
     }
 }

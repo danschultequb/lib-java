@@ -276,7 +276,7 @@ public class WindowTests
                     {
                         window.open();
                         window.setWidth(Distance.zero);
-                        test.assertOneOf(new Distance[] { Distance.zero, Distance.inches(1.34375) }, window.getWidth());
+                        test.assertOneOf(new Distance[] { Distance.zero, Distance.inches(2.6875) }, window.getWidth());
                     }
                 });
 
@@ -296,7 +296,7 @@ public class WindowTests
                     {
                         window.open();
                         window.setWidth(Distance.miles(3));
-                        test.assertOneOf(new Distance[] { Distance.miles(3), Distance.inches(6.744791666666667) }, window.getWidth());
+                        test.assertOneOf(new Distance[] { Distance.miles(3), Distance.inches(13.489583333333334) }, window.getWidth());
                     }
                 });
             });
@@ -325,7 +325,7 @@ public class WindowTests
                     {
                         window.open();
                         window.setHeight(Distance.zero);
-                        test.assertOneOf(new Distance[] { Distance.zero, Distance.inches(0.3697916666666667) }, window.getHeight());
+                        test.assertOneOf(new Distance[] { Distance.zero, Distance.inches(0.7395833333333334) }, window.getHeight());
                     }
                 });
 
@@ -345,7 +345,7 @@ public class WindowTests
                     {
                         window.open();
                         window.setHeight(Distance.miles(3));
-                        test.assertOneOf(new Distance[] { Distance.miles(3), Distance.inches(3.828125) }, window.getHeight());
+                        test.assertOneOf(new Distance[] { Distance.miles(3), Distance.inches(7.65625) }, window.getHeight());
                     }
                 });
             });
