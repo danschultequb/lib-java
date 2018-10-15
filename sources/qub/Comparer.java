@@ -9,6 +9,13 @@ public final class Comparer
     {
     }
 
+    public static <T extends Comparable<T>> Comparison compare(T lhs, T rhs)
+    {
+        return lhs == rhs ? Comparison.Equal :
+               lhs == null ? Comparison.LessThan :
+               lhs.compareTo(rhs);
+    }
+
     /**
      * Compare the two values to see if they're equals.
      * @param arg1 The first argument.
@@ -527,7 +534,7 @@ public final class Comparer
             @Override
             public Comparison run(T lhs, T rhs)
             {
-                return lhs.compareTo(rhs);
+                return compare(lhs, rhs);
             }
         });
     }
@@ -537,6 +544,12 @@ public final class Comparer
         return values.minimum(comparer);
     }
 
+    @SafeVarargs
+    public static <T extends Comparable<T>> T maximum(T... values)
+    {
+        return Comparer.maximum(Array.fromValues(values));
+    }
+
     public static <T extends Comparable<T>> T maximum(Iterable<T> values)
     {
         return Comparer.maximum(values, new Function2<T,T,Comparison>()
@@ -544,7 +557,7 @@ public final class Comparer
             @Override
             public Comparison run(T lhs, T rhs)
             {
-                return lhs.compareTo(rhs);
+                return compare(lhs, rhs);
             }
         });
     }

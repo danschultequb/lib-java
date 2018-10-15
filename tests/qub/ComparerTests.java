@@ -65,11 +65,29 @@ public class ComparerTests
                 });
             });
 
+            runner.testGroup("maximum(T...)", () ->
+            {
+                runner.test("with no arguments", (Test test) ->
+                {
+                    test.assertNull(Comparer.maximum());
+                });
+
+                runner.test("with one argument", (Test test) ->
+                {
+                    test.assertEqual(Distance.zero, Comparer.maximum(Distance.zero));
+                });
+
+                runner.test("with multiple arguments", (Test test) ->
+                {
+                    test.assertEqual(Distance.inches(5), Comparer.maximum(Distance.inches(1), Distance.inches(5)));
+                });
+            });
+
             runner.testGroup("maximum(Iterable<T>)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> Comparer.maximum(null));
+                    test.assertThrows(() -> Comparer.maximum((Iterable<VersionNumber>)null));
                 });
 
                 runner.test("with empty", (Test test) ->

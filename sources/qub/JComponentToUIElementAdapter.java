@@ -87,21 +87,33 @@ public class JComponentToUIElementAdapter implements UIElement
     }
 
     @Override
+    public Distance getPadding()
+    {
+        return null;
+    }
+
+    @Override
+    public UIElement setPadding(Distance padding)
+    {
+        return null;
+    }
+
+    @Override
     public Distance getWidth()
     {
         return null;
     }
 
     @Override
-    public void setWidth(Distance width)
+    public UIElement setWidth(Distance width)
     {
-
+        return null;
     }
 
     @Override
-    public void setWidth(UIWidth width)
+    public UIElement setWidth(UIWidth width)
     {
-
+        return null;
     }
 
 //    @Override
@@ -121,20 +133,44 @@ public class JComponentToUIElementAdapter implements UIElement
     }
 
     @Override
-    public void setHeight(Distance height)
+    public UIElement setHeight(Distance height)
     {
-
+        return null;
     }
 
     @Override
-    public void setHeight(UIHeight height)
+    public UIElement setHeight(UIHeight height)
     {
-
+        return null;
     }
 
     @Override
-    public void setSize(Distance width, Distance height)
+    public UIElement setSize(Distance width, Distance height)
     {
+        return null;
+    }
 
+    @Override
+    public UIElement setSize(Size2D size)
+    {
+        return null;
+    }
+
+    @Override
+    public Distance getContentWidth()
+    {
+        return null;
+    }
+
+    @Override
+    public Distance getContentHeight()
+    {
+        return null;
+    }
+
+    @Override
+    public Size2D getContentSize()
+    {
+        return null;
     }
 }

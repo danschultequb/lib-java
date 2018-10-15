@@ -13,8 +13,8 @@ public class UITextTests
                 test.assertNull(text.getPadding());
                 test.assertNull(text.getParentWindow());
                 test.assertNull(text.getFontSize());
-                test.assertEqual(Distance.inches(1), text.getWidth());
-                test.assertEqual(Distance.inches(1), text.getHeight());
+                test.assertEqual(Distance.zero, text.getWidth());
+                test.assertEqual(Distance.zero, text.getHeight());
             });
 
             runner.testGroup("constructor(String)", () ->
@@ -26,8 +26,8 @@ public class UITextTests
                     test.assertNull(text.getPadding());
                     test.assertNull(text.getParentWindow());
                     test.assertNull(text.getFontSize());
-                    test.assertEqual(Distance.inches(1), text.getWidth());
-                    test.assertEqual(Distance.inches(1), text.getHeight());
+                    test.assertEqual(Distance.zero, text.getWidth());
+                    test.assertEqual(Distance.zero, text.getHeight());
                 });
 
                 runner.test("with empty", (Test test) ->
@@ -37,8 +37,8 @@ public class UITextTests
                     test.assertNull(text.getPadding());
                     test.assertNull(text.getParentWindow());
                     test.assertNull(text.getFontSize());
-                    test.assertEqual(Distance.inches(1), text.getWidth());
-                    test.assertEqual(Distance.inches(1), text.getHeight());
+                    test.assertEqual(Distance.zero, text.getWidth());
+                    test.assertEqual(Distance.zero, text.getHeight());
                 });
 
                 runner.test("with non-empty", (Test test) ->
@@ -48,8 +48,8 @@ public class UITextTests
                     test.assertNull(text.getPadding());
                     test.assertNull(text.getParentWindow());
                     test.assertNull(text.getFontSize());
-                    test.assertEqual(Distance.inches(1), text.getWidth());
-                    test.assertEqual(Distance.inches(1), text.getHeight());
+                    test.assertEqual(Distance.zero, text.getWidth());
+                    test.assertEqual(Distance.zero, text.getHeight());
                 });
             });
 
@@ -347,12 +347,57 @@ public class UITextTests
                     final FakeWindow window1 = new FakeWindow();
                     window1.setContent(text);
                     test.assertEqual(Distance.inches(0.23), text.getContentWidth());
-                    test.assertEqual(Distance.inches(0.17609375), text.getContentHeight());
 
                     final FakeWindow window2 = new FakeWindow();
                     window2.setDisplay(new Display(1000, 1000, 200, 200));
                     window2.setContent(text);
                     test.assertEqual(Distance.inches(0.115), text.getContentWidth());
+                });
+            });
+
+            runner.testGroup("getContentHeight()", () ->
+            {
+                runner.test("with no parentWindow", (Test test) ->
+                {
+                    final UIText text = new UIText("test");
+                    test.assertNull(text.getContentHeight());
+                });
+
+                runner.test("with parentWindow", (Test test) ->
+                {
+                    final UIText text = new UIText("test");
+                    final FakeWindow window = new FakeWindow();
+                    window.setContent(text);
+
+                    test.assertEqual(Distance.inches(0.1509375), text.getContentHeight());
+                });
+
+                runner.test("with changed parentWindow and no UIText font", (Test test) ->
+                {
+                    final UIText text = new UIText("test");
+
+                    final FakeWindow window1 = new FakeWindow();
+                    window1.setContent(text);
+                    test.assertEqual(Distance.inches(0.1509375), text.getContentHeight());
+
+                    final FakeWindow window2 = new FakeWindow();
+                    window2.setDisplay(new Display(1000, 1000, 200, 200));
+                    window2.setContent(text);
+                    test.assertEqual(Distance.inches(0.07546875), text.getContentHeight());
+                });
+
+                runner.test("with changed parentWindow and UIText font", (Test test) ->
+                {
+                    final UIText text = new UIText("test");
+                    text.setFontSize(Distance.fontPoints(14));
+
+                    final FakeWindow window1 = new FakeWindow();
+                    window1.setContent(text);
+                    test.assertEqual(Distance.inches(0.17609375), text.getContentHeight());
+
+                    final FakeWindow window2 = new FakeWindow();
+                    window2.setDisplay(new Display(1000, 1000, 200, 200));
+                    window2.setContent(text);
                     test.assertEqual(Distance.inches(0.088046875), text.getContentHeight());
                 });
             });

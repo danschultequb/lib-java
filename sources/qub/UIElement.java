@@ -41,6 +41,19 @@ public interface UIElement
 //    void handleMouseEvent(MouseEvent event);
 
     /**
+     * Get the padding that will be added to the UIElement's width.
+     * @return The padding that will be added to the UIElement's width.
+     */
+    Distance getPadding();
+
+    /**
+     * Set the padding that will be added to each side of this UIElement.
+     * @param padding The padding that will be added to each side of this UIElement.
+     * @return This UIElement.
+     */
+    UIElement setPadding(Distance padding);
+
+    /**
      * Get the width of this UIElement.
      * @return The width of this UIElement.
      */
@@ -49,14 +62,16 @@ public interface UIElement
     /**
      * Set the width of this UIelement.
      * @param width The new fixed width of this UIElement.
+     * @return This UIElement
      */
-    void setWidth(Distance width);
+    UIElement setWidth(Distance width);
 
     /**
      * Set the width of this UIElement.
      * @param width The new width of this UIElement.
+     * @return This UIElement
      */
-    void setWidth(UIWidth width);
+    UIElement setWidth(UIWidth width);
 
     /**
      * Get the height of this UIElement.
@@ -67,19 +82,47 @@ public interface UIElement
     /**
      * Set the height of this UIElement.
      * @param height The new fixed height of this UIElement.
+     * @return This UIElement
      */
-    void setHeight(Distance height);
+    UIElement setHeight(Distance height);
 
     /**
      * Set the height of this UIElement.
      * @param height The new height of this UIElement.
+     * @return This UIElement
      */
-    void setHeight(UIHeight height);
+    UIElement setHeight(UIHeight height);
 
     /**
      * Set the width and height of this UIElement.
      * @param width The new width of this UIElement.
      * @param height The new height of this UIElement.
+     * @return This UIElement
      */
-    void setSize(Distance width, Distance height);
+    UIElement setSize(Distance width, Distance height);
+
+    /**
+     * Set the size of this UIElement.
+     * @param size The new size of this UIElement
+     * @return This UIElement.
+     */
+    UIElement setSize(Size2D size);
+
+    /**
+     * Get the width of this UIElement's content.
+     * @return The width of this UIElement's content.
+     */
+    Distance getContentWidth();
+
+    /**
+     * Get the height of this UIElement's content.
+     * @return The height of this UIElement's content.
+     */
+    Distance getContentHeight();
+
+    /**
+     * Get the size of this UIElement's content.
+     * @return The size of this UIElement's content.
+     */
+    Size2D getContentSize();
 }

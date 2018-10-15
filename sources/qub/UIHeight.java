@@ -2,6 +2,8 @@ package qub;
 
 public abstract class UIHeight
 {
+    public static final UIHeight fitContent = new FitContentUIHeight();
+
     public static UIHeight fixed(Distance height)
     {
         return new FixedUIHeight(height);

@@ -271,13 +271,16 @@ public class JavaWindow extends WindowBase
             if (content != null)
             {
                 content.setParent(null);
+                content.parentWindowChanged(this, null);
             }
 
             content = uiElement;
 
             if (uiElement != null)
             {
+                final Window previousParentWindow = uiElement.getParentWindow();
                 uiElement.setParent(this);
+                uiElement.parentWindowChanged(previousParentWindow, this);
             }
 
             if (isOpen())

@@ -141,6 +141,22 @@ public class JavaWindowTests
                     }
                 });
             });
+
+            runner.test("demo", runner.skip(true), (Test test) ->
+            {
+                try (final JavaWindow window = createWindow(test))
+                {
+                    window.setContent(new UIVerticalLayout()
+                        .add(new UIText("Hello")
+                                 .setFontSize(Distance.fontPoints(14))
+                                 .setBackground(Color.red))
+                        .add(new UIText("World!")
+                                .setBackground(Color.green)));
+
+                    window.open();
+                    window.awaitClose();
+                }
+            });
         });
     }
 }

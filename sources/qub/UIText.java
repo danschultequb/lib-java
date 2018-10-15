@@ -19,8 +19,8 @@ public class UIText implements UIElement
     public UIText(String text)
     {
         setText(text);
-        setWidth(Distance.inches(1));
-        setHeight(Distance.inches(1));
+        setWidth(UIWidth.fitContent);
+        setHeight(UIHeight.fitContent);
     }
 
     @Override
@@ -42,17 +42,16 @@ public class UIText implements UIElement
      * Set the size of the padding that will surround the displayed text.
      * @param padding The size of the padding that will surround the displayed text.
      */
-    public void setPadding(Distance padding)
+    public UIText setPadding(Distance padding)
     {
         PreCondition.assertNullOrGreaterThanOrEqualTo(padding, Distance.zero, "padding");
 
         this.padding = padding;
+
+        return this;
     }
 
-    /**
-     * Get the size of the padding that will surround the displayed text.
-     * @return The size of the padding that will surround the displayed text.
-     */
+    @Override
     public Distance getPadding()
     {
         return padding;
@@ -62,9 +61,10 @@ public class UIText implements UIElement
      * Set the text that this UIText element will display.
      * @param text The text that this UIText element will display.
      */
-    public void setText(String text)
+    public UIText setText(String text)
     {
         this.text = text;
+        return this;
     }
 
     /**
@@ -89,7 +89,7 @@ public class UIText implements UIElement
      * Set the size of the font that the text will be displayed with.
      * @param fontSize The size of the font that the text will be displayed with.
      */
-    public void setFontSize(Distance fontSize)
+    public UIText setFontSize(Distance fontSize)
     {
         PreCondition.assertNullOrGreaterThan(fontSize, Distance.zero, "fontSize");
 
@@ -101,6 +101,8 @@ public class UIText implements UIElement
         {
             font = font.changeSize(fontSize);
         }
+
+        return this;
     }
 
     /**
@@ -116,9 +118,10 @@ public class UIText implements UIElement
      * Set the background that will be painted behind the text.
      * @param background The background that will be painted behind the text.
      */
-    public void setBackground(Color background)
+    public UIText setBackground(Color background)
     {
         this.background = background;
+        return this;
     }
 
     @Override
@@ -197,19 +200,21 @@ public class UIText implements UIElement
      * Set the width of this UIElement (including the padding).
      * @param width The width of this UIElement (including the padding).
      */
-    public void setWidth(Distance width)
+    public UIText setWidth(Distance width)
     {
         PreCondition.assertGreaterThanOrEqualTo(width, Distance.zero, "width");
 
-        setWidth(UIWidth.fixed(width));
+        return setWidth(UIWidth.fixed(width));
     }
 
     @Override
-    public void setWidth(UIWidth width)
+    public UIText setWidth(UIWidth width)
     {
         PreCondition.assertNotNull(width, "width");
 
         this.width = width;
+
+        return this;
     }
 
     /**
@@ -228,38 +233,53 @@ public class UIText implements UIElement
     }
 
     @Override
-    public void setHeight(Distance height)
+    public UIText setHeight(Distance height)
     {
         PreCondition.assertGreaterThanOrEqualTo(height, Distance.zero, "height");
 
-        setHeight(UIHeight.fixed(height));
+        return setHeight(UIHeight.fixed(height));
     }
 
     @Override
-    public void setHeight(UIHeight height)
+    public UIText setHeight(UIHeight height)
     {
         PreCondition.assertNotNull(height, "height");
 
         this.height = height;
+
+        return this;
     }
 
     @Override
-    public void setSize(Distance width, Distance height)
+    public UIText setSize(Distance width, Distance height)
     {
         setWidth(width);
         setHeight(height);
+
+        return this;
     }
 
+    @Override
+    public UIElement setSize(Size2D size)
+    {
+        PreCondition.assertNotNull(size, "size");
+
+        return setSize(size.getWidth(), size.getHeight());
+    }
+
+    @Override
     public Distance getContentWidth()
     {
         return contentSize == null ? null : contentSize.getWidth();
     }
 
+    @Override
     public Distance getContentHeight()
     {
         return contentSize == null ? null : contentSize.getHeight();
     }
 
+    @Override
     public Size2D getContentSize()
     {
         return contentSize;
