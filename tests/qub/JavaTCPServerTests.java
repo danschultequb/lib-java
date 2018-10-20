@@ -47,7 +47,7 @@ public class JavaTCPServerTests
                     try
                     {
                         final Result<TCPServer> tcpServer2 = JavaTCPServer.create(port.get(), test.getParallelAsyncRunner());
-                        test.assertError(new java.net.BindException("Address already in use: NET_Bind"), tcpServer2);
+                        test.assertError(new java.net.BindException("Address already in use: JVM_Bind"), tcpServer2);
                     }
                     finally
                     {
@@ -97,7 +97,7 @@ public class JavaTCPServerTests
                     try
                     {
                         final Result<TCPServer> tcpServer2 = JavaTCPServer.create(IPv4Address.parse("127.0.0.1"), port.get(), test.getParallelAsyncRunner());
-                        test.assertError(new java.net.BindException("Address already in use: NET_Bind"), tcpServer2);
+                        test.assertError(new java.net.BindException("Address already in use: JVM_Bind"), tcpServer2);
                     }
                     finally
                     {

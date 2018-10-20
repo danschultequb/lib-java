@@ -218,7 +218,7 @@ public class TypesTests
                 runner.test("with String", (Test test) ->
                 {
                     final Iterable<String> actual = Types.getMemberVariables("test").map(java.lang.reflect.Field::getName);
-                    final Iterable<String> expected = Array.fromValues(new String[] { "value", "coder", "hash", "serialVersionUID", "COMPACT_STRINGS", "serialPersistentFields", "CASE_INSENSITIVE_ORDER", "LATIN1", "UTF16" });
+                    final Iterable<String> expected = Array.fromValues(new String[] { "value", "hash", "serialVersionUID", "serialPersistentFields", "CASE_INSENSITIVE_ORDER" });
                     test.assertEqual(expected, actual);
                 });
 
@@ -254,14 +254,14 @@ public class TypesTests
                 runner.test("with String.getClass()", (Test test) ->
                 {
                     final Iterable<String> actual = Types.getMemberVariables("test").map(java.lang.reflect.Field::getName);
-                    final Iterable<String> expected = Array.fromValues(new String[] { "value", "coder", "hash", "serialVersionUID", "COMPACT_STRINGS", "serialPersistentFields", "CASE_INSENSITIVE_ORDER", "LATIN1", "UTF16" });
+                    final Iterable<String> expected = Array.fromValues(new String[] { "value", "hash", "serialVersionUID", "serialPersistentFields", "CASE_INSENSITIVE_ORDER" });
                     test.assertEqual(expected, actual);
                 });
 
                 runner.test("with String.class", (Test test) ->
                 {
                     final Iterable<String> actual = Types.getMemberVariables(String.class).map(java.lang.reflect.Field::getName);
-                    final Iterable<String> expected = Array.fromValues(new String[] { "value", "coder", "hash", "serialVersionUID", "COMPACT_STRINGS", "serialPersistentFields", "CASE_INSENSITIVE_ORDER", "LATIN1", "UTF16" });
+                    final Iterable<String> expected = Array.fromValues(new String[] { "value", "hash", "serialVersionUID", "serialPersistentFields", "CASE_INSENSITIVE_ORDER" });
                     test.assertEqual(expected, actual);
                 });
 
@@ -282,6 +282,11 @@ public class TypesTests
 
             runner.testGroup("instanceOf(Object,Class<?>)", () ->
             {
+                runner.test("with null and String class", (Test test) ->
+                {
+                    test.assertFalse(Types.instanceOf(null, String.class));
+                });
+
                 runner.test("with String value and String class", (Test test) ->
                 {
                     test.assertTrue(Types.instanceOf("hello", String.class));
@@ -297,7 +302,7 @@ public class TypesTests
             {
                 runner.test("null as Integer", (Test test) ->
                 {
-                    test.assertThrows(() -> Types.as(null, Integer.class));
+                    test.assertNull(Types.as(null, Integer.class));
                 });
 
                 runner.test("Integer as null", (Test test) ->

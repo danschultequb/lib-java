@@ -146,12 +146,14 @@ public class JavaWindowTests
             {
                 try (final JavaWindow window = createWindow(test))
                 {
-                    window.setContent(new UIVerticalLayout()
+                    window.setContent(new UIHorizontalLayout()
                         .add(new UIText("Hello")
                                  .setFontSize(Distance.fontPoints(14))
-                                 .setBackground(Color.red))
+                                 .setBackground(Color.red)
+                                 .setPadding(Distance.inches(0.1)))
                         .add(new UIText("World!")
-                                .setBackground(Color.green)));
+                                .setBackground(Color.green)
+                                .setPadding(Distance.inches(0.1))));
 
                     window.open();
                     window.awaitClose();

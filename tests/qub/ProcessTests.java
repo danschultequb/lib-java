@@ -522,7 +522,7 @@ public class ProcessTests
                     try (final Process process = creator.run())
                     {
                         final ProcessBuilder builder = process.getProcessBuilder("pom").getValue();
-                        test.assertNotNull(builder);
+                        test.assertNotNull(builder, "The builder not have been null.");
                         test.assertEqual(process.getCurrentFolder().getValue().getFile("pom.xml").getValue(), builder.getExecutableFile());
                         test.assertEqual(0, builder.getArgumentCount());
                     }
@@ -558,7 +558,7 @@ public class ProcessTests
                     {
                         if (process.onWindows())
                         {
-                            final ProcessBuilder builder = process.getProcessBuilder("C:/Program Files/Java/jdk1.8.0_181/bin/javac.exe").getValue();
+                            final ProcessBuilder builder = process.getProcessBuilder("C:/Program Files/Java/jdk1.8.0_192/bin/javac.exe").getValue();
                             test.assertEqual("javac.exe", builder.getExecutableFile().getPath().getSegments().last());
                             test.assertEqual(0, builder.getArgumentCount());
                             test.assertEqual(2, builder.run());
@@ -590,13 +590,16 @@ public class ProcessTests
                             test.assertTrue(builder.getExecutableFile().getPath().getSegments().last().contains("javac"));
                             test.assertEqual(0, builder.getArgumentCount());
 
-                            final StringBuilder output = builder.redirectOutput();
+                            final StringBuilder output = new StringBuilder();
+                            builder.redirectOutputTo(output);
+                            builder.redirectErrorTo(output);
 
                             test.assertEqual(2, builder.run());
 
                             final String outputString = output.toString();
-                            test.assertTrue(outputString.contains("javac <options> <source files>"));
-                            test.assertTrue(outputString.contains("Terminate compilation if warnings occur"));
+                            test.assertNotNullAndNotEmpty(outputString);
+                            test.assertTrue(outputString.contains("javac <options> <source files>"), "Process output (" + outputString + ") should have contained \"javac <options> <source files>\".");
+                            test.assertTrue(outputString.contains("Terminate compilation if warnings occur"), "Process output (" + outputString + ") should have contained \"Terminate compilation if warnings occur\".");
                         }
                     }
                 });
@@ -607,18 +610,18 @@ public class ProcessTests
                     {
                         if (process.onWindows())
                         {
-                            final ProcessBuilder builder = process.getProcessBuilder("javac").getValue();
-                            test.assertTrue(builder.getExecutableFile().getPath().getSegments().last().contains("javac"));
+                            final ProcessBuilder builder = process.getProcessBuilder("qub").getValue();
+                            test.assertTrue(builder.getExecutableFile().getPath().getSegments().last().contains("qub."));
                             test.assertEqual(0, builder.getArgumentCount());
 
                             final InMemoryByteStream output = new InMemoryByteStream();
                             builder.redirectOutput(output);
 
-                            test.assertEqual(2, builder.run());
+                            test.assertEqual(0, builder.run());
 
                             final String outputString = new String(output.getBytes());
-                            test.assertTrue(outputString.contains("javac <options> <source files>"));
-                            test.assertTrue(outputString.contains("Terminate compilation if warnings occur"));
+                            test.assertNotNullAndNotEmpty(outputString);
+                            test.assertTrue(outputString.contains("qub <action> [<action-options>]"), "Process output (" + outputString + ") should have contained \"qub <action> [<action-options>]\".");
                         }
                     }
                 });

@@ -1,6 +1,6 @@
 package qub;
 
-public class UIVerticalLayout implements UIElement, UIElementParent
+public class UIHorizontalLayout implements UIElement, UIElementParent
 {
     private final List<UIElement> childElements;
     private UIElementParent parentElement;
@@ -8,9 +8,9 @@ public class UIVerticalLayout implements UIElement, UIElementParent
     private UIHeight height;
     private Distance padding;
 
-    public UIVerticalLayout()
+    public UIHorizontalLayout()
     {
-        this.childElements = new ArrayList<>();
+        childElements = new ArrayList<>();
     }
 
     @Override
@@ -30,7 +30,7 @@ public class UIVerticalLayout implements UIElement, UIElementParent
                 {
                     childElement.paint(painter);
                 }
-                painter.translateY(childElement.getHeight());
+                painter.translateX(childElement.getWidth());
             }
         }
     }
@@ -54,7 +54,7 @@ public class UIVerticalLayout implements UIElement, UIElementParent
     @Override
     public void setParent(UIElementParent parentElement)
     {
-        this.parentElement = parentElement;
+        parentElement = parentElement;
     }
 
     @Override
@@ -80,7 +80,7 @@ public class UIVerticalLayout implements UIElement, UIElementParent
     }
 
     @Override
-    public UIElement setPadding(Distance padding)
+    public UIHorizontalLayout setPadding(Distance padding)
     {
         PreCondition.assertNullOrGreaterThanOrEqualTo(padding, Distance.zero, "padding");
 
@@ -96,7 +96,7 @@ public class UIVerticalLayout implements UIElement, UIElementParent
     }
 
     @Override
-    public UIVerticalLayout setWidth(Distance width)
+    public UIHorizontalLayout setWidth(Distance width)
     {
         PreCondition.assertNotNull(width, "width");
 
@@ -104,7 +104,7 @@ public class UIVerticalLayout implements UIElement, UIElementParent
     }
 
     @Override
-    public UIVerticalLayout setWidth(UIWidth width)
+    public UIHorizontalLayout setWidth(UIWidth width)
     {
         PreCondition.assertNotNull(width, "width");
 
@@ -120,7 +120,7 @@ public class UIVerticalLayout implements UIElement, UIElementParent
     }
 
     @Override
-    public UIVerticalLayout setHeight(Distance height)
+    public UIHorizontalLayout setHeight(Distance height)
     {
         PreCondition.assertGreaterThanOrEqualTo(height, Distance.zero, "height");
 
@@ -128,7 +128,7 @@ public class UIVerticalLayout implements UIElement, UIElementParent
     }
 
     @Override
-    public UIVerticalLayout setHeight(UIHeight height)
+    public UIHorizontalLayout setHeight(UIHeight height)
     {
         PreCondition.assertNotNull(height, "height");
 
@@ -138,7 +138,7 @@ public class UIVerticalLayout implements UIElement, UIElementParent
     }
 
     @Override
-    public UIVerticalLayout setSize(Distance width, Distance height)
+    public UIHorizontalLayout setSize(Distance width, Distance height)
     {
         setWidth(width);
         setHeight(height);
@@ -147,7 +147,7 @@ public class UIVerticalLayout implements UIElement, UIElementParent
     }
 
     @Override
-    public UIElement setSize(Size2D size)
+    public UIHorizontalLayout setSize(Size2D size)
     {
         PreCondition.assertNotNull(size, "size");
 
@@ -181,8 +181,8 @@ public class UIVerticalLayout implements UIElement, UIElementParent
         Distance resultHeight = Distance.zero;
         for (final UIElement childElement : childElements)
         {
-            resultWidth = Comparer.maximum(resultWidth, childElement.getWidth());
-            resultHeight = resultHeight.plus(childElement.getHeight());
+            resultWidth = resultHeight.plus(childElement.getWidth());
+            resultHeight = Comparer.maximum(resultHeight, childElement.getHeight());
         }
         final Size2D result = new Size2D(resultWidth, resultHeight);
 
@@ -191,7 +191,7 @@ public class UIVerticalLayout implements UIElement, UIElementParent
         return result;
     }
 
-    public UIVerticalLayout add(UIElement element)
+    public UIHorizontalLayout add(UIElement element)
     {
         PreCondition.assertNotNull(element, "element");
 

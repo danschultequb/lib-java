@@ -649,21 +649,31 @@ public class Process extends DisposableBase
             }
             else
             {
-                final File executableFile = getFilesResult.getValue().first(new Function1<File, Boolean>()
+                result = null;
+
+                final String[] executableExtensions = new String[] { "", ".exe", ".bat", ".cmd" };
+                for (final String executableExtension : executableExtensions)
                 {
-                    @Override
-                    public Boolean run(File file)
+                    final Path executablePathWithExtension = executablePathWithoutExtension.concatenate(executableExtension);
+                    final File executableFile = getFilesResult.getValue().first((File file) -> executablePathWithExtension.equals(file.getPath()));
+                    if (executableFile != null)
                     {
-                        return executablePathWithoutExtension.equals(file.getPath().withoutFileExtension());
+                        result = Result.success(executableFile);
+                        break;
                     }
-                });
-                if (executableFile == null)
-                {
-                    result = Result.error(new FileNotFoundException(executablePathWithoutExtension.toString()));
                 }
-                else
+
+                if (result == null)
                 {
-                    result = Result.success(executableFile);
+                    final File executableFile = getFilesResult.getValue().first((File file) -> executablePathWithoutExtension.equals(file.getPath().withoutFileExtension()));
+                    if (executableFile != null)
+                    {
+                        result = Result.success(executableFile);
+                    }
+                    else
+                    {
+                        result = Result.error(new FileNotFoundException(executablePathWithoutExtension.toString()));
+                    }
                 }
             }
         }

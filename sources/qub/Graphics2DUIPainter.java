@@ -534,17 +534,31 @@ public class Graphics2DUIPainter extends java.awt.Graphics2D implements UIPainte
     }
 
     @Override
-    public void translate(Distance x, Distance y)
+    public Disposable translate(Distance x, Distance y)
     {
         final double xInPixels = parentWindow.convertHorizontalDistanceToPixels(x);
         final double yInPixels = parentWindow.convertVerticalDistanceToPixels(y);
         graphics.translate(xInPixels, yInPixels);
+        return new BasicDisposable()
+        {
+            @Override
+            protected void onDispose()
+            {
+                graphics.translate(-xInPixels, -yInPixels);
+            }
+        };
     }
 
     @Override
-    public void translateY(Distance y)
+    public Disposable translateX(Distance x)
     {
-        translate(Distance.zero, y);
+        return translate(x, Distance.zero);
+    }
+
+    @Override
+    public Disposable translateY(Distance y)
+    {
+        return translate(Distance.zero, y);
     }
 
     @Override
@@ -570,7 +584,7 @@ public class Graphics2DUIPainter extends java.awt.Graphics2D implements UIPainte
     }
 
     @Override
-    public void setFont(Font font)
+    public Disposable setFont(Font font)
     {
         PreCondition.assertNotNull(font, "font");
 
@@ -579,14 +593,29 @@ public class Graphics2DUIPainter extends java.awt.Graphics2D implements UIPainte
         final java.awt.Font currentFont = graphics.getFont();
         final java.awt.Font newFont = currentFont.deriveFont(fontSizeInFontPoints);
         graphics.setFont(newFont);
+
+        return new BasicDisposable()
+        {
+            @Override
+            protected void onDispose()
+            {
+                setFont(new Font(Distance.fontPoints(currentFont.getSize2D())));
+            }
+        };
     }
 
     @Override
-    public void setFontSize(Distance fontSize)
+    public Disposable setFontSize(Distance fontSize)
     {
         PreCondition.assertGreaterThanOrEqualTo(fontSize, Distance.zero, "fontSize");
 
-        setFont(new Font(fontSize));
+        final float fontSizeInFontPoints = (float)fontSize.toFontPoints().getValue();
+
+        final java.awt.Font currentFont = graphics.getFont();
+        final java.awt.Font newFont = currentFont.deriveFont(fontSizeInFontPoints);
+        graphics.setFont(newFont);
+
+        return new BasicDisposable(() -> setFontSize(Distance.fontPoints(currentFont.getSize2D())));
     }
 
     @Override

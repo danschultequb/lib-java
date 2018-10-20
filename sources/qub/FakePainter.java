@@ -125,16 +125,33 @@ public class FakePainter implements UIPainter
     }
 
     @Override
-    public void translate(Distance x, Distance y)
+    public Disposable translate(Distance x, Distance y)
     {
+        final Distance xTranslate = (x == null ? Distance.zero : x);
+        final Distance yTranslate = (y == null ? Distance.zero : y);
+
         final Vector2D currentTranslation = getTranslation();
-        translations.setLast(currentTranslation.plusVector(x, y));
+        translations.setLast(currentTranslation.plusVector(xTranslate, yTranslate));
+        return new BasicDisposable()
+        {
+            @Override
+            protected void onDispose()
+            {
+                translate(xTranslate.negate(), yTranslate.negate());
+            }
+        };
     }
 
     @Override
-    public void translateY(Distance y)
+    public Disposable translateX(Distance x)
     {
-        translate(Distance.zero, y);
+        return translate(x, Distance.zero);
+    }
+
+    @Override
+    public Disposable translateY(Distance y)
+    {
+        return translate(Distance.zero, y);
     }
 
     @Override
@@ -160,19 +177,41 @@ public class FakePainter implements UIPainter
     }
 
     @Override
-    public void setFont(Font font)
+    public Disposable setFont(Font font)
     {
-        PreCondition.assertNotNull(font, "font");
-
-        fonts.setLast(font);
+        final Font previousFont = getFont();
+        if (font != null)
+        {
+            fonts.setLast(font);
+        }
+        return new BasicDisposable()
+        {
+            @Override
+            protected void onDispose()
+            {
+                setFont(previousFont);
+            }
+        };
     }
 
     @Override
-    public void setFontSize(Distance fontSize)
+    public Disposable setFontSize(Distance fontSize)
     {
-        PreCondition.assertGreaterThanOrEqualTo(fontSize, Distance.zero, "fontSize");
+        PreCondition.assertNullOrGreaterThanOrEqualTo(fontSize, Distance.zero, "fontSize");
 
-        setFont(getFont().changeSize(fontSize));
+        final Distance previousFontSize = getFontSize();
+        if (fontSize != null)
+        {
+            setFont(getFont().changeSize(fontSize));
+        }
+        return new BasicDisposable()
+        {
+            @Override
+            protected void onDispose()
+            {
+                setFontSize(previousFontSize);
+            }
+        };
     }
 
     @Override

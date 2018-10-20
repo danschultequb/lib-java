@@ -333,14 +333,14 @@ public class FakePainterTests
                 runner.test("with null x", (Test test) ->
                 {
                     final FakePainter painter = new FakePainter();
-                    test.assertThrows(() -> painter.translate(null, Distance.zero));
+                    painter.translate(null, Distance.zero);
                     test.assertEqual(Vector2D.zero, painter.getTranslation());
                 });
 
                 runner.test("with null y", (Test test) ->
                 {
                     final FakePainter painter = new FakePainter();
-                    test.assertThrows(() -> painter.translate(Distance.zero, null));
+                    painter.translate(Distance.zero, null);
                     test.assertEqual(Vector2D.zero, painter.getTranslation());
                 });
 

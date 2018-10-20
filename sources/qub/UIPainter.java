@@ -83,14 +83,23 @@ public interface UIPainter
      * Translate all proceeding operations x Distance to the right and y Distance down.
      * @param x The horizontal Distance to translate proceeding operations.
      * @param y The vertical Distance to translate proceeding operations.
+     * @return A Disposable that will undo this translation when disposed.
      */
-    void translate(Distance x, Distance y);
+    Disposable translate(Distance x, Distance y);
+
+    /**
+     * Translate all proceeded operations x Distance to the right.
+     * @param x The horizontal Distance to translate proceeding operations.
+     * @return A Disposable that will undo this translation when disposed.
+     */
+    Disposable translateX(Distance x);
 
     /**
      * Translate all proceeding operations y Distance down.
      * @param y The vertical Distance to translate proceeding operations.
+     * @return A Disposable that will undo this translation when disposed.
      */
-    void translateY(Distance y);
+    Disposable translateY(Distance y);
 
     /**
      * Save the current transformation so that it can be restored later.
@@ -107,13 +116,13 @@ public interface UIPainter
      * Set the font that this UIPainter will draw text with.
      * @param font The font that this UIPainter will draw text with.
      */
-    void setFont(Font font);
+    Disposable setFont(Font font);
 
     /**
      * Set the font size that this UIPainter will draw text with.
      * @param fontSize The font size that this UIPainter will draw text with.
      */
-    void setFontSize(Distance fontSize);
+    Disposable setFontSize(Distance fontSize);
 
     /**
      * Save the current font so that it can be restored later.

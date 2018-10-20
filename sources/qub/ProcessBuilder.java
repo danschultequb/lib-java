@@ -316,7 +316,10 @@ public class ProcessBuilder
             @Override
             public void run(String line)
             {
-                builder.append(line);
+                if (line != null)
+                {
+                    builder.append(line);
+                }
             }
         };
     }

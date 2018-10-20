@@ -1,7 +1,5 @@
 package qub;
 
-import java.lang.reflect.Field;
-
 public class Types
 {
     Types()
@@ -21,14 +19,7 @@ public class Types
         PreCondition.assertNotNull(type, "type");
         PreCondition.assertNotNullAndNotEmpty(memberVariableName, "memberVariableName");
 
-        return containsMemberVariable(type, new Function1<Field,Boolean>()
-        {
-            @Override
-            public Boolean run(Field field)
-            {
-                return field.getName().equals(memberVariableName);
-            }
-        });
+        return containsMemberVariable(type, (java.lang.reflect.Field field) -> field.getName().equals(memberVariableName));
     }
 
     public static boolean containsMemberVariable(Object value, Function1<java.lang.reflect.Field,Boolean> condition)
@@ -63,14 +54,7 @@ public class Types
         PreCondition.assertNotNullAndNotEmpty(memberVariableName, "memberVariableName");
         PreCondition.assertTrue(containsMemberVariable(type, memberVariableName), "containsMemberVariable(type, memberVariableName)");
 
-        return getMemberVariable(type, new Function1<Field,Boolean>()
-        {
-            @Override
-            public Boolean run(Field field)
-            {
-                return field.getName().equals(memberVariableName);
-            }
-        });
+        return getMemberVariable(type, (java.lang.reflect.Field field) -> field.getName().equals(memberVariableName));
     }
 
     public static java.lang.reflect.Field getMemberVariable(Object value, Function1<java.lang.reflect.Field,Boolean> condition)
@@ -180,18 +164,16 @@ public class Types
 
     public static boolean instanceOf(Object value, Class<?> type)
     {
-        PreCondition.assertNotNull(value, "value");
         PreCondition.assertNotNull(type, "type");
 
-        return instanceOf(value.getClass(), type);
+        return value != null && instanceOf(value.getClass(), type);
     }
 
     public static boolean instanceOf(Class<?> valueType, Class<?> type)
     {
-        PreCondition.assertNotNull(valueType, "valueType");
         PreCondition.assertNotNull(type, "type");
 
-        return type.isAssignableFrom(valueType);
+        return valueType != null && type.isAssignableFrom(valueType);
     }
 
     @SuppressWarnings("unchecked")

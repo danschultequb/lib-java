@@ -129,20 +129,6 @@ public class UIText implements UIElement
     {
         PreCondition.assertNotNull(painter, "painter");
 
-        final boolean applyPadding = (padding != null && padding.getValue() != 0);
-        if (applyPadding)
-        {
-            painter.saveTransform();
-            painter.translate(padding, padding);
-        }
-
-        final boolean applyFont = (font != null);
-        if (applyFont)
-        {
-            painter.saveFont();
-            painter.setFont(font);
-        }
-
         final Distance width = getWidth();
         final Distance height = getHeight();
         final Color background = getBackground();
@@ -155,20 +141,11 @@ public class UIText implements UIElement
             }
         }
 
-        try
+        try (final Disposable paddingTranslation = painter.translate(padding, padding))
         {
-            painter.drawText(text);
-        }
-        finally
-        {
-            if (applyFont)
+            try (final Disposable fontSetting = painter.setFont(font))
             {
-                painter.restoreFont();
-            }
-
-            if (applyPadding)
-            {
-                painter.restoreTransform();
+                painter.drawText(text);
             }
         }
     }
