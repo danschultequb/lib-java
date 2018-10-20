@@ -5,7 +5,7 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-class JavaTCPServer extends AsyncDisposableBase implements TCPServer
+class JavaTCPServer implements TCPServer
 {
     private static final int tcpClientBacklog = 50;
 

@@ -1,6 +1,6 @@
 package qub;
 
-public class FakeTCPClient extends TCPClientBase
+public class FakeTCPClient implements TCPClient
 {
     private final FakeNetwork network;
     private final AsyncRunner asyncRunner;
@@ -25,13 +25,13 @@ public class FakeTCPClient extends TCPClientBase
     }
 
     @Override
-    protected ByteReadStream getReadStream()
+    public ByteReadStream getReadStream()
     {
         return socketReadStream;
     }
 
     @Override
-    protected ByteWriteStream getWriteStream()
+    public ByteWriteStream getWriteStream()
     {
         return socketWriteStream;
     }

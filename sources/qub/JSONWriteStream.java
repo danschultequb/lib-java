@@ -1,6 +1,6 @@
 package qub;
 
-public class JSONWriteStream extends DisposableBase
+public class JSONWriteStream implements Disposable
 {
     private final LineWriteStream writeStream;
 

@@ -5,6 +5,18 @@ package qub;
  */
 public interface Window extends UIElementParent, Disposable
 {
+    @Override
+    default Window getParentElement()
+    {
+        return this;
+    }
+
+    @Override
+    default Window getParentWindow()
+    {
+        return this;
+    }
+
     /**
      * Get whether or not this Window is open.
      * @return Whether or not this Window is open.
@@ -82,7 +94,31 @@ public interface Window extends UIElementParent, Disposable
      * @param text The text to measure.
      * @return The width of the text using the default font.
      */
-    Distance getTextWidth(String text);
+    default Distance getTextWidth(String text)
+    {
+        Distance result;
+        if (Strings.isNullOrEmpty(text))
+        {
+            result = Distance.zero;
+        }
+        else
+        {
+            final java.awt.Graphics imageGraphics = createImageGraphics();
+            try
+            {
+                final java.awt.Font defaultFont = imageGraphics.getFont();
+                result = getTextWidth(this, text, imageGraphics, defaultFont);
+            }
+            finally
+            {
+                imageGraphics.dispose();
+            }
+        }
+
+        PostCondition.assertGreaterThanOrEqualTo(result, Distance.zero, "result");
+
+        return result;
+    }
 
     /**
      * Get the width of the text using the provided font.
@@ -90,14 +126,63 @@ public interface Window extends UIElementParent, Disposable
      * @param font The font to use to measure the text.
      * @return The width of the text using the provided font.
      */
-    Distance getTextWidth(String text, Font font);
+    default Distance getTextWidth(String text, Font font)
+    {
+        Distance result;
+        if (Strings.isNullOrEmpty(text) || font == null)
+        {
+            result = getTextWidth(text);
+        }
+        else
+        {
+            final java.awt.Graphics imageGraphics = createImageGraphics();
+            try
+            {
+                final float fontSize = (float)font.getSize().toFontPoints().getValue();
+                final java.awt.Font javaFont = imageGraphics.getFont().deriveFont(fontSize);
+                result = getTextWidth(this, text, imageGraphics, javaFont);
+            }
+            finally
+            {
+                imageGraphics.dispose();
+            }
+        }
+
+        PostCondition.assertGreaterThanOrEqualTo(result, Distance.zero, "result");
+
+        return result;
+    }
 
     /**
      * Get the size of the text using the default font.
      * @param text The text to measure.
      * @return The size of the text using the default font.
      */
-    Size2D getTextSize(String text);
+    default Size2D getTextSize(String text)
+    {
+        Size2D result;
+        if (Strings.isNullOrEmpty(text))
+        {
+            result = Size2D.zero;
+        }
+        else
+        {
+            final java.awt.Graphics imageGraphics = createImageGraphics();
+            try
+            {
+                final java.awt.Font defaultFont = imageGraphics.getFont();
+                result = getTextSize(this, text, imageGraphics, defaultFont);
+            }
+            finally
+            {
+                imageGraphics.dispose();
+            }
+        }
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
 
     /**
      * Get the size of the text using the provided font.
@@ -105,7 +190,32 @@ public interface Window extends UIElementParent, Disposable
      * @param font The font to use to measure the text.
      * @return The size of the text using the provided font.
      */
-    Size2D getTextSize(String text, Font font);
+    default Size2D getTextSize(String text, Font font)
+    {
+        Size2D result;
+        if (Strings.isNullOrEmpty(text) || font == null)
+        {
+            result = getTextSize(text);
+        }
+        else
+        {
+            final java.awt.Graphics imageGraphics = createImageGraphics();
+            try
+            {
+                final float fontSize = (float)font.getSize().toFontPoints().getValue();
+                final java.awt.Font javaFont = imageGraphics.getFont().deriveFont(fontSize);
+                result = getTextSize(this, text, imageGraphics, javaFont);
+            }
+            finally
+            {
+                imageGraphics.dispose();
+            }
+        }
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
 
     /**
      * Get the number of pixels that fit into the provided horizontal distance.
@@ -142,4 +252,35 @@ public interface Window extends UIElementParent, Disposable
      * @return The size that the provided number of horizontal and vertical pixels covers.
      */
     Size2D convertPixelsToSize2D(double horizontalPixels, double verticalPixels);
+
+    static Distance getTextWidth(Window window, String text, java.awt.Graphics graphics, java.awt.Font font)
+    {
+        final Size2D textSize = getTextSize(window, text, graphics, font);
+        final Distance result = textSize.getWidth();
+
+        PostCondition.assertGreaterThan(result, Distance.zero, "result");
+
+        return result;
+    }
+
+    static Size2D getTextSize(Window window, String text, java.awt.Graphics graphics, java.awt.Font font)
+    {
+        final java.awt.FontMetrics fontMetrics = graphics.getFontMetrics(font);
+        final java.awt.geom.Rectangle2D stringBounds = fontMetrics.getStringBounds(text, graphics);
+        final Size2D result = window.convertPixelsToSize2D(stringBounds.getWidth(), stringBounds.getHeight());
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    static java.awt.Graphics createImageGraphics()
+    {
+        final java.awt.image.BufferedImage image = new java.awt.image.BufferedImage(1, 1, java.awt.image.BufferedImage.TYPE_INT_ARGB);
+        final java.awt.Graphics result = image.getGraphics();
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
 }

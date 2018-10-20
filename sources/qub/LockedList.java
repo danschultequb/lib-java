@@ -170,12 +170,6 @@ public class LockedList<T> implements List<T>
     }
 
     @Override
-    public Indexable<T> getRange(int startIndex, int length)
-    {
-        return IndexableBase.getRange(this, startIndex, length);
-    }
-
-    @Override
     public int indexOf(Function1<T, Boolean> condition)
     {
         try (final Disposable criticalSection = mutex.criticalSection())
@@ -187,238 +181,84 @@ public class LockedList<T> implements List<T>
     @Override
     public int indexOf(T value)
     {
-        try (final Disposable criticalSection = mutex.criticalSection())
-        {
-            return innerList.indexOf(value);
-        }
+        return mutex.criticalSection(() -> innerList.indexOf(value));
     }
 
     @Override
     public Iterator<T> iterate()
     {
-        try (final Disposable criticalSection = mutex.criticalSection())
-        {
-            return innerList.iterate();
-        }
+        return mutex.criticalSection(innerList::iterate);
     }
 
     @Override
     public boolean any()
     {
-        try (final Disposable criticalSection = mutex.criticalSection())
-        {
-            return innerList.any();
-        }
+        return mutex.criticalSection(innerList::any);
     }
 
     @Override
     public int getCount()
     {
-        try (final Disposable criticalSection = mutex.criticalSection())
-        {
-            return innerList.getCount();
-        }
+        return mutex.criticalSection(innerList::getCount);
     }
 
     @Override
     public T first()
     {
-        return mutex.criticalSection(new Function0<T>()
-        {
-            @Override
-            public T run()
-            {
-                return innerList.first();
-            }
-        });
+        return mutex.criticalSection((Function0<T>)innerList::first);
     }
 
     @Override
     public T first(final Function1<T, Boolean> condition)
     {
-        return mutex.criticalSection(new Function0<T>()
-        {
-            @Override
-            public T run()
-            {
-                return innerList.first(condition);
-            }
-        });
+        return mutex.criticalSection(() -> innerList.first(condition));
     }
 
     @Override
     public T last()
     {
-        return mutex.criticalSection(new Function0<T>()
-        {
-            @Override
-            public T run()
-            {
-                return innerList.last();
-            }
-        });
+        return mutex.criticalSection((Function0<T>)innerList::last);
     }
 
     @Override
     public T last(final Function1<T, Boolean> condition)
     {
-        return mutex.criticalSection(new Function0<T>()
-        {
-            @Override
-            public T run()
-            {
-                return innerList.last(condition);
-            }
-        });
+        return mutex.criticalSection(() -> innerList.last(condition));
     }
 
     @Override
     public boolean contains(final T value)
     {
-        return mutex.criticalSection(new Function0<Boolean>()
-        {
-            @Override
-            public Boolean run()
-            {
-                return innerList.contains(value);
-            }
-        });
+        return mutex.criticalSection(() -> innerList.contains(value));
     }
 
     @Override
     public boolean contains(final Function1<T, Boolean> condition)
     {
-        return mutex.criticalSection(new Function0<Boolean>()
-        {
-            @Override
-            public Boolean run()
-            {
-                return innerList.contains(condition);
-            }
-        });
+        return mutex.criticalSection(() -> innerList.contains(condition));
     }
 
     @Override
-    public Indexable<T> take(final int toTake)
+    public boolean equals(Object rhs)
     {
-        return ListBase.take(this, toTake);
-    }
-
-    @Override
-    public Iterable<T> takeLast(int toTake)
-    {
-        return ListBase.takeLast(this, toTake);
-    }
-
-    @Override
-    public Indexable<T> skip(final int toSkip)
-    {
-        return ListBase.skip(this, toSkip);
-    }
-
-    @Override
-    public Iterable<T> skipFirst()
-    {
-        return ListBase.skipFirst(this);
-    }
-
-    @Override
-    public Iterable<T> skipLast()
-    {
-        return ListBase.skipLast(this);
-    }
-
-    @Override
-    public Iterable<T> skipLast(final int toSkip)
-    {
-        return ListBase.skipLast(this, toSkip);
-    }
-
-    @Override
-    public Iterable<T> skipUntil(final Function1<T, Boolean> condition)
-    {
-        return ListBase.skipUntil(this, condition);
-    }
-
-    @Override
-    public Iterable<T> where(Function1<T, Boolean> condition)
-    {
-        return IterableBase.where(this, condition);
-    }
-
-    @Override
-    public <U> Indexable<U> map(Function1<T, U> conversion)
-    {
-        return ListBase.map(this, conversion);
-    }
-
-    @Override
-    public <U> Iterable<U> instanceOf(Class<U> type)
-    {
-        return ListBase.instanceOf(this, type);
-    }
-
-    @Override
-    public T minimum(Function2<T,T,Comparison> comparer)
-    {
-        return ListBase.minimum(this, comparer);
-    }
-
-    @Override
-    public T maximum(Function2<T,T,Comparison> comparer)
-    {
-        return ListBase.maximum(this, comparer);
-    }
-
-    @Override
-    public boolean equals(final Object rhs)
-    {
-        return mutex.criticalSection(new Function0<Boolean>()
-        {
-            @Override
-            public Boolean run()
-            {
-                return innerList.equals(rhs);
-            }
-        });
+        return mutex.criticalSection(() -> innerList.equals(rhs));
     }
 
     @Override
     public boolean equals(final Iterable<T> rhs)
     {
-        return mutex.criticalSection(new Function0<Boolean>()
-        {
-            @Override
-            public Boolean run()
-            {
-                return innerList.equals(rhs);
-            }
-        });
+        return mutex.criticalSection(() -> innerList.equals(rhs));
     }
 
     @Override
     public String toString()
     {
-        return mutex.criticalSection(new Function0<String>()
-        {
-            @Override
-            public String run()
-            {
-                return innerList.toString();
-            }
-        });
+        return mutex.criticalSection((Function0<String>)innerList::toString);
     }
 
     @Override
     public java.util.Iterator<T> iterator()
     {
-        return mutex.criticalSection(new Function0<java.util.Iterator<T>>()
-        {
-            @Override
-            public java.util.Iterator<T> run()
-            {
-                return innerList.iterator();
-            }
-        });
+        return mutex.criticalSection(innerList::iterator);
     }
 }

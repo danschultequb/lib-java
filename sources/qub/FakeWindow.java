@@ -1,6 +1,6 @@
 package qub;
 
-public class FakeWindow extends WindowBase
+public class FakeWindow implements Window
 {
     private boolean opened;
     private boolean disposed;

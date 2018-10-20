@@ -1,13 +1,13 @@
 package qub;
 
-public class ManualAsyncRunner extends AsyncRunnerBase
+public class ManualAsyncRunner implements AsyncRunner
 {
     private final BlockingQueue<PausedAsyncTask> scheduledTasks;
     private boolean disposed;
 
     public ManualAsyncRunner()
     {
-        this.scheduledTasks = new JavaBlockingQueue<PausedAsyncTask>(null);
+        this.scheduledTasks = new JavaBlockingQueue<>(null);
     }
 
     @Override

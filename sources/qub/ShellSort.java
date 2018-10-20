@@ -1,6 +1,6 @@
 package qub;
 
-public class ShellSort extends SortBase
+public class ShellSort implements Sort
 {
     @Override
     public <T> void sort(MutableIndexable<T> indexable, Function2<T, T, Comparison> comparer)

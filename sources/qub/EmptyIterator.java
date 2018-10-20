@@ -1,6 +1,6 @@
 package qub;
 
-public class EmptyIterator<T> extends IteratorBase<T>
+public class EmptyIterator<T> implements Iterator<T>
 {
     private boolean hasStarted;
 

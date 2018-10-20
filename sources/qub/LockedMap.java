@@ -208,98 +208,14 @@ public class LockedMap<TKey,TValue> implements Map<TKey,TValue>
     }
 
     @Override
-    public Iterable<MapEntry<TKey, TValue>> take(int toTake)
-    {
-        return IterableBase.take(this, toTake);
-    }
-
-    @Override
-    public Iterable<MapEntry<TKey, TValue>> takeLast(int toTake)
-    {
-        return IterableBase.takeLast(this, toTake);
-    }
-
-    @Override
-    public Iterable<MapEntry<TKey, TValue>> skip(int toSkip)
-    {
-        return IterableBase.skip(this, toSkip);
-    }
-
-    @Override
-    public Iterable<MapEntry<TKey, TValue>> skipFirst()
-    {
-        return IterableBase.skipFirst(this);
-    }
-
-    @Override
-    public Iterable<MapEntry<TKey, TValue>> skipLast()
-    {
-        return IterableBase.skipLast(this);
-    }
-
-    @Override
-    public Iterable<MapEntry<TKey, TValue>> skipLast(int toSkip)
-    {
-        return IterableBase.skipLast(this, toSkip);
-    }
-
-    @Override
-    public Iterable<MapEntry<TKey, TValue>> skipUntil(Function1<MapEntry<TKey, TValue>, Boolean> condition)
-    {
-        return IterableBase.skipUntil(this, condition);
-    }
-
-    @Override
-    public Iterable<MapEntry<TKey, TValue>> where(Function1<MapEntry<TKey, TValue>, Boolean> condition)
-    {
-        return IterableBase.where(this, condition);
-    }
-
-    @Override
-    public <U> Iterable<U> map(Function1<MapEntry<TKey, TValue>, U> conversion)
-    {
-        return IterableBase.map(this, conversion);
-    }
-
-    @Override
-    public <U> Iterable<U> instanceOf(Class<U> type)
-    {
-        return IterableBase.instanceOf(this, type);
-    }
-
-    @Override
-    public MapEntry<TKey,TValue> minimum(Function2<MapEntry<TKey,TValue>,MapEntry<TKey,TValue>,Comparison> comparer)
-    {
-        return IterableBase.minimum(this, comparer);
-    }
-
-    @Override
-    public MapEntry<TKey,TValue> maximum(Function2<MapEntry<TKey,TValue>,MapEntry<TKey,TValue>,Comparison> comparer)
-    {
-        return IterableBase.maximum(this, comparer);
-    }
-
-    @Override
     public boolean equals(Object rhs)
     {
-        return IterableBase.equals(this, rhs);
-    }
-
-    @Override
-    public boolean equals(Iterable<MapEntry<TKey, TValue>> rhs)
-    {
-        return IterableBase.equals(this, rhs);
+        return Iterable.equals(this, rhs);
     }
 
     @Override
     public String toString()
     {
-        return IterableBase.toString(this);
-    }
-
-    @Override
-    public java.util.Iterator<MapEntry<TKey, TValue>> iterator()
-    {
-        return IterableBase.iterator(this);
+        return Iterable.toString(this);
     }
 }

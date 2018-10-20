@@ -3,7 +3,7 @@ package qub;
 /**
  * A collection of HTTP headers to be used in an HTTP request or response.
  */
-public class MutableHttpHeaders extends IterableBase<HttpHeader> implements HttpHeaders
+public class MutableHttpHeaders implements HttpHeaders
 {
     private final Map<String,HttpHeader> headerMap;
 
@@ -155,5 +155,17 @@ public class MutableHttpHeaders extends IterableBase<HttpHeader> implements Http
     public Iterator<HttpHeader> iterate()
     {
         return headerMap.getValues().iterate();
+    }
+
+    @Override
+    public boolean equals(Object rhs)
+    {
+        return Iterable.equals(this, rhs);
+    }
+
+    @Override
+    public String toString()
+    {
+        return Iterable.toString(this);
     }
 }

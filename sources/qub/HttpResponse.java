@@ -3,7 +3,7 @@ package qub;
 /**
  * The HTTP response sent from a HTTP server to a HTTP client as a result of a HTTP request.
  */
-public class HttpResponse extends AsyncDisposableBase
+public class HttpResponse implements AsyncDisposable
 {
     private final String httpVersion;
     private final int statusCode;

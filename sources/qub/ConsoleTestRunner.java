@@ -5,7 +5,7 @@ package qub;
  */
 public class ConsoleTestRunner extends Console implements TestRunner
 {
-    private TestRunnerBase testRunner;
+    private BasicTestRunner testRunner;
 
     private final String singleIndent;
     private String currentIndent;
@@ -51,7 +51,7 @@ public class ConsoleTestRunner extends Console implements TestRunner
             writeLine("TestPattern: " + (testPattern == null ? "null" : "\"" + testPattern + "\""));
         }
 
-        testRunner = new TestRunnerBase(this, debug, testPattern);
+        testRunner = new BasicTestRunner(this, debug, testPattern);
 
         final List<TestGroup> testGroupsWrittenToConsole = new ArrayList<>();
         testRunner.setOnTestGroupFinished(new Action1<TestGroup>()

@@ -1,7 +1,5 @@
 package qub;
 
-import java.io.IOException;
-
 /**
  * An interface for writing bytes to a stream.
  */

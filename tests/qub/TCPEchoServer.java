@@ -1,6 +1,6 @@
 package qub;
 
-public class TCPEchoServer extends AsyncDisposableBase
+public class TCPEchoServer implements AsyncDisposable
 {
     private final TCPServer tcpServer;
 

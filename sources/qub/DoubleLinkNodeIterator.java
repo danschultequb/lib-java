@@ -1,6 +1,6 @@
 package qub;
 
-public class DoubleLinkNodeIterator<T> extends IteratorBase<T>
+public class DoubleLinkNodeIterator<T> implements Iterator<T>
 {
     private boolean hasStarted;
     private DoubleLinkNode<T> currentNode;

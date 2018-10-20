@@ -4,7 +4,7 @@ package qub;
  * A basic Array data structure that holds a fixed number of elements.
  * @param <T> The type of element contained by this Array.
  */
-public class Array<T> extends MutableIndexableBase<T>
+public class Array<T> implements MutableIndexable<T>
 {
     private final Object[] data;
 
@@ -88,6 +88,18 @@ public class Array<T> extends MutableIndexableBase<T>
     public boolean any()
     {
         return 1 <= getCount();
+    }
+
+    @Override
+    public boolean equals(Object rhs)
+    {
+        return Iterable.equals(this, rhs);
+    }
+
+    @Override
+    public String toString()
+    {
+        return Iterable.toString(this);
     }
 
     /**

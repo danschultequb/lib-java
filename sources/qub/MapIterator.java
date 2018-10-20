@@ -6,7 +6,7 @@ package qub;
  * @param <TInner> The type of values returned from the inner iterator.
  * @param <TOuter> The type of values returned from this iterator.
  */
-class MapIterator<TInner,TOuter> extends IteratorBase<TOuter>
+class MapIterator<TInner,TOuter> implements Iterator<TOuter>
 {
     private final Iterator<TInner> innerIterator;
     private final Function1<TInner,TOuter> conversion;

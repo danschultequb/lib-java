@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * This lock uses an atomic variable to synchronize access to shared resources, and as such doesn't
  * require OS interaction.
  */
-public class SpinMutex extends MutexBase
+public class SpinMutex implements Mutex
 {
     private final AtomicLong acquiredByThreadId;
     private final AtomicLong acquiredCount;

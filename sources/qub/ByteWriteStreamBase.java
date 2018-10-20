@@ -1,6 +1,6 @@
 package qub;
 
-public abstract class ByteWriteStreamBase extends DisposableBase implements ByteWriteStream
+public abstract class ByteWriteStreamBase implements ByteWriteStream
 {
     @Override
     public Result<Boolean> write(byte[] toWrite)
@@ -62,7 +62,7 @@ public abstract class ByteWriteStreamBase extends DisposableBase implements Byte
      */
     public static Result<Boolean> write(ByteWriteStream byteWriteStream, byte[] toWrite)
     {
-        Result<Boolean> result = DisposableBase.validateNotDisposed(byteWriteStream, "byteWriteStream");
+        Result<Boolean> result = Disposable.validateNotDisposed(byteWriteStream, "byteWriteStream");
         if (result == null)
         {
             result = ByteWriteStreamBase.validateToWrite(toWrite);
@@ -82,7 +82,7 @@ public abstract class ByteWriteStreamBase extends DisposableBase implements Byte
      */
     public static Result<Boolean> write(ByteWriteStream byteWriteStream, byte[] toWrite, int startIndex, int length)
     {
-        Result<Boolean> result = DisposableBase.validateNotDisposed(byteWriteStream, "byteWriteStream");
+        Result<Boolean> result = Disposable.validateNotDisposed(byteWriteStream, "byteWriteStream");
         if (result == null)
         {
             result = ByteWriteStreamBase.validateToWrite(toWrite);
@@ -116,10 +116,10 @@ public abstract class ByteWriteStreamBase extends DisposableBase implements Byte
      */
     public static Result<Boolean> writeAll(ByteWriteStream byteWriteStream, ByteReadStream byteReadStream)
     {
-        Result<Boolean> result = DisposableBase.validateNotDisposed(byteWriteStream, "byteWriteStream");
+        Result<Boolean> result = Disposable.validateNotDisposed(byteWriteStream, "byteWriteStream");
         if (result == null)
         {
-            result = DisposableBase.validateNotDisposed(byteReadStream, "byteReadStream");
+            result = Disposable.validateNotDisposed(byteReadStream, "byteReadStream");
             if (result == null)
             {
                 final byte[] buffer = new byte[1024];

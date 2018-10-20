@@ -1,6 +1,6 @@
 package qub;
 
-public class TestRunnerBase implements TestRunner
+public final class BasicTestRunner implements TestRunner
 {
     private static final Skip noMessageSkip = new Skip(null);
 
@@ -28,7 +28,7 @@ public class TestRunnerBase implements TestRunner
     private final boolean debug;
     private final PathPattern testPattern;
 
-    public TestRunnerBase(Process process, boolean debug, PathPattern testPattern)
+    public BasicTestRunner(Process process, boolean debug, PathPattern testPattern)
     {
         this.process = process;
         this.debug = debug;

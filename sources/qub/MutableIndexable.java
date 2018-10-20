@@ -13,11 +13,21 @@ public interface MutableIndexable<T> extends Indexable<T>
      * Set the first value in this MutableIndexable.
      * @param value The value to set the first index.
      */
-    void setFirst(T value);
+    default void setFirst(T value)
+    {
+        PreCondition.assertTrue(any(), "any()");
+
+        set(0, value);
+    }
 
     /**
      * Set the last value in this MutableIndexable.
      * @param value The value to set at the last index.
      */
-    void setLast(T value);
+    default void setLast(T value)
+    {
+        PreCondition.assertTrue(any(), "any()");
+
+        set(getCount() - 1, value);
+    }
 }

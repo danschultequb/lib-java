@@ -1,21 +1,7 @@
 package qub;
 
-import java.io.InputStream;
-
-public abstract class ByteReadStreamBase extends IteratorBase<Byte> implements ByteReadStream
+public abstract class ByteReadStreamBase implements ByteReadStream
 {
-    @Override
-    public final AsyncFunction<Result<Boolean>> disposeAsync()
-    {
-        return AsyncDisposableBase.disposeAsync(this);
-    }
-
-    @Override
-    public final void close()
-    {
-        DisposableBase.close(this);
-    }
-
     @Override
     public abstract Result<Byte> readByte();
 
@@ -117,7 +103,7 @@ public abstract class ByteReadStreamBase extends IteratorBase<Byte> implements B
     }
 
     @Override
-    public InputStream asInputStream()
+    public java.io.InputStream asInputStream()
     {
         return ByteReadStreamBase.asInputStream(this);
     }
@@ -485,7 +471,7 @@ public abstract class ByteReadStreamBase extends IteratorBase<Byte> implements B
         return result;
     }
 
-    public static InputStream asInputStream(ByteReadStream byteReadStream)
+    public static java.io.InputStream asInputStream(ByteReadStream byteReadStream)
     {
         PreCondition.assertNotNull(byteReadStream, "byteReadStream");
 

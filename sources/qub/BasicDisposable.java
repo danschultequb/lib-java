@@ -3,7 +3,7 @@ package qub;
 /**
  * A disposable that can be used to run a specified action when the disposable is disposed.
  */
-public class BasicDisposable extends DisposableBase
+public class BasicDisposable implements Disposable
 {
     private boolean disposed;
     private final Action0 onDisposed;

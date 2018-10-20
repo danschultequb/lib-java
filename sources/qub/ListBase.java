@@ -1,6 +1,6 @@
 package qub;
 
-public abstract class ListBase<T> extends MutableIndexableBase<T> implements List<T>
+public abstract class ListBase<T> implements List<T>
 {
     @Override
     public void addAll(T[] values)
@@ -70,6 +70,18 @@ public abstract class ListBase<T> extends MutableIndexableBase<T> implements Lis
         }
 
         return result;
+    }
+
+    @Override
+    public boolean equals(Object rhs)
+    {
+        return Iterable.equals(this, rhs);
+    }
+
+    @Override
+    public String toString()
+    {
+        return Iterable.toString(this);
     }
 
     /**

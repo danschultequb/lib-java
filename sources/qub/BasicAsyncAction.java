@@ -6,12 +6,12 @@ public class BasicAsyncAction extends BasicAsyncTask implements AsyncAction
 
     BasicAsyncAction(AsyncRunner runner)
     {
-        this(new Value<>(runner), Actions.empty);
+        this(new Value<>(runner), Action0.empty);
     }
 
     BasicAsyncAction(AsyncRunner runner, String label)
     {
-        this(new Value<>(runner), label, Actions.empty);
+        this(new Value<>(runner), label, Action0.empty);
     }
 
     BasicAsyncAction(Getable<AsyncRunner> runner, Action0 action)

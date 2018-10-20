@@ -1,8 +1,6 @@
 package qub;
 
-import java.net.InetSocketAddress;
-
-class JavaTCPClient extends TCPClientBase
+class JavaTCPClient implements TCPClient
 {
     private final java.net.Socket socket;
     private final AsyncRunner asyncRunner;
@@ -22,14 +20,14 @@ class JavaTCPClient extends TCPClientBase
         Result<TCPClient> result = Result.notNull(socket, "socket");
         if (result == null)
         {
-            result = DisposableBase.validateNotDisposed(asyncRunner, "asyncRunner");
+            result = Disposable.validateNotDisposed(asyncRunner, "asyncRunner");
             if (result == null)
             {
                 try
                 {
                     final ByteReadStream socketReadStream = new InputStreamToByteReadStream(socket.getInputStream(), asyncRunner);
                     final ByteWriteStream socketWriteStream = new OutputStreamToByteWriteStream(socket.getOutputStream());
-                    result = Result.<TCPClient>success(new JavaTCPClient(socket, asyncRunner, socketReadStream, socketWriteStream));
+                    result = Result.success(new JavaTCPClient(socket, asyncRunner, socketReadStream, socketWriteStream));
                 }
                 catch (java.io.IOException e)
                 {
@@ -41,13 +39,13 @@ class JavaTCPClient extends TCPClientBase
     }
 
     @Override
-    protected ByteReadStream getReadStream()
+    public ByteReadStream getReadStream()
     {
         return socketReadStream;
     }
 
     @Override
-    protected ByteWriteStream getWriteStream()
+    public ByteWriteStream getWriteStream()
     {
         return socketWriteStream;
     }
@@ -106,7 +104,7 @@ class JavaTCPClient extends TCPClientBase
     @Override
     public IPv4Address getRemoteIPAddress()
     {
-        final InetSocketAddress remoteInetSocketAddress = (InetSocketAddress)socket.getRemoteSocketAddress();
+        final java.net.InetSocketAddress remoteInetSocketAddress = (java.net.InetSocketAddress)socket.getRemoteSocketAddress();
         String remoteInetAddressString = remoteInetSocketAddress.getAddress().toString();
         if (remoteInetAddressString.startsWith("/")) {
             remoteInetAddressString = remoteInetAddressString.substring(1);
@@ -117,7 +115,7 @@ class JavaTCPClient extends TCPClientBase
     @Override
     public int getRemotePort()
     {
-        final InetSocketAddress remoteInetSocketAddress = (InetSocketAddress)socket.getRemoteSocketAddress();
+        final java.net.InetSocketAddress remoteInetSocketAddress = (java.net.InetSocketAddress)socket.getRemoteSocketAddress();
         return remoteInetSocketAddress.getPort();
     }
 }

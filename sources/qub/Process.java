@@ -3,7 +3,7 @@ package qub;
 /**
  * A Console platform that can be used to write Console applications.
  */
-public class Process extends DisposableBase
+public class Process implements Disposable
 {
     private final CommandLine commandLine;
 

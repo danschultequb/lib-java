@@ -15,5 +15,8 @@ public interface Sort
      * @param indexable The List to sort.
      * @param <T> The type of values in the List.
      */
-    <T extends Comparable<T>> void sort(MutableIndexable<T> indexable);
+    default <T extends Comparable<T>> void sort(MutableIndexable<T> indexable)
+    {
+        sort(indexable, Comparer::compare);
+    }
 }

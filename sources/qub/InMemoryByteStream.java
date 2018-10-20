@@ -224,7 +224,7 @@ public class InMemoryByteStream extends ByteReadStreamBase implements ByteWriteS
         Result<Boolean> result = InMemoryByteStream.validateNotEndOfStream(this);
         if (result == null)
         {
-            result = DisposableBase.validateNotDisposed(this, "byteWriteStream");
+            result = Disposable.validateNotDisposed(this, "byteWriteStream");
             if (result == null)
             {
                 try (final Disposable criticalSection = mutex.criticalSection())

@@ -1,19 +1,7 @@
 package qub;
 
-public abstract class CharacterReadStreamBase extends IteratorBase<Character> implements CharacterReadStream
+public abstract class CharacterReadStreamBase implements CharacterReadStream
 {
-    @Override
-    public AsyncFunction<Result<Boolean>> disposeAsync()
-    {
-        return AsyncDisposableBase.disposeAsync(this);
-    }
-
-    @Override
-    public void close()
-    {
-        DisposableBase.close(this);
-    }
-
     @Override
     public abstract Result<Character> readCharacter();
 

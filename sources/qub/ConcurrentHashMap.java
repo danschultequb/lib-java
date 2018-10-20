@@ -1,19 +1,17 @@
 package qub;
 
-import java.util.Map;
-
-public class ConcurrentHashMap<TKey,TValue> extends MapBase<TKey,TValue>
+public class ConcurrentHashMap<TKey,TValue> implements Map<TKey,TValue>
 {
     private final java.util.concurrent.ConcurrentHashMap<TKey,TValue> javaMap;
 
     public ConcurrentHashMap()
     {
-        javaMap = new java.util.concurrent.ConcurrentHashMap<TKey,TValue>();
+        javaMap = new java.util.concurrent.ConcurrentHashMap<>();
     }
 
     public ConcurrentHashMap<TKey,TValue> clone()
     {
-        final ConcurrentHashMap<TKey,TValue> result = new ConcurrentHashMap<TKey,TValue>();
+        final ConcurrentHashMap<TKey,TValue> result = new ConcurrentHashMap<>();
         for (final MapEntry<TKey,TValue> entry : this)
         {
             result.set(entry.getKey(), entry.getValue());
@@ -48,42 +46,32 @@ public class ConcurrentHashMap<TKey,TValue> extends MapBase<TKey,TValue>
     @Override
     public Iterable<TKey> getKeys()
     {
-        return Array.fromValues(iterate()
-            .map(new Function1<MapEntry<TKey,TValue>, TKey>()
-            {
-                @Override
-                public TKey run(MapEntry<TKey, TValue> entry)
-                {
-                    return entry.getKey();
-                }
-            }));
+        return Array.fromValues(iterate().map(MapEntry::getKey));
     }
 
     @Override
     public Iterable<TValue> getValues()
     {
-        return Array.fromValues(iterate()
-            .map(new Function1<MapEntry<TKey,TValue>, TValue>()
-            {
-                @Override
-                public TValue run(MapEntry<TKey, TValue> entry)
-                {
-                    return entry.getValue();
-                }
-            }));
+        return Array.fromValues(iterate().map(MapEntry::getValue));
     }
 
     @Override
     public Iterator<MapEntry<TKey, TValue>> iterate()
     {
         return JavaIteratorToIteratorAdapter.wrap(javaMap.entrySet().iterator())
-            .map(new Function1<Map.Entry<TKey,TValue>, MapEntry<TKey,TValue>>()
-            {
-                @Override
-                public MapEntry<TKey, TValue> run(Map.Entry<TKey, TValue> javaMapEntry)
-                {
-                    return new MutableMapEntry<TKey,TValue>(javaMapEntry.getKey(), javaMapEntry.getValue());
-                }
-            });
+            .map((java.util.Map.Entry<TKey, TValue> javaMapEntry) ->
+                new MutableMapEntry<>(javaMapEntry.getKey(), javaMapEntry.getValue()));
+    }
+
+    @Override
+    public boolean equals(Object rhs)
+    {
+        return Iterable.equals(this, rhs);
+    }
+
+    @Override
+    public String toString()
+    {
+        return Iterable.toString(this);
     }
 }

@@ -1,6 +1,6 @@
 package qub;
 
-public class TakeIndexable<T> extends IndexableBase<T>
+public class TakeIndexable<T> implements Indexable<T>
 {
     private final Indexable<T> innerIndexable;
     private final int toTake;
@@ -23,5 +23,17 @@ public class TakeIndexable<T> extends IndexableBase<T>
     public Iterator<T> iterate()
     {
         return innerIndexable.iterate().take(toTake);
+    }
+
+    @Override
+    public boolean equals(Object rhs)
+    {
+        return Iterable.equals(this, rhs);
+    }
+
+    @Override
+    public String toString()
+    {
+        return Iterable.toString(this);
     }
 }

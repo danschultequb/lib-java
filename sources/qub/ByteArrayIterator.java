@@ -1,6 +1,6 @@
 package qub;
 
-public class ByteArrayIterator extends IteratorBase<Byte>
+public class ByteArrayIterator implements Iterator<Byte>
 {
     private final ByteArray byteArray;
     private boolean hasStarted;

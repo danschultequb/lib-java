@@ -1,6 +1,6 @@
 package qub;
 
-public abstract class LineReadStreamBase extends IteratorBase<String> implements LineReadStream
+public abstract class LineReadStreamBase implements LineReadStream
 {
     @Override
     public Result<String> readLine()
@@ -24,18 +24,6 @@ public abstract class LineReadStreamBase extends IteratorBase<String> implements
     public final CharacterEncoding getCharacterEncoding()
     {
         return LineReadStreamBase.getCharacterEncoding(this);
-    }
-
-    @Override
-    public final AsyncFunction<Result<Boolean>> disposeAsync()
-    {
-        return AsyncDisposableBase.disposeAsync(this);
-    }
-
-    @Override
-    public final void close()
-    {
-        DisposableBase.close(this);
     }
 
     @Override

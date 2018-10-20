@@ -1,6 +1,6 @@
 package qub;
 
-public class FakeTCPServer extends AsyncDisposableBase implements TCPServer
+public class FakeTCPServer implements TCPServer
 {
     private final IPv4Address localIPAddress;
     private final int localPort;

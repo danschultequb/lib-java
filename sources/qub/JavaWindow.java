@@ -1,6 +1,6 @@
 package qub;
 
-public class JavaWindow extends WindowBase
+public class JavaWindow implements Window
 {
     private final AsyncRunner mainAsyncRunner;
     private final Iterable<Display> displays;

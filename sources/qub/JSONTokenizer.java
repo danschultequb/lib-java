@@ -1,6 +1,6 @@
 package qub;
 
-public class JSONTokenizer extends IteratorBase<JSONToken>
+public class JSONTokenizer implements Iterator<JSONToken>
 {
     private final Lexer lexer;
     private final int firstTokenStartIndex;
@@ -363,13 +363,6 @@ public class JSONTokenizer extends IteratorBase<JSONToken>
 
     private static Action1<Issue> getAddToListAction(final List<Issue> issues)
     {
-        return issues == null ? null : new Action1<Issue>()
-        {
-            @Override
-            public void run(Issue issue)
-            {
-                issues.add(issue);
-            }
-        };
+        return issues == null ? null : issues::add;
     }
 }

@@ -1,6 +1,6 @@
 package qub;
 
-class MapIndexable<TInner,TOuter> extends IndexableBase<TOuter>
+class MapIndexable<TInner,TOuter> implements Indexable<TOuter>
 {
     private final Indexable<TInner> innerIndexable;
     private final Function1<TInner,TOuter> conversion;
@@ -38,5 +38,17 @@ class MapIndexable<TInner,TOuter> extends IndexableBase<TOuter>
             result = conversion.run(innerIndexable.get(index));
         }
         return result;
+    }
+
+    @Override
+    public boolean equals(Object rhs)
+    {
+        return Iterable.equals(this, rhs);
+    }
+
+    @Override
+    public String toString()
+    {
+        return Iterable.toString(this);
     }
 }

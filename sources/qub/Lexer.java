@@ -1,6 +1,6 @@
 package qub;
 
-public class Lexer extends IteratorBase<Lex>
+public class Lexer implements Iterator<Lex>
 {
     private final Iterator<Character> characters;
     private boolean hasStarted;

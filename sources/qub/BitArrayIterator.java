@@ -1,6 +1,6 @@
 package qub;
 
-public class BitArrayIterator extends IteratorBase<Integer>
+public class BitArrayIterator implements Iterator<Integer>
 {
     private final BitArray source;
     private long currentIndex;

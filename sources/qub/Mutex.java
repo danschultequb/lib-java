@@ -35,7 +35,21 @@ public interface Mutex
      * Mutex when the action completes.
      * @param action The action to run after acquiring this Mutex.
      */
-    void criticalSection(Action0 action);
+    default void criticalSection(Action0 action)
+    {
+        if (action != null)
+        {
+            acquire();
+            try
+            {
+                action.run();
+            }
+            finally
+            {
+                release();
+            }
+        }
+    }
 
     /**
      * Run the provided function after this Mutex has been acquired and automatically release the
@@ -43,13 +57,33 @@ public interface Mutex
      * @param function The function to run after acquiring this Mutex.
      * @return The return value from the function.
      */
-    <T> T criticalSection(Function0<T> function);
+    default <T> T criticalSection(Function0<T> function)
+    {
+        T result = null;
+        if (function != null)
+        {
+            acquire();
+            try
+            {
+                result = function.run();
+            }
+            finally
+            {
+                release();
+            }
+        }
+        return result;
+    }
 
     /**
      * Acquire this mutex and return a Disposable that will release this mutex when it is disposed.
      * @return
      */
-    Disposable criticalSection();
+    default Disposable criticalSection()
+    {
+        acquire();
+        return new BasicDisposable(this::release);
+    }
 
     /**
      * Create a new condition that can be used to block until certain constraints are true.

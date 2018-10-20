@@ -1,6 +1,6 @@
 package qub;
 
-public class ListMap<TKey,TValue> extends MapBase<TKey,TValue>
+public class ListMap<TKey,TValue> implements Map<TKey,TValue>
 {
     private final List<MutableMapEntry<TKey,TValue>> entries;
 
@@ -11,19 +11,12 @@ public class ListMap<TKey,TValue> extends MapBase<TKey,TValue>
 
     private MutableMapEntry<TKey,TValue> getEntry(final TKey key)
     {
-        return entries.first(new Function1<MutableMapEntry<TKey, TValue>, Boolean>()
-        {
-            @Override
-            public Boolean run(MutableMapEntry<TKey, TValue> entry)
-            {
-                return Comparer.equal(entry.getKey(), key);
-            }
-        });
+        return entries.first(entry -> Comparer.equal(entry.getKey(), key));
     }
 
     public ListMap<TKey,TValue> clone()
     {
-        final ListMap<TKey,TValue> result = new ListMap<TKey,TValue>();
+        final ListMap<TKey,TValue> result = new ListMap<>();
         for (final MapEntry<TKey,TValue> entry : this)
         {
             result.set(entry.getKey(), entry.getValue());
@@ -59,54 +52,38 @@ public class ListMap<TKey,TValue> extends MapBase<TKey,TValue>
     }
 
     @Override
-    public boolean remove(final TKey key)
+    public boolean remove(TKey key)
     {
-        return entries.removeFirst(new Function1<MutableMapEntry<TKey, TValue>, Boolean>()
-        {
-            @Override
-            public Boolean run(MutableMapEntry<TKey, TValue> entry)
-            {
-                return Comparer.equal(entry.getKey(), key);
-            }
-        }) != null;
+        return entries.removeFirst(entry -> Comparer.equal(entry.getKey(), key)) != null;
     }
 
     @Override
     public Iterable<TKey> getKeys()
     {
-        return entries.map(new Function1<MutableMapEntry<TKey, TValue>, TKey>()
-        {
-            @Override
-            public TKey run(MutableMapEntry<TKey, TValue> entry)
-            {
-                return entry.getKey();
-            }
-        });
+        return entries.map(MutableMapEntry::getKey);
     }
 
     @Override
     public Iterable<TValue> getValues()
     {
-        return entries.map(new Function1<MutableMapEntry<TKey, TValue>, TValue>()
-        {
-            @Override
-            public TValue run(MutableMapEntry<TKey, TValue> entry)
-            {
-                return entry.getValue();
-            }
-        });
+        return entries.map(MutableMapEntry::getValue);
     }
 
     @Override
     public Iterator<MapEntry<TKey, TValue>> iterate()
     {
-        return entries.iterate().map(new Function1<MutableMapEntry<TKey, TValue>, MapEntry<TKey, TValue>>()
-        {
-            @Override
-            public MapEntry<TKey, TValue> run(MutableMapEntry<TKey, TValue> entry)
-            {
-                return entry;
-            }
-        });
+        return entries.iterate().map((MutableMapEntry<TKey, TValue> entry) -> (MapEntry<TKey,TValue>)entry);
+    }
+
+    @Override
+    public boolean equals(Object rhs)
+    {
+        return Iterable.equals(this, rhs);
+    }
+
+    @Override
+    public String toString()
+    {
+        return Iterable.toString(this);
     }
 }

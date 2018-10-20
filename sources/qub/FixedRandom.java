@@ -3,7 +3,7 @@ package qub;
 /**
  * A Random implementation that always returns the same value.
  */
-public class FixedRandom extends RandomBase
+public class FixedRandom implements Random
 {
     private int value;
 

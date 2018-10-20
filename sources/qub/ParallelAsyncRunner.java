@@ -1,6 +1,6 @@
 package qub;
 
-public class ParallelAsyncRunner extends AsyncRunnerBase
+public class ParallelAsyncRunner implements AsyncRunner
 {
     private final java.util.concurrent.atomic.AtomicInteger scheduledTaskCount;
     private final Mutex spinMutex;

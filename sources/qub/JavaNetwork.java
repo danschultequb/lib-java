@@ -1,10 +1,6 @@
 package qub;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.Socket;
-
-class JavaNetwork extends NetworkBase
+class JavaNetwork implements Network
 {
     private final AsyncRunner asyncRunner;
     private final JavaHttpClient httpClient;
@@ -20,23 +16,23 @@ class JavaNetwork extends NetworkBase
     @Override
     public Result<TCPClient> createTCPClient(IPv4Address remoteIPAddress, int remotePort)
     {
-        Result<TCPClient> result = NetworkBase.validateRemoteIPAddress(remoteIPAddress);
+        Result<TCPClient> result = Network.validateRemoteIPAddress(remoteIPAddress);
         if (result == null)
         {
-            result = NetworkBase.validateRemotePort(remotePort);
+            result = Network.validateRemotePort(remotePort);
             if (result == null)
             {
-                result = NetworkBase.validateAsyncRunner(asyncRunner);
+                result = Network.validateAsyncRunner(asyncRunner);
                 if (result == null)
                 {
                     try
                     {
                         final byte[] remoteIPAddressBytes = remoteIPAddress.toBytes();
-                        final InetAddress remoteInetAddress = InetAddress.getByAddress(remoteIPAddressBytes);
-                        final Socket socket = new Socket(remoteInetAddress, remotePort);
+                        final java.net.InetAddress remoteInetAddress = java.net.InetAddress.getByAddress(remoteIPAddressBytes);
+                        final java.net.Socket socket = new java.net.Socket(remoteInetAddress, remotePort);
                         result = JavaTCPClient.create(socket, asyncRunner);
                     }
-                    catch (IOException e)
+                    catch (java.io.IOException e)
                     {
                         result = Result.error(e);
                     }

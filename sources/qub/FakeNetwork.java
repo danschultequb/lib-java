@@ -1,8 +1,6 @@
 package qub;
 
-import java.io.IOException;
-
-public class FakeNetwork extends NetworkBase
+public class FakeNetwork implements Network
 {
     private final AsyncRunner asyncRunner;
     private final Mutex mutex;
@@ -32,13 +30,13 @@ public class FakeNetwork extends NetworkBase
     @Override
     public Result<TCPClient> createTCPClient(IPv4Address remoteIPAddress, int remotePort)
     {
-        Result<TCPClient> result = NetworkBase.validateRemoteIPAddress(remoteIPAddress);
+        Result<TCPClient> result = Network.validateRemoteIPAddress(remoteIPAddress);
         if (result == null)
         {
-            result = NetworkBase.validateRemotePort(remotePort);
+            result = Network.validateRemotePort(remotePort);
             if (result == null)
             {
-                try (final Disposable criticalSection = mutex.criticalSection())
+                try (final Disposable ignored = mutex.criticalSection())
                 {
                     FakeTCPServer remoteTCPServer = null;
 
@@ -90,7 +88,7 @@ public class FakeNetwork extends NetworkBase
 
                                 remoteTCPServer.addIncomingClient(serverTCPClient);
 
-                                result = Result.<TCPClient>success(tcpClient);
+                                result = Result.success(tcpClient);
                             }
                         }
                     }
@@ -142,17 +140,17 @@ public class FakeNetwork extends NetworkBase
     @Override
     public Result<TCPServer> createTCPServer(IPv4Address localIPAddress, int localPort)
     {
-        Result<TCPServer> result = NetworkBase.validateLocalIPAddress(localIPAddress);
+        Result<TCPServer> result = Network.validateLocalIPAddress(localIPAddress);
         if (result == null)
         {
-            result = NetworkBase.validateLocalPort(localPort);
+            result = Network.validateLocalPort(localPort);
             if (result == null)
             {
-                try (final Disposable criticalSection = mutex.criticalSection())
+                try (final Disposable ignored = mutex.criticalSection())
                 {
                     if (!isAvailable(localIPAddress, localPort))
                     {
-                        result = Result.error(new IOException("IPAddress (" + localIPAddress + ") and port (" + localPort + ") are already bound."));
+                        result = Result.error(new java.io.IOException("IPAddress (" + localIPAddress + ") and port (" + localPort + ") are already bound."));
                     }
                     else
                     {
@@ -166,7 +164,7 @@ public class FakeNetwork extends NetworkBase
                         }
                         localTCPServers.set(localPort, tcpServer);
 
-                        result = Result.<TCPServer>success(tcpServer);
+                        result = Result.success(tcpServer);
                     }
                 }
             }
@@ -194,7 +192,7 @@ public class FakeNetwork extends NetworkBase
 
     public void serverDisposed(IPv4Address ipAddress, int port)
     {
-        try (final Disposable criticalSection = mutex.criticalSection())
+        try (final Disposable ignored = mutex.criticalSection())
         {
             boundTCPServers.get(ipAddress).remove(port);
         }
@@ -202,7 +200,7 @@ public class FakeNetwork extends NetworkBase
 
     public void clientDisposed(FakeTCPClient tcpClient)
     {
-        try (final Disposable criticalSection = mutex.criticalSection())
+        try (final Disposable ignored = mutex.criticalSection())
         {
             decrementNetworkStream((InMemoryByteStream)tcpClient.getReadStream());
             decrementNetworkStream((InMemoryByteStream)tcpClient.getWriteStream());

@@ -1,6 +1,6 @@
 package qub;
 
-public class ByteArray extends MutableIndexableBase<Byte>
+public class ByteArray implements MutableIndexable<Byte>
 {
     private final byte[] bytes;
     private final int startIndex;
@@ -88,6 +88,18 @@ public class ByteArray extends MutableIndexableBase<Byte>
         PostCondition.assertEqual(length, result.getCount(), "result.getCount()");
 
         return result;
+    }
+
+    @Override
+    public boolean equals(Object rhs)
+    {
+        return Iterable.equals(this, rhs);
+    }
+
+    @Override
+    public String toString()
+    {
+        return Iterable.toString(this);
     }
 
     public static ByteArray getRange(byte[] byteArray, int startIndex, int length)

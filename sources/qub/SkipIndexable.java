@@ -1,6 +1,6 @@
 package qub;
 
-public class SkipIndexable<T> extends IndexableBase<T>
+public class SkipIndexable<T> implements Indexable<T>
 {
     private final Indexable<T> innerIndexable;
     private final int toSkip;
@@ -21,5 +21,17 @@ public class SkipIndexable<T> extends IndexableBase<T>
     public Iterator<T> iterate()
     {
         return innerIndexable.iterate().skip(toSkip);
+    }
+
+    @Override
+    public boolean equals(Object rhs)
+    {
+        return Iterable.equals(this, rhs);
+    }
+
+    @Override
+    public String toString()
+    {
+        return Iterable.toString(this);
     }
 }

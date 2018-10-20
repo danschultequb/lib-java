@@ -4,7 +4,7 @@ package qub;
  * An Iterator that iterates over an Array.
  * @param <T> The type of elements that the Array contains.
  */
-class ArrayIterator<T> extends IteratorBase<T>
+class ArrayIterator<T> implements Iterator<T>
 {
     private final Array<T> array;
     private int currentIndex;

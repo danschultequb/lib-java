@@ -1,14 +1,12 @@
 package qub;
 
-import java.util.concurrent.locks.ReentrantLock;
-
-public class JavaMutex extends MutexBase
+public class JavaMutex implements Mutex
 {
-    private final ReentrantLock lock;
+    private final java.util.concurrent.locks.ReentrantLock lock;
 
     public JavaMutex()
     {
-        this.lock = new ReentrantLock();
+        this.lock = new java.util.concurrent.locks.ReentrantLock();
     }
 
     @Override

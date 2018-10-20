@@ -16,7 +16,10 @@ public interface Indexable<T> extends Iterable<T>
      * @param length The number of values to include in the range.
      * @return The values over the provided range.
      */
-    Indexable<T> getRange(int startIndex, int length);
+    default Indexable<T> getRange(int startIndex, int length)
+    {
+        return skip(startIndex).take(length);
+    }
 
     /**
      * Get the index of the first element in this Indexable that satisfies the provided condition,
@@ -25,7 +28,27 @@ public interface Indexable<T> extends Iterable<T>
      * @return The index of the first element that satisfies the provided condition or -1 if no
      * element matches the condition.
      */
-    int indexOf(Function1<T,Boolean> condition);
+    default int indexOf(Function1<T,Boolean> condition)
+    {
+        int result = -1;
+        if (condition != null)
+        {
+            int index = 0;
+            for (final T element : this)
+            {
+                if (condition.run(element))
+                {
+                    result = index;
+                    break;
+                }
+                else
+                {
+                    ++index;
+                }
+            }
+        }
+        return result;
+    }
 
     /**
      * Get the index of the first element in this Indexable that equals the provided value or -1 if
@@ -34,14 +57,20 @@ public interface Indexable<T> extends Iterable<T>
      * @return The index of the first element that equals the provided value or -1 if no element
      * equals the provided value.
      */
-    int indexOf(T value);
+    default int indexOf(T value)
+    {
+        return indexOf(element -> Comparer.equal(element, value));
+    }
 
     /**
      * Create a new Indexable that restricts this Indexable to a fixed number of values.
      * @param toTake The number of values to constrain this Indexable to.
      * @return A new Indexable that restricts this Indexable to a fixed number of values.
      */
-    Indexable<T> take(int toTake);
+    default Indexable<T> take(int toTake)
+    {
+        return new TakeIndexable<>(this, toTake);
+    }
 
     /**
      * Create a new Indexable that will skip over the first toSkip number of elements in this
@@ -50,7 +79,10 @@ public interface Indexable<T> extends Iterable<T>
      * @return A new Indexable that will skip over the first toSkip number of elements in this
      * Indexable and then return the remaining elements.
      */
-    Indexable<T> skip(int toSkip);
+    default Indexable<T> skip(int toSkip)
+    {
+        return toSkip <= 0 ? this : new SkipIndexable<>(this, toSkip);
+    }
 
     /**
      * Convert this Indexable into an Indexable that returns values of type U instead of type T.
@@ -58,5 +90,8 @@ public interface Indexable<T> extends Iterable<T>
      * @param <U> The type to convert values of type T to.
      * @return An Indexable that returns values of type U instead of type T.
      */
-    <U> Indexable<U> map(Function1<T,U> conversion);
+    default <U> Indexable<U> map(Function1<T,U> conversion)
+    {
+        return new MapIndexable<>(this, conversion);
+    }
 }

@@ -1,6 +1,6 @@
 package qub;
 
-public class CommandLine extends IndexableBase<CommandLineArgument>
+public class CommandLine implements Indexable<CommandLineArgument>
 {
     private final List<CommandLineArgument> arguments;
 
@@ -84,9 +84,15 @@ public class CommandLine extends IndexableBase<CommandLineArgument>
     }
 
     @Override
+    public boolean equals(Object rhs)
+    {
+        return Iterable.equals(this, rhs);
+    }
+
+    @Override
     public String toString()
     {
-        return arguments.toString();
+        return Iterable.toString(this);
     }
 
     public static CommandLine parse(String[] rawCommandLineArguments)

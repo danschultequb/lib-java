@@ -48,4 +48,28 @@ public interface Map<TKey,TValue> extends Iterable<MapEntry<TKey,TValue>>
      * @return The values of this Map.
      */
     Iterable<TValue> getValues();
+
+    @Override
+    default boolean equals(Iterable<MapEntry<TKey,TValue>> rhs)
+    {
+        boolean result = false;
+
+        if (rhs != null)
+        {
+            result = (this.getCount() == rhs.getCount());
+            if (result)
+            {
+                for (final MapEntry<TKey,TValue> rhsEntry : rhs)
+                {
+                    if (!this.containsKey(rhsEntry.getKey()) || !Comparer.equal(this.get(rhsEntry.getKey()), rhsEntry.getValue()))
+                    {
+                        result = false;
+                        break;
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
 }
