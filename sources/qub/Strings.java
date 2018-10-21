@@ -274,4 +274,18 @@ public class Strings
 
         return result;
     }
+
+    public static String format(String formattedString, Object... formattedStringArguments)
+    {
+        String result;
+        if (formattedString != null && !formattedString.isEmpty() && formattedStringArguments != null && formattedStringArguments.length > 0)
+        {
+            result = String.format(formattedString, formattedStringArguments);
+        }
+        else
+        {
+            result = formattedString;
+        }
+        return result;
+    }
 }

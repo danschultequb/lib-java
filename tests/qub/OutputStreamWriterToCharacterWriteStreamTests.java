@@ -6,7 +6,7 @@ public class OutputStreamWriterToCharacterWriteStreamTests
 {
     public static void test(final TestRunner runner)
     {
-        runner.testGroup("OutputStreamWriterToCharacterWriteStream", () ->
+        runner.testGroup(OutputStreamWriterToCharacterWriteStream.class, () ->
         {
             runner.test("constructor", (Test test) ->
             {

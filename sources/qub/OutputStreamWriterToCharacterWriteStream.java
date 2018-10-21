@@ -4,7 +4,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 
-public class OutputStreamWriterToCharacterWriteStream extends CharacterWriteStreamBase
+public class OutputStreamWriterToCharacterWriteStream implements CharacterWriteStream
 {
     private final ByteWriteStream byteWriteStream;
     private final OutputStreamWriter writer;
@@ -25,29 +25,9 @@ public class OutputStreamWriterToCharacterWriteStream extends CharacterWriteStre
     }
 
     @Override
-    public final Result<Boolean> write(char toWrite)
-    {
-        Result<Boolean> result;
-        try
-        {
-            writer.write(toWrite);
-            writer.flush();
-            result = Result.successTrue();
-        }
-        catch (Exception e)
-        {
-            result = Result.error(e);
-        }
-        return result;
-    }
-
-    @Override
     public final Result<Boolean> write(String toWrite, Object... formattedStringArguments)
     {
-        if (CharacterWriteStreamBase.shouldFormat(toWrite, formattedStringArguments))
-        {
-            toWrite = String.format(toWrite, formattedStringArguments);
-        }
+        toWrite = Strings.format(toWrite, formattedStringArguments);
 
         Result<Boolean> result;
         try

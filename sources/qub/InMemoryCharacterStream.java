@@ -56,18 +56,6 @@ public class InMemoryCharacterStream extends BasicCharacterReadStream implements
         this.byteStream = byteStream;
     }
 
-    @Override
-    public Result<Boolean> write(char toWrite)
-    {
-        return BasicCharacterWriteStream.writeCharacter(byteStream, getCharacterEncoding(), toWrite);
-    }
-
-    @Override
-    public Result<Boolean> write(String toWrite, Object... formattedStringArguments)
-    {
-        return BasicCharacterWriteStream.writeString(byteStream, getCharacterEncoding(), toWrite, formattedStringArguments);
-    }
-
     public byte[] getBytes()
     {
         return byteStream.getBytes();
@@ -83,18 +71,6 @@ public class InMemoryCharacterStream extends BasicCharacterReadStream implements
     public ByteWriteStream asByteWriteStream()
     {
         return byteStream;
-    }
-
-    @Override
-    public LineWriteStream asLineWriteStream()
-    {
-        return CharacterWriteStreamBase.asLineWriteStream(this);
-    }
-
-    @Override
-    public LineWriteStream asLineWriteStream(String lineSeparator)
-    {
-        return CharacterWriteStreamBase.asLineWriteStream(this, lineSeparator);
     }
 
     public InMemoryCharacterStream endOfStream()
