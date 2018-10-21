@@ -39,11 +39,4 @@ public class JavaClock implements Clock
             })
             .thenOn(mainAsyncRunner, action);
     }
-
-    @Override
-    public AsyncAction scheduleAfter(final Duration duration, final Action0 action)
-    {
-        final DateTime dateTime = getCurrentDateTime().plus(duration);
-        return scheduleAt(dateTime, action);
-    }
 }

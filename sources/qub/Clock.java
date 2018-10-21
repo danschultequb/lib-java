@@ -26,5 +26,8 @@ public interface Clock
      * @param action The action to run after the duration.
      * @return The AsyncAction associated with the scheduled action.
      */
-    AsyncAction scheduleAfter(Duration duration, Action0 action);
+    default AsyncAction scheduleAfter(Duration duration, Action0 action)
+    {
+        return scheduleAt(getCurrentDateTime().plus(duration), action);
+    }
 }

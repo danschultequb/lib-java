@@ -80,16 +80,6 @@ public class ManualClock implements Clock
         return result;
     }
 
-    @Override
-    public AsyncAction scheduleAfter(Duration duration, Action0 action)
-    {
-        PreCondition.assertNotNull(duration, "duration");
-        PreCondition.assertNotNull(action, "action");
-
-        final DateTime dateTime = getCurrentDateTime().plus(duration);
-        return scheduleAt(dateTime, action);
-    }
-
     /**
      * Advance this clock forward by the provided duration.
      * @param duration The duration to advance this Clock forward by.
