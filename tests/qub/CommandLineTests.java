@@ -4,7 +4,7 @@ public class CommandLineTests
 {
     public static void test(final TestRunner runner)
     {
-        runner.testGroup("CommandLine", () ->
+        runner.testGroup(CommandLine.class, () ->
         {
             runner.testGroup("parse()", () ->
             {
@@ -12,27 +12,19 @@ public class CommandLineTests
                 {
                     final CommandLine commandLine = CommandLine.parse((String[])null);
                     test.assertEqual(new Array<String>(0), commandLine.getArgumentStrings());
-                    test.assertFalse(commandLine.any());
-                    test.assertEqual(0, commandLine.getCount());
-                    test.assertNull(commandLine.get(0));
+                    test.assertEqual(Array.fromValues(new String[0]), commandLine);
                 });
                 
                 runner.test("with empty String[]", (Test test) ->
                 {
                     final CommandLine commandLine = CommandLine.parse(new String[0]);
                     test.assertEqual(new Array<String>(0), commandLine.getArgumentStrings());
-                    test.assertFalse(commandLine.any());
-                    test.assertEqual(0, commandLine.getCount());
-                    test.assertNull(commandLine.get(0));
                 });
 
                 runner.test("with String argument list", (Test test) ->
                 {
                     final CommandLine commandLine = CommandLine.parse(new String[] { "a", "b", "c", "d" });
                     test.assertEqual(Array.fromValues(new String[] { "a", "b", "c", "d" }), commandLine.getArgumentStrings());
-                    test.assertTrue(commandLine.any());
-                    test.assertEqual(4, commandLine.getCount());
-                    test.assertNotNull(commandLine.get(0));
                 });
             });
 
@@ -177,14 +169,14 @@ public class CommandLineTests
                 runner.test("with negative index", (Test test) ->
                 {
                     final CommandLine commandLine = CommandLine.parse(new String[] { "a", "b", "c" });
-                    test.assertEqual(null, commandLine.removeAt(-1));
+                    test.assertThrows(() -> commandLine.removeAt(-1));
                     test.assertEqual(Array.fromValues(new String[] { "a", "b", "c" }), commandLine.getArgumentStrings());
                 });
 
                 runner.test("with zero index with empty command line", (Test test) ->
                 {
                     final CommandLine commandLine = CommandLine.parse(new String[0]);
-                    test.assertEqual(null, commandLine.removeAt(0));
+                    test.assertThrows(() -> commandLine.removeAt(0));
                     test.assertEqual(new Array<String>(0), commandLine.getArgumentStrings());
                 });
 

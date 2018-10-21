@@ -19,34 +19,25 @@ public class LockedList<T> implements List<T>
     @Override
     public void add(T value)
     {
-        try (final Disposable criticalSection = mutex.criticalSection())
-        {
-            innerList.add(value);
-        }
+        mutex.criticalSection(() -> innerList.add(value));
     }
 
     @Override
-    public Result<Boolean> insert(int insertIndex, T value)
+    public void insert(int insertIndex, T value)
     {
-        try (final Disposable criticalSection = mutex.criticalSection())
-        {
-            return innerList.insert(insertIndex, value);
-        }
+        mutex.criticalSection(() -> innerList.insert(insertIndex, value));
     }
 
     @Override
     public void addAll(T[] values)
     {
-        try (final Disposable criticalSection = mutex.criticalSection())
-        {
-            innerList.addAll(values);
-        }
+        mutex.criticalSection(() -> innerList.addAll(values));
     }
 
     @Override
     public void addAll(Iterator<T> values)
     {
-        try (final Disposable criticalSection = mutex.criticalSection())
+        try (final Disposable ignored = mutex.criticalSection())
         {
             innerList.addAll(values);
         }
@@ -55,7 +46,7 @@ public class LockedList<T> implements List<T>
     @Override
     public void addAll(Iterable<T> values)
     {
-        try (final Disposable criticalSection = mutex.criticalSection())
+        try (final Disposable ignored = mutex.criticalSection())
         {
             innerList.addAll(values);
         }
@@ -64,7 +55,7 @@ public class LockedList<T> implements List<T>
     @Override
     public boolean remove(T value)
     {
-        try (final Disposable criticalSection = mutex.criticalSection())
+        try (final Disposable ignored = mutex.criticalSection())
         {
             return innerList.remove(value);
         }
@@ -73,7 +64,7 @@ public class LockedList<T> implements List<T>
     @Override
     public T removeAt(int index)
     {
-        try (final Disposable criticalSection = mutex.criticalSection())
+        try (final Disposable ignored = mutex.criticalSection())
         {
             return innerList.removeAt(index);
         }
@@ -82,7 +73,7 @@ public class LockedList<T> implements List<T>
     @Override
     public T removeFirst()
     {
-        try (final Disposable criticalSection = mutex.criticalSection())
+        try (final Disposable ignored = mutex.criticalSection())
         {
             return innerList.removeFirst();
         }
@@ -91,7 +82,7 @@ public class LockedList<T> implements List<T>
     @Override
     public T removeFirst(Function1<T, Boolean> condition)
     {
-        try (final Disposable criticalSection = mutex.criticalSection())
+        try (final Disposable ignored = mutex.criticalSection())
         {
             return innerList.removeFirst(condition);
         }
@@ -100,7 +91,7 @@ public class LockedList<T> implements List<T>
     @Override
     public T removeLast()
     {
-        try (final Disposable criticalSection = mutex.criticalSection())
+        try (final Disposable ignored = mutex.criticalSection())
         {
             return innerList.removeLast();
         }
@@ -109,7 +100,7 @@ public class LockedList<T> implements List<T>
     @Override
     public void clear()
     {
-        try (final Disposable criticalSection = mutex.criticalSection())
+        try (final Disposable ignored = mutex.criticalSection())
         {
             innerList.clear();
         }
@@ -118,7 +109,7 @@ public class LockedList<T> implements List<T>
     @Override
     public boolean endsWith(T value)
     {
-        try (final Disposable criticalSection = mutex.criticalSection())
+        try (final Disposable ignored = mutex.criticalSection())
         {
             return innerList.endsWith(value);
         }
@@ -127,7 +118,7 @@ public class LockedList<T> implements List<T>
     @Override
     public boolean endsWith(Iterable<T> values)
     {
-        try (final Disposable criticalSection = mutex.criticalSection())
+        try (final Disposable ignored = mutex.criticalSection())
         {
             return innerList.endsWith(values);
         }
@@ -136,7 +127,7 @@ public class LockedList<T> implements List<T>
     @Override
     public void set(int index, T value)
     {
-        try (final Disposable criticalSection = mutex.criticalSection())
+        try (final Disposable ignored = mutex.criticalSection())
         {
             innerList.set(index, value);
         }
@@ -145,7 +136,7 @@ public class LockedList<T> implements List<T>
     @Override
     public void setFirst(T value)
     {
-        try (final Disposable criticalSection = mutex.criticalSection())
+        try (final Disposable ignored = mutex.criticalSection())
         {
             innerList.setFirst(value);
         }
@@ -154,7 +145,7 @@ public class LockedList<T> implements List<T>
     @Override
     public void setLast(T value)
     {
-        try (final Disposable criticalSection = mutex.criticalSection())
+        try (final Disposable ignored = mutex.criticalSection())
         {
             innerList.setLast(value);
         }
@@ -163,7 +154,7 @@ public class LockedList<T> implements List<T>
     @Override
     public T get(int index)
     {
-        try (final Disposable criticalSection = mutex.criticalSection())
+        try (final Disposable ignored = mutex.criticalSection())
         {
             return innerList.get(index);
         }
@@ -172,7 +163,7 @@ public class LockedList<T> implements List<T>
     @Override
     public int indexOf(Function1<T, Boolean> condition)
     {
-        try (final Disposable criticalSection = mutex.criticalSection())
+        try (final Disposable ignored = mutex.criticalSection())
         {
             return innerList.indexOf(condition);
         }

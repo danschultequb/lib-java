@@ -37,28 +37,26 @@ public class ListQueue<T> implements Queue<T>
     @Override
     public void enqueueAll(T[] values)
     {
-        PreCondition.assertNotNull(values, "values");
-
-        enqueueAll(Array.fromValues(values));
+        this.values.addAll(values);
     }
 
     @Override
     public void enqueueAll(Iterable<T> values)
     {
-        PreCondition.assertNotNull(values, "values");
-
         this.values.addAll(values);
     }
 
     @Override
     public T dequeue()
     {
+        PreCondition.assertTrue(any(), "any()");
+
         return values.removeFirst();
     }
 
     @Override
-    public T peek()
+    public Result<T> peek()
     {
-        return values.first();
+        return values.any() ? Result.success(values.first()) : Result.error(new QueueEmptyException());
     }
 }

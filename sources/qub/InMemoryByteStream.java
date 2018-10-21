@@ -29,7 +29,7 @@ public class InMemoryByteStream extends ByteReadStreamBase implements ByteWriteS
     public InMemoryByteStream(byte[] bytes, AsyncRunner asyncRunner)
     {
         this.asyncRunner = asyncRunner;
-        this.bytes = new ArrayList<Byte>();
+        this.bytes = new ArrayList<>();
         if (bytes != null && bytes.length > 0)
         {
             for (final byte b : bytes)
@@ -63,7 +63,7 @@ public class InMemoryByteStream extends ByteReadStreamBase implements ByteWriteS
         Result<Byte> result = ByteReadStreamBase.validateByteReadStream(this);
         if (result == null)
         {
-            try (final Disposable criticalSection = mutex.criticalSection())
+            try (final Disposable ignored = mutex.criticalSection())
             {
                 started = true;
 
@@ -78,7 +78,7 @@ public class InMemoryByteStream extends ByteReadStreamBase implements ByteWriteS
                 }
                 else
                 {
-                    current = bytes.removeFirst();
+                    current = bytes.any() ? bytes.removeFirst() : null;
                     result = Result.success(current);
                 }
             }
@@ -101,7 +101,7 @@ public class InMemoryByteStream extends ByteReadStreamBase implements ByteWriteS
                     result = ByteReadStreamBase.validateLength(length, outputBytes, startIndex);
                     if (result == null)
                     {
-                        try (final Disposable criticalSection = mutex.criticalSection())
+                        try (final Disposable ignored = mutex.criticalSection())
                         {
                             started = true;
 
@@ -164,7 +164,7 @@ public class InMemoryByteStream extends ByteReadStreamBase implements ByteWriteS
     @Override
     public Result<Boolean> dispose()
     {
-        try (final Disposable criticalSection = mutex.criticalSection())
+        try (final Disposable ignored = mutex.criticalSection())
         {
             Result<Boolean> result;
             if (!disposed)
@@ -207,7 +207,7 @@ public class InMemoryByteStream extends ByteReadStreamBase implements ByteWriteS
      */
     public InMemoryByteStream endOfStream()
     {
-        try (final Disposable criticalSection = mutex.criticalSection())
+        try (final Disposable ignored = mutex.criticalSection())
         {
             if (!endOfStream)
             {
@@ -227,7 +227,7 @@ public class InMemoryByteStream extends ByteReadStreamBase implements ByteWriteS
             result = Disposable.validateNotDisposed(this, "byteWriteStream");
             if (result == null)
             {
-                try (final Disposable criticalSection = mutex.criticalSection())
+                try (final Disposable ignored = mutex.criticalSection())
                 {
                     bytes.add(toWrite);
                     bytesAvailable.signalAll();
@@ -244,7 +244,7 @@ public class InMemoryByteStream extends ByteReadStreamBase implements ByteWriteS
         Result<Boolean> result = InMemoryByteStream.validateNotEndOfStream(this);
         if (result == null)
         {
-            try (final Disposable criticalSection = mutex.criticalSection())
+            try (final Disposable ignored = mutex.criticalSection())
             {
                 result = ByteWriteStreamBase.write(this, toWrite);
                 if (!result.hasError())
@@ -262,7 +262,7 @@ public class InMemoryByteStream extends ByteReadStreamBase implements ByteWriteS
         Result<Boolean> result = InMemoryByteStream.validateNotEndOfStream(this);
         if (result == null)
         {
-            try (final Disposable criticalSection = mutex.criticalSection())
+            try (final Disposable ignored = mutex.criticalSection())
             {
                 result = ByteWriteStreamBase.write(this, toWrite, startIndex, length);
                 if (!result.hasError())
@@ -280,7 +280,7 @@ public class InMemoryByteStream extends ByteReadStreamBase implements ByteWriteS
         Result<Boolean> result = InMemoryByteStream.validateNotEndOfStream(this);
         if (result == null)
         {
-            try (final Disposable criticalSection = mutex.criticalSection())
+            try (final Disposable ignored = mutex.criticalSection())
             {
                 result = ByteWriteStreamBase.writeAll(this, byteReadStream);
                 if (!result.hasError())

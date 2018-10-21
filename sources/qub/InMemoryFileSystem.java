@@ -51,7 +51,7 @@ public class InMemoryFileSystem extends FileSystemBase
             {
                 folder = folder.getFolder(folderPathSegments.getCurrent());
             }
-            result = folder != null ? Result.success(folder) : Result.<InMemoryFolder>error(new FolderNotFoundException(inMemoryFolderPath));
+            result = folder != null ? Result.success(folder) : Result.error(new FolderNotFoundException(inMemoryFolderPath));
         }
 
         return result;

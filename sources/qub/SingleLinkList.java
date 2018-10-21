@@ -1,6 +1,6 @@
 package qub;
 
-public class SingleLinkList<T> extends ListBase<T>
+public class SingleLinkList<T> implements List<T>
 {
     private volatile SingleLinkNode<T> head;
     private volatile SingleLinkNode<T> tail;
@@ -12,129 +12,81 @@ public class SingleLinkList<T> extends ListBase<T>
 
     private SingleLinkNode<T> getNode(int index)
     {
-        SingleLinkNode<T> currentNode = head;
-        for (int i = 0; currentNode != null && i < index; ++i)
-        {
-            currentNode = currentNode.getNext();
-        }
-        return currentNode;
-    }
+        PreCondition.assertBetween(-1, index, getCount(), "index");
 
-    public void add(T value)
-    {
-        final SingleLinkNode<T> newNode = new SingleLinkNode<>(value);
-        if (head == null)
+        SingleLinkNode<T> result;
+        if (index == -1)
         {
-            head = newNode;
-            tail = newNode;
+            result = null;
         }
         else
         {
-            tail.setNext(newNode);
-            tail = newNode;
+            result = head;
+            for (int i = 0; result != null && i < index; ++i)
+            {
+                result = result.getNext();
+            }
         }
+
+        return result;
     }
 
     @Override
-    public Result<Boolean> insert(int insertIndex, T value)
+    public void insert(int insertIndex, T value)
     {
-        Result<Boolean> result = ListBase.validateInsertIndex(this, insertIndex);
-        if (result == null)
+        PreCondition.assertBetween(0, insertIndex, getCount(), "insertIndex");
+
+        final SingleLinkNode<T> nodeToAdd = new SingleLinkNode<>(value);
+
+        if (insertIndex == 0)
         {
-            if (insertIndex == getCount())
-            {
-                add(value);
-            }
-            else
-            {
-                final SingleLinkNode<T> nodeToAdd = new SingleLinkNode<>(value);
-
-                if (insertIndex == 0)
-                {
-                    nodeToAdd.setNext(head);
-                    head = nodeToAdd;
-                }
-                else
-                {
-                    SingleLinkNode<T> currentNode = head;
-                    for (int currentNodeIndex = 0; currentNodeIndex < insertIndex - 1; ++currentNodeIndex)
-                    {
-                        currentNode = currentNode.getNext();
-                    }
-
-                    nodeToAdd.setNext(currentNode.getNext());
-                    currentNode.setNext(nodeToAdd);
-                }
-            }
-            result = Result.successTrue();
+            nodeToAdd.setNext(head);
+            head = nodeToAdd;
         }
-        return result;
+        else
+        {
+            final SingleLinkNode<T> nodeBeforeInsertIndex = getNode(insertIndex - 1);
+            nodeToAdd.setNext(nodeBeforeInsertIndex.getNext());
+            nodeBeforeInsertIndex.setNext(nodeToAdd);
+        }
     }
 
     @Override
     public void set(int index, T value)
     {
-        final SingleLinkNode<T> node = getNode(index);
-        if (node != null)
-        {
-            node.setValue(value);
-        }
+        PreCondition.assertBetween(0, index, getCount() - 1, "index");
+
+        getNode(index).setValue(value);
     }
 
     @Override
     public T removeAt(int index)
     {
-        T result = null;
+        PreCondition.assertBetween(0, index, getCount() - 1, "index");
 
-        if (index == 0)
+        final SingleLinkNode<T> nodeBeforeNodeToRemove = getNode(index - 1);
+        final SingleLinkNode<T> nodeToRemove = (nodeBeforeNodeToRemove == null ? head : nodeBeforeNodeToRemove.getNext());
+
+        if (nodeBeforeNodeToRemove == null)
         {
-            result = removeFirst();
-        }
-        else if (index > 0)
-        {
-            final SingleLinkNode<T> nodeBeforeNodeToRemove = getNode(index - 1);
-            if (nodeBeforeNodeToRemove != null)
-            {
-                final SingleLinkNode<T> nodeToRemove = nodeBeforeNodeToRemove.getNext();
-                if (nodeToRemove != null)
-                {
-                    if (nodeToRemove == tail)
-                    {
-                        tail = nodeBeforeNodeToRemove;
-                    }
-
-                    nodeBeforeNodeToRemove.setNext(nodeToRemove.getNext());
-                    nodeToRemove.setNext(null);
-
-                    result = nodeToRemove.getValue();
-                    nodeToRemove.setValue(null);
-                }
-            }
-        }
-
-        return result;
-    }
-
-    @Override
-    public T removeFirst()
-    {
-        T result = null;
-
-        if (head != null)
-        {
-            final SingleLinkNode<T> nodeToRemove = head;
-
-            if (head == tail)
-            {
-                tail = null;
-            }
-
             head = nodeToRemove.getNext();
-            nodeToRemove.setNext(null);
-
-            result = nodeToRemove.getValue();
-            nodeToRemove.setValue(null);
         }
+        else
+        {
+            nodeBeforeNodeToRemove.setNext(nodeToRemove.getNext());
+        }
+
+        if (nodeToRemove == tail)
+        {
+            tail = nodeBeforeNodeToRemove;
+        }
+        else
+        {
+            nodeToRemove.setNext(null);
+        }
+
+        final T result = nodeToRemove.getValue();
+        nodeToRemove.setValue(null);
 
         return result;
     }
@@ -142,43 +94,42 @@ public class SingleLinkList<T> extends ListBase<T>
     @Override
     public T removeFirst(Function1<T, Boolean> condition)
     {
+        PreCondition.assertNotNull(condition, "condition");
+
         T result = null;
 
-        if (condition != null)
+        SingleLinkNode<T> previousNode = null;
+        SingleLinkNode<T> currentNode = head;
+        while (currentNode != null)
         {
-            SingleLinkNode<T> previousNode = null;
-            SingleLinkNode<T> currentNode = head;
-            while (currentNode != null)
+            final T nodeValue = currentNode.getValue();
+            final SingleLinkNode<T> nextNode = currentNode.getNext();
+            if (condition.run(nodeValue))
             {
-                final T nodeValue = currentNode.getValue();
-                final SingleLinkNode<T> nextNode = currentNode.getNext();
-                if (condition.run(nodeValue))
+                result = nodeValue;
+
+                if (previousNode == null)
                 {
-                    result = nodeValue;
-
-                    if (previousNode == null)
-                    {
-                        head = nextNode;
-                    }
-                    else
-                    {
-                        previousNode.setNext(nextNode);
-                    }
-
-                    if (nextNode == null)
-                    {
-                        tail = previousNode;
-                    }
-
-                    currentNode.setNext(null);
-                    currentNode.setValue(null);
-                    break;
+                    head = nextNode;
                 }
                 else
                 {
-                    previousNode = currentNode;
-                    currentNode = nextNode;
+                    previousNode.setNext(nextNode);
                 }
+
+                if (nextNode == null)
+                {
+                    tail = previousNode;
+                }
+
+                currentNode.setNext(null);
+                currentNode.setValue(null);
+                break;
+            }
+            else
+            {
+                previousNode = currentNode;
+                currentNode = nextNode;
             }
         }
 
@@ -203,14 +154,27 @@ public class SingleLinkList<T> extends ListBase<T>
     @Override
     public T get(int index)
     {
-        final SingleLinkNode<T> node = getNode(index);
-        return node == null ? null : node.getValue();
+        PreCondition.assertBetween(0, index, getCount() - 1, "index");
+
+        return getNode(index).getValue();
     }
 
     @Override
     public Iterator<T> iterate()
     {
-        return head == null ? new EmptyIterator<T>() : head.iterate();
+        return head == null ? new EmptyIterator<>() : head.iterate();
+    }
+
+    @Override
+    public boolean equals(Object rhs)
+    {
+        return Iterable.equals(this, rhs);
+    }
+
+    @Override
+    public String toString()
+    {
+        return Iterable.toString(this);
     }
 
     public static <T> SingleLinkList<T> fromValues(T[] values)

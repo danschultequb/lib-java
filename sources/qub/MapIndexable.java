@@ -7,6 +7,9 @@ class MapIndexable<TInner,TOuter> implements Indexable<TOuter>
 
     MapIndexable(Indexable<TInner> innerIndexable, Function1<TInner,TOuter> conversion)
     {
+        PreCondition.assertNotNull(innerIndexable, "innerIndexable");
+        PreCondition.assertNotNull(conversion, "conversion");
+
         this.innerIndexable = innerIndexable;
         this.conversion = conversion;
     }
@@ -32,12 +35,9 @@ class MapIndexable<TInner,TOuter> implements Indexable<TOuter>
     @Override
     public TOuter get(int index)
     {
-        TOuter result = null;
-        if (0 <= index && index < getCount())
-        {
-            result = conversion.run(innerIndexable.get(index));
-        }
-        return result;
+        PreCondition.assertBetween(0, index, getCount() - 1, "index");
+
+        return conversion.run(innerIndexable.get(index));
     }
 
     @Override

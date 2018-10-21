@@ -36,7 +36,9 @@ public class Array<T> implements MutableIndexable<T>
     @SuppressWarnings("unchecked")
     public T get(int index)
     {
-        return inBounds(index) ? (T)data[index] : null;
+        PreCondition.assertBetween(0, index, getCount(), "index");
+
+        return (T)data[index];
     }
 
     /**
@@ -47,10 +49,9 @@ public class Array<T> implements MutableIndexable<T>
      */
     public void set(int index, T value)
     {
-        if (inBounds(index))
-        {
-            data[index] = value;
-        }
+        PreCondition.assertBetween(0, index, getCount(), "index");
+
+        data[index] = value;
     }
 
     /**
@@ -60,16 +61,6 @@ public class Array<T> implements MutableIndexable<T>
     public void setAll(T value)
     {
         java.util.Arrays.fill(data, value);
-    }
-
-    /**
-     * Get whether or not the provided index is inside the bounds of this Array.
-     * @param index The index to check.
-     * @return Whether or not the provided index is inside the bounds of this Array.
-     */
-    private boolean inBounds(int index)
-    {
-        return 0 <= index && index < getCount();
     }
 
     @Override

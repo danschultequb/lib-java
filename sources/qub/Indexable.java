@@ -30,23 +30,25 @@ public interface Indexable<T> extends Iterable<T>
      */
     default int indexOf(Function1<T,Boolean> condition)
     {
+        PreCondition.assertNotNull(condition, "condition");
+
         int result = -1;
-        if (condition != null)
+        int index = 0;
+        for (final T element : this)
         {
-            int index = 0;
-            for (final T element : this)
+            if (condition.run(element))
             {
-                if (condition.run(element))
-                {
-                    result = index;
-                    break;
-                }
-                else
-                {
-                    ++index;
-                }
+                result = index;
+                break;
+            }
+            else
+            {
+                ++index;
             }
         }
+
+        PostCondition.assertBetween(-1, result, getCount() - 1, "result");
+
         return result;
     }
 

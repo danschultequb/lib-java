@@ -1,6 +1,6 @@
 package qub;
 
-public class CSVRow extends ListBase<String>
+public class CSVRow implements List<String>
 {
     private final List<String> cells;
 
@@ -19,15 +19,10 @@ public class CSVRow extends ListBase<String>
         return cells.get(index);
     }
 
-    public void add(String cell)
-    {
-        cells.add(cell);
-    }
-
     @Override
-    public Result<Boolean> insert(int insertIndex, String value)
+    public void insert(int insertIndex, String value)
     {
-        return cells.insert(insertIndex, value);
+        cells.insert(insertIndex, value);
     }
 
     @Override
@@ -46,5 +41,17 @@ public class CSVRow extends ListBase<String>
     public Iterator<String> iterate()
     {
         return cells.iterate();
+    }
+
+    @Override
+    public boolean equals(Object rhs)
+    {
+        return Iterable.equals(this, rhs);
+    }
+
+    @Override
+    public String toString()
+    {
+        return Iterable.toString(this);
     }
 }

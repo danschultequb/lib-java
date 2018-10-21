@@ -48,5 +48,5 @@ public interface Queue<T>
      * then null will be returned.
      * @return The next value from the Queue or null if the Queue is empty.
      */
-    T peek();
+    Result<T> peek();
 }

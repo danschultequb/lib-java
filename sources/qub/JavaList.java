@@ -1,17 +1,12 @@
 package qub;
 
-public class JavaList<T> extends ListBase<T>
+public class JavaList<T> implements List<T>
 {
     private final java.util.List<T> list;
 
     protected JavaList(java.util.List<T> list)
     {
         this.list = list;
-    }
-
-    private boolean inBounds(int index)
-    {
-        return 0 <= index && index < list.size();
     }
 
     @Override
@@ -27,53 +22,27 @@ public class JavaList<T> extends ListBase<T>
     }
 
     @Override
-    public Result<Boolean> insert(int insertIndex, T value)
+    public void insert(int insertIndex, T value)
     {
-        Result<Boolean> result = ListBase.validateInsertIndex(this, insertIndex);
-        if (result == null)
-        {
-            list.add(insertIndex, value);
-            result = Result.successTrue();
-        }
-        return result;
+        PreCondition.assertBetween(0, insertIndex, getCount(), "insertIndex");
+
+        list.add(insertIndex, value);
     }
 
     @Override
     public void set(int index, T value)
     {
-        if (inBounds(index))
-        {
-            list.set(index, value);
-        }
+        PreCondition.assertBetween(0, index, getCount() - 1, "index");
+
+        list.set(index, value);
     }
 
     @Override
     public T removeAt(int index)
     {
-        T result = null;
-        if (inBounds(index))
-        {
-            result = list.remove(index);
-        }
-        return result;
-    }
+        PreCondition.assertBetween(0, index, getCount() - 1, "index");
 
-    @Override
-    public T removeFirst()
-    {
-        T result = null;
-        if (!list.isEmpty())
-        {
-            result = list.remove(0);
-        }
-        return result;
-    }
-
-    @Override
-    public T removeFirst(Function1<T, Boolean> condition)
-    {
-        final int removeIndex = indexOf(condition);
-        return removeIndex < 0 ? null : removeAt(removeIndex);
+        return list.remove(index);
     }
 
     @Override
@@ -85,18 +54,27 @@ public class JavaList<T> extends ListBase<T>
     @Override
     public T get(int index)
     {
-        T result = null;
-        if (0 <= index && index < list.size())
-        {
-            result = list.get(index);
-        }
-        return result;
+        PreCondition.assertBetween(0, index, getCount() - 1, "index");
+
+        return list.get(index);
     }
 
     @Override
     public Iterator<T> iterate()
     {
         return JavaIteratorToIteratorAdapter.wrap(list.iterator());
+    }
+
+    @Override
+    public boolean equals(Object rhs)
+    {
+        return Iterable.equals(this, rhs);
+    }
+
+    @Override
+    public String toString()
+    {
+        return Iterable.toString(this);
     }
 
     /**

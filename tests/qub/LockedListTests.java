@@ -8,7 +8,7 @@ public class LockedListTests
         {
             ListTests.test(runner, (Integer count) ->
             {
-                final List<Integer> result = LockedList.from(new ArrayList<Integer>());
+                final List<Integer> result = LockedList.from(new ArrayList<>());
                 for (int i = 0; i < count; ++i)
                 {
                     result.add(i);

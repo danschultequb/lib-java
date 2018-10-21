@@ -49,7 +49,7 @@ public class Stack<T>
      */
     public T pop()
     {
-        return values.removeAt(getCount() - 1);
+        return !any() ? null : values.removeAt(getCount() - 1);
     }
 
     /**
@@ -58,6 +58,6 @@ public class Stack<T>
      */
     public T peek()
     {
-        return values.get(getCount() - 1);
+        return !any() ? null : values.get(getCount() - 1);
     }
 }

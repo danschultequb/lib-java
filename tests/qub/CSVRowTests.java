@@ -60,7 +60,14 @@ public class CSVRowTests
                     runner.test("with " + cells + " at index " + index, (Test test) ->
                     {
                         final CSVRow row = new CSVRow(cells);
-                        test.assertEqual(cells.get(index), row.removeAt(index));
+                        if (index < 0 || cells.getCount() <= index)
+                        {
+                            test.assertThrows(() -> row.removeAt(index));
+                        }
+                        else
+                        {
+                            test.assertEqual(cells.get(index), row.removeAt(index));
+                        }
                         test.assertEqual(expectedCells, row);
                     });
                 };
@@ -86,7 +93,14 @@ public class CSVRowTests
                     runner.test("with " + cells + " at index " + index + " with value " + Strings.escapeAndQuote(value), (Test test) ->
                     {
                         final CSVRow row = new CSVRow(cells);
-                        row.set(index, value);
+                        if (index < 0 || cells.getCount() <= index)
+                        {
+                            test.assertThrows(() -> row.set(index, value));
+                        }
+                        else
+                        {
+                            row.set(index, value);
+                        }
                         test.assertEqual(expectedCells, row);
                     });
                 };

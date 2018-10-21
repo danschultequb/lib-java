@@ -54,7 +54,15 @@ public class CSVDocumentTests
                 {
                     runner.test("with " + document + " at row " + rowIndex + " and column " + columnIndex, (Test test) ->
                     {
-                        test.assertEqual(expectedValue, document.get(rowIndex, columnIndex));
+                        if (rowIndex < 0 || document.getCount() <= rowIndex ||
+                            columnIndex < 0 || document.get(rowIndex).getCount() <= columnIndex)
+                        {
+                            test.assertThrows(() -> document.get(rowIndex, columnIndex));
+                        }
+                        else
+                        {
+                            test.assertEqual(expectedValue, document.get(rowIndex, columnIndex));
+                        }
                     });
                 };
 
@@ -98,8 +106,15 @@ public class CSVDocumentTests
                 {
                     runner.test("with " + document + " at row " + rowIndex + " with " + row, (Test test) ->
                     {
-                        document.set(rowIndex, row);
-                        test.assertEqual(expectedDocument, document);
+                        if (rowIndex < 0 || document.getCount() <= rowIndex)
+                        {
+                            test.assertThrows(() -> document.set(rowIndex, row));
+                        }
+                        else
+                        {
+                            document.set(rowIndex, row);
+                            test.assertEqual(expectedDocument, document);
+                        }
                     });
                 };
 
@@ -126,8 +141,16 @@ public class CSVDocumentTests
                 {
                     runner.test("with " + document + " at row " + rowIndex + " and column " + columnIndex + " with " + Strings.escapeAndQuote(value), (Test test) ->
                     {
-                        document.set(rowIndex, columnIndex, value);
-                        test.assertEqual(expectedDocument, document);
+                        if (rowIndex < 0 || document.getCount() <= rowIndex ||
+                            columnIndex < 0 || document.get(rowIndex).getCount() <= columnIndex)
+                        {
+                            test.assertThrows(() -> document.set(rowIndex, columnIndex, value));
+                        }
+                        else
+                        {
+                            document.set(rowIndex, columnIndex, value);
+                            test.assertEqual(expectedDocument, document);
+                        }
                     });
                 };
 
@@ -178,8 +201,15 @@ public class CSVDocumentTests
                 {
                     runner.test("with " + document + " at row index " + rowIndex, (Test test) ->
                     {
-                        final CSVRow removedRow = document.get(rowIndex);
-                        test.assertEqual(removedRow, document.removeAt(rowIndex));
+                        if (rowIndex < 0 || document.getCount() <= rowIndex)
+                        {
+                            test.assertThrows(() -> document.removeAt(rowIndex));
+                        }
+                        else
+                        {
+                            final CSVRow removedRow = document.get(rowIndex);
+                            test.assertEqual(removedRow, document.removeAt(rowIndex));
+                        }
                         test.assertEqual(expectedDocument, document);
                     });
                 };
@@ -204,8 +234,16 @@ public class CSVDocumentTests
                 {
                     runner.test("with " + document + " at row index " + rowIndex + " and column index " + columnIndex, (Test test) ->
                     {
-                        final String removedCell = document.get(rowIndex, columnIndex);
-                        test.assertEqual(removedCell, document.removeAt(rowIndex, columnIndex));
+                        if (rowIndex < 0 || document.getCount() <= rowIndex ||
+                            columnIndex < 0 || document.get(rowIndex).getCount() <= columnIndex)
+                        {
+                            test.assertThrows(() -> document.removeAt(rowIndex, columnIndex));
+                        }
+                        else
+                        {
+                            final String removedCell = document.get(rowIndex, columnIndex);
+                            test.assertEqual(removedCell, document.removeAt(rowIndex, columnIndex));
+                        }
                         test.assertEqual(expectedDocument, document);
                     });
                 };

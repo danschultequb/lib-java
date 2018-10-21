@@ -205,13 +205,13 @@ public class ArrayTests
                 runner.test("with negative index", (Test test) ->
                 {
                     final Array<Integer> a = new Array<>(10);
-                    test.assertEqual(null, a.get(-1));
+                    test.assertThrows(() -> a.get(-1));
                 });
                 
                 runner.test("with too large index", (Test test) ->
                 {
                     final Array<Integer> a = new Array<>(10);
-                    test.assertEqual(null, a.get(10));
+                    test.assertThrows(() -> a.get(10));
                 });
             });
             
@@ -220,15 +220,13 @@ public class ArrayTests
                 runner.test("with negative index", (Test test) ->
                 {
                     final Array<Integer> a = new Array<>(10);
-                    a.set(-1, 49);
-                    test.assertEqual(null, a.get(-1));
+                    test.assertThrows(() -> a.set(-1, 49));
                 });
                 
                 runner.test("with too large index", (Test test) ->
                 {
                     final Array<Integer> a = new Array<>(10);
-                    a.set(10, 48);
-                    test.assertEqual(null, a.get(10));
+                    test.assertThrows(() -> a.set(10, 48));
                 });
                 
                 runner.test("with indexes in bounds", (Test test) ->

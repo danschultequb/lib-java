@@ -73,7 +73,7 @@ public class ProcessBuilderTests
                 runner.test("with negative index", (Test test) ->
                 {
                     final ProcessBuilder builder = createBuilder(test);
-                    builder.setArgument(-1, "test");
+                    test.assertThrows(() -> builder.setArgument(-1, "test"));
                     test.assertEqual(0, builder.getArgumentCount());
                     test.assertEqual("C:/idontexist.exe", builder.getCommand());
                 });

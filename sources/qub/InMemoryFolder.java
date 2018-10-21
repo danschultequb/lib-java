@@ -141,22 +141,17 @@ public class InMemoryFolder
     {
         boolean result = false;
 
-        if (folderName != null && !folderName.isEmpty())
+        if (!Strings.isNullOrEmpty(folderName))
         {
-            final int folderIndex = folders.indexOf(new Function1<InMemoryFolder, Boolean>()
+            final int folderIndex = folders.indexOf((InMemoryFolder folder) -> folder.getName().equals(folderName));
+            if (folderIndex != -1)
             {
-                @Override
-                public Boolean run(InMemoryFolder folder)
+                final InMemoryFolder folder = folders.get(folderIndex);
+                if (folder.canDeleteRecursively())
                 {
-                    return folder.getName().equals(folderName);
+                    result = true;
+                    folders.removeAt(folderIndex);
                 }
-            });
-
-            final InMemoryFolder folder = folders.get(folderIndex);
-            if (folder != null && folder.canDeleteRecursively())
-            {
-                result = true;
-                folders.removeAt(folderIndex);
             }
         }
 
@@ -171,14 +166,7 @@ public class InMemoryFolder
      */
     public InMemoryFile getFile(final String fileName)
     {
-        return files.first(new Function1<InMemoryFile,Boolean>()
-        {
-            @Override
-            public Boolean run(InMemoryFile file)
-            {
-                return file.getName().equals(fileName);
-            }
-        });
+        return files.first((InMemoryFile file) -> file.getName().equals(fileName));
     }
 
     public boolean createFile(String fileName)

@@ -1,6 +1,6 @@
 package qub;
 
-public class CSVDocument extends ListBase<CSVRow>
+public class CSVDocument implements List<CSVRow>
 {
     private final List<CSVRow> rows;
 
@@ -39,15 +39,9 @@ public class CSVDocument extends ListBase<CSVRow>
     }
 
     @Override
-    public void add(CSVRow row)
+    public void insert(int insertIndex, CSVRow value)
     {
-        rows.add(row);
-    }
-
-    @Override
-    public Result<Boolean> insert(int insertIndex, CSVRow value)
-    {
-        return rows.insert(insertIndex, value);
+        rows.insert(insertIndex, value);
     }
 
     @Override
@@ -75,5 +69,17 @@ public class CSVDocument extends ListBase<CSVRow>
     {
         final CSVRow row = get(rowIndex);
         return row == null ? null : row.removeAt(columnIndex);
+    }
+
+    @Override
+    public boolean equals(Object rhs)
+    {
+        return Iterable.equals(this, rhs);
+    }
+
+    @Override
+    public String toString()
+    {
+        return Iterable.toString(this);
     }
 }

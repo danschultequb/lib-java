@@ -914,13 +914,7 @@ public class IterableTests
                     // an Iterable with 0 elements is requested.
                     if (iterable != null)
                     {
-                        final Iterable<Boolean> mapIterable = iterable.map(null);
-                        test.assertFalse(mapIterable.any());
-                        test.assertEqual(0, mapIterable.getCount());
-
-                        final Iterator<Boolean> mapIterator = mapIterable.iterate();
-                        test.assertFalse(mapIterator.any());
-                        test.assertEqual(0, mapIterator.getCount());
+                        test.assertThrows(() -> iterable.map(null));
                     }
                 });
 
@@ -945,13 +939,7 @@ public class IterableTests
                 {
                     final Iterable<Integer> iterable = createIterable.run(4);
 
-                    final Iterable<Boolean> mapIterable = iterable.map(null);
-                    test.assertFalse(mapIterable.any());
-                    test.assertEqual(0, mapIterable.getCount());
-
-                    final Iterator<Boolean> mapIterator = mapIterable.iterate();
-                    test.assertFalse(mapIterator.any());
-                    test.assertEqual(0, mapIterator.getCount());
+                    test.assertThrows(() -> iterable.map(null));
                 });
 
                 runner.test("with non-empty Iterable and non-null conversion", (Test test) ->

@@ -8,7 +8,7 @@ public class JavaListTests
         {
             ListTests.test(runner, (Integer count) ->
             {
-                final List<Integer> list = JavaList.wrap(new java.util.ArrayList<Integer>());
+                final List<Integer> list = JavaList.wrap(new java.util.ArrayList<>());
                 for (int i = 0; i < count; ++i)
                 {
                     list.add(i);

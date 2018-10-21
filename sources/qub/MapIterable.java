@@ -7,6 +7,9 @@ class MapIterable<TInner,TOuter> implements Iterable<TOuter>
 
     MapIterable(Iterable<TInner> innerIterable, Function1<TInner,TOuter> conversion)
     {
+        PreCondition.assertNotNull(innerIterable, "innerIterable");
+        PreCondition.assertNotNull(conversion, "conversion");
+
         this.innerIterable = innerIterable;
         this.conversion = conversion;
     }

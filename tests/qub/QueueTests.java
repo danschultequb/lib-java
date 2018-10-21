@@ -9,7 +9,7 @@ public class QueueTests
             runner.test("enqueue()", test ->
             {
                 final Queue<Integer> queue = createQueue.run();
-                test.assertNull(queue.dequeue());
+                test.assertThrows(queue::dequeue);
                 test.assertFalse(queue.any());
 
                 queue.enqueue(0);
@@ -28,7 +28,7 @@ public class QueueTests
                 test.assertFalse(queue.any());
                 test.assertEqual(0, queue.getCount());
 
-                test.assertNull(queue.dequeue());
+                test.assertThrows(queue::dequeue);
                 test.assertFalse(queue.any());
                 test.assertEqual(0, queue.getCount());
             });
@@ -38,7 +38,8 @@ public class QueueTests
                 runner.test("with null", (Test test) ->
                 {
                     final Queue<Integer> queue = createQueue.run();
-                    test.assertThrows(() -> queue.enqueueAll((Integer[])null));
+                    queue.enqueueAll((Integer[])null);
+                    test.assertFalse(queue.any());
                 });
 
                 runner.test("with empty", (Test test) ->
@@ -65,7 +66,8 @@ public class QueueTests
                 runner.test("with null", (Test test) ->
                 {
                     final Queue<Integer> queue = createQueue.run();
-                    test.assertThrows(() -> queue.enqueueAll((Iterable<Integer>)null));
+                    queue.enqueueAll((Iterable<Integer>)null);
+                    test.assertEqual(0, queue.getCount());
                 });
 
                 runner.test("with empty", (Test test) ->
@@ -90,16 +92,16 @@ public class QueueTests
             runner.test("peek()", test ->
             {
                 final Queue<Integer> queue = createQueue.run();
-                test.assertNull(queue.peek());
+                test.assertError(new QueueEmptyException(), queue.peek());
 
                 queue.enqueue(20);
-                test.assertEqual(20, queue.peek());
+                test.assertSuccess(20, queue.peek());
 
                 queue.enqueue(21);
-                test.assertEqual(20, queue.peek());
+                test.assertSuccess(20, queue.peek());
 
                 test.assertEqual(20, queue.dequeue());
-                test.assertEqual(21, queue.peek());
+                test.assertSuccess(21, queue.peek());
             });
         });
     }

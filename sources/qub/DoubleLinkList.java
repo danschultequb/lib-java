@@ -1,6 +1,6 @@
 package qub;
 
-public class DoubleLinkList<T> extends ListBase<T>
+public class DoubleLinkList<T> implements List<T>
 {
     private DoubleLinkNode<T> head;
     private DoubleLinkNode<T> tail;
@@ -29,88 +29,126 @@ public class DoubleLinkList<T> extends ListBase<T>
     }
 
     @Override
-    public Result<Boolean> insert(int insertIndex, T value)
+    public void insert(int insertIndex, T value)
     {
-        Result<Boolean> result = ListBase.validateInsertIndex(this, insertIndex);
-        if (result == null)
+        PreCondition.assertBetween(0, insertIndex, getCount(), "insertIndex");
+
+        if (insertIndex == getCount())
         {
-            if (insertIndex == getCount())
+            add(value);
+        }
+        else
+        {
+            final DoubleLinkNode<T> nodeToInsert = new DoubleLinkNode<>(value);
+
+            if (insertIndex == 0)
             {
-                add(value);
+                nodeToInsert.setNext(head);
+                head.setPrevious(nodeToInsert);
+                head = nodeToInsert;
             }
             else
             {
-                final DoubleLinkNode<T> nodeToInsert = new DoubleLinkNode<>(value);
-
-                if (insertIndex == 0)
+                DoubleLinkNode<T> currentNode = head;
+                for (int currentNodeIndex = 0; currentNodeIndex < insertIndex; ++currentNodeIndex)
                 {
-                    nodeToInsert.setNext(head);
-                    head.setPrevious(nodeToInsert);
-                    head = nodeToInsert;
+                    currentNode = currentNode.getNext();
                 }
-                else
-                {
-                    DoubleLinkNode<T> currentNode = head;
-                    for (int currentNodeIndex = 0; currentNodeIndex < insertIndex; ++currentNodeIndex)
-                    {
-                        currentNode = currentNode.getNext();
-                    }
 
-                    currentNode.getPrevious().setNext(nodeToInsert);
-                    nodeToInsert.setPrevious(currentNode.getPrevious());
+                currentNode.getPrevious().setNext(nodeToInsert);
+                nodeToInsert.setPrevious(currentNode.getPrevious());
 
-                    currentNode.setPrevious(nodeToInsert);
-                    nodeToInsert.setNext(currentNode);
-                }
+                currentNode.setPrevious(nodeToInsert);
+                nodeToInsert.setNext(currentNode);
             }
-            result = Result.successTrue();
         }
-        return result;
     }
 
     private DoubleLinkNode<T> getNode(int index)
     {
-        DoubleLinkNode<T> result = null;
-        if (0 <= index)
+        PreCondition.assertBetween(0, index, getCount() - 1, "index");
+
+        DoubleLinkNode<T> result = head;
+        for (int i = 0; i < index; ++i)
         {
-            result = head;
-            for (int i = 0; result != null && i < index; ++i)
-            {
-                result = result.getNext();
-            }
+            result = result.getNext();
         }
+
+        PostCondition.assertNotNull(result, "result");
+
         return result;
     }
 
     @Override
     public void set(int index, T value)
     {
-        final DoubleLinkNode<T> nodeToSet = getNode(index);
-        if (nodeToSet != null)
-        {
-            nodeToSet.setValue(value);
-        }
+        PreCondition.assertBetween(0, index, getCount() - 1, "index");
+
+        getNode(index).setValue(value);
     }
 
     @Override
     public T removeAt(int index)
     {
-        T result = null;
-        if (index == 0)
+        PreCondition.assertBetween(0, index, getCount() - 1, "index");
+
+        final DoubleLinkNode<T> nodeToRemove = getNode(index);
+        final T result = nodeToRemove.getValue();
+
+        final DoubleLinkNode<T> previousNode = nodeToRemove.getPrevious();
+        final DoubleLinkNode<T> nextNode = nodeToRemove.getNext();
+
+        if (previousNode == null)
         {
-            result = removeFirst();
+            head = nextNode;
         }
         else
         {
-            final DoubleLinkNode<T> nodeToRemove = getNode(index);
-            if (nodeToRemove != null)
+            previousNode.setNext(nextNode);
+        }
+
+        if (nextNode == null)
+        {
+            tail = previousNode;
+        }
+        else
+        {
+            nextNode.setPrevious(previousNode);
+        }
+
+        nodeToRemove.setPrevious(null);
+        nodeToRemove.setNext(null);
+        nodeToRemove.setValue(null);
+
+        return result;
+    }
+
+    @Override
+    public T removeFirst(Function1<T, Boolean> condition)
+    {
+        PreCondition.assertNotNull(condition, "condition");
+
+        T result = null;
+
+        DoubleLinkNode<T> node = head;
+        while (node != null)
+        {
+            final T value = node.getValue();
+            final DoubleLinkNode<T> nextNode = node.getNext();
+            if (condition.run(value))
             {
-                result = nodeToRemove.getValue();
+                result = value;
 
-                final DoubleLinkNode<T> previousNode = nodeToRemove.getPrevious();
-                final DoubleLinkNode<T> nextNode = nodeToRemove.getNext();
+                final DoubleLinkNode<T> previousNode = node.getPrevious();
 
-                previousNode.setNext(nextNode);
+                if (previousNode == null)
+                {
+                    head = nextNode;
+                }
+                else
+                {
+                    previousNode.setNext(nextNode);
+                }
 
                 if (nextNode == null)
                 {
@@ -121,89 +159,14 @@ public class DoubleLinkList<T> extends ListBase<T>
                     nextNode.setPrevious(previousNode);
                 }
 
-                nodeToRemove.setPrevious(null);
-                nodeToRemove.setNext(null);
-                nodeToRemove.setValue(null);
-            }
-        }
-        return result;
-    }
-
-    @Override
-    public T removeFirst()
-    {
-        T result = null;
-
-        final DoubleLinkNode<T> nodeToRemove = head;
-        if (nodeToRemove != null)
-        {
-            result = nodeToRemove.getValue();
-
-            final DoubleLinkNode<T> nextNode = nodeToRemove.getNext();
-
-            head = nextNode;
-
-            if (nextNode == null)
-            {
-                tail = null;
+                node.setPrevious(null);
+                node.setNext(null);
+                node.setValue(null);
+                break;
             }
             else
             {
-                nextNode.setPrevious(null);
-            }
-
-            nodeToRemove.setNext(null);
-            nodeToRemove.setValue(null);
-        }
-
-        return result;
-    }
-
-    @Override
-    public T removeFirst(Function1<T, Boolean> condition)
-    {
-        T result = null;
-
-        if (condition != null)
-        {
-            DoubleLinkNode<T> node = head;
-            while (node != null)
-            {
-                final T value = node.getValue();
-                final DoubleLinkNode<T> nextNode = node.getNext();
-                if (condition.run(value))
-                {
-                    result = value;
-
-                    final DoubleLinkNode<T> previousNode = node.getPrevious();
-
-                    if (previousNode == null)
-                    {
-                        head = nextNode;
-                    }
-                    else
-                    {
-                        previousNode.setNext(nextNode);
-                    }
-
-                    if (nextNode == null)
-                    {
-                        tail = previousNode;
-                    }
-                    else
-                    {
-                        nextNode.setPrevious(previousNode);
-                    }
-
-                    node.setPrevious(null);
-                    node.setNext(null);
-                    node.setValue(null);
-                    break;
-                }
-                else
-                {
-                    node = node.getNext();
-                }
+                node = node.getNext();
             }
         }
 
@@ -238,5 +201,17 @@ public class DoubleLinkList<T> extends ListBase<T>
     public Iterator<T> iterate()
     {
         return head == null ? new EmptyIterator<T>() : head.iterate();
+    }
+
+    @Override
+    public boolean equals(Object rhs)
+    {
+        return Iterable.equals(this, rhs);
+    }
+
+    @Override
+    public String toString()
+    {
+        return Iterable.toString(this);
     }
 }

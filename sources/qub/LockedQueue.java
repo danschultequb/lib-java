@@ -20,48 +20,25 @@ public class LockedQueue<T> implements Queue<T>
     @Override
     public boolean any()
     {
-        return mutex.criticalSection(new Function0<Boolean>()
-        {
-            @Override
-            public Boolean run()
-            {
-                return innerQueue.any();
-            }
-        });
+        return mutex.criticalSection(innerQueue::any);
     }
 
     @Override
     public int getCount()
     {
-        return mutex.criticalSection(new Function0<Integer>()
-        {
-            @Override
-            public Integer run()
-            {
-                return innerQueue.getCount();
-            }
-        });
+        return mutex.criticalSection(innerQueue::getCount);
     }
 
     @Override
     public void enqueue(final T value)
     {
-        mutex.criticalSection(new Action0()
-        {
-            @Override
-            public void run()
-            {
-                innerQueue.enqueue(value);
-            }
-        });
+        mutex.criticalSection(() -> innerQueue.enqueue(value));
     }
 
     @Override
     public void enqueueAll(T[] values)
     {
-        PreCondition.assertNotNull(values, "values");
-
-        try (final Disposable criticalSection = mutex.criticalSection())
+        try (final Disposable ignored = mutex.criticalSection())
         {
             innerQueue.enqueueAll(values);
         }
@@ -70,9 +47,7 @@ public class LockedQueue<T> implements Queue<T>
     @Override
     public void enqueueAll(Iterable<T> values)
     {
-        PreCondition.assertNotNull(values, "values");
-
-        try (final Disposable criticalSection = mutex.criticalSection())
+        try (final Disposable ignored = mutex.criticalSection())
         {
             innerQueue.enqueueAll(values);
         }
@@ -81,26 +56,12 @@ public class LockedQueue<T> implements Queue<T>
     @Override
     public T dequeue()
     {
-        return mutex.criticalSection(new Function0<T>()
-        {
-            @Override
-            public T run()
-            {
-                return innerQueue.dequeue();
-            }
-        });
+        return mutex.criticalSection(innerQueue::dequeue);
     }
 
     @Override
-    public T peek()
+    public Result<T> peek()
     {
-        return mutex.criticalSection(new Function0<T>()
-        {
-            @Override
-            public T run()
-            {
-                return innerQueue.peek();
-            }
-        });
+        return mutex.criticalSection(innerQueue::peek);
     }
 }
