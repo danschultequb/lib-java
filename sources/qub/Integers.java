@@ -1,6 +1,6 @@
 package qub;
 
-public class Integers
+public final class Integers
 {
     Integers()
     {
@@ -20,6 +20,26 @@ public class Integers
      * The number of hex characters in an int/Integer.
      */
     public static final int hexCharCount = 8;
+
+    /**
+     * Get whether or not the provided value is zero or null.
+     * @param value The value to check.
+     * @return Whether or not the provided value is zero or null.
+     */
+    public static boolean isZeroOrNull(int value)
+    {
+        return value == 0;
+    }
+
+    /**
+     * Get whether or not the provided value is zero or null.
+     * @param value The value to check.
+     * @return Whether or not the provided value is zero or null.
+     */
+    public static boolean isZeroOrNull(Integer value)
+    {
+        return value == null || value == 0;
+    }
 
     public static boolean equal(int lhs, int rhs)
     {

@@ -14,7 +14,7 @@ public class InMemoryCharacterStreamTests
                 {
                     final InMemoryCharacterStream characterReadStream = createStream();
                     characterReadStream.dispose();
-                    test.assertError(new IllegalArgumentException("characterReadStream.isDisposed() (true) must be false."), characterReadStream.readCharacter());
+                    test.assertThrows(characterReadStream::readCharacter);
                 });
 
                 runner.test("with no characters to read", (Test test) ->
@@ -45,13 +45,13 @@ public class InMemoryCharacterStreamTests
                 {
                     final InMemoryCharacterStream characterReadStream = createStream(test.getMainAsyncRunner());
                     characterReadStream.dispose();
-                    test.assertErrorAsync(new IllegalArgumentException("characterReadStream.isDisposed() (true) must be false."), characterReadStream.readCharacterAsync());
+                    test.assertThrows(characterReadStream::readCharacterAsync);
                 });
 
                 runner.test("with no AsyncRunner provided to CharacterReadStream's constructor", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream();
-                    test.assertErrorAsync(new IllegalArgumentException("Cannot invoke CharacterReadStream asynchronous functions when the CharacterReadStream hasn't been assigned an AsyncRunner."), characterReadStream.readCharacterAsync());
+                    test.assertThrows(characterReadStream::readCharacterAsync);
                 });
 
                 runner.test("with no characters to read", (Test test) ->
@@ -82,7 +82,19 @@ public class InMemoryCharacterStreamTests
                 {
                     final InMemoryCharacterStream characterReadStream = createStream();
                     characterReadStream.dispose();
-                    test.assertError(new IllegalArgumentException("characterReadStream.isDisposed() (true) must be false."), characterReadStream.readCharacters(5));
+                    test.assertThrows(() -> characterReadStream.readCharacters(5));
+                });
+
+                runner.test("with negative charactersToRead", (Test test) ->
+                {
+                    final InMemoryCharacterStream characterReadStream = createStream();
+                    test.assertThrows(() -> characterReadStream.readCharacters(-1));
+                });
+
+                runner.test("with zero charactersToRead", (Test test) ->
+                {
+                    final InMemoryCharacterStream characterReadStream = createStream();
+                    test.assertThrows(() -> characterReadStream.readCharacters(0));
                 });
 
                 runner.test("with no characters to read", (Test test) ->
@@ -120,13 +132,13 @@ public class InMemoryCharacterStreamTests
                 {
                     final InMemoryCharacterStream characterReadStream = createStream(test.getMainAsyncRunner());
                     characterReadStream.dispose();
-                    test.assertErrorAsync(new IllegalArgumentException("characterReadStream.isDisposed() (true) must be false."), characterReadStream.readCharactersAsync(5));
+                    test.assertThrows(() -> characterReadStream.readCharactersAsync(5));
                 });
 
                 runner.test("with no AsyncRunner provided to CharacterReadStream's constructor", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream();
-                    test.assertErrorAsync(new IllegalArgumentException("Cannot invoke CharacterReadStream asynchronous functions when the CharacterReadStream hasn't been assigned an AsyncRunner."), characterReadStream.readCharactersAsync(20));
+                    test.assertThrows(() -> characterReadStream.readCharactersAsync(20));
                 });
 
                 runner.test("with no characters to read", (Test test) ->
@@ -165,21 +177,21 @@ public class InMemoryCharacterStreamTests
                     final InMemoryCharacterStream characterReadStream = createStream();
                     characterReadStream.dispose();
                     final char[] outputCharacters = new char[5];
-                    test.assertError(new IllegalArgumentException("characterReadStream.isDisposed() (true) must be false."), characterReadStream.readCharacters(outputCharacters));
+                    test.assertThrows(() -> characterReadStream.readCharacters(outputCharacters));
                 });
 
                 runner.test("with null outputCharacters", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream();
                     final char[] outputCharacters = null;
-                    test.assertError(new IllegalArgumentException("outputCharacters cannot be null."), characterReadStream.readCharacters(outputCharacters));
+                    test.assertThrows(() -> characterReadStream.readCharacters(outputCharacters));
                 });
 
                 runner.test("with empty outputCharacters", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream();
                     final char[] outputCharacters = new char[0];
-                    test.assertError(new IllegalArgumentException("outputCharacters.length (0) must be greater than 0."), characterReadStream.readCharacters(outputCharacters));
+                    test.assertThrows(() -> characterReadStream.readCharacters(outputCharacters));
                 });
 
                 runner.test("with no characters to read.", (Test test) ->
@@ -224,28 +236,28 @@ public class InMemoryCharacterStreamTests
                     final InMemoryCharacterStream characterReadStream = createStream(test.getMainAsyncRunner());
                     characterReadStream.dispose();
                     final char[] outputCharacters = new char[5];
-                    test.assertErrorAsync(new IllegalArgumentException("characterReadStream.isDisposed() (true) must be false."), characterReadStream.readCharactersAsync(outputCharacters));
+                    test.assertThrows(() -> characterReadStream.readCharactersAsync(outputCharacters));
                 });
 
                 runner.test("with no AsyncRunner provided to CharacterReadStream's constructor", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream();
                     final char[] outputCharacters = new char[5];
-                    test.assertErrorAsync(new IllegalArgumentException("Cannot invoke CharacterReadStream asynchronous functions when the CharacterReadStream hasn't been assigned an AsyncRunner."), characterReadStream.readCharactersAsync(outputCharacters));
+                    test.assertThrows(() -> characterReadStream.readCharactersAsync(outputCharacters));
                 });
 
                 runner.test("with null outputCharacters", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream(test.getMainAsyncRunner());
                     final char[] outputCharacters = null;
-                    test.assertErrorAsync(new IllegalArgumentException("outputCharacters cannot be null."), characterReadStream.readCharactersAsync(outputCharacters));
+                    test.assertThrows(() -> characterReadStream.readCharactersAsync(outputCharacters));
                 });
 
                 runner.test("with empty outputCharacters", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream(test.getMainAsyncRunner());
                     final char[] outputCharacters = new char[0];
-                    test.assertErrorAsync(new IllegalArgumentException("outputCharacters.length (0) must be greater than 0."), characterReadStream.readCharactersAsync(outputCharacters));
+                    test.assertThrows(() -> characterReadStream.readCharactersAsync(outputCharacters));
                 });
 
                 runner.test("with no characters to read.", (Test test) ->
@@ -290,56 +302,56 @@ public class InMemoryCharacterStreamTests
                     final InMemoryCharacterStream characterReadStream = createStream();
                     characterReadStream.dispose();
                     final char[] outputCharacters = new char[5];
-                    test.assertError(new IllegalArgumentException("characterReadStream.isDisposed() (true) must be false."), characterReadStream.readCharacters(outputCharacters, 2, 3));
+                    test.assertThrows(() -> characterReadStream.readCharacters(outputCharacters, 2, 3));
                 });
 
                 runner.test("with null outputCharacters", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream();
                     final char[] outputCharacters = null;
-                    test.assertError(new IllegalArgumentException("outputCharacters cannot be null."), characterReadStream.readCharacters(outputCharacters, 2, 3));
+                    test.assertThrows(() -> characterReadStream.readCharacters(outputCharacters, 2, 3));
                 });
 
                 runner.test("with empty outputCharacters", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream();
                     final char[] outputCharacters = new char[0];
-                    test.assertError(new IllegalArgumentException("outputCharacters.length (0) must be greater than 0."), characterReadStream.readCharacters(outputCharacters, 2, 3));
+                    test.assertThrows(() -> characterReadStream.readCharacters(outputCharacters, 2, 3));
                 });
 
                 runner.test("with negative startIndex", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream();
                     final char[] outputCharacters = new char[6];
-                    test.assertError(new IllegalArgumentException("startIndex (-10) must be between 0 and 5."), characterReadStream.readCharacters(outputCharacters, -10, 3));
+                    test.assertThrows(() -> characterReadStream.readCharacters(outputCharacters, -10, 3));
                 });
 
                 runner.test("with startIndex equal to outputCharacters.length", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream();
                     final char[] outputCharacters = new char[6];
-                    test.assertError(new IllegalArgumentException("startIndex (6) must be between 0 and 5."), characterReadStream.readCharacters(outputCharacters, outputCharacters.length, 3));
+                    test.assertThrows(() -> characterReadStream.readCharacters(outputCharacters, outputCharacters.length, 3));
                 });
 
                 runner.test("with negative length", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream();
                     final char[] outputCharacters = new char[6];
-                    test.assertError(new IllegalArgumentException("length (-50) must be between 1 and 4."), characterReadStream.readCharacters(outputCharacters, 2, -50));
+                    test.assertThrows(() -> characterReadStream.readCharacters(outputCharacters, 2, -50));
                 });
 
                 runner.test("with zero length", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream();
                     final char[] outputCharacters = new char[6];
-                    test.assertError(new IllegalArgumentException("length (0) must be between 1 and 4."), characterReadStream.readCharacters(outputCharacters, 2, 0));
+                    test.assertThrows(() -> characterReadStream.readCharacters(outputCharacters, 2, 0));
                 });
 
                 runner.test("with length greater than outputCharacters.length - startIndex", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream();
                     final char[] outputCharacters = new char[6];
-                    test.assertError(new IllegalArgumentException("length (5) must be between 1 and 4."), characterReadStream.readCharacters(outputCharacters, 2, 5));
+                    test.assertThrows(() -> characterReadStream.readCharacters(outputCharacters, 2, 5));
                 });
 
                 runner.test("with no characters to read.", (Test test) ->
@@ -384,63 +396,63 @@ public class InMemoryCharacterStreamTests
                     final InMemoryCharacterStream characterReadStream = createStream(test.getMainAsyncRunner());
                     characterReadStream.dispose();
                     final char[] outputCharacters = new char[5];
-                    test.assertErrorAsync(new IllegalArgumentException("characterReadStream.isDisposed() (true) must be false."), characterReadStream.readCharactersAsync(outputCharacters, 2, 3));
+                    test.assertThrows(() -> characterReadStream.readCharactersAsync(outputCharacters, 2, 3));
                 });
 
                 runner.test("with no AsyncRunner provided to CharacterReadStream's constructor", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream();
                     final char[] outputCharacters = new char[5];
-                    test.assertErrorAsync(new IllegalArgumentException("Cannot invoke CharacterReadStream asynchronous functions when the CharacterReadStream hasn't been assigned an AsyncRunner."), characterReadStream.readCharactersAsync(outputCharacters, 2, 3));
+                    test.assertThrows(() -> characterReadStream.readCharactersAsync(outputCharacters, 2, 3));
                 });
 
                 runner.test("with null outputCharacters", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream(test.getMainAsyncRunner());
                     final char[] outputCharacters = null;
-                    test.assertErrorAsync(new IllegalArgumentException("outputCharacters cannot be null."), characterReadStream.readCharactersAsync(outputCharacters, 2, 3));
+                    test.assertThrows(() -> characterReadStream.readCharactersAsync(outputCharacters, 2, 3));
                 });
 
                 runner.test("with empty outputCharacters", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream(test.getMainAsyncRunner());
                     final char[] outputCharacters = new char[0];
-                    test.assertErrorAsync(new IllegalArgumentException("outputCharacters.length (0) must be greater than 0."), characterReadStream.readCharactersAsync(outputCharacters, 2, 3));
+                    test.assertThrows(() -> characterReadStream.readCharactersAsync(outputCharacters, 2, 3));
                 });
 
                 runner.test("with negative startIndex", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream(test.getMainAsyncRunner());
                     final char[] outputCharacters = new char[6];
-                    test.assertErrorAsync(new IllegalArgumentException("startIndex (-10) must be between 0 and 5."), characterReadStream.readCharactersAsync(outputCharacters, -10, 3));
+                    test.assertThrows(() -> characterReadStream.readCharactersAsync(outputCharacters, -10, 3));
                 });
 
                 runner.test("with startIndex equal to outputCharacters.length", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream(test.getMainAsyncRunner());
                     final char[] outputCharacters = new char[6];
-                    test.assertErrorAsync(new IllegalArgumentException("startIndex (6) must be between 0 and 5."), characterReadStream.readCharactersAsync(outputCharacters, outputCharacters.length, 3));
+                    test.assertThrows(() -> characterReadStream.readCharactersAsync(outputCharacters, outputCharacters.length, 3));
                 });
 
                 runner.test("with negative length", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream(test.getMainAsyncRunner());
                     final char[] outputCharacters = new char[6];
-                    test.assertErrorAsync(new IllegalArgumentException("length (-50) must be between 1 and 4."), characterReadStream.readCharactersAsync(outputCharacters, 2, -50));
+                    test.assertThrows(() -> characterReadStream.readCharactersAsync(outputCharacters, 2, -50));
                 });
 
                 runner.test("with zero length", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream(test.getMainAsyncRunner());
                     final char[] outputCharacters = new char[6];
-                    test.assertErrorAsync(new IllegalArgumentException("length (0) must be between 1 and 4."), characterReadStream.readCharactersAsync(outputCharacters, 2, 0));
+                    test.assertThrows(() -> characterReadStream.readCharactersAsync(outputCharacters, 2, 0));
                 });
 
                 runner.test("with length greater than outputCharacters.length - startIndex", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream(test.getMainAsyncRunner());
                     final char[] outputCharacters = new char[6];
-                    test.assertErrorAsync(new IllegalArgumentException("length (5) must be between 1 and 4."), characterReadStream.readCharactersAsync(outputCharacters, 2, 5));
+                    test.assertThrows(() -> characterReadStream.readCharactersAsync(outputCharacters, 2, 5));
                 });
 
                 runner.test("with no characters to read.", (Test test) ->
@@ -484,7 +496,7 @@ public class InMemoryCharacterStreamTests
                 {
                     final InMemoryCharacterStream characterReadStream = createStream();
                     characterReadStream.dispose();
-                    test.assertError(new IllegalArgumentException("characterReadStream.isDisposed() (true) must be false."), characterReadStream.readString(5));
+                    test.assertThrows(() -> characterReadStream.readString(5));
                 });
 
                 runner.test("with no characters to read", (Test test) ->
@@ -522,13 +534,13 @@ public class InMemoryCharacterStreamTests
                 {
                     final InMemoryCharacterStream characterReadStream = createStream(test.getMainAsyncRunner());
                     characterReadStream.dispose();
-                    test.assertErrorAsync(new IllegalArgumentException("characterReadStream.isDisposed() (true) must be false."), characterReadStream.readStringAsync(5));
+                    test.assertThrows(() -> characterReadStream.readStringAsync(5));
                 });
 
                 runner.test("with no AsyncRunner provided to CharacterReadStream's constructor", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream();
-                    test.assertErrorAsync(new IllegalArgumentException("Cannot invoke CharacterReadStream asynchronous functions when the CharacterReadStream hasn't been assigned an AsyncRunner."), characterReadStream.readStringAsync(3));
+                    test.assertThrows(() -> characterReadStream.readStringAsync(3));
                 });
 
                 runner.test("with no characters to read", (Test test) ->

@@ -1,6 +1,6 @@
 package qub;
 
-public class BasicCharacterReadStream extends CharacterReadStreamBase
+public class BasicCharacterReadStream implements CharacterReadStream
 {
     private final ByteReadStream byteReadStream;
     private final CharacterEncoding characterEncoding;
@@ -8,6 +8,9 @@ public class BasicCharacterReadStream extends CharacterReadStreamBase
 
     public BasicCharacterReadStream(ByteReadStream byteReadStream, CharacterEncoding characterEncoding)
     {
+        PreCondition.assertNotNull(byteReadStream, "byteReadStream");
+        PreCondition.assertNotNull(characterEncoding, "characterEncoding");
+
         this.byteReadStream = byteReadStream;
         this.characterEncoding = characterEncoding;
     }
@@ -15,12 +18,13 @@ public class BasicCharacterReadStream extends CharacterReadStreamBase
     @Override
     public Result<Character> readCharacter()
     {
-        Result<Character> result = CharacterReadStreamBase.validateCharacterReadStream(this);
-        if (result == null)
-        {
-            result = characterEncoding.decodeNextCharacter(byteReadStream);
-            current = result.getValue();
-        }
+        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+
+        final Result<Character> result = characterEncoding.decodeNextCharacter(byteReadStream);
+        current = result.getValue();
+
+        PostCondition.assertNotNull(result, "result");
+
         return result;
     }
 
