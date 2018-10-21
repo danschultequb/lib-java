@@ -1,6 +1,6 @@
 package qub;
 
-public class InMemoryByteStream extends ByteReadStreamBase implements ByteWriteStream
+public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
 {
     private final AsyncRunner asyncRunner;
     private boolean disposed;
@@ -60,27 +60,23 @@ public class InMemoryByteStream extends ByteReadStreamBase implements ByteWriteS
     @Override
     public Result<Byte> readByte()
     {
-        Result<Byte> result = ByteReadStreamBase.validateByteReadStream(this);
-        if (result == null)
+        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+
+        Result<Byte> result = null;
+        try (final Disposable ignored = mutex.criticalSection())
         {
-            try (final Disposable ignored = mutex.criticalSection())
+            started = true;
+
+            while (!disposed && !endOfStream && !bytes.any())
             {
-                started = true;
+                bytesAvailable.await();
+            }
 
-                while (!disposed && !endOfStream && !bytes.any())
-                {
-                    bytesAvailable.await();
-                }
-
-                if (disposed)
-                {
-                    result = ByteReadStreamBase.validateByteReadStream(this);
-                }
-                else
-                {
-                    current = bytes.any() ? bytes.removeFirst() : null;
-                    result = Result.success(current);
-                }
+            result = Result.equal(false, isDisposed(), "byteReadStream.isDisposed()");
+            if (result == null)
+            {
+                current = bytes.any() ? bytes.removeFirst() : null;
+                result = Result.success(current);
             }
         }
         return result;
@@ -89,61 +85,48 @@ public class InMemoryByteStream extends ByteReadStreamBase implements ByteWriteS
     @Override
     public Result<Integer> readBytes(byte[] outputBytes, int startIndex, int length)
     {
-        Result<Integer> result = ByteReadStreamBase.validateByteReadStream(this);
-        if (result == null)
+        PreCondition.assertNotNullAndNotEmpty(outputBytes, "outputBytes");
+        PreCondition.assertBetween(0, startIndex, outputBytes.length - 1, "startIndex");
+        PreCondition.assertBetween(1, length, outputBytes.length - startIndex, "length");
+        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+
+        Result<Integer> result;
+        try (final Disposable ignored = mutex.criticalSection())
         {
-            result = ByteReadStreamBase.validateOutputBytes(outputBytes);
+            started = true;
+
+            while (!disposed && !endOfStream && !bytes.any())
+            {
+                bytesAvailable.await();
+            }
+
+            result = Result.equal(false, isDisposed(), "isDisposed()");
             if (result == null)
             {
-                result = ByteReadStreamBase.validateStartIndex(startIndex, outputBytes);
-                if (result == null)
+                Integer bytesRead;
+                if (!bytes.any())
                 {
-                    result = ByteReadStreamBase.validateLength(length, outputBytes, startIndex);
-                    if (result == null)
-                    {
-                        try (final Disposable ignored = mutex.criticalSection())
-                        {
-                            started = true;
-
-                            while (!disposed && !endOfStream && !bytes.any())
-                            {
-                                bytesAvailable.await();
-                            }
-
-                            if (disposed)
-                            {
-                                result = ByteReadStreamBase.validateByteReadStream(this);
-                            }
-                            else
-                            {
-                                Integer bytesRead;
-                                if (!bytes.any())
-                                {
-                                    bytesRead = null;
-                                    current = null;
-                                }
-                                else
-                                {
-                                    if (bytes.getCount() < length)
-                                    {
-                                        bytesRead = bytes.getCount();
-                                    }
-                                    else
-                                    {
-                                        bytesRead = length;
-                                    }
-
-                                    for (int i = 0; i < bytesRead; ++i)
-                                    {
-                                        outputBytes[startIndex + i] = bytes.removeFirst();
-                                    }
-                                    current = outputBytes[startIndex + bytesRead - 1];
-                                }
-                                result = Result.success(bytesRead);
-                            }
-                        }
-                    }
+                    bytesRead = null;
+                    current = null;
                 }
+                else
+                {
+                    if (bytes.getCount() < length)
+                    {
+                        bytesRead = bytes.getCount();
+                    }
+                    else
+                    {
+                        bytesRead = length;
+                    }
+
+                    for (int i = 0; i < bytesRead; ++i)
+                    {
+                        outputBytes[startIndex + i] = bytes.removeFirst();
+                    }
+                    current = outputBytes[startIndex + bytesRead - 1];
+                }
+                result = Result.success(bytesRead);
             }
         }
         return result;

@@ -519,6 +519,17 @@ public final class Comparer
      * Get whether or not the provided lhs value is greater than the provided rhs value.
      * @param lhs The first value to compare.
      * @param rhs The second value to compare.
+     * @return Whether or not the provided lhs value is greater than the provided rhs value.
+     */
+    public static boolean greaterThan(int lhs, int rhs)
+    {
+        return lhs > rhs;
+    }
+
+    /**
+     * Get whether or not the provided lhs value is greater than the provided rhs value.
+     * @param lhs The first value to compare.
+     * @param rhs The second value to compare.
      * @param <T> The type of the values to compare.
      * @return Whether or not the provided lhs value is greater than the provided rhs value.
      */

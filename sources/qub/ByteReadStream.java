@@ -18,7 +18,13 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
      * available.
      * @return The single byte that was read, or an error if a byte could not be read.
      */
-    AsyncFunction<Result<Byte>> readByteAsync();
+    default AsyncFunction<Result<Byte>> readByteAsync()
+    {
+        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
+
+        return getAsyncRunner().scheduleSingle(this::readByte);
+    }
 
     /**
      * Read up to the provided bytesToRead number of bytes from this stream. If fewer bytes than
@@ -28,7 +34,34 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
      * @return The bytes that were read, null if the end of the stream has been reached, or an error
      * if bytes could not be read.
      */
-    Result<byte[]> readBytes(int bytesToRead);
+    default Result<byte[]> readBytes(int bytesToRead)
+    {
+        PreCondition.assertGreaterThan(bytesToRead, 0, "bytesToRead");
+        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+
+        Result<byte[]> result;
+
+        byte[] bytes = new byte[bytesToRead];
+        final Result<Integer> readBytesResult = readBytes(bytes);
+        if (readBytesResult.hasError())
+        {
+            result = Result.error(readBytesResult.getError());
+        }
+        else
+        {
+            final Integer bytesRead = readBytesResult.getValue();
+            if (bytesRead == null)
+            {
+                bytes = null;
+            }
+            else if (bytesRead < bytesToRead)
+            {
+                bytes = Array.clone(bytes, 0, readBytesResult.getValue());
+            }
+            result = Result.success(bytes);
+        }
+        return result;
+    }
 
     /**
      * Read up to the provided bytesToRead number of bytes from this stream. If fewer bytes than
@@ -38,7 +71,14 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
      * @return The bytes that were read, null if the end of the stream has been reached, or an error
      * if bytes could not be read.
      */
-    AsyncFunction<Result<byte[]>> readBytesAsync(int bytesToRead);
+    default AsyncFunction<Result<byte[]>> readBytesAsync(int bytesToRead)
+    {
+        PreCondition.assertGreaterThan(bytesToRead, 0, "bytesToRead");
+        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
+
+        return getAsyncRunner().scheduleSingle(() -> readBytes(bytesToRead));
+    }
 
     /**
      * Read available bytes into the provided byte[] and return the number of bytes that were read.
@@ -47,7 +87,13 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
      * @return The number of bytes that were read, null if the end of the stream has been reached,
      * or an error if bytes could not be read.
      */
-    Result<Integer> readBytes(byte[] outputBytes);
+    default Result<Integer> readBytes(byte[] outputBytes)
+    {
+        PreCondition.assertNotNullAndNotEmpty(outputBytes, "outputBytes");
+        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+
+        return readBytes(outputBytes, 0, outputBytes.length);
+    }
 
     /**
      * Read available bytes into the provided byte[] and return the number of bytes that were read.
@@ -56,7 +102,14 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
      * @return The number of bytes that were read, null if the end of the stream has been reached,
      * or an error if bytes could not be read.
      */
-    AsyncFunction<Result<Integer>> readBytesAsync(byte[] outputBytes);
+    default AsyncFunction<Result<Integer>> readBytesAsync(byte[] outputBytes)
+    {
+        PreCondition.assertNotNullAndNotEmpty(outputBytes, "outputBytes");
+        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
+
+        return getAsyncRunner().scheduleSingle(() -> readBytes(outputBytes));
+    }
 
     /**
      * Read up to length available bytes into the provided byte[] at the provided startIndex and
@@ -68,7 +121,31 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
      * @return The number of bytes that were read, null if the end of the stream has been reached,
      * or an error if bytes could not be read.
      */
-    Result<Integer> readBytes(byte[] outputBytes, int startIndex, int length);
+    default Result<Integer> readBytes(byte[] outputBytes, int startIndex, int length)
+    {
+        PreCondition.assertNotNullAndNotEmpty(outputBytes, "outputBytes");
+        PreCondition.assertBetween(0, startIndex, outputBytes.length - 1, "startIndex");
+        PreCondition.assertBetween(1, length, outputBytes.length - startIndex, "length");
+        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+
+        int bytesRead = 0;
+        Throwable error = null;
+        for (int i = 0; i < length; ++i)
+        {
+            final Result<Byte> readByte = readByte();
+            if (readByte.hasError())
+            {
+                error = readByte.getError();
+                break;
+            }
+            else
+            {
+                outputBytes[startIndex + i] = readByte.getValue();
+                ++bytesRead;
+            }
+        }
+        return Result.done(bytesRead, error);
+    }
 
     /**
      * Read up to length available bytes into the provided byte[] at the provided startIndex and
@@ -80,7 +157,16 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
      * @return The number of bytes that were read, null if the end of the stream has been reached,
      * or an error if bytes could not be read.
      */
-    AsyncFunction<Result<Integer>> readBytesAsync(byte[] outputBytes, int startIndex, int length);
+    default AsyncFunction<Result<Integer>> readBytesAsync(byte[] outputBytes, int startIndex, int length)
+    {
+        PreCondition.assertNotNullAndNotEmpty(outputBytes, "outputBytes");
+        PreCondition.assertBetween(0, startIndex, outputBytes.length - 1, "startIndex");
+        PreCondition.assertBetween(1, length, outputBytes.length - startIndex, "length");
+        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
+
+        return getAsyncRunner().scheduleSingle(() -> readBytes(outputBytes, startIndex, length));
+    }
 
     /**
      * Read all of the bytes in this stream. The termination of the stream is marked when getByte()
@@ -89,7 +175,42 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
      * @return All of the bytes in this stream, null if the end of the stream has been reached, or
      * an error if bytes could not be read.
      */
-    Result<byte[]> readAllBytes();
+    default Result<byte[]> readAllBytes()
+    {
+        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+
+        final List<byte[]> readByteArrays = new ArrayList<>();
+        byte[] buffer = new byte[1024];
+
+        while (true)
+        {
+            final Result<Integer> readBytesResult = readBytes(buffer);
+
+            if (readBytesResult.hasError())
+            {
+                break;
+            }
+            else
+            {
+                final Integer bytesRead = readBytesResult.getValue();
+                if (bytesRead == null || bytesRead == -1)
+                {
+                    break;
+                }
+                else
+                {
+                    readByteArrays.add(Array.clone(buffer, 0, bytesRead));
+
+                    if (buffer.length == bytesRead)
+                    {
+                        buffer = new byte[buffer.length * 2];
+                    }
+                }
+            }
+        }
+
+        return Result.success(Array.merge(readByteArrays));
+    }
 
     /**
      * Read all of the bytes in this stream. The termination of the stream is marked when getByte()
@@ -98,7 +219,13 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
      * @return All of the bytes in this stream, null if the end of the stream has been reached, or
      * an error if bytes could not be read.
      */
-    AsyncFunction<Result<byte[]>> readAllBytesAsync();
+    default AsyncFunction<Result<byte[]>> readAllBytesAsync()
+    {
+        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
+
+        return getAsyncRunner().scheduleSingle(this::readAllBytes);
+    }
 
     /**
      * Read bytes from this ByteReadStream until the provided stopByte is encountered. The stopByte
@@ -106,7 +233,12 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
      * @param stopByte The byte that will cause the reading to stop.
      * @return The bytes that were read up to (and including) the provided stopByte.
      */
-    Result<byte[]> readBytesUntil(byte stopByte);
+    default Result<byte[]> readBytesUntil(byte stopByte)
+    {
+        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+
+        return readBytesUntil(new byte[] { stopByte });
+    }
 
     /**
      * Read bytes from this ByteReadStream until the provided stopByte is encountered. The stopByte
@@ -114,7 +246,13 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
      * @param stopByte The byte that will cause the reading to stop.
      * @return The bytes that were read up to (and including) the provided stopByte.
      */
-    AsyncFunction<Result<byte[]>> readBytesUntilAsync(byte stopByte);
+    default AsyncFunction<Result<byte[]>> readBytesUntilAsync(byte stopByte)
+    {
+        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
+
+        return getAsyncRunner().scheduleSingle(() -> readBytesUntil(stopByte));
+    }
 
     /**
      * Read bytes from this ByteReadStream until the provided stopBytes sequence is encountered. The
@@ -122,7 +260,13 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
      * @param stopBytes The bytes that will cause the reading to stop.
      * @return The bytes that were read up to (and including) the provided stopBytes.
      */
-    Result<byte[]> readBytesUntil(byte[] stopBytes);
+    default Result<byte[]> readBytesUntil(byte[] stopBytes)
+    {
+        PreCondition.assertNotNullAndNotEmpty(stopBytes, "stopBytes");
+        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+
+        return readBytesUntil(Array.fromValues(stopBytes));
+    }
 
     /**
      * Read bytes from this ByteReadStream until the provided stopBytes sequence is encountered. The
@@ -130,7 +274,14 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
      * @param stopBytes The bytes that will cause the reading to stop.
      * @return The bytes that were read up to (and including) the provided stopBytes.
      */
-    AsyncFunction<Result<byte[]>> readBytesUntilAsync(byte[] stopBytes);
+    default AsyncFunction<Result<byte[]>> readBytesUntilAsync(byte[] stopBytes)
+    {
+        PreCondition.assertNotNullAndNotEmpty(stopBytes, "stopBytes");
+        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
+
+        return getAsyncRunner().scheduleSingle(() -> readBytesUntil(stopBytes));
+    }
 
     /**
      * Read bytes from this ByteReadStream until the provided stopBytes sequence is encountered. The
@@ -138,7 +289,43 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
      * @param stopBytes The bytes that will cause the reading to stop.
      * @return The bytes that were read up to (and including) the provided stopBytes.
      */
-    Result<byte[]> readBytesUntil(Iterable<Byte> stopBytes);
+    default Result<byte[]> readBytesUntil(Iterable<Byte> stopBytes)
+    {
+        PreCondition.assertNotNullAndNotEmpty(stopBytes, "stopBytes");
+        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+
+        Result<byte[]> result = null;
+
+        final List<Byte> bytesReadList = new ArrayList<>();
+        do
+        {
+            final Result<Byte> byteReadResult = readByte();
+            if (byteReadResult.hasError())
+            {
+                result = Result.error(byteReadResult.getError());
+            }
+            else
+            {
+                final Byte byteRead = byteReadResult.getValue();
+                if (byteRead != null)
+                {
+                    bytesReadList.add(byteRead);
+                }
+                if (byteRead == null || bytesReadList.endsWith(stopBytes))
+                {
+                    byte[] bytesReadArray = null;
+                    if (bytesReadList.any())
+                    {
+                        bytesReadArray = Array.toByteArray(bytesReadList);
+                    }
+                    result = Result.success(bytesReadArray);
+                }
+            }
+        }
+        while (result == null);
+
+        return result;
+    }
 
     /**
      * Read bytes from this ByteReadStream until the provided stopBytes sequence is encountered. The
@@ -146,31 +333,74 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
      * @param stopBytes The bytes that will cause the reading to stop.
      * @return The bytes that were read up to (and including) the provided stopBytes.
      */
-    AsyncFunction<Result<byte[]>> readBytesUntilAsync(Iterable<Byte> stopBytes);
+    default AsyncFunction<Result<byte[]>> readBytesUntilAsync(Iterable<Byte> stopBytes)
+    {
+        PreCondition.assertNotNullAndNotEmpty(stopBytes, "stopBytes");
+        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
+
+        return getAsyncRunner().scheduleSingle(() -> readBytesUntil(stopBytes));
+    }
+
+    @Override
+    default boolean next()
+    {
+        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+
+        final Result<Byte> byteRead = readByte();
+        return !byteRead.hasError() && byteRead.getValue() != null;
+    }
 
     /**
      * Convert this ByteReadStream to a java.io.InputStream.
      * @return A java.io.InputStream representation of this ByteReadStream.
      */
-    InputStream asInputStream();
+    default InputStream asInputStream()
+    {
+        return new ByteReadStreamToInputStream(this);
+    }
 
     /**
      * Conert this ByteReadStream to a CharacterReadStream using the default CharacterEncoding.
      * @return A CharacterReadStream that uses the default CharacterEncoding.
      */
-    CharacterReadStream asCharacterReadStream();
+    default CharacterReadStream asCharacterReadStream()
+    {
+        return asCharacterReadStream(CharacterEncoding.UTF_8);
+    }
 
     /**
      * Conert this ByteReadStream to a CharacterReadStream using the provided CharacterEncoding.
      * @return A CharacterReadStream that uses the provided CharacterEncoding.
      */
-    CharacterReadStream asCharacterReadStream(CharacterEncoding characterEncoding);
+    default CharacterReadStream asCharacterReadStream(CharacterEncoding characterEncoding)
+    {
+        PreCondition.assertNotNull(characterEncoding, "characterEncoding");
 
-    LineReadStream asLineReadStream();
+        return new BasicCharacterReadStream(this, characterEncoding);
+    }
 
-    LineReadStream asLineReadStream(CharacterEncoding characterEncoding);
+    default LineReadStream asLineReadStream()
+    {
+        return asCharacterReadStream().asLineReadStream();
+    }
 
-    LineReadStream asLineReadStream(boolean includeNewLines);
+    default LineReadStream asLineReadStream(CharacterEncoding characterEncoding)
+    {
+        PreCondition.assertNotNull(characterEncoding, "characterEncoding");
 
-    LineReadStream asLineReadStream(CharacterEncoding characterEncoding, boolean includeNewLines);
+        return asCharacterReadStream(characterEncoding).asLineReadStream();
+    }
+
+    default LineReadStream asLineReadStream(boolean includeNewLines)
+    {
+        return asCharacterReadStream().asLineReadStream(includeNewLines);
+    }
+
+    default LineReadStream asLineReadStream(CharacterEncoding characterEncoding, boolean includeNewLines)
+    {
+        PreCondition.assertNotNull(characterEncoding, "characterEncoding");
+
+        return asCharacterReadStream(characterEncoding).asLineReadStream(includeNewLines);
+    }
 }

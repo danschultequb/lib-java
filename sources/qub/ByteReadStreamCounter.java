@@ -3,7 +3,7 @@ package qub;
 /**
  * A ByteReadStream decorator that counts the number of bytes that are read.
  */
-public class ByteReadStreamCounter extends ByteReadStreamBase
+public class ByteReadStreamCounter implements ByteReadStream
 {
     private final ByteReadStream innerStream;
     private long bytesRead;

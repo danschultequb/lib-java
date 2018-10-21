@@ -1,6 +1,6 @@
 package qub;
 
-public class BufferedByteReadStream extends ByteReadStreamBase
+public class BufferedByteReadStream implements ByteReadStream
 {
     public static final int defaultInitialBufferSize = 10;
     private final ByteReadStream byteReadStream;
