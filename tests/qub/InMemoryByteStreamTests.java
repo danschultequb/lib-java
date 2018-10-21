@@ -680,7 +680,7 @@ public class InMemoryByteStreamTests
             runner.test("write(byte[])", (Test test) ->
             {
                 final InMemoryByteStream stream = new InMemoryByteStream();
-                stream.write(new byte[0]);
+                test.assertThrows(() -> stream.write(new byte[0]));
                 test.assertEqual(new byte[0], stream.getBytes());
 
                 stream.write(new byte[] { 1, 2, 3, 4 });
@@ -690,10 +690,10 @@ public class InMemoryByteStreamTests
             runner.test("write(byte[],int,int)", (Test test) ->
             {
                 final InMemoryByteStream stream = new InMemoryByteStream();
-                stream.write(new byte[0], 0, 0);
+                test.assertThrows(() -> stream.write(new byte[0], 0, 0));
                 test.assertEqual(new byte[0], stream.getBytes());
 
-                stream.write(new byte[] { 1, 2, 3, 4 }, 1, 0);
+                test.assertThrows(() -> stream.write(new byte[] { 1, 2, 3, 4 }, 1, 0));
                 test.assertEqual(new byte[0], stream.getBytes());
 
                 stream.write(new byte[] { 1, 2, 3, 4 }, 1, 2);
@@ -703,7 +703,7 @@ public class InMemoryByteStreamTests
             runner.test("writeAll(ByteReadStream)", (Test test) ->
             {
                 final InMemoryByteStream stream = new InMemoryByteStream();
-                test.assertError(new IllegalArgumentException("byteReadStream cannot be null."), stream.writeAll(null));
+                test.assertThrows(() -> stream.writeAll(null));
                 test.assertEqual(new byte[0], stream.getBytes());
             });
 

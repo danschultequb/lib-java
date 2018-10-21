@@ -1,26 +1,22 @@
 package qub;
 
-import java.io.IOException;
-import java.io.OutputStream;
-
-public class OutputStreamToByteWriteStream extends ByteWriteStreamBase
+public class OutputStreamToByteWriteStream implements ByteWriteStream
 {
-    private final OutputStream outputStream;
+    private final java.io.OutputStream outputStream;
     private boolean disposed;
 
-    public OutputStreamToByteWriteStream(OutputStream outputStream)
+    public OutputStreamToByteWriteStream(java.io.OutputStream outputStream)
     {
-        this.outputStream = outputStream;
-    }
+        PreCondition.assertNotNull(outputStream, "outputStream");
 
-    protected OutputStream getOutputStream()
-    {
-        return outputStream;
+        this.outputStream = outputStream;
     }
 
     @Override
     public Result<Boolean> write(byte toWrite)
     {
+        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+
         Result<Boolean> result;
         try
         {
@@ -28,7 +24,7 @@ public class OutputStreamToByteWriteStream extends ByteWriteStreamBase
             outputStream.flush();
             result = Result.successTrue();
         }
-        catch (IOException e)
+        catch (java.io.IOException e)
         {
             result = Result.error(e);
         }
@@ -38,23 +34,19 @@ public class OutputStreamToByteWriteStream extends ByteWriteStreamBase
     @Override
     public Result<Boolean> write(byte[] toWrite)
     {
-        Result<Boolean> result = Result.notNull(toWrite, "toWrite");
-        if (result == null)
+        PreCondition.assertNotNullAndNotEmpty(toWrite, "toWrite");
+        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+
+        Result<Boolean> result;
+        try
         {
-            result = Result.greaterThan(toWrite.length, 0, "toWrite.length");
-            if (result == null)
-            {
-                try
-                {
-                    outputStream.write(toWrite);
-                    outputStream.flush();
-                    result = Result.successTrue();
-                }
-                catch (IOException e)
-                {
-                    result = Result.error(e);
-                }
-            }
+            outputStream.write(toWrite);
+            outputStream.flush();
+            result = Result.successTrue();
+        }
+        catch (java.io.IOException e)
+        {
+            result = Result.error(e);
         }
         return result;
     }
@@ -62,39 +54,31 @@ public class OutputStreamToByteWriteStream extends ByteWriteStreamBase
     @Override
     public Result<Boolean> write(byte[] toWrite, int startIndex, int length)
     {
-        Result<Boolean> result = Result.notNull(toWrite, "toWrite");
-        if (result == null)
+        PreCondition.assertNotNullAndNotEmpty(toWrite, "toWrite");
+        PreCondition.assertBetween(0, startIndex, toWrite.length - 1, "startIndex");
+        PreCondition.assertBetween(1, length, toWrite.length - startIndex, "length");
+        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+
+        Result<Boolean> result;
+        try
         {
-            result = Result.greaterThan(toWrite.length, 0, "toWrite.length");
-            if (result == null)
-            {
-                result = Result.between(0, startIndex, toWrite.length - 1, "startIndex");
-                if (result == null)
-                {
-                    result = Result.between(1, length, toWrite.length - startIndex, "length");
-                    if (result == null)
-                    {
-                        try
-                        {
-                            outputStream.write(toWrite, startIndex, length);
-                            outputStream.flush();
-                            result = Result.successTrue();
-                        }
-                        catch (IOException e)
-                        {
-                            result = Result.error(e);
-                        }
-                    }
-                }
-            }
+            outputStream.write(toWrite, startIndex, length);
+            outputStream.flush();
+            result = Result.successTrue();
+        }
+        catch (java.io.IOException e)
+        {
+            result = Result.error(e);
         }
         return result;
     }
 
     @Override
-    public CharacterWriteStream asCharacterWriteStream(CharacterEncoding encoding)
+    public CharacterWriteStream asCharacterWriteStream(CharacterEncoding characterEncoding)
     {
-        return encoding == null ? null : new OutputStreamWriterToCharacterWriteStream(this, encoding);
+        PreCondition.assertNotNull(characterEncoding, "characterEncoding");
+
+        return new OutputStreamWriterToCharacterWriteStream(this, characterEncoding);
     }
 
     @Override
@@ -119,9 +103,9 @@ public class OutputStreamToByteWriteStream extends ByteWriteStreamBase
                 outputStream.close();
                 result = Result.success(true);
             }
-            catch (IOException e)
+            catch (java.io.IOException e)
             {
-                result = Result.<Boolean>error(e);
+                result = Result.error(e);
             }
         }
         return result;

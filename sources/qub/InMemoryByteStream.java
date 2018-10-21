@@ -62,7 +62,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
     {
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
-        Result<Byte> result = null;
+        Result<Byte> result;
         try (final Disposable ignored = mutex.criticalSection())
         {
             started = true;
@@ -204,120 +204,76 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
     @Override
     public Result<Boolean> write(byte toWrite)
     {
-        Result<Boolean> result = InMemoryByteStream.validateNotEndOfStream(this);
-        if (result == null)
-        {
-            result = Disposable.validateNotDisposed(this, "byteWriteStream");
-            if (result == null)
-            {
-                try (final Disposable ignored = mutex.criticalSection())
-                {
-                    bytes.add(toWrite);
-                    bytesAvailable.signalAll();
-                }
-                result = Result.successTrue();
-            }
-        }
-        return result;
+        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertFalse(endOfStream, "endOfStream");
+
+        return write(new byte[] { toWrite });
     }
 
     @Override
     public Result<Boolean> write(byte[] toWrite)
     {
-        Result<Boolean> result = InMemoryByteStream.validateNotEndOfStream(this);
-        if (result == null)
-        {
-            try (final Disposable ignored = mutex.criticalSection())
-            {
-                result = ByteWriteStreamBase.write(this, toWrite);
-                if (!result.hasError())
-                {
-                    bytesAvailable.signalAll();
-                }
-            }
-        }
-        return result;
+        PreCondition.assertNotNullAndNotEmpty(toWrite, "toWrite");
+        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertFalse(endOfStream, "endOfStream");
+
+        return write(toWrite, 0, toWrite.length);
     }
 
     @Override
     public Result<Boolean> write(byte[] toWrite, int startIndex, int length)
     {
-        Result<Boolean> result = InMemoryByteStream.validateNotEndOfStream(this);
-        if (result == null)
+        PreCondition.assertNotNullAndNotEmpty(toWrite, "toWrite");
+        PreCondition.assertBetween(0, startIndex, toWrite.length - 1, "startIndex");
+        PreCondition.assertBetween(1, length, toWrite.length - startIndex, "length");
+        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertFalse(endOfStream, "endOfStream");
+
+        for (int i = 0; i < length; ++i)
         {
-            try (final Disposable ignored = mutex.criticalSection())
-            {
-                result = ByteWriteStreamBase.write(this, toWrite, startIndex, length);
-                if (!result.hasError())
-                {
-                    bytesAvailable.signalAll();
-                }
-            }
+            bytes.add(toWrite[startIndex + i]);
         }
-        return result;
+        bytesAvailable.signalAll();
+        return Result.successTrue();
     }
 
     @Override
     public Result<Boolean> writeAll(ByteReadStream byteReadStream)
     {
-        Result<Boolean> result = InMemoryByteStream.validateNotEndOfStream(this);
-        if (result == null)
+        PreCondition.assertNotNull(byteReadStream, "byteReadStream");
+        PreCondition.assertFalse(byteReadStream.isDisposed(), "byteReadStream.isDisposed()");
+        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertFalse(endOfStream, "endOfStream");
+
+        boolean bytesAdded = false;
+        Result<Boolean> result = null;
+        while (result == null)
         {
-            try (final Disposable ignored = mutex.criticalSection())
+            final Result<Byte> readByteResult = byteReadStream.readByte();
+            if (readByteResult.hasError())
             {
-                result = ByteWriteStreamBase.writeAll(this, byteReadStream);
-                if (!result.hasError())
+                result = Result.error(readByteResult.getError());
+            }
+            else
+            {
+                final Byte byteRead = readByteResult.getValue();
+                if (byteRead == null)
                 {
-                    bytesAvailable.signalAll();
+                    result = Result.successTrue();
+                }
+                else
+                {
+                    bytesAdded = true;
+                    bytes.add(byteRead);
                 }
             }
         }
-        return result;
-    }
 
-    @Override
-    public CharacterWriteStream asCharacterWriteStream()
-    {
-        return ByteWriteStreamBase.asCharacterWriteStream(this);
-    }
-
-    @Override
-    public CharacterWriteStream asCharacterWriteStream(CharacterEncoding encoding)
-    {
-        return ByteWriteStreamBase.asCharacterWriteStream(this, encoding);
-    }
-
-    @Override
-    public LineWriteStream asLineWriteStream()
-    {
-        return ByteWriteStreamBase.asLineWriteStream(this);
-    }
-
-    @Override
-    public LineWriteStream asLineWriteStream(CharacterEncoding encoding)
-    {
-        return ByteWriteStreamBase.asLineWriteStream(this, encoding);
-    }
-
-    @Override
-    public LineWriteStream asLineWriteStream(String lineSeparator)
-    {
-        return ByteWriteStreamBase.asLineWriteStream(this, lineSeparator);
-    }
-
-    @Override
-    public LineWriteStream asLineWriteStream(CharacterEncoding encoding, String lineSeparator)
-    {
-        return ByteWriteStreamBase.asLineWriteStream(this, encoding, lineSeparator);
-    }
-
-    private static <T> Result<T> validateNotEndOfStream(InMemoryByteStream byteWriteStream)
-    {
-        Result<T> result = null;
-        if (byteWriteStream.endOfStream)
+        if (bytesAdded)
         {
-            result = Result.error(new IllegalStateException("Cannot write to a InMemoryByteStream that has been marked as ended."));
+            bytesAvailable.signalAll();
         }
+
         return result;
     }
 }

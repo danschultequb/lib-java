@@ -1,19 +1,16 @@
 package qub;
 
-import java.io.IOException;
-import java.io.OutputStream;
-
-public class TestStubOutputStream extends OutputStream
+public class TestStubOutputStream extends java.io.OutputStream
 {
     @Override
-    public void close() throws IOException
+    public void close() throws java.io.IOException
     {
-        throw new IOException();
+        throw new java.io.IOException();
     }
 
     @Override
-    public void write(int b) throws IOException
+    public void write(int b) throws java.io.IOException
     {
-        throw new IOException();
+        throw new java.io.IOException();
     }
 }
