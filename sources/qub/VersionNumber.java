@@ -1,6 +1,6 @@
 package qub;
 
-public class VersionNumber extends ComparableBase<VersionNumber>
+public class VersionNumber implements Comparable<VersionNumber>
 {
     private final String text;
     private final Integer major;

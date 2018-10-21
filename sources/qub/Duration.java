@@ -5,7 +5,7 @@ import java.text.DecimalFormat;
 /**
  * A period of time.
  */
-public class Duration extends ComparableBase<Duration>
+public class Duration implements Comparable<Duration>
 {
     private static final double WeeksToDays = 7.0;
     private static final double DaysToHours = 24.0;

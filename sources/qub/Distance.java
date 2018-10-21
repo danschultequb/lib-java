@@ -5,7 +5,7 @@ import java.text.DecimalFormat;
 /**
  * A measurement between two points.
  */
-public class Distance extends ComparableBase<Distance>
+public class Distance implements Comparable<Distance>
 {
     private static final double KilometersToMeters = 1000;
     private static final double MetersToCentimeters = 100;

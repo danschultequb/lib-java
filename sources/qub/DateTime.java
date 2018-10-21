@@ -1,13 +1,10 @@
 package qub;
 
-import java.util.Calendar;
-import java.util.TimeZone;
-
-public class DateTime extends ComparableBase<DateTime>
+public class DateTime implements Comparable<DateTime>
 {
-    private final Calendar calendar;
+    private final java.util.Calendar calendar;
 
-    private DateTime(Calendar calendar)
+    private DateTime(java.util.Calendar calendar)
     {
         this.calendar = calendar;
     }
@@ -18,7 +15,7 @@ public class DateTime extends ComparableBase<DateTime>
      */
     public int getYear()
     {
-        return calendar.get(Calendar.YEAR);
+        return calendar.get(java.util.Calendar.YEAR);
     }
 
     /**
@@ -27,32 +24,32 @@ public class DateTime extends ComparableBase<DateTime>
      */
     public int getMonth()
     {
-        return calendar.get(Calendar.MONTH) + 1;
+        return calendar.get(java.util.Calendar.MONTH) + 1;
     }
 
     public int getDayOfMonth()
     {
-        return calendar.get(Calendar.DAY_OF_MONTH);
+        return calendar.get(java.util.Calendar.DAY_OF_MONTH);
     }
 
     public int getHourOfDay()
     {
-        return calendar.get(Calendar.HOUR_OF_DAY);
+        return calendar.get(java.util.Calendar.HOUR_OF_DAY);
     }
 
     public int getMinute()
     {
-        return calendar.get(Calendar.MINUTE);
+        return calendar.get(java.util.Calendar.MINUTE);
     }
 
     public int getSecond()
     {
-        return calendar.get(Calendar.SECOND);
+        return calendar.get(java.util.Calendar.SECOND);
     }
 
     public int getMillisecond()
     {
-        return calendar.get(Calendar.MILLISECOND);
+        return calendar.get(java.util.Calendar.MILLISECOND);
     }
 
     public long getMillisecondsSinceEpoch()
@@ -62,7 +59,7 @@ public class DateTime extends ComparableBase<DateTime>
 
     public Duration getTimeZoneOffset()
     {
-        final TimeZone timeZone = calendar.getTimeZone();
+        final java.util.TimeZone timeZone = calendar.getTimeZone();
         final int offsetInMilliseconds = timeZone.getOffset(getMillisecondsSinceEpoch());
         return Duration.milliseconds(offsetInMilliseconds);
     }
@@ -78,27 +75,27 @@ public class DateTime extends ComparableBase<DateTime>
         switch (duration.getUnits())
         {
             case Weeks:
-                calendarField = Calendar.WEEK_OF_YEAR;
+                calendarField = java.util.Calendar.WEEK_OF_YEAR;
                 break;
 
             case Days:
-                calendarField = Calendar.DAY_OF_MONTH;
+                calendarField = java.util.Calendar.DAY_OF_MONTH;
                 break;
 
             case Hours:
-                calendarField = Calendar.HOUR_OF_DAY;
+                calendarField = java.util.Calendar.HOUR_OF_DAY;
                 break;
 
             case Minutes:
-                calendarField = Calendar.MINUTE;
+                calendarField = java.util.Calendar.MINUTE;
                 break;
 
             case Seconds:
-                calendarField = Calendar.SECOND;
+                calendarField = java.util.Calendar.SECOND;
                 break;
 
             default:
-                calendarField = Calendar.MILLISECOND;
+                calendarField = java.util.Calendar.MILLISECOND;
                 duration = duration.toMilliseconds();
                 break;
         }
@@ -111,7 +108,7 @@ public class DateTime extends ComparableBase<DateTime>
         }
         else
         {
-            final Calendar resultCalendar = (Calendar)calendar.clone();
+            final java.util.Calendar resultCalendar = (java.util.Calendar)calendar.clone();
             resultCalendar.add(calendarField, durationValue);
             result = new DateTime(resultCalendar);
         }
@@ -146,51 +143,51 @@ public class DateTime extends ComparableBase<DateTime>
      */
     public static DateTime localNow()
     {
-        return new DateTime(Calendar.getInstance());
+        return new DateTime(java.util.Calendar.getInstance());
     }
 
     public static DateTime local(long millisecondsSinceEpoch)
     {
-        final Calendar calendar = Calendar.getInstance();
+        final java.util.Calendar calendar = java.util.Calendar.getInstance();
         calendar.setTimeInMillis(millisecondsSinceEpoch);
         return new DateTime(calendar);
     }
 
     public static DateTime utc(long millisecondsSinceEpoch)
     {
-        final Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        final java.util.Calendar calendar = java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("UTC"));
         calendar.setTimeInMillis(millisecondsSinceEpoch);
         return new DateTime(calendar);
     }
 
     public static DateTime local(int year, int month, int dayOfMonth, int hourOfDay, int minute, int second, int millisecond)
     {
-        final Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.YEAR, year);
-        calendar.set(Calendar.MONTH, month - 1);
-        calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-        calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
-        calendar.set(Calendar.MINUTE, minute);
-        calendar.set(Calendar.SECOND, second);
-        calendar.set(Calendar.MILLISECOND, millisecond);
+        final java.util.Calendar calendar = java.util.Calendar.getInstance();
+        calendar.set(java.util.Calendar.YEAR, year);
+        calendar.set(java.util.Calendar.MONTH, month - 1);
+        calendar.set(java.util.Calendar.DAY_OF_MONTH, dayOfMonth);
+        calendar.set(java.util.Calendar.HOUR_OF_DAY, hourOfDay);
+        calendar.set(java.util.Calendar.MINUTE, minute);
+        calendar.set(java.util.Calendar.SECOND, second);
+        calendar.set(java.util.Calendar.MILLISECOND, millisecond);
         return new DateTime(calendar);
     }
 
     public static DateTime utcNow()
     {
-        return new DateTime(Calendar.getInstance(TimeZone.getTimeZone("UTC")));
+        return new DateTime(java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("UTC")));
     }
 
     public static DateTime utc(int year, int month, int dayOfMonth, int hourOfDay, int minute, int second, int millisecond)
     {
-        final Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        calendar.set(Calendar.YEAR, year);
-        calendar.set(Calendar.MONTH, month - 1);
-        calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-        calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
-        calendar.set(Calendar.MINUTE, minute);
-        calendar.set(Calendar.SECOND, second);
-        calendar.set(Calendar.MILLISECOND, millisecond);
+        final java.util.Calendar calendar = java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("UTC"));
+        calendar.set(java.util.Calendar.YEAR, year);
+        calendar.set(java.util.Calendar.MONTH, month - 1);
+        calendar.set(java.util.Calendar.DAY_OF_MONTH, dayOfMonth);
+        calendar.set(java.util.Calendar.HOUR_OF_DAY, hourOfDay);
+        calendar.set(java.util.Calendar.MINUTE, minute);
+        calendar.set(java.util.Calendar.SECOND, second);
+        calendar.set(java.util.Calendar.MILLISECOND, millisecond);
         return new DateTime(calendar);
     }
 
@@ -213,6 +210,6 @@ public class DateTime extends ComparableBase<DateTime>
 
     public boolean equals(DateTime value)
     {
-        return ComparableBase.equals(this, value);
+        return Comparable.equals(this, value);
     }
 }
