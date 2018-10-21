@@ -57,7 +57,7 @@ public class LineReadStreamTests
                     {
                         test.fail(e);
                     }
-                    test.assertError(new IllegalArgumentException("lineReadStream must not be disposed."), lineReadStream.readLine());
+                    test.assertThrows(lineReadStream::readLine);
                 });
 
                 final Action3<String,Boolean,String[]> readLineTest = (String text, Boolean includeNewLines, String[] expectedLines) ->

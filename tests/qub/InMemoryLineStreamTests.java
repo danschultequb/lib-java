@@ -80,7 +80,7 @@ public class InMemoryLineStreamTests
                 }
                 test.assertTrue(lineReadStream.isDisposed());
                 test.assertNull(lineReadStream.getCurrent());
-                test.assertError(new IllegalArgumentException("lineReadStream must not be disposed."), lineReadStream.readLine());
+                test.assertThrows(lineReadStream::readLine);
                 test.assertNull(lineReadStream.getCurrent());
             });
 

@@ -1,6 +1,6 @@
 package qub;
 
-public class CharacterWriteStreamToLineWriteStream extends LineWriteStreamBase
+public class CharacterWriteStreamToLineWriteStream implements LineWriteStream
 {
     private final CharacterWriteStream characterWriteStream;
     private final String lineSeparator;

@@ -1,6 +1,6 @@
 package qub;
 
-public class BasicLineReadStream extends LineReadStreamBase
+public class BasicLineReadStream implements LineReadStream
 {
     private final CharacterReadStream characterReadStream;
     private boolean includeNewLines;
@@ -50,7 +50,7 @@ public class BasicLineReadStream extends LineReadStreamBase
     @Override
     public Result<String> readLine()
     {
-        final Result<String> result = super.readLine();
+        final Result<String> result = LineReadStream.super.readLine();
         current = result.getValue();
         return result;
     }

@@ -2,19 +2,38 @@ package qub;
 
 public interface LineWriteStream extends Disposable
 {
-    CharacterEncoding getCharacterEncoding();
+    default CharacterEncoding getCharacterEncoding()
+    {
+        return asCharacterWriteStream().getCharacterEncoding();
+    }
 
     String getLineSeparator();
 
-    Result<Boolean> write(char toWrite);
+    default Result<Boolean> write(char toWrite)
+    {
+        return asCharacterWriteStream().write(toWrite);
+    }
 
-    Result<Boolean> write(String toWrite, Object... formattedStringArguments);
+    default Result<Boolean> write(String toWrite, Object... formattedStringArguments)
+    {
+        return asCharacterWriteStream().write(toWrite, formattedStringArguments);
+    }
 
-    Result<Boolean> writeLine();
+    default Result<Boolean> writeLine()
+    {
+        return write(getLineSeparator());
+    }
 
-    Result<Boolean> writeLine(String toWrite, Object... formattedStringArguments);
+    default Result<Boolean> writeLine(String toWrite, Object... formattedStringArguments)
+    {
+        toWrite = Strings.concatenate(toWrite, getLineSeparator());
+        return write(toWrite, formattedStringArguments);
+    }
 
-    ByteWriteStream asByteWriteStream();
+    default ByteWriteStream asByteWriteStream()
+    {
+        return asCharacterWriteStream().asByteWriteStream();
+    }
 
     CharacterWriteStream asCharacterWriteStream();
 }

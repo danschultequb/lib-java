@@ -39,39 +39,15 @@ public class InMemoryLineStream extends BasicLineReadStream implements LineWrite
     }
 
     @Override
+    public CharacterEncoding getCharacterEncoding()
+    {
+        return characterStream.getCharacterEncoding();
+    }
+
+    @Override
     public String getLineSeparator()
     {
         return lineSeparator;
-    }
-
-    @Override
-    public Result<Boolean> write(char toWrite)
-    {
-        return LineWriteStreamBase.write(this, toWrite);
-    }
-
-    @Override
-    public Result<Boolean> write(String toWrite, Object... formattedStringArguments)
-    {
-        return LineWriteStreamBase.write(this, toWrite, formattedStringArguments);
-    }
-
-    @Override
-    public Result<Boolean> writeLine()
-    {
-        return LineWriteStreamBase.writeLine(this);
-    }
-
-    @Override
-    public Result<Boolean> writeLine(String toWrite, Object... formattedStringArguments)
-    {
-        return LineWriteStreamBase.writeLine(this, toWrite, formattedStringArguments);
-    }
-
-    @Override
-    public ByteWriteStream asByteWriteStream()
-    {
-        return LineWriteStreamBase.asByteWriteStream(this);
     }
 
     @Override
