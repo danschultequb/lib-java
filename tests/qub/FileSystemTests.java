@@ -93,6 +93,7 @@ public class FileSystemTests
                 };
 
                 getFilesAndFoldersFailureTest.run(null);
+                getFilesAndFoldersFailureTest.run("");
 
                 final Action4<String, Action1<FileSystem>, String[], Throwable> getFilesAndFoldersTest = (String folderPath, Action1<FileSystem> setup, String[] expectedEntryPaths, Throwable expectedError) ->
                 {
@@ -118,7 +119,6 @@ public class FileSystemTests
                     });
                 };
 
-                getFilesAndFoldersTest.run("", null, null, new IllegalArgumentException("rootedFolderPath cannot be null."));
                 getFilesAndFoldersTest.run("/", null, new String[0], null);
                 getFilesAndFoldersTest.run(
                     "/folderA",
@@ -210,18 +210,23 @@ public class FileSystemTests
 
             runner.testGroup("getFolders(String)", () ->
             {
-                final Action2<String,Throwable> getFoldersTest = (String path, Throwable expectedError) ->
+                final Action1<String> getFoldersFailureTest = (String path) ->
                 {
                     runner.test("with " + Strings.escapeAndQuote(path), (Test test) ->
                     {
                         final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                        test.assertError(expectedError, fileSystem.getFolders(path));
+                        test.assertThrows(() -> fileSystem.getFolders(path));
                     });
                 };
 
-                getFoldersTest.run(null, new IllegalArgumentException("rootedFolderPath cannot be null."));
-                getFoldersTest.run("", new IllegalArgumentException("rootedFolderPath cannot be null."));
-                getFoldersTest.run("/..", new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+                getFoldersFailureTest.run(null);
+                getFoldersFailureTest.run("");
+
+                runner.test("with " + Strings.escapeAndQuote("/.."), (Test test) ->
+                {
+                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    test.assertError(new IllegalArgumentException("Cannot resolve a rooted path outside of its root."), fileSystem.getFolders("/.."));
+                });
             });
 
             runner.testGroup("getFoldersRecursively(String)", () ->
@@ -440,6 +445,18 @@ public class FileSystemTests
 
             runner.testGroup("getFiles(String)", () ->
             {
+                final Action1<String> getFilesFailureTest = (String folderPath) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        test.assertThrows(() -> fileSystem.getFiles(folderPath));
+                    });
+                };
+
+                getFilesFailureTest.run(null);
+                getFilesFailureTest.run("");
+
                 final Action4<String,Action1<FileSystem>,String[],Throwable> getFilesTest = (String folderPath, Action1<FileSystem> setup, String[] expectedFilePaths, Throwable expectedError) ->
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
@@ -472,8 +489,6 @@ public class FileSystemTests
                     });
                 };
 
-                getFilesTest.run(null, null, null, new IllegalArgumentException("rootedFolderPath cannot be null."));
-                getFilesTest.run("", null, null, new IllegalArgumentException("rootedFolderPath cannot be null."));
                 getFilesTest.run(
                     "/..",
                     null,
@@ -488,6 +503,18 @@ public class FileSystemTests
 
             runner.testGroup("getFiles(Path)", () ->
             {
+                final Action1<String> getFilesFailureTest = (String folderPath) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        test.assertThrows(() -> fileSystem.getFiles(Path.parse(folderPath)));
+                    });
+                };
+
+                getFilesFailureTest.run(null);
+                getFilesFailureTest.run("");
+
                 final Action4<String,Action1<FileSystem>,String[],Throwable> getFilesTest = (String folderPath, Action1<FileSystem> setup, String[] expectedFilePaths, Throwable expectedError) ->
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
@@ -520,8 +547,6 @@ public class FileSystemTests
                     });
                 };
 
-                getFilesTest.run(null, null, null, new IllegalArgumentException("rootedFolderPath cannot be null."));
-                getFilesTest.run("", null, null, new IllegalArgumentException("rootedFolderPath cannot be null."));
                 getFilesTest.run(
                     "/..",
                     null,
@@ -646,6 +671,19 @@ public class FileSystemTests
 
             runner.testGroup("getFolder(String)", () ->
             {
+                final Action1<String> getFolderFailureTest = (String folderPathString) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(folderPathString), (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        test.assertThrows(() -> fileSystem.getFolder(folderPathString));
+                    });
+                };
+
+                getFolderFailureTest.run(null);
+                getFolderFailureTest.run("");
+                getFolderFailureTest.run("a/b/c");
+
                 final Action3<String,String,Throwable> getFolderTest = (String folderPathString, String expectedFolderPathString, Throwable expectedError) ->
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPathString), (Test test) ->
@@ -664,9 +702,6 @@ public class FileSystemTests
                     });
                 };
 
-                getFolderTest.run(null, null, new IllegalArgumentException("rootedFolderPath cannot be null."));
-                getFolderTest.run("", null, new IllegalArgumentException("rootedFolderPath cannot be null."));
-                getFolderTest.run("a/b/c", null, new IllegalArgumentException("rootedFolderPath must be rooted."));
                 getFolderTest.run("/", "/", null);
                 getFolderTest.run("\\", "/", null);
                 getFolderTest.run("Z:\\", "Z:/", null);
@@ -677,6 +712,18 @@ public class FileSystemTests
 
             runner.testGroup("folderExists(String)", () ->
             {
+                final Action1<String> folderExistsFailureTest = (String folderPath) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        test.assertThrows(() -> fileSystem.folderExists(folderPath));
+                    });
+                };
+
+                folderExistsFailureTest.run(null);
+                folderExistsFailureTest.run("");
+
                 final Action4<String,Action1<FileSystem>,Boolean,Throwable> folderExistsTest = (String folderPath, Action1<FileSystem> setup, Boolean expectedFolderExists, Throwable expectedError) ->
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
@@ -709,8 +756,6 @@ public class FileSystemTests
                     });
                 };
 
-                folderExistsTest.run(null, null, null, new IllegalArgumentException("rootedFolderPath cannot be null."));
-                folderExistsTest.run("", null, null, new IllegalArgumentException("rootedFolderPath cannot be null."));
                 folderExistsTest.run("/", null, true, null);
                 folderExistsTest.run("/folderName", null, false, null);
                 folderExistsTest.run(
@@ -777,6 +822,18 @@ public class FileSystemTests
 
             runner.testGroup("createFolder(String)", () ->
             {
+                final Action2<String,String> createFolderFailureTest = (String testName, String folderPath) ->
+                {
+                    runner.test(testName + " (" + folderPath + ")", (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        test.assertThrows(() -> fileSystem.createFolder(folderPath));
+                    });
+                };
+
+                createFolderFailureTest.run("with null", null);
+                createFolderFailureTest.run("with empty string", "");
+
                 final Action5<String,String,Action1<FileSystem>,String,Throwable> createFolderTest = (String testName, String folderPath, Action1<FileSystem> setup, String expectedCreatedFolderPath, Throwable expectedError) ->
                 {
                     runner.test(testName + " (" + folderPath + ")", (Test test) ->
@@ -795,8 +852,6 @@ public class FileSystemTests
                     });
                 };
 
-                createFolderTest.run("with null", null, null, null, new IllegalArgumentException("rootedFolderPath cannot be null."));
-                createFolderTest.run("with empty string", "", null, null, new IllegalArgumentException("rootedFolderPath cannot be null."));
                 createFolderTest.run("with relative path", "folder", null, null, new IllegalArgumentException("rootedFolderPath must be rooted."));
                 createFolderTest.run("with rooted path that doesn't exist", "/folder", null, "/folder", null);
                 createFolderTest.run(

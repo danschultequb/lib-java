@@ -93,14 +93,13 @@ public class JavaFileSystem extends FileSystemBase
     @Override
     public Result<Boolean> folderExists(Path rootedFolderPath)
     {
-        Result<Boolean> result = FileSystemBase.validateRootedFolderPath(rootedFolderPath);
-        if (result == null)
-        {
-            final String folderPathString = rootedFolderPath.toString();
-            final java.io.File folderFile = new java.io.File(folderPathString);
-            result = Result.success(folderFile.exists() && folderFile.isDirectory());
-        }
-        return result;
+        PreCondition.assertNotNull(rootedFolderPath, "rootedFolderPath");
+        PreCondition.assertTrue(rootedFolderPath.isRooted(), "rootedFolderPath.isRooted()");
+        PreCondition.assertFalse(containsInvalidCharacters(rootedFolderPath), "containsInvalidCharacters(rootedFolderPath)");
+
+        final String folderPathString = rootedFolderPath.toString();
+        final java.io.File folderFile = new java.io.File(folderPathString);
+        return Result.success(folderFile.exists() && folderFile.isDirectory());
     }
 
     @Override
