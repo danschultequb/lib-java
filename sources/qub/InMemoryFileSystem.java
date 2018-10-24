@@ -176,6 +176,10 @@ public class InMemoryFileSystem extends FileSystemBase
     @Override
     public Result<Iterable<FileSystemEntry>> getFilesAndFolders(Path rootedFolderPath)
     {
+        PreCondition.assertNotNull(rootedFolderPath, "rootedFolderPath");
+        PreCondition.assertTrue(rootedFolderPath.isRooted(), "rootedFolderPath.isRooted()");
+        PreCondition.assertFalse(containsInvalidCharacters(rootedFolderPath), "containsInvalidCharacters(rootedFolderPath)");
+
         Result<Iterable<FileSystemEntry>> result = validateRootedFolderPath(rootedFolderPath);
         if (result == null)
         {
@@ -209,6 +213,10 @@ public class InMemoryFileSystem extends FileSystemBase
     @Override
     public Result<Boolean> folderExists(Path rootedFolderPath)
     {
+        PreCondition.assertNotNull(rootedFolderPath, "rootedFolderPath");
+        PreCondition.assertTrue(rootedFolderPath.isRooted(), "rootedFolderPath.isRooted()");
+        PreCondition.assertFalse(containsInvalidCharacters(rootedFolderPath), "containsInvalidCharacters(rootedFolderPath)");
+
         Result<Boolean> result = validateRootedFolderPath(rootedFolderPath);
         if (result == null)
         {
@@ -235,6 +243,10 @@ public class InMemoryFileSystem extends FileSystemBase
     @Override
     public Result<Folder> createFolder(Path rootedFolderPath)
     {
+        PreCondition.assertNotNull(rootedFolderPath, "rootedFolderPath");
+        PreCondition.assertTrue(rootedFolderPath.isRooted(), "rootedFolderPath.isRooted()");
+        PreCondition.assertFalse(containsInvalidCharacters(rootedFolderPath), "containsInvalidCharacters(rootedFolderPath)");
+
         Result<Folder> result = validateRootedFolderPath(rootedFolderPath);
         if (result == null)
         {
@@ -275,43 +287,44 @@ public class InMemoryFileSystem extends FileSystemBase
     @Override
     public Result<Boolean> deleteFolder(Path rootedFolderPath)
     {
-        Result<Boolean> result = FileSystemBase.validateRootedFolderPath(rootedFolderPath);
-        if (result == null)
+        PreCondition.assertNotNull(rootedFolderPath, "rootedFolderPath");
+        PreCondition.assertTrue(rootedFolderPath.isRooted(), "rootedFolderPath.isRooted()");
+        PreCondition.assertFalse(containsInvalidCharacters(rootedFolderPath), "containsInvalidCharacters(rootedFolderPath)");
+
+        Result<Boolean> result;
+        final Result<Path> resolvedRootedFolderPath = rootedFolderPath.resolve();
+        if (resolvedRootedFolderPath.hasError())
         {
-            final Result<Path> resolvedRootedFolderPath = rootedFolderPath.resolve();
-            if (resolvedRootedFolderPath.hasError())
+            result = Result.error(resolvedRootedFolderPath.getError());
+        }
+        else
+        {
+            final Path parentFolderPath = resolvedRootedFolderPath.getValue().getParent();
+            if (parentFolderPath == null)
             {
-                result = Result.error(resolvedRootedFolderPath.getError());
+                result = Result.done(false, new IllegalArgumentException("Cannot delete a root folder (" + resolvedRootedFolderPath.getValue() + ")."));
             }
             else
             {
-                final Path parentFolderPath = resolvedRootedFolderPath.getValue().getParent();
-                if (parentFolderPath == null)
+                final Result<InMemoryFolder> parentFolder = getInMemoryFolder(parentFolderPath);
+                if (parentFolder.hasError())
                 {
-                    result = Result.done(false, new IllegalArgumentException("Cannot delete a root folder (" + resolvedRootedFolderPath.getValue() + ")."));
-                }
-                else
-                {
-                    final Result<InMemoryFolder> parentFolder = getInMemoryFolder(parentFolderPath);
-                    if (parentFolder.hasError())
-                    {
-                        if (parentFolder.getError() instanceof FolderNotFoundException)
-                        {
-                            result = Result.done(false, new FolderNotFoundException(resolvedRootedFolderPath.getValue()));
-                        }
-                        else
-                        {
-                            result = Result.error(parentFolder.getError());
-                        }
-                    }
-                    else if (parentFolder.getValue().deleteFolder(resolvedRootedFolderPath.getValue().getSegments().last()))
-                    {
-                        result = Result.successTrue();
-                    }
-                    else
+                    if (parentFolder.getError() instanceof FolderNotFoundException)
                     {
                         result = Result.done(false, new FolderNotFoundException(resolvedRootedFolderPath.getValue()));
                     }
+                    else
+                    {
+                        result = Result.error(parentFolder.getError());
+                    }
+                }
+                else if (parentFolder.getValue().deleteFolder(resolvedRootedFolderPath.getValue().getSegments().last()))
+                {
+                    result = Result.successTrue();
+                }
+                else
+                {
+                    result = Result.done(false, new FolderNotFoundException(resolvedRootedFolderPath.getValue()));
                 }
             }
         }
@@ -322,6 +335,12 @@ public class InMemoryFileSystem extends FileSystemBase
     @Override
     public Result<Boolean> fileExists(Path rootedFilePath)
     {
+        PreCondition.assertNotNull(rootedFilePath, "rootedFilePath");
+        PreCondition.assertTrue(rootedFilePath.isRooted(), "rootedFilePath.isRooted()");
+        PreCondition.assertFalse(rootedFilePath.endsWith("\\"), "rootedFilePath.endsWith(\"\\\")");
+        PreCondition.assertFalse(rootedFilePath.endsWith("/"), "rootedFilePath.endsWith(\"/\")");
+        PreCondition.assertFalse(containsInvalidCharacters(rootedFilePath), "containsInvalidCharacters(rootedFilePath)");
+
         Result<Boolean> result = FileSystemBase.validateRootedFilePath(rootedFilePath);
         if (result == null)
         {
@@ -348,6 +367,12 @@ public class InMemoryFileSystem extends FileSystemBase
     @Override
     public Result<File> createFile(Path rootedFilePath)
     {
+        PreCondition.assertNotNull(rootedFilePath, "rootedFilePath");
+        PreCondition.assertTrue(rootedFilePath.isRooted(), "rootedFilePath.isRooted()");
+        PreCondition.assertFalse(rootedFilePath.endsWith("\\"), "rootedFilePath.endsWith(\"\\\")");
+        PreCondition.assertFalse(rootedFilePath.endsWith("/"), "rootedFilePath.endsWith(\"/\")");
+        PreCondition.assertFalse(containsInvalidCharacters(rootedFilePath), "containsInvalidCharacters(rootedFilePath)");
+
         Result<File> result = FileSystemBase.validateRootedFilePath(rootedFilePath);
         if (result == null)
         {
@@ -382,6 +407,12 @@ public class InMemoryFileSystem extends FileSystemBase
     @Override
     public Result<Boolean> deleteFile(Path rootedFilePath)
     {
+        PreCondition.assertNotNull(rootedFilePath, "rootedFilePath");
+        PreCondition.assertTrue(rootedFilePath.isRooted(), "rootedFilePath.isRooted()");
+        PreCondition.assertFalse(rootedFilePath.endsWith("\\"), "rootedFilePath.endsWith(\"\\\")");
+        PreCondition.assertFalse(rootedFilePath.endsWith("/"), "rootedFilePath.endsWith(\"/\")");
+        PreCondition.assertFalse(containsInvalidCharacters(rootedFilePath), "containsInvalidCharacters(rootedFilePath)");
+
         Result<Boolean> result = FileSystemBase.validateRootedFilePath(rootedFilePath);
         if (result == null)
         {
@@ -413,6 +444,12 @@ public class InMemoryFileSystem extends FileSystemBase
     @Override
     public Result<DateTime> getFileLastModified(Path rootedFilePath)
     {
+        PreCondition.assertNotNull(rootedFilePath, "rootedFilePath");
+        PreCondition.assertTrue(rootedFilePath.isRooted(), "rootedFilePath.isRooted()");
+        PreCondition.assertFalse(rootedFilePath.endsWith("\\"), "rootedFilePath.endsWith(\"\\\")");
+        PreCondition.assertFalse(rootedFilePath.endsWith("/"), "rootedFilePath.endsWith(\"/\")");
+        PreCondition.assertFalse(containsInvalidCharacters(rootedFilePath), "containsInvalidCharacters(rootedFilePath)");
+
         Result<DateTime> result = FileSystemBase.validateRootedFilePath(rootedFilePath);
         if (result == null)
         {

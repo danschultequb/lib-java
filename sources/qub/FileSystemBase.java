@@ -457,19 +457,31 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public AsyncFunction<Result<Folder>> createFolderAsync(String rootedFolderPath)
     {
-        return FileSystemBase.createFolderAsync(this, rootedFolderPath);
+        PreCondition.assertNotNullAndNotEmpty(rootedFolderPath, "rootedFolderPath");
+        PreCondition.assertFalse(containsInvalidCharacters(rootedFolderPath), "containsInvalidCharacters(rootedFolderPath)");
+        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
+
+        return getAsyncRunner().scheduleSingle(() -> createFolder(rootedFolderPath));
     }
 
     @Override
     public AsyncFunction<Result<Folder>> createFolderAsync(Path rootedFolderPath)
     {
-        return FileSystemBase.createFolderAsync(this, rootedFolderPath);
+        PreCondition.assertNotNull(rootedFolderPath, "rootedFolderPath");
+        PreCondition.assertTrue(rootedFolderPath.isRooted(), "rootedFolderPath.isRooted()");
+        PreCondition.assertFalse(containsInvalidCharacters(rootedFolderPath), "containsInvalidCharacters(rootedFolderPath)");
+        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
+
+        return getAsyncRunner().scheduleSingle(() -> createFolder(rootedFolderPath));
     }
 
     @Override
     public Result<Boolean> deleteFolder(String rootedFolderPath)
     {
-        return FileSystemBase.deleteFolder(this, rootedFolderPath);
+        PreCondition.assertNotNullAndNotEmpty(rootedFolderPath, "rootedFolderPath");
+        PreCondition.assertFalse(containsInvalidCharacters(rootedFolderPath), "containsInvalidCharacters(rootedFolderPath)");
+
+        return deleteFolder(Path.parse(rootedFolderPath));
     }
 
     @Override
@@ -478,31 +490,64 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public AsyncFunction<Result<Boolean>> deleteFolderAsync(String rootedFolderPath)
     {
-        return FileSystemBase.deleteFolderAsync(this, rootedFolderPath);
+        PreCondition.assertNotNullAndNotEmpty(rootedFolderPath, "rootedFolderPath");
+        PreCondition.assertFalse(containsInvalidCharacters(rootedFolderPath), "containsInvalidCharacters(rootedFolderPath)");
+        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
+
+        return getAsyncRunner().scheduleSingle(() -> deleteFolder(rootedFolderPath));
     }
 
     @Override
     public AsyncFunction<Result<Boolean>> deleteFolderAsync(Path rootedFolderPath)
     {
-        return FileSystemBase.deleteFolderAsync(this, rootedFolderPath);
+        PreCondition.assertNotNull(rootedFolderPath, "rootedFolderPath");
+        PreCondition.assertTrue(rootedFolderPath.isRooted(), "rootedFolderPath.isRooted()");
+        PreCondition.assertFalse(containsInvalidCharacters(rootedFolderPath), "containsInvalidCharacters(rootedFolderPath)");
+        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
+
+        return getAsyncRunner().scheduleSingle(() -> deleteFolder(rootedFolderPath));
     }
 
     @Override
     public Result<File> getFile(String rootedFilePath)
     {
-        return FileSystemBase.getFile(this, rootedFilePath);
+        PreCondition.assertNotNullAndNotEmpty(rootedFilePath, "rootedFilePath");
+        PreCondition.assertFalse(rootedFilePath.endsWith("\\"), "rootedFilePath.endsWith(\"\\\")");
+        PreCondition.assertFalse(rootedFilePath.endsWith("/"), "rootedFilePath.endsWith(\"/\")");
+
+        return getFile(Path.parse(rootedFilePath));
     }
 
     @Override
     public Result<File> getFile(Path rootedFilePath)
     {
-        return FileSystemBase.getFile(this, rootedFilePath);
+        PreCondition.assertNotNull(rootedFilePath, "rootedFilePath");
+        PreCondition.assertTrue(rootedFilePath.isRooted(), "rootedFilePath.isRooted()");
+        PreCondition.assertFalse(rootedFilePath.endsWith("\\"), "rootedFilePath.endsWith(\"\\\")");
+        PreCondition.assertFalse(rootedFilePath.endsWith("/"), "rootedFilePath.endsWith(\"/\")");
+
+        Result<File> result;
+        final Result<Path> resolvedRootedFilePath = rootedFilePath.resolve();
+        if (resolvedRootedFilePath.hasError())
+        {
+            result = Result.error(resolvedRootedFilePath.getError());
+        }
+        else
+        {
+            result = Result.success(new File(this, resolvedRootedFilePath.getValue()));
+        }
+        return result;
     }
 
     @Override
     public Result<Boolean> fileExists(String rootedFilePath)
     {
-        return FileSystemBase.fileExists(this, rootedFilePath);
+        PreCondition.assertNotNullAndNotEmpty(rootedFilePath, "rootedFilePath");
+        PreCondition.assertFalse(rootedFilePath.endsWith("\\"), "rootedFilePath.endsWith(\"\\\")");
+        PreCondition.assertFalse(rootedFilePath.endsWith("/"), "rootedFilePath.endsWith(\"/\")");
+        PreCondition.assertFalse(containsInvalidCharacters(rootedFilePath), "containsInvalidCharacters(rootedFilePath)");
+
+        return fileExists(Path.parse(rootedFilePath));
     }
 
     @Override
@@ -511,19 +556,37 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public AsyncFunction<Result<Boolean>> fileExistsAsync(String rootedFilePath)
     {
-        return FileSystemBase.fileExistsAsync(this, rootedFilePath);
+        PreCondition.assertNotNullAndNotEmpty(rootedFilePath, "rootedFilePath");
+        PreCondition.assertFalse(rootedFilePath.endsWith("\\"), "rootedFilePath.endsWith(\"\\\")");
+        PreCondition.assertFalse(rootedFilePath.endsWith("/"), "rootedFilePath.endsWith(\"/\")");
+        PreCondition.assertFalse(containsInvalidCharacters(rootedFilePath), "containsInvalidCharacters(rootedFilePath)");
+        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
+
+        return getAsyncRunner().scheduleSingle(() -> fileExists(rootedFilePath));
     }
 
     @Override
     public AsyncFunction<Result<Boolean>> fileExistsAsync(Path rootedFilePath)
     {
-        return FileSystemBase.fileExistsAsync(this, rootedFilePath);
+        PreCondition.assertNotNull(rootedFilePath, "rootedFilePath");
+        PreCondition.assertTrue(rootedFilePath.isRooted(), "rootedFilePath.isRooted()");
+        PreCondition.assertFalse(rootedFilePath.endsWith("\\"), "rootedFilePath.endsWith(\"\\\")");
+        PreCondition.assertFalse(rootedFilePath.endsWith("/"), "rootedFilePath.endsWith(\"/\")");
+        PreCondition.assertFalse(containsInvalidCharacters(rootedFilePath), "containsInvalidCharacters(rootedFilePath)");
+        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
+
+        return getAsyncRunner().scheduleSingle(() -> fileExists(rootedFilePath));
     }
 
     @Override
     public Result<File> createFile(String rootedFilePath)
     {
-        return FileSystemBase.createFile(this, rootedFilePath);
+        PreCondition.assertNotNullAndNotEmpty(rootedFilePath, "rootedFilePath");
+        PreCondition.assertFalse(rootedFilePath.endsWith("\\"), "rootedFilePath.endsWith(\"\\\")");
+        PreCondition.assertFalse(rootedFilePath.endsWith("/"), "rootedFilePath.endsWith(\"/\")");
+        PreCondition.assertFalse(containsInvalidCharacters(rootedFilePath), "containsInvalidCharacters(rootedFilePath)");
+
+        return createFile(Path.parse(rootedFilePath));
     }
 
     @Override
@@ -532,19 +595,37 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public AsyncFunction<Result<File>> createFileAsync(String rootedFilePath)
     {
-        return FileSystemBase.createFileAsync(this, rootedFilePath);
+        PreCondition.assertNotNullAndNotEmpty(rootedFilePath, "rootedFilePath");
+        PreCondition.assertFalse(rootedFilePath.endsWith("\\"), "rootedFilePath.endsWith(\"\\\")");
+        PreCondition.assertFalse(rootedFilePath.endsWith("/"), "rootedFilePath.endsWith(\"/\")");
+        PreCondition.assertFalse(containsInvalidCharacters(rootedFilePath), "containsInvalidCharacters(rootedFilePath)");
+        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
+
+        return getAsyncRunner().scheduleSingle(() -> createFile(rootedFilePath));
     }
 
     @Override
     public AsyncFunction<Result<File>> createFileAsync(Path rootedFilePath)
     {
-        return FileSystemBase.createFileAsync(this, rootedFilePath);
+        PreCondition.assertNotNull(rootedFilePath, "rootedFilePath");
+        PreCondition.assertTrue(rootedFilePath.isRooted(), "rootedFilePath.isRooted()");
+        PreCondition.assertFalse(rootedFilePath.endsWith("\\"), "rootedFilePath.endsWith(\"\\\")");
+        PreCondition.assertFalse(rootedFilePath.endsWith("/"), "rootedFilePath.endsWith(\"/\")");
+        PreCondition.assertFalse(containsInvalidCharacters(rootedFilePath), "containsInvalidCharacters(rootedFilePath)");
+        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
+
+        return getAsyncRunner().scheduleSingle(() -> createFile(rootedFilePath));
     }
 
     @Override
     public Result<Boolean> deleteFile(String rootedFilePath)
     {
-        return FileSystemBase.deleteFile(this, rootedFilePath);
+        PreCondition.assertNotNullAndNotEmpty(rootedFilePath, "rootedFilePath");
+        PreCondition.assertFalse(rootedFilePath.endsWith("\\"), "rootedFilePath.endsWith(\"\\\")");
+        PreCondition.assertFalse(rootedFilePath.endsWith("/"), "rootedFilePath.endsWith(\"/\")");
+        PreCondition.assertFalse(containsInvalidCharacters(rootedFilePath), "containsInvalidCharacters(rootedFilePath)");
+
+        return deleteFile(Path.parse(rootedFilePath));
     }
 
     @Override
@@ -553,31 +634,62 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public AsyncFunction<Result<Boolean>> deleteFileAsync(String rootedFilePath)
     {
-        return FileSystemBase.deleteFileAsync(this, rootedFilePath);
+        PreCondition.assertNotNullAndNotEmpty(rootedFilePath, "rootedFilePath");
+        PreCondition.assertFalse(rootedFilePath.endsWith("\\"), "rootedFilePath.endsWith(\"\\\")");
+        PreCondition.assertFalse(rootedFilePath.endsWith("/"), "rootedFilePath.endsWith(\"/\")");
+        PreCondition.assertFalse(containsInvalidCharacters(rootedFilePath), "containsInvalidCharacters(rootedFilePath)");
+        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
+
+        return getAsyncRunner().scheduleSingle(() -> deleteFile(rootedFilePath));
     }
 
     @Override
     public AsyncFunction<Result<Boolean>> deleteFileAsync(Path rootedFilePath)
     {
-        return FileSystemBase.deleteFileAsync(this, rootedFilePath);
+        PreCondition.assertNotNull(rootedFilePath, "rootedFilePath");
+        PreCondition.assertTrue(rootedFilePath.isRooted(), "rootedFilePath.isRooted()");
+        PreCondition.assertFalse(rootedFilePath.endsWith("\\"), "rootedFilePath.endsWith(\"\\\")");
+        PreCondition.assertFalse(rootedFilePath.endsWith("/"), "rootedFilePath.endsWith(\"/\")");
+        PreCondition.assertFalse(containsInvalidCharacters(rootedFilePath), "containsInvalidCharacters(rootedFilePath)");
+        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
+
+        return getAsyncRunner().scheduleSingle(() -> deleteFile(rootedFilePath));
     }
 
     @Override
     public Result<DateTime> getFileLastModified(String rootedFilePath)
     {
-        return FileSystemBase.getFileLastModified(this, rootedFilePath);
+        PreCondition.assertNotNullAndNotEmpty(rootedFilePath, "rootedFilePath");
+        PreCondition.assertFalse(rootedFilePath.endsWith("\\"), "rootedFilePath.endsWith(\"\\\")");
+        PreCondition.assertFalse(rootedFilePath.endsWith("/"), "rootedFilePath.endsWith(\"/\")");
+        PreCondition.assertFalse(containsInvalidCharacters(rootedFilePath), "containsInvalidCharacters(rootedFilePath)");
+
+        return getFileLastModified(Path.parse(rootedFilePath));
     }
 
     @Override
     public AsyncFunction<Result<DateTime>> getFileLastModifiedAsync(String rootedFilePath)
     {
-        return FileSystemBase.getFileLastModifiedAsync(this, rootedFilePath);
+        PreCondition.assertNotNullAndNotEmpty(rootedFilePath, "rootedFilePath");
+        PreCondition.assertFalse(rootedFilePath.endsWith("\\"), "rootedFilePath.endsWith(\"\\\")");
+        PreCondition.assertFalse(rootedFilePath.endsWith("/"), "rootedFilePath.endsWith(\"/\")");
+        PreCondition.assertFalse(containsInvalidCharacters(rootedFilePath), "containsInvalidCharacters(rootedFilePath)");
+        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
+
+        return getAsyncRunner().scheduleSingle(() -> getFileLastModified(rootedFilePath));
     }
 
     @Override
     public AsyncFunction<Result<DateTime>> getFileLastModifiedAsync(Path rootedFilePath)
     {
-        return FileSystemBase.getFileLastModifiedAsync(this, rootedFilePath);
+        PreCondition.assertNotNull(rootedFilePath, "rootedFilePath");
+        PreCondition.assertTrue(rootedFilePath.isRooted(), "rootedFilePath.isRooted()");
+        PreCondition.assertFalse(rootedFilePath.endsWith("\\"), "rootedFilePath.endsWith(\"\\\")");
+        PreCondition.assertFalse(rootedFilePath.endsWith("/"), "rootedFilePath.endsWith(\"/\")");
+        PreCondition.assertFalse(containsInvalidCharacters(rootedFilePath), "containsInvalidCharacters(rootedFilePath)");
+        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
+
+        return getAsyncRunner().scheduleSingle(() -> getFileLastModified(rootedFilePath));
     }
 
     @Override
@@ -668,289 +780,6 @@ public abstract class FileSystemBase implements FileSystem
     public AsyncFunction<Result<Boolean>> setFileContentAsync(Path rootedFilePath, byte[] content)
     {
         return FileSystemBase.setFileContentAsync(this, rootedFilePath, content);
-    }
-
-    /**
-     * Create a folder at the provided path and return whether or not this function created the
-     * folder.
-     * @param rootedFolderPath The path to the folder to create.
-     * @return Whether or not this function created the folder.
-     */
-    public static AsyncFunction<Result<Folder>> createFolderAsync(FileSystem fileSystem, String rootedFolderPath)
-    {
-        return fileSystem.createFolderAsync(Path.parse(rootedFolderPath));
-    }
-
-    /**
-     * Create a folder at the provided path and return whether or not this function created the
-     * folder.
-     * @param rootedFolderPath The path to the folder to create.
-     * @return Whether or not this function created the folder.
-     */
-    public static AsyncFunction<Result<Folder>> createFolderAsync(final FileSystem fileSystem, final Path rootedFolderPath)
-    {
-        AsyncFunction<Result<Folder>> result = FileSystemBase.validateRootedFolderPathAsync(rootedFolderPath);
-        if (result == null)
-        {
-            result = async(fileSystem, new Function0<Result<Folder>>()
-            {
-                @Override
-                public Result<Folder> run()
-                {
-                    return fileSystem.createFolder(rootedFolderPath);
-                }
-            });
-        }
-        return result;
-    }
-
-    /**
-     * Delete the folder at the provided path and return whether this function deleted the folder.
-     * @param rootedFolderPath The path to the folder to delete.
-     * @return Whether or not this function deleted the folder.
-     */
-    public static Result<Boolean> deleteFolder(FileSystem fileSystem, String rootedFolderPath)
-    {
-        return fileSystem.deleteFolder(Path.parse(rootedFolderPath));
-    }
-
-    /**
-     * Delete the folder at the provided path and return whether this function deleted the folder.
-     * @param rootedFolderPath The path to the folder to delete.
-     * @return Whether or not this function deleted the folder.
-     */
-    public static AsyncFunction<Result<Boolean>> deleteFolderAsync(FileSystem fileSystem, String rootedFolderPath)
-    {
-        return fileSystem.deleteFolderAsync(Path.parse(rootedFolderPath));
-    }
-
-    /**
-     * Delete the folder at the provided path and return whether this function deleted the folder.
-     * @param rootedFolderPath The path to the folder to delete.
-     * @return Whether or not this function deleted the folder.
-     */
-    public static AsyncFunction<Result<Boolean>> deleteFolderAsync(final FileSystem fileSystem, final Path rootedFolderPath)
-    {
-        AsyncFunction<Result<Boolean>> result = FileSystemBase.validateRootedFolderPathAsync(rootedFolderPath);
-        if (result == null)
-        {
-            result = async(fileSystem, new Function0<Result<Boolean>>()
-            {
-                @Override
-                public Result<Boolean> run()
-                {
-                    return fileSystem.deleteFolder(rootedFolderPath);
-                }
-            });
-        }
-        return result;
-    }
-
-    /**
-     * Get a reference to the File at the provided rootedFolderPath.
-     * @param rootedFilePath The path to the file.
-     * @return A reference to the File at the provided rootedFilePath.
-     */
-    public static Result<File> getFile(FileSystem fileSystem, String rootedFilePath)
-    {
-        return fileSystem.getFile(Path.parse(rootedFilePath));
-    }
-
-    /**
-     * Get a reference to the File at the provided rootedFolderPath.
-     * @param rootedFilePath The path to the file.
-     * @return A reference to the File at the provided rootedFilePath.
-     */
-    public static Result<File> getFile(FileSystem fileSystem, Path rootedFilePath)
-    {
-        Result<File> result = validateRootedFilePath(rootedFilePath);
-        if (result == null)
-        {
-            final Result<Path> resolvedRootedFilePath = rootedFilePath.resolve();
-            if (resolvedRootedFilePath.hasError())
-            {
-                result = Result.error(resolvedRootedFilePath.getError());
-            }
-            else
-            {
-                result = Result.success(new File(fileSystem, resolvedRootedFilePath.getValue()));
-            }
-        }
-        return result;
-    }
-
-    /**
-     * Get whether or not a File exists in this FileSystem with the provided path.
-     * @param rootedFilePath The path to the File.
-     * @return Whether or not a File exists in this FileSystem with the provided path.
-     */
-    public static Result<Boolean> fileExists(FileSystem fileSystem, String rootedFilePath)
-    {
-        return fileSystem.fileExists(Path.parse(rootedFilePath));
-    }
-
-    /**
-     * Get whether or not a File exists in this FileSystem with the provided path.
-     * @param rootedFilePath The path to the File.
-     * @return Whether or not a File exists in this FileSystem with the provided path.
-     */
-    public static AsyncFunction<Result<Boolean>> fileExistsAsync(FileSystem fileSystem, String rootedFilePath)
-    {
-        return fileSystem.fileExistsAsync(Path.parse(rootedFilePath));
-    }
-
-    /**
-     * Get whether or not a File exists in this FileSystem with the provided path.
-     * @param rootedFilePath The path to the File.
-     * @return Whether or not a File exists in this FileSystem with the provided path.
-     */
-    public static AsyncFunction<Result<Boolean>> fileExistsAsync(final FileSystem fileSystem, final Path rootedFilePath)
-    {
-        AsyncFunction<Result<Boolean>> result = FileSystemBase.validateRootedFilePathAsync(rootedFilePath);
-        if (result == null)
-        {
-            result = async(fileSystem, new Function0<Result<Boolean>>()
-            {
-                @Override
-                public Result<Boolean> run()
-                {
-                    return fileSystem.fileExists(rootedFilePath);
-                }
-            });
-        }
-        return result;
-    }
-
-    /**
-     * Create a file at the provided path and return whether or not this function created the file.
-     * @param rootedFilePath The path to the file to create.
-     * @return Whether or not this function created the file.
-     */
-    public static Result<File> createFile(FileSystem fileSystem, String rootedFilePath)
-    {
-        return fileSystem.createFile(Path.parse(rootedFilePath));
-    }
-
-    /**
-     * Create a file at the provided path and return whether or not this function created the file.
-     * @param rootedFilePath The path to the file to create.
-     * @return Whether or not this function created the file.
-     */
-    public static AsyncFunction<Result<File>> createFileAsync(FileSystem fileSystem, String rootedFilePath)
-    {
-        return fileSystem.createFileAsync(Path.parse(rootedFilePath));
-    }
-
-    /**
-     * Create a file at the provided path and return whether or not this function created the file.
-     * @param rootedFilePath The path to the file to create.
-     * @return Whether or not this function created the file.
-     */
-    public static AsyncFunction<Result<File>> createFileAsync(final FileSystem fileSystem, final Path rootedFilePath)
-    {
-        AsyncFunction<Result<File>> result = FileSystemBase.validateRootedFilePathAsync(rootedFilePath);
-        if (result == null)
-        {
-            result = async(fileSystem, new Function0<Result<File>>()
-            {
-                @Override
-                public Result<File> run()
-                {
-                    return fileSystem.createFile(rootedFilePath);
-                }
-            });
-        }
-        return result;
-    }
-
-    /**
-     * Delete the file at the provided path and return whether this function deleted the file.
-     * @param rootedFilePath The path to the file to delete.
-     * @return Whether or not this function deleted the file.
-     */
-    public static Result<Boolean> deleteFile(FileSystem fileSystem, String rootedFilePath)
-    {
-        return fileSystem.deleteFile(Path.parse(rootedFilePath));
-    }
-
-    /**
-     * Delete the file at the provided path and return whether this function deleted the file.
-     * @param rootedFilePath The path to the file to delete.
-     * @return Whether or not this function deleted the file.
-     */
-    public static AsyncFunction<Result<Boolean>> deleteFileAsync(FileSystem fileSystem, String rootedFilePath)
-    {
-        return fileSystem.deleteFileAsync(Path.parse(rootedFilePath));
-    }
-
-    /**
-     * Delete the file at the provided path and return whether this function deleted the file.
-     * @param rootedFilePath The path to the file to delete.
-     * @return Whether or not this function deleted the file.
-     */
-    public static AsyncFunction<Result<Boolean>> deleteFileAsync(final FileSystem fileSystem, final Path rootedFilePath)
-    {
-        AsyncFunction<Result<Boolean>> result = FileSystemBase.validateRootedFilePathAsync(rootedFilePath);
-        if (result == null)
-        {
-            result = async(fileSystem, new Function0<Result<Boolean>>()
-            {
-                @Override
-                public Result<Boolean> run()
-                {
-                    return fileSystem.deleteFile(rootedFilePath);
-                }
-            });
-        }
-        return result;
-    }
-
-    /**
-     * Get the date and time of the most recent modification of the given file, or null if the file
-     * doesn't exist.
-     * @param rootedFilePath The path to the file.
-     * @return The date and time of the most recent modification of the given file, or null if the
-     * file doesn't exist.
-     */
-    public static Result<DateTime> getFileLastModified(FileSystem fileSystem, String rootedFilePath)
-    {
-        return fileSystem.getFileLastModified(Path.parse(rootedFilePath));
-    }
-
-    /**
-     * Get the date and time of the most recent modification of the given file, or null if the file
-     * doesn't exist.
-     * @param rootedFilePath The path to the file.
-     * @return The date and time of the most recent modification of the given file, or null if the
-     * file doesn't exist.
-     */
-    public static AsyncFunction<Result<DateTime>> getFileLastModifiedAsync(FileSystem fileSystem, String rootedFilePath)
-    {
-        return fileSystem.getFileLastModifiedAsync(Path.parse(rootedFilePath));
-    }
-
-    /**
-     * Get the date and time of the most recent modification of the given file, or null if the file
-     * doesn't exist.
-     * @param rootedFilePath The path to the file.
-     * @return The date and time of the most recent modification of the given file, or null if the
-     * file doesn't exist.
-     */
-    public static AsyncFunction<Result<DateTime>> getFileLastModifiedAsync(final FileSystem fileSystem, final Path rootedFilePath)
-    {
-        AsyncFunction<Result<DateTime>> result = FileSystemBase.validateRootedFilePathAsync(rootedFilePath);
-        if (result == null)
-        {
-            result = async(fileSystem, new Function0<Result<DateTime>>()
-            {
-                @Override
-                public Result<DateTime> run()
-                {
-                    return fileSystem.getFileLastModified(rootedFilePath);
-                }
-            });
-        }
-        return result;
     }
 
     /**
@@ -1170,13 +999,6 @@ public abstract class FileSystemBase implements FileSystem
         return result;
     }
 
-    public static <T> AsyncFunction<Result<T>> validateRootPathAsync(Path rootPath)
-    {
-        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        final Result<T> result = validateRootPath(rootPath);
-        return result == null ? null : currentAsyncRunner.<T>error(result.getError());
-    }
-
     public static <T> Result<T> validateRootedFolderPath(Path rootedFolderPath)
     {
         Result<T> result = null;
@@ -1195,13 +1017,6 @@ public abstract class FileSystemBase implements FileSystem
         }
 
         return result;
-    }
-
-    public static <T> AsyncFunction<Result<T>> validateRootedFolderPathAsync(Path rootedFolderPath)
-    {
-        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        final Result<T> result = validateRootedFolderPath(rootedFolderPath);
-        return result == null ? null : currentAsyncRunner.<T>error(result.getError());
     }
 
     public static <T> Result<T> validateRootedFilePath(Path rootedFilePath)
@@ -1226,7 +1041,7 @@ public abstract class FileSystemBase implements FileSystem
         }
         else if (containsInvalidCharacters(rootedFilePath))
         {
-            result = Result.<T>error(new IllegalArgumentException("rootedFilePath cannot contain invalid characters " + invalidCharacters + "."));
+            result = Result.error(new IllegalArgumentException("rootedFilePath cannot contain invalid characters " + invalidCharacters + "."));
         }
 
         return result;

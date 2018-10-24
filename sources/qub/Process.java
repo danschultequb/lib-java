@@ -613,12 +613,10 @@ public class Process implements Disposable
 
     private Result<File> getExecutableFile(final Path executablePath, boolean checkExtensions)
     {
+        PreCondition.assertNotNull(executablePath, "executablePath");
+
         Result<File> result;
-        if (executablePath == null)
-        {
-            result = Result.error(new IllegalArgumentException("executablePath cannot be null."));
-        }
-        else if (checkExtensions)
+        if (checkExtensions)
         {
             final File executableFile = getFileSystem().getFile(executablePath).getValue();
             final Result<Boolean> fileExistsResult = executableFile.exists();
@@ -680,11 +678,13 @@ public class Process implements Disposable
         return result;
     }
 
-    private Result<File> findExecutableFile(final Path executablePath, final boolean checkExtensions)
+    private Result<File> findExecutableFile(Path executablePath, boolean checkExtensions)
     {
+        PreCondition.assertNotNull(executablePath, "executablePath");
+
         Result<File> result;
 
-        if(executablePath.isRooted())
+        if (executablePath.isRooted())
         {
             result = getExecutableFile(executablePath, checkExtensions);
         }
@@ -734,26 +734,19 @@ public class Process implements Disposable
      * @param executablePath The path to the executable to run from the returned ProcessBuilder.
      * @return The ProcessBuilder.
      */
-    public Result<ProcessBuilder> getProcessBuilder(final Path executablePath)
+    public Result<ProcessBuilder> getProcessBuilder(Path executablePath)
     {
-        Result<ProcessBuilder> result;
-        if (executablePath == null)
-        {
-            result = Result.error(new IllegalArgumentException("executablePath cannot be null."));
-        }
-        else
-        {
-            Result<File> executableFileResult = findExecutableFile(executablePath, true);
-            if (executableFileResult.hasError())
-            {
-                executableFileResult = findExecutableFile(executablePath, false);
-            }
+        PreCondition.assertNotNull(executablePath, "executablePath");
 
-            result = !executableFileResult.hasError()
-                ? Result.success(new ProcessBuilder(getParallelAsyncRunner(), executableFileResult.getValue()))
-                : Result.<ProcessBuilder>error(executableFileResult.getError());
+        Result<File> executableFileResult = findExecutableFile(executablePath, true);
+        if (executableFileResult.hasError())
+        {
+            executableFileResult = findExecutableFile(executablePath, false);
         }
-        return result;
+
+        return !executableFileResult.hasError()
+            ? Result.success(new ProcessBuilder(getParallelAsyncRunner(), executableFileResult.getValue()))
+            : Result.error(executableFileResult.getError());
     }
 
     /**

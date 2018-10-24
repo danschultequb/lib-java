@@ -44,6 +44,10 @@ public class JavaFileSystem extends FileSystemBase
     @Override
     public Result<Iterable<FileSystemEntry>> getFilesAndFolders(final Path rootedFolderPath)
     {
+        PreCondition.assertNotNull(rootedFolderPath, "rootedFolderPath");
+        PreCondition.assertTrue(rootedFolderPath.isRooted(), "rootedFolderPath.isRooted()");
+        PreCondition.assertFalse(containsInvalidCharacters(rootedFolderPath), "containsInvalidCharacters(rootedFolderPath)");
+
         Result<Iterable<FileSystemEntry>> result = FileSystemBase.validateRootedFolderPath(rootedFolderPath);
         if (result == null)
         {
@@ -105,6 +109,10 @@ public class JavaFileSystem extends FileSystemBase
     @Override
     public Result<Folder> createFolder(Path rootedFolderPath)
     {
+        PreCondition.assertNotNull(rootedFolderPath, "rootedFolderPath");
+        PreCondition.assertTrue(rootedFolderPath.isRooted(), "rootedFolderPath.isRooted()");
+        PreCondition.assertFalse(containsInvalidCharacters(rootedFolderPath), "containsInvalidCharacters(rootedFolderPath)");
+
         Result<Folder> result = FileSystemBase.validateRootedFolderPath(rootedFolderPath);
         if (result == null)
         {
@@ -134,63 +142,66 @@ public class JavaFileSystem extends FileSystemBase
     @Override
     public Result<Boolean> deleteFolder(Path rootedFolderPath)
     {
-        Result<Boolean> result = FileSystemBase.validateRootedFolderPath(rootedFolderPath);
-        if (result == null)
-        {
-            boolean deleteFolderResult = false;
-            Throwable deleteFolderError;
+        PreCondition.assertNotNull(rootedFolderPath, "rootedFolderPath");
+        PreCondition.assertTrue(rootedFolderPath.isRooted(), "rootedFolderPath.isRooted()");
 
-            final Result<Iterable<FileSystemEntry>> entriesResult = getFilesAndFolders(rootedFolderPath);
-            if (entriesResult.hasError())
+        boolean deleteFolderResult = false;
+        Throwable deleteFolderError;
+
+        final Result<Iterable<FileSystemEntry>> entriesResult = getFilesAndFolders(rootedFolderPath);
+        if (entriesResult.hasError())
+        {
+            deleteFolderError = entriesResult.getError();
+        }
+        else
+        {
+            final List<Throwable> errors = new ArrayList<Throwable>();
+            for (final FileSystemEntry entry : entriesResult.getValue())
             {
-                deleteFolderError = entriesResult.getError();
-            }
-            else
-            {
-                final List<Throwable> errors = new ArrayList<Throwable>();
-                for (final FileSystemEntry entry : entriesResult.getValue())
+                final Result<Boolean> deleteEntryResult = entry.delete();
+                if (deleteEntryResult.hasError())
                 {
-                    final Result<Boolean> deleteEntryResult = entry.delete();
-                    if (deleteEntryResult.hasError())
+                    final Throwable error = deleteEntryResult.getError();
+                    if (error instanceof ErrorIterable)
                     {
-                        final Throwable error = deleteEntryResult.getError();
-                        if (error instanceof ErrorIterable)
-                        {
-                            errors.addAll((ErrorIterable)error);
-                        }
-                        else
-                        {
-                            errors.add(error);
-                        }
+                        errors.addAll((ErrorIterable)error);
+                    }
+                    else
+                    {
+                        errors.add(error);
                     }
                 }
-
-                try
-                {
-                    Files.delete(Paths.get(rootedFolderPath.toString()));
-                    deleteFolderResult = true;
-                }
-                catch (java.io.FileNotFoundException e)
-                {
-                    errors.add(new FolderNotFoundException(rootedFolderPath));
-                }
-                catch (Throwable error)
-                {
-                    errors.add(error);
-                }
-
-                deleteFolderError = ErrorIterable.from(errors);
             }
 
-            result = Result.done(deleteFolderResult, deleteFolderError);
+            try
+            {
+                Files.delete(Paths.get(rootedFolderPath.toString()));
+                deleteFolderResult = true;
+            }
+            catch (java.io.FileNotFoundException e)
+            {
+                errors.add(new FolderNotFoundException(rootedFolderPath));
+            }
+            catch (Throwable error)
+            {
+                errors.add(error);
+            }
+
+            deleteFolderError = ErrorIterable.from(errors);
         }
 
-        return result;
+        return Result.done(deleteFolderResult, deleteFolderError);
     }
 
     @Override
     public Result<Boolean> fileExists(Path rootedFilePath)
     {
+        PreCondition.assertNotNull(rootedFilePath, "rootedFilePath");
+        PreCondition.assertTrue(rootedFilePath.isRooted(), "rootedFilePath.isRooted()");
+        PreCondition.assertFalse(rootedFilePath.endsWith("\\"), "rootedFilePath.endsWith(\"\\\")");
+        PreCondition.assertFalse(rootedFilePath.endsWith("/"), "rootedFilePath.endsWith(\"/\")");
+        PreCondition.assertFalse(containsInvalidCharacters(rootedFilePath), "containsInvalidCharacters(rootedFilePath)");
+
         Result<Boolean> result = FileSystemBase.validateRootedFilePath(rootedFilePath);
         if (result == null)
         {
@@ -202,6 +213,12 @@ public class JavaFileSystem extends FileSystemBase
     @Override
     public Result<File> createFile(Path rootedFilePath)
     {
+        PreCondition.assertNotNull(rootedFilePath, "rootedFilePath");
+        PreCondition.assertTrue(rootedFilePath.isRooted(), "rootedFilePath.isRooted()");
+        PreCondition.assertFalse(rootedFilePath.endsWith("\\"), "rootedFilePath.endsWith(\"\\\")");
+        PreCondition.assertFalse(rootedFilePath.endsWith("/"), "rootedFilePath.endsWith(\"/\")");
+        PreCondition.assertFalse(containsInvalidCharacters(rootedFilePath), "containsInvalidCharacters(rootedFilePath)");
+
         Result<File> result = FileSystemBase.validateRootedFilePath(rootedFilePath);
         if (result == null)
         {
@@ -235,6 +252,12 @@ public class JavaFileSystem extends FileSystemBase
     @Override
     public Result<Boolean> deleteFile(Path rootedFilePath)
     {
+        PreCondition.assertNotNull(rootedFilePath, "rootedFilePath");
+        PreCondition.assertTrue(rootedFilePath.isRooted(), "rootedFilePath.isRooted()");
+        PreCondition.assertFalse(rootedFilePath.endsWith("\\"), "rootedFilePath.endsWith(\"\\\")");
+        PreCondition.assertFalse(rootedFilePath.endsWith("/"), "rootedFilePath.endsWith(\"/\")");
+        PreCondition.assertFalse(containsInvalidCharacters(rootedFilePath), "containsInvalidCharacters(rootedFilePath)");
+
         Result<Boolean> result = FileSystemBase.validateRootedFilePath(rootedFilePath);
         if (result == null)
         {
@@ -259,6 +282,12 @@ public class JavaFileSystem extends FileSystemBase
     @Override
     public Result<DateTime> getFileLastModified(Path rootedFilePath)
     {
+        PreCondition.assertNotNull(rootedFilePath, "rootedFilePath");
+        PreCondition.assertTrue(rootedFilePath.isRooted(), "rootedFilePath.isRooted()");
+        PreCondition.assertFalse(rootedFilePath.endsWith("\\"), "rootedFilePath.endsWith(\"\\\")");
+        PreCondition.assertFalse(rootedFilePath.endsWith("/"), "rootedFilePath.endsWith(\"/\")");
+        PreCondition.assertFalse(containsInvalidCharacters(rootedFilePath), "containsInvalidCharacters(rootedFilePath)");
+
         Result<DateTime> result = FileSystemBase.validateRootedFilePath(rootedFilePath);
         if (result == null)
         {

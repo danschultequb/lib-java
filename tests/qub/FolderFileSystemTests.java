@@ -13,8 +13,7 @@ public class FolderFileSystemTests
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner());
                     fileSystem.createRoot("/");
                     
-                    final Result<FolderFileSystem> getResult = FolderFileSystem.get(fileSystem, (String)null);
-                    test.assertError(new IllegalArgumentException("baseFolderPath cannot be null."), getResult);
+                    test.assertThrows(() -> FolderFileSystem.get(fileSystem, (String)null));
                 });
 
                 runner.test("with empty path", (Test test) ->
@@ -22,8 +21,7 @@ public class FolderFileSystemTests
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner());
                     fileSystem.createRoot("/");
 
-                    final Result<FolderFileSystem> getResult = FolderFileSystem.get(fileSystem, "");
-                    test.assertError(new IllegalArgumentException("baseFolderPath cannot be null."), getResult);
+                    test.assertThrows(() -> FolderFileSystem.get(fileSystem, ""));
                 });
 
                 runner.test("with relative path", (Test test) ->
@@ -31,9 +29,7 @@ public class FolderFileSystemTests
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner());
                     fileSystem.createRoot("/");
 
-                    final Result<FolderFileSystem> folderFileSystem = FolderFileSystem.get(fileSystem, "basefolder");
-                    test.assertSuccess(folderFileSystem);
-                    test.assertEqual(Path.parse("basefolder"), folderFileSystem.getValue().getBaseFolderPath());
+                    test.assertThrows(() -> FolderFileSystem.get(fileSystem, "basefolder"));
                 });
 
                 runner.test("with relative path that ends with backslash", (Test test) ->
@@ -41,8 +37,7 @@ public class FolderFileSystemTests
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner());
                     fileSystem.createRoot("/");
 
-                    final Result<FolderFileSystem> folderFileSystem = FolderFileSystem.get(fileSystem, "basefolder\\");
-                    test.assertEqual(Path.parse("basefolder"), folderFileSystem.getValue().getBaseFolderPath());
+                    test.assertThrows(() -> FolderFileSystem.get(fileSystem, "basefolder\\"));
                 });
 
                 runner.test("with relative path that ends with forward slash", (Test test) ->
@@ -50,8 +45,7 @@ public class FolderFileSystemTests
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner());
                     fileSystem.createRoot("/");
 
-                    final Result<FolderFileSystem> folderFileSystem = FolderFileSystem.get(fileSystem, "basefolder/");
-                    test.assertEqual(Path.parse("basefolder"), folderFileSystem.getValue().getBaseFolderPath());
+                    test.assertThrows(() -> FolderFileSystem.get(fileSystem, "basefolder/"));
                 });
 
                 runner.test("with rooted path", (Test test) ->

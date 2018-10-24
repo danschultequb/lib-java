@@ -484,12 +484,7 @@ public class ProcessTests
                 {
                     try (final Process process = creator.run())
                     {
-                        final Result<ProcessBuilder> result = process.getProcessBuilder((String)null);
-                        test.assertNotNull(result);
-                        test.assertNull(result.getValue());
-                        test.assertTrue(result.hasError());
-                        test.assertEqual(IllegalArgumentException.class, result.getErrorType());
-                        test.assertEqual("executablePath cannot be null.", result.getErrorMessage());
+                        test.assertThrows(() -> process.getProcessBuilder((String)null));
                     }
                 });
 
@@ -497,12 +492,7 @@ public class ProcessTests
                 {
                     try (final Process process = creator.run())
                     {
-                        final Result<ProcessBuilder> result = process.getProcessBuilder("");
-                        test.assertNotNull(result);
-                        test.assertNull(result.getValue());
-                        test.assertTrue(result.hasError());
-                        test.assertEqual(IllegalArgumentException.class, result.getErrorType());
-                        test.assertEqual("executablePath cannot be null.", result.getErrorMessage());
+                        test.assertThrows(() -> process.getProcessBuilder(""));
                     }
                 });
 
