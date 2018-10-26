@@ -10,7 +10,7 @@ import java.nio.file.StandardOpenOption;
 /**
  * A FileSystem implementation that interacts with a typical Windows, Linux, or MacOS device.
  */
-public class JavaFileSystem extends FileSystemBase
+public class JavaFileSystem implements FileSystem
 {
     private final AsyncRunner asyncRunner;
 

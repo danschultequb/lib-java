@@ -3,7 +3,7 @@ package qub;
 /**
  * An implementation of FileSystem that is scoped to a provided folder.
  */
-public class FolderFileSystem extends FileSystemBase
+public class FolderFileSystem implements FileSystem
 {
     private final FileSystem innerFileSystem;
     private final Path baseFolderPath;

@@ -3,7 +3,7 @@ package qub;
 /**
  * A FileSystem implementation that is completely stored in the memory of the running application.
  */
-public class InMemoryFileSystem extends FileSystemBase
+public class InMemoryFileSystem implements FileSystem
 {
     private final List<InMemoryRoot> roots;
     private AsyncRunner asyncRunner;
