@@ -5,7 +5,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public Result<Boolean> rootExists(String rootPath)
     {
-        validateRootedFolderPath(rootPath, "rootPath");
+        FileSystem.validateRootedFolderPath(rootPath, "rootPath");
 
         return rootExists(Path.parse(rootPath));
     }
@@ -13,7 +13,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public Result<Boolean> rootExists(Path rootPath)
     {
-        validateRootedFolderPath(rootPath, "rootPath");
+        FileSystem.validateRootedFolderPath(rootPath, "rootPath");
 
         Result<Boolean> rootExistsResult;
         final Result<Iterable<Root>> roots = getRoots();
@@ -32,7 +32,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public AsyncFunction<Result<Boolean>> rootExistsAsync(String rootPath)
     {
-        validateRootedFolderPath(rootPath, "rootPath");
+        FileSystem.validateRootedFolderPath(rootPath, "rootPath");
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
 
         return getAsyncRunner().scheduleSingle(() -> rootExists(rootPath));
@@ -41,7 +41,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public AsyncFunction<Result<Boolean>> rootExistsAsync(Path rootPath)
     {
-        validateRootedFolderPath(rootPath, "rootPath");
+        FileSystem.validateRootedFolderPath(rootPath, "rootPath");
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
 
         return getAsyncRunner().scheduleSingle(() -> rootExists(rootPath));
@@ -50,7 +50,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public Result<Root> getRoot(String rootPath)
     {
-        validateRootedFolderPath(rootPath, "rootPath");
+        FileSystem.validateRootedFolderPath(rootPath, "rootPath");
 
         return getRoot(Path.parse(rootPath));
     }
@@ -58,7 +58,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public Result<Root> getRoot(Path rootPath)
     {
-        validateRootedFolderPath(rootPath, "rootPath");
+        FileSystem.validateRootedFolderPath(rootPath, "rootPath");
 
         return Result.success(new Root(this, rootPath.getRoot()));
     }
@@ -74,7 +74,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public Result<Iterable<FileSystemEntry>> getFilesAndFolders(String rootedFolderPath)
     {
-        validateRootedFolderPath(rootedFolderPath);
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
 
         return getFilesAndFolders(Path.parse(rootedFolderPath));
     }
@@ -82,7 +82,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public AsyncFunction<Result<Iterable<FileSystemEntry>>> getFilesAndFoldersAsync(String rootedFolderPath)
     {
-        validateRootedFolderPath(rootedFolderPath);
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
 
         return getAsyncRunner().scheduleSingle(() -> getFilesAndFolders(rootedFolderPath));
@@ -91,7 +91,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public AsyncFunction<Result<Iterable<FileSystemEntry>>> getFilesAndFoldersAsync(Path rootedFolderPath)
     {
-        validateRootedFolderPath(rootedFolderPath);
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
 
         return getAsyncRunner().scheduleSingle(() -> getFilesAndFolders(rootedFolderPath));
@@ -100,7 +100,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public Result<Iterable<FileSystemEntry>> getFilesAndFoldersRecursively(String rootedFolderPath)
     {
-        validateRootedFolderPath(rootedFolderPath);
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
 
         return getFilesAndFoldersRecursively(Path.parse(rootedFolderPath));
     }
@@ -108,7 +108,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public Result<Iterable<FileSystemEntry>> getFilesAndFoldersRecursively(Path rootedFolderPath)
     {
-        validateRootedFolderPath(rootedFolderPath);
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
 
         Result<Iterable<FileSystemEntry>> result;
         final Result<Path> resolvedRootedFolderPath = rootedFolderPath.resolve();
@@ -172,7 +172,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public AsyncFunction<Result<Iterable<FileSystemEntry>>> getFilesAndFoldersRecursivelyAsync(String rootedFolderPath)
     {
-        validateRootedFolderPath(rootedFolderPath);
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
 
         return getAsyncRunner().scheduleSingle(() -> getFilesAndFoldersRecursively(rootedFolderPath));
@@ -181,7 +181,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public AsyncFunction<Result<Iterable<FileSystemEntry>>> getFilesAndFoldersRecursivelyAsync(Path rootedFolderPath)
     {
-        validateRootedFolderPath(rootedFolderPath);
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
 
         return getAsyncRunner().scheduleSingle(() -> getFilesAndFoldersRecursively(rootedFolderPath));
@@ -190,7 +190,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public Result<Iterable<Folder>> getFolders(String rootedFolderPath)
     {
-        validateRootedFolderPath(rootedFolderPath);
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
 
         return getFolders(Path.parse(rootedFolderPath));
     }
@@ -198,7 +198,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public Result<Iterable<Folder>> getFolders(Path rootedFolderPath)
     {
-        validateRootedFolderPath(rootedFolderPath);
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
 
         final Result<Iterable<FileSystemEntry>> result = getFilesAndFolders(rootedFolderPath);
         final Iterable<FileSystemEntry> entries = result.getValue();
@@ -208,7 +208,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public AsyncFunction<Result<Iterable<Folder>>> getFoldersAsync(String rootedFolderPath)
     {
-        validateRootedFolderPath(rootedFolderPath);
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
 
         return getAsyncRunner().scheduleSingle(() -> getFolders(rootedFolderPath));
@@ -217,7 +217,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public AsyncFunction<Result<Iterable<Folder>>> getFoldersAsync(Path rootedFolderPath)
     {
-        validateRootedFolderPath(rootedFolderPath);
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
 
         return getAsyncRunner().scheduleSingle(() -> getFolders(rootedFolderPath));
@@ -226,7 +226,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public Result<Iterable<Folder>> getFoldersRecursively(String rootedFolderPath)
     {
-        validateRootedFolderPath(rootedFolderPath);
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
 
         return getFoldersRecursively(Path.parse(rootedFolderPath));
     }
@@ -234,7 +234,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public Result<Iterable<Folder>> getFoldersRecursively(Path rootedFolderPath)
     {
-        validateRootedFolderPath(rootedFolderPath);
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
 
         final Result<Iterable<FileSystemEntry>> result = getFilesAndFoldersRecursively(rootedFolderPath);
         final Iterable<FileSystemEntry> entries = result.getValue();
@@ -244,7 +244,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public AsyncFunction<Result<Iterable<Folder>>> getFoldersRecursivelyAsync(String rootedFolderPath)
     {
-        validateRootedFolderPath(rootedFolderPath);
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
 
         return getAsyncRunner().scheduleSingle(() -> getFoldersRecursively(rootedFolderPath));
@@ -253,7 +253,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public AsyncFunction<Result<Iterable<Folder>>> getFoldersRecursivelyAsync(Path rootedFolderPath)
     {
-        validateRootedFolderPath(rootedFolderPath);
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
 
         return getAsyncRunner().scheduleSingle(() -> getFoldersRecursively(rootedFolderPath));
@@ -262,7 +262,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public Result<Iterable<File>> getFiles(String rootedFolderPath)
     {
-        validateRootedFolderPath(rootedFolderPath);
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
 
         return getFiles(Path.parse(rootedFolderPath));
     }
@@ -270,7 +270,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public Result<Iterable<File>> getFiles(Path rootedFolderPath)
     {
-        validateRootedFolderPath(rootedFolderPath);
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
 
         Result<Iterable<FileSystemEntry>> result = getFilesAndFolders(rootedFolderPath);
         final Iterable<FileSystemEntry> entries = result.getValue();
@@ -280,7 +280,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public AsyncFunction<Result<Iterable<File>>> getFilesAsync(String rootedFolderPath)
     {
-        validateRootedFolderPath(rootedFolderPath);
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
 
         return getAsyncRunner().scheduleSingle(() -> getFiles(rootedFolderPath));
@@ -289,7 +289,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public AsyncFunction<Result<Iterable<File>>> getFilesAsync(Path rootedFolderPath)
     {
-        validateRootedFolderPath(rootedFolderPath);
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
 
         return getAsyncRunner().scheduleSingle(() -> getFiles(rootedFolderPath));
@@ -298,7 +298,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public Result<Iterable<File>> getFilesRecursively(String rootedFolderPath)
     {
-        validateRootedFolderPath(rootedFolderPath);
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
 
         return getFilesRecursively(Path.parse(rootedFolderPath));
     }
@@ -306,7 +306,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public Result<Iterable<File>> getFilesRecursively(Path rootedFolderPath)
     {
-        validateRootedFolderPath(rootedFolderPath);
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
 
         final Result<Iterable<FileSystemEntry>> result = getFilesAndFoldersRecursively(rootedFolderPath);
         final Iterable<FileSystemEntry> entries = result.getValue();
@@ -316,7 +316,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public AsyncFunction<Result<Iterable<File>>> getFilesRecursivelyAsync(String rootedFolderPath)
     {
-        validateRootedFolderPath(rootedFolderPath);
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
 
         return getAsyncRunner().scheduleSingle(() -> getFiles(rootedFolderPath));
@@ -325,7 +325,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public AsyncFunction<Result<Iterable<File>>> getFilesRecursivelyAsync(Path rootedFolderPath)
     {
-        validateRootedFolderPath(rootedFolderPath);
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
 
         return getAsyncRunner().scheduleSingle(() -> getFiles(rootedFolderPath));
@@ -334,7 +334,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public Result<Folder> getFolder(String rootedFolderPath)
     {
-        validateRootedFolderPath(rootedFolderPath);
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
 
         return getFolder(Path.parse(rootedFolderPath));
     }
@@ -342,7 +342,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public Result<Folder> getFolder(Path rootedFolderPath)
     {
-        validateRootedFolderPath(rootedFolderPath);
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
 
         Result<Folder> result;
         final Result<Path> resolvedRootedFolderPath = rootedFolderPath.resolve();
@@ -360,7 +360,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public Result<Boolean> folderExists(String rootedFolderPath)
     {
-        validateRootedFolderPath(rootedFolderPath);
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
 
         return folderExists(Path.parse(rootedFolderPath));
     }
@@ -368,7 +368,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public AsyncFunction<Result<Boolean>> folderExistsAsync(String rootedFolderPath)
     {
-        validateRootedFolderPath(rootedFolderPath);
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
 
         return getAsyncRunner().scheduleSingle(() -> folderExists(rootedFolderPath));
@@ -377,7 +377,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public AsyncFunction<Result<Boolean>> folderExistsAsync(Path rootedFolderPath)
     {
-        validateRootedFolderPath(rootedFolderPath);
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
 
         return getAsyncRunner().scheduleSingle(() -> folderExists(rootedFolderPath));
@@ -386,7 +386,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public Result<Folder> createFolder(String rootedFolderPath)
     {
-        validateRootedFolderPath(rootedFolderPath);
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
 
         return createFolder(Path.parse(rootedFolderPath));
     }
@@ -394,7 +394,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public AsyncFunction<Result<Folder>> createFolderAsync(String rootedFolderPath)
     {
-        validateRootedFolderPath(rootedFolderPath);
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
 
         return getAsyncRunner().scheduleSingle(() -> createFolder(rootedFolderPath));
@@ -403,7 +403,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public AsyncFunction<Result<Folder>> createFolderAsync(Path rootedFolderPath)
     {
-        validateRootedFolderPath(rootedFolderPath);
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
 
         return getAsyncRunner().scheduleSingle(() -> createFolder(rootedFolderPath));
@@ -412,7 +412,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public Result<Boolean> deleteFolder(String rootedFolderPath)
     {
-        validateRootedFolderPath(rootedFolderPath);
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
 
         return deleteFolder(Path.parse(rootedFolderPath));
     }
@@ -420,7 +420,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public AsyncFunction<Result<Boolean>> deleteFolderAsync(String rootedFolderPath)
     {
-        validateRootedFolderPath(rootedFolderPath);
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
 
         return getAsyncRunner().scheduleSingle(() -> deleteFolder(rootedFolderPath));
@@ -429,7 +429,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public AsyncFunction<Result<Boolean>> deleteFolderAsync(Path rootedFolderPath)
     {
-        validateRootedFolderPath(rootedFolderPath);
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
 
         return getAsyncRunner().scheduleSingle(() -> deleteFolder(rootedFolderPath));
@@ -438,7 +438,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public Result<File> getFile(String rootedFilePath)
     {
-        validateRootedFilePath(rootedFilePath);
+        FileSystem.validateRootedFilePath(rootedFilePath);
 
         return getFile(Path.parse(rootedFilePath));
     }
@@ -446,7 +446,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public Result<File> getFile(Path rootedFilePath)
     {
-        validateRootedFilePath(rootedFilePath);
+        FileSystem.validateRootedFilePath(rootedFilePath);
 
         Result<File> result;
         final Result<Path> resolvedRootedFilePath = rootedFilePath.resolve();
@@ -464,7 +464,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public Result<Boolean> fileExists(String rootedFilePath)
     {
-        validateRootedFilePath(rootedFilePath);
+        FileSystem.validateRootedFilePath(rootedFilePath);
 
         return fileExists(Path.parse(rootedFilePath));
     }
@@ -472,7 +472,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public AsyncFunction<Result<Boolean>> fileExistsAsync(String rootedFilePath)
     {
-        validateRootedFilePath(rootedFilePath);
+        FileSystem.validateRootedFilePath(rootedFilePath);
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
 
         return getAsyncRunner().scheduleSingle(() -> fileExists(rootedFilePath));
@@ -481,7 +481,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public AsyncFunction<Result<Boolean>> fileExistsAsync(Path rootedFilePath)
     {
-        validateRootedFilePath(rootedFilePath);
+        FileSystem.validateRootedFilePath(rootedFilePath);
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
 
         return getAsyncRunner().scheduleSingle(() -> fileExists(rootedFilePath));
@@ -490,7 +490,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public Result<File> createFile(String rootedFilePath)
     {
-        validateRootedFilePath(rootedFilePath);
+        FileSystem.validateRootedFilePath(rootedFilePath);
 
         return createFile(Path.parse(rootedFilePath));
     }
@@ -498,7 +498,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public AsyncFunction<Result<File>> createFileAsync(String rootedFilePath)
     {
-        validateRootedFilePath(rootedFilePath);
+        FileSystem.validateRootedFilePath(rootedFilePath);
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
 
         return getAsyncRunner().scheduleSingle(() -> createFile(rootedFilePath));
@@ -507,7 +507,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public AsyncFunction<Result<File>> createFileAsync(Path rootedFilePath)
     {
-        validateRootedFilePath(rootedFilePath);
+        FileSystem.validateRootedFilePath(rootedFilePath);
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
 
         return getAsyncRunner().scheduleSingle(() -> createFile(rootedFilePath));
@@ -516,7 +516,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public Result<Boolean> deleteFile(String rootedFilePath)
     {
-        validateRootedFilePath(rootedFilePath);
+        FileSystem.validateRootedFilePath(rootedFilePath);
 
         return deleteFile(Path.parse(rootedFilePath));
     }
@@ -524,7 +524,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public AsyncFunction<Result<Boolean>> deleteFileAsync(String rootedFilePath)
     {
-        validateRootedFilePath(rootedFilePath);
+        FileSystem.validateRootedFilePath(rootedFilePath);
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
 
         return getAsyncRunner().scheduleSingle(() -> deleteFile(rootedFilePath));
@@ -533,7 +533,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public AsyncFunction<Result<Boolean>> deleteFileAsync(Path rootedFilePath)
     {
-        validateRootedFilePath(rootedFilePath);
+        FileSystem.validateRootedFilePath(rootedFilePath);
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
 
         return getAsyncRunner().scheduleSingle(() -> deleteFile(rootedFilePath));
@@ -542,7 +542,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public Result<DateTime> getFileLastModified(String rootedFilePath)
     {
-        validateRootedFilePath(rootedFilePath);
+        FileSystem.validateRootedFilePath(rootedFilePath);
 
         return getFileLastModified(Path.parse(rootedFilePath));
     }
@@ -550,7 +550,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public AsyncFunction<Result<DateTime>> getFileLastModifiedAsync(String rootedFilePath)
     {
-        validateRootedFilePath(rootedFilePath);
+        FileSystem.validateRootedFilePath(rootedFilePath);
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
 
         return getAsyncRunner().scheduleSingle(() -> getFileLastModified(rootedFilePath));
@@ -559,7 +559,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public AsyncFunction<Result<DateTime>> getFileLastModifiedAsync(Path rootedFilePath)
     {
-        validateRootedFilePath(rootedFilePath);
+        FileSystem.validateRootedFilePath(rootedFilePath);
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
 
         return getAsyncRunner().scheduleSingle(() -> getFileLastModified(rootedFilePath));
@@ -568,7 +568,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public Result<ByteReadStream> getFileContentByteReadStream(String rootedFilePath)
     {
-        validateRootedFilePath(rootedFilePath);
+        FileSystem.validateRootedFilePath(rootedFilePath);
 
         return getFileContentByteReadStream(Path.parse(rootedFilePath));
     }
@@ -576,7 +576,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public AsyncFunction<Result<ByteReadStream>> getFileContentByteReadStreamAsync(String rootedFilePath)
     {
-        validateRootedFilePath(rootedFilePath);
+        FileSystem.validateRootedFilePath(rootedFilePath);
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
 
         return getAsyncRunner().scheduleSingle(() -> getFileContentByteReadStream(rootedFilePath));
@@ -585,7 +585,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public AsyncFunction<Result<ByteReadStream>> getFileContentByteReadStreamAsync(Path rootedFilePath)
     {
-        validateRootedFilePath(rootedFilePath);
+        FileSystem.validateRootedFilePath(rootedFilePath);
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
 
         return getAsyncRunner().scheduleSingle(() -> getFileContentByteReadStream(rootedFilePath));
@@ -594,7 +594,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public Result<byte[]> getFileContent(String rootedFilePath)
     {
-        validateRootedFilePath(rootedFilePath);
+        FileSystem.validateRootedFilePath(rootedFilePath);
 
         return getFileContent(Path.parse(rootedFilePath));
     }
@@ -602,7 +602,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public Result<byte[]> getFileContent(Path rootedFilePath)
     {
-        validateRootedFilePath(rootedFilePath);
+        FileSystem.validateRootedFilePath(rootedFilePath);
 
         Result<byte[]> result;
         final Result<ByteReadStream> byteReadStreamResult = getFileContentByteReadStream(rootedFilePath);
@@ -628,7 +628,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public AsyncFunction<Result<byte[]>> getFileContentAsync(String rootedFilePath)
     {
-        validateRootedFilePath(rootedFilePath);
+        FileSystem.validateRootedFilePath(rootedFilePath);
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
 
         return getAsyncRunner().scheduleSingle(() -> getFileContent(rootedFilePath));
@@ -637,7 +637,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public AsyncFunction<Result<byte[]>> getFileContentAsync(Path rootedFilePath)
     {
-        validateRootedFilePath(rootedFilePath);
+        FileSystem.validateRootedFilePath(rootedFilePath);
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
 
         return getAsyncRunner().scheduleSingle(() -> getFileContent(rootedFilePath));
@@ -646,7 +646,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public Result<ByteWriteStream> getFileContentByteWriteStream(String rootedFilePath)
     {
-        validateRootedFilePath(rootedFilePath);
+        FileSystem.validateRootedFilePath(rootedFilePath);
 
         return getFileContentByteWriteStream(Path.parse(rootedFilePath));
     }
@@ -654,7 +654,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public AsyncFunction<Result<ByteWriteStream>> getFileContentByteWriteStreamAsync(String rootedFilePath)
     {
-        validateRootedFilePath(rootedFilePath);
+        FileSystem.validateRootedFilePath(rootedFilePath);
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
 
         return getAsyncRunner().scheduleSingle(() -> getFileContentByteWriteStream(rootedFilePath));
@@ -663,7 +663,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public AsyncFunction<Result<ByteWriteStream>> getFileContentByteWriteStreamAsync(Path rootedFilePath)
     {
-        validateRootedFilePath(rootedFilePath);
+        FileSystem.validateRootedFilePath(rootedFilePath);
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
 
         return getAsyncRunner().scheduleSingle(() -> getFileContentByteWriteStream(rootedFilePath));
@@ -672,7 +672,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public Result<Boolean> setFileContent(String rootedFilePath, byte[] content)
     {
-        validateRootedFilePath(rootedFilePath);
+        FileSystem.validateRootedFilePath(rootedFilePath);
 
         return setFileContent(Path.parse(rootedFilePath), content);
     }
@@ -680,7 +680,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public Result<Boolean> setFileContent(Path rootedFilePath, byte[] content)
     {
-        validateRootedFilePath(rootedFilePath);
+        FileSystem.validateRootedFilePath(rootedFilePath);
 
         Result<Boolean> result;
         final Result<ByteWriteStream> byteWriteStreamResult = getFileContentByteWriteStream(rootedFilePath);
@@ -709,7 +709,7 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public AsyncFunction<Result<Boolean>> setFileContentAsync(String rootedFilePath, byte[] content)
     {
-        validateRootedFilePath(rootedFilePath);
+        FileSystem.validateRootedFilePath(rootedFilePath);
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
 
         return getAsyncRunner().scheduleSingle(() -> setFileContent(rootedFilePath, content));
@@ -718,84 +718,9 @@ public abstract class FileSystemBase implements FileSystem
     @Override
     public AsyncFunction<Result<Boolean>> setFileContentAsync(Path rootedFilePath, byte[] content)
     {
-        validateRootedFilePath(rootedFilePath);
+        FileSystem.validateRootedFilePath(rootedFilePath);
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
 
         return getAsyncRunner().scheduleSingle(() -> setFileContent(rootedFilePath, content));
-    }
-
-    public static void validateRootedFolderPath(String rootedFolderPath)
-    {
-        validateRootedFolderPath(rootedFolderPath, "rootedFolderPath");
-    }
-
-    public static void validateRootedFolderPath(String rootedFolderPath, String expressionName)
-    {
-        PreCondition.assertNotNullAndNotEmpty(rootedFolderPath, expressionName);
-    }
-
-    public static void validateRootedFolderPath(Path rootedFolderPath)
-    {
-        validateRootedFolderPath(rootedFolderPath, "rootedFolderPath");
-    }
-
-    public static void validateRootedFolderPath(Path rootedFolderPath, String expressionName)
-    {
-        PreCondition.assertNotNull(rootedFolderPath, expressionName);
-        PreCondition.assertTrue(rootedFolderPath.isRooted(), expressionName + ".isRooted()");
-        PreCondition.assertFalse(containsInvalidCharacters(rootedFolderPath), "containsInvalidCharacters(" + expressionName + ")");
-    }
-
-    public static void validateRootedFilePath(String rootedFilePath)
-    {
-        PreCondition.assertNotNull(rootedFilePath, "rootedFilePath");
-        PreCondition.assertFalse(rootedFilePath.endsWith("\\"), "rootedFilePath.endsWith(\"\\\")");
-        PreCondition.assertFalse(rootedFilePath.endsWith("/"), "rootedFilePath.endsWith(\"/\")");
-    }
-
-    public static void validateRootedFilePath(Path rootedFilePath)
-    {
-        PreCondition.assertNotNull(rootedFilePath, "rootedFilePath");
-        PreCondition.assertTrue(rootedFilePath.isRooted(), "rootedFilePath.isRooted()");
-        PreCondition.assertFalse(rootedFilePath.endsWith("\\"), "rootedFilePath.endsWith(\"\\\")");
-        PreCondition.assertFalse(rootedFilePath.endsWith("/"), "rootedFilePath.endsWith(\"/\")");
-        PreCondition.assertFalse(containsInvalidCharacters(rootedFilePath), "containsInvalidCharacters(rootedFilePath (" + Strings.escapeAndQuote(rootedFilePath.toString()) + "))");
-    }
-
-    private static final Array<Character> invalidCharacters = Array.fromValues(new Character[]
-    {
-        '\u0000',
-        '?',
-        '<',
-        '>',
-        '|',
-        '*',
-        '\"',
-        ':'
-    });
-    static boolean containsInvalidCharacters(Path path)
-    {
-        boolean result = false;
-
-        if (path != null)
-        {
-            final Path pathWithoutRoot = path.withoutRoot();
-            if (pathWithoutRoot != null)
-            {
-                final String pathString = pathWithoutRoot.toString();
-                final int pathStringLength = pathString.length();
-                for (int i = 0; i < pathStringLength; ++i)
-                {
-                    final char currentCharacter = pathString.charAt(i);
-                    if (invalidCharacters.contains(currentCharacter))
-                    {
-                        result = true;
-                        break;
-                    }
-                }
-            }
-        }
-
-        return result;
     }
 }

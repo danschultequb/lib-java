@@ -585,4 +585,81 @@ public interface FileSystem
      * @return Whether or not the file's contents were set.
      */
     AsyncFunction<Result<Boolean>> setFileContentAsync(Path rootedFilePath, byte[] content);
+
+
+
+    public static void validateRootedFolderPath(String rootedFolderPath)
+    {
+        validateRootedFolderPath(rootedFolderPath, "rootedFolderPath");
+    }
+
+    public static void validateRootedFolderPath(String rootedFolderPath, String expressionName)
+    {
+        PreCondition.assertNotNullAndNotEmpty(rootedFolderPath, expressionName);
+    }
+
+    public static void validateRootedFolderPath(Path rootedFolderPath)
+    {
+        validateRootedFolderPath(rootedFolderPath, "rootedFolderPath");
+    }
+
+    public static void validateRootedFolderPath(Path rootedFolderPath, String expressionName)
+    {
+        PreCondition.assertNotNull(rootedFolderPath, expressionName);
+        PreCondition.assertTrue(rootedFolderPath.isRooted(), expressionName + ".isRooted()");
+        PreCondition.assertFalse(containsInvalidCharacters(rootedFolderPath), "containsInvalidCharacters(" + expressionName + ")");
+    }
+
+    public static void validateRootedFilePath(String rootedFilePath)
+    {
+        PreCondition.assertNotNull(rootedFilePath, "rootedFilePath");
+        PreCondition.assertFalse(rootedFilePath.endsWith("\\"), "rootedFilePath.endsWith(\"\\\")");
+        PreCondition.assertFalse(rootedFilePath.endsWith("/"), "rootedFilePath.endsWith(\"/\")");
+    }
+
+    public static void validateRootedFilePath(Path rootedFilePath)
+    {
+        PreCondition.assertNotNull(rootedFilePath, "rootedFilePath");
+        PreCondition.assertTrue(rootedFilePath.isRooted(), "rootedFilePath.isRooted()");
+        PreCondition.assertFalse(rootedFilePath.endsWith("\\"), "rootedFilePath.endsWith(\"\\\")");
+        PreCondition.assertFalse(rootedFilePath.endsWith("/"), "rootedFilePath.endsWith(\"/\")");
+        PreCondition.assertFalse(containsInvalidCharacters(rootedFilePath), "containsInvalidCharacters(rootedFilePath (" + Strings.escapeAndQuote(rootedFilePath.toString()) + "))");
+    }
+
+    Array<Character> invalidCharacters = Array.fromValues(new Character[]
+    {
+        '\u0000',
+        '?',
+        '<',
+        '>',
+        '|',
+        '*',
+        '\"',
+        ':'
+    });
+    static boolean containsInvalidCharacters(Path path)
+    {
+        boolean result = false;
+
+        if (path != null)
+        {
+            final Path pathWithoutRoot = path.withoutRoot();
+            if (pathWithoutRoot != null)
+            {
+                final String pathString = pathWithoutRoot.toString();
+                final int pathStringLength = pathString.length();
+                for (int i = 0; i < pathStringLength; ++i)
+                {
+                    final char currentCharacter = pathString.charAt(i);
+                    if (invalidCharacters.contains(currentCharacter))
+                    {
+                        result = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
 }

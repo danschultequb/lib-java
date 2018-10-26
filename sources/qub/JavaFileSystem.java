@@ -40,7 +40,7 @@ public class JavaFileSystem extends FileSystemBase
     @Override
     public Result<Iterable<FileSystemEntry>> getFilesAndFolders(Path rootedFolderPath)
     {
-        validateRootedFolderPath(rootedFolderPath);
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
 
         Result<Iterable<FileSystemEntry>> result;
         Array<FileSystemEntry> filesAndFolders;
@@ -88,7 +88,7 @@ public class JavaFileSystem extends FileSystemBase
     @Override
     public Result<Boolean> folderExists(Path rootedFolderPath)
     {
-        validateRootedFolderPath(rootedFolderPath);
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
 
         final String folderPathString = rootedFolderPath.toString();
         final java.io.File folderFile = new java.io.File(folderPathString);
@@ -98,7 +98,7 @@ public class JavaFileSystem extends FileSystemBase
     @Override
     public Result<Folder> createFolder(Path rootedFolderPath)
     {
-        validateRootedFolderPath(rootedFolderPath);
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
 
         Result<Folder> result;
         try
@@ -126,7 +126,7 @@ public class JavaFileSystem extends FileSystemBase
     @Override
     public Result<Boolean> deleteFolder(Path rootedFolderPath)
     {
-        validateRootedFolderPath(rootedFolderPath);
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
 
         boolean deleteFolderResult = false;
         Throwable deleteFolderError;
@@ -179,7 +179,7 @@ public class JavaFileSystem extends FileSystemBase
     @Override
     public Result<Boolean> fileExists(Path rootedFilePath)
     {
-        validateRootedFilePath(rootedFilePath);
+        FileSystem.validateRootedFilePath(rootedFilePath);
 
         return Result.success(java.nio.file.Files.isRegularFile(java.nio.file.Paths.get(rootedFilePath.toString())));
     }
@@ -187,7 +187,7 @@ public class JavaFileSystem extends FileSystemBase
     @Override
     public Result<File> createFile(Path rootedFilePath)
     {
-        validateRootedFilePath(rootedFilePath);
+        FileSystem.validateRootedFilePath(rootedFilePath);
 
         Result<File> result;
         final Path parentFolderPath = rootedFilePath.getParent();
@@ -219,7 +219,7 @@ public class JavaFileSystem extends FileSystemBase
     @Override
     public Result<Boolean> deleteFile(Path rootedFilePath)
     {
-        validateRootedFilePath(rootedFilePath);
+        FileSystem.validateRootedFilePath(rootedFilePath);
 
         Result<Boolean> result;
         try
@@ -242,7 +242,7 @@ public class JavaFileSystem extends FileSystemBase
     @Override
     public Result<DateTime> getFileLastModified(Path rootedFilePath)
     {
-        validateRootedFilePath(rootedFilePath);
+        FileSystem.validateRootedFilePath(rootedFilePath);
 
         Result<DateTime> result;
         try
@@ -265,7 +265,7 @@ public class JavaFileSystem extends FileSystemBase
     @Override
     public Result<ByteReadStream> getFileContentByteReadStream(Path rootedFilePath)
     {
-        validateRootedFilePath(rootedFilePath);
+        FileSystem.validateRootedFilePath(rootedFilePath);
         Result<ByteReadStream> result;
         try
         {
@@ -288,7 +288,7 @@ public class JavaFileSystem extends FileSystemBase
     @Override
     public Result<ByteWriteStream> getFileContentByteWriteStream(Path rootedFilePath)
     {
-        validateRootedFilePath(rootedFilePath);
+        FileSystem.validateRootedFilePath(rootedFilePath);
 
         OutputStream outputStream = null;
         Throwable error = null;

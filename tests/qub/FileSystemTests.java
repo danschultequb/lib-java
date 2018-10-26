@@ -1999,7 +1999,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(pathString), (Test test) ->
                     {
-                        test.assertEqual(expected, FileSystemBase.containsInvalidCharacters(Path.parse(pathString)));
+                        test.assertEqual(expected, FileSystem.containsInvalidCharacters(Path.parse(pathString)));
                     });
                 };
 

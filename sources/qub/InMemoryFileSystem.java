@@ -110,13 +110,13 @@ public class InMemoryFileSystem extends FileSystemBase
 
     public Result<Boolean> setFileCanDelete(String rootedFilePath, boolean canDelete)
     {
-        validateRootedFilePath(rootedFilePath);
+        FileSystem.validateRootedFilePath(rootedFilePath);
         return setFileCanDelete(Path.parse(rootedFilePath), canDelete);
     }
 
     public Result<Boolean> setFileCanDelete(Path rootedFilePath, boolean canDelete)
     {
-        validateRootedFilePath(rootedFilePath);
+        FileSystem.validateRootedFilePath(rootedFilePath);
 
         Result<Boolean> result;
 
@@ -136,14 +136,14 @@ public class InMemoryFileSystem extends FileSystemBase
 
     public Result<Boolean> setFolderCanDelete(String rootedFolderPath, boolean canDelete)
     {
-        validateRootedFolderPath(rootedFolderPath);
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
 
         return setFolderCanDelete(Path.parse(rootedFolderPath), canDelete);
     }
 
     public Result<Boolean> setFolderCanDelete(Path rootedFolderPath, boolean canDelete)
     {
-        validateRootedFolderPath(rootedFolderPath);
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
 
         Result<Boolean> result;
 
@@ -176,7 +176,7 @@ public class InMemoryFileSystem extends FileSystemBase
     @Override
     public Result<Iterable<FileSystemEntry>> getFilesAndFolders(Path rootedFolderPath)
     {
-        validateRootedFolderPath(rootedFolderPath);
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
 
         Result<Iterable<FileSystemEntry>> result;
         final Result<InMemoryFolder> folder = getInMemoryFolder(rootedFolderPath);
@@ -208,7 +208,7 @@ public class InMemoryFileSystem extends FileSystemBase
     @Override
     public Result<Boolean> folderExists(Path rootedFolderPath)
     {
-        validateRootedFolderPath(rootedFolderPath);
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
 
         Result<Boolean> result;
         final Result<InMemoryFolder> inMemoryFolder = getInMemoryFolder(rootedFolderPath);
@@ -233,7 +233,7 @@ public class InMemoryFileSystem extends FileSystemBase
     @Override
     public Result<Folder> createFolder(Path rootedFolderPath)
     {
-        validateRootedFolderPath(rootedFolderPath);
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
 
         Result<Folder> result;
         final Result<Path> resolvedRootedFolderPath = rootedFolderPath.resolve();
@@ -272,7 +272,7 @@ public class InMemoryFileSystem extends FileSystemBase
     @Override
     public Result<Boolean> deleteFolder(Path rootedFolderPath)
     {
-        validateRootedFolderPath(rootedFolderPath);
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
 
         Result<Boolean> result;
         final Result<Path> resolvedRootedFolderPath = rootedFolderPath.resolve();
@@ -318,7 +318,7 @@ public class InMemoryFileSystem extends FileSystemBase
     @Override
     public Result<Boolean> fileExists(Path rootedFilePath)
     {
-        validateRootedFilePath(rootedFilePath);
+        FileSystem.validateRootedFilePath(rootedFilePath);
 
         Result<Boolean> result;
         final Result<InMemoryFile> inMemoryFile = getInMemoryFile(rootedFilePath);
@@ -343,7 +343,7 @@ public class InMemoryFileSystem extends FileSystemBase
     @Override
     public Result<File> createFile(Path rootedFilePath)
     {
-        validateRootedFilePath(rootedFilePath);
+        FileSystem.validateRootedFilePath(rootedFilePath);
 
         File file = null;
         Throwable error = null;
@@ -373,7 +373,7 @@ public class InMemoryFileSystem extends FileSystemBase
     @Override
     public Result<Boolean> deleteFile(Path rootedFilePath)
     {
-        validateRootedFilePath(rootedFilePath);
+        FileSystem.validateRootedFilePath(rootedFilePath);
 
         Result<Boolean> result;
         final Result<Path> resolvedRootedFilePath = rootedFilePath.resolve();
@@ -403,7 +403,7 @@ public class InMemoryFileSystem extends FileSystemBase
     @Override
     public Result<DateTime> getFileLastModified(Path rootedFilePath)
     {
-        validateRootedFilePath(rootedFilePath);
+        FileSystem.validateRootedFilePath(rootedFilePath);
 
         Result<DateTime> result;
         final Result<Path> resolvedRootedFilePath = rootedFilePath.resolve();
@@ -430,7 +430,7 @@ public class InMemoryFileSystem extends FileSystemBase
     @Override
     public Result<ByteReadStream> getFileContentByteReadStream(Path rootedFilePath)
     {
-        validateRootedFilePath(rootedFilePath);
+        FileSystem.validateRootedFilePath(rootedFilePath);
 
         Result<ByteReadStream> result;
         final Result<InMemoryFile> file = getInMemoryFile(rootedFilePath);
@@ -449,7 +449,7 @@ public class InMemoryFileSystem extends FileSystemBase
     @Override
     public Result<ByteWriteStream> getFileContentByteWriteStream(Path rootedFilePath)
     {
-        validateRootedFilePath(rootedFilePath);
+        FileSystem.validateRootedFilePath(rootedFilePath);
 
         Result<ByteWriteStream> result;
         final Result<Path> resolvedRootedFilePath = rootedFilePath.resolve();
@@ -488,7 +488,7 @@ public class InMemoryFileSystem extends FileSystemBase
      */
     public Result<Root> createRoot(String rootPath)
     {
-        validateRootedFolderPath(rootPath, "rootPath");
+        FileSystem.validateRootedFolderPath(rootPath, "rootPath");
 
         return createRoot(Path.parse(rootPath));
     }
@@ -502,7 +502,7 @@ public class InMemoryFileSystem extends FileSystemBase
      */
     public Result<Root> createRoot(Path rootPath)
     {
-        validateRootedFolderPath(rootPath, "rootPath");
+        FileSystem.validateRootedFolderPath(rootPath, "rootPath");
 
         Result<Root> result;
         rootPath = rootPath.getRoot();

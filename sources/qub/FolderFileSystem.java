@@ -10,7 +10,7 @@ public class FolderFileSystem extends FileSystemBase
 
     private FolderFileSystem(FileSystem innerFileSystem, Path baseFolderPath)
     {
-        validateRootedFolderPath(baseFolderPath, "baseFolderPath");
+        FileSystem.validateRootedFolderPath(baseFolderPath, "baseFolderPath");
 
         this.innerFileSystem = innerFileSystem;
 
@@ -25,14 +25,14 @@ public class FolderFileSystem extends FileSystemBase
 
     public static Result<FolderFileSystem> get(FileSystem innerFileSystem, String baseFolderPath)
     {
-        validateRootedFolderPath(baseFolderPath, "baseFolderPath");
+        FileSystem.validateRootedFolderPath(baseFolderPath, "baseFolderPath");
 
         return get(innerFileSystem, Path.parse(baseFolderPath));
     }
 
     public static Result<FolderFileSystem> get(FileSystem innerFileSystem, Path baseFolderPath)
     {
-        validateRootedFolderPath(baseFolderPath, "baseFolderPath");
+        FileSystem.validateRootedFolderPath(baseFolderPath, "baseFolderPath");
 
         return Result.success(new FolderFileSystem(innerFileSystem, baseFolderPath));
     }
@@ -77,7 +77,7 @@ public class FolderFileSystem extends FileSystemBase
 
     private Result<Path> getInnerPath(Path outerPath, boolean isFolderPath)
     {
-        validateRootedFolderPath(outerPath, "outerPath");
+        FileSystem.validateRootedFolderPath(outerPath, "outerPath");
 
         Result<Path> result = outerPath.resolve();
         if (!result.hasError())
@@ -138,7 +138,7 @@ public class FolderFileSystem extends FileSystemBase
     @Override
     public Result<Iterable<FileSystemEntry>> getFilesAndFolders(Path rootedFolderPath)
     {
-        validateRootedFolderPath(rootedFolderPath);
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
 
         Iterable<FileSystemEntry> resultEntries = null;
         Throwable resultError = null;
@@ -176,7 +176,7 @@ public class FolderFileSystem extends FileSystemBase
     @Override
     public Result<Boolean> folderExists(Path rootedFolderPath)
     {
-        validateRootedFolderPath(rootedFolderPath);
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
 
         final Result<Path> innerPath = getInnerPath(rootedFolderPath, true);
         return innerPath.hasError() ? Result.error(innerPath.getError()) : innerFileSystem.folderExists(innerPath.getValue());
@@ -185,7 +185,7 @@ public class FolderFileSystem extends FileSystemBase
     @Override
     public Result<Folder> createFolder(Path rootedFolderPath)
     {
-        validateRootedFolderPath(rootedFolderPath);
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
 
         Result<Folder> result;
         final Result<Path> innerPath = getInnerPath(rootedFolderPath, true);
@@ -221,7 +221,7 @@ public class FolderFileSystem extends FileSystemBase
     @Override
     public Result<Boolean> deleteFolder(Path rootedFolderPath)
     {
-        validateRootedFolderPath(rootedFolderPath);
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
 
         Result<Boolean> result;
         final Result<Path> innerFolderPath = getInnerPath(rootedFolderPath, true);
@@ -251,7 +251,7 @@ public class FolderFileSystem extends FileSystemBase
     @Override
     public Result<Boolean> fileExists(Path rootedFilePath)
     {
-        validateRootedFilePath(rootedFilePath);
+        FileSystem.validateRootedFilePath(rootedFilePath);
 
         Result<Boolean> result;
 
@@ -271,7 +271,7 @@ public class FolderFileSystem extends FileSystemBase
     @Override
     public Result<File> createFile(Path rootedFilePath)
     {
-        validateRootedFilePath(rootedFilePath);
+        FileSystem.validateRootedFilePath(rootedFilePath);
 
         Result<File> result;
         final Result<Path> innerFilePath = getInnerPath(rootedFilePath, false);
@@ -294,7 +294,7 @@ public class FolderFileSystem extends FileSystemBase
     @Override
     public Result<Boolean> deleteFile(Path rootedFilePath)
     {
-        validateRootedFilePath(rootedFilePath);
+        FileSystem.validateRootedFilePath(rootedFilePath);
 
         Result<Boolean> result;
         final Result<Path> innerFilePath = getInnerPath(rootedFilePath, false);
@@ -317,7 +317,7 @@ public class FolderFileSystem extends FileSystemBase
     @Override
     public Result<DateTime> getFileLastModified(Path rootedFilePath)
     {
-        validateRootedFilePath(rootedFilePath);
+        FileSystem.validateRootedFilePath(rootedFilePath);
 
         Result<DateTime> result;
         final Result<Path> innerFilePath = getInnerPath(rootedFilePath, false);
@@ -340,7 +340,7 @@ public class FolderFileSystem extends FileSystemBase
     @Override
     public Result<ByteReadStream> getFileContentByteReadStream(Path rootedFilePath)
     {
-        validateRootedFilePath(rootedFilePath);
+        FileSystem.validateRootedFilePath(rootedFilePath);
 
         Result<ByteReadStream> result;
         final Result<Path> innerFilePath = getInnerPath(rootedFilePath, false);
@@ -363,7 +363,7 @@ public class FolderFileSystem extends FileSystemBase
     @Override
     public Result<ByteWriteStream> getFileContentByteWriteStream(Path rootedFilePath)
     {
-        validateRootedFilePath(rootedFilePath);
+        FileSystem.validateRootedFilePath(rootedFilePath);
 
         Result<ByteWriteStream> result;
         final Result<Path> innerFilePath = getInnerPath(rootedFilePath, false);
