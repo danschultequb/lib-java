@@ -29,67 +29,58 @@ public class JavaFileSystem extends FileSystemBase
     public Result<Iterable<Root>> getRoots()
     {
         final Iterable<java.io.File> javaRoots = Array.fromValues(java.io.File.listRoots());
-        return Result.success(javaRoots.map(new Function1<java.io.File, Root>()
-            {
-                @Override
-                public Root run(java.io.File root)
-                {
-                    final String rootPathString = root.getAbsolutePath();
-                    final String trimmedRootPathString = rootPathString.equals("/") ? rootPathString : rootPathString.substring(0, rootPathString.length() - 1);
-                    return JavaFileSystem.this.getRoot(trimmedRootPathString).getValue();
-                }
-            }));
+        return Result.success(javaRoots.map((java.io.File root) ->
+        {
+            final String rootPathString = root.getAbsolutePath();
+            final String trimmedRootPathString = rootPathString.equals("/") ? rootPathString : rootPathString.substring(0, rootPathString.length() - 1);
+            return JavaFileSystem.this.getRoot(trimmedRootPathString).getValue();
+        }));
     }
 
     @Override
-    public Result<Iterable<FileSystemEntry>> getFilesAndFolders(final Path rootedFolderPath)
+    public Result<Iterable<FileSystemEntry>> getFilesAndFolders(Path rootedFolderPath)
     {
-        PreCondition.assertNotNull(rootedFolderPath, "rootedFolderPath");
-        PreCondition.assertTrue(rootedFolderPath.isRooted(), "rootedFolderPath.isRooted()");
-        PreCondition.assertFalse(containsInvalidCharacters(rootedFolderPath), "containsInvalidCharacters(rootedFolderPath)");
+        validateRootedFolderPath(rootedFolderPath);
 
-        Result<Iterable<FileSystemEntry>> result = FileSystemBase.validateRootedFolderPath(rootedFolderPath);
-        if (result == null)
+        Result<Iterable<FileSystemEntry>> result;
+        Array<FileSystemEntry> filesAndFolders;
+
+        final java.io.File containerFile = new java.io.File(rootedFolderPath.toString());
+        final java.io.File[] containerEntryFiles = containerFile.listFiles();
+        if (containerEntryFiles == null)
         {
-            Array<FileSystemEntry> filesAndFolders;
-
-            final java.io.File containerFile = new java.io.File(rootedFolderPath.toString());
-            final java.io.File[] containerEntryFiles = containerFile.listFiles();
-            if (containerEntryFiles == null)
+            result = Result.error(new FolderNotFoundException(rootedFolderPath));
+        }
+        else
+        {
+            final List<Folder> folders = new ArrayList<>();
+            final List<File> files = new ArrayList<>();
+            for (final java.io.File containerEntryFile : containerEntryFiles)
             {
-                result = Result.error(new FolderNotFoundException(rootedFolderPath));
+                final String containerEntryPathString = containerEntryFile.getAbsolutePath();
+                final Path containerEntryPath = Path.parse(containerEntryPathString).normalize();
+                if (containerEntryFile.isFile())
+                {
+                    files.add(getFile(containerEntryPath).getValue());
+                }
+                else if (containerEntryFile.isDirectory())
+                {
+                    folders.add(getFolder(containerEntryPath).getValue());
+                }
             }
-            else
+
+            filesAndFolders = new Array<>(containerEntryFiles.length);
+            final int foldersCount = folders.getCount();
+            for (int i = 0; i < foldersCount; ++i)
             {
-                final List<Folder> folders = new ArrayList<>();
-                final List<File> files = new ArrayList<>();
-                for (final java.io.File containerEntryFile : containerEntryFiles)
-                {
-                    final String containerEntryPathString = containerEntryFile.getAbsolutePath();
-                    final Path containerEntryPath = Path.parse(containerEntryPathString).normalize();
-                    if (containerEntryFile.isFile())
-                    {
-                        files.add(getFile(containerEntryPath).getValue());
-                    }
-                    else if (containerEntryFile.isDirectory())
-                    {
-                        folders.add(getFolder(containerEntryPath).getValue());
-                    }
-                }
-
-                filesAndFolders = new Array<>(containerEntryFiles.length);
-                final int foldersCount = folders.getCount();
-                for (int i = 0; i < foldersCount; ++i)
-                {
-                    filesAndFolders.set(i, folders.get(i));
-                }
-                for (int i = 0; i < files.getCount(); ++i)
-                {
-                    filesAndFolders.set(i + foldersCount, files.get(i));
-                }
-
-                result = Result.<Iterable<FileSystemEntry>>success(filesAndFolders);
+                filesAndFolders.set(i, folders.get(i));
             }
+            for (int i = 0; i < files.getCount(); ++i)
+            {
+                filesAndFolders.set(i + foldersCount, files.get(i));
+            }
+
+            result = Result.success(filesAndFolders);
         }
         return result;
     }
@@ -97,9 +88,7 @@ public class JavaFileSystem extends FileSystemBase
     @Override
     public Result<Boolean> folderExists(Path rootedFolderPath)
     {
-        PreCondition.assertNotNull(rootedFolderPath, "rootedFolderPath");
-        PreCondition.assertTrue(rootedFolderPath.isRooted(), "rootedFolderPath.isRooted()");
-        PreCondition.assertFalse(containsInvalidCharacters(rootedFolderPath), "containsInvalidCharacters(rootedFolderPath)");
+        validateRootedFolderPath(rootedFolderPath);
 
         final String folderPathString = rootedFolderPath.toString();
         final java.io.File folderFile = new java.io.File(folderPathString);
@@ -109,31 +98,26 @@ public class JavaFileSystem extends FileSystemBase
     @Override
     public Result<Folder> createFolder(Path rootedFolderPath)
     {
-        PreCondition.assertNotNull(rootedFolderPath, "rootedFolderPath");
-        PreCondition.assertTrue(rootedFolderPath.isRooted(), "rootedFolderPath.isRooted()");
-        PreCondition.assertFalse(containsInvalidCharacters(rootedFolderPath), "containsInvalidCharacters(rootedFolderPath)");
+        validateRootedFolderPath(rootedFolderPath);
 
-        Result<Folder> result = FileSystemBase.validateRootedFolderPath(rootedFolderPath);
-        if (result == null)
+        Result<Folder> result;
+        try
         {
-            try
+            final Path parentFolderPath = rootedFolderPath.getParent();
+            if (parentFolderPath != null)
             {
-                final Path parentFolderPath = rootedFolderPath.getParent();
-                if (parentFolderPath != null)
-                {
-                    java.nio.file.Files.createDirectories(java.nio.file.Paths.get(parentFolderPath.toString()));
-                }
-                java.nio.file.Files.createDirectory(java.nio.file.Paths.get(rootedFolderPath.toString()));
-                result = Result.success(getFolder(rootedFolderPath).getValue());
+                java.nio.file.Files.createDirectories(java.nio.file.Paths.get(parentFolderPath.toString()));
             }
-            catch (java.nio.file.FileAlreadyExistsException e)
-            {
-                result = Result.<Folder>done(getFolder(rootedFolderPath).getValue(), new FolderAlreadyExistsException(rootedFolderPath));
-            }
-            catch (java.io.IOException e)
-            {
-                result = Result.<Folder>error(e);
-            }
+            java.nio.file.Files.createDirectory(java.nio.file.Paths.get(rootedFolderPath.toString()));
+            result = Result.success(getFolder(rootedFolderPath).getValue());
+        }
+        catch (java.nio.file.FileAlreadyExistsException e)
+        {
+            result = Result.done(getFolder(rootedFolderPath).getValue(), new FolderAlreadyExistsException(rootedFolderPath));
+        }
+        catch (java.io.IOException e)
+        {
+            result = Result.error(e);
         }
 
         return result;
@@ -142,8 +126,7 @@ public class JavaFileSystem extends FileSystemBase
     @Override
     public Result<Boolean> deleteFolder(Path rootedFolderPath)
     {
-        PreCondition.assertNotNull(rootedFolderPath, "rootedFolderPath");
-        PreCondition.assertTrue(rootedFolderPath.isRooted(), "rootedFolderPath.isRooted()");
+        validateRootedFolderPath(rootedFolderPath);
 
         boolean deleteFolderResult = false;
         Throwable deleteFolderError;
@@ -155,7 +138,7 @@ public class JavaFileSystem extends FileSystemBase
         }
         else
         {
-            final List<Throwable> errors = new ArrayList<Throwable>();
+            final List<Throwable> errors = new ArrayList<>();
             for (final FileSystemEntry entry : entriesResult.getValue())
             {
                 final Result<Boolean> deleteEntryResult = entry.delete();
@@ -196,53 +179,37 @@ public class JavaFileSystem extends FileSystemBase
     @Override
     public Result<Boolean> fileExists(Path rootedFilePath)
     {
-        PreCondition.assertNotNull(rootedFilePath, "rootedFilePath");
-        PreCondition.assertTrue(rootedFilePath.isRooted(), "rootedFilePath.isRooted()");
-        PreCondition.assertFalse(rootedFilePath.endsWith("\\"), "rootedFilePath.endsWith(\"\\\")");
-        PreCondition.assertFalse(rootedFilePath.endsWith("/"), "rootedFilePath.endsWith(\"/\")");
-        PreCondition.assertFalse(containsInvalidCharacters(rootedFilePath), "containsInvalidCharacters(rootedFilePath)");
+        validateRootedFilePath(rootedFilePath);
 
-        Result<Boolean> result = FileSystemBase.validateRootedFilePath(rootedFilePath);
-        if (result == null)
-        {
-            result = Result.success(java.nio.file.Files.isRegularFile(java.nio.file.Paths.get(rootedFilePath.toString())));
-        }
-        return result;
+        return Result.success(java.nio.file.Files.isRegularFile(java.nio.file.Paths.get(rootedFilePath.toString())));
     }
 
     @Override
     public Result<File> createFile(Path rootedFilePath)
     {
-        PreCondition.assertNotNull(rootedFilePath, "rootedFilePath");
-        PreCondition.assertTrue(rootedFilePath.isRooted(), "rootedFilePath.isRooted()");
-        PreCondition.assertFalse(rootedFilePath.endsWith("\\"), "rootedFilePath.endsWith(\"\\\")");
-        PreCondition.assertFalse(rootedFilePath.endsWith("/"), "rootedFilePath.endsWith(\"/\")");
-        PreCondition.assertFalse(containsInvalidCharacters(rootedFilePath), "containsInvalidCharacters(rootedFilePath)");
+        validateRootedFilePath(rootedFilePath);
 
-        Result<File> result = FileSystemBase.validateRootedFilePath(rootedFilePath);
-        if (result == null)
+        Result<File> result;
+        final Path parentFolderPath = rootedFilePath.getParent();
+        final Result<Folder> createFolderResult = createFolder(parentFolderPath);
+        if (createFolderResult.getValue() == null)
         {
-            final Path parentFolderPath = rootedFilePath.getParent();
-            final Result<Folder> createFolderResult = createFolder(parentFolderPath);
-            if (createFolderResult.getValue() == null)
+            result = Result.error(createFolderResult.getError());
+        }
+        else
+        {
+            try
             {
-                result = Result.error(createFolderResult.getError());
+                java.nio.file.Files.createFile(java.nio.file.Paths.get(rootedFilePath.toString()));
+                result = Result.success(getFile(rootedFilePath).getValue());
             }
-            else
+            catch (java.nio.file.FileAlreadyExistsException e)
             {
-                try
-                {
-                    java.nio.file.Files.createFile(java.nio.file.Paths.get(rootedFilePath.toString()));
-                    result = Result.success(getFile(rootedFilePath).getValue());
-                }
-                catch (java.nio.file.FileAlreadyExistsException e)
-                {
-                    result = Result.done(getFile(rootedFilePath).getValue(), new FileAlreadyExistsException(rootedFilePath));
-                }
-                catch (java.io.IOException e)
-                {
-                    result = Result.error(e);
-                }
+                result = Result.done(getFile(rootedFilePath).getValue(), new FileAlreadyExistsException(rootedFilePath));
+            }
+            catch (java.io.IOException e)
+            {
+                result = Result.error(e);
             }
         }
 
@@ -252,28 +219,21 @@ public class JavaFileSystem extends FileSystemBase
     @Override
     public Result<Boolean> deleteFile(Path rootedFilePath)
     {
-        PreCondition.assertNotNull(rootedFilePath, "rootedFilePath");
-        PreCondition.assertTrue(rootedFilePath.isRooted(), "rootedFilePath.isRooted()");
-        PreCondition.assertFalse(rootedFilePath.endsWith("\\"), "rootedFilePath.endsWith(\"\\\")");
-        PreCondition.assertFalse(rootedFilePath.endsWith("/"), "rootedFilePath.endsWith(\"/\")");
-        PreCondition.assertFalse(containsInvalidCharacters(rootedFilePath), "containsInvalidCharacters(rootedFilePath)");
+        validateRootedFilePath(rootedFilePath);
 
-        Result<Boolean> result = FileSystemBase.validateRootedFilePath(rootedFilePath);
-        if (result == null)
+        Result<Boolean> result;
+        try
         {
-            try
-            {
-                java.nio.file.Files.delete(java.nio.file.Paths.get(rootedFilePath.toString()));
-                result = Result.success(true);
-            }
-            catch (java.nio.file.NoSuchFileException e)
-            {
-                result = Result.done(false, new FileNotFoundException(rootedFilePath));
-            }
-            catch (java.io.IOException e)
-            {
-                result = Result.error(e);
-            }
+            java.nio.file.Files.delete(java.nio.file.Paths.get(rootedFilePath.toString()));
+            result = Result.success(true);
+        }
+        catch (java.nio.file.NoSuchFileException e)
+        {
+            result = Result.done(false, new FileNotFoundException(rootedFilePath));
+        }
+        catch (java.io.IOException e)
+        {
+            result = Result.error(e);
         }
 
         return result;
@@ -282,28 +242,21 @@ public class JavaFileSystem extends FileSystemBase
     @Override
     public Result<DateTime> getFileLastModified(Path rootedFilePath)
     {
-        PreCondition.assertNotNull(rootedFilePath, "rootedFilePath");
-        PreCondition.assertTrue(rootedFilePath.isRooted(), "rootedFilePath.isRooted()");
-        PreCondition.assertFalse(rootedFilePath.endsWith("\\"), "rootedFilePath.endsWith(\"\\\")");
-        PreCondition.assertFalse(rootedFilePath.endsWith("/"), "rootedFilePath.endsWith(\"/\")");
-        PreCondition.assertFalse(containsInvalidCharacters(rootedFilePath), "containsInvalidCharacters(rootedFilePath)");
+        validateRootedFilePath(rootedFilePath);
 
-        Result<DateTime> result = FileSystemBase.validateRootedFilePath(rootedFilePath);
-        if (result == null)
+        Result<DateTime> result;
+        try
         {
-            try
-            {
-                final java.nio.file.attribute.FileTime lastModifiedTime = java.nio.file.Files.getLastModifiedTime(java.nio.file.Paths.get(rootedFilePath.toString()));
-                result = Result.success(DateTime.local(lastModifiedTime.toMillis()));
-            }
-            catch (java.nio.file.NoSuchFileException e)
-            {
-                result = Result.error(new FileNotFoundException(rootedFilePath));
-            }
-            catch (java.io.IOException e)
-            {
-                result = Result.error(e);
-            }
+            final java.nio.file.attribute.FileTime lastModifiedTime = java.nio.file.Files.getLastModifiedTime(java.nio.file.Paths.get(rootedFilePath.toString()));
+            result = Result.success(DateTime.local(lastModifiedTime.toMillis()));
+        }
+        catch (java.nio.file.NoSuchFileException e)
+        {
+            result = Result.error(new FileNotFoundException(rootedFilePath));
+        }
+        catch (java.io.IOException e)
+        {
+            result = Result.error(e);
         }
 
         return result;
@@ -312,23 +265,21 @@ public class JavaFileSystem extends FileSystemBase
     @Override
     public Result<ByteReadStream> getFileContentByteReadStream(Path rootedFilePath)
     {
-        Result<ByteReadStream> result = FileSystemBase.validateRootedFilePath(rootedFilePath);
-        if (result == null)
+        validateRootedFilePath(rootedFilePath);
+        Result<ByteReadStream> result;
+        try
         {
-            try
-            {
-                final InputStream fileContentsInputStream = java.nio.file.Files.newInputStream(
-                    java.nio.file.Paths.get(rootedFilePath.toString()));
-                result = Result.<ByteReadStream>success(new InputStreamToByteReadStream(fileContentsInputStream, asyncRunner));
-            }
-            catch (java.nio.file.NoSuchFileException e)
-            {
-                result = Result.error(new FileNotFoundException(rootedFilePath));
-            }
-            catch (java.io.IOException e)
-            {
-                result = Result.error(e);
-            }
+            final InputStream fileContentsInputStream = java.nio.file.Files.newInputStream(
+                java.nio.file.Paths.get(rootedFilePath.toString()));
+            result = Result.success(new InputStreamToByteReadStream(fileContentsInputStream, asyncRunner));
+        }
+        catch (java.nio.file.NoSuchFileException e)
+        {
+            result = Result.error(new FileNotFoundException(rootedFilePath));
+        }
+        catch (java.io.IOException e)
+        {
+            result = Result.error(e);
         }
 
         return result;
@@ -337,46 +288,42 @@ public class JavaFileSystem extends FileSystemBase
     @Override
     public Result<ByteWriteStream> getFileContentByteWriteStream(Path rootedFilePath)
     {
-        Result<ByteWriteStream> result = FileSystemBase.validateRootedFilePath(rootedFilePath);
-        if (result == null)
+        validateRootedFilePath(rootedFilePath);
+
+        OutputStream outputStream = null;
+        Throwable error = null;
+        try
         {
-            OutputStream outputStream = null;
-            Throwable error = null;
-            try
+            outputStream =
+                java.nio.file.Files.newOutputStream(
+                    java.nio.file.Paths.get(rootedFilePath.toString()),
+                    StandardOpenOption.CREATE,
+                    StandardOpenOption.TRUNCATE_EXISTING);
+        }
+        catch (java.nio.file.NoSuchFileException e)
+        {
+            final Result<Folder> createParentFolderResult = createFolder(rootedFilePath.getParent());
+            if (createParentFolderResult.getValue() != null)
             {
-                outputStream =
-                    java.nio.file.Files.newOutputStream(
-                        java.nio.file.Paths.get(rootedFilePath.toString()),
-                        StandardOpenOption.CREATE,
-                        StandardOpenOption.TRUNCATE_EXISTING);
-            }
-            catch (java.nio.file.NoSuchFileException e)
-            {
-                final Result<Folder> createParentFolderResult = createFolder(rootedFilePath.getParent());
-                if (createParentFolderResult.getValue() != null)
+                try
                 {
-                    try
-                    {
-                        outputStream =
-                            Files.newOutputStream(
-                                Paths.get(rootedFilePath.toString()),
-                                StandardOpenOption.CREATE,
-                                StandardOpenOption.TRUNCATE_EXISTING);
-                    }
-                    catch (IOException e1)
-                    {
-                        error = e1;
-                    }
+                    outputStream =
+                        Files.newOutputStream(
+                            Paths.get(rootedFilePath.toString()),
+                            StandardOpenOption.CREATE,
+                            StandardOpenOption.TRUNCATE_EXISTING);
+                }
+                catch (IOException e1)
+                {
+                    error = e1;
                 }
             }
-            catch (IOException e)
-            {
-                error = e;
-            }
-
-            result = Result.<ByteWriteStream>done(outputStream == null ? null : new OutputStreamToByteWriteStream(outputStream), error);
+        }
+        catch (IOException e)
+        {
+            error = e;
         }
 
-        return result;
+        return Result.done(outputStream == null ? null : new OutputStreamToByteWriteStream(outputStream), error);
     }
 }

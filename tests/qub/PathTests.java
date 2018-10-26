@@ -247,6 +247,38 @@ public class PathTests
                 withoutFileExtensionTest.run("a.b/c/d", "a.b/c/d");
             });
 
+            runner.testGroup("withoutRoot()", () ->
+            {
+                final Action2<String,String> withoutRootTest = (String pathString, String expectedPathString) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(pathString), (Test test) ->
+                    {
+                        final Path path = Path.parse(pathString);
+                        final Path pathWithoutRoot = path.withoutRoot();
+                        test.assertEqual(expectedPathString, pathWithoutRoot == null ? null : pathWithoutRoot.toString());
+                    });
+                };
+
+                withoutRootTest.run(":", ":");
+                withoutRootTest.run("a.txt", "a.txt");
+                withoutRootTest.run("a/b.txt", "a/b.txt");
+                withoutRootTest.run("a\\b.txt", "a\\b.txt");
+                withoutRootTest.run("/a.txt", "a.txt");
+                withoutRootTest.run("\\a.txt", "a.txt");
+                withoutRootTest.run("/a/b.txt", "a/b.txt");
+                withoutRootTest.run("\\a\\b.txt", "a\\b.txt");
+                withoutRootTest.run("/", null);
+                withoutRootTest.run("\\", null);
+                withoutRootTest.run("C:", null);
+                withoutRootTest.run("C:/", null);
+                withoutRootTest.run("C:\\", null);
+                withoutRootTest.run("C:/a.txt", "a.txt");
+                withoutRootTest.run("C:\\a.txt", "a.txt");
+                withoutRootTest.run("C:/a/b.txt", "a/b.txt");
+                withoutRootTest.run("C:\\a\\b.txt", "a\\b.txt");
+                withoutRootTest.run("F:/test/folder", "test/folder");
+            });
+
             runner.testGroup("relativeTo(Path)", () ->
             {
                 final Action3<String,String,String> relativeToTest = (String pathString, String basePathString, String expectedPathString) ->
@@ -331,6 +363,19 @@ public class PathTests
 
             runner.testGroup("resolve(String)", () ->
             {
+                final Action2<String,String> resolveFailureTest = (String basePathString, String argumentPathString) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(basePathString) + " and " + Strings.escapeAndQuote(argumentPathString), (Test test) ->
+                    {
+                        final Path basePath = Path.parse(basePathString);
+                        test.assertThrows(() -> basePath.resolve(argumentPathString));
+                    });
+                };
+
+                resolveFailureTest.run("/", null);
+                resolveFailureTest.run("/", "");
+                resolveFailureTest.run("/", "C:/");
+
                 final Action4<String,String,String,Throwable> resolveTest = (String basePathString, String argumentPathString, String expectedPathString, Throwable expectedError) ->
                 {
                     runner.test("with " + Strings.escapeAndQuote(basePathString) + " and " + Strings.escapeAndQuote(argumentPathString), (Test test) ->
@@ -341,9 +386,6 @@ public class PathTests
                     });
                 };
 
-                resolveTest.run("/", null, "/", null);
-                resolveTest.run("/", "", "/", null);
-                resolveTest.run("/", "C:/", null, new IllegalArgumentException("Cannot resolve a rooted path (C:/)."));
                 resolveTest.run("/", "a/b", "/a/b", null);
                 resolveTest.run("D:\\z\\", "t/u.png", "D:/z/t/u.png", null);
                 resolveTest.run("/a/b/c", "..", "/a/b", null);

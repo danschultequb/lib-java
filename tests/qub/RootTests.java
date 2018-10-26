@@ -651,7 +651,7 @@ public class RootTests
                 runner.test("when root is empty", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    test.assertSuccess(new Array<Folder>(0), root.getFoldersRecursively());
+                    test.assertSuccess(new Array<>(0), root.getFoldersRecursively());
                 });
 
                 runner.test("when root has files", (Test test) ->

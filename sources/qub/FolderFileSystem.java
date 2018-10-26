@@ -10,10 +10,7 @@ public class FolderFileSystem extends FileSystemBase
 
     private FolderFileSystem(FileSystem innerFileSystem, Path baseFolderPath)
     {
-        PreCondition.assertNotNull(innerFileSystem, "innerFileSystem");
-        PreCondition.assertNotNull(baseFolderPath, "baseFolderPath");
-        PreCondition.assertTrue(baseFolderPath.isRooted(), "baseFolderPath.isRooted()");
-        PreCondition.assertFalse(containsInvalidCharacters(baseFolderPath), "containsInvalidCharacters(baseFolderPath)");
+        validateRootedFolderPath(baseFolderPath, "baseFolderPath");
 
         this.innerFileSystem = innerFileSystem;
 
@@ -28,15 +25,14 @@ public class FolderFileSystem extends FileSystemBase
 
     public static Result<FolderFileSystem> get(FileSystem innerFileSystem, String baseFolderPath)
     {
+        validateRootedFolderPath(baseFolderPath, "baseFolderPath");
+
         return get(innerFileSystem, Path.parse(baseFolderPath));
     }
 
     public static Result<FolderFileSystem> get(FileSystem innerFileSystem, Path baseFolderPath)
     {
-        PreCondition.assertNotNull(innerFileSystem, "innerFileSystem");
-        PreCondition.assertNotNull(baseFolderPath, "baseFolderPath");
-        PreCondition.assertTrue(baseFolderPath.isRooted(), "baseFolderPath.isRooted()");
-        PreCondition.assertFalse(containsInvalidCharacters(baseFolderPath), "containsInvalidCharacters(baseFolderPath)");
+        validateRootedFolderPath(baseFolderPath, "baseFolderPath");
 
         return Result.success(new FolderFileSystem(innerFileSystem, baseFolderPath));
     }
@@ -79,12 +75,37 @@ public class FolderFileSystem extends FileSystemBase
         return baseFolderPath;
     }
 
-    private Result<Path> getInnerPath(Path outerPath)
+    private Result<Path> getInnerPath(Path outerPath, boolean isFolderPath)
     {
+        validateRootedFolderPath(outerPath, "outerPath");
+
         Result<Path> result = outerPath.resolve();
         if (!result.hasError())
         {
-            result = Result.success(Path.parse(baseFolderPath.toString() + result.getValue().toString()));
+            final Path outerPathRoot = outerPath.getRoot();
+            if (!outerPathRoot.equals(Path.parse("/")))
+            {
+                if (isFolderPath)
+                {
+                    result = Result.error(new FolderNotFoundException(outerPath));
+                }
+                else
+                {
+                    result = Result.error(new FileNotFoundException(outerPath));
+                }
+            }
+            else
+            {
+                final Path outerPathWithoutRoot = outerPath.withoutRoot();
+                if (outerPathWithoutRoot == null)
+                {
+                    result = Result.success(baseFolderPath);
+                }
+                else
+                {
+                    result = baseFolderPath.resolve(outerPathWithoutRoot);
+                }
+            }
         }
         return result;
     }
@@ -117,14 +138,12 @@ public class FolderFileSystem extends FileSystemBase
     @Override
     public Result<Iterable<FileSystemEntry>> getFilesAndFolders(Path rootedFolderPath)
     {
-        PreCondition.assertNotNull(rootedFolderPath, "rootedFolderPath");
-        PreCondition.assertTrue(rootedFolderPath.isRooted(), "rootedFolderPath.isRooted()");
-        PreCondition.assertFalse(containsInvalidCharacters(rootedFolderPath), "containsInvalidCharacters(rootedFolderPath)");
+        validateRootedFolderPath(rootedFolderPath);
 
         Iterable<FileSystemEntry> resultEntries = null;
         Throwable resultError = null;
 
-        final Result<Path> innerFolderPath = getInnerPath(rootedFolderPath);
+        final Result<Path> innerFolderPath = getInnerPath(rootedFolderPath, true);
         if (innerFolderPath.hasError())
         {
             resultError = innerFolderPath.getError();
@@ -134,14 +153,10 @@ public class FolderFileSystem extends FileSystemBase
             final Result<Iterable<FileSystemEntry>> innerResult = innerFileSystem.getFilesAndFolders(innerFolderPath.getValue());
 
             final Iterable<FileSystemEntry> innerEntries = innerResult.getValue();
-            resultEntries = innerEntries == null ? null : innerEntries.map(new Function1<FileSystemEntry, FileSystemEntry>()
+            resultEntries = innerEntries == null ? null : innerEntries.map((FileSystemEntry innerEntry) ->
             {
-                @Override
-                public FileSystemEntry run(FileSystemEntry innerEntry)
-                {
-                    final Path outerEntryPath = FolderFileSystem.this.getOuterPath(innerEntry.getPath());
-                    return innerEntry instanceof File ? new File(FolderFileSystem.this, outerEntryPath) : new Folder(FolderFileSystem.this, outerEntryPath);
-                }
+                final Path outerEntryPath = FolderFileSystem.this.getOuterPath(innerEntry.getPath());
+                return innerEntry instanceof File ? new File(FolderFileSystem.this, outerEntryPath) : new Folder(FolderFileSystem.this, outerEntryPath);
             });
 
             final Throwable innerError = innerResult.getError();
@@ -161,23 +176,19 @@ public class FolderFileSystem extends FileSystemBase
     @Override
     public Result<Boolean> folderExists(Path rootedFolderPath)
     {
-        PreCondition.assertNotNull(rootedFolderPath, "rootedFolderPath");
-        PreCondition.assertTrue(rootedFolderPath.isRooted(), "rootedFolderPath.isRooted()");
-        PreCondition.assertFalse(containsInvalidCharacters(rootedFolderPath), "containsInvalidCharacters(rootedFolderPath)");
+        validateRootedFolderPath(rootedFolderPath);
 
-        final Result<Path> innerPath = getInnerPath(rootedFolderPath);
+        final Result<Path> innerPath = getInnerPath(rootedFolderPath, true);
         return innerPath.hasError() ? Result.error(innerPath.getError()) : innerFileSystem.folderExists(innerPath.getValue());
     }
 
     @Override
     public Result<Folder> createFolder(Path rootedFolderPath)
     {
-        PreCondition.assertNotNull(rootedFolderPath, "rootedFolderPath");
-        PreCondition.assertTrue(rootedFolderPath.isRooted(), "rootedFolderPath.isRooted()");
-        PreCondition.assertFalse(containsInvalidCharacters(rootedFolderPath), "containsInvalidCharacters(rootedFolderPath)");
+        validateRootedFolderPath(rootedFolderPath);
 
         Result<Folder> result;
-        final Result<Path> innerPath = getInnerPath(rootedFolderPath);
+        final Result<Path> innerPath = getInnerPath(rootedFolderPath, true);
         if (innerPath.hasError())
         {
             result = Result.error(innerPath.getError());
@@ -210,12 +221,10 @@ public class FolderFileSystem extends FileSystemBase
     @Override
     public Result<Boolean> deleteFolder(Path rootedFolderPath)
     {
-        PreCondition.assertNotNull(rootedFolderPath, "rootedFolderPath");
-        PreCondition.assertTrue(rootedFolderPath.isRooted(), "rootedFolderPath.isRooted()");
-        PreCondition.assertFalse(containsInvalidCharacters(rootedFolderPath), "containsInvalidCharacters(rootedFolderPath)");
+        validateRootedFolderPath(rootedFolderPath);
 
         Result<Boolean> result;
-        final Result<Path> innerFolderPath = getInnerPath(rootedFolderPath);
+        final Result<Path> innerFolderPath = getInnerPath(rootedFolderPath, true);
         if (innerFolderPath.hasError())
         {
             result = Result.error(innerFolderPath.getError());
@@ -242,15 +251,11 @@ public class FolderFileSystem extends FileSystemBase
     @Override
     public Result<Boolean> fileExists(Path rootedFilePath)
     {
-        PreCondition.assertNotNull(rootedFilePath, "rootedFilePath");
-        PreCondition.assertTrue(rootedFilePath.isRooted(), "rootedFilePath.isRooted()");
-        PreCondition.assertFalse(rootedFilePath.endsWith("\\"), "rootedFilePath.endsWith(\"\\\")");
-        PreCondition.assertFalse(rootedFilePath.endsWith("/"), "rootedFilePath.endsWith(\"/\")");
-        PreCondition.assertFalse(containsInvalidCharacters(rootedFilePath), "containsInvalidCharacters(rootedFilePath)");
+        validateRootedFilePath(rootedFilePath);
 
         Result<Boolean> result;
 
-        final Result<Path> innerFilePath = getInnerPath(rootedFilePath);
+        final Result<Path> innerFilePath = getInnerPath(rootedFilePath, false);
         if (innerFilePath.hasError())
         {
             result = Result.error(innerFilePath.getError());
@@ -266,14 +271,10 @@ public class FolderFileSystem extends FileSystemBase
     @Override
     public Result<File> createFile(Path rootedFilePath)
     {
-        PreCondition.assertNotNull(rootedFilePath, "rootedFilePath");
-        PreCondition.assertTrue(rootedFilePath.isRooted(), "rootedFilePath.isRooted()");
-        PreCondition.assertFalse(rootedFilePath.endsWith("\\"), "rootedFilePath.endsWith(\"\\\")");
-        PreCondition.assertFalse(rootedFilePath.endsWith("/"), "rootedFilePath.endsWith(\"/\")");
-        PreCondition.assertFalse(containsInvalidCharacters(rootedFilePath), "containsInvalidCharacters(rootedFilePath)");
+        validateRootedFilePath(rootedFilePath);
 
         Result<File> result;
-        final Result<Path> innerFilePath = getInnerPath(rootedFilePath);
+        final Result<Path> innerFilePath = getInnerPath(rootedFilePath, false);
         if (innerFilePath.hasError())
         {
             result = Result.error(innerFilePath.getError());
@@ -293,14 +294,10 @@ public class FolderFileSystem extends FileSystemBase
     @Override
     public Result<Boolean> deleteFile(Path rootedFilePath)
     {
-        PreCondition.assertNotNull(rootedFilePath, "rootedFilePath");
-        PreCondition.assertTrue(rootedFilePath.isRooted(), "rootedFilePath.isRooted()");
-        PreCondition.assertFalse(rootedFilePath.endsWith("\\"), "rootedFilePath.endsWith(\"\\\")");
-        PreCondition.assertFalse(rootedFilePath.endsWith("/"), "rootedFilePath.endsWith(\"/\")");
-        PreCondition.assertFalse(containsInvalidCharacters(rootedFilePath), "containsInvalidCharacters(rootedFilePath)");
+        validateRootedFilePath(rootedFilePath);
 
         Result<Boolean> result;
-        final Result<Path> innerFilePath = getInnerPath(rootedFilePath);
+        final Result<Path> innerFilePath = getInnerPath(rootedFilePath, false);
         if (innerFilePath.hasError())
         {
             result = Result.error(innerFilePath.getError());
@@ -320,14 +317,10 @@ public class FolderFileSystem extends FileSystemBase
     @Override
     public Result<DateTime> getFileLastModified(Path rootedFilePath)
     {
-        PreCondition.assertNotNull(rootedFilePath, "rootedFilePath");
-        PreCondition.assertTrue(rootedFilePath.isRooted(), "rootedFilePath.isRooted()");
-        PreCondition.assertFalse(rootedFilePath.endsWith("\\"), "rootedFilePath.endsWith(\"\\\")");
-        PreCondition.assertFalse(rootedFilePath.endsWith("/"), "rootedFilePath.endsWith(\"/\")");
-        PreCondition.assertFalse(containsInvalidCharacters(rootedFilePath), "containsInvalidCharacters(rootedFilePath)");
+        validateRootedFilePath(rootedFilePath);
 
         Result<DateTime> result;
-        final Result<Path> innerFilePath = getInnerPath(rootedFilePath);
+        final Result<Path> innerFilePath = getInnerPath(rootedFilePath, false);
         if (innerFilePath.hasError())
         {
             result = Result.error(innerFilePath.getError());
@@ -347,14 +340,10 @@ public class FolderFileSystem extends FileSystemBase
     @Override
     public Result<ByteReadStream> getFileContentByteReadStream(Path rootedFilePath)
     {
-        PreCondition.assertNotNull(rootedFilePath, "rootedFilePath");
-        PreCondition.assertTrue(rootedFilePath.isRooted(), "rootedFilePath.isRooted()");
-        PreCondition.assertFalse(rootedFilePath.endsWith("\\"), "rootedFilePath.endsWith(\"\\\")");
-        PreCondition.assertFalse(rootedFilePath.endsWith("/"), "rootedFilePath.endsWith(\"/\")");
-        PreCondition.assertFalse(containsInvalidCharacters(rootedFilePath), "containsInvalidCharacters(rootedFilePath)");
+        validateRootedFilePath(rootedFilePath);
 
         Result<ByteReadStream> result;
-        final Result<Path> innerFilePath = getInnerPath(rootedFilePath);
+        final Result<Path> innerFilePath = getInnerPath(rootedFilePath, false);
         if (innerFilePath.hasError())
         {
             result = Result.error(innerFilePath.getError());
@@ -374,14 +363,10 @@ public class FolderFileSystem extends FileSystemBase
     @Override
     public Result<ByteWriteStream> getFileContentByteWriteStream(Path rootedFilePath)
     {
-        PreCondition.assertNotNull(rootedFilePath, "rootedFilePath");
-        PreCondition.assertTrue(rootedFilePath.isRooted(), "rootedFilePath.isRooted()");
-        PreCondition.assertFalse(rootedFilePath.endsWith("\\"), "rootedFilePath.endsWith(\"\\\")");
-        PreCondition.assertFalse(rootedFilePath.endsWith("/"), "rootedFilePath.endsWith(\"/\")");
-        PreCondition.assertFalse(containsInvalidCharacters(rootedFilePath), "containsInvalidCharacters(rootedFilePath)");
+        validateRootedFilePath(rootedFilePath);
 
         Result<ByteWriteStream> result;
-        final Result<Path> innerFilePath = getInnerPath(rootedFilePath);
+        final Result<Path> innerFilePath = getInnerPath(rootedFilePath, false);
         if (innerFilePath.hasError())
         {
             result = Result.error(innerFilePath.getError());

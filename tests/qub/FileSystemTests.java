@@ -19,7 +19,6 @@ public class FileSystemTests
 
                 rootExistsFailureTest.run(null);
                 rootExistsFailureTest.run("");
-                rootExistsFailureTest.run("C@:/");
 
                 final Action2<String,Boolean> rootExistsTest = (String rootPath, Boolean expectedValue) ->
                 {
@@ -30,6 +29,7 @@ public class FileSystemTests
                     });
                 };
 
+                rootExistsTest.run("C@:/", false);
                 rootExistsTest.run("notme:\\", false);
                 rootExistsTest.run("/", true);
             });
@@ -47,7 +47,6 @@ public class FileSystemTests
 
                 rootExistsFailureTest.run(null);
                 rootExistsFailureTest.run("");
-                rootExistsFailureTest.run("C@:/");
 
                 final Action2<String,Boolean> rootExistsTest = (String rootPath, Boolean expectedValue) ->
                 {
@@ -58,6 +57,7 @@ public class FileSystemTests
                     });
                 };
 
+                rootExistsTest.run("C@:/", false);
                 rootExistsTest.run("notme:\\", false);
                 rootExistsTest.run("/", true);
             });
@@ -1273,7 +1273,14 @@ public class FileSystemTests
                 createFileFailureTest.run(null);
                 createFileFailureTest.run("");
                 createFileFailureTest.run("things.txt");
-                createFileFailureTest.run("/\u0000?#!.txt");
+                createFileFailureTest.run("/\u0000.txt");
+                createFileFailureTest.run("/?.txt");
+                createFileFailureTest.run("/*.txt");
+                createFileFailureTest.run("/<.txt");
+                createFileFailureTest.run("/>.txt");
+                createFileFailureTest.run("/|.txt");
+                createFileFailureTest.run("/:.txt");
+                createFileFailureTest.run("/\".txt");
 
                 final Action4<String,Action1<FileSystem>,String,Throwable> createFileTest = (String filePath, Action1<FileSystem> setup, String expectedFilePath, Throwable expectedError) ->
                 {
@@ -1294,6 +1301,7 @@ public class FileSystemTests
                     });
                 };
 
+                createFileTest.run("/`~!@#$%^&()-_=+[]{};',.txt", null, "/`~!@#$%^&()-_=+[]{};',.txt", null);
                 createFileTest.run("/things.txt", null, "/things.txt", null);
                 createFileTest.run(
                     "/things.txt",
@@ -1326,7 +1334,14 @@ public class FileSystemTests
                 createFileFailureTest.run(null);
                 createFileFailureTest.run("");
                 createFileFailureTest.run("things.txt");
-                createFileFailureTest.run("/\u0000?#!.txt");
+                createFileFailureTest.run("/\u0000.txt");
+                createFileFailureTest.run("/?.txt");
+                createFileFailureTest.run("/*.txt");
+                createFileFailureTest.run("/<.txt");
+                createFileFailureTest.run("/>.txt");
+                createFileFailureTest.run("/|.txt");
+                createFileFailureTest.run("/:.txt");
+                createFileFailureTest.run("/\".txt");
 
                 final Action4<String,Action1<FileSystem>,String,Throwable> createFileTest = (String filePath, Action1<FileSystem> setup, String expectedFilePath, Throwable expectedError) ->
                 {
@@ -1347,6 +1362,7 @@ public class FileSystemTests
                     });
                 };
 
+                createFileTest.run("/`~!@#$%^&()-_=+[]{};',.txt", null, "/`~!@#$%^&()-_=+[]{};',.txt", null);
                 createFileTest.run("/things.txt", null, "/things.txt", null);
                 createFileTest.run(
                     "/things.txt",
@@ -1540,22 +1556,19 @@ public class FileSystemTests
                 runner.test("with null path", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    final Result<byte[]> result = fileSystem.getFileContent((String)null);
-                    test.assertError(new IllegalArgumentException("rootedFilePath cannot be null."), result);
+                    test.assertThrows(() -> fileSystem.getFileContent((String)null));
                 });
 
                 runner.test("with empty path", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    final Result<byte[]> result = fileSystem.getFileContent("");
-                    test.assertError(new IllegalArgumentException("rootedFilePath cannot be null."), result);
+                    test.assertThrows(() -> fileSystem.getFileContent(""));
                 });
 
                 runner.test("with relative path", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    final Result<byte[]> result = fileSystem.getFileContent("thing.txt");
-                    test.assertError(new IllegalArgumentException("rootedFilePath must be rooted."), result);
+                    test.assertThrows(() -> fileSystem.getFileContent("thing.txt"));
                 });
 
                 runner.test("with non-existing rooted path", (Test test) ->
@@ -1594,34 +1607,19 @@ public class FileSystemTests
                 runner.test("with null path", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    final Result<byte[]> result = fileSystem.getFileContent((Path)null);
-                    test.assertNotNull(result);
-                    test.assertNull(result.getValue());
-                    test.assertTrue(result.hasError());
-                    test.assertEqual(IllegalArgumentException.class, result.getErrorType());
-                    test.assertEqual("rootedFilePath cannot be null.", result.getErrorMessage());
+                    test.assertThrows(() -> fileSystem.getFileContent((Path)null));
                 });
 
                 runner.test("with empty path", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    final Result<byte[]> result = fileSystem.getFileContent(Path.parse(""));
-                    test.assertNotNull(result);
-                    test.assertNull(result.getValue());
-                    test.assertTrue(result.hasError());
-                    test.assertEqual(IllegalArgumentException.class, result.getErrorType());
-                    test.assertEqual("rootedFilePath cannot be null.", result.getErrorMessage());
+                    test.assertThrows(() -> fileSystem.getFileContent(Path.parse("")));
                 });
 
                 runner.test("with relative path", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    final Result<byte[]> result = fileSystem.getFileContent(Path.parse("thing.txt"));
-                    test.assertNotNull(result);
-                    test.assertNull(result.getValue());
-                    test.assertTrue(result.hasError());
-                    test.assertEqual(IllegalArgumentException.class, result.getErrorType());
-                    test.assertEqual("rootedFilePath must be rooted.", result.getErrorMessage());
+                    test.assertThrows(() -> fileSystem.getFileContent(Path.parse("thing.txt")));
                 });
 
                 runner.test("with non-existing rooted path", (Test test) ->
@@ -1670,22 +1668,19 @@ public class FileSystemTests
                 runner.test("with null path", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    final Result<Boolean> result = fileSystem.setFileContent((String)null, new byte[] { 0, 1, 2 });
-                    test.assertError(new IllegalArgumentException("rootedFilePath cannot be null."), result);
+                    test.assertThrows(() -> fileSystem.setFileContent((String)null, new byte[] { 0, 1, 2 }));
                 });
 
                 runner.test("with empty path", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    final Result<Boolean> result = fileSystem.setFileContent("", new byte[] { 0, 1, 2 });
-                    test.assertError(new IllegalArgumentException("rootedFilePath cannot be null."), result);
+                    test.assertThrows(() -> fileSystem.setFileContent("", new byte[] { 0, 1, 2 }));
                 });
 
                 runner.test("with relative path", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    final Result<Boolean> result = fileSystem.setFileContent("relative.file", new byte[] { 0, 1, 2 });
-                    test.assertError(new IllegalArgumentException("rootedFilePath must be rooted."), result);
+                    test.assertThrows(() -> fileSystem.setFileContent("relative.file", new byte[] { 0, 1, 2 }));
                 });
 
                 runner.test("with non-existing rooted path with null contents", (Test test) ->
@@ -1788,25 +1783,19 @@ public class FileSystemTests
                 runner.test("with null path", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    
-                    final Result<Boolean> result = fileSystem.setFileContent((Path)null, new byte[] { 0, 1, 2 });
-                    test.assertError(new IllegalArgumentException("rootedFilePath cannot be null."), result);
+                    test.assertThrows(() -> fileSystem.setFileContent((Path)null, new byte[] { 0, 1, 2 }));
                 });
 
                 runner.test("with empty path", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    
-                    final Result<Boolean> result = fileSystem.setFileContent(Path.parse(""), new byte[] { 0, 1, 2 });
-                    test.assertError(new IllegalArgumentException("rootedFilePath cannot be null."), result);
+                    test.assertThrows(() -> fileSystem.setFileContent(Path.parse(""), new byte[] { 0, 1, 2 }));
                 });
 
                 runner.test("with relative path", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    
-                    final Result<Boolean> result = fileSystem.setFileContent(Path.parse("relative.file"), new byte[] { 0, 1, 2 });
-                    test.assertError(new IllegalArgumentException("rootedFilePath must be rooted."), result);
+                    test.assertThrows(() -> fileSystem.setFileContent(Path.parse("relative.file"), new byte[] { 0, 1, 2 }));
                 });
 
                 runner.test("with non-existing rooted path and null contents", (Test test) ->
@@ -2002,6 +1991,31 @@ public class FileSystemTests
                         }),
                         result);
                 });
+            });
+
+            runner.testGroup("containsInvalidCharacters(Path)", () ->
+            {
+                final Action2<String,Boolean> containsInvalidCharactersTest = (String pathString, Boolean expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(pathString), (Test test) ->
+                    {
+                        test.assertEqual(expected, FileSystemBase.containsInvalidCharacters(Path.parse(pathString)));
+                    });
+                };
+
+                containsInvalidCharactersTest.run(null, false);
+                containsInvalidCharactersTest.run("", false);
+                containsInvalidCharactersTest.run("abc", false);
+                containsInvalidCharactersTest.run(":", true);
+                containsInvalidCharactersTest.run("?", true);
+                containsInvalidCharactersTest.run("C:", false);
+                containsInvalidCharactersTest.run("C:/", false);
+                containsInvalidCharactersTest.run("C:\\", false);
+                containsInvalidCharactersTest.run("F:", false);
+                containsInvalidCharactersTest.run("F:/", false);
+                containsInvalidCharactersTest.run("F:\\", false);
+                containsInvalidCharactersTest.run("C:/?", true);
+                containsInvalidCharactersTest.run("F:/:", true);
             });
         });
     }

@@ -108,16 +108,19 @@ public class InMemoryFileSystem extends FileSystemBase
         return result;
     }
 
-    public Result<Boolean> setFileCanDelete(String filePathString, boolean canDelete)
+    public Result<Boolean> setFileCanDelete(String rootedFilePath, boolean canDelete)
     {
-        return setFileCanDelete(Path.parse(filePathString), canDelete);
+        validateRootedFilePath(rootedFilePath);
+        return setFileCanDelete(Path.parse(rootedFilePath), canDelete);
     }
 
-    public Result<Boolean> setFileCanDelete(Path filePath, boolean canDelete)
+    public Result<Boolean> setFileCanDelete(Path rootedFilePath, boolean canDelete)
     {
+        validateRootedFilePath(rootedFilePath);
+
         Result<Boolean> result;
 
-        final Result<InMemoryFile> file = getInMemoryFile(filePath);
+        final Result<InMemoryFile> file = getInMemoryFile(rootedFilePath);
         if (file.hasError())
         {
             result = Result.error(file.getError());
@@ -131,16 +134,20 @@ public class InMemoryFileSystem extends FileSystemBase
         return result;
     }
 
-    public Result<Boolean> setFolderCanDelete(String folderPathString, boolean canDelete)
+    public Result<Boolean> setFolderCanDelete(String rootedFolderPath, boolean canDelete)
     {
-        return setFolderCanDelete(Path.parse(folderPathString), canDelete);
+        validateRootedFolderPath(rootedFolderPath);
+
+        return setFolderCanDelete(Path.parse(rootedFolderPath), canDelete);
     }
 
-    public Result<Boolean> setFolderCanDelete(Path folderPath, boolean canDelete)
+    public Result<Boolean> setFolderCanDelete(Path rootedFolderPath, boolean canDelete)
     {
+        validateRootedFolderPath(rootedFolderPath);
+
         Result<Boolean> result;
 
-        final Result<InMemoryFolder> folder = getInMemoryFolder(folderPath);
+        final Result<InMemoryFolder> folder = getInMemoryFolder(rootedFolderPath);
         if (folder.hasError())
         {
             result = Result.error(folder.getError());
@@ -163,49 +170,37 @@ public class InMemoryFileSystem extends FileSystemBase
     @Override
     public Result<Iterable<Root>> getRoots()
     {
-        return Result.<Iterable<Root>>success(roots.map(new Function1<InMemoryRoot, Root>()
-            {
-                @Override
-                public Root run(InMemoryRoot inMemoryRoot)
-                {
-                    return new Root(InMemoryFileSystem.this, inMemoryRoot.getPath());
-                }
-            }));
+        return Result.success(roots.map((InMemoryRoot inMemoryRoot) -> new Root(this, inMemoryRoot.getPath())));
     }
 
     @Override
     public Result<Iterable<FileSystemEntry>> getFilesAndFolders(Path rootedFolderPath)
     {
-        PreCondition.assertNotNull(rootedFolderPath, "rootedFolderPath");
-        PreCondition.assertTrue(rootedFolderPath.isRooted(), "rootedFolderPath.isRooted()");
-        PreCondition.assertFalse(containsInvalidCharacters(rootedFolderPath), "containsInvalidCharacters(rootedFolderPath)");
+        validateRootedFolderPath(rootedFolderPath);
 
-        Result<Iterable<FileSystemEntry>> result = validateRootedFolderPath(rootedFolderPath);
-        if (result == null)
+        Result<Iterable<FileSystemEntry>> result;
+        final Result<InMemoryFolder> folder = getInMemoryFolder(rootedFolderPath);
+        if (folder.hasError())
         {
-            final Result<InMemoryFolder> folder = getInMemoryFolder(rootedFolderPath);
-            if (folder.hasError())
+            result = Result.error(folder.getError());
+        }
+        else
+        {
+            final List<FileSystemEntry> entries = new ArrayList<>();
+
+            for (final InMemoryFolder inMemoryFolder : folder.getValue().getFolders())
             {
-                result = Result.error(folder.getError());
+                final Path childFolderPath = rootedFolderPath.concatenateSegment(inMemoryFolder.getName());
+                entries.add(new Folder(InMemoryFileSystem.this, childFolderPath));
             }
-            else
+
+            for (final InMemoryFile inMemoryFile : folder.getValue().getFiles())
             {
-                final List<FileSystemEntry> entries = new ArrayList<>();
-
-                for (final InMemoryFolder inMemoryFolder : folder.getValue().getFolders())
-                {
-                    final Path childFolderPath = rootedFolderPath.concatenateSegment(inMemoryFolder.getName());
-                    entries.add(new Folder(InMemoryFileSystem.this, childFolderPath));
-                }
-
-                for (final InMemoryFile inMemoryFile : folder.getValue().getFiles())
-                {
-                    final Path childFilePath = rootedFolderPath.concatenateSegment(inMemoryFile.getName());
-                    entries.add(new File(InMemoryFileSystem.this, childFilePath));
-                }
-
-                result = Result.<Iterable<FileSystemEntry>>success(entries);
+                final Path childFilePath = rootedFolderPath.concatenateSegment(inMemoryFile.getName());
+                entries.add(new File(InMemoryFileSystem.this, childFilePath));
             }
+
+            result = Result.success(entries);
         }
         return result;
     }
@@ -213,29 +208,24 @@ public class InMemoryFileSystem extends FileSystemBase
     @Override
     public Result<Boolean> folderExists(Path rootedFolderPath)
     {
-        PreCondition.assertNotNull(rootedFolderPath, "rootedFolderPath");
-        PreCondition.assertTrue(rootedFolderPath.isRooted(), "rootedFolderPath.isRooted()");
-        PreCondition.assertFalse(containsInvalidCharacters(rootedFolderPath), "containsInvalidCharacters(rootedFolderPath)");
+        validateRootedFolderPath(rootedFolderPath);
 
-        Result<Boolean> result = validateRootedFolderPath(rootedFolderPath);
-        if (result == null)
+        Result<Boolean> result;
+        final Result<InMemoryFolder> inMemoryFolder = getInMemoryFolder(rootedFolderPath);
+        if (inMemoryFolder.hasError())
         {
-            final Result<InMemoryFolder> inMemoryFolder = getInMemoryFolder(rootedFolderPath);
-            if (inMemoryFolder.hasError())
+            if (inMemoryFolder.getError() instanceof FolderNotFoundException)
             {
-                if (inMemoryFolder.getError() instanceof FolderNotFoundException)
-                {
-                    result = Result.successFalse();
-                }
-                else
-                {
-                    result = Result.error(inMemoryFolder.getError());
-                }
+                result = Result.successFalse();
             }
             else
             {
-                result = Result.successTrue();
+                result = Result.error(inMemoryFolder.getError());
             }
+        }
+        else
+        {
+            result = Result.successTrue();
         }
         return result;
     }
@@ -243,43 +233,38 @@ public class InMemoryFileSystem extends FileSystemBase
     @Override
     public Result<Folder> createFolder(Path rootedFolderPath)
     {
-        PreCondition.assertNotNull(rootedFolderPath, "rootedFolderPath");
-        PreCondition.assertTrue(rootedFolderPath.isRooted(), "rootedFolderPath.isRooted()");
-        PreCondition.assertFalse(containsInvalidCharacters(rootedFolderPath), "containsInvalidCharacters(rootedFolderPath)");
+        validateRootedFolderPath(rootedFolderPath);
 
-        Result<Folder> result = validateRootedFolderPath(rootedFolderPath);
-        if (result == null)
+        Result<Folder> result;
+        final Result<Path> resolvedRootedFolderPath = rootedFolderPath.resolve();
+        if (resolvedRootedFolderPath.hasError())
         {
-            final Result<Path> resolvedRootedFolderPath = rootedFolderPath.resolve();
-            if (resolvedRootedFolderPath.hasError())
+            result = Result.error(resolvedRootedFolderPath.getError());
+        }
+        else
+        {
+            Throwable resultError = null;
+            Folder resultFolder = null;
+            if (getInMemoryRoot(rootedFolderPath.getRoot()) == null)
             {
-                result = Result.error(resolvedRootedFolderPath.getError());
+                resultError = new RootNotFoundException(rootedFolderPath.getRoot());
             }
             else
             {
-                Throwable resultError = null;
-                Folder resultFolder = null;
-                if (getInMemoryRoot(rootedFolderPath.getRoot()) == null)
+                final Result<Boolean> createdFolder = createInMemoryFolder(resolvedRootedFolderPath.getValue());
+                if (createdFolder.hasError())
                 {
-                    resultError = new RootNotFoundException(rootedFolderPath.getRoot());
+                    resultError = createdFolder.getError();
                 }
-                else
+                else if (!createdFolder.getValue())
                 {
-                    final Result<Boolean> createdFolder = createInMemoryFolder(resolvedRootedFolderPath.getValue());
-                    if (createdFolder.hasError())
-                    {
-                        resultError = createdFolder.getError();
-                    }
-                    else if (!createdFolder.getValue())
-                    {
-                        resultError = new FolderAlreadyExistsException(resolvedRootedFolderPath.getValue());
-                    }
-
-                    resultFolder = getFolder(resolvedRootedFolderPath.getValue()).getValue();
+                    resultError = new FolderAlreadyExistsException(resolvedRootedFolderPath.getValue());
                 }
 
-                result = Result.done(resultFolder, resultError);
+                resultFolder = getFolder(resolvedRootedFolderPath.getValue()).getValue();
             }
+
+            result = Result.done(resultFolder, resultError);
         }
         return result;
     }
@@ -287,9 +272,7 @@ public class InMemoryFileSystem extends FileSystemBase
     @Override
     public Result<Boolean> deleteFolder(Path rootedFolderPath)
     {
-        PreCondition.assertNotNull(rootedFolderPath, "rootedFolderPath");
-        PreCondition.assertTrue(rootedFolderPath.isRooted(), "rootedFolderPath.isRooted()");
-        PreCondition.assertFalse(containsInvalidCharacters(rootedFolderPath), "containsInvalidCharacters(rootedFolderPath)");
+        validateRootedFolderPath(rootedFolderPath);
 
         Result<Boolean> result;
         final Result<Path> resolvedRootedFolderPath = rootedFolderPath.resolve();
@@ -335,26 +318,79 @@ public class InMemoryFileSystem extends FileSystemBase
     @Override
     public Result<Boolean> fileExists(Path rootedFilePath)
     {
-        PreCondition.assertNotNull(rootedFilePath, "rootedFilePath");
-        PreCondition.assertTrue(rootedFilePath.isRooted(), "rootedFilePath.isRooted()");
-        PreCondition.assertFalse(rootedFilePath.endsWith("\\"), "rootedFilePath.endsWith(\"\\\")");
-        PreCondition.assertFalse(rootedFilePath.endsWith("/"), "rootedFilePath.endsWith(\"/\")");
-        PreCondition.assertFalse(containsInvalidCharacters(rootedFilePath), "containsInvalidCharacters(rootedFilePath)");
+        validateRootedFilePath(rootedFilePath);
 
-        Result<Boolean> result = FileSystemBase.validateRootedFilePath(rootedFilePath);
-        if (result == null)
+        Result<Boolean> result;
+        final Result<InMemoryFile> inMemoryFile = getInMemoryFile(rootedFilePath);
+        if (inMemoryFile.hasError())
         {
-            final Result<InMemoryFile> inMemoryFile = getInMemoryFile(rootedFilePath);
-            if (inMemoryFile.hasError())
+            if (inMemoryFile.getError() instanceof FileNotFoundException)
             {
-                if (inMemoryFile.getError() instanceof FileNotFoundException)
-                {
-                    result = Result.successFalse();
-                }
-                else
-                {
-                    result = Result.error(inMemoryFile.getError());
-                }
+                result = Result.successFalse();
+            }
+            else
+            {
+                result = Result.error(inMemoryFile.getError());
+            }
+        }
+        else
+        {
+            result = Result.successTrue();
+        }
+        return result;
+    }
+
+    @Override
+    public Result<File> createFile(Path rootedFilePath)
+    {
+        validateRootedFilePath(rootedFilePath);
+
+        File file = null;
+        Throwable error = null;
+        if (getInMemoryRoot(rootedFilePath.getRoot()) == null)
+        {
+            error = new RootNotFoundException(rootedFilePath.getRoot());
+        }
+        else
+        {
+            final Path parentFolderPath = rootedFilePath.getParent();
+            createInMemoryFolder(parentFolderPath);
+
+            final Result<InMemoryFolder> parentFolder = getInMemoryFolder(parentFolderPath);
+            if (parentFolder.hasError())
+            {
+                error = parentFolder.getError();
+            }
+            else if (!parentFolder.getValue().createFile(rootedFilePath.getSegments().last()))
+            {
+                error = new FileAlreadyExistsException(rootedFilePath);
+            }
+            file = getFile(rootedFilePath).getValue();
+        }
+        return Result.done(file, error);
+    }
+
+    @Override
+    public Result<Boolean> deleteFile(Path rootedFilePath)
+    {
+        validateRootedFilePath(rootedFilePath);
+
+        Result<Boolean> result;
+        final Result<Path> resolvedRootedFilePath = rootedFilePath.resolve();
+        if (resolvedRootedFilePath.hasError())
+        {
+            result = Result.error(resolvedRootedFilePath.getError());
+        }
+        else
+        {
+            final Result<InMemoryFolder> parentFolder = getInMemoryFolder(resolvedRootedFilePath.getValue().getParent());
+            if (parentFolder.hasError())
+            {
+                result = Result.error(parentFolder.getError());
+            }
+            else if (!parentFolder.getValue().deleteFile(resolvedRootedFilePath.getValue().getSegments().last()))
+            {
+                result = Result.done(false, new FileNotFoundException(resolvedRootedFilePath.getValue()));
             }
             else
             {
@@ -365,110 +401,26 @@ public class InMemoryFileSystem extends FileSystemBase
     }
 
     @Override
-    public Result<File> createFile(Path rootedFilePath)
-    {
-        PreCondition.assertNotNull(rootedFilePath, "rootedFilePath");
-        PreCondition.assertTrue(rootedFilePath.isRooted(), "rootedFilePath.isRooted()");
-        PreCondition.assertFalse(rootedFilePath.endsWith("\\"), "rootedFilePath.endsWith(\"\\\")");
-        PreCondition.assertFalse(rootedFilePath.endsWith("/"), "rootedFilePath.endsWith(\"/\")");
-        PreCondition.assertFalse(containsInvalidCharacters(rootedFilePath), "containsInvalidCharacters(rootedFilePath)");
-
-        Result<File> result = FileSystemBase.validateRootedFilePath(rootedFilePath);
-        if (result == null)
-        {
-            File file = null;
-            Throwable error = null;
-            if (getInMemoryRoot(rootedFilePath.getRoot()) == null)
-            {
-                error = new RootNotFoundException(rootedFilePath.getRoot());
-            }
-            else
-            {
-                final Path parentFolderPath = rootedFilePath.getParent();
-                createInMemoryFolder(parentFolderPath);
-
-                final Result<InMemoryFolder> parentFolder = getInMemoryFolder(parentFolderPath);
-                if (parentFolder.hasError())
-                {
-                    error = parentFolder.getError();
-                }
-                else if (!parentFolder.getValue().createFile(rootedFilePath.getSegments().last()))
-                {
-                    error = new FileAlreadyExistsException(rootedFilePath);
-                }
-                file = getFile(rootedFilePath).getValue();
-            }
-            result = Result.done(file, error);
-        }
-
-        return result;
-    }
-
-    @Override
-    public Result<Boolean> deleteFile(Path rootedFilePath)
-    {
-        PreCondition.assertNotNull(rootedFilePath, "rootedFilePath");
-        PreCondition.assertTrue(rootedFilePath.isRooted(), "rootedFilePath.isRooted()");
-        PreCondition.assertFalse(rootedFilePath.endsWith("\\"), "rootedFilePath.endsWith(\"\\\")");
-        PreCondition.assertFalse(rootedFilePath.endsWith("/"), "rootedFilePath.endsWith(\"/\")");
-        PreCondition.assertFalse(containsInvalidCharacters(rootedFilePath), "containsInvalidCharacters(rootedFilePath)");
-
-        Result<Boolean> result = FileSystemBase.validateRootedFilePath(rootedFilePath);
-        if (result == null)
-        {
-            final Result<Path> resolvedRootedFilePath = rootedFilePath.resolve();
-            if (resolvedRootedFilePath.hasError())
-            {
-                result = Result.error(resolvedRootedFilePath.getError());
-            }
-            else
-            {
-                final Result<InMemoryFolder> parentFolder = getInMemoryFolder(resolvedRootedFilePath.getValue().getParent());
-                if (parentFolder.hasError())
-                {
-                    result = Result.error(parentFolder.getError());
-                }
-                else if (!parentFolder.getValue().deleteFile(resolvedRootedFilePath.getValue().getSegments().last()))
-                {
-                    result = Result.done(false, new FileNotFoundException(resolvedRootedFilePath.getValue()));
-                }
-                else
-                {
-                    result = Result.successTrue();
-                }
-            }
-        }
-        return result;
-    }
-
-    @Override
     public Result<DateTime> getFileLastModified(Path rootedFilePath)
     {
-        PreCondition.assertNotNull(rootedFilePath, "rootedFilePath");
-        PreCondition.assertTrue(rootedFilePath.isRooted(), "rootedFilePath.isRooted()");
-        PreCondition.assertFalse(rootedFilePath.endsWith("\\"), "rootedFilePath.endsWith(\"\\\")");
-        PreCondition.assertFalse(rootedFilePath.endsWith("/"), "rootedFilePath.endsWith(\"/\")");
-        PreCondition.assertFalse(containsInvalidCharacters(rootedFilePath), "containsInvalidCharacters(rootedFilePath)");
+        validateRootedFilePath(rootedFilePath);
 
-        Result<DateTime> result = FileSystemBase.validateRootedFilePath(rootedFilePath);
-        if (result == null)
+        Result<DateTime> result;
+        final Result<Path> resolvedRootedFilePath = rootedFilePath.resolve();
+        if (resolvedRootedFilePath.hasError())
         {
-            final Result<Path> resolvedRootedFilePath = rootedFilePath.resolve();
-            if (resolvedRootedFilePath.hasError())
+            result = Result.error(resolvedRootedFilePath.getError());
+        }
+        else
+        {
+            final Result<InMemoryFile> file = getInMemoryFile(resolvedRootedFilePath.getValue());
+            if (file.hasError())
             {
-                result = Result.error(resolvedRootedFilePath.getError());
+                result = Result.error(file.getError());
             }
             else
             {
-                final Result<InMemoryFile> file = getInMemoryFile(resolvedRootedFilePath.getValue());
-                if (file.hasError())
-                {
-                    result = Result.error(file.getError());
-                }
-                else
-                {
-                    result = Result.success(file.getValue().getLastModified());
-                }
+                result = Result.success(file.getValue().getLastModified());
             }
         }
 
@@ -478,18 +430,17 @@ public class InMemoryFileSystem extends FileSystemBase
     @Override
     public Result<ByteReadStream> getFileContentByteReadStream(Path rootedFilePath)
     {
-        Result<ByteReadStream> result = FileSystemBase.validateRootedFilePath(rootedFilePath);
-        if (result == null)
+        validateRootedFilePath(rootedFilePath);
+
+        Result<ByteReadStream> result;
+        final Result<InMemoryFile> file = getInMemoryFile(rootedFilePath);
+        if (file.hasError())
         {
-            final Result<InMemoryFile> file = getInMemoryFile(rootedFilePath);
-            if (file.hasError())
-            {
-                result = Result.error(file.getError());
-            }
-            else
-            {
-                result = Result.success(file.getValue().getContentByteReadStream());
-            }
+            result = Result.error(file.getError());
+        }
+        else
+        {
+            result = Result.success(file.getValue().getContentByteReadStream());
         }
 
         return result;
@@ -498,32 +449,31 @@ public class InMemoryFileSystem extends FileSystemBase
     @Override
     public Result<ByteWriteStream> getFileContentByteWriteStream(Path rootedFilePath)
     {
-        Result<ByteWriteStream> result = validateRootedFilePath(rootedFilePath);
-        if (result == null)
-        {
-            final Result<Path> resolvedRootedFilePath = rootedFilePath.resolve();
-            if (resolvedRootedFilePath.hasError())
-            {
-                result = Result.error(resolvedRootedFilePath.getError());
-            }
-            else
-            {
-                Result<InMemoryFile> file = getInMemoryFile(rootedFilePath);
-                if (file.hasError())
-                {
-                    final Path parentFolderPath = rootedFilePath.getParent();
-                    Result<InMemoryFolder> parentFolder = getInMemoryFolder(parentFolderPath);
-                    if (parentFolder.hasError() && parentFolder.getError() instanceof FolderNotFoundException)
-                    {
-                        createInMemoryFolder(parentFolderPath);
-                        parentFolder = getInMemoryFolder(parentFolderPath);
-                    }
+        validateRootedFilePath(rootedFilePath);
 
-                    parentFolder.getValue().createFile(rootedFilePath.getSegments().last());
-                    file = getInMemoryFile(rootedFilePath);
+        Result<ByteWriteStream> result;
+        final Result<Path> resolvedRootedFilePath = rootedFilePath.resolve();
+        if (resolvedRootedFilePath.hasError())
+        {
+            result = Result.error(resolvedRootedFilePath.getError());
+        }
+        else
+        {
+            Result<InMemoryFile> file = getInMemoryFile(rootedFilePath);
+            if (file.hasError())
+            {
+                final Path parentFolderPath = rootedFilePath.getParent();
+                Result<InMemoryFolder> parentFolder = getInMemoryFolder(parentFolderPath);
+                if (parentFolder.hasError() && parentFolder.getError() instanceof FolderNotFoundException)
+                {
+                    createInMemoryFolder(parentFolderPath);
+                    parentFolder = getInMemoryFolder(parentFolderPath);
                 }
-                result = Result.success(file.getValue().getContentByteWriteStream());
+
+                parentFolder.getValue().createFile(rootedFilePath.getSegments().last());
+                file = getInMemoryFile(rootedFilePath);
             }
+            result = Result.success(file.getValue().getContentByteWriteStream());
         }
 
         return result;
@@ -538,6 +488,8 @@ public class InMemoryFileSystem extends FileSystemBase
      */
     public Result<Root> createRoot(String rootPath)
     {
+        validateRootedFolderPath(rootPath, "rootPath");
+
         return createRoot(Path.parse(rootPath));
     }
 
@@ -550,19 +502,18 @@ public class InMemoryFileSystem extends FileSystemBase
      */
     public Result<Root> createRoot(Path rootPath)
     {
-        Result<Root> result = validateRootPath(rootPath);
-        if (result == null)
+        validateRootedFolderPath(rootPath, "rootPath");
+
+        Result<Root> result;
+        rootPath = rootPath.getRoot();
+        if (getInMemoryRoot(rootPath) != null)
         {
-            rootPath = rootPath.getRoot();
-            if (getInMemoryRoot(rootPath) != null)
-            {
-                result = Result.error(new RootAlreadyExistsException(rootPath));
-            }
-            else
-            {
-                roots.add(new InMemoryRoot(rootPath.getSegments().first()));
-                result = getRoot(rootPath);
-            }
+            result = Result.error(new RootAlreadyExistsException(rootPath));
+        }
+        else
+        {
+            roots.add(new InMemoryRoot(rootPath.getSegments().first()));
+            result = getRoot(rootPath);
         }
         return result;
     }

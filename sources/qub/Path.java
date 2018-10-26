@@ -20,6 +20,15 @@ public class Path
     }
 
     /**
+     * Get the number of characters in this Path.
+     * @return The number of characters in this Path.
+     */
+    public int length()
+    {
+        return value.length();
+    }
+
+    /**
      * Get whether or not this Path has a file extension.
      * @return Whether or not this Path has a file extension.
      */
@@ -75,6 +84,31 @@ public class Path
             final int fileExtensionStartIndex = normalizedPathStringLength - (lastSegmentLength - lastPeriodIndex);
 
             result = new Path(normalizedPathString.substring(0, fileExtensionStartIndex), true);
+        }
+        return result;
+    }
+
+    /**
+     * Get a Path that is this path without a root. If this path doesn't have a root, then this path
+     * will be returned.
+     * @return This path without a root.
+     */
+    public Path withoutRoot()
+    {
+        Path result;
+        final Path root = getRoot();
+        if (root == null)
+        {
+            result = this;
+        }
+        else
+        {
+            String pathStringWithoutRoot = toString().substring(root.length());
+            if (pathStringWithoutRoot.startsWith("/") || pathStringWithoutRoot.startsWith("\\"))
+            {
+                pathStringWithoutRoot = pathStringWithoutRoot.substring(1);
+            }
+            result = Path.parse(pathStringWithoutRoot);
         }
         return result;
     }
@@ -178,7 +212,7 @@ public class Path
         final Path normalizedPath = normalize();
         final Indexable<String> segments = normalizedPath.getSegments();
         final String firstSegment = segments.first();
-        return firstSegment.equals("/") || firstSegment.endsWith(":");
+        return firstSegment.equals("/") || (firstSegment.endsWith(":") && !firstSegment.equals(":"));
     }
 
     /**
@@ -480,21 +514,11 @@ public class Path
 
     public Result<Path> resolve(Path relativePath)
     {
-        Result<Path> result;
-        if (relativePath == null)
-        {
-            result = this.resolve();
-        }
-        else if (relativePath.isRooted())
-        {
-            result = Result.<Path>error(new IllegalArgumentException("Cannot resolve a rooted path (" + relativePath.toString() + ")."));
-        }
-        else
-        {
-            final Path concatenatedPath = this.concatenateSegment(relativePath);
-            result = concatenatedPath.resolve();
-        }
-        return result;
+        PreCondition.assertNotNull(relativePath, "relativePath");
+        PreCondition.assertFalse(relativePath.isRooted(), "relativePath.isRooted()");
+
+        final Path concatenatedPath = this.concatenateSegment(relativePath);
+        return concatenatedPath.resolve();
     }
 
     /**
