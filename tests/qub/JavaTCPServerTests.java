@@ -16,20 +16,17 @@ public class JavaTCPServerTests
             {
                 runner.test("with -1 port", (Test test) ->
                 {
-                    final Result<TCPServer> tcpServer = JavaTCPServer.create(-1, test.getParallelAsyncRunner());
-                    test.assertError(new IllegalArgumentException("localPort (-1) must be between 1 and 65535."), tcpServer);
+                    test.assertThrows(() -> JavaTCPServer.create(-1, test.getParallelAsyncRunner()));
                 });
 
                 runner.test("with 0 port", (Test test) ->
                 {
-                    final Result<TCPServer> tcpServer = JavaTCPServer.create(0, test.getParallelAsyncRunner());
-                    test.assertError(new IllegalArgumentException("localPort (0) must be between 1 and 65535."), tcpServer);
+                    test.assertThrows(() -> JavaTCPServer.create(0, test.getParallelAsyncRunner()));
                 });
 
                 runner.test("with null asyncRunner", (Test test) ->
                 {
-                    final Result<TCPServer> tcpServer = JavaTCPServer.create(1, null);
-                    test.assertError(new IllegalArgumentException("asyncRunner cannot be null."), tcpServer);
+                    test.assertThrows(() -> JavaTCPServer.create(1, null));
                 });
 
                 runner.test("with " + port.incrementAndGet() + " port", (Test test) ->

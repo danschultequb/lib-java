@@ -13,13 +13,18 @@ public class FakeTCPServer implements TCPServer
 
     public FakeTCPServer(IPv4Address localIPAddress, int localPort, FakeNetwork network, AsyncRunner asyncRunner)
     {
+        PreCondition.assertNotNull(localIPAddress, "localIPAddress");
+        PreCondition.assertBetween(1, localPort, 65535, "localPort");
+        PreCondition.assertNotNull(network, "network");
+        PreCondition.assertNotNull(asyncRunner, "asyncRunner");
+
         this.localIPAddress = localIPAddress;
         this.localPort = localPort;
         this.network = network;
         this.asyncRunner = asyncRunner;
         mutex = new SpinMutex();
         hasClientsToAccept = mutex.createCondition();
-        clientsToAccept = new ArrayList<FakeTCPClient>();
+        clientsToAccept = new ArrayList<>();
     }
 
     @Override
@@ -37,6 +42,8 @@ public class FakeTCPServer implements TCPServer
     @Override
     public Result<TCPClient> accept()
     {
+        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+
         try (final Disposable criticalSection = mutex.criticalSection())
         {
             while (!disposed && !clientsToAccept.any())
@@ -47,35 +54,10 @@ public class FakeTCPServer implements TCPServer
             Result<TCPClient> result = Result.equal(false, disposed, "tcpServer.isDisposed()");
             if (result == null)
             {
-                result = Result.<TCPClient>success(clientsToAccept.removeFirst());
+                result = Result.success(clientsToAccept.removeFirst());
             }
             return result;
         }
-    }
-
-    @Override
-    public AsyncFunction<Result<TCPClient>> acceptAsync()
-    {
-        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-
-        AsyncFunction<Result<TCPClient>> result = currentAsyncRunner.notNull(asyncRunner, "asyncRunner");
-        if (result == null)
-        {
-            result = currentAsyncRunner.equal(false, asyncRunner.isDisposed(), "asyncRunner.isDisposed()");
-            if (result == null)
-            {
-                result = asyncRunner.schedule(new Function0<Result<TCPClient>>()
-                    {
-                        @Override
-                        public Result<TCPClient> run()
-                        {
-                            return accept();
-                        }
-                    })
-                    .thenOn(currentAsyncRunner);
-            }
-        }
-        return result;
     }
 
     @Override
@@ -115,6 +97,8 @@ public class FakeTCPServer implements TCPServer
 
     public void addIncomingClient(FakeTCPClient incomingClient)
     {
+        PreCondition.assertNotNull(incomingClient, "incomingClient");
+
         try (final Disposable criticalSection = mutex.criticalSection())
         {
             clientsToAccept.add(incomingClient);

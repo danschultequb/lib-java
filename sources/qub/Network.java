@@ -35,48 +35,39 @@ public interface Network
 
     DNS getDNS();
 
-    static <T> Result<T> validateIPAddress(IPv4Address ipAddress, String parameterName)
+    static void validateIPAddress(IPv4Address ipAddress, String parameterName)
     {
-        return Result.<T>notNull(ipAddress, parameterName);
+        PreCondition.assertNotNull(ipAddress, parameterName);
     }
 
-    static <T> Result<T> validateLocalIPAddress(IPv4Address localIPAddress)
+    static void validateLocalIPAddress(IPv4Address localIPAddress)
     {
-        return Network.validateIPAddress(localIPAddress, "localIPAddress");
+        Network.validateIPAddress(localIPAddress, "localIPAddress");
     }
 
-    static <T> Result<T> validateRemoteIPAddress(IPv4Address remoteIPAddress)
+    static void validateRemoteIPAddress(IPv4Address remoteIPAddress)
     {
-        return Network.validateIPAddress(remoteIPAddress, "remoteIPAddress");
+        Network.validateIPAddress(remoteIPAddress, "remoteIPAddress");
     }
 
-    static <T> Result<T> validatePort(int port, String parameterName)
+    static void validatePort(int port, String parameterName)
     {
-        return Result.<T>between(1, port, 65535, parameterName);
+        PreCondition.assertBetween(1, port, 65535, parameterName);
     }
 
-    static <T> Result<T> validateLocalPort(int localPort)
+    static void validateLocalPort(int localPort)
     {
-        return Network.validatePort(localPort, "localPort");
+        Network.validatePort(localPort, "localPort");
     }
 
-    static <T> Result<T> validateRemotePort(int remotePort)
+    static void validateRemotePort(int remotePort)
     {
-        return Network.validatePort(remotePort, "remotePort");
+        Network.validatePort(remotePort, "remotePort");
     }
 
-    static <T> Result<T> validateReadStream(ByteReadStream readStream)
+    static void validateAsyncRunner(AsyncRunner asyncRunner)
     {
-        return Disposable.validateNotDisposed(readStream, "readStream");
-    }
-
-    static <T> Result<T> validateWriteStream(ByteWriteStream writeStream)
-    {
-        return Disposable.validateNotDisposed(writeStream, "writeStream");
-    }
-
-    static <T> Result<T> validateAsyncRunner(AsyncRunner asyncRunner)
-    {
-        return Disposable.validateNotDisposed(asyncRunner, "asyncRunner");
+        PreCondition.assertNotNull(asyncRunner, "asyncRunner");
+        PreCondition.assertFalse(asyncRunner.isDisposed(), "asyncRunner.isDisposed()");
     }
 }

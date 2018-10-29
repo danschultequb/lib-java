@@ -12,6 +12,8 @@ public class FakeNetwork implements Network
 
     public FakeNetwork(AsyncRunner asyncRunner)
     {
+        PreCondition.assertNotNull(asyncRunner, "asyncRunner");
+
         this.asyncRunner = asyncRunner;
         mutex = new SpinMutex();
         boundTCPClients = new ListMap<>();
@@ -30,67 +32,63 @@ public class FakeNetwork implements Network
     @Override
     public Result<TCPClient> createTCPClient(IPv4Address remoteIPAddress, int remotePort)
     {
-        Result<TCPClient> result = Network.validateRemoteIPAddress(remoteIPAddress);
-        if (result == null)
-        {
-            result = Network.validateRemotePort(remotePort);
-            if (result == null)
-            {
-                try (final Disposable ignored = mutex.criticalSection())
-                {
-                    FakeTCPServer remoteTCPServer = null;
+        PreCondition.assertNotNull(remoteIPAddress, "remoteIPAddress");
+        PreCondition.assertBetween(1, remotePort, 65535, "remotePort");
 
-                    final Map<Integer,FakeTCPServer> remoteTCPServers = boundTCPServers.get(remoteIPAddress);
-                    if (remoteTCPServers != null)
+        Result<TCPClient> result;
+        try (final Disposable ignored = mutex.criticalSection())
+        {
+            FakeTCPServer remoteTCPServer = null;
+
+            final Map<Integer,FakeTCPServer> remoteTCPServers = boundTCPServers.get(remoteIPAddress);
+            if (remoteTCPServers != null)
+            {
+                remoteTCPServer = remoteTCPServers.get(remotePort);
+            }
+
+            if (remoteTCPServer == null)
+            {
+                result = Result.error(new java.net.ConnectException("Connection refused: connect"));
+            }
+            else
+            {
+                final IPv4Address clientLocalIPAddress = IPv4Address.localhost;
+                int clientLocalPort = 65535;
+                while (1 <= clientLocalPort && !isAvailable(clientLocalIPAddress, clientLocalPort))
+                {
+                    --clientLocalPort;
+                }
+
+                if (clientLocalPort < 1)
+                {
+                    result = Result.error(new IllegalStateException("No more ports available on IP address " + clientLocalIPAddress));
+                }
+                else
+                {
+                    int serverClientLocalPort = 65535;
+                    while (1 <= serverClientLocalPort && !isAvailable(remoteIPAddress, serverClientLocalPort))
                     {
-                        remoteTCPServer = remoteTCPServers.get(remotePort);
+                        --serverClientLocalPort;
                     }
 
-                    if (remoteTCPServer == null)
+                    if (serverClientLocalPort < 1)
                     {
-                        result = Result.error(new java.net.ConnectException("Connection refused: connect"));
+                        result = Result.error(new IllegalStateException("No more ports available on IP address " + remoteIPAddress));
                     }
                     else
                     {
-                        final IPv4Address clientLocalIPAddress = IPv4Address.localhost;
-                        int clientLocalPort = 65535;
-                        while (1 <= clientLocalPort && !isAvailable(clientLocalIPAddress, clientLocalPort))
-                        {
-                            --clientLocalPort;
-                        }
+                        final InMemoryByteStream clientToServer = createNetworkStream();
+                        final InMemoryByteStream serverToClient = createNetworkStream();
 
-                        if (clientLocalPort < 1)
-                        {
-                            result = Result.error(new IllegalStateException("No more ports available on IP address " + clientLocalIPAddress));
-                        }
-                        else
-                        {
-                            int serverClientLocalPort = 65535;
-                            while (1 <= serverClientLocalPort && !isAvailable(remoteIPAddress, serverClientLocalPort))
-                            {
-                                --serverClientLocalPort;
-                            }
+                        final FakeTCPClient tcpClient = new FakeTCPClient(this, asyncRunner, clientLocalIPAddress, clientLocalPort, remoteIPAddress, remotePort, serverToClient, clientToServer);
+                        addLocalTCPClient(tcpClient);
 
-                            if (serverClientLocalPort < 1)
-                            {
-                                result = Result.error(new IllegalStateException("No more ports available on IP address " + remoteIPAddress));
-                            }
-                            else
-                            {
-                                final InMemoryByteStream clientToServer = createNetworkStream();
-                                final InMemoryByteStream serverToClient = createNetworkStream();
+                        final FakeTCPClient serverTCPClient = new FakeTCPClient(this, asyncRunner, remoteIPAddress, serverClientLocalPort, clientLocalIPAddress, clientLocalPort, clientToServer, serverToClient);
+                        addLocalTCPClient(serverTCPClient);
 
-                                final FakeTCPClient tcpClient = new FakeTCPClient(this, asyncRunner, clientLocalIPAddress, clientLocalPort, remoteIPAddress, remotePort, serverToClient, clientToServer);
-                                addLocalTCPClient(tcpClient);
+                        remoteTCPServer.addIncomingClient(serverTCPClient);
 
-                                final FakeTCPClient serverTCPClient = new FakeTCPClient(this, asyncRunner, remoteIPAddress, serverClientLocalPort, clientLocalIPAddress, clientLocalPort, clientToServer, serverToClient);
-                                addLocalTCPClient(serverTCPClient);
-
-                                remoteTCPServer.addIncomingClient(serverTCPClient);
-
-                                result = Result.success(tcpClient);
-                            }
-                        }
+                        result = Result.success(tcpClient);
                     }
                 }
             }
@@ -107,6 +105,8 @@ public class FakeNetwork implements Network
 
     private void decrementNetworkStream(InMemoryByteStream networkStream)
     {
+        PreCondition.assertNotNull(networkStream, "networkStream");
+
         final int currentStreamReferenceCount = streamReferenceCounts.get(networkStream);
         if (currentStreamReferenceCount == 1)
         {
@@ -121,6 +121,8 @@ public class FakeNetwork implements Network
 
     private void addLocalTCPClient(FakeTCPClient tcpClient)
     {
+        PreCondition.assertNotNull(tcpClient, "tcpClient");
+
         final IPv4Address localIPAddress = tcpClient.getLocalIPAddress();
         Map<Integer,FakeTCPClient> localClients = boundTCPClients.get(localIPAddress);
         if (localClients == null)
@@ -134,39 +136,37 @@ public class FakeNetwork implements Network
     @Override
     public Result<TCPServer> createTCPServer(int localPort)
     {
+        Network.validateLocalPort(localPort);
+
         return createTCPServer(IPv4Address.localhost, localPort);
     }
 
     @Override
     public Result<TCPServer> createTCPServer(IPv4Address localIPAddress, int localPort)
     {
-        Result<TCPServer> result = Network.validateLocalIPAddress(localIPAddress);
-        if (result == null)
+        Network.validateLocalIPAddress(localIPAddress);
+        Network.validateLocalPort(localPort);
+
+        Result<TCPServer> result;
+        try (final Disposable ignored = mutex.criticalSection())
         {
-            result = Network.validateLocalPort(localPort);
-            if (result == null)
+            if (!isAvailable(localIPAddress, localPort))
             {
-                try (final Disposable ignored = mutex.criticalSection())
+                result = Result.error(new java.io.IOException("IPAddress (" + localIPAddress + ") and port (" + localPort + ") are already bound."));
+            }
+            else
+            {
+                final FakeTCPServer tcpServer = new FakeTCPServer(localIPAddress, localPort, this, asyncRunner);
+
+                Map<Integer, FakeTCPServer> localTCPServers = boundTCPServers.get(localIPAddress);
+                if (localTCPServers == null)
                 {
-                    if (!isAvailable(localIPAddress, localPort))
-                    {
-                        result = Result.error(new java.io.IOException("IPAddress (" + localIPAddress + ") and port (" + localPort + ") are already bound."));
-                    }
-                    else
-                    {
-                        final FakeTCPServer tcpServer = new FakeTCPServer(localIPAddress, localPort, this, asyncRunner);
-
-                        Map<Integer, FakeTCPServer> localTCPServers = boundTCPServers.get(localIPAddress);
-                        if (localTCPServers == null)
-                        {
-                            localTCPServers = new ListMap<>();
-                            boundTCPServers.set(localIPAddress, localTCPServers);
-                        }
-                        localTCPServers.set(localPort, tcpServer);
-
-                        result = Result.success(tcpServer);
-                    }
+                    localTCPServers = new ListMap<>();
+                    boundTCPServers.set(localIPAddress, localTCPServers);
                 }
+                localTCPServers.set(localPort, tcpServer);
+
+                result = Result.success(tcpServer);
             }
         }
         return result;
@@ -192,6 +192,9 @@ public class FakeNetwork implements Network
 
     public void serverDisposed(IPv4Address ipAddress, int port)
     {
+        PreCondition.assertNotNull(ipAddress, "ipAddress");
+        Network.validatePort(port, "port");
+
         try (final Disposable ignored = mutex.criticalSection())
         {
             boundTCPServers.get(ipAddress).remove(port);
@@ -200,6 +203,8 @@ public class FakeNetwork implements Network
 
     public void clientDisposed(FakeTCPClient tcpClient)
     {
+        PreCondition.assertNotNull(tcpClient, "tcpClient");
+
         try (final Disposable ignored = mutex.criticalSection())
         {
             decrementNetworkStream((InMemoryByteStream)tcpClient.getReadStream());
@@ -210,6 +215,9 @@ public class FakeNetwork implements Network
 
     public boolean isAvailable(IPv4Address ipAddress, int port)
     {
+        PreCondition.assertNotNull(ipAddress, "ipAddress");
+        Network.validatePort(port, "port");
+
         boolean result = true;
 
         final Map<Integer, FakeTCPClient> localTCPClients = boundTCPClients.get(ipAddress);

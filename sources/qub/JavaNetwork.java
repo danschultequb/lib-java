@@ -16,28 +16,20 @@ class JavaNetwork implements Network
     @Override
     public Result<TCPClient> createTCPClient(IPv4Address remoteIPAddress, int remotePort)
     {
-        Result<TCPClient> result = Network.validateRemoteIPAddress(remoteIPAddress);
-        if (result == null)
+        Network.validateRemoteIPAddress(remoteIPAddress);
+        Network.validateRemotePort(remotePort);
+
+        Result<TCPClient> result;
+        try
         {
-            result = Network.validateRemotePort(remotePort);
-            if (result == null)
-            {
-                result = Network.validateAsyncRunner(asyncRunner);
-                if (result == null)
-                {
-                    try
-                    {
-                        final byte[] remoteIPAddressBytes = remoteIPAddress.toBytes();
-                        final java.net.InetAddress remoteInetAddress = java.net.InetAddress.getByAddress(remoteIPAddressBytes);
-                        final java.net.Socket socket = new java.net.Socket(remoteInetAddress, remotePort);
-                        result = JavaTCPClient.create(socket, asyncRunner);
-                    }
-                    catch (java.io.IOException e)
-                    {
-                        result = Result.error(e);
-                    }
-                }
-            }
+            final byte[] remoteIPAddressBytes = remoteIPAddress.toBytes();
+            final java.net.InetAddress remoteInetAddress = java.net.InetAddress.getByAddress(remoteIPAddressBytes);
+            final java.net.Socket socket = new java.net.Socket(remoteInetAddress, remotePort);
+            result = JavaTCPClient.create(socket, asyncRunner);
+        }
+        catch (java.io.IOException e)
+        {
+            result = Result.error(e);
         }
         return result;
     }
@@ -45,12 +37,17 @@ class JavaNetwork implements Network
     @Override
     public Result<TCPServer> createTCPServer(int localPort)
     {
+        Network.validateLocalPort(localPort);
+
         return JavaTCPServer.create(localPort, getAsyncRunner());
     }
 
     @Override
     public Result<TCPServer> createTCPServer(IPv4Address localIPAddress, int localPort)
     {
+        Network.validateLocalIPAddress(localIPAddress);
+        Network.validateLocalPort(localPort);
+
         return JavaTCPServer.create(localIPAddress, localPort, getAsyncRunner());
     }
 

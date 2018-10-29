@@ -24,5 +24,11 @@ public interface TCPServer extends AsyncDisposable
      * Accept a single incoming TCPClient.
      * @return The accepted incoming TCPClient.
      */
-    AsyncFunction<Result<TCPClient>> acceptAsync();
+    default AsyncFunction<Result<TCPClient>> acceptAsync()
+    {
+        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
+
+        return getAsyncRunner().scheduleSingle(this::accept);
+    }
 }

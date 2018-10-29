@@ -20,22 +20,18 @@ class JavaTCPServer implements TCPServer
 
     static Result<TCPServer> create(int localPort, AsyncRunner asyncRunner)
     {
-        Result<TCPServer> result = Result.between(1, localPort, 65535, "localPort");
-        if (result == null)
+        PreCondition.assertBetween(1, localPort, 65535, "localPort");
+        PreCondition.assertNotNull(asyncRunner, "asyncRunner");
+
+        Result<TCPServer> result;
+        try
         {
-            result = Result.notNull(asyncRunner, "asyncRunner");
-            if (result == null)
-            {
-                try
-                {
-                    final ServerSocket serverSocket = new ServerSocket(localPort, tcpClientBacklog);
-                    result = Result.<TCPServer>success(new JavaTCPServer(serverSocket, asyncRunner));
-                }
-                catch (IOException e)
-                {
-                    result = Result.error(e);
-                }
-            }
+            final ServerSocket serverSocket = new ServerSocket(localPort, tcpClientBacklog);
+            result = Result.success(new JavaTCPServer(serverSocket, asyncRunner));
+        }
+        catch (IOException e)
+        {
+            result = Result.error(e);
         }
         return result;
     }
@@ -148,25 +144,9 @@ class JavaTCPServer implements TCPServer
         }
         catch (IOException e)
         {
-            result = Result.<TCPClient>error(e);
+            result = Result.error(e);
         }
         return result;
-    }
-
-    @Override
-    public AsyncFunction<Result<TCPClient>> acceptAsync()
-    {
-        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-
-        return asyncRunner.schedule(new Function0<Result<TCPClient>>()
-            {
-                @Override
-                public Result<TCPClient> run()
-                {
-                    return accept();
-                }
-            })
-            .thenOn(currentAsyncRunner);
     }
 
     @Override

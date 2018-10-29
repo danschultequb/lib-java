@@ -11,22 +11,19 @@ public class NetworkTests
                 runner.test("with null remoteIPAddress", (Test test) ->
                 {
                     final Network network = creator.run(test);
-                    final Result<TCPClient> tcpClientResult = network.createTCPClient(null, 80);
-                    test.assertError(new IllegalArgumentException("remoteIPAddress cannot be null."), tcpClientResult);
+                    test.assertThrows(() -> network.createTCPClient(null, 80));
                 });
 
                 runner.test("with -1 remotePort", (Test test) ->
                 {
                     final Network network = creator.run(test);
-                    final Result<TCPClient> tcpClientResult = network.createTCPClient(IPv4Address.parse("127.0.0.1"), -1);
-                    test.assertError(new IllegalArgumentException("remotePort (-1) must be between 1 and 65535."), tcpClientResult);
+                    test.assertThrows(() -> network.createTCPClient(IPv4Address.parse("127.0.0.1"), -1));
                 });
 
                 runner.test("with 0 remotePort", (Test test) ->
                 {
                     final Network network = creator.run(test);
-                    final Result<TCPClient> tcpClientResult = network.createTCPClient(IPv4Address.parse("127.0.0.1"), 0);
-                    test.assertError(new IllegalArgumentException("remotePort (0) must be between 1 and 65535."), tcpClientResult);
+                    test.assertThrows(() -> network.createTCPClient(IPv4Address.parse("127.0.0.1"), 0));
                 });
 
                 runner.test("with valid arguments but no server listening", (Test test) ->
@@ -87,15 +84,13 @@ public class NetworkTests
                 runner.test("with -1 localPort", (Test test) ->
                 {
                     final Network network = creator.run(test);
-                    final Result<TCPServer> tcpServerResult = network.createTCPServer(-1);
-                    test.assertError(new IllegalArgumentException("localPort (-1) must be between 1 and 65535."), tcpServerResult);
+                    test.assertThrows(() -> network.createTCPServer(-1));
                 });
 
                 runner.test("with 0 localPort", (Test test) ->
                 {
                     final Network network = creator.run(test);
-                    final Result<TCPServer> tcpServerResult = network.createTCPServer(0);
-                    test.assertError(new IllegalArgumentException("localPort (0) must be between 1 and 65535."), tcpServerResult);
+                    test.assertThrows(() -> network.createTCPServer(0));
                 });
 
                 runner.test("with 8088 localPort", (Test test) ->
