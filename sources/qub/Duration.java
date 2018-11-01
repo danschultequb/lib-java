@@ -7,6 +7,8 @@ import java.text.DecimalFormat;
  */
 public class Duration implements Comparable<Duration>
 {
+    public static final Duration zero = Duration.seconds(0);
+
     private static final double WeeksToDays = 7.0;
     private static final double DaysToHours = 24.0;
     private static final double HoursToMinutes = 60.0;
@@ -532,6 +534,15 @@ public class Duration implements Comparable<Duration>
         return result;
     }
 
+    /**
+     * Get the positive version of this Duration. If this Duration is already positive, then this
+     * Duration will be returned.
+     * @return The positive version of this Duration.
+     */
+    public Duration absoluteValue()
+    {
+        return value >= 0 ? this : new Duration(-value, units);
+    }
 
 
     @Override

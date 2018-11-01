@@ -8,6 +8,21 @@ public class BasicAsyncActionTests
         {
             BasicAsyncTaskTests.test(runner, BasicAsyncActionTests::create);
 
+            runner.testGroup("constructor(AsyncRunner)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final BasicAsyncAction basicAsyncAction = new BasicAsyncAction(null);
+                    test.assertNull(basicAsyncAction.getAsyncRunner());
+                });
+
+                runner.test("with non-null", (Test test) ->
+                {
+                    final BasicAsyncAction basicAsyncAction = new BasicAsyncAction(test.getMainAsyncRunner());
+                    test.assertSame(test.getMainAsyncRunner(), basicAsyncAction.getAsyncRunner());
+                });
+            });
+
             runner.test("constructor(Getable<AsyncRunner>,Getable<AsyncTask>,Action0)", (Test test) ->
             {
                 final AsyncRunner asyncRunner = test.getMainAsyncRunner();

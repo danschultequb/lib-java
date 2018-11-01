@@ -11,14 +11,27 @@ public class SpinMutex implements Mutex
 {
     private final AtomicLong acquiredByThreadId;
     private final AtomicLong acquiredCount;
+    private final Clock clock;
+
+    public SpinMutex()
+    {
+        this(null);
+    }
 
     /**
      * Create a new SpinMutex that is ready to be acquired.
      */
-    public SpinMutex()
+    public SpinMutex(Clock clock)
     {
         acquiredByThreadId = new AtomicLong(-1);
         acquiredCount = new AtomicLong(0);
+        this.clock = clock;
+    }
+
+    @Override
+    public Clock getClock()
+    {
+        return clock;
     }
 
     /**
@@ -31,12 +44,18 @@ public class SpinMutex implements Mutex
         return acquiredByThreadId.get() != -1;
     }
 
+    @Override
+    public boolean isAcquiredByCurrentThread()
+    {
+        return acquiredByThreadId.get() == Thread.currentThread().getId();
+    }
+
     /**
      * Acquire this mutex. If the mutex is already acquired, this thread will block until the owning
      * thread releases this mutex and this thread acquires the mutex.
      */
     @Override
-    public void acquire()
+    public Result<Boolean> acquire()
     {
         final long threadId = Thread.currentThread().getId();
         if (acquiredByThreadId.get() != threadId)
@@ -49,6 +68,8 @@ public class SpinMutex implements Mutex
             }
         }
         acquiredCount.incrementAndGet();
+
+        return Result.successTrue();
     }
 
     /**

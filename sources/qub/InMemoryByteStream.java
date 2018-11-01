@@ -229,12 +229,14 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
         PreCondition.assertFalse(endOfStream, "endOfStream");
 
-        for (int i = 0; i < length; ++i)
+        return mutex.criticalSection(() ->
         {
-            bytes.add(toWrite[startIndex + i]);
-        }
-        bytesAvailable.signalAll();
-        return Result.successTrue();
+            for (int i = 0; i < length; ++i)
+            {
+                bytes.add(toWrite[startIndex + i]);
+            }
+            bytesAvailable.signalAll();
+        });
     }
 
     @Override
@@ -245,35 +247,38 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
         PreCondition.assertFalse(endOfStream, "endOfStream");
 
-        boolean bytesAdded = false;
-        Result<Boolean> result = null;
-        while (result == null)
+        return mutex.criticalSection(() ->
         {
-            final Result<Byte> readByteResult = byteReadStream.readByte();
-            if (readByteResult.hasError())
+            Result<Boolean> result = null;
+            boolean bytesAdded = false;
+            while (result == null)
             {
-                result = Result.error(readByteResult.getError());
-            }
-            else
-            {
-                final Byte byteRead = readByteResult.getValue();
-                if (byteRead == null)
+                final Result<Byte> readByteResult = byteReadStream.readByte();
+                if (readByteResult.hasError())
                 {
-                    result = Result.successTrue();
+                    result = Result.error(readByteResult.getError());
                 }
                 else
                 {
-                    bytesAdded = true;
-                    bytes.add(byteRead);
+                    final Byte byteRead = readByteResult.getValue();
+                    if (byteRead == null)
+                    {
+                        result = Result.successTrue();
+                    }
+                    else
+                    {
+                        bytesAdded = true;
+                        bytes.add(byteRead);
+                    }
                 }
             }
-        }
 
-        if (bytesAdded)
-        {
-            bytesAvailable.signalAll();
-        }
+            if (bytesAdded)
+            {
+                bytesAvailable.signalAll();
+            }
 
-        return result;
+            return result;
+        });
     }
 }

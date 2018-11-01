@@ -130,6 +130,82 @@ public class StringsTests
                     test.assertEqual("ababab", Strings.repeat("ab", 3));
                 });
             });
+
+            runner.testGroup("padLeft()", () ->
+            {
+                runner.test("with null value", (Test test) ->
+                {
+                    test.assertEqual("aa", Strings.padLeft(null, 2, 'a'));
+                });
+
+                runner.test("with empty value", (Test test) ->
+                {
+                    test.assertEqual("aa", Strings.padLeft("", 2, 'a'));
+                });
+
+                runner.test("with non-empty value smaller than the minimum length", (Test test) ->
+                {
+                    test.assertEqual("zzzab", Strings.padLeft("ab", 5, 'z'));
+                });
+
+                runner.test("with non-empty value equal to the minimum length", (Test test) ->
+                {
+                    test.assertEqual("abc", Strings.padLeft("abc", 3, 'z'));
+                });
+
+                runner.test("with non-empty value greater than the minimum length", (Test test) ->
+                {
+                    test.assertEqual("abc", Strings.padLeft("abc", 1, 'z'));
+                });
+
+                runner.test("with negative minimumLength", (Test test) ->
+                {
+                    test.assertEqual("abc", Strings.padLeft("abc", -1, 'z'));
+                });
+
+                runner.test("with zero minimumLength", (Test test) ->
+                {
+                    test.assertEqual("abc", Strings.padLeft("abc", 0, 'z'));
+                });
+            });
+
+            runner.testGroup("padRight()", () ->
+            {
+                runner.test("with null value", (Test test) ->
+                {
+                    test.assertEqual("aa", Strings.padRight(null, 2, 'a'));
+                });
+
+                runner.test("with empty value", (Test test) ->
+                {
+                    test.assertEqual("aa", Strings.padRight("", 2, 'a'));
+                });
+
+                runner.test("with non-empty value smaller than the minimum length", (Test test) ->
+                {
+                    test.assertEqual("abzzz", Strings.padRight("ab", 5, 'z'));
+                });
+
+                runner.test("with non-empty value equal to the minimum length", (Test test) ->
+                {
+                    test.assertEqual("abc", Strings.padRight("abc", 3, 'z'));
+                });
+
+                runner.test("with non-empty value greater than the minimum length", (Test test) ->
+                {
+                    test.assertEqual("abc", Strings.padRight("abc", 1, 'z'));
+                });
+
+                runner.test("with negative minimumLength", (Test test) ->
+                {
+                    test.assertEqual("abc", Strings.padRight("abc", -1, 'z'));
+                });
+
+                runner.test("with zero minimumLength", (Test test) ->
+                {
+                    test.assertEqual("abc", Strings.padRight("abc", 0, 'z'));
+                });
+            });
         });
     }
 }

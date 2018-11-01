@@ -28,14 +28,9 @@ public class BasicAsyncFunction<T> extends BasicAsyncTask implements AsyncFuncti
     @Override
     public AsyncAction then(final Action1<T> action)
     {
-        return action == null ? null : then(new Action0()
-        {
-            @Override
-            public void run()
-            {
-                action.run(functionResult.get());
-            }
-        });
+        PreCondition.assertNotNull(action, "action");
+
+        return then(() -> action.run(functionResult.get()));
     }
 
     @Override

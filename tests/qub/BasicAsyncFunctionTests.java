@@ -22,8 +22,7 @@ public class BasicAsyncFunctionTests
                 runner.test("with null", (Test test) ->
                 {
                     final BasicAsyncFunction<Integer> basicAsyncFunction = create(test);
-                    final AsyncAction thenAsyncAction = basicAsyncFunction.then((Action1<Integer>)null);
-                    test.assertNull(thenAsyncAction);
+                    test.assertThrows(() -> basicAsyncFunction.then((Action1<Integer>)null));
                     test.assertEqual(0, basicAsyncFunction.getPausedTaskCount());
                 });
 

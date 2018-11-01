@@ -433,6 +433,19 @@ public class DateTimeTests
                     test.assertEqual(DateTime.utc(12), dateTime.minus(Duration.milliseconds(-2)));
                 });
             });
+
+            runner.testGroup("toString()", () ->
+            {
+                runner.test("with UTC time", (Test test) ->
+                {
+                    test.assertEqual("2009-02-13T23:31:30.123+00:00", DateTime.utc(1234567890123L).toString());
+                });
+
+                runner.test("with non-UTC time", (Test test) ->
+                {
+                    test.assertEqual("2009-02-13T15:31:30.123-07:00", DateTime.local(1234567890123L).toString());
+                });
+            });
         });
     }
 }

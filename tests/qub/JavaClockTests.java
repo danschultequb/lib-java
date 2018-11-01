@@ -79,7 +79,7 @@ public class JavaClockTests
                     final Duration duration = endTime.minus(startTime);
                     test.assertTrue(value.hasValue());
                     test.assertTrue(value.get());
-                    test.assertLessThanOrEqualTo(duration, Duration.milliseconds(20));
+                    test.assertLessThanOrEqualTo(duration, Duration.milliseconds(50));
                 });
 
                 runner.test("with DateTime \"at\" now", (Test test) ->
@@ -94,7 +94,7 @@ public class JavaClockTests
                     final Duration duration = endTime.minus(startTime);
                     test.assertTrue(value.hasValue());
                     test.assertTrue(value.get());
-                    test.assertLessThanOrEqualTo(duration, Duration.milliseconds(20));
+                    test.assertLessThanOrEqualTo(duration, Duration.milliseconds(30));
                 });
 
                 runner.test("with Datetime after now", (Test test) ->

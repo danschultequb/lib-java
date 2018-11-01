@@ -3,11 +3,29 @@ package qub;
 public class ManualAsyncRunner implements AsyncRunner
 {
     private final BlockingQueue<PausedAsyncTask> scheduledTasks;
+    private Clock clock;
     private boolean disposed;
 
     public ManualAsyncRunner()
     {
+        this(null);
+    }
+
+    public ManualAsyncRunner(Clock clock)
+    {
         this.scheduledTasks = new JavaBlockingQueue<>(null);
+        this.clock = clock;
+    }
+
+    @Override
+    public Clock getClock()
+    {
+        return clock;
+    }
+
+    public void setClock(Clock clock)
+    {
+        this.clock = clock;
     }
 
     @Override

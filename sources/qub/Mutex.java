@@ -7,16 +7,68 @@ package qub;
 public interface Mutex
 {
     /**
-     * Get whether or not this SpinMutex is currently acquired.
-     * @return Whether or not this SpinMutex is currently acquired.
+     * The Clock that will be utilized for operations with timeouts.
+     * @return The Clock that will be utilized for operations with timeouts.
+     */
+    Clock getClock();
+
+    /**
+     * Get whether or not this Mutex is currently acquired.
+     * @return Whether or not this Mutex is currently acquired.
      */
     boolean isAcquired();
+
+    /**
+     * Get whether or not this Mutex is currently acquired by the current thread.
+     * @return Whether or not this Mutex is currently acquired by the current thread.
+     */
+    boolean isAcquiredByCurrentThread();
 
     /**
      * Acquire this mutex. If the mutex is already acquired, this thread will block until the owning
      * thread releases this mutex and this thread acquires the mutex.
      */
-    void acquire();
+    Result<Boolean> acquire();
+
+    /**
+     * Acquire this mutex. If the mutex is already acquired, this thread will block until the owning
+     * thread releases this mutex and this thread acquires the mutex.
+     */
+    default Result<Boolean> acquire(Duration timeout)
+    {
+        PreCondition.assertGreaterThan(timeout, Duration.zero, "timeout");
+        PreCondition.assertNotNull(getClock(), "getClock()");
+
+        final DateTime endDateTime = getClock().getCurrentDateTime().plus(timeout);
+        return acquire(endDateTime);
+    }
+
+    /**
+     * Acquire this mutex. If the mutex is already acquired, this thread will block until the owning
+     * thread releases this mutex and this thread acquires the mutex.
+     */
+    default Result<Boolean> acquire(DateTime timeout)
+    {
+        PreCondition.assertNotNull(timeout, "timeout");
+        PreCondition.assertNotNull(getClock(), "getClock()");
+
+        final Clock clock = getClock();
+
+        Result<Boolean> result = null;
+        while (result == null)
+        {
+            if (clock.getCurrentDateTime().greaterThanOrEqualTo(timeout))
+            {
+                result = Result.error(new TimeoutException());
+            }
+            else if (tryAcquire())
+            {
+                result = Result.successTrue();
+            }
+        }
+
+        return result;
+    }
 
     /**
      * Attempt to acquire this SpinMutex and return whether or not it was acquired.
@@ -35,11 +87,51 @@ public interface Mutex
      * Mutex when the action completes.
      * @param action The action to run after acquiring this Mutex.
      */
-    default void criticalSection(Action0 action)
+    default Result<Boolean> criticalSection(Action0 action)
     {
-        if (action != null)
+        PreCondition.assertNotNull(action, "action");
+
+        acquire();
+        try
         {
-            acquire();
+            action.run();
+        }
+        finally
+        {
+            release();
+        }
+
+        return Result.successTrue();
+    }
+
+    /**
+     * Run the provided action after this Mutex has been acquired and automatically release the
+     * Mutex when the action completes.
+     * @param action The action to run after acquiring this Mutex.
+     */
+    default Result<Boolean> criticalSection(Duration timeout, Action0 action)
+    {
+        PreCondition.assertGreaterThan(timeout, Duration.zero, "timeout");
+        PreCondition.assertNotNull(action, "action");
+        PreCondition.assertNotNull(getClock(), "getClock()");
+
+        return criticalSection(getClock().getCurrentDateTime().plus(timeout), action);
+    }
+
+    /**
+     * Run the provided action after this Mutex has been acquired and automatically release the
+     * Mutex when the action completes.
+     * @param action The action to run after acquiring this Mutex.
+     */
+    default Result<Boolean> criticalSection(DateTime timeout, Action0 action)
+    {
+        PreCondition.assertNotNull(timeout, "timeout");
+        PreCondition.assertNotNull(action, "action");
+        PreCondition.assertNotNull(getClock(), "getClock()");
+
+        final Result<Boolean> result = acquire(timeout);
+        if (result.equals(Result.successTrue()))
+        {
             try
             {
                 action.run();
@@ -49,6 +141,8 @@ public interface Mutex
                 release();
             }
         }
+
+        return result;
     }
 
     /**

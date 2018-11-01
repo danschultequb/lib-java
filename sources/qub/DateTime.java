@@ -137,6 +137,32 @@ public class DateTime implements Comparable<DateTime>
         return Duration.milliseconds(millisecondDifference);
     }
 
+    @Override
+    public String toString()
+    {
+        final StringBuilder builder = new StringBuilder();
+        builder.append(Strings.padLeft(getYear(), 4, '0'));
+        builder.append('-');
+        builder.append(Strings.padLeft(getMonth(), 2, '0'));
+        builder.append('-');
+        builder.append(Strings.padLeft(getDayOfMonth(), 2, '0'));
+        builder.append('T');
+        builder.append(Strings.padLeft(getHourOfDay(), 2, '0'));
+        builder.append(':');
+        builder.append(Strings.padLeft(getMinute(), 2, '0'));
+        builder.append(':');
+        builder.append(Strings.padLeft(getSecond(), 2, '0'));
+        builder.append('.');
+        builder.append(Strings.padLeft(getMillisecond(), 3, '0'));
+        final Duration timeZoneOffset = getTimeZoneOffset();
+        builder.append(timeZoneOffset.lessThan(Duration.zero) ? '-' : '+');
+        final Duration positiveTimeZoneOffset = timeZoneOffset.absoluteValue();
+        builder.append(Strings.padLeft((int)positiveTimeZoneOffset.toHours().getValue(), 2, '0'));
+        builder.append(':');
+        builder.append(Strings.padLeft((int)positiveTimeZoneOffset.toMinutes().getValue() % 60, 2, '0'));
+        return builder.toString();
+    }
+
     /**
      * Get the current DateTime for the local time zone.
      * @return The current DateTime for the local time zone.

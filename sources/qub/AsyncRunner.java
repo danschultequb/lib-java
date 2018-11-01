@@ -6,6 +6,12 @@ package qub;
 public interface AsyncRunner extends Disposable
 {
     /**
+     * Get the Clock object that this AsyncRunner uses to determine durations.
+     * @return The Clock object that this AsyncRunner uses to determine durations.
+     */
+    Clock getClock();
+
+    /**
      * Get the number of actions that are currently scheduled.
      * @return The number of actions that are current scheduled.
      */

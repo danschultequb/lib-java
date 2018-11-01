@@ -4,6 +4,15 @@ public class JavaMutexTests
 {
     public static void test(TestRunner runner)
     {
-        MutexTests.test(runner, JavaMutex::new);
+        runner.testGroup(JavaMutex.class, () ->
+        {
+            MutexTests.test(runner, JavaMutex::new);
+
+            runner.test("constructor()", (Test test) ->
+            {
+                final JavaMutex mutex = new JavaMutex();
+                test.assertNull(mutex.getClock());
+            });
+        });
     }
 }

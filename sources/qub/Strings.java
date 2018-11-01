@@ -180,7 +180,7 @@ public class Strings
      */
     public static String repeat(char value, int repetitions)
     {
-        PreCondition.assertGreaterThanOrEqualTo(0, repetitions, "repetitions");
+        PreCondition.assertGreaterThanOrEqualTo(repetitions, 0, "repetitions");
 
         final StringBuilder builder = new StringBuilder(repetitions);
         for (int i = 0; i < repetitions; ++i)
@@ -285,6 +285,44 @@ public class Strings
         else
         {
             result = formattedString;
+        }
+        return result;
+    }
+
+    /**
+     * Pad on the left side the provided String value with the provided padCharacter until it is at
+     * least the provided minimumLength long.
+     * @param value The value to pad.
+     * @param minimumLength The minimum number of characters that the resulting String will be.
+     * @param padCharacter The character to use to pad the provided value.
+     * @return The padded String that is at least the provided minimumLength long.
+     */
+    public static String padLeft(Object value, int minimumLength, char padCharacter)
+    {
+        String result = Objects.toString(value == null ? "" : value);
+        final int charactersToAdd = minimumLength - Strings.getLength(result);
+        if (charactersToAdd > 0)
+        {
+            result = Strings.concatenate(Strings.repeat(padCharacter, charactersToAdd), result);
+        }
+        return result;
+    }
+
+    /**
+     * Pad on the right side the provided String value with the provided padCharacter until it is at
+     * least the provided minimumLength long.
+     * @param value The value to pad.
+     * @param minimumLength The minimum number of characters that the resulting String will be.
+     * @param padCharacter The character to use to pad the provided value.
+     * @return The padded String that is at least the provided minimumLength long.
+     */
+    public static String padRight(Object value, int minimumLength, char padCharacter)
+    {
+        String result = Objects.toString(value == null ? "" : value);
+        final int charactersToAdd = minimumLength - Strings.getLength(result);
+        if (charactersToAdd > 0)
+        {
+            result = Strings.concatenate(result, Strings.repeat(padCharacter, charactersToAdd));
         }
         return result;
     }

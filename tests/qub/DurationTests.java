@@ -4,7 +4,7 @@ public class DurationTests
 {
     public static void test(final TestRunner runner)
     {
-        runner.testGroup("Duration", () ->
+        runner.testGroup(Duration.class, () ->
         {
             runner.test("constructor()", (Test test) ->
             {
@@ -391,6 +391,24 @@ public class DurationTests
             {
                 final Duration duration = Duration.days(21);
                 test.assertEqual(Duration.weeks(3), duration.toWeeks());
+            });
+
+            runner.testGroup("absoluteValue()", () ->
+            {
+                runner.test("with -3 seconds", (Test test) ->
+                {
+                    test.assertEqual(Duration.seconds(3), Duration.seconds(-3).absoluteValue());
+                });
+
+                runner.test("with 0 days", (Test test) ->
+                {
+                    test.assertEqual(Duration.days(0), Duration.days(0).absoluteValue());
+                });
+
+                runner.test("with 1 millisecond", (Test test) ->
+                {
+                    test.assertEqual(Duration.milliseconds(1), Duration.milliseconds(1).absoluteValue());
+                });
             });
 
             runner.test("toString()", (Test test) ->

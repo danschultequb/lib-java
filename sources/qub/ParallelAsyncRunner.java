@@ -4,25 +4,36 @@ public class ParallelAsyncRunner implements AsyncRunner
 {
     private final java.util.concurrent.atomic.AtomicInteger scheduledTaskCount;
     private final Mutex spinMutex;
+    private Clock clock;
     private volatile boolean disposed;
 
     public ParallelAsyncRunner()
     {
+        this(null);
+    }
+
+    public ParallelAsyncRunner(Clock clock)
+    {
         scheduledTaskCount = new java.util.concurrent.atomic.AtomicInteger(0);
         spinMutex = new SpinMutex();
+        this.clock = clock;
+    }
+
+    @Override
+    public Clock getClock()
+    {
+        return clock;
+    }
+
+    public void setClock(Clock clock)
+    {
+        this.clock = clock;
     }
 
     @Override
     public int getScheduledTaskCount()
     {
-        return spinMutex.criticalSection(new Function0<Integer>()
-        {
-            @Override
-            public Integer run()
-            {
-                return scheduledTaskCount.get();
-            }
-        });
+        return spinMutex.criticalSection(scheduledTaskCount::get);
     }
 
     @Override

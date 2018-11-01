@@ -16,6 +16,36 @@ public class ArrayTests
                 return result; 
             });
 
+            runner.testGroup("fromValues(boolean[])", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final Array<Boolean> array = Array.fromValues((boolean[])null);
+                    test.assertEqual(0, array.getCount());
+                });
+
+                runner.test("with no values", (Test test) ->
+                {
+                    final Array<Boolean> array = Array.fromValues(new boolean[0]);
+                    test.assertEqual(0, array.getCount());
+                });
+
+                runner.test("with one value", (Test test) ->
+                {
+                    final Array<Boolean> array = Array.fromValues(new boolean[] { true });
+                    test.assertEqual(1, array.getCount());
+                    test.assertEqual(true, array.get(0));
+                });
+
+                runner.test("with two values", (Test test) ->
+                {
+                    final Array<Boolean> array = Array.fromValues(new boolean[] { true, false });
+                    test.assertEqual(2, array.getCount());
+                    test.assertEqual(true, array.get(0));
+                    test.assertEqual(false, array.get(1));
+                });
+            });
+
             runner.testGroup("fromValues(byte[])", () ->
             {
                 runner.test("with null", (Test test) ->

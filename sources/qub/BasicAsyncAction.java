@@ -77,12 +77,6 @@ public class BasicAsyncAction extends BasicAsyncTask implements AsyncAction
     @Override
     public AsyncAction thenOn(AsyncRunner runner)
     {
-        return runner == getAsyncRunner() ? this : thenOn(runner, new Action0()
-        {
-            @Override
-            public void run()
-            {
-            }
-        });
+        return runner == getAsyncRunner() ? this : thenOn(runner, Action0.empty);
     }
 }
