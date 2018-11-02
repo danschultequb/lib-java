@@ -14,8 +14,8 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
     BasicAsyncTask(Getable<AsyncRunner> asyncRunner, String label)
     {
         this.asyncRunner = asyncRunner;
-        this.parentTasks = new SingleLinkList<AsyncTask>();
-        this.pausedTasks = LockedList.from(new SingleLinkList<BasicAsyncTask>());
+        this.parentTasks = new SingleLinkList<>();
+        this.pausedTasks = LockedList.from(new SingleLinkList<>());
         this.completed = new Value<Boolean>(false);
         this.mutex = new SpinMutex();
         this.label = label;
@@ -40,49 +40,25 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
     @Override
     public int getParentTaskCount()
     {
-        return mutex.criticalSection(new Function0<Integer>()
-        {
-            @Override
-            public Integer run()
-            {
-                return parentTasks.getCount();
-            }
-        });
+        return mutex.criticalSection(parentTasks::getCount);
     }
 
     @Override
-    public AsyncTask getParentTask(final int index)
+    public AsyncTask getParentTask(int index)
     {
-        return mutex.criticalSection(new Function0<AsyncTask>()
-        {
-            @Override
-            public AsyncTask run()
-            {
-                return parentTasks.get(index);
-            }
-        });
+        return mutex.criticalSection(() -> parentTasks.get(index));
     }
 
     @Override
-    public void addParentTask(final AsyncTask parentTask)
+    public void addParentTask(AsyncTask parentTask)
     {
-        mutex.criticalSection(new Action0()
-        {
-            @Override
-            public void run()
-            {
-                parentTasks.add(parentTask);
-            }
-        });
+        mutex.criticalSection(() -> parentTasks.add(parentTask));
     }
 
     @Override
     public boolean parentTasksContain(final AsyncTask parentTask)
     {
-        try (final Disposable criticalSection = mutex.criticalSection())
-        {
-            return parentTasks.contains(parentTask);
-        }
+        return mutex.criticalSection(() -> parentTasks.contains(parentTask));
     }
 
     private void awaitParentTasks()
@@ -123,19 +99,13 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
      */
     public int getPausedTaskCount()
     {
-        try (final Disposable criticalSection = mutex.criticalSection())
-        {
-            return pausedTasks.getCount();
-        }
+        return mutex.criticalSection(pausedTasks::getCount);
     }
 
     @Override
     public boolean isCompleted()
     {
-        try (final Disposable criticalSection = mutex.criticalSection())
-        {
-            return completed.get();
-        }
+        return mutex.criticalSection(completed::get);
     }
 
     @Override
@@ -147,7 +117,7 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
     public void setIncomingError(Throwable incomingError)
     {
         PreCondition.assertNotNull(incomingError, "incomingError");
-        PreCondition.assertNull(this.incomingError, "this.incomingError");
+        PreCondition.assertNull(getIncomingError(), "getIncomingError()");
 
         this.incomingError = incomingError;
     }
@@ -170,26 +140,39 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
 
     public AsyncAction then(Action0 action)
     {
-        return action == null ? null : thenOnInner(asyncRunner, action);
+        PreCondition.assertNotNull(action, "action");
+
+        return thenOnInner(getAsyncRunnerGetable(), action);
     }
 
     public <T> AsyncFunction<T> then(Function0<T> function)
     {
-        return function == null ? null : thenOnInner(asyncRunner, function);
+        PreCondition.assertNotNull(function, "function");
+
+        return thenOnInner(getAsyncRunnerGetable(), function);
     }
 
     public AsyncAction thenOn(AsyncRunner runner, Action0 action)
     {
-        return runner == null || action == null ? null : thenOnInner(new Value<AsyncRunner>(runner), action);
+        PreCondition.assertNotNull(runner, "runner");
+        PreCondition.assertNotNull(action, "action");
+
+        return thenOnInner(new Value<>(runner), action);
     }
 
     public <T> AsyncFunction<T> thenOn(AsyncRunner runner, Function0<T> function)
     {
-        return runner == null || function == null ? null : thenOnInner(new Value<AsyncRunner>(runner), function);
+        PreCondition.assertNotNull(runner, "runner");
+        PreCondition.assertNotNull(function, "function");
+
+        return thenOnInner(new Value<>(runner), function);
     }
 
     private BasicAsyncAction thenOnInner(Getable<AsyncRunner> runner, Action0 action)
     {
+        PreCondition.assertNotNull(runner, "runner");
+        PreCondition.assertNotNull(action, "action");
+
         final BasicAsyncAction asyncAction = new BasicAsyncAction(runner, action);
         asyncAction.addParentTask(this);
         return scheduleOrEnqueue(asyncAction);
@@ -197,6 +180,9 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
 
     private <T> BasicAsyncFunction<T> thenOnInner(Getable<AsyncRunner> runner, Function0<T> function)
     {
+        PreCondition.assertNotNull(runner, "runner");
+        PreCondition.assertNotNull(function, "function");
+
         final BasicAsyncFunction<T> asyncFunction = new BasicAsyncFunction<T>(runner, function);
         asyncFunction.addParentTask(this);
         return scheduleOrEnqueue(asyncFunction);
@@ -204,60 +190,45 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
 
     public AsyncAction thenAsyncAction(Function0<AsyncAction> function)
     {
-        return function == null ? null : thenOnAsyncActionInner(asyncRunner, function);
+        PreCondition.assertNotNull(function, "function");
+
+        return thenOnAsyncActionInner(getAsyncRunnerGetable(), function);
     }
 
     public <T> AsyncFunction<T> thenAsyncFunction(Function0<AsyncFunction<T>> function)
     {
-        return function == null ? null : thenOnAsyncFunctionInner(asyncRunner, function);
+        PreCondition.assertNotNull(function, "function");
+
+        return thenOnAsyncFunctionInner(getAsyncRunnerGetable(), function);
     }
 
     public AsyncAction thenAsyncActionOn(AsyncRunner runner, Function0<AsyncAction> function)
     {
-        return runner == null || function == null ? null : thenOnAsyncActionInner(new Value<>(runner), function);
+        PreCondition.assertNotNull(runner, "runner");
+        PreCondition.assertNotNull(function, "function");
+
+        return thenOnAsyncActionInner(new Value<>(runner), function);
     }
 
-    private AsyncAction thenOnAsyncActionInner(final Getable<AsyncRunner> runner, Function0<AsyncAction> function)
+    private AsyncAction thenOnAsyncActionInner(Getable<AsyncRunner> runner, Function0<AsyncAction> function)
     {
         final Value<AsyncRunner> resultAsyncRunner = new Value<>();
         final BasicAsyncAction result = new BasicAsyncAction(resultAsyncRunner, null);
         result.addParentTask(this);
 
         result.addParentTask(this.thenOnInner(runner, function)
-            .then(new Action1<AsyncAction>()
+            .then((AsyncAction asyncFunctionResult) ->
             {
-                @Override
-                public void run(final AsyncAction asyncFunctionResult)
-                {
-                    resultAsyncRunner.set(asyncFunctionResult.getAsyncRunner());
-                    result.addParentTask(asyncFunctionResult
-                        .catchError(new Action1<Throwable>()
-                        {
-                            @Override
-                            public void run(Throwable error)
-                            {
-                                result.setOutgoingError(error);
-                            }
-                        })
-                        .then(new Action0()
-                        {
-                            @Override
-                            public void run()
-                            {
-                                result.schedule();
-                            }
-                        }));
-                }
+                resultAsyncRunner.set(asyncFunctionResult.getAsyncRunner());
+                result.addParentTask(asyncFunctionResult
+                    .catchError(result::setOutgoingError)
+                    .then(result::schedule));
             })
-            .catchError(new Action1<Throwable>()
+            .catchError((Throwable error) ->
             {
-                @Override
-                public void run(Throwable error)
-                {
-                    result.setOutgoingError(error);
-                    resultAsyncRunner.set(runner.get());
-                    result.schedule();
-                }
+                result.setOutgoingError(error);
+                resultAsyncRunner.set(runner.get());
+                result.schedule();
             }));
 
         return result;
@@ -265,66 +236,36 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
 
     public <T> AsyncFunction<T> thenAsyncFunctionOn(AsyncRunner runner, Function0<AsyncFunction<T>> function)
     {
-        return runner == null || function == null ? null : thenOnAsyncFunctionInner(new Value<>(runner), function);
+        PreCondition.assertNotNull(runner, "runner");
+        PreCondition.assertNotNull(function, "function");
+
+        return thenOnAsyncFunctionInner(new Value<>(runner), function);
     }
 
-    private <T> AsyncFunction<T> thenOnAsyncFunctionInner(final Getable<AsyncRunner> runner, Function0<AsyncFunction<T>> function)
+    private <T> AsyncFunction<T> thenOnAsyncFunctionInner(Getable<AsyncRunner> runner, Function0<AsyncFunction<T>> function)
     {
+        PreCondition.assertNotNull(runner, "runner");
+        PreCondition.assertNotNull(function, "function");
+
         final Value<AsyncRunner> resultAsyncRunner = new Value<>();
         final Value<T> asyncFunctionResultValue = new Value<>();
-        final BasicAsyncFunction<T> result = new BasicAsyncFunction<T>(resultAsyncRunner, new Function0<T>()
-        {
-            @Override
-            public T run()
-            {
-                return asyncFunctionResultValue.get();
-            }
-        });
+        final BasicAsyncFunction<T> result = new BasicAsyncFunction<>(resultAsyncRunner, asyncFunctionResultValue::get);
         result.addParentTask(this);
 
         result.addParentTask(this.thenOnInner(runner, function)
-            .then(new Action1<AsyncFunction<T>>()
+            .then((AsyncFunction<T> asyncFunctionResult) ->
             {
-                @Override
-                public void run(final AsyncFunction<T> asyncFunctionResult)
-                {
-                    resultAsyncRunner.set(asyncFunctionResult.getAsyncRunner());
-                    result.addParentTask(asyncFunctionResult
-                        .then(new Action1<T>()
-                        {
-                            @Override
-                            public void run(T asyncFunctionResultResult)
-                            {
-                                asyncFunctionResultValue.set(asyncFunctionResultResult);
-                            }
-                        })
-                        .catchError(new Action1<Throwable>()
-                        {
-                            @Override
-                            public void run(Throwable error)
-                            {
-                                result.setOutgoingError(error);
-                            }
-                        })
-                        .then(new Action0()
-                        {
-                            @Override
-                            public void run()
-                            {
-                                result.schedule();
-                            }
-                        }));
-                }
+                resultAsyncRunner.set(asyncFunctionResult.getAsyncRunner());
+                result.addParentTask(asyncFunctionResult
+                    .then(asyncFunctionResultValue::set)
+                    .catchError(result::setOutgoingError)
+                    .then(result::schedule));
             })
-            .catchError(new Action1<Throwable>()
+            .catchError((Throwable error) ->
             {
-                @Override
-                public void run(Throwable error)
-                {
-                    result.setOutgoingError(error);
-                    resultAsyncRunner.set(runner.get());
-                    result.schedule();
-                }
+                result.setOutgoingError(error);
+                resultAsyncRunner.set(runner.get());
+                result.schedule();
             }));
 
         return result;
@@ -332,6 +273,9 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
 
     protected <T> AsyncFunction<T> catchErrorOnInner(Getable<AsyncRunner> asyncRunner, Function1<Throwable,T> function)
     {
+        PreCondition.assertNotNull(asyncRunner, "asyncRunner");
+        PreCondition.assertNotNull(function, "function");
+
         final BasicAsyncFunctionErrorHandler<T> asyncFunction = new BasicAsyncFunctionErrorHandler<>(asyncRunner, function);
         asyncFunction.addParentTask(this);
         return scheduleOrEnqueue(asyncFunction);
@@ -339,52 +283,45 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
 
     protected AsyncAction catchErrorAsyncActionOnInner(final Getable<AsyncRunner> asyncRunner, Function1<Throwable, AsyncAction> function)
     {
+        PreCondition.assertNotNull(asyncRunner, "asyncRunner");
+        PreCondition.assertNotNull(function, "function");
+
         final Value<AsyncRunner> resultAsyncRunner = new Value<>();
-        final BasicAsyncAction result = new BasicAsyncAction(resultAsyncRunner, null);
+        final BasicAsyncAction result = new BasicAsyncAction(resultAsyncRunner, Action0.empty);
         result.addParentTask(this);
 
         result.addParentTask(this.catchErrorOnInner(asyncRunner, function)
-            .then(new Action1<AsyncAction>()
+            .then((AsyncAction asyncFunctionResult) ->
             {
-                @Override
-                public void run(final AsyncAction asyncFunctionResult)
+                if (asyncFunctionResult == null)
                 {
-                    if (asyncFunctionResult == null)
+                    resultAsyncRunner.set(asyncRunner.get());
+                    result.schedule();
+                }
+                else
+                {
+                    resultAsyncRunner.set(asyncFunctionResult.getAsyncRunner());
+                    if (asyncFunctionResult.getOutgoingError() != null)
                     {
-                        resultAsyncRunner.set(asyncRunner.get());
-                        result.schedule();
+                        result.setIncomingError(asyncFunctionResult.getOutgoingError());
                     }
-                    else
-                    {
-                        resultAsyncRunner.set(asyncFunctionResult.getAsyncRunner());
-                        if (asyncFunctionResult.getOutgoingError() != null)
-                        {
-                            result.setIncomingError(asyncFunctionResult.getOutgoingError());
-                        }
-                        result.addParentTask(asyncFunctionResult.then(new Action0()
-                        {
-                            @Override
-                            public void run()
-                            {
-                                result.schedule();
-                            }
-                        }));
-                    }
+                    result.addParentTask(asyncFunctionResult.then(result::schedule));
                 }
             }));
 
         return result;
     }
 
-    protected <T extends BasicAsyncTask> T scheduleOrEnqueue(final T asyncTask)
+    protected <T extends BasicAsyncTask> T scheduleOrEnqueue(T asyncTask)
     {
-        try (final Disposable criticalSection = mutex.criticalSection())
+        return mutex.criticalSection(() ->
         {
             if (completed.get())
             {
-                if (getOutgoingError() != null)
+                final Throwable outgoingError = getOutgoingError();
+                if (outgoingError != null)
                 {
-                    asyncTask.setIncomingError(getOutgoingError());
+                    asyncTask.setIncomingError(outgoingError);
                 }
                 asyncTask.schedule();
             }
@@ -393,7 +330,7 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
                 pausedTasks.add(asyncTask);
             }
             return asyncTask;
-        }
+        });
     }
 
     @Override
@@ -411,8 +348,9 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
         }
 
         final Throwable outgoingError = getOutgoingError();
+        final AsyncRunner asyncRunner = getAsyncRunner();
 
-        try (final Disposable criticalSection = mutex.criticalSection())
+        mutex.criticalSection(() ->
         {
             while (pausedTasks.any())
             {
@@ -423,8 +361,8 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
                 }
                 pausedTask.schedule();
             }
-            getAsyncRunner().markCompleted(completed);
-        }
+            asyncRunner.markCompleted(completed);
+        });
     }
 
     protected abstract void runTask();
