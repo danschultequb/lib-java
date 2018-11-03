@@ -1,5 +1,7 @@
 package qub;
 
+import java.util.Calendar;
+
 public class DateTime implements Comparable<DateTime>
 {
     private final java.util.Calendar calendar;
@@ -71,37 +73,10 @@ public class DateTime implements Comparable<DateTime>
      */
     public DateTime plus(Duration duration)
     {
-        int calendarField;
-        switch (duration.getUnits())
-        {
-            case Weeks:
-                calendarField = java.util.Calendar.WEEK_OF_YEAR;
-                break;
-
-            case Days:
-                calendarField = java.util.Calendar.DAY_OF_MONTH;
-                break;
-
-            case Hours:
-                calendarField = java.util.Calendar.HOUR_OF_DAY;
-                break;
-
-            case Minutes:
-                calendarField = java.util.Calendar.MINUTE;
-                break;
-
-            case Seconds:
-                calendarField = java.util.Calendar.SECOND;
-                break;
-
-            default:
-                calendarField = java.util.Calendar.MILLISECOND;
-                duration = duration.toMilliseconds();
-                break;
-        }
+        PreCondition.assertNotNull(duration, "duration");
 
         DateTime result;
-        final int durationValue = (int)duration.getValue();
+        final int durationValue = (int)duration.toMilliseconds().getValue();
         if (durationValue == 0)
         {
             result = this;
@@ -109,7 +84,7 @@ public class DateTime implements Comparable<DateTime>
         else
         {
             final java.util.Calendar resultCalendar = (java.util.Calendar)calendar.clone();
-            resultCalendar.add(calendarField, durationValue);
+            resultCalendar.add(java.util.Calendar.MILLISECOND, durationValue);
             result = new DateTime(resultCalendar);
         }
 

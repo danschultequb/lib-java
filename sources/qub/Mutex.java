@@ -153,19 +153,103 @@ public interface Mutex
      */
     default <T> T criticalSection(Function0<T> function)
     {
+        PreCondition.assertNotNull(function, "function");
+
         T result = null;
-        if (function != null)
+        acquire();
+        try
         {
-            acquire();
+            result = function.run();
+        }
+        finally
+        {
+            release();
+        }
+        return result;
+    }
+
+    /**
+     * Run the provided action after this Mutex has been acquired and automatically release the
+     * Mutex when the action completes.
+     * @param timeout The maximum amount of time to wait for this criticalSection.
+     * @param function The function to run after acquiring this Mutex.
+     */
+    default <T> Result<T> criticalSection(Duration timeout, Function0<T> function)
+    {
+        PreCondition.assertGreaterThan(timeout, Duration.zero, "timeout");
+        PreCondition.assertNotNull(function, "function");
+        PreCondition.assertNotNull(getClock(), "getClock()");
+
+        return criticalSection(getClock().getCurrentDateTime().plus(timeout), function);
+    }
+
+    /**
+     * Run the provided action after this Mutex has been acquired and automatically release the
+     * Mutex when the action completes.
+     * @param timeout The maximum amount of time to wait for this criticalSection.
+     * @param function The function to run after acquiring this Mutex.
+     */
+    default <T> Result<T> criticalSection(DateTime timeout, Function0<T> function)
+    {
+        PreCondition.assertNotNull(timeout, "timeout");
+        PreCondition.assertNotNull(function, "function");
+        PreCondition.assertNotNull(getClock(), "getClock()");
+
+        return criticalSectionResult(timeout, () -> Result.success(function.run()));
+    }
+
+    /**
+     * Run the provided action after this Mutex has been acquired and automatically release the
+     * Mutex when the action completes.
+     * @param timeout The maximum amount of time to wait for this criticalSection.
+     * @param function The function to run after acquiring this Mutex.
+     */
+    default <T> Result<T> criticalSectionResult(Duration timeout, Function0<Result<T>> function)
+    {
+        PreCondition.assertGreaterThan(timeout, Duration.zero, "timeout");
+        PreCondition.assertNotNull(function, "function");
+        PreCondition.assertNotNull(getClock(), "getClock()");
+
+        return criticalSectionResult(getClock().getCurrentDateTime().plus(timeout), function);
+    }
+
+    /**
+     * Run the provided action after this Mutex has been acquired and automatically release the
+     * Mutex when the action completes.
+     * @param timeout The maximum amount of time to wait for this criticalSection.
+     * @param function The function to run after acquiring this Mutex.
+     */
+    default <T> Result<T> criticalSectionResult(DateTime timeout, Function0<Result<T>> function)
+    {
+        PreCondition.assertNotNull(timeout, "timeout");
+        PreCondition.assertNotNull(function, "function");
+        PreCondition.assertNotNull(getClock(), "getClock()");
+
+        Result<T> result;
+
+        final Result<Boolean> acquireResult = acquire(timeout);
+        if (acquireResult.hasError())
+        {
+            result = Result.error(acquireResult.getError());
+        }
+        else
+        {
             try
             {
                 result = function.run();
+            }
+            catch (Throwable error)
+            {
+                result = Result.error(error);
             }
             finally
             {
                 release();
             }
         }
+
+        PostCondition.assertNotNull(result, "result");
+
         return result;
     }
 

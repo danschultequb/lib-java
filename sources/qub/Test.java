@@ -880,29 +880,29 @@ public class Test
         }
     }
 
-    public <T extends Comparable<T>> void assertGreaterThanOrEqualTo(T lhs, T rhs)
+    public <T extends Comparable<T>> void assertGreaterThanOrEqualTo(T value, T lowerBound)
     {
-        assertGreaterThanOrEqualTo(lhs, rhs, null);
+        assertGreaterThanOrEqualTo(value, lowerBound, null);
     }
 
-    public <T extends Comparable<T>> void assertGreaterThanOrEqualTo(T lhs, T rhs, String message)
+    public <T extends Comparable<T>> void assertGreaterThanOrEqualTo(T value, T lowerBound, String message)
     {
-        if (!Comparer.greaterThanOrEqualTo(lhs, rhs))
+        if (!Comparer.greaterThanOrEqualTo(value, lowerBound))
         {
-            throw new TestAssertionFailure(getFullName(), getMessageLines(message, "greater than or equal to " + Objects.toString(rhs), lhs));
+            throw new TestAssertionFailure(getFullName(), getMessageLines(message, "greater than or equal to " + Objects.toString(lowerBound), value));
         }
     }
 
-    public <T extends Comparable<T>> void assertGreaterThanOrEqualTo(double lhs, double rhs)
+    public <T extends Comparable<T>> void assertGreaterThanOrEqualTo(double value, double lowerBound)
     {
-        assertGreaterThanOrEqualTo(lhs, rhs, null);
+        assertGreaterThanOrEqualTo(value, lowerBound, null);
     }
 
-    public <T extends Comparable<T>> void assertGreaterThanOrEqualTo(double lhs, double rhs, String message)
+    public <T extends Comparable<T>> void assertGreaterThanOrEqualTo(double value, double lowerBound, String message)
     {
-        if (!(lhs >= rhs))
+        if (!(value >= lowerBound))
         {
-            throw new TestAssertionFailure(getFullName(), getMessageLines(message, "greater than or equal to " + Objects.toString(rhs), lhs));
+            throw new TestAssertionFailure(getFullName(), getMessageLines(message, "greater than or equal to " + Objects.toString(lowerBound), value));
         }
     }
 

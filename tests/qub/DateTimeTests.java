@@ -383,13 +383,33 @@ public class DateTimeTests
                 runner.test("with null", (Test test) ->
                 {
                     final DateTime dateTime = DateTime.utc(10);
-                    test.assertThrows(() -> dateTime.plus(null), new NullPointerException());
+                    test.assertThrows(() -> dateTime.plus(null));
                 });
 
                 runner.test("with 0 seconds", (Test test) ->
                 {
                     final DateTime dateTime = DateTime.utc(10);
                     test.assertSame(dateTime, dateTime.plus(Duration.seconds(0)));
+                });
+
+                runner.test("with 100 milliseconds", (Test test) ->
+                {
+                    // 2018-11-03T16:08:59.437-06:00
+                    final DateTime dateTime = DateTime.local(2018, 11, 3, 16, 8, 59, 437);
+                    final Duration duration = Duration.milliseconds(100);
+                    final DateTime actual = dateTime.plus(duration);
+                    final DateTime expected = DateTime.local(2018, 11, 3, 16, 8, 59, 537);
+                    test.assertEqual(expected, actual);
+                });
+
+                runner.test("with 0.1 seconds", (Test test) ->
+                {
+                    // 2018-11-03T16:08:59.437-06:00
+                    final DateTime dateTime = DateTime.local(2018, 11, 3, 16, 8, 59, 437);
+                    final Duration duration = Duration.seconds(0.1);
+                    final DateTime actual = dateTime.plus(duration);
+                    final DateTime expected = DateTime.local(2018, 11, 3, 16, 8, 59, 537);
+                    test.assertEqual(expected, actual);
                 });
 
                 runner.test("with 10 seconds", (Test test) ->

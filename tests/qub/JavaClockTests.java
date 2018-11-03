@@ -18,9 +18,7 @@ public class JavaClockTests
                 runner.test("with null Duration", (Test test) ->
                 {
                     final JavaClock clock = createClock(test);
-                    test.assertThrows(
-                        () -> clock.scheduleAfter(null, () -> {}).await(),
-                        new NullPointerException());
+                    test.assertThrows(() -> clock.scheduleAfter(null, () -> {}).await());
                 });
 
                 runner.test("with negative Duration", (Test test) ->

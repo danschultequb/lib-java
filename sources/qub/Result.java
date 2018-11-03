@@ -119,6 +119,11 @@ final public class Result<T>
         return new Result<U>(value, error);
     }
 
+    public static <U> Result<U> isFalse(boolean value, String expressionName)
+    {
+        return Result.equal(false, value, expressionName);
+    }
+
     public static <T,U> Result<U> equal(T expectedValue, T value, String parameterName)
     {
         Result<U> result = null;

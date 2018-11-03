@@ -179,10 +179,20 @@ public interface AsyncRunner extends Disposable
      */
     default void awaitAll(AsyncAction... asyncActions)
     {
-        if (asyncActions != null && asyncActions.length > 0)
+        awaitAll(Array.fromValues(asyncActions));
+    }
+
+    /**
+     * Await all of the provided AsyncActions. The AsyncActions will be awaited in the order that
+     * they are iterated over in the provided Iterable.
+     * @param asyncActions The AsyncActions to await.
+     */
+    default void awaitAll(Iterable<? extends AsyncTask> asyncActions)
+    {
+        if (asyncActions != null && asyncActions.any())
         {
             final List<Throwable> errors = new ArrayList<>();
-            for (final AsyncAction asyncAction : asyncActions)
+            for (final AsyncTask asyncAction : asyncActions)
             {
                 try
                 {
