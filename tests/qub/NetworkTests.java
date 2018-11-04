@@ -33,7 +33,7 @@ public class NetworkTests
                     test.assertError(new java.net.ConnectException("Connection refused: connect"), tcpClientResult);
                 });
 
-                runner.test("with valid arguments and server listening", (Test test) ->
+                runner.test("with valid arguments and server listening", runner.skip(), (Test test) ->
                 {
                     final AsyncRunner asyncRunner = test.getParallelAsyncRunner();
                     final Network network = creator.run(test);

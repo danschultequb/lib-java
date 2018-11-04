@@ -588,17 +588,6 @@ public class MutexTests
                 });
             });
 
-            runner.test("criticalSection()", (Test test) ->
-            {
-                final Mutex mutex = create(creator);
-                try (final Disposable criticalSection = mutex.criticalSection())
-                {
-                    test.assertNotNull(criticalSection);
-                    test.assertTrue(mutex.isAcquired());
-                }
-                test.assertFalse(mutex.isAcquired());
-            });
-
             runner.testGroup(MutexCondition.class, () ->
             {
                 runner.testGroup("await(Duration)", () ->

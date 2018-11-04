@@ -41,11 +41,11 @@ public class ParallelAsyncRunner implements AsyncRunner
     {
         PreCondition.assertNotNull(asyncTaskCompleted, "asyncTaskCompleted");
 
-        try (final Disposable criticalSection = spinMutex.criticalSection())
+        spinMutex.criticalSection(() ->
         {
             scheduledTaskCount.decrementAndGet();
             asyncTaskCompleted.set(true);
-        }
+        });
     }
 
     @Override
@@ -56,28 +56,17 @@ public class ParallelAsyncRunner implements AsyncRunner
 
         if (!disposed)
         {
-            spinMutex.criticalSection(new Action0()
+            spinMutex.criticalSection(scheduledTaskCount::incrementAndGet);
+            final java.lang.Thread thread = new java.lang.Thread(() ->
             {
-                @Override
-                public void run()
+                AsyncRunnerRegistry.setCurrentThreadAsyncRunner(ParallelAsyncRunner.this);
+                try
                 {
-                    scheduledTaskCount.incrementAndGet();
+                    asyncTask.runAndSchedulePausedTasks();
                 }
-            });
-            final java.lang.Thread thread = new java.lang.Thread(new Action0()
-            {
-                @Override
-                public void run()
+                finally
                 {
-                    AsyncRunnerRegistry.setCurrentThreadAsyncRunner(ParallelAsyncRunner.this);
-                    try
-                    {
-                        asyncTask.runAndSchedulePausedTasks();
-                    }
-                    finally
-                    {
-                        AsyncRunnerRegistry.removeCurrentThreadAsyncRunner();
-                    }
+                    AsyncRunnerRegistry.removeCurrentThreadAsyncRunner();
                 }
             });
             thread.start();
@@ -89,7 +78,7 @@ public class ParallelAsyncRunner implements AsyncRunner
     {
         PreCondition.assertNotNull(action, "action");
 
-        final BasicAsyncAction result = new BasicAsyncAction(new Value<AsyncRunner>(this), label, action);
+        final BasicAsyncAction result = new BasicAsyncAction(new Value<>(this), label, action);
         schedule(result);
 
         PostCondition.assertNotNull(result, "result");
@@ -102,7 +91,7 @@ public class ParallelAsyncRunner implements AsyncRunner
     {
         PreCondition.assertNotNull(function, "function");
 
-        final BasicAsyncFunction<T> result = new BasicAsyncFunction<T>(new Value<AsyncRunner>(this), function);
+        final BasicAsyncFunction<T> result = new BasicAsyncFunction<>(new Value<>(this), function);
         schedule(result);
 
         PostCondition.assertNotNull(result, "result");

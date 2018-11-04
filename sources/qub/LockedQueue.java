@@ -38,19 +38,13 @@ public class LockedQueue<T> implements Queue<T>
     @Override
     public void enqueueAll(T[] values)
     {
-        try (final Disposable ignored = mutex.criticalSection())
-        {
-            innerQueue.enqueueAll(values);
-        }
+        mutex.criticalSection(() -> innerQueue.enqueueAll(values));
     }
 
     @Override
     public void enqueueAll(Iterable<T> values)
     {
-        try (final Disposable ignored = mutex.criticalSection())
-        {
-            innerQueue.enqueueAll(values);
-        }
+        mutex.criticalSection(() -> innerQueue.enqueueAll(values));
     }
 
     @Override

@@ -44,7 +44,7 @@ public class FakeTCPServer implements TCPServer
     {
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
-        try (final Disposable criticalSection = mutex.criticalSection())
+        return mutex.criticalSection(() ->
         {
             while (!disposed && !clientsToAccept.any())
             {
@@ -57,7 +57,7 @@ public class FakeTCPServer implements TCPServer
                 result = Result.success(clientsToAccept.removeFirst());
             }
             return result;
-        }
+        });
     }
 
     @Override
@@ -69,16 +69,13 @@ public class FakeTCPServer implements TCPServer
     @Override
     public boolean isDisposed()
     {
-        try (final Disposable criticalSection = mutex.criticalSection())
-        {
-            return disposed;
-        }
+        return mutex.criticalSection(() -> disposed);
     }
 
     @Override
     public Result<Boolean> dispose()
     {
-        try (final Disposable criticalSection = mutex.criticalSection())
+        return mutex.criticalSection(() ->
         {
             Result<Boolean> result;
             if (disposed)
@@ -92,17 +89,17 @@ public class FakeTCPServer implements TCPServer
                 result = Result.successTrue();
             }
             return result;
-        }
+        });
     }
 
     public void addIncomingClient(FakeTCPClient incomingClient)
     {
         PreCondition.assertNotNull(incomingClient, "incomingClient");
 
-        try (final Disposable criticalSection = mutex.criticalSection())
+        mutex.criticalSection(() ->
         {
             clientsToAccept.add(incomingClient);
             hasClientsToAccept.signalAll();
-        }
+        });
     }
 }

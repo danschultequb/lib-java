@@ -155,7 +155,7 @@ public interface Mutex
     {
         PreCondition.assertNotNull(function, "function");
 
-        T result = null;
+        T result;
         acquire();
         try
         {
@@ -251,16 +251,6 @@ public interface Mutex
         PostCondition.assertNotNull(result, "result");
 
         return result;
-    }
-
-    /**
-     * Acquire this mutex and return a Disposable that will release this mutex when it is disposed.
-     * @return
-     */
-    default Disposable criticalSection()
-    {
-        acquire();
-        return new BasicDisposable(this::release);
     }
 
     /**

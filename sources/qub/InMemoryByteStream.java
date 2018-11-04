@@ -62,9 +62,9 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
     {
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
-        Result<Byte> result;
-        try (final Disposable ignored = mutex.criticalSection())
+        return mutex.criticalSection(() ->
         {
+            Result<Byte> result;
             started = true;
 
             while (!disposed && !endOfStream && !bytes.any())
@@ -78,8 +78,8 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
                 current = bytes.any() ? bytes.removeFirst() : null;
                 result = Result.success(current);
             }
-        }
-        return result;
+            return result;
+        });
     }
 
     @Override
@@ -90,8 +90,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
         PreCondition.assertBetween(1, length, outputBytes.length - startIndex, "length");
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
-        Result<Integer> result;
-        try (final Disposable ignored = mutex.criticalSection())
+        return mutex.criticalSection(() ->
         {
             started = true;
 
@@ -100,7 +99,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
                 bytesAvailable.await();
             }
 
-            result = Result.equal(false, isDisposed(), "isDisposed()");
+            Result<Integer> result = Result.equal(false, isDisposed(), "isDisposed()");
             if (result == null)
             {
                 Integer bytesRead;
@@ -128,8 +127,8 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
                 }
                 result = Result.success(bytesRead);
             }
-        }
-        return result;
+            return result;
+        });
     }
 
     @Override
@@ -147,7 +146,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
     @Override
     public Result<Boolean> dispose()
     {
-        try (final Disposable ignored = mutex.criticalSection())
+        return mutex.criticalSection(() ->
         {
             Result<Boolean> result;
             if (!disposed)
@@ -162,7 +161,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
                 result = Result.successFalse();
             }
             return result;
-        }
+        });
     }
 
     @Override
@@ -190,7 +189,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
      */
     public InMemoryByteStream endOfStream()
     {
-        try (final Disposable ignored = mutex.criticalSection())
+        return mutex.criticalSection(() ->
         {
             if (!endOfStream)
             {
@@ -198,7 +197,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
                 bytesAvailable.signalAll();
             }
             return this;
-        }
+        });
     }
 
     @Override

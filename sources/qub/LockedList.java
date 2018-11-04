@@ -37,136 +37,91 @@ public class LockedList<T> implements List<T>
     @Override
     public void addAll(Iterator<T> values)
     {
-        try (final Disposable ignored = mutex.criticalSection())
-        {
-            innerList.addAll(values);
-        }
+        mutex.criticalSection(() -> innerList.addAll(values));
     }
 
     @Override
     public void addAll(Iterable<T> values)
     {
-        try (final Disposable ignored = mutex.criticalSection())
-        {
-            innerList.addAll(values);
-        }
+        mutex.criticalSection(() -> innerList.addAll(values));
     }
 
     @Override
     public boolean remove(T value)
     {
-        try (final Disposable ignored = mutex.criticalSection())
-        {
-            return innerList.remove(value);
-        }
+        return mutex.criticalSection(() -> innerList.remove(value));
     }
 
     @Override
     public T removeAt(int index)
     {
-        try (final Disposable ignored = mutex.criticalSection())
-        {
-            return innerList.removeAt(index);
-        }
+        return mutex.criticalSection(() -> innerList.removeAt(index));
     }
 
     @Override
     public T removeFirst()
     {
-        try (final Disposable ignored = mutex.criticalSection())
-        {
-            return innerList.removeFirst();
-        }
+        return mutex.criticalSection(() -> innerList.removeFirst());
     }
 
     @Override
     public T removeFirst(Function1<T, Boolean> condition)
     {
-        try (final Disposable ignored = mutex.criticalSection())
-        {
-            return innerList.removeFirst(condition);
-        }
+        return mutex.criticalSection(() -> innerList.removeFirst(condition));
     }
 
     @Override
     public T removeLast()
     {
-        try (final Disposable ignored = mutex.criticalSection())
-        {
-            return innerList.removeLast();
-        }
+        return mutex.criticalSection(() -> innerList.removeLast());
     }
 
     @Override
     public void clear()
     {
-        try (final Disposable ignored = mutex.criticalSection())
-        {
-            innerList.clear();
-        }
+        mutex.criticalSection(innerList::clear);
     }
 
     @Override
     public boolean endsWith(T value)
     {
-        try (final Disposable ignored = mutex.criticalSection())
-        {
-            return innerList.endsWith(value);
-        }
+        return mutex.criticalSection(() -> innerList.endsWith(value));
     }
 
     @Override
     public boolean endsWith(Iterable<T> values)
     {
-        try (final Disposable ignored = mutex.criticalSection())
-        {
-            return innerList.endsWith(values);
-        }
+        return mutex.criticalSection(() -> innerList.endsWith(values));
     }
 
     @Override
     public void set(int index, T value)
     {
-        try (final Disposable ignored = mutex.criticalSection())
-        {
-            innerList.set(index, value);
-        }
+        mutex.criticalSection(() -> innerList.set(index, value));
     }
 
     @Override
     public void setFirst(T value)
     {
-        try (final Disposable ignored = mutex.criticalSection())
-        {
-            innerList.setFirst(value);
-        }
+        mutex.criticalSection(() -> innerList.setFirst(value));
     }
 
     @Override
     public void setLast(T value)
     {
-        try (final Disposable ignored = mutex.criticalSection())
-        {
-            innerList.setLast(value);
-        }
+        mutex.criticalSection(() -> innerList.setLast(value));
     }
 
     @Override
     public T get(int index)
     {
-        try (final Disposable ignored = mutex.criticalSection())
-        {
-            return innerList.get(index);
-        }
+        return mutex.criticalSection(() -> innerList.get(index));
     }
 
     @Override
     public int indexOf(Function1<T, Boolean> condition)
     {
-        try (final Disposable ignored = mutex.criticalSection())
-        {
-            return innerList.indexOf(condition);
-        }
+        return mutex.criticalSection(() -> innerList.indexOf(condition));
     }
 
     @Override

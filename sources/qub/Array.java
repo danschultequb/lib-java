@@ -724,14 +724,7 @@ public class Array<T> implements MutableIndexable<T>
      */
     public static String toString(char[] array)
     {
-        return Array.toString(array, new Function1<Character,String>()
-        {
-            @Override
-            public String run(Character arg1)
-            {
-                return "'" + arg1 + "'";
-            }
-        });
+        return Array.toString(array, (Character c) -> "'" + c + "'");
     }
 
     /**

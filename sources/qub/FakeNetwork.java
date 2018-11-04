@@ -35,8 +35,7 @@ public class FakeNetwork implements Network
         PreCondition.assertNotNull(remoteIPAddress, "remoteIPAddress");
         PreCondition.assertBetween(1, remotePort, 65535, "remotePort");
 
-        Result<TCPClient> result;
-        try (final Disposable ignored = mutex.criticalSection())
+        return mutex.criticalSection(() ->
         {
             FakeTCPServer remoteTCPServer = null;
 
@@ -46,6 +45,7 @@ public class FakeNetwork implements Network
                 remoteTCPServer = remoteTCPServers.get(remotePort);
             }
 
+            Result<TCPClient> result;
             if (remoteTCPServer == null)
             {
                 result = Result.error(new java.net.ConnectException("Connection refused: connect"));
@@ -92,8 +92,8 @@ public class FakeNetwork implements Network
                     }
                 }
             }
-        }
-        return result;
+            return result;
+        });
     }
 
     private InMemoryByteStream createNetworkStream()
@@ -147,9 +147,9 @@ public class FakeNetwork implements Network
         Network.validateLocalIPAddress(localIPAddress);
         Network.validateLocalPort(localPort);
 
-        Result<TCPServer> result;
-        try (final Disposable ignored = mutex.criticalSection())
+        return mutex.criticalSection(() ->
         {
+            Result<TCPServer> result;
             if (!isAvailable(localIPAddress, localPort))
             {
                 result = Result.error(new java.io.IOException("IPAddress (" + localIPAddress + ") and port (" + localPort + ") are already bound."));
@@ -168,8 +168,9 @@ public class FakeNetwork implements Network
 
                 result = Result.success(tcpServer);
             }
-        }
-        return result;
+            return result;
+        });
+
     }
 
     @Override
@@ -195,22 +196,22 @@ public class FakeNetwork implements Network
         PreCondition.assertNotNull(ipAddress, "ipAddress");
         Network.validatePort(port, "port");
 
-        try (final Disposable ignored = mutex.criticalSection())
+        mutex.criticalSection(() ->
         {
             boundTCPServers.get(ipAddress).remove(port);
-        }
+        });
     }
 
     public void clientDisposed(FakeTCPClient tcpClient)
     {
         PreCondition.assertNotNull(tcpClient, "tcpClient");
 
-        try (final Disposable ignored = mutex.criticalSection())
+        mutex.criticalSection(() ->
         {
             decrementNetworkStream((InMemoryByteStream)tcpClient.getReadStream());
             decrementNetworkStream((InMemoryByteStream)tcpClient.getWriteStream());
             boundTCPClients.get(tcpClient.getLocalIPAddress()).remove(tcpClient.getLocalPort());
-        }
+        });
     }
 
     public boolean isAvailable(IPv4Address ipAddress, int port)

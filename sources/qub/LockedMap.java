@@ -19,192 +19,91 @@ public class LockedMap<TKey,TValue> implements Map<TKey,TValue>
     @Override
     public boolean containsKey(TKey key)
     {
-        try (final Disposable criticalSection = mutex.criticalSection())
-        {
-            return innerMap.containsKey(key);
-        }
+        return mutex.criticalSection(() -> innerMap.containsKey(key));
     }
 
     @Override
-    public TValue get(final TKey key)
+    public TValue get(TKey key)
     {
-        return mutex.criticalSection(new Function0<TValue>()
-        {
-            @Override
-            public TValue run()
-            {
-                return innerMap.get(key);
-            }
-        });
+        return mutex.criticalSection(() ->  innerMap.get(key));
     }
 
     @Override
-    public void set(final TKey key, final TValue value)
+    public void set(TKey key, TValue value)
     {
-        mutex.criticalSection(new Action0()
-        {
-            @Override
-            public void run()
-            {
-                innerMap.set(key, value);
-            }
-        });
+        mutex.criticalSection(() -> innerMap.set(key, value));
     }
 
     @Override
-    public boolean remove(final TKey key)
+    public boolean remove(TKey key)
     {
-        return mutex.criticalSection(new Function0<Boolean>()
-        {
-            @Override
-            public Boolean run()
-            {
-                return innerMap.remove(key);
-            }
-        });
+        return mutex.criticalSection(() -> innerMap.remove(key));
     }
 
     @Override
     public Iterable<TKey> getKeys()
     {
-        return mutex.criticalSection(new Function0<Iterable<TKey>>()
-        {
-            @Override
-            public Iterable<TKey> run()
-            {
-                return innerMap.getKeys();
-            }
-        });
+        return mutex.criticalSection(innerMap::getKeys);
     }
 
     @Override
     public Iterable<TValue> getValues()
     {
-        return mutex.criticalSection(new Function0<Iterable<TValue>>()
-        {
-            @Override
-            public Iterable<TValue> run()
-            {
-                return innerMap.getValues();
-            }
-        });
+        return mutex.criticalSection(innerMap::getValues);
     }
 
     @Override
     public Iterator<MapEntry<TKey, TValue>> iterate()
     {
-        return mutex.criticalSection(new Function0<Iterator<MapEntry<TKey, TValue>>>()
-        {
-            @Override
-            public Iterator<MapEntry<TKey, TValue>> run()
-            {
-                return innerMap.iterate();
-            }
-        });
+        return mutex.criticalSection(innerMap::iterate);
     }
 
     @Override
     public boolean any()
     {
-        return mutex.criticalSection(new Function0<Boolean>()
-        {
-            @Override
-            public Boolean run()
-            {
-                return innerMap.any();
-            }
-        });
+        return mutex.criticalSection(innerMap::any);
     }
 
     @Override
     public int getCount()
     {
-        return mutex.criticalSection(new Function0<Integer>()
-        {
-            @Override
-            public Integer run()
-            {
-                return innerMap.getCount();
-            }
-        });
+        return mutex.criticalSection(innerMap::getCount);
     }
 
     @Override
     public MapEntry<TKey, TValue> first()
     {
-        return mutex.criticalSection(new Function0<MapEntry<TKey, TValue>>()
-        {
-            @Override
-            public MapEntry<TKey, TValue> run()
-            {
-                return innerMap.first();
-            }
-        });
+        return mutex.criticalSection(() -> innerMap.first());
     }
 
     @Override
-    public MapEntry<TKey, TValue> first(final Function1<MapEntry<TKey, TValue>, Boolean> condition)
+    public MapEntry<TKey, TValue> first(Function1<MapEntry<TKey, TValue>, Boolean> condition)
     {
-        return mutex.criticalSection(new Function0<MapEntry<TKey, TValue>>()
-        {
-            @Override
-            public MapEntry<TKey, TValue> run()
-            {
-                return innerMap.first(condition);
-            }
-        });
+        return mutex.criticalSection(() -> innerMap.first(condition));
     }
 
     @Override
     public MapEntry<TKey, TValue> last()
     {
-        return mutex.criticalSection(new Function0<MapEntry<TKey, TValue>>()
-        {
-            @Override
-            public MapEntry<TKey, TValue> run()
-            {
-                return innerMap.last();
-            }
-        });
+        return mutex.criticalSection(() -> innerMap.last());
     }
 
     @Override
-    public MapEntry<TKey, TValue> last(final Function1<MapEntry<TKey, TValue>, Boolean> condition)
+    public MapEntry<TKey, TValue> last(Function1<MapEntry<TKey, TValue>, Boolean> condition)
     {
-        return mutex.criticalSection(new Function0<MapEntry<TKey, TValue>>()
-        {
-            @Override
-            public MapEntry<TKey, TValue> run()
-            {
-                return innerMap.last(condition);
-            }
-        });
+        return mutex.criticalSection(() -> innerMap.last(condition));
     }
 
     @Override
-    public boolean contains(final MapEntry<TKey, TValue> value)
+    public boolean contains(MapEntry<TKey, TValue> value)
     {
-        return mutex.criticalSection(new Function0<Boolean>()
-        {
-            @Override
-            public Boolean run()
-            {
-                return innerMap.contains(value);
-            }
-        });
+        return mutex.criticalSection(() -> innerMap.contains(value));
     }
 
     @Override
-    public boolean contains(final Function1<MapEntry<TKey, TValue>, Boolean> condition)
+    public boolean contains(Function1<MapEntry<TKey, TValue>, Boolean> condition)
     {
-        return mutex.criticalSection(new Function0<Boolean>()
-        {
-            @Override
-            public Boolean run()
-            {
-                return innerMap.contains(condition);
-            }
-        });
+        return mutex.criticalSection(() -> innerMap.contains(condition));
     }
 
     @Override
