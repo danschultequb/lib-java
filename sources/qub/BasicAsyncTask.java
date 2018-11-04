@@ -2,11 +2,11 @@ package qub;
 
 public abstract class BasicAsyncTask implements PausedAsyncTask
 {
-    private final Getable<AsyncRunner> asyncRunner;
-    private final List<AsyncTask> parentTasks;
-    private final List<BasicAsyncTask> pausedTasks;
-    private final Value<Boolean> completed;
     private final Mutex mutex;
+    private final Getable<AsyncRunner> asyncRunner;
+    private final Locked<List<AsyncTask>> parentTasks;
+    private final Locked<List<BasicAsyncTask>> pausedTasks;
+    private final Locked<Value<Boolean>> completed;
     private final String label;
     private volatile Throwable incomingError;
     private volatile Throwable outgoingError;
@@ -14,16 +14,16 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
     BasicAsyncTask(Getable<AsyncRunner> asyncRunner, String label)
     {
         this.asyncRunner = asyncRunner;
-        this.parentTasks = new SingleLinkList<>();
-        this.pausedTasks = LockedList.from(new SingleLinkList<>());
-        this.completed = new Value<Boolean>(false);
         this.mutex = new SpinMutex();
+        this.parentTasks = new Locked<>(new SingleLinkList<>(), mutex);
+        this.pausedTasks = new Locked<>(new SingleLinkList<>(), mutex);
+        this.completed = new Locked<>(new Value<>(false), mutex);
         this.label = label;
     }
 
     protected void markCompleted()
     {
-        completed.set(true);
+        completed.get((Value<Boolean> value) -> value.set(true));
     }
 
     @Override
@@ -40,25 +40,25 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
     @Override
     public int getParentTaskCount()
     {
-        return mutex.criticalSection(parentTasks::getCount);
+        return parentTasks.get((List<AsyncTask> values) -> values.getCount());
     }
 
     @Override
     public AsyncTask getParentTask(int index)
     {
-        return mutex.criticalSection(() -> parentTasks.get(index));
+        return parentTasks.get((List<AsyncTask> values) -> values.get(index));
     }
 
     @Override
     public void addParentTask(AsyncTask parentTask)
     {
-        mutex.criticalSection(() -> parentTasks.add(parentTask));
+        parentTasks.get((List<AsyncTask> values) -> values.add(parentTask));
     }
 
     @Override
     public boolean parentTasksContain(final AsyncTask parentTask)
     {
-        return mutex.criticalSection(() -> parentTasks.contains(parentTask));
+        return parentTasks.get((List<AsyncTask> values) -> values.contains(parentTask));
     }
 
     private void awaitParentTasks()
@@ -99,13 +99,13 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
      */
     public int getPausedTaskCount()
     {
-        return mutex.criticalSection(pausedTasks::getCount);
+        return pausedTasks.get((List<BasicAsyncTask> values) -> values.getCount());
     }
 
     @Override
     public boolean isCompleted()
     {
-        return mutex.criticalSection(completed::get);
+        return completed.get((Value<Boolean> value) -> value.get());
     }
 
     @Override
@@ -316,7 +316,7 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
     {
         return mutex.criticalSection(() ->
         {
-            if (completed.get())
+            if (isCompleted())
             {
                 final Throwable outgoingError = getOutgoingError();
                 if (outgoingError != null)
@@ -327,7 +327,7 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
             }
             else
             {
-                pausedTasks.add(asyncTask);
+                pausedTasks.get((List<BasicAsyncTask> values) -> values.add(asyncTask));
             }
             return asyncTask;
         });
@@ -352,16 +352,16 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
 
         mutex.criticalSection(() ->
         {
-            while (pausedTasks.any())
+            while (pausedTasks.get((List<BasicAsyncTask> values) -> values.any()))
             {
-                final BasicAsyncTask pausedTask = pausedTasks.removeFirst();
+                final BasicAsyncTask pausedTask = pausedTasks.get((List<BasicAsyncTask> values) -> values.removeFirst());
                 if (outgoingError != null)
                 {
                     pausedTask.setIncomingError(outgoingError);
                 }
                 pausedTask.schedule();
             }
-            asyncRunner.markCompleted(completed);
+            completed.get(asyncRunner::markCompleted);
         });
     }
 
