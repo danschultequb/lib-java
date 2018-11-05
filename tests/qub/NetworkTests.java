@@ -33,14 +33,14 @@ public class NetworkTests
                     test.assertError(new java.net.ConnectException("Connection refused: connect"), tcpClientResult);
                 });
 
-                runner.test("with valid arguments and server listening", runner.skip(), (Test test) ->
+                runner.test("with valid arguments and server listening", (Test test) ->
                 {
                     final AsyncRunner asyncRunner = test.getParallelAsyncRunner();
                     final Network network = creator.run(test);
 
                     final byte[] bytes = new byte[] { 1, 2, 3, 4, 5 };
 
-                    final int port = 8080;
+                    final int port = 8088;
 
                     final AsyncAction serverTask = asyncRunner.schedule(() ->
                     {
@@ -50,7 +50,8 @@ public class NetworkTests
                         {
                             test.assertEqual(IPv4Address.localhost, tcpServer.getLocalIPAddress());
                             test.assertEqual(port, tcpServer.getLocalPort());
-                            final Result<TCPClient> acceptedClientResult = tcpServer.accept();
+                            final Duration acceptTimeout = Duration.seconds(5);
+                            final Result<TCPClient> acceptedClientResult = tcpServer.accept(acceptTimeout);
                             test.assertSuccess(acceptedClientResult);
                             try (final TCPClient acceptedClient = acceptedClientResult.getValue())
                             {
@@ -62,7 +63,7 @@ public class NetworkTests
 
                     final AsyncAction clientTask = asyncRunner.schedule(() ->
                     {
-                        final Result<TCPClient> tcpClientResult = network.createTCPClient(IPv4Address.localhost, port);
+                        final Result<TCPClient> tcpClientResult = network.createTCPClient(IPv4Address.localhost, port, Duration.seconds(5));
                         test.assertSuccess(tcpClientResult);
                         try (final TCPClient tcpClient = tcpClientResult.getValue())
                         {

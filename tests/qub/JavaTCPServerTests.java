@@ -26,7 +26,9 @@ public class JavaTCPServerTests
 
                 runner.test("with null asyncRunner", (Test test) ->
                 {
-                    test.assertThrows(() -> JavaTCPServer.create(1, null));
+                    final Result<TCPServer> result = JavaTCPServer.create(1, null);
+                    test.assertSuccess(result);
+                    test.assertSuccess(true, result.getValue().dispose());
                 });
 
                 runner.test("with " + port.incrementAndGet() + " port", (Test test) ->
@@ -57,33 +59,31 @@ public class JavaTCPServerTests
             {
                 runner.test("with null and " + port.incrementAndGet() + " port", (Test test) ->
                 {
-                    final Result<TCPServer> tcpServer = JavaTCPServer.create(null, port.get(), test.getParallelAsyncRunner());
-                    test.assertError(new IllegalArgumentException("localIPAddress cannot be null."), tcpServer);
+                    test.assertThrows(() -> JavaTCPServer.create(null, port.get(), test.getParallelAsyncRunner()));
                 });
 
                 runner.test("with 127.0.0.1 and -1 port", (Test test) ->
                 {
-                    final Result<TCPServer> tcpServer = JavaTCPServer.create(IPv4Address.parse("127.0.0.1"), -1, test.getParallelAsyncRunner());
-                    test.assertError(new IllegalArgumentException("localPort (-1) must be between 1 and 65535."), tcpServer);
+                    test.assertThrows(() -> JavaTCPServer.create(IPv4Address.parse("127.0.0.1"), -1, test.getParallelAsyncRunner()));
                 });
 
                 runner.test("with 127.0.0.1 and 0 port", (Test test) ->
                 {
-                    final Result<TCPServer> tcpServer = JavaTCPServer.create(IPv4Address.parse("127.0.0.1"), 0, test.getParallelAsyncRunner());
-                    test.assertError(new IllegalArgumentException("localPort (0) must be between 1 and 65535."), tcpServer);
+                    test.assertThrows(() -> JavaTCPServer.create(IPv4Address.parse("127.0.0.1"), 0, test.getParallelAsyncRunner()));
                 });
 
                 runner.test("with 127.0.0.1, " + port.incrementAndGet() + " port, and null asyncRunner", (Test test) ->
                 {
                     final Result<TCPServer> tcpServer = JavaTCPServer.create(IPv4Address.parse("127.0.0.1"), port.get(), null);
-                    test.assertError(new IllegalArgumentException("asyncRunner cannot be null."), tcpServer);
+                    test.assertSuccess(tcpServer);
+                    test.assertSuccess(true, tcpServer.getValue().dispose());
                 });
 
                 runner.test("with 127.0.0.1 and " + port.incrementAndGet() + " port", (Test test) ->
                 {
                     final Result<TCPServer> tcpServer = JavaTCPServer.create(IPv4Address.parse("127.0.0.1"), port.get(), test.getParallelAsyncRunner());
                     test.assertSuccess(tcpServer);
-                    test.assertTrue(tcpServer.getValue().dispose().getValue());
+                    test.assertSuccess(true, tcpServer.getValue().dispose());
                 });
 
                 runner.test("with 127.0.0.1 and " + port.incrementAndGet() + " port when a different TCPServer is already bound to 127.0.0.1 and " + port, (Test test) ->
@@ -186,7 +186,7 @@ public class JavaTCPServerTests
 
                         final AsyncRunner currentThreadAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
                         // Parallel, Block
-                        final AsyncAction serverTask = asyncRunner.schedule(tcpServer::accept)
+                        final AsyncAction serverTask = asyncRunner.schedule(() -> tcpServer.accept())
                             .thenOn(currentThreadAsyncRunner)
                             .then((Result<TCPClient> serverClientResult) ->
                             {

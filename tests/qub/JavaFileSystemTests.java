@@ -27,6 +27,10 @@ public class JavaFileSystemTests
             {
                 final Path testFolderPath = tempFolderPath.concatenateSegment(Integer.toString(testNumber.incrementAndGet()));
                 folderFileSystem.set(FolderFileSystem.get(new JavaFileSystem(asyncRunner), testFolderPath).getValue());
+                if (folderFileSystem.get().exists().getValue())
+                {
+                    folderFileSystem.get().delete();
+                }
                 folderFileSystem.get().create();
                 return folderFileSystem.get();
             });

@@ -20,8 +20,7 @@ class JavaTCPServer implements TCPServer
 
     static Result<TCPServer> create(int localPort, AsyncRunner asyncRunner)
     {
-        PreCondition.assertBetween(1, localPort, 65535, "localPort");
-        PreCondition.assertNotNull(asyncRunner, "asyncRunner");
+        Network.validateLocalPort(localPort);
 
         Result<TCPServer> result;
         try
@@ -36,85 +35,49 @@ class JavaTCPServer implements TCPServer
         return result;
     }
 
-    static AsyncFunction<Result<TCPServer>> createAsync(final int localPort, final AsyncRunner asyncRunner)
+    static AsyncFunction<Result<TCPServer>> createAsync(int localPort, AsyncRunner asyncRunner)
     {
-        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+        Network.validateLocalPort(localPort);
+        PreCondition.assertNotNull(asyncRunner, "asyncRunner");
+        PreCondition.assertFalse(asyncRunner.isDisposed(), "asyncRunner.isDisposed()");
 
-        AsyncFunction<Result<TCPServer>> result = currentAsyncRunner.between(1, localPort, 65535, "localPort");
-        if (result == null)
-        {
-            result = currentAsyncRunner.notNull(asyncRunner, "asyncRunner");
-            if (result == null)
-            {
-                result = asyncRunner.schedule(new Function0<Result<TCPServer>>()
-                    {
-                        @Override
-                        public Result<TCPServer> run()
-                        {
-                            return JavaTCPServer.create(localPort, asyncRunner);
-                        }
-                    })
-                    .thenOn(currentAsyncRunner);
-            }
-        }
-        return result;
+        return asyncRunner.scheduleSingle(() -> JavaTCPServer.create(localPort, asyncRunner));
     }
 
     static Result<TCPServer> create(IPv4Address localIPAddress, int localPort, AsyncRunner asyncRunner)
     {
-        Result<TCPServer> result = Result.notNull(localIPAddress, "localIPAddress");
-        if (result == null)
+        Network.validateLocalIPAddress(localIPAddress);
+        Network.validateLocalPort(localPort);
+
+        Result<TCPServer> result;
+        try
         {
-            result = Result.between(1, localPort, 65535, "localPort");
-            if (result == null)
-            {
-                result = Result.notNull(asyncRunner, "asyncRunner");
-                if (result == null)
-                {
-                    try
-                    {
-                        final byte[] localIPAddressBytes = localIPAddress.toBytes();
-                        final InetAddress localInetAddress = InetAddress.getByAddress(localIPAddressBytes);
-                        final ServerSocket serverSocket = new ServerSocket(localPort, tcpClientBacklog, localInetAddress);
-                        result = Result.<TCPServer>success(new JavaTCPServer(serverSocket, asyncRunner));
-                    }
-                    catch (IOException e)
-                    {
-                        result = Result.error(e);
-                    }
-                }
-            }
+            final byte[] localIPAddressBytes = localIPAddress.toBytes();
+            final InetAddress localInetAddress = InetAddress.getByAddress(localIPAddressBytes);
+            final ServerSocket serverSocket = new ServerSocket(localPort, tcpClientBacklog, localInetAddress);
+            result = Result.success(new JavaTCPServer(serverSocket, asyncRunner));
+        }
+        catch (IOException e)
+        {
+            result = Result.error(e);
         }
         return result;
     }
 
-    static AsyncFunction<Result<TCPServer>> createAsync(final IPv4Address localIPAddress, final int localPort, final AsyncRunner asyncRunner)
+    static AsyncFunction<Result<TCPServer>> createAsync(IPv4Address localIPAddress, int localPort, AsyncRunner asyncRunner)
     {
-        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
+        Network.validateLocalIPAddress(localIPAddress);
+        Network.validateLocalPort(localPort);
+        PreCondition.assertNotNull(asyncRunner, "asyncRunner");
+        PreCondition.assertFalse(asyncRunner.isDisposed(), "asyncRunner.isDisposed()");
 
-        AsyncFunction<Result<TCPServer>> result = currentAsyncRunner.notNull(localIPAddress, "localIPAddress");
-        if (result == null)
-        {
-            result = currentAsyncRunner.between(1, localPort, 65535, "localPort");
-            if (result == null)
-            {
-                result = currentAsyncRunner.notNull(asyncRunner, "asyncRunner");
-                if (result == null)
-                {
-                    result = asyncRunner.schedule(new Function0<Result<TCPServer>>()
-                        {
-                            @Override
-                            public Result<TCPServer> run()
-                            {
-                                return JavaTCPServer.create(localIPAddress, localPort, asyncRunner);
-                            }
-                        })
-                        .thenOn(currentAsyncRunner);
-                }
-            }
-        }
+        return asyncRunner.scheduleSingle(() -> JavaTCPServer.create(localIPAddress, localPort, asyncRunner));
+    }
 
-        return result;
+    @Override
+    public Clock getClock()
+    {
+        return asyncRunner.getClock();
     }
 
     @Override
@@ -135,6 +98,22 @@ class JavaTCPServer implements TCPServer
 
     @Override
     public Result<TCPClient> accept()
+    {
+        Result<TCPClient> result;
+        try
+        {
+            final Socket socket = serverSocket.accept();
+            result = JavaTCPClient.create(socket, asyncRunner);
+        }
+        catch (IOException e)
+        {
+            result = Result.error(e);
+        }
+        return result;
+    }
+
+    @Override
+    public Result<TCPClient> accept(DateTime timeout)
     {
         Result<TCPClient> result;
         try
@@ -172,7 +151,7 @@ class JavaTCPServer implements TCPServer
             }
             catch (IOException e)
             {
-                result = Result.<Boolean>error(e);
+                result = Result.error(e);
             }
         }
         return result;

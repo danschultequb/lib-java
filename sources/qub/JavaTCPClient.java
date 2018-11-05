@@ -17,23 +17,21 @@ class JavaTCPClient implements TCPClient
 
     static Result<TCPClient> create(java.net.Socket socket, AsyncRunner asyncRunner)
     {
-        Result<TCPClient> result = Result.notNull(socket, "socket");
-        if (result == null)
+        PreCondition.assertNotNull(socket, "socket");
+        PreCondition.assertFalse(socket.isClosed(), "socket.isClosed()");
+        PreCondition.assertNotNull(asyncRunner, "asyncRunner");
+        PreCondition.assertFalse(asyncRunner.isDisposed(), "asyncRunner.isDisposed()");
+
+        Result<TCPClient> result;
+        try
         {
-            result = Disposable.validateNotDisposed(asyncRunner, "asyncRunner");
-            if (result == null)
-            {
-                try
-                {
-                    final ByteReadStream socketReadStream = new InputStreamToByteReadStream(socket.getInputStream(), asyncRunner);
-                    final ByteWriteStream socketWriteStream = new OutputStreamToByteWriteStream(socket.getOutputStream());
-                    result = Result.success(new JavaTCPClient(socket, asyncRunner, socketReadStream, socketWriteStream));
-                }
-                catch (java.io.IOException e)
-                {
-                    result = Result.error(e);
-                }
-            }
+            final ByteReadStream socketReadStream = new InputStreamToByteReadStream(socket.getInputStream(), asyncRunner);
+            final ByteWriteStream socketWriteStream = new OutputStreamToByteWriteStream(socket.getOutputStream());
+            result = Result.success(new JavaTCPClient(socket, asyncRunner, socketReadStream, socketWriteStream));
+        }
+        catch (java.io.IOException e)
+        {
+            result = Result.error(e);
         }
         return result;
     }

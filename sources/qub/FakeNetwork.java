@@ -4,6 +4,7 @@ public class FakeNetwork implements Network
 {
     private final AsyncRunner asyncRunner;
     private final Mutex mutex;
+    private final MutexCondition boundTCPServerAvailable;
     private final Map<IPv4Address,Map<Integer,FakeTCPClient>> boundTCPClients;
     private final Map<IPv4Address,Map<Integer,FakeTCPServer>> boundTCPServers;
     private final Map<InMemoryByteStream,Integer> streamReferenceCounts;
@@ -15,7 +16,8 @@ public class FakeNetwork implements Network
         PreCondition.assertNotNull(asyncRunner, "asyncRunner");
 
         this.asyncRunner = asyncRunner;
-        mutex = new SpinMutex();
+        mutex = new SpinMutex(asyncRunner.getClock());
+        boundTCPServerAvailable = mutex.createCondition();
         boundTCPClients = new ListMap<>();
         boundTCPServers = new ListMap<>();
         streamReferenceCounts = new ListMap<>();
@@ -32,25 +34,61 @@ public class FakeNetwork implements Network
     @Override
     public Result<TCPClient> createTCPClient(IPv4Address remoteIPAddress, int remotePort)
     {
-        PreCondition.assertNotNull(remoteIPAddress, "remoteIPAddress");
-        PreCondition.assertBetween(1, remotePort, 65535, "remotePort");
+        Network.validateRemoteIPAddress(remoteIPAddress);
+        Network.validateRemotePort(remotePort);
 
+        return createTCPClientInner(remoteIPAddress, remotePort, null);
+    }
+
+    @Override
+    public Result<TCPClient> createTCPClient(IPv4Address remoteIPAddress, int remotePort, DateTime timeout)
+    {
+        Network.validateRemoteIPAddress(remoteIPAddress);
+        Network.validateRemotePort(remotePort);
+        Network.validateTimeout(timeout);
+
+        return createTCPClientInner(remoteIPAddress, remotePort, timeout);
+    }
+
+    private Result<TCPClient> createTCPClientInner(IPv4Address remoteIPAddress, int remotePort, DateTime timeout)
+    {
         return mutex.criticalSection(() ->
         {
+            Result<TCPClient> result = null;
+
             FakeTCPServer remoteTCPServer = null;
 
-            final Map<Integer,FakeTCPServer> remoteTCPServers = boundTCPServers.get(remoteIPAddress);
-            if (remoteTCPServers != null)
-            {
-                remoteTCPServer = remoteTCPServers.get(remotePort);
-            }
+            final Clock clock = getAsyncRunner().getClock();
 
-            Result<TCPClient> result;
-            if (remoteTCPServer == null)
+            if (timeout != null && clock.getCurrentDateTime().greaterThanOrEqualTo(timeout))
             {
-                result = Result.error(new java.net.ConnectException("Connection refused: connect"));
+                result = Result.error(new TimeoutException());
             }
             else
+            {
+                while (remoteTCPServer == null && result == null)
+                {
+                    final Map<Integer,FakeTCPServer> remoteTCPServers = boundTCPServers.get(remoteIPAddress);
+                    if (remoteTCPServers != null)
+                    {
+                        remoteTCPServer = remoteTCPServers.get(remotePort);
+                    }
+                    else if (timeout == null)
+                    {
+                        result = Result.error(new java.net.ConnectException("Connection refused: connect"));
+                    }
+                    else
+                    {
+                        final Result<Boolean> awaitResult = boundTCPServerAvailable.await(timeout);
+                        if (awaitResult.hasError())
+                        {
+                            result = Result.error(awaitResult.getError());
+                        }
+                    }
+                }
+            }
+
+            if (result == null)
             {
                 final IPv4Address clientLocalIPAddress = IPv4Address.localhost;
                 int clientLocalPort = 65535;
@@ -167,6 +205,8 @@ public class FakeNetwork implements Network
                 localTCPServers.set(localPort, tcpServer);
 
                 result = Result.success(tcpServer);
+
+                boundTCPServerAvailable.signalAll();
             }
             return result;
         });
@@ -219,22 +259,25 @@ public class FakeNetwork implements Network
         PreCondition.assertNotNull(ipAddress, "ipAddress");
         Network.validatePort(port, "port");
 
-        boolean result = true;
+        return mutex.criticalSection(() ->
+        {
+            boolean result = true;
 
-        final Map<Integer, FakeTCPClient> localTCPClients = boundTCPClients.get(ipAddress);
-        if (localTCPClients != null && localTCPClients.get(port) != null)
-        {
-            result = false;
-        }
-        else
-        {
-            final Map<Integer, FakeTCPServer> localTCPServers = boundTCPServers.get(ipAddress);
-            if (localTCPServers != null && localTCPServers.get(port) != null)
+            final Map<Integer, FakeTCPClient> localTCPClients = boundTCPClients.get(ipAddress);
+            if (localTCPClients != null && localTCPClients.get(port) != null)
             {
                 result = false;
             }
-        }
+            else
+            {
+                final Map<Integer, FakeTCPServer> localTCPServers = boundTCPServers.get(ipAddress);
+                if (localTCPServers != null && localTCPServers.get(port) != null)
+                {
+                    result = false;
+                }
+            }
 
-        return result;
+            return result;
+        });
     }
 }

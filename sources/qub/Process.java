@@ -89,6 +89,7 @@ public class Process implements Disposable
         windows = new ArrayList<>();
 
         this.mainAsyncRunner = mainAsyncRunner;
+        mainAsyncRunner.setClockGetter(this::getClock);
         AsyncRunnerRegistry.setCurrentThreadAsyncRunner(mainAsyncRunner);
     }
 
@@ -102,6 +103,7 @@ public class Process implements Disposable
         if (parallelAsyncRunner == null)
         {
             parallelAsyncRunner = new ParallelAsyncRunner();
+            parallelAsyncRunner.setClockGetter(this::getClock);
         }
         return parallelAsyncRunner;
     }

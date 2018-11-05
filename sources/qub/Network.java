@@ -8,7 +8,45 @@ public interface Network
 
     default AsyncFunction<Result<TCPClient>> createTCPClientAsync(IPv4Address remoteIPAddress, int remotePort)
     {
+        validateRemoteIPAddress(remoteIPAddress);
+        validateRemotePort(remotePort);
+        validateAsyncRunner();
+
         return getAsyncRunner().scheduleSingle(() -> createTCPClient(remoteIPAddress, remotePort));
+    }
+
+    default Result<TCPClient> createTCPClient(IPv4Address remoteIPAddress, int remotePort, Duration timeout)
+    {
+        validateRemoteIPAddress(remoteIPAddress);
+        validateRemotePort(remotePort);
+        validateTimeout(timeout);
+        validateClock();
+
+        return createTCPClient(remoteIPAddress, remotePort, getAsyncRunner().getClock().getCurrentDateTime().plus(timeout));
+    }
+
+    default AsyncFunction<Result<TCPClient>> createTCPClientAsync(IPv4Address remoteIPAddress, int remotePort, Duration timeout)
+    {
+        validateRemoteIPAddress(remoteIPAddress);
+        validateRemotePort(remotePort);
+        validateTimeout(timeout);
+        validateAsyncRunner();
+        validateClock();
+
+        return getAsyncRunner().scheduleSingle(() -> createTCPClient(remoteIPAddress, remotePort, timeout));
+    }
+
+    Result<TCPClient> createTCPClient(IPv4Address remoteIPAddress, int remotePort, DateTime timeout);
+
+    default AsyncFunction<Result<TCPClient>> createTCPClientAsync(IPv4Address remoteIPAddress, int remotePort, DateTime timeout)
+    {
+        validateRemoteIPAddress(remoteIPAddress);
+        validateRemotePort(remotePort);
+        validateTimeout(timeout);
+        validateAsyncRunner();
+        validateClock();
+
+        return getAsyncRunner().scheduleSingle(() -> createTCPClient(remoteIPAddress, remotePort, timeout));
     }
 
     Result<TCPServer> createTCPServer(int localPort);
@@ -65,9 +103,25 @@ public interface Network
         Network.validatePort(remotePort, "remotePort");
     }
 
-    static void validateAsyncRunner(AsyncRunner asyncRunner)
+    static void validateTimeout(Duration timeout)
     {
-        PreCondition.assertNotNull(asyncRunner, "asyncRunner");
-        PreCondition.assertFalse(asyncRunner.isDisposed(), "asyncRunner.isDisposed()");
+        PreCondition.assertGreaterThan(timeout, Duration.zero, "timeout");
+    }
+
+    static void validateTimeout(DateTime timeout)
+    {
+        PreCondition.assertNotNull(timeout, "timeout");
+    }
+
+    default void validateAsyncRunner()
+    {
+        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
+        PreCondition.assertFalse(getAsyncRunner().isDisposed(), "getAsyncRunner().isDisposed()");
+    }
+
+    default void validateClock()
+    {
+        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
+        PreCondition.assertNotNull(getAsyncRunner().getClock(), "getAsyncRunner().getClock()");
     }
 }

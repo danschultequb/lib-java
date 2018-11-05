@@ -22,9 +22,17 @@ public class FakeTCPServer implements TCPServer
         this.localPort = localPort;
         this.network = network;
         this.asyncRunner = asyncRunner;
-        mutex = new SpinMutex();
+        mutex = new SpinMutex(asyncRunner.getClock());
         hasClientsToAccept = mutex.createCondition();
         clientsToAccept = new ArrayList<>();
+    }
+
+    @Override
+    public Clock getClock()
+    {
+        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
+
+        return asyncRunner.getClock();
     }
 
     @Override
@@ -55,6 +63,35 @@ public class FakeTCPServer implements TCPServer
             if (result == null)
             {
                 result = Result.success(clientsToAccept.removeFirst());
+            }
+            return result;
+        });
+    }
+
+    @Override
+    public Result<TCPClient> accept(DateTime timeout)
+    {
+        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+
+        return mutex.criticalSectionResult(timeout, () ->
+        {
+            Result<TCPClient> result = null;
+            while (!disposed && !clientsToAccept.any() && result == null)
+            {
+                final Result<Boolean> awaitResult = hasClientsToAccept.await(timeout);
+                if (awaitResult.hasError())
+                {
+                    result = Result.error(awaitResult.getError());
+                }
+            }
+
+            if (result == null)
+            {
+                result = Result.isFalse(disposed, "isDisposed()");
+                if (result == null)
+                {
+                    result = Result.success(clientsToAccept.removeFirst());
+                }
             }
             return result;
         });

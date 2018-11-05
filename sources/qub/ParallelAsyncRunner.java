@@ -1,33 +1,34 @@
 package qub;
 
+import com.sun.org.apache.xml.internal.dtm.ref.sax2dtm.SAX2DTM2;
+
 public class ParallelAsyncRunner implements AsyncRunner
 {
     private final java.util.concurrent.atomic.AtomicInteger scheduledTaskCount;
     private final Mutex spinMutex;
-    private Clock clock;
+    private Function0<Clock> clockGetter;
     private volatile boolean disposed;
 
     public ParallelAsyncRunner()
     {
-        this(null);
-    }
-
-    public ParallelAsyncRunner(Clock clock)
-    {
         scheduledTaskCount = new java.util.concurrent.atomic.AtomicInteger(0);
         spinMutex = new SpinMutex();
-        this.clock = clock;
+    }
+
+    @Override
+    public void setClockGetter(Function0<Clock> clockGetter)
+    {
+        PreCondition.assertNotNull(clockGetter, "clockGetter");
+
+        this.clockGetter = clockGetter;
     }
 
     @Override
     public Clock getClock()
     {
-        return clock;
-    }
+        PreCondition.assertNotNull(clockGetter, "clockGetter");
 
-    public void setClock(Clock clock)
-    {
-        this.clock = clock;
+        return clockGetter.run();
     }
 
     @Override

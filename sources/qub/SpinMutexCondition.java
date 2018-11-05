@@ -7,8 +7,16 @@ public class SpinMutexCondition implements MutexCondition
 
     public SpinMutexCondition(SpinMutex mutex)
     {
+        PreCondition.assertNotNull(mutex, "mutex");
+
         this.mutex = mutex;
-        this.condition = new SpinGate(false);
+        this.condition = new SpinGate(mutex.getClock(), false);
+    }
+
+    @Override
+    public Clock getClock()
+    {
+        return mutex.getClock();
     }
 
     @Override
@@ -32,6 +40,7 @@ public class SpinMutexCondition implements MutexCondition
     {
         PreCondition.assertGreaterThan(timeout, Duration.zero, "timeout");
         PreCondition.assertTrue(mutex.isAcquiredByCurrentThread(), "mutex.isAcquiredByCurrentThread()");
+        PreCondition.assertNotNull(getClock(), "getClock()");
 
         return await(mutex.getClock().getCurrentDateTime().plus(timeout));
     }
@@ -41,6 +50,7 @@ public class SpinMutexCondition implements MutexCondition
     {
         PreCondition.assertNotNull(timeout, "timeout");
         PreCondition.assertTrue(mutex.isAcquiredByCurrentThread(), "mutex.isAcquiredByCurrentThread()");
+        PreCondition.assertNotNull(getClock(), "getClock()");
 
         condition.close();
 

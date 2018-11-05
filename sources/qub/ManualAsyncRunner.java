@@ -3,29 +3,28 @@ package qub;
 public class ManualAsyncRunner implements AsyncRunner
 {
     private final BlockingQueue<PausedAsyncTask> scheduledTasks;
-    private Clock clock;
+    private Function0<Clock> clockGetter;
     private boolean disposed;
 
     public ManualAsyncRunner()
     {
-        this(null);
+        this.scheduledTasks = new JavaBlockingQueue<>(null);
     }
 
-    public ManualAsyncRunner(Clock clock)
+    @Override
+    public void setClockGetter(Function0<Clock> clockGetter)
     {
-        this.scheduledTasks = new JavaBlockingQueue<>(null);
-        this.clock = clock;
+        PreCondition.assertNotNull(clockGetter, "clockGetter");
+
+        this.clockGetter = clockGetter;
     }
 
     @Override
     public Clock getClock()
     {
-        return clock;
-    }
+        PreCondition.assertNotNull(clockGetter, "clockGetter");
 
-    public void setClock(Clock clock)
-    {
-        this.clock = clock;
+        return clockGetter.run();
     }
 
     @Override

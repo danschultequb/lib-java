@@ -93,6 +93,13 @@ public class Test
         return process.getDisplays();
     }
 
+    public void writeLine(String formattedText, Object... formattedTextArguments)
+    {
+        PreCondition.assertNotNull(process.getOutputAsByteWriteStream(), "process.getOutputAsByteWriteStream()");
+
+        process.getOutputAsLineWriteStream().writeLine(formattedText, formattedTextArguments);
+    }
+
     /**
      * Assert that the provided value is true. If it is not true, then a TestAssertionFailure will
      * be thrown.

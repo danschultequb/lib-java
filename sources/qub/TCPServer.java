@@ -3,6 +3,12 @@ package qub;
 public interface TCPServer extends AsyncDisposable
 {
     /**
+     * Get the Clock object that will be used to determine when an operation has timed out.
+     * @return The Clock object that will be used to determine when an operation has timed out.
+     */
+    Clock getClock();
+
+    /**
      * Get the local IP address that this client is connected to.
      * @return The local IP address that this client is connected to.
      */
@@ -22,6 +28,28 @@ public interface TCPServer extends AsyncDisposable
 
     /**
      * Accept a single incoming TCPClient.
+     * @param timeout The timeout for this operation.
+     * @return The accepted incoming TCPClient.
+     */
+    default Result<TCPClient> accept(Duration timeout)
+    {
+        PreCondition.assertGreaterThan(timeout, Duration.zero, "timeout");
+        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertNotNull(getClock(), "getClock()");
+
+        final DateTime dateTimeTimeout = getClock().getCurrentDateTime().plus(timeout);
+        return accept(dateTimeTimeout);
+    }
+
+    /**
+     * Accept a single incoming TCPClient.
+     * @param timeout The timeout for this operation.
+     * @return The accepted incoming TCPClient.
+     */
+    Result<TCPClient> accept(DateTime timeout);
+
+    /**
+     * Accept a single incoming TCPClient.
      * @return The accepted incoming TCPClient.
      */
     default AsyncFunction<Result<TCPClient>> acceptAsync()
@@ -29,6 +57,6 @@ public interface TCPServer extends AsyncDisposable
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
 
-        return getAsyncRunner().scheduleSingle(this::accept);
+        return getAsyncRunner().scheduleSingle(() -> accept());
     }
 }

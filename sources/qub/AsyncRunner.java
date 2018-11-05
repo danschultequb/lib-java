@@ -6,6 +6,12 @@ package qub;
 public interface AsyncRunner extends Disposable
 {
     /**
+     * Set the function that will be used to get this AsyncRunner's clock.
+     * @param clockGetter The function that will be used to get this AsyncRunner's clock.
+     */
+    void setClockGetter(Function0<Clock> clockGetter);
+
+    /**
      * Get the Clock object that this AsyncRunner uses to determine durations.
      * @return The Clock object that this AsyncRunner uses to determine durations.
      */
