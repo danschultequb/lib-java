@@ -6,19 +6,18 @@ public class HttpClientTests
     {
         runner.testGroup(HttpClient.class, () ->
         {
-            runner.testGroup("send(HttpRequest)", () ->
+            runner.testGroup("send(MutableHttpRequest)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
                     final HttpClient httpClient = creator.run(test);
-                    final Result<HttpResponse> response = httpClient.send(null);
-                    test.assertError(new IllegalArgumentException("request cannot be null."), response);
+                    test.assertThrows(() -> httpClient.send(null));
                 });
 
                 runner.test("with unknown host", runner.hasNetworkConnection(), (Test test) ->
                 {
                     final HttpClient httpClient = creator.run(test);
-                    final HttpRequest httpRequest = HttpRequest.create(HttpMethod.GET, "http://www.idontexistbecauseimnotagoodurl.com").getValue();
+                    final MutableHttpRequest httpRequest = new MutableHttpRequest(HttpMethod.GET, URL.parse("http://www.idontexistbecauseimnotagoodurl.com").throwErrorOrGetValue());
                     final Result<HttpResponse> httpResponse = httpClient.send(httpRequest);
                     test.assertError(new java.net.UnknownHostException("www.idontexistbecauseimnotagoodurl.com"), httpResponse);
                 });
@@ -26,13 +25,13 @@ public class HttpClientTests
                 runner.test("with GET request to www.example.com", runner.hasNetworkConnection(), (Test test) ->
                 {
                     final HttpClient httpClient = creator.run(test);
-                    final HttpRequest httpRequest = HttpRequest.create(HttpMethod.GET, "http://www.example.com").getValue();
+                    final MutableHttpRequest httpRequest = new MutableHttpRequest(HttpMethod.GET, URL.parse("http://www.example.com").throwErrorOrGetValue());
 
                     final Result<HttpResponse> httpResponseResult = httpClient.send(httpRequest);
                     test.assertSuccess(httpResponseResult);
 
                     final HttpResponse httpResponse = httpResponseResult.getValue();
-                    test.assertEqual("HTTP/1.1", httpResponse.getHttpVersion());
+                    test.assertEqual("HTTP/1.1", httpResponse.getHTTPVersion());
                     test.assertEqual(200, httpResponse.getStatusCode());
                     test.assertEqual("OK", httpResponse.getReasonPhrase());
                     test.assertNotNull(httpResponse.getHeaders());
@@ -51,13 +50,13 @@ public class HttpClientTests
                 runner.test("with GET request to http://www.treasurydirect.gov/TA_WS/securities/auctioned?format=json&type=Bill", runner.hasNetworkConnection(), (Test test) ->
                 {
                     final HttpClient httpClient = creator.run(test);
-                    final HttpRequest httpRequest = HttpRequest.create(HttpMethod.GET, "http://www.treasurydirect.gov/TA_WS/securities/auctioned?format=json&type=Bill").getValue();
+                    final MutableHttpRequest httpRequest = new MutableHttpRequest(HttpMethod.GET, URL.parse("http://www.treasurydirect.gov/TA_WS/securities/auctioned?format=json&type=Bill").throwErrorOrGetValue());
 
                     final Result<HttpResponse> httpResponseResult = httpClient.send(httpRequest);
                     test.assertSuccess(httpResponseResult);
 
                     final HttpResponse httpResponse = httpResponseResult.getValue();
-                    test.assertTrue(httpResponse.getHttpVersion().equals("HTTP/1.0") || httpResponse.getHttpVersion().equals("HTTP/1.1"));
+                    test.assertTrue(httpResponse.getHTTPVersion().equals("HTTP/1.0") || httpResponse.getHTTPVersion().equals("HTTP/1.1"));
                     test.assertEqual(302, httpResponse.getStatusCode());
                     test.assertEqual("Found", httpResponse.getReasonPhrase());
                     test.assertNotNull(httpResponse.getHeaders());

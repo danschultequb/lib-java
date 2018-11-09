@@ -8,6 +8,11 @@ package qub;
 public interface Map<TKey,TValue> extends Iterable<MapEntry<TKey,TValue>>
 {
     /**
+     * Remove all of the existing entries from this Map.
+     */
+    void clear();
+
+    /**
      * Get whether or not the provided key exists in this Map.
      * @param key The key to check.
      * @return Whether or not the provided key exists in this Map.

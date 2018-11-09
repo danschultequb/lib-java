@@ -1,0 +1,144 @@
+package qub;
+
+/**
+ * A HTTP request that will be sent from a TCPClient to a HTTP server.
+ */
+public class MutableHttpRequest implements HttpRequest
+{
+    private HttpMethod method;
+    private URL url;
+    private final MutableHttpHeaders headers;
+    private ByteReadStream body;
+
+    /**
+     * Create a new outgoing HTTP request object.
+     * @param method The HTTP method that will be used with this request.
+     * @param url The URL where this HTTP request will be sent to.
+     */
+    public MutableHttpRequest(HttpMethod method, URL url)
+    {
+        PreCondition.assertNotNull(method, "method");
+        PreCondition.assertNotNull(url, "url");
+
+        this.method = method;
+        this.url = url;
+        this.headers = new MutableHttpHeaders();
+    }
+
+    @Override
+    public HttpMethod getMethod()
+    {
+        return method;
+    }
+
+    public MutableHttpRequest setMethod(HttpMethod method)
+    {
+        PreCondition.assertNotNull(method, "method");
+
+        this.method = method;
+
+        return this;
+    }
+
+    @Override
+    public URL getURL()
+    {
+        return url;
+    }
+
+    public Result<Boolean> setUrl(String urlString)
+    {
+        PreCondition.assertNotNullAndNotEmpty(urlString, "urlString");
+
+        final Result<URL> url = URL.parse(urlString);
+        Result<Boolean> result;
+        if (url.hasError())
+        {
+            result = Result.error(url.getError());
+        }
+        else
+        {
+            setUrl(url.getValue());
+            result = Result.successTrue();
+        }
+        return result;
+    }
+
+    public MutableHttpRequest setUrl(URL url)
+    {
+        PreCondition.assertNotNull(url, "url");
+
+        this.url = url;
+
+        return this;
+    }
+
+    @Override
+    public HttpHeaders getHeaders()
+    {
+        return headers;
+    }
+
+    public MutableHttpRequest setHeader(String headerName, String headerValue)
+    {
+        headers.set(headerName, headerValue);
+
+        return this;
+    }
+
+    public MutableHttpRequest setHeader(String headerName, int headerValue)
+    {
+        headers.set(headerName, headerValue);
+
+        return this;
+    }
+
+    public MutableHttpRequest setHeader(String headerName, long headerValue)
+    {
+        headers.set(headerName, headerValue);
+
+        return this;
+    }
+
+    @Override
+    public ByteReadStream getBody()
+    {
+        return body;
+    }
+
+    public MutableHttpRequest setBody(long contentLength, ByteReadStream body)
+    {
+        PreCondition.assertGreaterThanOrEqualTo(contentLength, 0, "contentLength");
+        PreCondition.assertTrue(contentLength > 0 || body == null, "If contentLength is 0, then the body must be null.");
+        PreCondition.assertTrue(contentLength == 0 || body != null, "If contentLength is greater than 0, then body must be not null.");
+
+        this.body = body;
+
+        if (contentLength == 0)
+        {
+            this.headers.remove("Content-Length");
+        }
+        else
+        {
+            this.headers.set("Content-Length", contentLength);
+        }
+
+        return this;
+    }
+
+    public MutableHttpRequest setBody(byte[] bodyBytes)
+    {
+        final int contentLength = bodyBytes == null ? 0 : bodyBytes.length;
+        setBody(contentLength, contentLength == 0 ? null : new InMemoryByteStream(bodyBytes).endOfStream());
+
+        return this;
+    }
+
+    public MutableHttpRequest setBody(String bodyText)
+    {
+        final Result<byte[]> bodyBytes = CharacterEncoding.US_ASCII.encode(bodyText);
+        setBody(bodyBytes.hasError() ? null : bodyBytes.getValue());
+
+        return this;
+    }
+}

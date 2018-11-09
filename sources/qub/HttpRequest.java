@@ -1,197 +1,67 @@
 package qub;
 
 /**
- * A HTTP request that will be sent from a TCPClient to a HTTP server.
+ * An immutable HTTP request.
  */
-public class HttpRequest
+public interface HttpRequest
 {
-    private HttpMethod method;
-    private URL url;
-    private final MutableHttpHeaders headers;
-    private int contentLength;
-    private ByteReadStream body;
+    /**
+     * Get the HTTP method of this request.
+     * @return The HTTP method of this request.
+     */
+    HttpMethod getMethod();
 
-    private HttpRequest(HttpMethod method, URL url, Iterable<HttpHeader> headers, int contentLength, ByteReadStream body)
+    /**
+     * Get the target URL of this request.
+     * @return The target URL of this request.
+     */
+    URL getURL();
+
+    /**
+     * Get the headers that are included with this request.
+     * @return The headers that are included with this request.
+     */
+    HttpHeaders getHeaders();
+
+    /**
+     * Get the header in this request with the provided headerName.
+     * @param headerName The name of the header to get.
+     * @return The matching header or an error if the header was not found.
+     */
+    default Result<HttpHeader> getHeader(String headerName)
     {
-        this.method = method;
-        this.url = url;
-        this.headers = new MutableHttpHeaders(headers);
-        setBody(contentLength, body);
+        return getHeaders().get(headerName);
     }
 
-    public static Result<HttpRequest> create(HttpMethod method, String urlString)
+    /**
+     * Get the value of the header in this request with the provided headerName.
+     * @param headerName The name of the header to get the value of.
+     * @return The matching header value or an error if the header was not found.
+     */
+    default Result<String> getHeaderValue(String headerName)
     {
-        Result<HttpRequest> result;
-        final Result<URL> url = URL.parse(urlString);
-        if (url.hasError())
-        {
-            result = Result.error(url.getError());
-        }
-        else
-        {
-            result = create(method, url.getValue());
-        }
-        return result;
+        return getHeaders().getValue(headerName);
     }
 
-    public static Result<HttpRequest> create(HttpMethod method, URL url)
+    /**
+     * Get the parsed value of the Content-Length header that has been set in this request.
+     * @return The parsed value of the Content-Length header or an error if the header was not
+     * found.
+     */
+    default Result<Long> getContentLength()
     {
-        return HttpRequest.create(method, url, null, 0, null);
-    }
-
-    public static Result<HttpRequest> create(HttpMethod method, String urlString, Iterable<HttpHeader> headers, int contentLength, ByteReadStream body)
-    {
-        Result<HttpRequest> result;
-        final Result<URL> url = URL.parse(urlString);
-        if (url.hasError())
-        {
-            result = Result.error(url.getError());
-        }
-        else
-        {
-            result = create(method, url.getValue(), headers, contentLength, body);
-        }
-        return result;
-    }
-
-    public static Result<HttpRequest> create(HttpMethod method, URL url, Iterable<HttpHeader> headers, int contentLength, ByteReadStream body)
-    {
-        Result<HttpRequest> result = Result.notNull(method, "method");
+        final Result<String> headerValue = getHeaderValue(HttpHeader.ContentLengthName);
+        Result<Long> result = headerValue.convertError();
         if (result == null)
         {
-            result = Result.notNull(url, "url");
-            if (result == null)
-            {
-                result = Result.greaterThanOrEqualTo(contentLength, 0, "contentLength");
-                if (result == null)
-                {
-                    if (contentLength == 0 && body != null)
-                    {
-                        result = Result.error(new IllegalArgumentException("If contentLength is 0, then body must be null."));
-                    }
-                    else if (contentLength > 0 && body == null)
-                    {
-                        result = Result.error(new IllegalArgumentException("If contentLength is greater than 0, then body must be non-null."));
-                    }
-                    else
-                    {
-                        result = Result.success(new HttpRequest(method, url, headers, contentLength, body));
-                    }
-                }
-            }
+            result = Longs.parse(headerValue.getValue());
         }
         return result;
     }
 
-    public HttpMethod getMethod()
-    {
-        return method;
-    }
-
-    public Result<Boolean> setMethod(HttpMethod method)
-    {
-        Result<Boolean> result;
-        if (method == null)
-        {
-            result = Result.error(new IllegalArgumentException("method cannot be null."));
-        }
-        else
-        {
-            this.method = method;
-            result = Result.successTrue();
-        }
-        return result;
-    }
-
-    public URL getUrl()
-    {
-        return url;
-    }
-
-    public Result<Boolean> setUrl(String urlString)
-    {
-        Result<Boolean> result;
-        final Result<URL> url = URL.parse(urlString);
-        if (url.hasError())
-        {
-            result = Result.error(url.getError());
-        }
-        else
-        {
-            result = setUrl(url.getValue());
-        }
-        return result;
-    }
-
-    public Result<Boolean> setUrl(URL url)
-    {
-        Result<Boolean> result = Result.notNull(url, "url");
-        if (result == null)
-        {
-            this.url = url;
-            result = Result.successTrue();
-        }
-        return result;
-    }
-
-    public MutableHttpHeaders getHeaders()
-    {
-        return headers;
-    }
-
-    public int getContentLength()
-    {
-        return contentLength;
-    }
-
-    public ByteReadStream getBody()
-    {
-        return body;
-    }
-
-    public Result<Boolean> setBody(int contentLength, ByteReadStream body)
-    {
-        Result<Boolean> result;
-        if (contentLength < 0)
-        {
-            result = Result.error(new IllegalArgumentException("contentLength must be greater than or equal to 0."));
-        }
-        else if (contentLength == 0 && body != null)
-        {
-            result = Result.error(new IllegalArgumentException("If contentLength is 0, then body must be null."));
-        }
-        else if (contentLength > 0 && body == null)
-        {
-            result = Result.error(new IllegalArgumentException("If contentLength is greater than 0, then body must be not null."));
-        }
-        else
-        {
-            this.contentLength = contentLength;
-            this.body = body;
-
-            if (this.contentLength == 0)
-            {
-                this.headers.remove("Content-Length");
-            }
-            else
-            {
-                this.headers.set("Content-Length", Integer.toString(contentLength));
-            }
-
-            result = Result.successTrue();
-        }
-        return result;
-    }
-
-    public void setBody(byte[] bodyBytes)
-    {
-        final int contentLength = bodyBytes == null ? 0 : bodyBytes.length;
-        setBody(contentLength, contentLength == 0 ? null : new InMemoryByteStream(bodyBytes).endOfStream());
-    }
-
-    public void setBody(String bodyText)
-    {
-        final Result<byte[]> bodyBytes = CharacterEncoding.US_ASCII.encode(bodyText);
-        setBody(bodyBytes.hasError() ? null : bodyBytes.getValue());
-    }
+    /**
+     * Get the body of this request.
+     * @return The body of this request.
+     */
+    ByteReadStream getBody();
 }

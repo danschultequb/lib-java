@@ -5,37 +5,36 @@ package qub;
  */
 public class HttpHeader
 {
+    /**
+     * The standard name for the content length header.
+     */
+    public static final String ContentLengthName = "Content-Length";
+
     private final String name;
     private final String value;
 
-    private HttpHeader(String name, String value)
+    /**
+     * Create a new HTTP header with the provided name and value.
+     * @param name The name of the HTTP header.
+     * @param value The value of the HTTP header.
+     */
+    public HttpHeader(String name, int value)
     {
-        this.name = name;
-        this.value = value;
+        this(name, Integers.toString(value));
     }
 
     /**
      * Create a new HTTP header with the provided name and value.
      * @param name The name of the HTTP header.
      * @param value The value of the HTTP header.
-     * @return The created HttpHeader.
      */
-    public static Result<HttpHeader> create(String name, String value)
+    public HttpHeader(String name, String value)
     {
-        Result<HttpHeader> result;
-        if (Strings.isNullOrEmpty(name))
-        {
-            result = Result.error(new IllegalArgumentException("name cannot be null or empty."));
-        }
-        else if (Strings.isNullOrEmpty(value))
-        {
-            result = Result.error(new IllegalArgumentException("value cannot be null or empty."));
-        }
-        else
-        {
-            result = Result.success(new HttpHeader(name, value));
-        }
-        return result;
+        PreCondition.assertNotNullAndNotEmpty(name, "name");
+        PreCondition.assertNotNullAndNotEmpty(value, "value");
+
+        this.name = name;
+        this.value = value;
     }
 
     /**

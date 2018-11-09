@@ -1,77 +1,73 @@
 package qub;
 
 /**
- * The HTTP response sent from a HTTP server to a HTTP client as a result of a HTTP request.
+ * An object sent in response to an HTTP request.
  */
-public class HttpResponse implements AsyncDisposable
+public interface HttpResponse extends Disposable
 {
-    private final String httpVersion;
-    private final int statusCode;
-    private final String reasonPhrase;
-    private final HttpHeaders headers;
-    private final ByteReadStream body;
+    /**
+     * Get the HTTP version of this response.
+     * @return The HTTP version of this response.
+     */
+    String getHTTPVersion();
 
-    public HttpResponse(String httpVersion, int statusCode, String reasonPhrase, HttpHeaders headers, ByteReadStream body)
-    {
-        this.httpVersion = httpVersion;
-        this.statusCode = statusCode;
-        this.reasonPhrase = reasonPhrase;
-        this.headers = headers;
-        this.body = body;
-    }
+    /**
+     * Get the status code of this response.
+     * @return The status code of this response.
+     */
+    int getStatusCode();
 
-    public String getHttpVersion()
+    /**
+     * Get the description of the status code.
+     * @return The description of the status code.
+     */
+    String getReasonPhrase();
+
+    /**
+     * Get the headers that are included in this response.
+     * @return The headers that are included in this response.
+     */
+    HttpHeaders getHeaders();
+
+    /**
+     * Get the header in this response with the provided headerName.
+     * @param headerName The name of the header to get.
+     * @return The matching header or an error if the header was not found.
+     */
+    default Result<HttpHeader> getHeader(String headerName)
     {
-        return httpVersion;
+        return getHeaders().get(headerName);
     }
 
     /**
-     * Get the status code sent from the HTTP server.
-     * @return The status code sent from the HTTP server.
+     * Get the value of the header in this response with the provided headerName.
+     * @param headerName The name of the header to get the value of.
+     * @return The matching header value or an error if the header was not found.
      */
-    public int getStatusCode()
+    default Result<String> getHeaderValue(String headerName)
     {
-        return statusCode;
-    }
-
-    public String getReasonPhrase()
-    {
-        return reasonPhrase;
+        return getHeaders().getValue(headerName);
     }
 
     /**
-     * Get the HTTP headers that were sent from the HTTP server.
-     * @return The HTTP headers that were sent from the HTTP server.
+     * Get the parsed value of the Content-Length header that has been set in this response.
+     * @return The parsed value of the Content-Length header or an error if the header was not
+     * found.
      */
-    public HttpHeaders getHeaders()
+    default Result<Long> getContentLength()
     {
-        return headers;
+        final Result<String> headerValue = getHeaderValue(HttpHeader.ContentLengthName);
+        Result<Long> result = headerValue.convertError();
+        if (result == null)
+        {
+            result = Longs.parse(headerValue.getValue());
+        }
+        return result;
     }
 
     /**
-     * Get the body of this HttpResponse.
-     * @return The body of this HttpResponse.
+     * Get the body of this response.
+     * @return The body of this response.
      */
-    public ByteReadStream getBody()
-    {
-        return body;
-    }
-
-    @Override
-    public AsyncRunner getAsyncRunner()
-    {
-        return body.getAsyncRunner();
-    }
-
-    @Override
-    public boolean isDisposed()
-    {
-        return body.isDisposed();
-    }
-
-    @Override
-    public Result<Boolean> dispose()
-    {
-        return body.dispose();
-    }
+    ByteReadStream getBody();
 }

@@ -31,14 +31,45 @@ final public class Result<T>
         return error == null ? null : error.getClass();
     }
 
+    /**
+     * If this Result has an error, then return the error's message. If this Result doesn't have an
+     * error, then return null.
+     * @return The message of this Result's error, or null if this Result doesn't have an error.
+     */
     final public String getErrorMessage()
     {
         return error == null ? null : error.getMessage();
     }
 
+    /**
+     * If this Result has an error, then the error will be thrown as a RuntimeException.
+     */
     final public void throwError()
     {
         Exceptions.throwAsRuntime(error);
+    }
+
+    /**
+     * If this Result has an error, then the error will be thrown as a RuntimeException. If the
+     * Result does not have an error, then the value will be returned.
+     * @return The value of this Result.
+     */
+    public T throwErrorOrGetValue()
+    {
+        throwError();
+        return value;
+    }
+
+    /**
+     * Convert this Result object to the target Result object type if this Result has an error. If
+     * this Result does not have an error, then return null.
+     * @param <U> The target Result object type.
+     * @return The converted Result object if this Result has an error or null if this Result does
+     * not have an error.
+     */
+    final <U> Result<U> convertError()
+    {
+        return hasError() ? Result.error(error) : null;
     }
 
     @Override

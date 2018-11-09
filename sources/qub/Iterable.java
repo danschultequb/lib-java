@@ -7,6 +7,16 @@ package qub;
 public interface Iterable<T> extends java.lang.Iterable<T>
 {
     /**
+     * Get an empty Iterable.
+     * @param <U> The type of values that would be stored in the Iterable.
+     * @return An empty Iterable.
+     */
+    static <U> Iterable<U> empty()
+    {
+        return new Array<>(0);
+    }
+
+    /**
      * Get an Iterator that will iterate over the contents of this Iterable.
      * @return An Iterator that will iterate over the contents of this Iterable.
      */

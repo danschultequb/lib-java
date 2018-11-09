@@ -10,30 +10,29 @@ public class HttpHeaderTests
             {
                 runner.test("with null name", (Test test) ->
                 {
-                    test.assertError(new IllegalArgumentException("name cannot be null or empty."), HttpHeader.create(null, "V"));
+                    test.assertThrows(() -> new HttpHeader(null, "V"));
                 });
 
                 runner.test("with empty name", (Test test) ->
                 {
-                    test.assertError(new IllegalArgumentException("name cannot be null or empty."), HttpHeader.create("", "V"));
+                    test.assertThrows(() -> new HttpHeader("", "V"));
                 });
 
                 runner.test("with null value", (Test test) ->
                 {
-                    test.assertError(new IllegalArgumentException("value cannot be null or empty."), HttpHeader.create("N", null));
+                    test.assertThrows(() -> new HttpHeader("N", null));
                 });
 
                 runner.test("with empty value", (Test test) ->
                 {
-                    test.assertError(new IllegalArgumentException("value cannot be null or empty."), HttpHeader.create("N", ""));
+                    test.assertThrows(() -> new HttpHeader("N", ""));
                 });
 
                 runner.test("with name and value", (Test test) ->
                 {
-                    final Result<HttpHeader> header = HttpHeader.create("user-agent", "qub-browser");
-                    test.assertSuccess(header);
-                    test.assertEqual("user-agent", header.getValue().getName());
-                    test.assertEqual("qub-browser", header.getValue().getValue());
+                    final HttpHeader header = new HttpHeader("user-agent", "qub-browser");
+                    test.assertEqual("user-agent", header.getName());
+                    test.assertEqual("qub-browser", header.getValue());
                 });
             });
 
@@ -41,38 +40,38 @@ public class HttpHeaderTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final HttpHeader header = HttpHeader.create("apples", "fruit").getValue();
+                    final HttpHeader header = new HttpHeader("apples", "fruit");
                     test.assertFalse(header.equals((Object)null));
                 });
 
                 runner.test("with different type", (Test test) ->
                 {
-                    final HttpHeader header = HttpHeader.create("apples", "fruit").getValue();
+                    final HttpHeader header = new HttpHeader("apples", "fruit");
                     test.assertFalse(header.equals((Object)"test"));
                 });
 
                 runner.test("with different header name", (Test test) ->
                 {
-                    final HttpHeader header = HttpHeader.create("apples", "fruit").getValue();
-                    test.assertFalse(header.equals((Object)HttpHeader.create("oranges", "fruit").getValue()));
+                    final HttpHeader header = new HttpHeader("apples", "fruit");
+                    test.assertFalse(header.equals((Object)new HttpHeader("oranges", "fruit").getValue()));
                 });
 
                 runner.test("with different header value", (Test test) ->
                 {
-                    final HttpHeader header = HttpHeader.create("apples", "fruit").getValue();
-                    test.assertFalse(header.equals((Object)HttpHeader.create("apples", "yummy").getValue()));
+                    final HttpHeader header = new HttpHeader("apples", "fruit");
+                    test.assertFalse(header.equals((Object)new HttpHeader("apples", "yummy").getValue()));
                 });
 
                 runner.test("with same header", (Test test) ->
                 {
-                    final HttpHeader header = HttpHeader.create("apples", "fruit").getValue();
+                    final HttpHeader header = new HttpHeader("apples", "fruit");
                     test.assertTrue(header.equals((Object)header));
                 });
 
                 runner.test("with equal header", (Test test) ->
                 {
-                    final HttpHeader header = HttpHeader.create("apples", "fruit").getValue();
-                    test.assertTrue(header.equals((Object)HttpHeader.create("apples", "fruit").getValue()));
+                    final HttpHeader header = new HttpHeader("apples", "fruit");
+                    test.assertTrue(header.equals((Object)new HttpHeader("apples", "fruit")));
                 });
             });
 
@@ -80,38 +79,38 @@ public class HttpHeaderTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final HttpHeader header = HttpHeader.create("apples", "fruit").getValue();
+                    final HttpHeader header = new HttpHeader("apples", "fruit");
                     test.assertFalse(header.equals((HttpHeader)null));
                 });
 
                 runner.test("with different header name", (Test test) ->
                 {
-                    final HttpHeader header = HttpHeader.create("apples", "fruit").getValue();
-                    test.assertFalse(header.equals(HttpHeader.create("oranges", "fruit").getValue()));
+                    final HttpHeader header = new HttpHeader("apples", "fruit");
+                    test.assertFalse(header.equals(new HttpHeader("oranges", "fruit")));
                 });
 
                 runner.test("with different header value", (Test test) ->
                 {
-                    final HttpHeader header = HttpHeader.create("apples", "fruit").getValue();
-                    test.assertFalse(header.equals(HttpHeader.create("apples", "yummy").getValue()));
+                    final HttpHeader header = new HttpHeader("apples", "fruit");
+                    test.assertFalse(header.equals(new HttpHeader("apples", "yummy")));
                 });
 
                 runner.test("with same header", (Test test) ->
                 {
-                    final HttpHeader header = HttpHeader.create("apples", "fruit").getValue();
+                    final HttpHeader header = new HttpHeader("apples", "fruit");
                     test.assertTrue(header.equals(header));
                 });
 
                 runner.test("with equal header", (Test test) ->
                 {
-                    final HttpHeader header = HttpHeader.create("apples", "fruit").getValue();
-                    test.assertTrue(header.equals(HttpHeader.create("apples", "fruit").getValue()));
+                    final HttpHeader header = new HttpHeader("apples", "fruit");
+                    test.assertTrue(header.equals(new HttpHeader("apples", "fruit")));
                 });
             });
 
             runner.test("toString()", (Test test) ->
             {
-                final HttpHeader header = HttpHeader.create("A", "B").getValue();
+                final HttpHeader header = new HttpHeader("A", "B");
                 test.assertEqual("A: B", header.toString());
             });
         });

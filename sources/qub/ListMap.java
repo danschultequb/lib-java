@@ -25,6 +25,12 @@ public class ListMap<TKey,TValue> implements Map<TKey,TValue>
     }
 
     @Override
+    public void clear()
+    {
+        entries.clear();
+    }
+
+    @Override
     public boolean containsKey(TKey key)
     {
         return getEntry(key) != null;

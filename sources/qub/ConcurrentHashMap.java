@@ -20,6 +20,12 @@ public class ConcurrentHashMap<TKey,TValue> implements Map<TKey,TValue>
     }
 
     @Override
+    public void clear()
+    {
+        javaMap.clear();
+    }
+
+    @Override
     public boolean containsKey(TKey key)
     {
         return javaMap.containsKey(key);

@@ -13,18 +13,19 @@ public class JavaHttpClientTests
         {
             HttpClientTests.test(runner, JavaHttpClientTests::createHttpClient);
 
-            runner.testGroup("send(HttpRequest)", () ->
+            runner.testGroup("send(MutableHttpRequest)", () ->
             {
                 runner.test("with GET request to https://www.treasurydirect.gov/TA_WS/securities/auctioned?format=json&type=Bill", runner.hasNetworkConnection(), (Test test) ->
                 {
                     final HttpClient httpClient = createHttpClient(test);
-                    final HttpRequest httpRequest = HttpRequest.create(HttpMethod.GET, "https://www.treasurydirect.gov/TA_WS/securities/auctioned?format=json&type=Bill").getValue();
+                    final URL requestURL = URL.parse("https://www.treasurydirect.gov/TA_WS/securities/auctioned?format=json&type=Bill").throwErrorOrGetValue();
+                    final MutableHttpRequest httpRequest = new MutableHttpRequest(HttpMethod.GET, requestURL);
 
                     final Result<HttpResponse> httpResponseResult = httpClient.send(httpRequest);
                     test.assertSuccess(httpResponseResult);
 
                     final HttpResponse httpResponse = httpResponseResult.getValue();
-                    test.assertEqual("HTTP/1.1", httpResponse.getHttpVersion());
+                    test.assertEqual("HTTP/1.1", httpResponse.getHTTPVersion());
                     test.assertEqual(200, httpResponse.getStatusCode());
                     test.assertEqual("OK", httpResponse.getReasonPhrase());
                     test.assertNotNull(httpResponse.getHeaders());

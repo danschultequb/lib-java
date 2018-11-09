@@ -12,7 +12,7 @@ public class MutableHttpHeaders implements HttpHeaders
      */
     public MutableHttpHeaders()
     {
-        headerMap = new ListMap<String,HttpHeader>();
+        headerMap = new ListMap<>();
     }
 
     public MutableHttpHeaders(Iterable<HttpHeader> headers)
@@ -39,49 +39,68 @@ public class MutableHttpHeaders implements HttpHeaders
     }
 
     /**
+     * Remove all headers from this HTTP header collection.
+     */
+    public void clear()
+    {
+        headerMap.clear();
+    }
+
+    /**
      * Set the provided header within this HTTP headers collection.
      * @param header The header to set.
-     * @return Whether or not the header was set.
      */
-    public Result<Boolean> set(HttpHeader header)
+    public void set(HttpHeader header)
     {
-        Result<Boolean> result;
+        PreCondition.assertNotNull(header, "header");
 
-        if (header == null)
-        {
-            result = Result.error(new IllegalArgumentException("header cannot be null."));
-        }
-        else
-        {
-            result = set(header.getName(), header.getValue());
-        }
-
-        return result;
+        set(header.getName(), header.getValue());
     }
 
     /**
      * Set the provided header name and value within this HTTP headers collection.
      * @param headerName The name of the header to set.
      * @param headerValue The value of the header to set.
-     * @return Whether or not the header was set.
      */
-    public Result<Boolean> set(String headerName, String headerValue)
+    public void set(String headerName, int headerValue)
     {
-        Result<Boolean> result;
+        PreCondition.assertNotNullAndNotEmpty(headerName, "headerName");
 
-        final Result<HttpHeader> headerResult = HttpHeader.create(headerName, headerValue);
-        if (headerResult.hasError())
-        {
-            result = Result.done(false, headerResult.getError());
-        }
-        else
-        {
-            final HttpHeader header = headerResult.getValue();
-            headerMap.set(getHeaderKey(header), header);
-            result = Result.success(true);
-        }
+        set(headerName, Integers.toString(headerValue));
+    }
 
-        return result;
+    /**
+     * Set the provided header name and value within this HTTP headers collection.
+     * @param headerName The name of the header to set.
+     * @param headerValue The value of the header to set.
+     */
+    public void set(String headerName, long headerValue)
+    {
+        PreCondition.assertNotNullAndNotEmpty(headerName, "headerName");
+
+        set(headerName, Longs.toString(headerValue));
+    }
+
+    /**
+     * Set the provided header name and value within this HTTP headers collection.
+     * @param headerName The name of the header to set.
+     * @param headerValue The value of the header to set.
+     */
+    public void set(String headerName, String headerValue)
+    {
+        PreCondition.assertNotNullAndNotEmpty(headerName, "headerName");
+        PreCondition.assertNotNullAndNotEmpty(headerValue, "headerValue");
+
+        final HttpHeader header = new HttpHeader(headerName, headerValue);
+        headerMap.set(getHeaderKey(header), header);
+    }
+
+    @Override
+    public boolean contains(String headerName)
+    {
+        PreCondition.assertNotNullAndNotEmpty(headerName, "headerName");
+
+        return get(headerName).getValue() != null;
     }
 
     /**
@@ -91,23 +110,19 @@ public class MutableHttpHeaders implements HttpHeaders
      */
     public Result<HttpHeader> get(String headerName)
     {
-        Result<HttpHeader> result;
+        PreCondition.assertNotNullAndNotEmpty(headerName, "headerName");
 
-        if (Strings.isNullOrEmpty(headerName))
+        final String headerKey = getHeaderKey(headerName);
+        final HttpHeader header = headerMap.get(headerKey);
+
+        Result<HttpHeader> result;
+        if (header == null)
         {
-            result = Result.error(new IllegalArgumentException("headerName cannot be null or empty."));
+            result = Result.error(new KeyNotFoundException(headerName));
         }
         else
         {
-            final String headerKey = getHeaderKey(headerName);
-            final HttpHeader header = headerMap.get(headerKey);
-            if (header == null)
-            {
-                result = Result.error(new KeyNotFoundException(headerName));
-            }
-            else {
-                result = Result.success(header);
-            }
+            result = Result.success(header);
         }
 
         return result;
