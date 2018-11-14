@@ -135,12 +135,42 @@ public class HttpServerTests
                         test.assertThrows(() -> server.setDefaultPath(null));
                     }
                 });
+
+                runner.test("with non-null", (Test test) ->
+                {
+                    try (final HttpServer server = create(test))
+                    {
+                        server.setDefaultPath((HttpRequest request) ->
+                        {
+                            final MutableHttpResponse response = new MutableHttpResponse();
+                            response.setStatusCode(456);
+                            return response;
+                        });
+
+                        final AsyncTask serverTask = server.startAsync();
+                        try
+                        {
+                            final HttpClient client = new BasicHttpClient(test.getNetwork());
+                            final MutableHttpRequest request = new MutableHttpRequest();
+                            request.setMethod(HttpMethod.GET);
+                            request.setUrl("http://" + server.getLocalIPAddress() + ":" + server.getLocalPort() + "/notfound");
+                            final HttpResponse response = client.send(request).throwErrorOrGetValue();
+                            test.assertNotNull(response);
+                            test.assertEqual(456, response.getStatusCode());
+                        }
+                        finally
+                        {
+                            test.assertSuccess(true, server.dispose());
+                            serverTask.await();
+                        }
+                    }
+                });
             });
         });
     }
 
     private static HttpServer create(Test test)
     {
-        return new HttpServer(test.getNetwork().createTCPServer(18083).throwErrorOrGetValue());
+        return new HttpServer(test.getNetwork().createTCPServer(IPv4Address.localhost, 18084).throwErrorOrGetValue());
     }
 }

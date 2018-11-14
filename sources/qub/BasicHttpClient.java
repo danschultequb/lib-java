@@ -27,7 +27,12 @@ public class BasicHttpClient implements HttpClient
         else
         {
             final IPv4Address requestIPAddress = requestIPAddressResult.getValue();
-            final Result<TCPClient> tcpClientResult = network.createTCPClient(requestIPAddress, 80);
+            Integer requestPort = requestUrl.getPort();
+            if (requestPort == null)
+            {
+                requestPort = 80;
+            }
+            final Result<TCPClient> tcpClientResult = network.createTCPClient(requestIPAddress, requestPort);
             if (tcpClientResult.hasError())
             {
                 result = Result.error(tcpClientResult.getError());

@@ -33,6 +33,17 @@ public class HttpServer implements AsyncDisposable
     }
 
     /**
+     * Get the local IP address that this HttpServer is bound to.
+     * @return The local IP address that this HttpServer is bound to.
+     */
+    public IPv4Address getLocalIPAddress()
+    {
+        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+
+        return tcpServer.getLocalIPAddress();
+    }
+
+    /**
      * Get the local port that this HttpServer is bound to.
      * @return The local port that this HttpServer is bound to.
      */
@@ -99,8 +110,8 @@ public class HttpServer implements AsyncDisposable
     }
 
     /**
-     * Start listening on the current thread on port 80 for incoming requests. This method will
-     * block until this HttpServer is disposed.
+     * Start listening on the current thread for incoming requests. This method will block until the
+     * HttpServer is disposed.
      */
     public Result<Boolean> start()
     {
@@ -184,6 +195,17 @@ public class HttpServer implements AsyncDisposable
             }
         }
         return Result.successTrue();
+    }
+
+    /**
+     * Start listening on a separate thread for incoming requests.
+     */
+    public AsyncAction startAsync()
+    {
+        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
+        PreCondition.assertFalse(getAsyncRunner().isDisposed(), "getAsyncRunner().isDisposed()");
+
+        return getAsyncRunner().scheduleSingle(this::start);
     }
 
     /**
