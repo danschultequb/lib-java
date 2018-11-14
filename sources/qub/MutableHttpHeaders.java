@@ -113,55 +113,28 @@ public class MutableHttpHeaders implements HttpHeaders
         PreCondition.assertNotNullAndNotEmpty(headerName, "headerName");
 
         final String headerKey = getHeaderKey(headerName);
-        final HttpHeader header = headerMap.get(headerKey);
-
-        Result<HttpHeader> result;
-        if (header == null)
-        {
-            result = Result.error(new KeyNotFoundException(headerName));
-        }
-        else
-        {
-            result = Result.success(header);
-        }
-
-        return result;
+        return headerMap.get(headerKey);
     }
 
     public Result<String> getValue(String headerName)
     {
-        Result<String> result;
-
         final Result<HttpHeader> getResult = get(headerName);
-        if (getResult.hasError())
-        {
-            result = Result.error(getResult.getError());
-        }
-        else
+        Result<String> result = getResult.convertError();
+        if (result == null)
         {
             result = Result.success(getResult.getValue().getValue());
         }
-
         return result;
     }
 
-    public Result<Boolean> remove(String headerName)
+    public Result<HttpHeader> remove(String headerName)
     {
-        Result<Boolean> result;
-        if (headerName == null)
+        PreCondition.assertNotNullAndNotEmpty(headerName, "headerName");
+
+        Result<HttpHeader> result = headerMap.remove(getHeaderKey(headerName));
+        if (result.hasError())
         {
-            result = Result.error(new IllegalArgumentException("headerName cannot be null."));
-        }
-        else if (headerName.isEmpty())
-        {
-            result = Result.error(new IllegalArgumentException("headerName cannot be empty."));
-        }
-        else if (!headerMap.remove(getHeaderKey(headerName)))
-        {
-            result = Result.done(false, new KeyNotFoundException(headerName));
-        }
-        else {
-            result = Result.successTrue();
+            result = Result.error(new KeyNotFoundException(headerName));
         }
         return result;
     }

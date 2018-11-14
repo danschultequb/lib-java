@@ -12,6 +12,12 @@ public interface HttpRequest
     HttpMethod getMethod();
 
     /**
+     * Get the version of HTTP that this request was sent with.
+     * @return The version of HTTP that this request was sent with.
+     */
+    String getHttpVersion();
+
+    /**
      * Get the target URL of this request.
      * @return The target URL of this request.
      */

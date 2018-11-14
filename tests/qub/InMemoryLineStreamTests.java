@@ -7,7 +7,7 @@ public class InMemoryLineStreamTests
         runner.testGroup(InMemoryLineStream.class, () ->
         {
             LineReadStreamTests.test(runner, (String text, Boolean includeNewLines) -> new InMemoryLineStream(text, includeNewLines).endOfStream());
-            AsyncDisposableTests.test(runner, (AsyncRunner asyncRunner) -> new InMemoryLineStream("", asyncRunner));
+            AsyncDisposableTests.test(runner, (Test test) -> new InMemoryLineStream("", test.getMainAsyncRunner()));
 
             runner.testGroup("constructor(String)", () ->
             {

@@ -38,7 +38,12 @@ public class BasicHttpClient implements HttpClient
                 {
                     final InMemoryByteStream requestBeforeBodyByteStream = new InMemoryByteStream();
                     final LineWriteStream requestBeforeBodyLineStream = requestBeforeBodyByteStream.asLineWriteStream(CharacterEncoding.UTF_8, "\r\n");
-                    requestBeforeBodyLineStream.writeLine("%s %s HTTP/1.1", request.getMethod(), request.getURL());
+                    String httpVersion = request.getHttpVersion();
+                    if (Strings.isNullOrEmpty(httpVersion))
+                    {
+                        httpVersion = "HTTP/1.1";
+                    }
+                    requestBeforeBodyLineStream.writeLine("%s %s %s", request.getMethod(), request.getURL(), httpVersion);
                     for (final HttpHeader header : request.getHeaders())
                     {
                         requestBeforeBodyLineStream.writeLine("%s:%s", header.getName(), header.getValue());

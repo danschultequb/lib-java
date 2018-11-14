@@ -187,27 +187,27 @@ public class MutableHttpHeadersTests
                 runner.test("with null", (Test test) ->
                 {
                     final MutableHttpHeaders headers = new MutableHttpHeaders();
-                    test.assertError(new IllegalArgumentException("headerName cannot be null."), headers.remove(null));
+                    test.assertThrows(() -> headers.remove(null));
                 });
 
                 runner.test("with empty", (Test test) ->
                 {
                     final MutableHttpHeaders headers = new MutableHttpHeaders();
-                    test.assertError(new IllegalArgumentException("headerName cannot be empty."), headers.remove(""));
+                    test.assertThrows(() -> headers.remove(""));
                 });
 
                 runner.test("with not found header name", (Test test) ->
                 {
                     final MutableHttpHeaders headers = new MutableHttpHeaders();
-                    test.assertDone(false, new KeyNotFoundException("A"), headers.remove("A"));
+                    test.assertError(new KeyNotFoundException("A"), headers.remove("A"));
                 });
 
                 runner.test("with found header name", (Test test) ->
                 {
                     final MutableHttpHeaders headers = new MutableHttpHeaders();
                     headers.set("A", "B");
-                    test.assertSuccess(true, headers.remove("A"));
-                    test.assertDone(false, new KeyNotFoundException("A"), headers.remove("A"));
+                    test.assertSuccess(new HttpHeader("A", "B"), headers.remove("A"));
+                    test.assertError(new KeyNotFoundException("A"), headers.remove("A"));
                 });
             });
         });

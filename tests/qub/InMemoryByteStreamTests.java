@@ -6,7 +6,7 @@ public class InMemoryByteStreamTests
     {
         runner.testGroup(InMemoryByteStream.class, () ->
         {
-            AsyncDisposableTests.test(runner, InMemoryByteStream::new);
+            AsyncDisposableTests.test(runner, (Test test) -> new InMemoryByteStream(test.getMainAsyncRunner()));
 
             runner.test("constructor()", (Test test) ->
             {

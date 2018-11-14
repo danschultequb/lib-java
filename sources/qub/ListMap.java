@@ -37,10 +37,10 @@ public class ListMap<TKey,TValue> implements Map<TKey,TValue>
     }
 
     @Override
-    public TValue get(TKey key)
+    public Result<TValue> get(TKey key)
     {
         final MutableMapEntry<TKey,TValue> entry = getEntry(key);
-        return entry == null ? null : entry.getValue();
+        return entry != null ? Result.success(entry.getValue()) : Result.error(new KeyNotFoundException(key));
     }
 
     @Override
@@ -58,9 +58,10 @@ public class ListMap<TKey,TValue> implements Map<TKey,TValue>
     }
 
     @Override
-    public boolean remove(TKey key)
+    public Result<TValue> remove(TKey key)
     {
-        return entries.removeFirst(entry -> Comparer.equal(entry.getKey(), key)) != null;
+        final MapEntry<TKey,TValue> removedEntry = entries.removeFirst(entry -> Comparer.equal(entry.getKey(), key));
+        return removedEntry != null ? Result.success(removedEntry.getValue()) : Result.error(new KeyNotFoundException(key));
     }
 
     @Override

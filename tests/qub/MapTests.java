@@ -19,27 +19,27 @@ public class MapTests
                     runner.test("with null non-existing key", test ->
                     {
                         final Map<Integer, Boolean> map = creator.run();
-                        test.assertNull(map.get(null));
+                        test.assertError(new KeyNotFoundException(null), map.get(null));
                     });
 
                     runner.test("with null existing key", test ->
                     {
                         final Map<Integer,Boolean> map = creator.run();
                         map.set(null, true);
-                        test.assertTrue(map.get(null));
+                        test.assertSuccess(true, map.get(null));
                     });
                 }
                 runner.test("with non-null non-existing key", test ->
                 {
                     final Map<Integer,Boolean> map = creator.run();
-                    test.assertNull(map.get(20));
+                    test.assertError(new KeyNotFoundException(20), map.get(20));
                 });
 
                 runner.test("with non-null existing key", test ->
                 {
                     final Map<Integer,Boolean> map = creator.run();
                     map.set(100, false);
-                    test.assertFalse(map.get(100));
+                    test.assertSuccess(false, map.get(100));
                 });
             });
 
@@ -54,7 +54,7 @@ public class MapTests
                             final Map<Integer, Boolean> map = creator.run();
                             map.set(null, null);
                             test.assertEqual(1, map.getCount());
-                            test.assertNull(map.get(null));
+                            test.assertSuccess(null, map.get(null));
                         });
 
                         runner.test("with null existing key and null value", test ->
@@ -64,7 +64,7 @@ public class MapTests
 
                             map.set(null, null);
                             test.assertEqual(1, map.getCount());
-                            test.assertNull(map.get(null));
+                            test.assertSuccess(null, map.get(null));
                         });
                     }
 
@@ -73,7 +73,7 @@ public class MapTests
                         final Map<Integer,Boolean> map = creator.run();
                         map.set(null, false);
                         test.assertEqual(1, map.getCount());
-                        test.assertEqual(false, map.get(null));
+                        test.assertSuccess(false, map.get(null));
                     });
 
                     runner.test("with null existing key and non-null value", test ->
@@ -83,7 +83,7 @@ public class MapTests
 
                         map.set(null, false);
                         test.assertEqual(1, map.getCount());
-                        test.assertEqual(false, map.get(null));
+                        test.assertSuccess(false, map.get(null));
                     });
                 }
 
@@ -94,7 +94,7 @@ public class MapTests
                         final Map<Integer, Boolean> map = creator.run();
                         map.set(12, null);
                         test.assertEqual(1, map.getCount());
-                        test.assertNull(map.get(12));
+                        test.assertSuccess(null, map.get(12));
                     });
 
                     runner.test("with non-null existing key and null value", test ->
@@ -104,7 +104,7 @@ public class MapTests
 
                         map.set(14, null);
                         test.assertEqual(1, map.getCount());
-                        test.assertNull(map.get(14));
+                        test.assertSuccess(null, map.get(14));
                     });
                 }
 
@@ -113,7 +113,7 @@ public class MapTests
                     final Map<Integer,Boolean> map = creator.run();
                     map.set(13, false);
                     test.assertEqual(1, map.getCount());
-                    test.assertEqual(false, map.get(13));
+                    test.assertSuccess(false, map.get(13));
                 });
 
                 runner.test("with non-null existing key and non-null value", test ->
@@ -123,7 +123,7 @@ public class MapTests
 
                     map.set(15, false);
                     test.assertEqual(1, map.getCount());
-                    test.assertEqual(false, map.get(15));
+                    test.assertSuccess(false, map.get(15));
                 });
             });
 
@@ -134,7 +134,7 @@ public class MapTests
                     runner.test("with null non-existing key", test ->
                     {
                         final Map<Integer, Boolean> map = creator.run();
-                        test.assertFalse(map.remove(null));
+                        test.assertError(new KeyNotFoundException(null), map.remove(null));
                     });
 
                     runner.test("with null existing key", test ->
@@ -142,7 +142,7 @@ public class MapTests
                         final Map<Integer, Boolean> map = creator.run();
                         map.set(null, true);
 
-                        test.assertTrue(map.remove(null));
+                        test.assertSuccess(true, map.remove(null));
                         test.assertEqual(0, map.getCount());
                     });
                 }
@@ -150,7 +150,7 @@ public class MapTests
                 runner.test("with non-null non-existing key", test ->
                 {
                     final Map<Integer,Boolean> map = creator.run();
-                    test.assertFalse(map.remove(100));
+                    test.assertError(new KeyNotFoundException(100), map.remove(100));
                 });
 
                 runner.test("with non-null existing key", test ->
@@ -158,7 +158,7 @@ public class MapTests
                     final Map<Integer,Boolean> map = creator.run();
                     map.set(101, false);
 
-                    test.assertTrue(map.remove(101));
+                    test.assertSuccess(false, map.remove(101));
                     test.assertEqual(0, map.getCount());
                 });
             });

@@ -19,7 +19,7 @@ public class AsyncRunnerRegistryTests
                     AsyncRunnerRegistry.removeCurrentThreadAsyncRunner();
                     try
                     {
-                        test.assertNull(AsyncRunnerRegistry.getCurrentThreadAsyncRunner());
+                        test.assertThrows(AsyncRunnerRegistry::getCurrentThreadAsyncRunner);
                     }
                     finally
                     {

@@ -10,7 +10,7 @@ public class JavaTCPServerTests
         {
             final AtomicInteger port = new AtomicInteger(20138);
 
-            AsyncDisposableTests.test(runner, (AsyncRunner asyncRunner) -> JavaTCPServer.create(port.getAndIncrement(), asyncRunner).getValue());
+            AsyncDisposableTests.test(runner, (Test test) -> JavaTCPServer.create(port.getAndIncrement(), test.getMainAsyncRunner()).getValue());
 
             runner.testGroup("create(int, AsyncRunner)", () ->
             {

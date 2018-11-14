@@ -153,6 +153,21 @@ public class MutableHttpResponse implements HttpResponse
         this.body = body;
     }
 
+    /**
+     * Set the body of this response.
+     * @param body The body of this response.
+     */
+    public void setBody(String body)
+    {
+        final InMemoryByteStream bodyStream = new InMemoryByteStream();
+        if (!Strings.isNullOrEmpty(body))
+        {
+            bodyStream.asLineWriteStream().write(body);
+        }
+        bodyStream.endOfStream();
+        setBody(bodyStream);
+    }
+
     @Override
     public boolean isDisposed()
     {

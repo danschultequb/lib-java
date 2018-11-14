@@ -11,13 +11,13 @@ public class DNSTests
                 runner.test("with null", (Test test) ->
                 {
                     final DNS dns = creator.run();
-                    test.assertError(new IllegalArgumentException("host cannot be null."), dns.resolveHost(null));
+                    test.assertThrows(() -> dns.resolveHost(null));
                 });
 
                 runner.test("with empty", (Test test) ->
                 {
                     final DNS dns = creator.run();
-                    test.assertError(new IllegalArgumentException("host cannot be empty."), dns.resolveHost(""));
+                    test.assertThrows(() -> dns.resolveHost(""));
                 });
 
                 runner.test("with \"1.2.3.4\"", (Test test) ->

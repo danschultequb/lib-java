@@ -6,7 +6,7 @@ public class CharacterReadStreamToLineReadStreamTests
     {
         runner.testGroup(BasicLineReadStream.class, () ->
         {
-            AsyncDisposableTests.test(runner, (AsyncRunner asyncRunner) -> new BasicLineReadStream(new InMemoryCharacterStream(asyncRunner).endOfStream()));
+            AsyncDisposableTests.test(runner, (Test test) -> new BasicLineReadStream(new InMemoryCharacterStream(test.getMainAsyncRunner()).endOfStream()));
             LineReadStreamTests.test(runner, (String text, Boolean includeNewLines) -> new BasicLineReadStream(new InMemoryCharacterStream(text).endOfStream(), includeNewLines));
         });
     }

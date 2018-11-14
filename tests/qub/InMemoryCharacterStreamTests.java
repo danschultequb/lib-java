@@ -6,7 +6,7 @@ public class InMemoryCharacterStreamTests
     {
         runner.testGroup(InMemoryCharacterStream.class, () ->
         {
-            AsyncDisposableTests.test(runner, InMemoryCharacterStream::new);
+            AsyncDisposableTests.test(runner, (Test test) -> new InMemoryCharacterStream(test.getMainAsyncRunner()));
 
             runner.testGroup("readCharacter()", () ->
             {

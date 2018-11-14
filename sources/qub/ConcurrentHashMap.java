@@ -32,9 +32,9 @@ public class ConcurrentHashMap<TKey,TValue> implements Map<TKey,TValue>
     }
 
     @Override
-    public TValue get(TKey key)
+    public Result<TValue> get(TKey key)
     {
-        return javaMap.get(key);
+        return javaMap.containsKey(key) ? Result.success(javaMap.get(key)) : Result.error(new KeyNotFoundException(key));
     }
 
     @Override
@@ -44,9 +44,9 @@ public class ConcurrentHashMap<TKey,TValue> implements Map<TKey,TValue>
     }
 
     @Override
-    public boolean remove(TKey key)
+    public Result<TValue> remove(TKey key)
     {
-        return javaMap.remove(key) != null;
+        return javaMap.containsKey(key) ? Result.success(javaMap.remove(key)) : Result.error(new KeyNotFoundException(key));
     }
 
     @Override

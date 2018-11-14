@@ -25,7 +25,7 @@ public interface Map<TKey,TValue> extends Iterable<MapEntry<TKey,TValue>>
      * @return The value associated with the provided key, or null if the key doesn't exist in the
      * map.
      */
-    TValue get(TKey key);
+    Result<TValue> get(TKey key);
 
     /**
      * Set the association between the provided key and value.
@@ -35,12 +35,25 @@ public interface Map<TKey,TValue> extends Iterable<MapEntry<TKey,TValue>>
     void set(TKey key, TValue value);
 
     /**
-     * Remove the entry with the provided key. Return whether or not the entry was removed by this
-     * function call.
-     * @param key The key of the entry to remove.
-     * @return Whether or not the entry was removed by this function call.
+     * Set all of the entries in the provided Iterable as key value pairs in this Map.
+     * @param entries
      */
-    boolean remove(TKey key);
+    default void setAll(Iterable<MapEntry<TKey,TValue>> entries)
+    {
+        PreCondition.assertNotNull(entries, "entries");
+
+        for (final MapEntry<TKey,TValue> entry : entries)
+        {
+            set(entry.getKey(), entry.getValue());
+        }
+    }
+
+    /**
+     * Remove the entry with the provided key. Return the removed entity if it was found.
+     * @param key The key of the entry to remove.
+     * @return The removed entry.
+     */
+    Result<TValue> remove(TKey key);
 
     /**
      * Get the keys of this Map.

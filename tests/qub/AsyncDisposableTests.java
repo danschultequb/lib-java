@@ -2,7 +2,7 @@ package qub;
 
 public class AsyncDisposableTests
 {
-    public static void test(TestRunner runner, Function1<AsyncRunner,AsyncDisposable> creator)
+    public static void test(TestRunner runner, Function1<Test,AsyncDisposable> creator)
     {
         runner.testGroup(AsyncDisposable.class, () ->
         {
@@ -10,7 +10,7 @@ public class AsyncDisposableTests
             {
                 runner.test("when not disposed", (Test test) ->
                 {
-                    final AsyncDisposable asyncDisposable = creator.run(test.getMainAsyncRunner());
+                    final AsyncDisposable asyncDisposable = creator.run(test);
                     test.assertNotNull(asyncDisposable);
                     test.assertFalse(asyncDisposable.isDisposed());
 
@@ -20,7 +20,7 @@ public class AsyncDisposableTests
 
                 runner.test("when disposed", (Test test) ->
                 {
-                    final AsyncDisposable asyncDisposable = creator.run(test.getMainAsyncRunner());
+                    final AsyncDisposable asyncDisposable = creator.run(test);
                     test.assertNotNull(asyncDisposable);
                     test.assertSuccess(true, asyncDisposable.dispose());
                     test.assertTrue(asyncDisposable.isDisposed());

@@ -36,14 +36,7 @@ class SimplePathPattern extends PathPattern
             }
         }
 
-        return currentStates.contains(new Function1<State, Boolean>()
-        {
-            @Override
-            public Boolean run(State currentState)
-            {
-                return currentState.isEndState();
-            }
-        });
+        return currentStates.contains(State::isEndState);
     }
 
     /**

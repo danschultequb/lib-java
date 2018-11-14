@@ -4,7 +4,7 @@ public class PathPatternTests
 {
     public static void test(final TestRunner runner)
     {
-        runner.testGroup("PathPattern", () ->
+        runner.testGroup(PathPattern.class, () ->
         {
             runner.testGroup("parse(Path)", () ->
             {

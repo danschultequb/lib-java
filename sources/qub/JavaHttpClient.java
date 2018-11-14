@@ -48,13 +48,32 @@ public class JavaHttpClient implements HttpClient
             }
 
             final MutableHttpResponse response = new MutableHttpResponse();
-            response.setHTTPVersion("HTTP/1.1");
             response.setReasonPhrase(urlConnection.getResponseMessage());
             response.setStatusCode(urlConnection.getResponseCode());
 
-            for (final java.util.Map.Entry<String,java.util.List<String>> responseHeader : urlConnection.getHeaderFields().entrySet())
+            final java.util.Map<String,java.util.List<String>> responseHeaders = urlConnection.getHeaderFields();
+            if (responseHeaders == null || !responseHeaders.containsKey(null))
             {
-                response.setHeader(responseHeader.getKey(), Strings.join(',', responseHeader.getValue()));
+                response.setHTTPVersion("HTTP/1.1");
+            }
+            else
+            {
+                final String statusLine = responseHeaders.get(null).get(0);
+                final int firstSpace = statusLine.indexOf(' ');
+                response.setHTTPVersion(statusLine.substring(0, firstSpace));
+            }
+
+            if (responseHeaders != null)
+            {
+                for (final java.util.Map.Entry<String,java.util.List<String>> responseHeader : responseHeaders.entrySet())
+                {
+                    final String headerName = responseHeader.getKey();
+                    if (!Strings.isNullOrEmpty(headerName))
+                    {
+                        final java.util.List<String> headerValues = responseHeader.getValue();
+                        response.setHeader(headerName, Strings.join(',', headerValues));
+                    }
+                }
             }
 
             InMemoryByteStream resultBody = new InMemoryByteStream(network.getAsyncRunner());

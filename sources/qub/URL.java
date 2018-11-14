@@ -9,7 +9,7 @@ public class URL
     private String host;
     private Integer port;
     private String path;
-    private ListMap<String,String> query;
+    private final ListMap<String,String> query = new ListMap<>();
     private String fragment;
 
     URL()
@@ -27,7 +27,7 @@ public class URL
         result.host = this.host;
         result.port = this.port;
         result.path = this.path;
-        result.query = this.query == null ? null : this.query.clone();
+        result.query.setAll(this.query);
         result.fragment = this.fragment;
         return result;
     }
@@ -149,15 +149,10 @@ public class URL
      */
     public void setQuery(String queryString)
     {
-        if (Strings.isNullOrEmpty(queryString))
+        this.query.clear();
+        if (!Strings.isNullOrEmpty(queryString))
         {
-            this.query = null;
-        }
-        else
-        {
-
             QueryParseState currentState = QueryParseState.QueryParameterName;
-            final ListMap<String,String> query = new ListMap<String,String>();
             final StringBuilder queryParameterName = new StringBuilder();
             final StringBuilder queryParameterValue = new StringBuilder();
             final Iterator<Character> characters = Strings.iterate(queryString);
@@ -217,7 +212,6 @@ public class URL
                     query.set(queryParameterName.toString(), queryParameterValue.toString());
                 }
             }
-            this.query = query;
         }
     }
 
@@ -230,9 +224,7 @@ public class URL
      */
     public Result<String> getQueryParameterValue(String queryParameterName)
     {
-        return query == null || !query.containsKey(queryParameterName)
-            ? Result.<String>error(new NotFoundException(queryParameterName))
-            : Result.success(query.get(queryParameterName));
+        return query.get(queryParameterName);
     }
 
     /**
@@ -242,14 +234,9 @@ public class URL
      */
     public void setQueryParameter(String queryParameterName, String queryParameterValue)
     {
-        if (query == null)
-        {
-            query = new ListMap<String,String>();
-        }
-        if (!Strings.isNullOrEmpty(queryParameterName))
-        {
-            query.set(queryParameterName, queryParameterValue);
-        }
+        PreCondition.assertNotNullAndNotEmpty(queryParameterName, "queryParameterName");
+
+        query.set(queryParameterName, queryParameterValue);
     }
 
     /**
@@ -317,7 +304,7 @@ public class URL
             builder.append(path);
         }
 
-        if (query != null)
+        if (query.any())
         {
             builder.append('?');
             boolean addedQueryParameter = false;

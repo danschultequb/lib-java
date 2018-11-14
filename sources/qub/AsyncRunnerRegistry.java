@@ -16,10 +16,10 @@ public class AsyncRunnerRegistry
     public static AsyncRunner getCurrentThreadAsyncRunner()
     {
         final long currentThreadId = getCurrentThreadId();
-        return getThreadAsyncRunner(currentThreadId);
+        return getThreadAsyncRunner(currentThreadId).throwErrorOrGetValue();
     }
 
-    public static AsyncRunner getThreadAsyncRunner(long threadId)
+    public static Result<AsyncRunner> getThreadAsyncRunner(long threadId)
     {
         return asyncRunners.get(threadId);
     }
@@ -43,7 +43,7 @@ public class AsyncRunnerRegistry
 
     public static void withThreadAsyncRunner(long threadId, AsyncRunner runner, Action0 action)
     {
-        final AsyncRunner backup = getThreadAsyncRunner(threadId);
+        final Result<AsyncRunner> backup = getThreadAsyncRunner(threadId);
         setThreadAsyncRunner(threadId, runner);
         try
         {
@@ -54,17 +54,24 @@ public class AsyncRunnerRegistry
         }
         finally
         {
-            setThreadAsyncRunner(threadId, backup);
+            if (backup.hasError())
+            {
+                removeThreadAsyncRunner(threadId);
+            }
+            else
+            {
+                setThreadAsyncRunner(threadId, backup.getValue());
+            }
         }
     }
 
-    public static boolean removeCurrentThreadAsyncRunner()
+    public static Result<AsyncRunner> removeCurrentThreadAsyncRunner()
     {
         final long currentThreadId = getCurrentThreadId();
         return removeThreadAsyncRunner(currentThreadId);
     }
 
-    public static boolean removeThreadAsyncRunner(long threadId)
+    public static Result<AsyncRunner> removeThreadAsyncRunner(long threadId)
     {
         return asyncRunners.remove(threadId);
     }

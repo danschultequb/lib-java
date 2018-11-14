@@ -7,11 +7,21 @@ public class MutableHttpRequest implements HttpRequest
 {
     private HttpMethod method;
     private URL url;
+    private String httpVersion;
     private final MutableHttpHeaders headers;
     private ByteReadStream body;
 
     /**
-     * Create a new outgoing HTTP request object.
+     * Create a new mutable HTTP request object.
+     */
+    public MutableHttpRequest()
+    {
+        this.headers = new MutableHttpHeaders();
+        this.httpVersion = "HTTP/1.1";
+    }
+
+    /**
+     * Create a new mutable HTTP request object.
      * @param method The HTTP method that will be used with this request.
      * @param url The URL where this HTTP request will be sent to.
      */
@@ -71,6 +81,19 @@ public class MutableHttpRequest implements HttpRequest
         this.url = url;
 
         return this;
+    }
+
+    @Override
+    public String getHttpVersion()
+    {
+        return httpVersion;
+    }
+
+    public void setHttpVersion(String httpVersion)
+    {
+        PreCondition.assertNotNullAndNotEmpty(httpVersion, "httpVersion");
+
+        this.httpVersion = httpVersion;
     }
 
     @Override

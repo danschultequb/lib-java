@@ -10,7 +10,7 @@ public class InputStreamToByteReadStreamTests
     {
         runner.testGroup(InputStreamToByteReadStream.class, () ->
         {
-            AsyncDisposableTests.test(runner, (AsyncRunner asyncRunner) -> new InputStreamToByteReadStream(getInputStream(10), asyncRunner));
+            AsyncDisposableTests.test(runner, (Test test) -> new InputStreamToByteReadStream(getInputStream(10), test.getMainAsyncRunner()));
 
             runner.test("constructor(InputStream)", (Test test) ->
             {

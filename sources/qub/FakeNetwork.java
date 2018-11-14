@@ -68,21 +68,26 @@ public class FakeNetwork implements Network
             {
                 while (remoteTCPServer == null && result == null)
                 {
-                    final Map<Integer,FakeTCPServer> remoteTCPServers = boundTCPServers.get(remoteIPAddress);
-                    if (remoteTCPServers != null)
+                    final Result<Map<Integer,FakeTCPServer>> remoteTCPServersResult = boundTCPServers.get(remoteIPAddress);
+                    if (!remoteTCPServersResult.hasError())
                     {
-                        remoteTCPServer = remoteTCPServers.get(remotePort);
+                        final Result<FakeTCPServer> remoteTCPServerResult = remoteTCPServersResult.getValue().get(remotePort);
+                        remoteTCPServer = remoteTCPServerResult.getValue();
                     }
-                    else if (timeout == null)
+
+                    if (remoteTCPServer == null)
                     {
-                        result = Result.error(new java.net.ConnectException("Connection refused: connect"));
-                    }
-                    else
-                    {
-                        final Result<Boolean> awaitResult = boundTCPServerAvailable.await(timeout);
-                        if (awaitResult.hasError())
+                        if (timeout == null)
                         {
-                            result = Result.error(awaitResult.getError());
+                            result = Result.error(new java.net.ConnectException("Connection refused: connect"));
+                        }
+                        else
+                        {
+                            final Result<Boolean> awaitResult = boundTCPServerAvailable.await(timeout);
+                            if (awaitResult.hasError())
+                            {
+                                result = Result.error(awaitResult.getError());
+                            }
                         }
                     }
                 }
@@ -145,7 +150,7 @@ public class FakeNetwork implements Network
     {
         PreCondition.assertNotNull(networkStream, "networkStream");
 
-        final int currentStreamReferenceCount = streamReferenceCounts.get(networkStream);
+        final int currentStreamReferenceCount = streamReferenceCounts.get(networkStream).throwErrorOrGetValue();
         if (currentStreamReferenceCount == 1)
         {
             networkStream.dispose();
@@ -162,7 +167,7 @@ public class FakeNetwork implements Network
         PreCondition.assertNotNull(tcpClient, "tcpClient");
 
         final IPv4Address localIPAddress = tcpClient.getLocalIPAddress();
-        Map<Integer,FakeTCPClient> localClients = boundTCPClients.get(localIPAddress);
+        Map<Integer,FakeTCPClient> localClients = boundTCPClients.get(localIPAddress).getValue();
         if (localClients == null)
         {
             localClients = new ListMap<>();
@@ -196,7 +201,7 @@ public class FakeNetwork implements Network
             {
                 final FakeTCPServer tcpServer = new FakeTCPServer(localIPAddress, localPort, this, asyncRunner);
 
-                Map<Integer, FakeTCPServer> localTCPServers = boundTCPServers.get(localIPAddress);
+                Map<Integer, FakeTCPServer> localTCPServers = boundTCPServers.get(localIPAddress).getValue();
                 if (localTCPServers == null)
                 {
                     localTCPServers = new ListMap<>();
@@ -238,7 +243,7 @@ public class FakeNetwork implements Network
 
         mutex.criticalSection(() ->
         {
-            boundTCPServers.get(ipAddress).remove(port);
+            boundTCPServers.get(ipAddress).getValue().remove(port);
         });
     }
 
@@ -250,7 +255,7 @@ public class FakeNetwork implements Network
         {
             decrementNetworkStream((InMemoryByteStream)tcpClient.getReadStream());
             decrementNetworkStream((InMemoryByteStream)tcpClient.getWriteStream());
-            boundTCPClients.get(tcpClient.getLocalIPAddress()).remove(tcpClient.getLocalPort());
+            boundTCPClients.get(tcpClient.getLocalIPAddress()).getValue().remove(tcpClient.getLocalPort());
         });
     }
 
@@ -263,15 +268,15 @@ public class FakeNetwork implements Network
         {
             boolean result = true;
 
-            final Map<Integer, FakeTCPClient> localTCPClients = boundTCPClients.get(ipAddress);
-            if (localTCPClients != null && localTCPClients.get(port) != null)
+            final Map<Integer, FakeTCPClient> localTCPClients = boundTCPClients.get(ipAddress).getValue();
+            if (localTCPClients != null && localTCPClients.containsKey(port))
             {
                 result = false;
             }
             else
             {
-                final Map<Integer, FakeTCPServer> localTCPServers = boundTCPServers.get(ipAddress);
-                if (localTCPServers != null && localTCPServers.get(port) != null)
+                final Map<Integer, FakeTCPServer> localTCPServers = boundTCPServers.get(ipAddress).getValue();
+                if (localTCPServers != null && localTCPServers.containsKey(port))
                 {
                     result = false;
                 }
