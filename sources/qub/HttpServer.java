@@ -168,13 +168,24 @@ public class HttpServer implements AsyncDisposable
                         final MutableHttpResponse mutableResponse = new MutableHttpResponse();
                         mutableResponse.setHTTPVersion(request.getHttpVersion());
                         mutableResponse.setStatusCode(500);
-                        mutableResponse.setReasonPhrase("Internal Server Error");
-                        mutableResponse.setBody("<html><body>500: Internal Server Error</body></html>");
+                        mutableResponse.setBody("<html><body>" + mutableResponse.getStatusCode() + ": " + getReasonPhrase(mutableResponse.getStatusCode()) + "</body></html>");
                         response = mutableResponse;
                     }
 
+                    String httpVersion = response.getHTTPVersion();
+                    if (Strings.isNullOrEmpty(httpVersion))
+                    {
+                        httpVersion = "HTTP/1.1";
+                    }
+
+                    String reasonPhrase = response.getReasonPhrase();
+                    if (Strings.isNullOrEmpty(reasonPhrase))
+                    {
+                        reasonPhrase = getReasonPhrase(response.getStatusCode());
+                    }
+
                     final LineWriteStream clientLineWriteStream = acceptedClient.asLineWriteStream("\r\n");
-                    clientLineWriteStream.writeLine("%s %s %s", response.getHTTPVersion(), response.getStatusCode(), response.getReasonPhrase());
+                    clientLineWriteStream.writeLine("%s %s %s", httpVersion, response.getStatusCode(), reasonPhrase);
                     for (final HttpHeader header : response.getHeaders())
                     {
                         clientLineWriteStream.writeLine("%s:%s", header.getName(), header.getValue());
@@ -243,6 +254,32 @@ public class HttpServer implements AsyncDisposable
 
             result = tcpServer.dispose();
         }
+        return result;
+    }
+
+    public static String getReasonPhrase(int statusCode)
+    {
+        String result = null;
+
+        switch (statusCode)
+        {
+            case 200:
+                result = "OK";
+                break;
+
+            case 400:
+                result = "Bad Request";
+                break;
+
+            case 404:
+                result = "Not Found";
+                break;
+
+            case 500:
+                result = "Internal Server Error";
+                break;
+        }
+
         return result;
     }
 }

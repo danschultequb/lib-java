@@ -1,7 +1,7 @@
 package qub;
 
 /**
- * A Console that can be used to write Console applications.
+ * A Console that can be used to writeByte Console applications.
  */
 public class Console extends Process
 {
@@ -44,15 +44,15 @@ public class Console extends Process
         final ByteWriteStream writeStream = getOutputAsByteWriteStream();
         if (writeStream != null)
         {
-            result = writeStream.write(toWrite);
+            result = writeStream.writeByte(toWrite);
         }
 
         return result;
     }
 
-    public Result<Boolean> write(byte[] toWrite)
+    public Result<Integer> write(byte[] toWrite)
     {
-        Result<Boolean> result;
+        Result<Integer> result;
 
         final ByteWriteStream writeStream = getOutputAsByteWriteStream();
         if (writeStream != null)
@@ -61,15 +61,15 @@ public class Console extends Process
         }
         else
         {
-            result = Result.successFalse();
+            result = Result.success(null);
         }
 
         return result;
     }
 
-    public Result<Boolean> write(byte[] toWrite, int startIndex, int length)
+    public Result<Integer> write(byte[] toWrite, int startIndex, int length)
     {
-        Result<Boolean> result;
+        Result<Integer> result;
 
         final ByteWriteStream writeStream = getOutputAsByteWriteStream();
         if (writeStream != null)
@@ -78,7 +78,7 @@ public class Console extends Process
         }
         else
         {
-            result = Result.successFalse();
+            result = Result.success(null);
         }
 
         return result;
@@ -159,15 +159,15 @@ public class Console extends Process
         final ByteWriteStream writeStream = getErrorAsByteWriteStream();
         if (writeStream != null)
         {
-            result = writeStream.write(toWrite);
+            result = writeStream.writeByte(toWrite);
         }
 
         return result;
     }
 
-    public Result<Boolean> writeError(byte[] toWrite)
+    public Result<Integer> writeError(byte[] toWrite)
     {
-        Result<Boolean> result;
+        Result<Integer> result;
 
         final ByteWriteStream writeStream = getErrorAsByteWriteStream();
         if (writeStream != null)
@@ -176,15 +176,15 @@ public class Console extends Process
         }
         else
         {
-            result = Result.successFalse();
+            result = Result.success(null);
         }
 
         return result;
     }
 
-    public Result<Boolean> writeError(byte[] toWrite, int startIndex, int length)
+    public Result<Integer> writeError(byte[] toWrite, int startIndex, int length)
     {
-        Result<Boolean> result;
+        Result<Integer> result;
 
         final ByteWriteStream writeStream = getErrorAsByteWriteStream();
         if (writeStream != null)
@@ -193,7 +193,7 @@ public class Console extends Process
         }
         else
         {
-            result = Result.successFalse();
+            result = Result.success(null);
         }
 
         return result;

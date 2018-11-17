@@ -54,7 +54,7 @@ public class IPv4Address
 
     /**
      * Write the byte representation of this IPv4Address to the provided byte[].
-     * @param bytes The byte array to write the byte representation of this IPv4Address to.
+     * @param bytes The byte array to writeByte the byte representation of this IPv4Address to.
      */
     public void toBytes(byte[] bytes)
     {

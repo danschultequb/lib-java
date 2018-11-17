@@ -1,9 +1,6 @@
 package qub;
 
-import java.io.IOException;
-import java.io.OutputStream;
-
-public class ByteWriteStreamToOutputStream extends OutputStream
+public class ByteWriteStreamToOutputStream extends java.io.OutputStream
 {
     private final ByteWriteStream byteWriteStream;
 
@@ -13,30 +10,30 @@ public class ByteWriteStreamToOutputStream extends OutputStream
     }
 
     @Override
-    public void close() throws IOException
+    public void close() throws java.io.IOException
     {
         final Result<Boolean> result = byteWriteStream.dispose();
-        result.throwError(IOException.class);
+        result.throwError(java.io.IOException.class);
     }
 
     @Override
-    public void write(int b) throws IOException
+    public void write(int b) throws java.io.IOException
     {
-        final Result<Boolean> result = byteWriteStream.write((byte)b);
-        result.throwError(IOException.class);
+        final Result<Boolean> result = byteWriteStream.writeByte((byte)b);
+        result.throwError(java.io.IOException.class);
     }
 
     @Override
-    public void write(byte[] bytes) throws IOException
+    public void write(byte[] bytes) throws java.io.IOException
     {
-        final Result<Boolean> result = byteWriteStream.write(bytes);
-        result.throwError(IOException.class);
+        final Result<Boolean> result = byteWriteStream.writeAllBytes(bytes);
+        result.throwError(java.io.IOException.class);
     }
 
     @Override
-    public void write(byte[] bytes, int startIndex, int length) throws IOException
+    public void write(byte[] bytes, int startIndex, int length) throws java.io.IOException
     {
-        final Result<Boolean> result = byteWriteStream.write(bytes, startIndex, length);
-        result.throwError(IOException.class);
+        final Result<Boolean> result = byteWriteStream.writeAllBytes(bytes, startIndex, length);
+        result.throwError(java.io.IOException.class);
     }
 }

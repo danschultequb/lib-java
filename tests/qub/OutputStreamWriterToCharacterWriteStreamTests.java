@@ -16,7 +16,7 @@ public class OutputStreamWriterToCharacterWriteStreamTests
                 test.assertSame(CharacterEncoding.US_ASCII, characterWriteStream.getCharacterEncoding());
             });
             
-            runner.testGroup("write(char)", () ->
+            runner.testGroup("writeByte(char)", () ->
             {
                 runner.test("with no exception", (Test test) ->
                 {
@@ -35,7 +35,7 @@ public class OutputStreamWriterToCharacterWriteStreamTests
                 });
             });
             
-            runner.testGroup("write(String)", () ->
+            runner.testGroup("writeByte(String)", () ->
             {
                 runner.test("with no exception", (Test test) ->
                 {

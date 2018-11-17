@@ -16,11 +16,13 @@ public class MutableHttpResponse implements HttpResponse
      * Set the HTTP version that this response was sent with.
      * @param httpVersion The HTTP version that this response was sent with.
      */
-    public void setHTTPVersion(String httpVersion)
+    public MutableHttpResponse setHTTPVersion(String httpVersion)
     {
         PreCondition.assertNotNullAndNotEmpty(httpVersion, "httpVersion");
 
         this.httpVersion = httpVersion;
+
+        return this;
     }
 
     @Override
@@ -33,9 +35,10 @@ public class MutableHttpResponse implements HttpResponse
      * Set the status code of this HTTP response.
      * @param statusCode The status code of this HTTP response.
      */
-    public void setStatusCode(int statusCode)
+    public MutableHttpResponse setStatusCode(int statusCode)
     {
         this.statusCode = statusCode;
+        return this;
     }
 
     /**
@@ -52,9 +55,11 @@ public class MutableHttpResponse implements HttpResponse
      * Set the reason phrase of this HTTP response.
      * @param reasonPhrase The reason phrase of this HTTP response.
      */
-    public void setReasonPhrase(String reasonPhrase)
+    public MutableHttpResponse setReasonPhrase(String reasonPhrase)
     {
         this.reasonPhrase = reasonPhrase;
+
+        return this;
     }
 
     @Override
@@ -67,7 +72,7 @@ public class MutableHttpResponse implements HttpResponse
      * Set the headers in this response to be the provided headers.
      * @param headers The new set of headers for this response.
      */
-    public void setHeaders(HttpHeaders headers)
+    public MutableHttpResponse setHeaders(HttpHeaders headers)
     {
         PreCondition.assertNotNull(headers, "headers");
 
@@ -75,17 +80,21 @@ public class MutableHttpResponse implements HttpResponse
         {
             setHeader(header);
         }
+
+        return this;
     }
 
     /**
      * Set the provided header in this response.
      * @param header The header to set in this response.
      */
-    public void setHeader(HttpHeader header)
+    public MutableHttpResponse setHeader(HttpHeader header)
     {
         PreCondition.assertNotNull(header, "header");
 
         this.headers.set(header);
+
+        return this;
     }
 
     /**
@@ -93,11 +102,13 @@ public class MutableHttpResponse implements HttpResponse
      * @param headerName The name of the header to set.
      * @param headerValue The value of the header to set.
      */
-    public void setHeader(String headerName, String headerValue)
+    public MutableHttpResponse setHeader(String headerName, String headerValue)
     {
         PreCondition.assertNotNullAndNotEmpty(headerName, "headerName");
 
         this.headers.set(headerName, headerValue);
+
+        return this;
     }
 
     /**
@@ -105,11 +116,13 @@ public class MutableHttpResponse implements HttpResponse
      * @param headerName The name of the header to set.
      * @param headerValue The value of the header to set.
      */
-    public void setHeader(String headerName, int headerValue)
+    public MutableHttpResponse setHeader(String headerName, int headerValue)
     {
         PreCondition.assertNotNullAndNotEmpty(headerName, "headerName");
 
         this.headers.set(headerName, headerValue);
+
+        return this;
     }
 
     /**
@@ -117,11 +130,13 @@ public class MutableHttpResponse implements HttpResponse
      * @param headerName The name of the header to set.
      * @param headerValue The value of the header to set.
      */
-    public void setHeader(String headerName, long headerValue)
+    public MutableHttpResponse setHeader(String headerName, long headerValue)
     {
         PreCondition.assertNotNullAndNotEmpty(headerName, "headerName");
 
         this.headers.set(headerName, headerValue);
+
+        return this;
     }
 
     /**
@@ -148,16 +163,18 @@ public class MutableHttpResponse implements HttpResponse
      * Set the body of this response.
      * @param body The body of this response.
      */
-    public void setBody(ByteReadStream body)
+    public MutableHttpResponse setBody(ByteReadStream body)
     {
         this.body = body;
+
+        return this;
     }
 
     /**
      * Set the body of this response.
      * @param body The body of this response.
      */
-    public void setBody(String body)
+    public MutableHttpResponse setBody(String body)
     {
         final InMemoryByteStream bodyStream = new InMemoryByteStream();
         if (!Strings.isNullOrEmpty(body))
@@ -166,6 +183,8 @@ public class MutableHttpResponse implements HttpResponse
         }
         bodyStream.endOfStream();
         setBody(bodyStream);
+
+        return this;
     }
 
     @Override

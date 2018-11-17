@@ -6,7 +6,7 @@ public class HttpServerTests
     {
         runner.testGroup(HttpServer.class, () ->
         {
-            AsyncDisposableTests.test(runner, HttpServerTests::create);
+            AsyncDisposableTests.test(runner, HttpServerTests::createServer);
 
             runner.testGroup("constructor(TCPServer)", () ->
             {
@@ -26,7 +26,7 @@ public class HttpServerTests
 
                 runner.test("with non-disposed TCPServer", (Test test) ->
                 {
-                    try (final HttpServer server = create(test))
+                    try (final HttpServer server = createServer(test))
                     {
                         test.assertSuccess(true, server.dispose());
                     }
@@ -37,7 +37,7 @@ public class HttpServerTests
             {
                 runner.test("with null path", (Test test) ->
                 {
-                    try (final HttpServer server = create(test))
+                    try (final HttpServer server = createServer(test))
                     {
                         test.assertThrows(() -> server.addPath(null, (HttpRequest request) -> null));
                         test.assertEqual(Iterable.empty(), server.getPaths());
@@ -46,7 +46,7 @@ public class HttpServerTests
 
                 runner.test("with empty path", (Test test) ->
                 {
-                    try (final HttpServer server = create(test))
+                    try (final HttpServer server = createServer(test))
                     {
                         test.assertThrows(() -> server.addPath("", (HttpRequest request) -> null));
                         test.assertEqual(Iterable.empty(), server.getPaths());
@@ -55,16 +55,33 @@ public class HttpServerTests
 
                 runner.test("with " + Strings.escapeAndQuote("/"), (Test test) ->
                 {
-                    try (final HttpServer server = create(test))
+                    try (final HttpServer server = createServer(test))
                     {
-                        test.assertSuccess(true, server.addPath("/", (HttpRequest request) -> null));
+                        test.assertSuccess(true, server.addPath("/", (HttpRequest request) ->
+                            new MutableHttpResponse()
+                                .setStatusCode(200)
+                                .setBody("Hello!")));
                         test.assertEqual(Array.fromValues(new String[] { "/" }), server.getPaths().map(Path::toString));
+
+                        final AsyncTask serverTask = server.startAsync();
+                        try
+                        {
+                            final HttpClient client = createClient(test);
+                            final HttpResponse response = client.get("http://" + server.getLocalIPAddress() + ":" + server.getLocalPort() + "/").throwErrorOrGetValue();
+                            test.assertNotNull(response);
+                            test.assertEqual(200, response.getStatusCode());
+                        }
+                        finally
+                        {
+                            test.assertSuccess(true, server.dispose());
+                            serverTask.await();
+                        }
                     }
                 });
 
                 runner.test("with an already existing path", (Test test) ->
                 {
-                    try (final HttpServer server = create(test))
+                    try (final HttpServer server = createServer(test))
                     {
                         server.addPath("/", (HttpRequest request) -> null);
                         test.assertError(new PathAlreadyExistsException("/"), server.addPath("/", (HttpRequest request) -> null));
@@ -73,7 +90,7 @@ public class HttpServerTests
 
                 runner.test("with " + Strings.escapeAndQuote("/redfish"), (Test test) ->
                 {
-                    try (final HttpServer server = create(test))
+                    try (final HttpServer server = createServer(test))
                     {
                         test.assertSuccess(server.addPath("/redfish", (HttpRequest request) -> null));
                         test.assertEqual(Array.fromValues(new String[] { "/redfish" }), server.getPaths().map(Path::toString));
@@ -82,7 +99,7 @@ public class HttpServerTests
 
                 runner.test("with " + Strings.escapeAndQuote("onefish"), (Test test) ->
                 {
-                    try (final HttpServer server = create(test))
+                    try (final HttpServer server = createServer(test))
                     {
                         test.assertSuccess(server.addPath("onefish", (HttpRequest request) -> null));
                         test.assertEqual(Array.fromValues(new String[] { "/onefish" }), server.getPaths().map(Path::toString));
@@ -91,7 +108,7 @@ public class HttpServerTests
 
                 runner.test("with " + Strings.escapeAndQuote("/a\\nice/path"), (Test test) ->
                 {
-                    try (final HttpServer server = create(test))
+                    try (final HttpServer server = createServer(test))
                     {
                         test.assertSuccess(server.addPath("/a\\nice/path", (HttpRequest request) -> null));
                         test.assertEqual(Array.fromValues(new String[] { "/a/nice/path" }), server.getPaths().map(Path::toString));
@@ -100,7 +117,7 @@ public class HttpServerTests
 
                 runner.test("with " + Strings.escapeAndQuote("/a\\nice/"), (Test test) ->
                 {
-                    try (final HttpServer server = create(test))
+                    try (final HttpServer server = createServer(test))
                     {
                         test.assertSuccess(server.addPath("/a\\nice/", (HttpRequest request) -> null));
                         test.assertEqual(Array.fromValues(new String[] { "/a/nice" }), server.getPaths().map(Path::toString));
@@ -109,7 +126,7 @@ public class HttpServerTests
 
                 runner.test("with " + Strings.escapeAndQuote("/a\\nice//"), (Test test) ->
                 {
-                    try (final HttpServer server = create(test))
+                    try (final HttpServer server = createServer(test))
                     {
                         test.assertSuccess(server.addPath("/a\\nice//", (HttpRequest request) -> null));
                         test.assertEqual(Array.fromValues(new String[] { "/a/nice" }), server.getPaths().map(Path::toString));
@@ -118,7 +135,7 @@ public class HttpServerTests
 
                 runner.test("with " + Strings.escapeAndQuote("////"), (Test test) ->
                 {
-                    try (final HttpServer server = create(test))
+                    try (final HttpServer server = createServer(test))
                     {
                         test.assertSuccess(server.addPath("////", (HttpRequest request) -> null));
                         test.assertEqual(Array.fromValues(new String[] { "/" }), server.getPaths().map(Path::toString));
@@ -130,7 +147,7 @@ public class HttpServerTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    try (final HttpServer server = create(test))
+                    try (final HttpServer server = createServer(test))
                     {
                         test.assertThrows(() -> server.setDefaultPath(null));
                     }
@@ -138,7 +155,7 @@ public class HttpServerTests
 
                 runner.test("with non-null", (Test test) ->
                 {
-                    try (final HttpServer server = create(test))
+                    try (final HttpServer server = createServer(test))
                     {
                         server.setDefaultPath((HttpRequest request) ->
                         {
@@ -150,11 +167,8 @@ public class HttpServerTests
                         final AsyncTask serverTask = server.startAsync();
                         try
                         {
-                            final HttpClient client = new BasicHttpClient(test.getNetwork());
-                            final MutableHttpRequest request = new MutableHttpRequest();
-                            request.setMethod(HttpMethod.GET);
-                            request.setUrl("http://" + server.getLocalIPAddress() + ":" + server.getLocalPort() + "/notfound");
-                            final HttpResponse response = client.send(request).throwErrorOrGetValue();
+                            final HttpClient client = createClient(test);
+                            final HttpResponse response = client.get("http://" + server.getLocalIPAddress() + ":" + server.getLocalPort() + "/notfound").throwErrorOrGetValue();
                             test.assertNotNull(response);
                             test.assertEqual(456, response.getStatusCode());
                         }
@@ -169,8 +183,13 @@ public class HttpServerTests
         });
     }
 
-    private static HttpServer create(Test test)
+    private static HttpServer createServer(Test test)
     {
         return new HttpServer(test.getNetwork().createTCPServer(IPv4Address.localhost, 18084).throwErrorOrGetValue());
+    }
+
+    private static HttpClient createClient(Test test)
+    {
+        return new BasicHttpClient(test.getNetwork());
     }
 }

@@ -42,8 +42,25 @@ public class ConsoleTests
                 });
             });
 
-            runner.testGroup("write(String,Object...)", () ->
+            runner.testGroup("writeByte(String,Object...)", () ->
             {
+                final Action1<String> writeWithNoFormattedStringArgumentsFailureTest = (String toWrite) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(toWrite) + " and no formatted string arguments", (Test test) ->
+                    {
+                        final Console console = new Console();
+                        final InMemoryLineStream output = new InMemoryLineStream();
+                        console.setOutput(output);
+
+                        test.assertThrows(() -> console.write(toWrite));
+
+                        test.assertSuccess("", output.getText());
+                    });
+                };
+
+                writeWithNoFormattedStringArgumentsFailureTest.run(null);
+                writeWithNoFormattedStringArgumentsFailureTest.run("");
+
                 final Action2<String,String> writeWithNoFormattedStringArgumentsTest = (String toWrite, String expectedText) ->
                 {
                     runner.test("with " + Strings.escapeAndQuote(toWrite) + " and no formatted string arguments", (Test test) ->
@@ -58,10 +75,29 @@ public class ConsoleTests
                     });
                 };
 
-                writeWithNoFormattedStringArgumentsTest.run(null, "");
-                writeWithNoFormattedStringArgumentsTest.run("", "");
                 writeWithNoFormattedStringArgumentsTest.run("abcd", "abcd");
                 writeWithNoFormattedStringArgumentsTest.run("Hello %s!", "Hello %s!");
+
+                final Action2<String,Object[]> writeWithFormattedStringArgumentsFailureTest = (String toWrite, Object[] formattedStringArguments) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(toWrite) + " and " + (formattedStringArguments == null ? "null" : Array.fromValues(formattedStringArguments).toString()) + " formatted string arguments", (Test test) ->
+                    {
+                        final Console console = new Console();
+                        final InMemoryLineStream output = new InMemoryLineStream();
+                        console.setOutput(output);
+
+                        test.assertThrows(() -> console.write(toWrite, formattedStringArguments));
+
+                        test.assertSuccess("", output.getText());
+                    });
+                };
+
+                writeWithFormattedStringArgumentsFailureTest.run(null, null);
+                writeWithFormattedStringArgumentsFailureTest.run(null, new Object[0]);
+                writeWithFormattedStringArgumentsFailureTest.run(null, new Object[] { "Dan" });
+                writeWithFormattedStringArgumentsFailureTest.run("", null);
+                writeWithFormattedStringArgumentsFailureTest.run("", new Object[0]);
+                writeWithFormattedStringArgumentsFailureTest.run("", new Object[] { "Dan" });
 
                 final Action3<String,Object[],String> writeWithFormattedStringArgumentsTest = (String toWrite, Object[] formattedStringArguments, String expectedText) ->
                 {
@@ -77,12 +113,6 @@ public class ConsoleTests
                     });
                 };
 
-                writeWithFormattedStringArgumentsTest.run(null, null, "");
-                writeWithFormattedStringArgumentsTest.run(null, new Object[0], "");
-                writeWithFormattedStringArgumentsTest.run(null, new Object[] { "Dan" }, "");
-                writeWithFormattedStringArgumentsTest.run("", null, "");
-                writeWithFormattedStringArgumentsTest.run("", new Object[0], "");
-                writeWithFormattedStringArgumentsTest.run("", new Object[] { "Dan" }, "");
                 writeWithFormattedStringArgumentsTest.run("Hello!", null, "Hello!");
                 writeWithFormattedStringArgumentsTest.run("Hello!", new Object[0], "Hello!");
                 writeWithFormattedStringArgumentsTest.run("Hello!", new Object[] { "Dan" }, "Hello!");

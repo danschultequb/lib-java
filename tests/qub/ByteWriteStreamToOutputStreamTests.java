@@ -38,7 +38,7 @@ public class ByteWriteStreamToOutputStreamTests
                 }
             });
 
-            runner.test("write(byte[])", (Test test) ->
+            runner.test("writeByte(byte[])", (Test test) ->
             {
                 final InMemoryByteStream byteWriteStream = new InMemoryByteStream();
                 final ByteWriteStreamToOutputStream outputStream = new ByteWriteStreamToOutputStream(byteWriteStream);

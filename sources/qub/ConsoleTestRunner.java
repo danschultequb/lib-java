@@ -360,7 +360,7 @@ public class ConsoleTestRunner extends Console implements TestRunner
 
     /**
      * Write the stack trace of the provided Throwable to the output stream.
-     * @param t The Throwable to write the stack trace of.
+     * @param t The Throwable to writeByte the stack trace of.
      */
     private void writeStackTrace(Throwable t)
     {

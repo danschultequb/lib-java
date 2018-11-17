@@ -3,17 +3,17 @@ package qub;
 /**
  * An encoding that converts between characters and bytes.
  */
-public abstract class CharacterEncoding
+public interface CharacterEncoding
 {
-    public static final CharacterEncoding US_ASCII = new USASCIICharacterEncoding();
-    public static final CharacterEncoding UTF_8 = new UTF8CharacterEncoding();
+    static final CharacterEncoding US_ASCII = new USASCIICharacterEncoding();
+    static final CharacterEncoding UTF_8 = new UTF8CharacterEncoding();
 
     /**
      * Encode the provided character as a byte[].
      * @param character The character to encode.
      * @return The encoded character as bytes.
      */
-    public Result<byte[]> encode(char character)
+    default Result<byte[]> encode(char character)
     {
         return encode(new char[] { character });
     }
@@ -23,14 +23,11 @@ public abstract class CharacterEncoding
      * @param text The text to encode.
      * @return The encoded text as bytes.
      */
-    public Result<byte[]> encode(String text)
+    default Result<byte[]> encode(String text)
     {
-        Result<byte[]> result = Result.notNullAndNotEmpty(text, "text");
-        if (result == null)
-        {
-            result = encode(text.toCharArray());
-        }
-        return result;
+        PreCondition.assertNotNull(text, "text");
+
+        return encode(text.toCharArray());
     }
 
     /**
@@ -38,22 +35,38 @@ public abstract class CharacterEncoding
      * @param characters The characters to encode.
      * @return The encoded characters as bytes.
      */
-    public abstract Result<byte[]> encode(char[] characters);
+    default Result<byte[]> encode(char[] characters)
+    {
+        PreCondition.assertNotNull(characters, "characters");
+
+        return encode(characters, 0, characters.length);
+    }
+
+    Result<byte[]> encode(char[] characters, int startIndex, int length);
 
     /**
      * Decode the provided byte[] into a char[].
      * @param bytes The byte[] to decode.
      * @return The characters from the decoded byte[].
      */
-    public abstract Result<char[]> decode(byte[] bytes);
+    default Result<char[]> decode(byte[] bytes)
+    {
+        PreCondition.assertNotNull(bytes, "bytes");
+
+        return decode(bytes, 0, bytes.length);
+    }
+
+    Result<char[]> decode(byte[] bytes, int startIndex, int length);
 
     /**
      * Decode the provided byte[] into a String.
      * @param bytes The byte[] to decode.
      * @return The String from the decoded byte[].
      */
-    public Result<String> decodeAsString(byte[] bytes)
+    default Result<String> decodeAsString(byte[] bytes)
     {
+        PreCondition.assertNotNull(bytes, "bytes");
+
         final Result<char[]> result = decode(bytes);
         final char[] decodedCharacters = result.getValue();
         return Result.done(decodedCharacters == null ? null : new String(decodedCharacters), result.getError());
@@ -64,15 +77,14 @@ public abstract class CharacterEncoding
      * @param bytes The bytes to get the next character from.
      * @return The next character.
      */
-    public abstract Result<Character> decodeNextCharacter(Iterator<Byte> bytes);
+    Result<Character> decodeNextCharacter(Iterator<Byte> bytes);
 
-    @Override
-    public boolean equals(Object rhs)
+    static boolean equals(CharacterEncoding lhs, Object rhs)
     {
-        return rhs instanceof CharacterEncoding && equals((CharacterEncoding)rhs);
+        return rhs instanceof CharacterEncoding && lhs.equals((CharacterEncoding)rhs);
     }
 
-    public boolean equals(CharacterEncoding rhs)
+    default boolean equals(CharacterEncoding rhs)
     {
         return rhs != null && getClass().equals(rhs.getClass());
     }

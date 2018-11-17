@@ -670,14 +670,14 @@ public class InMemoryByteStreamTests
                 test.assertSame(stream, lineReadStream.asByteReadStream());
             });
 
-            runner.test("write(byte)", (Test test) ->
+            runner.test("writeByte(byte)", (Test test) ->
             {
                 final InMemoryByteStream stream = new InMemoryByteStream();
-                stream.write((byte)17);
+                stream.writeByte((byte)17);
                 test.assertEqual(new byte[] { 17 }, stream.getBytes());
             });
 
-            runner.test("write(byte[])", (Test test) ->
+            runner.test("writeByte(byte[])", (Test test) ->
             {
                 final InMemoryByteStream stream = new InMemoryByteStream();
                 test.assertThrows(() -> stream.write(new byte[0]));
@@ -687,7 +687,7 @@ public class InMemoryByteStreamTests
                 test.assertEqual(new byte[] { 1, 2, 3, 4 }, stream.getBytes());
             });
 
-            runner.test("write(byte[],int,int)", (Test test) ->
+            runner.test("writeByte(byte[],int,int)", (Test test) ->
             {
                 final InMemoryByteStream stream = new InMemoryByteStream();
                 test.assertThrows(() -> stream.write(new byte[0], 0, 0));

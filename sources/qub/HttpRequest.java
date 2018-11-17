@@ -70,4 +70,24 @@ public interface HttpRequest
      * @return The body of this request.
      */
     ByteReadStream getBody();
+
+    static Result<MutableHttpRequest> get(String urlString)
+    {
+        PreCondition.assertNotNullAndNotEmpty(urlString, "urlString");
+
+        final Result<URL> url = URL.parse(urlString);
+        Result<MutableHttpRequest> result = url.convertError();
+        if (result == null)
+        {
+            result = Result.success(get(url.getValue()));
+        }
+        return result;
+    }
+
+    static MutableHttpRequest get(URL url)
+    {
+        PreCondition.assertNotNull(url, "url");
+
+        return new MutableHttpRequest().setMethod(HttpMethod.GET).setUrl(url);
+    }
 }

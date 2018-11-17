@@ -6,7 +6,7 @@ public class CharacterWriteStreamToLineWriteStreamTests
     {
         runner.testGroup(CharacterWriteStreamToLineWriteStream.class, () ->
         {
-            runner.test("write(char)", (Test test) ->
+            runner.test("writeByte(char)", (Test test) ->
             {
                 final InMemoryCharacterStream characterWriteStream = new InMemoryCharacterStream();
                 final CharacterWriteStreamToLineWriteStream lineWriteStream = getLineWriteStream(characterWriteStream);
@@ -15,7 +15,7 @@ public class CharacterWriteStreamToLineWriteStreamTests
                 test.assertSuccess("z", characterWriteStream.getText());
             });
 
-            runner.test("write(String)", (Test test) ->
+            runner.test("writeByte(String)", (Test test) ->
             {
                 final InMemoryCharacterStream characterWriteStream = new InMemoryCharacterStream();
                 final CharacterWriteStreamToLineWriteStream lineWriteStream = getLineWriteStream(characterWriteStream);
@@ -24,7 +24,7 @@ public class CharacterWriteStreamToLineWriteStreamTests
                 test.assertSuccess("tuv", characterWriteStream.getText());
             });
 
-            runner.test("write(String,Object...)", (Test test) ->
+            runner.test("writeByte(String,Object...)", (Test test) ->
             {
                 final InMemoryCharacterStream characterWriteStream = new InMemoryCharacterStream();
                 final CharacterWriteStreamToLineWriteStream lineWriteStream = getLineWriteStream(characterWriteStream);

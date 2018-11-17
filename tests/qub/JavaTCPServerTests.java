@@ -119,7 +119,7 @@ public class JavaTCPServerTests
                         test.assertSuccess(tcpClientResult);
                         try (final TCPClient tcpClient = tcpClientResult.getValue())
                         {
-                            test.assertSuccess(true, tcpClient.write(bytes));
+                            test.assertSuccess(bytes.length, tcpClient.write(bytes));
                             clientReadBytes.set(tcpClient.readBytes(bytes.length).getValue());
                         }
                     });
@@ -139,7 +139,7 @@ public class JavaTCPServerTests
                         {
                             final Result<byte[]> serverReadBytes = serverClient.readBytes(bytes.length);
                             test.assertSuccess(bytes, serverReadBytes);
-                            test.assertSuccess(true, serverClient.write(serverReadBytes.getValue()));
+                            test.assertSuccess(serverReadBytes.getValue().length, serverClient.write(serverReadBytes.getValue()));
                         }
                     }
 
@@ -178,7 +178,7 @@ public class JavaTCPServerTests
                             try (final TCPClient tcpClient = network.createTCPClient(ipAddress, port.get()).getValue())
                             {
                                 // Block
-                                test.assertSuccess(true, tcpClient.write(bytes));
+                                test.assertSuccess(bytes.length, tcpClient.write(bytes));
                                 // Block
                                 clientReadBytes.set(tcpClient.readBytes(bytes.length).getValue());
                             }
@@ -200,7 +200,7 @@ public class JavaTCPServerTests
                                     test.assertSuccess(bytes, serverReadBytes);
 
                                     // Block
-                                    test.assertSuccess(true, serverClient.write(serverReadBytes.getValue()));
+                                    test.assertSuccess(serverReadBytes.getValue().length, serverClient.write(serverReadBytes.getValue()));
                                 }
                             });
 

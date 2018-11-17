@@ -9,21 +9,92 @@ public interface CharacterWriteStream extends Disposable
         return write(String.valueOf(toWrite));
     }
 
+    default Result<Boolean> write(char[] toWrite)
+    {
+        PreCondition.assertNotNullAndNotEmpty(toWrite, "toWrite");
+        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+
+        return write(toWrite, 0, toWrite.length);
+    }
+
+    default Result<Boolean> write(char[] toWrite, int startIndex, int length)
+    {
+        PreCondition.assertNotNullAndNotEmpty(toWrite, "toWrite");
+        PreCondition.assertBetween(0, startIndex, toWrite.length - 1, "startIndex");
+        PreCondition.assertBetween(1, length, toWrite.length - startIndex, "length");
+        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+
+        final Result<byte[]> bytesToWriteResult = getCharacterEncoding().encode(toWrite, startIndex, length);
+        Result<Boolean> result = bytesToWriteResult.convertError();
+        if (result == null)
+        {
+            final byte[] bytesToWrite = bytesToWriteResult.getValue();
+            int bytesWritten = 0;
+            final ByteWriteStream byteWriteStream = asByteWriteStream();
+            while (result == null && bytesWritten < bytesToWrite.length)
+            {
+                final Result<Integer> bytesWrittenResult = byteWriteStream.write(bytesToWrite, bytesWritten, bytesToWrite.length - bytesWritten);
+                result = bytesWrittenResult.convertError();
+                if (result == null)
+                {
+                    bytesWritten += bytesWrittenResult.getValue();
+                }
+            }
+            if (result == null)
+            {
+                result = Result.successTrue();
+            }
+        }
+        return result;
+    }
+
     default Result<Boolean> write(String toWrite, Object... formattedStringArguments)
     {
-        Result<Boolean> result;
+        PreCondition.assertNotNull(toWrite, "toWrite");
 
         toWrite = Strings.format(toWrite, formattedStringArguments);
+        return write(toWrite.toCharArray());
+    }
 
-        final Result<byte[]> encodedBytes = getCharacterEncoding().encode(toWrite);
-        if (encodedBytes.hasError())
+    /**
+     * Write all of the bytes from the provided characterReadStream to this ByteWriteStream.
+     * @param characterReadStream The ByteReadStream to read from.
+     * @return Whether or not the writeByte was successful.
+     */
+    default Result<Long> writeAll(CharacterReadStream characterReadStream)
+    {
+        PreCondition.assertNotNull(characterReadStream, "characterReadStream");
+        PreCondition.assertFalse(characterReadStream.isDisposed(), "characterReadStream.isDisposed()");
+        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+
+        long charactersWritten = 0;
+        char[] buffer = new char[1024];
+
+        Result<Long> result = null;
+        while (result == null)
         {
-            result = Result.done(false, encodedBytes.getError());
+            final Result<Integer> readCharactersResult = characterReadStream.readCharacters(buffer);
+            result = readCharactersResult.convertError();
+            if (result == null)
+            {
+                final Integer charactersRead = readCharactersResult.getValue();
+                if (charactersRead == null || charactersRead == -1)
+                {
+                    result = Result.success(charactersWritten);
+                }
+                else
+                {
+                    result = write(buffer, 0, charactersRead).convertError();
+                    if (result == null && charactersRead == buffer.length)
+                    {
+                        buffer = new char[buffer.length * 2];
+                    }
+                }
+            }
         }
-        else
-        {
-            result = asByteWriteStream().write(encodedBytes.getValue());
-        }
+
+        PostCondition.assertNotNull(result, "result");
+
         return result;
     }
 

@@ -13,11 +13,7 @@ public class InMemoryLineStreamTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final InMemoryLineStream lineReadStream = new InMemoryLineStream(null).endOfStream();
-                    test.assertFalse(lineReadStream.isDisposed());
-                    test.assertEqual(CharacterEncoding.UTF_8, lineReadStream.getCharacterEncoding());
-                    test.assertFalse(lineReadStream.getIncludeNewLines());
-                    test.assertSuccess(null, lineReadStream.readLine());
+                    test.assertThrows(() -> new InMemoryLineStream(null));
                 });
 
                 runner.test("with \"\"", (Test test) ->

@@ -50,8 +50,7 @@ public class ArrayTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final Array<Byte> array = Array.fromValues((byte[])null);
-                    test.assertEqual(0, array.getCount());
+                    test.assertThrows(() -> Array.fromValues((byte[])null));
                 });
 
                 runner.test("with no values", (Test test) ->

@@ -114,11 +114,25 @@ public class Array<T> implements MutableIndexable<T>
      */
     public static Array<Byte> fromValues(byte[] values)
     {
-        final int length = values == null ? 0 : values.length;
+        PreCondition.assertNotNull(values, "values");
+
+        return Array.fromValues(values, 0, values.length);
+    }
+
+    /**
+     * Create an Array from the provided values.
+     * @param values The values to initialize the array with.
+     */
+    public static Array<Byte> fromValues(byte[] values, int startIndex, int length)
+    {
+        PreCondition.assertNotNull(values, "values");
+        PreCondition.assertBetween(0, startIndex, values.length - 1, "startIndex");
+        PreCondition.assertBetween(0, length, values.length - startIndex, "length");
+
         final Array<Byte> result = new Array<>(length);
         for (int i = 0; i < length; ++i)
         {
-            result.set(i, values[i]);
+            result.set(i, values[startIndex + i]);
         }
         return result;
     }

@@ -87,7 +87,7 @@ public class MutableHttpRequestTests
                 runner.test("with null", (Test test) ->
                 {
                     final MutableHttpRequest request = create(HttpMethod.GET, "https://www.example.com");
-                    request.setBody((String)null);
+                    test.assertThrows(() -> request.setBody((String)null));
                     test.assertNull(request.getBody());
                     test.assertEqual(Iterable.empty(), request.getHeaders());
                 });

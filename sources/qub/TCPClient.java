@@ -177,19 +177,19 @@ public interface TCPClient extends ByteWriteStream, ByteReadStream, AsyncDisposa
     }
 
     @Override
-    default Result<Boolean> write(byte toWrite)
+    default Result<Boolean> writeByte(byte toWrite)
+    {
+        return getWriteStream().writeByte(toWrite);
+    }
+
+    @Override
+    default Result<Integer> write(byte[] toWrite)
     {
         return getWriteStream().write(toWrite);
     }
 
     @Override
-    default Result<Boolean> write(byte[] toWrite)
-    {
-        return getWriteStream().write(toWrite);
-    }
-
-    @Override
-    default Result<Boolean> write(byte[] toWrite, int startIndex, int length)
+    default Result<Integer> write(byte[] toWrite, int startIndex, int length)
     {
         return getWriteStream().write(toWrite, startIndex, length);
     }

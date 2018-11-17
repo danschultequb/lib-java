@@ -1,7 +1,7 @@
 package qub;
 
 /**
- * A Console platform that can be used to write Console applications.
+ * A Console platform that can be used to writeByte Console applications.
  */
 public class Process implements Disposable
 {

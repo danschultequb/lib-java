@@ -12,15 +12,25 @@ public class LineReadStreamTests
             {
                 runner.test("with null and false", (Test test) ->
                 {
-                    final LineReadStream lineReadStream = creatorWithIncludeNewLines.run(null, false);
+                    test.assertThrows(() -> creatorWithIncludeNewLines.run(null, false));
+                });
+
+                runner.test("with null and true", (Test test) ->
+                {
+                    test.assertThrows(() -> creatorWithIncludeNewLines.run(null, true));
+                });
+
+                runner.test("with empty and false", (Test test) ->
+                {
+                    final LineReadStream lineReadStream = creatorWithIncludeNewLines.run("", false);
                     assertLineReadStream(test, lineReadStream, false, false, null);
                     test.assertEqual(CharacterEncoding.UTF_8, lineReadStream.getCharacterEncoding());
                     test.assertFalse(lineReadStream.getIncludeNewLines());
                 });
 
-                runner.test("with null and true", (Test test) ->
+                runner.test("with empty and true", (Test test) ->
                 {
-                    final LineReadStream lineReadStream = creatorWithIncludeNewLines.run(null, true);
+                    final LineReadStream lineReadStream = creatorWithIncludeNewLines.run("", true);
                     assertLineReadStream(test, lineReadStream, false, false, null);
                     test.assertEqual(CharacterEncoding.UTF_8, lineReadStream.getCharacterEncoding());
                     test.assertTrue(lineReadStream.getIncludeNewLines());
@@ -29,7 +39,7 @@ public class LineReadStreamTests
 
             runner.test("close()", (Test test) ->
             {
-                final LineReadStream lineReadStream = creator.run(null);
+                final LineReadStream lineReadStream = creator.run("");
                 try
                 {
                     lineReadStream.close();

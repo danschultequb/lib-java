@@ -1066,7 +1066,7 @@ public interface FileSystem
                 }
                 else
                 {
-                    result = byteWriteStream.write(content);
+                    result = byteWriteStream.writeAllBytes(content);
                 }
             }
         }

@@ -13,7 +13,7 @@ public class OutputStreamToByteWriteStream implements ByteWriteStream
     }
 
     @Override
-    public Result<Boolean> write(byte toWrite)
+    public Result<Boolean> writeByte(byte toWrite)
     {
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
@@ -32,17 +32,17 @@ public class OutputStreamToByteWriteStream implements ByteWriteStream
     }
 
     @Override
-    public Result<Boolean> write(byte[] toWrite)
+    public Result<Integer> write(byte[] toWrite)
     {
         PreCondition.assertNotNullAndNotEmpty(toWrite, "toWrite");
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
-        Result<Boolean> result;
+        Result<Integer> result;
         try
         {
             outputStream.write(toWrite);
             outputStream.flush();
-            result = Result.successTrue();
+            result = Result.success(toWrite.length);
         }
         catch (java.io.IOException e)
         {
@@ -52,19 +52,19 @@ public class OutputStreamToByteWriteStream implements ByteWriteStream
     }
 
     @Override
-    public Result<Boolean> write(byte[] toWrite, int startIndex, int length)
+    public Result<Integer> write(byte[] toWrite, int startIndex, int length)
     {
         PreCondition.assertNotNullAndNotEmpty(toWrite, "toWrite");
         PreCondition.assertBetween(0, startIndex, toWrite.length - 1, "startIndex");
         PreCondition.assertBetween(1, length, toWrite.length - startIndex, "length");
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
-        Result<Boolean> result;
+        Result<Integer> result;
         try
         {
             outputStream.write(toWrite, startIndex, length);
             outputStream.flush();
-            result = Result.successTrue();
+            result = Result.success(length);
         }
         catch (java.io.IOException e)
         {
