@@ -26,7 +26,7 @@ public class TestAssertionFailure extends RuntimeException
      */
     public TestAssertionFailure(String fullTestName, String[] messageLines, Throwable cause)
     {
-        super(cause);
+        super(getMessage(fullTestName, messageLines), cause);
         this.fullTestName = fullTestName;
         this.messageLines = messageLines;
     }
@@ -47,5 +47,19 @@ public class TestAssertionFailure extends RuntimeException
     public String[] getMessageLines()
     {
         return messageLines;
+    }
+
+    private static String getMessage(String fullTestName, String[] messageLines)
+    {
+        final InMemoryLineStream lineStream = new InMemoryLineStream();
+        lineStream.writeLine(fullTestName);
+        if (messageLines != null)
+        {
+            for (final String messageLine : messageLines)
+            {
+                lineStream.writeLine(messageLine);
+            }
+        }
+        return lineStream.getText().throwErrorOrGetValue();
     }
 }

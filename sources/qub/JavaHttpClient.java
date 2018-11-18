@@ -42,7 +42,7 @@ public class JavaHttpClient implements HttpClient
                 urlConnection.setDoOutput(true);
 
                 final ByteWriteStream writeStream = new OutputStreamToByteWriteStream(urlConnection.getOutputStream());
-                writeStream.writeAll(body);
+                writeStream.writeAllBytes(body);
                 body.close();
                 writeStream.close();
             }
@@ -79,7 +79,7 @@ public class JavaHttpClient implements HttpClient
             InMemoryByteStream resultBody = new InMemoryByteStream(network.getAsyncRunner());
             final int statusCode = response.getStatusCode();
             final ByteReadStream responseBody = new InputStreamToByteReadStream((400 <= statusCode && statusCode <= 599) ? urlConnection.getErrorStream() : urlConnection.getInputStream(), network.getAsyncRunner());
-            resultBody.writeAll(responseBody);
+            resultBody.writeAllBytes(responseBody);
             responseBody.close();
             resultBody.endOfStream();
             if (resultBody.getCount() == 0)

@@ -201,27 +201,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
     }
 
     @Override
-    public Result<Boolean> writeByte(byte toWrite)
-    {
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
-        PreCondition.assertFalse(endOfStream, "endOfStream");
-
-        final Result<Integer> writeResult = write(new byte[] { toWrite });
-        return writeResult.hasError() ? writeResult.convertError() : Result.successTrue();
-    }
-
-    @Override
-    public Result<Integer> write(byte[] toWrite)
-    {
-        PreCondition.assertNotNullAndNotEmpty(toWrite, "toWrite");
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
-        PreCondition.assertFalse(endOfStream, "endOfStream");
-
-        return write(toWrite, 0, toWrite.length);
-    }
-
-    @Override
-    public Result<Integer> write(byte[] toWrite, int startIndex, int length)
+    public Result<Integer> writeBytes(byte[] toWrite, int startIndex, int length)
     {
         PreCondition.assertNotNullAndNotEmpty(toWrite, "toWrite");
         PreCondition.assertBetween(0, startIndex, toWrite.length - 1, "startIndex");
@@ -241,7 +221,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
     }
 
     @Override
-    public Result<Boolean> writeAll(ByteReadStream byteReadStream)
+    public Result<Boolean> writeAllBytes(ByteReadStream byteReadStream)
     {
         PreCondition.assertNotNull(byteReadStream, "byteReadStream");
         PreCondition.assertFalse(byteReadStream.isDisposed(), "byteReadStream.isDisposed()");

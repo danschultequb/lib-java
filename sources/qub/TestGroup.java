@@ -8,6 +8,8 @@ public class TestGroup
 
     public TestGroup(String name, TestGroup parentTestGroup, Skip skip)
     {
+        PreCondition.assertNotNullAndNotEmpty(name, "name");
+
         this.name = name;
         this.parentTestGroup = parentTestGroup;
         this.skip = skip;

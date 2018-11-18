@@ -56,13 +56,13 @@ public class BasicHttpClient implements HttpClient
                     requestBeforeBodyLineStream.writeLine();
                     requestBeforeBodyByteStream.endOfStream();
 
-                    Result<Boolean> writeResult = tcpClient.writeAll(requestBeforeBodyByteStream);
+                    Result<Boolean> writeResult = tcpClient.writeAllBytes(requestBeforeBodyByteStream);
                     if (!writeResult.hasError())
                     {
                         final ByteReadStream requestBodyStream = request.getBody();
                         if (requestBodyStream != null)
                         {
-                            writeResult = tcpClient.writeAll(requestBodyStream);
+                            writeResult = tcpClient.writeAllBytes(requestBodyStream);
                         }
                     }
 
@@ -125,7 +125,7 @@ public class BasicHttpClient implements HttpClient
                                         }
                                         else
                                         {
-                                            responseBodyStream.write(bytesRead);
+                                            responseBodyStream.writeBytes(bytesRead);
                                             bytesToRead -= bytesRead.length;
                                         }
                                     }

@@ -80,11 +80,11 @@ public class OutputStreamToByteWriteStreamTests
 
                         if (toWrite == null || toWrite.length == 0)
                         {
-                            test.assertThrows(() -> writeStream.write(toWrite));
+                            test.assertThrows(() -> writeStream.writeBytes(toWrite));
                         }
                         else
                         {
-                            final Result<Integer> writeResult = writeStream.write(toWrite);
+                            final Result<Integer> writeResult = writeStream.writeBytes(toWrite);
                             if (expectedError != null)
                             {
                                 test.assertError(expectedError, writeResult);
@@ -123,11 +123,11 @@ public class OutputStreamToByteWriteStreamTests
                             startIndex < 0 || toWrite.length <= startIndex ||
                             length <= 0 || toWrite.length - startIndex < length)
                         {
-                            test.assertThrows(() -> writeStream.write(toWrite, startIndex, length));
+                            test.assertThrows(() -> writeStream.writeBytes(toWrite, startIndex, length));
                         }
                         else
                         {
-                            final Result<Integer> writeResult = writeStream.write(toWrite, startIndex, length);
+                            final Result<Integer> writeResult = writeStream.writeBytes(toWrite, startIndex, length);
                             if (expectedError != null)
                             {
                                 test.assertError(expectedError, writeResult);

@@ -189,16 +189,9 @@ public class ProcessBuilder
      * @param redirectedOutputStream The ByteWriteStream to redirect process output to.
      * @return This ProcessBuilder.
      */
-    public ProcessBuilder redirectOutput(final ByteWriteStream redirectedOutputStream)
+    public ProcessBuilder redirectOutput(ByteWriteStream redirectedOutputStream)
     {
-        return redirectOutput(new Action1<ByteReadStream>()
-        {
-            @Override
-            public void run(ByteReadStream processOutput)
-            {
-                redirectedOutputStream.writeAll(processOutput);
-            }
-        });
+        return redirectOutput(redirectedOutputStream::writeAllBytes);
     }
 
     /**
@@ -247,14 +240,7 @@ public class ProcessBuilder
      */
     public ProcessBuilder redirectError(final ByteWriteStream redirectedErrorStream)
     {
-        return redirectError(new Action1<ByteReadStream>()
-        {
-            @Override
-            public void run(ByteReadStream processError)
-            {
-                redirectedErrorStream.writeAll(processError);
-            }
-        });
+        return redirectError(redirectedErrorStream::writeAllBytes);
     }
 
     /**
@@ -292,34 +278,30 @@ public class ProcessBuilder
 
     private static Action1<ByteReadStream> byteReadStreamToLineAction(final Action1<String> onLineAction)
     {
-        return onLineAction == null ? null : new Action1<ByteReadStream>()
+        PreCondition.assertNotNull(onLineAction, "onLineAction");
+
+        return (ByteReadStream byteReadStream) ->
         {
-            @Override
-            public void run(ByteReadStream byteReadStream)
+            final LineReadStream lineReadStream = byteReadStream.asLineReadStream(true);
+            String line;
+            do
             {
-                final LineReadStream lineReadStream = byteReadStream.asLineReadStream(true);
-                String line;
-                do
-                {
-                    line = lineReadStream.readLine().getValue();
-                    onLineAction.run(line);
-                }
-                while (line != null);
+                line = lineReadStream.readLine().getValue();
+                onLineAction.run(line);
             }
+            while (line != null);
         };
     }
 
     private static Action1<String> appendLineToStringBuilder(final StringBuilder builder)
     {
-        return builder == null ? null : new Action1<String>()
+        PreCondition.assertNotNull(builder, "builder");
+
+        return (String line) ->
         {
-            @Override
-            public void run(String line)
+            if (line != null)
             {
-                if (line != null)
-                {
-                    builder.append(line);
-                }
+                builder.append(line);
             }
         };
     }
@@ -429,26 +411,12 @@ public class ProcessBuilder
 
             if (redirectOutputAction != null)
             {
-                outputAction = parallelAsyncRunner.schedule(new Action0()
-                {
-                    @Override
-                    public void run()
-                    {
-                        redirectOutputAction.run(new InputStreamToByteReadStream(process.getInputStream(), parallelAsyncRunner));
-                    }
-                });
+                outputAction = parallelAsyncRunner.schedule(() -> redirectOutputAction.run(new InputStreamToByteReadStream(process.getInputStream(), parallelAsyncRunner)));
             }
 
             if (redirectErrorAction != null)
             {
-                errorAction = parallelAsyncRunner.schedule(new Action0()
-                {
-                    @Override
-                    public void run()
-                    {
-                        redirectErrorAction.run(new InputStreamToByteReadStream(process.getErrorStream(), parallelAsyncRunner));
-                    }
-                });
+                errorAction = parallelAsyncRunner.schedule(() -> redirectErrorAction.run(new InputStreamToByteReadStream(process.getErrorStream(), parallelAsyncRunner)));
             }
 
             result = process.waitFor();
@@ -474,14 +442,6 @@ public class ProcessBuilder
      */
     public AsyncFunction<Integer> runAsync()
     {
-        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        return parallelAsyncRunner.schedule(new Function0<Integer>()
-        {
-            @Override
-            public Integer run()
-            {
-                return ProcessBuilder.this.run();
-            }
-        }).thenOn(currentAsyncRunner);
+        return parallelAsyncRunner.scheduleSingle(this::run);
     }
 }

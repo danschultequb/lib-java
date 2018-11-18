@@ -57,7 +57,7 @@ public class Console extends Process
         final ByteWriteStream writeStream = getOutputAsByteWriteStream();
         if (writeStream != null)
         {
-            result = writeStream.write(toWrite);
+            result = writeStream.writeBytes(toWrite);
         }
         else
         {
@@ -74,7 +74,7 @@ public class Console extends Process
         final ByteWriteStream writeStream = getOutputAsByteWriteStream();
         if (writeStream != null)
         {
-            result = writeStream.write(toWrite, startIndex, length);
+            result = writeStream.writeBytes(toWrite, startIndex, length);
         }
         else
         {
@@ -172,7 +172,7 @@ public class Console extends Process
         final ByteWriteStream writeStream = getErrorAsByteWriteStream();
         if (writeStream != null)
         {
-            result = writeStream.write(toWrite);
+            result = writeStream.writeBytes(toWrite);
         }
         else
         {
@@ -189,7 +189,7 @@ public class Console extends Process
         final ByteWriteStream writeStream = getErrorAsByteWriteStream();
         if (writeStream != null)
         {
-            result = writeStream.write(toWrite, startIndex, length);
+            result = writeStream.writeBytes(toWrite, startIndex, length);
         }
         else
         {

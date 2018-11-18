@@ -56,7 +56,7 @@ public class NetworkTests
                             try (final TCPClient acceptedClient = acceptedClientResult.getValue())
                             {
                                 test.assertSuccess(bytes, acceptedClient.readBytes(bytes.length));
-                                test.assertSuccess(bytes.length, acceptedClient.write(bytes));
+                                test.assertSuccess(bytes.length, acceptedClient.writeBytes(bytes));
                             }
                         }
                     });
@@ -71,7 +71,7 @@ public class NetworkTests
                             test.assertNotEqual(port, tcpClient.getLocalPort());
                             test.assertEqual(IPv4Address.localhost, tcpClient.getRemoteIPAddress());
                             test.assertEqual(port, tcpClient.getRemotePort());
-                            test.assertSuccess(bytes.length, tcpClient.write(bytes));
+                            test.assertSuccess(bytes.length, tcpClient.writeBytes(bytes));
                             test.assertSuccess(bytes, tcpClient.readBytes(bytes.length));
                         }
                     });

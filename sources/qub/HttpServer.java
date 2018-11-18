@@ -195,7 +195,7 @@ public class HttpServer implements AsyncDisposable
                     final ByteReadStream responseBody = response.getBody();
                     if (responseBody != null)
                     {
-                        acceptedClient.writeAll(responseBody).throwError();
+                        acceptedClient.writeAllBytes(responseBody).throwError();
                         responseBody.dispose().throwError();
                     }
                 }

@@ -677,33 +677,33 @@ public class InMemoryByteStreamTests
                 test.assertEqual(new byte[] { 17 }, stream.getBytes());
             });
 
-            runner.test("writeByte(byte[])", (Test test) ->
+            runner.test("writeBytes(byte[])", (Test test) ->
             {
                 final InMemoryByteStream stream = new InMemoryByteStream();
-                test.assertThrows(() -> stream.write(new byte[0]));
+                test.assertThrows(() -> stream.writeBytes(new byte[0]));
                 test.assertEqual(new byte[0], stream.getBytes());
 
-                stream.write(new byte[] { 1, 2, 3, 4 });
+                stream.writeBytes(new byte[] { 1, 2, 3, 4 });
                 test.assertEqual(new byte[] { 1, 2, 3, 4 }, stream.getBytes());
             });
 
-            runner.test("writeByte(byte[],int,int)", (Test test) ->
+            runner.test("writeBytes(byte[],int,int)", (Test test) ->
             {
                 final InMemoryByteStream stream = new InMemoryByteStream();
-                test.assertThrows(() -> stream.write(new byte[0], 0, 0));
+                test.assertThrows(() -> stream.writeBytes(new byte[0], 0, 0));
                 test.assertEqual(new byte[0], stream.getBytes());
 
-                test.assertThrows(() -> stream.write(new byte[] { 1, 2, 3, 4 }, 1, 0));
+                test.assertThrows(() -> stream.writeBytes(new byte[] { 1, 2, 3, 4 }, 1, 0));
                 test.assertEqual(new byte[0], stream.getBytes());
 
-                stream.write(new byte[] { 1, 2, 3, 4 }, 1, 2);
+                stream.writeBytes(new byte[] { 1, 2, 3, 4 }, 1, 2);
                 test.assertEqual(new byte[] { 2, 3 }, stream.getBytes());
             });
 
-            runner.test("writeAll(ByteReadStream)", (Test test) ->
+            runner.test("writeAllBytes(ByteReadStream)", (Test test) ->
             {
                 final InMemoryByteStream stream = new InMemoryByteStream();
-                test.assertThrows(() -> stream.writeAll(null));
+                test.assertThrows(() -> stream.writeAllBytes((ByteReadStream)null));
                 test.assertEqual(new byte[0], stream.getBytes());
             });
 

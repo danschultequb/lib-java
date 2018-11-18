@@ -33,7 +33,7 @@ public interface CharacterWriteStream extends Disposable
             final ByteWriteStream byteWriteStream = asByteWriteStream();
             while (result == null && bytesWritten < bytesToWrite.length)
             {
-                final Result<Integer> bytesWrittenResult = byteWriteStream.write(bytesToWrite, bytesWritten, bytesToWrite.length - bytesWritten);
+                final Result<Integer> bytesWrittenResult = byteWriteStream.writeBytes(bytesToWrite, bytesWritten, bytesToWrite.length - bytesWritten);
                 result = bytesWrittenResult.convertError();
                 if (result == null)
                 {

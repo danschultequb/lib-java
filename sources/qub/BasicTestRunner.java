@@ -50,12 +50,16 @@ public final class BasicTestRunner implements TestRunner
     @Override
     public Skip skip(boolean toSkip, String message)
     {
+        PreCondition.assertNotNullAndNotEmpty(message, "message");
+
         return toSkip ? skip(message) : null;
     }
 
     @Override
     public Skip skip(String message)
     {
+        PreCondition.assertNotNullAndNotEmpty(message, "message");
+
         return new Skip(message);
     }
 

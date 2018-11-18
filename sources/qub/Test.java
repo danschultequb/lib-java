@@ -12,6 +12,9 @@ public class Test
 
     public Test(String name, TestGroup parentTestGroup, Skip skip, Process process)
     {
+        PreCondition.assertNotNullAndNotEmpty(name, "name");
+        PreCondition.assertNotNull(process, "process");
+
         this.name = name;
         this.parentTestGroup = parentTestGroup;
         this.skip = skip;
@@ -49,6 +52,11 @@ public class Test
     public String getSkipMessage()
     {
         return skip == null ? null : skip.getMessage();
+    }
+
+    public Process getProcess()
+    {
+        return process;
     }
 
     public AsyncRunner getMainAsyncRunner()
@@ -95,6 +103,7 @@ public class Test
 
     public void writeLine(String formattedText, Object... formattedTextArguments)
     {
+        PreCondition.assertNotNullAndNotEmpty(formattedText, "formattedText");
         PreCondition.assertNotNull(process.getOutputAsByteWriteStream(), "process.getOutputAsByteWriteStream()");
 
         process.getOutputAsLineWriteStream().writeLine(formattedText, formattedTextArguments);
@@ -144,16 +153,9 @@ public class Test
      * @param message The message to show if the value is not false.
      * @throws TestAssertionFailure if the value is not false.
      */
-    public void assertFalse(boolean value, final String message)
+    public void assertFalse(boolean value, String message)
     {
-        assertFalse(value, message == null ? null : new Function0<String>()
-        {
-            @Override
-            public String run()
-            {
-                return message;
-            }
-        });
+        assertFalse(value, message == null ? null : () -> message);
     }
 
     /**
@@ -227,10 +229,9 @@ public class Test
      */
     public void assertNotNullAndNotEmpty(String value)
     {
-        assertNotNull(value);
-        if (value.length() == 0)
+        if (Strings.isNullOrEmpty(value))
         {
-            throw new TestAssertionFailure(getFullName(), getMessageLines(AssertionMessages.notEmpty("Actual value"), "not null and not empty", value));
+            throw new TestAssertionFailure(getFullName(), getMessageLines((String)null, "not null and not empty", value));
         }
     }
 
@@ -245,7 +246,7 @@ public class Test
         assertNotNull(value);
         if (!value.any())
         {
-            throw new TestAssertionFailure(getFullName(), getMessageLines(AssertionMessages.notEmpty("Actual value"), "not null and not empty", value));
+            throw new TestAssertionFailure(getFullName(), getMessageLines((String)null, "not null and not empty", value));
         }
     }
 
@@ -1203,7 +1204,7 @@ public class Test
     {
         int nextMessageIndex;
         final String[] messageLines;
-        if (message == null)
+        if (Strings.isNullOrEmpty(message))
         {
             messageLines = new String[2];
             nextMessageIndex = 0;

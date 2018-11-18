@@ -11,7 +11,7 @@ public interface ByteWriteStream extends Disposable
      */
     default Result<Boolean> writeByte(byte toWrite)
     {
-        final Result<Integer> writeResult = write(new byte[] { toWrite });
+        final Result<Integer> writeResult = writeBytes(new byte[] { toWrite });
 
         return writeResult.hasError() ? writeResult.convertError() : Result.successTrue();
     }
@@ -20,12 +20,12 @@ public interface ByteWriteStream extends Disposable
      * Write the provided bytes to this ByteWriteStream.
      * @param toWrite The bytes to writeByte to this stream.
      */
-    default Result<Integer> write(byte[] toWrite)
+    default Result<Integer> writeBytes(byte[] toWrite)
     {
         PreCondition.assertNotNullAndNotEmpty(toWrite, "toWrite");
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
-        return write(toWrite, 0, toWrite.length);
+        return writeBytes(toWrite, 0, toWrite.length);
     }
 
     /**
@@ -34,7 +34,7 @@ public interface ByteWriteStream extends Disposable
      * @param startIndex The start index of the subsection inside toWrite to writeByte.
      * @param length The number of bytes to writeByte.
      */
-    Result<Integer> write(byte[] toWrite, int startIndex, int length);
+    Result<Integer> writeBytes(byte[] toWrite, int startIndex, int length);
 
     default Result<Boolean> writeAllBytes(byte[] toWrite)
     {
@@ -55,7 +55,7 @@ public interface ByteWriteStream extends Disposable
         int bytesWritten = 0;
         while (result == null && bytesWritten < length)
         {
-            final Result<Integer> writeBytesResult = write(toWrite, startIndex + bytesWritten, length - bytesWritten);
+            final Result<Integer> writeBytesResult = writeBytes(toWrite, startIndex + bytesWritten, length - bytesWritten);
             result = writeBytesResult.convertError();
             if (result == null)
             {
@@ -74,7 +74,7 @@ public interface ByteWriteStream extends Disposable
      * @param byteReadStream The ByteReadStream to read from.
      * @return Whether or not the writeByte was successful.
      */
-    default Result<Boolean> writeAll(ByteReadStream byteReadStream)
+    default Result<Boolean> writeAllBytes(ByteReadStream byteReadStream)
     {
         PreCondition.assertNotNull(byteReadStream, "byteReadStream");
         PreCondition.assertFalse(byteReadStream.isDisposed(), "byteReadStream.isDisposed()");
@@ -99,7 +99,7 @@ public interface ByteWriteStream extends Disposable
                 }
                 else
                 {
-                    write(buffer, 0, bytesRead);
+                    writeBytes(buffer, 0, bytesRead);
 
                     if (bytesRead == buffer.length)
                     {

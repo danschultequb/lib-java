@@ -119,7 +119,7 @@ public class JavaTCPServerTests
                         test.assertSuccess(tcpClientResult);
                         try (final TCPClient tcpClient = tcpClientResult.getValue())
                         {
-                            test.assertSuccess(bytes.length, tcpClient.write(bytes));
+                            test.assertSuccess(bytes.length, tcpClient.writeBytes(bytes));
                             clientReadBytes.set(tcpClient.readBytes(bytes.length).getValue());
                         }
                     });
@@ -139,7 +139,7 @@ public class JavaTCPServerTests
                         {
                             final Result<byte[]> serverReadBytes = serverClient.readBytes(bytes.length);
                             test.assertSuccess(bytes, serverReadBytes);
-                            test.assertSuccess(serverReadBytes.getValue().length, serverClient.write(serverReadBytes.getValue()));
+                            test.assertSuccess(serverReadBytes.getValue().length, serverClient.writeBytes(serverReadBytes.getValue()));
                         }
                     }
 
@@ -178,7 +178,7 @@ public class JavaTCPServerTests
                             try (final TCPClient tcpClient = network.createTCPClient(ipAddress, port.get()).getValue())
                             {
                                 // Block
-                                test.assertSuccess(bytes.length, tcpClient.write(bytes));
+                                test.assertSuccess(bytes.length, tcpClient.writeBytes(bytes));
                                 // Block
                                 clientReadBytes.set(tcpClient.readBytes(bytes.length).getValue());
                             }
@@ -200,7 +200,7 @@ public class JavaTCPServerTests
                                     test.assertSuccess(bytes, serverReadBytes);
 
                                     // Block
-                                    test.assertSuccess(serverReadBytes.getValue().length, serverClient.write(serverReadBytes.getValue()));
+                                    test.assertSuccess(serverReadBytes.getValue().length, serverClient.writeBytes(serverReadBytes.getValue()));
                                 }
                             });
 
@@ -232,7 +232,7 @@ public class JavaTCPServerTests
                                 final TCPClient tcpClient = tcpClientResult.getValue();
                                 final Result<byte[]> serverReadBytes = tcpClient.readBytes(bytes.length);
                                 test.assertSuccess(bytes, serverReadBytes);
-                                tcpClient.write(serverReadBytes.getValue());
+                                tcpClient.writeBytes(serverReadBytes.getValue());
                                 tcpClient.dispose();
                             });
 
@@ -242,7 +242,7 @@ public class JavaTCPServerTests
                             // tcpServer runs its acceptAsync().then() action on the main thread.
                             try (final TCPClient tcpClient = network.createTCPClient(IPv4Address.localhost, port.get()).getValue())
                             {
-                                tcpClient.write(bytes);
+                                tcpClient.writeBytes(bytes);
                                 final Result<byte[]> clientReadBytes = tcpClient.readBytes(bytes.length);
                                 test.assertSuccess(bytes, clientReadBytes);
                             }
