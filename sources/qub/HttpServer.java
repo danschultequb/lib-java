@@ -7,7 +7,7 @@ public class HttpServer implements AsyncDisposable
 {
     private final TCPServer tcpServer;
     private boolean disposed;
-    private final Map<Path,Function1<HttpRequest,HttpResponse>> paths;
+    private final MutableMap<Path,Function1<HttpRequest,HttpResponse>> paths;
     private Function1<HttpRequest,HttpResponse> defaultPathAction;
 
     /**
@@ -20,7 +20,7 @@ public class HttpServer implements AsyncDisposable
         PreCondition.assertFalse(tcpServer.isDisposed(), "tcpServer.isDisposed()");
 
         this.tcpServer = tcpServer;
-        this.paths = new ListMap<>();
+        this.paths = MutableMap.create();
         defaultPathAction = (HttpRequest request) ->
         {
             final MutableHttpResponse response = new MutableHttpResponse();

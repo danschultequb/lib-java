@@ -1090,9 +1090,7 @@ public class ArrayTests
                     });
                 };
 
-                mergeTest.run(null, null);
                 mergeTest.run(new byte[][] { }, new byte[0]);
-                mergeTest.run(new byte[][] { null }, new byte[0]);
                 mergeTest.run(new byte[][] { new byte[0] }, new byte[0]);
                 mergeTest.run(new byte[][] { new byte[] { 1, 2, 3 } }, new byte[] { 1, 2, 3 });
                 mergeTest.run(new byte[][] { new byte[] { 1, 2, 3 }, new byte[] { 4 } }, new byte[] { 1, 2, 3, 4 });

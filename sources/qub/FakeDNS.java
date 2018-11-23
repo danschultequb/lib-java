@@ -2,7 +2,7 @@ package qub;
 
 public class FakeDNS implements DNS
 {
-    private final Map<String,IPv4Address> hostToIPAddressMap = new ListMap<>();
+    private final MutableMap<String,IPv4Address> hostToIPAddressMap = MutableMap.create();
 
     public Result<Boolean> set(String host, IPv4Address ipAddress)
     {

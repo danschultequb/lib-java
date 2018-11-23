@@ -84,24 +84,66 @@ public interface TestRunner
     void test(String testName, Skip skip, Action1<Test> testAction);
 
     /**
-     * Run the test with the provided name and action.
-     * @param testName The name of the test.
-     * @param shouldRun Whether the test should be run (true) or should be skipped (false).
-     * @param testAction The action for the test.
+     * Set an action that will be run before each test group.
+     * @param beforeTestGroupAction The action that will be run before each test group.
      */
-    void test(String testName, boolean shouldRun, Action1<Test> testAction);
+    void beforeTestGroup(Action1<TestGroup> beforeTestGroupAction);
+
+    /**
+     * Set an action that will be run after a test group has an error.
+     * @param afterTestGroupErrorAction The action that will be run after a test group has an error.
+     */
+    void afterTestGroupError(Action2<TestGroup,Throwable> afterTestGroupErrorAction);
+
+    /**
+     * Set an action that will be run after a test group is skipped.
+     * @param afterTestGroupSkipped The action that will be run after a test group is skipped.
+     */
+    void afterTestGroupSkipped(Action1<TestGroup> afterTestGroupSkipped);
+
+    /**
+     * Set an action that will be run after each test group.
+     * @param afterTestGroupAction The action that will be run after each test group.
+     */
+    void afterTestGroup(Action1<TestGroup> afterTestGroupAction);
 
     /**
      * Set an action that will be run before each test within this test group.
      * @param beforeTestAction The action that will be run before each test within this test group.
      */
-    void beforeTest(Action0 beforeTestAction);
+    void beforeTest(Action1<Test> beforeTestAction);
+
+    /**
+     * Set an action that will be run after a test assertion fails.
+     * @param afterTestFailureAction The action that will be run after a test assertion fails.
+     */
+    void afterTestFailure(Action2<Test,TestAssertionFailure> afterTestFailureAction);
+
+    /**
+     * Set an action that will be run after a test has an error (throws an exception outside of an
+     * assertion).
+     * @param afterTestErrorAction The action that will be run after a test has an error.
+     */
+    void afterTestError(Action2<Test,Throwable> afterTestErrorAction);
+
+    /**
+     * Set an action that will be run after a test completes successfully.
+     * @param afterTestSuccessAction The action that will be run after a test completes
+     *                               successfully.
+     */
+    void afterTestSuccess(Action1<Test> afterTestSuccessAction);
+
+    /**
+     * Set an action that will be run after a test is skipped.
+     * @param afterTestSkippedAction The action that will be run after a test is skipped.
+     */
+    void afterTestSkipped(Action1<Test> afterTestSkippedAction);
 
     /**
      * Set an action that will be run after each test within this test group.
      * @param afterTestAction The action that will be run after each test within this test group.
      */
-    void afterTest(Action0 afterTestAction);
+    void afterTest(Action1<Test> afterTestAction);
 
     /**
      * Get whether or not this TestRunner has a connection to the internet.

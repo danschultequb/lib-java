@@ -6,7 +6,7 @@ public class AsyncRunnerRegistry
     {
     }
 
-    private static final Map<Long,AsyncRunner> asyncRunners = new ConcurrentHashMap<>();
+    private static final MutableMap<Long,AsyncRunner> asyncRunners = new ConcurrentHashMap<>();
 
     private static long getCurrentThreadId()
     {

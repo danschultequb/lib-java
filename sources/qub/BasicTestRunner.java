@@ -9,29 +9,32 @@ public final class BasicTestRunner implements TestRunner
 
     private int passedTestCount;
     private int failedTestCount;
+    private int errorTestCount;
     private int skippedTestCount;
     private final List<TestAssertionFailure> testFailures = new SingleLinkList<>();
+    private final List<TestError> testErrors = new SingleLinkList<>();
     private final List<Test> skippedTests = new SingleLinkList<>();
 
-    private Action1<TestGroup> onTestGroupStarted;
-    private Action1<TestGroup> onTestGroupFinished;
-    private Action1<Test> onTestStarted;
-    private Action1<Test> onTestPassed;
-    private Action2<Test,TestAssertionFailure> onTestFailed;
-    private Action1<Test> onTestSkipped;
-    private Action1<Test> onTestFinished;
+    private Action1<TestGroup> beforeTestGroupAction;
+    private Action2<TestGroup,Throwable> afterTestGroupErrorAction;
+    private Action1<TestGroup> afterTestGroupSkippedAction;
+    private Action1<TestGroup> afterTestGroupAction;
+    private Action1<Test> beforeTestAction;
+    private Action1<Test> afterTestSuccessAction;
+    private Action2<Test,TestAssertionFailure> afterTestFailureAction;
+    private Action2<Test,Throwable> afterTestErrorAction;
+    private Action1<Test> afterTestSkippedAction;
+    private Action1<Test> afterTestAction;
     
-    private Action0 beforeTestAction;
-    private Action0 afterTestAction;
     private TestGroup currentTestGroup;
 
-    private final boolean debug;
     private final PathPattern testPattern;
 
-    public BasicTestRunner(Process process, boolean debug, PathPattern testPattern)
+    public BasicTestRunner(Process process, PathPattern testPattern)
     {
+        PreCondition.assertNotNull(process, "process");
+
         this.process = process;
-        this.debug = debug;
         this.testPattern = testPattern;
     }
 
@@ -66,46 +69,76 @@ public final class BasicTestRunner implements TestRunner
     @Override
     public void testGroup(Class<?> testClass, Action0 testGroupAction)
     {
-        testGroup(testClass.getSimpleName(), null, testGroupAction);
+        PreCondition.assertNotNull(testClass, "testClass");
+        PreCondition.assertNotNull(testGroupAction, "testGroupAction");
+
+        testGroup(Types.getTypeName(testClass), null, testGroupAction);
     }
 
     @Override
     public void testGroup(String testGroupName, Action0 testGroupAction)
     {
+        PreCondition.assertNotNullAndNotEmpty(testGroupName, "testGroupName");
+        PreCondition.assertNotNull(testGroupAction, "testGroupAction");
+
         testGroup(testGroupName, null, testGroupAction);
     }
 
     @Override
     public void testGroup(Class<?> testClass, Skip skip, Action0 testGroupAction)
     {
+        PreCondition.assertNotNull(testClass, "testClass");
+        PreCondition.assertNotNull(testGroupAction, "testGroupAction");
+
         testGroup(testClass.getSimpleName(), skip, testGroupAction);
     }
 
     @Override
     public void testGroup(String testGroupName, Skip skip, Action0 testGroupAction)
     {
-        if (testGroupAction != null)
-        {
-            final Action0 beforeTestActionBackup = beforeTestAction;
-            final Action0 afterTestActionBackup = afterTestAction;
+        PreCondition.assertNotNullAndNotEmpty(testGroupName, "testGroupName");
+        PreCondition.assertNotNull(testGroupAction, "testGroupAction");
 
+        final Action1<Test> beforeTestActionBackup = beforeTestAction;
+        final Action1<Test> afterTestActionBackup = afterTestAction;
+        try
+        {
             currentTestGroup = new TestGroup(testGroupName, currentTestGroup, skip);
-            if (onTestGroupStarted != null)
+
+            if (beforeTestGroupAction != null)
             {
-                onTestGroupStarted.run(currentTestGroup);
+                beforeTestGroupAction.run(currentTestGroup);
             }
 
             testGroupAction.run();
 
-            if (onTestGroupFinished != null)
+            if (currentTestGroup.shouldSkip())
             {
-                onTestGroupFinished.run(currentTestGroup);
+                if (afterTestGroupSkippedAction != null)
+                {
+                    afterTestGroupSkippedAction.run(currentTestGroup);
+                }
             }
-
-            beforeTestAction = beforeTestActionBackup;
-            afterTestAction = afterTestActionBackup;
-            currentTestGroup = currentTestGroup.getParentTestGroup();
         }
+        catch (Throwable error)
+        {
+            ++errorTestCount;
+            testErrors.add(new TestError(currentTestGroup.getFullName(), error));
+
+            if (afterTestGroupErrorAction != null)
+            {
+                afterTestGroupErrorAction.run(currentTestGroup, error);
+            }
+        }
+
+        if (afterTestGroupAction != null)
+        {
+            afterTestGroupAction.run(currentTestGroup);
+        }
+
+        beforeTestAction = beforeTestActionBackup;
+        afterTestAction = afterTestActionBackup;
+        currentTestGroup = currentTestGroup.getParentTestGroup();
     }
 
     @Override
@@ -117,140 +150,153 @@ public final class BasicTestRunner implements TestRunner
     @Override
     public void test(String testName, Skip skip, Action1<Test> testAction)
     {
-        if (testAction != null)
+        PreCondition.assertNotNullAndNotEmpty(testName, "testName");
+        PreCondition.assertNotNull(testAction, "testAction");
+
+        final Test test = new Test(testName, currentTestGroup, skip, process);
+        if (test.matches(testPattern))
         {
-            final Test test = new Test(testName, currentTestGroup, skip, process);
-            if (test.matches(testPattern))
+            try
             {
-                if (onTestStarted != null)
+                if (beforeTestAction != null)
                 {
-                    onTestStarted.run(test);
+                    beforeTestAction.run(test);
                 }
 
-                try
+                if (test.shouldSkip())
                 {
-                    if (test.shouldSkip())
-                    {
-                        skippedTests.add(test);
-                        ++skippedTestCount;
+                    skippedTests.add(test);
+                    ++skippedTestCount;
 
-                        if (onTestSkipped != null)
-                        {
-                            onTestSkipped.run(test);
-                        }
+                    if (afterTestSkippedAction != null)
+                    {
+                        afterTestSkippedAction.run(test);
                     }
-                    else
+                }
+                else
+                {
+                    try
                     {
-                        if (beforeTestAction != null)
-                        {
-                            beforeTestAction.run();
-                        }
-
                         testAction.run(test);
                         test.assertEqual(0, process.getMainAsyncRunner().getScheduledTaskCount(), "The main AsyncRunner should not have any scheduled tasks when a synchronous test completes.");
                         test.assertEqual(0, process.getParallelAsyncRunner().getScheduledTaskCount(), "The parallel AsyncRunner should not have any scheduled tasks when a synchronous test completes.");
 
-                        if (afterTestAction != null)
-                        {
-                            afterTestAction.run();
-                        }
-
                         ++passedTestCount;
-                        if (onTestPassed != null)
+                        if (afterTestSuccessAction != null)
                         {
-                            onTestPassed.run(test);
+                            afterTestSuccessAction.run(test);
                         }
                     }
-                }
-                catch (Throwable e)
-                {
-                    TestAssertionFailure failure;
-                    if (e instanceof TestAssertionFailure)
+                    catch (TestAssertionFailure failure)
                     {
-                        failure = (TestAssertionFailure)e;
-                    }
-                    else
-                    {
-                        final List<String> messageLines = new SingleLinkList<>();
-                        messageLines.add("Unhandled Exception: " + e.getClass().getName());
-                        final String message = e.getMessage();
-                        if (!Strings.isNullOrEmpty(message))
+                        testFailures.add(failure);
+
+                        ++failedTestCount;
+                        if (afterTestFailureAction != null)
                         {
-                            messageLines.add("Message: " + message);
+                            afterTestFailureAction.run(test, failure);
                         }
-                        failure = new TestAssertionFailure(test.getFullName(), Array.toStringArray(messageLines), e);
                     }
-
-                    testFailures.add(failure);
-
-                    ++failedTestCount;
-                    if (onTestFailed != null)
-                    {
-                        onTestFailed.run(test, failure);
-                    }
-                }
-                finally
-                {
-                    AsyncRunnerRegistry.setCurrentThreadAsyncRunner(process.getMainAsyncRunner());
-                }
-
-                if (onTestFinished != null)
-                {
-                    onTestFinished.run(test);
                 }
             }
-        }
-    }
-
-    @Override
-    public void test(String testName, boolean shouldRun, Action1<Test> testAction)
-    {
-        final Skip skip = shouldRun ? null : skip();
-        test(testName, skip, testAction);
-    }
-
-    @Override
-    public void beforeTest(Action0 beforeTestAction)
-    {
-        if (beforeTestAction != null)
-        {
-            final Action0 previousBeforeTestAction = this.beforeTestAction;
-            final Action0 newBeforeTestAction = beforeTestAction;
-            this.beforeTestAction = new Action0()
+            catch (Throwable error)
             {
-                @Override
-                public void run()
+                ++errorTestCount;
+                testErrors.add(new TestError(test.getFullName(), error));
+
+                if (afterTestErrorAction != null)
                 {
-                    if (previousBeforeTestAction != null)
-                    {
-                        previousBeforeTestAction.run();
-                    }
-                    newBeforeTestAction.run();
+                    afterTestErrorAction.run(test, error);
                 }
-            };
+            }
+
+            if (afterTestAction != null)
+            {
+                afterTestAction.run(test);
+            }
+
+            AsyncRunnerRegistry.setCurrentThreadAsyncRunner(process.getMainAsyncRunner());
         }
     }
 
     @Override
-    public void afterTest(Action0 afterTestAction)
+    public void beforeTestGroup(Action1<TestGroup> beforeTestGroupAction)
     {
-        if (afterTestAction != null)
-        {
-            final Action0 previousAfterTestAction = this.afterTestAction;
-            final Action0 newAfterTestAction = afterTestAction;
-            this.afterTestAction = new Action0()
-            {
-                @Override
-                public void run()
-                {
-                    newAfterTestAction.run();
-                    if (previousAfterTestAction != null)
-                    {
-                        previousAfterTestAction.run();
-                    }
-                }
-            };
-        }
+        PreCondition.assertNotNull(beforeTestGroupAction, "beforeTestGroupAction");
+
+        this.beforeTestGroupAction = Action1.sequence(this.beforeTestGroupAction, beforeTestGroupAction);
+    }
+
+    @Override
+    public void afterTestGroupError(Action2<TestGroup,Throwable> afterTestGroupErrorAction)
+    {
+        PreCondition.assertNotNull(afterTestGroupErrorAction, "afterTestGroupErrorAction");
+
+        this.afterTestGroupErrorAction = Action2.sequence(this.afterTestGroupErrorAction, afterTestGroupErrorAction);
+    }
+
+    @Override
+    public void afterTestGroupSkipped(Action1<TestGroup> afterTestGroupSkippedAction)
+    {
+        PreCondition.assertNotNull(afterTestGroupSkippedAction, "afterTestGroupSkippedAction");
+
+        this.afterTestGroupSkippedAction = Action1.sequence(this.afterTestGroupSkippedAction, afterTestGroupSkippedAction);
+    }
+
+    @Override
+    public void afterTestGroup(Action1<TestGroup> afterTestGroupAction)
+    {
+        PreCondition.assertNotNull(afterTestGroupAction, "afterTestGroupAction");
+
+        this.afterTestGroupAction = Action1.sequence(this.afterTestGroupAction, afterTestGroupAction);
+    }
+
+    @Override
+    public void beforeTest(Action1<Test> beforeTestAction)
+    {
+        PreCondition.assertNotNull(beforeTestAction, "beforeTestAction");
+
+        this.beforeTestAction = Action1.sequence(this.beforeTestAction, beforeTestAction);
+    }
+
+    @Override
+    public void afterTestFailure(Action2<Test,TestAssertionFailure> afterTestFailureAction)
+    {
+        PreCondition.assertNotNull(afterTestFailureAction, "afterTestFailureAction");
+
+        this.afterTestFailureAction = Action2.sequence(this.afterTestFailureAction, afterTestFailureAction);
+    }
+
+    @Override
+    public void afterTestError(Action2<Test,Throwable> afterTestErrorAction)
+    {
+        PreCondition.assertNotNull(afterTestErrorAction, "afterTestErrorAction");
+
+        this.afterTestErrorAction = Action2.sequence(this.afterTestErrorAction, afterTestErrorAction);
+    }
+
+    @Override
+    public void afterTestSuccess(Action1<Test> afterTestSuccessAction)
+    {
+        PreCondition.assertNotNull(afterTestSuccessAction, "afterTestSuccessAction");
+
+        this.afterTestSuccessAction = Action1.sequence(this.afterTestSuccessAction, afterTestSuccessAction);
+    }
+
+    @Override
+    public void afterTestSkipped(Action1<Test> afterTestSkippedAction)
+    {
+        PreCondition.assertNotNull(afterTestSkippedAction, "afterTestSkippedAction");
+
+        this.afterTestSkippedAction = Action1.sequence(this.afterTestSkippedAction, afterTestSkippedAction);
+    }
+
+    @Override
+    public void afterTest(Action1<Test> afterTestAction)
+    {
+        PreCondition.assertNotNull(afterTestAction, "afterTestAction");
+
+        this.afterTestAction = Action1.sequence(this.afterTestAction, afterTestAction);
     }
 
     @Override
@@ -261,69 +307,6 @@ public final class BasicTestRunner implements TestRunner
             hasNetworkConnection = process.getNetwork().isConnected().getValue();
         }
         return hasNetworkConnection;
-    }
-
-    /**
-     * Set the Action that will be run when a TestGroup starts running.
-     * @param testGroupStartedAction The Action that will be run when a TestGroup starts running.
-     */
-    public void setOnTestGroupStarted(Action1<TestGroup> testGroupStartedAction)
-    {
-        onTestGroupStarted = testGroupStartedAction;
-    }
-
-    /**
-     * Set the Action that will be run when a TestGroup finishes.
-     * @param testGroupFinishedAction The Action that will be run when a TestGroup finishes.
-     */
-    public void setOnTestGroupFinished(Action1<TestGroup> testGroupFinishedAction)
-    {
-        onTestGroupFinished = testGroupFinishedAction;
-    }
-
-    /**
-     * Set the Action that will be run when a Test starts running.
-     * @param testStartedAction The Action that will be run when a Test starts running.
-     */
-    public void setOnTestStarted(Action1<Test> testStartedAction)
-    {
-        onTestStarted = testStartedAction;
-    }
-
-    /**
-     * Set the Action that will be run when a Test passes.
-     * @param testPassedAction The Action that will be run when a Test passes.
-     */
-    public void setOnTestPassed(Action1<Test> testPassedAction)
-    {
-        onTestPassed = testPassedAction;
-    }
-
-    /**
-     * Set the Action that will be run when a Test fails.
-     * @param testFailedAction The Action that will be run when a Test fails.
-     */
-    public void setOnTestFailed(Action2<Test, TestAssertionFailure> testFailedAction)
-    {
-        onTestFailed = testFailedAction;
-    }
-
-    /**
-     * Set the Action that will be run when a Test is skipped.
-     * @param testSkippedAction The Action that will be run when a Test is skipped.
-     */
-    public void setOnTestSkipped(Action1<Test> testSkippedAction)
-    {
-        onTestSkipped = testSkippedAction;
-    }
-
-    /**
-     * Set the Action that will be run when a Test finishes.
-     * @param testFinishedAction The Action that will be run when a Test finishes.
-     */
-    public void setOnTestFinished(Action1<Test> testFinishedAction)
-    {
-        onTestFinished = testFinishedAction;
     }
 
     /**
@@ -360,6 +343,20 @@ public final class BasicTestRunner implements TestRunner
     public Iterable<TestAssertionFailure> getTestFailures()
     {
         return testFailures;
+    }
+
+    public int getErrorTestCount()
+    {
+        return errorTestCount;
+    }
+
+    /**
+     * Get the test errors.
+     * @return The test errors.
+     */
+    public Iterable<TestError> getTestErrors()
+    {
+        return testErrors;
     }
 
     /**

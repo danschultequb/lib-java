@@ -5,14 +5,14 @@ package qub;
  */
 public class MutableHttpHeaders implements HttpHeaders
 {
-    private final Map<String,HttpHeader> headerMap;
+    private final MutableMap<String,HttpHeader> headerMap;
 
     /**
      * Create a new empty MutableHttpHeaders collection.
      */
     public MutableHttpHeaders()
     {
-        headerMap = new ListMap<>();
+        headerMap = MutableMap.create();
     }
 
     public MutableHttpHeaders(Iterable<HttpHeader> headers)

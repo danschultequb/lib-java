@@ -6,7 +6,7 @@ public class ConcurrentHashMapTests
     {
         runner.testGroup(ConcurrentHashMap.class, () ->
         {
-            MapTests.test(runner, ConcurrentHashMap::new, false, false);
+            MutableMapTests.test(runner, ConcurrentHashMap::new, false, false);
         });
     }
 }

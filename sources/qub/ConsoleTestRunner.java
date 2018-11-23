@@ -51,80 +51,61 @@ public class ConsoleTestRunner extends Console implements TestRunner
             writeLine("TestPattern: " + (testPattern == null ? "null" : "\"" + testPattern + "\""));
         }
 
-        testRunner = new BasicTestRunner(this, debug, testPattern);
+        testRunner = new BasicTestRunner(this, testPattern);
 
         final List<TestGroup> testGroupsWrittenToConsole = new ArrayList<>();
-        testRunner.setOnTestGroupFinished(new Action1<TestGroup>()
+        testRunner.afterTestGroup((TestGroup testGroup) ->
         {
-            @Override
-            public void run(TestGroup testGroup)
-            {
-                if (testGroupsWrittenToConsole.remove(testGroup))
-                {
-                    ConsoleTestRunner.this.decreaseIndent();
-                }
-            }
-        });
-        testRunner.setOnTestStarted(new Action1<Test>()
-        {
-            @Override
-            public void run(Test test)
-            {
-                final Stack<TestGroup> testGroupsToWrite = new Stack<>();
-                TestGroup currentTestGroup = test.getParentTestGroup();
-                while (currentTestGroup != null && !testGroupsWrittenToConsole.contains(currentTestGroup))
-                {
-                    testGroupsToWrite.push(currentTestGroup);
-                    currentTestGroup = currentTestGroup.getParentTestGroup();
-                }
-
-                while (testGroupsToWrite.any())
-                {
-                    final TestGroup testGroupToWrite = testGroupsToWrite.pop();
-
-                    final String skipMessage = testGroupToWrite.getSkipMessage();
-                    ConsoleTestRunner.this.writeLine(testGroupToWrite.getName() + (!testGroupToWrite.shouldSkip() ? "" : " - Skipped" + (Strings.isNullOrEmpty(skipMessage) ? "" : ": " + skipMessage)));
-                    testGroupsWrittenToConsole.add(testGroupToWrite);
-                    ConsoleTestRunner.this.increaseIndent();
-                }
-
-                write(test.getName());
-                ConsoleTestRunner.this.increaseIndent();
-            }
-        });
-        testRunner.setOnTestPassed(new Action1<Test>()
-        {
-            @Override
-            public void run(Test test)
-            {
-                ConsoleTestRunner.this.writeLine(" - Passed");
-            }
-        });
-        testRunner.setOnTestFailed(new Action2<Test, TestAssertionFailure>()
-        {
-            @Override
-            public void run(Test test, TestAssertionFailure failure)
-            {
-                ConsoleTestRunner.this.writeLine(" - Failed");
-                writeFailure(failure);
-            }
-        });
-        testRunner.setOnTestSkipped(new Action1<Test>()
-        {
-            @Override
-            public void run(Test test)
-            {
-                final String skipMessage = test.getSkipMessage();
-                ConsoleTestRunner.this.writeLine(" - Skipped" + (Strings.isNullOrEmpty(skipMessage) ? "" : ": " + skipMessage));
-            }
-        });
-        testRunner.setOnTestFinished(new Action1<Test>()
-        {
-            @Override
-            public void run(Test test)
+            if (testGroupsWrittenToConsole.remove(testGroup))
             {
                 ConsoleTestRunner.this.decreaseIndent();
             }
+        });
+        testRunner.beforeTest((Test test) ->
+        {
+            final Stack<TestGroup> testGroupsToWrite = new Stack<>();
+            TestGroup currentTestGroup = test.getParentTestGroup();
+            while (currentTestGroup != null && !testGroupsWrittenToConsole.contains(currentTestGroup))
+            {
+                testGroupsToWrite.push(currentTestGroup);
+                currentTestGroup = currentTestGroup.getParentTestGroup();
+            }
+
+            while (testGroupsToWrite.any())
+            {
+                final TestGroup testGroupToWrite = testGroupsToWrite.pop();
+
+                final String skipMessage = testGroupToWrite.getSkipMessage();
+                ConsoleTestRunner.this.writeLine(testGroupToWrite.getName() + (!testGroupToWrite.shouldSkip() ? "" : " - Skipped" + (Strings.isNullOrEmpty(skipMessage) ? "" : ": " + skipMessage)));
+                testGroupsWrittenToConsole.add(testGroupToWrite);
+                ConsoleTestRunner.this.increaseIndent();
+            }
+
+            write(test.getName());
+            ConsoleTestRunner.this.increaseIndent();
+        });
+        testRunner.afterTestSuccess((Test test) ->
+        {
+            ConsoleTestRunner.this.writeLine(" - Passed");
+        });
+        testRunner.afterTestFailure((Test test, TestAssertionFailure failure) ->
+        {
+            ConsoleTestRunner.this.writeLine(" - Failed");
+            writeFailure(failure);
+        });
+        testRunner.afterTestError((Test test, Throwable error) ->
+        {
+            ConsoleTestRunner.this.writeLine(" - Error");
+            writeFailureCause(error);
+        });
+        testRunner.afterTestSkipped((Test test) ->
+        {
+            final String skipMessage = test.getSkipMessage();
+            ConsoleTestRunner.this.writeLine(" - Skipped" + (Strings.isNullOrEmpty(skipMessage) ? "" : ": " + skipMessage));
+        });
+        testRunner.afterTest((Test test) ->
+        {
+            ConsoleTestRunner.this.decreaseIndent();
         });
 
         singleIndent = "  ";
@@ -335,19 +316,61 @@ public class ConsoleTestRunner extends Console implements TestRunner
     }
 
     @Override
-    public void test(String testName, boolean shouldRun, Action1<Test> testAction)
+    public void beforeTestGroup(Action1<TestGroup> beforeTestGroupAction)
     {
-        testRunner.test(testName, shouldRun, testAction);
+        testRunner.beforeTestGroup(beforeTestGroupAction);
     }
 
     @Override
-    public void beforeTest(Action0 beforeTestAction)
+    public void afterTestGroupError(Action2<TestGroup,Throwable> afterTestGroupErrorAction)
+    {
+        testRunner.afterTestGroupError(afterTestGroupErrorAction);
+    }
+
+    @Override
+    public void afterTestGroupSkipped(Action1<TestGroup> afterTestGroupSkipped)
+    {
+        testRunner.afterTestGroupSkipped(afterTestGroupSkipped);
+    }
+
+    @Override
+    public void afterTestGroup(Action1<TestGroup> afterTestGroupAction)
+    {
+        testRunner.afterTestGroup(afterTestGroupAction);
+    }
+
+    @Override
+    public void beforeTest(Action1<Test> beforeTestAction)
     {
         testRunner.beforeTest(beforeTestAction);
     }
 
     @Override
-    public void afterTest(Action0 afterTestAction)
+    public void afterTestFailure(Action2<Test,TestAssertionFailure> afterTestFailureAction)
+    {
+        testRunner.afterTestFailure(afterTestFailureAction);
+    }
+
+    @Override
+    public void afterTestError(Action2<Test,Throwable> afterTestErrorAction)
+    {
+        testRunner.afterTestError(afterTestErrorAction);
+    }
+
+    @Override
+    public void afterTestSuccess(Action1<Test> afterTestSuccessAction)
+    {
+        testRunner.afterTestSuccess(afterTestSuccessAction);
+    }
+
+    @Override
+    public void afterTestSkipped(Action1<Test> afterTestSkippedAction)
+    {
+        testRunner.afterTestSkipped(afterTestSkippedAction);
+    }
+
+    @Override
+    public void afterTest(Action1<Test> afterTestAction)
     {
         testRunner.afterTest(afterTestAction);
     }
@@ -420,10 +443,32 @@ public class ConsoleTestRunner extends Console implements TestRunner
             decreaseIndent();
         }
 
+        final Iterable<TestError> testErrors = testRunner.getTestErrors();
+        if (testErrors.any())
+        {
+            writeLine("Test errors:");
+            increaseIndent();
+
+            int testErrorNumber = 1;
+            for (final TestError error : testErrors)
+            {
+                writeLine(testErrorNumber + ") " + error.getTestScope());
+                ++testErrorNumber;
+                increaseIndent();
+                writeFailureCause(error.getError());
+                decreaseIndent();
+
+                writeLine();
+            }
+
+            decreaseIndent();
+        }
+
         writeLine("Tests Run:      " + testRunner.getFinishedTestCount());
         writeLine("Tests Passed:   " + testRunner.getPassedTestCount());
         writeLine("Tests Failed:   " + testRunner.getFailedTestCount());
         writeLine("Tests Skipped:  " + testRunner.getSkippedTestCount());
+        writeLine("Test Errors:    " + testRunner.getErrorTestCount());
     }
 
     public static void main(String[] args)

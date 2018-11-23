@@ -1,6 +1,6 @@
 package qub;
 
-public class ListMap<TKey,TValue> implements Map<TKey,TValue>
+public class ListMap<TKey,TValue> implements MutableMap<TKey,TValue>
 {
     private final List<MutableMapEntry<TKey,TValue>> entries;
 
@@ -44,7 +44,7 @@ public class ListMap<TKey,TValue> implements Map<TKey,TValue>
     }
 
     @Override
-    public void set(TKey key, TValue value)
+    public ListMap<TKey,TValue> set(TKey key, TValue value)
     {
         final MutableMapEntry<TKey,TValue> entry = getEntry(key);
         if (entry == null)
@@ -55,6 +55,7 @@ public class ListMap<TKey,TValue> implements Map<TKey,TValue>
         {
             entry.setValue(value);
         }
+        return this;
     }
 
     @Override

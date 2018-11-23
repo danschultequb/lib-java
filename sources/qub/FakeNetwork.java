@@ -5,9 +5,9 @@ public class FakeNetwork implements Network
     private final AsyncRunner asyncRunner;
     private final Mutex mutex;
     private final MutexCondition boundTCPServerAvailable;
-    private final Map<IPv4Address,Map<Integer,FakeTCPClient>> boundTCPClients;
-    private final Map<IPv4Address,Map<Integer,FakeTCPServer>> boundTCPServers;
-    private final Map<InMemoryByteStream,Integer> streamReferenceCounts;
+    private final MutableMap<IPv4Address,MutableMap<Integer,FakeTCPClient>> boundTCPClients;
+    private final MutableMap<IPv4Address,MutableMap<Integer,FakeTCPServer>> boundTCPServers;
+    private final MutableMap<InMemoryByteStream,Integer> streamReferenceCounts;
     private final FakeDNS dns;
     private final HttpClient httpClient;
 
@@ -18,9 +18,9 @@ public class FakeNetwork implements Network
         this.asyncRunner = asyncRunner;
         mutex = new SpinMutex(asyncRunner.getClock());
         boundTCPServerAvailable = mutex.createCondition();
-        boundTCPClients = new ListMap<>();
-        boundTCPServers = new ListMap<>();
-        streamReferenceCounts = new ListMap<>();
+        boundTCPClients = MutableMap.create();
+        boundTCPServers = MutableMap.create();
+        streamReferenceCounts = MutableMap.create();
         dns = new FakeDNS();
         httpClient = new BasicHttpClient(this);
     }
@@ -68,7 +68,7 @@ public class FakeNetwork implements Network
             {
                 while (remoteTCPServer == null && result == null)
                 {
-                    final Result<Map<Integer,FakeTCPServer>> remoteTCPServersResult = boundTCPServers.get(remoteIPAddress);
+                    final Result<MutableMap<Integer,FakeTCPServer>> remoteTCPServersResult = boundTCPServers.get(remoteIPAddress);
                     if (!remoteTCPServersResult.hasError())
                     {
                         final Result<FakeTCPServer> remoteTCPServerResult = remoteTCPServersResult.getValue().get(remotePort);
@@ -167,10 +167,10 @@ public class FakeNetwork implements Network
         PreCondition.assertNotNull(tcpClient, "tcpClient");
 
         final IPv4Address localIPAddress = tcpClient.getLocalIPAddress();
-        Map<Integer,FakeTCPClient> localClients = boundTCPClients.get(localIPAddress).getValue();
+        MutableMap<Integer,FakeTCPClient> localClients = boundTCPClients.get(localIPAddress).getValue();
         if (localClients == null)
         {
-            localClients = new ListMap<>();
+            localClients = MutableMap.create();
             boundTCPClients.set(localIPAddress, localClients);
         }
         localClients.set(tcpClient.getLocalPort(), tcpClient);
@@ -201,10 +201,10 @@ public class FakeNetwork implements Network
             {
                 final FakeTCPServer tcpServer = new FakeTCPServer(localIPAddress, localPort, this, asyncRunner);
 
-                Map<Integer, FakeTCPServer> localTCPServers = boundTCPServers.get(localIPAddress).getValue();
+                MutableMap<Integer, FakeTCPServer> localTCPServers = boundTCPServers.get(localIPAddress).getValue();
                 if (localTCPServers == null)
                 {
-                    localTCPServers = new ListMap<>();
+                    localTCPServers = MutableMap.create();
                     boundTCPServers.set(localIPAddress, localTCPServers);
                 }
                 localTCPServers.set(localPort, tcpServer);

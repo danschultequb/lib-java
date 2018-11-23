@@ -8,11 +8,6 @@ package qub;
 public interface Map<TKey,TValue> extends Iterable<MapEntry<TKey,TValue>>
 {
     /**
-     * Remove all of the existing entries from this Map.
-     */
-    void clear();
-
-    /**
      * Get whether or not the provided key exists in this Map.
      * @param key The key to check.
      * @return Whether or not the provided key exists in this Map.
@@ -26,34 +21,6 @@ public interface Map<TKey,TValue> extends Iterable<MapEntry<TKey,TValue>>
      * map.
      */
     Result<TValue> get(TKey key);
-
-    /**
-     * Set the association between the provided key and value.
-     * @param key The key.
-     * @param value The value.
-     */
-    void set(TKey key, TValue value);
-
-    /**
-     * Set all of the entries in the provided Iterable as key value pairs in this Map.
-     * @param entries
-     */
-    default void setAll(Iterable<MapEntry<TKey,TValue>> entries)
-    {
-        PreCondition.assertNotNull(entries, "entries");
-
-        for (final MapEntry<TKey,TValue> entry : entries)
-        {
-            set(entry.getKey(), entry.getValue());
-        }
-    }
-
-    /**
-     * Remove the entry with the provided key. Return the removed entity if it was found.
-     * @param key The key of the entry to remove.
-     * @return The removed entry.
-     */
-    Result<TValue> remove(TKey key);
 
     /**
      * Get the keys of this Map.
@@ -79,7 +46,7 @@ public interface Map<TKey,TValue> extends Iterable<MapEntry<TKey,TValue>>
             {
                 for (final MapEntry<TKey,TValue> rhsEntry : rhs)
                 {
-                    if (!this.containsKey(rhsEntry.getKey()) || !Comparer.equal(this.get(rhsEntry.getKey()), rhsEntry.getValue()))
+                    if (!this.containsKey(rhsEntry.getKey()) || !Comparer.equal(this.get(rhsEntry.getKey()).getValue(), rhsEntry.getValue()))
                     {
                         result = false;
                         break;

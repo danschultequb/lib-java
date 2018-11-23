@@ -1,14 +1,14 @@
 package qub;
 
-public class MapTests
+public class MutableMapTests
 {
-    public static void test(TestRunner runner, Function0<Map<Integer,Boolean>> creator, boolean canHandleNullKeys, boolean canHandleNullValues)
+    public static void test(TestRunner runner, Function0<MutableMap<Integer,Boolean>> creator, boolean canHandleNullKeys, boolean canHandleNullValues)
     {
-        runner.testGroup(Map.class, () ->
+        runner.testGroup(MutableMap.class, () ->
         {
             runner.test("constructor()", test ->
             {
-                final Map<Integer,Boolean> map = creator.run();
+                final MutableMap<Integer,Boolean> map = creator.run();
                 test.assertEqual(0, map.getCount());
             });
 
@@ -18,26 +18,26 @@ public class MapTests
                 {
                     runner.test("with null non-existing key", test ->
                     {
-                        final Map<Integer, Boolean> map = creator.run();
+                        final MutableMap<Integer, Boolean> map = creator.run();
                         test.assertError(new KeyNotFoundException(null), map.get(null));
                     });
 
                     runner.test("with null existing key", test ->
                     {
-                        final Map<Integer,Boolean> map = creator.run();
+                        final MutableMap<Integer,Boolean> map = creator.run();
                         map.set(null, true);
                         test.assertSuccess(true, map.get(null));
                     });
                 }
                 runner.test("with non-null non-existing key", test ->
                 {
-                    final Map<Integer,Boolean> map = creator.run();
+                    final MutableMap<Integer,Boolean> map = creator.run();
                     test.assertError(new KeyNotFoundException(20), map.get(20));
                 });
 
                 runner.test("with non-null existing key", test ->
                 {
-                    final Map<Integer,Boolean> map = creator.run();
+                    final MutableMap<Integer,Boolean> map = creator.run();
                     map.set(100, false);
                     test.assertSuccess(false, map.get(100));
                 });
@@ -51,7 +51,7 @@ public class MapTests
                     {
                         runner.test("with null non-existing key and null value", test ->
                         {
-                            final Map<Integer, Boolean> map = creator.run();
+                            final MutableMap<Integer, Boolean> map = creator.run();
                             map.set(null, null);
                             test.assertEqual(1, map.getCount());
                             test.assertSuccess(null, map.get(null));
@@ -59,7 +59,7 @@ public class MapTests
 
                         runner.test("with null existing key and null value", test ->
                         {
-                            final Map<Integer,Boolean> map = creator.run();
+                            final MutableMap<Integer,Boolean> map = creator.run();
                             map.set(null, true);
 
                             map.set(null, null);
@@ -70,7 +70,7 @@ public class MapTests
 
                     runner.test("with null non-existing key and non-null value", test ->
                     {
-                        final Map<Integer,Boolean> map = creator.run();
+                        final MutableMap<Integer,Boolean> map = creator.run();
                         map.set(null, false);
                         test.assertEqual(1, map.getCount());
                         test.assertSuccess(false, map.get(null));
@@ -78,7 +78,7 @@ public class MapTests
 
                     runner.test("with null existing key and non-null value", test ->
                     {
-                        final Map<Integer,Boolean> map = creator.run();
+                        final MutableMap<Integer,Boolean> map = creator.run();
                         map.set(null, true);
 
                         map.set(null, false);
@@ -91,7 +91,7 @@ public class MapTests
                 {
                     runner.test("with non-null non-existing key and null value", test ->
                     {
-                        final Map<Integer, Boolean> map = creator.run();
+                        final MutableMap<Integer, Boolean> map = creator.run();
                         map.set(12, null);
                         test.assertEqual(1, map.getCount());
                         test.assertSuccess(null, map.get(12));
@@ -99,7 +99,7 @@ public class MapTests
 
                     runner.test("with non-null existing key and null value", test ->
                     {
-                        final Map<Integer, Boolean> map = creator.run();
+                        final MutableMap<Integer, Boolean> map = creator.run();
                         map.set(14, true);
 
                         map.set(14, null);
@@ -110,7 +110,7 @@ public class MapTests
 
                 runner.test("with non-null non-existing key and non-null value", test ->
                 {
-                    final Map<Integer,Boolean> map = creator.run();
+                    final MutableMap<Integer,Boolean> map = creator.run();
                     map.set(13, false);
                     test.assertEqual(1, map.getCount());
                     test.assertSuccess(false, map.get(13));
@@ -118,7 +118,7 @@ public class MapTests
 
                 runner.test("with non-null existing key and non-null value", test ->
                 {
-                    final Map<Integer,Boolean> map = creator.run();
+                    final MutableMap<Integer,Boolean> map = creator.run();
                     map.set(15, true);
 
                     map.set(15, false);
@@ -133,13 +133,13 @@ public class MapTests
                 {
                     runner.test("with null non-existing key", test ->
                     {
-                        final Map<Integer, Boolean> map = creator.run();
+                        final MutableMap<Integer, Boolean> map = creator.run();
                         test.assertError(new KeyNotFoundException(null), map.remove(null));
                     });
 
                     runner.test("with null existing key", test ->
                     {
-                        final Map<Integer, Boolean> map = creator.run();
+                        final MutableMap<Integer, Boolean> map = creator.run();
                         map.set(null, true);
 
                         test.assertSuccess(true, map.remove(null));
@@ -149,13 +149,13 @@ public class MapTests
 
                 runner.test("with non-null non-existing key", test ->
                 {
-                    final Map<Integer,Boolean> map = creator.run();
+                    final MutableMap<Integer,Boolean> map = creator.run();
                     test.assertError(new KeyNotFoundException(100), map.remove(100));
                 });
 
                 runner.test("with non-null existing key", test ->
                 {
-                    final Map<Integer,Boolean> map = creator.run();
+                    final MutableMap<Integer,Boolean> map = creator.run();
                     map.set(101, false);
 
                     test.assertSuccess(false, map.remove(101));
@@ -167,7 +167,7 @@ public class MapTests
             {
                 runner.test("with empty map", test ->
                 {
-                    final Map<Integer,Boolean> map = creator.run();
+                    final MutableMap<Integer,Boolean> map = creator.run();
                     final Iterable<Integer> keys = map.getKeys();
                     test.assertNotNull(keys);
                     test.assertEqual(0, keys.getCount());
@@ -175,7 +175,7 @@ public class MapTests
 
                 runner.test("with non-empty map", test ->
                 {
-                    final Map<Integer,Boolean> map = creator.run();
+                    final MutableMap<Integer,Boolean> map = creator.run();
                     map.set(0, false);
                     map.set(1, true);
                     final Iterable<Integer> keys = map.getKeys();
@@ -189,7 +189,7 @@ public class MapTests
             {
                 runner.test("with empty map", test ->
                 {
-                    final Map<Integer,Boolean> map = creator.run();
+                    final MutableMap<Integer,Boolean> map = creator.run();
                     final Iterable<Boolean> values = map.getValues();
                     test.assertNotNull(values);
                     test.assertEqual(0, values.getCount());
@@ -197,7 +197,7 @@ public class MapTests
 
                 runner.test("with non-empty map", test ->
                 {
-                    final Map<Integer,Boolean> map = creator.run();
+                    final MutableMap<Integer,Boolean> map = creator.run();
                     map.set(0, false);
                     map.set(1, true);
                     map.set(2, false);
@@ -212,7 +212,7 @@ public class MapTests
             {
                 runner.test("with empty map", test ->
                 {
-                    final Map<Integer,Boolean> map = creator.run();
+                    final MutableMap<Integer,Boolean> map = creator.run();
                     final Iterator<MapEntry<Integer,Boolean>> entries = map.iterate();
                     test.assertNotNull(entries);
                     test.assertEqual(0, entries.getCount());
@@ -220,7 +220,7 @@ public class MapTests
 
                 runner.test("with non-empty map", test ->
                 {
-                    final Map<Integer,Boolean> map = creator.run();
+                    final MutableMap<Integer,Boolean> map = creator.run();
                     map.set(50, false);
                     final Iterator<MapEntry<Integer,Boolean>> entries = map.iterate();
                     test.assertNotNull(entries);

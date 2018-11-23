@@ -1,6 +1,6 @@
 package qub;
 
-public class ConcurrentHashMap<TKey,TValue> implements Map<TKey,TValue>
+public class ConcurrentHashMap<TKey,TValue> implements MutableMap<TKey,TValue>
 {
     private final java.util.concurrent.ConcurrentHashMap<TKey,TValue> javaMap;
 
@@ -38,9 +38,10 @@ public class ConcurrentHashMap<TKey,TValue> implements Map<TKey,TValue>
     }
 
     @Override
-    public void set(TKey key, TValue value)
+    public ConcurrentHashMap<TKey,TValue> set(TKey key, TValue value)
     {
         javaMap.put(key, value);
+        return this;
     }
 
     @Override

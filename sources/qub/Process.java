@@ -450,7 +450,7 @@ public class Process implements Disposable
     {
         if (!environmentVariables.hasValue())
         {
-            final Map<String,String> envVars = new ListMap<>();
+            final MutableMap<String,String> envVars = MutableMap.create();
             for (final java.util.Map.Entry<String,String> entry : System.getenv().entrySet())
             {
                 envVars.set(entry.getKey(), entry.getValue());

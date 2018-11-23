@@ -1,18 +1,16 @@
 package qub;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 public class JavaFileSystemTests
 {
     public static void test(TestRunner runner)
     {
         String tempFolderPathString = System.getProperty("java.io.tmpdir");
         final Path tempFolderPath = Path.parse(tempFolderPathString).concatenateSegment("qub-tests");
-        final AtomicInteger testNumber = new AtomicInteger(0);
+        final java.util.concurrent.atomic.AtomicInteger testNumber = new java.util.concurrent.atomic.AtomicInteger(0);
 
         final Value<FolderFileSystem> folderFileSystem = new Value<>();
 
-        runner.afterTest(() ->
+        runner.afterTest((Test test) ->
         {
             if (folderFileSystem.hasValue())
             {
