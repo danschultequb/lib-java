@@ -1076,14 +1076,14 @@ public class ArrayTests
                 copyTest.run(new char[] { 'a' }, 1, new char[] { 'b' }, 1, 1, new char[] { 'b' });
             });
 
-            runner.testGroup("merge(Iterable<byte[]>)", () ->
+            runner.testGroup("mergeBytes(Iterable<byte[]>)", () ->
             {
                 final Action2<byte[][],byte[]> mergeTest = (byte[][] bytes, byte[] expected) ->
                 {
                     runner.test("with " + (bytes == null ? "null" : Array.fromValues(bytes).map(Array::fromValues)), (Test test) ->
                     {
                         final Array<Byte> expectedArray = expected == null ? null : Array.fromValues(expected);
-                        final byte[] mergedBytes = Array.merge(bytes == null ? null : Array.fromValues(bytes));
+                        final byte[] mergedBytes = Array.mergeBytes(bytes == null ? null : Array.fromValues(bytes));
                         final Array<Byte> actualArray = mergedBytes == null ? null : Array.fromValues(mergedBytes);
 
                         test.assertEqual(expectedArray, actualArray);

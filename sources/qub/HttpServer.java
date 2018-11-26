@@ -8,7 +8,7 @@ public class HttpServer implements AsyncDisposable
     private final TCPServer tcpServer;
     private boolean disposed;
     private final MutableMap<Path,Function1<HttpRequest,HttpResponse>> paths;
-    private Function1<HttpRequest,HttpResponse> defaultPathAction;
+    private Function1<HttpRequest,HttpResponse> notFoundAction;
 
     /**
      * Create a new HTTP server based on the provided TCPServer.
@@ -21,7 +21,7 @@ public class HttpServer implements AsyncDisposable
 
         this.tcpServer = tcpServer;
         this.paths = MutableMap.create();
-        defaultPathAction = (HttpRequest request) ->
+        notFoundAction = (HttpRequest request) ->
         {
             final MutableHttpResponse response = new MutableHttpResponse();
             response.setHTTPVersion(request.getHttpVersion());
@@ -99,14 +99,14 @@ public class HttpServer implements AsyncDisposable
     /**
      * Set the action that will be invoked when this HttpServer receives a request for a path that
      * isn't recognized.
-     * @param defaultPathAction The action that will be invoked when this HttpServer receives a
-     *                          request for a path that isn't recognized.
+     * @param notFoundAction The action that will be invoked when this HttpServer receives a request
+     *                       for a path that isn't recognized.
      */
-    public void setDefaultPath(Function1<HttpRequest,HttpResponse> defaultPathAction)
+    public void setNotFound(Function1<HttpRequest,HttpResponse> notFoundAction)
     {
-        PreCondition.assertNotNull(defaultPathAction, "defaultPathAction");
+        PreCondition.assertNotNull(notFoundAction, "notFoundAction");
 
-        this.defaultPathAction = defaultPathAction;
+        this.notFoundAction = notFoundAction;
     }
 
     /**
@@ -156,7 +156,7 @@ public class HttpServer implements AsyncDisposable
                     final Result<Function1<HttpRequest,HttpResponse>> pathAction = paths.get(path);
                     if (pathAction.hasError())
                     {
-                        response = defaultPathAction.run(request);
+                        response = notFoundAction.run(request);
                     }
                     else
                     {
@@ -257,14 +257,36 @@ public class HttpServer implements AsyncDisposable
         return result;
     }
 
+    /**
+     * Get the default reason phrase for the provided status code. These default phrases come from
+     * https://www.w3.org/Protocols/rfc2616/rfc2616-sec6.html.
+     * @param statusCode The status code to get the default reason phrase for.
+     * @return The default reason phrase for the provided status code.
+     */
     public static String getReasonPhrase(int statusCode)
     {
         String result = null;
 
         switch (statusCode)
         {
+            case 100:
+                result = "Continue";
+                break;
+
+            case 101:
+                result = "Switching Protocols";
+                break;
+
             case 200:
                 result = "OK";
+                break;
+
+            case 201:
+                result = "Created";
+                break;
+
+            case 202:
+                result = "Accepted";
                 break;
 
             case 400:

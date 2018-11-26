@@ -184,6 +184,12 @@ public class MutableHttpResponse implements HttpResponse
         bodyStream.endOfStream();
         setBody(bodyStream);
 
+        final int bodyStreamByteCount = bodyStream.getCount();
+        if (bodyStreamByteCount > 0)
+        {
+            setHeader(HttpHeader.ContentLengthName, bodyStreamByteCount);
+        }
+
         return this;
     }
 

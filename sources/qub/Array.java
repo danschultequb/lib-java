@@ -657,10 +657,10 @@ public class Array<T> implements MutableIndexable<T>
 
     /**
      * Merge the provided byte arrays into a single byte array and return the merged byte array.
-     * @param byteArrays The byte arrays to merge.
+     * @param byteArrays The byte arrays to mergeBytes.
      * @return The merged byte array.
      */
-    public static byte[] merge(Iterable<byte[]> byteArrays)
+    public static byte[] mergeBytes(Iterable<byte[]> byteArrays)
     {
         byte[] result;
 
@@ -682,6 +682,45 @@ public class Array<T> implements MutableIndexable<T>
             result = new byte[totalByteCount];
             int resultIndex = 0;
             for (final byte[] byteArray : byteArrays)
+            {
+                if (byteArray != null)
+                {
+                    Array.copy(byteArray, 0, result, resultIndex, byteArray.length);
+                    resultIndex += byteArray.length;
+                }
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Merge the provided char arrays into a single char array and return the merged char array.
+     * @param charArrays The char arrays to mergeBytes.
+     * @return The merged char array.
+     */
+    public static char[] mergeCharacters(Iterable<char[]> charArrays)
+    {
+        char[] result;
+
+        if (charArrays == null)
+        {
+            result = null;
+        }
+        else
+        {
+            int totalByteCount = 0;
+            for (final char[] byteArray : charArrays)
+            {
+                if (byteArray != null)
+                {
+                    totalByteCount += byteArray.length;
+                }
+            }
+
+            result = new char[totalByteCount];
+            int resultIndex = 0;
+            for (final char[] byteArray : charArrays)
             {
                 if (byteArray != null)
                 {

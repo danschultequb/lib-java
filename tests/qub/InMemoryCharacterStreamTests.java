@@ -490,6 +490,69 @@ public class InMemoryCharacterStreamTests
                 });
             });
 
+            runner.testGroup("readAllCharacters()", () ->
+            {
+                runner.test("with disposed CharacterReadStream", (Test test) ->
+                {
+                    final InMemoryCharacterStream characterReadStream = createStream();
+                    characterReadStream.dispose();
+                    test.assertThrows(characterReadStream::readAllCharacters);
+                });
+
+                runner.test("with no characters to read", (Test test) ->
+                {
+                    final InMemoryCharacterStream characterReadStream = createStream("");
+                    test.assertSuccess(new char[0], characterReadStream.readAllCharacters());
+                });
+
+                runner.test("with one character to read", (Test test) ->
+                {
+                    final InMemoryCharacterStream characterReadStream = createStream("f");
+                    test.assertSuccess(new char[] { 'f' }, characterReadStream.readAllCharacters());
+                });
+
+                runner.test("with multiple characters to read", (Test test) ->
+                {
+                    final InMemoryCharacterStream characterReadStream = createStream("fedcb");
+                    test.assertSuccess(new char[] { 'f', 'e', 'd', 'c', 'b' }, characterReadStream.readAllCharacters());
+                });
+            });
+
+            runner.testGroup("readAllCharactersAsync()", () ->
+            {
+                runner.test("with disposed CharacterReadStream", (Test test) ->
+                {
+                    final InMemoryCharacterStream characterReadStream = createStream(test.getMainAsyncRunner());
+                    characterReadStream.dispose();
+                    test.assertThrows(characterReadStream::readAllCharactersAsync);
+                });
+
+                runner.test("with null AsyncRunner", (Test test) ->
+                {
+                    final InMemoryCharacterStream characterReadStream = createStream();
+                    characterReadStream.dispose();
+                    test.assertThrows(characterReadStream::readAllCharactersAsync);
+                });
+
+                runner.test("with no characters to read", (Test test) ->
+                {
+                    final InMemoryCharacterStream characterReadStream = createStream("", test.getMainAsyncRunner());
+                    test.assertSuccessAsync(new char[0], characterReadStream.readAllCharactersAsync());
+                });
+
+                runner.test("with one character to read", (Test test) ->
+                {
+                    final InMemoryCharacterStream characterReadStream = createStream("g", test.getMainAsyncRunner());
+                    test.assertSuccessAsync(new char[] { 'g' }, characterReadStream.readAllCharactersAsync());
+                });
+
+                runner.test("with multiple characters to read", (Test test) ->
+                {
+                    final InMemoryCharacterStream characterReadStream = createStream("ghij", test.getMainAsyncRunner());
+                    test.assertSuccessAsync(new char[] { 'g', 'h', 'i', 'j' }, characterReadStream.readAllCharactersAsync());
+                });
+            });
+
             runner.testGroup("readString(int)", () ->
             {
                 runner.test("with disposed CharacterReadStream", (Test test) ->

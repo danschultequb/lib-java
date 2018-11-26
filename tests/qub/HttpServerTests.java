@@ -141,15 +141,53 @@ public class HttpServerTests
                         test.assertEqual(Array.fromValues(new String[] { "/" }), server.getPaths().map(Path::toString));
                     }
                 });
+
+                runner.test("with multiple paths", (Test test) ->
+                {
+                    try (final HttpServer server = createServer(test))
+                    {
+                        server.addPath("/onefish", (HttpRequest request) -> new MutableHttpResponse()
+                                                                                .setStatusCode(200)
+                                                                                .setBody("Two Fish"));
+                        server.addPath("/redfish", (HttpRequest request) -> new MutableHttpResponse()
+                                                                                .setStatusCode(201)
+                                                                                .setBody("Blue Fish"));
+                        final AsyncAction serverTask = server.startAsync();
+                        try
+                        {
+                            final HttpClient client = createClient(test);
+                            final HttpResponse response1 = client.send(HttpRequest.get("http://" + server.getLocalIPAddress() + ":" + server.getLocalPort() + "/onefish").throwErrorOrGetValue()).throwErrorOrGetValue();
+                            test.assertNotNull(response1);
+                            test.assertEqual(200, response1.getStatusCode());
+                            test.assertEqual("OK", response1.getReasonPhrase());
+                            test.assertNotNull(response1.getBody());
+                            test.assertSuccess("Two Fish", response1.getBody().asCharacterReadStream().readEntireString());
+                            test.assertSuccess("", response1.getBody().asCharacterReadStream().readEntireString());
+
+                            final HttpResponse response2 = client.send(HttpRequest.get("http://" + server.getLocalIPAddress() + ":" + server.getLocalPort() + "/redfish").throwErrorOrGetValue()).throwErrorOrGetValue();
+                            test.assertNotNull(response2);
+                            test.assertEqual(201, response2.getStatusCode());
+                            test.assertEqual("Created", response2.getReasonPhrase());
+                            test.assertNotNull(response2.getBody());
+                            test.assertSuccess("Blue Fish", response2.getBody().asCharacterReadStream().readEntireString());
+                            test.assertSuccess("", response2.getBody().asCharacterReadStream().readEntireString());
+                        }
+                        finally
+                        {
+                            test.assertSuccess(true, server.dispose());
+                            serverTask.await();
+                        }
+                    }
+                });
             });
 
-            runner.testGroup("setDefaultPath()", () ->
+            runner.testGroup("setNotFound()", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
                     try (final HttpServer server = createServer(test))
                     {
-                        test.assertThrows(() -> server.setDefaultPath(null));
+                        test.assertThrows(() -> server.setNotFound(null));
                     }
                 });
 
@@ -157,7 +195,7 @@ public class HttpServerTests
                 {
                     try (final HttpServer server = createServer(test))
                     {
-                        server.setDefaultPath((HttpRequest request) ->
+                        server.setNotFound((HttpRequest request) ->
                         {
                             final MutableHttpResponse response = new MutableHttpResponse();
                             response.setStatusCode(456);

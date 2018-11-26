@@ -173,6 +173,63 @@ public interface CharacterReadStream extends AsyncDisposable, Iterator<Character
     }
 
     /**
+     * Read all of the characters in this stream. The termination of the stream is marked when
+     * readCharacter() returns a null character. This function will not return until all of the
+     * characters in the stream have been read.
+     * @return All of the characters in this stream, null if the end of the stream has been reached,
+     * or an error if characters could not be read.
+     */
+    default Result<char[]> readAllCharacters()
+    {
+        final List<char[]> readCharacterArrays = new ArrayList<>();
+        char[] buffer = new char[1024];
+
+        while (true)
+        {
+            final Result<Integer> readCharacterResult = readCharacters(buffer);
+
+            if (readCharacterResult.hasError())
+            {
+                break;
+            }
+            else
+            {
+                final Integer bytesRead = readCharacterResult.getValue();
+                if (bytesRead == null || bytesRead == -1)
+                {
+                    break;
+                }
+                else
+                {
+                    readCharacterArrays.add(Array.clone(buffer, 0, bytesRead));
+
+                    if (buffer.length == bytesRead)
+                    {
+                        buffer = new char[buffer.length * 2];
+                    }
+                }
+            }
+        }
+
+        return Result.success(Array.mergeCharacters(readCharacterArrays));
+    }
+
+    /**
+     * Read all of the characters in this stream. The termination of the stream is marked when
+     * readCharacter() returns a null character. This function will not return until all of the
+     * characters in the stream have been read.
+     * @return All of the characters in this stream, null if the end of the stream has been reached,
+     * or an error if characters could not be read.
+     */
+    default AsyncFunction<Result<char[]>> readAllCharactersAsync()
+    {
+        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
+
+        return getAsyncRunner().scheduleSingle(this::readAllCharacters);
+    }
+
+    /**
      * Read characters from this stream until the end of the stream or until the provided value is
      * read.
      * @param value The value that will trigger the end of reading.
@@ -296,6 +353,38 @@ public interface CharacterReadStream extends AsyncDisposable, Iterator<Character
         final char[] characters = readCharactersResult.getValue();
         final String resultString = characters == null ? null : String.valueOf(characters);
         return Result.done(resultString, readCharactersResult.getError());
+    }
+
+    /**
+     * Read all of the characters in this stream. The termination of the stream is marked when
+     * readCharacter() returns a null character. This function will not return until all of the
+     * characters in the stream have been read.
+     * @return All of the characters in this stream, null if the end of the stream has been reached,
+     * or an error if characters could not be read.
+     */
+    default Result<String> readEntireString()
+    {
+        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+
+        final Result<char[]> readCharactersResult = readAllCharacters();
+        final char[] characters = readCharactersResult.getValue();
+        final String resultString = characters == null ? null : String.valueOf(characters);
+        return Result.done(resultString, readCharactersResult.getError());
+    }
+
+    /**
+     * Read all of the characters in this stream. The termination of the stream is marked when
+     * readCharacter() returns a null character. This function will not return until all of the
+     * characters in the stream have been read.
+     * @return All of the characters in this stream, null if the end of the stream has been reached,
+     * or an error if characters could not be read.
+     */
+    default AsyncFunction<Result<String>> readEntireStringAsync()
+    {
+        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
+
+        return getAsyncRunner().scheduleSingle(this::readEntireString);
     }
 
     /**

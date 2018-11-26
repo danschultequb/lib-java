@@ -209,7 +209,7 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
             }
         }
 
-        return Result.success(Array.merge(readByteArrays));
+        return Result.success(Array.mergeBytes(readByteArrays));
     }
 
     /**

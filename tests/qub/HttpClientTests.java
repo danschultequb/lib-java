@@ -14,7 +14,7 @@ public class HttpClientTests
                     test.assertThrows(() -> httpClient.send(null));
                 });
 
-                runner.test("with unknown host", runner.skip(runner.hasNetworkConnection()), (Test test) ->
+                runner.test("with unknown host", runner.skip(!runner.hasNetworkConnection()), (Test test) ->
                 {
                     final HttpClient httpClient = creator.run(test);
                     final MutableHttpRequest httpRequest = new MutableHttpRequest(HttpMethod.GET, URL.parse("http://www.idontexistbecauseimnotagoodurl.com").throwErrorOrGetValue());
@@ -22,7 +22,7 @@ public class HttpClientTests
                     test.assertError(new java.net.UnknownHostException("www.idontexistbecauseimnotagoodurl.com"), httpResponse);
                 });
 
-                runner.test("with GET request to www.example.com", runner.skip(runner.hasNetworkConnection()), (Test test) ->
+                runner.test("with GET request to www.example.com", runner.skip(!runner.hasNetworkConnection()), (Test test) ->
                 {
                     final HttpClient httpClient = creator.run(test);
                     final MutableHttpRequest httpRequest = new MutableHttpRequest(HttpMethod.GET, URL.parse("http://www.example.com").throwErrorOrGetValue());
@@ -47,7 +47,7 @@ public class HttpClientTests
                     test.assertContains(bodyString, "</div>");
                 });
 
-                runner.test("with GET request to http://www.treasurydirect.gov/TA_WS/securities/auctioned?format=json&type=Bill", runner.skip(runner.hasNetworkConnection()), (Test test) ->
+                runner.test("with GET request to http://www.treasurydirect.gov/TA_WS/securities/auctioned?format=json&type=Bill", runner.skip(!runner.hasNetworkConnection()), (Test test) ->
                 {
                     final HttpClient httpClient = creator.run(test);
                     final MutableHttpRequest httpRequest = new MutableHttpRequest(HttpMethod.GET, URL.parse("http://www.treasurydirect.gov/TA_WS/securities/auctioned?format=json&type=Bill").throwErrorOrGetValue());
