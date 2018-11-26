@@ -142,6 +142,8 @@ final public class Result<T>
 
     public static <U> Result<U> error(Throwable error)
     {
+        PreCondition.assertNotNull(error, "error");
+
         return Result.done(null, error);
     }
 
@@ -152,126 +154,103 @@ final public class Result<T>
 
     public static <U> Result<U> isFalse(boolean value, String expressionName)
     {
+        PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
+
         return Result.equal(false, value, expressionName);
     }
 
-    public static <T,U> Result<U> equal(T expectedValue, T value, String parameterName)
+    public static <U> Result<U> isTrue(boolean value, String expressionName)
     {
+        PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
+
+        return Result.equal(true, value, expressionName);
+    }
+
+    public static <T,U> Result<U> equal(T expectedValue, T value, String expressionName)
+    {
+        PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
+
         Result<U> result = null;
         if (!Comparer.equal(expectedValue, value))
         {
-            result = Result.error(new IllegalArgumentException(parameterName + " (" + value + ") must be " + expectedValue + "."));
+            result = Result.error(createError(expressionName + " (" + value + ") must be " + expectedValue + "."));
         }
         return result;
     }
 
-    public static <U> Result<U> notNull(Object value, String parameterName)
+    public static <U> Result<U> notNull(Object value, String expressionName)
     {
+        PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
+
         Result<U> result = null;
         if (value == null)
         {
-            result = Result.error(new IllegalArgumentException(parameterName + " cannot be null."));
+            result = Result.error(createError(expressionName + " cannot be null."));
         }
         return result;
     }
 
-    public static <U> Result<U> notNullAndNotEmpty(String value, String parameterName)
+    public static <U> Result<U> notNullAndNotEmpty(String value, String expressionName)
     {
-        Result<U> result = Result.notNull(value, parameterName);
+        PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
+
+        Result<U> result = Result.notNull(value, expressionName);
         if (result == null)
         {
             if (value.isEmpty())
             {
-                result = Result.error(new IllegalArgumentException(parameterName + " cannot be empty."));
+                result = Result.error(createError(expressionName + " cannot be empty."));
             }
         }
         return result;
     }
 
-    public static <T,U> Result<U> notNullAndNotEmpty(Iterable<T> value, String parameterName)
+    public static <U> Result<U> greaterThan(int value, int lowerBound, String expressionName)
     {
-        Result<U> result = Result.notNull(value, parameterName);
-        if (result == null)
-        {
-            if (!value.any())
-            {
-                result = Result.error(new IllegalArgumentException(parameterName + " cannot be empty."));
-            }
-        }
-        return result;
-    }
+        PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
 
-    public static <U> Result<U> notNullAndNotEmpty(byte[] value, String parameterName)
-    {
-        Result<U> result = Result.notNull(value, parameterName);
-        if (result == null)
-        {
-            if (value.length == 0)
-            {
-                result = Result.error(new IllegalArgumentException(parameterName + " cannot be empty."));
-            }
-        }
-        return result;
-    }
-
-    public static <U> Result<U> notNullAndNotEmpty(char[] value, String parameterName)
-    {
-        Result<U> result = Result.notNull(value, parameterName);
-        if (result == null)
-        {
-            if (value.length == 0)
-            {
-                result = Result.error(new IllegalArgumentException(parameterName + " cannot be empty."));
-            }
-        }
-        return result;
-    }
-
-    public static <U> Result<U> greaterThan(int value, int lowerBound, String parameterName)
-    {
         Result<U> result = null;
         if (value <= lowerBound)
         {
-            result = Result.error(new IllegalArgumentException(parameterName + " (" + value + ") must be greater than " + lowerBound + "."));
+            result = Result.error(createError(expressionName + " (" + value + ") must be greater than " + lowerBound + "."));
         }
         return result;
     }
 
-    public static <U> Result<U> greaterThanOrEqualTo(int value, int lowerBound, String parameterName)
+    public static <U> Result<U> greaterThanOrEqualTo(int value, int lowerBound, String expressionName)
     {
+        PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
+
         Result<U> result = null;
         if (!Comparer.greaterThanOrEqualTo(value, lowerBound))
         {
-            result = Result.error(new IllegalArgumentException(AssertionMessages.greaterThanOrEqualTo(value, lowerBound, parameterName)));
+            result = Result.error(createError(AssertionMessages.greaterThanOrEqualTo(value, lowerBound, expressionName)));
         }
         return result;
     }
 
-    public static <U> Result<U> between(int lowerBound, int value, int upperBound, String parameterName)
+    public static <U> Result<U> between(int lowerBound, int value, int upperBound, String expressionName)
     {
+        PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
+
         Result<U> result = null;
         if (lowerBound == upperBound)
         {
-            result = Result.equal(lowerBound, value, parameterName);
+            result = Result.equal(lowerBound, value, expressionName);
         }
         else if (upperBound < lowerBound)
         {
-            result = Result.between(upperBound, value, lowerBound, parameterName);
+            result = Result.between(upperBound, value, lowerBound, expressionName);
         }
         else if (value < lowerBound || upperBound < value)
         {
-            result = Result.error(new IllegalArgumentException(AssertionMessages.between(lowerBound, value, upperBound, parameterName)));
+            result = Result.error(createError(AssertionMessages.between(lowerBound, value, upperBound, expressionName)));
         }
         return result;
     }
 
-    public static <U> Result<U> notDisposed(Disposable disposable, String parameterName)
+    private static Throwable createError(String message)
     {
-        Result<U> result = null;
-        if (disposable.isDisposed())
-        {
-            result = Result.error(new IllegalArgumentException(parameterName + " must not be disposed."));
-        }
-        return result;
+        return new IllegalArgumentException(message);
     }
 }
