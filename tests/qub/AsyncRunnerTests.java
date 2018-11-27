@@ -343,12 +343,7 @@ public class AsyncRunnerTests
                 {
                     try (final AsyncRunner asyncRunner = createAsyncRunner.run())
                     {
-                        final AsyncFunction<Result<Integer>> asyncFunction = asyncRunner.error(null);
-                        test.assertNotNull(asyncFunction);
-                        test.assertTrue(asyncFunction.isCompleted());
-
-                        final Result<Integer> result = asyncFunction.awaitReturn();
-                        test.assertError(null, result);
+                        test.assertThrows(() -> asyncRunner.error(null));
                     }
                 });
 

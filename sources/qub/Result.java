@@ -84,7 +84,7 @@ final public class Result<T>
         {
             if (value != null)
             {
-                result = "value: " + value.toString() + ",";
+                result = "value: " + value.toString() + ", ";
             }
             result += "error: " + error.toString();
         }
@@ -94,20 +94,15 @@ final public class Result<T>
     @SuppressWarnings("unchecked")
     final public <U extends Exception> void throwError(Class<U> exceptionType) throws U
     {
-        if (error != null)
+        PreCondition.assertNotNull(exceptionType, "exceptionType");
+
+        if (Types.instanceOf(error, exceptionType))
         {
-            if (exceptionType != null && Types.instanceOf(error, exceptionType))
-            {
-                throw (U)error;
-            }
-            else if (error instanceof RuntimeException)
-            {
-                throw (RuntimeException)error;
-            }
-            else
-            {
-                throw new RuntimeException(error);
-            }
+            throw (U)error;
+        }
+        else
+        {
+            Exceptions.throwAsRuntime(error);
         }
     }
 
