@@ -85,6 +85,266 @@ public class ResultTests
                 });
             });
 
+            runner.testGroup("then(Action0)", () ->
+            {
+                runner.test("with null action", (Test test) ->
+                {
+                    test.assertThrows(() -> Result.successTrue().then((Action0)null));
+                });
+
+                runner.test("with non-error Result and non-throwing action", (Test test) ->
+                {
+                    final Result<Boolean> result1 = Result.successTrue();
+                    final Value<Boolean> value = new Value<>();
+                    final Result<Void> result2 = result1.then(() -> value.set(false));
+                    test.assertSuccess(result2);
+                    test.assertEqual(false, value.get());
+                });
+
+                runner.test("with non-error Result and throwing action", (Test test) ->
+                {
+                    final Result<Boolean> result1 = Result.successTrue();
+                    final Result<Void> result2 = result1.then((Action0)() ->
+                    {
+                        throw new RuntimeException("foo");
+                    });
+                    test.assertError(new RuntimeException("foo"), result2);
+                });
+
+                runner.test("with error Result and non-throwing action", (Test test) ->
+                {
+                    final Result<Character> result1 = Result.error(new RuntimeException("blah"));
+                    final Value<Character> value = new Value<>();
+                    final Result<Void> result2 = result1.then(() -> value.set('z'));
+                    test.assertError(new RuntimeException("blah"), result2);
+                    test.assertEqual(null, value.get());
+                });
+
+                runner.test("with error Result and throwing action", (Test test) ->
+                {
+                    final Result<Character> result1 = Result.error(new RuntimeException("blah"));
+                    final Result<Void> result2 = result1.then((Action0)() ->
+                    {
+                        throw new RuntimeException("abc");
+                    });
+                    test.assertError(new RuntimeException("blah"), result2);
+                });
+            });
+
+            runner.testGroup("then(Action1<T>)", () ->
+            {
+                runner.test("with null action", (Test test) ->
+                {
+                    test.assertThrows(() -> Result.successTrue().then((Action1<Boolean>)null));
+                });
+
+                runner.test("with non-error Result and non-throwing action", (Test test) ->
+                {
+                    final Result<Boolean> result1 = Result.successTrue();
+                    final Value<Boolean> value = new Value<>();
+                    final Result<Void> result2 = result1.then(value::set);
+                    test.assertSuccess(result2);
+                    test.assertEqual(true, value.get());
+                });
+
+                runner.test("with non-error Result and throwing action", (Test test) ->
+                {
+                    final Result<Boolean> result1 = Result.successTrue();
+                    final Result<Void> result2 = result1.then((Action1<Boolean>)(Boolean value) ->
+                    {
+                        throw new RuntimeException("foo");
+                    });
+                    test.assertError(new RuntimeException("foo"), result2);
+                });
+
+                runner.test("with error Result and non-throwing action", (Test test) ->
+                {
+                    final Result<Character> result1 = Result.error(new RuntimeException("blah"));
+                    final Value<Character> value = new Value<>();
+                    final Result<Void> result2 = result1.then(value::set);
+                    test.assertError(new RuntimeException("blah"), result2);
+                    test.assertEqual(null, value.get());
+                });
+
+                runner.test("with error Result and throwing action", (Test test) ->
+                {
+                    final Result<Character> result1 = Result.error(new RuntimeException("blah"));
+                    final Result<Void> result2 = result1.then((Action1<Character>)(Character c) ->
+                    {
+                        throw new RuntimeException("abc");
+                    });
+                    test.assertError(new RuntimeException("blah"), result2);
+                });
+            });
+
+            runner.testGroup("then(Function0<U>)", () ->
+            {
+                runner.test("with null function", (Test test) ->
+                {
+                    test.assertThrows(() -> Result.successTrue().then((Function0<Integer>)null));
+                });
+
+                runner.test("with non-error Result and non-throwing function", (Test test) ->
+                {
+                    final Result<Boolean> result1 = Result.successTrue();
+                    final Result<Integer> result2 = result1.then(() -> 1);
+                    test.assertSuccess(1, result2);
+                });
+
+                runner.test("with non-error Result and throwing function", (Test test) ->
+                {
+                    final Result<Boolean> result1 = Result.successTrue();
+                    final Result<Integer> result2 = result1.then(() ->
+                    {
+                        throw new RuntimeException("foo");
+                    });
+                    test.assertError(new RuntimeException("foo"), result2);
+                });
+
+                runner.test("with error Result and non-throwing function", (Test test) ->
+                {
+                    final Result<Character> result1 = Result.error(new RuntimeException("blah"));
+                    final Result<Integer> result2 = result1.then(() -> 1);
+                    test.assertError(new RuntimeException("blah"), result2);
+                });
+
+                runner.test("with error Result and throwing function", (Test test) ->
+                {
+                    final Result<Character> result1 = Result.error(new RuntimeException("blah"));
+                    final Result<Integer> result2 = result1.then(() ->
+                    {
+                        throw new RuntimeException("abc");
+                    });
+                    test.assertError(new RuntimeException("blah"), result2);
+                });
+            });
+
+            runner.testGroup("thenResult(Function0<Result<U>>)", () ->
+            {
+                runner.test("with null function", (Test test) ->
+                {
+                    test.assertThrows(() -> Result.successTrue().thenResult((Function0<Result<Integer>>)null));
+                });
+
+                runner.test("with non-error Result and non-throwing function", (Test test) ->
+                {
+                    final Result<Boolean> result1 = Result.successTrue();
+                    final Result<Integer> result2 = result1.thenResult(() -> Result.success(1));
+                    test.assertSuccess(1, result2);
+                });
+
+                runner.test("with non-error Result and throwing function", (Test test) ->
+                {
+                    final Result<Boolean> result1 = Result.successTrue();
+                    final Result<Integer> result2 = result1.thenResult(() ->
+                    {
+                        throw new RuntimeException("foo");
+                    });
+                    test.assertError(new RuntimeException("foo"), result2);
+                });
+
+                runner.test("with error Result and non-throwing function", (Test test) ->
+                {
+                    final Result<Character> result1 = Result.error(new RuntimeException("blah"));
+                    final Result<Integer> result2 = result1.thenResult(() -> Result.success(1));
+                    test.assertError(new RuntimeException("blah"), result2);
+                });
+
+                runner.test("with error Result and throwing function", (Test test) ->
+                {
+                    final Result<Character> result1 = Result.error(new RuntimeException("blah"));
+                    final Result<Integer> result2 = result1.thenResult(() ->
+                    {
+                        throw new RuntimeException("abc");
+                    });
+                    test.assertError(new RuntimeException("blah"), result2);
+                });
+            });
+
+            runner.testGroup("then(Function1<T,U>)", () ->
+            {
+                runner.test("with null function", (Test test) ->
+                {
+                    test.assertThrows(() -> Result.successTrue().then((Function1<Boolean,Integer>)null));
+                });
+
+                runner.test("with non-error Result and non-throwing function", (Test test) ->
+                {
+                    final Result<Boolean> result1 = Result.successTrue();
+                    final Result<Integer> result2 = result1.then((Boolean value) -> value ? 1 : 0);
+                    test.assertSuccess(1, result2);
+                });
+
+                runner.test("with non-error Result and throwing function", (Test test) ->
+                {
+                    final Result<Boolean> result1 = Result.successTrue();
+                    final Result<Integer> result2 = result1.then((Boolean value) ->
+                    {
+                        throw new RuntimeException("foo");
+                    });
+                    test.assertError(new RuntimeException("foo"), result2);
+                });
+
+                runner.test("with error Result and non-throwing function", (Test test) ->
+                {
+                    final Result<Character> result1 = Result.error(new RuntimeException("blah"));
+                    final Result<Integer> result2 = result1.then(Object::hashCode);
+                    test.assertError(new RuntimeException("blah"), result2);
+                });
+
+                runner.test("with error Result and throwing function", (Test test) ->
+                {
+                    final Result<Character> result1 = Result.error(new RuntimeException("blah"));
+                    final Result<Integer> result2 = result1.then((Character c) ->
+                    {
+                        throw new RuntimeException("abc");
+                    });
+                    test.assertError(new RuntimeException("blah"), result2);
+                });
+            });
+
+            runner.testGroup("thenResult(Function1<T,Result<U>>)", () ->
+            {
+                runner.test("with null function", (Test test) ->
+                {
+                    test.assertThrows(() -> Result.successTrue().then((Function1<Boolean,Result<Integer>>)null));
+                });
+
+                runner.test("with non-error Result and non-throwing function", (Test test) ->
+                {
+                    final Result<Boolean> result1 = Result.successTrue();
+                    final Result<Integer> result2 = result1.thenResult((Boolean value) -> Result.success(value ? 1 : 0));
+                    test.assertSuccess(1, result2);
+                });
+
+                runner.test("with non-error Result and throwing function", (Test test) ->
+                {
+                    final Result<Boolean> result1 = Result.successTrue();
+                    final Result<Integer> result2 = result1.thenResult((Boolean value) ->
+                    {
+                        throw new RuntimeException("foo");
+                    });
+                    test.assertError(new RuntimeException("foo"), result2);
+                });
+
+                runner.test("with error Result and non-throwing function", (Test test) ->
+                {
+                    final Result<Character> result1 = Result.error(new RuntimeException("blah"));
+                    final Result<Integer> result2 = result1.thenResult((Character c) -> Result.success(c.hashCode()));
+                    test.assertError(new RuntimeException("blah"), result2);
+                });
+
+                runner.test("with error Result and throwing function", (Test test) ->
+                {
+                    final Result<Character> result1 = Result.error(new RuntimeException("blah"));
+                    final Result<Integer> result2 = result1.thenResult((Character c) ->
+                    {
+                        throw new RuntimeException("abc");
+                    });
+                    test.assertError(new RuntimeException("blah"), result2);
+                });
+            });
+
             runner.testGroup("toString()", () ->
             {
                 runner.test("with null value and null error", (Test test) ->

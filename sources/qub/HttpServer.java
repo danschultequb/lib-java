@@ -205,7 +205,7 @@ public class HttpServer implements AsyncDisposable
                 }
             }
         }
-        return Result.successTrue();
+        return result;
     }
 
     /**

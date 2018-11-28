@@ -72,6 +72,112 @@ final public class Result<T>
         return hasError() ? Result.error(error) : null;
     }
 
+    /**
+     * If this Result doesn't have an error, then run the provided action and return a new Result
+     * object with the action's result.
+     * @param action The action to run if this result does not have an error.
+     * @return The Result of running the provided action.
+     */
+    public Result<Void> then(Action0 action)
+    {
+        PreCondition.assertNotNull(action, "action");
+
+        Result<Void> result;
+        if (hasError())
+        {
+            result = convertError();
+        }
+        else
+        {
+            try
+            {
+                action.run();
+                result = Result.success();
+            }
+            catch (Throwable error)
+            {
+                result = Result.error(error);
+            }
+        }
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    /**
+     * If this Result doesn't have an error, then run the provided action and return a new Result
+     * object with the action's result.
+     * @param action The action to run if this result does not have an error.
+     * @return The Result of running the provided action.
+     */
+    public Result<Void> then(Action1<T> action)
+    {
+        PreCondition.assertNotNull(action, "action");
+
+        return then(() -> action.run(getValue()));
+    }
+
+    /**
+     * If this Result doesn't have an error, then run the provided function and return a new Result
+     * object with the function's return value.
+     * @param function The function to run if this result does not have an error.
+     * @param <U> The type of value stored in the returned Result object.
+     * @return The Result of running the provided function.
+     */
+    public <U> Result<U> then(Function0<U> function)
+    {
+        PreCondition.assertNotNull(function, "function");
+
+        final Value<U> resultValue = new Value<>();
+        final Result<Void> thenActionResult = then(() -> resultValue.set(function.run()));
+        return Result.done(resultValue.get(), thenActionResult.getError());
+    }
+
+    /**
+     * If this Result doesn't have an error, then run the provided function and return a new Result
+     * object with the function's return value.
+     * @param function The function to run if this result does not have an error.
+     * @param <U> The type of value stored in the returned Result object.
+     * @return The Result of running the provided function.
+     */
+    public <U> Result<U> thenResult(Function0<Result<U>> function)
+    {
+        PreCondition.assertNotNull(function, "function");
+
+        final Result<Result<U>> resultResult = then(function);
+        final Result<U> result = resultResult.getValue();
+        return result != null ? result : resultResult.convertError();
+    }
+
+    /**
+     * If this Result doesn't have an error, then run the provided function and return a new Result
+     * object with the function's return value.
+     * @param function The function to run if this result does not have an error.
+     * @param <U> The type of value stored in the returned Result object.
+     * @return The Result of running the provided function.
+     */
+    public <U> Result<U> then(Function1<T,U> function)
+    {
+        PreCondition.assertNotNull(function, "function");
+
+        return then(() -> function.run(getValue()));
+    }
+
+    /**
+     * If this Result doesn't have an error, then run the provided function and return a new Result
+     * object with the function's return value.
+     * @param function The function to run if this result does not have an error.
+     * @param <U> The type of value stored in the returned Result object.
+     * @return The Result of running the provided function.
+     */
+    public <U> Result<U> thenResult(Function1<T,Result<U>> function)
+    {
+        PreCondition.assertNotNull(function, "function");
+
+        return thenResult(() -> function.run(getValue()));
+    }
+
     @Override
     public String toString()
     {
@@ -116,6 +222,12 @@ final public class Result<T>
     public boolean equals(Result<T> rhs)
     {
         return rhs != null && Comparer.equal(value, rhs.value) && Comparer.equal(error, rhs.error);
+    }
+
+    private static final Result<Void> success = Result.success(null);
+    public static Result<Void> success()
+    {
+        return success;
     }
 
     public static <U> Result<U> success(U value)
