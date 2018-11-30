@@ -28,11 +28,6 @@ public class MutableHttpHeaders implements HttpHeaders
         }
     }
 
-    private static String getHeaderKey(HttpHeader header)
-    {
-        return getHeaderKey(header.getName());
-    }
-
     private static String getHeaderKey(String headerName)
     {
         return headerName.toLowerCase();
@@ -91,8 +86,7 @@ public class MutableHttpHeaders implements HttpHeaders
         PreCondition.assertNotNullAndNotEmpty(headerName, "headerName");
         PreCondition.assertNotNullAndNotEmpty(headerValue, "headerValue");
 
-        final HttpHeader header = new HttpHeader(headerName, headerValue);
-        headerMap.set(getHeaderKey(header), header);
+        headerMap.set(getHeaderKey(headerName), new HttpHeader(headerName, headerValue));
     }
 
     @Override
@@ -100,7 +94,7 @@ public class MutableHttpHeaders implements HttpHeaders
     {
         PreCondition.assertNotNullAndNotEmpty(headerName, "headerName");
 
-        return get(headerName).getValue() != null;
+        return !get(headerName).hasError();
     }
 
     /**
@@ -112,31 +106,23 @@ public class MutableHttpHeaders implements HttpHeaders
     {
         PreCondition.assertNotNullAndNotEmpty(headerName, "headerName");
 
-        final String headerKey = getHeaderKey(headerName);
-        return headerMap.get(headerKey);
+        return headerMap.get(getHeaderKey(headerName))
+            .catchErrorResult(NotFoundException.class, () -> createNotFoundResult(headerName));
     }
 
     public Result<String> getValue(String headerName)
     {
-        final Result<HttpHeader> getResult = get(headerName);
-        Result<String> result = getResult.convertError();
-        if (result == null)
-        {
-            result = Result.success(getResult.getValue().getValue());
-        }
-        return result;
+        PreCondition.assertNotNullAndNotEmpty(headerName, "headerName");
+
+        return get(headerName).then(HttpHeader::getValue);
     }
 
     public Result<HttpHeader> remove(String headerName)
     {
         PreCondition.assertNotNullAndNotEmpty(headerName, "headerName");
 
-        Result<HttpHeader> result = headerMap.remove(getHeaderKey(headerName));
-        if (result.hasError())
-        {
-            result = Result.error(new KeyNotFoundException(headerName));
-        }
-        return result;
+        return headerMap.remove(getHeaderKey(headerName))
+            .catchErrorResult(NotFoundException.class, () -> createNotFoundResult(headerName));
     }
 
     @Override
@@ -155,5 +141,10 @@ public class MutableHttpHeaders implements HttpHeaders
     public String toString()
     {
         return Iterable.toString(this);
+    }
+
+    private static <T> Result<T> createNotFoundResult(String headerName)
+    {
+        return Result.error(new NotFoundException(headerName));
     }
 }

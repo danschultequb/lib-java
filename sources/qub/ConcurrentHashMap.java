@@ -34,7 +34,7 @@ public class ConcurrentHashMap<TKey,TValue> implements MutableMap<TKey,TValue>
     @Override
     public Result<TValue> get(TKey key)
     {
-        return javaMap.containsKey(key) ? Result.success(javaMap.get(key)) : Result.error(new KeyNotFoundException(key));
+        return javaMap.containsKey(key) ? Result.success(javaMap.get(key)) : Result.error(new NotFoundException(key));
     }
 
     @Override
@@ -47,7 +47,7 @@ public class ConcurrentHashMap<TKey,TValue> implements MutableMap<TKey,TValue>
     @Override
     public Result<TValue> remove(TKey key)
     {
-        return javaMap.containsKey(key) ? Result.success(javaMap.remove(key)) : Result.error(new KeyNotFoundException(key));
+        return javaMap.containsKey(key) ? Result.success(javaMap.remove(key)) : Result.error(new NotFoundException(key));
     }
 
     @Override

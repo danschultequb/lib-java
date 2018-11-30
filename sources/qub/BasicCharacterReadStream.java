@@ -20,8 +20,9 @@ public class BasicCharacterReadStream implements CharacterReadStream
     {
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
-        final Result<Character> result = characterEncoding.decodeNextCharacter(byteReadStream);
-        current = result.getValue();
+        final Result<Character> result = characterEncoding.decodeNextCharacter(byteReadStream)
+            .then((Character c) -> current = c)
+            .catchError(() -> current = null);
 
         PostCondition.assertNotNull(result, "result");
 

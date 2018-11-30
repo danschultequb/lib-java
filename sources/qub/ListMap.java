@@ -40,7 +40,7 @@ public class ListMap<TKey,TValue> implements MutableMap<TKey,TValue>
     public Result<TValue> get(TKey key)
     {
         final MutableMapEntry<TKey,TValue> entry = getEntry(key);
-        return entry != null ? Result.success(entry.getValue()) : Result.error(new KeyNotFoundException(key));
+        return entry != null ? Result.success(entry.getValue()) : Result.error(new NotFoundException(key));
     }
 
     @Override
@@ -62,7 +62,7 @@ public class ListMap<TKey,TValue> implements MutableMap<TKey,TValue>
     public Result<TValue> remove(TKey key)
     {
         final MapEntry<TKey,TValue> removedEntry = entries.removeFirst(entry -> Comparer.equal(entry.getKey(), key));
-        return removedEntry != null ? Result.success(removedEntry.getValue()) : Result.error(new KeyNotFoundException(key));
+        return removedEntry != null ? Result.success(removedEntry.getValue()) : Result.error(new NotFoundException(key));
     }
 
     @Override

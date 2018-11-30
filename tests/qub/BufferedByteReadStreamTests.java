@@ -118,7 +118,7 @@ public class BufferedByteReadStreamTests
                 {
                     final InMemoryByteStream innerStream = new InMemoryByteStream().endOfStream();
                     final BufferedByteReadStream byteReadStream = new BufferedByteReadStream(innerStream, 1);
-                    test.assertSuccess(null, byteReadStream.readByte());
+                    test.assertError(new EndOfStreamException(), byteReadStream.readByte());
                     test.assertEqual(null, byteReadStream.getCurrent());
                     test.assertTrue(byteReadStream.hasStarted());
                 });
@@ -176,7 +176,7 @@ public class BufferedByteReadStreamTests
                     test.assertEqual((byte)5, innerStream.getCurrent());
                     test.assertTrue(byteReadStream.hasStarted());
 
-                    test.assertSuccess(null, byteReadStream.readByte());
+                    test.assertError(new EndOfStreamException(), byteReadStream.readByte());
                     test.assertEqual(null, byteReadStream.getCurrent());
                     test.assertEqual(0, byteReadStream.getBufferedByteCount());
                     test.assertEqual(0, byteReadStream.getBufferCapacity());
@@ -206,7 +206,7 @@ public class BufferedByteReadStreamTests
                     test.assertEqual((byte)1, innerStream.getCurrent());
                     test.assertTrue(byteReadStream.hasStarted());
 
-                    test.assertSuccess(null, byteReadStream.readByte());
+                    test.assertError(new EndOfStreamException(), byteReadStream.readByte());
                     test.assertEqual(null, byteReadStream.getCurrent());
                     test.assertEqual(0, byteReadStream.getBufferedByteCount());
                     test.assertEqual(0, byteReadStream.getBufferCapacity());

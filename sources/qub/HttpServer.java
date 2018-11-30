@@ -113,99 +113,88 @@ public class HttpServer implements AsyncDisposable
      * Start listening on the current thread for incoming requests. This method will block until the
      * HttpServer is disposed.
      */
-    public Result<Boolean> start()
+    public Result<Void> start()
     {
-        Result<Boolean> result = null;
-        while (result == null && !isDisposed())
+        return Result.runWhile(() -> !isDisposed(), () ->
         {
-            final Result<TCPClient> acceptedClientResult = tcpServer.accept();
-            result = acceptedClientResult.convertError();
-            if (result == null)
+            try (final TCPClient acceptedClient = tcpServer.accept().throwErrorOrGetValue())
             {
-                try (final TCPClient acceptedClient = acceptedClientResult.getValue())
+                final MutableHttpRequest request = new MutableHttpRequest();
+                final LineReadStream acceptedClientLineReadStream = acceptedClient.asLineReadStream();
+
+                final String firstLine = acceptedClientLineReadStream.readLine().throwErrorOrGetValue();
+                final String[] firstLineParts = firstLine.split(" ");
+                request.setMethod(HttpMethod.valueOf(firstLineParts[0]));
+                request.setUrl(URL.parse(firstLineParts[1]).throwErrorOrGetValue());
+                request.setHttpVersion(firstLineParts[2]);
+
+                String headerLine = acceptedClientLineReadStream.readLine().throwErrorOrGetValue();
+                while (!Strings.isNullOrEmpty(headerLine))
                 {
-                    final MutableHttpRequest request = new MutableHttpRequest();
-                    final LineReadStream acceptedClientLineReadStream = acceptedClient.asLineReadStream();
+                    final int firstColonIndex = headerLine.indexOf(':');
+                    final String headerName = headerLine.substring(0, firstColonIndex);
+                    final String headerValue = headerLine.substring(firstColonIndex + 1);
+                    request.setHeader(headerName, headerValue);
 
-                    final String firstLine = acceptedClientLineReadStream.readLine().throwErrorOrGetValue();
-                    final String[] firstLineParts = firstLine.split(" ");
-                    request.setMethod(HttpMethod.valueOf(firstLineParts[0]));
-                    request.setUrl(URL.parse(firstLineParts[1]).throwErrorOrGetValue());
-                    request.setHttpVersion(firstLineParts[2]);
-
-                    String headerLine = acceptedClientLineReadStream.readLine().throwErrorOrGetValue();
-                    while (!Strings.isNullOrEmpty(headerLine))
-                    {
-                        final int firstColonIndex = headerLine.indexOf(':');
-                        final String headerName = headerLine.substring(0, firstColonIndex);
-                        final String headerValue = headerLine.substring(firstColonIndex + 1);
-                        request.setHeader(headerName, headerValue);
-
-                        headerLine = acceptedClientLineReadStream.readLine().throwErrorOrGetValue();
-                    }
-
-                    final Result<Long> contentLengthResult = request.getContentLength();
-                    if (!contentLengthResult.hasError())
-                    {
-                        request.setBody(contentLengthResult.getValue(), acceptedClient);
-                    }
-
-                    HttpResponse response;
-                    final String pathString = request.getURL().getPath();
-                    final Path path = Path.parse(Strings.isNullOrEmpty(pathString) ? "/" : pathString);
-                    final Result<Function1<HttpRequest,HttpResponse>> pathAction = paths.get(path);
-                    if (pathAction.hasError())
-                    {
-                        response = notFoundAction.run(request);
-                    }
-                    else
-                    {
-                        response = pathAction.getValue().run(request);
-                    }
-
-                    if (response == null)
-                    {
-                        final MutableHttpResponse mutableResponse = new MutableHttpResponse();
-                        mutableResponse.setHTTPVersion(request.getHttpVersion());
-                        mutableResponse.setStatusCode(500);
-                        mutableResponse.setBody("<html><body>" + mutableResponse.getStatusCode() + ": " + getReasonPhrase(mutableResponse.getStatusCode()) + "</body></html>");
-                        response = mutableResponse;
-                    }
-
-                    String httpVersion = response.getHTTPVersion();
-                    if (Strings.isNullOrEmpty(httpVersion))
-                    {
-                        httpVersion = "HTTP/1.1";
-                    }
-
-                    String reasonPhrase = response.getReasonPhrase();
-                    if (Strings.isNullOrEmpty(reasonPhrase))
-                    {
-                        reasonPhrase = getReasonPhrase(response.getStatusCode());
-                    }
-
-                    final LineWriteStream clientLineWriteStream = acceptedClient.asLineWriteStream("\r\n");
-                    clientLineWriteStream.writeLine("%s %s %s", httpVersion, response.getStatusCode(), reasonPhrase);
-                    for (final HttpHeader header : response.getHeaders())
-                    {
-                        clientLineWriteStream.writeLine("%s:%s", header.getName(), header.getValue());
-                    }
-                    clientLineWriteStream.writeLine();
-
-                    final ByteReadStream responseBody = response.getBody();
-                    if (responseBody != null)
-                    {
-                        acceptedClient.writeAllBytes(responseBody).throwError();
-                        responseBody.dispose().throwError();
-                    }
+                    headerLine = acceptedClientLineReadStream.readLine().throwErrorOrGetValue();
                 }
-                catch (Throwable error)
+
+                final Result<Long> contentLengthResult = request.getContentLength();
+                if (!contentLengthResult.hasError())
                 {
-                    result = Result.error(error);
+                    request.setBody(contentLengthResult.getValue(), acceptedClient);
+                }
+
+                HttpResponse response;
+                final String pathString = request.getURL().getPath();
+                final Path path = Path.parse(Strings.isNullOrEmpty(pathString) ? "/" : pathString);
+                final Result<Function1<HttpRequest,HttpResponse>> pathAction = paths.get(path);
+                if (pathAction.hasError())
+                {
+                    response = notFoundAction.run(request);
+                }
+                else
+                {
+                    response = pathAction.getValue().run(request);
+                }
+
+                if (response == null)
+                {
+                    final MutableHttpResponse mutableResponse = new MutableHttpResponse();
+                    mutableResponse.setHTTPVersion(request.getHttpVersion());
+                    mutableResponse.setStatusCode(500);
+                    mutableResponse.setBody("<html><body>" + mutableResponse.getStatusCode() + ": " + getReasonPhrase(mutableResponse.getStatusCode()) + "</body></html>");
+                    response = mutableResponse;
+                }
+
+                String httpVersion = response.getHTTPVersion();
+                if (Strings.isNullOrEmpty(httpVersion))
+                {
+                    httpVersion = "HTTP/1.1";
+                }
+
+                String reasonPhrase = response.getReasonPhrase();
+                if (Strings.isNullOrEmpty(reasonPhrase))
+                {
+                    reasonPhrase = getReasonPhrase(response.getStatusCode());
+                }
+
+                final LineWriteStream clientLineWriteStream = acceptedClient.asLineWriteStream("\r\n");
+                clientLineWriteStream.writeLine("%s %s %s", httpVersion, response.getStatusCode(), reasonPhrase);
+                for (final HttpHeader header : response.getHeaders())
+                {
+                    clientLineWriteStream.writeLine("%s:%s", header.getName(), header.getValue());
+                }
+                clientLineWriteStream.writeLine();
+
+                final ByteReadStream responseBody = response.getBody();
+                if (responseBody != null)
+                {
+                    acceptedClient.writeAllBytes(responseBody).throwError();
+                    responseBody.dispose().throwError();
                 }
             }
-        }
-        return result;
+        });
     }
 
     /**

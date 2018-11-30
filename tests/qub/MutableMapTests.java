@@ -19,7 +19,7 @@ public class MutableMapTests
                     runner.test("with null non-existing key", test ->
                     {
                         final MutableMap<Integer, Boolean> map = creator.run();
-                        test.assertError(new KeyNotFoundException(null), map.get(null));
+                        test.assertError(new NotFoundException(null), map.get(null));
                     });
 
                     runner.test("with null existing key", test ->
@@ -32,7 +32,7 @@ public class MutableMapTests
                 runner.test("with non-null non-existing key", test ->
                 {
                     final MutableMap<Integer,Boolean> map = creator.run();
-                    test.assertError(new KeyNotFoundException(20), map.get(20));
+                    test.assertError(new NotFoundException(20), map.get(20));
                 });
 
                 runner.test("with non-null existing key", test ->
@@ -134,7 +134,7 @@ public class MutableMapTests
                     runner.test("with null non-existing key", test ->
                     {
                         final MutableMap<Integer, Boolean> map = creator.run();
-                        test.assertError(new KeyNotFoundException(null), map.remove(null));
+                        test.assertError(new NotFoundException(null), map.remove(null));
                     });
 
                     runner.test("with null existing key", test ->
@@ -150,7 +150,7 @@ public class MutableMapTests
                 runner.test("with non-null non-existing key", test ->
                 {
                     final MutableMap<Integer,Boolean> map = creator.run();
-                    test.assertError(new KeyNotFoundException(100), map.remove(100));
+                    test.assertError(new NotFoundException(100), map.remove(100));
                 });
 
                 runner.test("with non-null existing key", test ->

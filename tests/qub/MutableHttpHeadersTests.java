@@ -50,6 +50,25 @@ public class MutableHttpHeadersTests
                 });
             });
 
+            runner.testGroup("clear()", () ->
+            {
+                runner.test("when empty", (Test test) ->
+                {
+                    final MutableHttpHeaders headers = new MutableHttpHeaders();
+                    headers.clear();
+                    test.assertEqual(0, headers.getCount());
+                });
+
+                runner.test("when not empty", (Test test) ->
+                {
+                    final MutableHttpHeaders headers = new MutableHttpHeaders();
+                    headers.set("a", "b");
+                    test.assertEqual(1, headers.getCount());
+                    headers.clear();
+                    test.assertEqual(0, headers.getCount());
+                });
+            });
+
             runner.testGroup("set(HttpHeader)", () ->
             {
                 runner.test("with null header", (Test test) ->
@@ -87,7 +106,7 @@ public class MutableHttpHeadersTests
                     test.assertFalse(headers.contains("header-name"));
                 });
 
-                runner.test("with empty header name", (Test test) ->
+                runner.test("with empty header value", (Test test) ->
                 {
                     final MutableHttpHeaders headers = new MutableHttpHeaders();
                     test.assertThrows(() -> headers.set("header-name", ""));
@@ -112,6 +131,105 @@ public class MutableHttpHeadersTests
                 });
             });
 
+            runner.testGroup("set(String,int)", () ->
+            {
+                runner.test("with null header name", (Test test) ->
+                {
+                    final MutableHttpHeaders headers = new MutableHttpHeaders();
+                    test.assertThrows(() -> headers.set(null, 1));
+                });
+
+                runner.test("with empty header name", (Test test) ->
+                {
+                    final MutableHttpHeaders headers = new MutableHttpHeaders();
+                    test.assertThrows(() -> headers.set("", 2));
+                });
+
+                runner.test("with non-existing header", (Test test) ->
+                {
+                    final MutableHttpHeaders headers = new MutableHttpHeaders();
+                    headers.set("header-name", 3);
+                    test.assertEqual("3", headers.get("header-name").getValue().getValue());
+                });
+
+                runner.test("with existing header", (Test test) ->
+                {
+                    final MutableHttpHeaders headers = new MutableHttpHeaders();
+                    headers.set("header-name", 4);
+                    test.assertEqual("4", headers.get("header-name").getValue().getValue());
+
+                    headers.set("header-name", 5);
+                    test.assertEqual("5", headers.get("header-name").getValue().getValue());
+                });
+            });
+
+            runner.testGroup("set(String,long)", () ->
+            {
+                runner.test("with null header name", (Test test) ->
+                {
+                    final MutableHttpHeaders headers = new MutableHttpHeaders();
+                    test.assertThrows(() -> headers.set(null, 1L));
+                });
+
+                runner.test("with empty header name", (Test test) ->
+                {
+                    final MutableHttpHeaders headers = new MutableHttpHeaders();
+                    test.assertThrows(() -> headers.set("", 2L));
+                });
+
+                runner.test("with non-existing header", (Test test) ->
+                {
+                    final MutableHttpHeaders headers = new MutableHttpHeaders();
+                    headers.set("header-name", 3L);
+                    test.assertEqual("3", headers.get("header-name").getValue().getValue());
+                });
+
+                runner.test("with existing header", (Test test) ->
+                {
+                    final MutableHttpHeaders headers = new MutableHttpHeaders();
+                    headers.set("header-name", 4L);
+                    test.assertEqual("4", headers.get("header-name").getValue().getValue());
+
+                    headers.set("header-name", 5L);
+                    test.assertEqual("5", headers.get("header-name").getValue().getValue());
+                });
+            });
+
+            runner.testGroup("contains(String)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final MutableHttpHeaders headers = new MutableHttpHeaders();
+                    test.assertThrows(() -> headers.contains((String)null), new PreConditionFailure("headerName cannot be null."));
+                });
+
+                runner.test("with empty", (Test test) ->
+                {
+                    final MutableHttpHeaders headers = new MutableHttpHeaders();
+                    test.assertThrows(() -> headers.contains(""), new PreConditionFailure("headerName cannot be empty."));
+                });
+
+                runner.test("with non-existing header name", (Test test) ->
+                {
+                    final MutableHttpHeaders headers = new MutableHttpHeaders();
+                    test.assertFalse(headers.contains("abc"));
+                });
+
+                runner.test("with existing header name", (Test test) ->
+                {
+                    final MutableHttpHeaders headers = new MutableHttpHeaders();
+                    headers.set("abc", 20);
+                    test.assertTrue(headers.contains("abc"));
+                });
+
+                runner.test("with different-cased existing header name", (Test test) ->
+                {
+                    final MutableHttpHeaders headers = new MutableHttpHeaders();
+                    headers.set("abc", 20);
+                    test.assertTrue(headers.contains("ABC"));
+                });
+            });
+
             runner.testGroup("get(String)", () ->
             {
                 runner.test("with null header name", (Test test) ->
@@ -129,7 +247,7 @@ public class MutableHttpHeadersTests
                 runner.test("with non-existing header name", (Test test) ->
                 {
                     final MutableHttpHeaders headers = new MutableHttpHeaders();
-                    test.assertError(new KeyNotFoundException("header-name"), headers.get("header-name"));
+                    test.assertError(new NotFoundException("header-name"), headers.get("header-name"));
                 });
 
                 runner.test("with existing header name", (Test test) ->
@@ -164,7 +282,7 @@ public class MutableHttpHeadersTests
                 runner.test("with non-existing header name", (Test test) ->
                 {
                     final MutableHttpHeaders headers = new MutableHttpHeaders();
-                    test.assertError(new KeyNotFoundException("header-name"), headers.getValue("header-name"));
+                    test.assertError(new NotFoundException("header-name"), headers.getValue("header-name"));
                 });
 
                 runner.test("with existing header name", (Test test) ->
@@ -199,7 +317,7 @@ public class MutableHttpHeadersTests
                 runner.test("with not found header name", (Test test) ->
                 {
                     final MutableHttpHeaders headers = new MutableHttpHeaders();
-                    test.assertError(new KeyNotFoundException("A"), headers.remove("A"));
+                    test.assertError(new NotFoundException("A"), headers.remove("A"));
                 });
 
                 runner.test("with found header name", (Test test) ->
@@ -207,7 +325,7 @@ public class MutableHttpHeadersTests
                     final MutableHttpHeaders headers = new MutableHttpHeaders();
                     headers.set("A", "B");
                     test.assertSuccess(new HttpHeader("A", "B"), headers.remove("A"));
-                    test.assertError(new KeyNotFoundException("A"), headers.remove("A"));
+                    test.assertError(new NotFoundException("A"), headers.remove("A"));
                 });
             });
         });

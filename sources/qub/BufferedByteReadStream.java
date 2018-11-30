@@ -45,23 +45,19 @@ public class BufferedByteReadStream implements ByteReadStream
             final Result<Integer> bytesRead = byteReadStream.readBytes(buffer);
             if (bytesRead.hasError())
             {
-                result = Result.error(bytesRead.getError());
-            }
-            else
-            {
-                final Integer bytesReadValue = bytesRead.getValue();
-                if (bytesReadValue == null)
+                if (bytesRead.getError() instanceof EndOfStreamException)
                 {
                     buffer = null;
                     growOnNextBufferFill = false;
                     bytesInBuffer = 0;
-                    result = Result.success(null);
+                    currentBufferIndex = -1;
                 }
-                else
-                {
-                    bytesInBuffer = bytesReadValue;
-                    growOnNextBufferFill = (bytesInBuffer == buffer.length);
-                }
+                result = bytesRead.convertError();
+            }
+            else
+            {
+                bytesInBuffer = bytesRead.getValue();
+                growOnNextBufferFill = (bytesInBuffer == buffer.length);
                 currentBufferIndex = -1;
             }
         }

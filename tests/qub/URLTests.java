@@ -325,7 +325,7 @@ public class URLTests
                     url.setQueryParameter("a", null);
                     test.assertEqual("a", url.getQuery());
                     test.assertSuccess(null, url.getQueryParameterValue("a"));
-                    test.assertError(new KeyNotFoundException("A"), url.getQueryParameterValue("A"));
+                    test.assertError(new NotFoundException("A"), url.getQueryParameterValue("A"));
                 });
 
                 runner.test("with \"a\" and \"\"", (Test test) ->
@@ -334,7 +334,7 @@ public class URLTests
                     url.setQueryParameter("a", "");
                     test.assertEqual("a=", url.getQuery());
                     test.assertSuccess("", url.getQueryParameterValue("a"));
-                    test.assertError(new KeyNotFoundException("A"), url.getQueryParameterValue("A"));
+                    test.assertError(new NotFoundException("A"), url.getQueryParameterValue("A"));
                 });
 
                 runner.test("with \"a\" and \"b\"", (Test test) ->
@@ -343,7 +343,7 @@ public class URLTests
                     url.setQueryParameter("a", "b");
                     test.assertEqual("a=b", url.getQuery());
                     test.assertSuccess("b", url.getQueryParameterValue("a"));
-                    test.assertError(new KeyNotFoundException("A"), url.getQueryParameterValue("A"));
+                    test.assertError(new NotFoundException("A"), url.getQueryParameterValue("A"));
                 });
             });
 

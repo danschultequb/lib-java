@@ -76,7 +76,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
             if (result == null)
             {
                 current = bytes.any() ? bytes.removeFirst() : null;
-                result = Result.success(current);
+                result = current != null ? Result.success(current) : Result.error(new EndOfStreamException());
             }
             return result;
         });
@@ -125,7 +125,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
                     }
                     current = outputBytes[startIndex + bytesRead - 1];
                 }
-                result = Result.success(bytesRead);
+                result = current != null ? Result.success(bytesRead) : Result.error(new EndOfStreamException());
             }
             return result;
         });

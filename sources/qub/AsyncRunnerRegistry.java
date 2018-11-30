@@ -43,25 +43,20 @@ public class AsyncRunnerRegistry
 
     public static void withThreadAsyncRunner(long threadId, AsyncRunner runner, Action0 action)
     {
-        final Result<AsyncRunner> backup = getThreadAsyncRunner(threadId);
+        PreCondition.assertNotNull(runner, "runner");
+        PreCondition.assertNotNull(action, "action");
+
+        final Result<AsyncRunner> backupResult = getThreadAsyncRunner(threadId);
         setThreadAsyncRunner(threadId, runner);
         try
         {
-            if (action != null)
-            {
-                action.run();
-            }
+            action.run();
         }
         finally
         {
-            if (backup.hasError())
-            {
-                removeThreadAsyncRunner(threadId);
-            }
-            else
-            {
-                setThreadAsyncRunner(threadId, backup.getValue());
-            }
+            backupResult
+                .catchError(NotFoundException.class, () -> removeThreadAsyncRunner(threadId))
+                .then((AsyncRunner backupAsyncRunner) -> setThreadAsyncRunner(threadId, backupAsyncRunner));
         }
     }
 

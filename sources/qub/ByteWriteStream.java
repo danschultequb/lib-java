@@ -11,9 +11,9 @@ public interface ByteWriteStream extends Disposable
      */
     default Result<Boolean> writeByte(byte toWrite)
     {
-        final Result<Integer> writeResult = writeBytes(new byte[] { toWrite });
-
-        return writeResult.hasError() ? writeResult.convertError() : Result.successTrue();
+        return writeBytes(new byte[] { toWrite })
+            .thenResult(Result::successTrue)
+            .catchResultError(Result::convertError);
     }
 
     /**
@@ -52,20 +52,38 @@ public interface ByteWriteStream extends Disposable
 
         Result<Boolean> result = null;
 
-        int bytesWritten = 0;
-        while (result == null && bytesWritten < length)
+        final MutableInteger totalBytesWritten = new MutableInteger();
+        while (result == null && totalBytesWritten.lessThan(length))
         {
-            final Result<Integer> writeBytesResult = writeBytes(toWrite, startIndex + bytesWritten, length - bytesWritten);
+            final Result<Integer> writeBytesResult = writeBytes(toWrite, startIndex + totalBytesWritten.get(), length - totalBytesWritten.get());
             result = writeBytesResult.convertError();
             if (result == null)
             {
-                bytesWritten += writeBytesResult.getValue();
+                totalBytesWritten.plusAssign(writeBytesResult.getValue());
             }
         }
+
+//        final Value<Result<Boolean>> resultValue = new Value<>();
+//
+//        final MutableInteger totalBytesWritten = new MutableInteger();
+//        while (!resultValue.hasValue() && totalBytesWritten.lessThan(length))
+//        {
+//            writeBytes(toWrite, startIndex + totalBytesWritten.get(), length - totalBytesWritten.get())
+//                .then(totalBytesWritten::plusAssign)
+//                .catchResultError((Result<Void> resultError) ->
+//                {
+//                    resultValue.set(resultError.convertError());
+//                });
+//        }
+//
+//        Result<Boolean> result = resultValue.get();
         if (result == null)
         {
             result = Result.successTrue();
         }
+
+        PostCondition.assertNotNull(result, "result");
+
         return result;
     }
 
@@ -88,23 +106,23 @@ public interface ByteWriteStream extends Disposable
             final Result<Integer> readBytesResult = byteReadStream.readBytes(buffer);
             if (readBytesResult.hasError())
             {
-                result = Result.error(readBytesResult.getError());
-            }
-            else
-            {
-                final Integer bytesRead = readBytesResult.getValue();
-                if (bytesRead == null || bytesRead == -1)
+                if (readBytesResult.getError() instanceof EndOfStreamException)
                 {
                     result = Result.successTrue();
                 }
                 else
                 {
-                    writeBytes(buffer, 0, bytesRead);
+                    result = Result.error(readBytesResult.getError());
+                }
+            }
+            else
+            {
+                final Integer bytesRead = readBytesResult.getValue();
+                writeBytes(buffer, 0, bytesRead);
 
-                    if (bytesRead == buffer.length)
-                    {
-                        buffer = new byte[buffer.length * 2];
-                    }
+                if (bytesRead == buffer.length)
+                {
+                    buffer = new byte[buffer.length * 2];
                 }
             }
         }
