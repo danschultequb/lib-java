@@ -1,11 +1,11 @@
 package qub;
 
-final public class Result<T>
+public class Result<T>
 {
     private final T value;
     private final Throwable error;
 
-    private Result(T value, Throwable error)
+    Result(T value, Throwable error)
     {
         this.value = value;
         this.error = error;
@@ -82,22 +82,10 @@ final public class Result<T>
     {
         PreCondition.assertNotNull(action, "action");
 
-        Result<T> result;
-        if (hasError())
+        Result<T> result = this;
+        if (!hasError())
         {
-            result = convertError();
-        }
-        else
-        {
-            try
-            {
-                action.run();
-                result = this;
-            }
-            catch (Throwable error)
-            {
-                result = Result.error(error);
-            }
+            result = invokeThen(action);
         }
 
         PostCondition.assertNotNull(result, "result");
@@ -115,7 +103,33 @@ final public class Result<T>
     {
         PreCondition.assertNotNull(action, "action");
 
-        return then(() -> action.run(getValue()));
+        return then(() -> action.run(value));
+    }
+
+    /**
+     * If this Result doesn't have an error, then run the provided action and return a new Result
+     * object with the action's result. If this Result's value is Disposable, then the value will be
+     * disposed when the action is complete.
+     * @param action The action to run if this result does not have an error.
+     * @return The Result of running the provided action.
+     */
+    public Result<T> thenDispose(Action1<T> action)
+    {
+        PreCondition.assertNotNull(action, "action");
+
+        Result<T> result;
+        try
+        {
+            result = then(action);
+        }
+        finally
+        {
+            if (Types.instanceOf(value, Disposable.class))
+            {
+                ((Disposable)value).dispose();
+            }
+        }
+        return result;
     }
 
     /**
@@ -150,7 +164,7 @@ final public class Result<T>
         PreCondition.assertNotNull(function, "function");
 
         final Result<Result<U>> resultResult = then(function);
-        final Result<U> result = resultResult.hasError() ? resultResult.convertError() : resultResult.getValue();
+        final Result<U> result = resultResult.hasError() ? resultResult.convertError() : resultResult.value;
 
         PostCondition.assertNotNull(result, "result");
 
@@ -168,7 +182,7 @@ final public class Result<T>
     {
         PreCondition.assertNotNull(function, "function");
 
-        return then(() -> function.run(getValue()));
+        return then(() -> function.run(value));
     }
 
     /**
@@ -182,7 +196,7 @@ final public class Result<T>
     {
         PreCondition.assertNotNull(function, "function");
 
-        return thenResult(() -> function.run(getValue()));
+        return thenResult(() -> function.run(value));
     }
 
     /**
@@ -197,15 +211,7 @@ final public class Result<T>
         Result<T> result = this;
         if (hasError())
         {
-            try
-            {
-                action.run();
-                result = Result.success();
-            }
-            catch (Throwable error)
-            {
-                result = Result.error(error);
-            }
+            result = invokeCatch(action);
         }
 
         PostCondition.assertNotNull(result, "result");
@@ -225,15 +231,7 @@ final public class Result<T>
         Result<T> result = this;
         if (hasError())
         {
-            try
-            {
-                action.run(getError());
-                result = Result.success();
-            }
-            catch (Throwable error)
-            {
-                result = Result.error(error);
-            }
+            result = invokeCatch(() -> action.run(getError()));
         }
 
         PostCondition.assertNotNull(result, "result");
@@ -253,15 +251,7 @@ final public class Result<T>
         Result<T> result = this;
         if (hasError())
         {
-            try
-            {
-                action.run(this);
-                result = Result.success();
-            }
-            catch (Throwable error)
-            {
-                result = Result.error(error);
-            }
+            result = invokeCatch(() -> action.run(this));
         }
 
         PostCondition.assertNotNull(result, "result");
@@ -283,15 +273,7 @@ final public class Result<T>
         Result<T> result = this;
         if (hasError() && Types.instanceOf(getError(), errorType))
         {
-            try
-            {
-                action.run();
-                result = Result.success();
-            }
-            catch (Throwable error)
-            {
-                result = Result.error(error);
-            }
+            result = invokeCatch(action);
         }
 
         PostCondition.assertNotNull(result, "result");
@@ -313,15 +295,7 @@ final public class Result<T>
         Result<T> result = this;
         if (hasError() && Types.instanceOf(getError(), errorType))
         {
-            try
-            {
-                action.run((TError)getError());
-                result = Result.success();
-            }
-            catch (Throwable error)
-            {
-                result = Result.error(error);
-            }
+            result = invokeCatch(() -> action.run((TError)getError()));
         }
 
         PostCondition.assertNotNull(result, "result");
@@ -341,14 +315,7 @@ final public class Result<T>
         Result<T> result = this;
         if (hasError())
         {
-            try
-            {
-                result = Result.success(function.run());
-            }
-            catch (Throwable error)
-            {
-                result = Result.error(error);
-            }
+            result = invoke(function);
         }
 
         PostCondition.assertNotNull(result, "result");
@@ -368,14 +335,7 @@ final public class Result<T>
         Result<T> result = this;
         if (hasError())
         {
-            try
-            {
-                result = Result.success(function.run(getError()));
-            }
-            catch (Throwable error)
-            {
-                result = Result.error(error);
-            }
+            result = invoke(() -> function.run(getError()));
         }
 
         PostCondition.assertNotNull(result, "result");
@@ -396,14 +356,7 @@ final public class Result<T>
         Result<T> result = this;
         if (hasError() && Types.instanceOf(getError(), errorType))
         {
-            try
-            {
-                result = Result.success(function.run());
-            }
-            catch (Throwable error)
-            {
-                result = Result.error(error);
-            }
+            result = invoke(function);
         }
 
         PostCondition.assertNotNull(result, "result");
@@ -425,14 +378,7 @@ final public class Result<T>
         Result<T> result = this;
         if (hasError() && Types.instanceOf(getError(), errorType))
         {
-            try
-            {
-                result = Result.success(function.run((TError)getError()));
-            }
-            catch (Throwable error)
-            {
-                result = Result.error(error);
-            }
+            result = invoke(() -> function.run((TError)getError()));
         }
 
         PostCondition.assertNotNull(result, "result");
@@ -452,14 +398,7 @@ final public class Result<T>
         Result<T> result = this;
         if (hasError())
         {
-            try
-            {
-                result = function.run();
-            }
-            catch (Throwable error)
-            {
-                result = Result.error(error);
-            }
+            result = invokeResult(function::run);
         }
 
         PostCondition.assertNotNull(result, "result");
@@ -479,14 +418,7 @@ final public class Result<T>
         Result<T> result = this;
         if (hasError())
         {
-            try
-            {
-                result = function.run(getError());
-            }
-            catch (Throwable error)
-            {
-                result = Result.error(error);
-            }
+            result = invokeResult(() -> function.run(getError()));
         }
 
         PostCondition.assertNotNull(result, "result");
@@ -507,14 +439,7 @@ final public class Result<T>
         Result<T> result = this;
         if (hasError() && Types.instanceOf(getError(), errorType))
         {
-            try
-            {
-                result = function.run();
-            }
-            catch (Throwable error)
-            {
-                result = Result.error(error);
-            }
+            result = invokeResult(function::run);
         }
 
         PostCondition.assertNotNull(result, "result");
@@ -536,14 +461,55 @@ final public class Result<T>
         Result<T> result = this;
         if (hasError() && Types.instanceOf(getError(), errorType))
         {
-            try
-            {
-                result = function.run((TError)getError());
-            }
-            catch (Throwable error)
-            {
-                result = Result.error(error);
-            }
+            result = invokeResult(() -> function.run((TError)getError()));
+        }
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    private Result<T> invokeThen(Action0 action)
+    {
+        PreCondition.assertNotNull(action, "action");
+
+        return invokeResult(() ->
+        {
+            action.run();
+            return this;
+        });
+    }
+
+    private Result<T> invokeCatch(Action0 action)
+    {
+        PreCondition.assertNotNull(action, "action");
+
+        return invokeResult(() ->
+        {
+            action.run();
+            return Result.success();
+        });
+    }
+
+    private <U> Result<U> invoke(Function0<U> function)
+    {
+        PreCondition.assertNotNull(function, "function");
+
+        return invokeResult(() -> Result.success(function.run()));
+    }
+
+    private <U> Result<U> invokeResult(Function0<Result<U>> function)
+    {
+        PreCondition.assertNotNull(function, "function");
+
+        Result<U> result;
+        try
+        {
+            result = function.run();
+        }
+        catch (Throwable error)
+        {
+            result = Result.error(error);
         }
 
         PostCondition.assertNotNull(result, "result");

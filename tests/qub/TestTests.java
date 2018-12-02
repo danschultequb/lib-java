@@ -654,6 +654,38 @@ public class TestTests
                     t.assertNotNullAndNotEmpty("Hello");
                 });
             });
+
+            runner.testGroup("assertSuccess(Result<T>)", () ->
+            {
+                runner.test("with null Result", (Test test) ->
+                {
+                    final Test t = createTest("abc", test);
+                    test.assertThrows(() -> t.assertSuccess(null),
+                        new TestAssertionFailure("abc", new String[]
+                        {
+                            "Expected: \"not null\"",
+                            "Actual:   null"
+                        }));
+                });
+
+                runner.test("with error Result", (Test test) ->
+                {
+                    final Test t = createTest("abc", test);
+                    test.assertThrows(() -> t.assertSuccess(Result.error(new RuntimeException("xyz"))),
+                        new TestAssertionFailure("abc", new String[]
+                                                            {
+                                                                "Message:  java.lang.RuntimeException: xyz",
+                                                                "Expected: false",
+                                                                "Actual:   true"
+                                                            }));
+                });
+
+                runner.test("with null action", (Test test) ->
+                {
+                    final Test t = createTest("abc", test);
+                    test.assertThrows(() -> t.assertSuccess(Result.success("hello"), (Action1<String>)null));
+                });
+            });
         });
     }
 

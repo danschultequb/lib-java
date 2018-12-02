@@ -36,50 +36,34 @@ public class InMemoryFileSystem implements FileSystem
 
     private Result<InMemoryFolder> getInMemoryFolder(Path inMemoryFolderPath)
     {
-        Result<InMemoryFolder> result;
-
-        final Result<Path> resolvedInMemoryFolderPath = inMemoryFolderPath.resolve();
-        if (resolvedInMemoryFolderPath.hasError())
-        {
-            result = Result.error(resolvedInMemoryFolderPath.getError());
-        }
-        else
-        {
-            final Iterator<String> folderPathSegments = resolvedInMemoryFolderPath.getValue().getSegments().iterate();
-            InMemoryFolder folder = getInMemoryRoot(folderPathSegments.first());
-            while (folder != null && folderPathSegments.next())
+        return inMemoryFolderPath.resolve()
+            .thenResult((Path resolvedInMemoryFolderPath) ->
             {
-                folder = folder.getFolder(folderPathSegments.getCurrent());
-            }
-            result = folder != null ? Result.success(folder) : Result.error(new FolderNotFoundException(inMemoryFolderPath));
-        }
-
-        return result;
+                final Iterator<String> folderPathSegments = resolvedInMemoryFolderPath.getSegments().iterate();
+                InMemoryFolder folder = getInMemoryRoot(folderPathSegments.first());
+                while (folder != null && folderPathSegments.next())
+                {
+                    folder = folder.getFolder(folderPathSegments.getCurrent());
+                }
+                return folder != null ? Result.success(folder) : Result.error(new FolderNotFoundException(inMemoryFolderPath));
+            });
     }
 
     private Result<Boolean> createInMemoryFolder(Path inMemoryFolderPath)
     {
-        Result<Boolean> result;
-
-        final Result<Path> resolvedInMemoryFolderPath = inMemoryFolderPath.resolve();
-        if (resolvedInMemoryFolderPath.hasError())
-        {
-            result = Result.error(resolvedInMemoryFolderPath.getError());
-        }
-        else
-        {
-            boolean createdFolder = false;
-            final Iterator<String> folderPathSegments = resolvedInMemoryFolderPath.getValue().getSegments().iterate();
-            final Value<InMemoryFolder> folder = new Value<InMemoryFolder>(getInMemoryRoot(folderPathSegments.first()));
-            while (folderPathSegments.next())
+        return inMemoryFolderPath.resolve()
+            .thenResult((Path resolvedInMemoryFolderPath) ->
             {
-                final String folderName = folderPathSegments.getCurrent();
-                createdFolder = folder.get().createFolder(folderName, folder);
-            }
-            result = createdFolder ? Result.successTrue() : Result.successFalse();
-        }
-
-        return result;
+                boolean createdFolder = false;
+                final Iterator<String> folderPathSegments = resolvedInMemoryFolderPath.getSegments().iterate();
+                final Value<InMemoryFolder> folder = new Value<>(getInMemoryRoot(folderPathSegments.first()));
+                while (folderPathSegments.next())
+                {
+                    final String folderName = folderPathSegments.getCurrent();
+                    createdFolder = folder.get().createFolder(folderName, folder);
+                }
+                return createdFolder ? Result.successTrue() : Result.successFalse();
+            });
     }
 
     private Result<InMemoryFile> getInMemoryFile(Path filePath)

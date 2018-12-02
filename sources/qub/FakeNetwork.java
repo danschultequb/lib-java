@@ -52,48 +52,47 @@ public class FakeNetwork implements Network
 
     private Result<TCPClient> createTCPClientInner(IPv4Address remoteIPAddress, int remotePort, DateTime timeout)
     {
+        PreCondition.assertNotNull(remoteIPAddress, "remoteIPAddress");
+        Network.validateRemoteIPAddress(remoteIPAddress);
+        Network.validateRemotePort(remotePort);
+
         return mutex.criticalSection(() ->
         {
-            Result<TCPClient> result = null;
-
-            FakeTCPServer remoteTCPServer = null;
+            final Value<Result<TCPClient>> resultValue = new Value<>();
+            final Value<FakeTCPServer> remoteTCPServerValue = new Value<>();
 
             final Clock clock = getAsyncRunner().getClock();
 
             if (timeout != null && clock.getCurrentDateTime().greaterThanOrEqualTo(timeout))
             {
-                result = Result.error(new TimeoutException());
+                resultValue.set(Result.error(new TimeoutException()));
             }
             else
             {
-                while (remoteTCPServer == null && result == null)
+                while (!remoteTCPServerValue.hasValue() && !resultValue.hasValue())
                 {
-                    final Result<MutableMap<Integer,FakeTCPServer>> remoteTCPServersResult = boundTCPServers.get(remoteIPAddress);
-                    if (!remoteTCPServersResult.hasError())
-                    {
-                        final Result<FakeTCPServer> remoteTCPServerResult = remoteTCPServersResult.getValue().get(remotePort);
-                        remoteTCPServer = remoteTCPServerResult.getValue();
-                    }
-
-                    if (remoteTCPServer == null)
-                    {
-                        if (timeout == null)
+                    boundTCPServers.get(remoteIPAddress)
+                        .thenResult((MutableMap<Integer,FakeTCPServer> remoteTCPServers) -> remoteTCPServers.get(remotePort))
+                        .then(remoteTCPServerValue::set)
+                        .catchError(NotFoundException.class, () ->
                         {
-                            result = Result.error(new java.net.ConnectException("Connection refused: connect"));
-                        }
-                        else
-                        {
-                            final Result<Boolean> awaitResult = boundTCPServerAvailable.await(timeout);
-                            if (awaitResult.hasError())
+                            if (timeout == null)
                             {
-                                result = Result.error(awaitResult.getError());
+                                resultValue.set(Result.error(new java.net.ConnectException("Connection refused: connect")));
                             }
-                        }
-                    }
+                            else
+                            {
+                                boundTCPServerAvailable.await(timeout)
+                                    .catchResultError((Result<Boolean> error) ->
+                                    {
+                                        resultValue.set(error.convertError());
+                                    });
+                            }
+                        });
                 }
             }
 
-            if (result == null)
+            if (!resultValue.hasValue())
             {
                 final IPv4Address clientLocalIPAddress = IPv4Address.localhost;
                 int clientLocalPort = 65535;
@@ -104,7 +103,7 @@ public class FakeNetwork implements Network
 
                 if (clientLocalPort < 1)
                 {
-                    result = Result.error(new IllegalStateException("No more ports available on IP address " + clientLocalIPAddress));
+                    resultValue.set(Result.error(new IllegalStateException("No more ports available on IP address " + clientLocalIPAddress)));
                 }
                 else
                 {
@@ -116,7 +115,7 @@ public class FakeNetwork implements Network
 
                     if (serverClientLocalPort < 1)
                     {
-                        result = Result.error(new IllegalStateException("No more ports available on IP address " + remoteIPAddress));
+                        resultValue.set(Result.error(new IllegalStateException("No more ports available on IP address " + remoteIPAddress)));
                     }
                     else
                     {
@@ -129,13 +128,13 @@ public class FakeNetwork implements Network
                         final FakeTCPClient serverTCPClient = new FakeTCPClient(this, asyncRunner, remoteIPAddress, serverClientLocalPort, clientLocalIPAddress, clientLocalPort, clientToServer, serverToClient);
                         addLocalTCPClient(serverTCPClient);
 
-                        remoteTCPServer.addIncomingClient(serverTCPClient);
+                        remoteTCPServerValue.get().addIncomingClient(serverTCPClient);
 
-                        result = Result.success(tcpClient);
+                        resultValue.set(Result.success(tcpClient));
                     }
                 }
             }
-            return result;
+            return resultValue.get();
         });
     }
 

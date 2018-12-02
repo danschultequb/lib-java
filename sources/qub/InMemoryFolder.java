@@ -94,16 +94,9 @@ public class InMemoryFolder
      * @return The child folder that has the provided name, or null if no child folder has the
      * provided name.
      */
-    public InMemoryFolder getFolder(final String folderName)
+    public InMemoryFolder getFolder(String folderName)
     {
-        return folders.first(new Function1<InMemoryFolder,Boolean>()
-        {
-            @Override
-            public Boolean run(InMemoryFolder folder)
-            {
-                return folder.getName().equals(folderName);
-            }
-        });
+        return folders.first(folder -> folder.getName().equals(folderName));
     }
 
     /**

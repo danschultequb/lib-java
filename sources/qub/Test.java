@@ -1078,15 +1078,40 @@ public class Test
      * Assert that the provided Result object is a successful Result.
      * @param result The Result to check.
      */
-    public <T> void assertSuccess(final Result<T> result)
+    public <T> void assertSuccess(Result<T> result)
     {
         assertNotNull(result);
-        assertFalse(result.hasError(), new Function0<String>()
+        assertFalse(result.hasError(), () -> result.getErrorType().getName() + ": " + result.getErrorMessage());
+    }
+
+    /**
+     * Assert that the provided Result object is a successful Result.
+     * @param result The Result to check.
+     */
+    public <T> void assertSuccess(Result<T> result, Action1<T> resultAction)
+    {
+        assertSuccess(result);
+        result.then(resultAction);
+    }
+
+    /**
+     * Assert that the provided Result object is a successful Result.
+     * @param result The Result to check.
+     */
+    public <T> void assertSuccessDispose(Result<T> result, Action1<T> resultAction)
+    {
+        assertSuccess(result, (T value) ->
             {
-                @Override
-                public String run()
+                try
                 {
-                    return result.getErrorType().getName() + ": " + result.getErrorMessage();
+                    resultAction.run(value);
+                }
+                finally
+                {
+                    if (Types.instanceOf(value, Disposable.class))
+                    {
+                        ((Disposable)value).dispose();
+                    }
                 }
             });
     }

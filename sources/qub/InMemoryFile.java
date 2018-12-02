@@ -56,13 +56,15 @@ public class InMemoryFile
             {
                 final byte[] writtenBytes = getBytes();
 
-                final Result<Boolean> result = super.dispose();
-                if (!result.hasError() && result.getValue())
-                {
-                    InMemoryFile.this.contents = writtenBytes == null ? new byte[0] : writtenBytes;
-                    InMemoryFile.this.lastModified = DateTime.localNow();
-                }
-                return result;
+                return super.dispose()
+                    .then((Boolean disposed) ->
+                    {
+                        if (Booleans.isTrue(disposed))
+                        {
+                            InMemoryFile.this.contents = writtenBytes == null ? new byte[0] : writtenBytes;
+                            InMemoryFile.this.lastModified = DateTime.localNow();
+                        }
+                    });
             }
         };
     }

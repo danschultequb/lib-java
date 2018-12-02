@@ -33,18 +33,11 @@ public interface FileSystem
     {
         FileSystem.validateRootedFolderPath(rootPath, "rootPath");
 
-        Result<Boolean> rootExistsResult;
-        final Result<Iterable<Root>> roots = getRoots();
-        if (roots.hasError())
-        {
-            rootExistsResult = Result.error(roots.getError());
-        }
-        else
-        {
-            final Path onlyRootPath = rootPath.getRoot();
-            rootExistsResult = Result.success(roots.getValue().contains((Root root) -> root.getPath().equals(onlyRootPath)));
-        }
-        return rootExistsResult;
+        return getRoots()
+            .then((Iterable<Root> roots) ->
+            {
+                return roots.map(Root::getPath).contains(rootPath.getRoot());
+            });
     }
 
     /**
