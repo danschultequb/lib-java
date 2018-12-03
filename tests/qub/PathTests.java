@@ -310,9 +310,11 @@ public class PathTests
                         final Path path = Path.parse(pathString);
 
                         final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner());
-                        final Folder folder = fileSystem.getFolder(basePathString).getValue();
-
-                        test.assertEqual(Path.parse(expectedPathString), path.relativeTo(folder));
+                        test.assertSuccess(fileSystem.getFolder(basePathString),
+                            (Folder folder) ->
+                            {
+                                test.assertEqual(Path.parse(expectedPathString), path.relativeTo(folder));
+                            });
                     });
                 };
 

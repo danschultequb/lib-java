@@ -8,6 +8,17 @@ package qub;
 public interface Map<TKey,TValue> extends Iterable<MapEntry<TKey,TValue>>
 {
     /**
+     * Create a new MutableMap.
+     * @param <TKey> The type of keys stored in the created MutableMap.
+     * @param <TValue> The type of values stored in the created MutableMap.
+     * @return The created MutableMap.
+     */
+    static <TKey,TValue> MutableMap<TKey,TValue> create()
+    {
+        return new ListMap<>();
+    }
+
+    /**
      * Get whether or not the provided key exists in this Map.
      * @param key The key to check.
      * @return Whether or not the provided key exists in this Map.

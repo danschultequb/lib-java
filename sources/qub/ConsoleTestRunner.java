@@ -137,18 +137,25 @@ public class ConsoleTestRunner extends Console implements TestRunner
     @Override
     public Result<Boolean> write(String line, Object... formattedStringArguments)
     {
-        Result<Boolean> result = Result.successTrue();
+        final Value<Result<Boolean>> resultValue = new Value<>(Result.successTrue());
 
         if (onNewLine)
         {
-            result = super.write(currentIndent);
+            resultValue.set(super.write(currentIndent));
         }
 
-        if (Booleans.isTrue(result.getValue()))
+        resultValue.get().then((Boolean writeResult) ->
         {
-            result = super.write(line, formattedStringArguments);
-            onNewLine = (line != null && line.endsWith("\n"));
-        }
+            if (Booleans.isTrue(writeResult))
+            {
+                resultValue.set(super.write(line, formattedStringArguments));
+                onNewLine = (line != null && line.endsWith("\n"));
+            }
+        });
+
+        final Result<Boolean> result = resultValue.get();
+
+        PostCondition.assertNotNull(result, "result");
 
         return result;
     }
@@ -156,18 +163,25 @@ public class ConsoleTestRunner extends Console implements TestRunner
     @Override
     public Result<Boolean> writeLine(String line, Object... formattedStringArguments)
     {
-        Result<Boolean> result = Result.successTrue();
+        final Value<Result<Boolean>> resultValue = new Value<>(Result.successTrue());
 
         if (onNewLine)
         {
-            result = super.write(currentIndent);
+            resultValue.set(super.write(currentIndent));
         }
 
-        if (Booleans.isTrue(result.getValue()))
+        resultValue.get().then((Boolean writeResult) ->
         {
-            result = super.writeLine(line, formattedStringArguments);
-            onNewLine = true;
-        }
+            if (Booleans.isTrue(writeResult))
+            {
+                resultValue.set(super.writeLine(line, formattedStringArguments));
+                onNewLine = true;
+            }
+        });
+
+        final Result<Boolean> result = resultValue.get();
+
+        PostCondition.assertNotNull(result, "result");
 
         return result;
     }

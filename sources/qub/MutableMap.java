@@ -8,20 +8,35 @@ package qub;
 public interface MutableMap<TKey,TValue> extends Map<TKey,TValue>
 {
     /**
-     * Create a new MutableMap.
-     * @param <TKey> The type of keys stored in the created MutableMap.
-     * @param <TValue> The type of values stored in the created MutableMap.
-     * @return The created MutableMap.
-     */
-    static <TKey,TValue> MutableMap<TKey,TValue> create()
-    {
-        return new ListMap<>();
-    }
-
-    /**
      * Remove all of the existing entries from this MutableMap.
      */
     void clear();
+
+    /**
+     * Get the value associated with the provided key. If the key doesn't exist in this Map, then
+     * the valueCreator function will be run and the returned value will be associated with the
+     * provided key. The final associated value for the provided key will be returned.
+     * @param key The key to get the associated value for.
+     * @param valueCreator The function to use to create the value to associate with the provided
+     *                     key if the key doesn't exist in this Map.
+     * @return The value associated with the provided key.
+     */
+    default Result<TValue> getOrSet(TKey key, Function0<TValue> valueCreator)
+    {
+        PreCondition.assertNotNull(valueCreator, "valueCreator");
+
+        final Result<TValue> result = get(key)
+            .catchError(NotFoundException.class, () ->
+            {
+                final TValue value = valueCreator.run();
+                set(key, value);
+                return value;
+            });
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
 
     /**
      * Set the association between the provided key and value.

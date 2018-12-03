@@ -18,9 +18,9 @@ public class FakeNetwork implements Network
         this.asyncRunner = asyncRunner;
         mutex = new SpinMutex(asyncRunner.getClock());
         boundTCPServerAvailable = mutex.createCondition();
-        boundTCPClients = MutableMap.create();
-        boundTCPServers = MutableMap.create();
-        streamReferenceCounts = MutableMap.create();
+        boundTCPClients = Map.create();
+        boundTCPServers = Map.create();
+        streamReferenceCounts = Map.create();
         dns = new FakeDNS();
         httpClient = new BasicHttpClient(this);
     }
@@ -134,7 +134,12 @@ public class FakeNetwork implements Network
                     }
                 }
             }
-            return resultValue.get();
+
+            final Result<TCPClient> result = resultValue.get();
+
+            PostCondition.assertNotNull(result, "result");
+
+            return result;
         });
     }
 
@@ -165,14 +170,11 @@ public class FakeNetwork implements Network
     {
         PreCondition.assertNotNull(tcpClient, "tcpClient");
 
-        final IPv4Address localIPAddress = tcpClient.getLocalIPAddress();
-        MutableMap<Integer,FakeTCPClient> localClients = boundTCPClients.get(localIPAddress).getValue();
-        if (localClients == null)
-        {
-            localClients = MutableMap.create();
-            boundTCPClients.set(localIPAddress, localClients);
-        }
-        localClients.set(tcpClient.getLocalPort(), tcpClient);
+        boundTCPClients.getOrSet(tcpClient.getLocalIPAddress(), Map::create)
+            .then((MutableMap<Integer,FakeTCPClient> localClients) ->
+            {
+                localClients.set(tcpClient.getLocalPort(), tcpClient);
+            });
     }
 
     @Override
@@ -200,13 +202,12 @@ public class FakeNetwork implements Network
             {
                 final FakeTCPServer tcpServer = new FakeTCPServer(localIPAddress, localPort, this, asyncRunner);
 
-                MutableMap<Integer, FakeTCPServer> localTCPServers = boundTCPServers.get(localIPAddress).getValue();
-                if (localTCPServers == null)
-                {
-                    localTCPServers = MutableMap.create();
-                    boundTCPServers.set(localIPAddress, localTCPServers);
-                }
-                localTCPServers.set(localPort, tcpServer);
+                boundTCPServers.getOrSet(localIPAddress, Map::create)
+                    .then((MutableMap<Integer,FakeTCPServer> localTCPServers) ->
+                    {
+                        localTCPServers.set(localPort, tcpServer);
+                    });
+
 
                 result = Result.success(tcpServer);
 
@@ -237,12 +238,13 @@ public class FakeNetwork implements Network
 
     public void serverDisposed(IPv4Address ipAddress, int port)
     {
-        PreCondition.assertNotNull(ipAddress, "ipAddress");
+        Network.validateIPAddress(ipAddress, "ipAddress");
         Network.validatePort(port, "port");
 
         mutex.criticalSection(() ->
         {
-            boundTCPServers.get(ipAddress).getValue().remove(port);
+            boundTCPServers.get(ipAddress)
+                .then((MutableMap<Integer,FakeTCPServer> tcpServers) -> tcpServers.remove(port));
         });
     }
 
@@ -254,34 +256,44 @@ public class FakeNetwork implements Network
         {
             decrementNetworkStream((InMemoryByteStream)tcpClient.getReadStream());
             decrementNetworkStream((InMemoryByteStream)tcpClient.getWriteStream());
-            boundTCPClients.get(tcpClient.getLocalIPAddress()).getValue().remove(tcpClient.getLocalPort());
+            boundTCPClients.get(tcpClient.getLocalIPAddress())
+                .then((MutableMap<Integer,FakeTCPClient> portToClientMap) ->
+                {
+                    portToClientMap.remove(tcpClient.getLocalPort());
+                });
         });
     }
 
     public boolean isAvailable(IPv4Address ipAddress, int port)
     {
-        PreCondition.assertNotNull(ipAddress, "ipAddress");
+        Network.validateIPAddress(ipAddress, "ipAddress");
         Network.validatePort(port, "port");
 
         return mutex.criticalSection(() ->
         {
-            boolean result = true;
+            final Value<Boolean> resultValue = new Value<>(true);
 
-            final Map<Integer, FakeTCPClient> localTCPClients = boundTCPClients.get(ipAddress).getValue();
-            if (localTCPClients != null && localTCPClients.containsKey(port))
-            {
-                result = false;
-            }
-            else
-            {
-                final Map<Integer, FakeTCPServer> localTCPServers = boundTCPServers.get(ipAddress).getValue();
-                if (localTCPServers != null && localTCPServers.containsKey(port))
+            boundTCPClients.get(ipAddress)
+                .then((MutableMap<Integer,FakeTCPClient> localTCPClients) ->
                 {
-                    result = false;
-                }
-            }
+                    if (localTCPClients.containsKey(port))
+                    {
+                        resultValue.set(false);
+                    }
+                    else
+                    {
+                        boundTCPServers.get(ipAddress)
+                            .then((MutableMap<Integer,FakeTCPServer> localTCPServers) ->
+                            {
+                                if (localTCPServers.containsKey(port))
+                                {
+                                    resultValue.set(false);
+                                }
+                            });
+                    }
+                });
 
-            return result;
+            return resultValue.get();
         });
     }
 }

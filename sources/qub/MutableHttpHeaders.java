@@ -12,7 +12,7 @@ public class MutableHttpHeaders implements HttpHeaders
      */
     public MutableHttpHeaders()
     {
-        headerMap = MutableMap.create();
+        headerMap = Map.create();
     }
 
     public MutableHttpHeaders(Iterable<HttpHeader> headers)

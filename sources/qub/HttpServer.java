@@ -20,7 +20,7 @@ public class HttpServer implements AsyncDisposable
         PreCondition.assertFalse(tcpServer.isDisposed(), "tcpServer.isDisposed()");
 
         this.tcpServer = tcpServer;
-        this.paths = MutableMap.create();
+        this.paths = Map.create();
         notFoundAction = (HttpRequest request) ->
         {
             final MutableHttpResponse response = new MutableHttpResponse();

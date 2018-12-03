@@ -139,10 +139,10 @@ public class BasicTestRunnerTests
                     final BasicTestRunner btr = create(test);
                     final AtomicInteger counter = new AtomicInteger(0);
                     final Value<Integer> value = new Value<>(0);
-                    final MutableMap<Integer,TestGroup> beforeTestGroup = MutableMap.create();
-                    final MutableMap<Integer,TestGroup> afterTestGroupSkipped = MutableMap.create();
-                    final MutableMap<Integer,TestError> afterTestGroupError = MutableMap.create();
-                    final MutableMap<Integer,TestGroup> afterTestGroup = MutableMap.create();
+                    final MutableMap<Integer,TestGroup> beforeTestGroup = Map.create();
+                    final MutableMap<Integer,TestGroup> afterTestGroupSkipped = Map.create();
+                    final MutableMap<Integer,TestError> afterTestGroupError = Map.create();
+                    final MutableMap<Integer,TestGroup> afterTestGroup = Map.create();
                     btr.beforeTestGroup((TestGroup tg) ->
                     {
                         beforeTestGroup.set(counter.incrementAndGet(), tg);
@@ -182,10 +182,10 @@ public class BasicTestRunnerTests
                     final BasicTestRunner btr = create(test);
                     final AtomicInteger counter = new AtomicInteger(0);
                     final Value<Integer> value = new Value<>(0);
-                    final MutableMap<Integer,TestGroup> beforeTestGroup = MutableMap.create();
-                    final MutableMap<Integer,TestGroup> afterTestGroupSkipped = MutableMap.create();
-                    final MutableMap<Integer,TestError> afterTestGroupError = MutableMap.create();
-                    final MutableMap<Integer,TestGroup> afterTestGroup = MutableMap.create();
+                    final MutableMap<Integer,TestGroup> beforeTestGroup = Map.create();
+                    final MutableMap<Integer,TestGroup> afterTestGroupSkipped = Map.create();
+                    final MutableMap<Integer,TestError> afterTestGroupError = Map.create();
+                    final MutableMap<Integer,TestGroup> afterTestGroup = Map.create();
                     btr.beforeTestGroup((TestGroup tg) ->
                     {
                         throw new RuntimeException("abc");
@@ -209,10 +209,10 @@ public class BasicTestRunnerTests
                     test.assertEqual(0, value.get());
                     test.assertEqual(Iterable.empty(), afterTestGroupSkipped);
                     test.assertEqual(
-                        MutableMap.<Integer,TestError>create().set(1, new TestError("BasicTestRunnerTests", new RuntimeException("abc"))),
+                        Map.<Integer,TestError>create().set(1, new TestError("BasicTestRunnerTests", new RuntimeException("abc"))),
                         afterTestGroupError);
                     test.assertEqual(
-                        MutableMap.<Integer,TestGroup>create().set(2, new TestGroup("BasicTestRunnerTests", null, null)),
+                        Map.<Integer,TestGroup>create().set(2, new TestGroup("BasicTestRunnerTests", null, null)),
                         afterTestGroup);
                 });
             });
@@ -250,7 +250,7 @@ public class BasicTestRunnerTests
                     final BasicTestRunner btr = create(test);
                     final AtomicInteger counter = new AtomicInteger(0);
                     final Value<Integer> value = new Value<>(0);
-                    final MutableMap<Integer,TestGroup> beforeTestGroup = MutableMap.create();
+                    final MutableMap<Integer,TestGroup> beforeTestGroup = Map.create();
                     btr.beforeTestGroup((TestGroup tg) ->
                     {
                         beforeTestGroup.set(counter.incrementAndGet(), tg);

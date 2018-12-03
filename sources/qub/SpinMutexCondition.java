@@ -56,13 +56,14 @@ public class SpinMutexCondition implements MutexCondition
 
         mutex.release();
 
-        final Result<Boolean> result = condition.passThrough(timeout);
-        if (!result.hasError() && result.getValue())
-        {
-            mutex.acquire();
-        }
-
-        return result;
+        return condition.passThrough(timeout)
+            .then((Boolean passedThrough) ->
+            {
+                if (Booleans.isTrue(passedThrough))
+                {
+                    mutex.acquire();
+                }
+            });
     }
 
     @Override
