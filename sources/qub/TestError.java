@@ -48,6 +48,6 @@ public class TestError
     @Override
     public int hashCode()
     {
-        return Objects.getHashCode(testScope) ^ Objects.getHashCode(error);
+        return Hash.getHashCode(testScope, error);
     }
 }

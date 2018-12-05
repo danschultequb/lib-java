@@ -9,6 +9,29 @@ public final class Comparer
     {
     }
 
+    public static Comparison compare(int lhs, int rhs)
+    {
+        return Comparison.from(lhs - rhs);
+    }
+
+    public static Comparison compare(int lhs, Integer rhs)
+    {
+        return rhs == null ? Comparison.GreaterThan : compare(lhs, rhs.intValue());
+    }
+
+    public static Comparison compare(Integer lhs, int rhs)
+    {
+        return lhs == null ? Comparison.LessThan : compare(lhs.intValue(), rhs);
+    }
+
+    public static Comparison compare(Integer lhs, Integer rhs)
+    {
+        return lhs == rhs ? Comparison.Equal :
+               lhs == null ? Comparison.LessThan :
+               rhs == null ? Comparison.GreaterThan :
+               compare(lhs.intValue(), rhs.intValue());
+    }
+
     public static <T extends Comparable<T>> Comparison compare(T lhs, T rhs)
     {
         return lhs == rhs ? Comparison.Equal :
@@ -424,6 +447,50 @@ public final class Comparer
     }
 
     /**
+     * Get whether or not the provided lhs value is less than the provided rhs value.
+     * @param lhs The first value to compare.
+     * @param rhs The second value to compare.
+     * @return Whether or not the provided lhs value is less than the provided rhs value.
+     */
+    public static  boolean lessThan(int lhs, int rhs)
+    {
+        return lhs < rhs;
+    }
+
+    /**
+     * Get whether or not the provided lhs value is less than the provided rhs value.
+     * @param lhs The first value to compare.
+     * @param rhs The second value to compare.
+     * @return Whether or not the provided lhs value is less than the provided rhs value.
+     */
+    public static  boolean lessThan(int lhs, Integer rhs)
+    {
+        return rhs != null && lessThan(lhs, rhs.intValue());
+    }
+
+    /**
+     * Get whether or not the provided lhs value is less than the provided rhs value.
+     * @param lhs The first value to compare.
+     * @param rhs The second value to compare.
+     * @return Whether or not the provided lhs value is less than the provided rhs value.
+     */
+    public static  boolean lessThan(Integer lhs, int rhs)
+    {
+        return lhs == null || lessThan(lhs.intValue(), rhs);
+    }
+
+    /**
+     * Get whether or not the provided lhs value is less than the provided rhs value.
+     * @param lhs The first value to compare.
+     * @param rhs The second value to compare.
+     * @return Whether or not the provided lhs value is less than the provided rhs value.
+     */
+    public static  boolean lessThan(Integer lhs, Integer rhs)
+    {
+        return lhs == null ? rhs != null : lessThan(lhs.intValue(), rhs);
+    }
+
+    /**
      * Get whether or not the provided lhs value is less than or equal to the provided rhs value.
      * @param lhs The first value to compare.
      * @param rhs The second value to compare.
@@ -445,6 +512,39 @@ public final class Comparer
     public static boolean lessThanOrEqualTo(int value, int upperBound)
     {
         return value <= upperBound;
+    }
+
+    /**
+     * Get whether or not the provided lhs value is less than or equal to the provided rhs value.
+     * @param value The value to compare.
+     * @param upperBound The second value to compare.
+     * @return Whether or not the provided value is less than or equal to the provided upperBound.
+     */
+    public static boolean lessThanOrEqualTo(Integer value, int upperBound)
+    {
+        return value == null || lessThanOrEqualTo(value.intValue(), upperBound);
+    }
+
+    /**
+     * Get whether or not the provided lhs value is less than or equal to the provided rhs value.
+     * @param value The value to compare.
+     * @param upperBound The second value to compare.
+     * @return Whether or not the provided value is less than or equal to the provided upperBound.
+     */
+    public static boolean lessThanOrEqualTo(int value, Integer upperBound)
+    {
+        return upperBound != null && lessThanOrEqualTo(value, upperBound.intValue());
+    }
+
+    /**
+     * Get whether or not the provided lhs value is less than or equal to the provided rhs value.
+     * @param value The value to compare.
+     * @param upperBound The second value to compare.
+     * @return Whether or not the provided value is less than or equal to the provided upperBound.
+     */
+    public static boolean lessThanOrEqualTo(Integer value, Integer upperBound)
+    {
+        return value == null || lessThanOrEqualTo(value.intValue(), upperBound);
     }
 
     /**

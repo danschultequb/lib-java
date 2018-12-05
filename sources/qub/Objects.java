@@ -2,11 +2,6 @@ package qub;
 
 public class Objects
 {
-    public static int getHashCode(Object value)
-    {
-        return value == null ? 0 : value.hashCode();
-    }
-
     public static String toString(Object value)
     {
         String result;
