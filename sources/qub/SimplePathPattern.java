@@ -2,7 +2,7 @@ package qub;
 
 class SimplePathPattern extends PathPattern
 {
-    SimplePathPattern(String patternString, State startState)
+    SimplePathPattern(String patternString, PatternState startState)
     {
         super(patternString, startState);
     }
@@ -14,18 +14,18 @@ class SimplePathPattern extends PathPattern
      */
     public boolean isMatch(Iterator<Character> pathCharacters)
     {
-        final List<State> currentStates = ArrayList.fromValues(new State[] { getStartState() });
+        final List<PatternState> currentStates = ArrayList.fromValues(new PatternState[] { getStartState() });
 
         if (pathCharacters != null)
         {
             pathCharacters.ensureHasStarted();
 
-            final List<State> nextStates = new ArrayList<>();
+            final List<PatternState> nextStates = new ArrayList<>();
             while (currentStates.any() && pathCharacters.hasCurrent())
             {
                 final char currentCharacter = pathCharacters.takeCurrent();
 
-                for (final State currentState : currentStates)
+                for (final PatternState currentState : currentStates)
                 {
                     nextStates.addAll(currentState.getNextStates(currentCharacter));
                 }
@@ -36,7 +36,7 @@ class SimplePathPattern extends PathPattern
             }
         }
 
-        return currentStates.contains(State::isEndState);
+        return currentStates.contains(PatternState::isEndState);
     }
 
     /**
@@ -46,14 +46,14 @@ class SimplePathPattern extends PathPattern
      */
     public static SimplePathPattern parse(String text)
     {
-        final State startState = new State();
-        State currentState = startState;
+        final PatternState startState = new PatternState();
+        PatternState currentState = startState;
 
         final Iterator<Character> characters = new StringIterator(text);
         characters.next();
         while (characters.hasCurrent())
         {
-            State nextState = currentState;
+            PatternState nextState = currentState;
 
             switch (characters.getCurrent())
             {
@@ -71,13 +71,13 @@ class SimplePathPattern extends PathPattern
 
                 case '/':
                 case '\\':
-                    nextState = new State();
+                    nextState = new PatternState();
                     currentState.addTransition(new PathSeparatorTransitionCondition(), nextState);
                     characters.next();
                     break;
 
                 default:
-                    nextState = new State();
+                    nextState = new PatternState();
                     currentState.addTransition(new CharacterTransitionCondition(characters.getCurrent()), nextState);
                     characters.next();
                     break;

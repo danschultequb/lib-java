@@ -6,9 +6,9 @@ package qub;
 public abstract class PathPattern
 {
     private final String patternString;
-    private final State startState;
+    private final PatternState startState;
 
-    protected PathPattern(String patternString, State startState)
+    protected PathPattern(String patternString, PatternState startState)
     {
         this.patternString = patternString;
         this.startState = startState;
@@ -18,7 +18,7 @@ public abstract class PathPattern
      * Get the start state of this PathPattern.
      * @return The start state of this PathPattern.
      */
-    protected State getStartState()
+    protected PatternState getStartState()
     {
         return startState;
     }

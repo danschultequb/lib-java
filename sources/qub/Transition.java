@@ -1,14 +1,14 @@
 package qub;
 
 /**
- * A transition from one state to another within a State machine.
+ * A transition from one state to another within a PatternState machine.
  */
 public class Transition
 {
     private final TransitionCondition condition;
-    private final State nextState;
+    private final PatternState nextState;
 
-    public Transition(TransitionCondition condition, State nextState)
+    public Transition(TransitionCondition condition, PatternState nextState)
     {
         this.condition = condition;
         this.nextState = nextState;
@@ -30,7 +30,7 @@ public class Transition
      * @return The state that the state machine will move to if this Transition's condition is
      * satisfied.
      */
-    public State getNextState()
+    public PatternState getNextState()
     {
         return nextState;
     }
