@@ -9,6 +9,16 @@ public class Stack<T>
     private final List<T> values;
 
     /**
+     * Create a new Stack.
+     * @param <T> The type of values stored in the new Stack.
+     * @return The new Stack.
+     */
+    public static <T> Stack<T> create()
+    {
+        return new Stack<>();
+    }
+
+    /**
      * Create a new empty Stack.
      */
     public Stack()
@@ -40,6 +50,21 @@ public class Stack<T>
     public void push(T value)
     {
         values.add(value);
+    }
+
+    /**
+     * Push each of the provided values on top of this Stack.
+     * @param values The values to push on top of this Stack.
+     */
+    public void pushAll(Iterable<T> values)
+    {
+        if (values != null)
+        {
+            for (final T value : values)
+            {
+                push(value);
+            }
+        }
     }
 
     /**

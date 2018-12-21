@@ -36,7 +36,8 @@ public interface FileSystem
         return getRoots()
             .then((Iterable<Root> roots) ->
             {
-                return roots.map(Root::getPath).contains(rootPath.getRoot());
+                final Path root = rootPath.getRoot().throwErrorOrGetValue();
+                return roots.map(Root::getPath).contains(root);
             });
     }
 
@@ -87,7 +88,8 @@ public interface FileSystem
     {
         FileSystem.validateRootedFolderPath(rootPath, "rootPath");
 
-        return Result.success(new Root(this, rootPath.getRoot()));
+        return rootPath.getRoot()
+            .then((Path root) -> new Root(this, root));
     }
 
     /**
@@ -1132,7 +1134,7 @@ public interface FileSystem
         PreCondition.assertFalse(containsInvalidCharacters(rootedFilePath), "containsInvalidCharacters(rootedFilePath (" + Strings.escapeAndQuote(rootedFilePath.toString()) + "))");
     }
 
-    Array<Character> invalidCharacters = Array.fromValues(new Character[]
+    char[] invalidCharacters = new char[]
     {
         '\u0000',
         '?',
@@ -1142,30 +1144,18 @@ public interface FileSystem
         '*',
         '\"',
         ':'
-    });
+    };
     static boolean containsInvalidCharacters(Path path)
     {
-        boolean result = false;
+        PreCondition.assertNotNull(path, "path");
 
-        if (path != null)
-        {
-            final Path pathWithoutRoot = path.withoutRoot();
-            if (pathWithoutRoot != null)
+        return path.withoutRoot()
+            .then((Path pathWithoutRoot) ->
             {
                 final String pathString = pathWithoutRoot.toString();
-                final int pathStringLength = pathString.length();
-                for (int i = 0; i < pathStringLength; ++i)
-                {
-                    final char currentCharacter = pathString.charAt(i);
-                    if (invalidCharacters.contains(currentCharacter))
-                    {
-                        result = true;
-                        break;
-                    }
-                }
-            }
-        }
-
-        return result;
+                return Strings.containsAny(pathString, invalidCharacters);
+            })
+            .catchError(NotFoundException.class, () -> false)
+            .throwErrorOrGetValue();
     }
 }

@@ -68,4 +68,14 @@ public interface Map<TKey,TValue> extends Iterable<MapEntry<TKey,TValue>>
 
         return result;
     }
+
+    default NotFoundException createNotFoundException(TKey key)
+    {
+        return new NotFoundException("Could not find the provided key (" + key + ") in this Map.");
+    }
+
+    default Result<TValue> createNotFoundResult(TKey key)
+    {
+        return Result.error(createNotFoundException(key));
+    }
 }

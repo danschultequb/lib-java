@@ -82,7 +82,7 @@ public class FolderFileSystem implements FileSystem
         Result<Path> result = outerPath.resolve();
         if (!result.hasError())
         {
-            final Path outerPathRoot = outerPath.getRoot();
+            final Path outerPathRoot = outerPath.getRoot().throwErrorOrGetValue();
             if (!outerPathRoot.equals(Path.parse("/")))
             {
                 if (isFolderPath)
@@ -96,15 +96,9 @@ public class FolderFileSystem implements FileSystem
             }
             else
             {
-                final Path outerPathWithoutRoot = outerPath.withoutRoot();
-                if (outerPathWithoutRoot == null)
-                {
-                    result = Result.success(baseFolderPath);
-                }
-                else
-                {
-                    result = baseFolderPath.resolve(outerPathWithoutRoot);
-                }
+                result = outerPath.withoutRoot()
+                    .thenResult((Path outerPathWithoutRoot) -> baseFolderPath.resolve(outerPathWithoutRoot))
+                    .catchError(NotFoundException.class, () -> baseFolderPath);
             }
         }
         return result;

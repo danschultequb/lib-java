@@ -315,7 +315,7 @@ public final class BasicTestRunner implements TestRunner
      */
     public int getFinishedTestCount()
     {
-        return getPassedTestCount() + getFailedTestCount() + getSkippedTestCount();
+        return getPassedTestCount() + getFailedTestCount() + getSkippedTestCount() + getErrorTestCount();
     }
 
     /**

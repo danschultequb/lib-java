@@ -19,22 +19,16 @@ public class PathTests
                     });
                 };
                 
-                concatenateTest.run("thing", null, "thing");
-                concatenateTest.run("thing", "", "thing");
                 concatenateTest.run("thing", "segment", "thingsegment");
                 concatenateTest.run("thing", "a/b/c", "thinga/b/c");
                 concatenateTest.run("thing", "a\\b\\c", "thinga\\b\\c");
                 concatenateTest.run("thing", "C:/test/", null);
                 
-                concatenateTest.run("z/y", null, "z/y");
-                concatenateTest.run("z/y", "", "z/y");
                 concatenateTest.run("z/y", "segment", "z/ysegment");
                 concatenateTest.run("z/y", "a/b/c", "z/ya/b/c");
                 concatenateTest.run("z/y", "a\\b\\c", "z/ya\\b\\c");
                 concatenateTest.run("z/y", "C:/test/", null);
                 
-                concatenateTest.run("z\\y", null, "z\\y");
-                concatenateTest.run("z\\y", "", "z\\y");
                 concatenateTest.run("z\\y", "segment", "z\\ysegment");
                 concatenateTest.run("z\\y", "a/b/c", "z\\ya/b/c");
                 concatenateTest.run("z\\y", "a\\b\\c", "z\\ya\\b\\c");
@@ -54,36 +48,26 @@ public class PathTests
                     });
                 };
                 
-                concatenateSegmentTest.run("thing", null, "thing");
-                concatenateSegmentTest.run("thing", "", "thing");
                 concatenateSegmentTest.run("thing", "segment", "thing/segment");
                 concatenateSegmentTest.run("thing", "a/b/c", "thing/a/b/c");
                 concatenateSegmentTest.run("thing", "a\\b\\c", "thing/a\\b\\c");
                 concatenateSegmentTest.run("thing", "C:/test/", null);
                 
-                concatenateSegmentTest.run("z/y", null, "z/y");
-                concatenateSegmentTest.run("z/y", "", "z/y");
                 concatenateSegmentTest.run("z/y", "segment", "z/y/segment");
                 concatenateSegmentTest.run("z/y", "a/b/c", "z/y/a/b/c");
                 concatenateSegmentTest.run("z/y", "a\\b\\c", "z/y/a\\b\\c");
                 concatenateSegmentTest.run("z/y", "C:/test/", null);
                 
-                concatenateSegmentTest.run("z\\y", null, "z\\y");
-                concatenateSegmentTest.run("z\\y", "", "z\\y");
                 concatenateSegmentTest.run("z\\y", "segment", "z\\y/segment");
                 concatenateSegmentTest.run("z\\y", "a/b/c", "z\\y/a/b/c");
                 concatenateSegmentTest.run("z\\y", "a\\b\\c", "z\\y/a\\b\\c");
                 concatenateSegmentTest.run("z\\y", "C:/test/", null);
 
-                concatenateSegmentTest.run("y/", null, "y/");
-                concatenateSegmentTest.run("y/", "", "y/");
                 concatenateSegmentTest.run("y/", "segment", "y/segment");
                 concatenateSegmentTest.run("y/", "a/b/c", "y/a/b/c");
                 concatenateSegmentTest.run("y/", "a\\b\\c", "y/a\\b\\c");
                 concatenateSegmentTest.run("y/", "C:/test/", null);
 
-                concatenateSegmentTest.run("y\\", null, "y\\");
-                concatenateSegmentTest.run("y\\", "", "y\\");
                 concatenateSegmentTest.run("y\\", "segment", "y\\segment");
                 concatenateSegmentTest.run("y\\", "a/b/c", "y\\a/b/c");
                 concatenateSegmentTest.run("y\\", "a\\b\\c", "y\\a\\b\\c");
@@ -109,16 +93,21 @@ public class PathTests
 
             runner.testGroup("getRoot()", () ->
             {
+                runner.test("with " + Strings.escapeAndQuote("blah"), (Test test) ->
+                {
+                    final Path path = Path.parse("blah");
+                    test.assertError(new NotFoundException("Could not find a root on the path \"blah\"."), path.getRoot());
+                });
+
                 final Action2<String,String> getRootTest = (String pathString, String expectedRoot) ->
                 {
                     runner.test("with " + Strings.escapeAndQuote(pathString), (Test test) ->
                     {
                         final Path path = Path.parse(pathString);
-                        test.assertEqual(Path.parse(expectedRoot), path.getRoot());
+                        test.assertSuccess(Path.parse(expectedRoot), path.getRoot());
                     });
                 };
 
-                getRootTest.run("blah", null);
                 getRootTest.run("/", "/");
                 getRootTest.run("\\", "/");
                 getRootTest.run("C:/", "C:");
@@ -130,12 +119,12 @@ public class PathTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertNull(Path.parse(null));
+                    test.assertThrows(() -> Path.parse(null), new PreConditionFailure("pathString cannot be null."));
                 });
                 
                 runner.test("with empty", (Test test) ->
                 {
-                    test.assertNull(Path.parse(""));
+                    test.assertThrows(() -> Path.parse(""), new PreConditionFailure("pathString cannot be empty."));
                 });
 
                 runner.test("with " + Strings.escapeAndQuote("/hello/there.txt"), (Test test) ->
@@ -144,7 +133,7 @@ public class PathTests
                     test.assertNotNull(path);
                     test.assertEqual("/hello/there.txt", path.toString());
                     test.assertTrue(path.isRooted());
-                    test.assertEqual(Path.parse("/"), path.getRoot());
+                    test.assertSuccess(Path.parse("/"), path.getRoot());
                     test.assertTrue(path.equals(path));
                     test.assertTrue(path.equals((Object)path));
                     final Indexable<String> pathSegments = path.getSegments();
@@ -165,7 +154,7 @@ public class PathTests
                     test.assertNotNull(path);
                     test.assertEqual("/\\/test1//", path.toString());
                     test.assertTrue(path.isRooted());
-                    test.assertEqual(Path.parse("/"), path.getRoot());
+                    test.assertSuccess(Path.parse("/"), path.getRoot());
                     final Indexable<String> pathSegments = path.getSegments();
                     test.assertNotNull(pathSegments);
                     test.assertEqual(new String[] { "/", "test1" }, Array.toStringArray(pathSegments));
@@ -183,7 +172,7 @@ public class PathTests
                     test.assertNotNull(path);
                     test.assertEqual("C:\\Windows\\System32\\cmd.exe", path.toString());
                     test.assertTrue(path.isRooted());
-                    test.assertEqual(Path.parse("C:"), path.getRoot());
+                    test.assertSuccess(Path.parse("C:"), path.getRoot());
                     final Indexable<String> pathSegments = path.getSegments();
                     test.assertNotNull(pathSegments);
                     test.assertEqual(new String[] { "C:", "Windows", "System32", "cmd.exe" }, Array.toStringArray(pathSegments));
@@ -249,12 +238,27 @@ public class PathTests
 
             runner.testGroup("withoutRoot()", () ->
             {
+                final Action2<String,Throwable> withoutRootErrorTest = (String pathString, Throwable expectedError) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(pathString), (Test test) ->
+                    {
+                        final Path path = Path.parse(pathString);
+                        test.assertError(expectedError, path.withoutRoot());
+                    });
+                };
+
+                withoutRootErrorTest.run("/", new NotFoundException("The path \"/\" cannot create a path without its root because it only contains a root path."));
+                withoutRootErrorTest.run("\\", new NotFoundException("The path \"\\\" cannot create a path without its root because it only contains a root path."));
+                withoutRootErrorTest.run("C:", new NotFoundException("The path \"C:\" cannot create a path without its root because it only contains a root path."));
+                withoutRootErrorTest.run("C:/", new NotFoundException("The path \"C:/\" cannot create a path without its root because it only contains a root path."));
+                withoutRootErrorTest.run("C:\\", new NotFoundException("The path \"C:\\\" cannot create a path without its root because it only contains a root path."));
+
                 final Action2<String,String> withoutRootTest = (String pathString, String expectedPathString) ->
                 {
                     runner.test("with " + Strings.escapeAndQuote(pathString), (Test test) ->
                     {
                         final Path path = Path.parse(pathString);
-                        final Path pathWithoutRoot = path.withoutRoot();
+                        final Path pathWithoutRoot = path.withoutRoot().throwErrorOrGetValue();
                         test.assertEqual(expectedPathString, pathWithoutRoot == null ? null : pathWithoutRoot.toString());
                     });
                 };
@@ -267,11 +271,6 @@ public class PathTests
                 withoutRootTest.run("\\a.txt", "a.txt");
                 withoutRootTest.run("/a/b.txt", "a/b.txt");
                 withoutRootTest.run("\\a\\b.txt", "a\\b.txt");
-                withoutRootTest.run("/", null);
-                withoutRootTest.run("\\", null);
-                withoutRootTest.run("C:", null);
-                withoutRootTest.run("C:/", null);
-                withoutRootTest.run("C:\\", null);
                 withoutRootTest.run("C:/a.txt", "a.txt");
                 withoutRootTest.run("C:\\a.txt", "a.txt");
                 withoutRootTest.run("C:/a/b.txt", "a/b.txt");
@@ -281,6 +280,12 @@ public class PathTests
 
             runner.testGroup("relativeTo(Path)", () ->
             {
+                runner.test("with " + Strings.escapeAndQuote("C:/a/b/c.d") + " and null", (Test test) ->
+                {
+                    final Path path = Path.parse("C:/a/b/c.d");
+                    test.assertThrows(() -> path.relativeTo((Path)null), new PreConditionFailure("basePath cannot be null."));
+                });
+
                 final Action3<String,String,String> relativeToTest = (String pathString, String basePathString, String expectedPathString) ->
                 {
                     runner.test("with " + Strings.escapeAndQuote(pathString) + " and " + Strings.escapeAndQuote(basePathString), (Test test) ->
@@ -291,8 +296,6 @@ public class PathTests
                     });
                 };
 
-                relativeToTest.run("C:/a/b/c.d", null, "C:/a/b/c.d");
-                relativeToTest.run("C:/a/b/c.d", "", "C:/a/b/c.d");
                 relativeToTest.run("C:/a/b/c.d", "C:/a/b/c.d", "C:/a/b/c.d");
                 relativeToTest.run("C:/a/b/c.d", "/folder/", "C:/a/b/c.d");
                 relativeToTest.run("C:/a/b/c.d", "C:/", "a/b/c.d");
@@ -333,7 +336,7 @@ public class PathTests
                     runner.test("with " + Strings.escapeAndQuote(pathString), (Test test) ->
                     {
                         final Path path = Path.parse(pathString);
-                        final Path expectedResolvedPath = Path.parse(expectedResolvedPathString);
+                        final Path expectedResolvedPath = Strings.isNullOrEmpty(expectedResolvedPathString) ? null : Path.parse(expectedResolvedPathString);
                         test.assertDone(expectedResolvedPath, expectedError, path.resolve());
                     });
                 };
@@ -383,7 +386,7 @@ public class PathTests
                     runner.test("with " + Strings.escapeAndQuote(basePathString) + " and " + Strings.escapeAndQuote(argumentPathString), (Test test) ->
                     {
                         final Path basePath = Path.parse(basePathString);
-                        final Path expectedResolvedPath = Path.parse(expectedPathString);
+                        final Path expectedResolvedPath = Strings.isNullOrEmpty(expectedPathString) ? null : Path.parse(expectedPathString);
                         test.assertDone(expectedResolvedPath, expectedError, basePath.resolve(argumentPathString));
                     });
                 };

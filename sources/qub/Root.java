@@ -146,6 +146,8 @@ public class Root
      */
     public Result<File> createFile(String fileRelativePath)
     {
+        PreCondition.assertNotNullAndNotEmpty(fileRelativePath, "fileRelativePath");
+
         return folder.createFile(fileRelativePath);
     }
 
@@ -156,6 +158,8 @@ public class Root
      */
     public Result<File> createFile(Path fileRelativePath)
     {
+        PreCondition.assertNotNull(fileRelativePath, "fileRelativePath");
+
         return folder.createFile(fileRelativePath);
     }
 
@@ -166,6 +170,8 @@ public class Root
      */
     public AsyncFunction<Result<File>> createFileAsync(String fileRelativePath)
     {
+        PreCondition.assertNotNullAndNotEmpty(fileRelativePath, "fileRelativePath");
+
         return folder.createFileAsync(fileRelativePath);
     }
 

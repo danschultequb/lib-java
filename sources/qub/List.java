@@ -3,6 +3,27 @@ package qub;
 public interface List<T> extends MutableIndexable<T>
 {
     /**
+     * Create a new empty List.
+     * @param <T> The type of elements contained by the created List.
+     * @return The created List.
+     */
+    static <T> List<T> create()
+    {
+        return new ArrayList<>();
+    }
+
+    /**
+     * Create a new List with the provided initial values.
+     * @param initialValues The initial values to include in the new List.
+     * @param <T> The Type of elements contained by the created List.
+     * @return The created List.
+     */
+    static <T> List<T> create(Iterable<T> initialValues)
+    {
+        return ArrayList.fromValues(initialValues);
+    }
+
+    /**
      * Add the provided value at the end of this List.
      * @param value The value to add.
      */
@@ -98,7 +119,7 @@ public interface List<T> extends MutableIndexable<T>
     }
 
     /**
-     * Remove and return the first value in this List that matches the provided condition. If this
+     * Remove and return the first value in this List that isMatch the provided condition. If this
      * List is empty or if no elements match the provided condition, then null will be returned.
      * @param condition The condition to run against each element in this List.
      * @return The element that was removed, or null if no element matched the condition.

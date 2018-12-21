@@ -7,6 +7,29 @@ package qub;
 public interface Queue<T>
 {
     /**
+     * Create a new empty Queue.
+     * @param <T> The type of values stored in the Queue.
+     * @return A new empty Queue.
+     */
+    static <T> Queue<T> create()
+    {
+        return new ArrayListQueue<>();
+    }
+
+    /**
+     * Create a new Queue with the provided initial values.
+     * @param initialValues The initial values to populate the new Queue with.
+     * @param <T> The type of values stored in the new Queue.
+     * @return A new Queue.
+     */
+    static <T> Queue<T> create(Iterable<T> initialValues)
+    {
+        final Queue<T> result = Queue.create();
+        result.enqueueAll(initialValues);
+        return result;
+    }
+
+    /**
      * Get whether or not there are any values in the Queue.
      * @return Whether or not there are any values in the Queue.
      */

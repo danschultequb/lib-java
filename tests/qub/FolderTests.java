@@ -54,13 +54,13 @@ public class FolderTests
                 runner.test("with null path", (Test test) ->
                 {
                     final Folder folder = getFolder(test);
-                    test.assertError(new IllegalArgumentException("relativeFolderPath cannot be null."), folder.createFolder((String)null));
+                    test.assertThrows(() -> folder.createFolder((String)null), new PreConditionFailure("folderRelativePath cannot be null."));
                 });
 
                 runner.test("with empty path", (Test test) ->
                 {
                     final Folder folder = getFolder(test);
-                    test.assertError(new IllegalArgumentException("relativeFolderPath cannot be null."), folder.createFolder(""));
+                    test.assertThrows(() -> folder.createFolder(""), new PreConditionFailure("folderRelativePath cannot be empty."));
                 });
 
                 runner.test("with non-existing relative path", (Test test) ->
@@ -81,13 +81,7 @@ public class FolderTests
                 runner.test("with null path", (Test test) ->
                 {
                     final Folder folder = getFolder(test);
-                    test.assertError(new IllegalArgumentException("relativeFolderPath cannot be null."), folder.createFolder((Path)null));
-                });
-
-                runner.test("with empty path", (Test test) ->
-                {
-                    final Folder folder = getFolder(test);
-                    test.assertError(new IllegalArgumentException("relativeFolderPath cannot be null."), folder.createFolder(Path.parse("")));
+                    test.assertThrows(() -> folder.createFolder((Path)null), new PreConditionFailure("relativeFolderPath cannot be null."));
                 });
 
                 runner.test("with non-existing relative path", (Test test) ->
@@ -108,13 +102,13 @@ public class FolderTests
                 runner.test("with null path", (Test test) ->
                 {
                     final Folder folder = getFolder(test);
-                    test.assertError(new IllegalArgumentException("relativeFilePath cannot be null."), folder.createFile((String)null));
+                    test.assertThrows(() -> folder.createFile((String)null), new PreConditionFailure("fileRelativePath cannot be null."));
                 });
 
                 runner.test("with empty path", (Test test) ->
                 {
                     final Folder folder = getFolder(test);
-                    test.assertError(new IllegalArgumentException("relativeFilePath cannot be null."), folder.createFile(""));
+                    test.assertThrows(() -> folder.createFile(""), new PreConditionFailure("fileRelativePath cannot be empty."));
                 });
 
                 runner.test("with non-existing relative path", (Test test) ->
@@ -158,20 +152,6 @@ public class FolderTests
 
             runner.testGroup("createFile(Path)", () ->
             {
-                runner.test("with null path", (Test test) ->
-                {
-                    final Folder folder = getFolder(test);
-                    test.assertError(new IllegalArgumentException("relativeFilePath cannot be null."), folder.createFile((Path)null));
-                    test.assertSuccess(false, folder.exists());
-                });
-
-                runner.test("with empty path", (Test test) ->
-                {
-                    final Folder folder = getFolder(test);
-                    test.assertError(new IllegalArgumentException("relativeFilePath cannot be null."), folder.createFile(Path.parse("")));
-                    test.assertSuccess(false, folder.exists());
-                });
-
                 runner.test("with non-existing relative path", (Test test) ->
                 {
                     final Folder folder = getFolder(test);

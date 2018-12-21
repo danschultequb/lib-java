@@ -1186,7 +1186,7 @@ public abstract class IteratorTests
                     assertIterator(test, instanceOfIterator, true, null);
                 });
 
-                runner.test("with non-empty non-started Iterator and no matches", (Test test) ->
+                runner.test("with non-empty non-started Iterator and no isMatch", (Test test) ->
                 {
                     final Iterator<Integer> iterator = createIterator.run(5, false);
                     assertIterator(test, iterator, false, null);
@@ -1200,7 +1200,7 @@ public abstract class IteratorTests
                     assertIterator(test, instanceOfIterator, true, null);
                 });
                 
-                runner.test("with non-empty non-started Iterator and matches", (Test test) ->
+                runner.test("with non-empty non-started Iterator and isMatch", (Test test) ->
                 {
                     final Iterator<Number> iterator = createIterator.run(5, false).map((Integer value) -> (Number)value);
                     assertIterator(test, iterator, false, null);
@@ -1236,7 +1236,7 @@ public abstract class IteratorTests
                     assertIterator(test, instanceOfIterator, true, null);
                 });
 
-                runner.test("with non-empty started Iterator and no matches", (Test test) ->
+                runner.test("with non-empty started Iterator and no isMatch", (Test test) ->
                 {
                     final Iterator<Number> iterator = createIterator.run(5, true).map((Integer value) -> (Number)value);
                     assertIterator(test, iterator, true, 0);
@@ -1251,7 +1251,7 @@ public abstract class IteratorTests
                     assertIterator(test, instanceOfIterator, true, null);
                 });
 
-                runner.test("with non-empty started Iterator and matches", (Test test) ->
+                runner.test("with non-empty started Iterator and isMatch", (Test test) ->
                 {
                     final Iterator<Number> iterator = createIterator.run(5, true).map((Integer value) -> (Number)value);
                     assertIterator(test, iterator, true, 0);

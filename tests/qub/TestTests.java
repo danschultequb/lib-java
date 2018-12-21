@@ -67,7 +67,7 @@ public class TestTests
                 });
             });
 
-            runner.testGroup("matches()", () ->
+            runner.testGroup("isMatch()", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
@@ -80,13 +80,13 @@ public class TestTests
                     test.assertFalse(t.matches(PathPattern.parse("bananas")));
                 });
 
-                runner.test("with pattern that matches test name", (Test test) ->
+                runner.test("with pattern that isMatch test name", (Test test) ->
                 {
                     final Test t = new Test("apples", null, null, test.getProcess());
                     test.assertTrue(t.matches(PathPattern.parse("apples")));
                 });
 
-                runner.test("with pattern that matches test full name", (Test test) ->
+                runner.test("with pattern that isMatch test full name", (Test test) ->
                 {
                     final TestGroup tg = new TestGroup("apples and", null, null);
                     final Test t = new Test("bananas", tg, null, test.getProcess());
@@ -684,6 +684,54 @@ public class TestTests
                 {
                     final Test t = createTest("abc", test);
                     test.assertThrows(() -> t.assertSuccess(Result.success("hello"), (Action1<String>)null));
+                });
+            });
+
+            runner.testGroup("assertEqual(Throwable,Throwable)", () ->
+            {
+                runner.test("with null and null", (Test test) ->
+                {
+                    final Test t = createTest("abc", test);
+                    t.assertEqual((Throwable)null, (Throwable)null);
+                });
+
+                runner.test("with null and NullPointerException", (Test test) ->
+                {
+                    final Test t = createTest("abc", test);
+                    test.assertThrows(() -> t.assertEqual(null, new NullPointerException("abc")),
+                        new TestAssertionFailure("abc", new String[]
+                        {
+                            "Expected: null",
+                            "Actual:   java.lang.NullPointerException: abc"
+                        }));
+                });
+
+                runner.test("with NullPointerException and null", (Test test) ->
+                {
+                    final Test t = createTest("abc", test);
+                    test.assertThrows(() -> t.assertEqual(new NullPointerException("abc"), null),
+                        new TestAssertionFailure("abc", new String[]
+                        {
+                            "Expected: java.lang.NullPointerException: abc",
+                            "Actual:   null"
+                        }));
+                });
+
+                runner.test("with NullPointerException(a) and NullPointerException(b)", (Test test) ->
+                {
+                    final Test t = createTest("abc", test);
+                    test.assertThrows(() -> t.assertEqual(new NullPointerException("a"), new NullPointerException("b")),
+                        new TestAssertionFailure("abc", new String[]
+                        {
+                            "Expected: java.lang.NullPointerException: a",
+                            "Actual:   java.lang.NullPointerException: b"
+                        }));
+                });
+
+                runner.test("with NullPointerException(a) and NullPointerException(a)", (Test test) ->
+                {
+                    final Test t = createTest("abc", test);
+                    t.assertEqual(new NullPointerException("a"), new NullPointerException("a"));
                 });
             });
         });

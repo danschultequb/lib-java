@@ -43,9 +43,9 @@ public abstract class VersionRange
     }
 
     /**
-     * Get whether or not the provided VersionNumber matches this VersionRange.
+     * Get whether or not the provided VersionNumber isMatch this VersionRange.
      * @param number The VersionNumber to check.
-     * @return Whether or not the provided VersionNumber matches this VersionRange.
+     * @return Whether or not the provided VersionNumber isMatch this VersionRange.
      */
     public abstract boolean matches(VersionNumber number);
 

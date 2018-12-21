@@ -46,6 +46,11 @@ public class Range<T>
         return between(lowerBound, upperBound, Comparer::lessThanOrEqualTo);
     }
 
+    public static Range<Character> between(char lowerBound, char upperBound)
+    {
+        return between(lowerBound, upperBound, Comparer::lessThanOrEqualTo);
+    }
+
     public static <T extends Comparable<T>> Range<T> between(T lowerBound, T upperBound)
     {
         return between(lowerBound, upperBound, Comparer::lessThanOrEqualTo);

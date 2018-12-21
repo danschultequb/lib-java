@@ -90,9 +90,9 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     }
 
     /**
-     * Get the first value in this Iterator that matches the provided condition.
+     * Get the first value in this Iterator that isMatch the provided condition.
      * @param condition The condition to run against each of the values in this Iterator.
-     * @return The first value of this Iterator that matches the provided condition, or null if this
+     * @return The first value of this Iterator that isMatch the provided condition, or null if this
      * Iterator has no values that match the condition.
      */
     default T first(Function1<T,Boolean> condition)
@@ -146,9 +146,9 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     }
 
     /**
-     * Get the last value in this Iterator that matches the provided condition.
+     * Get the last value in this Iterator that isMatch the provided condition.
      * @param condition The condition to run against each of the values in this Iterator.
-     * @return The last value of this Iterator that matches the provided condition, or null if this
+     * @return The last value of this Iterator that isMatch the provided condition, or null if this
      * Iterator has no values that match the condition.
      */
     default T last(Function1<T,Boolean> condition)
@@ -188,9 +188,9 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     }
 
     /**
-     * Get whether or not this Iterator contains a value that matches the provided condition.
+     * Get whether or not this Iterator contains a value that isMatch the provided condition.
      * @param condition The condition to check against the values in this Iterator.
-     * @return Whether or not this Iterator contains a value that matches the provided condition.
+     * @return Whether or not this Iterator contains a value that isMatch the provided condition.
      */
     default boolean contains(Function1<T,Boolean> condition)
     {

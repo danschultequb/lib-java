@@ -86,7 +86,7 @@ public class InMemoryFileSystem implements FileSystem
         {
             final String fileName = filePath.getSegments().last();
             final InMemoryFile inMemoryFile = inMemoryFolder.getValue().getFile(fileName);
-            result = inMemoryFile != null ? Result.success(inMemoryFile) : Result.<InMemoryFile>error(new FileNotFoundException(filePath.resolve().getValue()));
+            result = inMemoryFile != null ? Result.success(inMemoryFile) : Result.error(new FileNotFoundException(filePath.resolve().getValue()));
         }
 
         return result;
@@ -229,9 +229,9 @@ public class InMemoryFileSystem implements FileSystem
         {
             Throwable resultError = null;
             Folder resultFolder = null;
-            if (getInMemoryRoot(rootedFolderPath.getRoot()) == null)
+            if (getInMemoryRoot(rootedFolderPath.getRoot().throwErrorOrGetValue()) == null)
             {
-                resultError = new RootNotFoundException(rootedFolderPath.getRoot());
+                resultError = new RootNotFoundException(rootedFolderPath.getRoot().throwErrorOrGetValue());
             }
             else
             {
@@ -331,9 +331,9 @@ public class InMemoryFileSystem implements FileSystem
 
         File file = null;
         Throwable error = null;
-        if (getInMemoryRoot(rootedFilePath.getRoot()) == null)
+        if (getInMemoryRoot(rootedFilePath.getRoot().throwErrorOrGetValue()) == null)
         {
-            error = new RootNotFoundException(rootedFilePath.getRoot());
+            error = new RootNotFoundException(rootedFilePath.getRoot().throwErrorOrGetValue());
         }
         else
         {
@@ -489,7 +489,7 @@ public class InMemoryFileSystem implements FileSystem
         FileSystem.validateRootedFolderPath(rootPath, "rootPath");
 
         Result<Root> result;
-        rootPath = rootPath.getRoot();
+        rootPath = rootPath.getRoot().throwErrorOrGetValue();
         if (getInMemoryRoot(rootPath) != null)
         {
             result = Result.error(new RootAlreadyExistsException(rootPath));

@@ -240,6 +240,27 @@ public class ComparerTests
                 equalTest.run(false, true, false);
                 equalTest.run(20, 20, true);
                 equalTest.run(new char[0], new char[0], true);
+                equalTest.run(new NotFoundException("a"), new EndOfStreamException(), false);
+                equalTest.run(new NotFoundException("a"), new NotFoundException("b"), false);
+                equalTest.run(new NotFoundException("a"), new NotFoundException("a"), true);
+            });
+
+            runner.testGroup("equal(Throwable,Throwable)", () ->
+            {
+                final Action3<Throwable,Throwable,Boolean> equalTest = (Throwable lhs, Throwable rhs, Boolean expected) ->
+                {
+                    runner.test("with " + lhs + " and " + rhs, (Test test) ->
+                    {
+                        test.assertEqual(expected, Comparer.equal(lhs, rhs));
+                    });
+                };
+
+                equalTest.run(null, null, true);
+                equalTest.run(new NotFoundException("a"), null, false);
+                equalTest.run(null, new NotFoundException("b"), false);
+                equalTest.run(new NotFoundException("a"), new EndOfStreamException(), false);
+                equalTest.run(new NotFoundException("a"), new NotFoundException("b"), false);
+                equalTest.run(new NotFoundException("a"), new NotFoundException("a"), true);
             });
 
             runner.testGroup("minimum(Iterable<T>)", () ->

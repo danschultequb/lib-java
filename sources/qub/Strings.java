@@ -3,6 +3,26 @@ package qub;
 public class Strings
 {
     /**
+     * Get an Iterable for the characters in the provided text.
+     * @param text The text to create an Iterable for.
+     * @return The Iterable over the characters in the provided text.
+     */
+    public static Iterable<Character> iterable(String text)
+    {
+        return Strings.isNullOrEmpty(text) ? Iterable.empty() : Array.fromValues(text.toCharArray());
+    }
+
+    /**
+     * Get an Iterable for the characters in the provided text.
+     * @param text The text to create an Iterable for.
+     * @return The Iterable over the characters in the provided text.
+     */
+    public static Iterable<Character> iterable(StringBuilder text)
+    {
+        return Strings.isNullOrEmpty(text) ? Iterable.empty() : iterable(text.toString());
+    }
+
+    /**
      * Get an Iterator for the characters in the provided text.
      * @param text The text to iterate.
      * @return The Iterator over the characters in the provided text.
@@ -62,8 +82,8 @@ public class Strings
 
     /**
      * Check if the provided text String contains any of the provided characters.
-     * @param text The text to search in.
-     * @param characters The characters to search for.
+     * @param text The text to traverse in.
+     * @param characters The characters to traverse for.
      * @return Whether or not the provided text String contains any of the provided characters.
      */
     public static boolean containsAny(String text, char[] characters)
@@ -126,6 +146,17 @@ public class Strings
     }
 
     /**
+     * Surround the String representation of the provided value with quotes and textualize any
+     * escaped characters.
+     * @param value The object to quote and escape.
+     * @return The quoted and escaped String representation of the provided value.
+     */
+    public static String escapeAndQuote(Object value)
+    {
+        return escapeAndQuote(value == null ? null : value.toString());
+    }
+
+    /**
      * Surround the provided text with quotes and textualize any escaped characters.
      * @param text The text to quote and escape.
      * @return The quoted and escaped text.
@@ -143,6 +174,16 @@ public class Strings
     public static boolean isNullOrEmpty(String text)
     {
         return text == null || text.isEmpty();
+    }
+
+    /**
+     * Get whether or not the provided text is null or empty.
+     * @param text The text to check.
+     * @return Whether or not the provided text is null or empty.
+     */
+    public static boolean isNullOrEmpty(StringBuilder text)
+    {
+        return text == null || text.length() == 0;
     }
 
     /**

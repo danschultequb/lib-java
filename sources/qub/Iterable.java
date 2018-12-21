@@ -50,8 +50,8 @@ public interface Iterable<T> extends java.lang.Iterable<T>
     }
 
     /**
-     * Get the first value in this Iterable that matches the provided condition.
-     * @return The first value of this Iterable that matches the provided condition, or null if this
+     * Get the first value in this Iterable that isMatch the provided condition.
+     * @return The first value of this Iterable that isMatch the provided condition, or null if this
      * Iterable has no values that match the condition.
      */
     default T first(Function1<T,Boolean> condition)
@@ -69,9 +69,9 @@ public interface Iterable<T> extends java.lang.Iterable<T>
     }
 
     /**
-     * Get the last value in this Iterable that matches the provided condition.
+     * Get the last value in this Iterable that isMatch the provided condition.
      * @param condition The condition to run against each of the values in this Iterable.
-     * @return The last value of this Iterable that matches the provided condition, or null if this
+     * @return The last value of this Iterable that isMatch the provided condition, or null if this
      * Iterable has no values that match the condition.
      */
     default T last(Function1<T,Boolean> condition)
@@ -82,12 +82,24 @@ public interface Iterable<T> extends java.lang.Iterable<T>
     /**
      * Get whether or not this Iterable contains the provided value using the standard equals()
      * method to compare values.
-     * @param value The value to look for in this Iterator.
-     * @return Whether or not this Iterator contains the provided value.
+     * @param value The value to look for in this Iterable.
+     * @return Whether or not this Iterable contains the provided value.
      */
     default boolean contains(T value)
     {
-        return iterate().contains(value);
+        return contains(value, Comparer::equal);
+    }
+
+    /**
+     * Get whether or not this Iterable contains the provided value using the provided comparison
+     * method to compare values.
+     * @param value The value to look for in this Iterable.
+     * @param comparison The comparison function to use to compare values.
+     * @return Whether or not this Iterable contains the provided value.
+     */
+    default boolean contains(T value, Function2<T,T,Boolean> comparison)
+    {
+        return contains((T existingValue) -> comparison.run(value, existingValue));
     }
 
     /**
@@ -98,6 +110,42 @@ public interface Iterable<T> extends java.lang.Iterable<T>
     default boolean contains(Function1<T,Boolean> condition)
     {
         return iterate().contains(condition);
+    }
+
+    /**
+     * Get whether or not this Iterable does not contain the provided value.
+     * @param value The value to look for.
+     * @return Whether or not this Iterable does not contain the provided value.
+     */
+    default boolean doesNotContain(T value)
+    {
+        return !contains(value);
+    }
+
+    /**
+     * Get whether or not this Iterable does not contain the provided value using the provided
+     * comparison function.
+     * @param value The value to look for.
+     * @param comparison The function to use to compare the provided value against the values within
+     *                   this Iterable.
+     * @return Whether or not this Iterable does not contain the provided value using the provided
+     * comparison function.
+     */
+    default boolean doesNotContain(T value, Function2<T,T,Boolean> comparison)
+    {
+        return !contains(value, comparison);
+    }
+
+    /**
+     * Get whether or not this Iterable does not contain a value that matches the provided
+     * condition.
+     * @param condition The function to look for a match for.
+     * @return Whether or not this Iterable does not contain a value that matches the provided
+     * condition.
+     */
+    default boolean doesNotContain(Function1<T,Boolean> condition)
+    {
+        return !contains(condition);
     }
 
     /**

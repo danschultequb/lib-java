@@ -56,43 +56,50 @@ public final class Comparer
             {
                 final Class<?> arg1Type = arg1.getClass();
                 final Class<?> arg2Type = arg2.getClass();
-                if (arg1Type.equals(arg2Type) && arg1Type.isArray())
+                if (arg1Type.equals(arg2Type))
                 {
-                    if (arg1 instanceof boolean[])
+                    if (Types.instanceOf(arg1Type, Throwable.class))
                     {
-                        result = equal((boolean[])arg1, (boolean[])arg2);
+                        result = equal((Throwable)arg1, (Throwable)arg2);
                     }
-                    else if (arg1 instanceof byte[])
+                    else if (arg1Type.isArray())
                     {
-                        result = equal((byte[])arg1, (byte[])arg2);
-                    }
-                    else if (arg1 instanceof char[])
-                    {
-                        result = equal((char[])arg1, (char[])arg2);
-                    }
-                    else if (arg1 instanceof short[])
-                    {
-                        result = equal((short[])arg1, (short[])arg2);
-                    }
-                    else if (arg1 instanceof int[])
-                    {
-                        result = equal((int[])arg1, (int[])arg2);
-                    }
-                    else if (arg1 instanceof long[])
-                    {
-                        result = equal((long[])arg1, (long[])arg2);
-                    }
-                    else if (arg1 instanceof float[])
-                    {
-                        result = equal((float[])arg1, (float[])arg2);
-                    }
-                    else if (arg1 instanceof double[])
-                    {
-                        result = equal((double[])arg1, (double[])arg2);
-                    }
-                    else
-                    {
-                        result = equal((Object[]) arg1, (Object[]) arg2);
+                        if (arg1 instanceof boolean[])
+                        {
+                            result = equal((boolean[])arg1, (boolean[])arg2);
+                        }
+                        else if (arg1 instanceof byte[])
+                        {
+                            result = equal((byte[])arg1, (byte[])arg2);
+                        }
+                        else if (arg1 instanceof char[])
+                        {
+                            result = equal((char[])arg1, (char[])arg2);
+                        }
+                        else if (arg1 instanceof short[])
+                        {
+                            result = equal((short[])arg1, (short[])arg2);
+                        }
+                        else if (arg1 instanceof int[])
+                        {
+                            result = equal((int[])arg1, (int[])arg2);
+                        }
+                        else if (arg1 instanceof long[])
+                        {
+                            result = equal((long[])arg1, (long[])arg2);
+                        }
+                        else if (arg1 instanceof float[])
+                        {
+                            result = equal((float[])arg1, (float[])arg2);
+                        }
+                        else if (arg1 instanceof double[])
+                        {
+                            result = equal((double[])arg1, (double[])arg2);
+                        }
+                        else
+                        {
+                            result = equal((Object[]) arg1, (Object[]) arg2);
+                        }
                     }
                 }
             }
@@ -501,6 +508,17 @@ public final class Comparer
     public static <T extends Comparable<T>> boolean lessThanOrEqualTo(T lhs, T rhs)
     {
         return lhs == null || lhs.lessThanOrEqualTo(rhs);
+    }
+
+    /**
+     * Get whether or not the provided lhs value is less than or equal to the provided rhs value.
+     * @param value The value to compare.
+     * @param upperBound The second value to compare.
+     * @return Whether or not the provided value is less than or equal to the provided upperBound.
+     */
+    public static boolean lessThanOrEqualTo(char value, char upperBound)
+    {
+        return value <= upperBound;
     }
 
     /**

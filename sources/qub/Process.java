@@ -413,7 +413,7 @@ public class Process implements Disposable
     public Path getCurrentFolderPath()
     {
         final String currentFolderPathString = getCurrentFolderPathString();
-        return Path.parse(currentFolderPathString);
+        return Strings.isNullOrEmpty(currentFolderPathString) ? null : Path.parse(currentFolderPathString);
     }
 
     /**
@@ -610,6 +610,8 @@ public class Process implements Disposable
      */
     public Result<ProcessBuilder> getProcessBuilder(String executablePath)
     {
+        PreCondition.assertNotNullAndNotEmpty(executablePath, "executablePath");
+
         return getProcessBuilder(Path.parse(executablePath));
     }
 
@@ -654,7 +656,9 @@ public class Process implements Disposable
                 final String[] executableExtensions = new String[] { "", ".exe", ".bat", ".cmd" };
                 for (final String executableExtension : executableExtensions)
                 {
-                    final Path executablePathWithExtension = executablePathWithoutExtension.concatenate(executableExtension);
+                    final Path executablePathWithExtension = Strings.isNullOrEmpty(executableExtension)
+                        ? executablePathWithoutExtension
+                        : executablePathWithoutExtension.concatenate(executableExtension);
                     final File executableFile = getFilesResult.getValue().first((File file) -> executablePathWithExtension.equals(file.getPath()));
                     if (executableFile != null)
                     {

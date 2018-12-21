@@ -97,7 +97,7 @@ public class Array<T> implements MutableIndexable<T>
      * Create an Array from the provided values.
      * @param values The values to initialize the array with.
      */
-    public static Array<Boolean> fromValues(boolean[] values)
+    public static Array<Boolean> fromValues(boolean... values)
     {
         final int length = values == null ? 0 : values.length;
         final Array<Boolean> result = new Array<>(length);
@@ -112,7 +112,7 @@ public class Array<T> implements MutableIndexable<T>
      * Create an Array from the provided values.
      * @param values The values to initialize the array with.
      */
-    public static Array<Byte> fromValues(byte[] values)
+    public static Array<Byte> fromValues(byte... values)
     {
         PreCondition.assertNotNull(values, "values");
 
@@ -141,7 +141,7 @@ public class Array<T> implements MutableIndexable<T>
      * Create an Array from the provided values.
      * @param values The values to initialize the array with.
      */
-    public static Array<Character> fromValues(char[] values)
+    public static Array<Character> fromValues(char... values)
     {
         final int length = values == null ? 0 : values.length;
         final Array<Character> result = new Array<>(length);
@@ -156,7 +156,7 @@ public class Array<T> implements MutableIndexable<T>
      * Create an Array from the provided values.
      * @param values The values to initialize the array with.
      */
-    public static Array<Integer> fromValues(int[] values)
+    public static Array<Integer> fromValues(int... values)
     {
         final int length = values == null ? 0 : values.length;
         final Array<Integer> result = new Array<>(length);
@@ -171,7 +171,8 @@ public class Array<T> implements MutableIndexable<T>
      * Create an Array from the provided values.
      * @param values The values to initialize the array with.
      */
-    public static <T> Array<T> fromValues(T[] values)
+    @SafeVarargs
+    public static <T> Array<T> fromValues(T... values)
     {
         final int length = values == null ? 0 : values.length;
         final Array<T> result = new Array<>(length);

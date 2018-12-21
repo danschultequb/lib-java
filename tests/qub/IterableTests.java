@@ -992,7 +992,7 @@ public class IterableTests
                     }
                 });
 
-                runner.test("with non-empty Iterable and no matches", (Test test) ->
+                runner.test("with non-empty Iterable and no isMatch", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(0);
                     // Some iterables cannot be empty (such as SingleLinkNodes), so they will return null when
@@ -1009,7 +1009,7 @@ public class IterableTests
                     }
                 });
 
-                runner.test("with non-empty Iterable and matches", (Test test) ->
+                runner.test("with non-empty Iterable and isMatch", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(4);
 

@@ -93,24 +93,36 @@ public class Path
      * will be returned.
      * @return This path without a root.
      */
-    public Path withoutRoot()
+    public Result<Path> withoutRoot()
     {
-        Path result;
-        final Path root = getRoot();
-        if (root == null)
-        {
-            result = this;
-        }
-        else
-        {
-            String pathStringWithoutRoot = toString().substring(root.length());
-            if (pathStringWithoutRoot.startsWith("/") || pathStringWithoutRoot.startsWith("\\"))
+        return getRoot()
+            .catchError(NotFoundException.class, () -> this)
+            .thenResult((Path root) ->
             {
-                pathStringWithoutRoot = pathStringWithoutRoot.substring(1);
-            }
-            result = Path.parse(pathStringWithoutRoot);
-        }
-        return result;
+                Result<Path> withoutRootResult;
+                if (root == this)
+                {
+                    withoutRootResult = Result.success(this);
+                }
+                else
+                {
+                    String pathStringWithoutRoot = toString().substring(root.length());
+                    if (pathStringWithoutRoot.startsWith("/") || pathStringWithoutRoot.startsWith("\\"))
+                    {
+                        pathStringWithoutRoot = pathStringWithoutRoot.substring(1);
+                    }
+
+                    if (Strings.isNullOrEmpty(pathStringWithoutRoot))
+                    {
+                        withoutRootResult = Result.error(new NotFoundException("The path " + Strings.escapeAndQuote(this) + " cannot create a path without its root because it only contains a root path."));
+                    }
+                    else
+                    {
+                        withoutRootResult = Result.success(Path.parse(pathStringWithoutRoot));
+                    }
+                }
+                return withoutRootResult;
+            });
     }
 
     /**
@@ -220,9 +232,11 @@ public class Path
      * return null.
      * @return The name of this Path's root if the Path is rooted, null otherwise.
      */
-    public Path getRoot()
+    public Result<Path> getRoot()
     {
-        return isRooted() ? Path.parse(getSegments().first()) : null;
+        return isRooted() ?
+           Result.success(Path.parse(getSegments().first())) :
+           Result.error(new NotFoundException("Could not find a root on the path " + Strings.escapeAndQuote(this) + "."));
     }
 
     public Path getParent()
@@ -286,8 +300,10 @@ public class Path
      */
     public Path relativeTo(Path basePath)
     {
+        PreCondition.assertNotNull(basePath, "basePath");
+
         Path result = this;
-        if (basePath != null && !equals(basePath))
+        if (!this.equals(basePath))
         {
             final Indexable<String> thisSegments = getSegments();
             final int thisSegmentsCount = thisSegments.getCount();
@@ -528,6 +544,8 @@ public class Path
      */
     public static Path parse(String pathString)
     {
-        return pathString == null || pathString.isEmpty() ? null : new Path(pathString, false);
+        PreCondition.assertNotNullAndNotEmpty(pathString, "pathString");
+
+        return new Path(pathString, false);
     }
 }

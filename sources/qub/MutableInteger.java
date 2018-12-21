@@ -1,41 +1,65 @@
 package qub;
 
-public class MutableInteger implements Comparable<java.lang.Integer>
+public class MutableInteger extends Value<java.lang.Integer> implements Comparable<java.lang.Integer>
 {
-    private int value;
-
     public MutableInteger()
     {
-        this.value = 0;
+        this(0);
     }
 
     public MutableInteger(int value)
     {
-        this.value = value;
+        this(java.lang.Integer.valueOf(value));
     }
 
     public MutableInteger(java.lang.Integer value)
     {
-        PreCondition.assertNotNull(value, "value");
+        super(value);
 
-        this.value = value;
+        PreCondition.assertNotNull(value, "value");
     }
 
-    public int get()
+    @Override
+    public void set(java.lang.Integer value)
     {
-        return value;
+        PreCondition.assertNotNull(value, "value");
+
+        super.set(value);
     }
 
     public void plusAssign(java.lang.Integer rhs)
     {
         PreCondition.assertNotNull(rhs, "rhs");
 
-        value += rhs;
+        set(get() + rhs);
+    }
+
+    public void minusAssign(java.lang.Integer rhs)
+    {
+        PreCondition.assertNotNull(rhs, "rhs");
+
+        set(get() - rhs);
+    }
+
+    public int increment()
+    {
+        final int result = get() + 1;
+        set(result);
+
+        return result;
+    }
+
+    public int decrement()
+    {
+        final int result = get() - 1;
+        set(result);
+
+        return result;
     }
 
     @Override
     public Comparison compareTo(Integer value)
     {
-        return value == null ? Comparison.GreaterThan : Comparison.from(this.value - value);
+        return value == null ? Comparison.GreaterThan : Comparison.from(get() - value);
     }
 }

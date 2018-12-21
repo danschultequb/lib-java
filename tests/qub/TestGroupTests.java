@@ -50,7 +50,7 @@ public class TestGroupTests
                 });
             });
 
-            runner.testGroup("matches()", () ->
+            runner.testGroup("isMatch()", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
@@ -64,13 +64,13 @@ public class TestGroupTests
                     test.assertFalse(tg.matches(PathPattern.parse("bananas")));
                 });
 
-                runner.test("with pattern that matches test name", (Test test) ->
+                runner.test("with pattern that isMatch test name", (Test test) ->
                 {
                     final TestGroup tg = new TestGroup("ab", null, null);
                     test.assertTrue(tg.matches(PathPattern.parse("ab")));
                 });
 
-                runner.test("with pattern that matches test full name", (Test test) ->
+                runner.test("with pattern that isMatch test full name", (Test test) ->
                 {
                     final TestGroup grandparentTG = new TestGroup("cinnamon", null, null);
                     final TestGroup parentTG = new TestGroup("apples", grandparentTG, null);

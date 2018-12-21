@@ -2003,8 +2003,6 @@ public class FileSystemTests
                     });
                 };
 
-                containsInvalidCharactersTest.run(null, false);
-                containsInvalidCharactersTest.run("", false);
                 containsInvalidCharactersTest.run("abc", false);
                 containsInvalidCharactersTest.run(":", true);
                 containsInvalidCharactersTest.run("?", true);

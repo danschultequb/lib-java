@@ -3,6 +3,21 @@ package qub;
 public class Characters
 {
     /**
+     * The minimum value that a character can have.
+     */
+    public static final char minimumValue = java.lang.Character.MIN_VALUE;
+
+    /**
+     * The maximum value that a character can have.
+     */
+    public static final char maximumValue = java.lang.Character.MAX_VALUE;
+
+    /**
+     * Get the Range of characters that includes all characters.
+     */
+    public static final Range<Character> all = Range.between(minimumValue, maximumValue);
+
+    /**
      * Surround the provided character with single quotes and textualize any escaped characters.
      * @param character The character to quote and escape.
      * @return The quoted and escaped character.

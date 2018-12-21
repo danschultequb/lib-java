@@ -1090,8 +1090,21 @@ public class Test
      */
     public <T> void assertSuccess(Result<T> result, Action1<T> resultAction)
     {
+        PreCondition.assertNotNull(resultAction, "resultAction");
+
         assertSuccess(result);
         result.then(resultAction);
+    }
+
+    /**
+     * Assert that the provided Result object is a successful Result.
+     * @param result The Result to check.
+     */
+    public <T> void assertSuccess(Result<T> result, Action0 resultAction)
+    {
+        PreCondition.assertNotNull(resultAction, "resultAction");
+
+        assertSuccess(result, (T value) -> resultAction.run());
     }
 
     /**
