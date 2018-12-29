@@ -12,7 +12,7 @@ public class CommandLineTests
                 {
                     final CommandLine commandLine = CommandLine.parse((String[])null);
                     test.assertEqual(new Array<String>(0), commandLine.getArgumentStrings());
-                    test.assertEqual(Array.fromValues(new String[0]), commandLine);
+                    test.assertEqual(Array.create(new String[0]), commandLine);
                 });
                 
                 runner.test("with empty String[]", (Test test) ->
@@ -24,7 +24,7 @@ public class CommandLineTests
                 runner.test("with String argument list", (Test test) ->
                 {
                     final CommandLine commandLine = CommandLine.parse(new String[] { "a", "b", "c", "d" });
-                    test.assertEqual(Array.fromValues(new String[] { "a", "b", "c", "d" }), commandLine.getArgumentStrings());
+                    test.assertEqual(Array.create(new String[] { "a", "b", "c", "d" }), commandLine.getArgumentStrings());
                 });
             });
 
@@ -170,7 +170,7 @@ public class CommandLineTests
                 {
                     final CommandLine commandLine = CommandLine.parse(new String[] { "a", "b", "c" });
                     test.assertThrows(() -> commandLine.removeAt(-1));
-                    test.assertEqual(Array.fromValues(new String[] { "a", "b", "c" }), commandLine.getArgumentStrings());
+                    test.assertEqual(Array.create(new String[] { "a", "b", "c" }), commandLine.getArgumentStrings());
                 });
 
                 runner.test("with zero index with empty command line", (Test test) ->

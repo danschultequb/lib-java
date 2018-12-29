@@ -277,17 +277,17 @@ public class ComparerTests
 
                 runner.test("with one value", (Test test) ->
                 {
-                    test.assertEqual(VersionNumber.parse("1"), Comparer.minimum(Array.fromValues(new VersionNumber[] { VersionNumber.parse("1") })));
+                    test.assertEqual(VersionNumber.parse("1"), Comparer.minimum(Array.create(new VersionNumber[] { VersionNumber.parse("1") })));
                 });
 
                 runner.test("with two values", (Test test) ->
                 {
-                    test.assertEqual(VersionNumber.parse("1"), Comparer.minimum(Array.fromValues(new VersionNumber[] { VersionNumber.parse("1"), VersionNumber.parse("2") })));
+                    test.assertEqual(VersionNumber.parse("1"), Comparer.minimum(Array.create(new VersionNumber[] { VersionNumber.parse("1"), VersionNumber.parse("2") })));
                 });
 
                 runner.test("with three values", (Test test) ->
                 {
-                    test.assertEqual(VersionNumber.parse("0"), Comparer.minimum(Array.fromValues(new VersionNumber[] { VersionNumber.parse("1"), VersionNumber.parse("0"), VersionNumber.parse("2") })));
+                    test.assertEqual(VersionNumber.parse("0"), Comparer.minimum(Array.create(new VersionNumber[] { VersionNumber.parse("1"), VersionNumber.parse("0"), VersionNumber.parse("2") })));
                 });
             });
 
@@ -331,17 +331,17 @@ public class ComparerTests
 
                 runner.test("with one value", (Test test) ->
                 {
-                    test.assertEqual(VersionNumber.parse("1"), Comparer.maximum(Array.fromValues(new VersionNumber[] { VersionNumber.parse("1") })));
+                    test.assertEqual(VersionNumber.parse("1"), Comparer.maximum(Array.create(new VersionNumber[] { VersionNumber.parse("1") })));
                 });
 
                 runner.test("with two values", (Test test) ->
                 {
-                    test.assertEqual(VersionNumber.parse("2"), Comparer.maximum(Array.fromValues(new VersionNumber[] { VersionNumber.parse("1"), VersionNumber.parse("2") })));
+                    test.assertEqual(VersionNumber.parse("2"), Comparer.maximum(Array.create(new VersionNumber[] { VersionNumber.parse("1"), VersionNumber.parse("2") })));
                 });
 
                 runner.test("with three values", (Test test) ->
                 {
-                    test.assertEqual(VersionNumber.parse("2"), Comparer.maximum(Array.fromValues(new VersionNumber[] { VersionNumber.parse("1"), VersionNumber.parse("0"), VersionNumber.parse("2") })));
+                    test.assertEqual(VersionNumber.parse("2"), Comparer.maximum(Array.create(new VersionNumber[] { VersionNumber.parse("1"), VersionNumber.parse("0"), VersionNumber.parse("2") })));
                 });
             });
 

@@ -676,7 +676,7 @@ public final class Comparer
     @SafeVarargs
     public static <T extends Comparable<T>> T maximum(T... values)
     {
-        return Comparer.maximum(Array.fromValues(values));
+        return Comparer.maximum(Array.create(values));
     }
 
     public static <T extends Comparable<T>> T maximum(Iterable<T> values)

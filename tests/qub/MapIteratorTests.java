@@ -28,7 +28,7 @@ public class MapIteratorTests
             {
                 runner.test("with null conversion", (Test test) ->
                 {
-                    final Array<String> array = Array.fromValues(new String[] { "1", "2", "3" });
+                    final Array<String> array = Array.create(new String[] { "1", "2", "3" });
                     final Iterator<Integer> iterator = array.iterate().map(null);
                     test.assertNull(iterator.getCurrent());
                 });

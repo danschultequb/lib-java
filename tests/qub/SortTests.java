@@ -17,19 +17,19 @@ public class SortTests
                 runner.test("with null comparer", (Test test) ->
                 {
                     final Sort sort = creator.run();
-                    final Array<Integer> values = Array.fromValues(new Integer[] { 3, 2, 1 });
+                    final Array<Integer> values = Array.create(new Integer[] { 3, 2, 1 });
                     sort.sort(values, null);
-                    test.assertEqual(Array.fromValues(new Integer[] { 3, 2, 1 }), values);
+                    test.assertEqual(Array.create(new Integer[] { 3, 2, 1 }), values);
                 });
 
                 final Action2<int[],int[]> sortTest = (int[] values, int[] expectedSortedValues) ->
                 {
-                    final Array<Integer> valuesArray = Array.fromValues(values);
+                    final Array<Integer> valuesArray = Array.create(values);
                     runner.test("with " + valuesArray, (Test test) ->
                     {
                         final Sort sort = creator.run();
                         sort.sort(valuesArray, Integers::compare);
-                        test.assertEqual(Array.fromValues(expectedSortedValues), valuesArray);
+                        test.assertEqual(Array.create(expectedSortedValues), valuesArray);
                     });
                 };
 
@@ -52,12 +52,12 @@ public class SortTests
 
                 final Action2<DateTime[],DateTime[]> sortTest = (DateTime[] values, DateTime[] expectedSortedValues) ->
                 {
-                    final Array<DateTime> valuesArray = Array.fromValues(values);
+                    final Array<DateTime> valuesArray = Array.create(values);
                     runner.test("with " + valuesArray, (Test test) ->
                     {
                         final Sort sort = creator.run();
                         sort.sort(valuesArray);
-                        test.assertEqual(Array.fromValues(expectedSortedValues), valuesArray);
+                        test.assertEqual(Array.create(expectedSortedValues), valuesArray);
                     });
                 };
 

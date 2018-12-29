@@ -14,6 +14,8 @@ public class Array<T> implements MutableIndexable<T>
      */
     public Array(int count)
     {
+        PreCondition.assertGreaterThanOrEqualTo(count, 0, "count");
+
         data = new Object[count];
     }
 
@@ -36,7 +38,7 @@ public class Array<T> implements MutableIndexable<T>
     @SuppressWarnings("unchecked")
     public T get(int index)
     {
-        PreCondition.assertBetween(0, index, getCount(), "index");
+        validateAccessIndex(index);
 
         return (T)data[index];
     }
@@ -49,7 +51,7 @@ public class Array<T> implements MutableIndexable<T>
      */
     public void set(int index, T value)
     {
-        PreCondition.assertBetween(0, index, getCount(), "index");
+        validateAccessIndex(index);
 
         data[index] = value;
     }
@@ -94,10 +96,10 @@ public class Array<T> implements MutableIndexable<T>
     }
 
     /**
-     * Create an Array from the provided values.
+     * Create an Array create the provided values.
      * @param values The values to initialize the array with.
      */
-    public static Array<Boolean> fromValues(boolean... values)
+    public static Array<Boolean> create(boolean[] values)
     {
         final int length = values == null ? 0 : values.length;
         final Array<Boolean> result = new Array<>(length);
@@ -109,21 +111,21 @@ public class Array<T> implements MutableIndexable<T>
     }
 
     /**
-     * Create an Array from the provided values.
+     * Create an Array create the provided values.
      * @param values The values to initialize the array with.
      */
-    public static Array<Byte> fromValues(byte... values)
+    public static Array<Byte> create(byte[] values)
     {
         PreCondition.assertNotNull(values, "values");
 
-        return Array.fromValues(values, 0, values.length);
+        return Array.create(values, 0, values.length);
     }
 
     /**
-     * Create an Array from the provided values.
+     * Create an Array create the provided values.
      * @param values The values to initialize the array with.
      */
-    public static Array<Byte> fromValues(byte[] values, int startIndex, int length)
+    public static Array<Byte> create(byte[] values, int startIndex, int length)
     {
         PreCondition.assertNotNull(values, "values");
         PreCondition.assertBetween(0, startIndex, values.length - 1, "startIndex");
@@ -138,10 +140,10 @@ public class Array<T> implements MutableIndexable<T>
     }
 
     /**
-     * Create an Array from the provided values.
+     * Create an Array create the provided values.
      * @param values The values to initialize the array with.
      */
-    public static Array<Character> fromValues(char... values)
+    public static Array<Character> create(char[] values)
     {
         final int length = values == null ? 0 : values.length;
         final Array<Character> result = new Array<>(length);
@@ -153,10 +155,10 @@ public class Array<T> implements MutableIndexable<T>
     }
 
     /**
-     * Create an Array from the provided values.
+     * Create an Array create the provided values.
      * @param values The values to initialize the array with.
      */
-    public static Array<Integer> fromValues(int... values)
+    public static Array<Integer> create(int[] values)
     {
         final int length = values == null ? 0 : values.length;
         final Array<Integer> result = new Array<>(length);
@@ -168,11 +170,11 @@ public class Array<T> implements MutableIndexable<T>
     }
 
     /**
-     * Create an Array from the provided values.
+     * Create an Array create the provided values.
      * @param values The values to initialize the array with.
      */
     @SafeVarargs
-    public static <T> Array<T> fromValues(T... values)
+    public static <T> Array<T> create(T... values)
     {
         final int length = values == null ? 0 : values.length;
         final Array<T> result = new Array<>(length);
@@ -184,19 +186,19 @@ public class Array<T> implements MutableIndexable<T>
     }
 
     /**
-     * Create an Array from the provided values.
+     * Create an Array create the provided values.
      * @param values The values to initialize the array with.
      */
-    public static <T> Array<T> fromValues(Iterator<T> values)
+    public static <T> Array<T> create(Iterator<T> values)
     {
-        return fromValues(ArrayList.fromValues(values));
+        return create(ArrayList.fromValues(values));
     }
 
     /**
-     * Create an Array from the provided values.
+     * Create an Array create the provided values.
      * @param values The values to initialize the array with.
      */
-    public static <T> Array<T> fromValues(Iterable<T> values)
+    public static <T> Array<T> create(Iterable<T> values)
     {
         final int length = values == null ? 0 : values.getCount();
         final Array<T> result = new Array<>(length);
@@ -512,8 +514,8 @@ public class Array<T> implements MutableIndexable<T>
     /**
      * Get a new byte[] that is a clone of the provided toClone byte[].
      * @param toClone The byte[] to clone.
-     * @param startIndex The index to start cloning from.
-     * @param length The number of bytes from toClone to clone.
+     * @param startIndex The index to start cloning create.
+     * @param length The number of bytes create toClone to clone.
      * @return The cloned byte[].
      */
     public static byte[] clone(byte[] toClone, int startIndex, int length)
@@ -551,8 +553,8 @@ public class Array<T> implements MutableIndexable<T>
     /**
      * Get a new char[] that is a clone of the provided toClone char[].
      * @param toClone The char[] to clone.
-     * @param startIndex The index to start cloning from.
-     * @param length The number of characters from toClone to clone.
+     * @param startIndex The index to start cloning create.
+     * @param length The number of characters create toClone to clone.
      * @return The cloned char[].
      */
     public static char[] clone(char[] toClone, int startIndex, int length)
@@ -590,8 +592,8 @@ public class Array<T> implements MutableIndexable<T>
     /**
      * Get a new int[] that is a clone of the provided toClone int[].
      * @param toClone The int[] to clone.
-     * @param startIndex The index to start cloning from.
-     * @param length The number of characters from toClone to clone.
+     * @param startIndex The index to start cloning create.
+     * @param length The number of characters create toClone to clone.
      * @return The cloned int[].
      */
     public static int[] clone(int[] toClone, int startIndex, int length)
@@ -619,10 +621,10 @@ public class Array<T> implements MutableIndexable<T>
     /**
      * Copy the contents of the copyFrom byte[] to the copyTo byte[] starting at the
      * copyToStartIndex.
-     * @param copyFrom The byte[] to copy from.
+     * @param copyFrom The byte[] to copy create.
      * @param copyTo The byte[] to copy to.
      * @param copyToStartIndex The index within copyTo to start copying to.
-     * @param length The number of bytes to copy from the copyFrom byte[] to the copyTo byte[].
+     * @param length The number of bytes to copy create the copyFrom byte[] to the copyTo byte[].
      */
     public static void copy(byte[] copyFrom, int copyFromStartIndex, byte[] copyTo, int copyToStartIndex, int length)
     {
@@ -639,10 +641,10 @@ public class Array<T> implements MutableIndexable<T>
     /**
      * Copy the contents of the copyFrom char[] to the copyTo char[] starting at the
      * copyToStartIndex.
-     * @param copyFrom The char[] to copy from.
+     * @param copyFrom The char[] to copy create.
      * @param copyTo The char[] to copy to.
      * @param copyToStartIndex The index within copyTo to start copying to.
-     * @param length The number of bytes to copy from the copyFrom byte[] to the copyTo byte[].
+     * @param length The number of bytes to copy create the copyFrom byte[] to the copyTo byte[].
      */
     public static void copy(char[] copyFrom, int copyFromStartIndex, char[] copyTo, int copyToStartIndex, int length)
     {

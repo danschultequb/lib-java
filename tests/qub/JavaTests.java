@@ -20,7 +20,7 @@ public class JavaTests
                     {
                         final JavaDocument document = Java.parse(text, null);
                         test.assertNotNull(document);
-                        test.assertEqual(Array.fromValues(expectedSegments), document.getSegments());
+                        test.assertEqual(Array.create(expectedSegments), document.getSegments());
                     });
 
                     runner.test("with " + Strings.escapeAndQuote(text) + " text and issues", (Test test) ->
@@ -29,8 +29,8 @@ public class JavaTests
                         final JavaDocument document = Java.parse(text, issues::add);
                         test.assertNotNull(document);
 
-                        test.assertEqual(Array.fromValues(expectedSegments), document.getSegments());
-                        test.assertEqual(Array.fromValues(expectedIssues), issues);
+                        test.assertEqual(Array.create(expectedSegments), document.getSegments());
+                        test.assertEqual(Array.create(expectedIssues), issues);
                     });
                 };
 

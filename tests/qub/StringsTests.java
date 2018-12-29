@@ -15,7 +15,7 @@ public class StringsTests
             {
                 final Action3<String,char[],Boolean> containsAnyTest = (String text, char[] characters, Boolean expected) ->
                 {
-                    runner.test("with " + Strings.escapeAndQuote(text) + " and " + (characters == null ? "null" : Array.fromValues(characters).toString()), (Test test) ->
+                    runner.test("with " + Strings.escapeAndQuote(text) + " and " + (characters == null ? "null" : Array.create(characters).toString()), (Test test) ->
                     {
                         test.assertEqual(expected, Strings.containsAny(text, characters));
                     });
@@ -128,6 +128,24 @@ public class StringsTests
                 runner.test("with \"ab\" and 3", (Test test) ->
                 {
                     test.assertEqual("ababab", Strings.repeat("ab", 3));
+                });
+            });
+
+            runner.testGroup("join(java.lang.Iterable<Character>)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    test.assertThrows(() -> Strings.join((java.lang.Iterable<Character>)null), new PreConditionFailure("characters cannot be null."));
+                });
+
+                runner.test("with empty", (Test test) ->
+                {
+                    test.assertEqual("", Strings.join(new Array<>(0)));
+                });
+
+                runner.test("with non-empty", (Test test) ->
+                {
+                    test.assertEqual("abc", Strings.join(Array.create('a', 'b', 'c')));
                 });
             });
 

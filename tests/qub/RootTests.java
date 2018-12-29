@@ -377,7 +377,7 @@ public class RootTests
                     final Result<Iterable<Folder>> result = root.getFolders();
                     test.assertNotNull(result);
                     test.assertEqual(
-                        Array.fromValues(new Folder[]
+                        Array.create(new Folder[]
                         {
                             root.getFolder("things").getValue()
                         }),
@@ -410,7 +410,7 @@ public class RootTests
                     final Result<Iterable<File>> result = root.getFiles();
                     test.assertNotNull(result);
                     test.assertEqual(
-                        Array.fromValues(new File[]
+                        Array.create(new File[]
                         {
                             root.getFile("thing.txt").getValue()
                         }),
@@ -453,7 +453,7 @@ public class RootTests
 
                     final Result<Iterable<FileSystemEntry>> result = root.getFilesAndFolders();
                     test.assertSuccess(
-                        Array.fromValues(new FileSystemEntry[]
+                        Array.create(new FileSystemEntry[]
                             {
                                 root.getFile("thing.txt").getValue()
                             }),
@@ -467,7 +467,7 @@ public class RootTests
 
                     final Result<Iterable<FileSystemEntry>> result = root.getFilesAndFolders();
                     test.assertSuccess(
-                        Array.fromValues(new FileSystemEntry[]
+                        Array.create(new FileSystemEntry[]
                             {
                                 root.getFolder("things").getValue()
                             }),
@@ -496,7 +496,7 @@ public class RootTests
                     root.createFile("1.txt");
                     root.createFile("2.txt");
                     test.assertSuccess(
-                        Array.fromValues(new FileSystemEntry[]
+                        Array.create(new FileSystemEntry[]
                         {
                             root.getFile("1.txt").getValue(),
                             root.getFile("2.txt").getValue()
@@ -510,7 +510,7 @@ public class RootTests
                     root.createFolder("1.txt");
                     root.createFolder("2.txt");
                     test.assertSuccess(
-                        Array.fromValues(new FileSystemEntry[]
+                        Array.create(new FileSystemEntry[]
                         {
                             root.getFolder("1.txt").getValue(),
                             root.getFolder("2.txt").getValue()
@@ -528,7 +528,7 @@ public class RootTests
                     root.createFile("A/5.png");
 
                     final Iterable<FileSystemEntry> expectedEntries =
-                        Array.fromValues(new FileSystemEntry[]
+                        Array.create(new FileSystemEntry[]
                         {
                             root.getFolder("A").getValue(),
                             root.getFolder("B").getValue(),
@@ -563,7 +563,7 @@ public class RootTests
                     root.createFile("1.txt");
                     root.createFile("2.txt");
                     test.assertSuccess(
-                        Array.fromValues(new File[]
+                        Array.create(new File[]
                         {
                             root.getFile("1.txt").getValue(),
                             root.getFile("2.txt").getValue()
@@ -591,7 +591,7 @@ public class RootTests
                     root.createFile("A/5.png");
 
                     final Iterable<File> expectedEntries =
-                        Array.fromValues(new File[]
+                        Array.create(new File[]
                         {
                             root.getFile("1.txt").getValue(),
                             root.getFile("2.txt").getValue(),
@@ -633,7 +633,7 @@ public class RootTests
                     root.createFolder("1.txt");
                     root.createFolder("2.txt");
                     test.assertSuccess(
-                        Array.fromValues(new Folder[]
+                        Array.create(new Folder[]
                         {
                             root.getFolder("1.txt").getValue(),
                             root.getFolder("2.txt").getValue()
@@ -652,7 +652,7 @@ public class RootTests
 
                     final Result<Iterable<Folder>> folders = root.getFoldersRecursively();
                     test.assertSuccess(
-                        Array.fromValues(new Folder[]
+                        Array.create(new Folder[]
                         {
                             root.getFolder("A").getValue(),
                             root.getFolder("B").getValue(),

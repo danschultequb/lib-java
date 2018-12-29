@@ -69,7 +69,7 @@ public class IPv4AddressTests
                 {
                     runner.test("with " + address, (Test test) ->
                     {
-                        test.assertEqual(Array.fromValues(expected), Array.fromValues(address.toBytes()));
+                        test.assertEqual(Array.create(expected), Array.create(address.toBytes()));
                     });
                 };
 

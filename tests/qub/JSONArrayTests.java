@@ -18,7 +18,7 @@ public class JSONArrayTests
                         test.assertEqual(leftSquareBracket, arraySegment.getLeftSquareBracket());
                         test.assertEqual(rightSquareBracket, arraySegment.getRightSquareBracket());
                         test.assertEqual(text, arraySegment.toString());
-                        test.assertEqual(Array.fromValues(elementSegments), arraySegment.getElements());
+                        test.assertEqual(Array.create(elementSegments), arraySegment.getElements());
                         for (int i = 0; i < elementSegments.length; ++i)
                         {
                             test.assertEqual(elementSegments[i], arraySegment.getElement(i));

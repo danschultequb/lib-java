@@ -86,7 +86,7 @@ public class ProcessBuilder
      */
     public ProcessBuilder addArguments(String... arguments)
     {
-        return addArguments(Array.fromValues(arguments));
+        return addArguments(Array.create(arguments));
     }
 
     /**

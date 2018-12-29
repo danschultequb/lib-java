@@ -24,7 +24,7 @@ public class JavaList<T> implements List<T>
     @Override
     public void insert(int insertIndex, T value)
     {
-        PreCondition.assertBetween(0, insertIndex, getCount(), "insertIndex");
+        validateInsertIndex(insertIndex);
 
         list.add(insertIndex, value);
     }
@@ -32,7 +32,7 @@ public class JavaList<T> implements List<T>
     @Override
     public void set(int index, T value)
     {
-        PreCondition.assertBetween(0, index, getCount() - 1, "index");
+        validateAccessIndex(index);
 
         list.set(index, value);
     }
@@ -40,7 +40,7 @@ public class JavaList<T> implements List<T>
     @Override
     public T removeAt(int index)
     {
-        PreCondition.assertBetween(0, index, getCount() - 1, "index");
+        validateAccessIndex(index);
 
         return list.remove(index);
     }
@@ -54,7 +54,7 @@ public class JavaList<T> implements List<T>
     @Override
     public T get(int index)
     {
-        PreCondition.assertBetween(0, index, getCount() - 1, "index");
+        validateAccessIndex(index);
 
         return list.get(index);
     }

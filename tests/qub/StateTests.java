@@ -50,7 +50,7 @@ public class StateTests
                     final State state1 = new State("a");
                     final State state2 = new State("b");
                     test.assertSame(state1, state1.addNextState('1', state2));
-                    test.assertEqual(Array.fromValues(new State[] { state2 }), state1.getNextStates('1'));
+                    test.assertEqual(Array.create(new State[] { state2 }), state1.getNextStates('1'));
                 });
 
                 runner.test("with already existing value", (Test test) ->
@@ -60,7 +60,7 @@ public class StateTests
                     final State state3 = new State("c");
                     test.assertSame(state1, state1.addNextState('1', state2));
                     test.assertSame(state1, state1.addNextState('1', state3));
-                    test.assertEqual(Array.fromValues(new State[] { state2, state3 }), state1.getNextStates('1'));
+                    test.assertEqual(Array.create(new State[] { state2, state3 }), state1.getNextStates('1'));
                 });
             });
 
@@ -85,7 +85,7 @@ public class StateTests
                     final State state1 = new State("1");
                     final State state2 = new State("2");
                     state1.addNextState('a', state2);
-                    test.assertEqual(Array.fromValues(new State[] { state2 }), state1.getNextStates('a'));
+                    test.assertEqual(Array.create(new State[] { state2 }), state1.getNextStates('a'));
                 });
             });
         });

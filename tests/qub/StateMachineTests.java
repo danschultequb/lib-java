@@ -302,7 +302,7 @@ public class StateMachineTests
                 runner.test("and " + Strings.escapeAndQuote("abcxyxxyz"), (Test test) ->
                 {
                     final StateMachine stateMachine = createABCStarXYZStateMachine();
-                    final Iterable<Match> matches = Array.fromValues(stateMachine.getMatches("abcxyxxyz"));
+                    final Iterable<Match> matches = Array.create(stateMachine.getMatches("abcxyxxyz"));
                     test.assertNotNull(matches);
                     test.assertEqual(1, matches.getCount());
                     final Array<Iterable<Character>> expectedTrackedValues = new Array<>(1);

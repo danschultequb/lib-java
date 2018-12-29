@@ -53,13 +53,13 @@ public class ConcurrentHashMap<TKey,TValue> implements MutableMap<TKey,TValue>
     @Override
     public Iterable<TKey> getKeys()
     {
-        return Array.fromValues(iterate().map(MapEntry::getKey));
+        return Array.create(iterate().map(MapEntry::getKey));
     }
 
     @Override
     public Iterable<TValue> getValues()
     {
-        return Array.fromValues(iterate().map(MapEntry::getValue));
+        return Array.create(iterate().map(MapEntry::getValue));
     }
 
     @Override

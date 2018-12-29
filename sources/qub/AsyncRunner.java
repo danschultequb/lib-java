@@ -185,7 +185,7 @@ public interface AsyncRunner extends Disposable
      */
     default void awaitAll(AsyncAction... asyncActions)
     {
-        awaitAll(Array.fromValues(asyncActions));
+        awaitAll(Array.create(asyncActions));
     }
 
     /**

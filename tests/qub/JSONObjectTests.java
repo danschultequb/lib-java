@@ -15,7 +15,7 @@ public class JSONObjectTests
                         final JSONObject objectSegment = JSON.parseObject(text);
                         test.assertEqual(leftCurlyBracket, objectSegment.getLeftCurlyBracket());
                         test.assertEqual(rightCurlyBracket, objectSegment.getRightCurlyBracket());
-                        test.assertEqual(Array.fromValues(propertySegments), objectSegment.getProperties());
+                        test.assertEqual(Array.create(propertySegments), objectSegment.getProperties());
                         test.assertEqual(0, objectSegment.getStartIndex());
                         test.assertEqual(afterEndIndex, objectSegment.getAfterEndIndex());
                         test.assertEqual(length, objectSegment.getLength());

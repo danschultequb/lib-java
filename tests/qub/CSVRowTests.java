@@ -49,8 +49,8 @@ public class CSVRowTests
 
                 constructorTest.run(null);
                 constructorTest.run(new Array<>(0));
-                constructorTest.run(Array.fromValues(new String[] { "a" }));
-                constructorTest.run(Array.fromValues(new String[] { "1", "2", "3 4"}));
+                constructorTest.run(Array.create(new String[] { "a" }));
+                constructorTest.run(Array.create(new String[] { "1", "2", "3 4"}));
             });
 
             runner.testGroup("removeAt(int)", () ->
@@ -76,14 +76,14 @@ public class CSVRowTests
                 removeAtTest.run(new Array<>(0), 0, new Array<>(0));
                 removeAtTest.run(new Array<>(0), 1, new Array<>(0));
 
-                removeAtTest.run(Array.fromValues(new String[] { "a" }), -1, Array.fromValues(new String[] { "a" }));
-                removeAtTest.run(Array.fromValues(new String[] { "a" }), 0, new Array<>(0));
-                removeAtTest.run(Array.fromValues(new String[] { "a" }), 1, Array.fromValues(new String[] { "a" }));
+                removeAtTest.run(Array.create(new String[] { "a" }), -1, Array.create(new String[] { "a" }));
+                removeAtTest.run(Array.create(new String[] { "a" }), 0, new Array<>(0));
+                removeAtTest.run(Array.create(new String[] { "a" }), 1, Array.create(new String[] { "a" }));
 
-                removeAtTest.run(Array.fromValues(new String[] { "a", "b" }), -1, Array.fromValues(new String[] { "a", "b" }));
-                removeAtTest.run(Array.fromValues(new String[] { "a", "b" }), 0, Array.fromValues(new String[] { "b" }));
-                removeAtTest.run(Array.fromValues(new String[] { "a", "b" }), 1, Array.fromValues(new String[] { "a" }));
-                removeAtTest.run(Array.fromValues(new String[] { "a", "b" }), 2, Array.fromValues(new String[] { "a", "b" }));
+                removeAtTest.run(Array.create(new String[] { "a", "b" }), -1, Array.create(new String[] { "a", "b" }));
+                removeAtTest.run(Array.create(new String[] { "a", "b" }), 0, Array.create(new String[] { "b" }));
+                removeAtTest.run(Array.create(new String[] { "a", "b" }), 1, Array.create(new String[] { "a" }));
+                removeAtTest.run(Array.create(new String[] { "a", "b" }), 2, Array.create(new String[] { "a", "b" }));
             });
 
             runner.testGroup("set(int,String)", () ->
@@ -109,14 +109,14 @@ public class CSVRowTests
                 setTest.run(new Array<>(0), 0, "z", new Array<>(0));
                 setTest.run(new Array<>(0), 1, "z", new Array<>(0));
 
-                setTest.run(Array.fromValues(new String[] { "a" }), -1, "z", Array.fromValues(new String[] { "a" }));
-                setTest.run(Array.fromValues(new String[] { "a" }), 0, "z", Array.fromValues(new String[] { "z" }));
-                setTest.run(Array.fromValues(new String[] { "a" }), 1, "z", Array.fromValues(new String[] { "a" }));
+                setTest.run(Array.create(new String[] { "a" }), -1, "z", Array.create(new String[] { "a" }));
+                setTest.run(Array.create(new String[] { "a" }), 0, "z", Array.create(new String[] { "z" }));
+                setTest.run(Array.create(new String[] { "a" }), 1, "z", Array.create(new String[] { "a" }));
 
-                setTest.run(Array.fromValues(new String[] { "a", "b" }), -1, "z", Array.fromValues(new String[] { "a", "b" }));
-                setTest.run(Array.fromValues(new String[] { "a", "b" }), 0, "z", Array.fromValues(new String[] { "z", "b" }));
-                setTest.run(Array.fromValues(new String[] { "a", "b" }), 1, "z", Array.fromValues(new String[] { "a", "z" }));
-                setTest.run(Array.fromValues(new String[] { "a", "b" }), 2, "z", Array.fromValues(new String[] { "a", "b" }));
+                setTest.run(Array.create(new String[] { "a", "b" }), -1, "z", Array.create(new String[] { "a", "b" }));
+                setTest.run(Array.create(new String[] { "a", "b" }), 0, "z", Array.create(new String[] { "z", "b" }));
+                setTest.run(Array.create(new String[] { "a", "b" }), 1, "z", Array.create(new String[] { "a", "z" }));
+                setTest.run(Array.create(new String[] { "a", "b" }), 2, "z", Array.create(new String[] { "a", "b" }));
             });
         });
     }

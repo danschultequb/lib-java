@@ -59,7 +59,7 @@ public class ByteArray implements MutableIndexable<Byte>
     @Override
     public Iterator<Byte> iterate()
     {
-        return Array.fromValues(bytes).iterate();
+        return Array.create(bytes).iterate();
     }
 
     public ByteArray getRange(int startIndex)

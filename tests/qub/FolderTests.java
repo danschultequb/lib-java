@@ -202,10 +202,10 @@ public class FolderTests
                 test.assertSuccess(childFolder);
                 test.assertEqual("/test/folder/childFolder1", childFolder.getValue().toString());
 
-                test.assertEqual(Array.fromValues(new String[] { "/test/folder/childFolder1" }), folder.getFolders().getValue().map(FileSystemEntry::toString));
+                test.assertEqual(Array.create(new String[] { "/test/folder/childFolder1" }), folder.getFolders().getValue().map(FileSystemEntry::toString));
 
                 test.assertSuccess(childFolder.getValue().createFolder("grandchildFolder1"));
-                test.assertEqual(Array.fromValues(new String[] { "/test/folder/childFolder1" }), folder.getFolders().getValue().map(FileSystemEntry::toString));
+                test.assertEqual(Array.create(new String[] { "/test/folder/childFolder1" }), folder.getFolders().getValue().map(FileSystemEntry::toString));
             });
 
             runner.testGroup("getFiles()", () ->
@@ -233,7 +233,7 @@ public class FolderTests
                     test.assertSuccess(folder.createFile("data.txt"));
                     final Result<Iterable<File>> files = folder.getFiles();
                     test.assertSuccess(files);
-                    test.assertEqual(Array.fromValues(new String[] { "/test/folder/data.txt" }), files.getValue().map(FileSystemEntry::toString));
+                    test.assertEqual(Array.create(new String[] { "/test/folder/data.txt" }), files.getValue().map(FileSystemEntry::toString));
                 });
 
                 runner.test("when folder exists and has one grandchild file", (Test test) ->
@@ -271,7 +271,7 @@ public class FolderTests
 
                     final Result<Iterable<FileSystemEntry>> filesAndFolders = folder.getFilesAndFolders();
                     test.assertSuccess(filesAndFolders);
-                    test.assertEqual(Array.fromValues(new String[] { "/test/folder/subfolder" }), filesAndFolders.getValue().map(FileSystemEntry::toString));
+                    test.assertEqual(Array.create(new String[] { "/test/folder/subfolder" }), filesAndFolders.getValue().map(FileSystemEntry::toString));
                 });
 
                 runner.test("when folder exists and has one child file", (Test test) ->
@@ -282,7 +282,7 @@ public class FolderTests
 
                     final Result<Iterable<FileSystemEntry>> filesAndFolders = folder.getFilesAndFolders();
                     test.assertSuccess(filesAndFolders);
-                    test.assertEqual(Array.fromValues(new String[] { "/test/folder/file.java" }), filesAndFolders.getValue().map(FileSystemEntry::toString));
+                    test.assertEqual(Array.create(new String[] { "/test/folder/file.java" }), filesAndFolders.getValue().map(FileSystemEntry::toString));
                 });
 
                 runner.test("when folder exists and has one child file and one child folder", (Test test) ->
@@ -294,7 +294,7 @@ public class FolderTests
 
                     final Result<Iterable<FileSystemEntry>> filesAndFolders = folder.getFilesAndFolders();
                     test.assertSuccess(filesAndFolders);
-                    test.assertEqual(Array.fromValues(new String[] { "/test/folder/childfolder", "/test/folder/file.java" }), filesAndFolders.getValue().map(FileSystemEntry::toString));
+                    test.assertEqual(Array.create(new String[] { "/test/folder/childfolder", "/test/folder/file.java" }), filesAndFolders.getValue().map(FileSystemEntry::toString));
                 });
             });
 

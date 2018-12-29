@@ -11,17 +11,17 @@ public class JSONTokenizerTests
                 runner.test("with " + Strings.escapeAndQuote(text) + " and no issues", (Test test) ->
                 {
                     final JSONTokenizer tokenizer = new JSONTokenizer(text);
-                    final Array<JSONToken> actualTokens = Array.fromValues(tokenizer);
-                    test.assertEqual(Array.fromValues(expectedTokens), actualTokens);
+                    final Array<JSONToken> actualTokens = Array.create(tokenizer);
+                    test.assertEqual(Array.create(expectedTokens), actualTokens);
                 });
                 
                 runner.test("with " + Strings.escapeAndQuote(text) + " and issues", (Test test) ->
                 {
                     final List<Issue> actualIssues = new ArrayList<>();
                     final JSONTokenizer tokenizer = new JSONTokenizer(text, actualIssues);
-                    final Array<JSONToken> actualTokens = Array.fromValues(tokenizer);
-                    test.assertEqual(Array.fromValues(expectedTokens), actualTokens);
-                    test.assertEqual(Array.fromValues(expectedIssues), actualIssues);
+                    final Array<JSONToken> actualTokens = Array.create(tokenizer);
+                    test.assertEqual(Array.create(expectedTokens), actualTokens);
+                    test.assertEqual(Array.create(expectedIssues), actualIssues);
                 });
             };
 

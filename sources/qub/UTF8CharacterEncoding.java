@@ -79,7 +79,7 @@ public class UTF8CharacterEncoding implements CharacterEncoding
 
         final List<Character> characters = new ArrayList<>();
         final List<Throwable> errors = new ArrayList<>();
-        final Iterator<Byte> byteIterator = Array.fromValues(bytes, startIndex, length).iterate();
+        final Iterator<Byte> byteIterator = Array.create(bytes, startIndex, length).iterate();
         while (true)
         {
             final Result<Character> nextCharacter = decodeNextCharacter(byteIterator);

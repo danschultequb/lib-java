@@ -12,7 +12,7 @@ public class SingleLinkList<T> implements List<T>
 
     private SingleLinkNode<T> getNode(int index)
     {
-        PreCondition.assertBetween(-1, index, getCount(), "index");
+        validateAccessIndex(index);
 
         SingleLinkNode<T> result;
         if (index == -1)
@@ -34,7 +34,7 @@ public class SingleLinkList<T> implements List<T>
     @Override
     public void insert(int insertIndex, T value)
     {
-        PreCondition.assertBetween(0, insertIndex, getCount(), "insertIndex");
+        validateInsertIndex(insertIndex);
 
         final SingleLinkNode<T> nodeToAdd = new SingleLinkNode<>(value);
 
@@ -54,7 +54,7 @@ public class SingleLinkList<T> implements List<T>
     @Override
     public void set(int index, T value)
     {
-        PreCondition.assertBetween(0, index, getCount() - 1, "index");
+        validateAccessIndex(index);
 
         getNode(index).setValue(value);
     }
@@ -62,7 +62,7 @@ public class SingleLinkList<T> implements List<T>
     @Override
     public T removeAt(int index)
     {
-        PreCondition.assertBetween(0, index, getCount() - 1, "index");
+        validateAccessIndex(index);
 
         final SingleLinkNode<T> nodeBeforeNodeToRemove = getNode(index - 1);
         final SingleLinkNode<T> nodeToRemove = (nodeBeforeNodeToRemove == null ? head : nodeBeforeNodeToRemove.getNext());
@@ -154,7 +154,7 @@ public class SingleLinkList<T> implements List<T>
     @Override
     public T get(int index)
     {
-        PreCondition.assertBetween(0, index, getCount() - 1, "index");
+        validateAccessIndex(index);
 
         return getNode(index).getValue();
     }
@@ -175,26 +175,5 @@ public class SingleLinkList<T> implements List<T>
     public String toString()
     {
         return Iterable.toString(this);
-    }
-
-    public static <T> SingleLinkList<T> fromValues(T[] values)
-    {
-        final SingleLinkList<T> result = new SingleLinkList<>();
-        result.addAll(values);
-        return result;
-    }
-
-    public static <T> SingleLinkList<T> fromValues(Iterator<T> values)
-    {
-        final SingleLinkList<T> result = new SingleLinkList<>();
-        result.addAll(values);
-        return result;
-    }
-
-    public static <T> SingleLinkList<T> fromValues(Iterable<T> values)
-    {
-        final SingleLinkList<T> result = new SingleLinkList<>();
-        result.addAll(values);
-        return result;
     }
 }

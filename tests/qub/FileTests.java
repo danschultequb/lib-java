@@ -104,7 +104,7 @@ public class FileTests
                     test.assertFalse(file.equals(file.getPath()));
                 });
 
-                runner.test("with different file from same file system", (Test test) ->
+                runner.test("with different file create same file system", (Test test) ->
                 {
                     final FileSystem fileSystem = getFileSystem(test);
                     final File lhs = getFile(fileSystem, "/a/path.txt");

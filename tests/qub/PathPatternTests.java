@@ -155,7 +155,7 @@ public class PathPatternTests
                     test.assertEqual(3, match.getEndIndex());
                     test.assertEqual(4, match.getAfterEndIndex());
                     test.assertEqual(4, match.getCount());
-                    test.assertEqual(Array.<Iterable<Character>>fromValues(Strings.iterable("pp")), match.getTrackedValues());
+                    test.assertEqual(Array.<Iterable<Character>>create(Strings.iterable("pp")), match.getTrackedValues());
                 });
             });
 

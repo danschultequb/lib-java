@@ -9,7 +9,7 @@ public class Strings
      */
     public static Iterable<Character> iterable(String text)
     {
-        return Strings.isNullOrEmpty(text) ? Iterable.empty() : Array.fromValues(text.toCharArray());
+        return Strings.isNullOrEmpty(text) ? Iterable.empty() : Array.create(text.toCharArray());
     }
 
     /**
@@ -282,6 +282,23 @@ public class Strings
                     builder.append(value);
                 }
             }
+        }
+        return builder.toString();
+    }
+
+    /**
+     * Join the provided characters into a single String.
+     * @param characters The characters to join.
+     * @return The joined characters.
+     */
+    public static String join(java.lang.Iterable<Character> characters)
+    {
+        PreCondition.assertNotNull(characters, "characters");
+
+        final StringBuilder builder = new StringBuilder();
+        for (char character : characters)
+        {
+            builder.append(character);
         }
         return builder.toString();
     }

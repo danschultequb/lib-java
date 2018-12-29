@@ -83,7 +83,7 @@ public class ProcessBuilderTests
                     final ProcessBuilder builder = createBuilder(test);
                     builder.addArguments("a", "b", "c");
                     builder.setArgument(0, null);
-                    test.assertEqual(Array.fromValues(new String[] { "b", "c" }), builder.getArguments());
+                    test.assertEqual(Array.create(new String[] { "b", "c" }), builder.getArguments());
                     test.assertEqual("C:/idontexist.exe b c", builder.getCommand());
                 });
 
@@ -92,7 +92,7 @@ public class ProcessBuilderTests
                     final ProcessBuilder builder = createBuilder(test);
                     builder.addArguments("a", "b", "c");
                     builder.setArgument(2, "");
-                    test.assertEqual(Array.fromValues(new String[] { "a", "b", "" }), builder.getArguments());
+                    test.assertEqual(Array.create(new String[] { "a", "b", "" }), builder.getArguments());
                     test.assertEqual("C:/idontexist.exe a b \"\"", builder.getCommand());
                 });
 
@@ -101,7 +101,7 @@ public class ProcessBuilderTests
                     final ProcessBuilder builder = createBuilder(test);
                     builder.addArguments("a", "b", "c");
                     builder.setArgument(1, "\"d\"");
-                    test.assertEqual(Array.fromValues(new String[] { "a", "\"d\"", "c" }), builder.getArguments());
+                    test.assertEqual(Array.create(new String[] { "a", "\"d\"", "c" }), builder.getArguments());
                     test.assertEqual("C:/idontexist.exe a \"d\" c", builder.getCommand());
                 });
             });
@@ -111,7 +111,7 @@ public class ProcessBuilderTests
                 final ProcessBuilder builder = createBuilder(test);
                 builder.addArguments("a", "b", "c");
                 builder.removeArgument(1);
-                test.assertEqual(Array.fromValues(new String[] { "a", "c" }), builder.getArguments());
+                test.assertEqual(Array.create(new String[] { "a", "c" }), builder.getArguments());
                 test.assertEqual("C:/idontexist.exe a c", builder.getCommand());
             });
 

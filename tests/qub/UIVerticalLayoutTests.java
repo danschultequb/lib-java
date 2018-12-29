@@ -30,7 +30,7 @@ public class UIVerticalLayoutTests
                     layout.paint(painter);
 
                     test.assertEqual(
-                        Array.fromValues(new PainterAction[]
+                        Array.create(new PainterAction[]
                         {
                             new DrawTextAction("One", Point2D.zero, Distance.fontPoints(14), Color.black),
                             new DrawTextAction("Two", new Point2D(Distance.zero, Distance.inches(1)), Distance.fontPoints(14), Color.black)

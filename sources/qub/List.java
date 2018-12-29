@@ -181,4 +181,13 @@ public interface List<T> extends MutableIndexable<T>
 
         return result;
     }
+
+    /**
+     * Validate the provided insertIndex against this List.
+     * @param insertIndex The insertIndex to validate.
+     */
+    default void validateInsertIndex(int insertIndex)
+    {
+        PreCondition.assertBetween(0, insertIndex, getCount(), "insertIndex");
+    }
 }

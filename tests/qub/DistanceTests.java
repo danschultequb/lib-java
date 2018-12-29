@@ -229,37 +229,37 @@ public class DistanceTests
 
             runner.testGroup("toMillimeters()", () ->
             {
-                runner.test("from Millimeters", (Test test) ->
+                runner.test("create Millimeters", (Test test) ->
                 {
                     assertDistance(test, Distance.millimeters(3).toMillimeters(), 3, DistanceUnit.Millimeters);
                 });
 
-                runner.test("from Centimeters", (Test test) ->
+                runner.test("create Centimeters", (Test test) ->
                 {
                     assertDistance(test, Distance.centimeters(3).toMillimeters(), 30, DistanceUnit.Millimeters);
                 });
 
-                runner.test("from Meters", (Test test) ->
+                runner.test("create Meters", (Test test) ->
                 {
                     assertDistance(test, Distance.meters(3).toMillimeters(), 3000, DistanceUnit.Millimeters);
                 });
 
-                runner.test("from Kilometers", (Test test) ->
+                runner.test("create Kilometers", (Test test) ->
                 {
                     assertDistance(test, Distance.kilometers(3).toMillimeters(), 3000000, DistanceUnit.Millimeters);
                 });
 
-                runner.test("from Inches", (Test test) ->
+                runner.test("create Inches", (Test test) ->
                 {
                     assertDistance(test, Distance.inches(3).toMillimeters(), 76.19999999999999, DistanceUnit.Millimeters);
                 });
 
-                runner.test("from Feet", (Test test) ->
+                runner.test("create Feet", (Test test) ->
                 {
                     assertDistance(test, Distance.feet(3).toMillimeters(), 914.4000000000001, DistanceUnit.Millimeters);
                 });
 
-                runner.test("from Miles", (Test test) ->
+                runner.test("create Miles", (Test test) ->
                 {
                     assertDistance(test, Distance.miles(3).toMillimeters(), 4828032.0, DistanceUnit.Millimeters);
                 });
@@ -267,37 +267,37 @@ public class DistanceTests
 
             runner.testGroup("toCentimeters()", () ->
             {
-                runner.test("from Millimeters", (Test test) ->
+                runner.test("create Millimeters", (Test test) ->
                 {
                     assertDistance(test, Distance.millimeters(3).toCentimeters(), 0.30000000000000004, DistanceUnit.Centimeters);
                 });
 
-                runner.test("from Centimeters", (Test test) ->
+                runner.test("create Centimeters", (Test test) ->
                 {
                     assertDistance(test, Distance.centimeters(3).toCentimeters(), 3, DistanceUnit.Centimeters);
                 });
 
-                runner.test("from Meters", (Test test) ->
+                runner.test("create Meters", (Test test) ->
                 {
                     assertDistance(test, Distance.meters(3).toCentimeters(), 300, DistanceUnit.Centimeters);
                 });
 
-                runner.test("from Kilometers", (Test test) ->
+                runner.test("create Kilometers", (Test test) ->
                 {
                     assertDistance(test, Distance.kilometers(3).toCentimeters(), 300000, DistanceUnit.Centimeters);
                 });
 
-                runner.test("from Inches", (Test test) ->
+                runner.test("create Inches", (Test test) ->
                 {
                     assertDistance(test, Distance.inches(3).toCentimeters(), 7.62, DistanceUnit.Centimeters);
                 });
 
-                runner.test("from Feet", (Test test) ->
+                runner.test("create Feet", (Test test) ->
                 {
                     assertDistance(test, Distance.feet(3).toCentimeters(), 91.44, DistanceUnit.Centimeters);
                 });
 
-                runner.test("from Miles", (Test test) ->
+                runner.test("create Miles", (Test test) ->
                 {
                     assertDistance(test, Distance.miles(3).toCentimeters(), 482803.20000000007, DistanceUnit.Centimeters);
                 });
@@ -305,37 +305,37 @@ public class DistanceTests
 
             runner.testGroup("toMeters()", () ->
             {
-                runner.test("from Millimeters", (Test test) ->
+                runner.test("create Millimeters", (Test test) ->
                 {
                     assertDistance(test, Distance.millimeters(3).toMeters(), 0.003, DistanceUnit.Meters);
                 });
 
-                runner.test("from Centimeters", (Test test) ->
+                runner.test("create Centimeters", (Test test) ->
                 {
                     assertDistance(test, Distance.centimeters(3).toMeters(), 0.03, DistanceUnit.Meters);
                 });
 
-                runner.test("from Meters", (Test test) ->
+                runner.test("create Meters", (Test test) ->
                 {
                     assertDistance(test, Distance.meters(3).toMeters(), 3, DistanceUnit.Meters);
                 });
 
-                runner.test("from Kilometers", (Test test) ->
+                runner.test("create Kilometers", (Test test) ->
                 {
                     assertDistance(test, Distance.kilometers(3).toMeters(), 3000, DistanceUnit.Meters);
                 });
 
-                runner.test("from Inches", (Test test) ->
+                runner.test("create Inches", (Test test) ->
                 {
                     assertDistance(test, Distance.inches(3).toMeters(), 0.07619999999999999, DistanceUnit.Meters);
                 });
 
-                runner.test("from Feet", (Test test) ->
+                runner.test("create Feet", (Test test) ->
                 {
                     assertDistance(test, Distance.feet(3).toMeters(), 0.9144000000000001, DistanceUnit.Meters);
                 });
 
-                runner.test("from Miles", (Test test) ->
+                runner.test("create Miles", (Test test) ->
                 {
                     assertDistance(test, Distance.miles(3).toMeters(), 4828.031999999999, DistanceUnit.Meters);
                 });
@@ -343,37 +343,37 @@ public class DistanceTests
 
             runner.testGroup("toKilometers()", () ->
             {
-                runner.test("from Millimeters", (Test test) ->
+                runner.test("create Millimeters", (Test test) ->
                 {
                     assertDistance(test, Distance.millimeters(3).toKilometers(), 0.000003, DistanceUnit.Kilometers);
                 });
 
-                runner.test("from Centimeters", (Test test) ->
+                runner.test("create Centimeters", (Test test) ->
                 {
                     assertDistance(test, Distance.centimeters(3).toKilometers(), 0.000030000000000000004, DistanceUnit.Kilometers);
                 });
 
-                runner.test("from Meters", (Test test) ->
+                runner.test("create Meters", (Test test) ->
                 {
                     assertDistance(test, Distance.meters(3).toKilometers(), 0.003, DistanceUnit.Kilometers);
                 });
 
-                runner.test("from Kilometers", (Test test) ->
+                runner.test("create Kilometers", (Test test) ->
                 {
                     assertDistance(test, Distance.kilometers(3).toKilometers(), 3, DistanceUnit.Kilometers);
                 });
 
-                runner.test("from Inches", (Test test) ->
+                runner.test("create Inches", (Test test) ->
                 {
                     assertDistance(test, Distance.inches(3).toKilometers(), 0.00007620000000000001, DistanceUnit.Kilometers);
                 });
 
-                runner.test("from Feet", (Test test) ->
+                runner.test("create Feet", (Test test) ->
                 {
                     assertDistance(test, Distance.feet(3).toKilometers(), 0.0009144000000000001, DistanceUnit.Kilometers);
                 });
 
-                runner.test("from Miles", (Test test) ->
+                runner.test("create Miles", (Test test) ->
                 {
                     assertDistance(test, Distance.miles(3).toKilometers(), 4.828032, DistanceUnit.Kilometers);
                 });
@@ -381,37 +381,37 @@ public class DistanceTests
 
             runner.testGroup("toInches()", () ->
             {
-                runner.test("from Millimeters", (Test test) ->
+                runner.test("create Millimeters", (Test test) ->
                 {
                     assertDistance(test, Distance.millimeters(3).toInches(), 0.11811023622047244, DistanceUnit.Inches);
                 });
 
-                runner.test("from Centimeters", (Test test) ->
+                runner.test("create Centimeters", (Test test) ->
                 {
                     assertDistance(test, Distance.centimeters(3).toInches(), 1.1811023622047243, DistanceUnit.Inches);
                 });
 
-                runner.test("from Meters", (Test test) ->
+                runner.test("create Meters", (Test test) ->
                 {
                     assertDistance(test, Distance.meters(3).toInches(), 118.11023622047244, DistanceUnit.Inches);
                 });
 
-                runner.test("from Kilometers", (Test test) ->
+                runner.test("create Kilometers", (Test test) ->
                 {
                     assertDistance(test, Distance.kilometers(3).toInches(), 118110.23622047243, DistanceUnit.Inches);
                 });
 
-                runner.test("from Inches", (Test test) ->
+                runner.test("create Inches", (Test test) ->
                 {
                     assertDistance(test, Distance.inches(3).toInches(), 3, DistanceUnit.Inches);
                 });
 
-                runner.test("from Feet", (Test test) ->
+                runner.test("create Feet", (Test test) ->
                 {
                     assertDistance(test, Distance.feet(3).toInches(), 36.0, DistanceUnit.Inches);
                 });
 
-                runner.test("from Miles", (Test test) ->
+                runner.test("create Miles", (Test test) ->
                 {
                     assertDistance(test, Distance.miles(3).toInches(), 190080.0, DistanceUnit.Inches);
                 });
@@ -419,37 +419,37 @@ public class DistanceTests
 
             runner.testGroup("toFeet()", () ->
             {
-                runner.test("from Millimeters", (Test test) ->
+                runner.test("create Millimeters", (Test test) ->
                 {
                     assertDistance(test, Distance.millimeters(3).toFeet(), 0.00984251968503937, DistanceUnit.Feet);
                 });
 
-                runner.test("from Centimeters", (Test test) ->
+                runner.test("create Centimeters", (Test test) ->
                 {
                     assertDistance(test, Distance.centimeters(3).toFeet(), 0.09842519685039369, DistanceUnit.Feet);
                 });
 
-                runner.test("from Meters", (Test test) ->
+                runner.test("create Meters", (Test test) ->
                 {
                     assertDistance(test, Distance.meters(3).toFeet(), 9.84251968503937, DistanceUnit.Feet);
                 });
 
-                runner.test("from Kilometers", (Test test) ->
+                runner.test("create Kilometers", (Test test) ->
                 {
                     assertDistance(test, Distance.kilometers(3).toFeet(), 9842.51968503937, DistanceUnit.Feet);
                 });
 
-                runner.test("from Inches", (Test test) ->
+                runner.test("create Inches", (Test test) ->
                 {
                     assertDistance(test, Distance.inches(3).toFeet(), 0.25, DistanceUnit.Feet);
                 });
 
-                runner.test("from Feet", (Test test) ->
+                runner.test("create Feet", (Test test) ->
                 {
                     assertDistance(test, Distance.feet(3).toFeet(), 3, DistanceUnit.Feet);
                 });
 
-                runner.test("from Miles", (Test test) ->
+                runner.test("create Miles", (Test test) ->
                 {
                     assertDistance(test, Distance.miles(3).toFeet(), 15840.0, DistanceUnit.Feet);
                 });
@@ -457,37 +457,37 @@ public class DistanceTests
 
             runner.testGroup("toMiles()", () ->
             {
-                runner.test("from Millimeters", (Test test) ->
+                runner.test("create Millimeters", (Test test) ->
                 {
                     assertDistance(test, Distance.millimeters(3).toMiles(), 0.000001864113576712002, DistanceUnit.Miles);
                 });
 
-                runner.test("from Centimeters", (Test test) ->
+                runner.test("create Centimeters", (Test test) ->
                 {
                     assertDistance(test, Distance.centimeters(3).toMiles(), 0.00001864113576712002, DistanceUnit.Miles);
                 });
 
-                runner.test("from Meters", (Test test) ->
+                runner.test("create Meters", (Test test) ->
                 {
                     assertDistance(test, Distance.meters(3).toMiles(), 0.001864113576712002, DistanceUnit.Miles);
                 });
 
-                runner.test("from Kilometers", (Test test) ->
+                runner.test("create Kilometers", (Test test) ->
                 {
                     assertDistance(test, Distance.kilometers(3).toMiles(), 1.8641135767120018, DistanceUnit.Miles);
                 });
 
-                runner.test("from Inches", (Test test) ->
+                runner.test("create Inches", (Test test) ->
                 {
                     assertDistance(test, Distance.inches(3).toMiles(), 0.00004734848484848485, DistanceUnit.Miles);
                 });
 
-                runner.test("from Feet", (Test test) ->
+                runner.test("create Feet", (Test test) ->
                 {
                     assertDistance(test, Distance.feet(3).toMiles(), 0.0005681818181818182, DistanceUnit.Miles);
                 });
 
-                runner.test("from Miles", (Test test) ->
+                runner.test("create Miles", (Test test) ->
                 {
                     assertDistance(test, Distance.miles(3).toMiles(), 3, DistanceUnit.Miles);
                 });
@@ -495,37 +495,37 @@ public class DistanceTests
 
             runner.testGroup("toFontPoints()", () ->
             {
-                runner.test("from Millimeters", (Test test) ->
+                runner.test("create Millimeters", (Test test) ->
                 {
                     assertDistance(test, Distance.millimeters(3).toFontPoints(), 8.503937007874015, DistanceUnit.FontPoints);
                 });
 
-                runner.test("from Centimeters", (Test test) ->
+                runner.test("create Centimeters", (Test test) ->
                 {
                     assertDistance(test, Distance.centimeters(3).toFontPoints(), 85.03937007874015, DistanceUnit.FontPoints);
                 });
 
-                runner.test("from Meters", (Test test) ->
+                runner.test("create Meters", (Test test) ->
                 {
                     assertDistance(test, Distance.meters(3).toFontPoints(), 8503.937007874018, DistanceUnit.FontPoints);
                 });
 
-                runner.test("from Kilometers", (Test test) ->
+                runner.test("create Kilometers", (Test test) ->
                 {
                     assertDistance(test, Distance.kilometers(3).toFontPoints(), 8503937.007874016, DistanceUnit.FontPoints);
                 });
 
-                runner.test("from Inches", (Test test) ->
+                runner.test("create Inches", (Test test) ->
                 {
                     assertDistance(test, Distance.inches(3).toFontPoints(), 216.0, DistanceUnit.FontPoints);
                 });
 
-                runner.test("from Feet", (Test test) ->
+                runner.test("create Feet", (Test test) ->
                 {
                     assertDistance(test, Distance.feet(3).toFontPoints(), 2592.0, DistanceUnit.FontPoints);
                 });
 
-                runner.test("from Miles", (Test test) ->
+                runner.test("create Miles", (Test test) ->
                 {
                     assertDistance(test, Distance.miles(3).toFontPoints(), 13685760.0, DistanceUnit.FontPoints);
                 });

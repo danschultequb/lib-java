@@ -126,7 +126,7 @@ public class UITextTests
                     text.paint(painter);
 
                     test.assertEqual(
-                        Array.fromValues(new PainterAction[]
+                        Array.create(new PainterAction[]
                         {
                             new DrawTextAction("ABC", Point2D.zero, Distance.fontPoints(14), Color.black)
                         }),
@@ -142,7 +142,7 @@ public class UITextTests
                     text.paint(painter);
 
                     test.assertEqual(
-                        Array.fromValues(new PainterAction[]
+                        Array.create(new PainterAction[]
                         {
                             new DrawTextAction("ABC", Point2D.zero, Distance.fontPoints(14), Color.black)
                         }),
@@ -159,7 +159,7 @@ public class UITextTests
                     text.paint(painter);
 
                     test.assertEqual(
-                        Array.fromValues(new PainterAction[]
+                        Array.create(new PainterAction[]
                         {
                             new DrawTextAction("Tulips", new Point2D(Distance.inches(3), Distance.inches(3)), Distance.millimeters(5), Color.black)
                         }),
@@ -176,7 +176,7 @@ public class UITextTests
                     text.paint(painter);
 
                     test.assertEqual(
-                        Array.fromValues(new PainterAction[]
+                        Array.create(new PainterAction[]
                         {
                             new FillRectangleAction(Point2D.zero, Distance.inches(2), Distance.inches(0.5), Color.red),
                             new DrawTextAction("Answers", Point2D.zero, Distance.fontPoints(14), Color.black)
@@ -209,7 +209,7 @@ public class UITextTests
                     text.repaint();
 
                     test.assertEqual(
-                        Array.fromValues(new PainterAction[]
+                        Array.create(new PainterAction[]
                         {
                             new DrawTextAction("apples", Point2D.zero, Distance.fontPoints(14), Color.black)
                         }),

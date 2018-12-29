@@ -35,7 +35,7 @@ class MapIndexable<TInner,TOuter> implements Indexable<TOuter>
     @Override
     public TOuter get(int index)
     {
-        PreCondition.assertBetween(0, index, getCount() - 1, "index");
+        validateAccessIndex(index);
 
         return conversion.run(innerIndexable.get(index));
     }

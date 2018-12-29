@@ -709,7 +709,7 @@ public class Process implements Disposable
                 result = null;
 
                 final String pathEnvironmentVariable = getEnvironmentVariable("path");
-                final Iterable<String> pathStrings = Array.fromValues(pathEnvironmentVariable.split(";"));
+                final Iterable<String> pathStrings = Array.create(pathEnvironmentVariable.split(";"));
                 for (final String pathString : pathStrings)
                 {
                     final Path path = Path.parse(pathString);

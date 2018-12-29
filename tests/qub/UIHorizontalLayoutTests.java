@@ -30,7 +30,7 @@ public class UIHorizontalLayoutTests
                     layout.paint(painter);
 
                     test.assertEqual(
-                        Array.fromValues(new PainterAction[]
+                        Array.create(new PainterAction[]
                          {
                              new DrawTextAction("One", Point2D.zero, Distance.fontPoints(14), Color.black),
                              new DrawTextAction("Two", new Point2D(Distance.inches(1), Distance.zero), Distance.fontPoints(14), Color.black)

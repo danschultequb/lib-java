@@ -96,4 +96,21 @@ public interface Indexable<T> extends Iterable<T>
     {
         return new MapIndexable<>(this, conversion);
     }
+
+    /**
+     * Validate the provided index against this Indexable.
+     * @param index The index to validate.
+     */
+    default void validateAccessIndex(int index)
+    {
+        final int count = getCount();
+        if (count == 0)
+        {
+            PreCondition.fail("Cannot access values in an empty Indexable.");
+        }
+        else
+        {
+            PreCondition.assertBetween(0, index, count - 1, "index");
+        }
+    }
 }

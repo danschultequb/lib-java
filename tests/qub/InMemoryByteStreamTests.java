@@ -580,26 +580,26 @@ public class InMemoryByteStreamTests
                 {
                     final InMemoryByteStream stream = create(test);
                     stream.dispose();
-                    test.assertThrows(() -> stream.readBytesUntil(Array.fromValues(new byte[] { 5 })));
+                    test.assertThrows(() -> stream.readBytesUntil(Array.create(new byte[] { 5 })));
                 });
 
                 runner.test("with no bytes to read", (Test test) ->
                 {
                     final InMemoryByteStream stream = create(test);
-                    test.assertError(new EndOfStreamException(), stream.readBytesUntil(Array.fromValues(new byte[] { 5 })));
+                    test.assertError(new EndOfStreamException(), stream.readBytesUntil(Array.create(new byte[] { 5 })));
                 });
 
                 runner.test("with bytes but not the stopByte", (Test test) ->
                 {
                     final InMemoryByteStream stream = create(new byte[] { 0, 1, 2, 3, 4, 6, 7, 8, 9 }, test);
-                    test.assertSuccess(new byte[] { 0, 1, 2, 3, 4, 6, 7, 8, 9 }, stream.readBytesUntil(Array.fromValues(new byte[] { 5 })));
+                    test.assertSuccess(new byte[] { 0, 1, 2, 3, 4, 6, 7, 8, 9 }, stream.readBytesUntil(Array.create(new byte[] { 5 })));
                     test.assertNull(stream.getCurrent());
                 });
 
                 runner.test("with bytes including the stopByte", (Test test) ->
                 {
                     final InMemoryByteStream stream = create(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }, test);
-                    test.assertSuccess(new byte[] { 0, 1, 2, 3, 4, 5 }, stream.readBytesUntil(Array.fromValues(new byte[] { 5 })));
+                    test.assertSuccess(new byte[] { 0, 1, 2, 3, 4, 5 }, stream.readBytesUntil(Array.create(new byte[] { 5 })));
                     test.assertEqual((byte)5, stream.getCurrent());
                 });
             });
@@ -610,26 +610,26 @@ public class InMemoryByteStreamTests
                 {
                     final InMemoryByteStream stream = create(test);
                     stream.dispose();
-                    test.assertThrows(() -> stream.readBytesUntilAsync(Array.fromValues(new byte[] { 5 })));
+                    test.assertThrows(() -> stream.readBytesUntilAsync(Array.create(new byte[] { 5 })));
                 });
 
                 runner.test("with no bytes to read", (Test test) ->
                 {
                     final InMemoryByteStream stream = create(test);
-                    test.assertError(new EndOfStreamException(), stream.readBytesUntilAsync(Array.fromValues(new byte[] { 5 })).awaitReturn());
+                    test.assertError(new EndOfStreamException(), stream.readBytesUntilAsync(Array.create(new byte[] { 5 })).awaitReturn());
                 });
 
                 runner.test("with bytes but not the stopBytes", (Test test) ->
                 {
                     final InMemoryByteStream stream = create(new byte[] { 0, 1, 2, 3, 4, 6, 7, 8, 9 }, test);
-                    test.assertSuccess(new byte[] { 0, 1, 2, 3, 4, 6, 7, 8, 9 }, stream.readBytesUntilAsync(Array.fromValues(new byte[] { 6, 6 })).awaitReturn());
+                    test.assertSuccess(new byte[] { 0, 1, 2, 3, 4, 6, 7, 8, 9 }, stream.readBytesUntilAsync(Array.create(new byte[] { 6, 6 })).awaitReturn());
                     test.assertNull(stream.getCurrent());
                 });
 
                 runner.test("with bytes including the stopBytes", (Test test) ->
                 {
                     final InMemoryByteStream stream = create(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }, test);
-                    test.assertSuccess(new byte[] { 0, 1, 2, 3, 4, 5 }, stream.readBytesUntilAsync(Array.fromValues(new byte[] { 3, 4, 5 })).awaitReturn());
+                    test.assertSuccess(new byte[] { 0, 1, 2, 3, 4, 5 }, stream.readBytesUntilAsync(Array.create(new byte[] { 3, 4, 5 })).awaitReturn());
                     test.assertEqual((byte)5, stream.getCurrent());
                 });
             });

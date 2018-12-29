@@ -15,8 +15,6 @@ public interface MutableIndexable<T> extends Indexable<T>
      */
     default void setFirst(T value)
     {
-        PreCondition.assertTrue(any(), "any()");
-
         set(0, value);
     }
 
@@ -26,8 +24,6 @@ public interface MutableIndexable<T> extends Indexable<T>
      */
     default void setLast(T value)
     {
-        PreCondition.assertTrue(any(), "any()");
-
         set(getCount() - 1, value);
     }
 }

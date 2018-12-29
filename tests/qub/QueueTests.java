@@ -80,7 +80,7 @@ public class QueueTests
                 runner.test("with non-empty", (Test test) ->
                 {
                     final Queue<Integer> queue = createQueue.run();
-                    queue.enqueueAll(Array.fromValues(new Integer[] { 0, 1, 2 }));
+                    queue.enqueueAll(Array.create(new Integer[] { 0, 1, 2 }));
                     test.assertEqual(3, queue.getCount());
                     for (int i = 0; i < 3; ++i)
                     {

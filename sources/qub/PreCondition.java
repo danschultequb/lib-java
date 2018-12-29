@@ -6,6 +6,15 @@ package qub;
 public class PreCondition
 {
     /**
+     * Throw a PreConditionFailure with the provided message.
+     * @param message The message to use.
+     */
+    public static void fail(String message)
+    {
+        throw new PreConditionFailure(message);
+    }
+
+    /**
      * Assert that the provided value is false.
      * @param value The value that must be false.
      * @param expressionName The name of expression that produced the boolean value.

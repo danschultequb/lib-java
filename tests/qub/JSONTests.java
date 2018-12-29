@@ -18,14 +18,14 @@ public class JSONTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(text), (Test test) ->
                     {
-                        final JSONDocument expectedDocument = new JSONDocument(Array.fromValues(expectedDocumentSegments));
+                        final JSONDocument expectedDocument = new JSONDocument(Array.create(expectedDocumentSegments));
                         final JSONDocument actualDocumentWithoutErrors = JSON.parse(text);
                         test.assertEqual(expectedDocument.getSegments(), actualDocumentWithoutErrors.getSegments());
 
                         final List<Issue> actualIssues = new ArrayList<>();
                         final JSONDocument actualDocumentWithErrors = JSON.parse(text, actualIssues);
                         test.assertEqual(expectedDocument.getSegments(), actualDocumentWithErrors.getSegments());
-                        test.assertEqual(Array.fromValues(expectedIssues), actualIssues);
+                        test.assertEqual(Array.create(expectedIssues), actualIssues);
                     });
                 };
 

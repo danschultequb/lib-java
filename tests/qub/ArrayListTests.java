@@ -16,7 +16,7 @@ public class ArrayListTests
                 return result;
             });
 
-            runner.test("fromValues()", (Test test) ->
+            runner.test("create()", (Test test) ->
             {
                 final ArrayList<Integer> arrayList1 = ArrayList.fromValues(new Integer[0]);
                 test.assertEqual(0, arrayList1.getCount());
@@ -37,7 +37,7 @@ public class ArrayListTests
                 final ArrayList<Integer> arrayList5 = ArrayList.fromValues(new Array<Integer>(0).iterate());
                 test.assertEqual(0, arrayList5.getCount());
 
-                final ArrayList<Integer> arrayList6 = ArrayList.fromValues(Array.fromValues(new Integer[] { 1, 2, 3 }).iterate());
+                final ArrayList<Integer> arrayList6 = ArrayList.fromValues(Array.create(new Integer[] { 1, 2, 3 }).iterate());
                 test.assertEqual(3, arrayList6.getCount());
                 for (int i = 0; i < 3; ++i)
                 {
@@ -50,7 +50,7 @@ public class ArrayListTests
                 final ArrayList<Integer> arrayList8 = ArrayList.fromValues(new Array<Integer>(0));
                 test.assertEqual(0, arrayList8.getCount());
 
-                final ArrayList<Integer> arrayList9 = ArrayList.fromValues(Array.fromValues(new Integer[] { 1, 2, 3 }));
+                final ArrayList<Integer> arrayList9 = ArrayList.fromValues(Array.create(new Integer[] { 1, 2, 3 }));
                 test.assertEqual(3, arrayList9.getCount());
                 for (int i = 0; i < 3; ++i)
                 {

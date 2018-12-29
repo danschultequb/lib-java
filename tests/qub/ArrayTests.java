@@ -6,7 +6,7 @@ public class ArrayTests
     {
         runner.testGroup(Array.class, () ->
         {
-            IndexableTests.test(runner, (Integer count) ->
+            MutableIndexableTests.test(runner, (Integer count) ->
             {
                 final Array<Integer> result = new Array<>(count);
                 for (int i = 0; i < count; ++i)
@@ -16,172 +16,172 @@ public class ArrayTests
                 return result; 
             });
 
-            runner.testGroup("fromValues(boolean[])", () ->
+            runner.testGroup("create(boolean[])", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final Array<Boolean> array = Array.fromValues((boolean[])null);
+                    final Array<Boolean> array = Array.create((boolean[])null);
                     test.assertEqual(0, array.getCount());
                 });
 
                 runner.test("with no values", (Test test) ->
                 {
-                    final Array<Boolean> array = Array.fromValues(new boolean[0]);
+                    final Array<Boolean> array = Array.create(new boolean[0]);
                     test.assertEqual(0, array.getCount());
                 });
 
                 runner.test("with one value", (Test test) ->
                 {
-                    final Array<Boolean> array = Array.fromValues(new boolean[] { true });
+                    final Array<Boolean> array = Array.create(new boolean[] { true });
                     test.assertEqual(1, array.getCount());
                     test.assertEqual(true, array.get(0));
                 });
 
                 runner.test("with two values", (Test test) ->
                 {
-                    final Array<Boolean> array = Array.fromValues(new boolean[] { true, false });
+                    final Array<Boolean> array = Array.create(new boolean[] { true, false });
                     test.assertEqual(2, array.getCount());
                     test.assertEqual(true, array.get(0));
                     test.assertEqual(false, array.get(1));
                 });
             });
 
-            runner.testGroup("fromValues(byte[])", () ->
+            runner.testGroup("create(byte[])", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> Array.fromValues((byte[])null));
+                    test.assertThrows(() -> Array.create((byte[])null));
                 });
 
                 runner.test("with no values", (Test test) ->
                 {
-                    final Array<Byte> array = Array.fromValues(new byte[0]);
+                    final Array<Byte> array = Array.create(new byte[0]);
                     test.assertEqual(0, array.getCount());
                 });
 
                 runner.test("with one value", (Test test) ->
                 {
-                    final Array<Byte> array = Array.fromValues(new byte[] { 12 });
+                    final Array<Byte> array = Array.create(new byte[] { 12 });
                     test.assertEqual(1, array.getCount());
                     test.assertEqual(12, array.get(0).intValue());
                 });
 
                 runner.test("with two values", (Test test) ->
                 {
-                    final Array<Byte> array = Array.fromValues(new byte[] { 13, 14 });
+                    final Array<Byte> array = Array.create(new byte[] { 13, 14 });
                     test.assertEqual(2, array.getCount());
                     test.assertEqual(13, array.get(0).intValue());
                     test.assertEqual(14, array.get(1).intValue());
                 });
             });
 
-            runner.testGroup("fromValues(char[])", () ->
+            runner.testGroup("create(char[])", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final Array<Character> array = Array.fromValues((char[])null);
+                    final Array<Character> array = Array.create((char[])null);
                     test.assertEqual(0, array.getCount());
                 });
 
                 runner.test("with no values", (Test test) ->
                 {
-                    final Array<Character> array = Array.fromValues(new char[0]);
+                    final Array<Character> array = Array.create(new char[0]);
                     test.assertEqual(0, array.getCount());
                 });
 
                 runner.test("with one value", (Test test) ->
                 {
-                    final Array<Character> array = Array.fromValues(new char[] { 'a' });
+                    final Array<Character> array = Array.create(new char[] { 'a' });
                     test.assertEqual(1, array.getCount());
                     test.assertEqual('a', array.get(0));
                 });
 
                 runner.test("with two values", (Test test) ->
                 {
-                    final Array<Character> array = Array.fromValues(new char[] { 'b', 'c' });
+                    final Array<Character> array = Array.create(new char[] { 'b', 'c' });
                     test.assertEqual(2, array.getCount());
                     test.assertEqual('b', array.get(0));
                     test.assertEqual('c', array.get(1));
                 });
             });
 
-            runner.testGroup("fromValues(int[])", () ->
+            runner.testGroup("create(int[])", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final Array<Integer> array = Array.fromValues((int[])null);
+                    final Array<Integer> array = Array.create((int[])null);
                     test.assertEqual(0, array.getCount());
                 });
 
                 runner.test("with no values", (Test test) ->
                 {
-                    final Array<Integer> array = Array.fromValues(new int[0]);
+                    final Array<Integer> array = Array.create(new int[0]);
                     test.assertEqual(0, array.getCount());
                 });
 
                 runner.test("with one value", (Test test) ->
                 {
-                    final Array<Integer> array = Array.fromValues(new int[] { 101 });
+                    final Array<Integer> array = Array.create(new int[] { 101 });
                     test.assertEqual(1, array.getCount());
                     test.assertEqual(101, array.get(0));
                 });
 
                 runner.test("with two values", (Test test) ->
                 {
-                    final Array<Integer> array = Array.fromValues(new int[] { 101, 102 });
+                    final Array<Integer> array = Array.create(new int[] { 101, 102 });
                     test.assertEqual(2, array.getCount());
                     test.assertEqual(101, array.get(0));
                     test.assertEqual(102, array.get(1));
                 });
             });
             
-            runner.testGroup("fromValues(T[])", () ->
+            runner.testGroup("create(T...)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final Array<Integer> array = Array.fromValues((Integer[])null);
+                    final Array<Integer> array = Array.create((Integer[])null);
                     test.assertEqual(0, array.getCount());
                 });
 
                 runner.test("with no values", (Test test) ->
                 {
-                    final Array<Integer> array = Array.fromValues(new Integer[0]);
+                    final Array<Integer> array = Array.create(new Integer[0]);
                     test.assertEqual(0, array.getCount());
                 });
 
                 runner.test("with one value", (Test test) ->
                 {
-                    final Array<Integer> array = Array.fromValues(new Integer[] { 101 });
+                    final Array<Integer> array = Array.create(101);
                     test.assertEqual(1, array.getCount());
                     test.assertEqual(101, array.get(0));
                 });
 
                 runner.test("with two values", (Test test) ->
                 {
-                    final Array<Integer> array = Array.fromValues(new Integer[] { 101, 102 });
+                    final Array<Integer> array = Array.create(101, 102);
                     test.assertEqual(2, array.getCount());
                     test.assertEqual(101, array.get(0));
                     test.assertEqual(102, array.get(1));
                 });
             });
 
-            runner.testGroup("fromValues(Iterator<T>)", () ->
+            runner.testGroup("create(Iterator<T>)", () ->
             {
                 runner.test("with null Iterator", (Test test) ->
                 {
-                    final Array<Integer> array = Array.fromValues((Iterator<Integer>)null);
+                    final Array<Integer> array = Array.create((Iterator<Integer>)null);
                     test.assertEqual(0, array.getCount());
                 });
 
                 runner.test("with empty Iterator", (Test test) ->
                 {
-                    final Array<Integer> array = Array.fromValues(new Array<Integer>(0).iterate());
+                    final Array<Integer> array = Array.create(new Array<Integer>(0).iterate());
                     test.assertEqual(0, array.getCount());
                 });
 
                 runner.test("with non-empty Iterator", (Test test) ->
                 {
-                    final Array<Integer> array = Array.fromValues(Array.fromValues(new Integer[] { 1, 2, 3 }).iterate());
+                    final Array<Integer> array = Array.create(Array.create(1, 2, 3).iterate());
                     test.assertEqual(3, array.getCount());
                     test.assertEqual(1, array.get(0));
                     test.assertEqual(2, array.get(1));
@@ -189,23 +189,23 @@ public class ArrayTests
                 });
             });
 
-            runner.testGroup("fromValues(Iterable<T>)", () ->
+            runner.testGroup("create(Iterable<T>)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final Array<Integer> array = Array.fromValues((Iterable<Integer>)null);
+                    final Array<Integer> array = Array.create((Iterable<Integer>)null);
                     test.assertEqual(0, array.getCount());
                 });
 
                 runner.test("with empty", (Test test) ->
                 {
-                    final Array<Integer> array = Array.fromValues(new Array<Integer>(0));
+                    final Array<Integer> array = Array.create(new Array<Integer>(0));
                     test.assertEqual(0, array.getCount());
                 });
 
                 runner.test("with non-empty", (Test test) ->
                 {
-                    final Array<Integer> array = Array.fromValues(Array.fromValues(new Integer[] { 1, 2, 3 }));
+                    final Array<Integer> array = Array.create(Array.create(new Integer[] { 1, 2, 3 }));
                     test.assertEqual(3, array.getCount());
                     test.assertEqual(1, array.get(0));
                     test.assertEqual(2, array.get(1));
@@ -342,7 +342,7 @@ public class ArrayTests
                 {
                     test.assertEqual(
                         new boolean[] { false, true, false },
-                        Array.toBooleanArray(Array.fromValues(new Boolean[] { false, true, false }).iterate()));
+                        Array.toBooleanArray(Array.create(new Boolean[] { false, true, false }).iterate()));
                 });
 
                 runner.test("with null Iterable", (Test test) ->
@@ -370,7 +370,7 @@ public class ArrayTests
 
                 runner.test("with non-empty Iterator", (Test test) ->
                 {
-                    test.assertEqual(new byte[] { 0, 1, 2 }, Array.toByteArray(Array.fromValues(new Byte[] { 0, 1, 2 }).iterate()));
+                    test.assertEqual(new byte[] { 0, 1, 2 }, Array.toByteArray(Array.create(new Byte[] { 0, 1, 2 }).iterate()));
                 });
 
                 runner.test("with null Iterable", (Test test) ->
@@ -398,7 +398,7 @@ public class ArrayTests
 
                 runner.test("with non-empty Iterator", (Test test) ->
                 {
-                    test.assertEqual(new int[] { 0, 1, 2 }, Array.toIntArray(Array.fromValues(new Integer[] { 0, 1, 2 }).iterate()));
+                    test.assertEqual(new int[] { 0, 1, 2 }, Array.toIntArray(Array.create(new Integer[] { 0, 1, 2 }).iterate()));
                 });
 
                 runner.test("with null Iterable", (Test test) ->
@@ -426,7 +426,7 @@ public class ArrayTests
 
                 runner.test("with non-empty Iterator", (Test test) ->
                 {
-                    test.assertEqual(new String[] { "0", "1", "2" }, Array.toStringArray(Array.fromValues(new String[] { "0", "1", "2" }).iterate()));
+                    test.assertEqual(new String[] { "0", "1", "2" }, Array.toStringArray(Array.create(new String[] { "0", "1", "2" }).iterate()));
                 });
 
                 runner.test("with null Iterable", (Test test) ->
@@ -560,7 +560,7 @@ public class ArrayTests
             {
                 final Action6<byte[],Integer,byte[],Integer,Integer,byte[]> copyTest = (byte[] copyFrom, Integer copyFromStartIndex, byte[] copyTo, Integer copyToStartIndex, Integer length, byte[] expectedBytes) ->
                 {
-                    runner.test("from " + Array.toString(copyFrom) + " at index " + copyFromStartIndex + " to " + Array.toString(copyTo) + " at index " + copyToStartIndex + " for length " + length, (Test test) ->
+                    runner.test("create " + Array.toString(copyFrom) + " at index " + copyFromStartIndex + " to " + Array.toString(copyTo) + " at index " + copyToStartIndex + " for length " + length, (Test test) ->
                     {
                         final byte[] copyFromClone = Array.clone(copyFrom);
 
@@ -820,7 +820,7 @@ public class ArrayTests
             {
                 final Action6<char[],Integer,char[],Integer,Integer,char[]> copyTest = (char[] copyFrom, Integer copyFromStartIndex, char[] copyTo, Integer copyToStartIndex, Integer length, char[] expected) ->
                 {
-                    runner.test("from " + Array.toString(copyFrom) + " at index " + copyFromStartIndex + " to " + Array.toString(copyTo) + " at index " + copyToStartIndex + " for length " + length, (Test test) ->
+                    runner.test("create " + Array.toString(copyFrom) + " at index " + copyFromStartIndex + " to " + Array.toString(copyTo) + " at index " + copyToStartIndex + " for length " + length, (Test test) ->
                     {
                         final char[] copyFromClone = Array.clone(copyFrom);
 
@@ -1080,11 +1080,11 @@ public class ArrayTests
             {
                 final Action2<byte[][],byte[]> mergeTest = (byte[][] bytes, byte[] expected) ->
                 {
-                    runner.test("with " + (bytes == null ? "null" : Array.fromValues(bytes).map(Array::fromValues)), (Test test) ->
+                    runner.test("with " + (bytes == null ? "null" : Array.create(bytes).map(Array::create)), (Test test) ->
                     {
-                        final Array<Byte> expectedArray = expected == null ? null : Array.fromValues(expected);
-                        final byte[] mergedBytes = Array.mergeBytes(bytes == null ? null : Array.fromValues(bytes));
-                        final Array<Byte> actualArray = mergedBytes == null ? null : Array.fromValues(mergedBytes);
+                        final Array<Byte> expectedArray = expected == null ? null : Array.create(expected);
+                        final byte[] mergedBytes = Array.mergeBytes(bytes == null ? null : Array.create(bytes));
+                        final Array<Byte> actualArray = mergedBytes == null ? null : Array.create(mergedBytes);
 
                         test.assertEqual(expectedArray, actualArray);
                     });

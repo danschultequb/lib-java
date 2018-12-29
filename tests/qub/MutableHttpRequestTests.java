@@ -106,7 +106,7 @@ public class MutableHttpRequestTests
                     request.setBody("hello");
                     test.assertSuccess("hello", request.getBody().asLineReadStream().readLine());
                     test.assertEqual(
-                        Array.fromValues(new HttpHeader[]
+                        Array.create(new HttpHeader[]
                         {
                             new HttpHeader("Content-Length", 5)
                         }),
@@ -138,7 +138,7 @@ public class MutableHttpRequestTests
                     request.setBody(new byte[] { 0, 1, 2, 3, 4 });
                     test.assertSuccess(new byte[] { 0, 1, 2, 3, 4 }, request.getBody().readAllBytes());
                     test.assertEqual(
-                        Array.fromValues(new HttpHeader[]
+                        Array.create(new HttpHeader[]
                         {
                             new HttpHeader("Content-Length", 5)
                         }),
@@ -186,7 +186,7 @@ public class MutableHttpRequestTests
                     request.setBody(3, new InMemoryByteStream(new byte[] { 0, 1, 2 }));
                     test.assertNotNull(request.getBody());
                     test.assertEqual(
-                        Array.fromValues(new HttpHeader[]
+                        Array.create(new HttpHeader[]
                         {
                             new HttpHeader("Content-Length", 3)
                         }),

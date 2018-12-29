@@ -82,7 +82,7 @@ public class DurationTests
             {
                 final Action4<Double,DurationUnit,DurationUnit,Double> convertToWithValueTest = (Double startValue, DurationUnit startUnits, DurationUnit targetUnits, Double expectedValue) ->
                 {
-                    runner.test("from " + startValue + " " + startUnits + " to " + targetUnits, (Test test) ->
+                    runner.test("create " + startValue + " " + startUnits + " to " + targetUnits, (Test test) ->
                     {
                         final Duration startDuration = new Duration(startValue, startUnits);
 

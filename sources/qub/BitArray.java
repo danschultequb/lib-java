@@ -434,7 +434,7 @@ public class BitArray
     {
         PreCondition.assertEqual(0, getBitCount() % Integer.SIZE, "getBitCount() % Integer.SIZE");
 
-        final Iterator<Integer> result = Array.fromValues(chunks).iterate();
+        final Iterator<Integer> result = Array.create(chunks).iterate();
 
         PostCondition.assertNotNull(result, "result");
         PostCondition.assertFalse(result.hasStarted(), "result.hasStarted()");

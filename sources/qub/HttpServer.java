@@ -7,7 +7,7 @@ public class HttpServer implements AsyncDisposable
 {
     private final TCPServer tcpServer;
     private boolean disposed;
-    private final MutableMap<Path,Function1<HttpRequest,HttpResponse>> paths;
+    private final MutableMap<PathPattern,Function2<Indexable<String>,HttpRequest,HttpResponse>> paths;
     private Function1<HttpRequest,HttpResponse> notFoundAction;
 
     /**
@@ -64,6 +64,19 @@ public class HttpServer implements AsyncDisposable
         PreCondition.assertNotNullAndNotEmpty(pathString, "pathString");
         PreCondition.assertNotNull(pathAction, "pathAction");
 
+        return addPath(pathString, (Indexable<String> pathMatches, HttpRequest request) -> pathAction.run(request));
+    }
+
+    /**
+     * Add a new pathString that this HTTP server will respond to.
+     * @param pathString The pathString that this HTTP server will respond to.
+     * @return Whether or not the pathString was successfully added.
+     */
+    public Result<Boolean> addPath(String pathString, Function2<Indexable<String>,HttpRequest,HttpResponse> pathAction)
+    {
+        PreCondition.assertNotNullAndNotEmpty(pathString, "pathString");
+        PreCondition.assertNotNull(pathAction, "pathAction");
+
         if (pathString.contains("\\"))
         {
             pathString = pathString.replaceAll("\\\\", "/");
@@ -80,16 +93,16 @@ public class HttpServer implements AsyncDisposable
         }
         pathString = pathString.substring(0, endIndex);
 
-        final Path path = Path.parse(pathString);
+        final PathPattern pathPattern = PathPattern.parse(pathString);
 
         Result<Boolean> result;
-        if (paths.containsKey(path))
+        if (paths.containsKey(pathPattern))
         {
-            result = Result.error(new PathAlreadyExistsException(path));
+            result = Result.error(new AlreadyExistsException("The path " + Strings.escapeAndQuote(pathPattern) + " already exists."));
         }
         else
         {
-            paths.set(path, pathAction);
+            paths.set(pathPattern, pathAction);
             result = Result.successTrue();
         }
 
@@ -148,14 +161,30 @@ public class HttpServer implements AsyncDisposable
                 HttpResponse response;
                 final String pathString = request.getURL().getPath();
                 final Path path = Path.parse(Strings.isNullOrEmpty(pathString) ? "/" : pathString);
-                final Result<Function1<HttpRequest,HttpResponse>> pathAction = paths.get(path);
-                if (pathAction.hasError())
+                Indexable<String> pathTrackedValues = null;
+                Function2<Indexable<String>,HttpRequest,HttpResponse> pathAction = null;
+                for (final MapEntry<PathPattern,Function2<Indexable<String>,HttpRequest,HttpResponse>> entry : paths)
+                {
+                    final PathPattern pathPattern = entry.getKey();
+                    final Iterable<Match> pathMatches = pathPattern.getMatches(path);
+                    if (pathMatches.any())
+                    {
+                        final Match firstMatch = pathMatches.first();
+                        final Iterable<Iterable<Character>> trackedCharacters = firstMatch.getTrackedValues();
+                        final Iterable<String> trackedStrings = trackedCharacters.map(Strings::join);
+                        pathTrackedValues = List.create(trackedStrings);
+                        pathAction = entry.getValue();
+                        break;
+                    }
+                }
+
+                if (pathAction == null)
                 {
                     response = notFoundAction.run(request);
                 }
                 else
                 {
-                    response = pathAction.getValue().run(request);
+                    response = pathAction.run(pathTrackedValues, request);
                 }
 
                 if (response == null)
@@ -212,7 +241,7 @@ public class HttpServer implements AsyncDisposable
      * Get all of the paths that have been registered with this server.
      * @return All of the paths that have been registered with this server.
      */
-    public Iterable<Path> getPaths()
+    public Iterable<PathPattern> getPaths()
     {
         return paths.getKeys();
     }
@@ -247,7 +276,7 @@ public class HttpServer implements AsyncDisposable
     }
 
     /**
-     * Get the default reason phrase for the provided status code. These default phrases come from
+     * Get the default reason phrase for the provided status code. These default phrases come create
      * https://www.w3.org/Protocols/rfc2616/rfc2616-sec6.html.
      * @param statusCode The status code to get the default reason phrase for.
      * @return The default reason phrase for the provided status code.

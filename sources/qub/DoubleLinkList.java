@@ -31,7 +31,7 @@ public class DoubleLinkList<T> implements List<T>
     @Override
     public void insert(int insertIndex, T value)
     {
-        PreCondition.assertBetween(0, insertIndex, getCount(), "insertIndex");
+        validateInsertIndex(insertIndex);
 
         if (insertIndex == getCount())
         {
@@ -66,7 +66,7 @@ public class DoubleLinkList<T> implements List<T>
 
     private DoubleLinkNode<T> getNode(int index)
     {
-        PreCondition.assertBetween(0, index, getCount() - 1, "index");
+        validateAccessIndex(index);
 
         DoubleLinkNode<T> result = head;
         for (int i = 0; i < index; ++i)
@@ -82,7 +82,7 @@ public class DoubleLinkList<T> implements List<T>
     @Override
     public void set(int index, T value)
     {
-        PreCondition.assertBetween(0, index, getCount() - 1, "index");
+        validateAccessIndex(index);
 
         getNode(index).setValue(value);
     }
@@ -90,7 +90,7 @@ public class DoubleLinkList<T> implements List<T>
     @Override
     public T removeAt(int index)
     {
-        PreCondition.assertBetween(0, index, getCount() - 1, "index");
+        validateAccessIndex(index);
 
         final DoubleLinkNode<T> nodeToRemove = getNode(index);
         final T result = nodeToRemove.getValue();
@@ -193,8 +193,9 @@ public class DoubleLinkList<T> implements List<T>
     @Override
     public T get(int index)
     {
-        final DoubleLinkNode<T> node = getNode(index);
-        return node == null ? null : node.getValue();
+        validateAccessIndex(index);
+
+        return getNode(index).getValue();
     }
 
     @Override

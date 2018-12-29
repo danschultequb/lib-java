@@ -13,7 +13,7 @@ public class IndexableTests
                 runner.test("with negative index", (Test test) ->
                 {
                     final Indexable<Integer> indexable = createIndexable.run(0);
-                    test.assertThrows(() -> indexable.get(-5));
+                    test.assertThrows(() -> indexable.get(-5), new PreConditionFailure("Cannot access values in an empty Indexable."));
                 });
 
                 runner.test("with zero index", (Test test) ->

@@ -28,7 +28,7 @@ public class JavaFileSystem implements FileSystem
     @Override
     public Result<Iterable<Root>> getRoots()
     {
-        final Iterable<java.io.File> javaRoots = Array.fromValues(java.io.File.listRoots());
+        final Iterable<java.io.File> javaRoots = Array.create(java.io.File.listRoots());
         return Result.success(javaRoots.map((java.io.File root) ->
         {
             final String rootPathString = root.getAbsolutePath();

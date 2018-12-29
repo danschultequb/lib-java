@@ -85,4 +85,24 @@ public class Stack<T>
     {
         return !any() ? null : values.get(getCount() - 1);
     }
+
+    /**
+     * Get whether or not this Stack contains the provided value.
+     * @param value The value to look for.
+     * @return Whether or not this Stack contains the provided value.
+     */
+    public boolean contains(T value)
+    {
+        return values.contains(value);
+    }
+
+    /**
+     * Get whether or not this Stack does not contain the provided value.
+     * @param value The value to look for.
+     * @return Whether or not this Stack does not contain the provided value.
+     */
+    public boolean doesNotContain(T value)
+    {
+        return !contains(value);
+    }
 }

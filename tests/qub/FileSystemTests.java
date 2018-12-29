@@ -114,7 +114,7 @@ public class FileSystemTests
                         else
                         {
                             test.assertSuccess(result);
-                            test.assertEqual(Array.fromValues(expectedEntryPaths), result.getValue().map(FileSystemEntry::toString));
+                            test.assertEqual(Array.create(expectedEntryPaths), result.getValue().map(FileSystemEntry::toString));
                         }
                     });
                 };
@@ -183,7 +183,7 @@ public class FileSystemTests
                         else
                         {
                             test.assertSuccess(result);
-                            test.assertEqual(Array.fromValues(expectedEntryPaths), result.getValue().map(FileSystemEntry::toString));
+                            test.assertEqual(Array.create(expectedEntryPaths), result.getValue().map(FileSystemEntry::toString));
                         }
                     });
                 };
@@ -272,7 +272,7 @@ public class FileSystemTests
                         }
                         else
                         {
-                            test.assertEqual(Array.fromValues(expectedFolderPaths), result.getValue().map(FileSystemEntry::toString));
+                            test.assertEqual(Array.create(expectedFolderPaths), result.getValue().map(FileSystemEntry::toString));
                         }
 
                         if (expectedError == null)
@@ -379,7 +379,7 @@ public class FileSystemTests
                         }
                         else
                         {
-                            test.assertEqual(Array.fromValues(expectedFolderPaths), result.getValue().map(FileSystemEntry::toString));
+                            test.assertEqual(Array.create(expectedFolderPaths), result.getValue().map(FileSystemEntry::toString));
                         }
 
                         if (expectedError == null)
@@ -485,7 +485,7 @@ public class FileSystemTests
                         }
                         else
                         {
-                            test.assertEqual(Array.fromValues(expectedFilePaths), result.getValue().map(FileSystemEntry::toString));
+                            test.assertEqual(Array.create(expectedFilePaths), result.getValue().map(FileSystemEntry::toString));
                         }
 
                         if (expectedError == null)
@@ -543,7 +543,7 @@ public class FileSystemTests
                         }
                         else
                         {
-                            test.assertEqual(Array.fromValues(expectedFilePaths), result.getValue().map(FileSystemEntry::toString));
+                            test.assertEqual(Array.create(expectedFilePaths), result.getValue().map(FileSystemEntry::toString));
                         }
 
                         if (expectedError == null)
@@ -602,7 +602,7 @@ public class FileSystemTests
                         }
                         else
                         {
-                            test.assertEqual(Array.fromValues(expectedFilePaths), result.getValue().map(FileSystemEntry::toString));
+                            test.assertEqual(Array.create(expectedFilePaths), result.getValue().map(FileSystemEntry::toString));
                         }
 
                         if (expectedError == null)
@@ -1943,7 +1943,7 @@ public class FileSystemTests
                     fileSystem.createFile("/test/folder/2.txt");
 
                     final Result<Iterable<FileSystemEntry>> result = fileSystem.getFilesAndFoldersRecursively("/test/folder");
-                    test.assertSuccess(Array.fromValues(new FileSystemEntry[]
+                    test.assertSuccess(Array.create(new FileSystemEntry[]
                         {
                             fileSystem.getFile("/test/folder/1.txt").getValue(),
                             fileSystem.getFile("/test/folder/2.txt").getValue()
@@ -1959,7 +1959,7 @@ public class FileSystemTests
 
                     final Result<Iterable<FileSystemEntry>> result = fileSystem.getFilesAndFoldersRecursively("/test/folder");
                     test.assertSuccess(
-                        Array.fromValues(new FileSystemEntry[]
+                        Array.create(new FileSystemEntry[]
                         {
                             fileSystem.getFolder("/test/folder/1.txt").getValue(),
                             fileSystem.getFolder("/test/folder/2.txt").getValue()
@@ -1978,7 +1978,7 @@ public class FileSystemTests
 
                     final Result<Iterable<FileSystemEntry>> result = fileSystem.getFilesAndFoldersRecursively("/test/folder");
                     test.assertSuccess(
-                        Array.fromValues(new FileSystemEntry[]
+                        Array.create(new FileSystemEntry[]
                         {
                             fileSystem.getFolder("/test/folder/A").getValue(),
                             fileSystem.getFolder("/test/folder/B").getValue(),

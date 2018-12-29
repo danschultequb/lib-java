@@ -163,7 +163,7 @@ public class BasicTestRunnerTests
                     btr.testGroup(BasicTestRunnerTests.class, () -> value.set(counter.incrementAndGet()));
 
                     test.assertEqual(
-                        Array.fromValues(new MapEntry[] { MapEntry.create(1, new TestGroup("BasicTestRunnerTests", null, null)) }),
+                        Array.create(new MapEntry[] { MapEntry.create(1, new TestGroup("BasicTestRunnerTests", null, null)) }),
                         beforeTestGroup);
                     test.assertEqual(2, value.get());
                     test.assertEqual(
@@ -173,7 +173,7 @@ public class BasicTestRunnerTests
                         Iterable.empty(),
                         afterTestGroupError);
                     test.assertEqual(
-                        Array.fromValues(new MapEntry[] { MapEntry.create(3, new TestGroup("BasicTestRunnerTests", null, null)) }),
+                        Array.create(new MapEntry[] { MapEntry.create(3, new TestGroup("BasicTestRunnerTests", null, null)) }),
                         afterTestGroup);
                 });
 
@@ -264,11 +264,11 @@ public class BasicTestRunnerTests
                     btr.testGroup("abc", () -> value.set(counter.incrementAndGet()));
 
                     test.assertEqual(
-                        Array.fromValues(new MapEntry[] { MapEntry.create(1, new TestGroup("abc", null, null)) }),
+                        Array.create(new MapEntry[] { MapEntry.create(1, new TestGroup("abc", null, null)) }),
                         beforeTestGroup);
                     test.assertEqual(2, value.get());
                     test.assertEqual(
-                        Array.fromValues(new MapEntry[] { MapEntry.create(3, new TestGroup("abc", null, null)) }),
+                        Array.create(new MapEntry[] { MapEntry.create(3, new TestGroup("abc", null, null)) }),
                         afterTestGroup);
                 });
             });
