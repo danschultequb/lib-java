@@ -12,8 +12,6 @@ public class SingleLinkList<T> implements List<T>
 
     private SingleLinkNode<T> getNode(int index)
     {
-        validateAccessIndex(index);
-
         SingleLinkNode<T> result;
         if (index == -1)
         {

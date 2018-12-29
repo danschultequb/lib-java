@@ -71,4 +71,14 @@ public class Value<T> implements Getable<T>, Setable<T>
     {
         return rhs != null && hasValue == rhs.hasValue && Comparer.equal(value, rhs.value);
     }
+
+    public static <T> Value<T> create()
+    {
+        return new Value<>();
+    }
+
+    public static <T> Value<T> create(T value)
+    {
+        return new Value<>(value);
+    }
 }

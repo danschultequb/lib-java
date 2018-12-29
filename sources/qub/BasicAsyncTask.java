@@ -15,9 +15,9 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
     {
         this.asyncRunner = asyncRunner;
         this.mutex = new SpinMutex();
-        this.parentTasks = new Locked<>(new SingleLinkList<>(), mutex);
-        this.pausedTasks = new Locked<>(new SingleLinkList<>(), mutex);
-        this.completed = new Locked<>(new Value<>(false), mutex);
+        this.parentTasks = new Locked<>(List.create(), mutex);
+        this.pausedTasks = new Locked<>(List.create(), mutex);
+        this.completed = new Locked<>(Value.create(false), mutex);
         this.label = label;
     }
 
