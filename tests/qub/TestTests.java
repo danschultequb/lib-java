@@ -641,11 +641,7 @@ public class TestTests
                 {
                     final Test t = createTest("abc", test);
                     test.assertThrows(() -> t.assertNotNullAndNotEmpty(""),
-                        new TestAssertionFailure("abc", new String[]
-                                                            {
-                                                                "Expected: \"not null and not empty\"",
-                                                                "Actual:   \"\""
-                                                            }));
+                        new TestAssertionFailure("abc", Iterable.create("Expected: \"not null and not empty\"", "Actual:   \"\"")));
                 });
 
                 runner.test("with non-empty", (Test test) ->
@@ -684,6 +680,75 @@ public class TestTests
                 {
                     final Test t = createTest("abc", test);
                     test.assertThrows(() -> t.assertSuccess(Result.success("hello"), (Action1<String>)null));
+                });
+            });
+
+            runner.testGroup("assertSuccess(Result<T>,Action1<T>)", () ->
+            {
+                runner.test("with null Result", (Test test) ->
+                {
+                    final Test t = createTest("abc", test);
+                    final Value<Integer> value = Value.create();
+                    test.assertThrows(() -> t.assertSuccess(null, value::set),
+                        new TestAssertionFailure("abc", Iterable.create("Expected: \"not null\"", "Actual:   null")));
+                    test.assertFalse(value.hasValue());
+                });
+
+                runner.test("with error Result", (Test test) ->
+                {
+                    final Test t = createTest("abc", test);
+                    final Value<Integer> value = Value.create();
+                    test.assertThrows(() -> t.assertSuccess(Result.error(new Exception("blah")), value::set),
+                        new TestAssertionFailure("abc", Iterable.create("Message:  java.lang.Exception: blah", "Expected: false", "Actual:   true")));
+                    test.assertFalse(value.hasValue());
+                });
+
+                runner.test("with success Result with null value", (Test test) ->
+                {
+                    final Test t = createTest("abc", test);
+                    final Value<Integer> value = Value.create();
+                    t.assertSuccess(Result.success(null), value::set);
+                    test.assertTrue(value.hasValue());
+                    test.assertEqual(null, value.get());
+                });
+
+                runner.test("with success Result with non-null value", (Test test) ->
+                {
+                    final Test t = createTest("abc", test);
+                    final Value<Integer> value = Value.create();
+                    t.assertSuccess(Result.success(5), value::set);
+                    test.assertTrue(value.hasValue());
+                    test.assertEqual(5, value.get());
+                });
+
+                runner.test("with success Result with non-null value and Exception in resultAction", (Test test) ->
+                {
+                    final Test t = createTest("abc", test);
+                    final Value<Integer> value = Value.create();
+                    test.assertThrows(() -> t.assertSuccess(Result.success(5),
+                        (Integer resultValue) ->
+                        {
+                            value.set(resultValue);
+                            throw new RuntimeException("blah");
+                        }),
+                        new TestAssertionFailure("abc", Iterable.create("Message:  java.lang.RuntimeException: blah", "Expected: false", "Actual:   true")));
+                    test.assertTrue(value.hasValue());
+                    test.assertEqual(5, value.get());
+                });
+
+                runner.test("with success Result with non-null value and assertion faliure in resultAction", (Test test) ->
+                {
+                    final Test t = createTest("abc", test);
+                    final Value<Integer> value = Value.create();
+                    test.assertThrows(() -> t.assertSuccess(Result.success(5),
+                        (Integer resultValue) ->
+                        {
+                            value.set(resultValue);
+                            t.fail("whoops!");
+                        }),
+                        new TestAssertionFailure("abc", Iterable.create("whoops!")));
+                    test.assertTrue(value.hasValue());
+                    test.assertEqual(5, value.get());
                 });
             });
 

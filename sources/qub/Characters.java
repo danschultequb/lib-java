@@ -18,13 +18,23 @@ public class Characters
     public static final Range<Character> all = Range.between(minimumValue, maximumValue);
 
     /**
+     * Get whether or not the provided character is a quote character.
+     * @param character The character to check.
+     * @return Whether or not the provided character is a quote character.
+     */
+    public static boolean isQuote(char character)
+    {
+        return character == '\'' || character == '\"';
+    }
+
+    /**
      * Surround the provided character with single quotes and textualize any escaped characters.
      * @param character The character to quote and escape.
      * @return The quoted and escaped character.
      */
     public static String escapeAndQuote(char character)
     {
-        return Characters.quote(Characters.escape(character));
+        return Strings.quote(Characters.escape(character));
     }
 
     /**
@@ -66,7 +76,7 @@ public class Characters
                 break;
 
             default:
-                result = Character.toString(character);
+                result = java.lang.Character.toString(character);
                 break;
         }
         return result;
@@ -79,17 +89,7 @@ public class Characters
      */
     public static String quote(char character)
     {
-        return Characters.quote(Character.toString(character));
-    }
-
-    /**
-     * Surround the provided text with single quotes.
-     * @param text The text to quote.
-     * @return The quoted text.
-     */
-    public static String quote(String text)
-    {
-        return text == null ? null : '\'' + text + '\'';
+        return Strings.quote(java.lang.Character.toString(character));
     }
 
     /**

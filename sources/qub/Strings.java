@@ -108,8 +108,6 @@ public class Strings
         return result;
     }
 
-
-
     /**
      * Escape any escaped characters (such as '\n' or '\t') in the provided text.
      * @param text The text to escape.
@@ -383,5 +381,17 @@ public class Strings
             result = Strings.concatenate(result, Strings.repeat(padCharacter, charactersToAdd));
         }
         return result;
+    }
+
+    public static boolean isOneOf(String value, String... possibilities)
+    {
+        return isOneOf(value, Iterable.create(possibilities));
+    }
+
+    public static boolean isOneOf(String value, Iterable<String> possibilities)
+    {
+        PreCondition.assertNotNull(possibilities, "possibilities");
+
+        return possibilities.contains(value);
     }
 }

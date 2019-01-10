@@ -10,9 +10,7 @@ public class CommandLineTests
             {
                 runner.test("with null String[]", (Test test) ->
                 {
-                    final CommandLine commandLine = CommandLine.parse((String[])null);
-                    test.assertEqual(new Array<String>(0), commandLine.getArgumentStrings());
-                    test.assertEqual(Array.create(new String[0]), commandLine);
+                    test.assertThrows(() -> CommandLine.parse((String[])null), new PreConditionFailure("rawCommandLineArguments cannot be null."));
                 });
                 
                 runner.test("with empty String[]", (Test test) ->
@@ -57,24 +55,6 @@ public class CommandLineTests
 
             runner.testGroup("getValue()", () ->
             {
-                runner.test("with null arguments and null name", (Test test) ->
-                {
-                    final CommandLine commandLine = CommandLine.parse((String[])null);
-                    test.assertNull(commandLine.getValue(null));
-                });
-
-                runner.test("with null arguments and empty name", (Test test) ->
-                {
-                    final CommandLine commandLine = CommandLine.parse((String[])null);
-                    test.assertNull(commandLine.getValue(""));
-                });
-
-                runner.test("with null arguments and non-empty name", (Test test) ->
-                {
-                    final CommandLine commandLine = CommandLine.parse((String[])null);
-                    test.assertNull(commandLine.getValue("spud"));
-                });
-
                 runner.test("with empty arguments and null name", (Test test) ->
                 {
                     final CommandLine commandLine = CommandLine.parse(new String[0]);

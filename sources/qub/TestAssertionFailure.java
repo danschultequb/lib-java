@@ -6,7 +6,7 @@ package qub;
 public class TestAssertionFailure extends RuntimeException
 {
     private final String fullTestName;
-    private final String[] messageLines;
+    private final Iterable<String> messageLines;
 
     /**
      * Create a new TestAssertionFailure with the provided message lines.
@@ -22,9 +22,30 @@ public class TestAssertionFailure extends RuntimeException
      * Create a new TestAssertionFailure with the provided message lines.
      * @param fullTestName The full name of the test that failed.
      * @param messageLines The lines to display that will explain the test assertion failure.
+     */
+    public TestAssertionFailure(String fullTestName, Iterable<String> messageLines)
+    {
+        this(fullTestName, messageLines, null);
+    }
+
+    /**
+     * Create a new TestAssertionFailure with the provided message lines.
+     * @param fullTestName The full name of the test that failed.
+     * @param messageLines The lines to display that will explain the test assertion failure.
      * @param cause The exception that caused the test to fail.
      */
     public TestAssertionFailure(String fullTestName, String[] messageLines, Throwable cause)
+    {
+        this(fullTestName, Iterable.create(messageLines), cause);
+    }
+
+    /**
+     * Create a new TestAssertionFailure with the provided message lines.
+     * @param fullTestName The full name of the test that failed.
+     * @param messageLines The lines to display that will explain the test assertion failure.
+     * @param cause The exception that caused the test to fail.
+     */
+    public TestAssertionFailure(String fullTestName, Iterable<String> messageLines, Throwable cause)
     {
         super(getMessage(fullTestName, messageLines), cause);
         this.fullTestName = fullTestName;
@@ -44,12 +65,12 @@ public class TestAssertionFailure extends RuntimeException
      * Get the lines that explain the test assertion failure.
      * @return The lines that explain the test assertion failure.
      */
-    public String[] getMessageLines()
+    public Iterable<String> getMessageLines()
     {
         return messageLines;
     }
 
-    private static String getMessage(String fullTestName, String[] messageLines)
+    private static String getMessage(String fullTestName, Iterable<String> messageLines)
     {
         final InMemoryLineStream lineStream = new InMemoryLineStream();
         lineStream.writeLine(fullTestName);

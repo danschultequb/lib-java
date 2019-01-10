@@ -113,4 +113,18 @@ public interface Indexable<T> extends Iterable<T>
             PreCondition.assertBetween(0, index, count - 1, "index");
         }
     }
+
+    /**
+     * Create a new Indexable from the provided values.
+     * @param values The values to convert to an Indexable.
+     * @param <T> The type of values in the created Indexable.
+     * @return The created Indexable.
+     */
+    @SafeVarargs
+    static <T> Indexable<T> create(T... values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        return Array.create(values);
+    }
 }

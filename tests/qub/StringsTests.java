@@ -224,6 +224,19 @@ public class StringsTests
                     test.assertEqual("abc", Strings.padRight("abc", 0, 'z'));
                 });
             });
+
+            runner.testGroup("isOneOf(String,String...)", () ->
+            {
+                runner.test("with null and null String[]", (Test test) ->
+                {
+                    test.assertThrows(() -> Strings.isOneOf(null, (String[])null));
+                });
+
+                runner.test("with null and null String", (Test test) ->
+                {
+                    test.assertTrue(Strings.isOneOf(null, (String)null));
+                });
+            });
         });
     }
 }

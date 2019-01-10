@@ -176,9 +176,10 @@ public class Array<T> implements MutableIndexable<T>
     @SafeVarargs
     public static <T> Array<T> create(T... values)
     {
-        final int length = values == null ? 0 : values.length;
-        final Array<T> result = new Array<>(length);
-        for (int i = 0; i < length; ++i)
+        PreCondition.assertNotNull(values, "values");
+
+        final Array<T> result = new Array<>(values.length);
+        for (int i = 0; i < values.length; ++i)
         {
             result.set(i, values[i]);
         }

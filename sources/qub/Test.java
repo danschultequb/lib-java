@@ -1081,7 +1081,18 @@ public class Test
     public <T> void assertSuccess(Result<T> result)
     {
         assertNotNull(result);
-        assertFalse(result.hasError(), () -> result.getErrorType().getName() + ": " + result.getErrorMessage());
+        result.catchError((Throwable error) ->
+        {
+            if (error instanceof TestAssertionFailure)
+            {
+                throw (TestAssertionFailure)error;
+            }
+            else
+            {
+                assertFalse(result.hasError(), () -> result.getErrorType().getName() + ": " + result.getErrorMessage());
+            }
+        })
+        .throwError();
     }
 
     /**
@@ -1093,7 +1104,7 @@ public class Test
         PreCondition.assertNotNull(resultAction, "resultAction");
 
         assertSuccess(result);
-        result.then(resultAction);
+        assertSuccess(result.then(resultAction));
     }
 
     /**

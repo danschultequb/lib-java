@@ -779,9 +779,9 @@ public class URLTests
                         });
                 });
 
-                runner.test("with \"http://www.example.com:20/?\"", (Test test) ->
+                runner.test("with \"https://www.example.com:20/?\"", (Test test) ->
                 {
-                    test.assertSuccess(URL.parse("http://www.example.com:20/?"),
+                    test.assertSuccess(URL.parse("https://www.example.com:20/?"),
                         (URL url) ->
                         {
                             test.assertEqual("https", url.getScheme());
@@ -790,7 +790,7 @@ public class URLTests
                             test.assertEqual("/", url.getPath());
                             test.assertEqual(null, url.getQuery());
                             test.assertEqual(null, url.getFragment());
-                            test.assertEqual("http://www.example.com:20/", url.toString());
+                            test.assertEqual("https://www.example.com:20/", url.toString());
                         });
                 });
 

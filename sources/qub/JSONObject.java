@@ -36,30 +36,138 @@ public class JSONObject extends JSONSegment
         return segments.instanceOf(JSONProperty.class);
     }
 
-    public JSONProperty getProperty(final String propertyName)
+    /**
+     * Get the property in this JSON object with the provided propertyName.
+     * @param propertyName The name of the property to look for.
+     * @return The property in this JSON object with the provided propertyName.
+     */
+    public Result<JSONProperty> getProperty(String propertyName)
     {
-        JSONProperty result = null;
-        if (propertyName != null && !propertyName.isEmpty())
+        PreCondition.assertNotNullAndNotEmpty(propertyName, "propertyName");
+
+        final JSONProperty property = getProperties().first((JSONProperty propertySegment) ->
         {
-            result = getProperties()
-                .first(new Function1<JSONProperty, Boolean>()
-                {
-                    @Override
-                    public Boolean run(JSONProperty propertySegment)
-                    {
-                        final JSONQuotedString nameSegment = propertySegment.getNameSegment();
-                        return nameSegment.toString().equals(propertyName) ||
-                            nameSegment.toUnquotedString().equals(propertyName);
-                    }
-                });
-        }
+            return propertySegment.getNameSegment().toUnquotedString().equals(propertyName);
+        });
+        final Result<JSONProperty> result = property != null
+            ? Result.success(property)
+            : Result.error(new NotFoundException("No property was found with the name " + Strings.escapeAndQuote(propertyName) + "."));
+
+        PostCondition.assertNotNull(result, "result");
+
         return result;
     }
 
-    public JSONSegment getPropertyValue(String propertyName)
+    /**
+     * Get the value of the property in this JSON object with the provided propertyName.
+     * @param propertyName The name of the property to look for.
+     * @return The value of the property in this JSON object with the provided propertyName.
+     */
+    public Result<JSONSegment> getPropertyValue(String propertyName)
     {
-        final JSONProperty propertySegment = getProperty(propertyName);
-        return propertySegment == null ? null : propertySegment.getValueSegment();
+        return getProperty(propertyName)
+            .then(JSONProperty::getValueSegment);
+    }
+
+    /**
+     * Get the quoted-string value of the property in this JSON object with the provided
+     * propertyName.
+     * @param propertyName The name of the property to look for.
+     * @return The quoted-string value of the property in this JSON object with the provided
+     * propertyName.
+     */
+    public Result<JSONQuotedString> getQuotedStringPropertyValue(String propertyName)
+    {
+        return getPropertyValue(propertyName)
+            .thenResult((JSONSegment propertyValue) ->
+            {
+                return propertyValue instanceof JSONQuotedString
+                    ? Result.success((JSONQuotedString)propertyValue)
+                    : Result.error(new WrongTypeException("Expected the value of the property named " + Strings.escapeAndQuote(propertyName) + " to be a quoted-string."));
+            });
+    }
+
+    /**
+     * Get the quoted-string value of the property in this JSON object with the provided
+     * propertyName.
+     * @param propertyName The name of the property to look for.
+     * @return The quoted-string value of the property in this JSON object with the provided
+     * propertyName.
+     */
+    public Result<String> getUnquotedStringPropertyValue(String propertyName)
+    {
+        return getQuotedStringPropertyValue(propertyName)
+            .then(JSONQuotedString::toUnquotedString);
+    }
+
+    /**
+     * Get the object value of the property in this JSON object with the provided propertyName.
+     * @param propertyName The name of the property to look for.
+     * @return The object value of the property in this JSON object with the provided propertyName.
+     */
+    public Result<JSONObject> getObjectPropertyValue(String propertyName)
+    {
+        return getPropertyValue(propertyName)
+                   .thenResult((JSONSegment propertyValue) ->
+                   {
+                       return propertyValue instanceof JSONObject
+                                  ? Result.success((JSONObject)propertyValue)
+                                  : Result.error(new WrongTypeException("Expected the value of the property named " + Strings.escapeAndQuote(propertyName) + " to be an object."));
+                   });
+    }
+
+    /**
+     * Get the array value of the property in this JSON object with the provided propertyName.
+     * @param propertyName The name of the property to look for.
+     * @return The array value of the property in this JSON object with the provided propertyName.
+     */
+    public Result<JSONArray> getArrayPropertyValue(String propertyName)
+    {
+        return getPropertyValue(propertyName)
+                   .thenResult((JSONSegment propertyValue) ->
+                   {
+                       return propertyValue instanceof JSONArray
+                                  ? Result.success((JSONArray)propertyValue)
+                                  : Result.error(new WrongTypeException("Expected the value of the property named " + Strings.escapeAndQuote(propertyName) + " to be an array."));
+                   });
+    }
+
+    /**
+     * Get the number token of the property in this JSON object with the provided propertyName.
+     * @param propertyName The name of the property to look for.
+     * @return The number token of the property in this JSON object with the provided propertyName.
+     */
+    public Result<JSONToken> getNumberTokenPropertyValue(String propertyName)
+    {
+        return getPropertyValue(propertyName)
+            .thenResult((JSONSegment propertyValue) ->
+            {
+                Result<JSONToken> result = null;
+                if (propertyValue instanceof JSONToken)
+                {
+                    final JSONToken propertyValueToken = (JSONToken)propertyValue;
+                    if (propertyValueToken.getType() == JSONTokenType.Number)
+                    {
+                        result = Result.success(propertyValueToken);
+                    }
+                }
+                if (result == null)
+                {
+                    result = Result.error(new WrongTypeException("Expected the value of the property named " + Strings.escapeAndQuote(propertyName) + " to be a number."));
+                }
+                return result;
+            });
+    }
+
+    /**
+     * Get the number value of the property in this JSON object with the provided propertyName.
+     * @param propertyName The name of the property to look for.
+     * @return The number value of the property in this JSON object with the provided propertyName.
+     */
+    public Result<Double> getNumberPropertyValue(String propertyName)
+    {
+        return getNumberTokenPropertyValue(propertyName)
+            .then((JSONToken numberToken) -> Double.valueOf(numberToken.toString()));
     }
 
     @Override

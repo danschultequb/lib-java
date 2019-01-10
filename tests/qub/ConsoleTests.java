@@ -20,9 +20,7 @@ public class ConsoleTests
                 
                 runner.test("with null String[]", (Test test) ->
                 {
-                    final Console console = new Console((String[])null);
-                    test.assertEqual(new Array<String>(0), console.getCommandLineArgumentStrings());
-                    test.assertNotNull(console.getCommandLine());
+                    test.assertThrows(() -> new Console((String[])null), new PreConditionFailure("rawCommandLineArguments cannot be null."));
                 });
                 
                 runner.test("with empty String[]", (Test test) ->

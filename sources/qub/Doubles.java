@@ -12,6 +12,25 @@ public class Doubles
 
     public static int hashCode(double value)
     {
-        return Double.valueOf(value).hashCode();
+        return hashCode(Double.valueOf(value));
+    }
+
+    public static int hashCode(Double value)
+    {
+        PreCondition.assertNotNull(value, "value");
+
+        return value.hashCode();
+    }
+
+    public static String toString(double value)
+    {
+        return toString(Double.valueOf(value));
+    }
+
+    public static String toString(Double value)
+    {
+        PreCondition.assertNotNull(value, "value");
+
+        return value.toString();
     }
 }

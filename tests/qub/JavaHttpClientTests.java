@@ -35,7 +35,10 @@ public class JavaHttpClientTests
                     test.assertSuccess(responseBody);
                     final JSONDocument document = JSON.parse(responseBody.getValue());
                     test.assertNotNull(document);
-                    test.assertEqual(JSONArray.class, document.getRoot().getClass());
+                    test.assertSuccess(document.getRoot(), (JSONSegment root) ->
+                    {
+                        test.assertEqual(JSONArray.class, root.getClass());
+                    });
                 });
             });
         });

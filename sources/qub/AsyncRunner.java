@@ -185,7 +185,9 @@ public interface AsyncRunner extends Disposable
      */
     default void awaitAll(AsyncAction... asyncActions)
     {
-        awaitAll(Array.create(asyncActions));
+        PreCondition.assertNotNull(asyncActions, "asyncActions");
+
+        awaitAll(Iterable.create(asyncActions));
     }
 
     /**

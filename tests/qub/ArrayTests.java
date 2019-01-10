@@ -139,8 +139,7 @@ public class ArrayTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final Array<Integer> array = Array.create((Integer[])null);
-                    test.assertEqual(0, array.getCount());
+                    test.assertThrows(() -> Array.create((Integer[])null), new PreConditionFailure("values cannot be null."));
                 });
 
                 runner.test("with no values", (Test test) ->

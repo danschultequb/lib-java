@@ -36,17 +36,9 @@ public class Process implements Disposable
     private volatile boolean disposed;
 
     /**
-     * Create a new Process applications can be written with.
-     */
-    public Process()
-    {
-        this((String[])null);
-    }
-
-    /**
      * Create a new Process that Console applications can be written with.
      */
-    public Process(String[] commandLineArgumentStrings)
+    public Process(String... commandLineArgumentStrings)
     {
         this(CommandLine.parse(commandLineArgumentStrings));
     }

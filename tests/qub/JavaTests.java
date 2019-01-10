@@ -29,13 +29,13 @@ public class JavaTests
                         final JavaDocument document = Java.parse(text, issues::add);
                         test.assertNotNull(document);
 
-                        test.assertEqual(Array.create(expectedSegments), document.getSegments());
-                        test.assertEqual(Array.create(expectedIssues), issues);
+                        test.assertEqual(Iterable.create(expectedSegments), document.getSegments());
+                        test.assertEqual(Iterable.create(expectedIssues), issues);
                     });
                 };
 
-                parseTest.run(null, null, null);
-                parseTest.run("", null, null);
+                parseTest.run(null, new JavaSegment[0], new Issue[0]);
+                parseTest.run("", new JavaSegment[0], new Issue[0]);
                 parseTest.run("    ",
                     new JavaSegment[]
                     {
@@ -45,13 +45,13 @@ public class JavaTests
                             Lex.space(2),
                             Lex.space(3))
                     },
-                    null);
+                    new Issue[0]);
                 parseTest.run("\n",
                     new JavaSegment[]
                     {
                         new JavaSegment(JavaSegmentType.Whitespace, Lex.newLine(0))
                     },
-                    null);
+                    new Issue[0]);
 
                 parseTest.run("abc",
                     new JavaSegment[]
@@ -128,7 +128,7 @@ public class JavaTests
                             Lex.letters("qub", 8),
                             Lex.semicolon(11))
                     },
-                    null);
+                    new Issue[0]);
                 parseTest.run("package\nqub;",
                     new JavaSegment[]
                         {
@@ -138,7 +138,7 @@ public class JavaTests
                                 Lex.letters("qub", 8),
                                 Lex.semicolon(11))
                         },
-                    null);
+                    new Issue[0]);
                 parseTest.run("package my.",
                     new JavaSegment[]
                         {
@@ -255,7 +255,7 @@ public class JavaTests
                                 Lex.letters("qub", 11),
                                 Lex.semicolon(14))
                         },
-                    null);
+                    new Issue[0]);
                 parseTest.run("package my  .   qub;",
                     new JavaSegment[]
                         {
@@ -272,7 +272,7 @@ public class JavaTests
                                 Lex.letters("qub", 16),
                                 Lex.semicolon(19))
                         },
-                    null);
+                    new Issue[0]);
 
                 parseTest.run("import",
                     new JavaSegment[]
@@ -340,7 +340,7 @@ public class JavaTests
                                 Lex.letters("toads", 7),
                                 Lex.semicolon(12))
                         },
-                    null);
+                    new Issue[0]);
                 parseTest.run("import toads.;",
                     new JavaSegment[]
                         {
@@ -427,7 +427,7 @@ public class JavaTests
                                 Lex.letters("qub", 10),
                                 Lex.semicolon(13))
                         },
-                    null);
+                    new Issue[0]);
                 parseTest.run("import static my.qub;",
                     new JavaSegment[]
                         {
@@ -441,7 +441,7 @@ public class JavaTests
                                 Lex.letters("qub", 17),
                                 Lex.semicolon(20))
                         },
-                    null);
+                    new Issue[0]);
                 parseTest.run("import my.*;",
                     new JavaSegment[]
                         {
@@ -453,7 +453,7 @@ public class JavaTests
                                 Lex.asterisk(10),
                                 Lex.semicolon(11))
                         },
-                    null);
+                    new Issue[0]);
                 parseTest.run("import static my.*;",
                     new JavaSegment[]
                         {
@@ -467,7 +467,7 @@ public class JavaTests
                                 Lex.asterisk(17),
                                 Lex.semicolon(18))
                         },
-                    null);
+                    new Issue[0]);
                 parseTest.run("import my.*",
                     new JavaSegment[]
                         {
@@ -627,7 +627,7 @@ public class JavaTests
                                 Lex.leftCurlyBracket(14),
                                 Lex.rightCurlyBracket(15))
                         },
-                    null);
+                    new Issue[0]);
 
                 parseTest.run("package qub;\nimport java.lang.Thread;",
                     new JavaSegment[]
@@ -649,7 +649,7 @@ public class JavaTests
                                 Lex.letters("Thread", 30),
                                 Lex.semicolon(36))
                         },
-                    null);
+                    new Issue[0]);
             });
         });
     }

@@ -409,4 +409,18 @@ public interface Iterable<T> extends java.lang.Iterable<T>
         }
         return builder.toString();
     }
+
+    /**
+     * Create a new Iterable from the provided values.
+     * @param values The values to convert to an Iterable.
+     * @param <T> The type of values in the created Iterable.
+     * @return The created Iterable.
+     */
+    @SafeVarargs
+    static <T> Iterable<T> create(T... values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        return Array.create(values);
+    }
 }

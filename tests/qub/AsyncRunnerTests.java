@@ -230,7 +230,7 @@ public class AsyncRunnerTests
                 {
                     try (final AsyncRunner asyncRunner = createAsyncRunner.run())
                     {
-                        asyncRunner.awaitAll((AsyncAction[])null);
+                        test.assertThrows(() -> asyncRunner.awaitAll((AsyncAction[])null), new PreConditionFailure("asyncActions cannot be null."));
                     }
                 });
 

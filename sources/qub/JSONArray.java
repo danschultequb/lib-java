@@ -90,9 +90,27 @@ public class JSONArray extends JSONSegment
         return getElements().getCount();
     }
 
+    /**
+     * Get the element at the provided index.
+     * @param index The index of the element to return.
+     * @return The element at the provided index.
+     */
     public JSONSegment getElement(int index)
     {
         return getElements().get(index);
+    }
+
+    /**
+     * Get the object value of the element at the provided index.
+     * @param index The index of the element to return.
+     * @return The object value of the element at the provided index.
+     */
+    public Result<JSONObject> getObjectElement(int index)
+    {
+        final JSONSegment element = getElement(index);
+        return element instanceof JSONObject
+            ? Result.success((JSONObject)element)
+            : Result.error(new WrongTypeException("Expected the value of the element at index " + index + " to be an object."));
     }
 
     @Override
