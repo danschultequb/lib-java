@@ -752,6 +752,53 @@ public class TestTests
                 });
             });
 
+            runner.testGroup("assertSuccess(T,Result<T>)", () ->
+            {
+                runner.test("with null Result", (Test test) ->
+                {
+                    final Test t = createTest("abc", test);
+                    final String expectedValue = "hello";
+                    final Result<String> result = null;
+                    test.assertThrows(() -> t.assertSuccess(expectedValue, result),
+                        new TestAssertionFailure("abc", Iterable.create("Message:  A successful Result should not be null", "Expected: \"not null\"", "Actual:   null")));
+                });
+
+                runner.test("with error Result", (Test test) ->
+                {
+                    final Test t = createTest("abc", test);
+                    final String expectedValue = "hello";
+                    final Result<String> result = Result.error(new RuntimeException("oops"));
+                    test.assertThrows(() -> t.assertSuccess(expectedValue, result),
+                        new TestAssertionFailure("abc", Iterable.create("Message:  A successful Result should not have an error", "Expected: null", "Actual:   java.lang.RuntimeException: oops")));
+                });
+
+                runner.test("with success Result with no value", (Test test) ->
+                {
+                    final Test t = createTest("abc", test);
+                    final String expectedValue = "hello";
+                    final Result<String> result = Result.success();
+                    test.assertThrows(() -> t.assertSuccess(expectedValue, result),
+                        new TestAssertionFailure("abc", Iterable.create("Message:  Unexpected successful Result value", "Expected: \"hello\"", "Actual:   null")));
+                });
+
+                runner.test("with success Result with different value", (Test test) ->
+                {
+                    final Test t = createTest("abc", test);
+                    final String expectedValue = "hello";
+                    final Result<String> result = Result.success("abc");
+                    test.assertThrows(() -> t.assertSuccess(expectedValue, result),
+                        new TestAssertionFailure("abc", Iterable.create("Message:  Unexpected successful Result value", "Expected: \"hello\"", "Actual:   \"abc\"")));
+                });
+
+                runner.test("with success Result with equal value", (Test test) ->
+                {
+                    final Test t = createTest("abc", test);
+                    final String expectedValue = "hello";
+                    final Result<String> result = Result.success("hello");
+                    t.assertSuccess(expectedValue, result);
+                });
+            });
+
             runner.testGroup("assertEqual(Throwable,Throwable)", () ->
             {
                 runner.test("with null and null", (Test test) ->

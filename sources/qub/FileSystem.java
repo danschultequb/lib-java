@@ -1069,6 +1069,64 @@ public interface FileSystem
     }
 
     /**
+     * Copy the file at the provided rootedFilePath to the provided destinationFilePath.
+     * @param rootedFilePath The path to the file to copy.
+     * @param destinationFilePath The path to copy the file to.
+     * @return The result of copying the file.
+     */
+    default Result<Void> copyFileTo(Path rootedFilePath, Path destinationFilePath)
+    {
+        FileSystem.validateRootedFilePath(rootedFilePath);
+        FileSystem.validateRootedFilePath(destinationFilePath, "destinationFilePath");
+
+        final Result<Void> result = getFileContentByteReadStream(rootedFilePath)
+            .thenResult((ByteReadStream fileContents) ->
+            {
+                try
+                {
+                    return getFileContentByteWriteStream(destinationFilePath)
+                        .thenResult((ByteWriteStream destinationStream) ->
+                        {
+                            try
+                            {
+                                return destinationStream.writeAllBytes(fileContents);
+                            }
+                            finally
+                            {
+                                destinationStream.dispose();
+                            }
+                        });
+                }
+                finally
+                {
+                    fileContents.dispose();
+                }
+            })
+            .then(() -> {
+                return null;
+            });
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    /**
+     * Copy the file at the provided rootedFilePath to the provided destinationFilePath.
+     * @param rootedFilePath The path to the file to copy.
+     * @param destinationFilePath The path to copy the file to.
+     * @return The result of copying the file.
+     */
+    default AsyncFunction<Result<Void>> copyFileToAsync(Path rootedFilePath, Path destinationFilePath)
+    {
+        FileSystem.validateRootedFilePath(rootedFilePath);
+        FileSystem.validateRootedFilePath(destinationFilePath, "destinationFilePath");
+        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
+
+        return getAsyncRunner().scheduleSingle(() -> copyFileTo(rootedFilePath, destinationFilePath));
+    }
+
+    /**
      * Set the contents of the file at the provided rootedFilePath.
      * @param rootedFilePath The rooted path to the file.
      * @param content The byte[] contents to set.
@@ -1127,11 +1185,16 @@ public interface FileSystem
 
     static void validateRootedFilePath(Path rootedFilePath)
     {
-        PreCondition.assertNotNull(rootedFilePath, "rootedFilePath");
-        PreCondition.assertTrue(rootedFilePath.isRooted(), "rootedFilePath.isRooted()");
-        PreCondition.assertFalse(rootedFilePath.endsWith("\\"), "rootedFilePath.endsWith(\"\\\")");
-        PreCondition.assertFalse(rootedFilePath.endsWith("/"), "rootedFilePath.endsWith(\"/\")");
-        PreCondition.assertFalse(containsInvalidCharacters(rootedFilePath), "containsInvalidCharacters(rootedFilePath (" + Strings.escapeAndQuote(rootedFilePath.toString()) + "))");
+        validateRootedFilePath(rootedFilePath, "rootedFilePath");
+    }
+
+    static void validateRootedFilePath(Path rootedFilePath, String expressionName)
+    {
+        PreCondition.assertNotNull(rootedFilePath, expressionName);
+        PreCondition.assertTrue(rootedFilePath.isRooted(), expressionName + ".isRooted()");
+        PreCondition.assertFalse(rootedFilePath.endsWith("\\"), expressionName + ".endsWith(\"\\\")");
+        PreCondition.assertFalse(rootedFilePath.endsWith("/"), expressionName + ".endsWith(\"/\")");
+        PreCondition.assertFalse(containsInvalidCharacters(rootedFilePath), "containsInvalidCharacters(" + expressionName + "(" + Strings.escapeAndQuote(rootedFilePath.toString()) + "))");
     }
 
     char[] invalidCharacters = new char[]

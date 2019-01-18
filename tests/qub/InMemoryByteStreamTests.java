@@ -700,11 +700,48 @@ public class InMemoryByteStreamTests
                 test.assertEqual(new byte[] { 2, 3 }, stream.getBytes());
             });
 
-            runner.test("writeAllBytes(ByteReadStream)", (Test test) ->
+            runner.testGroup("writeAllBytes(ByteReadStream)", () ->
             {
-                final InMemoryByteStream stream = new InMemoryByteStream();
-                test.assertThrows(() -> stream.writeAllBytes((ByteReadStream)null));
-                test.assertEqual(new byte[0], stream.getBytes());
+                runner.test("with null ByteReadStream", (Test test) ->
+                {
+                    final InMemoryByteStream stream = new InMemoryByteStream();
+                    test.assertThrows(() -> stream.writeAllBytes((ByteReadStream)null), new PreConditionFailure("byteReadStream cannot be null."));
+                    test.assertEqual(new byte[0], stream.getBytes());
+                });
+
+                runner.test("with disposed ByteReadStream", (Test test) ->
+                {
+                    final InMemoryByteStream stream = new InMemoryByteStream();
+                    final InMemoryByteStream readStream = new InMemoryByteStream();
+                    readStream.dispose();
+                    test.assertThrows(() -> stream.writeAllBytes(readStream), new PreConditionFailure("byteReadStream.isDisposed() must be false."));
+                    test.assertEqual(new byte[0], stream.getBytes());
+                });
+
+                runner.test("with disposed ByteWriteStream", (Test test) ->
+                {
+                    final InMemoryByteStream stream = new InMemoryByteStream();
+                    stream.dispose();
+                    final InMemoryByteStream readStream = new InMemoryByteStream().endOfStream();
+                    test.assertThrows(() -> stream.writeAllBytes(readStream), new PreConditionFailure("isDisposed() must be false."));
+                    test.assertEqual(null, stream.getBytes());
+                });
+
+                runner.test("with empty ByteReadStream", (Test test) ->
+                {
+                    final InMemoryByteStream stream = new InMemoryByteStream();
+                    final InMemoryByteStream readStream = new InMemoryByteStream().endOfStream();
+                    test.assertSuccess(true, stream.writeAllBytes(readStream));
+                    test.assertEqual(new byte[0], stream.getBytes());
+                });
+
+                runner.test("with non-empty ByteReadStream", (Test test) ->
+                {
+                    final InMemoryByteStream stream = new InMemoryByteStream();
+                    final InMemoryByteStream readStream = new InMemoryByteStream(new byte[] { 0, 1, 2, 3 }).endOfStream();
+                    test.assertSuccess(true, stream.writeAllBytes(readStream));
+                    test.assertEqual(new byte[] { 0, 1, 2, 3 }, stream.getBytes());
+                });
             });
 
             runner.test("asCharacterWriteStream()", (Test test) ->

@@ -1,7 +1,5 @@
 package qub;
 
-import com.sun.org.apache.xml.internal.dtm.ref.sax2dtm.SAX2DTM2;
-
 public class ParallelAsyncRunner implements AsyncRunner
 {
     private final java.util.concurrent.atomic.AtomicInteger scheduledTaskCount;

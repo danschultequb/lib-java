@@ -237,7 +237,14 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
                 final Result<Byte> readByteResult = byteReadStream.readByte();
                 if (readByteResult.hasError())
                 {
-                    result = Result.error(readByteResult.getError());
+                    if (readByteResult.getError() instanceof EndOfStreamException)
+                    {
+                        result = Result.successTrue();
+                    }
+                    else
+                    {
+                        result = Result.error(readByteResult.getError());
+                    }
                 }
                 else
                 {

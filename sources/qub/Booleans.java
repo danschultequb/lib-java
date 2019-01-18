@@ -11,4 +11,16 @@ public class Booleans
     {
         return value != null && !value;
     }
+
+    public static String toString(boolean value)
+    {
+        return value ? "true" : "false";
+    }
+
+    public static String toString(Boolean value)
+    {
+        PreCondition.assertNotNull(value, "value");
+
+        return toString(value.booleanValue());
+    }
 }

@@ -9,9 +9,9 @@ class InMemoryRoot extends InMemoryFolder
      * Create a new InMemoryRoot with the provided name/path.
      * @param name The name/path for the new InMemoryRoot.
      */
-    public InMemoryRoot(String name)
+    public InMemoryRoot(String name, Clock clock)
     {
-        super(name);
+        super(name, clock);
     }
 
     /**

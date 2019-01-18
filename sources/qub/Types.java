@@ -89,6 +89,7 @@ public class Types
         }
         catch (IllegalAccessException e)
         {
+            @SuppressWarnings("deprecation")
             final boolean accessible = field.isAccessible();
             field.setAccessible(true);
             try
@@ -121,6 +122,7 @@ public class Types
         }
         catch (IllegalAccessException e)
         {
+            @SuppressWarnings("deprecation")
             final boolean accessible = field.isAccessible();
             field.setAccessible(true);
             try

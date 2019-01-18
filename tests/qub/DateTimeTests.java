@@ -6,19 +6,6 @@ public class DateTimeTests
     {
         runner.testGroup(DateTime.class, () ->
         {
-            runner.test("localNow()", (Test test) ->
-            {
-                final DateTime dateTime = DateTime.localNow();
-                test.assertNotNull(dateTime);
-            });
-
-            runner.test("utcNow()", (Test test) ->
-            {
-                final DateTime dateTime = DateTime.utcNow();
-                test.assertNotNull(dateTime);
-                test.assertEqual(Duration.milliseconds(0), dateTime.getTimeZoneOffset());
-            });
-
             runner.testGroup("local(long)", () ->
             {
                 runner.test("with 0", (Test test) ->
@@ -32,6 +19,7 @@ public class DateTimeTests
                     test.assertEqual(0, dateTime.getMinute());
                     test.assertEqual(0, dateTime.getSecond());
                     test.assertEqual(0, dateTime.getMillisecond());
+                    test.assertNotEqual(dateTime, dateTime.toUTC());
                 });
 
                 runner.test("with 1", (Test test) ->
@@ -88,6 +76,7 @@ public class DateTimeTests
                     test.assertEqual(0, dateTime.getSecond());
                     test.assertEqual(0, dateTime.getMillisecond());
                     test.assertEqual(Duration.milliseconds(0), dateTime.getTimeZoneOffset());
+                    test.assertSame(dateTime, dateTime.toUTC());
                 });
 
                 runner.test("with 1", (Test test) ->
@@ -102,6 +91,7 @@ public class DateTimeTests
                     test.assertEqual(0, dateTime.getSecond());
                     test.assertEqual(1, dateTime.getMillisecond());
                     test.assertEqual(Duration.milliseconds(0), dateTime.getTimeZoneOffset());
+                    test.assertSame(dateTime, dateTime.toUTC());
                 });
 
                 runner.test("with 999", (Test test) ->
@@ -116,6 +106,7 @@ public class DateTimeTests
                     test.assertEqual(0, dateTime.getSecond());
                     test.assertEqual(999, dateTime.getMillisecond());
                     test.assertEqual(Duration.milliseconds(0), dateTime.getTimeZoneOffset());
+                    test.assertSame(dateTime, dateTime.toUTC());
                 });
 
                 runner.test("with 1000", (Test test) ->
@@ -130,6 +121,7 @@ public class DateTimeTests
                     test.assertEqual(1, dateTime.getSecond());
                     test.assertEqual(0, dateTime.getMillisecond());
                     test.assertEqual(Duration.milliseconds(0), dateTime.getTimeZoneOffset());
+                    test.assertSame(dateTime, dateTime.toUTC());
                 });
             });
 

@@ -6,6 +6,7 @@ package qub;
 public class InMemoryFolder
 {
     private final String name;
+    private final Clock clock;
     private final ArrayList<InMemoryFolder> folders;
     private final ArrayList<InMemoryFile> files;
 
@@ -15,9 +16,13 @@ public class InMemoryFolder
      * Create a new InMemoryFolder with the provided name.
      * @param name The name of the new InMemoryFolder.
      */
-    public InMemoryFolder(String name)
+    public InMemoryFolder(String name, Clock clock)
     {
+        PreCondition.assertNotNullAndNotEmpty(name, "name");
+        PreCondition.assertNotNull(clock, "clock");
+
         this.name = name;
+        this.clock = clock;
         this.folders = new ArrayList<>();
         this.files = new ArrayList<>();
         this.canDelete = true;
@@ -112,7 +117,7 @@ public class InMemoryFolder
         final boolean result = (inMemoryFolder == null);
         if (result)
         {
-            inMemoryFolder = new InMemoryFolder(folderName);
+            inMemoryFolder = new InMemoryFolder(folderName, clock);
             folders.add(inMemoryFolder);
         }
 
@@ -168,7 +173,7 @@ public class InMemoryFolder
         final boolean result = (inMemoryFile == null);
         if (result)
         {
-            inMemoryFile = new InMemoryFile(fileName);
+            inMemoryFile = new InMemoryFile(fileName, clock);
             files.add(inMemoryFile);
         }
 

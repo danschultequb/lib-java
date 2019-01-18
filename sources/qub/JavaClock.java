@@ -17,24 +17,19 @@ public class JavaClock implements Clock
     @Override
     public DateTime getCurrentDateTime()
     {
-        return DateTime.localNow();
+        return DateTime.local(java.util.Calendar.getInstance().getTimeInMillis());
     }
 
     @Override
     public AsyncAction scheduleAt(final DateTime dateTime, final Action0 action)
     {
-        if (dateTime == null)
-        {
-            throw new NullPointerException();
-        }
-        return parallelAsyncRunner.schedule(new Action0()
+        PreCondition.assertNotNull(dateTime, "dateTime");
+        PreCondition.assertNotNull(action, "action");
+
+        return parallelAsyncRunner.schedule(() ->
             {
-                @Override
-                public void run()
+                while (getCurrentDateTime().lessThan(dateTime))
                 {
-                    while (getCurrentDateTime().lessThan(dateTime))
-                    {
-                    }
                 }
             })
             .thenOn(mainAsyncRunner, action);

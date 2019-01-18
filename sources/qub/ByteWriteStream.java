@@ -118,11 +118,18 @@ public interface ByteWriteStream extends Disposable
             else
             {
                 final Integer bytesRead = readBytesResult.getValue();
-                writeBytes(buffer, 0, bytesRead);
-
-                if (bytesRead == buffer.length)
+                if (bytesRead == null)
                 {
-                    buffer = new byte[buffer.length * 2];
+                    result = Result.successTrue();
+                }
+                else
+                {
+                    writeBytes(buffer, 0, bytesRead);
+
+                    if (bytesRead == buffer.length)
+                    {
+                        buffer = new byte[buffer.length * 2];
+                    }
                 }
             }
         }

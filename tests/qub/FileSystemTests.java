@@ -1978,8 +1978,7 @@ public class FileSystemTests
 
                     final Result<Iterable<FileSystemEntry>> result = fileSystem.getFilesAndFoldersRecursively("/test/folder");
                     test.assertSuccess(
-                        Array.create(new FileSystemEntry[]
-                        {
+                        Array.create(
                             fileSystem.getFolder("/test/folder/A").getValue(),
                             fileSystem.getFolder("/test/folder/B").getValue(),
                             fileSystem.getFile("/test/folder/1.txt").getValue(),
@@ -1987,9 +1986,79 @@ public class FileSystemTests
                             fileSystem.getFile("/test/folder/A/3.csv").getValue(),
                             fileSystem.getFile("/test/folder/A/5.png").getValue(),
                             fileSystem.getFolder("/test/folder/B/C").getValue(),
-                            fileSystem.getFile("/test/folder/B/C/4.xml").getValue()
-                        }),
+                            fileSystem.getFile("/test/folder/B/C/4.xml").getValue()),
                         result);
+                });
+            });
+
+            runner.testGroup("copyFileTo(Path,Path)", () ->
+            {
+                runner.test("with null rootedFilePath", (Test test) ->
+                {
+                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    test.assertThrows(() -> fileSystem.copyFileTo(null, Path.parse("/dest.txt")), new PreConditionFailure("rootedFilePath cannot be null."));
+                    test.assertSuccess(false, fileSystem.fileExists("/dest.txt"));
+                });
+
+                runner.test("with null destinationFilePath", (Test test) ->
+                {
+                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    test.assertThrows(() -> fileSystem.copyFileTo(Path.parse("/source.txt"), null), new PreConditionFailure("destinationFilePath cannot be null."));
+                    test.assertSuccess(false, fileSystem.fileExists("/source.txt"));
+                });
+
+                runner.test("when source file doesn't exist", (Test test) ->
+                {
+                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    test.assertError(new FileNotFoundException("/source.txt"), fileSystem.copyFileTo(Path.parse("/source.txt"), Path.parse("/dest.txt")));
+                    test.assertSuccess(false, fileSystem.fileExists("/source.txt"));
+                    test.assertSuccess(false, fileSystem.fileExists("/dest.txt"));
+                });
+
+                runner.test("when source file is empty and destination file doesn't exist", (Test test) ->
+                {
+                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    fileSystem.createFile("/source.txt");
+                    test.assertSuccess(null, fileSystem.copyFileTo(Path.parse("/source.txt"), Path.parse("/dest.txt")));
+                    test.assertSuccess(true, fileSystem.fileExists("/source.txt"));
+                    test.assertSuccess(new byte[0], fileSystem.getFileContent("/source.txt"));
+                    test.assertSuccess(true, fileSystem.fileExists("/dest.txt"));
+                    test.assertSuccess(new byte[0], fileSystem.getFileContent("/dest.txt"));
+                });
+
+                runner.test("when source file is not empty and destination file doesn't exist", (Test test) ->
+                {
+                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    fileSystem.setFileContent("/source.txt", new byte[] { 0, 1, 2, 3 });
+                    test.assertSuccess(null, fileSystem.copyFileTo(Path.parse("/source.txt"), Path.parse("/dest.txt")));
+                    test.assertSuccess(true, fileSystem.fileExists("/source.txt"));
+                    test.assertSuccess(new byte[] { 0, 1, 2, 3 }, fileSystem.getFileContent("/source.txt"));
+                    test.assertSuccess(true, fileSystem.fileExists("/dest.txt"));
+                    test.assertSuccess(new byte[] { 0, 1, 2, 3 }, fileSystem.getFileContent("/dest.txt"));
+                });
+
+                runner.test("when source file is empty and destination file already exists", (Test test) ->
+                {
+                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    fileSystem.createFile("/source.txt");
+                    fileSystem.setFileContent("/dest.txt", new byte[] { 10, 11 });
+                    test.assertSuccess(null, fileSystem.copyFileTo(Path.parse("/source.txt"), Path.parse("/dest.txt")));
+                    test.assertSuccess(true, fileSystem.fileExists("/source.txt"));
+                    test.assertSuccess(new byte[0], fileSystem.getFileContent("/source.txt"));
+                    test.assertSuccess(true, fileSystem.fileExists("/dest.txt"));
+                    test.assertSuccess(new byte[0], fileSystem.getFileContent("/dest.txt"));
+                });
+
+                runner.test("when source file is not empty and destination file already exists", (Test test) ->
+                {
+                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    fileSystem.setFileContent("/source.txt", new byte[] { 0, 1, 2, 3 });
+                    fileSystem.setFileContent("/dest.txt", new byte[] { 10, 11 });
+                    test.assertNull(fileSystem.copyFileTo(Path.parse("/source.txt"), Path.parse("/dest.txt")).throwErrorOrGetValue());
+                    test.assertTrue(fileSystem.fileExists("/source.txt").throwErrorOrGetValue());
+                    test.assertEqual(new byte[] { 0, 1, 2, 3 }, fileSystem.getFileContent("/source.txt").throwErrorOrGetValue());
+                    test.assertTrue(fileSystem.fileExists("/dest.txt").throwErrorOrGetValue());
+                    test.assertEqual(new byte[] { 0, 1, 2, 3 }, fileSystem.getFileContent("/dest.txt").throwErrorOrGetValue());
                 });
             });
 

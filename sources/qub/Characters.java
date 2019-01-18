@@ -18,6 +18,16 @@ public class Characters
     public static final Range<Character> all = Range.between(minimumValue, maximumValue);
 
     /**
+     * Get the String representation of the provided character.
+     * @param character The character to change to a String.
+     * @return The String representation of the provided character.
+     */
+    public static String toString(char character)
+    {
+        return java.lang.Character.toString(character);
+    }
+
+    /**
      * Get whether or not the provided character is a quote character.
      * @param character The character to check.
      * @return Whether or not the provided character is a quote character.

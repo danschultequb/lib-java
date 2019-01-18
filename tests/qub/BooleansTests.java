@@ -46,6 +46,37 @@ public class BooleansTests
                     test.assertFalse(Booleans.isFalse(true));
                 });
             });
+
+            runner.testGroup("toString(boolean)", () ->
+            {
+                runner.test("with true", (Test test) ->
+                {
+                    test.assertEqual("true", Booleans.toString(true));
+                });
+
+                runner.test("with false", (Test test) ->
+                {
+                    test.assertEqual("false", Booleans.toString(false));
+                });
+            });
+
+            runner.testGroup("toString(Boolean)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    test.assertThrows(() -> Booleans.toString(null), new PreConditionFailure("value cannot be null."));
+                });
+
+                runner.test("with true", (Test test) ->
+                {
+                    test.assertEqual("true", Booleans.toString(Boolean.valueOf(true)));
+                });
+
+                runner.test("with false", (Test test) ->
+                {
+                    test.assertEqual("false", Booleans.toString(Boolean.valueOf(false)));
+                });
+            });
         });
     }
 }

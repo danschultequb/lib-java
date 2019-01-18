@@ -2,17 +2,22 @@ package qub;
 
 public class InMemoryFile
 {
+    private final Clock clock;
     private final String name;
     private boolean canDelete;
     private byte[] contents;
     private DateTime lastModified;
 
-    public InMemoryFile(String name)
+    public InMemoryFile(String name, Clock clock)
     {
+        PreCondition.assertNotNullAndNotEmpty(name, "name");
+        PreCondition.assertNotNull(clock, "clock");
+
         this.name = name;
+        this.clock = clock;
         this.canDelete = true;
         this.contents = new byte[0];
-        this.lastModified = DateTime.localNow();
+        this.lastModified = clock.getCurrentDateTime();
     }
 
     public String getName()
@@ -62,7 +67,7 @@ public class InMemoryFile
                         if (Booleans.isTrue(disposed))
                         {
                             InMemoryFile.this.contents = writtenBytes == null ? new byte[0] : writtenBytes;
-                            InMemoryFile.this.lastModified = DateTime.localNow();
+                            InMemoryFile.this.lastModified = clock.getCurrentDateTime();
                         }
                     });
             }

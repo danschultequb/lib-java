@@ -60,9 +60,15 @@ public class JavaClockTests
                 runner.test("with null DateTime", (Test test) ->
                 {
                     final JavaClock clock = createClock(test);
-                    test.assertThrows(
-                        () -> clock.scheduleAt(null, () -> {}),
-                        new NullPointerException());
+                    test.assertThrows(() -> clock.scheduleAt(null, () -> {}),
+                        new PreConditionFailure("dateTime cannot be null."));
+                });
+
+                runner.test("with null action", (Test test) ->
+                {
+                    final JavaClock clock = createClock(test);
+                    test.assertThrows(() -> clock.scheduleAt(clock.getCurrentDateTime(), null),
+                        new PreConditionFailure("action cannot be null."));
                 });
 
                 runner.test("with DateTime before now", (Test test) ->

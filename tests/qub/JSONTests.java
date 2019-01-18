@@ -307,6 +307,300 @@ public class JSONTests
                             JSONIssues.expectedArrayElement(6, 1)
                         });
             });
+
+            runner.testGroup("object(Action1<JSONObjectBuilder>)", () ->
+            {
+                runner.test("with null action", (Test test) ->
+                {
+                    test.assertThrows(() -> JSON.object(null), new PreConditionFailure("action cannot be null."));
+                });
+
+                runner.test("with empty action", (Test test) ->
+                {
+                    final JSONObject object = JSON.object((JSONObjectBuilder builder) -> {});
+                    test.assertNotNull(object);
+                    test.assertEqual("{}", object.toString());
+                });
+
+                runner.test("with boolean property", (Test test) ->
+                {
+                    final JSONObject object = JSON.object((JSONObjectBuilder builder) ->
+                    {
+                        builder.booleanProperty("apples", true);
+                    });
+                    test.assertNotNull(object);
+                    test.assertEqual("{\"apples\":true}", object.toString());
+                });
+
+                runner.test("with number property with int", (Test test) ->
+                {
+                    final JSONObject object = JSON.object((JSONObjectBuilder builder) ->
+                    {
+                        builder.numberProperty("apples", 50);
+                    });
+                    test.assertNotNull(object);
+                    test.assertEqual("{\"apples\":50}", object.toString());
+                });
+
+                runner.test("with number property with double", (Test test) ->
+                {
+                    final JSONObject object = JSON.object((JSONObjectBuilder builder) ->
+                    {
+                        builder.numberProperty("apples", 12.34);
+                    });
+                    test.assertNotNull(object);
+                    test.assertEqual("{\"apples\":12.34}", object.toString());
+                });
+
+                runner.test("with string property with empty", (Test test) ->
+                {
+                    final JSONObject object = JSON.object((JSONObjectBuilder builder) ->
+                    {
+                        builder.stringProperty("apples", "");
+                    });
+                    test.assertNotNull(object);
+                    test.assertEqual("{\"apples\":\"\"}", object.toString());
+                });
+
+                runner.test("with string property with non-empty", (Test test) ->
+                {
+                    final JSONObject object = JSON.object((JSONObjectBuilder builder) ->
+                    {
+                        builder.stringProperty("apples", "bananas");
+                    });
+                    test.assertNotNull(object);
+                    test.assertEqual("{\"apples\":\"bananas\"}", object.toString());
+                });
+
+                runner.test("with null property", (Test test) ->
+                {
+                    final JSONObject object = JSON.object((JSONObjectBuilder builder) ->
+                    {
+                        builder.nullProperty("huh?");
+                    });
+                    test.assertNotNull(object);
+                    test.assertEqual("{\"huh?\":null}", object.toString());
+                });
+
+                runner.test("with object property with no action", (Test test) ->
+                {
+                    final JSONObject object = JSON.object((JSONObjectBuilder builder) ->
+                    {
+                        builder.objectProperty("o");
+                    });
+                    test.assertNotNull(object);
+                    test.assertEqual("{\"o\":{}}", object.toString());
+                });
+
+                runner.test("with object property with empty action", (Test test) ->
+                {
+                    final JSONObject object = JSON.object((JSONObjectBuilder builder) ->
+                    {
+                        builder.objectProperty("o", (JSONObjectBuilder o) -> {});
+                    });
+                    test.assertNotNull(object);
+                    test.assertEqual("{\"o\":{}}", object.toString());
+                });
+
+                runner.test("with object property with non-empty action", (Test test) ->
+                {
+                    final JSONObject object = JSON.object((JSONObjectBuilder builder) ->
+                    {
+                        builder.objectProperty("o", (JSONObjectBuilder o) ->
+                        {
+                            o.booleanProperty("true", true);
+                            o.numberProperty("age", 10);
+                        });
+                    });
+                    test.assertNotNull(object);
+                    test.assertEqual("{\"o\":{\"true\":true,\"age\":10}}", object.toString());
+                });
+
+                runner.test("with array property with no action", (Test test) ->
+                {
+                    final JSONObject object = JSON.object((JSONObjectBuilder builder) ->
+                    {
+                        builder.arrayProperty("a");
+                    });
+                    test.assertNotNull(object);
+                    test.assertEqual("{\"a\":[]}", object.toString());
+                });
+
+                runner.test("with array property with empty action", (Test test) ->
+                {
+                    final JSONObject object = JSON.object((JSONObjectBuilder builder) ->
+                    {
+                        builder.arrayProperty("a", (JSONArrayBuilder a) -> {});
+                    });
+                    test.assertNotNull(object);
+                    test.assertEqual("{\"a\":[]}", object.toString());
+                });
+
+                runner.test("with array property with non-empty action", (Test test) ->
+                {
+                    final JSONObject object = JSON.object((JSONObjectBuilder builder) ->
+                    {
+                        builder.arrayProperty("a", (JSONArrayBuilder a) ->
+                        {
+                            a.booleanElement(true);
+                            a.numberElement(10);
+                        });
+                    });
+                    test.assertNotNull(object);
+                    test.assertEqual("{\"a\":[true,10]}", object.toString());
+                });
+
+                runner.test("with string array property with empty Iterable", (Test test) ->
+                {
+                    final JSONObject object = JSON.object((JSONObjectBuilder builder) ->
+                    {
+                        builder.stringArrayProperty("a", Iterable.create());
+                    });
+                    test.assertNotNull(object);
+                    test.assertEqual("{\"a\":[]}", object.toString());
+                });
+
+                runner.test("with string array property with non-empty Iterable", (Test test) ->
+                {
+                    final JSONObject object = JSON.object((JSONObjectBuilder builder) ->
+                    {
+                        builder.stringArrayProperty("a", Iterable.create("b", "c", "d"));
+                    });
+                    test.assertNotNull(object);
+                    test.assertEqual("{\"a\":[\"b\",\"c\",\"d\"]}", object.toString());
+                });
+
+                runner.test("with multiple properties", (Test test) ->
+                {
+                    final JSONObject object = JSON.object((JSONObjectBuilder builder) ->
+                    {
+                        builder.stringProperty("apples", "bananas");
+                        builder.booleanProperty("pizza", true);
+                    });
+                    test.assertNotNull(object);
+                    test.assertEqual("{\"apples\":\"bananas\",\"pizza\":true}", object.toString());
+                });
+            });
+
+            runner.testGroup("array(Action1<JSONArrayBuilder>)", () ->
+            {
+                runner.test("with null action", (Test test) ->
+                {
+                    test.assertThrows(() -> JSON.array(null), new PreConditionFailure("action cannot be null."));
+                });
+
+                runner.test("with empty action", (Test test) ->
+                {
+                    final JSONArray array = JSON.array((JSONArrayBuilder builder) -> {});
+                    test.assertNotNull(array);
+                    test.assertEqual("[]", array.toString());
+                });
+
+                runner.test("with boolean element", (Test test) ->
+                {
+                    final JSONArray array = JSON.array((JSONArrayBuilder builder) ->
+                    {
+                        builder.booleanElement(true);
+                    });
+                    test.assertNotNull(array);
+                    test.assertEqual("[true]", array.toString());
+                });
+
+                runner.test("with number element with int", (Test test) ->
+                {
+                    final JSONArray array = JSON.array((JSONArrayBuilder builder) ->
+                    {
+                        builder.numberElement(50);
+                    });
+                    test.assertNotNull(array);
+                    test.assertEqual("[50]", array.toString());
+                });
+
+                runner.test("with number element with double", (Test test) ->
+                {
+                    final JSONArray array = JSON.array((JSONArrayBuilder builder) ->
+                    {
+                        builder.numberElement(12.34);
+                    });
+                    test.assertNotNull(array);
+                    test.assertEqual("[12.34]", array.toString());
+                });
+
+                runner.test("with string element with empty", (Test test) ->
+                {
+                    final JSONArray array = JSON.array((JSONArrayBuilder builder) ->
+                    {
+                        builder.stringElement("");
+                    });
+                    test.assertNotNull(array);
+                    test.assertEqual("[\"\"]", array.toString());
+                });
+
+                runner.test("with string element with non-empty", (Test test) ->
+                {
+                    final JSONArray array = JSON.array((JSONArrayBuilder builder) ->
+                    {
+                        builder.stringElement("bananas");
+                    });
+                    test.assertNotNull(array);
+                    test.assertEqual("[\"bananas\"]", array.toString());
+                });
+
+                runner.test("with null element", (Test test) ->
+                {
+                    final JSONArray array = JSON.array((JSONArrayBuilder builder) ->
+                    {
+                        builder.nullElement();
+                    });
+                    test.assertNotNull(array);
+                    test.assertEqual("[null]", array.toString());
+                });
+
+                runner.test("with object element with no action", (Test test) ->
+                {
+                    final JSONArray array = JSON.array((JSONArrayBuilder builder) ->
+                    {
+                        builder.objectElement();
+                    });
+                    test.assertNotNull(array);
+                    test.assertEqual("[{}]", array.toString());
+                });
+
+                runner.test("with object element with empty action", (Test test) ->
+                {
+                    final JSONArray array = JSON.array((JSONArrayBuilder builder) ->
+                    {
+                        builder.objectElement((JSONObjectBuilder o) -> {});
+                    });
+                    test.assertNotNull(array);
+                    test.assertEqual("[{}]", array.toString());
+                });
+
+                runner.test("with object element with non-empty action", (Test test) ->
+                {
+                    final JSONArray array = JSON.array((JSONArrayBuilder builder) ->
+                    {
+                        builder.objectElement((JSONObjectBuilder o) ->
+                        {
+                            o.booleanProperty("true", true);
+                            o.numberProperty("age", 10);
+                        });
+                    });
+                    test.assertNotNull(array);
+                    test.assertEqual("[{\"true\":true,\"age\":10}]", array.toString());
+                });
+
+                runner.test("with multiple elements", (Test test) ->
+                {
+                    final JSONArray array = JSON.array((JSONArrayBuilder builder) ->
+                    {
+                        builder.stringElement("bananas");
+                        builder.booleanElement(true);
+                    });
+                    test.assertNotNull(array);
+                    test.assertEqual("[\"bananas\",true]", array.toString());
+                });
+            });
         });
     }
 }

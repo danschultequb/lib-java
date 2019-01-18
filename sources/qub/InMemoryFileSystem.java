@@ -6,15 +6,29 @@ package qub;
 public class InMemoryFileSystem implements FileSystem
 {
     private final List<InMemoryRoot> roots;
-    private AsyncRunner asyncRunner;
+    private final AsyncRunner asyncRunner;
+    private final Clock clock;
+
+    public InMemoryFileSystem(AsyncRunner asyncRunner)
+    {
+        this(asyncRunner, asyncRunner.getClock());
+    }
+
+    public InMemoryFileSystem(Clock clock)
+    {
+        this(null, clock);
+    }
 
     /**
      * Create a new InMemoryFileSystem.
      */
-    public InMemoryFileSystem(AsyncRunner asyncRunner)
+    public InMemoryFileSystem(AsyncRunner asyncRunner, Clock clock)
     {
+        PreCondition.assertNotNull(clock, "clock");
+
         roots = new ArrayList<>();
         this.asyncRunner = asyncRunner;
+        this.clock = clock;
     }
 
     private InMemoryRoot getInMemoryRoot(String inMemoryRootPath)
@@ -496,7 +510,7 @@ public class InMemoryFileSystem implements FileSystem
         }
         else
         {
-            roots.add(new InMemoryRoot(rootPath.getSegments().first()));
+            roots.add(new InMemoryRoot(rootPath.getSegments().first(), clock));
             result = getRoot(rootPath);
         }
         return result;

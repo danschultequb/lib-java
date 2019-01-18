@@ -186,4 +186,14 @@ public class File extends FileSystemEntry
     {
         return getFileSystem().setFileContentAsync(getPath(), content);
     }
+
+    public Result<Void> copyTo(Path destinationPath)
+    {
+        return getFileSystem().copyFileTo(getPath(), destinationPath);
+    }
+
+    public AsyncFunction<Result<Void>> copyToAsync(Path destinationPath)
+    {
+        return getFileSystem().copyFileToAsync(getPath(), destinationPath);
+    }
 }

@@ -666,7 +666,7 @@ public class RootTests
 
     private static InMemoryFileSystem getFileSystem(Test test)
     {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner());
+        final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner(), test.getClock());
         fileSystem.createRoot("/");
         return fileSystem;
     }

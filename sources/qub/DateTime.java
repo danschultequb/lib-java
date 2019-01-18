@@ -1,5 +1,6 @@
 package qub;
 
+import java.time.ZoneId;
 import java.util.Calendar;
 
 public class DateTime implements Comparable<DateTime>
@@ -64,6 +65,25 @@ public class DateTime implements Comparable<DateTime>
         final java.util.TimeZone timeZone = calendar.getTimeZone();
         final int offsetInMilliseconds = timeZone.getOffset(getMillisecondsSinceEpoch());
         return Duration.milliseconds(offsetInMilliseconds);
+    }
+
+    /**
+     * Get the UTC representation of this DateTime.
+     * @return The UTC representation of this DateTime.
+     */
+    public DateTime toUTC()
+    {
+        DateTime result = this;
+        final Duration timeZoneOffset = getTimeZoneOffset();
+        if (!timeZoneOffset.equals(Duration.zero))
+        {
+            result = DateTime.utc((long)(getMillisecondsSinceEpoch() - timeZoneOffset.toMilliseconds().getValue()));
+        }
+
+        PostCondition.assertNotNull(result, "result");
+        PostCondition.assertEqual(Duration.zero, result.getTimeZoneOffset(), "result.getTimeZoneOffset()");
+
+        return result;
     }
 
     /**
@@ -136,15 +156,6 @@ public class DateTime implements Comparable<DateTime>
         builder.append(':');
         builder.append(Strings.padLeft((int)positiveTimeZoneOffset.toMinutes().getValue() % 60, 2, '0'));
         return builder.toString();
-    }
-
-    /**
-     * Get the current DateTime for the local time zone.
-     * @return The current DateTime for the local time zone.
-     */
-    public static DateTime localNow()
-    {
-        return new DateTime(java.util.Calendar.getInstance());
     }
 
     public static DateTime local(long millisecondsSinceEpoch)

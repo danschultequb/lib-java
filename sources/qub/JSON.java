@@ -445,4 +445,52 @@ public class JSON
             issues.add(issue);
         }
     }
+
+    public static JSONObject object(Action1<JSONObjectBuilder> action)
+    {
+        PreCondition.assertNotNull(action, "action");
+
+        final InMemoryCharacterStream stream = new InMemoryCharacterStream();
+        object(stream, action);
+        final JSONObject result = parseObject(stream.getText().throwErrorOrGetValue());
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    public static void object(CharacterWriteStream writeStream, Action1<JSONObjectBuilder> action)
+    {
+        PreCondition.assertNotNull(writeStream, "writeStream");
+        PreCondition.assertFalse(writeStream.isDisposed(), "writeStream.isDisposed()");
+        PreCondition.assertNotNull(action, "action");
+
+        final JSONObjectBuilder objectBuilder = new JSONObjectBuilder(writeStream);
+        action.run(objectBuilder);
+        objectBuilder.dispose();
+    }
+
+    public static JSONArray array(Action1<JSONArrayBuilder> action)
+    {
+        PreCondition.assertNotNull(action, "action");
+
+        final InMemoryCharacterStream stream = new InMemoryCharacterStream();
+        array(stream, action);
+        final JSONArray result = parseArray(stream.getText().throwErrorOrGetValue());
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    public static void array(CharacterWriteStream writeStream, Action1<JSONArrayBuilder> action)
+    {
+        PreCondition.assertNotNull(writeStream, "writeStream");
+        PreCondition.assertFalse(writeStream.isDisposed(), "writeStream.isDisposed()");
+        PreCondition.assertNotNull(action, "action");
+
+        final JSONArrayBuilder arrayBuilder = new JSONArrayBuilder(writeStream);
+        action.run(arrayBuilder);
+        arrayBuilder.dispose();
+    }
 }

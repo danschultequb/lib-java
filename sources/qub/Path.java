@@ -60,6 +60,45 @@ public class Path
     }
 
     /**
+     * Set the file extension for this Path.
+     * @param fileExtension The new file extension for this Path.
+     */
+    public Path changeFileExtension(String fileExtension)
+    {
+        PreCondition.assertFalse(endsWith('/'), "endsWith('/')");
+        PreCondition.assertFalse(endsWith('\\'), "endsWith('\\')");
+
+        if (fileExtension == null)
+        {
+            fileExtension = "";
+        }
+        else if (fileExtension.length() > 0 && !fileExtension.startsWith("."))
+        {
+            fileExtension = '.' + fileExtension;
+        }
+
+        Path result;
+
+        final String currentFileExtension = getFileExtension();
+        if (Comparer.equal(currentFileExtension, fileExtension))
+        {
+            result = this;
+        }
+        else
+        {
+            final int currentFileExtensionLength = Strings.getLength(currentFileExtension);
+            final int currentPathLength = length();
+            final String pathWithoutFileExtension = toString().substring(0, currentPathLength - currentFileExtensionLength);
+            final String pathWithNewFileExtension = pathWithoutFileExtension + fileExtension;
+            result = Path.parse(pathWithNewFileExtension);
+        }
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    /**
      * Get a Path that is this path without a file extension. If this path doesn't have a file
      * extension, then this path will be returned.
      * @return This path without a file extension.
@@ -210,9 +249,33 @@ public class Path
      * @param suffix The suffix to check against this Path.
      * @return Whether or not this Path ends with the provided suffix.
      */
+    public boolean endsWith(char suffix)
+    {
+        return value.endsWith(Characters.toString(suffix));
+    }
+
+    /**
+     * Get whether or not this Path ends with the provided suffix.
+     * @param suffix The suffix to check against this Path.
+     * @return Whether or not this Path ends with the provided suffix.
+     */
+    public boolean endsWith(Character suffix)
+    {
+        PreCondition.assertNotNull(suffix, "suffix");
+
+        return value.endsWith(Characters.toString(suffix));
+    }
+
+    /**
+     * Get whether or not this Path ends with the provided suffix.
+     * @param suffix The suffix to check against this Path.
+     * @return Whether or not this Path ends with the provided suffix.
+     */
     public boolean endsWith(String suffix)
     {
-        return suffix != null && !suffix.isEmpty() && value.endsWith(suffix);
+        PreCondition.assertNotNullAndNotEmpty(suffix, "suffix");
+
+        return value.endsWith(suffix);
     }
 
     /**

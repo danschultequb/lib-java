@@ -73,9 +73,52 @@ public class PathTests
                 concatenateSegmentTest.run("y\\", "a\\b\\c", "y\\a\\b\\c");
                 concatenateSegmentTest.run("y\\", "C:/test/", null);
             });
-            
-            runner.testGroup("endsWith()", () ->
+
+            runner.testGroup("endsWith(char)", () ->
             {
+                runner.test("with \"apples\" and \'s\'", (Test test) ->
+                {
+                    test.assertTrue(Path.parse("apples").endsWith('s'));
+                });
+
+                runner.test("with \"apples\" and \'e\'", (Test test) ->
+                {
+                    test.assertFalse(Path.parse("apples").endsWith('e'));
+                });
+            });
+
+            runner.testGroup("endsWith(char)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    test.assertThrows(() -> Path.parse("apples").endsWith((Character)null), new PreConditionFailure("suffix cannot be null."));
+                });
+
+                runner.test("with \"apples\" and \'s\'", (Test test) ->
+                {
+                    test.assertTrue(Path.parse("apples").endsWith(Character.valueOf('s')));
+                });
+
+                runner.test("with \"apples\" and \'e\'", (Test test) ->
+                {
+                    test.assertFalse(Path.parse("apples").endsWith(Character.valueOf('e')));
+                });
+            });
+            
+            runner.testGroup("endsWith(String)", () ->
+            {
+                final Action3<String,String,RuntimeException> endsWithErrorTest = (String pathString, String suffix, RuntimeException expectedError) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(pathString) + " and " + Strings.escapeAndQuote(suffix), (Test test) ->
+                    {
+                        final Path path = Path.parse(pathString);
+                        test.assertThrows(() -> path.endsWith(suffix), expectedError);
+                    });
+                };
+
+                endsWithErrorTest.run("apples", null, new PreConditionFailure("suffix cannot be null."));
+                endsWithErrorTest.run("apples", "", new PreConditionFailure("suffix cannot be empty."));
+
                 final Action3<String,String,Boolean> endsWithTest = (String pathString, String suffix, Boolean expectedResult) ->
                 {
                     runner.test("with " + Strings.escapeAndQuote(pathString) + " and " + Strings.escapeAndQuote(suffix), (Test test) ->
@@ -85,8 +128,6 @@ public class PathTests
                     });
                 };
                 
-                endsWithTest.run("apples", null, false);
-                endsWithTest.run("apples", "", false);
                 endsWithTest.run("apples", "sel", false);
                 endsWithTest.run("apples", "les", true);
             });
@@ -217,6 +258,52 @@ public class PathTests
                 getFileExtensionTest.run("a.b/c/d", null);
                 getFileExtensionTest.run("test.bmp", ".bmp");
                 getFileExtensionTest.run("cats.and.dogs", ".dogs");
+            });
+
+            runner.testGroup("changeFileExtension(String)", () ->
+            {
+                final Action3<String,String,RuntimeException> changeFileExtensionErrorTest = (String originalPathString, String fileExtension, RuntimeException expectedError) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(originalPathString) + " and " + Strings.escapeAndQuote(fileExtension), (Test test) ->
+                    {
+                        final Path path = Path.parse(originalPathString);
+                        test.assertThrows(() -> path.changeFileExtension(fileExtension), expectedError);
+                    });
+                };
+
+                changeFileExtensionErrorTest.run("/", ".gif", new PreConditionFailure("endsWith('/') must be false."));
+                changeFileExtensionErrorTest.run("/", "gif", new PreConditionFailure("endsWith('/') must be false."));
+                changeFileExtensionErrorTest.run("/", "", new PreConditionFailure("endsWith('/') must be false."));
+                changeFileExtensionErrorTest.run("/", null, new PreConditionFailure("endsWith('/') must be false."));
+                changeFileExtensionErrorTest.run("\\", ".gif", new PreConditionFailure("endsWith('\\') must be false."));
+                changeFileExtensionErrorTest.run("\\", "gif", new PreConditionFailure("endsWith('\\') must be false."));
+                changeFileExtensionErrorTest.run("\\", "", new PreConditionFailure("endsWith('\\') must be false."));
+                changeFileExtensionErrorTest.run("\\", null, new PreConditionFailure("endsWith('\\') must be false."));
+
+                final Action3<String,String,String> changeFileExtensionTest = (String originalPathString, String fileExtension, String expectedPathString) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(originalPathString) + " and " + Strings.escapeAndQuote(fileExtension), (Test test) ->
+                    {
+                        test.assertEqual(expectedPathString, Path.parse(originalPathString).changeFileExtension(fileExtension).toString());
+                    });
+                };
+
+                changeFileExtensionTest.run("/a.txt", ".gif", "/a.gif");
+                changeFileExtensionTest.run("/a.txt", "gif", "/a.gif");
+                changeFileExtensionTest.run("/a.txt", "", "/a");
+                changeFileExtensionTest.run("/a.txt", null, "/a");
+                changeFileExtensionTest.run("/a", ".gif", "/a.gif");
+                changeFileExtensionTest.run("/a", "gif", "/a.gif");
+                changeFileExtensionTest.run("/a", "", "/a");
+                changeFileExtensionTest.run("/a", null, "/a");
+                changeFileExtensionTest.run("/b.c/a.txt", ".gif", "/b.c/a.gif");
+                changeFileExtensionTest.run("/b.c/a.txt", "gif", "/b.c/a.gif");
+                changeFileExtensionTest.run("/b.c/a.txt", "", "/b.c/a");
+                changeFileExtensionTest.run("/b.c/a.txt", null, "/b.c/a");
+                changeFileExtensionTest.run("/b.c/a", ".gif", "/b.c/a.gif");
+                changeFileExtensionTest.run("/b.c/a", "gif", "/b.c/a.gif");
+                changeFileExtensionTest.run("/b.c/a", "", "/b.c/a");
+                changeFileExtensionTest.run("/b.c/a", null, "/b.c/a");
             });
 
             runner.testGroup("withoutFileExtension()", () ->
