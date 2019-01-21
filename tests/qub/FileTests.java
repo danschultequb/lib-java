@@ -6,6 +6,23 @@ public class FileTests
     {
         runner.testGroup(File.class, () ->
         {
+            runner.testGroup("getParentFolder()", () ->
+            {
+                runner.test("with file at root", (Test test) ->
+                {
+                    final FileSystem fileSystem = getFileSystem(test);
+                    final File file = fileSystem.getFile("/file.txt").throwErrorOrGetValue();
+                    test.assertEqual("/", file.getParentFolder().toString());
+                });
+
+                runner.test("with file in folder", (Test test) ->
+                {
+                    final FileSystem fileSystem = getFileSystem(test);
+                    final File file = fileSystem.getFile("/folder/file.txt").throwErrorOrGetValue();
+                    test.assertEqual("/folder", file.getParentFolder().toString());
+                });
+            });
+
             runner.test("getFileExtension()", (Test test) ->
             {
                 final FileSystem fileSystem = getFileSystem(test);

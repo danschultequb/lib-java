@@ -13,6 +13,15 @@ public class File extends FileSystemEntry
     }
 
     /**
+     * Get the folder that contains this file.
+     * @return The result of attempting to get the parent folder that contains this file.
+     */
+    public Folder getParentFolder()
+    {
+        return getFileSystem().getFolder(getPath().getParent()).throwErrorOrGetValue();
+    }
+
+    /**
      * Get the file extension (including the '.' character) for this File.
      * @return
      */
