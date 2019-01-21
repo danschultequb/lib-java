@@ -106,19 +106,171 @@ public class JSONPropertyTests
                     JSONToken.colon(8),
                     JSON.parseObject("{}", 9),
                     11);
+                constructorTest.run("\"apples\":false",
+                    JSONToken.quotedString("\"apples\"", 0, true),
+                    "apples",
+                    JSONToken.colon(8),
+                    JSONToken.falseToken("false", 9),
+                    14);
+                constructorTest.run("\"apples\":true",
+                    JSONToken.quotedString("\"apples\"", 0, true),
+                    "apples",
+                    JSONToken.colon(8),
+                    JSONToken.trueToken("true", 9),
+                    13);
+                constructorTest.run("\"apples\":null",
+                    JSONToken.quotedString("\"apples\"", 0, true),
+                    "apples",
+                    JSONToken.colon(8),
+                    JSONToken.nullToken("null", 9),
+                    13);
+                constructorTest.run("\"apples\":3.14",
+                    JSONToken.quotedString("\"apples\"", 0, true),
+                    "apples",
+                    JSONToken.colon(8),
+                    JSONToken.number("3.14", 9),
+                    13);
             });
-            
-            runner.test("equals()", (Test test) ->
+
+            runner.testGroup("getNumberTokenValue()", () ->
             {
-                final JSONProperty propertySegment = JSON.parseProperty("\"a\":\"b\"");
-                test.assertFalse(propertySegment.equals((Object)null));
-                test.assertFalse(propertySegment.equals((JSONProperty)null));
+                runner.test("with no value", (Test test) ->
+                {
+                    final JSONProperty property = JSON.parseProperty("\"a\":");
+                    test.assertError(new NotFoundException("No value was found for the JSONProperty."), property.getNumberTokenValue());
+                });
 
-                test.assertFalse(propertySegment.equals((Object)"test"));
+                runner.test("with false token value", (Test test) ->
+                {
+                    final JSONProperty property = JSON.parseProperty("\"a\":false");
+                    test.assertError(new WrongTypeException("Expected the value of the property named \"a\" to be a number."), property.getNumberTokenValue());
+                });
 
-                test.assertTrue(propertySegment.equals(propertySegment));
-                test.assertTrue(propertySegment.equals(JSON.parseProperty("\"a\":\"b\"")));
-                test.assertFalse(propertySegment.equals(JSON.parseProperty("\"a\":50")));
+                runner.test("with object segment value", (Test test) ->
+                {
+                    final JSONProperty property = JSON.parseProperty("\"a\":{}");
+                    test.assertError(new WrongTypeException("Expected the value of the property named \"a\" to be a number."), property.getNumberTokenValue());
+                });
+
+                runner.test("with number value", (Test test) ->
+                {
+                    final JSONProperty property = JSON.parseProperty("\"a\":5");
+                    test.assertSuccess(JSONToken.number("5", 4), property.getNumberTokenValue());
+                });
+            });
+
+            runner.testGroup("getNumberValue()", () ->
+            {
+                runner.test("with no value", (Test test) ->
+                {
+                    final JSONProperty property = JSON.parseProperty("\"a\":");
+                    test.assertError(new NotFoundException("No value was found for the JSONProperty."), property.getNumberValue());
+                });
+
+                runner.test("with false token value", (Test test) ->
+                {
+                    final JSONProperty property = JSON.parseProperty("\"a\":false");
+                    test.assertError(new WrongTypeException("Expected the value of the property named \"a\" to be a number."), property.getNumberValue());
+                });
+
+                runner.test("with object segment value", (Test test) ->
+                {
+                    final JSONProperty property = JSON.parseProperty("\"a\":{}");
+                    test.assertError(new WrongTypeException("Expected the value of the property named \"a\" to be a number."), property.getNumberValue());
+                });
+
+                runner.test("with number value", (Test test) ->
+                {
+                    final JSONProperty property = JSON.parseProperty("\"a\":5");
+                    test.assertSuccess(5.0, property.getNumberValue());
+                });
+            });
+
+            runner.testGroup("getObjectValue()", () ->
+            {
+                runner.test("with no value", (Test test) ->
+                {
+                    final JSONProperty property = JSON.parseProperty("\"a\":");
+                    test.assertError(new NotFoundException("No value was found for the JSONProperty."), property.getObjectValue());
+                });
+
+                runner.test("with false token value", (Test test) ->
+                {
+                    final JSONProperty property = JSON.parseProperty("\"a\":false");
+                    test.assertError(new WrongTypeException("Expected the value of the property named \"a\" to be an object."), property.getObjectValue());
+                });
+
+                runner.test("with array segment value", (Test test) ->
+                {
+                    final JSONProperty property = JSON.parseProperty("\"a\":[]");
+                    test.assertError(new WrongTypeException("Expected the value of the property named \"a\" to be an object."), property.getObjectValue());
+                });
+
+                runner.test("with object value", (Test test) ->
+                {
+                    final JSONProperty property = JSON.parseProperty("\"a\":{}");
+                    test.assertSuccess(JSON.parseObject("{}", 4), property.getObjectValue());
+                });
+            });
+
+            runner.testGroup("equals(Object)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final JSONProperty propertySegment = JSON.parseProperty("\"a\":\"b\"");
+                    test.assertFalse(propertySegment.equals((Object)null));
+                });
+
+                runner.test("with non-JSONProperty", (Test test) ->
+                {
+                    final JSONProperty propertySegment = JSON.parseProperty("\"a\":\"b\"");
+                    test.assertFalse(propertySegment.equals((Object)"test"));
+                });
+
+                runner.test("with same JSONProperty", (Test test) ->
+                {
+                    final JSONProperty propertySegment = JSON.parseProperty("\"a\":\"b\"");
+                    test.assertTrue(propertySegment.equals((Object)propertySegment));
+                });
+
+                runner.test("with equal JSONProperty", (Test test) ->
+                {
+                    final JSONProperty propertySegment = JSON.parseProperty("\"a\":\"b\"");
+                    test.assertTrue(propertySegment.equals((Object)JSON.parseProperty("\"a\":\"b\"")));
+                });
+
+                runner.test("with different JSONProperty", (Test test) ->
+                {
+                    final JSONProperty propertySegment = JSON.parseProperty("\"a\":\"b\"");
+                    test.assertFalse(propertySegment.equals((Object)JSON.parseProperty("\"a\":\"c\"")));
+                });
+            });
+
+            runner.testGroup("equals(JSONProperty)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final JSONProperty propertySegment = JSON.parseProperty("\"a\":\"b\"");
+                    test.assertFalse(propertySegment.equals((JSONProperty)null));
+                });
+
+                runner.test("with same JSONProperty", (Test test) ->
+                {
+                    final JSONProperty propertySegment = JSON.parseProperty("\"a\":\"b\"");
+                    test.assertTrue(propertySegment.equals(propertySegment));
+                });
+
+                runner.test("with equal JSONProperty", (Test test) ->
+                {
+                    final JSONProperty propertySegment = JSON.parseProperty("\"a\":\"b\"");
+                    test.assertTrue(propertySegment.equals(JSON.parseProperty("\"a\":\"b\"")));
+                });
+
+                runner.test("with different JSONProperty", (Test test) ->
+                {
+                    final JSONProperty propertySegment = JSON.parseProperty("\"a\":\"b\"");
+                    test.assertFalse(propertySegment.equals(JSON.parseProperty("\"a\":\"c\"")));
+                });
             });
         });
     }

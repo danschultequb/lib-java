@@ -61,6 +61,68 @@ public class JSONProperty extends JSONSegment
         return result;
     }
 
+    /**
+     * Get the value of this property as a number JSONToken.
+     * @return The result of attempting to get the value of this property as a number JSONToken.
+     */
+    public Result<JSONToken> getNumberTokenValue()
+    {
+        Result<JSONToken> result;
+        final JSONSegment valueSegment = getValueSegment();
+        if (valueSegment == null)
+        {
+            result = Result.error(new NotFoundException("No value was found for the JSONProperty."));
+        }
+        else if (!(valueSegment instanceof JSONToken && ((JSONToken)valueSegment).getType() == JSONTokenType.Number))
+        {
+            result = Result.error(new WrongTypeException("Expected the value of the property named " + Strings.escapeAndQuote(getName()) + " to be a number."));
+        }
+        else
+        {
+            result = Result.success((JSONToken)valueSegment);
+        }
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    /**
+     * Get the value of this property as a number.
+     * @return The result of attempting to get the value of this property as a number.
+     */
+    public Result<Double> getNumberValue()
+    {
+        Result<Double> result = getNumberTokenValue()
+            .then((JSONToken numberToken) -> java.lang.Double.valueOf(numberToken.toString()));
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    public Result<JSONObject> getObjectValue()
+    {
+        Result<JSONObject> result;
+        final JSONSegment valueSegment = getValueSegment();
+        if (valueSegment == null)
+        {
+            result = Result.error(new NotFoundException("No value was found for the JSONProperty."));
+        }
+        else if (!(valueSegment instanceof JSONObject))
+        {
+            result = Result.error(new WrongTypeException("Expected the value of the property named " + Strings.escapeAndQuote(getName()) + " to be an object."));
+        }
+        else
+        {
+            result = Result.success((JSONObject)valueSegment);
+        }
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
     @Override
     public boolean equals(Object rhs)
     {
