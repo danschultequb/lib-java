@@ -6,6 +6,67 @@ public class FolderTests
     {
         runner.testGroup(Folder.class, () ->
         {
+            runner.testGroup("getParentFolder()", () ->
+            {
+                runner.test("with " + Strings.escapeAndQuote("/"), (Test test) ->
+                {
+                    final Folder folder = getFolder(test, "/");
+                    test.assertError(new NotFoundException("The path \"/\" has no parent folder."), folder.getParentFolder());
+                });
+
+                runner.test("with " + Strings.escapeAndQuote("\\"), (Test test) ->
+                {
+                    final Folder folder = getFolder(test, "\\");
+                    test.assertError(new NotFoundException("The path \"/\" has no parent folder."), folder.getParentFolder());
+                });
+
+                runner.test("with " + Strings.escapeAndQuote("D:"), (Test test) ->
+                {
+                    final Folder folder = getFolder(test, "D:");
+                    test.assertError(new NotFoundException("The path \"D:/\" has no parent folder."), folder.getParentFolder());
+                });
+
+                runner.test("with " + Strings.escapeAndQuote("E:/"), (Test test) ->
+                {
+                    final Folder folder = getFolder(test, "E:/");
+                    test.assertError(new NotFoundException("The path \"E:/\" has no parent folder."), folder.getParentFolder());
+                });
+
+                runner.test("with " + Strings.escapeAndQuote("F:\\"), (Test test) ->
+                {
+                    final Folder folder = getFolder(test, "F:\\");
+                    test.assertError(new NotFoundException("The path \"F:/\" has no parent folder."), folder.getParentFolder());
+                });
+
+                runner.test("with " + Strings.escapeAndQuote("/apples"), (Test test) ->
+                {
+                    final Folder folder = getFolder(test, "/apples");
+                    final Folder parentFolder = folder.getParentFolder().throwErrorOrGetValue();
+                    test.assertEqual("/", parentFolder.toString());
+                });
+
+                runner.test("with " + Strings.escapeAndQuote("/apples/"), (Test test) ->
+                {
+                    final Folder folder = getFolder(test, "/apples/");
+                    final Folder parentFolder = folder.getParentFolder().throwErrorOrGetValue();
+                    test.assertEqual("/", parentFolder.toString());
+                });
+
+                runner.test("with " + Strings.escapeAndQuote("/apples/dates"), (Test test) ->
+                {
+                    final Folder folder = getFolder(test, "/apples/dates");
+                    final Folder parentFolder = folder.getParentFolder().throwErrorOrGetValue();
+                    test.assertEqual("/apples", parentFolder.toString());
+                });
+
+                runner.test("with " + Strings.escapeAndQuote("/apples/dates/"), (Test test) ->
+                {
+                    final Folder folder = getFolder(test, "/apples/dates/");
+                    final Folder parentFolder = folder.getParentFolder().throwErrorOrGetValue();
+                    test.assertEqual("/apples", parentFolder.toString());
+                });
+            });
+
             runner.test("exists()", (Test test) ->
             {
                 final Folder folder = getFolder(test);
@@ -15,6 +76,17 @@ public class FolderTests
                 folder.create();
                 
                 test.assertSuccess(true, folder.exists());
+            });
+
+            runner.test("existsAsync()", (Test test) ->
+            {
+                final Folder folder = getFolder(test);
+
+                test.assertSuccess(false, folder.existsAsync().awaitReturn());
+
+                folder.create();
+
+                test.assertSuccess(true, folder.existsAsync().awaitReturn());
             });
 
             runner.testGroup("delete()", () ->
@@ -32,6 +104,103 @@ public class FolderTests
 
                     test.assertSuccess(true, folder.delete());
                     test.assertSuccess(false, folder.exists());
+                });
+            });
+
+            runner.testGroup("deleteAsync()", () ->
+            {
+                runner.test("when folder doesn't exist", (Test test) ->
+                {
+                    final Folder folder = getFolder(test);
+                    test.assertDone(false, new FolderNotFoundException("/test/folder"), folder.deleteAsync().awaitReturn());
+                });
+
+                runner.test("when folder exists", (Test test) ->
+                {
+                    final Folder folder = getFolder(test);
+                    folder.create();
+
+                    test.assertSuccess(true, folder.deleteAsync().awaitReturn());
+                    test.assertSuccess(false, folder.exists());
+                });
+            });
+
+            runner.testGroup("relativeTo(Path)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final Folder folder = getFolder(test);
+                    test.assertThrows(() -> folder.relativeTo((String)null), new PreConditionFailure("basePath cannot be null."));
+                });
+
+                runner.test("with empty", (Test test) ->
+                {
+                    final Folder folder = getFolder(test);
+                    test.assertThrows(() -> folder.relativeTo(""), new PreConditionFailure("basePath cannot be empty."));
+                });
+
+                runner.test("with /apples/grapes relative to /apples", (Test test) ->
+                {
+                    final Folder folder = getFolder(test, "/apples/grapes");
+                    final Path relativePath = folder.relativeTo("/apples");
+                    test.assertEqual(Path.parse("grapes"), relativePath);
+                });
+
+                runner.test("with /apples/grapes relative to /", (Test test) ->
+                {
+                    final Folder folder = getFolder(test, "/apples/grapes");
+                    final Path relativePath = folder.relativeTo("/");
+                    test.assertEqual(Path.parse("apples/grapes"), relativePath);
+                });
+            });
+
+            runner.testGroup("relativeTo(Path)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final Folder folder = getFolder(test);
+                    test.assertThrows(() -> folder.relativeTo((Path)null), new PreConditionFailure("basePath cannot be null."));
+                });
+
+                runner.test("with /apples/grapes relative to /apples", (Test test) ->
+                {
+                    final Folder folder = getFolder(test, "/apples/grapes");
+                    final Path relativePath = folder.relativeTo(Path.parse("/apples"));
+                    test.assertEqual("grapes", relativePath.toString());
+                });
+            });
+
+            runner.testGroup("relativeTo(Folder)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final Folder folder = getFolder(test);
+                    test.assertThrows(() -> folder.relativeTo((Folder)null), new PreConditionFailure("folder cannot be null."));
+                });
+
+                runner.test("with /apples/grapes relative to /apples", (Test test) ->
+                {
+                    final Folder folder = getFolder(test, "/apples/grapes");
+                    final Folder baseFolder = getFolder(test, "/apples");
+                    final Path relativePath = folder.relativeTo(baseFolder);
+                    test.assertEqual("grapes", relativePath.toString());
+                });
+            });
+
+            runner.testGroup("relativeTo(Root)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final Folder folder = getFolder(test);
+                    test.assertThrows(() -> folder.relativeTo((Root)null), new PreConditionFailure("root cannot be null."));
+                });
+
+                runner.test("with /apples/grapes relative to /", (Test test) ->
+                {
+                    final Folder folder = getFolder(test, "/apples/grapes");
+                    final Root root = folder.getRoot();
+                    final Path relativePath = folder.relativeTo(root);
+                    test.assertEqual("apples/grapes", relativePath.toString());
                 });
             });
 
@@ -334,9 +503,14 @@ public class FolderTests
 
     private static Folder getFolder(Test test)
     {
+        return getFolder(test, "/test/folder");
+    }
+
+    private static Folder getFolder(Test test, String folderPath)
+    {
         final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner());
         fileSystem.createRoot("/");
 
-        return fileSystem.getFolder("/test/folder").getValue();
+        return fileSystem.getFolder(folderPath).throwErrorOrGetValue();
     }
 }

@@ -339,7 +339,9 @@ public class Path
      */
     public Path relativeTo(Folder folder)
     {
-        return relativeTo(folder == null ? null : folder.getPath());
+        PreCondition.assertNotNull(folder, "folder");
+
+        return relativeTo(folder.getPath());
     }
 
     /**
@@ -351,7 +353,23 @@ public class Path
      */
     public Path relativeTo(Root root)
     {
-        return relativeTo(root == null ? null : root.getPath());
+        PreCondition.assertNotNull(root, "root");
+
+        return relativeTo(root.getPath());
+    }
+
+    /**
+     * Get this Path relative to the provided Path. If this path does not begin with the provided
+     * path, then this Path will be returned.
+     * @param basePath The path to make a relative version of this Path against.
+     * @return The relative version of this Path against the provided basePath, or this Path if this
+     * Path doesn't start with the provided basePath.
+     */
+    public Path relativeTo(String basePath)
+    {
+        PreCondition.assertNotNullAndNotEmpty(basePath, "basePath");
+
+        return relativeTo(Path.parse(basePath));
     }
 
     /**

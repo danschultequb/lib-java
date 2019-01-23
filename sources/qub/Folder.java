@@ -16,6 +16,27 @@ public class Folder extends FileSystemEntry
     }
 
     /**
+     * Get the root of this Folder.
+     * @return The root of this Folder.
+     */
+    public Root getRoot()
+    {
+        return getFileSystem().getRoot(getPath()).throwErrorOrGetValue();
+    }
+
+    /**
+     * Get the folder that contains this folder.
+     * @return The result of attempting to get the parent folder that contains this folder.
+     */
+    public Result<Folder> getParentFolder()
+    {
+        final Path parentFolderPath = getPath().getParent();
+        return parentFolderPath == null
+            ? Result.error(new NotFoundException("The path " + Strings.escapeAndQuote(this.toString()) + " has no parent folder."))
+            : getFileSystem().getFolder(parentFolderPath);
+    }
+
+    /**
      * Get whether or not this Folder exists.
      */
     @Override
@@ -45,18 +66,31 @@ public class Folder extends FileSystemEntry
         return getFileSystem().deleteFolderAsync(getPath());
     }
 
-    public Path relativeTo(Path path)
+    public Path relativeTo(String basePath)
     {
-        return getPath().relativeTo(path);
+        PreCondition.assertNotNullAndNotEmpty(basePath, "basePath");
+
+        return getPath().relativeTo(basePath);
+    }
+
+    public Path relativeTo(Path basePath)
+    {
+        PreCondition.assertNotNull(basePath, "basePath");
+
+        return getPath().relativeTo(basePath);
     }
 
     public Path relativeTo(Folder folder)
     {
+        PreCondition.assertNotNull(folder, "folder");
+
         return getPath().relativeTo(folder);
     }
 
     public Path relativeTo(Root root)
     {
+        PreCondition.assertNotNull(root, "root");
+
         return getPath().relativeTo(root);
     }
 
