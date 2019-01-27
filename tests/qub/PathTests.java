@@ -383,7 +383,7 @@ public class PathTests
                     });
                 };
 
-                relativeToTest.run("C:/a/b/c.d", "C:/a/b/c.d", "C:/a/b/c.d");
+                relativeToTest.run("C:/a/b/c.d", "C:/a/b/c.d", ".");
                 relativeToTest.run("C:/a/b/c.d", "/folder/", "C:/a/b/c.d");
                 relativeToTest.run("C:/a/b/c.d", "C:/", "a/b/c.d");
                 relativeToTest.run("C:/a/b/c.d", "C:/a/b", "c.d");
@@ -408,7 +408,7 @@ public class PathTests
                     });
                 };
 
-                relativeToTest.run("C:/a/b/c.d", "C:/a/b/c.d", "C:/a/b/c.d");
+                relativeToTest.run("C:/a/b/c.d", "C:/a/b/c.d", ".");
                 relativeToTest.run("C:/a/b/c.d", "/folder/", "C:/a/b/c.d");
                 relativeToTest.run("C:/a/b/c.d", "C:/", "a/b/c.d");
                 relativeToTest.run("C:/a/b/c.d", "C:/a/b", "c.d");

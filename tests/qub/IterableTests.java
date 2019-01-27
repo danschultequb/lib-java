@@ -13,6 +13,29 @@ public class IterableTests
                     test.assertEqual("null", Iterable.toString(null));
                 });
             });
+
+            runner.testGroup("isNullOrEmpty(Iterable<T>)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    test.assertTrue(Iterable.isNullOrEmpty(null));
+                });
+
+                runner.test("with empty Array", (Test test) ->
+                {
+                    test.assertTrue(Iterable.isNullOrEmpty(new Array<String>(0)));
+                });
+
+                runner.test("with Iterable.empty()", (Test test) ->
+                {
+                    test.assertTrue(Iterable.isNullOrEmpty(Iterable.empty()));
+                });
+
+                runner.test("with non-empty", (Test test) ->
+                {
+                    test.assertFalse(Iterable.isNullOrEmpty(Iterable.create(1, 2, 3)));
+                });
+            });
         });
     }
 

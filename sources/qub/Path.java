@@ -382,9 +382,15 @@ public class Path
     public Path relativeTo(Path basePath)
     {
         PreCondition.assertNotNull(basePath, "basePath");
+        PreCondition.assertTrue(basePath.isRooted(), "basePath.isRooted()");
+        PreCondition.assertTrue(this.isRooted(), "this.isRooted()");
 
         Path result = this;
-        if (!this.equals(basePath))
+        if (this.equals(basePath))
+        {
+            result = Path.parse(".");
+        }
+        else
         {
             final Indexable<String> thisSegments = getSegments();
             final int thisSegmentsCount = thisSegments.getCount();
@@ -435,7 +441,7 @@ public class Path
      */
     public Path normalize()
     {
-        if (normalizedPath ==  null)
+        if (normalizedPath == null)
         {
             final StringBuilder normalizedPathStringBuilder = new StringBuilder();
 

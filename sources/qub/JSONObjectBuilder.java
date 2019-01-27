@@ -119,6 +119,13 @@ public class JSONObjectBuilder implements Disposable
         });
     }
 
+    public void stringArrayProperty(String propertyName)
+    {
+        PreCondition.assertNotNullAndNotEmpty(propertyName, "propertyName");
+
+        stringArrayProperty(propertyName, Iterable.empty());
+    }
+
     public void stringArrayProperty(String propertyName, Iterable<String> stringElements)
     {
         PreCondition.assertNotNullAndNotEmpty(propertyName, "propertyName");

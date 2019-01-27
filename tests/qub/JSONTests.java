@@ -450,6 +450,16 @@ public class JSONTests
                     test.assertEqual("{\"a\":[true,10]}", object.toString());
                 });
 
+                runner.test("with string array property with no arguments", (Test test) ->
+                {
+                    final JSONObject object = JSON.object((JSONObjectBuilder builder) ->
+                    {
+                        builder.stringArrayProperty("a");
+                    });
+                    test.assertNotNull(object);
+                    test.assertEqual("{\"a\":[]}", object.toString());
+                });
+
                 runner.test("with string array property with empty Iterable", (Test test) ->
                 {
                     final JSONObject object = JSON.object((JSONObjectBuilder builder) ->

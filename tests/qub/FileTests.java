@@ -170,6 +170,33 @@ public class FileTests
                     test.assertError(new FileNotFoundException("/A"), file.getContentByteReadStream());
                 });
             });
+
+            runner.testGroup("getContentByteReadStreamAsync()", () ->
+            {
+                runner.test("with non-existing file", (Test test) ->
+                {
+                    final File file = getFile(test);
+                    test.assertError(new FileNotFoundException("/A"), file.getContentByteReadStreamAsync().awaitReturn());
+                });
+            });
+
+            runner.testGroup("getContentCharacterReadStream()", () ->
+            {
+                runner.test("with non-existing file", (Test test) ->
+                {
+                    final File file = getFile(test);
+                    test.assertError(new FileNotFoundException("/A"), file.getContentCharacterReadStream());
+                });
+            });
+
+            runner.testGroup("getContentCharacterReadStreamAsync()", () ->
+            {
+                runner.test("with non-existing file", (Test test) ->
+                {
+                    final File file = getFile(test);
+                    test.assertError(new FileNotFoundException("/A"), file.getContentCharacterReadStreamAsync().awaitReturn());
+                });
+            });
         });
     }
 

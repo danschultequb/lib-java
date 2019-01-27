@@ -246,6 +246,8 @@ public class PreCondition
 
     public static void assertOneOf(char value, char[] allowedValues, String variableName)
     {
+        PreCondition.assertNotNull(allowedValues, "allowedValues");
+
         if (!Array.contains(allowedValues, value))
         {
             throw new PreConditionFailure(AssertionMessages.oneOf(value, allowedValues, variableName));
@@ -254,6 +256,8 @@ public class PreCondition
 
     public static void assertOneOf(int value, int[] allowedValues, String variableName)
     {
+        PreCondition.assertNotNull(allowedValues, "allowedValues");
+
         if (!Array.contains(allowedValues, value))
         {
             throw new PreConditionFailure(AssertionMessages.oneOf(value, allowedValues, variableName));
@@ -262,7 +266,29 @@ public class PreCondition
 
     public static void assertOneOf(long value, long[] allowedValues, String variableName)
     {
+        PreCondition.assertNotNull(allowedValues, "allowedValues");
+
         if (!Array.contains(allowedValues, value))
+        {
+            throw new PreConditionFailure(AssertionMessages.oneOf(value, allowedValues, variableName));
+        }
+    }
+
+    public static void assertOneOf(String value, String[] allowedValues, String variableName)
+    {
+        PreCondition.assertNotNull(allowedValues, "allowedValues");
+
+        if (!Array.contains(allowedValues, value))
+        {
+            throw new PreConditionFailure(AssertionMessages.oneOf(value, allowedValues, variableName));
+        }
+    }
+
+    public static <T> void assertOneOf(T value, Iterable<T> allowedValues, String variableName)
+    {
+        PreCondition.assertNotNull(allowedValues, "allowedValues");
+
+        if (!allowedValues.contains(value))
         {
             throw new PreConditionFailure(AssertionMessages.oneOf(value, allowedValues, variableName));
         }

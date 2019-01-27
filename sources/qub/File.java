@@ -72,15 +72,11 @@ public class File extends FileSystemEntry
      */
     public AsyncFunction<Result<Boolean>> createAsync()
     {
-        return getFileSystem().createFileAsync(getPath()).then(new Function1<Result<File>, Result<Boolean>>()
+        return getFileSystem().createFileAsync(getPath()).then((Result<File> createResult) ->
         {
-            @Override
-            public Result<Boolean> run(Result<File> createResult)
-            {
-                final Throwable error = createResult.getError();
-                final boolean created = !(error instanceof FileAlreadyExistsException || error instanceof RootNotFoundException);
-                return Result.done(created, error);
-            }
+            final Throwable error = createResult.getError();
+            final boolean created = !(error instanceof FileAlreadyExistsException || error instanceof RootNotFoundException);
+            return Result.done(created, error);
         });
     }
 
@@ -159,8 +155,30 @@ public class File extends FileSystemEntry
     }
 
     /**
+     * Get a CharacterReadStream to this file's contents.
+     * @return A CharacterReadStream to this file's contents.
+     */
+    public Result<CharacterReadStream> getContentCharacterReadStream()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        final Path path = getPath();
+        return fileSystem.getFileContentCharacterReadStream(path);
+    }
+
+    /**
+     * Get a CharacterReadStream to this file's contents.
+     * @return A CharacterReadStream to this file's contents.
+     */
+    public AsyncFunction<Result<CharacterReadStream>> getContentCharacterReadStreamAsync()
+    {
+        final FileSystem fileSystem = getFileSystem();
+        final Path path = getPath();
+        return fileSystem.getFileContentCharacterReadStreamAsync(path);
+    }
+
+    /**
      * Get a ByteWriteStream to this file's contents.
-     * @return A ByteWriteStrema to this file's contents.
+     * @return A ByteWriteStream to this file's contents.
      */
     public Result<ByteWriteStream> getContentByteWriteStream()
     {
@@ -169,11 +187,29 @@ public class File extends FileSystemEntry
 
     /**
      * Get a ByteWriteStream to this file's contents.
-     * @return A ByteWriteStrema to this file's contents.
+     * @return A ByteWriteStream to this file's contents.
      */
     public AsyncFunction<Result<ByteWriteStream>> getContentByteWriteStreamAsync()
     {
         return getFileSystem().getFileContentByteWriteStreamAsync(getPath());
+    }
+
+    /**
+     * Get a CharacterWriteStream to this file's contents.
+     * @return A CharacterWriteStream to this file's contents.
+     */
+    public Result<CharacterWriteStream> getContentCharacterWriteStream()
+    {
+        return getFileSystem().getFileContentCharacterWriteStream(getPath());
+    }
+
+    /**
+     * Get a CharacterWriteStream to this file's contents.
+     * @return A CharacterWriteStream to this file's contents.
+     */
+    public AsyncFunction<Result<CharacterWriteStream>> getContentCharacterWriteStreamAsync()
+    {
+        return getFileSystem().getFileContentCharacterWriteStreamAsync(getPath());
     }
 
     public Result<byte[]> getContents()
@@ -204,5 +240,15 @@ public class File extends FileSystemEntry
     public AsyncFunction<Result<Void>> copyToAsync(Path destinationPath)
     {
         return getFileSystem().copyFileToAsync(getPath(), destinationPath);
+    }
+
+    public Result<Void> copyTo(File destinationFile)
+    {
+        return getFileSystem().copyFileTo(getPath(), destinationFile.getPath());
+    }
+
+    public AsyncFunction<Result<Void>> copyToAsync(File destinationFile)
+    {
+        return getFileSystem().copyFileToAsync(getPath(), destinationFile.getPath());
     }
 }

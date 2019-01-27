@@ -143,4 +143,20 @@ public class AssertionMessages
         builder.append(" or " + values[values.length - 1] + ".");
         return builder.toString();
     }
+
+    public static <T> String oneOf(T value, Iterable<T> values, String variableName)
+    {
+        final StringBuilder builder = new StringBuilder();
+        builder.append(variableName + " (" + value + ") must be either");
+        for (final T acceptableValue : values.skipLast())
+        {
+            builder.append(" " + acceptableValue);
+            if (values.getCount() > 2)
+            {
+                builder.append(",");
+            }
+        }
+        builder.append(" or " + values.last() + ".");
+        return builder.toString();
+    }
 }

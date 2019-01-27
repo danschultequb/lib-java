@@ -377,6 +377,17 @@ public interface Iterable<T> extends java.lang.Iterable<T>
     }
 
     /**
+     * Get whether or not the provided Iterable is null or empty.
+     * @param value The Iterable to check.
+     * @param <T> The type of values contained by the Iterable.
+     * @return Whether or not the Iterable is null or empty.
+     */
+    static <T> boolean isNullOrEmpty(Iterable<T> value)
+    {
+        return value == null || !value.any();
+    }
+
+    /**
      * Get the String representation of the provided Iterable.
      * @return The String representation of the provided Iterable.
      */

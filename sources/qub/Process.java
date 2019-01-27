@@ -429,9 +429,10 @@ public class Process implements Disposable
      * Set the environment variables that will be used by this Application.
      * @param environmentVariables The environment variables that will be used by this application.
      */
-    public void setEnvironmentVariables(Map<String,String> environmentVariables)
+    public Process setEnvironmentVariables(Map<String,String> environmentVariables)
     {
         this.environmentVariables.set(environmentVariables);
+        return this;
     }
 
     /**

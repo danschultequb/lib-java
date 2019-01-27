@@ -410,7 +410,7 @@ public class ProcessTests
             {
                 final Process process = creator.run();
                 final Map<String,String> envVars = new ListMap<>();
-                process.setEnvironmentVariables(envVars);
+                test.assertSame(process, process.setEnvironmentVariables(envVars));
                 test.assertSame(envVars, process.getEnvironmentVariables());
             });
 

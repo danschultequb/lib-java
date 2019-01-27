@@ -909,6 +909,55 @@ public interface FileSystem
     }
 
     /**
+     * Get a CharacterReadStream to the file at the provided rootedFilePath.
+     * @param rootedFilePath The rooted file path to the file.
+     * @return A CharacterReadStream to the contents of the file.
+     */
+    default Result<CharacterReadStream> getFileContentCharacterReadStream(String rootedFilePath)
+    {
+        FileSystem.validateRootedFilePath(rootedFilePath);
+
+        return getFileContentCharacterReadStream(Path.parse(rootedFilePath));
+    }
+
+    /**
+     * Get a CharacterReadStream to the file at the provided rootedFilePath.
+     * @param rootedFilePath The rooted file path to the file.
+     * @return A CharacterReadStream to the contents of the file.
+     */
+    default Result<CharacterReadStream> getFileContentCharacterReadStream(Path rootedFilePath)
+    {
+        return getFileContentByteReadStream(rootedFilePath)
+            .then((ByteReadStream byteReadStream) -> byteReadStream.asCharacterReadStream());
+    }
+
+    /**
+     * Get a CharacterReadStream to the file at the provided rootedFilePath.
+     * @param rootedFilePath The rooted file path to the file.
+     * @return A CharacterReadStream to the contents of the file.
+     */
+    default AsyncFunction<Result<CharacterReadStream>> getFileContentCharacterReadStreamAsync(String rootedFilePath)
+    {
+        FileSystem.validateRootedFilePath(rootedFilePath);
+        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
+
+        return getAsyncRunner().scheduleSingle(() -> getFileContentCharacterReadStream(rootedFilePath));
+    }
+
+    /**
+     * Get a CharacterReadStream to the file at the provided rootedFilePath.
+     * @param rootedFilePath The rooted file path to the file.
+     * @return A CharacterReadStream to the contents of the file.
+     */
+    default AsyncFunction<Result<CharacterReadStream>> getFileContentCharacterReadStreamAsync(Path rootedFilePath)
+    {
+        FileSystem.validateRootedFilePath(rootedFilePath);
+        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
+
+        return getAsyncRunner().scheduleSingle(() -> getFileContentCharacterReadStream(rootedFilePath));
+    }
+
+    /**
      * Get the contents of the file at the provided rootedFilePath.
      * @param rootedFilePath The rooted file path to the file.
      * @return The byte[] contents of the file at the provided rootedFilePath.
@@ -941,10 +990,6 @@ public interface FileSystem
             {
                 result = byteReadStream.readAllBytes();
             }
-            catch (Exception e)
-            {
-                result = Result.error(e);
-            }
         }
 
         return result;
@@ -974,6 +1019,56 @@ public interface FileSystem
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
 
         return getAsyncRunner().scheduleSingle(() -> getFileContent(rootedFilePath));
+    }
+
+    /**
+     * Get the contents of the file at the provided rootedFilePath.
+     * @param rootedFilePath The rooted file path to the file.
+     * @return The String contents of the file at the provided rootedFilePath.
+     */
+    default Result<String> getFileContentAsString(String rootedFilePath)
+    {
+        FileSystem.validateRootedFilePath(rootedFilePath);
+
+        return getFileContentAsString(Path.parse(rootedFilePath));
+    }
+
+    /**
+     * Get the contents of the file at the provided rootedFilePath.
+     * @param rootedFilePath The rooted file path to the file.
+     * @return The String contents of the file at the provided rootedFilePath.
+     */
+    default Result<String> getFileContentAsString(Path rootedFilePath)
+    {
+        FileSystem.validateRootedFilePath(rootedFilePath);
+
+        return getFileContent(rootedFilePath).thenResult(CharacterEncoding.UTF_8::decodeAsString);
+    }
+
+    /**
+     * Get the contents of the file at the provided rootedFilePath.
+     * @param rootedFilePath The rooted file path to the file.
+     * @return The String contents of the file at the provided rootedFilePath.
+     */
+    default AsyncFunction<Result<String>> getFileContentAsStringAsync(String rootedFilePath)
+    {
+        FileSystem.validateRootedFilePath(rootedFilePath);
+        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
+
+        return getAsyncRunner().scheduleSingle(() -> getFileContentAsString(rootedFilePath));
+    }
+
+    /**
+     * Get the contents of the file at the provided rootedFilePath.
+     * @param rootedFilePath The rooted file path to the file.
+     * @return The String contents of the file at the provided rootedFilePath.
+     */
+    default AsyncFunction<Result<String>> getFileContentAsStringAsync(Path rootedFilePath)
+    {
+        FileSystem.validateRootedFilePath(rootedFilePath);
+        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
+
+        return getAsyncRunner().scheduleSingle(() -> getFileContentAsString(rootedFilePath));
     }
 
     /**
@@ -1019,6 +1114,55 @@ public interface FileSystem
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
 
         return getAsyncRunner().scheduleSingle(() -> getFileContentByteWriteStream(rootedFilePath));
+    }
+
+    /**
+     * Get a CharacterWriteStream to the file at the provided rootedFilePath.
+     * @param rootedFilePath The rooted file path to the file.
+     * @return A CharacterWriteStream to the contents of the file.
+     */
+    default Result<CharacterWriteStream> getFileContentCharacterWriteStream(String rootedFilePath)
+    {
+        FileSystem.validateRootedFilePath(rootedFilePath);
+
+        return getFileContentCharacterWriteStream(Path.parse(rootedFilePath));
+    }
+
+    /**
+     * Get a CharacterWriteStream to the file at the provided rootedFilePath.
+     * @param rootedFilePath The rooted file path to the file.
+     * @return A CharacterWriteStream to the contents of the file.
+     */
+    default Result<CharacterWriteStream> getFileContentCharacterWriteStream(Path rootedFilePath)
+    {
+        return getFileContentByteWriteStream(rootedFilePath)
+            .then((Function1<ByteWriteStream,CharacterWriteStream>)ByteWriteStream::asCharacterWriteStream);
+    }
+
+    /**
+     * Get a CharacterWriteStream to the file at the provided rootedFilePath.
+     * @param rootedFilePath The rooted file path to the file.
+     * @return A CharacterWriteStream to the contents of the file.
+     */
+    default AsyncFunction<Result<CharacterWriteStream>> getFileContentCharacterWriteStreamAsync(String rootedFilePath)
+    {
+        FileSystem.validateRootedFilePath(rootedFilePath);
+        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
+
+        return getAsyncRunner().scheduleSingle(() -> getFileContentCharacterWriteStream(rootedFilePath));
+    }
+
+    /**
+     * Get a CharacterReadStream to the file at the provided rootedFilePath.
+     * @param rootedFilePath The rooted file path to the file.
+     * @return A CharacterReadStream to the contents of the file.
+     */
+    default AsyncFunction<Result<CharacterWriteStream>> getFileContentCharacterWriteStreamAsync(Path rootedFilePath)
+    {
+        FileSystem.validateRootedFilePath(rootedFilePath);
+        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
+
+        return getAsyncRunner().scheduleSingle(() -> getFileContentCharacterWriteStream(rootedFilePath));
     }
 
     /**
@@ -1069,17 +1213,86 @@ public interface FileSystem
     }
 
     /**
-     * Copy the file at the provided rootedFilePath to the provided destinationFilePath.
-     * @param rootedFilePath The path to the file to copy.
+     * Set the contents of the file at the provided rootedFilePath.
+     * @param rootedFilePath The rooted path to the file.
+     * @param content The String contents to set.
+     * @return Whether or not the file's contents were set.
+     */
+    default Result<Boolean> setFileContentAsString(String rootedFilePath, String content)
+    {
+        FileSystem.validateRootedFilePath(rootedFilePath);
+
+        return setFileContentAsString(Path.parse(rootedFilePath), content);
+    }
+
+    /**
+     * Set the contents of the file at the provided rootedFilePath.
+     * @param rootedFilePath The rooted path to the file.
+     * @param content The String contents to set.
+     * @return Whether or not the file's contents were set.
+     */
+    default Result<Boolean> setFileContentAsString(Path rootedFilePath, String content)
+    {
+        FileSystem.validateRootedFilePath(rootedFilePath);
+
+        return CharacterEncoding.UTF_8.encode(content)
+            .thenResult((byte[] encodedContent) -> setFileContent(rootedFilePath, encodedContent));
+    }
+
+    /**
+     * Copy the provided sourceFile to the provided destinationFile.
+     * @param sourceFile The file to copy from.
+     * @param destinationFile The file to copy to.
+     * @return The result of copying the file.
+     */
+    default Result<Void> copyFileTo(File sourceFile, File destinationFile)
+    {
+        PreCondition.assertNotNull(sourceFile, "sourceFile");
+        PreCondition.assertNotNull(destinationFile, "destinationFile");
+
+        return copyFileTo(sourceFile.getPath(), destinationFile.getPath());
+    }
+
+    /**
+     * Copy the file at the provided sourceFile to the provided destinationFilePath.
+     * @param sourceFile The file to copy.
      * @param destinationFilePath The path to copy the file to.
      * @return The result of copying the file.
      */
-    default Result<Void> copyFileTo(Path rootedFilePath, Path destinationFilePath)
+    default Result<Void> copyFileTo(File sourceFile, Path destinationFilePath)
     {
-        FileSystem.validateRootedFilePath(rootedFilePath);
+        PreCondition.assertNotNull(sourceFile, "sourceFile");
         FileSystem.validateRootedFilePath(destinationFilePath, "destinationFilePath");
 
-        final Result<Void> result = getFileContentByteReadStream(rootedFilePath)
+        return copyFileTo(sourceFile.getPath(), destinationFilePath);
+    }
+
+    /**
+     * Copy the file at the provided sourceFilePath to the provided destinationFile.
+     * @param sourceFilePath The path to the file to copy.
+     * @param destinationFile The file to copy to.
+     * @return The result of copying the file.
+     */
+    default Result<Void> copyFileTo(Path sourceFilePath, File destinationFile)
+    {
+        FileSystem.validateRootedFilePath(sourceFilePath, "sourceFilePath");
+        PreCondition.assertNotNull(destinationFile, "destinationFile");
+
+        return copyFileTo(sourceFilePath, destinationFile.getPath());
+    }
+
+    /**
+     * Copy the file at the provided sourceFilePath to the provided destinationFilePath.
+     * @param sourceFilePath The path to the file to copy.
+     * @param destinationFilePath The path to copy the file to.
+     * @return The result of copying the file.
+     */
+    default Result<Void> copyFileTo(Path sourceFilePath, Path destinationFilePath)
+    {
+        FileSystem.validateRootedFilePath(sourceFilePath, "sourceFilePath");
+        FileSystem.validateRootedFilePath(destinationFilePath, "destinationFilePath");
+
+        final Result<Void> result = getFileContentByteReadStream(sourceFilePath)
             .thenResult((ByteReadStream fileContents) ->
             {
                 try
