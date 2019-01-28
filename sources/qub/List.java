@@ -43,7 +43,8 @@ public interface List<T> extends MutableIndexable<T>
      * Add the provided values at the end of this List.
      * @param values The values to add.
      */
-    default void addAll(T[] values)
+    @SuppressWarnings("unchecked")
+    default void addAll(T... values)
     {
         if (values != null && values.length > 0)
         {

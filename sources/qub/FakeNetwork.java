@@ -83,7 +83,7 @@ public class FakeNetwork implements Network
                             else
                             {
                                 boundTCPServerAvailable.await(timeout)
-                                    .catchResultError((Result<Boolean> error) ->
+                                    .catchResultError((Result<Void> error) ->
                                     {
                                         resultValue.set(error.convertError());
                                     });

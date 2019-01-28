@@ -53,7 +53,17 @@ public class DNSTests
                 runner.test("with \"www.notavalidwebpageurlidontexist.com\"", (Test test) ->
                 {
                     final DNS dns = creator.run();
-                    test.assertError(new java.net.UnknownHostException("www.notavalidwebpageurlidontexist.com"), dns.resolveHost("www.notavalidwebpageurlidontexist.com"));
+                    dns.resolveHost("www.notavalidwebpageurlidontexist.com")
+                        .then((IPv4Address resolvedAddress) ->
+                        {
+                            // Some internet service providers detect a failed DNS query and will redirect the query to
+                            // a web search instead.
+                            test.assertNull(resolvedAddress);
+                        })
+                        .catchError(java.net.UnknownHostException.class, (java.net.UnknownHostException error) ->
+                        {
+                            test.assertEqual("www.notavalidwebpageurlidontexist.com", error.getMessage());
+                        });
                 });
             });
         });

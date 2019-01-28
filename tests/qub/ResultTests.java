@@ -96,15 +96,15 @@ public class ResultTests
                 {
                     final Result<Boolean> result1 = Result.successTrue();
                     final Value<Boolean> value = new Value<>();
-                    final Result<Boolean> result2 = result1.then(() -> value.set(false));
-                    test.assertSuccess(true, result2);
+                    final Result<Void> result2 = result1.then(() -> value.set(false));
+                    test.assertSuccess(null, result2);
                     test.assertEqual(false, value.get());
                 });
 
                 runner.test("with non-error Result and throwing action", (Test test) ->
                 {
                     final Result<Boolean> result1 = Result.successTrue();
-                    final Result<Boolean> result2 = result1.then((Action0)() ->
+                    final Result<Void> result2 = result1.then((Action0)() ->
                     {
                         throw new RuntimeException("foo");
                     });
@@ -115,7 +115,7 @@ public class ResultTests
                 {
                     final Result<Character> result1 = Result.error(new RuntimeException("blah"));
                     final Value<Character> value = new Value<>();
-                    final Result<Character> result2 = result1.then(() -> value.set('z'));
+                    final Result<Void> result2 = result1.then(() -> value.set('z'));
                     test.assertError(new RuntimeException("blah"), result2);
                     test.assertEqual(null, value.get());
                 });
@@ -123,7 +123,7 @@ public class ResultTests
                 runner.test("with error Result and throwing action", (Test test) ->
                 {
                     final Result<Character> result1 = Result.error(new RuntimeException("blah"));
-                    final Result<Character> result2 = result1.then((Action0)() ->
+                    final Result<Void> result2 = result1.then((Action0)() ->
                     {
                         throw new RuntimeException("abc");
                     });
@@ -142,15 +142,15 @@ public class ResultTests
                 {
                     final Result<Boolean> result1 = Result.successTrue();
                     final Value<Boolean> value = new Value<>();
-                    final Result<Boolean> result2 = result1.then(value::set);
-                    test.assertSuccess(true, result2);
+                    final Result<Void> result2 = result1.then(value::set);
+                    test.assertSuccess(null, result2);
                     test.assertEqual(true, value.get());
                 });
 
                 runner.test("with non-error Result and throwing action", (Test test) ->
                 {
                     final Result<Boolean> result1 = Result.successTrue();
-                    final Result<Boolean> result2 = result1.then((Action1<Boolean>)(Boolean value) ->
+                    final Result<Void> result2 = result1.then((Action1<Boolean>)(Boolean value) ->
                     {
                         throw new RuntimeException("foo");
                     });
@@ -161,7 +161,7 @@ public class ResultTests
                 {
                     final Result<Character> result1 = Result.error(new RuntimeException("blah"));
                     final Value<Character> value = new Value<>();
-                    final Result<Character> result2 = result1.then(value::set);
+                    final Result<Void> result2 = result1.then(value::set);
                     test.assertError(new RuntimeException("blah"), result2);
                     test.assertEqual(null, value.get());
                 });
@@ -169,7 +169,7 @@ public class ResultTests
                 runner.test("with error Result and throwing action", (Test test) ->
                 {
                     final Result<Character> result1 = Result.error(new RuntimeException("blah"));
-                    final Result<Character> result2 = result1.then((Action1<Character>)(Character c) ->
+                    final Result<Void> result2 = result1.then((Action1<Character>)(Character c) ->
                     {
                         throw new RuntimeException("abc");
                     });

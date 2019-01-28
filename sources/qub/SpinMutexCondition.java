@@ -20,7 +20,7 @@ public class SpinMutexCondition implements MutexCondition
     }
 
     @Override
-    public Result<Boolean> await()
+    public Result<Void> await()
     {
         PreCondition.assertTrue(mutex.isAcquiredByCurrentThread(), "mutex.isAcquiredByCurrentThread()");
 
@@ -32,11 +32,11 @@ public class SpinMutexCondition implements MutexCondition
 
         mutex.acquire();
 
-        return Result.successTrue();
+        return Result.success();
     }
 
     @Override
-    public Result<Boolean> await(Duration timeout)
+    public Result<Void> await(Duration timeout)
     {
         PreCondition.assertGreaterThan(timeout, Duration.zero, "timeout");
         PreCondition.assertTrue(mutex.isAcquiredByCurrentThread(), "mutex.isAcquiredByCurrentThread()");
@@ -46,7 +46,7 @@ public class SpinMutexCondition implements MutexCondition
     }
 
     @Override
-    public Result<Boolean> await(DateTime timeout)
+    public Result<Void> await(DateTime timeout)
     {
         PreCondition.assertNotNull(timeout, "timeout");
         PreCondition.assertTrue(mutex.isAcquiredByCurrentThread(), "mutex.isAcquiredByCurrentThread()");

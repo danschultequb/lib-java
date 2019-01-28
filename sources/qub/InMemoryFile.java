@@ -69,6 +69,7 @@ public class InMemoryFile
                             InMemoryFile.this.contents = writtenBytes == null ? new byte[0] : writtenBytes;
                             InMemoryFile.this.lastModified = clock.getCurrentDateTime();
                         }
+                        return disposed;
                     });
             }
         };

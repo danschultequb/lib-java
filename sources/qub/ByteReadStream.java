@@ -308,7 +308,7 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
                         resultValue.set(Result.success(Array.toByteArray(bytesReadList)));
                     }
                 })
-                .catchResultError((Result<Byte> errorResult) ->
+                .catchResultError((Result<Void> errorResult) ->
                 {
                     if (errorResult.getError() instanceof EndOfStreamException && bytesReadList.any())
                     {

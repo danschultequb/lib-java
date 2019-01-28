@@ -78,7 +78,7 @@ public class FakeTCPServer implements TCPServer
             Result<TCPClient> result = null;
             while (!disposed && !clientsToAccept.any() && result == null)
             {
-                final Result<Boolean> awaitResult = hasClientsToAccept.await(timeout);
+                final Result<Void> awaitResult = hasClientsToAccept.await(timeout);
                 if (awaitResult.hasError())
                 {
                     result = Result.error(awaitResult.getError());

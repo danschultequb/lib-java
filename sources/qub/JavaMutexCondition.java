@@ -18,15 +18,15 @@ public class JavaMutexCondition implements MutexCondition
     }
 
     @Override
-    public Result<Boolean> await()
+    public Result<Void> await()
     {
         PreCondition.assertTrue(mutex.isAcquiredByCurrentThread(), "mutex.isAcquiredByCurrentThread()");
 
-        Result<Boolean> result;
+        Result<Void> result;
         try
         {
             condition.await();
-            result = Result.successTrue();
+            result = Result.success();
         }
         catch (InterruptedException e)
         {
@@ -36,7 +36,7 @@ public class JavaMutexCondition implements MutexCondition
     }
 
     @Override
-    public Result<Boolean> await(Duration timeout)
+    public Result<Void> await(Duration timeout)
     {
         PreCondition.assertGreaterThan(timeout, Duration.zero, "timeout");
         PreCondition.assertTrue(mutex.isAcquiredByCurrentThread(), "mutex.isAcquiredByCurrentThread()");
@@ -46,7 +46,7 @@ public class JavaMutexCondition implements MutexCondition
     }
 
     @Override
-    public Result<Boolean> await(DateTime timeout)
+    public Result<Void> await(DateTime timeout)
     {
         PreCondition.assertNotNull(timeout, "timeout");
         PreCondition.assertTrue(mutex.isAcquiredByCurrentThread(), "mutex.isAcquiredByCurrentThread()");
@@ -54,7 +54,7 @@ public class JavaMutexCondition implements MutexCondition
 
         final Clock clock = getClock();
 
-        Result<Boolean> result = null;
+        Result<Void> result = null;
         while (result == null)
         {
             if (clock.getCurrentDateTime().greaterThanOrEqualTo(timeout))
@@ -67,7 +67,7 @@ public class JavaMutexCondition implements MutexCondition
                 {
                     if (condition.await(1, java.util.concurrent.TimeUnit.MILLISECONDS))
                     {
-                        result = Result.successTrue();
+                        result = Result.success();
                     }
                 }
                 catch (InterruptedException e)

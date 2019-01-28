@@ -10,7 +10,11 @@ public class ByteWriteStreamDecoratorTests
             public Result<Integer> writeBytes(byte[] toWrite, int startIndex, int length)
             {
                 return innerStream.writeBytes(toWrite, startIndex, length)
-                    .then((Integer writtenByteCount) -> counter.set(counter.get() + writtenByteCount));
+                    .then((Integer writtenByteCount) ->
+                    {
+                        counter.set(counter.get() + writtenByteCount);
+                        return writtenByteCount;
+                    });
             }
         };
     }

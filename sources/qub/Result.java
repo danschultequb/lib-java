@@ -78,12 +78,16 @@ public class Result<T>
      * @param action The action to run if this result does not have an error.
      * @return The Result of running the provided action.
      */
-    public Result<T> then(Action0 action)
+    public Result<Void> then(Action0 action)
     {
         PreCondition.assertNotNull(action, "action");
 
-        Result<T> result = this;
-        if (!hasError())
+        Result<Void> result;
+        if (hasError())
+        {
+            result = convertError();
+        }
+        else
         {
             result = invokeThen(action);
         }
@@ -99,7 +103,7 @@ public class Result<T>
      * @param action The action to run if this result does not have an error.
      * @return The Result of running the provided action.
      */
-    public Result<T> then(Action1<T> action)
+    public Result<Void> then(Action1<T> action)
     {
         PreCondition.assertNotNull(action, "action");
 
@@ -113,11 +117,11 @@ public class Result<T>
      * @param action The action to run if this result does not have an error.
      * @return The Result of running the provided action.
      */
-    public Result<T> thenDispose(Action1<T> action)
+    public Result<Void> thenDispose(Action1<T> action)
     {
         PreCondition.assertNotNull(action, "action");
 
-        Result<T> result;
+        Result<Void> result;
         try
         {
             result = then(action);
@@ -144,7 +148,7 @@ public class Result<T>
         PreCondition.assertNotNull(function, "function");
 
         final Value<U> resultValue = new Value<>();
-        final Result<T> thenActionResult = then(() -> resultValue.set(function.run()));
+        final Result<Void> thenActionResult = then(() -> resultValue.set(function.run()));
         final Result<U> result = Result.done(resultValue.get(), thenActionResult.getError());
 
         PostCondition.assertNotNull(result, "result");
@@ -469,14 +473,14 @@ public class Result<T>
         return result;
     }
 
-    private Result<T> invokeThen(Action0 action)
+    private Result<Void> invokeThen(Action0 action)
     {
         PreCondition.assertNotNull(action, "action");
 
         return invokeResult(() ->
         {
             action.run();
-            return this;
+            return Result.success();
         });
     }
 
