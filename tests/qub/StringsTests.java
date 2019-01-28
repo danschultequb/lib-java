@@ -237,6 +237,28 @@ public class StringsTests
                     test.assertTrue(Strings.isOneOf(null, (String)null));
                 });
             });
+
+            runner.testGroup("getWords(String)", () ->
+            {
+                final Action2<String,Iterable<String>> getWordsTest = (String value, Iterable<String> expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(value), (Test test) ->
+                    {
+                        test.assertEqual(expected, Strings.getWords(value));
+                    });
+                };
+
+                getWordsTest.run(null, Iterable.empty());
+                getWordsTest.run("", Iterable.empty());
+                getWordsTest.run("     ", Iterable.empty());
+                getWordsTest.run("./\\\"*", Iterable.empty());
+                getWordsTest.run("a", Iterable.create("a"));
+                getWordsTest.run("abc", Iterable.create("abc"));
+                getWordsTest.run("a.a", Iterable.create("a"));
+                getWordsTest.run("a a", Iterable.create("a"));
+                getWordsTest.run("a b", Iterable.create("a", "b"));
+                getWordsTest.run("a1 b", Iterable.create("a1", "b"));
+            });
         });
     }
 }

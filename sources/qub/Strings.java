@@ -394,4 +394,37 @@ public class Strings
 
         return possibilities.contains(value);
     }
+
+    /**
+     * Return the set of words that are used in the provided String.
+     * @param value The String to find words in.
+     * @return The set of words that are used in the provided String.
+     */
+    public static Set<String> getWords(String value)
+    {
+        final Set<String> result = Set.create();
+
+        if (!Strings.isNullOrEmpty(value))
+        {
+            final StringBuilder builder = new StringBuilder();
+            for (char character : value.toCharArray())
+            {
+                if (Characters.isLetterOrDigit(character))
+                {
+                    builder.append(character);
+                }
+                else if (builder.length() > 0)
+                {
+                    result.add(builder.toString());
+                    builder.setLength(0);
+                }
+            }
+            if (builder.length() > 0)
+            {
+                result.add(builder.toString());
+            }
+        }
+
+        return result;
+    }
 }

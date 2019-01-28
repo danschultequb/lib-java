@@ -13,6 +13,18 @@ public interface Set<T> extends Iterable<T>
     }
 
     /**
+     * Create a new empty Set.
+     * @param initialValues The initial values for the resulting Set to contain.
+     * @param <T> The type of elements contained by the created Set.
+     * @return The created List.
+     */
+    @SuppressWarnings("unchecked")
+    static <T> Set<T> create(T... initialValues)
+    {
+        return Set.create(Iterable.create(initialValues));
+    }
+
+    /**
      * Create a new Set from the provided values.
      * @param initialValues The initial values for the resulting Set to contain.
      * @param <T> The type of elements contained by the created Set.

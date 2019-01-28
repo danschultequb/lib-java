@@ -40,4 +40,16 @@ public class ListSet<T> implements Set<T>
     {
         return values.iterate();
     }
+
+    @Override
+    public String toString()
+    {
+        return Iterable.toString(this);
+    }
+
+    @Override
+    public boolean equals(Object rhs)
+    {
+        return Iterable.equals(this, rhs);
+    }
 }

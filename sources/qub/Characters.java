@@ -111,4 +111,14 @@ public class Characters
     {
         return Character.toLowerCase(value);
     }
+
+    /**
+     * Get whether or not the provided value is a letter or a digit.
+     * @param value The value to check.
+     * @return Whether or not the provided value is a letter or a digit.
+     */
+    public static boolean isLetterOrDigit(char value)
+    {
+        return java.lang.Character.isLetterOrDigit(value);
+    }
 }
