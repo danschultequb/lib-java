@@ -222,6 +222,16 @@ public class File extends FileSystemEntry
         return getFileSystem().getFileContentAsync(getPath());
     }
 
+    public Result<String> getContentsAsString()
+    {
+        return getFileSystem().getFileContentAsString(getPath());
+    }
+
+    public AsyncFunction<Result<String>> getContentsAsStringAsync()
+    {
+        return getFileSystem().getFileContentAsStringAsync(getPath());
+    }
+
     public Result<Boolean> setContents(byte[] content)
     {
         return getFileSystem().setFileContent(getPath(), content);
@@ -230,6 +240,11 @@ public class File extends FileSystemEntry
     public AsyncFunction<Result<Boolean>> setContentsAsync(byte[] content)
     {
         return getFileSystem().setFileContentAsync(getPath(), content);
+    }
+
+    public Result<Boolean> setContentsAsString(String content)
+    {
+        return getFileSystem().setFileContentAsString(getPath(), content);
     }
 
     public Result<Void> copyTo(Path destinationPath)
