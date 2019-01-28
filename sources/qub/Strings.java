@@ -306,31 +306,6 @@ public class Strings
         return Comparer.equal(lhs, rhs);
     }
 
-    public static Comparison compare(String lhs, String rhs)
-    {
-        Comparison result;
-        if (lhs == rhs)
-        {
-            result = Comparison.Equal;
-        }
-        else if (lhs == null)
-        {
-            result = Comparison.LessThan;
-        }
-        else if (rhs == null)
-        {
-            result = Comparison.GreaterThan;
-        }
-        else
-        {
-            result = Comparison.from(lhs.compareTo(rhs));
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
-
     public static String format(String formattedString, Object... formattedStringArguments)
     {
         String result;
@@ -426,5 +401,37 @@ public class Strings
         }
 
         return result;
+    }
+
+    public static Comparison compare(String lhs, String rhs)
+    {
+        Comparison result;
+        if (lhs == rhs)
+        {
+            result = Comparison.Equal;
+        }
+        else if (lhs == null)
+        {
+            result = Comparison.LessThan;
+        }
+        else if (rhs == null)
+        {
+            result = Comparison.GreaterThan;
+        }
+        else
+        {
+            result = Comparison.from(lhs.compareTo(rhs));
+        }
+        return result;
+    }
+
+    public static boolean lessThan(String lhs, String rhs)
+    {
+        return Strings.compare(lhs, rhs) == Comparison.LessThan;
+    }
+
+    public static boolean greaterThan(String lhs, String rhs)
+    {
+        return Strings.compare(lhs, rhs) == Comparison.GreaterThan;
     }
 }

@@ -10,29 +10,28 @@ public class ListSet<T> implements Set<T>
     }
 
     @Override
-    public void add(T value)
+    public ListSet<T> add(T value)
     {
         if (!values.contains(value))
         {
             values.add(value);
         }
+        return this;
     }
 
     @Override
-    public Result<Boolean> remove(T value)
+    public Result<Void> remove(T value)
     {
-        final boolean result = values.contains(value);
-        if (result)
-        {
-            values.remove(value);
-        }
-        return result ? Result.successTrue() : Result.error(new NotFoundException("Could not find the value " + value + "."));
+        return values.remove(value)
+            ? Result.success()
+            : Result.error(new NotFoundException("Could not find the value " + value + "."));
     }
 
     @Override
-    public void clear()
+    public ListSet<T> clear()
     {
         values.clear();
+        return this;
     }
 
     @Override
@@ -44,12 +43,12 @@ public class ListSet<T> implements Set<T>
     @Override
     public String toString()
     {
-        return Iterable.toString(this);
+        return Set.toString(this);
     }
 
     @Override
     public boolean equals(Object rhs)
     {
-        return Iterable.equals(this, rhs);
+        return Set.equals(this, rhs);
     }
 }

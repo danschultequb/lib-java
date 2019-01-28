@@ -36,6 +36,138 @@ public class IterableTests
                     test.assertFalse(Iterable.isNullOrEmpty(Iterable.create(1, 2, 3)));
                 });
             });
+
+            runner.testGroup("order(Iterable<T>)", () ->
+            {
+                runner.test("with null values", (Test test) ->
+                {
+                    final Iterable<Distance> values = null;
+                    test.assertThrows(() -> Iterable.order(values), new PreConditionFailure("values cannot be null."));
+                });
+
+                runner.test("with empty values", (Test test) ->
+                {
+                    final Iterable<Distance> values = Iterable.create();
+                    final Iterable<Distance> orderedValues = Iterable.order(values);
+                    test.assertNotSame(orderedValues, values);
+                    test.assertEqual(orderedValues, values);
+                });
+
+                runner.test("with one value", (Test test) ->
+                {
+                    final Iterable<Distance> values = Iterable.create(Distance.feet(1));
+                    final Iterable<Distance> orderedValues = Iterable.order(values);
+                    test.assertNotSame(orderedValues, values);
+                    test.assertEqual(orderedValues, values);
+                });
+
+                runner.test("with two values in sorted order", (Test test) ->
+                {
+                    final Iterable<Distance> values = Iterable.create(Distance.feet(1), Distance.inches(13));
+                    final Iterable<Distance> orderedValues = Iterable.order(values);
+                    test.assertNotSame(orderedValues, values);
+                    test.assertEqual(orderedValues, values);
+                });
+
+                runner.test("with two values in reverse-sorted order", (Test test) ->
+                {
+                    final Iterable<Distance> values = Iterable.create(Distance.feet(10), Distance.inches(1));
+                    final Iterable<Distance> orderedValues = Iterable.order(values);
+                    test.assertNotSame(orderedValues, values);
+                    test.assertEqual(Iterable.create(Distance.feet(10), Distance.inches(1)), values);
+                    test.assertEqual(Iterable.create(Distance.inches(1), Distance.feet(10)), orderedValues);
+                });
+
+                runner.test("with three values in sorted order", (Test test) ->
+                {
+                    final Iterable<Distance> values = Iterable.create(Distance.feet(1), Distance.inches(13), Distance.miles(0.1));
+                    final Iterable<Distance> orderedValues = Iterable.order(values);
+                    test.assertNotSame(orderedValues, values);
+                    test.assertEqual(orderedValues, values);
+                });
+
+                runner.test("with three values in reverse-sorted order", (Test test) ->
+                {
+                    final Iterable<Distance> values = Iterable.create(Distance.miles(0.5), Distance.feet(10), Distance.inches(1));
+                    final Iterable<Distance> orderedValues = Iterable.order(values);
+                    test.assertNotSame(orderedValues, values);
+                    test.assertEqual(Iterable.create(Distance.miles(0.5), Distance.feet(10), Distance.inches(1)), values);
+                    test.assertEqual(Iterable.create(Distance.inches(1), Distance.feet(10), Distance.miles(0.5)), orderedValues);
+                });
+
+                runner.test("with three values in mixed-sorted order", (Test test) ->
+                {
+                    final Iterable<Distance> values = Iterable.create(Distance.feet(10), Distance.miles(2), Distance.inches(1));
+                    final Iterable<Distance> orderedValues = Iterable.order(values);
+                    test.assertNotSame(values, orderedValues);
+                    test.assertEqual(Iterable.create(Distance.feet(10), Distance.miles(2), Distance.inches(1)), values);
+                    test.assertEqual(Iterable.create(Distance.inches(1), Distance.feet(10), Distance.miles(2)), orderedValues);
+                });
+            });
+
+            runner.testGroup("traverse(T,Function1<T,Iterable<T>>)", () ->
+            {
+                final Function1<Integer,Iterable<Integer>> getNextValues = (Integer value) ->
+                {
+                    final List<Integer> nextValues = List.create();
+                    if (value + 2 <= 20)
+                    {
+                        nextValues.add(value + 2);
+                    }
+                    if (value * 2 <= 20)
+                    {
+                        nextValues.add(value * 2);
+                    }
+                    return nextValues;
+                };
+
+                runner.test("with non-empty Iterable", (Test test) ->
+                {
+                    test.assertEqual(Array.create(2, 4, 8, 16, 18, 20, 10, 12, 14, 6), Iterable.traverse(2, getNextValues));
+                });
+
+                runner.test("with null function", (Test test) ->
+                {
+                    test.assertThrows(() -> Iterable.traverse(2, null), new PreConditionFailure("getNextValues cannot be null."));
+                });
+            });
+
+            runner.testGroup("traverse(Iterable<T>,Function1<T,Iterable<T>>)", () ->
+            {
+                final Function1<Integer,Iterable<Integer>> getNextValues = (Integer value) ->
+                {
+                    final List<Integer> nextValues = List.create();
+                    if (value + 2 <= 20)
+                    {
+                        nextValues.add(value + 2);
+                    }
+                    if (value * 2 <= 20)
+                    {
+                        nextValues.add(value * 2);
+                    }
+                    return nextValues;
+                };
+
+                runner.test("with null Iterable", (Test test) ->
+                {
+                    test.assertThrows(() -> Iterable.traverse((Iterable<Integer>)null, getNextValues), new PreConditionFailure("startValues cannot be null."));
+                });
+
+                runner.test("with empty Iterable", (Test test) ->
+                {
+                    test.assertEqual(Iterable.empty(), Iterable.traverse(Iterable.empty(), getNextValues));
+                });
+
+                runner.test("with non-empty Iterable", (Test test) ->
+                {
+                    test.assertEqual(Array.create(2, 4, 8, 16, 18, 20, 10, 12, 14, 6), Iterable.traverse(Iterable.create(2), getNextValues));
+                });
+
+                runner.test("with null function", (Test test) ->
+                {
+                    test.assertThrows(() -> Iterable.traverse(Iterable.create(2), (Function1<Integer,Iterable<Integer>>)null), new PreConditionFailure("getNextValues cannot be null."));
+                });
+            });
         });
     }
 
@@ -1205,20 +1337,92 @@ public class IterableTests
                     final Iterable<Integer> iterable = createIterable.run(0);
                     if (iterable != null)
                     {
-                        test.assertEqual("[]", iterable.toString());
+                        final String value = iterable.toString();
+                        test.assertNotNullAndNotEmpty(value);
+                        test.assertEqual("", value.substring(1, value.length() - 1));
                     }
                 });
 
                 runner.test("with single-value Iterable", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(1);
-                    test.assertEqual("[0]", iterable.toString());
+                    final String value = iterable.toString();
+                    test.assertEqual("0", value.substring(1, value.length() - 1));
                 });
 
                 runner.test("with multiple-value Iterable", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(4);
-                    test.assertEqual("[0,1,2,3]", iterable.toString());
+                    final String value = iterable.toString();
+                    test.assertEqual("0,1,2,3", value.substring(1, value.length() - 1));
+                });
+            });
+
+            runner.testGroup("order(Function2<T,T,Boolean>)", () ->
+            {
+                runner.test("with null values", (Test test) ->
+                {
+                    final Iterable<Integer> values = Iterable.create();
+                    test.assertThrows(() -> values.order((Function2<Integer,Integer,Boolean>)null), new PreConditionFailure("lessThan cannot be null."));
+                });
+
+                runner.test("with empty values", (Test test) ->
+                {
+                    final Iterable<Distance> values = Iterable.create();
+                    final Iterable<Distance> orderedValues = values.order(Comparer::lessThan);
+                    test.assertNotSame(values, orderedValues);
+                    test.assertEqual(values, orderedValues);
+                });
+
+                runner.test("with one value", (Test test) ->
+                {
+                    final Iterable<Distance> values = Iterable.create(Distance.feet(1));
+                    final Iterable<Distance> orderedValues = values.order(Comparer::lessThan);
+                    test.assertNotSame(values, orderedValues);
+                    test.assertEqual(values, orderedValues);
+                });
+
+                runner.test("with two values in sorted order", (Test test) ->
+                {
+                    final Iterable<Distance> values = Iterable.create(Distance.feet(1), Distance.inches(13));
+                    final Iterable<Distance> orderedValues = values.order(Comparer::lessThan);
+                    test.assertNotSame(values, orderedValues);
+                    test.assertEqual(values, orderedValues);
+                });
+
+                runner.test("with two values in reverse-sorted order", (Test test) ->
+                {
+                    final Iterable<Distance> values = Iterable.create(Distance.feet(10), Distance.inches(1));
+                    final Iterable<Distance> orderedValues = values.order(Comparer::lessThan);
+                    test.assertNotSame(values, orderedValues);
+                    test.assertEqual(Iterable.create(Distance.feet(10), Distance.inches(1)), values);
+                    test.assertEqual(Iterable.create(Distance.inches(1), Distance.feet(10)), orderedValues);
+                });
+
+                runner.test("with three values in sorted order", (Test test) ->
+                {
+                    final Iterable<Distance> values = Iterable.create(Distance.feet(1), Distance.inches(13), Distance.miles(0.1));
+                    final Iterable<Distance> orderedValues = values.order(Comparer::lessThan);
+                    test.assertNotSame(values, orderedValues);
+                    test.assertEqual(values, orderedValues);
+                });
+
+                runner.test("with three values in reverse-sorted order", (Test test) ->
+                {
+                    final Iterable<Distance> values = Iterable.create(Distance.miles(0.5), Distance.feet(10), Distance.inches(1));
+                    final Iterable<Distance> orderedValues = values.order(Comparer::lessThan);
+                    test.assertNotSame(values, orderedValues);
+                    test.assertEqual(Iterable.create(Distance.miles(0.5), Distance.feet(10), Distance.inches(1)), values);
+                    test.assertEqual(Iterable.create(Distance.inches(1), Distance.feet(10), Distance.miles(0.5)), orderedValues);
+                });
+
+                runner.test("with three values in mixed-sorted order", (Test test) ->
+                {
+                    final Iterable<Distance> values = Iterable.create(Distance.feet(10), Distance.miles(2), Distance.inches(1));
+                    final Iterable<Distance> orderedValues = values.order(Comparer::lessThan);
+                    test.assertNotSame(values, orderedValues);
+                    test.assertEqual(Iterable.create(Distance.feet(10), Distance.miles(2), Distance.inches(1)), values);
+                    test.assertEqual(Iterable.create(Distance.inches(1), Distance.feet(10), Distance.miles(2)), orderedValues);
                 });
             });
         });

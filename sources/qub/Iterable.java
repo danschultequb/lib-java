@@ -17,6 +17,33 @@ public interface Iterable<T> extends java.lang.Iterable<T>
     }
 
     /**
+     * Create an Array from the values in this Iterable.
+     * @return An Array from the values in this Iterable.
+     */
+    default Array<T> toArray()
+    {
+        return Array.create(this);
+    }
+
+    /**
+     * Create a List from the values in this Iterable.
+     * @return A List from the values in this Iterable.
+     */
+    default List<T> toList()
+    {
+        return List.create(this);
+    }
+
+    /**
+     * Create a Set from the values in this Iterable.
+     * @return A Set from the values in this Iterable.
+     */
+    default Set<T> toSet()
+    {
+        return Set.create(this);
+    }
+
+    /**
      * Get an Iterator that will iterate over the contents of this Iterable.
      * @return An Iterator that will iterate over the contents of this Iterable.
      */
@@ -373,6 +400,8 @@ public interface Iterable<T> extends java.lang.Iterable<T>
     @SuppressWarnings("unchecked")
     static <T> boolean equals(Iterable<T> lhs, Object rhs)
     {
+        PreCondition.assertNotNull(lhs, "lhs");
+
         return rhs instanceof Iterable && lhs.equals((Iterable<T>)rhs);
     }
 
@@ -393,6 +422,15 @@ public interface Iterable<T> extends java.lang.Iterable<T>
      */
     static String toString(Iterable<?> iterable)
     {
+        return Iterable.toString(iterable, '[', ']');
+    }
+
+    /**
+     * Get the String representation of the provided Iterable.
+     * @return The String representation of the provided Iterable.
+     */
+    static String toString(Iterable<?> iterable, char startCharacter, char endCharacter)
+    {
         final StringBuilder builder = new StringBuilder();
         if (iterable == null)
         {
@@ -400,7 +438,7 @@ public interface Iterable<T> extends java.lang.Iterable<T>
         }
         else
         {
-            builder.append('[');
+            builder.append(startCharacter);
 
             boolean addedAValue = false;
             for (final Object value : iterable)
@@ -416,7 +454,7 @@ public interface Iterable<T> extends java.lang.Iterable<T>
                 builder.append(Objects.toString(value));
             }
 
-            builder.append(']');
+            builder.append(endCharacter);
         }
         return builder.toString();
     }
@@ -433,5 +471,82 @@ public interface Iterable<T> extends java.lang.Iterable<T>
         PreCondition.assertNotNull(values, "values");
 
         return Array.create(values);
+    }
+
+    /**
+     * Order the values in the provided Iterable. This will create a copy of the provided Iterable
+     * and will leave the original Iterable unchanged.
+     * @param values The values to order.
+     * @param <T> The type of values to order.
+     * @return The ordered Iterable.
+     */
+    static <T extends Comparable<T>> Iterable<T> order(Iterable<T> values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        return values.order(Comparer::lessThan);
+    }
+
+    /**
+     * Order the values in this Iterable. This will create a copy of this Iterable and will leave
+     * the original Iterable unchanged.
+     * @param lessThan The function to use to compare two values.
+     * @return The ordered Iterable.
+     */
+    default Iterable<T> order(Function2<T,T,Boolean> lessThan)
+    {
+        PreCondition.assertNotNull(lessThan, "lessThan");
+
+        return toArray().sort(lessThan);
+    }
+
+    /**
+     * Traverse a provided space starting with the provided value and using the getNextValues
+     * function to find all reachable values.
+     * @param startValue The start value.
+     * @param getNextValues The function to use to get the next values create a given value.
+     * @param <T> The type of values used in this function.
+     * @return All of the values that are reachable.
+     */
+    static <T> Iterable<T> traverse(T startValue, Function1<T,Iterable<T>> getNextValues)
+    {
+        return Iterable.traverse(Iterable.create(startValue), getNextValues);
+    }
+
+    /**
+     * Traverse a provided space starting with the provided value and using the getNextValues
+     * function to find all reachable values.
+     * @param startValues The start values.
+     * @param getNextValues The function to use to get the next values create a given value.
+     * @param <T> The type of values used in this function.
+     * @return All of the values that are reachable.
+     */
+    static <T> Iterable<T> traverse(Iterable<T> startValues, Function1<T,Iterable<T>> getNextValues)
+    {
+        PreCondition.assertNotNull(startValues, "startValues");
+        PreCondition.assertNotNull(getNextValues, "getNextValues");
+
+        final List<T> result = List.create();
+        final Stack<T> toVisit = Stack.create();
+        toVisit.pushAll(startValues);
+        while (toVisit.any())
+        {
+            final T value = toVisit.pop();
+
+            result.add(value);
+
+            final Iterable<T> nextValues = getNextValues.run(value);
+            for (final T nextValue : nextValues)
+            {
+                if (result.doesNotContain(nextValue) && toVisit.doesNotContain(nextValue))
+                {
+                    toVisit.push(nextValue);
+                }
+            }
+        }
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
     }
 }

@@ -3,28 +3,24 @@ package qub;
 /**
  * A set of comparison functions.
  */
-public final class Comparer
+public interface Comparer<T> extends Function2<T,T,Comparison>
 {
-    Comparer()
-    {
-    }
-
-    public static Comparison compare(int lhs, int rhs)
+    static Comparison compare(int lhs, int rhs)
     {
         return Comparison.from(lhs - rhs);
     }
 
-    public static Comparison compare(int lhs, Integer rhs)
+    static Comparison compare(int lhs, Integer rhs)
     {
         return rhs == null ? Comparison.GreaterThan : compare(lhs, rhs.intValue());
     }
 
-    public static Comparison compare(Integer lhs, int rhs)
+    static Comparison compare(Integer lhs, int rhs)
     {
         return lhs == null ? Comparison.LessThan : compare(lhs.intValue(), rhs);
     }
 
-    public static Comparison compare(Integer lhs, Integer rhs)
+    static Comparison compare(Integer lhs, Integer rhs)
     {
         return lhs == rhs ? Comparison.Equal :
                lhs == null ? Comparison.LessThan :
@@ -32,7 +28,7 @@ public final class Comparer
                compare(lhs.intValue(), rhs.intValue());
     }
 
-    public static <T extends Comparable<T>> Comparison compare(T lhs, T rhs)
+    static <T extends Comparable<T>> Comparison compare(T lhs, T rhs)
     {
         return lhs == rhs ? Comparison.Equal :
                lhs == null ? Comparison.LessThan :
@@ -45,7 +41,7 @@ public final class Comparer
      * @param arg2 The second argument.
      * @return Whether or not the two values are equals.
      */
-    public static boolean equal(Object arg1, Object arg2)
+    static boolean equal(Object arg1, Object arg2)
     {
         boolean result = arg1 == arg2;
 
@@ -114,7 +110,7 @@ public final class Comparer
      * @param arg2 The second Throwable error.
      * @return True if they are equal, false if they are not.
      */
-    public static boolean equal(Throwable arg1, Throwable arg2)
+    static boolean equal(Throwable arg1, Throwable arg2)
     {
         boolean result = arg1 == arg2;
         if (!result && arg1 != null && arg2 != null && !arg1.equals(arg2))
@@ -133,7 +129,7 @@ public final class Comparer
      * @param marginOfError The margin of error to allow when comparing the two values.
      * @return Whether or not the two values are equals.
      */
-    public static boolean equal(double arg1, double arg2, double marginOfError)
+    static boolean equal(double arg1, double arg2, double marginOfError)
     {
         return Math.absoluteValue(arg1 - arg2) <= marginOfError;
     }
@@ -144,7 +140,7 @@ public final class Comparer
      * @param arg2 The second array.
      * @return Whether or not the two arrays have equal contents in equal order.
      */
-    public static boolean equal(boolean[] arg1, boolean[] arg2)
+    static boolean equal(boolean[] arg1, boolean[] arg2)
     {
         boolean result = arg1 == arg2;
 
@@ -170,7 +166,7 @@ public final class Comparer
      * @param arg2 The second array.
      * @return Whether or not the two arrays have equal contents in equal order.
      */
-    public static boolean equal(byte[] arg1, byte[] arg2)
+    static boolean equal(byte[] arg1, byte[] arg2)
     {
         boolean result = arg1 == arg2;
 
@@ -196,7 +192,7 @@ public final class Comparer
      * @param arg2 The second array.
      * @return Whether or not the two arrays have equal contents in equal order.
      */
-    public static boolean equal(char[] arg1, char[] arg2)
+    static boolean equal(char[] arg1, char[] arg2)
     {
         boolean result = arg1 == arg2;
 
@@ -222,7 +218,7 @@ public final class Comparer
      * @param arg2 The second array.
      * @return Whether or not the two arrays have equal contents in equal order.
      */
-    public static boolean equal(short[] arg1, short[] arg2)
+    static boolean equal(short[] arg1, short[] arg2)
     {
         boolean result = arg1 == arg2;
 
@@ -248,7 +244,7 @@ public final class Comparer
      * @param arg2 The second array.
      * @return Whether or not the two arrays have equal contents in equal order.
      */
-    public static boolean equal(int[] arg1, int[] arg2)
+    static boolean equal(int[] arg1, int[] arg2)
     {
         boolean result = arg1 == arg2;
 
@@ -274,7 +270,7 @@ public final class Comparer
      * @param arg2 The second array.
      * @return Whether or not the two arrays have equal contents in equal order.
      */
-    public static boolean equal(long[] arg1, long[] arg2)
+    static boolean equal(long[] arg1, long[] arg2)
     {
         boolean result = arg1 == arg2;
 
@@ -300,7 +296,7 @@ public final class Comparer
      * @param arg2 The second array.
      * @return Whether or not the two arrays have equal contents in equal order.
      */
-    public static boolean equal(float[] arg1, float[] arg2)
+    static boolean equal(float[] arg1, float[] arg2)
     {
         boolean result = arg1 == arg2;
 
@@ -326,7 +322,7 @@ public final class Comparer
      * @param arg2 The second array.
      * @return Whether or not the two arrays have equal contents in equal order.
      */
-    public static boolean equal(double[] arg1, double[] arg2)
+    static boolean equal(double[] arg1, double[] arg2)
     {
         boolean result = arg1 == arg2;
 
@@ -353,7 +349,7 @@ public final class Comparer
      * @param <T> The type of elements stored in the two arrays.
      * @return Whether or not the two arrays have equal contents in equal order.
      */
-    public static <T> boolean equal(T[] arg1, T[] arg2)
+    static <T> boolean equal(T[] arg1, T[] arg2)
     {
         boolean result = arg1 == arg2;
 
@@ -379,7 +375,7 @@ public final class Comparer
      * @param <T> The type of the values to compare.
      * @return A Function1 that compares other values against the provided lhs value.
      */
-    public static <T> Function1<T,Boolean> equal(final T lhs)
+    static <T> Function1<T,Boolean> equal(final T lhs)
     {
         return new Function1<T,Boolean>()
         {
@@ -391,7 +387,7 @@ public final class Comparer
         };
     }
 
-    public static <T> boolean same(T arg1, T arg2)
+    static <T> boolean same(T arg1, T arg2)
     {
         return arg1 == arg2;
     }
@@ -404,7 +400,7 @@ public final class Comparer
      * @param upperBound The upper bound.
      * @return Whether or not the value is between the provided lower and upper bounds.
      */
-    public static boolean between(int lowerBound, int value, int upperBound)
+    static boolean between(int lowerBound, int value, int upperBound)
     {
         return lowerBound > upperBound
            ? between(upperBound, value, lowerBound)
@@ -419,7 +415,7 @@ public final class Comparer
      * @param upperBound The upper bound.
      * @return Whether or not the value is between the provided lower and upper bounds.
      */
-    public static boolean between(long lowerBound, long value, long upperBound)
+    static boolean between(long lowerBound, long value, long upperBound)
     {
         return lowerBound > upperBound
            ? between(upperBound, value, lowerBound)
@@ -434,7 +430,7 @@ public final class Comparer
      * @param upperBound The upper bound.
      * @return Whether or not the value is between the provided lower and upper bounds.
      */
-    public static boolean between(double lowerBound, double value, double upperBound)
+    static boolean between(double lowerBound, double value, double upperBound)
     {
         return lowerBound > upperBound
                    ? between(upperBound, value, lowerBound)
@@ -448,7 +444,7 @@ public final class Comparer
      * @param <T> The type of the values to compare.
      * @return Whether or not the provided lhs value is less than the provided rhs value.
      */
-    public static <T extends Comparable<T>> boolean lessThan(T lhs, T rhs)
+    static <T extends Comparable<T>> boolean lessThan(T lhs, T rhs)
     {
         return lhs == null ? rhs != null : lhs.lessThan(rhs);
     }
@@ -459,7 +455,7 @@ public final class Comparer
      * @param rhs The second value to compare.
      * @return Whether or not the provided lhs value is less than the provided rhs value.
      */
-    public static  boolean lessThan(int lhs, int rhs)
+    static  boolean lessThan(int lhs, int rhs)
     {
         return lhs < rhs;
     }
@@ -470,7 +466,7 @@ public final class Comparer
      * @param rhs The second value to compare.
      * @return Whether or not the provided lhs value is less than the provided rhs value.
      */
-    public static  boolean lessThan(int lhs, Integer rhs)
+    static  boolean lessThan(int lhs, Integer rhs)
     {
         return rhs != null && lessThan(lhs, rhs.intValue());
     }
@@ -481,7 +477,7 @@ public final class Comparer
      * @param rhs The second value to compare.
      * @return Whether or not the provided lhs value is less than the provided rhs value.
      */
-    public static  boolean lessThan(Integer lhs, int rhs)
+    static  boolean lessThan(Integer lhs, int rhs)
     {
         return lhs == null || lessThan(lhs.intValue(), rhs);
     }
@@ -492,7 +488,7 @@ public final class Comparer
      * @param rhs The second value to compare.
      * @return Whether or not the provided lhs value is less than the provided rhs value.
      */
-    public static  boolean lessThan(Integer lhs, Integer rhs)
+    static  boolean lessThan(Integer lhs, Integer rhs)
     {
         return lhs == null ? rhs != null : lessThan(lhs.intValue(), rhs);
     }
@@ -505,7 +501,7 @@ public final class Comparer
      * @return Whether or not the provided lhs value is less than or equal to the provided rhs
      * value.
      */
-    public static <T extends Comparable<T>> boolean lessThanOrEqualTo(T lhs, T rhs)
+    static <T extends Comparable<T>> boolean lessThanOrEqualTo(T lhs, T rhs)
     {
         return lhs == null || lhs.lessThanOrEqualTo(rhs);
     }
@@ -516,7 +512,7 @@ public final class Comparer
      * @param upperBound The second value to compare.
      * @return Whether or not the provided value is less than or equal to the provided upperBound.
      */
-    public static boolean lessThanOrEqualTo(char value, char upperBound)
+    static boolean lessThanOrEqualTo(char value, char upperBound)
     {
         return value <= upperBound;
     }
@@ -527,7 +523,7 @@ public final class Comparer
      * @param upperBound The second value to compare.
      * @return Whether or not the provided value is less than or equal to the provided upperBound.
      */
-    public static boolean lessThanOrEqualTo(int value, int upperBound)
+    static boolean lessThanOrEqualTo(int value, int upperBound)
     {
         return value <= upperBound;
     }
@@ -538,7 +534,7 @@ public final class Comparer
      * @param upperBound The second value to compare.
      * @return Whether or not the provided value is less than or equal to the provided upperBound.
      */
-    public static boolean lessThanOrEqualTo(Integer value, int upperBound)
+    static boolean lessThanOrEqualTo(Integer value, int upperBound)
     {
         return value == null || lessThanOrEqualTo(value.intValue(), upperBound);
     }
@@ -549,7 +545,7 @@ public final class Comparer
      * @param upperBound The second value to compare.
      * @return Whether or not the provided value is less than or equal to the provided upperBound.
      */
-    public static boolean lessThanOrEqualTo(int value, Integer upperBound)
+    static boolean lessThanOrEqualTo(int value, Integer upperBound)
     {
         return upperBound != null && lessThanOrEqualTo(value, upperBound.intValue());
     }
@@ -560,7 +556,7 @@ public final class Comparer
      * @param upperBound The second value to compare.
      * @return Whether or not the provided value is less than or equal to the provided upperBound.
      */
-    public static boolean lessThanOrEqualTo(Integer value, Integer upperBound)
+    static boolean lessThanOrEqualTo(Integer value, Integer upperBound)
     {
         return value == null || lessThanOrEqualTo(value.intValue(), upperBound);
     }
@@ -571,7 +567,7 @@ public final class Comparer
      * @param upperBound The second value to compare.
      * @return Whether or not the provided value is less than or equal to the provided upperBound.
      */
-    public static boolean lessThanOrEqualTo(long value, long upperBound)
+    static boolean lessThanOrEqualTo(long value, long upperBound)
     {
         return value <= upperBound;
     }
@@ -583,7 +579,7 @@ public final class Comparer
      * @param <T> The type of the values to compare.
      * @return Whether or not the value is greater than or equal to the provided lowerBound.
      */
-    public static <T extends Comparable<T>> boolean greaterThanOrEqualTo(T value, T lowerBound)
+    static <T extends Comparable<T>> boolean greaterThanOrEqualTo(T value, T lowerBound)
     {
         return value == lowerBound || value.greaterThanOrEqualTo(lowerBound);
     }
@@ -595,7 +591,7 @@ public final class Comparer
      * @param <T> The type of the values to compare.
      * @return Whether or not the value is null or greater than or equal to the provided lowerBound.
      */
-    public static <T extends Comparable<T>> boolean nullOrGreaterThanOrEqualTo(T value, T lowerBound)
+    static <T extends Comparable<T>> boolean nullOrGreaterThanOrEqualTo(T value, T lowerBound)
     {
         return value == null || greaterThanOrEqualTo(value, lowerBound);
     }
@@ -606,7 +602,7 @@ public final class Comparer
      * @param lowerBound The second value to compare.
      * @return Whether or not the value is greater than or equal to the provided lowerBound.
      */
-    public static boolean greaterThanOrEqualTo(int value, int lowerBound)
+    static boolean greaterThanOrEqualTo(int value, int lowerBound)
     {
         return value >= lowerBound;
     }
@@ -617,7 +613,7 @@ public final class Comparer
      * @param lowerBound The second value to compare.
      * @return Whether or not the value is greater than or equal to the provided lowerBound.
      */
-    public static boolean greaterThanOrEqualTo(long value, long lowerBound)
+    static boolean greaterThanOrEqualTo(long value, long lowerBound)
     {
         return value >= lowerBound;
     }
@@ -628,7 +624,7 @@ public final class Comparer
      * @param lowerBound The second value to compare.
      * @return Whether or not the value is greater than or equal to the provided lowerBound.
      */
-    public static boolean greaterThanOrEqualTo(double value, double lowerBound)
+    static boolean greaterThanOrEqualTo(double value, double lowerBound)
     {
         return value >= lowerBound;
     }
@@ -639,7 +635,7 @@ public final class Comparer
      * @param rhs The second value to compare.
      * @return Whether or not the provided lhs value is greater than the provided rhs value.
      */
-    public static boolean greaterThan(int lhs, int rhs)
+    static boolean greaterThan(int lhs, int rhs)
     {
         return lhs > rhs;
     }
@@ -651,12 +647,12 @@ public final class Comparer
      * @param <T> The type of the values to compare.
      * @return Whether or not the provided lhs value is greater than the provided rhs value.
      */
-    public static <T extends Comparable<T>> boolean greaterThan(T lhs, T rhs)
+    static <T extends Comparable<T>> boolean greaterThan(T lhs, T rhs)
     {
         return lhs != null && lhs.greaterThan(rhs);
     }
 
-    public static <T extends Comparable<T>> T minimum(Iterable<T> values)
+    static <T extends Comparable<T>> T minimum(Iterable<T> values)
     {
         return Comparer.minimum(values, new Function2<T,T,Comparison>()
         {
@@ -668,18 +664,18 @@ public final class Comparer
         });
     }
 
-    public static <T> T minimum(Iterable<T> values, Function2<T,T,Comparison> comparer)
+    static <T> T minimum(Iterable<T> values, Function2<T,T,Comparison> comparer)
     {
         return values.minimum(comparer);
     }
 
     @SafeVarargs
-    public static <T extends Comparable<T>> T maximum(T... values)
+    static <T extends Comparable<T>> T maximum(T... values)
     {
         return Comparer.maximum(Array.create(values));
     }
 
-    public static <T extends Comparable<T>> T maximum(Iterable<T> values)
+    static <T extends Comparable<T>> T maximum(Iterable<T> values)
     {
         return Comparer.maximum(values, new Function2<T,T,Comparison>()
         {
@@ -691,7 +687,7 @@ public final class Comparer
         });
     }
 
-    public static <T> T maximum(Iterable<T> values, Function2<T,T,Comparison> comparer)
+    static <T> T maximum(Iterable<T> values, Function2<T,T,Comparison> comparer)
     {
         return values.maximum(comparer);
     }
@@ -705,7 +701,7 @@ public final class Comparer
      * @preCondition value != null
      * @preCondition characters != null && characters.length > 0
      */
-    public static boolean containsOnly(String value, char[] characters)
+    static boolean containsOnly(String value, char[] characters)
     {
         PreCondition.assertNotNull(value, "value");
         PreCondition.assertNotNullAndNotEmpty(characters, "characters");

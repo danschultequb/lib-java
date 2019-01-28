@@ -129,7 +129,7 @@ public class StringMatch implements PossibleMatch
     @Override
     public Iterable<PossibleMatch> resolveInstantTransitions()
     {
-        final Iterable<PossibleMatch> result = Algorithms
+        final Iterable<PossibleMatch> result = Iterable
             .traverse(currentState.getInstantNextStates(), State::getInstantNextStates)
             .map((State state) -> new StringMatch(startIndex, state, matchString, trackedValues));
 

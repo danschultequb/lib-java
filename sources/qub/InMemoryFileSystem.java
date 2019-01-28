@@ -176,31 +176,25 @@ public class InMemoryFileSystem implements FileSystem
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        Result<Iterable<FileSystemEntry>> result;
-        final Result<InMemoryFolder> folder = getInMemoryFolder(rootedFolderPath);
-        if (folder.hasError())
-        {
-            result = Result.error(folder.getError());
-        }
-        else
-        {
-            final List<FileSystemEntry> entries = new ArrayList<>();
-
-            for (final InMemoryFolder inMemoryFolder : folder.getValue().getFolders())
+        return getInMemoryFolder(rootedFolderPath)
+            .then((InMemoryFolder folder) ->
             {
-                final Path childFolderPath = rootedFolderPath.concatenateSegment(inMemoryFolder.getName());
-                entries.add(new Folder(InMemoryFileSystem.this, childFolderPath));
-            }
+                final List<FileSystemEntry> entries = List.create();
 
-            for (final InMemoryFile inMemoryFile : folder.getValue().getFiles())
-            {
-                final Path childFilePath = rootedFolderPath.concatenateSegment(inMemoryFile.getName());
-                entries.add(new File(InMemoryFileSystem.this, childFilePath));
-            }
+                entries.addAll(folder.getFolders()
+                    .order((InMemoryFolder lhs, InMemoryFolder rhs) ->
+                        Strings.lessThan(lhs.getName(), rhs.getName()))
+                    .map((InMemoryFolder childFolder) ->
+                        new Folder(this, rootedFolderPath.concatenateSegment(childFolder.getName()))));
 
-            result = Result.success(entries);
-        }
-        return result;
+                entries.addAll(folder.getFiles()
+                    .order((InMemoryFile lhs, InMemoryFile rhs) ->
+                        Strings.lessThan(lhs.getName(), rhs.getName()))
+                    .map((InMemoryFile childFile) ->
+                        new File(this, rootedFolderPath.concatenateSegment(childFile.getName()))));
+
+                return entries;
+            });
     }
 
     @Override

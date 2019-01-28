@@ -3,8 +3,8 @@ package qub;
 public interface List<T> extends MutableIndexable<T>
 {
     /**
-     * Create a new empty List.
-     * @param <T> The type of elements contained by the created List.
+     * Create a new List with the provided initial values.
+     * @param <T> The Type of elements contained by the created List.
      * @return The created List.
      */
     static <T> List<T> create()
@@ -18,9 +18,36 @@ public interface List<T> extends MutableIndexable<T>
      * @param <T> The Type of elements contained by the created List.
      * @return The created List.
      */
+    @SuppressWarnings("unchecked")
+    static <T> List<T> create(T... initialValues)
+    {
+        return create(Iterable.create(initialValues));
+    }
+
+    /**
+     * Create a new List with the provided initial values.
+     * @param initialValues The initial values to include in the new List.
+     * @param <T> The Type of elements contained by the created List.
+     * @return The created List.
+     */
+    static <T> List<T> create(Iterator<T> initialValues)
+    {
+        final List<T> result = List.create();
+        result.addAll(initialValues);
+        return result;
+    }
+
+    /**
+     * Create a new List with the provided initial values.
+     * @param initialValues The initial values to include in the new List.
+     * @param <T> The Type of elements contained by the created List.
+     * @return The created List.
+     */
     static <T> List<T> create(Iterable<T> initialValues)
     {
-        return ArrayList.fromValues(initialValues);
+        final List<T> result = List.create();
+        result.addAll(initialValues);
+        return result;
     }
 
     /**

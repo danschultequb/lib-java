@@ -7,7 +7,7 @@ public interface Set<T> extends Iterable<T>
      * @param <T> The type of elements contained by the created Set.
      * @return The created List.
      */
-    static <T> Set<T> create()
+    static <T> Set<T> empty()
     {
         return new ListSet<>();
     }
@@ -30,9 +30,22 @@ public interface Set<T> extends Iterable<T>
      * @param <T> The type of elements contained by the created Set.
      * @return The created List.
      */
+    static <T> Set<T> create(Iterator<T> initialValues)
+    {
+        final Set<T> result = Set.empty();
+        result.addAll(initialValues);
+        return result;
+    }
+
+    /**
+     * Create a new Set from the provided values.
+     * @param initialValues The initial values for the resulting Set to contain.
+     * @param <T> The type of elements contained by the created Set.
+     * @return The created List.
+     */
     static <T> Set<T> create(Iterable<T> initialValues)
     {
-        final Set<T> result = Set.create();
+        final Set<T> result = Set.empty();
         result.addAll(initialValues);
         return result;
     }
@@ -41,13 +54,14 @@ public interface Set<T> extends Iterable<T>
      * Add the provided value to this Set if it doesn't already exist.
      * @param value The value to add.
      */
-    void add(T value);
+    Set<T> add(T value);
 
     /**
      * Add the provided values to this Set.
      * @param values The values to add.
      */
-    default void addAll(T[] values)
+    @SuppressWarnings("unchecked")
+    default Set<T> addAll(T... values)
     {
         if (values != null && values.length > 0)
         {
@@ -56,36 +70,39 @@ public interface Set<T> extends Iterable<T>
                 add(value);
             }
         }
+        return this;
     }
 
     /**
      * Add the provided values to this Set.
      * @param values The values to add.
      */
-    default void addAll(Iterator<T> values)
+    default Set<T> addAll(Iterator<T> values)
     {
-        if (values != null && values.any())
+        if (!Iterator.isNullOrEmpty(values))
         {
             for (final T value : values)
             {
                 add(value);
             }
         }
+        return this;
     }
 
     /**
      * Add the provided values to this Set.
      * @param values The values to add.
      */
-    default void addAll(Iterable<T> values)
+    default Set<T> addAll(Iterable<T> values)
     {
-        if (values != null && values.any())
+        if (!Iterable.isNullOrEmpty(values))
         {
             for (final T value : values)
             {
                 add(value);
             }
         }
+        return this;
     }
 
     /**
@@ -93,10 +110,61 @@ public interface Set<T> extends Iterable<T>
      * @param value The value to remove.
      * @return Whether or not a value in this List was removed.
      */
-    Result<Boolean> remove(T value);
+    Result<Void> remove(T value);
 
     /**
      * Remove all of the elements from this Set.
      */
-    void clear();
+    Set<T> clear();
+
+    /**
+     * Get whether or not the lhs Iterable contains equal elements in the same order as the provided
+     * rhs Iterable.
+     * @param rhs The Iterable to compare against this Iterable.
+     * @return Whether or not this Iterable contains equal elements in the same order as the
+     * provided Iterable.
+     */
+    @SuppressWarnings("unchecked")
+    static <T> boolean equals(Set<T> lhs, Object rhs)
+    {
+        PreCondition.assertNotNull(lhs, "lhs");
+
+        return rhs instanceof Set
+            ? lhs.equals((Set<T>)rhs)
+            : Iterable.equals(lhs, rhs);
+    }
+
+    /**
+     * Get whether or not this Set equals the provided Set.
+     * @param rhs The Set to compare against this Set.
+     * @return Whether or not this Set equals the provided Set.
+     */
+    default boolean equals(Set<T> rhs)
+    {
+        boolean result = false;
+        if (rhs != null)
+        {
+            result = true;
+            for (final T value : this)
+            {
+                if (!rhs.contains(value))
+                {
+                    result = false;
+                    break;
+                }
+            }
+            if (result)
+            {
+                result = getCount() == rhs.getCount();
+            }
+        }
+        return result;
+    }
+
+    static <T> String toString(Set<T> set)
+    {
+        PreCondition.assertNotNull(set, "set");
+
+        return Iterable.toString(set, '{', '}');
+    }
 }

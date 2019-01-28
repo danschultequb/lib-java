@@ -6,11 +6,6 @@ public class ComparerTests
     {
         runner.testGroup(Comparer.class, () ->
         {
-            runner.test("constructor()", (Test test) ->
-            {
-                test.assertNotNull(new Comparer());
-            });
-
             runner.testGroup("compare(int,int)", () ->
             {
                 final Action3<Integer,Integer,Comparison> compareTest = (Integer lhs, Integer rhs, Comparison expected) ->

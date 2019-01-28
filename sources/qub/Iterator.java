@@ -293,4 +293,64 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     {
         return new IteratorToJavaIteratorAdapter<>(this);
     }
+
+    /**
+     * Create an Array from the values in this Iterator.
+     * @return An Array from the values in this Iterator.
+     */
+    default Array<T> toArray()
+    {
+        return Array.create(this);
+    }
+
+    /**
+     * Create a List from the values in this Iterator.
+     * @return A List from the values in this Iterator.
+     */
+    default List<T> toList()
+    {
+        return List.create(this);
+    }
+
+    /**
+     * Create a Set from the values in this Iterator.
+     * @return A Set from the values in this Iterator.
+     */
+    default Set<T> toSet()
+    {
+        return Set.create(this);
+    }
+
+    /**
+     * Create an empty iterator.
+     * @param <T> The type of values to iterate over.
+     * @return The empty iterator.
+     */
+    static <T> Iterator<T> empty()
+    {
+        return Iterable.<T>empty().iterate();
+    }
+
+    /**
+     * Create an iterator for the provided values.
+     * @param values The values to iterate over.
+     * @param <T> The type of the values.
+     * @return The iterator that will iterate over the provided values.
+     */
+    @SuppressWarnings("unchecked")
+    static <T> Iterator<T> create(T... values)
+    {
+        return Iterable.create(values).iterate();
+    }
+
+    /**
+     * Get whether or not the provided iterator is null or empty.
+     * @param iterator The iterator to check.
+     * @param <T> The type of values in the Iterator.
+     * @return Whether or not the provided iterator is null or empty.
+     */
+    static <T> boolean isNullOrEmpty(Iterator<T> iterator)
+    {
+        return iterator == null || !iterator.any();
+    }
 }
