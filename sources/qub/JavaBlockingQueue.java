@@ -35,48 +35,45 @@ public class JavaBlockingQueue<T> implements BlockingQueue<T>
     }
 
     @Override
-    public Result<Boolean> enqueue(T value)
+    public Result<Void> enqueue(T value)
     {
-        Result<Boolean> result;
+        Result<Void> result;
         try
         {
             javaQueue.put(value);
-            result = Result.successTrue();
+            result = Result.success();
         }
         catch (InterruptedException e)
         {
-            result = Result.done(false, e);
+            result = Result.error(e);
         }
         return result;
     }
 
     @Override
-    public AsyncFunction<Result<Boolean>> enqueueAsync(final T value)
+    public AsyncFunction<Result<Void>> enqueueAsync(T value)
     {
-        return async(asyncRunner, new Function0<Result<Boolean>>()
-        {
-            @Override
-            public Result<Boolean> run()
-            {
-                return enqueue(value);
-            }
-        });
+        PreCondition.assertNotNull(asyncRunner, "asyncRunner");
+
+        return asyncRunner.scheduleSingle(() -> enqueue(value));
     }
 
     @Override
     public Result<T> dequeue()
     {
-        T resultValue = null;
-        Throwable error = null;
+        Result<T> result;
         try
         {
-            resultValue = javaQueue.take();
+            result = Result.success(javaQueue.take());
         }
         catch (InterruptedException e)
         {
-            error = e;
+            result = Result.error(e);
         }
-        return Result.done(resultValue, error);
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
     }
 
     @Override

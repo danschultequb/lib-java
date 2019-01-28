@@ -54,8 +54,8 @@ public class InMemoryFileSystemTests
                     fileSystem.createRoot("Z:/");
                     fileSystem.createFile("Z:/file.png");
                     test.assertSuccess(true, fileSystem.setFileCanDelete("Z:/file.png", false));
-                    test.assertFalse(fileSystem.deleteFile("Z:/file.png").getValue());
-                    test.assertTrue(fileSystem.fileExists("Z:/file.png").getValue());
+                    test.assertError(new FileNotFoundException("Z:/file.png"), fileSystem.deleteFile("Z:/file.png"));
+                    test.assertSuccess(true, fileSystem.fileExists("Z:/file.png"));
                 });
             });
 
@@ -99,8 +99,8 @@ public class InMemoryFileSystemTests
                     fileSystem.createRoot("Z:/");
                     fileSystem.createFolder("Z:/file.png");
                     test.assertSuccess(true, fileSystem.setFolderCanDelete("Z:/file.png", false));
-                    test.assertFalse(fileSystem.deleteFolder("Z:/file.png").getValue());
-                    test.assertTrue(fileSystem.folderExists("Z:/file.png").getValue());
+                    test.assertError(new FolderNotFoundException("Z:/file.png"), fileSystem.deleteFolder("Z:/file.png"));
+                    test.assertSuccess(true, fileSystem.folderExists("Z:/file.png"));
                 });
 
                 runner.test("when child file cannot be deleted", (Test test) ->
@@ -110,8 +110,8 @@ public class InMemoryFileSystemTests
                     fileSystem.createFolder("Z:/file.png");
                     fileSystem.createFile("Z:/file.png/notme");
                     fileSystem.setFileCanDelete("Z:/file.png/notme", false);
-                    test.assertFalse(fileSystem.deleteFolder("Z:/file.png").getValue());
-                    test.assertTrue(fileSystem.folderExists("Z:/file.png").getValue());
+                    test.assertError(new FolderNotFoundException("Z:/file.png"), fileSystem.deleteFolder("Z:/file.png"));
+                    test.assertSuccess(true, fileSystem.folderExists("Z:/file.png"));
                 });
 
                 runner.test("when child folder cannot be deleted", (Test test) ->
@@ -121,8 +121,8 @@ public class InMemoryFileSystemTests
                     fileSystem.createFolder("Z:/file.png");
                     fileSystem.createFolder("Z:/file.png/notme");
                     fileSystem.setFolderCanDelete("Z:/file.png/notme", false);
-                    test.assertFalse(fileSystem.deleteFolder("Z:/file.png").getValue());
-                    test.assertTrue(fileSystem.folderExists("Z:/file.png").getValue());
+                    test.assertError(new FolderNotFoundException("Z:/file.png"), fileSystem.deleteFolder("Z:/file.png"));
+                    test.assertSuccess(true, fileSystem.folderExists("Z:/file.png"));
                 });
             });
         });

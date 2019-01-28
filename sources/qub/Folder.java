@@ -55,13 +55,13 @@ public class Folder extends FileSystemEntry
     }
 
     @Override
-    public Result<Boolean> delete()
+    public Result<Void> delete()
     {
         return getFileSystem().deleteFolder(getPath());
     }
 
     @Override
-    public AsyncFunction<Result<Boolean>> deleteAsync()
+    public AsyncFunction<Result<Void>> deleteAsync()
     {
         return getFileSystem().deleteFolderAsync(getPath());
     }
@@ -98,31 +98,19 @@ public class Folder extends FileSystemEntry
      * Try to create this folder and return whether or not this function created the folder.
      * @return Whether or not this function created the folder.
      */
-    public Result<Boolean> create()
+    public Result<Void> create()
     {
-        final Result<Folder> createResult = getFileSystem().createFolder(getPath());
-        final Throwable error = createResult.getError();
-        final boolean created = !(error instanceof FolderAlreadyExistsException || error instanceof RootNotFoundException);
-        return Result.done(created, error);
+        return getFileSystem().createFolder(getPath()).then(() -> {});
     }
 
     /**
      * Try to create this folder and return whether or not this function created the folder.
      * @return Whether or not this function created the folder.
      */
-    public AsyncFunction<Result<Boolean>> createAsync()
+    public AsyncFunction<Result<Void>> createAsync()
     {
         return getFileSystem().createFolderAsync(getPath())
-            .then(new Function1<Result<Folder>, Result<Boolean>>()
-            {
-                @Override
-                public Result<Boolean> run(Result<Folder> result)
-                {
-                    final Throwable error = result.getError();
-                    final boolean created = !(error instanceof FolderAlreadyExistsException || error instanceof RootNotFoundException);
-                    return Result.done(created, error);
-                }
-            });
+            .then((Result<Folder> result) -> result.then(() -> {}));
     }
 
     /**

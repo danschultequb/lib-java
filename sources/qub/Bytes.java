@@ -81,20 +81,7 @@ public class Bytes
     {
         PreCondition.assertBetween(0, value, 15, "value");
 
-        char result = UTF8CharacterEncoding.replacementCharacter;
-        if (0 <= value)
-        {
-            if (value <= 9)
-            {
-                result = (char)('0' + value);
-            }
-            else if (value <= 15)
-            {
-                result = (char)('A' + value - 10);
-            }
-        }
-
-        return result;
+        return (char)(value <= 9 ? '0' + value : 'A' + value - 10);
     }
 
     /**
@@ -107,20 +94,7 @@ public class Bytes
     {
         PreCondition.assertBetween(0, value, 15, "value");
 
-        char result = UTF8CharacterEncoding.replacementCharacter;
-        if (0 <= value)
-        {
-            if (value <= 9)
-            {
-                result = (char)('0' + value);
-            }
-            else if (value <= 15)
-            {
-                result = (char)('A' + value - 10);
-            }
-        }
-
-        return result;
+        return (char)(value <= 9 ? '0' + value : 'A' + value - 10);
     }
 
     public static byte fromHexChar(char hexChar)

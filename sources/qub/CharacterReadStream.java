@@ -43,7 +43,7 @@ public interface CharacterReadStream extends AsyncDisposable, Iterator<Character
         final Result<Integer> readCharactersResult = readCharacters(buffer);
         if (readCharactersResult.hasError())
         {
-            result = Result.error(readCharactersResult.getError());
+            result = readCharactersResult.convertError();
         }
         else
         {
@@ -149,7 +149,7 @@ public interface CharacterReadStream extends AsyncDisposable, Iterator<Character
             }
         }
 
-        return Result.done(charactersRead == 0 ? null : charactersRead, error);
+        return error == null ? Result.success(charactersRead == 0 ? null : charactersRead) : Result.error(error);
     }
 
     /**
@@ -349,10 +349,8 @@ public interface CharacterReadStream extends AsyncDisposable, Iterator<Character
         PreCondition.assertGreaterThan(charactersToRead, 0, "charactersToRead");
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
-        final Result<char[]> readCharactersResult = readCharacters(charactersToRead);
-        final char[] characters = readCharactersResult.getValue();
-        final String resultString = characters == null ? null : String.valueOf(characters);
-        return Result.done(resultString, readCharactersResult.getError());
+        return readCharacters(charactersToRead)
+            .then((char[] characters) -> characters == null ? null : String.valueOf(characters));
     }
 
     /**
@@ -366,10 +364,8 @@ public interface CharacterReadStream extends AsyncDisposable, Iterator<Character
     {
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
-        final Result<char[]> readCharactersResult = readAllCharacters();
-        final char[] characters = readCharactersResult.getValue();
-        final String resultString = characters == null ? null : String.valueOf(characters);
-        return Result.done(resultString, readCharactersResult.getError());
+        return readAllCharacters()
+            .then((char[] characters) -> String.valueOf(characters));
     }
 
     /**

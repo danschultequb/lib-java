@@ -175,63 +175,61 @@ public interface FileSystem
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        Result<Iterable<FileSystemEntry>> result;
-        final Result<Path> resolvedRootedFolderPath = rootedFolderPath.resolve();
-        if (resolvedRootedFolderPath.hasError())
-        {
-            result = Result.error(resolvedRootedFolderPath.getError());
-        }
-        else
-        {
-            final List<Throwable> resultErrors = new ArrayList<>();
-            List<FileSystemEntry> resultEntries = null;
-
-            final Folder folder = getFolder(resolvedRootedFolderPath.getValue()).getValue();
-            final Result<Iterable<FileSystemEntry>> folderEntriesResult = folder.getFilesAndFolders();
-
-            boolean folderExists = true;
-            if (folderEntriesResult.hasError())
+        return rootedFolderPath.resolve()
+            .thenResult((Path resolvedRootedFolderPath) ->
             {
-                final Throwable error = folderEntriesResult.getError();
-                folderExists = !(error instanceof FolderNotFoundException);
-                resultErrors.add(error);
-            }
-
-            if (folderExists)
-            {
-                resultEntries = new ArrayList<>();
-
-                final Queue<Folder> foldersToVisit = new ArrayListQueue<>();
-                foldersToVisit.enqueue(folder);
-
-                while (foldersToVisit.any())
-                {
-                    final Folder currentFolder = foldersToVisit.dequeue();
-                    final Result<Iterable<FileSystemEntry>> getFilesAndFoldersResult = currentFolder.getFilesAndFolders();
-                    if (getFilesAndFoldersResult.hasError())
+                return getFolder(resolvedRootedFolderPath)
+                    .thenResult((Folder folder) ->
                     {
-                        resultErrors.add(getFilesAndFoldersResult.getError());
-                    }
-                    else
-                    {
-                        final Iterable<FileSystemEntry> currentFolderEntries = getFilesAndFoldersResult.getValue();
-                        for (final FileSystemEntry entry : currentFolderEntries)
+                        final List<Throwable> resultErrors = List.create();
+                        List<FileSystemEntry> resultEntries = null;
+
+                        final Result<Iterable<FileSystemEntry>> folderEntriesResult = folder.getFilesAndFolders();
+
+                        boolean folderExists = true;
+                        if (folderEntriesResult.hasError())
                         {
-                            resultEntries.add(entry);
+                            final Throwable error = folderEntriesResult.getError();
+                            folderExists = !(error instanceof FolderNotFoundException);
+                            resultErrors.add(error);
+                        }
 
-                            if (entry instanceof Folder)
+                        if (folderExists)
+                        {
+                            resultEntries = new ArrayList<>();
+
+                            final Queue<Folder> foldersToVisit = new ArrayListQueue<>();
+                            foldersToVisit.enqueue(folder);
+
+                            while (foldersToVisit.any())
                             {
-                                foldersToVisit.enqueue((Folder)entry);
+                                final Folder currentFolder = foldersToVisit.dequeue();
+                                final Result<Iterable<FileSystemEntry>> getFilesAndFoldersResult = currentFolder.getFilesAndFolders();
+                                if (getFilesAndFoldersResult.hasError())
+                                {
+                                    resultErrors.add(getFilesAndFoldersResult.getError());
+                                }
+                                else
+                                {
+                                    final Iterable<FileSystemEntry> currentFolderEntries = getFilesAndFoldersResult.getValue();
+                                    for (final FileSystemEntry entry : currentFolderEntries)
+                                    {
+                                        resultEntries.add(entry);
+
+                                        if (entry instanceof Folder)
+                                        {
+                                            foldersToVisit.enqueue((Folder)entry);
+                                        }
+                                    }
+                                }
                             }
                         }
-                    }
-                }
-            }
 
-            result = Result.done(resultEntries, ErrorIterable.from(resultErrors));
-        }
-
-        return result;
+                        return Iterable.isNullOrEmpty(resultErrors)
+                            ? Result.<Iterable<FileSystemEntry>>success(resultEntries)
+                            : Result.error(ErrorIterable.from(resultErrors));
+                    });
+            });
     }
 
     /**
@@ -281,9 +279,8 @@ public interface FileSystem
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        final Result<Iterable<FileSystemEntry>> result = getFilesAndFolders(rootedFolderPath);
-        final Iterable<FileSystemEntry> entries = result.getValue();
-        return Result.done(entries == null ? null : entries.instanceOf(Folder.class), result.getError());
+        return getFilesAndFolders(rootedFolderPath)
+            .then((Iterable<FileSystemEntry> entries) -> entries.instanceOf(Folder.class));
     }
 
     /**
@@ -333,9 +330,8 @@ public interface FileSystem
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        final Result<Iterable<FileSystemEntry>> result = getFilesAndFoldersRecursively(rootedFolderPath);
-        final Iterable<FileSystemEntry> entries = result.getValue();
-        return Result.done(entries == null ? null : entries.instanceOf(Folder.class), result.getError());
+        return getFilesAndFoldersRecursively(rootedFolderPath)
+            .then((Iterable<FileSystemEntry> entries) -> entries.instanceOf(Folder.class));
     }
 
     /**
@@ -385,9 +381,8 @@ public interface FileSystem
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        Result<Iterable<FileSystemEntry>> result = getFilesAndFolders(rootedFolderPath);
-        final Iterable<FileSystemEntry> entries = result.getValue();
-        return Result.done(entries == null ? null : entries.instanceOf(File.class), result.getError());
+        return getFilesAndFolders(rootedFolderPath)
+            .then((Iterable<FileSystemEntry> entries) -> entries.instanceOf(File.class));
     }
 
     /**
@@ -437,9 +432,8 @@ public interface FileSystem
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        final Result<Iterable<FileSystemEntry>> result = getFilesAndFoldersRecursively(rootedFolderPath);
-        final Iterable<FileSystemEntry> entries = result.getValue();
-        return Result.done(entries == null ? null : entries.instanceOf(File.class), result.getError());
+        return getFilesAndFoldersRecursively(rootedFolderPath)
+            .then((Iterable<FileSystemEntry> entries) -> entries.instanceOf(File.class));
     }
 
     /**
@@ -601,7 +595,7 @@ public interface FileSystem
      * @param rootedFolderPath The path to the folder to delete.
      * @return Whether or not this function deleted the folder.
      */
-    default Result<Boolean> deleteFolder(String rootedFolderPath)
+    default Result<Void> deleteFolder(String rootedFolderPath)
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
@@ -613,14 +607,14 @@ public interface FileSystem
      * @param rootedFolderPath The path to the folder to delete.
      * @return Whether or not this function deleted the folder.
      */
-    Result<Boolean> deleteFolder(Path rootedFolderPath);
+    Result<Void> deleteFolder(Path rootedFolderPath);
 
     /**
      * Delete the folder at the provided path and return whether this function deleted the folder.
      * @param rootedFolderPath The path to the folder to delete.
      * @return Whether or not this function deleted the folder.
      */
-    default AsyncFunction<Result<Boolean>> deleteFolderAsync(String rootedFolderPath)
+    default AsyncFunction<Result<Void>> deleteFolderAsync(String rootedFolderPath)
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
@@ -633,7 +627,7 @@ public interface FileSystem
      * @param rootedFolderPath The path to the folder to delete.
      * @return Whether or not this function deleted the folder.
      */
-    default AsyncFunction<Result<Boolean>> deleteFolderAsync(Path rootedFolderPath)
+    default AsyncFunction<Result<Void>> deleteFolderAsync(Path rootedFolderPath)
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
@@ -770,7 +764,7 @@ public interface FileSystem
      * @param rootedFilePath The path to the file to delete.
      * @return Whether or not this function deleted the file.
      */
-    default Result<Boolean> deleteFile(String rootedFilePath)
+    default Result<Void> deleteFile(String rootedFilePath)
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
@@ -782,14 +776,14 @@ public interface FileSystem
      * @param rootedFilePath The path to the file to delete.
      * @return Whether or not this function deleted the file.
      */
-    Result<Boolean> deleteFile(Path rootedFilePath);
+    Result<Void> deleteFile(Path rootedFilePath);
 
     /**
      * Delete the file at the provided path and return whether this function deleted the file.
      * @param rootedFilePath The path to the file to delete.
      * @return Whether or not this function deleted the file.
      */
-    default AsyncFunction<Result<Boolean>> deleteFileAsync(String rootedFilePath)
+    default AsyncFunction<Result<Void>> deleteFileAsync(String rootedFilePath)
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
@@ -802,7 +796,7 @@ public interface FileSystem
      * @param rootedFilePath The path to the file to delete.
      * @return Whether or not this function deleted the file.
      */
-    default AsyncFunction<Result<Boolean>> deleteFileAsync(Path rootedFilePath)
+    default AsyncFunction<Result<Void>> deleteFileAsync(Path rootedFilePath)
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");

@@ -37,25 +37,25 @@ public class FolderFileSystem implements FileSystem
         return Result.success(new FolderFileSystem(innerFileSystem, baseFolderPath));
     }
 
-    public Result<Boolean> create()
+    public Result<Void> create()
     {
-        final Result<Folder> createResult = innerFileSystem.createFolder(baseFolderPath);
-        return Result.done(!createResult.hasError(), createResult.getError());
+        return innerFileSystem.createFolder(baseFolderPath)
+            .then(() -> {});
     }
 
-    public AsyncFunction<Result<Boolean>> createAsync()
+    public AsyncFunction<Result<Void>> createAsync()
     {
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
 
         return getAsyncRunner().scheduleSingle(this::create);
     }
 
-    public Result<Boolean> delete()
+    public Result<Void> delete()
     {
         return innerFileSystem.deleteFolder(baseFolderPath);
     }
 
-    public AsyncFunction<Result<Boolean>> deleteAsync()
+    public AsyncFunction<Result<Void>> deleteAsync()
     {
         return innerFileSystem.deleteFolderAsync(baseFolderPath);
     }
@@ -164,7 +164,9 @@ public class FolderFileSystem implements FileSystem
                 resultError = innerError;
             }
         }
-        return Result.done(resultEntries, resultError);
+        return resultError == null
+            ? Result.success(resultEntries)
+            : Result.error(resultError);
     }
 
     @Override
@@ -206,18 +208,20 @@ public class FolderFileSystem implements FileSystem
                 resultError = error;
             }
 
-            result = Result.done(resultFolder, resultError);
+            result = resultError == null
+                ? Result.success(resultFolder)
+                : Result.error(resultError);
         }
 
         return result;
     }
 
     @Override
-    public Result<Boolean> deleteFolder(Path rootedFolderPath)
+    public Result<Void> deleteFolder(Path rootedFolderPath)
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        Result<Boolean> result;
+        Result<Void> result;
         final Result<Path> innerFolderPath = getInnerPath(rootedFolderPath, true);
         if (innerFolderPath.hasError())
         {
@@ -225,7 +229,7 @@ public class FolderFileSystem implements FileSystem
         }
         else if (innerFolderPath.getValue().equals(baseFolderPath))
         {
-            result = Result.done(false, new IllegalArgumentException("Cannot delete a root folder (" + rootedFolderPath.resolve().getValue() + ")."));
+            result = Result.error(new IllegalArgumentException("Cannot delete a root folder (" + rootedFolderPath.resolve().getValue() + ")."));
         }
         else
         {
@@ -233,9 +237,7 @@ public class FolderFileSystem implements FileSystem
             if (result.getError() instanceof FolderNotFoundException)
             {
                 final Path outerFolderPath = getOuterPath(((FolderNotFoundException)result.getError()).getFolderPath());
-                result = Result.done(
-                    result.getValue(),
-                    new FolderNotFoundException(outerFolderPath));
+                result = Result.error(new FolderNotFoundException(outerFolderPath));
             }
         }
 
@@ -279,18 +281,20 @@ public class FolderFileSystem implements FileSystem
 
             final File createdFile = innerResult.getValue() == null ? null : new File(this, getOuterPath(innerResult.getValue().getPath()));
             final Throwable error = innerResult.getError() instanceof FileAlreadyExistsException ? new FileAlreadyExistsException(rootedFilePath) : innerResult.getError();
-            result = Result.done(createdFile, error);
+            result = error == null
+                ? Result.success(createdFile)
+                : Result.error(error);
         }
 
         return result;
     }
 
     @Override
-    public Result<Boolean> deleteFile(Path rootedFilePath)
+    public Result<Void> deleteFile(Path rootedFilePath)
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        Result<Boolean> result;
+        Result<Void> result;
         final Result<Path> innerFilePath = getInnerPath(rootedFilePath, false);
         if (innerFilePath.hasError())
         {
@@ -301,7 +305,7 @@ public class FolderFileSystem implements FileSystem
             result = innerFileSystem.deleteFile(innerFilePath.getValue());
             if (result.getError() instanceof FileNotFoundException)
             {
-                result = Result.done(result.getValue(), new FileNotFoundException(getOuterPath(innerFilePath.getValue())));
+                result = Result.error(new FileNotFoundException(getOuterPath(innerFilePath.getValue())));
             }
         }
 
@@ -324,7 +328,7 @@ public class FolderFileSystem implements FileSystem
             result = innerFileSystem.getFileLastModified(innerFilePath.getValue());
             if (result.getError() instanceof FileNotFoundException)
             {
-                result = Result.done(result.getValue(), new FileNotFoundException(getOuterPath(innerFilePath.getValue())));
+                result = Result.error(new FileNotFoundException(getOuterPath(innerFilePath.getValue())));
             }
         }
 
@@ -347,7 +351,7 @@ public class FolderFileSystem implements FileSystem
             result = innerFileSystem.getFileContentByteReadStream(innerFilePath.getValue());
             if (result.getError() instanceof FileNotFoundException)
             {
-                result = Result.done(result.getValue(), new FileNotFoundException(getOuterPath(innerFilePath.getValue())));
+                result = Result.error(new FileNotFoundException(getOuterPath(innerFilePath.getValue())));
             }
         }
 

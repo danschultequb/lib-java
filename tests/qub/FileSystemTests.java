@@ -864,12 +864,7 @@ public class FileSystemTests
                         {
                             setup.run(fileSystem);
                         }
-                        final Result<Folder> result = fileSystem.createFolder(folderPath);
-                        test.assertNotNull(result);
-
-                        test.assertEqual(expectedCreatedFolderPath, result.getValue() == null ? null : result.getValue().toString());
-
-                        test.assertEqual(expectedError, result.getError());
+                        test.assertDone(expectedCreatedFolderPath, expectedError, fileSystem.createFolder(folderPath).then(Folder::toString));
                     });
                 };
 
@@ -918,12 +913,7 @@ public class FileSystemTests
                         {
                             setup.run(fileSystem);
                         }
-                        final Result<Folder> result = fileSystem.createFolder(Path.parse(folderPath));
-                        test.assertNotNull(result);
-
-                        test.assertEqual(expectedCreatedFolderPath, result.getValue() == null ? null : result.getValue().toString());
-
-                        test.assertEqual(expectedError, result.getError());
+                        test.assertDone(expectedCreatedFolderPath, expectedError, fileSystem.createFolder(Path.parse(folderPath)).then(Folder::toString));
                     });
                 };
 
@@ -963,7 +953,7 @@ public class FileSystemTests
                 deleteFolderFailureTest.run("");
                 deleteFolderFailureTest.run("folder");
 
-                final Action4<String,Action1<FileSystem>,Boolean,Throwable> deleteFolderTest = (String folderPath, Action1<FileSystem> setup, Boolean expectedDeleteResult, Throwable expectedError) ->
+                final Action3<String,Action1<FileSystem>,Throwable> deleteFolderTest = (String folderPath, Action1<FileSystem> setup, Throwable expectedError) ->
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
@@ -972,20 +962,14 @@ public class FileSystemTests
                         {
                             setup.run(fileSystem);
                         }
-                        final Result<Boolean> result = fileSystem.deleteFolder(folderPath);
-                        test.assertNotNull(result);
-
-                        test.assertEqual(expectedDeleteResult, result.getValue());
-
-                        test.assertEqual(expectedError, result.getError());
+                        test.assertError(expectedError, fileSystem.deleteFolder(folderPath));
                     });
                 };
 
-                deleteFolderTest.run("/folder", null, false, new FolderNotFoundException("/folder"));
+                deleteFolderTest.run("/folder", null, new FolderNotFoundException("/folder"));
                 deleteFolderTest.run(
                     "/folder",
                     (FileSystem fileSystem) -> fileSystem.createFolder("/folder"),
-                    true,
                     null);
                 deleteFolderTest.run(
                     "/folder/c",
@@ -995,17 +979,14 @@ public class FileSystemTests
                         fileSystem.createFolder("/folder/b");
                         fileSystem.createFolder("/folder/c");
                     },
-                    true,
                     null);
                 deleteFolderTest.run(
                     "/..",
-                    null,
                     null,
                     new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
                 deleteFolderTest.run(
                     "/a/..",
                     null,
-                    false,
                     new IllegalArgumentException("Cannot delete a root folder (/)."));
             });
 
@@ -1027,7 +1008,7 @@ public class FileSystemTests
                 deleteFolderFailureTest.run("");
                 deleteFolderFailureTest.run("folder");
 
-                final Action4<String,Action1<FileSystem>,Boolean,Throwable> deleteFolderTest = (String folderPath, Action1<FileSystem> setup, Boolean expectedDeleteResult, Throwable expectedError) ->
+                final Action3<String,Action1<FileSystem>,Throwable> deleteFolderTest = (String folderPath, Action1<FileSystem> setup, Throwable expectedError) ->
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
@@ -1036,20 +1017,14 @@ public class FileSystemTests
                         {
                             setup.run(fileSystem);
                         }
-                        final Result<Boolean> result = fileSystem.deleteFolder(Path.parse(folderPath));
-                        test.assertNotNull(result);
-
-                        test.assertEqual(expectedDeleteResult, result.getValue());
-
-                        test.assertEqual(expectedError, result.getError());
+                        test.assertError(expectedError, fileSystem.deleteFolder(Path.parse(folderPath)));
                     });
                 };
 
-                deleteFolderTest.run("/folder", null, false, new FolderNotFoundException("/folder"));
+                deleteFolderTest.run("/folder", null, new FolderNotFoundException("/folder"));
                 deleteFolderTest.run(
                     "/folder",
                     (FileSystem fileSystem) -> fileSystem.createFolder("/folder"),
-                    true,
                     null);
                 deleteFolderTest.run(
                     "/folder/c",
@@ -1059,17 +1034,14 @@ public class FileSystemTests
                         fileSystem.createFolder("/folder/b");
                         fileSystem.createFolder("/folder/c");
                     },
-                    true,
                     null);
                 deleteFolderTest.run(
                     "/..",
-                    null,
                     null,
                     new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
                 deleteFolderTest.run(
                     "/a/..",
                     null,
-                    false,
                     new IllegalArgumentException("Cannot delete a root folder (/)."));
             });
 
@@ -1291,13 +1263,7 @@ public class FileSystemTests
                         {
                             setup.run(fileSystem);
                         }
-
-                        final Result<File> result = fileSystem.createFile(filePath);
-                        test.assertNotNull(result);
-
-                        test.assertEqual(expectedFilePath, result.getValue() == null ? null : result.getValue().toString());
-
-                        test.assertEqual(expectedError, result.getError());
+                        test.assertDone(expectedFilePath, expectedError, fileSystem.createFile(filePath).then(File::toString));
                     });
                 };
 
@@ -1352,13 +1318,7 @@ public class FileSystemTests
                         {
                             setup.run(fileSystem);
                         }
-
-                        final Result<File> result = fileSystem.createFile(Path.parse(filePath));
-                        test.assertNotNull(result);
-
-                        test.assertEqual(expectedFilePath, result.getValue() == null ? null : result.getValue().toString());
-
-                        test.assertEqual(expectedError, result.getError());
+                        test.assertDone(expectedFilePath, expectedError, fileSystem.createFile(Path.parse(filePath)).then(File::toString));
                     });
                 };
 
@@ -1396,7 +1356,7 @@ public class FileSystemTests
                 deleteFileFailureTest.run("");
                 deleteFileFailureTest.run("relativeFile.txt");
 
-                final Action4<String,Action1<FileSystem>,Boolean,Throwable> deleteFileTest = (String filePath, Action1<FileSystem> setup, Boolean expectedResult, Throwable expectedError) ->
+                final Action3<String,Action1<FileSystem>,Throwable> deleteFileTest = (String filePath, Action1<FileSystem> setup, Throwable expectedError) ->
                 {
                     runner.test("with " + Strings.escapeAndQuote(filePath), (Test test) ->
                     {
@@ -1405,31 +1365,22 @@ public class FileSystemTests
                         {
                             setup.run(fileSystem);
                         }
-
-                        final Result<Boolean> result = fileSystem.deleteFile(filePath);
-                        test.assertNotNull(result);
-
-                        test.assertEqual(expectedResult, result.getValue());
-
-                        test.assertEqual(expectedError, result.getError());
+                        test.assertError(expectedError, fileSystem.deleteFile(filePath));
                     });
                 };
 
-                deleteFileTest.run("/idontexist.txt", null, false, new FileNotFoundException("/idontexist.txt"));
+                deleteFileTest.run("/idontexist.txt", null, new FileNotFoundException("/idontexist.txt"));
                 deleteFileTest.run(
                     "/iexist.txt",
                     (FileSystem fileSystem) -> fileSystem.createFile("/iexist.txt"),
-                    true,
                     null);
                 deleteFileTest.run(
                     "/../file.txt",
-                    null,
                     null,
                     new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
                 deleteFileTest.run(
                     "/a/../file.txt",
                     null,
-                    false,
                     new FileNotFoundException("/file.txt"));
             });
 
@@ -1457,13 +1408,7 @@ public class FileSystemTests
                         {
                             setup.run(fileSystem);
                         }
-
-                        final Result<DateTime> result = fileSystem.getFileLastModified(filePath);
-                        test.assertNotNull(result);
-
-                        test.assertEqual(expectedLastModified, result.getValue());
-
-                        test.assertEqual(expectedError, result.getError());
+                        test.assertDone(expectedLastModified, expectedError, fileSystem.getFileLastModified(filePath));
                     });
                 };
 

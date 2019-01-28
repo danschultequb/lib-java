@@ -23,14 +23,14 @@ public interface BlockingQueue<T>
      * @param value The value to add to the Queue.
      * @return The result of adding the value to the Queue.
      */
-    Result<Boolean> enqueue(T value);
+    Result<Void> enqueue(T value);
 
     /**
      * Add the provided value to the Queue.
      * @param value The value to add to the Queue.
      * @return The result of adding the value to the Queue.
      */
-    AsyncFunction<Result<Boolean>> enqueueAsync(T value);
+    AsyncFunction<Result<Void>> enqueueAsync(T value);
 
     /**
      * Remove and return the next value from the Queue. If there are no values in the Queue, then

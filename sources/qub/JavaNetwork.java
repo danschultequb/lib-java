@@ -87,20 +87,9 @@ class JavaNetwork implements Network
     public Result<Boolean> isConnected()
     {
         final DNS dns = getDNS();
-        final Result<IPv4Address> resolvedIpAddress = dns.resolveHost("www.google.com");
-        Result<Boolean> result;
-        if (resolvedIpAddress.hasError())
-        {
-            result = Result.done(false, resolvedIpAddress.getError());
-        }
-        else
-        {
-            result = Result.successTrue();
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+        return dns.resolveHost("www.google.com")
+            .thenResult(Result::successTrue)
+            .catchErrorResult(Result::successFalse);
     }
 
     @Override

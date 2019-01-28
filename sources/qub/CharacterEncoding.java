@@ -67,9 +67,8 @@ public interface CharacterEncoding
     {
         PreCondition.assertNotNull(bytes, "bytes");
 
-        final Result<char[]> result = decode(bytes);
-        final char[] decodedCharacters = result.getValue();
-        return Result.done(decodedCharacters == null ? null : new String(decodedCharacters), result.getError());
+        return decode(bytes)
+            .then((char[] characters) -> String.valueOf(characters));
     }
 
     /**

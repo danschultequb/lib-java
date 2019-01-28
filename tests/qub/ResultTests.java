@@ -1145,26 +1145,183 @@ public class ResultTests
                 });
             });
 
+            runner.testGroup("onError(Action0)", () ->
+            {
+                runner.test("with null action", (Test test) ->
+                {
+                    final Result<Integer> result = Result.success();
+                    test.assertThrows(() -> result.onError((Action0)null),
+                        new PreConditionFailure("action cannot be null."));
+                });
+
+                runner.test("with successful Result", (Test test) ->
+                {
+                    final Value<Integer> value = Value.create();
+                    Result.success()
+                        .onError(() -> value.set(5));
+                    test.assertFalse(value.hasValue());
+                });
+
+                runner.test("with error Result", (Test test) ->
+                {
+                    final Value<Integer> value = Value.create();
+                    Result.error(new NullPointerException())
+                        .onError(() -> value.set(5));
+                    test.assertEqual(5, value.get());
+                });
+            });
+
+            runner.testGroup("onError(Action1<Throwable>)", () ->
+            {
+                runner.test("with null action", (Test test) ->
+                {
+                    final Result<Integer> result = Result.success();
+                    test.assertThrows(() -> result.onError((Action1<Throwable>)null),
+                        new PreConditionFailure("action cannot be null."));
+                });
+
+                runner.test("with successful Result", (Test test) ->
+                {
+                    final Value<Integer> value = Value.create();
+                    Result.success()
+                        .onError((Throwable error) -> value.set(5));
+                    test.assertFalse(value.hasValue());
+                });
+
+                runner.test("with error Result", (Test test) ->
+                {
+                    final Value<Integer> value = Value.create();
+                    Result.error(new NullPointerException("a"))
+                        .onError((Throwable error) ->
+                        {
+                            test.assertEqual(new NullPointerException("a"), error);
+                            value.set(5);
+                        });
+                    test.assertEqual(5, value.get());
+                });
+            });
+
+            runner.testGroup("onError(Class<TError>,Action0)", () ->
+            {
+                runner.test("with null errorType", (Test test) ->
+                {
+                    final Result<Integer> result = Result.success();
+                    test.assertThrows(() -> result.onError(null, () -> {}),
+                        new PreConditionFailure("errorType cannot be null."));
+                });
+
+                runner.test("with null action", (Test test) ->
+                {
+                    final Result<Integer> result = Result.success();
+                    test.assertThrows(() -> result.onError(NullPointerException.class, (Action0)null),
+                        new PreConditionFailure("action cannot be null."));
+                });
+
+                runner.test("with successful Result", (Test test) ->
+                {
+                    final Value<Integer> value = Value.create();
+                    Result.success()
+                        .onError(NullPointerException.class, () -> value.set(5));
+                    test.assertFalse(value.hasValue());
+                });
+
+                runner.test("with error Result with different error type", (Test test) ->
+                {
+                    final Value<Integer> value = Value.create();
+                    Result.error(new NullPointerException())
+                        .onError(NotFoundException.class, () -> value.set(5));
+                    test.assertFalse(value.hasValue());
+                });
+
+                runner.test("with error Result with same error type", (Test test) ->
+                {
+                    final Value<Integer> value = Value.create();
+                    Result.error(new NullPointerException())
+                        .onError(NullPointerException.class, () -> value.set(5));
+                    test.assertEqual(5, value.get());
+                });
+
+                runner.test("with error Result with super error type", (Test test) ->
+                {
+                    final Value<Integer> value = Value.create();
+                    Result.error(new NullPointerException())
+                        .onError(RuntimeException.class, () -> value.set(5));
+                    test.assertEqual(5, value.get());
+                });
+            });
+
+            runner.testGroup("onError(Class<TError>,Action1<TError>)", () ->
+            {
+                runner.test("with null errorType", (Test test) ->
+                {
+                    final Result<Integer> result = Result.success();
+                    test.assertThrows(() -> result.onError(null, (NullPointerException error) -> {}),
+                        new PreConditionFailure("errorType cannot be null."));
+                });
+
+                runner.test("with null action", (Test test) ->
+                {
+                    final Result<Integer> result = Result.success();
+                    test.assertThrows(() -> result.onError(NullPointerException.class, (Action1<NullPointerException>)null),
+                        new PreConditionFailure("action cannot be null."));
+                });
+
+                runner.test("with successful Result", (Test test) ->
+                {
+                    final Value<Integer> value = Value.create();
+                    Result.success()
+                        .onError(NullPointerException.class, (NullPointerException error) -> value.set(5));
+                    test.assertFalse(value.hasValue());
+                });
+
+                runner.test("with error Result with different error type", (Test test) ->
+                {
+                    final Value<Integer> value = Value.create();
+                    Result.error(new NullPointerException())
+                        .onError(NotFoundException.class, (NotFoundException error) -> value.set(5));
+                    test.assertFalse(value.hasValue());
+                });
+
+                runner.test("with error Result with same error type", (Test test) ->
+                {
+                    final Value<Integer> value = Value.create();
+                    Result.error(new NullPointerException("a"))
+                        .onError(NullPointerException.class, (NullPointerException error) ->
+                        {
+                            test.assertEqual(new NullPointerException("a"), error);
+                            value.set(5);
+                        });
+                    test.assertEqual(5, value.get());
+                });
+
+                runner.test("with error Result with super error type", (Test test) ->
+                {
+                    final Value<Integer> value = Value.create();
+                    Result.error(new NullPointerException("a"))
+                        .onError(RuntimeException.class, (RuntimeException error) ->
+                        {
+                            test.assertEqual(new NullPointerException("a"), error);
+                            value.set(5);
+                        });
+                    test.assertEqual(5, value.get());
+                });
+            });
+
             runner.testGroup("toString()", () ->
             {
-                runner.test("with null value and null error", (Test test) ->
+                runner.test("with successful result with null value", (Test test) ->
                 {
-                    test.assertEqual("value: null", Result.done(null, null).toString());
+                    test.assertEqual("value: null", Result.success(null).toString());
                 });
 
-                runner.test("with non-null value and null error", (Test test) ->
+                runner.test("with successful result with non-null value", (Test test) ->
                 {
-                    test.assertEqual("value: 6", Result.done(6, null).toString());
+                    test.assertEqual("value: 6", Result.success(6).toString());
                 });
 
-                runner.test("with null value and non-null error", (Test test) ->
+                runner.test("with error result", (Test test) ->
                 {
-                    test.assertEqual("error: java.lang.NullPointerException: oops", Result.done(null, new NullPointerException("oops")).toString());
-                });
-
-                runner.test("with non-null value and non-null error", (Test test) ->
-                {
-                    test.assertEqual("value: 20, error: java.lang.NullPointerException: oops", Result.done(20, new NullPointerException("oops")).toString());
+                    test.assertEqual("error: java.lang.NullPointerException: oops", Result.error(new NullPointerException("oops")).toString());
                 });
             });
 
@@ -1337,29 +1494,6 @@ public class ResultTests
                 runner.test("with Exception", (Test test) ->
                 {
                     test.assertError(new Exception("abc"), Result.error(new Exception("abc")));
-                });
-            });
-
-            runner.testGroup("done(T,Throwable)", () ->
-            {
-                runner.test("with null value and null error", (Test test) ->
-                {
-                    test.assertDone(null, null, Result.done(null, null));
-                });
-
-                runner.test("with non-null value and null error", (Test test) ->
-                {
-                    test.assertDone(12, null, Result.done(12, null));
-                });
-
-                runner.test("with null value and non-null error", (Test test) ->
-                {
-                    test.assertDone(null, new java.io.IOException("blah"), Result.done(null, new java.io.IOException("blah")));
-                });
-
-                runner.test("with non-null value and non-null error", (Test test) ->
-                {
-                    test.assertDone('a', new RuntimeException("xyz"), Result.done('a', new RuntimeException("xyz")));
                 });
             });
 

@@ -262,17 +262,17 @@ public class InMemoryFileSystem implements FileSystem
                 resultFolder = getFolder(resolvedRootedFolderPath.getValue()).getValue();
             }
 
-            result = Result.done(resultFolder, resultError);
+            result = resultError == null ? Result.success(resultFolder) : Result.error(resultError);
         }
         return result;
     }
 
     @Override
-    public Result<Boolean> deleteFolder(Path rootedFolderPath)
+    public Result<Void> deleteFolder(Path rootedFolderPath)
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        Result<Boolean> result;
+        Result<Void> result;
         final Result<Path> resolvedRootedFolderPath = rootedFolderPath.resolve();
         if (resolvedRootedFolderPath.hasError())
         {
@@ -283,7 +283,7 @@ public class InMemoryFileSystem implements FileSystem
             final Path parentFolderPath = resolvedRootedFolderPath.getValue().getParent();
             if (parentFolderPath == null)
             {
-                result = Result.done(false, new IllegalArgumentException("Cannot delete a root folder (" + resolvedRootedFolderPath.getValue() + ")."));
+                result = Result.error(new IllegalArgumentException("Cannot delete a root folder (" + resolvedRootedFolderPath.getValue() + ")."));
             }
             else
             {
@@ -292,7 +292,7 @@ public class InMemoryFileSystem implements FileSystem
                 {
                     if (parentFolder.getError() instanceof FolderNotFoundException)
                     {
-                        result = Result.done(false, new FolderNotFoundException(resolvedRootedFolderPath.getValue()));
+                        result = Result.error(new FolderNotFoundException(resolvedRootedFolderPath.getValue()));
                     }
                     else
                     {
@@ -301,11 +301,11 @@ public class InMemoryFileSystem implements FileSystem
                 }
                 else if (parentFolder.getValue().deleteFolder(resolvedRootedFolderPath.getValue().getSegments().last()))
                 {
-                    result = Result.successTrue();
+                    result = Result.success();
                 }
                 else
                 {
-                    result = Result.done(false, new FolderNotFoundException(resolvedRootedFolderPath.getValue()));
+                    result = Result.error(new FolderNotFoundException(resolvedRootedFolderPath.getValue()));
                 }
             }
         }
@@ -365,15 +365,15 @@ public class InMemoryFileSystem implements FileSystem
             }
             file = getFile(rootedFilePath).getValue();
         }
-        return Result.done(file, error);
+        return error == null ? Result.success(file) : Result.error(error);
     }
 
     @Override
-    public Result<Boolean> deleteFile(Path rootedFilePath)
+    public Result<Void> deleteFile(Path rootedFilePath)
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        Result<Boolean> result;
+        Result<Void> result;
         final Result<Path> resolvedRootedFilePath = rootedFilePath.resolve();
         if (resolvedRootedFilePath.hasError())
         {
@@ -388,11 +388,11 @@ public class InMemoryFileSystem implements FileSystem
             }
             else if (!parentFolder.getValue().deleteFile(resolvedRootedFilePath.getValue().getSegments().last()))
             {
-                result = Result.done(false, new FileNotFoundException(resolvedRootedFilePath.getValue()));
+                result = Result.error(new FileNotFoundException(resolvedRootedFilePath.getValue()));
             }
             else
             {
-                result = Result.successTrue();
+                result = Result.success();
             }
         }
         return result;

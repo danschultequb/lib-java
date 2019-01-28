@@ -94,7 +94,7 @@ public class FolderTests
                 runner.test("when folder doesn't exist", (Test test) ->
                 {
                     final Folder folder = getFolder(test);
-                    test.assertDone(false, new FolderNotFoundException("/test/folder"), folder.delete());
+                    test.assertError(new FolderNotFoundException("/test/folder"), folder.delete());
                 });
 
                 runner.test("when folder exists", (Test test) ->
@@ -102,7 +102,7 @@ public class FolderTests
                     final Folder folder = getFolder(test);
                     folder.create();
 
-                    test.assertSuccess(true, folder.delete());
+                    test.assertSuccess(null, folder.delete());
                     test.assertSuccess(false, folder.exists());
                 });
             });
@@ -112,7 +112,7 @@ public class FolderTests
                 runner.test("when folder doesn't exist", (Test test) ->
                 {
                     final Folder folder = getFolder(test);
-                    test.assertDone(false, new FolderNotFoundException("/test/folder"), folder.deleteAsync().awaitReturn());
+                    test.assertError(new FolderNotFoundException("/test/folder"), folder.deleteAsync().awaitReturn());
                 });
 
                 runner.test("when folder exists", (Test test) ->
@@ -120,7 +120,7 @@ public class FolderTests
                     final Folder folder = getFolder(test);
                     folder.create();
 
-                    test.assertSuccess(true, folder.deleteAsync().awaitReturn());
+                    test.assertSuccess(null, folder.deleteAsync().awaitReturn());
                     test.assertSuccess(false, folder.exists());
                 });
             });
@@ -209,12 +209,10 @@ public class FolderTests
                 final Folder folder = getFolder(test);
                 test.assertSuccess(false, folder.exists());
 
-                test.assertSuccess(true, folder.create());
+                test.assertSuccess(null, folder.create());
                 test.assertSuccess(true, folder.exists());
 
-                final Result<Boolean> createResult2 = folder.create();
-                test.assertFalse(createResult2.getValue());
-                test.assertEqual(new FolderAlreadyExistsException("/test/folder"), createResult2.getError());
+                test.assertError(new FolderAlreadyExistsException("/test/folder"), folder.create());
                 test.assertSuccess(true, folder.exists());
             });
 
@@ -363,18 +361,20 @@ public class FolderTests
                 test.assertSuccess(false, folder.exists());
                 test.assertError(new FolderNotFoundException("/test/folder"), folder.getFolders());
 
-                folder.create();
+                test.assertSuccess(null, folder.create());
                 test.assertSuccess(true, folder.exists());
-                test.assertSuccess(new Array<Folder>(0), folder.getFolders());
+                test.assertSuccess(Iterable.empty(), folder.getFolders());
 
-                final Result<Folder> childFolder = folder.createFolder("childFolder1");
-                test.assertSuccess(childFolder);
-                test.assertEqual("/test/folder/childFolder1", childFolder.getValue().toString());
+                test.assertSuccess(folder.createFolder("childFolder1"),
+                    (Folder childFolder) ->
+                    {
+                        test.assertEqual("/test/folder/childFolder1", childFolder.toString());
 
-                test.assertEqual(Array.create(new String[] { "/test/folder/childFolder1" }), folder.getFolders().getValue().map(FileSystemEntry::toString));
+                        test.assertSuccess(Iterable.create("/test/folder/childFolder1"), folder.getFolders().then((Iterable<Folder> folders) -> folders.map(FileSystemEntry::toString)));
 
-                test.assertSuccess(childFolder.getValue().createFolder("grandchildFolder1"));
-                test.assertEqual(Array.create(new String[] { "/test/folder/childFolder1" }), folder.getFolders().getValue().map(FileSystemEntry::toString));
+                        test.assertSuccess("/test/folder/childFolder1/grandchildFolder1", childFolder.createFolder("grandchildFolder1").then(Folder::toString));
+                        test.assertSuccess(Iterable.create("/test/folder/childFolder1"), folder.getFolders().then((Iterable<Folder> folders) -> folders.map(FileSystemEntry::toString)));
+                    });
             });
 
             runner.testGroup("getFiles()", () ->
@@ -389,30 +389,27 @@ public class FolderTests
                 runner.test("when folder exists but is empty", (Test test) ->
                 {
                     final Folder folder = getFolder(test);
-                    test.assertSuccess(true, folder.create());
+                    test.assertSuccess(null, folder.create());
                     test.assertSuccess(folder.exists());
-                    test.assertSuccess(new Array<File>(0), folder.getFiles());
+                    test.assertSuccess(Iterable.empty(), folder.getFiles());
                 });
 
                 runner.test("when folder exists and has one file", (Test test) ->
                 {
                     final Folder folder = getFolder(test);
-                    test.assertSuccess(true, folder.create());
+                    test.assertSuccess(null, folder.create());
                     test.assertSuccess(true, folder.exists());
                     test.assertSuccess(folder.createFile("data.txt"));
-                    final Result<Iterable<File>> files = folder.getFiles();
-                    test.assertSuccess(files);
-                    test.assertEqual(Array.create(new String[] { "/test/folder/data.txt" }), files.getValue().map(FileSystemEntry::toString));
+                    test.assertSuccess(Iterable.create("/test/folder/data.txt"), folder.getFiles().then((Iterable<File> files) -> files.map(FileSystemEntry::toString)));
                 });
 
                 runner.test("when folder exists and has one grandchild file", (Test test) ->
                 {
                     final Folder folder = getFolder(test);
-                    test.assertSuccess(true, folder.create());
+                    test.assertSuccess(null, folder.create());
                     test.assertSuccess(folder.exists());
                     test.assertSuccess(folder.createFile("subfolder/data.txt"));
-                    final Result<Iterable<File>> files = folder.getFiles();
-                    test.assertSuccess(new Array<File>(0), files);
+                    test.assertSuccess(Iterable.empty(), folder.getFiles());
                 });
             });
 
@@ -428,42 +425,37 @@ public class FolderTests
                 runner.test("when folder exists but is empty", (Test test) ->
                 {
                     final Folder folder = getFolder(test);
-                    test.assertSuccess(true, folder.create());
-                    test.assertSuccess(new Array<FileSystemEntry>(0), folder.getFilesAndFolders());
+                    test.assertSuccess(null, folder.create());
+                    test.assertSuccess(Iterable.empty(), folder.getFilesAndFolders());
                 });
 
                 runner.test("when folder exists and has one child folder", (Test test) ->
                 {
                     final Folder folder = getFolder(test);
-                    test.assertSuccess(true, folder.create());
+                    test.assertSuccess(null, folder.create());
                     test.assertSuccess(folder.createFolder("subfolder"));
-
-                    final Result<Iterable<FileSystemEntry>> filesAndFolders = folder.getFilesAndFolders();
-                    test.assertSuccess(filesAndFolders);
-                    test.assertEqual(Array.create(new String[] { "/test/folder/subfolder" }), filesAndFolders.getValue().map(FileSystemEntry::toString));
+                    test.assertSuccess(Iterable.create("/test/folder/subfolder"), folder.getFilesAndFolders().then((Iterable<FileSystemEntry> entries) -> entries.map(FileSystemEntry::toString)));
                 });
 
                 runner.test("when folder exists and has one child file", (Test test) ->
                 {
                     final Folder folder = getFolder(test);
-                    test.assertSuccess(true, folder.create());
+                    test.assertSuccess(null, folder.create());
                     test.assertSuccess(folder.createFile("file.java"));
-
-                    final Result<Iterable<FileSystemEntry>> filesAndFolders = folder.getFilesAndFolders();
-                    test.assertSuccess(filesAndFolders);
-                    test.assertEqual(Array.create(new String[] { "/test/folder/file.java" }), filesAndFolders.getValue().map(FileSystemEntry::toString));
+                    test.assertSuccess(Iterable.create("/test/folder/file.java"), folder.getFilesAndFolders().then((Iterable<FileSystemEntry> entries) -> entries.map(FileSystemEntry::toString)));
                 });
 
                 runner.test("when folder exists and has one child file and one child folder", (Test test) ->
                 {
                     final Folder folder = getFolder(test);
-                    test.assertSuccess(true, folder.create());
+                    test.assertSuccess(null, folder.create());
                     test.assertSuccess(folder.createFile("file.java"));
                     test.assertSuccess(folder.createFolder("childfolder"));
-
-                    final Result<Iterable<FileSystemEntry>> filesAndFolders = folder.getFilesAndFolders();
-                    test.assertSuccess(filesAndFolders);
-                    test.assertEqual(Array.create(new String[] { "/test/folder/childfolder", "/test/folder/file.java" }), filesAndFolders.getValue().map(FileSystemEntry::toString));
+                    test.assertSuccess(
+                        Iterable.create(
+                            "/test/folder/childfolder",
+                            "/test/folder/file.java"),
+                        folder.getFilesAndFolders().then((Iterable<FileSystemEntry> entries) -> entries.map(FileSystemEntry::toString)));
                 });
             });
 

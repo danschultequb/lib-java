@@ -41,9 +41,7 @@ public class FileTests
                     runner.test("with " + Strings.escapeAndQuote(filePath), (Test test) ->
                     {
                         final FileSystem fileSystem = getFileSystem(test);
-                        final File file = fileSystem.getFile(filePath).getValue();
-                        final String nameWithoutFileExtension = file.getNameWithoutFileExtension();
-                        test.assertEqual(expectedNameWithoutFileExtension, nameWithoutFileExtension);
+                        test.assertSuccess(expectedNameWithoutFileExtension, fileSystem.getFile(filePath).then(File::getNameWithoutFileExtension));
                     });
                 };
 
@@ -55,13 +53,13 @@ public class FileTests
             {
                 final File file = getFile(test);
 
-                test.assertTrue(file.create().getValue());
+                test.assertSuccess(null, file.create());
 
                 test.assertTrue(file.exists().getValue());
 
                 test.assertEqual(new byte[0], file.getContents().getValue());
 
-                test.assertFalse(file.create().getValue());
+                test.assertError(new FileAlreadyExistsException(file.toString()), file.create());
 
                 test.assertTrue(file.exists().getValue());
             });
@@ -87,8 +85,8 @@ public class FileTests
                 runner.test("when file doesn't exist", (Test test) ->
                 {
                     final File file = getFile(test);
-                    test.assertFalse(file.delete().getValue());
-                    test.assertFalse(file.exists().getValue());
+                    test.assertError(new FileNotFoundException(file.toString()), file.delete());
+                    test.assertSuccess(false, file.exists());
                 });
 
                 runner.test("when file does exist", (Test test) ->
@@ -96,7 +94,7 @@ public class FileTests
                     final File file = getFile(test);
                     file.create();
 
-                    test.assertTrue(file.delete().getValue());
+                    test.assertSuccess(null, file.delete());
                     test.assertFalse(file.exists().getValue());
                 });
             });

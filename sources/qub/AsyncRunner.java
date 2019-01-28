@@ -225,7 +225,7 @@ public interface AsyncRunner extends Disposable
      */
     default <T> AsyncFunction<Result<T>> success()
     {
-        return done(null, null);
+        return done(Result.success());
     }
 
     /**
@@ -248,18 +248,6 @@ public interface AsyncRunner extends Disposable
     default <T> AsyncFunction<Result<T>> error(Throwable error)
     {
         return done(Result.<T>error(error));
-    }
-
-    /**
-     * Create an AsyncFunction that returns a Result with the provided value and error.
-     * @param value The value to set in the Result.
-     * @param error The error to set in the Result.
-     * @param <T> The type of the value.
-     * @return An AsyncFunction that returns a Result with the provided value and error.
-     */
-    default <T> AsyncFunction<Result<T>> done(T value, Throwable error)
-    {
-        return done(Result.done(value, error));
     }
 
     /**

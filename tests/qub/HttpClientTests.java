@@ -18,8 +18,16 @@ public class HttpClientTests
                 {
                     final HttpClient httpClient = creator.run(test);
                     final MutableHttpRequest httpRequest = new MutableHttpRequest(HttpMethod.GET, URL.parse("http://www.idontexistbecauseimnotagoodurl.com").throwErrorOrGetValue());
-                    final Result<HttpResponse> httpResponse = httpClient.send(httpRequest);
-                    test.assertError(new java.net.UnknownHostException("www.idontexistbecauseimnotagoodurl.com"), httpResponse);
+                    httpClient.send(httpRequest)
+                        .onError((Throwable error) ->
+                        {
+                            test.assertInstanceOf(error, java.net.UnknownHostException.class);
+                            test.assertEqual("www.idontexistbecauseimnotagoodurl.com", error.getMessage());
+                        })
+                        .then((HttpResponse response) ->
+                        {
+                            test.fail();
+                        });
                 });
 
                 runner.test("with GET request to www.example.com", runner.skip(!runner.hasNetworkConnection()), (Test test) ->

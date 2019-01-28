@@ -2,12 +2,6 @@ package qub;
 
 public class UTF8CharacterEncoding implements CharacterEncoding
 {
-    /**
-     * A character that will be used to represent an invalid character encoding.
-     * https://en.wikipedia.org/wiki/Specials_(Unicode_block)#Replacement_character
-     */
-    public static final char replacementCharacter = (char)0xFFFD;
-
     @Override
     public Result<byte[]> encode(char[] characters, int startIndex, int length)
     {
@@ -97,7 +91,9 @@ public class UTF8CharacterEncoding implements CharacterEncoding
                 break;
             }
         }
-        return Result.done(Array.toCharArray(characters), ErrorIterable.from(errors));
+        return Iterable.isNullOrEmpty(errors)
+            ? Result.success(Array.toCharArray(characters))
+            : Result.error(ErrorIterable.from(errors));
     }
 
     @Override
@@ -121,7 +117,7 @@ public class UTF8CharacterEncoding implements CharacterEncoding
                     break;
 
                 case 1:
-                    result = Result.done(replacementCharacter, new IllegalArgumentException("Expected a leading byte, but found a continuation byte (" + Bytes.toHexString(firstByte) + ") instead."));
+                    result = Result.error(new IllegalArgumentException("Expected a leading byte, but found a continuation byte (" + Bytes.toHexString(firstByte) + ") instead."));
                     break;
 
                 case 2:
@@ -131,7 +127,7 @@ public class UTF8CharacterEncoding implements CharacterEncoding
                     break;
 
                 default:
-                    result = Result.done(replacementCharacter, new IllegalArgumentException("Found an invalid leading byte (" + Bytes.toHexString(firstByte) + ")."));
+                    result = Result.error(new IllegalArgumentException("Found an invalid leading byte (" + Bytes.toHexString(firstByte) + ")."));
                     break;
             }
         }
@@ -146,14 +142,14 @@ public class UTF8CharacterEncoding implements CharacterEncoding
             case 2:
                 if (!bytes.next() || bytes.getCurrent() == null)
                 {
-                    result = Result.done(replacementCharacter, new IllegalArgumentException("Missing second byte in 2-byte character sequence."));
+                    result = Result.error(new IllegalArgumentException("Missing second byte in 2-byte character sequence."));
                 }
                 else
                 {
                     final int unsignedFirstByte = Bytes.toUnsignedInt(firstByte);
                     if (0xD8 <= unsignedFirstByte && unsignedFirstByte <= 0xDF)
                     {
-                        result = Result.done(replacementCharacter, new IllegalArgumentException("Byte " + Bytes.toHexString(firstByte, true) + " is invalid because bytes between 0xD800 and 0xDFFF are reserved in UTF-8 encoding."));
+                        result = Result.error(new IllegalArgumentException("Byte " + Bytes.toHexString(firstByte, true) + " is invalid because bytes between 0xD800 and 0xDFFF are reserved in UTF-8 encoding."));
                     }
                     else
                     {
@@ -161,7 +157,7 @@ public class UTF8CharacterEncoding implements CharacterEncoding
                         final int secondByteSignificantBitCount = Bytes.getSignificantBitCount(secondByte);
                         if (secondByteSignificantBitCount != 1)
                         {
-                            result = Result.done(replacementCharacter, new IllegalArgumentException("Expected continuation byte (10xxxxxx), but found " + Bytes.toHexString(secondByte) + " instead."));
+                            result = Result.error(new IllegalArgumentException("Expected continuation byte (10xxxxxx), but found " + Bytes.toHexString(secondByte) + " instead."));
                         }
                         else
                         {
@@ -179,7 +175,7 @@ public class UTF8CharacterEncoding implements CharacterEncoding
                 {
                     bytes.next();
                 }
-                result = Result.done(replacementCharacter, new NotSupportedException("Decoding UTF-8 encoded byte streams with characters composed of 3 or more bytes are not supported."));
+                result = Result.error(new NotSupportedException("Decoding UTF-8 encoded byte streams with characters composed of 3 or more bytes are not supported."));
                 break;
         }
 

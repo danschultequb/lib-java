@@ -58,26 +58,19 @@ public class File extends FileSystemEntry
      * Create this File and return whether or not it was created as a result of this function.
      * @return Whether or not this function created the file.
      */
-    public Result<Boolean> create()
+    public Result<Void> create()
     {
-        final Result<File> createResult = getFileSystem().createFile(getPath());
-        final Throwable error = createResult.getError();
-        final boolean created = !(error instanceof FileAlreadyExistsException || error instanceof RootNotFoundException);
-        return Result.done(created, error);
+        return getFileSystem().createFile(getPath()).then(() -> {});
     }
 
     /**
      * Create this File and return whether or not it was created as a result of this function.
      * @return Whether or not this function created the file.
      */
-    public AsyncFunction<Result<Boolean>> createAsync()
+    public AsyncFunction<Result<Void>> createAsync()
     {
-        return getFileSystem().createFileAsync(getPath()).then((Result<File> createResult) ->
-        {
-            final Throwable error = createResult.getError();
-            final boolean created = !(error instanceof FileAlreadyExistsException || error instanceof RootNotFoundException);
-            return Result.done(created, error);
-        });
+        return getFileSystem().createFileAsync(getPath())
+            .then((Result<File> createResult) -> createResult.then(() -> {}));
     }
 
     /**
@@ -99,13 +92,13 @@ public class File extends FileSystemEntry
     }
 
     @Override
-    public Result<Boolean> delete()
+    public Result<Void> delete()
     {
         return getFileSystem().deleteFile(getPath());
     }
 
     @Override
-    public AsyncFunction<Result<Boolean>> deleteAsync()
+    public AsyncFunction<Result<Void>> deleteAsync()
     {
         return getFileSystem().deleteFileAsync(getPath());
     }

@@ -796,7 +796,7 @@ public class Process implements Disposable
                 error = ErrorIterable.from(error, parallelAsyncRunner.dispose().getError());
             }
 
-            result = Result.done(disposed, error);
+            result = error == null ? Result.success(disposed) : Result.error(error);
         }
         return result;
     }

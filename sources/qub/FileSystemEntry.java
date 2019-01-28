@@ -64,14 +64,14 @@ public abstract class FileSystemEntry
      * entry.
      * @return Whether or not this function deleted the entry.
      */
-    public abstract Result<Boolean> delete();
+    public abstract Result<Void> delete();
 
     /**
      * Attempt to delete this FileSystemEntry. Return whether or not this function deleted the
      * entry.
      * @return Whether or not this function deleted the entry.
      */
-    public abstract AsyncFunction<Result<Boolean>> deleteAsync();
+    public abstract AsyncFunction<Result<Void>> deleteAsync();
 
     @Override
     public String toString()

@@ -144,7 +144,7 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
                 ++bytesRead;
             }
         }
-        return Result.done(bytesRead, error);
+        return error == null ? Result.success(bytesRead) : Result.error(error);
     }
 
     /**
