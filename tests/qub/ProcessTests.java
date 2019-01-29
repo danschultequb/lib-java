@@ -594,6 +594,85 @@ public class ProcessTests
                     }
                 });
 
+                runner.test("with non-existing working folder", (Test test) ->
+                {
+                    try (final Process process = creator.run())
+                    {
+                        test.assertSuccess(process.getProcessBuilder("javac"),
+                            (ProcessBuilder builder) ->
+                            {
+                                final StringBuilder output = new StringBuilder();
+                                builder.redirectOutputTo(output);
+                                builder.redirectErrorTo(output);
+
+                                final Folder workingFolder = test.getProcess().getCurrentFolder()
+                                    .thenResult((Folder currentFolder) -> currentFolder.getFolder("I don't exist"))
+                                    .throwErrorOrGetValue();
+                                builder.setWorkingFolder(workingFolder);
+                                final java.io.IOException expectedError = new java.io.IOException("Cannot run program \"C:/Program Files/Java/jdk-11.0.1/bin/javac.exe\" (in directory \"C:\\Users\\dansc\\Sources\\qub-java\\I don't exist\"): CreateProcess error=267, The directory name is invalid",
+                                    new java.io.IOException("CreateProcess error=267, The directory name is invalid"));
+                                test.assertError(expectedError, builder.run());
+
+                                test.assertEqual("", output.toString());
+                            });
+                    }
+                });
+
+                runner.test("with existing working folder (a child folder of the current folder)", (Test test) ->
+                {
+                    try (final Process process = creator.run())
+                    {
+                        test.assertSuccess(process.getProcessBuilder("javac"),
+                            (ProcessBuilder builder) ->
+                            {
+                                final StringBuilder output = new StringBuilder();
+                                builder.redirectOutputTo(output);
+                                builder.redirectErrorTo(output);
+
+                                final Folder workingFolder = test.getProcess().getCurrentFolder()
+                                    .thenResult((Folder currentFolder) -> currentFolder.createFolder("temp"))
+                                    .throwErrorOrGetValue();
+                                try
+                                {
+                                    builder.setWorkingFolder(workingFolder);
+                                    test.assertSuccess(2, builder.run());
+
+                                    final String outputString = output.toString();
+                                    test.assertNotNullAndNotEmpty(outputString);
+                                    test.assertTrue(outputString.contains("javac <options> <source files>"), "Process output (" + outputString + ") should have contained \"javac <options> <source files>\".");
+                                    test.assertTrue(outputString.contains("Terminate compilation if warnings occur"), "Process output (" + outputString + ") should have contained \"Terminate compilation if warnings occur\".");
+                                }
+                                finally
+                                {
+                                    test.assertSuccess(workingFolder.delete());
+                                }
+                            });
+                    }
+                });
+
+                runner.test("with existing working folder (the current folder)", (Test test) ->
+                {
+                    try (final Process process = creator.run())
+                    {
+                        test.assertSuccess(process.getProcessBuilder("javac"),
+                            (ProcessBuilder builder) ->
+                            {
+                                final StringBuilder output = new StringBuilder();
+                                builder.redirectOutputTo(output);
+                                builder.redirectErrorTo(output);
+
+                                final Folder workingFolder = test.getProcess().getCurrentFolder().throwErrorOrGetValue();
+                                builder.setWorkingFolder(workingFolder);
+                                test.assertSuccess(2, builder.run());
+
+                                final String outputString = output.toString();
+                                test.assertNotNullAndNotEmpty(outputString);
+                                test.assertTrue(outputString.contains("javac <options> <source files>"), "Process output (" + outputString + ") should have contained \"javac <options> <source files>\".");
+                                test.assertTrue(outputString.contains("Terminate compilation if warnings occur"), "Process output (" + outputString + ") should have contained \"Terminate compilation if warnings occur\".");
+                            });
+                    }
+                });
+
                 runner.test("with path without file extension relative to PATH environment variable with redirected output", (Test test) ->
                 {
                     try (final Process process = creator.run())
