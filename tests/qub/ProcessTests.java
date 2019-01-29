@@ -551,7 +551,7 @@ public class ProcessTests
                             final ProcessBuilder builder = process.getProcessBuilder("C:/Program Files/Java/jdk1.8.0_192/bin/javac.exe").getValue();
                             test.assertEqual("javac.exe", builder.getExecutableFile().getPath().getSegments().last());
                             test.assertEqual(0, builder.getArgumentCount());
-                            test.assertEqual(2, builder.run());
+                            test.assertSuccess(2, builder.run());
                         }
                     }
                 });
@@ -565,7 +565,7 @@ public class ProcessTests
                             final ProcessBuilder builder = process.getProcessBuilder("javac.exe").getValue();
                             test.assertEqual("javac.exe", builder.getExecutableFile().getPath().getSegments().last());
                             test.assertEqual(0, builder.getArgumentCount());
-                            test.assertEqual(2, builder.run());
+                            test.assertSuccess(2, builder.run());
                         }
                     }
                 });
@@ -584,7 +584,7 @@ public class ProcessTests
                             builder.redirectOutputTo(output);
                             builder.redirectErrorTo(output);
 
-                            test.assertEqual(2, builder.run());
+                            test.assertSuccess(2, builder.run());
 
                             final String outputString = output.toString();
                             test.assertNotNullAndNotEmpty(outputString);
@@ -607,7 +607,7 @@ public class ProcessTests
                             final InMemoryByteStream output = new InMemoryByteStream();
                             builder.redirectOutput(output);
 
-                            test.assertEqual(0, builder.run());
+                            test.assertSuccess(0, builder.run());
 
                             final String outputString = new String(output.getBytes());
                             test.assertNotNullAndNotEmpty(outputString);
@@ -628,7 +628,7 @@ public class ProcessTests
                             final InMemoryByteStream error = new InMemoryByteStream();
                             builder.redirectError(error);
 
-                            test.assertEqual(2, builder.run());
+                            test.assertSuccess(2, builder.run());
 
                             final String errorString = new String(error.getBytes());
                             test.assertTrue(errorString.contains("file not found: notfound.java"));

@@ -373,9 +373,9 @@ public class ProcessBuilder
 
     /**
      * Create a process with this ProcessBuilder's properties and wait for the process to complete.
-     * @return The exit code of the Process, or null if the process couldn't start.
+     * @return The exit code of the Process.
      */
-    public Integer run()
+    public Result<Integer> run()
     {
         final java.lang.ProcessBuilder builder = new java.lang.ProcessBuilder(executableFile.getPath().toString());
 
@@ -402,7 +402,7 @@ public class ProcessBuilder
             builder.redirectError();
         }
 
-        Integer result = null;
+        Result<Integer> result;
         try
         {
             final java.lang.Process process = builder.start();
@@ -419,7 +419,7 @@ public class ProcessBuilder
                 errorAction = parallelAsyncRunner.schedule(() -> redirectErrorAction.run(new InputStreamToByteReadStream(process.getErrorStream(), parallelAsyncRunner)));
             }
 
-            result = process.waitFor();
+            result = Result.success(process.waitFor());
             if (outputAction != null)
             {
                 outputAction.await();
@@ -429,8 +429,9 @@ public class ProcessBuilder
                 errorAction.await();
             }
         }
-        catch (IOException | InterruptedException ignored)
+        catch (Throwable error)
         {
+            result = Result.error(error);
         }
 
         return result;
@@ -440,7 +441,7 @@ public class ProcessBuilder
      * Create a process with this ProcessBuilder's properties and wait for the process to complete.
      * @return The exit code of the Process, or null if the process couldn't start.
      */
-    public AsyncFunction<Integer> runAsync()
+    public AsyncFunction<Result<Integer>> runAsync()
     {
         return parallelAsyncRunner.scheduleSingle(this::run);
     }
