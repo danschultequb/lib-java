@@ -702,18 +702,21 @@ public class Process implements Disposable
                 result = null;
 
                 final String pathEnvironmentVariable = getEnvironmentVariable("path");
-                final Iterable<String> pathStrings = Array.create(pathEnvironmentVariable.split(";"));
-                for (final String pathString : pathStrings)
+                if (!Strings.isNullOrEmpty(pathEnvironmentVariable))
                 {
-                    final Path path = Path.parse(pathString);
-                    if (path != null)
+                    final Iterable<String> pathStrings = Array.create(pathEnvironmentVariable.split(";"));
+                    for (final String pathString : pathStrings)
                     {
-                        final Path resolvedExecutablePath = path.concatenateSegment(executablePath);
-                        final Result<File> pathStringExecutableFileResult = getExecutableFile(resolvedExecutablePath, checkExtensions);
-                        if (!pathStringExecutableFileResult.hasError())
+                        if (!Strings.isNullOrEmpty(pathString))
                         {
-                            result = pathStringExecutableFileResult;
-                            break;
+                            final Path path = Path.parse(pathString);
+                            final Path resolvedExecutablePath = path.concatenateSegment(executablePath);
+                            final Result<File> pathStringExecutableFileResult = getExecutableFile(resolvedExecutablePath, checkExtensions);
+                            if (!pathStringExecutableFileResult.hasError())
+                            {
+                                result = pathStringExecutableFileResult;
+                                break;
+                            }
                         }
                     }
                 }
