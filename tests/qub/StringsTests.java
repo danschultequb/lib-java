@@ -48,7 +48,7 @@ public class StringsTests
                 escapeTest.run(null, null);
                 escapeTest.run("", "");
                 escapeTest.run("abc", "abc");
-                escapeTest.run("\b\f\n\r\t\'\"", "\\b\\f\\n\\r\\t\\\'\\\"");
+                escapeTest.run("\b\f\n\r\t'\"", "\\b\\f\\n\\r\\t'\\\"");
             });
 
             runner.testGroup("quote(String)", () ->
@@ -258,6 +258,75 @@ public class StringsTests
                 getWordsTest.run("a a", Iterable.create("a"));
                 getWordsTest.run("a b", Iterable.create("a", "b"));
                 getWordsTest.run("a1 b", Iterable.create("a1", "b"));
+            });
+
+            runner.testGroup("getLines(String)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    test.assertThrows(() -> Strings.getLines(null), new PreConditionFailure("value cannot be null."));
+                });
+
+                final Action2<String,Iterable<String>> getLinesTest = (String value, Iterable<String> expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(value), (Test test) ->
+                    {
+                        test.assertEqual(expected, Strings.getLines(value));
+                    });
+                };
+
+                getLinesTest.run("", Iterable.empty());
+                getLinesTest.run("   ", Iterable.create("   "));
+                getLinesTest.run("abcd", Iterable.create("abcd"));
+                getLinesTest.run("\n\n\n", Iterable.create("", "", ""));
+                getLinesTest.run("\r\n\n\r", Iterable.create("", "", "\r"));
+                getLinesTest.run("a\nb\r\nc\rd", Iterable.create("a", "b", "c\rd"));
+            });
+
+            runner.testGroup("getLines(String,boolean) with includeNewLineCharacters set to false", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    test.assertThrows(() -> Strings.getLines(null), new PreConditionFailure("value cannot be null."));
+                });
+
+                final Action2<String,Iterable<String>> getLinesTest = (String value, Iterable<String> expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(value), (Test test) ->
+                    {
+                        test.assertEqual(expected, Strings.getLines(value, false));
+                    });
+                };
+
+                getLinesTest.run("", Iterable.empty());
+                getLinesTest.run("   ", Iterable.create("   "));
+                getLinesTest.run("abcd", Iterable.create("abcd"));
+                getLinesTest.run("\n\n\n", Iterable.create("", "", ""));
+                getLinesTest.run("\r\n\n\r", Iterable.create("", "", "\r"));
+                getLinesTest.run("a\nb\r\nc\rd", Iterable.create("a", "b", "c\rd"));
+            });
+
+            runner.testGroup("getLines(String,boolean) with includeNewLineCharacters set to true", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    test.assertThrows(() -> Strings.getLines(null), new PreConditionFailure("value cannot be null."));
+                });
+
+                final Action2<String,Iterable<String>> getLinesTest = (String value, Iterable<String> expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(value), (Test test) ->
+                    {
+                        test.assertEqual(expected, Strings.getLines(value, true));
+                    });
+                };
+
+                getLinesTest.run("", Iterable.empty());
+                getLinesTest.run("   ", Iterable.create("   "));
+                getLinesTest.run("abcd", Iterable.create("abcd"));
+                getLinesTest.run("\n\n\n", Iterable.create("\n", "\n", "\n"));
+                getLinesTest.run("\r\n\n\r", Iterable.create("\r\n", "\n", "\r"));
+                getLinesTest.run("a\nb\r\nc\rd", Iterable.create("a\n", "b\r\n", "c\rd"));
             });
         });
     }

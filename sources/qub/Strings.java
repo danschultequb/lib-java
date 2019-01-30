@@ -434,4 +434,68 @@ public class Strings
     {
         return Strings.compare(lhs, rhs) == Comparison.GreaterThan;
     }
+
+    /**
+     * Get the lines that make up the provided String value.
+     * @param value The value to get the lines from.
+     * @return The lines that make up the provided String value.
+     */
+    public static Iterable<String> getLines(String value)
+    {
+        return getLines(value, false);
+    }
+
+    /**
+     * Get the lines that make up the provided String value.
+     * @param value The value to get the lines from.
+     * @param includeNewLineCharacters Whether or not to include new line sequences (\n and \r\n).
+     * @return The lines that make up the provided String value.
+     */
+    public static Iterable<String> getLines(String value, boolean includeNewLineCharacters)
+    {
+        PreCondition.assertNotNull(value, "value");
+
+        final List<String> result = List.create();
+        int lineStart = 0;
+        int lineLength = 0;
+        final int valueLength = value.length();
+        boolean previousCharacterWasCarriageReturn = false;
+        for (int i = 0; i < valueLength; ++i)
+        {
+            final char currentCharacter = value.charAt(i);
+            ++lineLength;
+
+            if (currentCharacter == '\r')
+            {
+                previousCharacterWasCarriageReturn = true;
+            }
+            else
+            {
+                if (currentCharacter == '\n')
+                {
+                    int lineEnd = lineStart + lineLength;
+                    if (!includeNewLineCharacters)
+                    {
+                        --lineEnd;
+                        if (previousCharacterWasCarriageReturn)
+                        {
+                            --lineEnd;
+                        }
+                    }
+                    result.add(value.substring(lineStart, lineEnd));
+                    lineStart = i + 1;
+                    lineLength = 0;
+                }
+                previousCharacterWasCarriageReturn = false;
+            }
+        }
+        if (lineLength > 0)
+        {
+            result.add(value.substring(lineStart));
+        }
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
 }

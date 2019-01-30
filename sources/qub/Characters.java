@@ -54,41 +54,62 @@ public class Characters
      */
     public static String escape(char character)
     {
+        return Characters.escape(character, Iterable.create('\''));
+    }
+
+    /**
+     * Escape the provided character if it is an escaped character (such as '\n' or '\t').
+     * @param character The character to escape.
+     * @param dontEscape Escape sequences that will not be escaped.
+     * @return The escaped character.
+     */
+    public static String escape(char character, Iterable<Character> dontEscape)
+    {
         String result;
-        switch (character)
+        if (!Iterable.isNullOrEmpty(dontEscape) && dontEscape.contains(character))
         {
-            case '\b':
-                result = "\\b";
-                break;
-
-            case '\f':
-                result = "\\f";
-                break;
-
-            case '\n':
-                result = "\\n";
-                break;
-
-            case '\r':
-                result = "\\r";
-                break;
-
-            case '\t':
-                result = "\\t";
-                break;
-
-            case '\'':
-                result = "\\\'";
-                break;
-
-            case '\"':
-                result = "\\\"";
-                break;
-
-            default:
-                result = java.lang.Character.toString(character);
-                break;
+            result = Characters.toString(character);
         }
+        else
+        {
+            switch (character)
+            {
+                case '\b':
+                    result = "\\b";
+                    break;
+
+                case '\f':
+                    result = "\\f";
+                    break;
+
+                case '\n':
+                    result = "\\n";
+                    break;
+
+                case '\r':
+                    result = "\\r";
+                    break;
+
+                case '\t':
+                    result = "\\t";
+                    break;
+
+                case '\'':
+                    result = "\\\'";
+                    break;
+
+                case '\"':
+                    result = "\\\"";
+                    break;
+
+                default:
+                    result = Characters.toString(character);
+                    break;
+            }
+        }
+
+        PostCondition.assertNotNullAndNotEmpty(result, "result");
+
         return result;
     }
 
