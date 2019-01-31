@@ -11,6 +11,11 @@ public class Result<T>
         this.error = error;
     }
 
+    final public T await()
+    {
+        return throwErrorOrGetValue();
+    }
+
     final public T getValue()
     {
         return value;
@@ -666,6 +671,39 @@ public class Result<T>
     public boolean equals(Result<T> rhs)
     {
         return rhs != null && Comparer.equal(value, rhs.value) && Comparer.equal(error, rhs.error);
+    }
+
+    public static Result<Void> create(Action0 action)
+    {
+        return Result.create(() ->
+        {
+            action.run();
+            return null;
+        });
+    }
+
+    public static <U> Result<U> create(U value)
+    {
+        return new Result<U>(value, null);
+    }
+
+    public static <U> Result<U> create(Function0<U> function)
+    {
+        PreCondition.assertNotNull(function, "function");
+
+        Result<U> result;
+        try
+        {
+            result = Result.success(function.run());
+        }
+        catch (Throwable error)
+        {
+            result = Result.error(error);
+        }
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
     }
 
     public static <U> Result<U> success()

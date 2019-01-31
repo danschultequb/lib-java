@@ -221,6 +221,18 @@ public final class Integers
     }
 
     /**
+     * Parse an Integer from the provided text.
+     * @param text The text to parse.
+     * @return The parsed Integer.
+     */
+    public static Result<Integer> parse(String text)
+    {
+        PreCondition.assertNotNullAndNotEmpty(text, "text");
+
+        return Result.create(() -> java.lang.Integer.parseInt(text));
+    }
+
+    /**
      * Get the bit at the provided bitIndex in the provided value.
      * @param value The int value.
      * @param bitIndex The bitIndex (where 0 is the most significant bit digit).

@@ -138,6 +138,29 @@ public class IntegersTests
                     test.assertEqual(15, Integers.fromHexChar('F'));
                 });
             });
+
+            runner.testGroup("parse(String)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    test.assertThrows(() -> Integers.parse(null), new PreConditionFailure("text cannot be null."));
+                });
+
+                runner.test("with empty", (Test test) ->
+                {
+                    test.assertThrows(() -> Integers.parse(""), new PreConditionFailure("text cannot be empty."));
+                });
+
+                runner.test("with letters", (Test test) ->
+                {
+                    test.assertError(new NumberFormatException("For input string: \"abc\""), Integers.parse("abc"));
+                });
+
+                runner.test("with digits", (Test test) ->
+                {
+                    test.assertSuccess(512, Integers.parse("512"));
+                });
+            });
         });
     }
 }

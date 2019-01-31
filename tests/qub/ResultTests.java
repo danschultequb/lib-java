@@ -50,6 +50,24 @@ public class ResultTests
                 });
             });
 
+            runner.testGroup("await()", () ->
+            {
+                runner.test("with no error", (Test test) ->
+                {
+                    test.assertEqual(null, Result.success().await());
+                });
+
+                runner.test("with RuntimeException", (Test test) ->
+                {
+                    test.assertThrows(() -> Result.error(new RuntimeException("abc")).await(), new RuntimeException("abc"));
+                });
+
+                runner.test("with Exception", (Test test) ->
+                {
+                    test.assertThrows(() -> Result.error(new Exception("abc")).await(), new RuntimeException(new Exception("abc")));
+                });
+            });
+
             runner.testGroup("throwErrorOrGetValue()", () ->
             {
                 runner.test("with no error", (Test test) ->
