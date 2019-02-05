@@ -268,9 +268,20 @@ public class Test
      * @param expected The first value to compare.
      * @param actual The second value to compare.
      */
-    public <T> void assertEqual(byte expected, Byte actual)
+    public void assertEqual(byte expected, Byte actual)
     {
         assertEqual(expected, actual, null);
+    }
+
+    /**
+     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestAssertionFailure
+     * will be thrown.
+     * @param expected The first value to compare.
+     * @param actual The second value to compare.
+     */
+    public void assertEqual(int expected, Byte actual)
+    {
+        assertEqual(expected, actual.intValue());
     }
 
     /**
@@ -754,6 +765,17 @@ public class Test
         {
             throw new TestAssertionFailure(getFullName(), getMessageLines(message, expected, actual));
         }
+    }
+
+    /**
+     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestAssertionFailure
+     * will be thrown.
+     * @param expected The first value to compare.
+     * @param actual The second value to compare.
+     */
+    public void assertEqual(byte[] expected, Iterable<Byte> actual)
+    {
+        assertEqual(expected, actual, null);
     }
 
     /**

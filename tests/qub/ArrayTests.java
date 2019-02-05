@@ -557,9 +557,32 @@ public class ArrayTests
 
             runner.testGroup("copy(byte[],int,byte[],int,int)", () ->
             {
+                final Action6<byte[],Integer,byte[],Integer,Integer,RuntimeException> copyErrorTest = (byte[] copyFrom, Integer copyFromStartIndex, byte[] copyTo, Integer copyToStartIndex, Integer length, RuntimeException expectedError) ->
+                {
+                    runner.test("copy " + Array.toString(copyFrom) + " at index " + copyFromStartIndex + " to " + Array.toString(copyTo) + " at index " + copyToStartIndex + " for length " + length, (Test test) ->
+                    {
+                        final byte[] copyFromClone = Array.clone(copyFrom);
+                        final byte[] copyToClone = Array.clone(copyTo);
+
+                        test.assertThrows(() -> Array.copy(copyFrom, copyFromStartIndex, copyTo, copyToStartIndex, length), expectedError);
+
+                        test.assertEqual(copyFromClone, copyFrom);
+                        test.assertEqual(copyToClone, copyTo);
+                    });
+                };
+
+                copyErrorTest.run(null, 0, new byte[0], 0, 0, new PreConditionFailure("copyFrom cannot be null."));
+                copyErrorTest.run(new byte[0], -1, new byte[0], 0, 0, new PreConditionFailure("copyFromStartIndex (-1) must be equal to 0."));
+                copyErrorTest.run(new byte[0], 1, new byte[0], 0, 0, new PreConditionFailure("copyFromStartIndex (1) must be equal to 0."));
+                copyErrorTest.run(new byte[0], 0, null, 0, 0, new PreConditionFailure("copyTo cannot be null."));
+                copyErrorTest.run(new byte[0], 0, new byte[0], -1, 0, new PreConditionFailure("copyToStartIndex (-1) must be equal to 0."));
+                copyErrorTest.run(new byte[0], 0, new byte[0], 1, 0, new PreConditionFailure("copyToStartIndex (1) must be equal to 0."));
+                copyErrorTest.run(new byte[0], 0, new byte[0], 0, -1, new PreConditionFailure("length (-1) must be equal to 0."));
+                copyErrorTest.run(new byte[0], 0, new byte[0], 0, 1, new PreConditionFailure("length (1) must be equal to 0."));
+
                 final Action6<byte[],Integer,byte[],Integer,Integer,byte[]> copyTest = (byte[] copyFrom, Integer copyFromStartIndex, byte[] copyTo, Integer copyToStartIndex, Integer length, byte[] expectedBytes) ->
                 {
-                    runner.test("create " + Array.toString(copyFrom) + " at index " + copyFromStartIndex + " to " + Array.toString(copyTo) + " at index " + copyToStartIndex + " for length " + length, (Test test) ->
+                    runner.test("copy " + Array.toString(copyFrom) + " at index " + copyFromStartIndex + " to " + Array.toString(copyTo) + " at index " + copyToStartIndex + " for length " + length, (Test test) ->
                     {
                         final byte[] copyFromClone = Array.clone(copyFrom);
 
@@ -570,249 +593,12 @@ public class ArrayTests
                     });
                 };
 
-                copyTest.run(null, -1, null, -1, -1, null);
-                copyTest.run(null, -1, null, -1, 0, null);
-                copyTest.run(null, -1, null, -1, 1, null);
-                copyTest.run(null, -1, null, 0, -1, null);
-                copyTest.run(null, -1, null, 0, 0, null);
-                copyTest.run(null, -1, null, 0, 1, null);
-                copyTest.run(null, -1, null, 1, -1, null);
-                copyTest.run(null, -1, null, 1, 0, null);
-                copyTest.run(null, -1, null, 1, 1, null);
-                copyTest.run(null, -1, new byte[0], -1, -1, new byte[0]);
-                copyTest.run(null, -1, new byte[0], -1, 0, new byte[0]);
-                copyTest.run(null, -1, new byte[0], -1, 1, new byte[0]);
-                copyTest.run(null, -1, new byte[0], 0, -1, new byte[0]);
-                copyTest.run(null, -1, new byte[0], 0, 0, new byte[0]);
-                copyTest.run(null, -1, new byte[0], 0, 1, new byte[0]);
-                copyTest.run(null, -1, new byte[0], 1, -1, new byte[0]);
-                copyTest.run(null, -1, new byte[0], 1, 0, new byte[0]);
-                copyTest.run(null, -1, new byte[0], 1, 1, new byte[0]);
-                copyTest.run(null, -1, new byte[] { 2 }, -1, -1, new byte[] { 2 });
-                copyTest.run(null, -1, new byte[] { 2 }, -1, 0, new byte[] { 2 });
-                copyTest.run(null, -1, new byte[] { 2 }, -1, 1, new byte[] { 2 });
-                copyTest.run(null, -1, new byte[] { 2 }, 0, -1, new byte[] { 2 });
-                copyTest.run(null, -1, new byte[] { 2 }, 0, 0, new byte[] { 2 });
-                copyTest.run(null, -1, new byte[] { 2 }, 0, 1, new byte[] { 2 });
-                copyTest.run(null, -1, new byte[] { 2 }, 1, -1, new byte[] { 2 });
-                copyTest.run(null, -1, new byte[] { 2 }, 1, 0, new byte[] { 2 });
-                copyTest.run(null, -1, new byte[] { 2 }, 1, 1, new byte[] { 2 });
-                copyTest.run(null, 0, null, -1, -1, null);
-                copyTest.run(null, 0, null, -1, 0, null);
-                copyTest.run(null, 0, null, -1, 1, null);
-                copyTest.run(null, 0, null, 0, -1, null);
-                copyTest.run(null, 0, null, 0, 0, null);
-                copyTest.run(null, 0, null, 0, 1, null);
-                copyTest.run(null, 0, null, 1, -1, null);
-                copyTest.run(null, 0, null, 1, 0, null);
-                copyTest.run(null, 0, null, 1, 1, null);
-                copyTest.run(null, 0, new byte[0], -1, -1, new byte[0]);
-                copyTest.run(null, 0, new byte[0], -1, 0, new byte[0]);
-                copyTest.run(null, 0, new byte[0], -1, 1, new byte[0]);
-                copyTest.run(null, 0, new byte[0], 0, -1, new byte[0]);
-                copyTest.run(null, 0, new byte[0], 0, 0, new byte[0]);
-                copyTest.run(null, 0, new byte[0], 0, 1, new byte[0]);
-                copyTest.run(null, 0, new byte[0], 1, -1, new byte[0]);
-                copyTest.run(null, 0, new byte[0], 1, 0, new byte[0]);
-                copyTest.run(null, 0, new byte[0], 1, 1, new byte[0]);
-                copyTest.run(null, 0, new byte[] { 2 }, -1, -1, new byte[] { 2 });
-                copyTest.run(null, 0, new byte[] { 2 }, -1, 0, new byte[] { 2 });
-                copyTest.run(null, 0, new byte[] { 2 }, -1, 1, new byte[] { 2 });
-                copyTest.run(null, 0, new byte[] { 2 }, 0, -1, new byte[] { 2 });
-                copyTest.run(null, 0, new byte[] { 2 }, 0, 0, new byte[] { 2 });
-                copyTest.run(null, 0, new byte[] { 2 }, 0, 1, new byte[] { 2 });
-                copyTest.run(null, 0, new byte[] { 2 }, 1, -1, new byte[] { 2 });
-                copyTest.run(null, 0, new byte[] { 2 }, 1, 0, new byte[] { 2 });
-                copyTest.run(null, 0, new byte[] { 2 }, 1, 1, new byte[] { 2 });
-                copyTest.run(null, 1, null, -1, -1, null);
-                copyTest.run(null, 1, null, -1, 0, null);
-                copyTest.run(null, 1, null, -1, 1, null);
-                copyTest.run(null, 1, null, 0, -1, null);
-                copyTest.run(null, 1, null, 0, 0, null);
-                copyTest.run(null, 1, null, 0, 1, null);
-                copyTest.run(null, 1, null, 1, -1, null);
-                copyTest.run(null, 1, null, 1, 0, null);
-                copyTest.run(null, 1, null, 1, 1, null);
-                copyTest.run(null, 1, new byte[0], -1, -1, new byte[0]);
-                copyTest.run(null, 1, new byte[0], -1, 0, new byte[0]);
-                copyTest.run(null, 1, new byte[0], -1, 1, new byte[0]);
-                copyTest.run(null, 1, new byte[0], 0, -1, new byte[0]);
-                copyTest.run(null, 1, new byte[0], 0, 0, new byte[0]);
-                copyTest.run(null, 1, new byte[0], 0, 1, new byte[0]);
-                copyTest.run(null, 1, new byte[0], 1, -1, new byte[0]);
-                copyTest.run(null, 1, new byte[0], 1, 0, new byte[0]);
-                copyTest.run(null, 1, new byte[0], 1, 1, new byte[0]);
-                copyTest.run(null, 1, new byte[] { 2 }, -1, -1, new byte[] { 2 });
-                copyTest.run(null, 1, new byte[] { 2 }, -1, 0, new byte[] { 2 });
-                copyTest.run(null, 1, new byte[] { 2 }, -1, 1, new byte[] { 2 });
-                copyTest.run(null, 1, new byte[] { 2 }, 0, -1, new byte[] { 2 });
-                copyTest.run(null, 1, new byte[] { 2 }, 0, 0, new byte[] { 2 });
-                copyTest.run(null, 1, new byte[] { 2 }, 0, 1, new byte[] { 2 });
-                copyTest.run(null, 1, new byte[] { 2 }, 1, -1, new byte[] { 2 });
-                copyTest.run(null, 1, new byte[] { 2 }, 1, 0, new byte[] { 2 });
-                copyTest.run(null, 1, new byte[] { 2 }, 1, 1, new byte[] { 2 });
-                copyTest.run(new byte[0], -1, null, -1, -1, null);
-                copyTest.run(new byte[0], -1, null, -1, 0, null);
-                copyTest.run(new byte[0], -1, null, -1, 1, null);
-                copyTest.run(new byte[0], -1, null, 0, -1, null);
-                copyTest.run(new byte[0], -1, null, 0, 0, null);
-                copyTest.run(new byte[0], -1, null, 0, 1, null);
-                copyTest.run(new byte[0], -1, null, 1, -1, null);
-                copyTest.run(new byte[0], -1, null, 1, 0, null);
-                copyTest.run(new byte[0], -1, null, 1, 1, null);
-                copyTest.run(new byte[0], -1, new byte[0], -1, -1, new byte[0]);
-                copyTest.run(new byte[0], -1, new byte[0], -1, 0, new byte[0]);
-                copyTest.run(new byte[0], -1, new byte[0], -1, 1, new byte[0]);
-                copyTest.run(new byte[0], -1, new byte[0], 0, -1, new byte[0]);
-                copyTest.run(new byte[0], -1, new byte[0], 0, 0, new byte[0]);
-                copyTest.run(new byte[0], -1, new byte[0], 0, 1, new byte[0]);
-                copyTest.run(new byte[0], -1, new byte[0], 1, -1, new byte[0]);
-                copyTest.run(new byte[0], -1, new byte[0], 1, 0, new byte[0]);
-                copyTest.run(new byte[0], -1, new byte[0], 1, 1, new byte[0]);
-                copyTest.run(new byte[0], -1, new byte[] { 2 }, -1, -1, new byte[] { 2 });
-                copyTest.run(new byte[0], -1, new byte[] { 2 }, -1, 0, new byte[] { 2 });
-                copyTest.run(new byte[0], -1, new byte[] { 2 }, -1, 1, new byte[] { 2 });
-                copyTest.run(new byte[0], -1, new byte[] { 2 }, 0, -1, new byte[] { 2 });
-                copyTest.run(new byte[0], -1, new byte[] { 2 }, 0, 0, new byte[] { 2 });
-                copyTest.run(new byte[0], -1, new byte[] { 2 }, 0, 1, new byte[] { 2 });
-                copyTest.run(new byte[0], -1, new byte[] { 2 }, 1, -1, new byte[] { 2 });
-                copyTest.run(new byte[0], -1, new byte[] { 2 }, 1, 0, new byte[] { 2 });
-                copyTest.run(new byte[0], -1, new byte[] { 2 }, 1, 1, new byte[] { 2 });
-                copyTest.run(new byte[0], 0, null, -1, -1, null);
-                copyTest.run(new byte[0], 0, null, -1, 0, null);
-                copyTest.run(new byte[0], 0, null, -1, 1, null);
-                copyTest.run(new byte[0], 0, null, 0, -1, null);
-                copyTest.run(new byte[0], 0, null, 0, 0, null);
-                copyTest.run(new byte[0], 0, null, 0, 1, null);
-                copyTest.run(new byte[0], 0, null, 1, -1, null);
-                copyTest.run(new byte[0], 0, null, 1, 0, null);
-                copyTest.run(new byte[0], 0, null, 1, 1, null);
-                copyTest.run(new byte[0], 0, new byte[0], -1, -1, new byte[0]);
-                copyTest.run(new byte[0], 0, new byte[0], -1, 0, new byte[0]);
-                copyTest.run(new byte[0], 0, new byte[0], -1, 1, new byte[0]);
-                copyTest.run(new byte[0], 0, new byte[0], 0, -1, new byte[0]);
                 copyTest.run(new byte[0], 0, new byte[0], 0, 0, new byte[0]);
-                copyTest.run(new byte[0], 0, new byte[0], 0, 1, new byte[0]);
-                copyTest.run(new byte[0], 0, new byte[0], 1, -1, new byte[0]);
-                copyTest.run(new byte[0], 0, new byte[0], 1, 0, new byte[0]);
-                copyTest.run(new byte[0], 0, new byte[0], 1, 1, new byte[0]);
-                copyTest.run(new byte[0], 0, new byte[] { 2 }, -1, -1, new byte[] { 2 });
-                copyTest.run(new byte[0], 0, new byte[] { 2 }, -1, 0, new byte[] { 2 });
-                copyTest.run(new byte[0], 0, new byte[] { 2 }, -1, 1, new byte[] { 2 });
-                copyTest.run(new byte[0], 0, new byte[] { 2 }, 0, -1, new byte[] { 2 });
                 copyTest.run(new byte[0], 0, new byte[] { 2 }, 0, 0, new byte[] { 2 });
-                copyTest.run(new byte[0], 0, new byte[] { 2 }, 0, 1, new byte[] { 2 });
-                copyTest.run(new byte[0], 0, new byte[] { 2 }, 1, -1, new byte[] { 2 });
-                copyTest.run(new byte[0], 0, new byte[] { 2 }, 1, 0, new byte[] { 2 });
-                copyTest.run(new byte[0], 0, new byte[] { 2 }, 1, 1, new byte[] { 2 });
-                copyTest.run(new byte[0], 1, null, -1, -1, null);
-                copyTest.run(new byte[0], 1, null, -1, 0, null);
-                copyTest.run(new byte[0], 1, null, -1, 1, null);
-                copyTest.run(new byte[0], 1, null, 0, -1, null);
-                copyTest.run(new byte[0], 1, null, 0, 0, null);
-                copyTest.run(new byte[0], 1, null, 0, 1, null);
-                copyTest.run(new byte[0], 1, null, 1, -1, null);
-                copyTest.run(new byte[0], 1, null, 1, 0, null);
-                copyTest.run(new byte[0], 1, null, 1, 1, null);
-                copyTest.run(new byte[0], 1, new byte[0], -1, -1, new byte[0]);
-                copyTest.run(new byte[0], 1, new byte[0], -1, 0, new byte[0]);
-                copyTest.run(new byte[0], 1, new byte[0], -1, 1, new byte[0]);
-                copyTest.run(new byte[0], 1, new byte[0], 0, -1, new byte[0]);
-                copyTest.run(new byte[0], 1, new byte[0], 0, 0, new byte[0]);
-                copyTest.run(new byte[0], 1, new byte[0], 0, 1, new byte[0]);
-                copyTest.run(new byte[0], 1, new byte[0], 1, -1, new byte[0]);
-                copyTest.run(new byte[0], 1, new byte[0], 1, 0, new byte[0]);
-                copyTest.run(new byte[0], 1, new byte[0], 1, 1, new byte[0]);
-                copyTest.run(new byte[0], 1, new byte[] { 2 }, -1, -1, new byte[] { 2 });
-                copyTest.run(new byte[0], 1, new byte[] { 2 }, -1, 0, new byte[] { 2 });
-                copyTest.run(new byte[0], 1, new byte[] { 2 }, -1, 1, new byte[] { 2 });
-                copyTest.run(new byte[0], 1, new byte[] { 2 }, 0, -1, new byte[] { 2 });
-                copyTest.run(new byte[0], 1, new byte[] { 2 }, 0, 0, new byte[] { 2 });
-                copyTest.run(new byte[0], 1, new byte[] { 2 }, 0, 1, new byte[] { 2 });
-                copyTest.run(new byte[0], 1, new byte[] { 2 }, 1, -1, new byte[] { 2 });
-                copyTest.run(new byte[0], 1, new byte[] { 2 }, 1, 0, new byte[] { 2 });
-                copyTest.run(new byte[0], 1, new byte[] { 2 }, 1, 1, new byte[] { 2 });
-                copyTest.run(new byte[] { 1 }, -1, null, -1, -1, null);
-                copyTest.run(new byte[] { 1 }, -1, null, -1, 0, null);
-                copyTest.run(new byte[] { 1 }, -1, null, -1, 1, null);
-                copyTest.run(new byte[] { 1 }, -1, null, 0, -1, null);
-                copyTest.run(new byte[] { 1 }, -1, null, 0, 0, null);
-                copyTest.run(new byte[] { 1 }, -1, null, 0, 1, null);
-                copyTest.run(new byte[] { 1 }, -1, null, 1, -1, null);
-                copyTest.run(new byte[] { 1 }, -1, null, 1, 0, null);
-                copyTest.run(new byte[] { 1 }, -1, null, 1, 1, null);
-                copyTest.run(new byte[] { 1 }, -1, new byte[0], -1, -1, new byte[0]);
-                copyTest.run(new byte[] { 1 }, -1, new byte[0], -1, 0, new byte[0]);
-                copyTest.run(new byte[] { 1 }, -1, new byte[0], -1, 1, new byte[0]);
-                copyTest.run(new byte[] { 1 }, -1, new byte[0], 0, -1, new byte[0]);
-                copyTest.run(new byte[] { 1 }, -1, new byte[0], 0, 0, new byte[0]);
-                copyTest.run(new byte[] { 1 }, -1, new byte[0], 0, 1, new byte[0]);
-                copyTest.run(new byte[] { 1 }, -1, new byte[0], 1, -1, new byte[0]);
-                copyTest.run(new byte[] { 1 }, -1, new byte[0], 1, 0, new byte[0]);
-                copyTest.run(new byte[] { 1 }, -1, new byte[0], 1, 1, new byte[0]);
-                copyTest.run(new byte[] { 1 }, -1, new byte[] { 2 }, -1, -1, new byte[] { 2 });
-                copyTest.run(new byte[] { 1 }, -1, new byte[] { 2 }, -1, 0, new byte[] { 2 });
-                copyTest.run(new byte[] { 1 }, -1, new byte[] { 2 }, -1, 1, new byte[] { 2 });
-                copyTest.run(new byte[] { 1 }, -1, new byte[] { 2 }, 0, -1, new byte[] { 2 });
-                copyTest.run(new byte[] { 1 }, -1, new byte[] { 2 }, 0, 0, new byte[] { 2 });
-                copyTest.run(new byte[] { 1 }, -1, new byte[] { 2 }, 0, 1, new byte[] { 2 });
-                copyTest.run(new byte[] { 1 }, -1, new byte[] { 2 }, 1, -1, new byte[] { 2 });
-                copyTest.run(new byte[] { 1 }, -1, new byte[] { 2 }, 1, 0, new byte[] { 2 });
-                copyTest.run(new byte[] { 1 }, -1, new byte[] { 2 }, 1, 1, new byte[] { 2 });
-                copyTest.run(new byte[] { 1 }, 0, null, -1, -1, null);
-                copyTest.run(new byte[] { 1 }, 0, null, -1, 0, null);
-                copyTest.run(new byte[] { 1 }, 0, null, -1, 1, null);
-                copyTest.run(new byte[] { 1 }, 0, null, 0, -1, null);
-                copyTest.run(new byte[] { 1 }, 0, null, 0, 0, null);
-                copyTest.run(new byte[] { 1 }, 0, null, 0, 1, null);
-                copyTest.run(new byte[] { 1 }, 0, null, 1, -1, null);
-                copyTest.run(new byte[] { 1 }, 0, null, 1, 0, null);
-                copyTest.run(new byte[] { 1 }, 0, null, 1, 1, null);
-                copyTest.run(new byte[] { 1 }, 0, new byte[0], -1, -1, new byte[0]);
-                copyTest.run(new byte[] { 1 }, 0, new byte[0], -1, 0, new byte[0]);
-                copyTest.run(new byte[] { 1 }, 0, new byte[0], -1, 1, new byte[0]);
-                copyTest.run(new byte[] { 1 }, 0, new byte[0], 0, -1, new byte[0]);
                 copyTest.run(new byte[] { 1 }, 0, new byte[0], 0, 0, new byte[0]);
-                copyTest.run(new byte[] { 1 }, 0, new byte[0], 0, 1, new byte[0]);
-                copyTest.run(new byte[] { 1 }, 0, new byte[0], 1, -1, new byte[0]);
-                copyTest.run(new byte[] { 1 }, 0, new byte[0], 1, 0, new byte[0]);
-                copyTest.run(new byte[] { 1 }, 0, new byte[0], 1, 1, new byte[0]);
-                copyTest.run(new byte[] { 1 }, 0, new byte[] { 2 }, -1, -1, new byte[] { 2 });
-                copyTest.run(new byte[] { 1 }, 0, new byte[] { 2 }, -1, 0, new byte[] { 2 });
-                copyTest.run(new byte[] { 1 }, 0, new byte[] { 2 }, -1, 1, new byte[] { 2 });
-                copyTest.run(new byte[] { 1 }, 0, new byte[] { 2 }, 0, -1, new byte[] { 2 });
                 copyTest.run(new byte[] { 1 }, 0, new byte[] { 2 }, 0, 0, new byte[] { 2 });
                 copyTest.run(new byte[] { 1 }, 0, new byte[] { 2 }, 0, 1, new byte[] { 1 });
-                copyTest.run(new byte[] { 1 }, 0, new byte[] { 2 }, 1, -1, new byte[] { 2 });
-                copyTest.run(new byte[] { 1 }, 0, new byte[] { 2 }, 1, 0, new byte[] { 2 });
-                copyTest.run(new byte[] { 1 }, 0, new byte[] { 2 }, 1, 1, new byte[] { 2 });
-                copyTest.run(new byte[] { 1 }, 1, null, -1, -1, null);
-                copyTest.run(new byte[] { 1 }, 1, null, -1, 0, null);
-                copyTest.run(new byte[] { 1 }, 1, null, -1, 1, null);
-                copyTest.run(new byte[] { 1 }, 1, null, 0, -1, null);
-                copyTest.run(new byte[] { 1 }, 1, null, 0, 0, null);
-                copyTest.run(new byte[] { 1 }, 1, null, 0, 1, null);
-                copyTest.run(new byte[] { 1 }, 1, null, 1, -1, null);
-                copyTest.run(new byte[] { 1 }, 1, null, 1, 0, null);
-                copyTest.run(new byte[] { 1 }, 1, null, 1, 1, null);
-                copyTest.run(new byte[] { 1 }, 1, new byte[0], -1, -1, new byte[0]);
-                copyTest.run(new byte[] { 1 }, 1, new byte[0], -1, 0, new byte[0]);
-                copyTest.run(new byte[] { 1 }, 1, new byte[0], -1, 1, new byte[0]);
-                copyTest.run(new byte[] { 1 }, 1, new byte[0], 0, -1, new byte[0]);
-                copyTest.run(new byte[] { 1 }, 1, new byte[0], 0, 0, new byte[0]);
-                copyTest.run(new byte[] { 1 }, 1, new byte[0], 0, 1, new byte[0]);
-                copyTest.run(new byte[] { 1 }, 1, new byte[0], 1, -1, new byte[0]);
-                copyTest.run(new byte[] { 1 }, 1, new byte[0], 1, 0, new byte[0]);
-                copyTest.run(new byte[] { 1 }, 1, new byte[0], 1, 1, new byte[0]);
-                copyTest.run(new byte[] { 1 }, 1, new byte[] { 2 }, -1, -1, new byte[] { 2 });
-                copyTest.run(new byte[] { 1 }, 1, new byte[] { 2 }, -1, 0, new byte[] { 2 });
-                copyTest.run(new byte[] { 1 }, 1, new byte[] { 2 }, -1, 1, new byte[] { 2 });
-                copyTest.run(new byte[] { 1 }, 1, new byte[] { 2 }, 0, -1, new byte[] { 2 });
-                copyTest.run(new byte[] { 1 }, 1, new byte[] { 2 }, 0, 0, new byte[] { 2 });
-                copyTest.run(new byte[] { 1 }, 1, new byte[] { 2 }, 0, 1, new byte[] { 2 });
-                copyTest.run(new byte[] { 1 }, 1, new byte[] { 2 }, 1, -1, new byte[] { 2 });
-                copyTest.run(new byte[] { 1 }, 1, new byte[] { 2 }, 1, 0, new byte[] { 2 });
-                copyTest.run(new byte[] { 1 }, 1, new byte[] { 2 }, 1, 1, new byte[] { 2 });
+                copyTest.run(new byte[] { 0, 1, 2, 3, 4 }, 1, new byte[] { 5, 6, 7, 8, 9, 10, 11 }, 2, 3, new byte[] { 5, 6, 1, 2, 3, 10, 11 });
             });
 
             runner.testGroup("copy(char[],int,char[],int,int)", () ->
@@ -1128,6 +914,202 @@ public class ArrayTests
                 toStringTest.run(new char[] { 'a' }, "['a']");
                 toStringTest.run(new char[] { 'b', 'c' }, "['b','c']");
                 toStringTest.run(new char[] { 'd', 'e', 'f' }, "['d','e','f']");
+            });
+
+            runner.testGroup("shiftLeft(byte[],int,int)", () ->
+            {
+                runner.test("with null values", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.shiftLeft(null, 0, 1),
+                        new PreConditionFailure("values cannot be null."));
+                });
+
+                runner.test("with empty values", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.shiftLeft(new byte[0], 0, 1),
+                        new PreConditionFailure("values cannot be empty."));
+                });
+
+                runner.test("with negative indexToRemove", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.shiftLeft(new byte[] { 0, 1, 2 }, -1, 2),
+                        new PreConditionFailure("indexToRemove (-1) must be between 0 and 1."));
+                });
+
+                runner.test("with indexToRemove equal to values.length - 1", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.shiftLeft(new byte[] { 0, 1, 2 }, 2, 2),
+                        new PreConditionFailure("indexToRemove (2) must be between 0 and 1."));
+                });
+
+                runner.test("with indexToRemove equal to values.length", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.shiftLeft(new byte[] { 0, 1, 2 }, 3, 2),
+                        new PreConditionFailure("indexToRemove (3) must be between 0 and 1."));
+                });
+
+                runner.test("with indexToRemove greater than values.length", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.shiftLeft(new byte[] { 0, 1, 2 }, 4, 2),
+                        new PreConditionFailure("indexToRemove (4) must be between 0 and 1."));
+                });
+
+                runner.test("with negative valuesToShift", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.shiftLeft(new byte[] { 0, 1, 2 }, 1, -1),
+                        new PreConditionFailure("valuesToShift (-1) must be between 0 and 1."));
+                });
+
+                runner.test("with negative valuesToShift", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.shiftLeft(new byte[] { 0, 1, 2 }, 1, -1),
+                        new PreConditionFailure("valuesToShift (-1) must be between 0 and 1."));
+                });
+
+                runner.test("with valuesToShift equal to count - indexToRemove", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.shiftLeft(new byte[] { 0, 1, 2 }, 1, 2),
+                        new PreConditionFailure("valuesToShift (2) must be between 0 and 1."));
+                });
+
+                runner.test("with valuesToShift greater than count - indexToRemove", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.shiftLeft(new byte[] { 0, 1, 2 }, 1, 3),
+                        new PreConditionFailure("valuesToShift (3) must be between 0 and 1."));
+                });
+
+                runner.test("with 0 indexToRemove and 0 valuesToShift", (Test test) ->
+                {
+                    final byte[] values = new byte[] { 0, 1, 2 };
+                    Array.shiftLeft(values, 0, 0);
+                    test.assertEqual(new byte[] { 0, 1, 2 }, values);
+                });
+
+                runner.test("with 1 indexToRemove and 0 valuesToShift", (Test test) ->
+                {
+                    final byte[] values = new byte[] { 0, 1, 2 };
+                    Array.shiftLeft(values, 1, 0);
+                    test.assertEqual(new byte[] { 0, 1, 2 }, values);
+                });
+
+                runner.test("with 0 indexToRemove and 1 valuesToShift", (Test test) ->
+                {
+                    final byte[] values = new byte[] { 0, 1, 2 };
+                    Array.shiftLeft(values, 0, 1);
+                    test.assertEqual(new byte[] { 1, 1, 2 }, values);
+                });
+
+                runner.test("with 1 indexToRemove and 1 valuesToShift", (Test test) ->
+                {
+                    final byte[] values = new byte[] { 0, 1, 2 };
+                    Array.shiftLeft(values, 1, 1);
+                    test.assertEqual(new byte[] { 0, 2, 2 }, values);
+                });
+
+                runner.test("with 0 indexToRemove and 2 valuesToShift", (Test test) ->
+                {
+                    final byte[] values = new byte[] { 0, 1, 2 };
+                    Array.shiftLeft(values, 0, 2);
+                    test.assertEqual(new byte[] { 1, 2, 2 }, values);
+                });
+            });
+
+            runner.testGroup("shiftRight(byte[],int,int)", () ->
+            {
+                runner.test("with null values", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.shiftRight(null, 0, 1),
+                        new PreConditionFailure("values cannot be null."));
+                });
+
+                runner.test("with empty values", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.shiftRight(new byte[0], 0, 1),
+                        new PreConditionFailure("values cannot be empty."));
+                });
+
+                runner.test("with negative indexToOpen", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.shiftRight(new byte[] { 0, 1, 2 }, -1, 2),
+                        new PreConditionFailure("indexToOpen (-1) must be between 0 and 1."));
+                });
+
+                runner.test("with indexToOpen equal to values.length - 1", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.shiftRight(new byte[] { 0, 1, 2 }, 2, 2),
+                        new PreConditionFailure("indexToOpen (2) must be between 0 and 1."));
+                });
+
+                runner.test("with indexToOpen equal to values.length", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.shiftRight(new byte[] { 0, 1, 2 }, 3, 2),
+                        new PreConditionFailure("indexToOpen (3) must be between 0 and 1."));
+                });
+
+                runner.test("with indexToOpen greater than values.length", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.shiftRight(new byte[] { 0, 1, 2 }, 4, 2),
+                        new PreConditionFailure("indexToOpen (4) must be between 0 and 1."));
+                });
+
+                runner.test("with negative valuesToShift", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.shiftRight(new byte[] { 0, 1, 2 }, 1, -1),
+                        new PreConditionFailure("valuesToShift (-1) must be between 0 and 1."));
+                });
+
+                runner.test("with negative valuesToShift", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.shiftRight(new byte[] { 0, 1, 2 }, 1, -1),
+                        new PreConditionFailure("valuesToShift (-1) must be between 0 and 1."));
+                });
+
+                runner.test("with valuesToShift equal to count - indexToOpen", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.shiftRight(new byte[] { 0, 1, 2 }, 1, 2),
+                        new PreConditionFailure("valuesToShift (2) must be between 0 and 1."));
+                });
+
+                runner.test("with valuesToShift greater than count - indexToOpen", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.shiftRight(new byte[] { 0, 1, 2 }, 1, 3),
+                        new PreConditionFailure("valuesToShift (3) must be between 0 and 1."));
+                });
+
+                runner.test("with 0 indexToOpen and 0 valuesToShift", (Test test) ->
+                {
+                    final byte[] values = new byte[] { 0, 1, 2 };
+                    Array.shiftRight(values, 0, 0);
+                    test.assertEqual(new byte[] { 0, 1, 2 }, values);
+                });
+
+                runner.test("with 1 indexToOpen and 0 valuesToShift", (Test test) ->
+                {
+                    final byte[] values = new byte[] { 0, 1, 2 };
+                    Array.shiftRight(values, 1, 0);
+                    test.assertEqual(new byte[] { 0, 1, 2 }, values);
+                });
+
+                runner.test("with 0 indexToOpen and 1 valuesToShift", (Test test) ->
+                {
+                    final byte[] values = new byte[] { 0, 1, 2 };
+                    Array.shiftRight(values, 0, 1);
+                    test.assertEqual(new byte[] { 0, 0, 2 }, values);
+                });
+
+                runner.test("with 1 indexToOpen and 1 valuesToShift", (Test test) ->
+                {
+                    final byte[] values = new byte[] { 0, 1, 2 };
+                    Array.shiftRight(values, 1, 1);
+                    test.assertEqual(new byte[] { 0, 1, 1 }, values);
+                });
+
+                runner.test("with 0 indexToOpen and 2 valuesToShift", (Test test) ->
+                {
+                    final byte[] values = new byte[] { 0, 1, 2 };
+                    Array.shiftRight(values, 0, 2);
+                    test.assertEqual(new byte[] { 0, 0, 1 }, values);
+                });
             });
         });
     }

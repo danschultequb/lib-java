@@ -629,12 +629,14 @@ public class Array<T> implements MutableIndexable<T>
      */
     public static void copy(byte[] copyFrom, int copyFromStartIndex, byte[] copyTo, int copyToStartIndex, int length)
     {
-        if (copyFrom != null && copyTo != null && 1 <= copyFrom.length && 1 <= copyTo.length &&
-                0 <= copyFromStartIndex && copyFromStartIndex < copyFrom.length &&
-                0 <= copyToStartIndex && copyToStartIndex < copyTo.length &&
-                1 <= length)
+        PreCondition.assertNotNull(copyFrom, "copyFrom");
+        PreCondition.assertBetween(0, copyFromStartIndex, Math.maximum(0, copyFrom.length - 1), "copyFromStartIndex");
+        PreCondition.assertNotNull(copyTo, "copyTo");
+        PreCondition.assertBetween(0, copyToStartIndex, Math.maximum(0, copyTo.length - 1), "copyToStartIndex");
+        PreCondition.assertBetween(0, length, Math.minimum(copyFrom.length - copyFromStartIndex, copyTo.length - copyToStartIndex), "length");
+
+        if (length > 0)
         {
-            length = Math.minimum(copyTo.length - copyToStartIndex, Math.minimum(copyFrom.length, length));
             System.arraycopy(copyFrom, copyFromStartIndex, copyTo, copyToStartIndex, length);
         }
     }
@@ -1242,5 +1244,43 @@ public class Array<T> implements MutableIndexable<T>
             }
         }
         return result;
+    }
+
+    /**
+     * Starting at the provided indexToRemove, shift the values in the provided array one position
+     * to the left. The result is that the value at the indexToRemove will be "removed".
+     * @param values The values.
+     * @param indexToRemove The index to "remove" from the array.
+     * @param valuesToShift The number of values to shift.
+     */
+    public static void shiftLeft(byte[] values, int indexToRemove, int valuesToShift)
+    {
+        PreCondition.assertNotNullAndNotEmpty(values, "values");
+        PreCondition.assertBetween(0, indexToRemove, values.length - 2, "indexToRemove");
+        PreCondition.assertBetween(0, valuesToShift, values.length - indexToRemove - 1, "valuesToShift");
+
+        for (int i = indexToRemove; i < indexToRemove + valuesToShift; ++i)
+        {
+            values[i] = values[i + 1];
+        }
+    }
+
+    /**
+     * Starting at the provided indexToRemove, shift the values in the provided array one position
+     * to the right. The result is that a new position will be opened up the array.
+     * @param values The values.
+     * @param indexToOpen The index to open up in the array.
+     * @param valuesToShift The number of values to shift.
+     */
+    public static void shiftRight(byte[] values, int indexToOpen, int valuesToShift)
+    {
+        PreCondition.assertNotNullAndNotEmpty(values, "values");
+        PreCondition.assertBetween(0, indexToOpen, values.length - 2, "indexToOpen");
+        PreCondition.assertBetween(0, valuesToShift, values.length - indexToOpen - 1, "valuesToShift");
+
+        for (int i = indexToOpen + valuesToShift; indexToOpen < i; --i)
+        {
+            values[i] = values[i - 1];
+        }
     }
 }

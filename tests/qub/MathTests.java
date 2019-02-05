@@ -32,6 +32,23 @@ public class MathTests
                 test.assertEqual(0, Math.maximum(-1, 0));
                 test.assertEqual(0, Math.maximum(0, -1));
             });
+
+            runner.testGroup("clip(int,int,int)", () ->
+            {
+                final Action4<Integer,Integer,Integer,Integer> clipTest = (Integer lowerBound, Integer value, Integer upperBound, Integer expected) ->
+                {
+                    runner.test("with " + lowerBound + ", " + value + ", and " + upperBound, (Test test) ->
+                    {
+                        test.assertEqual(expected, Math.clip(lowerBound, value, upperBound));
+                    });
+                };
+
+                clipTest.run(0, -1, 2, 0);
+                clipTest.run(0, 0, 2, 0);
+                clipTest.run(0, 1, 2, 1);
+                clipTest.run(0, 2, 2, 2);
+                clipTest.run(0, 3, 2, 2);
+            });
             
             runner.test("isOdd()", (Test test) ->
             {

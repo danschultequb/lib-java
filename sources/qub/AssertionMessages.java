@@ -67,7 +67,9 @@ public class AssertionMessages
 
     public static <T> String between(T lowerBound, T value, T upperBound, String variableName)
     {
-        return variableName + " (" + value + ") must be between " + lowerBound + " and " + upperBound + ".";
+        return Comparer.equal(lowerBound, upperBound)
+            ? variableName + " (" + value + ") must be equal to " + lowerBound + "."
+            : variableName + " (" + value + ") must be between " + lowerBound + " and " + upperBound + ".";
     }
 
     public static String containsOnly(String value, char[] characters, String variableName)

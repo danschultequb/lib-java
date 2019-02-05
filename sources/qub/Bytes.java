@@ -6,13 +6,46 @@ public class Bytes
     {
     }
 
+    /**
+     * The number of bits it takes to represent a byte.
+     */
     public static final int bitCount = 8;
 
+    /**
+     * The number of bytes it takes to represent a byte.
+     */
+    public static final int byteCount = 1;
+
+    /**
+     * The number of hexidecimal characters it takes to represent a byte.
+     */
+    public static final int hexCharCount = 2;
+
+    /**
+     * The minimum value that a signed byte can have.
+     */
+    public static final byte minimum = Byte.MIN_VALUE;
+
+    /**
+     * The maximum value that a signed byte can have.
+     */
+    public static final byte maximum = Byte.MAX_VALUE;
+
+    /**
+     * Convert the provided byte to an unsigned integer.
+     * @param value The byte to convert.
+     * @return The converted unsigned integer.
+     */
     public static int toUnsignedInt(byte value)
     {
         return 0xFF & value;
     }
 
+    /**
+     * Convert the provided by to an unsigned long integer.
+     * @param value The byte to convert.
+     * @return The converted unsigned long integer.
+     */
     public static long toUnsignedLong(byte value)
     {
         return 0xFF & value;

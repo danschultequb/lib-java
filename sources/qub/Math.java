@@ -54,6 +54,31 @@ public class Math {
     }
 
     /**
+     * Clip the provided value to the range provided by lowerBound and upperBound.
+     * @param lowerBound The lower bound that value cannot be below.
+     * @param value The value to clip.
+     * @param upperBound The upper bound that value cannot be above.
+     * @return The clipped value.
+     */
+    public static int clip(int lowerBound, int value, int upperBound)
+    {
+        int result;
+        if (value < lowerBound)
+        {
+            result = lowerBound;
+        }
+        else if (value > upperBound)
+        {
+            result = upperBound;
+        }
+        else
+        {
+            result = value;
+        }
+        return result;
+    }
+
+    /**
      * A function object for determining if an Integer is odd.
      */
     public static final Function1<Integer,Boolean> isOdd = new Function1<Integer,Boolean>() {
