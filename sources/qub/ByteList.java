@@ -39,15 +39,15 @@ public class ByteList implements List<Byte>
 
     public void insert(int insertIndex, int value)
     {
-        PreCondition.assertBetween(0, insertIndex, count, "insertIndex");
-        PreCondition.assertBetween(Bytes.minimum, value, Bytes.maximum, "value");
+        PreCondition.assertIndexAccess(insertIndex, count + 1, "insertIndex");
+        PreCondition.assertByte(value, "value");
 
         insert(insertIndex, (byte)value);
     }
 
     public void insert(int insertIndex, byte value)
     {
-        PreCondition.assertBetween(0, insertIndex, count, "insertIndex");
+        PreCondition.assertIndexAccess(insertIndex, count + 1, "insertIndex");
 
         if (count == bytes.length)
         {
@@ -73,7 +73,7 @@ public class ByteList implements List<Byte>
     @Override
     public void insert(int insertIndex, Byte value)
     {
-        PreCondition.assertBetween(0, insertIndex, count, "insertIndex");
+        PreCondition.assertIndexAccess(insertIndex, count + 1, "insertIndex");
         PreCondition.assertNotNull(value, "value");
 
         insert(insertIndex, value.byteValue());
@@ -97,7 +97,7 @@ public class ByteList implements List<Byte>
 
     public void add(int value)
     {
-        PreCondition.assertBetween(Bytes.minimum, value, Bytes.maximum, "value");
+        PreCondition.assertByte(value, "value");
 
         add((byte)value);
     }
@@ -116,12 +116,12 @@ public class ByteList implements List<Byte>
     @Override
     public Byte removeAt(int index)
     {
-        PreCondition.assertBetween(0, index, count - 1, "index");
+        PreCondition.assertIndexAccess(index, count, "index");
 
         final byte result = bytes[index];
         if (index < count - 1)
         {
-            Array.shiftLeft(bytes, index, 1);
+            Array.shiftLeft(bytes, index, count - index - 1);
         }
         --count;
 
@@ -130,15 +130,15 @@ public class ByteList implements List<Byte>
 
     public void set(int index, byte value)
     {
-        PreCondition.assertBetween(0, index, count - 1, "index");
+        PreCondition.assertIndexAccess(index, count, "index");
 
         bytes[index] = value;
     }
 
     public void set(int index, int value)
     {
-        PreCondition.assertBetween(0, index, count - 1, "index");
-        PreCondition.assertBetween(Bytes.minimum, value, Bytes.maximum, "value");
+        PreCondition.assertIndexAccess(index, count, "index");
+        PreCondition.assertByte(value, "value");
 
         set(index, (byte)value);
     }
@@ -146,7 +146,7 @@ public class ByteList implements List<Byte>
     @Override
     public void set(int index, Byte value)
     {
-        PreCondition.assertBetween(0, index, count - 1, "index");
+        PreCondition.assertIndexAccess(index, count, "index");
         PreCondition.assertNotNull(value, "value");
 
         set(index, value.byteValue());
@@ -155,7 +155,7 @@ public class ByteList implements List<Byte>
     @Override
     public Byte get(int index)
     {
-        PreCondition.assertBetween(0, index, count - 1, "index");
+        PreCondition.assertIndexAccess(index, count, "index");
 
         return bytes[index];
     }

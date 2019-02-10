@@ -225,17 +225,17 @@ public class File extends FileSystemEntry
         return getFileSystem().getFileContentAsStringAsync(getPath());
     }
 
-    public Result<Boolean> setContents(byte[] content)
+    public Result<Void> setContents(byte[] content)
     {
         return getFileSystem().setFileContent(getPath(), content);
     }
 
-    public AsyncFunction<Result<Boolean>> setContentsAsync(byte[] content)
+    public AsyncFunction<Result<Void>> setContentsAsync(byte[] content)
     {
         return getFileSystem().setFileContentAsync(getPath(), content);
     }
 
-    public Result<Boolean> setContentsAsString(String content)
+    public Result<Void> setContentsAsString(String content)
     {
         return getFileSystem().setFileContentAsString(getPath(), content);
     }

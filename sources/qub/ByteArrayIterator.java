@@ -16,8 +16,8 @@ public class ByteArrayIterator implements Iterator<Byte>
     public ByteArrayIterator(byte[] bytes, int startIndex, int length)
     {
         PreCondition.assertNotNull(bytes, "bytes");
-        PreCondition.assertBetween(0, startIndex, bytes.length - 1, "startIndex");
-        PreCondition.assertBetween(0, length, bytes.length - startIndex, "length");
+        PreCondition.assertStartIndex(startIndex, bytes.length);
+        PreCondition.assertLength(length, startIndex, bytes.length);
 
         this.bytes = bytes;
         this.startIndex = startIndex;

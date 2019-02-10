@@ -40,7 +40,7 @@ public class BufferedByteReadStreamTests
                     test.assertFalse(bufferedByteReadStream.isDisposed());
                     test.assertFalse(bufferedByteReadStream.hasStarted());
                     test.assertFalse(bufferedByteReadStream.hasCurrent());
-                    test.assertEqual(10, bufferedByteReadStream.getBufferCapacity());
+                    test.assertEqual(1024, bufferedByteReadStream.getBufferCapacity());
                     test.assertEqual(0, bufferedByteReadStream.getBufferedByteCount());
                     test.assertSame(byteReadStream.getAsyncRunner(), bufferedByteReadStream.getAsyncRunner());
                     test.assertFalse(byteReadStream.hasStarted());

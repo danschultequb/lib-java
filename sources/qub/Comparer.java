@@ -417,9 +417,7 @@ public interface Comparer<T> extends Function2<T,T,Comparison>
      */
     static boolean between(long lowerBound, long value, long upperBound)
     {
-        return lowerBound > upperBound
-           ? between(upperBound, value, lowerBound)
-           : lowerBound <= value && value <= upperBound;
+        return lowerBound <= value && value <= upperBound;
     }
 
     /**

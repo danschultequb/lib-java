@@ -195,7 +195,7 @@ public interface TCPClient extends ByteWriteStream, ByteReadStream, AsyncDisposa
     }
 
     @Override
-    default Result<Boolean> writeAllBytes(ByteReadStream byteReadStream)
+    default Result<Void> writeAllBytes(ByteReadStream byteReadStream)
     {
         return getWriteStream().writeAllBytes(byteReadStream);
     }

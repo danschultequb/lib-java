@@ -6,8 +6,8 @@ public class UTF8CharacterEncoding implements CharacterEncoding
     public Result<byte[]> encode(char[] characters, int startIndex, int length)
     {
         PreCondition.assertNotNull(characters, "characters");
-        PreCondition.assertBetween(0, startIndex, characters.length - 1, "startIndex");
-        PreCondition.assertBetween(1, length, characters.length - startIndex, "length");
+        PreCondition.assertStartIndex(startIndex, characters.length, "startIndex");
+        PreCondition.assertLength(length, startIndex, characters.length, "length");
 
         final List<Byte> encodedBytes = new ArrayList<>();
         for (int i = 0; i < length; ++i)
@@ -68,8 +68,8 @@ public class UTF8CharacterEncoding implements CharacterEncoding
     public Result<char[]> decode(byte[] bytes, int startIndex, int length)
     {
         PreCondition.assertNotNull(bytes, "bytes");
-        PreCondition.assertBetween(0, startIndex, bytes.length - 1, "startIndex");
-        PreCondition.assertBetween(1, length, bytes.length - startIndex, "length");
+        PreCondition.assertStartIndex(startIndex, bytes.length);
+        PreCondition.assertLength(length, startIndex, bytes.length);
 
         final List<Character> characters = new ArrayList<>();
         final List<Throwable> errors = new ArrayList<>();

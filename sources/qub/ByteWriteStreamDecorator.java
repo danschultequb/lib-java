@@ -47,7 +47,7 @@ public abstract class ByteWriteStreamDecorator implements ByteWriteStream
     }
 
     @Override
-    final public Result<Boolean> writeAllBytes(byte[] toWrite)
+    final public Result<Void> writeAllBytes(byte[] toWrite)
     {
         return ByteWriteStream.super.writeAllBytes(toWrite);
     }
@@ -58,7 +58,7 @@ public abstract class ByteWriteStreamDecorator implements ByteWriteStream
      * @return Whether or not the writeByte was successful.
      */
     @Override
-    final public Result<Boolean> writeAllBytes(ByteReadStream byteReadStream)
+    final public Result<Void> writeAllBytes(ByteReadStream byteReadStream)
     {
         return ByteWriteStream.super.writeAllBytes(byteReadStream);
     }

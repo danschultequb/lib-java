@@ -4,12 +4,13 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
 {
     private final AsyncRunner asyncRunner;
     private boolean disposed;
-    private final List<Byte> bytes;
+    private final ByteList bytes;
     private Byte current;
     private boolean started;
     private boolean endOfStream;
     private final Mutex mutex;
     private final MutexCondition bytesAvailable;
+    private Integer maxBytesPerWrite;
 
     public InMemoryByteStream()
     {
@@ -29,14 +30,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
     public InMemoryByteStream(byte[] bytes, AsyncRunner asyncRunner)
     {
         this.asyncRunner = asyncRunner;
-        this.bytes = new ArrayList<>();
-        if (bytes != null && bytes.length > 0)
-        {
-            for (final byte b : bytes)
-            {
-                this.bytes.add(b);
-            }
-        }
+        this.bytes = ByteList.create(bytes);
         this.mutex = new SpinMutex();
         this.bytesAvailable = this.mutex.createCondition();
     }
@@ -55,6 +49,16 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
     public int getCount()
     {
         return bytes.getCount();
+    }
+
+    /**
+     * Set the maximum number of bytes that can be written per writeBytes() call.
+     * @param maxBytesPerWrite The maximum number of bytes that can be written per writeBytes()
+     *                         call.
+     */
+    public void setMaxBytesPerWrite(Integer maxBytesPerWrite)
+    {
+        this.maxBytesPerWrite = maxBytesPerWrite;
     }
 
     @Override
@@ -86,9 +90,9 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
     public Result<Integer> readBytes(byte[] outputBytes, int startIndex, int length)
     {
         PreCondition.assertNotNullAndNotEmpty(outputBytes, "outputBytes");
-        PreCondition.assertBetween(0, startIndex, outputBytes.length - 1, "startIndex");
-        PreCondition.assertBetween(1, length, outputBytes.length - startIndex, "length");
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertStartIndex(startIndex, outputBytes.length);
+        PreCondition.assertLength(length, startIndex, outputBytes.length);
+        PreCondition.assertFalse(this.isDisposed(), "this.isDisposed()");
 
         return mutex.criticalSection(() ->
         {
@@ -204,24 +208,25 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
     public Result<Integer> writeBytes(byte[] toWrite, int startIndex, int length)
     {
         PreCondition.assertNotNullAndNotEmpty(toWrite, "toWrite");
-        PreCondition.assertBetween(0, startIndex, toWrite.length - 1, "startIndex");
-        PreCondition.assertBetween(1, length, toWrite.length - startIndex, "length");
+        PreCondition.assertStartIndex(startIndex, toWrite.length);
+        PreCondition.assertLength(length, startIndex, toWrite.length);
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
         PreCondition.assertFalse(endOfStream, "endOfStream");
 
         return mutex.criticalSection(() ->
         {
-            for (int i = 0; i < length; ++i)
+            final int bytesToWrite = maxBytesPerWrite == null ? length : maxBytesPerWrite;
+            for (int i = 0; i < bytesToWrite; ++i)
             {
                 bytes.add(toWrite[startIndex + i]);
             }
             bytesAvailable.signalAll();
-            return Result.success(length);
+            return Result.success(bytesToWrite);
         });
     }
 
     @Override
-    public Result<Boolean> writeAllBytes(ByteReadStream byteReadStream)
+    public Result<Void> writeAllBytes(ByteReadStream byteReadStream)
     {
         PreCondition.assertNotNull(byteReadStream, "byteReadStream");
         PreCondition.assertFalse(byteReadStream.isDisposed(), "byteReadStream.isDisposed()");
@@ -230,7 +235,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
 
         return mutex.criticalSection(() ->
         {
-            Result<Boolean> result = null;
+            Result<Void> result = null;
             boolean bytesAdded = false;
             while (result == null)
             {
@@ -239,7 +244,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
                 {
                     if (readByteResult.getError() instanceof EndOfStreamException)
                     {
-                        result = Result.successTrue();
+                        result = Result.success();
                     }
                     else
                     {
@@ -251,7 +256,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
                     final Byte byteRead = readByteResult.getValue();
                     if (byteRead == null)
                     {
-                        result = Result.successTrue();
+                        result = Result.success();
                     }
                     else
                     {

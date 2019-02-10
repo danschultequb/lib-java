@@ -2,12 +2,10 @@ package qub;
 
 public class BufferedByteWriteStream implements ByteWriteStream
 {
-    public static final int defaultInitialBufferSize = 10;
+    public static final int defaultInitialBufferSize = 1024;
     private final ByteWriteStream byteWriteStream;
     private byte[] buffer;
-    private boolean growOnNextBufferFill;
     private int currentBufferIndex;
-    private int bytesInBuffer;
 
     public BufferedByteWriteStream(ByteWriteStream byteWriteStream)
     {
@@ -21,14 +19,69 @@ public class BufferedByteWriteStream implements ByteWriteStream
 
         this.byteWriteStream = byteWriteStream;
         this.buffer = byteWriteStream.isDisposed() ? null : new byte[initialBufferSize];
-        this.currentBufferIndex = -1;
-        this.growOnNextBufferFill = false;
+    }
+
+    /**
+     * Get the number of bytes that can be stored in the buffer. This number can change as the
+     * buffer expands after calls to writeBytes().
+     * @return The number of bytes that can be stored in the buffer.
+     */
+    public int getBufferCapacity()
+    {
+        return buffer == null ? 0 : buffer.length;
+    }
+
+    /**
+     * Get the number of bytes currently in the buffer waiting to be written to the inner stream.
+     * @return The number of bytes currently in the buffer waiting to be written to the inner
+     * stream.
+     */
+    public int getBufferByteCount()
+    {
+        return currentBufferIndex;
     }
 
     @Override
     public Result<Integer> writeBytes(byte[] toWrite, int startIndex, int length)
     {
-        return null;
+        PreCondition.assertNotNull(toWrite, "toWrite");
+        PreCondition.assertStartIndex(startIndex, toWrite.length);
+        PreCondition.assertLength(length, startIndex, toWrite.length);
+        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+
+        final int bytesToAddToBuffer = Math.minimum(length, buffer.length - currentBufferIndex);
+        Array.copy(toWrite, startIndex, buffer, currentBufferIndex, bytesToAddToBuffer);
+        currentBufferIndex += bytesToAddToBuffer;
+
+        Result<Integer> result;
+        if (currentBufferIndex < buffer.length)
+        {
+            result = Result.success(bytesToAddToBuffer);
+        }
+        else
+        {
+            result = byteWriteStream.writeBytes(buffer, 0, currentBufferIndex)
+                .then((Integer bytesWritten) ->
+                {
+                    if (bytesWritten == buffer.length)
+                    {
+                        buffer = new byte[buffer.length * 2];
+                        currentBufferIndex = 0;
+                    }
+                    else
+                    {
+                        final byte[] newBuffer = new byte[buffer.length];
+                        Array.copy(buffer, bytesWritten, newBuffer, 0, currentBufferIndex - bytesWritten);
+                        buffer = newBuffer;
+                        currentBufferIndex -= bytesWritten;
+                    }
+                    return bytesToAddToBuffer;
+                });
+        }
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
     }
 
     @Override
@@ -41,18 +94,27 @@ public class BufferedByteWriteStream implements ByteWriteStream
     public Result<Boolean> dispose()
     {
         Result<Boolean> result;
-        if (currentBufferIndex <= 0)
+        if (isDisposed())
         {
-            result = Result.success();
+            result = Result.success(false);
         }
         else
         {
-            result = byteWriteStream.writeAllBytes(buffer, 0, currentBufferIndex);
+            final Result<Void> writeBufferResult = currentBufferIndex == 0
+                ? Result.success()
+                : byteWriteStream.writeAllBytes(buffer, 0, currentBufferIndex)
+                    .then(() ->
+                    {
+                        buffer = null;
+                        currentBufferIndex = 0;
+                    });
+            result = writeBufferResult
+                .onError(byteWriteStream::dispose)
+                .thenResult(byteWriteStream::dispose);
         }
-        buffer = null;
-        growOnNextBufferFill = false;
-        currentBufferIndex = -1;
-        bytesInBuffer = 0;
-        return result.thenResult(byteWriteStream::dispose);
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
     }
 }

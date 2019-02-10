@@ -1906,10 +1906,9 @@ public class FileSystemTests
                 runner.test("with non-existing rooted path with null contents", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    final Result<Boolean> result = fileSystem.setFileContent("/A.txt", null);
-                    test.assertSuccess(true, result);
+                    test.assertSuccess(null, fileSystem.setFileContent("/A.txt", null));
                     
-                    test.assertTrue(fileSystem.fileExists("/A.txt").getValue());
+                    test.assertTrue(fileSystem.fileExists("/A.txt").await());
                 });
 
                 runner.test("with existing rooted path and null contents", (Test test) ->
@@ -1917,22 +1916,20 @@ public class FileSystemTests
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
                     fileSystem.setFileContent("/A.txt", new byte[] { 0, 1 });
                     
-                    final Result<Boolean> result = fileSystem.setFileContent("/A.txt", null);
-                    test.assertSuccess(true, result);
+                    test.assertSuccess(null, fileSystem.setFileContent("/A.txt", null));
 
                     test.assertTrue(fileSystem.fileExists("/A.txt").getValue());
-                    test.assertEqual(new byte[0], fileSystem.getFileContent("/A.txt").getValue());
+                    test.assertEqual(new byte[0], fileSystem.getFileContent("/A.txt").await());
                 });
 
                 runner.test("with non-existing rooted path and empty contents", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
                     
-                    final Result<Boolean> result = fileSystem.setFileContent("/A.txt", new byte[0]);
-                    test.assertSuccess(true, result);
+                    test.assertSuccess(null, fileSystem.setFileContent("/A.txt", new byte[0]));
                     
                     test.assertTrue(fileSystem.fileExists("/A.txt").getValue());
-                    test.assertEqual(new byte[0], fileSystem.getFileContent("/A.txt").getValue());
+                    test.assertEqual(new byte[0], fileSystem.getFileContent("/A.txt").await());
                 });
 
                 runner.test("with existing rooted path and empty contents", (Test test) ->
@@ -1940,34 +1937,31 @@ public class FileSystemTests
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
                     fileSystem.setFileContent("/A.txt", new byte[] { 0, 1 });
 
-                    final Result<Boolean> result = fileSystem.setFileContent("/A.txt", new byte[0]);
-                    test.assertSuccess(true, result);
+                    test.assertSuccess(null, fileSystem.setFileContent("/A.txt", new byte[0]));
                     
                     test.assertTrue(fileSystem.fileExists("/A.txt").getValue());
-                    test.assertEqual(new byte[0], fileSystem.getFileContent("/A.txt").getValue());
+                    test.assertEqual(new byte[0], fileSystem.getFileContent("/A.txt").await());
                 });
 
                 runner.test("with non-existing rooted path and non-empty contents", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
                     
-                    final Result<Boolean> result = fileSystem.setFileContent("/A.txt", new byte[] { 0, 1, 2 });
-                    test.assertSuccess(true, result);
+                    test.assertSuccess(null, fileSystem.setFileContent("/A.txt", new byte[] { 0, 1, 2 }));
                     
                     test.assertTrue(fileSystem.fileExists("/A.txt").getValue());
-                    test.assertEqual(new byte[] { 0, 1, 2 }, fileSystem.getFileContent("/A.txt").getValue());
+                    test.assertEqual(new byte[] { 0, 1, 2 }, fileSystem.getFileContent("/A.txt").await());
                 });
 
                 runner.test("with non-existing rooted path with non-existing parent folder and non-empty contents", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
                     
-                    final Result<Boolean> result = fileSystem.setFileContent("/folder/A.txt", new byte[] { 0, 1, 2 });
-                    test.assertSuccess(true, result);
+                    test.assertSuccess(null, fileSystem.setFileContent("/folder/A.txt", new byte[] { 0, 1, 2 }));
                     
                     test.assertTrue(fileSystem.folderExists("/folder").getValue());
                     test.assertTrue(fileSystem.fileExists("/folder/A.txt").getValue());
-                    test.assertEqual(new byte[] { 0, 1, 2 }, fileSystem.getFileContent("/folder/A.txt").getValue());
+                    test.assertEqual(new byte[] { 0, 1, 2 }, fileSystem.getFileContent("/folder/A.txt").await());
                 });
 
                 runner.test("with existing rooted path and non-empty contents", (Test test) ->
@@ -1975,25 +1969,23 @@ public class FileSystemTests
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
                     fileSystem.createFile("/A.txt");
 
-                    final Result<Boolean> result = fileSystem.setFileContent("/A.txt", new byte[] { 0, 1, 2 });
-                    test.assertSuccess(true, result);
+                    test.assertSuccess(null, fileSystem.setFileContent("/A.txt", new byte[] { 0, 1, 2 }));
                     
                     test.assertTrue(fileSystem.fileExists("/A.txt").getValue());
-                    test.assertEqual(new byte[] { 0, 1, 2 }, fileSystem.getFileContent("/A.txt").getValue());
+                    test.assertEqual(new byte[] { 0, 1, 2 }, fileSystem.getFileContent("/A.txt").await());
                 });
 
                 runner.test("with rooted path resolved outside the root", (Test test) ->
                 {
                     FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    final Result<Boolean> result = fileSystem.setFileContent("/../thing.txt", new byte[] { 0, 1, 2 });
+                    final Result<Void> result = fileSystem.setFileContent("/../thing.txt", new byte[] { 0, 1, 2 });
                     test.assertError(new IllegalArgumentException("Cannot resolve a rooted path outside of its root."), result);
                 });
 
                 runner.test("with rooted path resolved inside the root", (Test test) ->
                 {
                     FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    final Result<Boolean> result = fileSystem.setFileContent("/a/../thing.txt", new byte[] { 0, 1, 2 });
-                    test.assertSuccess(true, result);
+                    test.assertSuccess(null, fileSystem.setFileContent("/a/../thing.txt", new byte[] { 0, 1, 2 }));
                     test.assertSuccess(new byte[] { 0, 1, 2 }, fileSystem.getFileContent("/thing.txt"));
                 });
             });
@@ -2022,11 +2014,10 @@ public class FileSystemTests
                 {
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
                     
-                    final Result<Boolean> result = fileSystem.setFileContent(Path.parse("/A.txt"), null);
-                    test.assertSuccess(true, result);
+                    test.assertSuccess(null, fileSystem.setFileContent(Path.parse("/A.txt"), null));
                     
                     test.assertTrue(fileSystem.fileExists("/A.txt").getValue());
-                    test.assertEqual(new byte[0], fileSystem.getFileContent("/A.txt").getValue());
+                    test.assertEqual(new byte[0], fileSystem.getFileContent("/A.txt").await());
                 });
 
                 runner.test("with existing rooted path and null contents", (Test test) ->
@@ -2034,19 +2025,17 @@ public class FileSystemTests
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
                     fileSystem.setFileContent("/A.txt", new byte[] { 0, 1 });
 
-                    final Result<Boolean> result = fileSystem.setFileContent(Path.parse("/A.txt"), (byte[])null);
-                    test.assertSuccess(true, result);
+                    test.assertSuccess(null, fileSystem.setFileContent(Path.parse("/A.txt"), (byte[])null));
 
-                    test.assertTrue(fileSystem.fileExists("/A.txt").getValue());
-                    test.assertEqual(new byte[0], fileSystem.getFileContent("/A.txt").getValue());
+                    test.assertTrue(fileSystem.fileExists("/A.txt").await());
+                    test.assertEqual(new byte[0], fileSystem.getFileContent("/A.txt").await());
                 });
 
                 runner.test("with non-existing rooted path and empty contents", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
 
-                    final Result<Boolean> result = fileSystem.setFileContent(Path.parse("/A.txt"), new byte[0]);
-                    test.assertSuccess(true, result);
+                    test.assertSuccess(null, fileSystem.setFileContent(Path.parse("/A.txt"), new byte[0]));
 
                     test.assertTrue(fileSystem.fileExists("/A.txt").getValue());
                     test.assertEqual(new byte[0], fileSystem.getFileContent("/A.txt").getValue());
@@ -2055,10 +2044,9 @@ public class FileSystemTests
                 runner.test("with existing rooted path and empty contents", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    test.assertSuccess(true, fileSystem.setFileContent("/A.txt", new byte[] { 0, 1 }));
+                    test.assertSuccess(null, fileSystem.setFileContent("/A.txt", new byte[] { 0, 1 }));
 
-                    final Result<Boolean> result = fileSystem.setFileContent(Path.parse("/A.txt"), new byte[0]);
-                    test.assertSuccess(true, result);
+                    test.assertSuccess(null, fileSystem.setFileContent(Path.parse("/A.txt"), new byte[0]));
 
                     test.assertTrue(fileSystem.fileExists("/A.txt").getValue());
                     test.assertEqual(new byte[0], fileSystem.getFileContent("/A.txt").getValue());
@@ -2068,37 +2056,34 @@ public class FileSystemTests
                 {
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
 
-                    final Result<Boolean> result = fileSystem.setFileContent(Path.parse("/A.txt"), new byte[] { 0, 1, 2 });
-                    test.assertSuccess(true, result);
+                    test.assertSuccess(null, fileSystem.setFileContent(Path.parse("/A.txt"), new byte[] { 0, 1, 2 }));
 
                     test.assertTrue(fileSystem.fileExists("/A.txt").getValue());
-                    test.assertEqual(new byte[] { 0, 1, 2 }, fileSystem.getFileContent("/A.txt").getValue());
+                    test.assertEqual(new byte[] { 0, 1, 2 }, fileSystem.getFileContent("/A.txt").await());
                 });
 
                 runner.test("with existing rooted path and non-empty contents", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    fileSystem.createFile("/A.txt");
+                    fileSystem.createFile("/A.txt").await();
 
-                    final Result<Boolean> result = fileSystem.setFileContent(Path.parse("/A.txt"), new byte[] { 0, 1, 2 });
-                    test.assertSuccess(true, result);
+                    test.assertSuccess(null, fileSystem.setFileContent(Path.parse("/A.txt"), new byte[] { 0, 1, 2 }));
 
-                    test.assertTrue(fileSystem.fileExists("/A.txt").getValue());
-                    test.assertEqual(new byte[] { 0, 1, 2 }, fileSystem.getFileContent("/A.txt").getValue());
+                    test.assertTrue(fileSystem.fileExists("/A.txt").await());
+                    test.assertEqual(new byte[] { 0, 1, 2 }, fileSystem.getFileContent("/A.txt").await());
                 });
 
                 runner.test("with rooted path resolved outside the root", (Test test) ->
                 {
                     FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    final Result<Boolean> result = fileSystem.setFileContent(Path.parse("/../thing.txt"), new byte[] { 0, 1, 2 });
+                    final Result<Void> result = fileSystem.setFileContent(Path.parse("/../thing.txt"), new byte[] { 0, 1, 2 });
                     test.assertError(new IllegalArgumentException("Cannot resolve a rooted path outside of its root."), result);
                 });
 
                 runner.test("with rooted path resolved inside the root", (Test test) ->
                 {
                     FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    final Result<Boolean> result = fileSystem.setFileContent(Path.parse("/a/../thing.txt"), new byte[] { 0, 1, 2 });
-                    test.assertSuccess(true, result);
+                    test.assertSuccess(null, fileSystem.setFileContent(Path.parse("/a/../thing.txt"), new byte[] { 0, 1, 2 }));
                     test.assertSuccess(new byte[] { 0, 1, 2 }, fileSystem.getFileContent("/thing.txt"));
                 });
             });

@@ -449,6 +449,132 @@ public class PreCondition
     }
 
     /**
+     * Assert that the index value is greater than or equal to 0 and less than the array length.
+     * @param value The index value.
+     * @param arrayLength The length of the array to index into.
+     */
+    public static void assertStartIndex(int value, int arrayLength)
+    {
+        assertStartIndex(value, arrayLength, "startIndex");
+    }
+
+    /**
+     * Assert that the index value is greater than or equal to 0 and less than the array length.
+     * @param value The index value.
+     * @param arrayLength The length of the array to index into.
+     */
+    public static void assertStartIndex(long value, long arrayLength)
+    {
+        assertStartIndex(value, arrayLength, "startIndex");
+    }
+
+    /**
+     * Assert that the index value is greater than or equal to 0 and less than the array length.
+     * @param value The index value.
+     * @param arrayLength The length of the array to index into.
+     * @param variableName The name of the expression value.
+     */
+    public static void assertStartIndex(int value, int arrayLength, String variableName)
+    {
+        assertBetween(0, value, arrayLength == 0 ? 0 : arrayLength - 1, variableName);
+    }
+
+    /**
+     * Assert that the index value is greater than or equal to 0 and less than the array length.
+     * @param value The index value.
+     * @param arrayLength The length of the array to index into.
+     * @param variableName The name of the expression value.
+     */
+    public static void assertStartIndex(long value, long arrayLength, String variableName)
+    {
+        assertBetween(0, value, arrayLength == 0 ? 0 : arrayLength - 1, variableName);
+    }
+
+    /**
+     * Assert that the index value is greater than or equal to 0 and less than the array length.
+     * @param value The index value.
+     * @param arrayLength The length of the array to index into.
+     * @param variableName The name of the expression value.
+     */
+    public static void assertIndexAccess(int value, int arrayLength, String variableName)
+    {
+        assertTrue(arrayLength > 0, "Cannot access values in an empty Indexable.");
+        assertBetween(0, value, arrayLength - 1, variableName);
+    }
+
+    /**
+     * Assert that the index value is greater than or equal to 0 and less than the array length.
+     * @param value The index value.
+     * @param arrayLength The length of the array to index into.
+     * @param variableName The name of the expression value.
+     */
+    public static void assertIndexAccess(long value, long arrayLength, String variableName)
+    {
+        assertTrue(arrayLength > 0, "Cannot access values in an empty Indexable.");
+        assertBetween(0, value, arrayLength - 1, variableName);
+    }
+
+    /**
+     * Assert that the provided value is a valid length for the provided startIndex and array
+     * length.
+     * @param value The value.
+     * @param startIndex The start index into an array.
+     * @param arrayLength The length of the array.
+     */
+    public static void assertLength(int value, int startIndex, int arrayLength)
+    {
+        assertLength(value, startIndex, arrayLength, "length");
+    }
+
+    /**
+     * Assert that the provided value is a valid length for the provided startIndex and array
+     * length.
+     * @param value The value.
+     * @param startIndex The start index into an array.
+     * @param arrayLength The length of the array.
+     * @param expressionName The name of the expression that produced the value.
+     */
+    public static void assertLength(int value, int startIndex, int arrayLength, String expressionName)
+    {
+        assertBetween(0, value, arrayLength - startIndex, expressionName);
+    }
+
+    /**
+     * Assert that the provided value is a valid length for the provided startIndex and array
+     * length.
+     * @param value The value.
+     * @param startIndex The start index into an array.
+     * @param arrayLength The length of the array.
+     */
+    public static void assertLength(long value, long startIndex, long arrayLength)
+    {
+        assertLength(value, startIndex, arrayLength, "length");
+    }
+
+    /**
+     * Assert that the provided value is a valid length for the provided startIndex and array
+     * length.
+     * @param value The value.
+     * @param startIndex The start index into an array.
+     * @param arrayLength The length of the array.
+     * @param expressionName The name of the expression that produced the value.
+     */
+    public static void assertLength(long value, long startIndex, long arrayLength, String expressionName)
+    {
+        assertBetween(0, value, arrayLength - startIndex, expressionName);
+    }
+
+    /**
+     * Assert that the int value is in the range of a byte.
+     * @param value The int value to check.
+     * @param expressionName The name of the expression value.
+     */
+    public static void assertByte(int value, String expressionName)
+    {
+        assertBetween(Bytes.minimum, value, Bytes.maximum, expressionName);
+    }
+
+    /**
      * Assert that the provided value is greater than or equal to the provided lowerBound and is
      * less than or equal to the provided upper bound.
      * @param lowerBound The lower bound.

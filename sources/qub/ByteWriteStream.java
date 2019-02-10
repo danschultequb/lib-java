@@ -36,7 +36,7 @@ public interface ByteWriteStream extends Disposable
      */
     Result<Integer> writeBytes(byte[] toWrite, int startIndex, int length);
 
-    default Result<Boolean> writeAllBytes(byte[] toWrite)
+    default Result<Void> writeAllBytes(byte[] toWrite)
     {
         PreCondition.assertNotNullAndNotEmpty(toWrite, "toWrite");
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
@@ -44,47 +44,17 @@ public interface ByteWriteStream extends Disposable
         return writeAllBytes(toWrite, 0, toWrite.length);
     }
 
-    default Result<Boolean> writeAllBytes(byte[] toWrite, int startIndex, int length)
+    default Result<Void> writeAllBytes(byte[] toWrite, int startIndex, int length)
     {
         PreCondition.assertNotNullAndNotEmpty(toWrite, "toWrite");
         PreCondition.assertBetween(0, startIndex, toWrite.length - 1, "startIndex");
         PreCondition.assertBetween(1, length, toWrite.length - startIndex, "length");
 
-        Result<Boolean> result = null;
-
-        final MutableInteger totalBytesWritten = new MutableInteger();
-        while (result == null && totalBytesWritten.lessThan(length))
-        {
-            final Result<Integer> writeBytesResult = writeBytes(toWrite, startIndex + totalBytesWritten.get(), length - totalBytesWritten.get());
-            result = writeBytesResult.convertError();
-            if (result == null)
-            {
-                totalBytesWritten.plusAssign(writeBytesResult.getValue());
-            }
-        }
-
-//        final Value<Result<Boolean>> resultValue = new Value<>();
-//
-//        final MutableInteger totalBytesWritten = new MutableInteger();
-//        while (!resultValue.hasValue() && totalBytesWritten.lessThan(length))
-//        {
-//            writeBytes(toWrite, startIndex + totalBytesWritten.get(), length - totalBytesWritten.get())
-//                .then(totalBytesWritten::plusAssign)
-//                .catchResultError((Result<Void> resultError) ->
-//                {
-//                    resultValue.set(resultError.convertError());
-//                });
-//        }
-//
-//        Result<Boolean> result = resultValue.get();
-        if (result == null)
-        {
-            result = Result.successTrue();
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+        return writeBytes(toWrite, startIndex, length)
+            .thenResult((Integer bytesWritten) ->
+                bytesWritten == length
+                    ? Result.success()
+                    : writeAllBytes(toWrite, startIndex + bytesWritten, length - bytesWritten));
     }
 
     /**
@@ -92,7 +62,7 @@ public interface ByteWriteStream extends Disposable
      * @param byteReadStream The ByteReadStream to read from.
      * @return Whether or not the writeByte was successful.
      */
-    default Result<Boolean> writeAllBytes(ByteReadStream byteReadStream)
+    default Result<Void> writeAllBytes(ByteReadStream byteReadStream)
     {
         PreCondition.assertNotNull(byteReadStream, "byteReadStream");
         PreCondition.assertFalse(byteReadStream.isDisposed(), "byteReadStream.isDisposed()");
@@ -100,7 +70,7 @@ public interface ByteWriteStream extends Disposable
 
         byte[] buffer = new byte[1024];
 
-        Result<Boolean> result = null;
+        Result<Void> result = null;
         while (result == null)
         {
             final Result<Integer> readBytesResult = byteReadStream.readBytes(buffer);
@@ -108,7 +78,7 @@ public interface ByteWriteStream extends Disposable
             {
                 if (readBytesResult.getError() instanceof EndOfStreamException)
                 {
-                    result = Result.successTrue();
+                    result = Result.success();
                 }
                 else
                 {
@@ -120,7 +90,7 @@ public interface ByteWriteStream extends Disposable
                 final Integer bytesRead = readBytesResult.getValue();
                 if (bytesRead == null)
                 {
-                    result = Result.successTrue();
+                    result = Result.success();
                 }
                 else
                 {

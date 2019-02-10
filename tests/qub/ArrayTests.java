@@ -20,8 +20,8 @@ public class ArrayTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final Array<Boolean> array = Array.create((boolean[])null);
-                    test.assertEqual(0, array.getCount());
+                    test.assertThrows(() -> Array.create((boolean[])null),
+                        new PreConditionFailure("values cannot be null."));
                 });
 
                 runner.test("with no values", (Test test) ->
@@ -79,8 +79,8 @@ public class ArrayTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final Array<Character> array = Array.create((char[])null);
-                    test.assertEqual(0, array.getCount());
+                    test.assertThrows(() -> Array.create((char[])null),
+                        new PreConditionFailure("values cannot be null."));
                 });
 
                 runner.test("with no values", (Test test) ->
@@ -109,8 +109,8 @@ public class ArrayTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final Array<Integer> array = Array.create((int[])null);
-                    test.assertEqual(0, array.getCount());
+                    test.assertThrows(() -> Array.create((int[])null),
+                        new PreConditionFailure("values cannot be null."));
                 });
 
                 runner.test("with no values", (Test test) ->
@@ -168,8 +168,8 @@ public class ArrayTests
             {
                 runner.test("with null Iterator", (Test test) ->
                 {
-                    final Array<Integer> array = Array.create((Iterator<Integer>)null);
-                    test.assertEqual(0, array.getCount());
+                    test.assertThrows(() -> Array.create((Iterator<Integer>)null),
+                        new PreConditionFailure("values cannot be null."));
                 });
 
                 runner.test("with empty Iterator", (Test test) ->
@@ -192,13 +192,13 @@ public class ArrayTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final Array<Integer> array = Array.create((Iterable<Integer>)null);
-                    test.assertEqual(0, array.getCount());
+                    test.assertThrows(() -> Array.create((Iterable<Integer>)null),
+                        new PreConditionFailure("values cannot be null."));
                 });
 
                 runner.test("with empty", (Test test) ->
                 {
-                    final Array<Integer> array = Array.create(new Array<Integer>(0));
+                    final Array<Integer> array = Array.create(new Array<>(0));
                     test.assertEqual(0, array.getCount());
                 });
 
@@ -327,7 +327,8 @@ public class ArrayTests
             {
                 runner.test("with null Iterator", (Test test) ->
                 {
-                    test.assertNull(Array.toBooleanArray((Iterator<Boolean>)null));
+                    test.assertThrows(() -> Array.toBooleanArray((Iterator<Boolean>)null),
+                        new PreConditionFailure("values cannot be null."));
                 });
                 
                 runner.test("with empty Iterator", (Test test) ->

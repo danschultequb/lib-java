@@ -2,7 +2,7 @@ package qub;
 
 public class BufferedByteReadStream implements ByteReadStream
 {
-    public static final int defaultInitialBufferSize = 10;
+    public static final int defaultInitialBufferSize = 1024;
     private final ByteReadStream byteReadStream;
     private byte[] buffer;
     private boolean growOnNextBufferFill;

@@ -211,6 +211,23 @@ public class Result<T>
     }
 
     /**
+     * If this result doesn't have an error, then run the provided action and return this Result
+     * object.
+     * @param action The action to run if this result does not have an error.
+     * @return This Result object.
+     */
+    public Result<T> onValue(Action1<T> action)
+    {
+        PreCondition.assertNotNull(action, "action");
+
+        return thenResult(() ->
+        {
+            action.run(value);
+            return this;
+        });
+    }
+
+    /**
      * If this Result has an error of the provided type, then catch that error and return a
      * successful Result instead.
      * @param errorType The type of error to catch.

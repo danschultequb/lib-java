@@ -1167,7 +1167,7 @@ public interface FileSystem
      * @param content The byte[] contents to set.
      * @return Whether or not the file's contents were set.
      */
-    default Result<Boolean> setFileContent(String rootedFilePath, byte[] content)
+    default Result<Void> setFileContent(String rootedFilePath, byte[] content)
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
@@ -1180,11 +1180,11 @@ public interface FileSystem
      * @param content The byte[] contents to set.
      * @return Whether or not the file's contents were set.
      */
-    default Result<Boolean> setFileContent(Path rootedFilePath, byte[] content)
+    default Result<Void> setFileContent(Path rootedFilePath, byte[] content)
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        Result<Boolean> result;
+        Result<Void> result;
         final Result<ByteWriteStream> byteWriteStreamResult = getFileContentByteWriteStream(rootedFilePath);
         if (byteWriteStreamResult.hasError())
         {
@@ -1197,7 +1197,7 @@ public interface FileSystem
                 if (content == null || content.length == 0)
                 {
                     // If we want to set the file to have no/empty contents.
-                    result = Result.successTrue();
+                    result = Result.success();
                 }
                 else
                 {
@@ -1214,7 +1214,7 @@ public interface FileSystem
      * @param content The String contents to set.
      * @return Whether or not the file's contents were set.
      */
-    default Result<Boolean> setFileContentAsString(String rootedFilePath, String content)
+    default Result<Void> setFileContentAsString(String rootedFilePath, String content)
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
@@ -1227,7 +1227,7 @@ public interface FileSystem
      * @param content The String contents to set.
      * @return Whether or not the file's contents were set.
      */
-    default Result<Boolean> setFileContentAsString(Path rootedFilePath, String content)
+    default Result<Void> setFileContentAsString(Path rootedFilePath, String content)
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
@@ -1341,7 +1341,7 @@ public interface FileSystem
      * @param content The byte[] contents to set.
      * @return Whether or not the file's contents were set.
      */
-    default AsyncFunction<Result<Boolean>> setFileContentAsync(String rootedFilePath, byte[] content)
+    default AsyncFunction<Result<Void>> setFileContentAsync(String rootedFilePath, byte[] content)
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
@@ -1355,7 +1355,7 @@ public interface FileSystem
      * @param content The byte[] contents to set.
      * @return Whether or not the file's contents were set.
      */
-    default AsyncFunction<Result<Boolean>> setFileContentAsync(Path rootedFilePath, byte[] content)
+    default AsyncFunction<Result<Void>> setFileContentAsync(Path rootedFilePath, byte[] content)
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");

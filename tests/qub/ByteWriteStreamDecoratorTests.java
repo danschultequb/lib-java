@@ -42,11 +42,11 @@ public class ByteWriteStreamDecoratorTests
                 test.assertEqual(4, counter.get());
                 test.assertEqual(new byte[] { 5, 6, 7, 8 }, innerStream.getBytes());
 
-                test.assertSuccess(true, decorator.writeAllBytes(new byte[] { 9, 10 }));
+                test.assertSuccess(null, decorator.writeAllBytes(new byte[] { 9, 10 }));
                 test.assertEqual(6, counter.get());
                 test.assertEqual(new byte[] { 5, 6, 7, 8, 9, 10 }, innerStream.getBytes());
 
-                test.assertSuccess(true, decorator.writeAllBytes(new InMemoryByteStream(new byte[] { 11, 12, 13 }).endOfStream()));
+                test.assertSuccess(null, decorator.writeAllBytes(new InMemoryByteStream(new byte[] { 11, 12, 13 }).endOfStream()));
                 test.assertEqual(9, counter.get());
                 test.assertEqual(new byte[] { 5, 6, 7, 8, 9, 10, 11, 12, 13 }, innerStream.getBytes());
 

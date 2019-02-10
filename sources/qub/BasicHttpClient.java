@@ -56,7 +56,7 @@ public class BasicHttpClient implements HttpClient
                     requestBeforeBodyLineStream.writeLine();
                     requestBeforeBodyByteStream.endOfStream();
 
-                    Result<Boolean> writeResult = tcpClient.writeAllBytes(requestBeforeBodyByteStream);
+                    Result<Void> writeResult = tcpClient.writeAllBytes(requestBeforeBodyByteStream);
                     if (!writeResult.hasError())
                     {
                         final ByteReadStream requestBodyStream = request.getBody();

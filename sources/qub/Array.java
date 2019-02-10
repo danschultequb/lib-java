@@ -38,7 +38,7 @@ public class Array<T> implements MutableIndexable<T>
     @SuppressWarnings("unchecked")
     public T get(int index)
     {
-        validateAccessIndex(index);
+        PreCondition.assertIndexAccess(index, data.length, "index");
 
         return (T)data[index];
     }
@@ -51,7 +51,7 @@ public class Array<T> implements MutableIndexable<T>
      */
     public void set(int index, T value)
     {
-        validateAccessIndex(index);
+        PreCondition.assertIndexAccess(index, data.length, "index");
 
         data[index] = value;
     }
@@ -75,7 +75,10 @@ public class Array<T> implements MutableIndexable<T>
      * Get an Iterator that will iterate over the contents of this Array in reverse.
      * @return An Iterator that will iterate over the contents of this Array in reverse.
      */
-    public Iterator<T> iterateReverse() { return new ArrayIterator<>(this, getCount() - 1, -1); }
+    public Iterator<T> iterateReverse()
+    {
+        return new ArrayIterator<>(this, getCount() - 1, -1);
+    }
 
     @Override
     public boolean any()
@@ -101,9 +104,10 @@ public class Array<T> implements MutableIndexable<T>
      */
     public static Array<Boolean> create(boolean[] values)
     {
-        final int length = values == null ? 0 : values.length;
-        final Array<Boolean> result = new Array<>(length);
-        for (int i = 0; i < length; ++i)
+        PreCondition.assertNotNull(values, "values");
+
+        final Array<Boolean> result = new Array<>(values.length);
+        for (int i = 0; i < values.length; ++i)
         {
             result.set(i, values[i]);
         }
@@ -128,8 +132,8 @@ public class Array<T> implements MutableIndexable<T>
     public static Array<Byte> create(byte[] values, int startIndex, int length)
     {
         PreCondition.assertNotNull(values, "values");
-        PreCondition.assertBetween(0, startIndex, values.length - 1, "startIndex");
-        PreCondition.assertBetween(0, length, values.length - startIndex, "length");
+        PreCondition.assertStartIndex(startIndex, values.length);
+        PreCondition.assertLength(length, startIndex, values.length);
 
         final Array<Byte> result = new Array<>(length);
         for (int i = 0; i < length; ++i)
@@ -145,9 +149,10 @@ public class Array<T> implements MutableIndexable<T>
      */
     public static Array<Character> create(char[] values)
     {
-        final int length = values == null ? 0 : values.length;
-        final Array<Character> result = new Array<>(length);
-        for (int i = 0; i < length; ++i)
+        PreCondition.assertNotNull(values, "values");
+
+        final Array<Character> result = new Array<>(values.length);
+        for (int i = 0; i < values.length; ++i)
         {
             result.set(i, values[i]);
         }
@@ -160,9 +165,10 @@ public class Array<T> implements MutableIndexable<T>
      */
     public static Array<Integer> create(int[] values)
     {
-        final int length = values == null ? 0 : values.length;
-        final Array<Integer> result = new Array<>(length);
-        for (int i = 0; i < length; ++i)
+        PreCondition.assertNotNull(values, "values");
+
+        final Array<Integer> result = new Array<>(values.length);
+        for (int i = 0; i < values.length; ++i)
         {
             result.set(i, values[i]);
         }
@@ -192,6 +198,8 @@ public class Array<T> implements MutableIndexable<T>
      */
     public static <T> Array<T> create(Iterator<T> values)
     {
+        PreCondition.assertNotNull(values, "values");
+
         return create(ArrayList.fromValues(values));
     }
 
@@ -201,10 +209,12 @@ public class Array<T> implements MutableIndexable<T>
      */
     public static <T> Array<T> create(Iterable<T> values)
     {
-        final int length = values == null ? 0 : values.getCount();
+        PreCondition.assertNotNull(values, "values");
+
+        final int length = values.getCount();
         final Array<T> result = new Array<>(length);
 
-        if (values != null && values.any())
+        if (length > 0)
         {
             int i = 0;
             for (final T value : values)
@@ -218,24 +228,21 @@ public class Array<T> implements MutableIndexable<T>
 
     /**
      * Convert the provided boolean Iterator into a boolean array.
-     * @param booleans The boolean Iterator to convert to a boolean array.
+     * @param values The boolean Iterator to convert to a boolean array.
      * @return The boolean array.
      */
-    public static boolean[] toBooleanArray(Iterator<Boolean> booleans)
+    public static boolean[] toBooleanArray(Iterator<Boolean> values)
     {
+        PreCondition.assertNotNull(values, "values");
         boolean[] result;
-        if (booleans == null)
-        {
-            result = null;
-        }
-        else if (!booleans.any())
+        if (!values.any())
         {
             result = new boolean[0];
         }
         else
         {
             final ArrayList<Boolean> list = new ArrayList<>();
-            list.addAll(booleans);
+            list.addAll(values);
             result = toBooleanArray(list);
         }
         return result;

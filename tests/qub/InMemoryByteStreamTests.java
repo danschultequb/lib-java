@@ -339,7 +339,7 @@ public class InMemoryByteStreamTests
                 {
                     final InMemoryByteStream stream = create(test);
                     final byte[] outputBytes = new byte[10];
-                    test.assertThrows(() -> stream.readBytes(outputBytes, 1, 0));
+                    test.assertError(new EndOfStreamException(), stream.readBytes(outputBytes, 1, 0));
                 });
 
                 runner.test("with length greater than outputBytes.length - startIndex", (Test test) ->
@@ -693,7 +693,7 @@ public class InMemoryByteStreamTests
                 test.assertThrows(() -> stream.writeBytes(new byte[0], 0, 0));
                 test.assertEqual(new byte[0], stream.getBytes());
 
-                test.assertThrows(() -> stream.writeBytes(new byte[] { 1, 2, 3, 4 }, 1, 0));
+                test.assertEqual(0, stream.writeBytes(new byte[] { 1, 2, 3, 4 }, 1, 0).await());
                 test.assertEqual(new byte[0], stream.getBytes());
 
                 stream.writeBytes(new byte[] { 1, 2, 3, 4 }, 1, 2);
@@ -731,7 +731,7 @@ public class InMemoryByteStreamTests
                 {
                     final InMemoryByteStream stream = new InMemoryByteStream();
                     final InMemoryByteStream readStream = new InMemoryByteStream().endOfStream();
-                    test.assertSuccess(true, stream.writeAllBytes(readStream));
+                    test.assertSuccess(null, stream.writeAllBytes(readStream));
                     test.assertEqual(new byte[0], stream.getBytes());
                 });
 
@@ -739,7 +739,7 @@ public class InMemoryByteStreamTests
                 {
                     final InMemoryByteStream stream = new InMemoryByteStream();
                     final InMemoryByteStream readStream = new InMemoryByteStream(new byte[] { 0, 1, 2, 3 }).endOfStream();
-                    test.assertSuccess(true, stream.writeAllBytes(readStream));
+                    test.assertSuccess(null, stream.writeAllBytes(readStream));
                     test.assertEqual(new byte[] { 0, 1, 2, 3 }, stream.getBytes());
                 });
             });

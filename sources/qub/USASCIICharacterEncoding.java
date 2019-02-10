@@ -6,8 +6,8 @@ public class USASCIICharacterEncoding implements CharacterEncoding
     public Result<byte[]> encode(char[] characters, int startIndex, int length)
     {
         PreCondition.assertNotNull(characters, "characters");
-        PreCondition.assertBetween(0, startIndex, characters.length - 1, "startIndex");
-        PreCondition.assertBetween(1, length, characters.length - startIndex, "length");
+        PreCondition.assertStartIndex(startIndex, characters.length);
+        PreCondition.assertLength(length, startIndex, characters.length);
 
         final byte[] encodedBytes = new byte[characters.length];
         for (int i = 0; i < length; ++i)
@@ -21,8 +21,8 @@ public class USASCIICharacterEncoding implements CharacterEncoding
     public Result<char[]> decode(byte[] bytes, int startIndex, int length)
     {
         PreCondition.assertNotNull(bytes, "characters");
-        PreCondition.assertBetween(0, startIndex, bytes.length - 1, "startIndex");
-        PreCondition.assertBetween(1, length, bytes.length - startIndex, "length");
+        PreCondition.assertStartIndex(startIndex, bytes.length);
+        PreCondition.assertLength(length, startIndex, bytes.length);
 
         final char[] decodedCharacters = new char[bytes.length];
         for (int i = 0; i < length; ++i)

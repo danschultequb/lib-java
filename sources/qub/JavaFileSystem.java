@@ -272,11 +272,12 @@ public class JavaFileSystem implements FileSystem
         try
         {
             result = Result.success(
-                new OutputStreamToByteWriteStream(
-                    java.nio.file.Files.newOutputStream(
-                        java.nio.file.Paths.get(rootedFilePath.toString()),
-                        java.nio.file.StandardOpenOption.CREATE,
-                        java.nio.file.StandardOpenOption.TRUNCATE_EXISTING)));
+                new BufferedByteWriteStream(
+                    new OutputStreamToByteWriteStream(
+                        java.nio.file.Files.newOutputStream(
+                            java.nio.file.Paths.get(rootedFilePath.toString()),
+                            java.nio.file.StandardOpenOption.CREATE,
+                            java.nio.file.StandardOpenOption.TRUNCATE_EXISTING))));
         }
         catch (java.nio.file.NoSuchFileException e)
         {
@@ -284,11 +285,12 @@ public class JavaFileSystem implements FileSystem
             {
                 createFolder(rootedFilePath.getParent()).throwError();
                 result = Result.success(
-                    new OutputStreamToByteWriteStream(
-                        java.nio.file.Files.newOutputStream(
-                            java.nio.file.Paths.get(rootedFilePath.toString()),
-                            java.nio.file.StandardOpenOption.CREATE,
-                            java.nio.file.StandardOpenOption.TRUNCATE_EXISTING)));
+                    new BufferedByteWriteStream(
+                        new OutputStreamToByteWriteStream(
+                            java.nio.file.Files.newOutputStream(
+                                java.nio.file.Paths.get(rootedFilePath.toString()),
+                                java.nio.file.StandardOpenOption.CREATE,
+                                java.nio.file.StandardOpenOption.TRUNCATE_EXISTING))));
             }
             catch (Throwable e1)
             {

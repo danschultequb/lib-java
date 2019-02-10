@@ -61,7 +61,7 @@ public class BitArray
      */
     public int getBit(long bitIndex)
     {
-        PreCondition.assertBetween(0, bitIndex, getBitCount() - 1, "bitIndex");
+        PreCondition.assertStartIndex(bitIndex, getBitCount(), "bitIndex");
 
         final int chunk = chunks[bitIndexToChunkIndex(bitIndex)];
         final int chunkBitOffset = bitIndexToChunkBitOffset(bitIndex);
@@ -79,7 +79,7 @@ public class BitArray
      */
     public void setBit(long bitIndex, int value)
     {
-        PreCondition.assertBetween(0, bitIndex, getBitCount() - 1, "bitIndex");
+        PreCondition.assertStartIndex(bitIndex, getBitCount(), "bitIndex");
         PreCondition.assertOneOf(value, new int[] { 0, 1 }, "value");
 
         final int chunkIndex = bitIndexToChunkIndex(bitIndex);
@@ -124,9 +124,9 @@ public class BitArray
     public void copyFrom(BitArray copyFrom, long copyFromStartIndex, long copyToStartIndex, long copyLength)
     {
         PreCondition.assertNotNull(copyFrom, "copyFrom");
-        PreCondition.assertBetween(0, copyFromStartIndex, copyFrom.getBitCount() - 1, "copyFromStartIndex");
-        PreCondition.assertBetween(0, copyToStartIndex, this.getBitCount() - 1, "copyToStartIndex");
-        PreCondition.assertBetween(1, copyLength, Math.minimum(copyFrom.getBitCount() - copyFromStartIndex, this.getBitCount() - copyToStartIndex), "copyLength");
+        PreCondition.assertStartIndex(copyFromStartIndex, copyFrom.getBitCount(), "copyFromStartIndex");
+        PreCondition.assertStartIndex(copyToStartIndex, this.getBitCount(), "copyToStartIndex");
+        PreCondition.assertBetween(0, copyLength, Math.minimum(copyFrom.getBitCount() - copyFromStartIndex, this.getBitCount() - copyToStartIndex), "copyLength");
 
         for (long i = 0; i < copyLength; ++i)
         {
@@ -143,8 +143,8 @@ public class BitArray
      */
     public void copyFrom(long copyFrom, long copyToStartIndex, int copyLength)
     {
-        PreCondition.assertBetween(0, copyToStartIndex, this.getBitCount() - 1, "copyToStartIndex");
-        PreCondition.assertBetween(1, copyLength, Long.SIZE, "copyLength");
+        PreCondition.assertStartIndex(copyToStartIndex, this.getBitCount(), "copyToStartIndex");
+        PreCondition.assertLength(copyLength, 0, Long.SIZE, "copyLength");
 
         while (copyLength > 0)
         {
@@ -180,8 +180,8 @@ public class BitArray
      */
     public void rotateLeft(long bitsToRotate, long startIndex, long length)
     {
-        PreCondition.assertBetween(0, startIndex, getBitCount() - 1, "startIndex");
-        PreCondition.assertBetween(1, length, getBitCount() - startIndex, "length");
+        PreCondition.assertStartIndex(startIndex, getBitCount());
+        PreCondition.assertLength(length, startIndex, getBitCount());
 
         if (bitsToRotate % getBitCount() != 0)
         {
@@ -221,8 +221,8 @@ public class BitArray
      */
     public void rotateRight(long bitsToRotate, long startIndex, long length)
     {
-        PreCondition.assertBetween(0, startIndex, getBitCount() - 1, "startIndex");
-        PreCondition.assertBetween(1, length, getBitCount() - startIndex, "length");
+        PreCondition.assertStartIndex(startIndex, getBitCount());
+        PreCondition.assertLength(length, startIndex, getBitCount());
 
         rotateLeft(-bitsToRotate, startIndex, length);
     }
@@ -252,8 +252,8 @@ public class BitArray
      */
     public void shiftLeft(long bitsToShift, long startIndex, long length)
     {
-        PreCondition.assertBetween(0, startIndex, getBitCount() - 1, "startIndex");
-        PreCondition.assertBetween(1, length, getBitCount() - startIndex, "length");
+        PreCondition.assertStartIndex(startIndex, getBitCount());
+        PreCondition.assertLength(length, startIndex, getBitCount());
 
         final BitArray tempBits = BitArray.fromBitCount(length);
         final long afterRangeEndIndex = startIndex + length;
@@ -352,8 +352,8 @@ public class BitArray
 
     public BitArray permuteByBitNumber(long startIndex, long length, long[] bitNumberPermutations)
     {
-        PreCondition.assertBetween(0, startIndex, getBitCount() - 1, "startIndex");
-        PreCondition.assertBetween(1, length, getBitCount() - startIndex, "length");
+        PreCondition.assertStartIndex(startIndex, getBitCount());
+        PreCondition.assertLength(length, startIndex, getBitCount());
         PreCondition.assertNotNull(bitNumberPermutations, "bitNumberPermutations");
 
         final BitArray result = BitArray.fromBitCount(bitNumberPermutations.length);
@@ -469,7 +469,7 @@ public class BitArray
      */
     public int toInteger(int startIndex, long length)
     {
-        PreCondition.assertBetween(0, startIndex, getBitCount() - 1, "startIndex");
+        PreCondition.assertStartIndex(startIndex, getBitCount());
         PreCondition.assertBetween(1, length, Math.minimum(getBitCount() - startIndex, Integer.SIZE), "length");
 
         int mask = 1;
