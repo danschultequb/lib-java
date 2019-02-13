@@ -74,4 +74,20 @@ public interface Arrays
 
         return new ByteArrayIterator(values, startIndex, length);
     }
+
+    /**
+     * Create an Array create the provided values.
+     * @param values The values to initialize the array with.
+     */
+    static Array<Character> createFrom(char... values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        final Array<Character> result = new Array<>(values.length);
+        for (int i = 0; i < values.length; ++i)
+        {
+            result.set(i, values[i]);
+        }
+        return result;
+    }
 }

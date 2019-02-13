@@ -6,6 +6,9 @@ package qub;
  */
 public class Array<T> implements MutableIndexable<T>
 {
+    /**
+     * The elements of this array.
+     */
     private final Object[] data;
 
     /**
@@ -96,22 +99,6 @@ public class Array<T> implements MutableIndexable<T>
     public String toString()
     {
         return Iterable.toString(this);
-    }
-
-    /**
-     * Create an Array create the provided values.
-     * @param values The values to initialize the array with.
-     */
-    public static Array<Character> create(char[] values)
-    {
-        PreCondition.assertNotNull(values, "values");
-
-        final Array<Character> result = new Array<>(values.length);
-        for (int i = 0; i < values.length; ++i)
-        {
-            result.set(i, values[i]);
-        }
-        return result;
     }
 
     /**

@@ -6,7 +6,7 @@ public class ArraysTests
     {
         runner.testGroup(Arrays.class, () ->
         {
-            runner.testGroup("createFrom(boolean[])", () ->
+            runner.testGroup("createFrom(boolean...)", () ->
             {
                 runner.test("with null array", (Test test) ->
                 {
@@ -51,9 +51,7 @@ public class ArraysTests
                 });
             });
 
-
-
-            runner.testGroup("createFrom(byte[])", () ->
+            runner.testGroup("createFrom(byte...)", () ->
             {
                 runner.test("with null array", (Test test) ->
                 {
@@ -94,6 +92,51 @@ public class ArraysTests
                     test.assertEqual(2, array.getCount());
                     test.assertEqual(13, array.get(0).intValue());
                     test.assertEqual(14, array.get(1).intValue());
+                });
+            });
+
+            runner.testGroup("createFrom(char...)", () ->
+            {
+                runner.test("with null array", (Test test) ->
+                {
+                    test.assertThrows(() -> Arrays.createFrom((char[])null),
+                        new PreConditionFailure("values cannot be null."));
+                });
+
+                runner.test("with empty array", (Test test) ->
+                {
+                    final Array<Character> array = Arrays.createFrom(new char[0]);
+                    test.assertEqual(0, array.getCount());
+                });
+
+                runner.test("with one value array", (Test test) ->
+                {
+                    final Array<Character> array = Arrays.createFrom(new char[] { 'a' });
+                    test.assertEqual(1, array.getCount());
+                    test.assertEqual('a', array.get(0));
+                });
+
+                runner.test("with two value array", (Test test) ->
+                {
+                    final Array<Character> array = Arrays.createFrom(new char[] { 'b', 'c' });
+                    test.assertEqual(2, array.getCount());
+                    test.assertEqual('b', array.get(0));
+                    test.assertEqual('c', array.get(1));
+                });
+
+                runner.test("with one value", (Test test) ->
+                {
+                    final Array<Character> array = Arrays.createFrom('a');
+                    test.assertEqual(1, array.getCount());
+                    test.assertEqual('a', array.get(0));
+                });
+
+                runner.test("with two values", (Test test) ->
+                {
+                    final Array<Character> array = Arrays.createFrom('b', 'c');
+                    test.assertEqual(2, array.getCount());
+                    test.assertEqual('b', array.get(0));
+                    test.assertEqual('c', array.get(1));
                 });
             });
         });

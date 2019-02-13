@@ -16,36 +16,6 @@ public class ArrayTests
                 return result; 
             });
 
-            runner.testGroup("create(char[])", () ->
-            {
-                runner.test("with null", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.create((char[])null),
-                        new PreConditionFailure("values cannot be null."));
-                });
-
-                runner.test("with no values", (Test test) ->
-                {
-                    final Array<Character> array = Array.create(new char[0]);
-                    test.assertEqual(0, array.getCount());
-                });
-
-                runner.test("with one value", (Test test) ->
-                {
-                    final Array<Character> array = Array.create(new char[] { 'a' });
-                    test.assertEqual(1, array.getCount());
-                    test.assertEqual('a', array.get(0));
-                });
-
-                runner.test("with two values", (Test test) ->
-                {
-                    final Array<Character> array = Array.create(new char[] { 'b', 'c' });
-                    test.assertEqual(2, array.getCount());
-                    test.assertEqual('b', array.get(0));
-                    test.assertEqual('c', array.get(1));
-                });
-            });
-
             runner.testGroup("create(int[])", () ->
             {
                 runner.test("with null", (Test test) ->
