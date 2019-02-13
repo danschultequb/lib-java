@@ -100,14 +100,20 @@ public class BufferedByteWriteStream implements ByteWriteStream
         }
         else
         {
-            final Result<Void> writeBufferResult = currentBufferIndex == 0
-                ? Result.success()
-                : byteWriteStream.writeAllBytes(buffer, 0, currentBufferIndex)
+            Result<Void> writeBufferResult;
+            if (currentBufferIndex == 0)
+            {
+                writeBufferResult = Result.success();
+            }
+            else
+            {
+                writeBufferResult = byteWriteStream.writeAllBytes(buffer, 0, currentBufferIndex)
                     .then(() ->
                     {
                         buffer = null;
                         currentBufferIndex = 0;
                     });
+            }
             result = writeBufferResult
                 .onError(byteWriteStream::dispose)
                 .thenResult(byteWriteStream::dispose);

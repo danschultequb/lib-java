@@ -1130,9 +1130,7 @@ public interface FileSystem
     default Result<CharacterWriteStream> getFileContentCharacterWriteStream(Path rootedFilePath)
     {
         return getFileContentByteWriteStream(rootedFilePath)
-            .then((ByteWriteStream writeStream) ->
-                new BufferedByteWriteStream(writeStream)
-                    .asCharacterWriteStream());
+            .then((ByteWriteStream writeStream) -> writeStream.asCharacterWriteStream());
     }
 
     /**

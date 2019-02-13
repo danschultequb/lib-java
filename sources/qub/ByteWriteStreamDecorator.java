@@ -3,15 +3,22 @@ package qub;
 /**
  * A ByteWriteStream decorator that can add funtionality to an existing ByteWriteStream.
  */
-public abstract class ByteWriteStreamDecorator implements ByteWriteStream
+public class ByteWriteStreamDecorator implements ByteWriteStream
 {
     protected final ByteWriteStream innerStream;
+    private final Function3<byte[],Integer,Integer,Result<Integer>> writeBytesFunction;
 
     public ByteWriteStreamDecorator(ByteWriteStream innerStream)
+    {
+        this(innerStream, null);
+    }
+
+    public ByteWriteStreamDecorator(ByteWriteStream innerStream, Function3<byte[],Integer,Integer,Result<Integer>> writeBytesFunction)
     {
         PreCondition.assertNotNull(innerStream, "innerStream");
 
         this.innerStream = innerStream;
+        this.writeBytesFunction = writeBytesFunction;
     }
 
     @Override
@@ -26,111 +33,19 @@ public abstract class ByteWriteStreamDecorator implements ByteWriteStream
         return innerStream.dispose();
     }
 
-    /**
-     * Write the provided byte to this ByteWriteStream.
-     * @param toWrite The byte to writeByte to this stream.
-     */
     @Override
-    final public Result<Boolean> writeByte(byte toWrite)
+    public Result<Integer> writeBytes(byte[] toWrite, int startIndex, int length)
     {
-        return ByteWriteStream.super.writeByte(toWrite);
-    }
+        PreCondition.assertNotNull(toWrite, "toWrite");
+        PreCondition.assertStartIndex(startIndex, toWrite.length);
+        PreCondition.assertLength(length, startIndex, toWrite.length);
+        PreCondition.assertNotNull(writeBytesFunction, "writeBytesFunction");
+        PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
-    /**
-     * Write the provided bytes to this ByteWriteStream.
-     * @param toWrite The bytes to writeByte to this stream.
-     */
-    @Override
-    final public Result<Integer> writeBytes(byte[] toWrite)
-    {
-        return ByteWriteStream.super.writeBytes(toWrite);
-    }
+        final Result<Integer> result = writeBytesFunction.run(toWrite, startIndex, length);
 
-    @Override
-    final public Result<Void> writeAllBytes(byte[] toWrite)
-    {
-        return ByteWriteStream.super.writeAllBytes(toWrite);
-    }
+        PostCondition.assertNotNull(result, "result");
 
-    /**
-     * Write all of the bytes from the provided byteReadStream to this ByteWriteStream.
-     * @param byteReadStream The ByteReadStream to read from.
-     * @return Whether or not the writeByte was successful.
-     */
-    @Override
-    final public Result<Void> writeAllBytes(ByteReadStream byteReadStream)
-    {
-        return ByteWriteStream.super.writeAllBytes(byteReadStream);
-    }
-
-    /**
-     * Convert this ByteWriteStream to a CharacterWriteStream that uses UTF-8 for its character
-     * encoding.
-     * @return A CharacterWriteStream that wraps around this ByteWriteStream.
-     */
-    @Override
-    final public CharacterWriteStream asCharacterWriteStream()
-    {
-        return ByteWriteStream.super.asCharacterWriteStream();
-    }
-
-    /**
-     * Convert this ByteWriteStream to a CharacterWriteStream that uses the provided character
-     * encoding.
-     * @param characterEncoding The encoding to use to convert characters to bytes.
-     * @return A CharacterWriteStream that wraps around this ByteWriteStream.
-     */
-    @Override
-    final public CharacterWriteStream asCharacterWriteStream(CharacterEncoding characterEncoding)
-    {
-        return ByteWriteStream.super.asCharacterWriteStream(characterEncoding);
-    }
-
-    /**
-     * Convert this ByteWriteStream to a LineWriteStream that uses UTF-8 for its character
-     * encoding and '\n' as its line separator.
-     * @return A LineWriteStream that wraps around this ByteWriteStream.
-     */
-    @Override
-    final public LineWriteStream asLineWriteStream()
-    {
-        return ByteWriteStream.super.asLineWriteStream();
-    }
-
-    /**
-     * Convert this ByteWriteStream to a LineWriteStream that uses the provided character encoding
-     * and '\n' as its line separator.
-     * @param characterEncoding The encoding to use to convert characters to bytes.
-     * @return A LineWriteStream that wraps around this ByteWriteStream.
-     */
-    @Override
-    final public LineWriteStream asLineWriteStream(CharacterEncoding characterEncoding)
-    {
-        return ByteWriteStream.super.asLineWriteStream(characterEncoding);
-    }
-
-    /**
-     * Convert this ByteWriteStream to a LineWriteStream that uses UTF-8 for its character
-     * encoding and the provided line separator.
-     * @param lineSeparator The separator to insert between lines.
-     * @return A LineWriteStream that wraps around this ByteWriteStream.
-     */
-    @Override
-    final public LineWriteStream asLineWriteStream(String lineSeparator)
-    {
-        return ByteWriteStream.super.asLineWriteStream(lineSeparator);
-    }
-
-    /**
-     * Convert this ByteWriteStream to a LineWriteStream that uses the provided character encoding
-     * and the provided line separator.
-     * @param characterEncoding The encoding to use to convert characters to bytes.
-     * @param lineSeparator The separator to insert between lines.
-     * @return A LineWriteStream that wraps around this ByteWriteStream.
-     */
-    @Override
-    final public LineWriteStream asLineWriteStream(CharacterEncoding characterEncoding, String lineSeparator)
-    {
-        return ByteWriteStream.super.asLineWriteStream(characterEncoding, lineSeparator);
+        return result;
     }
 }
