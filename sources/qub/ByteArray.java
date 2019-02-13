@@ -1,93 +1,71 @@
 package qub;
 
+/**
+ * A wrapper class around the byte[] primitive type.
+ */
 public class ByteArray implements MutableIndexable<Byte>
 {
     private final byte[] bytes;
-    private final int startIndex;
-    private final int length;
 
-    public ByteArray(int byteCount)
+    private ByteArray(byte[] bytes)
     {
-        PreCondition.assertGreaterThanOrEqualTo(byteCount, 0, "byteCount");
-
-        this.bytes = new byte[byteCount];
-        this.startIndex = 0;
-        this.length = byteCount;
-    }
-
-    public ByteArray(byte[] bytes, int startIndex, int length)
-    {
-        PreCondition.assertNotNull(bytes, "byteArray");
-        PreCondition.assertBetween(0, startIndex, bytes.length - 1, "startIndex");
-        PreCondition.assertBetween(1, length, bytes.length - startIndex, "length");
+        PreCondition.assertNotNull(bytes, "bytes");
 
         this.bytes = bytes;
-        this.startIndex = startIndex;
-        this.length = length;
     }
 
     @Override
     public int getCount()
     {
-        return length;
+        return bytes.length;
     }
 
+    /**
+     * Set the value at the provided index.
+     * @param index The index to set.
+     * @param value The value to set at the provided index.
+     */
     public void set(int index, byte value)
     {
-        PreCondition.assertBetween(0, index, getCount() - 1, "index");
+        PreCondition.assertIndexAccess(index, getCount(), "index");
 
-        bytes[startIndex + index] = value;
+        bytes[index] = value;
+    }
+
+    /**
+     * Set the value at the provided index.
+     * @param index The index to set.
+     * @param value The value to set at the provided index.
+     */
+    public void set(int index, int value)
+    {
+        PreCondition.assertIndexAccess(index, getCount(), "index");
+        PreCondition.assertByte(value, "value");
+
+        bytes[index] = (byte)value;
     }
 
     @Override
     public void set(int index, Byte value)
     {
-        PreCondition.assertBetween(0, index, getCount() - 1, "index");
+        PreCondition.assertIndexAccess(index, getCount(), "index");
         PreCondition.assertNotNull(value, "value");
 
-        bytes[startIndex + index] = value;
+        bytes[index] = value;
     }
 
     @Override
     public Byte get(int index)
     {
-        PreCondition.assertBetween(0, index, getCount() - 1, "index");
+        PreCondition.assertIndexAccess(index, getCount(), "index");
 
-        return bytes[startIndex + index];
+        return bytes[index];
     }
 
     @Override
     public Iterator<Byte> iterate()
     {
-        return Array.create(bytes).iterate();
-    }
-
-    public ByteArray getRange(int startIndex)
-    {
-        PreCondition.assertBetween(0, startIndex, getCount() - 1, "startIndex");
-
-        return getRange(startIndex, getCount() - startIndex);
-    }
-
-    public ByteArray getRange(int startIndex, int length)
-    {
-        PreCondition.assertBetween(0, startIndex, getCount() - 1, "startIndex");
-        PreCondition.assertBetween(1, length, getCount() - startIndex, "length");
-
-        ByteArray result;
-        if (startIndex == 0 && this.length == length)
-        {
-            result = this;
-        }
-        else
-        {
-            result = new ByteArray(bytes, this.startIndex + startIndex, length);
-        }
-
-        PostCondition.assertNotNull(result, "result");
-        PostCondition.assertEqual(length, result.getCount(), "result.getCount()");
-
-        return result;
+        return new ByteArrayIterator(bytes);
     }
 
     @Override
@@ -102,12 +80,70 @@ public class ByteArray implements MutableIndexable<Byte>
         return Iterable.toString(this);
     }
 
-    public static ByteArray getRange(byte[] byteArray, int startIndex, int length)
+    /**
+     * Create a new ByteArray with the provided number of elements.
+     * @param count The number of elements.
+     * @return The new ByteArray.
+     */
+    public static ByteArray create(int count)
     {
-        PreCondition.assertNotNull(byteArray, "byteArray");
-        PreCondition.assertBetween(0, startIndex, byteArray.length - 1, "startIndex");
-        PreCondition.assertBetween(1, length, byteArray.length - startIndex, "length");
+        PreCondition.assertGreaterThanOrEqualTo(count, 0, "count");
 
-        return new ByteArray(byteArray, startIndex, length);
+        return new ByteArray(new byte[count]);
+    }
+
+    /**
+     * Create a new ByteArray with the provided elements.
+     * @param values The elements of the new ByteArray.
+     * @return The new ByteArray.
+     */
+    public static ByteArray createFrom(byte... values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        return new ByteArray(values);
+    }
+
+    /**
+     * Create a new ByteArray with the provided elements.
+     * @param values The elements of the new ByteArray.
+     * @return The new ByteArray.
+     */
+    public static ByteArray createFrom(int... values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        final ByteArray result = ByteArray.create(values.length);
+        for (int i = 0; i < values.length; ++i)
+        {
+            result.set(i, values[i]);
+        }
+
+        return result;
+    }
+
+    /**
+     * Create a new ByteArray with the provided elements.
+     * @param values The elements of the new ByteArray.
+     * @param startIndex The start index into the values.
+     * @param length The number of bytes to copy.
+     * @return The new ByteArray.
+     */
+    public static ByteArray createFrom(byte[] values, int startIndex, int length)
+    {
+        PreCondition.assertNotNull(values, "values");
+        PreCondition.assertStartIndex(startIndex, values.length);
+        PreCondition.assertLength(length, startIndex, values.length);
+
+        final ByteArray result = ByteArray.create(length);
+        for (int i = 0; i < length; ++i)
+        {
+            result.set(i, values[startIndex + i]);
+        }
+
+        PostCondition.assertNotNull(result, "result");
+        PostCondition.assertEqual(length, result.getCount(), "length");
+
+        return result;
     }
 }

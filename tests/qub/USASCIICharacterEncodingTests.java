@@ -148,7 +148,7 @@ public class USASCIICharacterEncodingTests
                 {
                     runner.test("with " + Array.toString(bytes), (Test test) ->
                     {
-                        final Iterator<Byte> bytesIterator = bytes == null ? null : Array.create(bytes).iterate();
+                        final Iterator<Byte> bytesIterator = bytes == null ? null : Arrays.iterate(bytes);
                         test.assertThrows(() -> encoding.decodeNextCharacter(bytesIterator));
                     });
                 };
@@ -159,7 +159,7 @@ public class USASCIICharacterEncodingTests
                 {
                     runner.test("with " + Array.toString(bytes), (Test test) ->
                     {
-                        final Iterator<Byte> bytesIterator = bytes == null ? null : Array.create(bytes).iterate();
+                        final Iterator<Byte> bytesIterator = bytes == null ? null : Arrays.iterate(bytes);
                         if (expectedCharacters != null)
                         {
                             for (int i = 0; i < expectedCharacters.length; ++i)

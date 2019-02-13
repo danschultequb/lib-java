@@ -265,7 +265,7 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
         PreCondition.assertNotNullAndNotEmpty(stopBytes, "stopBytes");
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
-        return readBytesUntil(Array.create(stopBytes));
+        return readBytesUntil(Arrays.createFrom(stopBytes));
     }
 
     /**

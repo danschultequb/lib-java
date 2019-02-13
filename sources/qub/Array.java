@@ -102,51 +102,6 @@ public class Array<T> implements MutableIndexable<T>
      * Create an Array create the provided values.
      * @param values The values to initialize the array with.
      */
-    public static Array<Boolean> create(boolean[] values)
-    {
-        PreCondition.assertNotNull(values, "values");
-
-        final Array<Boolean> result = new Array<>(values.length);
-        for (int i = 0; i < values.length; ++i)
-        {
-            result.set(i, values[i]);
-        }
-        return result;
-    }
-
-    /**
-     * Create an Array create the provided values.
-     * @param values The values to initialize the array with.
-     */
-    public static Array<Byte> create(byte[] values)
-    {
-        PreCondition.assertNotNull(values, "values");
-
-        return Array.create(values, 0, values.length);
-    }
-
-    /**
-     * Create an Array create the provided values.
-     * @param values The values to initialize the array with.
-     */
-    public static Array<Byte> create(byte[] values, int startIndex, int length)
-    {
-        PreCondition.assertNotNull(values, "values");
-        PreCondition.assertStartIndex(startIndex, values.length);
-        PreCondition.assertLength(length, startIndex, values.length);
-
-        final Array<Byte> result = new Array<>(length);
-        for (int i = 0; i < length; ++i)
-        {
-            result.set(i, values[startIndex + i]);
-        }
-        return result;
-    }
-
-    /**
-     * Create an Array create the provided values.
-     * @param values The values to initialize the array with.
-     */
     public static Array<Character> create(char[] values)
     {
         PreCondition.assertNotNull(values, "values");

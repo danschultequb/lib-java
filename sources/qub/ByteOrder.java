@@ -232,7 +232,7 @@ public abstract class ByteOrder
         final short[] result = new short[bytes.length / Shorts.byteCount];
         for(int i = 0; i < result.length; ++i)
         {
-            result[i] = decodeAsShort(ByteArray.getRange(bytes, i * Shorts.byteCount, Shorts.byteCount));
+            result[i] = decodeAsShort(Arrays.createFrom(bytes, i * Shorts.byteCount, Shorts.byteCount));
         }
 
         PostCondition.assertNotNull(result, "result");
@@ -266,7 +266,7 @@ public abstract class ByteOrder
         final int[] result = new int[bytes.length / Integers.byteCount];
         for(int i = 0; i < result.length; ++i)
         {
-            result[i] = decodeAsInteger(ByteArray.getRange(bytes, i * Integers.byteCount, Integers.byteCount));
+            result[i] = decodeAsInteger(Arrays.createFrom(bytes, i * Integers.byteCount, Integers.byteCount));
         }
 
         PostCondition.assertNotNull(result, "result");
@@ -300,7 +300,7 @@ public abstract class ByteOrder
         final long[] result = new long[bytes.length / Longs.byteCount];
         for(int i = 0; i < result.length; ++i)
         {
-            result[i] = decodeAsLong(ByteArray.getRange(bytes, i * Longs.byteCount, Longs.byteCount));
+            result[i] = decodeAsLong(Arrays.createFrom(bytes, i * Longs.byteCount, Longs.byteCount));
         }
 
         PostCondition.assertNotNull(result, "result");
@@ -334,7 +334,7 @@ public abstract class ByteOrder
         final float[] result = new float[bytes.length / Floats.byteCount];
         for(int i = 0; i < result.length; ++i)
         {
-            result[i] = decodeAsFloat(ByteArray.getRange(bytes, i * Floats.byteCount, Floats.byteCount));
+            result[i] = decodeAsFloat(Arrays.createFrom(bytes, i * Floats.byteCount, Floats.byteCount));
         }
 
         PostCondition.assertNotNull(result, "result");
@@ -368,7 +368,7 @@ public abstract class ByteOrder
         final double[] result = new double[bytes.length / Doubles.byteCount];
         for(int i = 0; i < result.length; ++i)
         {
-            result[i] = decodeAsDouble(ByteArray.getRange(bytes, i * Doubles.byteCount, Doubles.byteCount));
+            result[i] = decodeAsDouble(Arrays.createFrom(bytes, i * Doubles.byteCount, Doubles.byteCount));
         }
 
         PostCondition.assertNotNull(result, "result");

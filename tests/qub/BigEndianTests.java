@@ -266,7 +266,7 @@ public class BigEndianTests
                 {
                     runner.test("with " + Objects.toString(values), (Test test) ->
                     {
-                        test.assertEqual(expected, byteOrder.decodeAsShort(Array.create(values)));
+                        test.assertEqual(expected, byteOrder.decodeAsShort(Arrays.createFrom(values)));
                     });
                 };
 
@@ -321,7 +321,7 @@ public class BigEndianTests
                 {
                     runner.test("with " + Objects.toString(values), (Test test) ->
                     {
-                        test.assertEqual(expected, byteOrder.decodeAsInteger(Array.create(values)));
+                        test.assertEqual(expected, byteOrder.decodeAsInteger(Arrays.createFrom(values)));
                     });
                 };
 
@@ -387,7 +387,7 @@ public class BigEndianTests
                 {
                     runner.test("with " + Objects.toString(values), (Test test) ->
                     {
-                        test.assertEqual(expected, byteOrder.decodeAsLong(Array.create(values)));
+                        test.assertEqual(expected, byteOrder.decodeAsLong(Arrays.createFrom(values)));
                     });
                 };
 
@@ -453,7 +453,7 @@ public class BigEndianTests
                 {
                     runner.test("with " + Objects.toString(values), (Test test) ->
                     {
-                        test.assertEqual(expected, byteOrder.decodeAsFloat(Array.create(values)));
+                        test.assertEqual(expected, byteOrder.decodeAsFloat(Arrays.createFrom(values)));
                     });
                 };
 
@@ -519,7 +519,7 @@ public class BigEndianTests
                 {
                     runner.test("with " + Objects.toString(values), (Test test) ->
                     {
-                        test.assertEqual(expected, byteOrder.decodeAsDouble(Array.create(values)));
+                        test.assertEqual(expected, byteOrder.decodeAsDouble(Arrays.createFrom(values)));
                     });
                 };
 
@@ -567,7 +567,7 @@ public class BigEndianTests
                 {
                     runner.test("with " + Objects.toString(values), (Test test) ->
                     {
-                        test.assertEqual(expected, byteOrder.decodeAsShortArray(Array.create(values)));
+                        test.assertEqual(expected, byteOrder.decodeAsShortArray(Arrays.createFrom(values)));
                     });
                 };
 
@@ -597,7 +597,7 @@ public class BigEndianTests
                 {
                     runner.test("with " + Objects.toString(values), (Test test) ->
                     {
-                        test.assertEqual(expected, byteOrder.decodeAsIntegerArray(Array.create(values)));
+                        test.assertEqual(expected, byteOrder.decodeAsIntegerArray(Arrays.createFrom(values)));
                     });
                 };
 
@@ -627,7 +627,7 @@ public class BigEndianTests
                 {
                     runner.test("with " + Objects.toString(values), (Test test) ->
                     {
-                        test.assertEqual(expected, byteOrder.decodeAsLongArray(Array.create(values)));
+                        test.assertEqual(expected, byteOrder.decodeAsLongArray(Arrays.createFrom(values)));
                     });
                 };
 
@@ -657,7 +657,7 @@ public class BigEndianTests
                 {
                     runner.test("with " + Objects.toString(values), (Test test) ->
                     {
-                        test.assertEqual(expected, byteOrder.decodeAsFloatArray(Array.create(values)));
+                        test.assertEqual(expected, byteOrder.decodeAsFloatArray(Arrays.createFrom(values)));
                     });
                 };
 
@@ -687,7 +687,7 @@ public class BigEndianTests
                 {
                     runner.test("with " + Objects.toString(values), (Test test) ->
                     {
-                        test.assertEqual(expected, byteOrder.decodeAsDoubleArray(Array.create(values)));
+                        test.assertEqual(expected, byteOrder.decodeAsDoubleArray(Arrays.createFrom(values)));
                     });
                 };
 

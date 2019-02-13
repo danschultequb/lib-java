@@ -16,65 +16,6 @@ public class ArrayTests
                 return result; 
             });
 
-            runner.testGroup("create(boolean[])", () ->
-            {
-                runner.test("with null", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.create((boolean[])null),
-                        new PreConditionFailure("values cannot be null."));
-                });
-
-                runner.test("with no values", (Test test) ->
-                {
-                    final Array<Boolean> array = Array.create(new boolean[0]);
-                    test.assertEqual(0, array.getCount());
-                });
-
-                runner.test("with one value", (Test test) ->
-                {
-                    final Array<Boolean> array = Array.create(new boolean[] { true });
-                    test.assertEqual(1, array.getCount());
-                    test.assertEqual(true, array.get(0));
-                });
-
-                runner.test("with two values", (Test test) ->
-                {
-                    final Array<Boolean> array = Array.create(new boolean[] { true, false });
-                    test.assertEqual(2, array.getCount());
-                    test.assertEqual(true, array.get(0));
-                    test.assertEqual(false, array.get(1));
-                });
-            });
-
-            runner.testGroup("create(byte[])", () ->
-            {
-                runner.test("with null", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.create((byte[])null));
-                });
-
-                runner.test("with no values", (Test test) ->
-                {
-                    final Array<Byte> array = Array.create(new byte[0]);
-                    test.assertEqual(0, array.getCount());
-                });
-
-                runner.test("with one value", (Test test) ->
-                {
-                    final Array<Byte> array = Array.create(new byte[] { 12 });
-                    test.assertEqual(1, array.getCount());
-                    test.assertEqual(12, array.get(0).intValue());
-                });
-
-                runner.test("with two values", (Test test) ->
-                {
-                    final Array<Byte> array = Array.create(new byte[] { 13, 14 });
-                    test.assertEqual(2, array.getCount());
-                    test.assertEqual(13, array.get(0).intValue());
-                    test.assertEqual(14, array.get(1).intValue());
-                });
-            });
-
             runner.testGroup("create(char[])", () ->
             {
                 runner.test("with null", (Test test) ->
@@ -868,9 +809,9 @@ public class ArrayTests
                 {
                     runner.test("with " + (bytes == null ? "null" : Array.create(bytes).map(Array::create)), (Test test) ->
                     {
-                        final Array<Byte> expectedArray = expected == null ? null : Array.create(expected);
+                        final ByteArray expectedArray = expected == null ? null : Arrays.createFrom(expected);
                         final byte[] mergedBytes = Array.mergeBytes(bytes == null ? null : Array.create(bytes));
-                        final Array<Byte> actualArray = mergedBytes == null ? null : Array.create(mergedBytes);
+                        final ByteArray actualArray = mergedBytes == null ? null : Arrays.createFrom(mergedBytes);
 
                         test.assertEqual(expectedArray, actualArray);
                     });
