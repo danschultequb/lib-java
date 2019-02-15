@@ -13,7 +13,7 @@ public abstract class ListTests
                 runner.test("multiple values", (Test test) ->
                 {
                     final List<Integer> list = createList.run(0);
-                    test.assertEqual(Array.create(new Integer[0]), list);
+                    test.assertEqual(Iterable.empty(), list);
 
                     for (int i = 0; i < 100; ++i)
                     {
@@ -41,7 +41,7 @@ public abstract class ListTests
                     if (list != null)
                     {
                         test.assertThrows(() -> list.insert(-1, 20));
-                        test.assertEqual(Array.create(new Integer[0]), list);
+                        test.assertEqual(Iterable.empty(), list);
                     }
                 });
 
@@ -51,7 +51,7 @@ public abstract class ListTests
                     if (list != null)
                     {
                         list.insert(0, 20);
-                        test.assertEqual(Array.create(new Integer[] { 20 }), list);
+                        test.assertEqual(Iterable.create(20), list);
                     }
                 });
 
@@ -61,7 +61,7 @@ public abstract class ListTests
                     if (list != null)
                     {
                         test.assertThrows(() -> list.insert(1, 20));
-                        test.assertEqual(Array.create(new Integer[0]), list);
+                        test.assertEqual(Iterable.empty(), list);
                     }
                 });
 
@@ -69,14 +69,14 @@ public abstract class ListTests
                 {
                     final List<Integer> list = createList.run(4);
                     test.assertThrows(() -> list.insert(-1, 20));
-                    test.assertEqual(Array.create(new Integer[] { 0, 1, 2, 3 }), list);
+                    test.assertEqual(Iterable.create(0, 1, 2, 3), list);
                 });
 
                 runner.test("with 0 index when not empty", (Test test) ->
                 {
                     final List<Integer> list = createList.run(3);
                     list.insert(0, 20);
-                    test.assertEqual(Array.create(new Integer[] { 20, 0, 1, 2 }), list);
+                    test.assertEqual(Iterable.create(20, 0, 1, 2), list);
                 });
 
                 runner.test("with positive index less than list count when not empty", (Test test) ->
@@ -85,7 +85,7 @@ public abstract class ListTests
                     if (list != null)
                     {
                         list.insert(2, 20);
-                        test.assertEqual(Array.create(new Integer[] { 0, 1, 20, 2, 3, 4 }), list);
+                        test.assertEqual(Iterable.create(0, 1, 20, 2, 3, 4), list);
                     }
                 });
 
@@ -93,48 +93,51 @@ public abstract class ListTests
                 {
                     final List<Integer> list = createList.run(4);
                     list.insert(4, 20);
-                    test.assertEqual(Array.create(new Integer[] { 0, 1, 2, 3, 20 }), list);
+                    test.assertEqual(Iterable.create(0, 1, 2, 3, 20), list);
                 });
 
                 runner.test("with positive index greater than list count when not empty", (Test test) ->
                 {
                     final List<Integer> list = createList.run(4);
                     test.assertThrows(() -> list.insert(5, 20));
-                    test.assertEqual(Array.create(new Integer[] { 0, 1, 2, 3 }), list);
+                    test.assertEqual(Iterable.create(0, 1, 2, 3), list);
                 });
             });
 
             runner.test("addAll()", (Test test) ->
             {
                 final List<Integer> list = createList.run(0);
-                test.assertEqual(Array.create(new Integer[0]), list);
+                test.assertEqual(Iterable.empty(), list);
+
+                list.addAll();
+                test.assertEqual(Iterable.empty(), list);
 
                 list.addAll(new Integer[0]);
-                test.assertEqual(Array.create(new Integer[0]), list);
+                test.assertEqual(Iterable.empty(), list);
 
                 list.addAll(new Integer[] { 0 });
-                test.assertEqual(Array.create(new Integer[] { 0 }), list);
+                test.assertEqual(Iterable.create(0), list);
 
-                list.addAll(new Integer[] { 1, 2, 3, 4, 5 });
-                test.assertEqual(Array.create(new Integer[] { 0, 1, 2, 3, 4, 5 }), list);
+                list.addAll(1, 2, 3, 4, 5);
+                test.assertEqual(Iterable.create(0, 1, 2, 3, 4, 5), list);
 
                 list.addAll((Iterator<Integer>)null);
-                test.assertEqual(Array.create(new Integer[] { 0, 1, 2, 3, 4, 5 }), list);
+                test.assertEqual(Iterable.create(0, 1, 2, 3, 4, 5), list);
 
-                list.addAll(Array.create(new Integer[0]).iterate());
-                test.assertEqual(Array.create(new Integer[] { 0, 1, 2, 3, 4, 5 }), list);
+                list.addAll(Iterator.empty());
+                test.assertEqual(Iterable.create(0, 1, 2, 3, 4, 5), list);
 
-                list.addAll(Array.create(new Integer[] { 6, 7, 8, 9 }).iterate());
-                test.assertEqual(Array.create(new Integer[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }), list);
+                list.addAll(Iterator.create(6, 7, 8, 9));
+                test.assertEqual(Iterable.create(0, 1, 2, 3, 4, 5, 6, 7, 8, 9), list);
 
                 list.addAll((Iterable<Integer>)null);
-                test.assertEqual(Array.create(new Integer[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }), list);
+                test.assertEqual(Iterable.create(0, 1, 2, 3, 4, 5, 6, 7, 8, 9), list);
 
-                list.addAll(Array.create(new Integer[0]));
-                test.assertEqual(Array.create(new Integer[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }), list);
+                list.addAll(Iterable.empty());
+                test.assertEqual(Iterable.create(0, 1, 2, 3, 4, 5, 6, 7, 8, 9), list);
 
-                list.addAll(Array.create(new Integer[] { 10, 11 }));
-                test.assertEqual(Array.create(new Integer[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 }), list);
+                list.addAll(Iterable.create(10, 11));
+                test.assertEqual(Iterable.create(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11), list);
             });
 
             runner.test("set()", (Test test) ->
@@ -183,7 +186,7 @@ public abstract class ListTests
                     final List<Integer> list = createList.run(5);
                     test.assertTrue(list.remove(3));
                     test.assertEqual(4, list.getCount());
-                    test.assertEqual(Array.create(new Integer[] { 0, 1, 2, 4 }), list);
+                    test.assertEqual(Array.create(0, 1, 2, 4), list);
                 });
             });
 
@@ -339,7 +342,7 @@ public abstract class ListTests
                 runner.test("with empty List and [7]", (Test test) ->
                 {
                     final List<Integer> list = createList.run(0);
-                    test.assertFalse(list.endsWith(Array.create(new int[] { 7 })));
+                    test.assertFalse(list.endsWith(Array.create(7)));
                 });
 
                 runner.test("with non-empty List and null", (Test test) ->
@@ -351,25 +354,25 @@ public abstract class ListTests
                 runner.test("with non-empty List and non-matching value", (Test test) ->
                 {
                     final List<Integer> list = createList.run(10);
-                    test.assertFalse(list.endsWith(Array.create(new int[] { 3 })));
+                    test.assertFalse(list.endsWith(Array.create(3)));
                 });
 
                 runner.test("with non-empty List and non-matching multiple values", (Test test) ->
                 {
                     final List<Integer> list = createList.run(10);
-                    test.assertFalse(list.endsWith(Array.create(new int[] { 8, 9, 10 })));
+                    test.assertFalse(list.endsWith(Array.create(8, 9, 10)));
                 });
 
                 runner.test("with non-empty List and matching single value", (Test test) ->
                 {
                     final List<Integer> list = createList.run(10);
-                    test.assertTrue(list.endsWith(Array.create(new int[] { 9 })));
+                    test.assertTrue(list.endsWith(Array.create(9)));
                 });
 
                 runner.test("with non-empty List and matching multiple values", (Test test) ->
                 {
                     final List<Integer> list = createList.run(10);
-                    test.assertTrue(list.endsWith(Array.create(new int[] { 5, 6, 7, 8, 9 })));
+                    test.assertTrue(list.endsWith(Array.create(5, 6, 7, 8, 9)));
                 });
             });
         });

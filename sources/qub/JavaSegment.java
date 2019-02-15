@@ -7,7 +7,7 @@ public class JavaSegment
 
     public JavaSegment(JavaSegmentType type, Lex... lexes)
     {
-        this(type, Array.create(lexes));
+        this(type, Iterable.create(lexes));
     }
 
     public JavaSegment(JavaSegmentType type, Iterable<Lex> lexes)

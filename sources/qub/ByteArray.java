@@ -63,7 +63,7 @@ public class ByteArray implements MutableIndexable<Byte>
     }
 
     @Override
-    public Iterator<Byte> iterate()
+    public ByteArrayIterator iterate()
     {
         return new ByteArrayIterator(bytes);
     }
@@ -85,7 +85,7 @@ public class ByteArray implements MutableIndexable<Byte>
      * @param count The number of elements.
      * @return The new ByteArray.
      */
-    public static ByteArray create(int count)
+    public static ByteArray createWithLength(int count)
     {
         PreCondition.assertGreaterThanOrEqualTo(count, 0, "count");
 
@@ -97,7 +97,7 @@ public class ByteArray implements MutableIndexable<Byte>
      * @param values The elements of the new ByteArray.
      * @return The new ByteArray.
      */
-    public static ByteArray createFrom(byte... values)
+    public static ByteArray create(byte... values)
     {
         PreCondition.assertNotNull(values, "values");
 
@@ -109,11 +109,11 @@ public class ByteArray implements MutableIndexable<Byte>
      * @param values The elements of the new ByteArray.
      * @return The new ByteArray.
      */
-    public static ByteArray createFrom(int... values)
+    public static ByteArray create(int... values)
     {
         PreCondition.assertNotNull(values, "values");
 
-        final ByteArray result = ByteArray.create(values.length);
+        final ByteArray result = ByteArray.createWithLength(values.length);
         for (int i = 0; i < values.length; ++i)
         {
             result.set(i, values[i]);
@@ -129,13 +129,13 @@ public class ByteArray implements MutableIndexable<Byte>
      * @param length The number of bytes to copy.
      * @return The new ByteArray.
      */
-    public static ByteArray createFrom(byte[] values, int startIndex, int length)
+    public static ByteArray create(byte[] values, int startIndex, int length)
     {
         PreCondition.assertNotNull(values, "values");
         PreCondition.assertStartIndex(startIndex, values.length);
         PreCondition.assertLength(length, startIndex, values.length);
 
-        final ByteArray result = ByteArray.create(length);
+        final ByteArray result = ByteArray.createWithLength(length);
         for (int i = 0; i < length; ++i)
         {
             result.set(i, values[startIndex + i]);

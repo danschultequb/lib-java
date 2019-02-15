@@ -1,25 +1,25 @@
 package qub;
 
-public class ByteArrayIterator implements Iterator<Byte>
+public class IntegerArrayIterator implements Iterator<Integer>
 {
-    private final byte[] bytes;
+    private final int[] values;
     private final int startIndex;
     private final int length;
     private boolean hasStarted;
     private int currentIndex;
 
-    public ByteArrayIterator(byte[] bytes)
+    public IntegerArrayIterator(int[] values)
     {
-        this(bytes, 0, bytes.length);
+        this(values, 0, values.length);
     }
 
-    public ByteArrayIterator(byte[] bytes, int startIndex, int length)
+    public IntegerArrayIterator(int[] values, int startIndex, int length)
     {
-        PreCondition.assertNotNull(bytes, "bytes");
-        PreCondition.assertStartIndex(startIndex, bytes.length);
-        PreCondition.assertLength(length, startIndex, bytes.length);
+        PreCondition.assertNotNull(values, "values");
+        PreCondition.assertStartIndex(startIndex, values.length);
+        PreCondition.assertLength(length, startIndex, values.length);
 
-        this.bytes = bytes;
+        this.values = values;
         this.startIndex = startIndex;
         this.length = length;
     }
@@ -37,11 +37,11 @@ public class ByteArrayIterator implements Iterator<Byte>
     }
 
     @Override
-    public Byte getCurrent()
+    public Integer getCurrent()
     {
         PreCondition.assertTrue(hasCurrent(), "hasCurrent()");
 
-        return bytes[currentIndex];
+        return values[currentIndex];
     }
 
     @Override
@@ -50,6 +50,7 @@ public class ByteArrayIterator implements Iterator<Byte>
         if (!hasStarted)
         {
             hasStarted = true;
+            currentIndex = startIndex;
         }
         else if (currentIndex < length)
         {
@@ -63,19 +64,9 @@ public class ByteArrayIterator implements Iterator<Byte>
      * @param values The values to iterate over.
      * @return The iterator that will iterate over the provided values.
      */
-    static ByteArrayIterator create(byte... values)
+    static IntegerArrayIterator create(int... values)
     {
-        return new ByteArrayIterator(values);
-    }
-
-    /**
-     * Create an iterator for the provided values.
-     * @param values The values to iterate over.
-     * @return The iterator that will iterate over the provided values.
-     */
-    static ByteArrayIterator create(int... values)
-    {
-        return ByteArray.create(values).iterate();
+        return new IntegerArrayIterator(values);
     }
 
     /**
@@ -83,12 +74,12 @@ public class ByteArrayIterator implements Iterator<Byte>
      * @param values The values to iterate.
      * @return The Iterator for the provided values.
      */
-    static ByteArrayIterator create(byte[] values, int startIndex, int length)
+    static IntegerArrayIterator create(int[] values, int startIndex, int length)
     {
         PreCondition.assertNotNull(values, "values");
         PreCondition.assertStartIndex(startIndex, values.length);
         PreCondition.assertLength(length, startIndex, values.length);
 
-        return new ByteArrayIterator(values, startIndex, length);
+        return new IntegerArrayIterator(values, startIndex, length);
     }
 }

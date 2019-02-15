@@ -165,15 +165,15 @@ public class SetTests
                 runner.test("with non-empty", (Test test) ->
                 {
                     final Set<Integer> set = creator.run();
-                    set.addAll(Iterable.create(1, 2, 3));
-                    test.assertEqual(Iterable.create(1, 2, 3), set);
+                    set.addAll(IntegerArray.create(1, 2, 3));
+                    test.assertEqual(IntegerArray.create(1, 2, 3), set);
                 });
 
                 runner.test("with non-empty with duplicates", (Test test) ->
                 {
                     final Set<Integer> set = creator.run();
-                    set.addAll(Iterable.create(1, 2, 2, 1));
-                    test.assertEqual(Iterable.create(1, 2), set);
+                    set.addAll(IntegerArray.create(1, 2, 2, 1));
+                    test.assertEqual(IntegerArray.create(1, 2), set);
                 });
             });
 
@@ -246,27 +246,27 @@ public class SetTests
 
                 runner.test("with subset Iterable", (Test test) ->
                 {
-                    test.assertFalse(creator.run().addAll(1, 2, 3).equals((Object)Iterable.create(1, 2)));
+                    test.assertFalse(creator.run().addAll(1, 2, 3).equals((Object)IntegerArray.create(1, 2)));
                 });
 
                 runner.test("with equal Iterable", (Test test) ->
                 {
-                    test.assertTrue(creator.run().addAll(1, 2, 3).equals((Object)Iterable.create(1, 2, 3)));
+                    test.assertTrue(creator.run().addAll(1, 2, 3).equals((Object)IntegerArray.create(1, 2, 3)));
                 });
 
                 runner.test("with equal Iterable in different order", (Test test) ->
                 {
-                    test.assertFalse(creator.run().addAll(1, 2, 3).equals((Object)Iterable.create(3, 1, 2)));
+                    test.assertFalse(creator.run().addAll(1, 2, 3).equals((Object)IntegerArray.create(3, 1, 2)));
                 });
 
                 runner.test("with equal Iterable with duplicates", (Test test) ->
                 {
-                    test.assertFalse(creator.run().addAll(1, 2, 3).equals((Object)Iterable.create(1, 2, 3, 3)));
+                    test.assertFalse(creator.run().addAll(1, 2, 3).equals((Object)IntegerArray.create(1, 2, 3, 3)));
                 });
 
                 runner.test("with superset Iterable", (Test test) ->
                 {
-                    test.assertFalse(creator.run().addAll(1, 2, 3).equals((Object)Iterable.create(1, 2, 3, 4)));
+                    test.assertFalse(creator.run().addAll(1, 2, 3).equals((Object)IntegerArray.create(1, 2, 3, 4)));
                 });
 
                 runner.test("with empty Set", (Test test) ->
@@ -309,27 +309,27 @@ public class SetTests
 
                 runner.test("with subset Iterable", (Test test) ->
                 {
-                    test.assertFalse(creator.run().addAll(1, 2, 3).equals((Iterable<Integer>)Iterable.create(1, 2)));
+                    test.assertFalse(creator.run().addAll(1, 2, 3).equals((Iterable<Integer>)IntegerArray.create(1, 2)));
                 });
 
                 runner.test("with equal Iterable", (Test test) ->
                 {
-                    test.assertTrue(creator.run().addAll(1, 2, 3).equals((Iterable<Integer>)Iterable.create(1, 2, 3)));
+                    test.assertTrue(creator.run().addAll(1, 2, 3).equals((Iterable<Integer>)IntegerArray.create(1, 2, 3)));
                 });
 
                 runner.test("with equal Iterable in different order", (Test test) ->
                 {
-                    test.assertFalse(creator.run().addAll(1, 2, 3).equals((Iterable<Integer>)Iterable.create(3, 1, 2)));
+                    test.assertFalse(creator.run().addAll(1, 2, 3).equals((Iterable<Integer>)IntegerArray.create(3, 1, 2)));
                 });
 
                 runner.test("with equal Iterable with duplicates", (Test test) ->
                 {
-                    test.assertFalse(creator.run().addAll(1, 2, 3).equals((Iterable<Integer>)Iterable.create(1, 2, 3, 3)));
+                    test.assertFalse(creator.run().addAll(1, 2, 3).equals((Iterable<Integer>)IntegerArray.create(1, 2, 3, 3)));
                 });
 
                 runner.test("with superset Iterable", (Test test) ->
                 {
-                    test.assertFalse(creator.run().addAll(1, 2, 3).equals((Iterable<Integer>)Iterable.create(1, 2, 3, 4)));
+                    test.assertFalse(creator.run().addAll(1, 2, 3).equals((Iterable<Integer>)IntegerArray.create(1, 2, 3, 4)));
                 });
 
                 runner.test("with empty Set", (Test test) ->

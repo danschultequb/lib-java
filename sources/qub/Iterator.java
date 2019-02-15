@@ -328,7 +328,51 @@ public interface Iterator<T> extends java.lang.Iterable<T>
      */
     static <T> Iterator<T> empty()
     {
-        return Iterable.<T>empty().iterate();
+        return new EmptyIterator<>();
+    }
+
+    /**
+     * Create an iterator for the provided values.
+     * @param values The values to iterate over.
+     * @return The iterator that will iterate over the provided values.
+     */
+    static Iterator<Byte> create(byte... values)
+    {
+        return new ByteArrayIterator(values);
+    }
+
+    /**
+     * Create an Iterator for the provided values.
+     * @param values The values to iterate.
+     * @return The Iterator for the provided values.
+     */
+    static Iterator<Byte> create(byte[] values, int startIndex, int length)
+    {
+        PreCondition.assertNotNull(values, "values");
+        PreCondition.assertStartIndex(startIndex, values.length);
+        PreCondition.assertLength(length, startIndex, values.length);
+
+        return new ByteArrayIterator(values, startIndex, length);
+    }
+
+    /**
+     * Create an iterator for the provided values.
+     * @param values The values to iterate over.
+     * @return The iterator that will iterate over the provided values.
+     */
+    static Iterator<Character> create(char[] values)
+    {
+        return new CharacterArrayIterator(values);
+    }
+
+    /**
+     * Create an iterator for the provided values.
+     * @param values The values to iterate over.
+     * @return The iterator that will iterate over the provided values.
+     */
+    static Iterator<Integer> create(int[] values)
+    {
+        return new IntegerArrayIterator(values);
     }
 
     /**

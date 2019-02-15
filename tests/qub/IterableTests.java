@@ -47,7 +47,7 @@ public class IterableTests
 
                 runner.test("with empty values", (Test test) ->
                 {
-                    final Iterable<Distance> values = Iterable.create();
+                    final Iterable<Distance> values = Iterable.empty();
                     final Iterable<Distance> orderedValues = Iterable.order(values);
                     test.assertNotSame(orderedValues, values);
                     test.assertEqual(orderedValues, values);
@@ -1362,13 +1362,13 @@ public class IterableTests
             {
                 runner.test("with null values", (Test test) ->
                 {
-                    final Iterable<Integer> values = Iterable.create();
+                    final Iterable<Integer> values = Iterable.empty();
                     test.assertThrows(() -> values.order((Function2<Integer,Integer,Boolean>)null), new PreConditionFailure("lessThan cannot be null."));
                 });
 
                 runner.test("with empty values", (Test test) ->
                 {
-                    final Iterable<Distance> values = Iterable.create();
+                    final Iterable<Distance> values = Iterable.empty();
                     final Iterable<Distance> orderedValues = values.order(Comparer::lessThan);
                     test.assertNotSame(values, orderedValues);
                     test.assertEqual(values, orderedValues);

@@ -102,10 +102,80 @@ public class Array<T> implements MutableIndexable<T>
     }
 
     /**
+     * Get an empty Array.
+     * @param <U> The type of values that would be stored in the Array.
+     * @return An empty Array.
+     */
+    static <U> Array<U> empty()
+    {
+        return new Array<>(0);
+    }
+
+    /**
+     * Create an Array from the provided values.
+     * @param values The values to initialize the array with.
+     */
+    static Array<Boolean> create(boolean[] values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        final Array<Boolean> result = new Array<>(values.length);
+        for (int i = 0; i < values.length; ++i)
+        {
+            result.set(i, values[i]);
+        }
+
+        PostCondition.assertNotNull(result, "result");
+        PostCondition.assertEqual(result.getCount(), values.length, "result.getCount()");
+
+        return result;
+    }
+
+    /**
+     * Create a new ByteArray with the provided elements.
+     * @param values The elements of the new ByteArray.
+     * @return The new ByteArray.
+     */
+    static ByteArray create(byte[] values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        return ByteArray.create(values);
+    }
+
+    /**
+     * Create a new ByteArray with the provided elements.
+     * @param values The elements of the new ByteArray.
+     * @param startIndex The start index into the values.
+     * @param length The number of bytes to copy.
+     * @return The new ByteArray.
+     */
+    static ByteArray create(byte[] values, int startIndex, int length)
+    {
+        return ByteArray.create(values, startIndex, length);
+    }
+
+    /**
      * Create an Array create the provided values.
      * @param values The values to initialize the array with.
      */
-    public static Array<Integer> create(int[] values)
+    static Array<Character> create(char[] values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        final Array<Character> result = new Array<>(values.length);
+        for (int i = 0; i < values.length; ++i)
+        {
+            result.set(i, values[i]);
+        }
+        return result;
+    }
+
+    /**
+     * Create an Array create the provided values.
+     * @param values The values to initialize the array with.
+     */
+    static Array<Integer> create(int[] values)
     {
         PreCondition.assertNotNull(values, "values");
 

@@ -704,7 +704,7 @@ public class Process implements Disposable
                 final String pathEnvironmentVariable = getEnvironmentVariable("path");
                 if (!Strings.isNullOrEmpty(pathEnvironmentVariable))
                 {
-                    final Iterable<String> pathStrings = Array.create(pathEnvironmentVariable.split(";"));
+                    final Iterable<String> pathStrings = Iterable.create(pathEnvironmentVariable.split(";"));
                     for (final String pathString : pathStrings)
                     {
                         if (!Strings.isNullOrEmpty(pathString))

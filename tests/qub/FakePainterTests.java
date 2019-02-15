@@ -53,10 +53,8 @@ public class FakePainterTests
                     final FakePainter painter = new FakePainter();
                     painter.drawText("kittens");
                     test.assertEqual(
-                        Array.create(new PainterAction[]
-                        {
-                            new DrawTextAction("kittens", Point2D.zero, Distance.fontPoints(14), Color.black)
-                        }),
+                        Iterable.create(
+                            new DrawTextAction("kittens", Point2D.zero, Distance.fontPoints(14), Color.black)),
                         painter.getActions());
                 });
             });
@@ -97,10 +95,8 @@ public class FakePainterTests
                     painter.setColor(Color.green);
                     painter.drawText("kittens", Distance.inches(3), Distance.inches(4));
                     test.assertEqual(
-                        Array.create(new PainterAction[]
-                        {
-                            new DrawTextAction("kittens", new Point2D(Distance.inches(3), Distance.inches(4)), Distance.fontPoints(14), Color.green)
-                        }),
+                        Iterable.create(
+                            new DrawTextAction("kittens", new Point2D(Distance.inches(3), Distance.inches(4)), Distance.fontPoints(14), Color.green)),
                         painter.getActions());
                 });
             });
@@ -133,10 +129,8 @@ public class FakePainterTests
                     final FakePainter painter = new FakePainter();
                     painter.drawText("kittens", new Point2D(Distance.inches(0.1), Distance.inches(0.2)));
                     test.assertEqual(
-                        Array.create(new PainterAction[]
-                        {
-                            new DrawTextAction("kittens", new Point2D(Distance.inches(0.1), Distance.inches(0.2)), Distance.fontPoints(14), Color.black)
-                        }),
+                        Iterable.create(
+                            new DrawTextAction("kittens", new Point2D(Distance.inches(0.1), Distance.inches(0.2)), Distance.fontPoints(14), Color.black)),
                         painter.getActions());
                 });
             });
@@ -164,10 +158,8 @@ public class FakePainterTests
                         new Point2D(Distance.inches(10), Distance.inches(10.1)),
                         new Point2D(Distance.inches(7), Distance.inches(2)));
                     test.assertEqual(
-                        Array.create(new PainterAction[]
-                        {
-                            new DrawLineAction(Distance.inches(10), Distance.inches(10.1), Distance.inches(7), Distance.inches(2))
-                        }),
+                        Iterable.create(
+                            new DrawLineAction(Distance.inches(10), Distance.inches(10.1), Distance.inches(7), Distance.inches(2))),
                         painter.getActions());
                 });
             });
@@ -207,10 +199,8 @@ public class FakePainterTests
                     final FakePainter painter = new FakePainter();
                     painter.drawLine(Distance.inches(1), Distance.inches(2), Distance.inches(3), Distance.inches(4));
                     test.assertEqual(
-                        Array.create(new PainterAction[]
-                        {
-                            new DrawLineAction(Distance.inches(1), Distance.inches(2), Distance.inches(3), Distance.inches(4))
-                        }),
+                        Iterable.create(
+                            new DrawLineAction(Distance.inches(1), Distance.inches(2), Distance.inches(3), Distance.inches(4))),
                         painter.getActions());
                 });
             });
@@ -264,10 +254,8 @@ public class FakePainterTests
                     final FakePainter painter = new FakePainter();
                     painter.drawRectangle(Distance.zero, Distance.zero, Distance.inches(1), Distance.inches(2));
                     test.assertEqual(
-                        Array.create(new PainterAction[]
-                        {
-                            new DrawRectangleAction(Point2D.zero, Distance.inches(1), Distance.inches(2), Color.black)
-                        }),
+                        Iterable.create(
+                            new DrawRectangleAction(Point2D.zero, Distance.inches(1), Distance.inches(2), Color.black)),
                         painter.getActions());
                 });
             });
@@ -305,10 +293,8 @@ public class FakePainterTests
                     painter.fillRectangle(Distance.inches(1), Distance.inches(3));
 
                     test.assertEqual(
-                        Array.create(new PainterAction[]
-                        {
-                            new FillRectangleAction(Point2D.zero, Distance.inches(1), Distance.inches(3), Color.black)
-                        }),
+                        Iterable.create(
+                            new FillRectangleAction(Point2D.zero, Distance.inches(1), Distance.inches(3), Color.black)),
                         painter.getActions());
                 });
 
@@ -320,10 +306,8 @@ public class FakePainterTests
                     painter.fillRectangle(Distance.inches(1), Distance.inches(3));
 
                     test.assertEqual(
-                        Array.create(new PainterAction[]
-                        {
-                            new FillRectangleAction(Point2D.zero, Distance.inches(1), Distance.inches(3), Color.green)
-                        }),
+                        Iterable.create(
+                            new FillRectangleAction(Point2D.zero, Distance.inches(1), Distance.inches(3), Color.green)),
                         painter.getActions());
                 });
             });

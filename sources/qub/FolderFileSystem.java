@@ -123,10 +123,7 @@ public class FolderFileSystem implements FileSystem
     @Override
     public Result<Iterable<Root>> getRoots()
     {
-        return Result.success(Array.create(new Root[]
-        {
-            new Root(this, Path.parse("/"))
-        }));
+        return Result.success(Iterable.create(new Root(this, Path.parse("/"))));
     }
 
     @Override

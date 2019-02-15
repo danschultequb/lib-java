@@ -140,12 +140,12 @@ public class StringsTests
 
                 runner.test("with empty", (Test test) ->
                 {
-                    test.assertEqual("", Strings.join(new Array<>(0)));
+                    test.assertEqual("", Strings.join(Iterable.empty()));
                 });
 
                 runner.test("with non-empty", (Test test) ->
                 {
-                    test.assertEqual("abc", Strings.join(Array.create('a', 'b', 'c')));
+                    test.assertEqual("abc", Strings.join(CharacterArray.create('a', 'b', 'c')));
                 });
             });
 

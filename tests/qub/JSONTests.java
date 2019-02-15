@@ -464,7 +464,7 @@ public class JSONTests
                 {
                     final JSONObject object = JSON.object((JSONObjectBuilder builder) ->
                     {
-                        builder.stringArrayProperty("a", Iterable.create());
+                        builder.stringArrayProperty("a", Iterable.empty());
                     });
                     test.assertNotNull(object);
                     test.assertEqual("{\"a\":[]}", object.toString());

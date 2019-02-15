@@ -26,7 +26,7 @@ public class Hash
      */
     public static int getHashCode(Object... values)
     {
-        return getHashCode(Array.create(values));
+        return getHashCode(Iterable.create(values));
     }
 
     /**

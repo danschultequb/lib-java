@@ -13,7 +13,7 @@ public interface Iterable<T> extends java.lang.Iterable<T>
      */
     static <U> Iterable<U> empty()
     {
-        return new Array<>(0);
+        return Array.empty();
     }
 
     /**
@@ -457,6 +457,42 @@ public interface Iterable<T> extends java.lang.Iterable<T>
             builder.append(endCharacter);
         }
         return builder.toString();
+    }
+
+    /**
+     * Create a new Iterable from the provided values.
+     * @param values The values to convert to an Iterable.
+     * @return The created Iterable.
+     */
+    static ByteArray create(byte... values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        return ByteArray.create(values);
+    }
+
+    /**
+     * Create a new Iterable from the provided values.
+     * @param values The values to convert to an Iterable.
+     * @return The created Iterable.
+     */
+    static Iterable<Character> create(char[] values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        return CharacterArray.create(values);
+    }
+
+    /**
+     * Create a new Iterable from the provided values.
+     * @param values The values to convert to an Iterable.
+     * @return The created Iterable.
+     */
+    static Iterable<Integer> create(int[] values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        return Array.create(values);
     }
 
     /**

@@ -9,7 +9,7 @@ public class Strings
      */
     public static Iterable<Character> iterable(String text)
     {
-        return Strings.isNullOrEmpty(text) ? Iterable.empty() : Arrays.createFrom(text.toCharArray());
+        return Strings.isNullOrEmpty(text) ? Iterable.empty() : Iterable.create(text.toCharArray());
     }
 
     /**

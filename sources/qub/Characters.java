@@ -54,7 +54,7 @@ public class Characters
      */
     public static String escape(char character)
     {
-        return Characters.escape(character, Iterable.create('\''));
+        return Characters.escape(character, CharacterArray.create('\''));
     }
 
     /**

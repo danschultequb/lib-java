@@ -670,19 +670,12 @@ public interface Comparer<T> extends Function2<T,T,Comparison>
     @SafeVarargs
     static <T extends Comparable<T>> T maximum(T... values)
     {
-        return Comparer.maximum(Array.create(values));
+        return Comparer.maximum(Iterable.create(values));
     }
 
     static <T extends Comparable<T>> T maximum(Iterable<T> values)
     {
-        return Comparer.maximum(values, new Function2<T,T,Comparison>()
-        {
-            @Override
-            public Comparison run(T lhs, T rhs)
-            {
-                return compare(lhs, rhs);
-            }
-        });
+        return Comparer.maximum(values, Comparer::compare);
     }
 
     static <T> T maximum(Iterable<T> values, Function2<T,T,Comparison> comparer)
