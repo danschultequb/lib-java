@@ -27,7 +27,7 @@ public class ArrayTests
 
                 runner.test("with empty Iterator", (Test test) ->
                 {
-                    final Array<Integer> array = Array.create(Iterator.empty());
+                    final Array<Integer> array = Array.create(Iterator.create());
                     test.assertEqual(0, array.getCount());
                 });
 
@@ -51,7 +51,7 @@ public class ArrayTests
 
                 runner.test("with empty", (Test test) ->
                 {
-                    final Array<Integer> array = Array.create(Iterable.empty());
+                    final Array<Integer> array = Array.create(Iterable.create());
                     test.assertEqual(0, array.getCount());
                 });
 
@@ -350,7 +350,7 @@ public class ArrayTests
                 {
                     test.assertEqual(
                         new boolean[0],
-                        Array.toBooleanArray(Iterator.empty()).await());
+                        Array.toBooleanArray(Iterator.create()).await());
                 });
 
                 runner.test("with non-empty", (Test test) ->
@@ -377,7 +377,7 @@ public class ArrayTests
 
                 runner.test("with empty Iterable", (Test test) ->
                 {
-                    test.assertEqual(new boolean[0], Array.toBooleanArray(Iterable.empty()).await());
+                    test.assertEqual(new boolean[0], Array.toBooleanArray(Iterable.create()).await());
                 });
 
                 runner.test("with non-empty", (Test test) ->
@@ -498,7 +498,7 @@ public class ArrayTests
 
                 runner.test("with empty", (Test test) ->
                 {
-                    test.assertEqual(new byte[0], Array.toByteArray(Iterator.empty()).await());
+                    test.assertEqual(new byte[0], Array.toByteArray(Iterator.create()).await());
                 });
 
                 runner.test("with non-empty", (Test test) ->
@@ -521,7 +521,7 @@ public class ArrayTests
 
                 runner.test("with empty", (Test test) ->
                 {
-                    test.assertEqual(new byte[0], Array.toByteArray(Iterable.empty()).await());
+                    test.assertEqual(new byte[0], Array.toByteArray(Iterable.create()).await());
                 });
 
                 runner.test("with non-empty", (Test test) ->
@@ -544,7 +544,7 @@ public class ArrayTests
 
                 runner.test("with empty Iterator", (Test test) ->
                 {
-                    test.assertEqual(new int[0], Array.toIntArray(Iterator.empty()));
+                    test.assertEqual(new int[0], Array.toIntArray(Iterator.create()));
                 });
 
                 runner.test("with non-empty Iterator", (Test test) ->
@@ -559,7 +559,7 @@ public class ArrayTests
 
                 runner.test("with empty Iterable", (Test test) ->
                 {
-                    test.assertEqual(new int[0], Array.toIntArray(Iterable.empty()));
+                    test.assertEqual(new int[0], Array.toIntArray(Iterable.create()));
                 });
             });
 
@@ -572,7 +572,7 @@ public class ArrayTests
 
                 runner.test("with empty Iterator", (Test test) ->
                 {
-                    test.assertEqual(new String[0], Array.toStringArray(Iterator.empty()));
+                    test.assertEqual(new String[0], Array.toStringArray(Iterator.create()));
                 });
 
                 runner.test("with non-empty Iterator", (Test test) ->
@@ -587,7 +587,7 @@ public class ArrayTests
 
                 runner.test("with empty Iterable", (Test test) ->
                 {
-                    test.assertEqual(new String[0], Array.toStringArray(Iterable.empty()));
+                    test.assertEqual(new String[0], Array.toStringArray(Iterable.create()));
                 });
             });
 

@@ -73,7 +73,7 @@ public class QueueTests
                 runner.test("with empty", (Test test) ->
                 {
                     final Queue<Integer> queue = createQueue.run();
-                    queue.enqueueAll(Iterable.empty());
+                    queue.enqueueAll(Iterable.create());
                     test.assertEqual(0, queue.getCount());
                 });
 

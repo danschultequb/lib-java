@@ -40,7 +40,7 @@ public class HttpServerTests
                     try (final HttpServer server = createServer(test))
                     {
                         test.assertThrows(() -> server.addPath(null, (HttpRequest request) -> null), new PreConditionFailure("pathString cannot be null."));
-                        test.assertEqual(Iterable.empty(), server.getPaths());
+                        test.assertEqual(Iterable.create(), server.getPaths());
                     }
                 });
 
@@ -49,7 +49,7 @@ public class HttpServerTests
                     try (final HttpServer server = createServer(test))
                     {
                         test.assertThrows(() -> server.addPath("", (HttpRequest request) -> null), new PreConditionFailure("pathString cannot be empty."));
-                        test.assertEqual(Iterable.empty(), server.getPaths());
+                        test.assertEqual(Iterable.create(), server.getPaths());
                     }
                 });
 

@@ -163,17 +163,17 @@ public class BasicTestRunnerTests
                     btr.testGroup(BasicTestRunnerTests.class, () -> value.set(counter.incrementAndGet()));
 
                     test.assertEqual(
-                        Array.create(new MapEntry[] { MapEntry.create(1, new TestGroup("BasicTestRunnerTests", null, null)) }),
+                        Iterable.create(MapEntry.create(1, new TestGroup("BasicTestRunnerTests", null, null))),
                         beforeTestGroup);
                     test.assertEqual(2, value.get());
                     test.assertEqual(
-                        Iterable.empty(),
+                        Iterable.create(),
                         afterTestGroupSkipped);
                     test.assertEqual(
-                        Iterable.empty(),
+                        Iterable.create(),
                         afterTestGroupError);
                     test.assertEqual(
-                        Array.create(new MapEntry[] { MapEntry.create(3, new TestGroup("BasicTestRunnerTests", null, null)) }),
+                        Iterable.create(MapEntry.create(3, new TestGroup("BasicTestRunnerTests", null, null))),
                         afterTestGroup);
                 });
 
@@ -205,9 +205,9 @@ public class BasicTestRunnerTests
 
                     btr.testGroup(BasicTestRunnerTests.class, () -> value.set(counter.incrementAndGet()));
 
-                    test.assertEqual(Iterable.empty(), beforeTestGroup);
+                    test.assertEqual(Iterable.create(), beforeTestGroup);
                     test.assertEqual(0, value.get());
-                    test.assertEqual(Iterable.empty(), afterTestGroupSkipped);
+                    test.assertEqual(Iterable.create(), afterTestGroupSkipped);
                     test.assertEqual(
                         Map.<Integer,TestError>create().set(1, new TestError("BasicTestRunnerTests", new RuntimeException("abc"))),
                         afterTestGroupError);

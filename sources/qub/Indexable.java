@@ -98,16 +98,6 @@ public interface Indexable<T> extends Iterable<T>
     }
 
     /**
-     * Get an empty Indexable.
-     * @param <U> The type of values that would be stored in the Indexable.
-     * @return An empty Indexable.
-     */
-    static <U> Indexable<U> empty()
-    {
-        return Array.empty();
-    }
-
-    /**
      * Create a new Indexable create the provided values.
      * @param values The values to convert to an Indexable.
      * @return The created Indexable.

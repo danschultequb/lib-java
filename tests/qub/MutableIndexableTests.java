@@ -91,7 +91,7 @@ public class MutableIndexableTests
 
                 runner.test("with empty values", (Test test) ->
                 {
-                    final MutableIndexable<Distance> values = Array.empty();
+                    final MutableIndexable<Distance> values = Array.create();
                     test.assertSame(values, MutableIndexable.sort(values));
                 });
 
@@ -142,13 +142,13 @@ public class MutableIndexableTests
             {
                 runner.test("with null values", (Test test) ->
                 {
-                    final MutableIndexable<Integer> values = Array.empty();
+                    final MutableIndexable<Integer> values = Array.create();
                     test.assertThrows(() -> values.sort((Function2<Integer,Integer,Boolean>)null), new PreConditionFailure("lessThan cannot be null."));
                 });
 
                 runner.test("with empty values", (Test test) ->
                 {
-                    final MutableIndexable<Distance> values = Array.empty();
+                    final MutableIndexable<Distance> values = Array.create();
                     test.assertSame(values, values.sort(Comparer::lessThan));
                 });
 

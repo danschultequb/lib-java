@@ -880,7 +880,7 @@ public class Test
     {
         if (values.any())
         {
-            throw new TestAssertionFailure(getFullName(), getMessageLines(message, Array.empty(), values));
+            throw new TestAssertionFailure(getFullName(), getMessageLines(message, Iterable.create(), values));
         }
     }
 

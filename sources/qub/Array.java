@@ -36,16 +36,6 @@ public abstract class Array<T> implements MutableIndexable<T>
     }
 
     /**
-     * Get an empty Array.
-     * @param <U> The type of values that would be stored in the Array.
-     * @return An empty Array.
-     */
-    static <U> Array<U> empty()
-    {
-        return ObjectArray.createWithLength(0);
-    }
-
-    /**
      * Create a new array with the provided number of elements.
      * @param length The number of elements.
      * @return The new array.

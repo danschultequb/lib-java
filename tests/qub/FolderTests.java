@@ -363,7 +363,7 @@ public class FolderTests
 
                 test.assertSuccess(null, folder.create());
                 test.assertSuccess(true, folder.exists());
-                test.assertSuccess(Iterable.empty(), folder.getFolders());
+                test.assertSuccess(Iterable.create(), folder.getFolders());
 
                 test.assertSuccess(folder.createFolder("childFolder1"),
                     (Folder childFolder) ->
@@ -391,7 +391,7 @@ public class FolderTests
                     final Folder folder = getFolder(test);
                     test.assertSuccess(null, folder.create());
                     test.assertSuccess(folder.exists());
-                    test.assertSuccess(Iterable.empty(), folder.getFiles());
+                    test.assertSuccess(Iterable.create(), folder.getFiles());
                 });
 
                 runner.test("when folder exists and has one file", (Test test) ->
@@ -409,7 +409,7 @@ public class FolderTests
                     test.assertSuccess(null, folder.create());
                     test.assertSuccess(folder.exists());
                     test.assertSuccess(folder.createFile("subfolder/data.txt"));
-                    test.assertSuccess(Iterable.empty(), folder.getFiles());
+                    test.assertSuccess(Iterable.create(), folder.getFiles());
                 });
             });
 
@@ -426,7 +426,7 @@ public class FolderTests
                 {
                     final Folder folder = getFolder(test);
                     test.assertSuccess(null, folder.create());
-                    test.assertSuccess(Iterable.empty(), folder.getFilesAndFolders());
+                    test.assertSuccess(Iterable.create(), folder.getFilesAndFolders());
                 });
 
                 runner.test("when folder exists and has one child folder", (Test test) ->

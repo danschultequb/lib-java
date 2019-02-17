@@ -331,14 +331,14 @@ public class RootTests
                 runner.test("when root is empty", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    test.assertSuccess(Iterable.empty(), root.getFolders());
+                    test.assertSuccess(Iterable.create(), root.getFolders());
                 });
 
                 runner.test("when root has a file", (Test test) ->
                 {
                     final Root root = getRoot(test);
                     root.createFile("thing.txt");
-                    test.assertSuccess(Iterable.empty(), root.getFolders());
+                    test.assertSuccess(Iterable.create(), root.getFolders());
                 });
 
                 runner.test("when root has a folder", (Test test) ->
@@ -360,7 +360,7 @@ public class RootTests
                 runner.test("when root is empty", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    test.assertSuccess(Iterable.empty(), root.getFiles());
+                    test.assertSuccess(Iterable.create(), root.getFiles());
                 });
 
                 runner.test("when root has a file", (Test test) ->
@@ -382,7 +382,7 @@ public class RootTests
 
                     final Result<Iterable<File>> result = root.getFiles();
                     test.assertNotNull(result);
-                    test.assertEqual(Iterable.empty(), result.await());
+                    test.assertEqual(Iterable.create(), result.await());
                 });
             });
 
@@ -399,7 +399,7 @@ public class RootTests
                 {
                     final Root root = getRoot(test);
                     final Result<Iterable<FileSystemEntry>> result = root.getFilesAndFolders();
-                    test.assertEqual(Iterable.empty(), result.await());
+                    test.assertEqual(Iterable.create(), result.await());
                 });
 
                 runner.test("when root has a file", (Test test) ->
@@ -437,7 +437,7 @@ public class RootTests
                 runner.test("when root is empty", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    test.assertEqual(Iterable.empty(), root.getFilesAndFoldersRecursively().await());
+                    test.assertEqual(Iterable.create(), root.getFilesAndFoldersRecursively().await());
                 });
 
                 runner.test("when root has files", (Test test) ->
@@ -497,7 +497,7 @@ public class RootTests
                 runner.test("when root is empty", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    test.assertSuccess(Iterable.empty(), root.getFilesRecursively());
+                    test.assertSuccess(Iterable.create(), root.getFilesRecursively());
                 });
 
                 runner.test("when root has files", (Test test) ->
@@ -518,7 +518,7 @@ public class RootTests
                     root.createFolder("1.txt");
                     root.createFolder("2.txt");
                     test.assertSuccess(
-                        Iterable.empty(),
+                        Iterable.create(),
                         root.getFilesRecursively());
                 });
 
@@ -552,7 +552,7 @@ public class RootTests
                 runner.test("when root is empty", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    test.assertSuccess(Iterable.empty(), root.getFoldersRecursively());
+                    test.assertSuccess(Iterable.create(), root.getFoldersRecursively());
                 });
 
                 runner.test("when root has files", (Test test) ->
@@ -561,7 +561,7 @@ public class RootTests
                     root.createFile("1.txt");
                     root.createFile("2.txt");
                     test.assertSuccess(
-                        Iterable.empty(),
+                        Iterable.create(),
                         root.getFoldersRecursively());
                 });
 

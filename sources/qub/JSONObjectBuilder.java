@@ -123,7 +123,7 @@ public class JSONObjectBuilder implements Disposable
     {
         PreCondition.assertNotNullAndNotEmpty(propertyName, "propertyName");
 
-        stringArrayProperty(propertyName, Iterable.empty());
+        stringArrayProperty(propertyName, Iterable.create());
     }
 
     public void stringArrayProperty(String propertyName, Iterable<String> stringElements)

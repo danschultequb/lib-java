@@ -296,7 +296,7 @@ public class StateMachineTests
                     final Iterable<Match> matches = stateMachine.getMatches("abcxyz");
                     test.assertNotNull(matches);
                     test.assertEqual(1, matches.getCount());
-                    test.assertEqual(Iterable.empty(), matches.first().getTrackedValues());
+                    test.assertEqual(Iterable.create(), matches.first().getTrackedValues());
                 });
 
                 runner.test("and " + Strings.escapeAndQuote("abcxyxxyz"), (Test test) ->
@@ -313,13 +313,13 @@ public class StateMachineTests
                 runner.test("and " + Strings.escapeAndQuote("abcxy"), (Test test) ->
                 {
                     final StateMachine stateMachine = createABCStarXYZStateMachine();
-                    test.assertEqual(Iterable.empty(), stateMachine.getMatches("abcxy"));
+                    test.assertEqual(Iterable.create(), stateMachine.getMatches("abcxy"));
                 });
 
                 runner.test("and " + Strings.escapeAndQuote("abxyz"), (Test test) ->
                 {
                     final StateMachine stateMachine = createABCStarXYZStateMachine();
-                    test.assertEqual(Iterable.empty(), stateMachine.getMatches("abxyz"));
+                    test.assertEqual(Iterable.create(), stateMachine.getMatches("abxyz"));
                 });
             });
         });

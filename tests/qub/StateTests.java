@@ -50,7 +50,7 @@ public class StateTests
                     final State state1 = new State("a");
                     final State state2 = new State("b");
                     test.assertSame(state1, state1.addNextState('1', state2));
-                    test.assertEqual(Array.create(new State[] { state2 }), state1.getNextStates('1'));
+                    test.assertEqual(Iterable.create(state2), state1.getNextStates('1'));
                 });
 
                 runner.test("with already existing value", (Test test) ->
@@ -60,7 +60,7 @@ public class StateTests
                     final State state3 = new State("c");
                     test.assertSame(state1, state1.addNextState('1', state2));
                     test.assertSame(state1, state1.addNextState('1', state3));
-                    test.assertEqual(Array.create(new State[] { state2, state3 }), state1.getNextStates('1'));
+                    test.assertEqual(Iterable.create(state2, state3), state1.getNextStates('1'));
                 });
             });
 
@@ -69,7 +69,7 @@ public class StateTests
                 runner.test("with non-existing value", (Test test) ->
                 {
                     final State state = new State("a");
-                    test.assertEqual(Iterable.empty(), state.getNextStates('1'));
+                    test.assertEqual(Iterable.create(), state.getNextStates('1'));
                 });
 
                 runner.test("with existing value with different case", (Test test) ->
@@ -77,7 +77,7 @@ public class StateTests
                     final State state1 = new State("1");
                     final State state2 = new State("2");
                     state1.addNextState('a', state2);
-                    test.assertEqual(Iterable.empty(), state1.getNextStates('A'));
+                    test.assertEqual(Iterable.create(), state1.getNextStates('A'));
                 });
 
                 runner.test("with existing value with same case", (Test test) ->
@@ -85,7 +85,7 @@ public class StateTests
                     final State state1 = new State("1");
                     final State state2 = new State("2");
                     state1.addNextState('a', state2);
-                    test.assertEqual(Array.create(new State[] { state2 }), state1.getNextStates('a'));
+                    test.assertEqual(Iterable.create(state2), state1.getNextStates('a'));
                 });
             });
         });

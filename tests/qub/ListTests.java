@@ -13,7 +13,7 @@ public abstract class ListTests
                 runner.test("multiple values", (Test test) ->
                 {
                     final List<Integer> list = createList.run(0);
-                    test.assertEqual(Iterable.empty(), list);
+                    test.assertEqual(Iterable.create(), list);
 
                     for (int i = 0; i < 100; ++i)
                     {
@@ -41,7 +41,7 @@ public abstract class ListTests
                     if (list != null)
                     {
                         test.assertThrows(() -> list.insert(-1, 20));
-                        test.assertEqual(Iterable.empty(), list);
+                        test.assertEqual(Iterable.create(), list);
                     }
                 });
 
@@ -61,7 +61,7 @@ public abstract class ListTests
                     if (list != null)
                     {
                         test.assertThrows(() -> list.insert(1, 20));
-                        test.assertEqual(Iterable.empty(), list);
+                        test.assertEqual(Iterable.create(), list);
                     }
                 });
 
@@ -107,13 +107,13 @@ public abstract class ListTests
             runner.test("addAll()", (Test test) ->
             {
                 final List<Integer> list = createList.run(0);
-                test.assertEqual(Iterable.empty(), list);
+                test.assertEqual(Iterable.create(), list);
 
                 list.addAll();
-                test.assertEqual(Iterable.empty(), list);
+                test.assertEqual(Iterable.create(), list);
 
                 list.addAll(new Integer[0]);
-                test.assertEqual(Iterable.empty(), list);
+                test.assertEqual(Iterable.create(), list);
 
                 list.addAll(new Integer[] { 0 });
                 test.assertEqual(Iterable.create(0), list);
@@ -133,7 +133,7 @@ public abstract class ListTests
                 list.addAll((Iterable<Integer>)null);
                 test.assertEqual(Iterable.create(0, 1, 2, 3, 4, 5, 6, 7, 8, 9), list);
 
-                list.addAll(Iterable.empty());
+                list.addAll(Iterable.create());
                 test.assertEqual(Iterable.create(0, 1, 2, 3, 4, 5, 6, 7, 8, 9), list);
 
                 list.addAll(Iterable.create(10, 11));

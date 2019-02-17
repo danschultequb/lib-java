@@ -140,7 +140,7 @@ public class StringsTests
 
                 runner.test("with empty", (Test test) ->
                 {
-                    test.assertEqual("", Strings.join(Iterable.empty()));
+                    test.assertEqual("", Strings.join(Iterable.create()));
                 });
 
                 runner.test("with non-empty", (Test test) ->
@@ -248,10 +248,10 @@ public class StringsTests
                     });
                 };
 
-                getWordsTest.run(null, Iterable.empty());
-                getWordsTest.run("", Iterable.empty());
-                getWordsTest.run("     ", Iterable.empty());
-                getWordsTest.run("./\\\"*", Iterable.empty());
+                getWordsTest.run(null, Iterable.create());
+                getWordsTest.run("", Iterable.create());
+                getWordsTest.run("     ", Iterable.create());
+                getWordsTest.run("./\\\"*", Iterable.create());
                 getWordsTest.run("a", Iterable.create("a"));
                 getWordsTest.run("abc", Iterable.create("abc"));
                 getWordsTest.run("a.a", Iterable.create("a"));
@@ -275,7 +275,7 @@ public class StringsTests
                     });
                 };
 
-                getLinesTest.run("", Iterable.empty());
+                getLinesTest.run("", Iterable.create());
                 getLinesTest.run("   ", Iterable.create("   "));
                 getLinesTest.run("abcd", Iterable.create("abcd"));
                 getLinesTest.run("\n\n\n", Iterable.create("", "", ""));
@@ -298,7 +298,7 @@ public class StringsTests
                     });
                 };
 
-                getLinesTest.run("", Iterable.empty());
+                getLinesTest.run("", Iterable.create());
                 getLinesTest.run("   ", Iterable.create("   "));
                 getLinesTest.run("abcd", Iterable.create("abcd"));
                 getLinesTest.run("\n\n\n", Iterable.create("", "", ""));
@@ -321,7 +321,7 @@ public class StringsTests
                     });
                 };
 
-                getLinesTest.run("", Iterable.empty());
+                getLinesTest.run("", Iterable.create());
                 getLinesTest.run("   ", Iterable.create("   "));
                 getLinesTest.run("abcd", Iterable.create("abcd"));
                 getLinesTest.run("\n\n\n", Iterable.create("\n", "\n", "\n"));

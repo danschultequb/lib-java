@@ -34,15 +34,15 @@ public class IterableTests
 
             runner.testGroup("order(Iterable<T>)", () ->
             {
-                runner.test("with null values", (Test test) ->
+                runner.test("with null", (Test test) ->
                 {
                     final Iterable<Distance> values = null;
                     test.assertThrows(() -> Iterable.order(values), new PreConditionFailure("values cannot be null."));
                 });
 
-                runner.test("with empty values", (Test test) ->
+                runner.test("with empty", (Test test) ->
                 {
-                    final Iterable<Distance> values = Iterable.empty();
+                    final Iterable<Distance> values = Iterable.create();
                     final Iterable<Distance> orderedValues = Iterable.order(values);
                     test.assertNotSame(orderedValues, values);
                     test.assertEqual(orderedValues, values);
@@ -150,7 +150,7 @@ public class IterableTests
 
                 runner.test("with empty Iterable", (Test test) ->
                 {
-                    test.assertEqual(Iterable.empty(), Iterable.traverse(Iterable.empty(), getNextValues));
+                    test.assertEqual(Iterable.create(), Iterable.traverse(Iterable.create(), getNextValues));
                 });
 
                 runner.test("with non-empty Iterable", (Test test) ->
@@ -1124,15 +1124,15 @@ public class IterableTests
 
             runner.testGroup("order(Function2<T,T,Boolean>)", () ->
             {
-                runner.test("with null values", (Test test) ->
+                runner.test("with null", (Test test) ->
                 {
-                    final Iterable<Integer> values = Iterable.empty();
+                    final Iterable<Integer> values = Iterable.create();
                     test.assertThrows(() -> values.order((Function2<Integer,Integer,Boolean>)null), new PreConditionFailure("lessThan cannot be null."));
                 });
 
-                runner.test("with empty values", (Test test) ->
+                runner.test("with empty", (Test test) ->
                 {
-                    final Iterable<Distance> values = Iterable.empty();
+                    final Iterable<Distance> values = Iterable.create();
                     final Iterable<Distance> orderedValues = values.order(Comparer::lessThan);
                     test.assertNotSame(values, orderedValues);
                     test.assertEqual(values, orderedValues);

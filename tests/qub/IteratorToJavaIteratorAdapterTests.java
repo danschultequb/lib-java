@@ -10,7 +10,7 @@ public class IteratorToJavaIteratorAdapterTests
             {
                 runner.test("with non-started empty iterator", (Test test) ->
                 {
-                    final Array<Integer> array = Array.empty();
+                    final Array<Integer> array = Array.create();
                     final Iterator<Integer> iterator = ArrayIterator.create(array);
                     final IteratorToJavaIteratorAdapter<Integer> javaIterator = new IteratorToJavaIteratorAdapter<>(iterator);
                     test.assertFalse(iterator.hasStarted());

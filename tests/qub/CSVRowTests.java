@@ -48,7 +48,7 @@ public class CSVRowTests
                 };
 
                 constructorTest.run(null);
-                constructorTest.run(Iterable.empty());
+                constructorTest.run(Iterable.create());
                 constructorTest.run(Iterable.create("a"));
                 constructorTest.run(Iterable.create("1", "2", "3 4"));
             });
@@ -72,12 +72,12 @@ public class CSVRowTests
                     });
                 };
 
-                removeAtTest.run(Indexable.empty(), -1, Iterable.empty());
-                removeAtTest.run(Indexable.empty(), 0, Iterable.empty());
-                removeAtTest.run(Indexable.empty(), 1, Iterable.empty());
+                removeAtTest.run(Indexable.create(), -1, Iterable.create());
+                removeAtTest.run(Indexable.create(), 0, Iterable.create());
+                removeAtTest.run(Indexable.create(), 1, Iterable.create());
 
                 removeAtTest.run(Indexable.create("a"), -1, Iterable.create("a"));
-                removeAtTest.run(Indexable.create("a"), 0, Iterable.empty());
+                removeAtTest.run(Indexable.create("a"), 0, Iterable.create());
                 removeAtTest.run(Indexable.create("a"), 1, Iterable.create("a"));
 
                 removeAtTest.run(Indexable.create("a", "b"), -1, Iterable.create("a", "b"));
@@ -105,18 +105,18 @@ public class CSVRowTests
                     });
                 };
 
-                setTest.run(Iterable.empty(), -1, "z", Iterable.empty());
-                setTest.run(Iterable.empty(), 0, "z", Iterable.empty());
-                setTest.run(Iterable.empty(), 1, "z", Iterable.empty());
+                setTest.run(Iterable.create(), -1, "z", Iterable.create());
+                setTest.run(Iterable.create(), 0, "z", Iterable.create());
+                setTest.run(Iterable.create(), 1, "z", Iterable.create());
 
-                setTest.run(Array.create(new String[] { "a" }), -1, "z", Array.create(new String[] { "a" }));
-                setTest.run(Array.create(new String[] { "a" }), 0, "z", Array.create(new String[] { "z" }));
-                setTest.run(Array.create(new String[] { "a" }), 1, "z", Array.create(new String[] { "a" }));
+                setTest.run(Iterable.create("a"), -1, "z", Iterable.create("a"));
+                setTest.run(Iterable.create("a"), 0, "z", Iterable.create("z"));
+                setTest.run(Iterable.create("a"), 1, "z", Iterable.create("a"));
 
-                setTest.run(Array.create(new String[] { "a", "b" }), -1, "z", Array.create(new String[] { "a", "b" }));
-                setTest.run(Array.create(new String[] { "a", "b" }), 0, "z", Array.create(new String[] { "z", "b" }));
-                setTest.run(Array.create(new String[] { "a", "b" }), 1, "z", Array.create(new String[] { "a", "z" }));
-                setTest.run(Array.create(new String[] { "a", "b" }), 2, "z", Array.create(new String[] { "a", "b" }));
+                setTest.run(Iterable.create("a", "b"), -1, "z", Iterable.create("a", "b"));
+                setTest.run(Iterable.create("a", "b"), 0, "z", Iterable.create("z", "b"));
+                setTest.run(Iterable.create("a", "b"), 1, "z", Iterable.create("a", "z"));
+                setTest.run(Iterable.create("a", "b"), 2, "z", Iterable.create("a", "b"));
             });
         });
     }

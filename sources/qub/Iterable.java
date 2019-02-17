@@ -7,13 +7,17 @@ package qub;
 public interface Iterable<T> extends java.lang.Iterable<T>
 {
     /**
-     * Get an empty Iterable.
-     * @param <U> The type of values that would be stored in the Iterable.
-     * @return An empty Iterable.
+     * Create a new Iterable create the provided values.
+     * @param values The values to convert to an Iterable.
+     * @param <T> The type of values in the created Iterable.
+     * @return The created Iterable.
      */
-    static <U> Iterable<U> empty()
+    @SafeVarargs
+    static <T> Iterable<T> create(T... values)
     {
-        return Indexable.empty();
+        PreCondition.assertNotNull(values, "values");
+
+        return Array.create(values);
     }
 
     /**
@@ -461,20 +465,6 @@ public interface Iterable<T> extends java.lang.Iterable<T>
             builder.append(endCharacter);
         }
         return builder.toString();
-    }
-
-    /**
-     * Create a new Iterable create the provided values.
-     * @param values The values to convert to an Iterable.
-     * @param <T> The type of values in the created Iterable.
-     * @return The created Iterable.
-     */
-    @SafeVarargs
-    static <T> Iterable<T> create(T... values)
-    {
-        PreCondition.assertNotNull(values, "values");
-
-        return Array.create(values);
     }
 
     /**

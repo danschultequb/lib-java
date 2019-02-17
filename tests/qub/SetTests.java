@@ -8,7 +8,7 @@ public class SetTests
         {
             runner.test("create()", (Test test) ->
             {
-                test.assertEqual(Iterable.empty(), Set.create());
+                test.assertEqual(Iterable.create(), Set.create());
             });
 
             runner.test("create(T...)", (Test test) ->
@@ -158,7 +158,7 @@ public class SetTests
                 runner.test("with empty", (Test test) ->
                 {
                     final Set<Integer> set = creator.run();
-                    set.addAll(Iterable.empty());
+                    set.addAll(Iterable.create());
                     test.assertEqual(0, set.getCount());
                 });
 
@@ -190,7 +190,7 @@ public class SetTests
                     final Set<Integer> set = creator.run();
                     set.add(null);
                     test.assertSuccess(null, set.remove(null));
-                    test.assertEqual(Iterable.empty(), set);
+                    test.assertEqual(Iterable.create(), set);
                 });
 
                 runner.test("with not-found non-null", (Test test) ->
@@ -204,7 +204,7 @@ public class SetTests
                     final Set<Integer> set = creator.run();
                     set.add(20);
                     test.assertSuccess(null, set.remove(20));
-                    test.assertEqual(Iterable.empty(), set);
+                    test.assertEqual(Iterable.create(), set);
                 });
             });
 
@@ -241,7 +241,7 @@ public class SetTests
 
                 runner.test("with empty Iterable", (Test test) ->
                 {
-                    test.assertFalse(creator.run().addAll(1, 2, 3).equals((Object)Iterable.empty()));
+                    test.assertFalse(creator.run().addAll(1, 2, 3).equals((Object)Iterable.create()));
                 });
 
                 runner.test("with subset Iterable", (Test test) ->
@@ -304,7 +304,7 @@ public class SetTests
 
                 runner.test("with empty Iterable", (Test test) ->
                 {
-                    test.assertFalse(creator.run().addAll(1, 2, 3).equals((Iterable<Integer>)Iterable.<Integer>empty()));
+                    test.assertFalse(creator.run().addAll(1, 2, 3).equals((Iterable<Integer>)Iterable.<Integer>create()));
                 });
 
                 runner.test("with subset Iterable", (Test test) ->

@@ -27,7 +27,7 @@ public class MutableHttpRequestTests
                     final MutableHttpRequest request = new MutableHttpRequest(method, url);
                     test.assertEqual(HttpMethod.GET, request.getMethod());
                     test.assertEqual(url, request.getURL());
-                    test.assertEqual(Iterable.empty(), request.getHeaders());
+                    test.assertEqual(Iterable.create(), request.getHeaders());
                     test.assertNull(request.getBody());
                 });
             });
@@ -87,7 +87,7 @@ public class MutableHttpRequestTests
                     final MutableHttpRequest request = create(HttpMethod.GET, "https://www.example.com");
                     test.assertThrows(() -> request.setBody((String)null));
                     test.assertNull(request.getBody());
-                    test.assertEqual(Iterable.empty(), request.getHeaders());
+                    test.assertEqual(Iterable.create(), request.getHeaders());
                 });
 
                 runner.test("with empty", (Test test) ->
@@ -95,7 +95,7 @@ public class MutableHttpRequestTests
                     final MutableHttpRequest request = create(HttpMethod.GET, "https://www.example.com");
                     request.setBody("");
                     test.assertNull(request.getBody());
-                    test.assertEqual(Iterable.empty(), request.getHeaders());
+                    test.assertEqual(Iterable.create(), request.getHeaders());
                 });
 
                 runner.test("with non-empty", (Test test) ->
@@ -116,7 +116,7 @@ public class MutableHttpRequestTests
                     final MutableHttpRequest request = create(HttpMethod.GET, "https://www.example.com");
                     request.setBody((byte[])null);
                     test.assertNull(request.getBody());
-                    test.assertEqual(Iterable.empty(), request.getHeaders());
+                    test.assertEqual(Iterable.create(), request.getHeaders());
                 });
 
                 runner.test("with empty", (Test test) ->
@@ -124,7 +124,7 @@ public class MutableHttpRequestTests
                     final MutableHttpRequest request = create(HttpMethod.GET, "https://www.example.com");
                     request.setBody(new byte[0]);
                     test.assertNull(request.getBody());
-                    test.assertEqual(Iterable.empty(), request.getHeaders());
+                    test.assertEqual(Iterable.create(), request.getHeaders());
                 });
 
                 runner.test("with non-empty", (Test test) ->
@@ -145,7 +145,7 @@ public class MutableHttpRequestTests
                     final MutableHttpRequest request = create(HttpMethod.POST, "https://www.example.com");
                     test.assertThrows(() -> request.setBody(-1, null));
                     test.assertNull(request.getBody());
-                    test.assertEqual(Iterable.empty(), request.getHeaders());
+                    test.assertEqual(Iterable.create(), request.getHeaders());
                 });
 
                 runner.test("with 0 contentLength and null body", (Test test) ->
@@ -153,7 +153,7 @@ public class MutableHttpRequestTests
                     final MutableHttpRequest request = create(HttpMethod.POST, "https://www.example.com");
                     request.setBody(0, null);
                     test.assertNull(request.getBody());
-                    test.assertEqual(Iterable.empty(), request.getHeaders());
+                    test.assertEqual(Iterable.create(), request.getHeaders());
                 });
 
                 runner.test("with 0 contentLength and non-null body", (Test test) ->
@@ -161,7 +161,7 @@ public class MutableHttpRequestTests
                     final MutableHttpRequest request = create(HttpMethod.POST, "https://www.example.com");
                     test.assertThrows(() -> request.setBody(0, new InMemoryByteStream()));
                     test.assertNull(request.getBody());
-                    test.assertEqual(Iterable.empty(), request.getHeaders());
+                    test.assertEqual(Iterable.create(), request.getHeaders());
                 });
 
                 runner.test("with 3 contentLength and null body", (Test test) ->
@@ -169,7 +169,7 @@ public class MutableHttpRequestTests
                     final MutableHttpRequest request = create(HttpMethod.POST, "https://www.example.com");
                     test.assertThrows(() -> request.setBody(3, null));
                     test.assertNull(request.getBody());
-                    test.assertEqual(Iterable.empty(), request.getHeaders());
+                    test.assertEqual(Iterable.create(), request.getHeaders());
                 });
 
                 runner.test("with 3 contentLength and non-null body", (Test test) ->
