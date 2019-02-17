@@ -117,8 +117,8 @@ public class DESTests
                     {
                         final DES des = new DES();
 
-                        final BitArray plaintextBits = BitArray.fromHexString(message);
-                        final BitArray initializationVectorBits = BitArray.fromHexString(initializationVector);
+                        final BitArray plaintextBits = BitArray.createFromHexString(message);
+                        final BitArray initializationVectorBits = BitArray.createFromHexString(initializationVector);
 
                         final BitArray ciphertextBits = des.encrypt(initializationVectorBits, plaintextBits);
                         test.assertNotNull(ciphertextBits);
@@ -143,8 +143,8 @@ public class DESTests
                     {
                         final DES des = new DES();
 
-                        final BitArray ciphertextBits = BitArray.fromHexString(ciphertext);
-                        final BitArray initializationVectorBits = BitArray.fromHexString(initializationVector);
+                        final BitArray ciphertextBits = BitArray.createFromHexString(ciphertext);
+                        final BitArray initializationVectorBits = BitArray.createFromHexString(initializationVector);
 
                         final BitArray plaintextBits = des.decrypt(initializationVectorBits, ciphertextBits);
                         test.assertNotNull(plaintextBits);

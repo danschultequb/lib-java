@@ -14,8 +14,8 @@ public class TripleDESTests
                     {
                         final TripleDES tripleDES = new TripleDES();
 
-                        final BitArray plaintextBits = BitArray.fromHexString(message);
-                        final BitArray initializationVectorBits = BitArray.fromHexString(initializationVector);
+                        final BitArray plaintextBits = BitArray.createFromHexString(message);
+                        final BitArray initializationVectorBits = BitArray.createFromHexString(initializationVector);
 
                         final BitArray ciphertextBits = tripleDES.encrypt(initializationVectorBits, plaintextBits);
                         test.assertNotNull(ciphertextBits);
@@ -40,8 +40,8 @@ public class TripleDESTests
                     {
                         final TripleDES tripleDES = new TripleDES();
 
-                        final BitArray ciphertextBits = BitArray.fromHexString(ciphertext);
-                        final BitArray initializationVectorBits = BitArray.fromHexString(initializationVector);
+                        final BitArray ciphertextBits = BitArray.createFromHexString(ciphertext);
+                        final BitArray initializationVectorBits = BitArray.createFromHexString(initializationVector);
 
                         final BitArray plaintextBits = tripleDES.decrypt(initializationVectorBits, ciphertextBits);
                         test.assertNotNull(plaintextBits);

@@ -24,10 +24,10 @@ public class TripleDES
         PreCondition.assertNotNull(plaintext, "plaintext");
         PreCondition.assertEqual(DES.blockSize, plaintext.getBitCount(), "plaintext.getBitCount()");
 
-        final BitArray k1 = BitArray.fromBitCount(DES.blockSize);
+        final BitArray k1 = new BitArray(DES.blockSize);
         k1.copyFrom(initializationVector, 0, 0, DES.blockSize);
 
-        final BitArray k2 = BitArray.fromBitCount(DES.blockSize);
+        final BitArray k2 = new BitArray(DES.blockSize);
         k2.copyFrom(initializationVector, DES.blockSize, 0, DES.blockSize);
 
         BitArray k3;
@@ -37,7 +37,7 @@ public class TripleDES
         }
         else
         {
-            k3 = BitArray.fromBitCount(DES.blockSize);
+            k3 = new BitArray(DES.blockSize);
             k3.copyFrom(initializationVector, DES.blockSize * 2, 0, DES.blockSize);
         }
 
@@ -65,10 +65,10 @@ public class TripleDES
         PreCondition.assertNotNull(ciphertext, "ciphertext");
         PreCondition.assertEqual(DES.blockSize, ciphertext.getBitCount(), "ciphertext.getBitCount()");
 
-        final BitArray k1 = BitArray.fromBitCount(DES.blockSize);
+        final BitArray k1 = new BitArray(DES.blockSize);
         k1.copyFrom(initializationVector, 0, 0, DES.blockSize);
 
-        final BitArray k2 = BitArray.fromBitCount(DES.blockSize);
+        final BitArray k2 = new BitArray(DES.blockSize);
         k2.copyFrom(initializationVector, DES.blockSize, 0, DES.blockSize);
 
         BitArray k3;
@@ -78,7 +78,7 @@ public class TripleDES
         }
         else
         {
-            k3 = BitArray.fromBitCount(DES.blockSize);
+            k3 = new BitArray(DES.blockSize);
             k3.copyFrom(initializationVector, DES.blockSize * 2, 0, DES.blockSize);
         }
 

@@ -5,36 +5,42 @@ package qub;
  */
 public class BitArray
 {
-    private static final int bitsPerChunk = Integer.SIZE;
-    private static final long maximumBitCount = ((long)Integer.MAX_VALUE) * bitsPerChunk;
+    private static final int bitsPerChunk = Integers.bitCount;
+    private static final long maximumBitCount = ((long)Integers.maximum) * bitsPerChunk;
 
     private final int[] chunks;
     private final long bitCount;
 
+    /**
+     * Create a new BitArray containing the provided number of bits.
+     * @param bitCount The number of bits the created BitArray will contain.
+     */
     public BitArray(long bitCount)
     {
-        this(new int[(int)Math.ceiling(bitCount / 32.0)], bitCount);
+        this(createChunks(bitCount), bitCount);
+    }
+
+    public static int getChunkCount(long bitCount)
+    {
+        PreCondition.assertBetween(0, bitCount, maximumBitCount, "bitCount");
+
+        return (int)Math.ceiling(bitCount / (double)bitsPerChunk);
+    }
+
+    public static int[] createChunks(long bitCount)
+    {
+        PreCondition.assertBetween(0, bitCount, maximumBitCount, "bitCount");
+
+        return new int[getChunkCount(bitCount)];
     }
 
     private BitArray(int[] chunks, long bitCount)
     {
+        PreCondition.assertNotNull(chunks, "chunks");
+        PreCondition.assertGreaterThanOrEqualTo(bitCount, 0, "bitCount");
+
         this.bitCount = bitCount;
         this.chunks = chunks;
-    }
-
-    /**
-     * Create a new BitArray containing the provided number of bits.
-     * @param bitCount The number of bits the created BitArray will contain.
-     * @return A BitArray with the provided number of bits.
-     * @preCondition 0 <= bitCount <= BitArray.maximumBitCount
-     * @postCondition result != null
-     * @postCondition result.getBitCount() == bitCount
-     */
-    public static BitArray fromBitCount(long bitCount)
-    {
-        PreCondition.assertBetween(0, bitCount, maximumBitCount, "bitCount");
-
-        return new BitArray(bitCount);
     }
 
     /**
@@ -44,12 +50,12 @@ public class BitArray
      * @preCondition bits != null && bits.length() > 0 && bits contains only '0','1'
      * @postCondition result != null && result.getBitCount() == bits.length()
      */
-    public static BitArray fromBitString(String bits)
+    public static BitArray createFromBitString(String bits)
     {
         PreCondition.assertNotNull(bits, "bits");
         PreCondition.assertContainsOnly(bits, new char[] { '0', '1' }, "bits");
 
-        final BitArray result = BitArray.fromBitCount(bits.length());
+        final BitArray result = new BitArray(bits.length());
         for (int i = 0; i < result.getBitCount(); ++i)
         {
             result.setBit(i, bits.charAt(i) - '0');
@@ -61,11 +67,11 @@ public class BitArray
         return result;
     }
 
-    public static BitArray fromHexString(String hexString)
+    public static BitArray createFromHexString(String hexString)
     {
         PreCondition.assertNotNull(hexString, "hexString");
 
-        final BitArray result = BitArray.fromBitCount(hexString.length() * 4);
+        final BitArray result = new BitArray(hexString.length() * 4);
         for (int i = 0; i < hexString.length(); ++i)
         {
             final char c = hexString.charAt(i);
@@ -83,7 +89,7 @@ public class BitArray
     {
         PreCondition.assertNotNull(bits, "bits");
 
-        final BitArray result = BitArray.fromByteArray(bits, bits.length * Byte.SIZE);
+        final BitArray result = BitArray.createFromBytes(bits, bits.length * Byte.SIZE);
 
         PostCondition.assertNotNull(result, "result");
         PostCondition.assertEqual(bits.length * Byte.SIZE, result.getBitCount(), "result.getBitCount()");
@@ -91,7 +97,7 @@ public class BitArray
         return result;
     }
 
-    public static BitArray fromByteArray(byte[] bits, long bitCount)
+    public static BitArray createFromBytes(byte[] bits, long bitCount)
     {
         PreCondition.assertNotNull(bits, "bits");
         PreCondition.assertBetween(bits.length == 0 ? 0 : ((bits.length - 1) * Byte.SIZE) + 1, bitCount, bits.length == 0 ? 0 : bits.length * Byte.SIZE, "bitCount");
@@ -116,7 +122,7 @@ public class BitArray
         return result;
     }
 
-    public static BitArray fromIntArray(int[] bits, long bitCount)
+    public static BitArray createFromIntegers(int[] bits, long bitCount)
     {
         PreCondition.assertNotNull(bits, "bits");
         PreCondition.assertBetween(bits.length == 0 ? 0 : ((bits.length - 1) * Integer.SIZE) + 1, bitCount, bits.length == 0 ? 0 : bits.length * Integer.SIZE, "bitCount");
@@ -135,7 +141,7 @@ public class BitArray
      */
     public BitArray clone()
     {
-        return BitArray.fromIntArray(chunks, bitCount);
+        return BitArray.createFromIntegers(chunks, bitCount);
     }
 
     /**
@@ -292,7 +298,7 @@ public class BitArray
 
         if (bitsToRotate % getBitCount() != 0)
         {
-            final BitArray temp = BitArray.fromBitCount(length);
+            final BitArray temp = new BitArray(length);
             for (long i = 0; i < length; ++i)
             {
                 final long getIndex = startIndex + Math.modulo(i + bitsToRotate, length);
@@ -362,7 +368,7 @@ public class BitArray
         PreCondition.assertStartIndex(startIndex, getBitCount());
         PreCondition.assertLength(length, startIndex, getBitCount());
 
-        final BitArray tempBits = BitArray.fromBitCount(length);
+        final BitArray tempBits = new BitArray(length);
         final long afterRangeEndIndex = startIndex + length;
         for (long i = 0; i < length; ++i)
         {
@@ -404,7 +410,7 @@ public class BitArray
         PreCondition.assertEqual(getBitCount(), rhs.getBitCount(), "rhs.getBitCount()");
 
         final long bitCount = getBitCount();
-        final BitArray result = BitArray.fromBitCount(bitCount);
+        final BitArray result = new BitArray(bitCount);
         for (long i = 0; i < bitCount; ++i)
         {
             result.setBit(i, (getBit(i) + rhs.getBit(i)) % 2);
@@ -430,7 +436,7 @@ public class BitArray
     {
         PreCondition.assertNotNull(bitIndexPermutations, "bitIndexPermutations");
 
-        final BitArray result = BitArray.fromBitCount(bitIndexPermutations.length);
+        final BitArray result = new BitArray(bitIndexPermutations.length);
         for (int i = 0; i < bitIndexPermutations.length; ++i)
         {
             final long bitIndex = bitIndexPermutations[i];
@@ -463,7 +469,7 @@ public class BitArray
         PreCondition.assertLength(length, startIndex, getBitCount());
         PreCondition.assertNotNull(bitNumberPermutations, "bitNumberPermutations");
 
-        final BitArray result = BitArray.fromBitCount(bitNumberPermutations.length);
+        final BitArray result = new BitArray(bitNumberPermutations.length);
         for (int i = 0; i < bitNumberPermutations.length; ++i)
         {
             final long bitNumber = bitNumberPermutations[i];
@@ -489,7 +495,7 @@ public class BitArray
 
         final long thisBitCount = this.getBitCount();
         final long rhsBitCount = rhs.getBitCount();
-        final BitArray result = BitArray.fromBitCount(thisBitCount + rhsBitCount);
+        final BitArray result = new BitArray(thisBitCount + rhsBitCount);
         if (thisBitCount > 0)
         {
             result.copyFrom(this, 0, 0, thisBitCount);

@@ -46,7 +46,7 @@ public class BitArrayBlockIterator implements Iterator<BitArray>
 
         if (currentBitIndex < source.getBitCount())
         {
-            currentBlock = BitArray.fromBitCount(blockSize);
+            currentBlock = new BitArray(blockSize);
             currentBlock.copyFrom(source, currentBitIndex, 0, blockSize);
         }
         else

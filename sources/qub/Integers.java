@@ -21,6 +21,10 @@ public final class Integers
      */
     public static final int hexCharCount = 8;
 
+    public static final int maximum = Integer.MAX_VALUE;
+
+    public static final int minimum = Integer.MIN_VALUE;
+
     /**
      * Get whether or not the provided value is zero or null.
      * @param value The value to check.
