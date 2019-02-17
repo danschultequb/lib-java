@@ -65,6 +65,136 @@ public class ArrayTests
                 });
             });
 
+            runner.testGroup("createBooleanArray(int)", () ->
+            {
+                runner.test("with negative", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.createBooleanArray(-1), new PreConditionFailure("length (-1) must be greater than or equal to 0."));
+                });
+
+                runner.test("with zero", (Test test) ->
+                {
+                    final BooleanArray array = Array.createBooleanArray(0);
+                    test.assertNotNull(array);
+                    test.assertEqual(0, array.getCount());
+                });
+
+                runner.test("with positive", (Test test) ->
+                {
+                    final BooleanArray array = Array.createBooleanArray(1000);
+                    test.assertNotNull(array);
+                    test.assertEqual(1000, array.getCount());
+                });
+            });
+
+            runner.testGroup("createBooleanArray(boolean...)", () ->
+            {
+                runner.test("with null array", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.createBooleanArray((boolean[])null),
+                        new PreConditionFailure("values cannot be null."));
+                });
+
+                runner.test("with empty array", (Test test) ->
+                {
+                    final BooleanArray array = Array.createBooleanArray(new boolean[0]);
+                    test.assertEqual(0, array.getCount());
+                });
+
+                runner.test("with one value array", (Test test) ->
+                {
+                    final BooleanArray array = Array.createBooleanArray(new boolean[] { true });
+                    test.assertEqual(1, array.getCount());
+                    test.assertEqual(true, array.get(0));
+                });
+
+                runner.test("with two value array", (Test test) ->
+                {
+                    final BooleanArray array = Array.createBooleanArray(new boolean[] { true, false });
+                    test.assertEqual(2, array.getCount());
+                    test.assertEqual(true, array.get(0));
+                    test.assertEqual(false, array.get(1));
+                });
+
+                runner.test("with no values", (Test test) ->
+                {
+                    final BooleanArray array = Array.createBooleanArray();
+                    test.assertEqual(0, array.getCount());
+                });
+
+                runner.test("with one value", (Test test) ->
+                {
+                    final BooleanArray array = Array.createBooleanArray(true);
+                    test.assertEqual(1, array.getCount());
+                    test.assertEqual(true, array.get(0));
+                });
+
+                runner.test("with two values", (Test test) ->
+                {
+                    final BooleanArray array = Array.createBooleanArray(true, false);
+                    test.assertEqual(2, array.getCount());
+                    test.assertEqual(true, array.get(0));
+                    test.assertEqual(false, array.get(1));
+                });
+            });
+
+            runner.testGroup("toBooleanArray(Iterator<Boolean>)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.toBooleanArray((Iterator<Boolean>)null),
+                        new PreConditionFailure("values cannot be null."));
+                });
+
+                runner.test("with empty", (Test test) ->
+                {
+                    test.assertEqual(
+                        new boolean[0],
+                        Array.toBooleanArray(Iterator.create()).await());
+                });
+
+                runner.test("with non-empty", (Test test) ->
+                {
+                    test.assertEqual(
+                        new boolean[] { false, true, false },
+                        Array.toBooleanArray(Iterator.create(false, true, false)).await());
+                });
+
+                runner.test("with null value", (Test test) ->
+                {
+                    test.assertError(
+                        new NullPointerException("The 0 element cannot be null."),
+                        Array.toBooleanArray(Iterator.create(null, true, false)));
+                });
+            });
+
+            runner.testGroup("toBooleanArray(Iterable<Boolean>)", () ->
+            {
+                runner.test("with null Iterable", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.toBooleanArray((Iterable<Boolean>)null), new PreConditionFailure("values cannot be null."));
+                });
+
+                runner.test("with empty Iterable", (Test test) ->
+                {
+                    test.assertEqual(new boolean[0], Array.toBooleanArray(Iterable.create()).await());
+                });
+
+                runner.test("with non-empty", (Test test) ->
+                {
+                    test.assertEqual(
+                        new boolean[] { false, true, false },
+                        Array.toBooleanArray(Iterable.create(false, true, false)).await());
+                });
+
+                runner.test("with null value", (Test test) ->
+                {
+                    test.assertError(
+                        new NullPointerException("The 0 element cannot be null."),
+                        Array.toBooleanArray(Iterable.create(null, true, false)));
+                });
+            });
+
             runner.testGroup("createCharacter(char[])", () ->
             {
                 runner.test("with null array", (Test test) ->
@@ -284,114 +414,6 @@ public class ArrayTests
                     test.assertTrue(iterator.hasStarted());
                     test.assertFalse(iterator.hasCurrent());
                     test.assertThrows(iterator::getCurrent, new PreConditionFailure("hasCurrent() cannot be false."));
-                });
-            });
-
-            runner.testGroup("createBoolean(boolean...)", () ->
-            {
-                runner.test("with null array", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.createBoolean((boolean[])null),
-                        new PreConditionFailure("values cannot be null."));
-                });
-
-                runner.test("with empty array", (Test test) ->
-                {
-                    final Array<Boolean> array = Array.createBoolean(new boolean[0]);
-                    test.assertEqual(0, array.getCount());
-                });
-
-                runner.test("with one value array", (Test test) ->
-                {
-                    final Array<Boolean> array = Array.createBoolean(new boolean[] { true });
-                    test.assertEqual(1, array.getCount());
-                    test.assertEqual(true, array.get(0));
-                });
-
-                runner.test("with two value array", (Test test) ->
-                {
-                    final Array<Boolean> array = Array.createBoolean(new boolean[] { true, false });
-                    test.assertEqual(2, array.getCount());
-                    test.assertEqual(true, array.get(0));
-                    test.assertEqual(false, array.get(1));
-                });
-
-                runner.test("with no values", (Test test) ->
-                {
-                    final Array<Boolean> array = Array.createBoolean();
-                    test.assertEqual(0, array.getCount());
-                });
-
-                runner.test("with one value", (Test test) ->
-                {
-                    final Array<Boolean> array = Array.createBoolean(true);
-                    test.assertEqual(1, array.getCount());
-                    test.assertEqual(true, array.get(0));
-                });
-
-                runner.test("with two values", (Test test) ->
-                {
-                    final Array<Boolean> array = Array.createBoolean(true, false);
-                    test.assertEqual(2, array.getCount());
-                    test.assertEqual(true, array.get(0));
-                    test.assertEqual(false, array.get(1));
-                });
-            });
-            
-            runner.testGroup("toBooleanArray(Iterator<Boolean>)", () ->
-            {
-                runner.test("with null", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.toBooleanArray((Iterator<Boolean>)null),
-                        new PreConditionFailure("values cannot be null."));
-                });
-                
-                runner.test("with empty", (Test test) ->
-                {
-                    test.assertEqual(
-                        new boolean[0],
-                        Array.toBooleanArray(Iterator.create()).await());
-                });
-
-                runner.test("with non-empty", (Test test) ->
-                {
-                    test.assertEqual(
-                        new boolean[] { false, true, false },
-                        Array.toBooleanArray(Iterator.create(false, true, false)).await());
-                });
-
-                runner.test("with null value", (Test test) ->
-                {
-                    test.assertError(
-                        new NullPointerException("The 0 element cannot be null."),
-                        Array.toBooleanArray(Iterator.create(null, true, false)));
-                });
-            });
-
-            runner.testGroup("toBooleanArray(Iterable<Boolean>)", () ->
-            {
-                runner.test("with null Iterable", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.toBooleanArray((Iterable<Boolean>)null), new PreConditionFailure("values cannot be null."));
-                });
-
-                runner.test("with empty Iterable", (Test test) ->
-                {
-                    test.assertEqual(new boolean[0], Array.toBooleanArray(Iterable.create()).await());
-                });
-
-                runner.test("with non-empty", (Test test) ->
-                {
-                    test.assertEqual(
-                        new boolean[] { false, true, false },
-                        Array.toBooleanArray(Iterable.create(false, true, false)).await());
-                });
-
-                runner.test("with null value", (Test test) ->
-                {
-                    test.assertError(
-                        new NullPointerException("The 0 element cannot be null."),
-                        Array.toBooleanArray(Iterable.create(null, true, false)));
                 });
             });
 

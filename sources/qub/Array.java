@@ -46,23 +46,26 @@ public abstract class Array<T> implements MutableIndexable<T>
     }
 
     /**
+     * Create a new BooleanArray with the provided length.
+     * @param length The length of the BooleanArray.
+     * @return The new BooleanArray.
+     */
+    static BooleanArray createBooleanArray(int length)
+    {
+        PreCondition.assertGreaterThanOrEqualTo(length, 0, "length");
+
+        return new BooleanArray(length);
+    }
+
+    /**
      * Create an Array create the provided values.
      * @param values The values to initialize the array with.
      */
-    static Array<Boolean> createBoolean(boolean... values)
+    static BooleanArray createBooleanArray(boolean... values)
     {
         PreCondition.assertNotNull(values, "values");
 
-        final Array<Boolean> result = Array.createWithLength(values.length);
-        for (int i = 0; i < values.length; ++i)
-        {
-            result.set(i, values[i]);
-        }
-
-        PostCondition.assertNotNull(result, "result");
-        PostCondition.assertEqual(result.getCount(), values.length, "result.getCount()");
-
-        return result;
+        return new BooleanArray(values);
     }
 
     /**
