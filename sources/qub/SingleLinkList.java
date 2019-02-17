@@ -32,7 +32,7 @@ public class SingleLinkList<T> implements List<T>
     @Override
     public void insert(int insertIndex, T value)
     {
-        validateInsertIndex(insertIndex);
+        PreCondition.assertBetween(0, insertIndex, getCount(), "insertIndex");
 
         final SingleLinkNode<T> nodeToAdd = new SingleLinkNode<>(value);
 
@@ -52,7 +52,7 @@ public class SingleLinkList<T> implements List<T>
     @Override
     public void set(int index, T value)
     {
-        validateAccessIndex(index);
+        PreCondition.assertIndexAccess(index, getCount());
 
         getNode(index).setValue(value);
     }
@@ -60,7 +60,7 @@ public class SingleLinkList<T> implements List<T>
     @Override
     public T removeAt(int index)
     {
-        validateAccessIndex(index);
+        PreCondition.assertIndexAccess(index, getCount());
 
         final SingleLinkNode<T> nodeBeforeNodeToRemove = getNode(index - 1);
         final SingleLinkNode<T> nodeToRemove = (nodeBeforeNodeToRemove == null ? head : nodeBeforeNodeToRemove.getNext());
@@ -152,7 +152,7 @@ public class SingleLinkList<T> implements List<T>
     @Override
     public T get(int index)
     {
-        validateAccessIndex(index);
+        PreCondition.assertIndexAccess(index, getCount());
 
         return getNode(index).getValue();
     }

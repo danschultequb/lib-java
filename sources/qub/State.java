@@ -108,9 +108,9 @@ public class State
     }
 
     /**
-     * Add a transition from this State to the provided nextState when the provided value is
+     * Add a transition create this State to the provided nextState when the provided value is
      * encountered.
-     * @param value The value that initiates the transition from this State to the provided
+     * @param value The value that initiates the transition create this State to the provided
      *              nextState.
      * @param nextState The State to transition to.
      * @return This State for method chaining.
@@ -123,9 +123,9 @@ public class State
     }
 
     /**
-     * Add a transition from this State to the provided nextState when the provided value is
+     * Add a transition create this State to the provided nextState when the provided value is
      * encountered.
-     * @param valueRange The range of values that initiates the transition from this State to the
+     * @param valueRange The range of values that initiates the transition create this State to the
      *                   provided nextState.
      * @param nextState The State to transition to.
      * @return This State for method chaining.
@@ -139,9 +139,9 @@ public class State
     }
 
     /**
-     * Add a transition from this State to the provided nextState when the provided condition is
+     * Add a transition create this State to the provided nextState when the provided condition is
      * encountered.
-     * @param condition The condition that initiates the transition from this State to the provided
+     * @param condition The condition that initiates the transition create this State to the provided
      *                  nextState.
      * @param nextState The State to transition to.
      * @return This State for method chaining.

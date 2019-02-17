@@ -59,16 +59,6 @@ public class MathTests
                 test.assertFalse(Math.isOdd(0));
                 test.assertFalse(Math.isOdd(2));
                 test.assertFalse(Math.isOdd(-2));
-
-                test.assertFalse(Math.isOdd.run(null));
-
-                test.assertTrue(Math.isOdd.run(1));
-                test.assertTrue(Math.isOdd.run(3));
-                test.assertTrue(Math.isOdd.run(-1));
-
-                test.assertFalse(Math.isOdd.run(0));
-                test.assertFalse(Math.isOdd.run(2));
-                test.assertFalse(Math.isOdd.run(-2));
             });
 
             runner.test("isEven()", (Test test) ->
@@ -80,16 +70,6 @@ public class MathTests
                 test.assertTrue(Math.isEven(0));
                 test.assertTrue(Math.isEven(2));
                 test.assertTrue(Math.isEven(-2));
-
-                test.assertFalse(Math.isEven.run(null));
-
-                test.assertFalse(Math.isEven.run(1));
-                test.assertFalse(Math.isEven.run(3));
-                test.assertFalse(Math.isEven.run(-1));
-
-                test.assertTrue(Math.isEven.run(0));
-                test.assertTrue(Math.isEven.run(2));
-                test.assertTrue(Math.isEven.run(-2));
             });
 
             runner.test("ceiling()", (Test test) ->

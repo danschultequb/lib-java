@@ -15,48 +15,6 @@ public class ArrayListTests
                 }
                 return result;
             });
-
-            runner.test("create()", (Test test) ->
-            {
-                final ArrayList<Integer> arrayList1 = ArrayList.fromValues(new Integer[0]);
-                test.assertEqual(0, arrayList1.getCount());
-
-                final ArrayList<Integer> arrayList2 = ArrayList.fromValues((Integer[])null);
-                test.assertEqual(0, arrayList2.getCount());
-
-                final ArrayList<Integer> arrayList3 = ArrayList.fromValues(new Integer[] { 1, 2, 3 });
-                test.assertEqual(3, arrayList3.getCount());
-                for (int i = 0; i < 3; ++i)
-                {
-                    test.assertEqual(i + 1, arrayList3.get(i));
-                }
-
-                final ArrayList<Integer> arrayList4 = ArrayList.fromValues((Iterator<Integer>)null);
-                test.assertEqual(0, arrayList4.getCount());
-
-                final ArrayList<Integer> arrayList5 = ArrayList.fromValues(new Array<Integer>(0).iterate());
-                test.assertEqual(0, arrayList5.getCount());
-
-                final ArrayList<Integer> arrayList6 = ArrayList.fromValues(Iterable.create(1, 2, 3).iterate());
-                test.assertEqual(3, arrayList6.getCount());
-                for (int i = 0; i < 3; ++i)
-                {
-                    test.assertEqual(i + 1, arrayList6.get(i));
-                }
-
-                final ArrayList<Integer> arrayList7 = ArrayList.fromValues((Iterable<Integer>)null);
-                test.assertEqual(0, arrayList7.getCount());
-
-                final ArrayList<Integer> arrayList8 = ArrayList.fromValues(new Array<Integer>(0));
-                test.assertEqual(0, arrayList8.getCount());
-
-                final ArrayList<Integer> arrayList9 = ArrayList.fromValues(Iterable.create(1, 2, 3));
-                test.assertEqual(3, arrayList9.getCount());
-                for (int i = 0; i < 3; ++i)
-                {
-                    test.assertEqual(i + 1, arrayList9.get(i));
-                }
-            });
         });
     }
 }

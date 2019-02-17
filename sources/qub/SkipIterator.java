@@ -14,6 +14,9 @@ class SkipIterator<T> implements Iterator<T>
 
     SkipIterator(Iterator<T> innerIterator, int toSkip)
     {
+        PreCondition.assertNotNull(innerIterator, "innerIterator");
+        PreCondition.assertGreaterThanOrEqualTo(toSkip, 0, "toSkip");
+
         this.innerIterator = innerIterator;
         this.toSkip = toSkip;
         skipped = 0;

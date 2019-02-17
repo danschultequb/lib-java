@@ -63,7 +63,7 @@ public class ConsoleTestRunner extends Console implements TestRunner
         });
         testRunner.beforeTest((Test test) ->
         {
-            final Stack<TestGroup> testGroupsToWrite = new Stack<>();
+            final Stack<TestGroup> testGroupsToWrite = Stack.empty();
             TestGroup currentTestGroup = test.getParentTestGroup();
             while (currentTestGroup != null && !testGroupsWrittenToConsole.contains(currentTestGroup))
             {

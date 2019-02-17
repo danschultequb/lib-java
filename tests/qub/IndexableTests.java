@@ -13,7 +13,7 @@ public class IndexableTests
                 runner.test("with negative index", (Test test) ->
                 {
                     final Indexable<Integer> indexable = createIndexable.run(0);
-                    test.assertThrows(() -> indexable.get(-5), new PreConditionFailure("Cannot access values in an empty Indexable."));
+                    test.assertThrows(() -> indexable.get(-5), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
                 });
 
                 runner.test("with zero index", (Test test) ->
@@ -52,7 +52,7 @@ public class IndexableTests
                 runner.test("with empty Indexable and non-null condition", (Test test) ->
                 {
                     final Indexable<Integer> indexable = createIndexable.run(0);
-                    test.assertEqual(-1, indexable.indexOf(Math.isOdd));
+                    test.assertEqual(-1, indexable.indexOf(Math::isOdd));
                 });
 
                 runner.test("with non-empty Indexable and null condition", (Test test) ->
@@ -64,13 +64,13 @@ public class IndexableTests
                 runner.test("with non-empty Indexable and non-matching condition", (Test test) ->
                 {
                     final Indexable<Integer> indexable = createIndexable.run(1);
-                    test.assertEqual(-1, indexable.indexOf(Math.isOdd));
+                    test.assertEqual(-1, indexable.indexOf(Math::isOdd));
                 });
 
                 runner.test("with non-empty Indexable and matching condition", (Test test) ->
                 {
                     final Indexable<Integer> indexable = createIndexable.run(7);
-                    test.assertEqual(1, indexable.indexOf(Math.isOdd));
+                    test.assertEqual(1, indexable.indexOf(Math::isOdd));
                 });
 
                 runner.test("with non-empty Indexable and null value", (Test test) ->

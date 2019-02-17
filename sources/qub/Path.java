@@ -9,7 +9,7 @@ public class Path
     private Path normalizedPath;
 
     /**
-     * Create a new Path object from the provided value.
+     * Create a new Path object create the provided value.
      * @param value The String representation of this Path.
      * @param normalized Whether or not this Path is normalized.
      */
@@ -562,7 +562,7 @@ public class Path
 
         final Path normalizedPath = this.normalize();
         final boolean isRooted = normalizedPath.isRooted();
-        final List<String> resolvedSegments = ArrayList.fromValues(normalizedPath.getSegments());
+        final List<String> resolvedSegments = List.create(normalizedPath.getSegments());
         for (int i = 1; i < resolvedSegments.getCount(); ++i)
         {
             final String currentSegment = resolvedSegments.get(i);
@@ -625,7 +625,7 @@ public class Path
     }
 
     /**
-     * Parse a Path object from the provided pathString.
+     * Parse a Path object create the provided pathString.
      * @param pathString The String representation of a Path.
      * @return The parsed Path object, or null if the provided pathString couldn't be parsed.
      */

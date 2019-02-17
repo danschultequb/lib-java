@@ -3,21 +3,73 @@ package qub;
 /**
  * A wrapper class around the byte[] primitive type.
  */
-public class ByteArray implements MutableIndexable<Byte>
+public class ByteArray extends Array<Byte>
 {
-    private final byte[] bytes;
+    private final byte[] values;
 
-    private ByteArray(byte[] bytes)
+    public ByteArray(int count)
     {
-        PreCondition.assertNotNull(bytes, "bytes");
+        this.values = new byte[count];
+    }
 
-        this.bytes = bytes;
+    public ByteArray(byte[] values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        this.values = values;
+    }
+
+    public ByteArray(byte[] values, int startIndex, int length)
+    {
+        PreCondition.assertNotNull(values, "values");
+        PreCondition.assertStartIndex(startIndex, values.length);
+        PreCondition.assertLength(length, startIndex, values.length);
+
+        if (values.length == length)
+        {
+            this.values = values;
+        }
+        else
+        {
+            this.values = new byte[length];
+            for (int i = 0; i < length; ++i)
+            {
+                this.values[i] = values[startIndex + i];
+            }
+        }
+    }
+
+    public ByteArray(int[] values)
+    {
+        PreCondition.assertNotNull(values, "bytes");
+
+        this.values = new byte[values.length];
+        for (int i = 0; i < values.length; ++i)
+        {
+            PreCondition.assertByte(values[i], "The " + i + " element");
+            this.values[i] = (byte)values[i];
+        }
+    }
+
+    public ByteArray(int[] values, int startIndex, int length)
+    {
+        PreCondition.assertNotNull(values, "values");
+        PreCondition.assertStartIndex(startIndex, values.length);
+        PreCondition.assertLength(length, startIndex, values.length);
+
+        this.values = new byte[length];
+        for (int i = 0; i < length; ++i)
+        {
+            final int value = values[i];
+            PreCondition.assertByte(value, "The " + i + " element");
+            this.values[i] = (byte)value;
+        }
     }
 
     @Override
     public int getCount()
     {
-        return bytes.length;
+        return values.length;
     }
 
     /**
@@ -29,7 +81,7 @@ public class ByteArray implements MutableIndexable<Byte>
     {
         PreCondition.assertIndexAccess(index, getCount(), "index");
 
-        bytes[index] = value;
+        values[index] = value;
     }
 
     /**
@@ -42,7 +94,7 @@ public class ByteArray implements MutableIndexable<Byte>
         PreCondition.assertIndexAccess(index, getCount(), "index");
         PreCondition.assertByte(value, "value");
 
-        bytes[index] = (byte)value;
+        values[index] = (byte)value;
     }
 
     @Override
@@ -51,7 +103,7 @@ public class ByteArray implements MutableIndexable<Byte>
         PreCondition.assertIndexAccess(index, getCount(), "index");
         PreCondition.assertNotNull(value, "value");
 
-        bytes[index] = value;
+        values[index] = value;
     }
 
     @Override
@@ -59,91 +111,15 @@ public class ByteArray implements MutableIndexable<Byte>
     {
         PreCondition.assertIndexAccess(index, getCount(), "index");
 
-        return bytes[index];
-    }
-
-    @Override
-    public ByteArrayIterator iterate()
-    {
-        return new ByteArrayIterator(bytes);
-    }
-
-    @Override
-    public boolean equals(Object rhs)
-    {
-        return Iterable.equals(this, rhs);
-    }
-
-    @Override
-    public String toString()
-    {
-        return Iterable.toString(this);
+        return values[index];
     }
 
     /**
-     * Create a new ByteArray with the provided number of elements.
-     * @param count The number of elements.
-     * @return The new ByteArray.
+     * Get a byte[] representation of this ByteArray.
+     * @return The byte[].
      */
-    public static ByteArray createWithLength(int count)
+    public byte[] toByteArray()
     {
-        PreCondition.assertGreaterThanOrEqualTo(count, 0, "count");
-
-        return new ByteArray(new byte[count]);
-    }
-
-    /**
-     * Create a new ByteArray with the provided elements.
-     * @param values The elements of the new ByteArray.
-     * @return The new ByteArray.
-     */
-    public static ByteArray create(byte... values)
-    {
-        PreCondition.assertNotNull(values, "values");
-
-        return new ByteArray(values);
-    }
-
-    /**
-     * Create a new ByteArray with the provided elements.
-     * @param values The elements of the new ByteArray.
-     * @return The new ByteArray.
-     */
-    public static ByteArray create(int... values)
-    {
-        PreCondition.assertNotNull(values, "values");
-
-        final ByteArray result = ByteArray.createWithLength(values.length);
-        for (int i = 0; i < values.length; ++i)
-        {
-            result.set(i, values[i]);
-        }
-
-        return result;
-    }
-
-    /**
-     * Create a new ByteArray with the provided elements.
-     * @param values The elements of the new ByteArray.
-     * @param startIndex The start index into the values.
-     * @param length The number of bytes to copy.
-     * @return The new ByteArray.
-     */
-    public static ByteArray create(byte[] values, int startIndex, int length)
-    {
-        PreCondition.assertNotNull(values, "values");
-        PreCondition.assertStartIndex(startIndex, values.length);
-        PreCondition.assertLength(length, startIndex, values.length);
-
-        final ByteArray result = ByteArray.createWithLength(length);
-        for (int i = 0; i < length; ++i)
-        {
-            result.set(i, values[startIndex + i]);
-        }
-
-        PostCondition.assertNotNull(result, "result");
-        PostCondition.assertEqual(length, result.getCount(), "length");
-
-        return result;
+        return values;
     }
 }

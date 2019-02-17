@@ -2137,7 +2137,7 @@ public class FileSystemTests
                     fileSystem.createFolder("/test/folder");
 
                     final Result<Iterable<FileSystemEntry>> result = fileSystem.getFilesAndFoldersRecursively("/test/folder");
-                    test.assertSuccess(new Array<>(0), result);
+                    test.assertSuccess(Iterable.empty(), result);
                 });
 
                 runner.test("with rooted path when folder has files", (Test test) ->
@@ -2148,11 +2148,10 @@ public class FileSystemTests
                     fileSystem.createFile("/test/folder/2.txt");
 
                     final Result<Iterable<FileSystemEntry>> result = fileSystem.getFilesAndFoldersRecursively("/test/folder");
-                    test.assertSuccess(Array.create(new FileSystemEntry[]
-                        {
+                    test.assertSuccess(
+                        Iterable.create(
                             fileSystem.getFile("/test/folder/1.txt").getValue(),
-                            fileSystem.getFile("/test/folder/2.txt").getValue()
-                        }),
+                            fileSystem.getFile("/test/folder/2.txt").getValue()),
                         result);
                 });
 

@@ -55,7 +55,7 @@ public class UITextTests
 
             runner.testGroup("setParent(UIElementParent)", () ->
             {
-                runner.test("from null to null", (Test test) ->
+                runner.test("create null to null", (Test test) ->
                 {
                     final UIText text = new UIText("a");
                     test.assertNull(text.getParent());
@@ -65,7 +65,7 @@ public class UITextTests
                     test.assertNull(text.getParent());
                 });
 
-                runner.test("from null to non-null", (Test test) ->
+                runner.test("create null to non-null", (Test test) ->
                 {
                     try (final FakeWindow window = new FakeWindow())
                     {

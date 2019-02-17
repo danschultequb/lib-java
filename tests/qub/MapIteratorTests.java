@@ -8,7 +8,7 @@ public class MapIteratorTests
         {
             IteratorTests.test(runner, (Integer count, Boolean started) ->
             {
-                final Array<Long> array = new Array<>(count);
+                final Array<Long> array = Array.createWithLength(count);
                 for (int i = 0; i < count; ++i)
                 {
                     array.set(i, (long)i);
@@ -22,16 +22,6 @@ public class MapIteratorTests
                 }
 
                 return iterator;
-            });
-
-            runner.testGroup("getCurrent()", () ->
-            {
-                runner.test("with null conversion", (Test test) ->
-                {
-                    final Array<String> array = Array.create(new String[] { "1", "2", "3" });
-                    final Iterator<Integer> iterator = array.iterate().map(null);
-                    test.assertNull(iterator.getCurrent());
-                });
             });
         });
     }

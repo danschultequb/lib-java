@@ -9,7 +9,7 @@ public class Strings
      */
     public static Iterable<Character> iterable(String text)
     {
-        return Strings.isNullOrEmpty(text) ? Iterable.empty() : Iterable.create(text.toCharArray());
+        return Strings.isNullOrEmpty(text) ? Iterable.empty() : Array.createCharacter(text.toCharArray());
     }
 
     /**
@@ -437,7 +437,7 @@ public class Strings
 
     /**
      * Get the lines that make up the provided String value.
-     * @param value The value to get the lines from.
+     * @param value The value to get the lines create.
      * @return The lines that make up the provided String value.
      */
     public static Iterable<String> getLines(String value)
@@ -447,7 +447,7 @@ public class Strings
 
     /**
      * Get the lines that make up the provided String value.
-     * @param value The value to get the lines from.
+     * @param value The value to get the lines create.
      * @param includeNewLineCharacters Whether or not to include new line sequences (\n and \r\n).
      * @return The lines that make up the provided String value.
      */

@@ -113,7 +113,7 @@ public class JSON
     public static JSONObject parseObject(JSONTokenizer tokenizer, List<Issue> issues)
     {
         final JSONToken leftCurlyBracket = tokenizer.takeCurrent();
-        final List<JSONSegment> objectSegments = ArrayList.fromValues(new JSONSegment[] { leftCurlyBracket });
+        final List<JSONSegment> objectSegments = List.create(leftCurlyBracket);
 
         boolean foundRightCurlyBracket = false;
         boolean propertyNameAllowed = true;
@@ -229,7 +229,7 @@ public class JSON
     public static JSONProperty parseProperty(JSONTokenizer tokenizer, List<Issue> issues)
     {
         final JSONToken propertyName = tokenizer.takeCurrent();
-        final List<JSONSegment> propertySegments = ArrayList.fromValues(new JSONSegment[] { propertyName });
+        final List<JSONSegment> propertySegments = List.create(propertyName);
 
         skipWhitespace(tokenizer, propertySegments);
 
@@ -319,7 +319,7 @@ public class JSON
     public static JSONArray parseArray(JSONTokenizer tokenizer, List<Issue> issues)
     {
         final JSONToken leftSquareBracket = tokenizer.takeCurrent();
-        final List<JSONSegment> arraySegments = ArrayList.fromValues(new JSONSegment[] { leftSquareBracket });
+        final List<JSONSegment> arraySegments = List.create(leftSquareBracket);
 
         boolean foundRightSquareBracket = false;
         boolean rightSquareBracketAllowed = true;

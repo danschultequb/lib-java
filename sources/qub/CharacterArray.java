@@ -3,11 +3,16 @@ package qub;
 /**
  * A wrapper class around the char[] primitive type.
  */
-public class CharacterArray implements MutableIndexable<Character>
+public class CharacterArray extends Array<Character>
 {
     private final char[] characters;
 
-    private CharacterArray(char[] characters)
+    public CharacterArray(int count)
+    {
+        this(new char[count]);
+    }
+
+    public CharacterArray(char[] characters)
     {
         PreCondition.assertNotNull(characters, "characters");
 
@@ -49,48 +54,6 @@ public class CharacterArray implements MutableIndexable<Character>
         return characters[index];
     }
 
-    @Override
-    public Iterator<Character> iterate()
-    {
-        return new CharacterArrayIterator(characters);
-    }
-
-    @Override
-    public boolean equals(Object rhs)
-    {
-        return Iterable.equals(this, rhs);
-    }
-
-    @Override
-    public String toString()
-    {
-        return Iterable.toString(this);
-    }
-
-    /**
-     * Create a new CharacterArray with the provided number of elements.
-     * @param count The number of elements.
-     * @return The new CharacterArray.
-     */
-    public static CharacterArray createWithLength(int count)
-    {
-        PreCondition.assertGreaterThanOrEqualTo(count, 0, "count");
-
-        return new CharacterArray(new char[count]);
-    }
-
-    /**
-     * Create a new CharacterArray with the provided elements.
-     * @param values The elements of the new CharacterArray.
-     * @return The new CharacterArray.
-     */
-    public static CharacterArray create(char... values)
-    {
-        PreCondition.assertNotNull(values, "values");
-
-        return new CharacterArray(values);
-    }
-
     /**
      * Create a new CharacterArray with the provided elements.
      * @param values The elements of the new CharacterArray.
@@ -104,7 +67,7 @@ public class CharacterArray implements MutableIndexable<Character>
         PreCondition.assertStartIndex(startIndex, values.length);
         PreCondition.assertLength(length, startIndex, values.length);
 
-        final CharacterArray result = CharacterArray.createWithLength(length);
+        final CharacterArray result = new CharacterArray(length);
         for (int i = 0; i < length; ++i)
         {
             result.set(i, values[startIndex + i]);

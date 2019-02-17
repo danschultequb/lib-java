@@ -83,7 +83,7 @@ public interface Indexable<T> extends Iterable<T>
      */
     default Indexable<T> skip(int toSkip)
     {
-        return toSkip <= 0 ? this : new SkipIndexable<>(this, toSkip);
+        return new SkipIndexable<>(this, toSkip);
     }
 
     /**
@@ -98,30 +98,23 @@ public interface Indexable<T> extends Iterable<T>
     }
 
     /**
-     * Validate the provided index against this Indexable.
-     * @param index The index to validate.
+     * Get an empty Indexable.
+     * @param <U> The type of values that would be stored in the Indexable.
+     * @return An empty Indexable.
      */
-    default void validateAccessIndex(int index)
+    static <U> Indexable<U> empty()
     {
-        final int count = getCount();
-        if (count == 0)
-        {
-            PreCondition.fail("Cannot access values in an empty Indexable.");
-        }
-        else
-        {
-            PreCondition.assertBetween(0, index, count - 1, "index");
-        }
+        return Array.empty();
     }
 
     /**
-     * Create a new Indexable from the provided values.
+     * Create a new Indexable create the provided values.
      * @param values The values to convert to an Indexable.
      * @return The created Indexable.
      */
-    static ByteArray create(byte... values)
+    static Indexable<Byte> createByte(byte... values)
     {
-        return ByteArray.create(values);
+        return Array.createByte(values);
     }
 
     /**
@@ -131,25 +124,25 @@ public interface Indexable<T> extends Iterable<T>
      * @param length The number of bytes to copy.
      * @return The new ByteArray.
      */
-    static ByteArray create(byte[] values, int startIndex, int length)
+    static Indexable<Byte> createByte(byte[] values, int startIndex, int length)
     {
-        return ByteArray.create(values, startIndex, length);
+        return Array.createByte(values, startIndex, length);
     }
 
     /**
-     * Create a new Indexable from the provided values.
+     * Create a new Indexable create the provided values.
      * @param values The values to convert to an Indexable.
      * @return The created Indexable.
      */
-    static CharacterArray create(char... values)
+    static Indexable<Character> createCharacter(char... values)
     {
         PreCondition.assertNotNull(values, "values");
 
-        return CharacterArray.create(values);
+        return Array.createCharacter(values);
     }
 
     /**
-     * Create a new Indexable from the provided values.
+     * Create a new Indexable create the provided values.
      * @param values The values to convert to an Indexable.
      * @param <T> The type of values in the created Indexable.
      * @return The created Indexable.

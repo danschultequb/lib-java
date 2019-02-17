@@ -86,7 +86,7 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     default T first()
     {
         ensureHasStarted();
-        return getCurrent();
+        return hasCurrent() ? getCurrent() : null;
     }
 
     /**
@@ -97,25 +97,31 @@ public interface Iterator<T> extends java.lang.Iterable<T>
      */
     default T first(Function1<T,Boolean> condition)
     {
-        T result = null;
+        PreCondition.assertNotNull(condition, "condition");
 
-        if (condition != null)
+        T result = null;
+        boolean foundResult = false;
+
+        T current;
+        if (hasCurrent())
         {
-            T current = getCurrent();
-            if (hasCurrent() && condition.run(current))
+            current = getCurrent();
+            if (condition.run(current))
             {
                 result = current;
+                foundResult = true;
             }
-            else
+        }
+
+        if (!foundResult)
+        {
+            while (next())
             {
-                while (next())
+                current = getCurrent();
+                if (condition.run(current))
                 {
-                    current = getCurrent();
-                    if (condition.run(current))
-                    {
-                        result = current;
-                        break;
-                    }
+                    result = current;
+                    break;
                 }
             }
         }
@@ -153,23 +159,26 @@ public interface Iterator<T> extends java.lang.Iterable<T>
      */
     default T last(Function1<T,Boolean> condition)
     {
+        PreCondition.assertNotNull(condition, "condition");
+
         T result = null;
 
-        if (condition != null)
+        T current;
+        if (hasCurrent())
         {
-            T current = getCurrent();
-            if (hasCurrent() && condition.run(current))
+            current = getCurrent();
+            if (condition.run(current))
+            {
+                result = getCurrent();
+            }
+        }
+
+        while (next())
+        {
+            current = getCurrent();
+            if (condition.run(current))
             {
                 result = current;
-            }
-
-            while (next())
-            {
-                current = getCurrent();
-                if (condition.run(current))
-                {
-                    result = current;
-                }
             }
         }
 
@@ -194,29 +203,28 @@ public interface Iterator<T> extends java.lang.Iterable<T>
      */
     default boolean contains(Function1<T,Boolean> condition)
     {
+        PreCondition.assertNotNull(condition, "condition");
+
         boolean result = false;
 
-        if (condition != null)
+        if (hasCurrent())
         {
-            if (hasCurrent())
-            {
-                result = condition.run(getCurrent());
-            }
+            result = condition.run(getCurrent());
+        }
 
-            while (!result && next())
-            {
-                result = condition.run(getCurrent());
-            }
+        while (!result && next())
+        {
+            result = condition.run(getCurrent());
         }
 
         return result;
     }
 
     /**
-     * Create a new Iterator that will iterate over no more than the provided number of values from
+     * Create a new Iterator that will iterate over no more than the provided number of values create
      * this Iterator.
-     * @param toTake The number of values to take from this Iterator.
-     * @return A new Iterator that will iterate over no more than the provided number of values from
+     * @param toTake The number of values to take create this Iterator.
+     * @return A new Iterator that will iterate over no more than the provided number of values create
      * this Iterator.
      */
     default Iterator<T> take(int toTake)
@@ -250,15 +258,17 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     }
 
     /**
-     * Create a new Iterator that only returns the values from this Iterator that satisfy the given
+     * Create a new Iterator that only returns the values create this Iterator that satisfy the given
      * condition.
-     * @param condition The condition values must satisfy to be returned from the created Iterator.
-     * @return An Iterator that only returns the values from this Iterator that satisfy the given
+     * @param condition The condition values must satisfy to be returned create the created Iterator.
+     * @return An Iterator that only returns the values create this Iterator that satisfy the given
      * condition.
      */
     default Iterator<T> where(Function1<T,Boolean> condition)
     {
-        return condition == null ? this : new WhereIterator<>(this, condition);
+        PreCondition.assertNotNull(condition, "condition");
+
+        return new WhereIterator<>(this, condition);
     }
 
     /**
@@ -295,8 +305,8 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     }
 
     /**
-     * Create an Array from the values in this Iterator.
-     * @return An Array from the values in this Iterator.
+     * Create an Array create the values in this Iterator.
+     * @return An Array create the values in this Iterator.
      */
     default Array<T> toArray()
     {
@@ -304,8 +314,8 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     }
 
     /**
-     * Create a List from the values in this Iterator.
-     * @return A List from the values in this Iterator.
+     * Create a List create the values in this Iterator.
+     * @return A List create the values in this Iterator.
      */
     default List<T> toList()
     {
@@ -313,8 +323,8 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     }
 
     /**
-     * Create a Set from the values in this Iterator.
-     * @return A Set from the values in this Iterator.
+     * Create a Set create the values in this Iterator.
+     * @return A Set create the values in this Iterator.
      */
     default Set<T> toSet()
     {
@@ -336,7 +346,7 @@ public interface Iterator<T> extends java.lang.Iterable<T>
      * @param values The values to iterate over.
      * @return The iterator that will iterate over the provided values.
      */
-    static Iterator<Byte> create(byte... values)
+    static Iterator<Byte> createFromBytes(byte... values)
     {
         return new ByteArrayIterator(values);
     }
@@ -381,6 +391,7 @@ public interface Iterator<T> extends java.lang.Iterable<T>
      * @param <T> The type of the values.
      * @return The iterator that will iterate over the provided values.
      */
+    @SafeVarargs
     @SuppressWarnings("unchecked")
     static <T> Iterator<T> create(T... values)
     {

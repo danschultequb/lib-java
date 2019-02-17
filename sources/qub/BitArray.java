@@ -11,7 +11,7 @@ public class BitArray
     private final int[] chunks;
     private final long bitCount;
 
-    private BitArray(long bitCount)
+    public BitArray(long bitCount)
     {
         this(new int[(int)Math.ceiling(bitCount / 32.0)], bitCount);
     }
@@ -20,6 +20,113 @@ public class BitArray
     {
         this.bitCount = bitCount;
         this.chunks = chunks;
+    }
+
+    /**
+     * Create a new BitArray containing the provided number of bits.
+     * @param bitCount The number of bits the created BitArray will contain.
+     * @return A BitArray with the provided number of bits.
+     * @preCondition 0 <= bitCount <= BitArray.maximumBitCount
+     * @postCondition result != null
+     * @postCondition result.getBitCount() == bitCount
+     */
+    public static BitArray fromBitCount(long bitCount)
+    {
+        PreCondition.assertBetween(0, bitCount, maximumBitCount, "bitCount");
+
+        return new BitArray(bitCount);
+    }
+
+    /**
+     * Convert the provided bit String into a BitArray.
+     * @param bits The String of bits to convert to a BitArray.
+     * @return The converted BitArray.
+     * @preCondition bits != null && bits.length() > 0 && bits contains only '0','1'
+     * @postCondition result != null && result.getBitCount() == bits.length()
+     */
+    public static BitArray fromBitString(String bits)
+    {
+        PreCondition.assertNotNull(bits, "bits");
+        PreCondition.assertContainsOnly(bits, new char[] { '0', '1' }, "bits");
+
+        final BitArray result = BitArray.fromBitCount(bits.length());
+        for (int i = 0; i < result.getBitCount(); ++i)
+        {
+            result.setBit(i, bits.charAt(i) - '0');
+        }
+
+        PostCondition.assertNotNull(result, "result");
+        PostCondition.assertEqual(bits.length(), result.getBitCount(), "result.getBitCount()");
+
+        return result;
+    }
+
+    public static BitArray fromHexString(String hexString)
+    {
+        PreCondition.assertNotNull(hexString, "hexString");
+
+        final BitArray result = BitArray.fromBitCount(hexString.length() * 4);
+        for (int i = 0; i < hexString.length(); ++i)
+        {
+            final char c = hexString.charAt(i);
+            final int cInt = Integers.fromHexChar(c);
+            result.copyFrom(cInt, i * 4, 4);
+        }
+
+        PostCondition.assertNotNull(result, "result");
+        PostCondition.assertEqual(hexString.length() * 4, result.getBitCount(), "result.getBitCount()");
+
+        return result;
+    }
+
+    public static BitArray fromByteArray(byte[] bits)
+    {
+        PreCondition.assertNotNull(bits, "bits");
+
+        final BitArray result = BitArray.fromByteArray(bits, bits.length * Byte.SIZE);
+
+        PostCondition.assertNotNull(result, "result");
+        PostCondition.assertEqual(bits.length * Byte.SIZE, result.getBitCount(), "result.getBitCount()");
+
+        return result;
+    }
+
+    public static BitArray fromByteArray(byte[] bits, long bitCount)
+    {
+        PreCondition.assertNotNull(bits, "bits");
+        PreCondition.assertBetween(bits.length == 0 ? 0 : ((bits.length - 1) * Byte.SIZE) + 1, bitCount, bits.length == 0 ? 0 : bits.length * Byte.SIZE, "bitCount");
+        PreCondition.assertLessThanOrEqualTo(bitCount, bits.length * Byte.SIZE, "bitCount");
+
+        final int[] resultBits = new int[(int)Math.ceiling((double)bitCount / (double)Integer.SIZE)];
+        for (int byteIndex = 0; byteIndex < bits.length; ++byteIndex)
+        {
+            final int leftShift = (3 - (byteIndex % 4)) * Byte.SIZE;
+            final byte currentByte = bits[byteIndex];
+            final int shiftedByte = Bytes.toUnsignedInt(currentByte) << leftShift;
+
+            final int intIndex = byteIndex / 4;
+            resultBits[intIndex] |= shiftedByte;
+        }
+
+        final BitArray result = new BitArray(resultBits, bitCount);
+
+        PostCondition.assertNotNull(result, "result");
+        PostCondition.assertEqual(bitCount, result.getBitCount(), "result.getBitCount()");
+
+        return result;
+    }
+
+    public static BitArray fromIntArray(int[] bits, long bitCount)
+    {
+        PreCondition.assertNotNull(bits, "bits");
+        PreCondition.assertBetween(bits.length == 0 ? 0 : ((bits.length - 1) * Integer.SIZE) + 1, bitCount, bits.length == 0 ? 0 : bits.length * Integer.SIZE, "bitCount");
+
+        final BitArray result = new BitArray(Array.clone(bits), bitCount);
+
+        PostCondition.assertNotNull(result, "result");
+        PostCondition.assertEqual(bitCount, result.getBitCount(), "result.getBitCount()");
+
+        return result;
     }
 
     /**
@@ -115,9 +222,9 @@ public class BitArray
     }
 
     /**
-     * Copy the bits from the copyFrom BitArray to this BitArray.
-     * @param copyFrom The BitArray to copy from.
-     * @param copyFromStartIndex The index to start reading from.
+     * Copy the bits create the copyFrom BitArray to this BitArray.
+     * @param copyFrom The BitArray to copy create.
+     * @param copyFromStartIndex The index to start reading create.
      * @param copyToStartIndex The index to start writing to.
      * @param copyLength The number of bits to copy.
      */
@@ -135,10 +242,10 @@ public class BitArray
     }
 
     /**
-     * Copy the bits from the copyFrom long to this BitArray.
-     * @param copyFrom The long to copy from.
+     * Copy the bits create the copyFrom long to this BitArray.
+     * @param copyFrom The long to copy create.
      * @param copyToStartIndex The index to start writing to.
-     * @param copyLength The number of bits to copy. Bits will be copied from the least significant
+     * @param copyLength The number of bits to copy. Bits will be copied create the least significant
      *                   side of the long.
      */
     public void copyFrom(long copyFrom, long copyToStartIndex, int copyLength)
@@ -534,113 +641,6 @@ public class BitArray
         return rhs != null &&
            bitCount == rhs.bitCount &&
            Comparer.equal(chunks, rhs.chunks);
-    }
-
-    /**
-     * Create a new BitArray containing the provided number of bits.
-     * @param bitCount The number of bits the created BitArray will contain.
-     * @return A BitArray with the provided number of bits.
-     * @preCondition 0 <= bitCount <= BitArray.maximumBitCount
-     * @postCondition result != null
-     * @postCondition result.getBitCount() == bitCount
-     */
-    public static BitArray fromBitCount(long bitCount)
-    {
-        PreCondition.assertBetween(0, bitCount, maximumBitCount, "bitCount");
-
-        return new BitArray(bitCount);
-    }
-
-    /**
-     * Convert the provided bit String into a BitArray.
-     * @param bits The String of bits to convert to a BitArray.
-     * @return The converted BitArray.
-     * @preCondition bits != null && bits.length() > 0 && bits contains only '0','1'
-     * @postCondition result != null && result.getBitCount() == bits.length()
-     */
-    public static BitArray fromBitString(String bits)
-    {
-        PreCondition.assertNotNull(bits, "bits");
-        PreCondition.assertContainsOnly(bits, new char[] { '0', '1' }, "bits");
-
-        final BitArray result = BitArray.fromBitCount(bits.length());
-        for (int i = 0; i < result.getBitCount(); ++i)
-        {
-            result.setBit(i, bits.charAt(i) - '0');
-        }
-
-        PostCondition.assertNotNull(result, "result");
-        PostCondition.assertEqual(bits.length(), result.getBitCount(), "result.getBitCount()");
-
-        return result;
-    }
-
-    public static BitArray fromHexString(String hexString)
-    {
-        PreCondition.assertNotNull(hexString, "hexString");
-
-        final BitArray result = BitArray.fromBitCount(hexString.length() * 4);
-        for (int i = 0; i < hexString.length(); ++i)
-        {
-            final char c = hexString.charAt(i);
-            final int cInt = Integers.fromHexChar(c);
-            result.copyFrom(cInt, i * 4, 4);
-        }
-
-        PostCondition.assertNotNull(result, "result");
-        PostCondition.assertEqual(hexString.length() * 4, result.getBitCount(), "result.getBitCount()");
-
-        return result;
-    }
-
-    public static BitArray fromByteArray(byte[] bits)
-    {
-        PreCondition.assertNotNull(bits, "bits");
-
-        final BitArray result = BitArray.fromByteArray(bits, bits.length * Byte.SIZE);
-
-        PostCondition.assertNotNull(result, "result");
-        PostCondition.assertEqual(bits.length * Byte.SIZE, result.getBitCount(), "result.getBitCount()");
-
-        return result;
-    }
-
-    public static BitArray fromByteArray(byte[] bits, long bitCount)
-    {
-        PreCondition.assertNotNull(bits, "bits");
-        PreCondition.assertBetween(bits.length == 0 ? 0 : ((bits.length - 1) * Byte.SIZE) + 1, bitCount, bits.length == 0 ? 0 : bits.length * Byte.SIZE, "bitCount");
-        PreCondition.assertLessThanOrEqualTo(bitCount, bits.length * Byte.SIZE, "bitCount");
-
-        final int[] resultBits = new int[(int)Math.ceiling((double)bitCount / (double)Integer.SIZE)];
-        for (int byteIndex = 0; byteIndex < bits.length; ++byteIndex)
-        {
-            final int leftShift = (3 - (byteIndex % 4)) * Byte.SIZE;
-            final byte currentByte = bits[byteIndex];
-            final int shiftedByte = Bytes.toUnsignedInt(currentByte) << leftShift;
-
-            final int intIndex = byteIndex / 4;
-            resultBits[intIndex] |= shiftedByte;
-        }
-
-        final BitArray result = new BitArray(resultBits, bitCount);
-
-        PostCondition.assertNotNull(result, "result");
-        PostCondition.assertEqual(bitCount, result.getBitCount(), "result.getBitCount()");
-
-        return result;
-    }
-
-    public static BitArray fromIntArray(int[] bits, long bitCount)
-    {
-        PreCondition.assertNotNull(bits, "bits");
-        PreCondition.assertBetween(bits.length == 0 ? 0 : ((bits.length - 1) * Integer.SIZE) + 1, bitCount, bits.length == 0 ? 0 : bits.length * Integer.SIZE, "bitCount");
-
-        final BitArray result = new BitArray(Array.clone(bits), bitCount);
-
-        PostCondition.assertNotNull(result, "result");
-        PostCondition.assertEqual(bitCount, result.getBitCount(), "result.getBitCount()");
-
-        return result;
     }
 
     private static int bitIndexToChunkIndex(long bitIndex)

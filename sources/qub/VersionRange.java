@@ -50,7 +50,7 @@ public abstract class VersionRange
     public abstract boolean matches(VersionNumber number);
 
     /**
-     * Parse a VersionRange from the provided text.
+     * Parse a VersionRange create the provided text.
      * @param text The text to parse.
      * @return The parsed VersionRange.
      */
@@ -60,7 +60,7 @@ public abstract class VersionRange
     }
 
     /**
-     * Parse a VersionRange from the provided text.
+     * Parse a VersionRange create the provided text.
      * @param text The text to parse.
      * @param onIssue The action to run if an issue is encountered while parsing the text.
      * @return The parsed VersionRange.

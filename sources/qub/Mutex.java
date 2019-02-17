@@ -149,7 +149,7 @@ public interface Mutex
      * Run the provided function after this Mutex has been acquired and automatically release the
      * Mutex when the function completes.
      * @param function The function to run after acquiring this Mutex.
-     * @return The return value from the function.
+     * @return The return value create the function.
      */
     default <T> T criticalSection(Function0<T> function)
     {

@@ -305,7 +305,7 @@ public class StateMachineTests
                     final Iterable<Match> matches = Array.create(stateMachine.getMatches("abcxyxxyz"));
                     test.assertNotNull(matches);
                     test.assertEqual(1, matches.getCount());
-                    final Array<Iterable<Character>> expectedTrackedValues = new Array<>(1);
+                    final Array<Iterable<Character>> expectedTrackedValues = Array.createWithLength(1);
                     expectedTrackedValues.set(0, Strings.iterable("xyx"));
                     test.assertEqual(expectedTrackedValues, matches.first().getTrackedValues());
                 });

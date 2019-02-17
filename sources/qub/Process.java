@@ -598,7 +598,7 @@ public class Process implements Disposable
 
     /**
      * Get a ProcessBuilder that references the provided executablePath.
-     * @param executablePath The path to the executable to run from the returned ProcessBuilder.
+     * @param executablePath The path to the executable to run create the returned ProcessBuilder.
      * @return The ProcessBuilder.
      */
     public Result<ProcessBuilder> getProcessBuilder(String executablePath)
@@ -733,7 +733,7 @@ public class Process implements Disposable
 
     /**
      * Get a ProcessBuilder that references the provided executablePath.
-     * @param executablePath The path to the executable to run from the returned ProcessBuilder.
+     * @param executablePath The path to the executable to run create the returned ProcessBuilder.
      * @return The ProcessBuilder.
      */
     public Result<ProcessBuilder> getProcessBuilder(Path executablePath)
@@ -785,18 +785,18 @@ public class Process implements Disposable
                 final Result<Boolean> windowDisposedResult = window.dispose();
                 if (windowDisposedResult.hasError())
                 {
-                    error = ErrorIterable.from(error, windowDisposedResult.getError());
+                    error = ErrorIterable.create(error, windowDisposedResult.getError());
                 }
             }
 
             if (mainAsyncRunner != null)
             {
-                error = ErrorIterable.from(error, mainAsyncRunner.dispose().getError());
+                error = ErrorIterable.create(error, mainAsyncRunner.dispose().getError());
             }
 
             if (parallelAsyncRunner != null)
             {
-                error = ErrorIterable.from(error, parallelAsyncRunner.dispose().getError());
+                error = ErrorIterable.create(error, parallelAsyncRunner.dispose().getError());
             }
 
             result = error == null ? Result.success(disposed) : Result.error(error);

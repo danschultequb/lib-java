@@ -44,8 +44,8 @@ public class InMemoryFile
     }
 
     /**
-     * Get a ByteReadStream that reads from the contents of this InMemoryFile.
-     * @return A ByteReadStream that reads from the contents of this InMemoryFile.
+     * Get a ByteReadStream that reads create the contents of this InMemoryFile.
+     * @return A ByteReadStream that reads create the contents of this InMemoryFile.
      */
     public ByteReadStream getContentByteReadStream()
     {

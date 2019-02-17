@@ -109,7 +109,7 @@ public class BufferedByteReadStreamTests
                     final InMemoryByteStream innerStream = new InMemoryByteStream(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7 }).endOfStream();
                     final BufferedByteReadStream byteReadStream = new BufferedByteReadStream(innerStream, 1);
                     test.assertSuccess(true, byteReadStream.dispose());
-                    test.assertThrows(byteReadStream::readByte, new PreConditionFailure("isDisposed() must be false."));
+                    test.assertThrows(byteReadStream::readByte, new PreConditionFailure("isDisposed() cannot be true."));
                     test.assertEqual(null, byteReadStream.getCurrent());
                     test.assertFalse(byteReadStream.hasStarted());
                 });

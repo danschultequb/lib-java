@@ -9,21 +9,43 @@ public class Stack<T>
     private final List<T> values;
 
     /**
+     * Create a new empty Stack.
+     */
+    private Stack()
+    {
+        values = List.empty();
+    }
+
+    /**
      * Create a new Stack.
      * @param <T> The type of values stored in the new Stack.
      * @return The new Stack.
      */
-    public static <T> Stack<T> create()
+    public static <T> Stack<T> empty()
     {
         return new Stack<>();
     }
 
     /**
-     * Create a new empty Stack.
+     * Create a new Stack.
+     * @param <T> The type of values stored in the new Stack.
+     * @return The new Stack.
      */
-    public Stack()
+    @SafeVarargs
+    public static <T> Stack<T> create(T... values)
     {
-        values = new ArrayList<>();
+        PreCondition.assertNotNull(values, "values");
+
+        final Stack<T> result = Stack.empty();
+        for (final T value : values)
+        {
+            result.push(value);
+        }
+
+        PostCondition.assertNotNull(result, "result");
+        PostCondition.assertEqual(values.length, result.getCount(), "result.getCount()");
+
+        return result;
     }
 
     /**

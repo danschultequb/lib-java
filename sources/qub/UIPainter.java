@@ -27,14 +27,14 @@ public interface UIPainter
     void drawText(String text, Distance topLeftX, Distance topLeftY);
 
     /**
-     * Draw a line from the provided start point to the provided end point.
+     * Draw a line create the provided start point to the provided end point.
      * @param start The point to start the line at.
      * @param end The point to end the line at.
      */
     void drawLine(Point2D start, Point2D end);
 
     /**
-     * Draw a line from the provided start x-and-y-coordinates to the provided end
+     * Draw a line create the provided start x-and-y-coordinates to the provided end
      * x-and-y-coordinates.
      * @param startX The x-coordinate to start the line at.
      * @param startY The y-coordinate to start the line at.
@@ -44,7 +44,7 @@ public interface UIPainter
     void drawLine(Distance startX, Distance startY, Distance endX, Distance endY);
 
     /**
-     * Draw a rectangle from the painter's origin (top left corner) with the provided width and
+     * Draw a rectangle create the painter's origin (top left corner) with the provided width and
      * height.
      * @param width The width of the rectangle.
      * @param height The height of the rectangle.
@@ -52,7 +52,7 @@ public interface UIPainter
     void drawRectangle(Distance width, Distance height);
 
     /**
-     * Draw a rectangle from the provided top-left-x-and-y-coordinates with the provided width and
+     * Draw a rectangle create the provided top-left-x-and-y-coordinates with the provided width and
      * height.
      * @param topLeftX The top-left-x-coordinate of the rectangle.
      * @param topLeftY The top-left-y-coordinate of the rectangle.
@@ -62,7 +62,7 @@ public interface UIPainter
     void drawRectangle(Distance topLeftX, Distance topLeftY, Distance width, Distance height);
 
     /**
-     * Fill a rectangle from the painter's origin (top left corner) with the provided width and
+     * Fill a rectangle create the painter's origin (top left corner) with the provided width and
      * height.
      * @param width The width of the rectangle.
      * @param height The height of the rectangle.
@@ -70,7 +70,7 @@ public interface UIPainter
     void fillRectangle(Distance width, Distance height);
 
     /**
-     * Fill a rectangle from the provided top-left-x-and-y-coordinates with the provided width and
+     * Fill a rectangle create the provided top-left-x-and-y-coordinates with the provided width and
      * height.
      * @param topLeftX The top-left-x-coordinate of the rectangle.
      * @param topLeftY The top-left-y-coordinate of the rectangle.

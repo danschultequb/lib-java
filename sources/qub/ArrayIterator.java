@@ -4,7 +4,7 @@ package qub;
  * An Iterator that iterates over an Array.
  * @param <T> The type of elements that the Array contains.
  */
-class ArrayIterator<T> implements Iterator<T>
+public class ArrayIterator<T> implements Iterator<T>
 {
     private final Array<T> array;
     private int currentIndex;
@@ -12,22 +12,34 @@ class ArrayIterator<T> implements Iterator<T>
     private final int endIndex;
     private final int step;
 
-    /**
-     * Create a new Iterator that will iterate over the provided Array.
-     * @param array The Array to iterate over.
-     */
-    ArrayIterator(Array<T> array)
-    {
-        this(array, 0, array.getCount());
-    }
-
-    ArrayIterator(Array<T> array, int startIndex, int endIndex)
+    private ArrayIterator(Array<T> array, int startIndex, int endIndex)
     {
         this.array = array;
         currentIndex = startIndex;
         hasStarted = false;
         this.endIndex = endIndex;
         step = startIndex <= endIndex ? 1 : -1;
+    }
+
+    public static <T> ArrayIterator<T> create(Array<T> array)
+    {
+        PreCondition.assertNotNull(array, "array");
+
+        return ArrayIterator.create(array, 0, array.getCount());
+    }
+
+    public static <T> ArrayIterator<T> create(Array<T> array, int startIndex, int endIndex)
+    {
+        PreCondition.assertNotNull(array, "array");
+
+        return new ArrayIterator<>(array, startIndex, endIndex);
+    }
+
+    public static <T> ArrayIterator<T> createReverse(Array<T> array)
+    {
+        PreCondition.assertNotNull(array, "array");
+
+        return new ArrayIterator<>(array, array.getCount() - 1, -1);
     }
 
     @Override
@@ -39,16 +51,20 @@ class ArrayIterator<T> implements Iterator<T>
     @Override
     public boolean hasCurrent()
     {
-        return hasStarted() && currentIndex != endIndex;
+        return hasStarted && currentIndex != endIndex;
     }
 
     @Override
-    public T getCurrent() {
-        return hasCurrent() ? array.get(currentIndex) : null;
+    public T getCurrent()
+    {
+        PreCondition.assertTrue(hasCurrent(), "hasCurrent()");
+
+        return array.get(currentIndex);
     }
 
     @Override
-    public boolean next() {
+    public boolean next()
+    {
         if (!hasStarted)
         {
             hasStarted = true;
@@ -57,6 +73,6 @@ class ArrayIterator<T> implements Iterator<T>
         {
             currentIndex += step;
         }
-        return hasCurrent();
+        return currentIndex != endIndex;
     }
 }

@@ -7,6 +7,9 @@ public class SkipIndexable<T> implements Indexable<T>
 
     public SkipIndexable(Indexable<T> innerIndexable, int toSkip)
     {
+        PreCondition.assertNotNull(innerIndexable, "innerIndexable");
+        PreCondition.assertGreaterThanOrEqualTo(toSkip, 0, "toSkip");
+
         this.innerIndexable = innerIndexable;
         this.toSkip = toSkip;
     }
@@ -14,6 +17,8 @@ public class SkipIndexable<T> implements Indexable<T>
     @Override
     public T get(int index)
     {
+        PreCondition.assertIndexAccess(index, getCount(), "index");
+
         return innerIndexable.get(index + toSkip);
     }
 

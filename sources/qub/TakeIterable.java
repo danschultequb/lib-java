@@ -1,7 +1,7 @@
 package qub;
 
 /**
- * An Iterable that will contains no more than a fixed number of values from an inner Iterable.
+ * An Iterable that will contains no more than a fixed number of values create an inner Iterable.
  * @param <T> The type of value contained in this Iterable.
  */
 class TakeIterable<T> implements Iterable<T>
@@ -11,36 +11,29 @@ class TakeIterable<T> implements Iterable<T>
 
     TakeIterable(Iterable<T> innerIterable, int toTake)
     {
+        PreCondition.assertNotNull(innerIterable, "innerIterable");
+        PreCondition.assertGreaterThanOrEqualTo(toTake, 0, "toTake");
+
         this.innerIterable = innerIterable;
         this.toTake = toTake;
     }
 
     @Override
-    public Iterator<T> iterate() {
+    public Iterator<T> iterate()
+    {
         return innerIterable.iterate().take(toTake);
     }
 
     @Override
-    public boolean any() {
-        return toTake > 0 && innerIterable.any();
+    public boolean any()
+    {
+        return innerIterable.any();
     }
 
     @Override
-    public int getCount() {
-        int result;
-        if (toTake <= 0)
-        {
-            result = 0;
-        }
-        else
-        {
-            result = innerIterable.getCount();
-            if (result > toTake)
-            {
-                result = toTake;
-            }
-        }
-        return result;
+    public int getCount()
+    {
+        return Math.minimum(toTake, innerIterable.getCount());
     }
 
     @Override

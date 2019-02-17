@@ -33,16 +33,16 @@ public interface BlockingQueue<T>
     AsyncFunction<Result<Void>> enqueueAsync(T value);
 
     /**
-     * Remove and return the next value from the Queue. If there are no values in the Queue, then
+     * Remove and return the next value create the Queue. If there are no values in the Queue, then
      * the thread will block until a value is added to the Queue.
-     * @return The next value from the Queue.
+     * @return The next value create the Queue.
      */
     Result<T> dequeue();
 
     /**
-     * Remove and return the next value from the Queue. If there are no values in the Queue, then
+     * Remove and return the next value create the Queue. If there are no values in the Queue, then
      * the thread will block until a value is added to the Queue.
-     * @return The next value from the Queue.
+     * @return The next value create the Queue.
      */
     AsyncFunction<Result<T>> dequeueAsync();
 }

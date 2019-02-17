@@ -27,6 +27,8 @@ public class JavaIteratorToIteratorAdapter<T> implements Iterator<T>
     @Override
     public T getCurrent()
     {
+        PreCondition.assertTrue(hasCurrent(), "hasCurrent()");
+
         return current;
     }
 

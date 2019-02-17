@@ -1,7 +1,7 @@
 package qub;
 
 /**
- * An Iterator that will iterate over no more than a fixed number of values from an inner Iterator.
+ * An Iterator that will iterate over no more than a fixed number of values create an inner Iterator.
  * @param <T> The type of value that this Iterator returns.
  */
 class TakeIterator<T> implements Iterator<T>
@@ -13,6 +13,9 @@ class TakeIterator<T> implements Iterator<T>
 
     TakeIterator(Iterator<T> innerIterator, int toTake)
     {
+        PreCondition.assertNotNull(innerIterator, "innerIterator");
+        PreCondition.assertGreaterThanOrEqualTo(toTake, 0, "toTake");
+
         this.innerIterator = innerIterator;
         this.toTake = toTake;
         taken = innerIterator.hasCurrent() ? 1 : 0;
@@ -25,18 +28,26 @@ class TakeIterator<T> implements Iterator<T>
     }
 
     @Override
-    public boolean hasCurrent() {
-        return toTake > 0 && taken <= toTake && innerIterator.hasCurrent();
+    public boolean hasCurrent()
+    {
+        return taken <= toTake && innerIterator.hasCurrent();
     }
 
     @Override
-    public T getCurrent() {
-        return hasCurrent() ? innerIterator.getCurrent() : null;
+    public T getCurrent()
+    {
+        PreCondition.assertTrue(hasCurrent(), "hasCurrent()");
+
+        return innerIterator.getCurrent();
     }
 
     @Override
-    public boolean next() {
-        ++taken;
-        return toTake > 0 && taken <= toTake && innerIterator.next();
+    public boolean next()
+    {
+        if (taken <= toTake)
+        {
+            ++taken;
+        }
+        return taken <= toTake && innerIterator.next();
     }
 }

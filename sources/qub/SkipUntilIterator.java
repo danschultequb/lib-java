@@ -8,6 +8,9 @@ public class SkipUntilIterator<T> implements Iterator<T>
 
     public SkipUntilIterator(Iterator<T> iterator, Function1<T,Boolean> condition)
     {
+        PreCondition.assertNotNull(iterator, "iterator");
+        PreCondition.assertNotNull(condition, "condition");
+
         this.iterator = iterator;
         this.condition = condition;
     }
@@ -20,12 +23,9 @@ public class SkipUntilIterator<T> implements Iterator<T>
             iterator.next();
         }
 
-        if (condition != null)
+        while (iterator.hasCurrent() && !condition.run(iterator.getCurrent()))
         {
-            while (iterator.hasCurrent() && !condition.run(iterator.getCurrent()))
-            {
-                iterator.next();
-            }
+            iterator.next();
         }
     }
 
@@ -42,7 +42,7 @@ public class SkipUntilIterator<T> implements Iterator<T>
         {
             skipToMatch();
         }
-        return condition != null && iterator.hasCurrent();
+        return iterator.hasCurrent();
     }
 
     @Override
@@ -52,7 +52,7 @@ public class SkipUntilIterator<T> implements Iterator<T>
         {
             skipToMatch();
         }
-        return condition == null ? null : iterator.getCurrent();
+        return iterator.getCurrent();
     }
 
     @Override
@@ -62,10 +62,10 @@ public class SkipUntilIterator<T> implements Iterator<T>
         {
             skipToMatch();
         }
-        else if (condition != null)
+        else
         {
             iterator.next();
         }
-        return condition != null && iterator.hasCurrent();
+        return iterator.hasCurrent();
     }
 }

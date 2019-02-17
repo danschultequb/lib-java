@@ -1,7 +1,7 @@
 package qub;
 
 /**
- * An execution from a StateMachine that is still in progress.
+ * An execution create a StateMachine that is still in progress.
  */
 public interface PossibleMatch extends Match
 {
@@ -20,9 +20,9 @@ public interface PossibleMatch extends Match
     boolean isAtEndState();
 
     /**
-     * Get an Iterable of PossibleMatches that result from this PossibleMatch's current
+     * Get an Iterable of PossibleMatches that result create this PossibleMatch's current
      * instantaneous transitions.
-     * @return An Iterable of PossibleMatches that result from this PossibleMatch's current
+     * @return An Iterable of PossibleMatches that result create this PossibleMatch's current
      * instantaneous transitions.
      */
     Iterable<PossibleMatch> resolveInstantTransitions();

@@ -118,9 +118,9 @@ public class StateMachine
     }
 
     /**
-     * Get the matches from this StateMachine for the provided input values.
+     * Get the matches create this StateMachine for the provided input values.
      * @param value The input value.
-     * @return The matches from this StateMachine for the provided input values.
+     * @return The matches create this StateMachine for the provided input values.
      */
     public Iterable<Match> getMatches(String value)
     {
@@ -131,9 +131,9 @@ public class StateMachine
     }
 
     /**
-     * Get the matches from this StateMachine for the provided input values.
+     * Get the matches create this StateMachine for the provided input values.
      * @param values The input values.
-     * @return The matches from this StateMachine for the provided input values.
+     * @return The matches create this StateMachine for the provided input values.
      */
     public Iterable<Match> getMatches(Iterable<Character> values)
     {
@@ -166,9 +166,9 @@ public class StateMachine
     }
 
     /**
-     * Get the matches from this StateMachine for the provided input values.
+     * Get the matches create this StateMachine for the provided input values.
      * @param values The input values.
-     * @return The matches from this StateMachine for the provided input values.
+     * @return The matches create this StateMachine for the provided input values.
      */
     public Iterable<Match> getMatches(Iterator<Character> values)
     {

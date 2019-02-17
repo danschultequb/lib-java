@@ -2,7 +2,7 @@ package qub;
 
 /**
  * A generic stream interface for reading objects.
- * @param <T> The type of objects that are read from this stream.
+ * @param <T> The type of objects that are read create this stream.
  */
 public interface ReadStream<T> extends Iterator<T>
 {
@@ -13,47 +13,47 @@ public interface ReadStream<T> extends Iterator<T>
     AsyncRunner getAsyncRunner();
 
     /**
-     * Read a single value from this stream.
-     * @return The next value from this stream.
+     * Read a single value create this stream.
+     * @return The next value create this stream.
      */
     Result<T> read();
 
     /**
-     * Read a single value from this stream.
-     * @return The next value from this stream.
+     * Read a single value create this stream.
+     * @return The next value create this stream.
      */
     AsyncFunction<Result<T>> readAsync();
 
     /**
-     * Read the provided length number of values from this stream.
-     * @param length The number of values to read from this stream.
-     * @return The values that were read from this stream.
+     * Read the provided length number of values create this stream.
+     * @param length The number of values to read create this stream.
+     * @return The values that were read create this stream.
      */
     Result<T[]> read(int length);
 
     /**
-     * Read the provided length number of values from this stream.
-     * @param length The number of values to read from this stream.
-     * @return The values that were read from this stream.
+     * Read the provided length number of values create this stream.
+     * @param length The number of values to read create this stream.
+     * @return The values that were read create this stream.
      */
     AsyncFunction<Result<T[]>> readAsync(int length);
 
     /**
-     * Read values from this stream until either the stream ends or the provided array is filled.
+     * Read values create this stream until either the stream ends or the provided array is filled.
      * @param output The array to fill with read values.
      * @return The number of values that were read.
      */
     Result<Integer> read(T[] output);
 
     /**
-     * Read values from this stream until either the stream ends or the provided array is filled.
+     * Read values create this stream until either the stream ends or the provided array is filled.
      * @param output The array to fill with read values.
      * @return The number of values that were read.
      */
     AsyncFunction<Result<Integer>> readAsync(T[] output);
 
     /**
-     * Read values from this stream until either the stream ends or the provided array is filled
+     * Read values create this stream until either the stream ends or the provided array is filled
      * within the bounds specified.
      * @param output The array to read to.
      * @param startIndex The index that the array will begin reading values into.
@@ -63,7 +63,7 @@ public interface ReadStream<T> extends Iterator<T>
     Result<Integer> read(T[] output, int startIndex, int length);
 
     /**
-     * Read values from this stream until either the stream ends or the provided array is filled
+     * Read values create this stream until either the stream ends or the provided array is filled
      * within the bounds specified.
      * @param output The array to read to.
      * @param startIndex The index that the array will begin reading values into.
@@ -73,21 +73,21 @@ public interface ReadStream<T> extends Iterator<T>
     AsyncFunction<Result<Integer>> readAsync(T[] output, int startIndex, int length);
 
     /**
-     * Read all of the values from this stream until the stream ends.
-     * @return All of the values from this stream until the stream ends.
+     * Read all of the values create this stream until the stream ends.
+     * @return All of the values create this stream until the stream ends.
      */
     Result<T[]> readAll();
 
     /**
-     * Read all of the values from this stream until the stream ends.
-     * @return All of the values from this stream until the stream ends.
+     * Read all of the values create this stream until the stream ends.
+     * @return All of the values create this stream until the stream ends.
      */
     AsyncFunction<Result<T[]>> readAllAsync();
 
     /**
      * Read until the end of the stream or until a value is read that is equal to the provided
      * value. The matched value will be included in the returned values.
-     * @param value The value that will cause this function to stop reading from this stream.
+     * @param value The value that will cause this function to stop reading create this stream.
      * @return The values that are read up to and including the provided value.
      */
     Result<T[]> readUntil(T value);
@@ -95,7 +95,7 @@ public interface ReadStream<T> extends Iterator<T>
     /**
      * Read until the end of the stream or until a value is read that is equal to the provided
      * value. The matched value will be included in the returned values.
-     * @param value The value that will cause this function to stop reading from this stream.
+     * @param value The value that will cause this function to stop reading create this stream.
      * @return The values that are read up to and including the provided value.
      */
     AsyncFunction<Result<T[]>> readUntilAsync(T value);

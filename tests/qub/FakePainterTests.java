@@ -9,7 +9,7 @@ public class FakePainterTests
             runner.test("constructor()", (Test test) ->
             {
                 final FakePainter painter = new FakePainter();
-                test.assertEqual(new Array<PainterAction>(0), painter.getActions());
+                test.assertEqual(Iterable.empty(), painter.getActions());
             });
 
             runner.testGroup("clearActions()", () ->
@@ -18,7 +18,7 @@ public class FakePainterTests
                 {
                     final FakePainter painter = new FakePainter();
                     painter.clearActions();
-                    test.assertEqual(new Array<PainterAction>(0), painter.getActions());
+                    test.assertEqual(Iterable.empty(), painter.getActions());
                 });
 
                 runner.test("with one action", (Test test) ->
@@ -28,7 +28,7 @@ public class FakePainterTests
 
                     painter.clearActions();
 
-                    test.assertEqual(new Array<PainterAction>(0), painter.getActions());
+                    test.assertEqual(Iterable.empty(), painter.getActions());
                 });
             });
 
@@ -38,14 +38,14 @@ public class FakePainterTests
                 {
                    final FakePainter painter = new FakePainter();
                    test.assertThrows(() -> painter.drawText(null));
-                   test.assertEqual(new Array<PainterAction>(0), painter.getActions());
+                   test.assertEqual(Iterable.empty(), painter.getActions());
                 });
 
                 runner.test("with empty text", (Test test) ->
                 {
                     final FakePainter painter = new FakePainter();
                     test.assertThrows(() -> painter.drawText(""));
-                    test.assertEqual(new Array<PainterAction>(0), painter.getActions());
+                    test.assertEqual(Iterable.empty(), painter.getActions());
                 });
 
                 runner.test("with non-empty text", (Test test) ->
@@ -65,28 +65,28 @@ public class FakePainterTests
                 {
                     final FakePainter painter = new FakePainter();
                     test.assertThrows(() -> painter.drawText(null, Distance.zero, Distance.zero));
-                    test.assertEqual(new Array<PainterAction>(0), painter.getActions());
+                    test.assertEqual(Iterable.empty(), painter.getActions());
                 });
 
                 runner.test("with empty text", (Test test) ->
                 {
                     final FakePainter painter = new FakePainter();
                     test.assertThrows(() -> painter.drawText("", Distance.zero, Distance.zero));
-                    test.assertEqual(new Array<PainterAction>(0), painter.getActions());
+                    test.assertEqual(Iterable.empty(), painter.getActions());
                 });
 
                 runner.test("with null topLeftX", (Test test) ->
                 {
                     final FakePainter painter = new FakePainter();
                     test.assertThrows(() -> painter.drawText("test", null, Distance.zero));
-                    test.assertEqual(new Array<PainterAction>(0), painter.getActions());
+                    test.assertEqual(Iterable.empty(), painter.getActions());
                 });
 
                 runner.test("with null topLeftY", (Test test) ->
                 {
                     final FakePainter painter = new FakePainter();
                     test.assertThrows(() -> painter.drawText("test", Distance.zero, null));
-                    test.assertEqual(new Array<PainterAction>(0), painter.getActions());
+                    test.assertEqual(Iterable.empty(), painter.getActions());
                 });
 
                 runner.test("with non-empty text", (Test test) ->
@@ -107,21 +107,21 @@ public class FakePainterTests
                 {
                     final FakePainter painter = new FakePainter();
                     test.assertThrows(() -> painter.drawText(null, Point2D.zero));
-                    test.assertEqual(new Array<PainterAction>(0), painter.getActions());
+                    test.assertEqual(Iterable.empty(), painter.getActions());
                 });
 
                 runner.test("with empty text", (Test test) ->
                 {
                     final FakePainter painter = new FakePainter();
                     test.assertThrows(() -> painter.drawText("", Point2D.zero));
-                    test.assertEqual(new Array<PainterAction>(0), painter.getActions());
+                    test.assertEqual(Iterable.empty(), painter.getActions());
                 });
 
                 runner.test("with null topLeft", (Test test) ->
                 {
                     final FakePainter painter = new FakePainter();
                     test.assertThrows(() -> painter.drawText("test", null));
-                    test.assertEqual(new Array<PainterAction>(0), painter.getActions());
+                    test.assertEqual(Iterable.empty(), painter.getActions());
                 });
 
                 runner.test("with non-empty text", (Test test) ->
@@ -141,14 +141,14 @@ public class FakePainterTests
                 {
                     final FakePainter painter = new FakePainter();
                     test.assertThrows(() -> painter.drawLine(null, Point2D.zero));
-                    test.assertEqual(new Array<PainterAction>(0), painter.getActions());
+                    test.assertEqual(Iterable.empty(), painter.getActions());
                 });
 
                 runner.test("with null end", (Test test) ->
                 {
                     final FakePainter painter = new FakePainter();
                     test.assertThrows(() -> painter.drawLine(Point2D.zero, null));
-                    test.assertEqual(new Array<PainterAction>(0), painter.getActions());
+                    test.assertEqual(Iterable.empty(), painter.getActions());
                 });
 
                 runner.test("with valid arguments", (Test test) ->
@@ -170,28 +170,28 @@ public class FakePainterTests
                 {
                     final FakePainter painter = new FakePainter();
                     test.assertThrows(() -> painter.drawLine(null, Distance.zero, Distance.zero, Distance.zero));
-                    test.assertEqual(new Array<PainterAction>(0), painter.getActions());
+                    test.assertEqual(Iterable.empty(), painter.getActions());
                 });
 
                 runner.test("with null startY", (Test test) ->
                 {
                     final FakePainter painter = new FakePainter();
                     test.assertThrows(() -> painter.drawLine(Distance.zero, null, Distance.zero, Distance.zero));
-                    test.assertEqual(new Array<PainterAction>(0), painter.getActions());
+                    test.assertEqual(Iterable.empty(), painter.getActions());
                 });
 
                 runner.test("with null endX", (Test test) ->
                 {
                     final FakePainter painter = new FakePainter();
                     test.assertThrows(() -> painter.drawLine(Distance.zero, Distance.zero, null, Distance.zero));
-                    test.assertEqual(new Array<PainterAction>(0), painter.getActions());
+                    test.assertEqual(Iterable.empty(), painter.getActions());
                 });
 
                 runner.test("with null endY", (Test test) ->
                 {
                     final FakePainter painter = new FakePainter();
                     test.assertThrows(() -> painter.drawLine(Distance.zero, Distance.zero, Distance.zero, null));
-                    test.assertEqual(new Array<PainterAction>(0), painter.getActions());
+                    test.assertEqual(Iterable.empty(), painter.getActions());
                 });
 
                 runner.test("with valid arguments", (Test test) ->
@@ -211,42 +211,42 @@ public class FakePainterTests
                 {
                     final FakePainter painter = new FakePainter();
                     test.assertThrows(() -> painter.drawRectangle(null, Distance.zero, Distance.zero, Distance.zero));
-                    test.assertEqual(new Array<PainterAction>(0), painter.getActions());
+                    test.assertEqual(Iterable.empty(), painter.getActions());
                 });
 
                 runner.test("with null topLeftY", (Test test) ->
                 {
                     final FakePainter painter = new FakePainter();
                     test.assertThrows(() -> painter.drawRectangle(Distance.zero, null, Distance.zero, Distance.zero));
-                    test.assertEqual(new Array<PainterAction>(0), painter.getActions());
+                    test.assertEqual(Iterable.empty(), painter.getActions());
                 });
 
                 runner.test("with null width", (Test test) ->
                 {
                     final FakePainter painter = new FakePainter();
                     test.assertThrows(() -> painter.drawRectangle(Distance.zero, Distance.zero, null, Distance.zero));
-                    test.assertEqual(new Array<PainterAction>(0), painter.getActions());
+                    test.assertEqual(Iterable.empty(), painter.getActions());
                 });
 
                 runner.test("with negative width", (Test test) ->
                 {
                     final FakePainter painter = new FakePainter();
                     test.assertThrows(() -> painter.drawRectangle(Distance.zero, Distance.zero, Distance.inches(-1), Distance.zero));
-                    test.assertEqual(new Array<PainterAction>(0), painter.getActions());
+                    test.assertEqual(Iterable.empty(), painter.getActions());
                 });
 
                 runner.test("with null height", (Test test) ->
                 {
                     final FakePainter painter = new FakePainter();
                     test.assertThrows(() -> painter.drawRectangle(Distance.zero, Distance.zero, Distance.zero, null));
-                    test.assertEqual(new Array<PainterAction>(0), painter.getActions());
+                    test.assertEqual(Iterable.empty(), painter.getActions());
                 });
 
                 runner.test("with negative height", (Test test) ->
                 {
                     final FakePainter painter = new FakePainter();
                     test.assertThrows(() -> painter.drawRectangle(Distance.zero, Distance.zero, Distance.zero, Distance.inches(-1)));
-                    test.assertEqual(new Array<PainterAction>(0), painter.getActions());
+                    test.assertEqual(Iterable.empty(), painter.getActions());
                 });
 
                 runner.test("with valid arguments", (Test test) ->

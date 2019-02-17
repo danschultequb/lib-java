@@ -34,7 +34,7 @@ public class MutableHttpHeaders implements HttpHeaders
     }
 
     /**
-     * Remove all headers from this HTTP header collection.
+     * Remove all headers create this HTTP header collection.
      */
     public void clear()
     {

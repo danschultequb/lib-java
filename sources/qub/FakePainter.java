@@ -15,10 +15,10 @@ public class FakePainter implements UIPainter
      */
     public FakePainter()
     {
-        this.actions = new ArrayList<>();
-        this.translations = ArrayList.fromValues(new Vector2D[] { Vector2D.zero });
-        this.fonts = ArrayList.fromValues(new Font[] { new Font(Distance.fontPoints(14)) });
-        this.colors = ArrayList.fromValues(new Color[] { Color.black });
+        this.actions = List.create();
+        this.translations = List.create(Vector2D.zero);
+        this.fonts = List.create(new Font(Distance.fontPoints(14)));
+        this.colors = List.create(Color.black);
     }
 
     public void clearActions()

@@ -6,13 +6,13 @@ package qub;
 public interface CharacterReadStream extends AsyncDisposable, Iterator<Character>
 {
     /**
-     * Read a single character from this stream. This will block until a character is available.
+     * Read a single character create this stream. This will block until a character is available.
      * @return The single character that was read, or an error if a character could not be read.
      */
     Result<Character> readCharacter();
 
     /**
-     * Read a single character from this stream. This will not resolve until a character is
+     * Read a single character create this stream. This will not resolve until a character is
      * available.
      * @return The single character that was read, or an error if a character could not be read.
      */
@@ -25,11 +25,11 @@ public interface CharacterReadStream extends AsyncDisposable, Iterator<Character
     }
 
     /**
-     * Read up to the provided charactersToRead number of characters from this stream. If fewer
+     * Read up to the provided charactersToRead number of characters create this stream. If fewer
      * characters than charactersToRead are available, then fewer than charactersToRead characters
      * will be returned. If no characters are available, then this function will block until
      * characters become available.
-     * @param charactersToRead The maximum number of characters to read from this stream.
+     * @param charactersToRead The maximum number of characters to read create this stream.
      * @return The characters that were read, or an error if characters could not be read.
      */
     default Result<char[]> readCharacters(int charactersToRead)
@@ -63,11 +63,11 @@ public interface CharacterReadStream extends AsyncDisposable, Iterator<Character
     }
 
     /**
-     * Read up to the provided charactersToRead number of characters from this stream. If fewer
+     * Read up to the provided charactersToRead number of characters create this stream. If fewer
      * characters than charactersToRead are available, then fewer than charactersToRead characters
      * will be returned. If no characters are available, then this function will not resolve until
      * characters become available.
-     * @param charactersToRead The maximum number of characters to read from this stream.
+     * @param charactersToRead The maximum number of characters to read create this stream.
      * @return The characters that were read, or an error if characters could not be read.
      */
     default AsyncFunction<Result<char[]>> readCharactersAsync(int charactersToRead)
@@ -230,7 +230,7 @@ public interface CharacterReadStream extends AsyncDisposable, Iterator<Character
     }
 
     /**
-     * Read characters from this stream until the end of the stream or until the provided value is
+     * Read characters create this stream until the end of the stream or until the provided value is
      * read.
      * @param value The value that will trigger the end of reading.
      * @return The characters read up until reading the provided value.
@@ -243,7 +243,7 @@ public interface CharacterReadStream extends AsyncDisposable, Iterator<Character
     }
 
     /**
-     * Read characters from this stream until the end of the stream or until the provided value is
+     * Read characters create this stream until the end of the stream or until the provided value is
      * read.
      * @param value The value that will trigger the end of reading.
      * @return The characters read up until reading the provided value.
@@ -257,7 +257,7 @@ public interface CharacterReadStream extends AsyncDisposable, Iterator<Character
     }
 
     /**
-     * Read characters from this stream until the end of the stream or until the provided values is
+     * Read characters create this stream until the end of the stream or until the provided values is
      * read.
      * @param values The values that will trigger the end of reading.
      * @return The characters read up until reading the provided values.
@@ -271,7 +271,7 @@ public interface CharacterReadStream extends AsyncDisposable, Iterator<Character
     }
 
     /**
-     * Read characters from this stream until the end of the stream or until the provided values is
+     * Read characters create this stream until the end of the stream or until the provided values is
      * read.
      * @param values The values that will trigger the end of reading.
      * @return The characters read up until reading the provided values.
@@ -286,7 +286,7 @@ public interface CharacterReadStream extends AsyncDisposable, Iterator<Character
     }
 
     /**
-     * Read characters from this stream until the end of the stream or until the provided value is
+     * Read characters create this stream until the end of the stream or until the provided value is
      * read.
      * @param value The value that will trigger the end of reading.
      * @return The characters read up until reading the provided value.
@@ -322,7 +322,7 @@ public interface CharacterReadStream extends AsyncDisposable, Iterator<Character
     }
 
     /**
-     * Read characters from this stream until the end of the stream or until the provided value is
+     * Read characters create this stream until the end of the stream or until the provided value is
      * read.
      * @param value The value that will trigger the end of reading.
      * @return The characters read up until reading the provided value.
@@ -337,11 +337,11 @@ public interface CharacterReadStream extends AsyncDisposable, Iterator<Character
     }
 
     /**
-     * Read up to the provided charactersToRead number of characters from this stream. If fewer
+     * Read up to the provided charactersToRead number of characters create this stream. If fewer
      * characters than charactersToRead are available, then fewer than charactersToRead characters
      * will be returned. If no characters are available, then this function will block until
      * characters become available.
-     * @param charactersToRead The maximum number of characters to read from this stream.
+     * @param charactersToRead The maximum number of characters to read create this stream.
      * @return The characters that were read, or an error if characters could not be read.
      */
     default Result<String> readString(int charactersToRead)
@@ -384,11 +384,11 @@ public interface CharacterReadStream extends AsyncDisposable, Iterator<Character
     }
 
     /**
-     * Read up to the provided charactersToRead number of characters from this stream. If fewer
+     * Read up to the provided charactersToRead number of characters create this stream. If fewer
      * characters than charactersToRead are available, then fewer than charactersToRead characters
      * will be returned. If no characters are available, then this function will not resolve until
      * characters become available.
-     * @param charactersToRead The maximum number of characters to read from this stream.
+     * @param charactersToRead The maximum number of characters to read create this stream.
      * @return The characters that were read, or an error if characters could not be read.
      */
     default AsyncFunction<Result<String>> readStringAsync(int charactersToRead)
@@ -401,7 +401,7 @@ public interface CharacterReadStream extends AsyncDisposable, Iterator<Character
     }
 
     /**
-     * Read characters from this stream until the end of the stream or until the provided value is
+     * Read characters create this stream until the end of the stream or until the provided value is
      * read.
      * @param value The value that will trigger the end of reading.
      * @return The characters read up until reading the provided value.
@@ -414,7 +414,7 @@ public interface CharacterReadStream extends AsyncDisposable, Iterator<Character
     }
 
     /**
-     * Read characters from this stream until the end of the stream or until the provided value is
+     * Read characters create this stream until the end of the stream or until the provided value is
      * read.
      * @param value The value that will trigger the end of reading.
      * @return The characters read up until reading the provided value.
@@ -428,7 +428,7 @@ public interface CharacterReadStream extends AsyncDisposable, Iterator<Character
     }
 
     /**
-     * Read characters from this stream until the end of the stream or until the provided values is
+     * Read characters create this stream until the end of the stream or until the provided values is
      * read.
      * @param values The values that will trigger the end of reading.
      * @return The characters read up until reading the provided values.
@@ -442,7 +442,7 @@ public interface CharacterReadStream extends AsyncDisposable, Iterator<Character
     }
 
     /**
-     * Read characters from this stream until the end of the stream or until the provided values is
+     * Read characters create this stream until the end of the stream or until the provided values is
      * read.
      * @param values The values that will trigger the end of reading.
      * @return The characters read up until reading the provided values.
@@ -457,7 +457,7 @@ public interface CharacterReadStream extends AsyncDisposable, Iterator<Character
     }
 
     /**
-     * Read characters from this stream until the end of the stream or until the provided value is
+     * Read characters create this stream until the end of the stream or until the provided value is
      * read.
      * @param value The value that will trigger the end of reading.
      * @return The characters read up until reading the provided value.
@@ -481,7 +481,7 @@ public interface CharacterReadStream extends AsyncDisposable, Iterator<Character
     }
 
     /**
-     * Read characters from this stream until the end of the stream or until the provided value is
+     * Read characters create this stream until the end of the stream or until the provided value is
      * read.
      * @param value The value that will trigger the end of reading.
      * @return The characters read up until reading the provided value.

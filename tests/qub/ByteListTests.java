@@ -395,21 +395,21 @@ public class ByteListTests
                 runner.test("with negative index with an empty list", (Test test) ->
                 {
                     final ByteList list = ByteList.create();
-                    test.assertThrows(() -> list.removeAt(-1), new PreConditionFailure("Cannot access values in an empty Indexable."));
+                    test.assertThrows(() -> list.removeAt(-1), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
                     test.assertEqual(ByteList.create(), list);
                 });
 
                 runner.test("with 0 index with an empty list", (Test test) ->
                 {
                     final ByteList list = ByteList.create();
-                    test.assertThrows(() -> list.removeAt(0), new PreConditionFailure("Cannot access values in an empty Indexable."));
+                    test.assertThrows(() -> list.removeAt(0), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
                     test.assertEqual(ByteList.create(), list);
                 });
 
                 runner.test("with 1 index with an empty list", (Test test) ->
                 {
                     final ByteList list = ByteList.create();
-                    test.assertThrows(() -> list.removeAt(1), new PreConditionFailure("Cannot access values in an empty Indexable."));
+                    test.assertThrows(() -> list.removeAt(1), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
                     test.assertEqual(ByteList.create(), list);
                 });
 

@@ -160,12 +160,12 @@ public class BufferedByteWriteStreamTests
                     test.assertTrue(byteWriteStream.dispose().await());
                     test.assertEqual(5, byteWriteStream.getBufferCapacity());
                     test.assertEqual(0, byteWriteStream.getBufferByteCount());
-                    test.assertEqual(null, innerStream.getBytes());
+                    test.assertEqual(new byte[0], innerStream.getBytes());
 
                     test.assertFalse(byteWriteStream.dispose().await());
                     test.assertEqual(5, byteWriteStream.getBufferCapacity());
                     test.assertEqual(0, byteWriteStream.getBufferByteCount());
-                    test.assertEqual(null, innerStream.getBytes());
+                    test.assertEqual(new byte[0], innerStream.getBytes());
                 });
 
                 runner.test("with bytes to write", (Test test) ->
@@ -180,12 +180,12 @@ public class BufferedByteWriteStreamTests
                     test.assertTrue(byteWriteStream.dispose().await());
                     test.assertEqual(0, byteWriteStream.getBufferCapacity());
                     test.assertEqual(0, byteWriteStream.getBufferByteCount());
-                    test.assertEqual(null, innerStream.getBytes());
+                    test.assertEqual(new byte[] { 1, 2, 3 }, innerStream.getBytes());
 
                     test.assertFalse(byteWriteStream.dispose().await());
                     test.assertEqual(0, byteWriteStream.getBufferCapacity());
                     test.assertEqual(0, byteWriteStream.getBufferByteCount());
-                    test.assertEqual(null, innerStream.getBytes());
+                    test.assertEqual(new byte[] { 1, 2, 3 }, innerStream.getBytes());
                 });
             });
         });

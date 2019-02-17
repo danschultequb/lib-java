@@ -42,7 +42,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
      */
     public byte[] getBytes()
     {
-        return !isDisposed() ? Array.toByteArray(bytes) : null;
+        return bytes.toByteArray();
     }
 
     @Override
@@ -187,7 +187,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
     }
 
     /**
-     * Mark that this stream has reached the end of its content. Future reads from this stream will
+     * Mark that this stream has reached the end of its content. Future reads create this stream will
      * return null.
      * @return This InMemoryByteStream.
      */

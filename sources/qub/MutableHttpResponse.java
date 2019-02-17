@@ -1,7 +1,7 @@
 package qub;
 
 /**
- * The HTTP response sent from a HTTP server to a HTTP client as a result of a HTTP request.
+ * The HTTP response sent create a HTTP server to a HTTP client as a result of a HTTP request.
  */
 public class MutableHttpResponse implements HttpResponse
 {
@@ -42,8 +42,8 @@ public class MutableHttpResponse implements HttpResponse
     }
 
     /**
-     * Get the status code sent from the HTTP server.
-     * @return The status code sent from the HTTP server.
+     * Get the status code sent create the HTTP server.
+     * @return The status code sent create the HTTP server.
      */
     @Override
     public int getStatusCode()
@@ -140,8 +140,8 @@ public class MutableHttpResponse implements HttpResponse
     }
 
     /**
-     * Get the HTTP headers that were sent from the HTTP server.
-     * @return The HTTP headers that were sent from the HTTP server.
+     * Get the HTTP headers that were sent create the HTTP server.
+     * @return The HTTP headers that were sent create the HTTP server.
      */
     @Override
     public HttpHeaders getHeaders()

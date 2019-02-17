@@ -1,10 +1,10 @@
 package qub;
 
 /**
- * An Iterator that converts the values of type TInner from an inner iterator into new values of
+ * An Iterator that converts the values of type TInner create an inner iterator into new values of
  * type TOuter.
- * @param <TInner> The type of values returned from the inner iterator.
- * @param <TOuter> The type of values returned from this iterator.
+ * @param <TInner> The type of values returned create the inner iterator.
+ * @param <TOuter> The type of values returned create this iterator.
  */
 class MapIterator<TInner,TOuter> implements Iterator<TOuter>
 {
@@ -13,6 +13,9 @@ class MapIterator<TInner,TOuter> implements Iterator<TOuter>
 
     MapIterator(Iterator<TInner> innerIterator, Function1<TInner,TOuter> conversion)
     {
+        PreCondition.assertNotNull(innerIterator, "innerIterator");
+        PreCondition.assertNotNull(conversion, "conversion");
+
         this.innerIterator = innerIterator;
         this.conversion = conversion;
     }
@@ -26,37 +29,20 @@ class MapIterator<TInner,TOuter> implements Iterator<TOuter>
     @Override
     public boolean hasCurrent()
     {
-        return conversion != null && innerIterator.hasCurrent();
+        return innerIterator.hasCurrent();
     }
 
     @Override
     public TOuter getCurrent()
     {
-        TOuter result = null;
-        if (hasCurrent())
-        {
-            result = conversion.run(innerIterator.getCurrent());
-        }
-        return result;
+        PreCondition.assertTrue(hasCurrent(), "hasCurrent()");
+
+        return conversion.run(innerIterator.getCurrent());
     }
 
     @Override
     public boolean next()
     {
-        boolean result;
-        if (conversion == null)
-        {
-            result = false;
-            if (!innerIterator.hasStarted())
-            {
-                innerIterator.next();
-            }
-        }
-        else
-        {
-            result = innerIterator.next();
-        }
-
-        return result;
+        return innerIterator.next();
     }
 }

@@ -42,8 +42,8 @@ public abstract class IteratorTests
                 runner.test("with empty non-started Iterator", (Test test) ->
                 {
                     final Iterator<Integer> iterator = createIterator.run(0, false);
-                    test.assertNull(iterator.takeCurrent());
-                    assertIterator(test, iterator, true, null);
+                    test.assertThrows(iterator::takeCurrent, new PreConditionFailure("hasCurrent() cannot be false."));
+                    assertIterator(test, iterator, false, null);
                 });
             });
 
@@ -192,7 +192,7 @@ public abstract class IteratorTests
                 {
                     final Iterator<Integer> iterator = createIterator.run(0, false);
                     assertIterator(test, iterator, false, null);
-                    test.assertNull(iterator.first(null));
+                    test.assertThrows(() -> iterator.first(null), new PreConditionFailure("condition cannot be null."));
                     assertIterator(test, iterator, false, null);
                 });
 
@@ -200,7 +200,7 @@ public abstract class IteratorTests
                 {
                     final Iterator<Integer> iterator = createIterator.run(0, true);
                     assertIterator(test, iterator, true, null);
-                    test.assertNull(iterator.first(null));
+                    test.assertThrows(() -> iterator.first(null), new PreConditionFailure("condition cannot be null."));
                     assertIterator(test, iterator, true, null);
                 });
 
@@ -208,7 +208,7 @@ public abstract class IteratorTests
                 {
                     final Iterator<Integer> iterator = createIterator.run(3, false);
                     assertIterator(test, iterator, false, null);
-                    test.assertNull(iterator.first(null));
+                    test.assertThrows(() -> iterator.first(null), new PreConditionFailure("condition cannot be null."));
                     assertIterator(test, iterator, false, null);
                 });
 
@@ -216,7 +216,7 @@ public abstract class IteratorTests
                 {
                     final Iterator<Integer> iterator = createIterator.run(3, true);
                     assertIterator(test, iterator, true, 0);
-                    test.assertNull(iterator.first(null));
+                    test.assertThrows(() -> iterator.first(null), new PreConditionFailure("condition cannot be null."));
                     assertIterator(test, iterator, true, 0);
                 });
 
@@ -224,7 +224,7 @@ public abstract class IteratorTests
                 {
                     final Iterator<Integer> iterator = createIterator.run(0, false);
                     assertIterator(test, iterator, false, null);
-                    test.assertNull(iterator.first(Math.isOdd));
+                    test.assertNull(iterator.first(Math::isOdd));
                     assertIterator(test, iterator, true, null);
                 });
 
@@ -232,7 +232,7 @@ public abstract class IteratorTests
                 {
                     final Iterator<Integer> iterator = createIterator.run(0, true);
                     assertIterator(test, iterator, true, null);
-                    test.assertNull(iterator.first(Math.isOdd));
+                    test.assertNull(iterator.first(Math::isOdd));
                     assertIterator(test, iterator, true, null);
                 });
 
@@ -240,9 +240,9 @@ public abstract class IteratorTests
                 {
                     final Iterator<Integer> iterator = createIterator.run(3, false);
                     assertIterator(test, iterator, false, null);
-                    test.assertEqual(1, iterator.first(Math.isOdd));
+                    test.assertEqual(1, iterator.first(Math::isOdd));
                     assertIterator(test, iterator, true, 1);
-                    test.assertEqual(1, iterator.first(Math.isOdd));
+                    test.assertEqual(1, iterator.first(Math::isOdd));
                     assertIterator(test, iterator, true, 1);
                 });
 
@@ -250,9 +250,9 @@ public abstract class IteratorTests
                 {
                     final Iterator<Integer> iterator = createIterator.run(3, true);
                     assertIterator(test, iterator, true, 0);
-                    test.assertEqual(0, iterator.first(Math.isEven));
+                    test.assertEqual(0, iterator.first(Math::isEven));
                     assertIterator(test, iterator, true, 0);
-                    test.assertEqual(0, iterator.first(Math.isEven));
+                    test.assertEqual(0, iterator.first(Math::isEven));
                     assertIterator(test, iterator, true, 0);
                 });
             });
@@ -302,7 +302,7 @@ public abstract class IteratorTests
                 {
                     final Iterator<Integer> iterator = createIterator.run(0, false);
                     assertIterator(test, iterator, false, null);
-                    test.assertNull(iterator.last(null));
+                    test.assertThrows(() -> iterator.last(null), new PreConditionFailure("condition cannot be null."));
                     assertIterator(test, iterator, false, null);
                 });
 
@@ -310,7 +310,7 @@ public abstract class IteratorTests
                 {
                     final Iterator<Integer> iterator = createIterator.run(0, true);
                     assertIterator(test, iterator, true, null);
-                    test.assertNull(iterator.last(null));
+                    test.assertThrows(() -> iterator.last(null), new PreConditionFailure("condition cannot be null."));
                     assertIterator(test, iterator, true, null);
                 });
                 
@@ -318,7 +318,7 @@ public abstract class IteratorTests
                 {
                     final Iterator<Integer> iterator = createIterator.run(3, false);
                     assertIterator(test, iterator, false, null);
-                    test.assertNull(iterator.last(null));
+                    test.assertThrows(() -> iterator.last(null), new PreConditionFailure("condition cannot be null."));
                     assertIterator(test, iterator, false, null);
                 });
                 
@@ -326,7 +326,7 @@ public abstract class IteratorTests
                 {
                     final Iterator<Integer> iterator = createIterator.run(3, true);
                     assertIterator(test, iterator, true, 0);
-                    test.assertNull(iterator.last(null));
+                    test.assertThrows(() -> iterator.last(null), new PreConditionFailure("condition cannot be null."));
                     assertIterator(test, iterator, true, 0);
                 });
                 
@@ -334,7 +334,7 @@ public abstract class IteratorTests
                 {
                     final Iterator<Integer> iterator = createIterator.run(0, false);
                     assertIterator(test, iterator, false, null);
-                    test.assertNull(iterator.last(Math.isOdd));
+                    test.assertNull(iterator.last(Math::isOdd));
                     assertIterator(test, iterator, true, null);
                 });
                 
@@ -342,7 +342,7 @@ public abstract class IteratorTests
                 {
                     final Iterator<Integer> iterator = createIterator.run(0, true);
                     assertIterator(test, iterator, true, null);
-                    test.assertNull(iterator.last(Math.isOdd));
+                    test.assertNull(iterator.last(Math::isOdd));
                     assertIterator(test, iterator, true, null);
                 });
                 
@@ -350,9 +350,9 @@ public abstract class IteratorTests
                 {
                     final Iterator<Integer> iterator = createIterator.run(3, false);
                     assertIterator(test, iterator, false, null);
-                    test.assertEqual(1, iterator.last(Math.isOdd));
+                    test.assertEqual(1, iterator.last(Math::isOdd));
                     assertIterator(test, iterator, true, null);
-                    test.assertNull(iterator.last(Math.isOdd));
+                    test.assertNull(iterator.last(Math::isOdd));
                     assertIterator(test, iterator, true, null);
                 });
                 
@@ -360,9 +360,9 @@ public abstract class IteratorTests
                 {
                     final Iterator<Integer> iterator = createIterator.run(3, true);
                     assertIterator(test, iterator, true, 0);
-                    test.assertEqual(2, iterator.last(Math.isEven));
+                    test.assertEqual(2, iterator.last(Math::isEven));
                     assertIterator(test, iterator, true, null);
-                    test.assertNull(iterator.last(Math.isEven));
+                    test.assertNull(iterator.last(Math::isEven));
                     assertIterator(test, iterator, true, null);
                 });
             });
@@ -429,12 +429,8 @@ public abstract class IteratorTests
                     final Iterator<Integer> iterator = createIterator.run(0, false);
                     assertIterator(test, iterator, false, null);
 
-                    final Iterator<Integer> takeIterator = iterator.take(-3);
-                    assertIterator(test, takeIterator, false, null);
-
-                    test.assertFalse(takeIterator.next());
+                    test.assertThrows(() -> iterator.take(-3), new PreConditionFailure("toTake (-3) must be greater than or equal to 0."));
                     assertIterator(test, iterator, false, null);
-                    assertIterator(test, takeIterator, true, null);
                 });
                 
                 runner.test("with empty non-started Iterator and zero toTake value", (Test test) ->
@@ -443,6 +439,7 @@ public abstract class IteratorTests
                     assertIterator(test, iterator, false, null);
 
                     final Iterator<Integer> takeIterator = iterator.take(0);
+                    assertIterator(test, iterator, false, null);
                     assertIterator(test, takeIterator, false, null);
 
                     test.assertFalse(takeIterator.next());
@@ -468,12 +465,8 @@ public abstract class IteratorTests
                     final Iterator<Integer> iterator = createIterator.run(5, false);
                     assertIterator(test, iterator, false, null);
 
-                    final Iterator<Integer> takeIterator = iterator.take(-3);
-                    assertIterator(test, takeIterator, false, null);
-
-                    test.assertFalse(takeIterator.next());
+                    test.assertThrows(() -> iterator.take(-3), new PreConditionFailure("toTake (-3) must be greater than or equal to 0."));
                     assertIterator(test, iterator, false, null);
-                    assertIterator(test, takeIterator, true, null);
                 });
                 
                 runner.test("with non-empty non-started Iterator and zero toTake value", (Test test) ->
@@ -482,6 +475,7 @@ public abstract class IteratorTests
                     assertIterator(test, iterator, false, null);
 
                     final Iterator<Integer> takeIterator = iterator.take(0);
+                    assertIterator(test, iterator, false, null);
                     assertIterator(test, takeIterator, false, null);
 
                     test.assertFalse(takeIterator.next());
@@ -514,12 +508,8 @@ public abstract class IteratorTests
                     final Iterator<Integer> iterator = createIterator.run(5, true);
                     assertIterator(test, iterator, true, 0);
 
-                    final Iterator<Integer> takeIterator = iterator.take(-3);
-                    assertIterator(test, takeIterator, true, null);
-
-                    test.assertFalse(takeIterator.next());
+                    test.assertThrows(() -> iterator.take(-3), new PreConditionFailure("toTake (-3) must be greater than or equal to 0."));
                     assertIterator(test, iterator, true, 0);
-                    assertIterator(test, takeIterator, true, null);
                 });
                 
                 runner.test("with non-empty started Iterator and zero toTake value", (Test test) ->
@@ -528,6 +518,7 @@ public abstract class IteratorTests
                     assertIterator(test, iterator, true, 0);
 
                     final Iterator<Integer> takeIterator = iterator.take(0);
+                    assertIterator(test, iterator, true, 0);
                     assertIterator(test, takeIterator, true, null);
 
                     test.assertFalse(takeIterator.next());
@@ -544,9 +535,11 @@ public abstract class IteratorTests
                     assertIterator(test, iterator, true, 0);
                     assertIterator(test, takeIterator, true, 0);
 
-                    test.assertTrue(takeIterator.next());
-                    assertIterator(test, iterator, true, 1);
-                    assertIterator(test, takeIterator, true, 1);
+                    for (int i = 1; i < 2; ++i) {
+                        test.assertTrue(takeIterator.next());
+                        assertIterator(test, iterator, true, i);
+                        assertIterator(test, takeIterator, true, i);
+                    }
 
                     test.assertFalse(takeIterator.next());
                     assertIterator(test, iterator, true, 1);
@@ -601,13 +594,8 @@ public abstract class IteratorTests
                     final Iterator<Integer> iterator = createIterator.run(0, false);
                     assertIterator(test, iterator, false, null);
 
-                    final Iterator<Integer> skipIterator = iterator.skip(-3);
+                    test.assertThrows(() -> iterator.skip(-3), new PreConditionFailure("toSkip (-3) must be greater than or equal to 0."));
                     assertIterator(test, iterator, false, null);
-                    assertIterator(test, skipIterator, false, null);
-
-                    test.assertFalse(skipIterator.next());
-                    assertIterator(test, iterator, true, null);
-                    assertIterator(test, skipIterator, true, null);
                 });
                 
                 runner.test("with empty non-started Iterator and zero toSkip value", (Test test) ->
@@ -643,20 +631,8 @@ public abstract class IteratorTests
                     final Iterator<Integer> iterator = createIterator.run(5, false);
                     assertIterator(test, iterator, false, null);
 
-                    final Iterator<Integer> skipIterator = iterator.skip(-3);
+                    test.assertThrows(() -> iterator.skip(-3), new PreConditionFailure("toSkip (-3) must be greater than or equal to 0."));
                     assertIterator(test, iterator, false, null);
-                    assertIterator(test, skipIterator, false, null);
-
-                    for (int i = 0; i < 5; ++i)
-                    {
-                        test.assertTrue(skipIterator.next());
-                        assertIterator(test, iterator, true, i);
-                        assertIterator(test, skipIterator, true, i);
-                    }
-
-                    test.assertFalse(skipIterator.next());
-                    assertIterator(test, iterator, true, null);
-                    assertIterator(test, skipIterator, true, null);
                 });
 
                 runner.test("with non-empty non-started Iterator and zero toSkip value", (Test test) ->
@@ -706,20 +682,8 @@ public abstract class IteratorTests
                     final Iterator<Integer> iterator = createIterator.run(5, true);
                     assertIterator(test, iterator, true, 0);
 
-                    final Iterator<Integer> skipIterator = iterator.skip(-3);
+                    test.assertThrows(() -> iterator.skip(-3), new PreConditionFailure("toSkip (-3) must be greater than or equal to 0."));
                     assertIterator(test, iterator, true, 0);
-                    assertIterator(test, skipIterator, true, 0);
-
-                    for (int i = 1; i < 5; ++i)
-                    {
-                        test.assertTrue(skipIterator.next());
-                        assertIterator(test, iterator, true, i);
-                        assertIterator(test, skipIterator, true, i);
-                    }
-
-                    test.assertFalse(skipIterator.next());
-                    assertIterator(test, iterator, true, null);
-                    assertIterator(test, skipIterator, true, null);
                 });
                 
                 runner.test("with non-empty started Iterator and zero toSkip value", (Test test) ->
@@ -803,13 +767,8 @@ public abstract class IteratorTests
                     final Iterator<Integer> iterator = createIterator.run(0, false);
                     assertIterator(test, iterator, false, null);
 
-                    final Iterator<Integer> skipUntilIterator = iterator.skipUntil(null);
+                    test.assertThrows(() -> iterator.skipUntil(null), new PreConditionFailure("condition cannot be null."));
                     assertIterator(test, iterator, false, null);
-                    assertIterator(test, skipUntilIterator, false, null);
-
-                    test.assertFalse(skipUntilIterator.next());
-                    assertIterator(test, iterator, true, null);
-                    assertIterator(test, skipUntilIterator, true, null);
                 });
 
                 runner.test("with empty non-started Iterator and condition", (Test test) ->
@@ -817,7 +776,7 @@ public abstract class IteratorTests
                     final Iterator<Integer> iterator = createIterator.run(0, false);
                     assertIterator(test, iterator, false, null);
 
-                    final Iterator<Integer> skipUntilIterator = iterator.skipUntil(Math.isOdd);
+                    final Iterator<Integer> skipUntilIterator = iterator.skipUntil(Math::isOdd);
                     assertIterator(test, iterator, false, null);
                     assertIterator(test, skipUntilIterator, false, null);
 
@@ -831,9 +790,8 @@ public abstract class IteratorTests
                     final Iterator<Integer> iterator = createIterator.run(5, false);
                     assertIterator(test, iterator, false, null);
 
-                    final Iterator<Integer> skipUntilIterator = iterator.skipUntil(null);
+                    test.assertThrows(() -> iterator.skipUntil(null), new PreConditionFailure("condition cannot be null."));
                     assertIterator(test, iterator, false, null);
-                    assertIterator(test, skipUntilIterator, false, null);
                 });
                 
                 runner.test("with non-empty non-started Iterator and non-matching condition", (Test test) ->
@@ -855,7 +813,7 @@ public abstract class IteratorTests
                     final Iterator<Integer> iterator = createIterator.run(5, false);
                     assertIterator(test, iterator, false, null);
 
-                    final Iterator<Integer> skipUntilIterator = iterator.skipUntil(Math.isOdd);
+                    final Iterator<Integer> skipUntilIterator = iterator.skipUntil(Math::isOdd);
                     assertIterator(test, iterator, false, null);
                     assertIterator(test, skipUntilIterator, false, null);
 
@@ -876,10 +834,7 @@ public abstract class IteratorTests
                     final Iterator<Integer> iterator = createIterator.run(5, true);
                     assertIterator(test, iterator, true, 0);
 
-                    final Iterator<Integer> skipUntilIterator = iterator.skipUntil(null);
-                    assertIterator(test, iterator, true, 0);
-                    test.assertNull(skipUntilIterator.getCurrent());
-                    assertIterator(test, skipUntilIterator, true, null);
+                    test.assertThrows(() -> iterator.skipUntil(null), new PreConditionFailure("condition cannot be null."));
                     assertIterator(test, iterator, true, 0);
                 });
                 
@@ -888,7 +843,7 @@ public abstract class IteratorTests
                     final Iterator<Integer> iterator = createIterator.run(3, true);
                     assertIterator(test, iterator, true, 0);
 
-                    final Iterator<Integer> skipUntilIterator = iterator.skipUntil(Math.isOdd);
+                    final Iterator<Integer> skipUntilIterator = iterator.skipUntil(Math::isOdd);
                     assertIterator(test, iterator, true, 0);
                     assertIterator(test, skipUntilIterator, true, 1);
                     assertIterator(test, iterator, true, 1);
@@ -907,7 +862,7 @@ public abstract class IteratorTests
                     final Iterator<Integer> iterator = createIterator.run(5, true);
                     assertIterator(test, iterator, true, 0);
 
-                    final Iterator<Integer> skipUntilIterator = iterator.skipUntil(Math.isOdd);
+                    final Iterator<Integer> skipUntilIterator = iterator.skipUntil(Math::isOdd);
                     assertIterator(test, iterator, true, 0);
                     assertIterator(test, skipUntilIterator, true, 1);
                     assertIterator(test, iterator, true, 1);
@@ -932,9 +887,8 @@ public abstract class IteratorTests
                     final Iterator<Integer> iterator = createIterator.run(0, false);
                     assertIterator(test, iterator, false, null);
 
-                    final Iterator<Integer> whereIterator = iterator.where(null);
+                    test.assertThrows(() -> iterator.where(null), new PreConditionFailure("condition cannot be null."));
                     assertIterator(test, iterator, false, null);
-                    test.assertSame(iterator, whereIterator);
                 });
                 
                 runner.test("with empty non-started Iterator and condition", (Test test) ->
@@ -942,7 +896,7 @@ public abstract class IteratorTests
                     final Iterator<Integer> iterator = createIterator.run(0, false);
                     assertIterator(test, iterator, false, null);
 
-                    final Iterator<Integer> whereIterator = iterator.where(Math.isOdd);
+                    final Iterator<Integer> whereIterator = iterator.where(Math::isOdd);
                     assertIterator(test, iterator, false, null);
                     assertIterator(test, whereIterator, false, null);
 
@@ -956,9 +910,8 @@ public abstract class IteratorTests
                     final Iterator<Integer> iterator = createIterator.run(5, false);
                     assertIterator(test, iterator, false, null);
 
-                    final Iterator<Integer> whereIterator = iterator.where(null);
+                    test.assertThrows(() -> iterator.where(null), new PreConditionFailure("condition cannot be null."));
                     assertIterator(test, iterator, false, null);
-                    test.assertSame(iterator, whereIterator);
                 });
                 
                 runner.test("with non-empty non-started Iterator and non-matching condition", (Test test) ->
@@ -980,7 +933,7 @@ public abstract class IteratorTests
                     final Iterator<Integer> iterator = createIterator.run(5, false);
                     assertIterator(test, iterator, false, null);
 
-                    final Iterator<Integer> whereIterator = iterator.where(Math.isOdd);
+                    final Iterator<Integer> whereIterator = iterator.where(Math::isOdd);
                     assertIterator(test, iterator, false, null);
                     assertIterator(test, whereIterator, false, null);
 
@@ -1001,9 +954,8 @@ public abstract class IteratorTests
                     final Iterator<Integer> iterator = createIterator.run(5, true);
                     assertIterator(test, iterator, true, 0);
 
-                    final Iterator<Integer> whereIterator = iterator.where(null);
+                    test.assertThrows(() -> iterator.where(null), new PreConditionFailure("condition cannot be null."));
                     assertIterator(test, iterator, true, 0);
-                    test.assertSame(iterator, whereIterator);
                 });
 
                 runner.test("with non-empty started Iterator and non-matching condition", (Test test) ->
@@ -1011,7 +963,7 @@ public abstract class IteratorTests
                     final Iterator<Integer> iterator = createIterator.run(3, true);
                     assertIterator(test, iterator, true, 0);
 
-                    final Iterator<Integer> whereIterator = iterator.where(Math.isOdd);
+                    final Iterator<Integer> whereIterator = iterator.where(Math::isOdd);
                     assertIterator(test, iterator, true, 0);
                     assertIterator(test, whereIterator, true, 1);
                     assertIterator(test, iterator, true, 1);
@@ -1026,7 +978,7 @@ public abstract class IteratorTests
                     final Iterator<Integer> iterator = createIterator.run(5, true);
                     assertIterator(test, iterator, true, 0);
 
-                    final Iterator<Integer> whereIterator = iterator.where(Math.isOdd);
+                    final Iterator<Integer> whereIterator = iterator.where(Math::isOdd);
                     assertIterator(test, iterator, true, 0);
                     assertIterator(test, whereIterator, true, 1);
                     assertIterator(test, iterator, true, 1);
@@ -1048,13 +1000,7 @@ public abstract class IteratorTests
                     final Iterator<Integer> iterator = createIterator.run(0, false);
                     assertIterator(test, iterator, false, null);
 
-                    final Iterator<Integer> mapIterator = iterator.map(null);
-                    assertIterator(test, iterator, false, null);
-                    assertIterator(test, mapIterator, false, null);
-
-                    test.assertFalse(mapIterator.next());
-                    assertIterator(test, iterator, true, null);
-                    assertIterator(test, mapIterator, true, null);
+                    test.assertThrows(() -> iterator.map(null), new PreConditionFailure("conversion cannot be null."));
                 });
                 
                 runner.test("with empty non-started Iterator and conversion", (Test test) ->
@@ -1062,7 +1008,7 @@ public abstract class IteratorTests
                     final Iterator<Integer> iterator = createIterator.run(0, false);
                     assertIterator(test, iterator, false, null);
 
-                    final Iterator<Boolean> mapIterator = iterator.map(Math.isOdd);
+                    final Iterator<Boolean> mapIterator = iterator.map(Math::isOdd);
                     assertIterator(test, iterator, false, null);
                     assertIterator(test, mapIterator, false, null);
 
@@ -1076,13 +1022,7 @@ public abstract class IteratorTests
                     final Iterator<Integer> iterator = createIterator.run(5, false);
                     assertIterator(test, iterator, false, null);
 
-                    final Iterator<Boolean> mapIterator = iterator.map(null);
-                    assertIterator(test, iterator, false, null);
-                    assertIterator(test, mapIterator, false, null);
-
-                    test.assertFalse(mapIterator.next());
-                    assertIterator(test, iterator, true, 0);
-                    assertIterator(test, mapIterator, true, null);
+                    test.assertThrows(() -> iterator.map(null), new PreConditionFailure("conversion cannot be null."));
                 });
                 
                 runner.test("with non-empty non-started Iterator and conversion", (Test test) ->
@@ -1090,7 +1030,7 @@ public abstract class IteratorTests
                     final Iterator<Integer> iterator = createIterator.run(5, false);
                     assertIterator(test, iterator, false, null);
 
-                    final Iterator<Boolean> mapIterator = iterator.map(Math.isOdd);
+                    final Iterator<Boolean> mapIterator = iterator.map(Math::isOdd);
                     assertIterator(test, iterator, false, null);
                     assertIterator(test, mapIterator, false, null);
 
@@ -1111,13 +1051,7 @@ public abstract class IteratorTests
                     final Iterator<Integer> iterator = createIterator.run(5, true);
                     assertIterator(test, iterator, true, 0);
 
-                    final Iterator<Boolean> mapIterator = iterator.map(null);
-                    assertIterator(test, iterator, true, 0);
-                    assertIterator(test, mapIterator, true, null);
-
-                    test.assertFalse(mapIterator.next());
-                    assertIterator(test, iterator, true, 0);
-                    assertIterator(test, mapIterator, true, null);
+                    test.assertThrows(() -> iterator.map(null), new PreConditionFailure("conversion cannot be null."));
                 });
 
                 runner.test("with non-empty started Iterator and conversion", (Test test) ->
@@ -1125,7 +1059,7 @@ public abstract class IteratorTests
                     final Iterator<Integer> iterator = createIterator.run(5, true);
                     assertIterator(test, iterator, true, 0);
 
-                    final Iterator<Boolean> mapIterator = iterator.map(Math.isOdd);
+                    final Iterator<Boolean> mapIterator = iterator.map(Math::isOdd);
                     assertIterator(test, iterator, true, 0);
                     assertIterator(test, mapIterator, true, false);
 
@@ -1149,13 +1083,7 @@ public abstract class IteratorTests
                     final Iterator<Integer> iterator = createIterator.run(0, false);
                     assertIterator(test, iterator, false, null);
 
-                    final Iterator<Integer> instanceOfIterator = iterator.instanceOf(null);
-                    assertIterator(test, iterator, false, null);
-                    assertIterator(test, instanceOfIterator, false, null);
-
-                    test.assertFalse(instanceOfIterator.next());
-                    assertIterator(test, iterator, true, null);
-                    assertIterator(test, instanceOfIterator, true, null);
+                    test.assertThrows(() -> iterator.instanceOf(null), new PreConditionFailure("type cannot be null."));
                 });
 
                 runner.test("with empty non-started Iterator and type", (Test test) ->
@@ -1177,13 +1105,7 @@ public abstract class IteratorTests
                     final Iterator<Integer> iterator = createIterator.run(5, false);
                     assertIterator(test, iterator, false, null);
 
-                    final Iterator<Integer> instanceOfIterator = iterator.instanceOf(null);
-                    assertIterator(test, iterator, false, null);
-                    assertIterator(test, instanceOfIterator, false, null);
-
-                    test.assertFalse(instanceOfIterator.next());
-                    assertIterator(test, iterator, true, 0);
-                    assertIterator(test, instanceOfIterator, true, null);
+                    test.assertThrows(() -> iterator.instanceOf(null), new PreConditionFailure("type cannot be null."));
                 });
 
                 runner.test("with non-empty non-started Iterator and no isMatch", (Test test) ->
@@ -1226,14 +1148,7 @@ public abstract class IteratorTests
                     final Iterator<Integer> iterator = createIterator.run(5, true);
                     assertIterator(test, iterator, true, 0);
 
-                    final Iterator<Integer> instanceOfIterator = iterator.instanceOf(null);
-                    assertIterator(test, iterator, true, 0);
-                    assertIterator(test, instanceOfIterator, true, null);
-                    assertIterator(test, iterator, true, 0);
-
-                    test.assertFalse(instanceOfIterator.next());
-                    assertIterator(test, iterator, true, 0);
-                    assertIterator(test, instanceOfIterator, true, null);
+                    test.assertThrows(() -> iterator.instanceOf(null), new PreConditionFailure("type cannot be null."));
                 });
 
                 runner.test("with non-empty started Iterator and no isMatch", (Test test) ->
@@ -1363,6 +1278,13 @@ public abstract class IteratorTests
     {
         test.assertEqual(expectedHasStarted, iterator.hasStarted(), "Wrong hasStarted()");
         test.assertEqual(expectedCurrent != null, iterator.hasCurrent(), "Wrong hasCurrent()");
-        test.assertEqual(expectedCurrent, iterator.getCurrent(), "Wrong getCurrent()");
+        if (expectedCurrent == null)
+        {
+            test.assertThrows(iterator::getCurrent, new PreConditionFailure("hasCurrent() cannot be false."));
+        }
+        else
+        {
+            test.assertEqual(expectedCurrent, iterator.getCurrent(), "Wrong getCurrent()");
+        }
     }
 }

@@ -1,25 +1,25 @@
 package qub;
 
-public class ByteArrayIterator implements Iterator<Byte>
+public class ObjectArrayIterator<T> implements Iterator<T>
 {
-    private final byte[] bytes;
+    private final T[] values;
     private final int startIndex;
     private final int length;
     private boolean hasStarted;
     private int currentIndex;
 
-    public ByteArrayIterator(byte[] bytes)
+    public ObjectArrayIterator(T[] values)
     {
-        this(bytes, 0, bytes.length);
+        this(values, 0, values.length);
     }
 
-    public ByteArrayIterator(byte[] bytes, int startIndex, int length)
+    public ObjectArrayIterator(T[] values, int startIndex, int length)
     {
-        PreCondition.assertNotNull(bytes, "bytes");
-        PreCondition.assertStartIndex(startIndex, bytes.length);
-        PreCondition.assertLength(length, startIndex, bytes.length);
+        PreCondition.assertNotNull(values, "values");
+        PreCondition.assertStartIndex(startIndex, values.length);
+        PreCondition.assertLength(length, startIndex, values.length);
 
-        this.bytes = bytes;
+        this.values = values;
         this.startIndex = startIndex;
         this.length = length;
     }
@@ -37,11 +37,11 @@ public class ByteArrayIterator implements Iterator<Byte>
     }
 
     @Override
-    public Byte getCurrent()
+    public T getCurrent()
     {
         PreCondition.assertTrue(hasCurrent(), "hasCurrent()");
 
-        return bytes[currentIndex];
+        return values[currentIndex];
     }
 
     @Override
@@ -63,19 +63,10 @@ public class ByteArrayIterator implements Iterator<Byte>
      * @param values The values to iterate over.
      * @return The iterator that will iterate over the provided values.
      */
-    static ByteArrayIterator create(byte... values)
+    @SafeVarargs
+    static <T> ObjectArrayIterator<T> create(T... values)
     {
-        return new ByteArrayIterator(values);
-    }
-
-    /**
-     * Create an iterator for the provided values.
-     * @param values The values to iterate over.
-     * @return The iterator that will iterate over the provided values.
-     */
-    static ArrayIterator<Byte> create(int... values)
-    {
-        return new ByteArray(values).iterate();
+        return new ObjectArrayIterator<>(values);
     }
 
     /**
@@ -83,12 +74,12 @@ public class ByteArrayIterator implements Iterator<Byte>
      * @param values The values to iterate.
      * @return The Iterator for the provided values.
      */
-    static ByteArrayIterator create(byte[] values, int startIndex, int length)
+    static <T> ObjectArrayIterator<T> create(T[] values, int startIndex, int length)
     {
         PreCondition.assertNotNull(values, "values");
         PreCondition.assertStartIndex(startIndex, values.length);
         PreCondition.assertLength(length, startIndex, values.length);
 
-        return new ByteArrayIterator(values, startIndex, length);
+        return new ObjectArrayIterator<>(values, startIndex, length);
     }
 }

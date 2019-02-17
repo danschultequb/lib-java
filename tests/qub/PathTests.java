@@ -271,14 +271,14 @@ public class PathTests
                     });
                 };
 
-                changeFileExtensionErrorTest.run("/", ".gif", new PreConditionFailure("endsWith('/') must be false."));
-                changeFileExtensionErrorTest.run("/", "gif", new PreConditionFailure("endsWith('/') must be false."));
-                changeFileExtensionErrorTest.run("/", "", new PreConditionFailure("endsWith('/') must be false."));
-                changeFileExtensionErrorTest.run("/", null, new PreConditionFailure("endsWith('/') must be false."));
-                changeFileExtensionErrorTest.run("\\", ".gif", new PreConditionFailure("endsWith('\\') must be false."));
-                changeFileExtensionErrorTest.run("\\", "gif", new PreConditionFailure("endsWith('\\') must be false."));
-                changeFileExtensionErrorTest.run("\\", "", new PreConditionFailure("endsWith('\\') must be false."));
-                changeFileExtensionErrorTest.run("\\", null, new PreConditionFailure("endsWith('\\') must be false."));
+                changeFileExtensionErrorTest.run("/", ".gif", new PreConditionFailure("endsWith('/') cannot be true."));
+                changeFileExtensionErrorTest.run("/", "gif", new PreConditionFailure("endsWith('/') cannot be true."));
+                changeFileExtensionErrorTest.run("/", "", new PreConditionFailure("endsWith('/') cannot be true."));
+                changeFileExtensionErrorTest.run("/", null, new PreConditionFailure("endsWith('/') cannot be true."));
+                changeFileExtensionErrorTest.run("\\", ".gif", new PreConditionFailure("endsWith('\\') cannot be true."));
+                changeFileExtensionErrorTest.run("\\", "gif", new PreConditionFailure("endsWith('\\') cannot be true."));
+                changeFileExtensionErrorTest.run("\\", "", new PreConditionFailure("endsWith('\\') cannot be true."));
+                changeFileExtensionErrorTest.run("\\", null, new PreConditionFailure("endsWith('\\') cannot be true."));
 
                 final Action3<String,String,String> changeFileExtensionTest = (String originalPathString, String fileExtension, String expectedPathString) ->
                 {

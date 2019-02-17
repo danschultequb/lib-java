@@ -7,6 +7,9 @@ public class TakeIndexable<T> implements Indexable<T>
 
     public TakeIndexable(Indexable<T> innerIndexable, int toTake)
     {
+        PreCondition.assertNotNull(innerIndexable, "innerIndexable");
+        PreCondition.assertGreaterThanOrEqualTo(toTake, 0, "toTake");
+
         this.innerIndexable = innerIndexable;
         this.toTake = toTake;
     }
@@ -14,7 +17,7 @@ public class TakeIndexable<T> implements Indexable<T>
     @Override
     public T get(int index)
     {
-        PreCondition.assertBetween(0, index, getCount() - 1, "index");
+        PreCondition.assertIndexAccess(index, getCount(), "index");
 
         return innerIndexable.get(index);
     }

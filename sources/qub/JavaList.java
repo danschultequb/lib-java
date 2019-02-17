@@ -24,7 +24,7 @@ public class JavaList<T> implements List<T>
     @Override
     public void insert(int insertIndex, T value)
     {
-        validateInsertIndex(insertIndex);
+        PreCondition.assertBetween(0, insertIndex, getCount(), "insertIndex");
 
         list.add(insertIndex, value);
     }
@@ -32,7 +32,7 @@ public class JavaList<T> implements List<T>
     @Override
     public void set(int index, T value)
     {
-        validateAccessIndex(index);
+        PreCondition.assertIndexAccess(index, getCount());
 
         list.set(index, value);
     }
@@ -40,7 +40,7 @@ public class JavaList<T> implements List<T>
     @Override
     public T removeAt(int index)
     {
-        validateAccessIndex(index);
+        PreCondition.assertIndexAccess(index, getCount());
 
         return list.remove(index);
     }
@@ -54,7 +54,7 @@ public class JavaList<T> implements List<T>
     @Override
     public T get(int index)
     {
-        validateAccessIndex(index);
+        PreCondition.assertIndexAccess(index, getCount());
 
         return list.get(index);
     }
@@ -78,14 +78,15 @@ public class JavaList<T> implements List<T>
     }
 
     /**
-     * Wrap the provided Java10 List as a Qub List.
-     * @param list The Java10 List to wrap.
+     * Wrap the provided Java List as a Qub List.
+     * @param list The Java List to wrap.
      * @param <T> The type contained by the List.
-     * @return The Qub List that wraps the provided Java10 List, or null if a null Java10 List is
-     * provided.
+     * @return The Qub List that wraps the provided Java List.
      */
     public static <T> List<T> wrap(java.util.List<T> list)
     {
-        return list == null ? null : new JavaList<>(list);
+        PreCondition.assertNotNull(list, "list");
+
+        return new JavaList<>(list);
     }
 }

@@ -880,7 +880,7 @@ public class Test
     {
         if (values.any())
         {
-            throw new TestAssertionFailure(getFullName(), getMessageLines(message, new Array<T>(0), values));
+            throw new TestAssertionFailure(getFullName(), getMessageLines(message, Array.empty(), values));
         }
     }
 
@@ -1270,7 +1270,7 @@ public class Test
     }
 
     /**
-     * Cause the test to fail instantly with the message from the provided Exception.
+     * Cause the test to fail instantly with the message create the provided Exception.
      * @param e The Exception that caused the test failure.
      */
     public void fail(Throwable e)

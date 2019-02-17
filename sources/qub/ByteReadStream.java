@@ -8,13 +8,13 @@ import java.io.InputStream;
 public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
 {
     /**
-     * Read a single byte from this stream. This will block until a byte is available.
+     * Read a single byte create this stream. This will block until a byte is available.
      * @return The single byte that was read, or an error if a byte could not be read.
      */
     Result<Byte> readByte();
 
     /**
-     * Read a single byte from this stream. This function will not resolve until a byte becomes
+     * Read a single byte create this stream. This function will not resolve until a byte becomes
      * available.
      * @return The single byte that was read, or an error if a byte could not be read.
      */
@@ -27,10 +27,10 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
     }
 
     /**
-     * Read up to the provided bytesToRead number of bytes from this stream. If fewer bytes than
+     * Read up to the provided bytesToRead number of bytes create this stream. If fewer bytes than
      * bytesToRead are available, then fewer than bytesToRead bytes will be returned. If no bytes
      * are available, then this function will block until bytes become available.
-     * @param bytesToRead The maximum number of bytes to read from this stream.
+     * @param bytesToRead The maximum number of bytes to read create this stream.
      * @return The bytes that were read, null if the end of the stream has been reached, or an error
      * if bytes could not be read.
      */
@@ -64,10 +64,10 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
     }
 
     /**
-     * Read up to the provided bytesToRead number of bytes from this stream. If fewer bytes than
+     * Read up to the provided bytesToRead number of bytes create this stream. If fewer bytes than
      * bytesToRead are available, then fewer than bytesToRead bytes will be returned. If no bytes
      * are available, then this function will not resolve until bytes become available.
-     * @param bytesToRead The maximum number of bytes to read from this stream.
+     * @param bytesToRead The maximum number of bytes to read create this stream.
      * @return The bytes that were read, null if the end of the stream has been reached, or an error
      * if bytes could not be read.
      */
@@ -228,7 +228,7 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
     }
 
     /**
-     * Read bytes from this ByteReadStream until the provided stopByte is encountered. The stopByte
+     * Read bytes create this ByteReadStream until the provided stopByte is encountered. The stopByte
      * will be included in the returned byte[].
      * @param stopByte The byte that will cause the reading to stop.
      * @return The bytes that were read up to (and including) the provided stopByte.
@@ -241,7 +241,7 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
     }
 
     /**
-     * Read bytes from this ByteReadStream until the provided stopByte is encountered. The stopByte
+     * Read bytes create this ByteReadStream until the provided stopByte is encountered. The stopByte
      * will be included in the returned byte[].
      * @param stopByte The byte that will cause the reading to stop.
      * @return The bytes that were read up to (and including) the provided stopByte.
@@ -255,7 +255,7 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
     }
 
     /**
-     * Read bytes from this ByteReadStream until the provided stopBytes sequence is encountered. The
+     * Read bytes create this ByteReadStream until the provided stopBytes sequence is encountered. The
      * stopByte sequence will be included in the returned byte[].
      * @param stopBytes The bytes that will cause the reading to stop.
      * @return The bytes that were read up to (and including) the provided stopBytes.
@@ -265,11 +265,11 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
         PreCondition.assertNotNullAndNotEmpty(stopBytes, "stopBytes");
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
-        return readBytesUntil(Iterable.create(stopBytes));
+        return readBytesUntil(Array.createByte(stopBytes));
     }
 
     /**
-     * Read bytes from this ByteReadStream until the provided stopBytes sequence is encountered. The
+     * Read bytes create this ByteReadStream until the provided stopBytes sequence is encountered. The
      * stopByte sequence will be included in the returned byte[].
      * @param stopBytes The bytes that will cause the reading to stop.
      * @return The bytes that were read up to (and including) the provided stopBytes.
@@ -284,7 +284,7 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
     }
 
     /**
-     * Read bytes from this ByteReadStream until the provided stopBytes sequence is encountered. The
+     * Read bytes create this ByteReadStream until the provided stopBytes sequence is encountered. The
      * stopByte sequence will be included in the returned byte[].
      * @param stopBytes The bytes that will cause the reading to stop.
      * @return The bytes that were read up to (and including) the provided stopBytes.
@@ -296,7 +296,7 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
 
         final Value<Result<byte[]>> resultValue = new Value<>();
 
-        final List<Byte> bytesReadList = new ArrayList<>();
+        final ByteList bytesReadList = ByteList.empty();
         while(!resultValue.hasValue())
         {
             readByte()
@@ -305,14 +305,14 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
                     bytesReadList.add(b);
                     if (bytesReadList.endsWith(stopBytes))
                     {
-                        resultValue.set(Result.success(Array.toByteArray(bytesReadList)));
+                        resultValue.set(Array.toByteArray(bytesReadList));
                     }
                 })
                 .catchResultError((Result<Void> errorResult) ->
                 {
                     if (errorResult.getError() instanceof EndOfStreamException && bytesReadList.any())
                     {
-                        resultValue.set(Result.success(Array.toByteArray(bytesReadList)));
+                        resultValue.set(Array.toByteArray(bytesReadList));
                     }
                     else
                     {
@@ -328,7 +328,7 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
     }
 
     /**
-     * Read bytes from this ByteReadStream until the provided stopBytes sequence is encountered. The
+     * Read bytes create this ByteReadStream until the provided stopBytes sequence is encountered. The
      * stopByte sequence will be included in the returned byte[].
      * @param stopBytes The bytes that will cause the reading to stop.
      * @return The bytes that were read up to (and including) the provided stopBytes.

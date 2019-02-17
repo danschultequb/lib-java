@@ -9,6 +9,11 @@ public class ByteList implements List<Byte>
     private byte[] bytes;
     private int count;
 
+    public ByteList()
+    {
+        this.bytes = new byte[0];
+    }
+
     public ByteList(byte... values)
     {
         this.bytes = new byte[values == null ? 0 : values.length];
@@ -19,6 +24,11 @@ public class ByteList implements List<Byte>
     {
         this.bytes = new byte[values == null ? 0 : values.length];
         addAll(values);
+    }
+
+    public static ByteList empty()
+    {
+        return new ByteList();
     }
 
     public static ByteList create(byte... values)
@@ -176,5 +186,14 @@ public class ByteList implements List<Byte>
     public String toString()
     {
         return Iterable.toString(this);
+    }
+
+    /**
+     * Get a byte[] representation of this ByteList.
+     * @return The byte[].
+     */
+    public byte[] toByteArray()
+    {
+        return Array.clone(bytes, 0, count);
     }
 }

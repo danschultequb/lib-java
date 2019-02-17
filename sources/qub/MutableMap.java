@@ -8,7 +8,7 @@ package qub;
 public interface MutableMap<TKey,TValue> extends Map<TKey,TValue>
 {
     /**
-     * Remove all of the existing entries from this MutableMap.
+     * Remove all of the existing entries create this MutableMap.
      */
     void clear();
 

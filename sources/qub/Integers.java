@@ -221,7 +221,7 @@ public final class Integers
     }
 
     /**
-     * Parse an Integer from the provided text.
+     * Parse an Integer create the provided text.
      * @param text The text to parse.
      * @return The parsed Integer.
      */

@@ -21,14 +21,9 @@ public class IterableTests
                     test.assertTrue(Iterable.isNullOrEmpty(null));
                 });
 
-                runner.test("with empty Array", (Test test) ->
+                runner.test("with empty", (Test test) ->
                 {
-                    test.assertTrue(Iterable.isNullOrEmpty(new Array<String>(0)));
-                });
-
-                runner.test("with Iterable.empty()", (Test test) ->
-                {
-                    test.assertTrue(Iterable.isNullOrEmpty(Iterable.empty()));
+                    test.assertTrue(Iterable.isNullOrEmpty(Iterable.create()));
                 });
 
                 runner.test("with non-empty", (Test test) ->
@@ -188,12 +183,12 @@ public class IterableTests
                         test.assertNotNull(iterator);
                         test.assertFalse(iterator.hasStarted());
                         test.assertFalse(iterator.hasCurrent());
-                        test.assertNull(iterator.getCurrent());
+                        test.assertThrows(iterator::getCurrent, new PreConditionFailure("hasCurrent() cannot be false."));
 
                         test.assertFalse(iterator.next());
                         test.assertTrue(iterator.hasStarted());
                         test.assertFalse(iterator.hasCurrent());
-                        test.assertNull(iterator.getCurrent());
+                        test.assertThrows(iterator::getCurrent, new PreConditionFailure("hasCurrent() cannot be false."));
                     }
                 });
                 
@@ -204,7 +199,7 @@ public class IterableTests
                     test.assertNotNull(iterator);
                     test.assertFalse(iterator.hasStarted());
                     test.assertFalse(iterator.hasCurrent());
-                    test.assertNull(iterator.getCurrent());
+                    test.assertThrows(iterator::getCurrent, new PreConditionFailure("hasCurrent() cannot be false."));
 
                     for (int i = 0; i < iterable.getCount(); ++i) {
                         test.assertTrue(iterator.next());
@@ -216,7 +211,7 @@ public class IterableTests
                     test.assertFalse(iterator.next());
                     test.assertTrue(iterator.hasStarted());
                     test.assertFalse(iterator.hasCurrent());
-                    test.assertNull(iterator.getCurrent());
+                    test.assertThrows(iterator::getCurrent, new PreConditionFailure("hasCurrent() cannot be false."));
                 });
             });
             
@@ -301,14 +296,14 @@ public class IterableTests
                     // an Iterable with 0 elements is requested.
                     if (iterable != null)
                     {
-                        test.assertNull(iterable.first(null));
+                        test.assertThrows(() -> iterable.first(null), new PreConditionFailure("condition cannot be null."));
                     }
                 });
                 
                 runner.test("with non-empty Iterable and null condition", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(4);
-                    test.assertNull(iterable.first(null));
+                    test.assertThrows(() -> iterable.first(null), new PreConditionFailure("condition cannot be null."));
                 });
                 
                 runner.test("with empty Iterable and non-null condition", (Test test) ->
@@ -318,20 +313,20 @@ public class IterableTests
                     // an Iterable with 0 elements is requested.
                     if (iterable != null)
                     {
-                        test.assertNull(iterable.first(Math.isOdd));
+                        test.assertNull(iterable.first(Math::isOdd));
                     }
                 });
                 
                 runner.test("with non-empty Iterable and non-matching condition", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(1);
-                    test.assertNull(iterable.first(Math.isOdd));
+                    test.assertNull(iterable.first(Math::isOdd));
                 });
                 
                 runner.test("with non-empty Iterable and matching condition", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(1);
-                    test.assertEqual(0, iterable.first(Math.isEven));
+                    test.assertEqual(0, iterable.first(Math::isEven));
                 });
             });
             
@@ -344,7 +339,7 @@ public class IterableTests
                     // an Iterable with 0 elements is requested.
                     if (iterable != null)
                     {
-                        test.assertNull(iterable.first());
+                        test.assertNull(iterable.last());
                     }
                 });
                 
@@ -361,14 +356,14 @@ public class IterableTests
                     // an Iterable with 0 elements is requested.
                     if (iterable != null)
                     {
-                        test.assertNull(iterable.last(null));
+                        test.assertThrows(() -> iterable.last(null), new PreConditionFailure("condition cannot be null."));
                     }
                 });
                 
                 runner.test("with non-empty Iterable and null condition", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(4);
-                    test.assertNull(iterable.last(null));
+                    test.assertThrows(() -> iterable.last(null), new PreConditionFailure("condition cannot be null."));
                 });
                 
                 runner.test("with empty Iterable and non-null condition", (Test test) ->
@@ -378,20 +373,20 @@ public class IterableTests
                     // an Iterable with 0 elements is requested.
                     if (iterable != null)
                     {
-                        test.assertNull(iterable.last(Math.isOdd));
+                        test.assertNull(iterable.last(Math::isOdd));
                     }
                 });
                 
                 runner.test("with non-empty Iterable and non-matching condition", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(1);
-                    test.assertNull(iterable.last(Math.isOdd));
+                    test.assertNull(iterable.last(Math::isOdd));
                 });
                 
                 runner.test("with non-empty Iterable and matching condition", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(5);
-                    test.assertEqual(3, iterable.last(Math.isOdd));
+                    test.assertEqual(3, iterable.last(Math::isOdd));
                 });
             });
             
@@ -404,13 +399,7 @@ public class IterableTests
                     // an Iterable with 0 elements is requested.
                     if (iterable != null)
                     {
-                        final Iterable<Integer> takeIterable = iterable.take(-1);
-                        test.assertFalse(takeIterable.any());
-                        test.assertEqual(0, takeIterable.getCount());
-
-                        final Iterator<Integer> takeIterator = takeIterable.iterate();
-                        test.assertFalse(takeIterator.any());
-                        test.assertEqual(0, takeIterator.getCount());
+                        test.assertThrows(() -> iterable.take(-1), new PreConditionFailure("toTake (-1) must be greater than or equal to 0."));
                     }
                 });
                 
@@ -421,13 +410,7 @@ public class IterableTests
                     // an Iterable with 0 elements is requested.
                     if (iterable != null)
                     {
-                        final Iterable<Integer> takeIterable = iterable.take(0);
-                        test.assertFalse(takeIterable.any());
-                        test.assertEqual(0, takeIterable.getCount());
-
-                        final Iterator<Integer> takeIterator = takeIterable.iterate();
-                        test.assertFalse(takeIterator.any());
-                        test.assertEqual(0, takeIterator.getCount());
+                        test.assertEqual(Iterable.create(), iterable.take(0));
                     }
                 });
                 
@@ -438,78 +421,38 @@ public class IterableTests
                     // an Iterable with 0 elements is requested.
                     if (iterable != null)
                     {
-                        final Iterable<Integer> takeIterable = iterable.take(3);
-                        test.assertFalse(takeIterable.any());
-                        test.assertEqual(0, takeIterable.getCount());
-
-                        final Iterator<Integer> takeIterator = takeIterable.iterate();
-                        test.assertFalse(takeIterator.any());
-                        test.assertEqual(0, takeIterator.getCount());
+                        test.assertEqual(Iterable.create(), iterable.take(3));
                     }
                 });
                 
                 runner.test("with non-empty Iterable and negative toTake value", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(4);
-                    final Iterable<Integer> takeIterable = iterable.take(-1);
-                    test.assertFalse(takeIterable.any());
-                    test.assertEqual(0, takeIterable.getCount());
-
-                    final Iterator<Integer> takeIterator = takeIterable.iterate();
-                    test.assertFalse(takeIterator.any());
-                    test.assertEqual(0, takeIterator.getCount());
+                    test.assertThrows(() -> iterable.take(-1), new PreConditionFailure("toTake (-1) must be greater than or equal to 0."));
                 });
                 
                 runner.test("with non-empty Iterable and zero toTake value", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(4);
-
-                    final Iterable<Integer> takeIterable = iterable.take(0);
-                    test.assertFalse(takeIterable.any());
-                    test.assertEqual(0, takeIterable.getCount());
-
-                    final Iterator<Integer> takeIterator = takeIterable.iterate();
-                    test.assertFalse(takeIterator.any());
-                    test.assertEqual(0, takeIterator.getCount());
+                    test.assertEqual(Iterable.create(), iterable.take(0));
                 });
                 
                 runner.test("with non-empty Iterable and positive less than Iterable count toTake value", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(4);
-
-                    final Iterable<Integer> takeIterable = iterable.take(3);
-                    test.assertTrue(takeIterable.any());
-                    test.assertEqual(3, takeIterable.getCount());
-
-                    final Iterator<Integer> takeIterator = takeIterable.iterate();
-                    test.assertTrue(takeIterator.any());
-                    test.assertEqual(3, takeIterator.getCount());
+                    test.assertEqual(Iterable.create(0, 1, 2), iterable.take(3));
                 });
                 
                 runner.test("with non-empty Iterable and positive equal to Iterable count toTake value", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(4);
-
-                    final Iterable<Integer> takeIterable = iterable.take(iterable.getCount());
-                    test.assertTrue(takeIterable.any());
-                    test.assertEqual(4, takeIterable.getCount());
-
-                    final Iterator<Integer> takeIterator = takeIterable.iterate();
-                    test.assertTrue(takeIterator.any());
-                    test.assertEqual(4, takeIterator.getCount());
+                    test.assertEqual(Iterable.create(0, 1, 2, 3), iterable.take(iterable.getCount()));
                 });
                 
                 runner.test("with non-empty Iterable and positive greater than Iterable count toTake value", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(4);
-
-                    final Iterable<Integer> takeIterable = iterable.take(14);
-                    test.assertTrue(takeIterable.any());
-                    test.assertEqual(4, takeIterable.getCount());
-
-                    final Iterator<Integer> takeIterator = takeIterable.iterate();
-                    test.assertTrue(takeIterator.any());
-                    test.assertEqual(4, takeIterator.getCount());
+                    test.assertEqual(Iterable.create(0, 1, 2, 3), iterable.take(14));
                 });
             });
 
@@ -522,13 +465,7 @@ public class IterableTests
                     // an Iterable with 0 elements is requested.
                     if (iterable != null)
                     {
-                        final Iterable<Integer> takeIterable = iterable.takeLast(-1);
-                        test.assertFalse(takeIterable.any());
-                        test.assertEqual(0, takeIterable.getCount());
-
-                        final Iterator<Integer> takeIterator = takeIterable.iterate();
-                        test.assertFalse(takeIterator.any());
-                        test.assertEqual(0, takeIterator.getCount());
+                        test.assertThrows(() -> iterable.takeLast(-1), new PreConditionFailure("toTake (-1) must be greater than or equal to 0."));
                     }
                 });
 
@@ -539,13 +476,7 @@ public class IterableTests
                     // an Iterable with 0 elements is requested.
                     if (iterable != null)
                     {
-                        final Iterable<Integer> takeIterable = iterable.takeLast(0);
-                        test.assertFalse(takeIterable.any());
-                        test.assertEqual(0, takeIterable.getCount());
-
-                        final Iterator<Integer> takeIterator = takeIterable.iterate();
-                        test.assertFalse(takeIterator.any());
-                        test.assertEqual(0, takeIterator.getCount());
+                        test.assertEqual(Iterable.create(), iterable.takeLast(0));
                     }
                 });
 
@@ -556,52 +487,26 @@ public class IterableTests
                     // an Iterable with 0 elements is requested.
                     if (iterable != null)
                     {
-                        final Iterable<Integer> takeIterable = iterable.takeLast(3);
-                        test.assertFalse(takeIterable.any());
-                        test.assertEqual(0, takeIterable.getCount());
-
-                        final Iterator<Integer> takeIterator = takeIterable.iterate();
-                        test.assertFalse(takeIterator.any());
-                        test.assertEqual(0, takeIterator.getCount());
+                        test.assertEqual(Iterable.create(), iterable.takeLast(3));
                     }
                 });
 
                 runner.test("with non-empty Iterable and negative toTake value", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(4);
-                    final Iterable<Integer> takeIterable = iterable.takeLast(-1);
-                    test.assertFalse(takeIterable.any());
-                    test.assertEqual(0, takeIterable.getCount());
-
-                    final Iterator<Integer> takeIterator = takeIterable.iterate();
-                    test.assertFalse(takeIterator.any());
-                    test.assertEqual(0, takeIterator.getCount());
+                    test.assertThrows(() -> iterable.takeLast(-1), new PreConditionFailure("toTake (-1) must be greater than or equal to 0."));
                 });
 
                 runner.test("with non-empty Iterable and zero toTake value", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(4);
-
-                    final Iterable<Integer> takeIterable = iterable.takeLast(0);
-                    test.assertFalse(takeIterable.any());
-                    test.assertEqual(0, takeIterable.getCount());
-
-                    final Iterator<Integer> takeIterator = takeIterable.iterate();
-                    test.assertFalse(takeIterator.any());
-                    test.assertEqual(0, takeIterator.getCount());
+                    test.assertEqual(Iterable.create(), iterable.takeLast(0));
                 });
 
                 runner.test("with non-empty Iterable and positive less than Iterable count toTake value", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(4);
-
-                    final Iterable<Integer> takeIterable = iterable.takeLast(3);
-                    test.assertTrue(takeIterable.any());
-                    test.assertEqual(3, takeIterable.getCount());
-
-                    final Iterator<Integer> takeIterator = takeIterable.iterate();
-                    test.assertTrue(takeIterator.any());
-                    test.assertEqual(3, takeIterator.getCount());
+                    test.assertEqual(Iterable.create(1, 2, 3), iterable.takeLast(3));
                 });
 
                 runner.test("with non-empty Iterable and positive equal to Iterable count toTake value", (Test test) ->
@@ -669,26 +574,23 @@ public class IterableTests
                     // an Iterable with 0 elements is requested.
                     if (iterable != null)
                     {
-                        test.assertEqual(new int[0], Array.toIntArray(iterable));
-
-                        test.assertFalse(iterable.contains(Math.isOdd));
+                        test.assertEqual(Iterable.create(), iterable);
+                        test.assertFalse(iterable.contains(Math::isOdd));
                     }
                 });
                 
                 runner.test("with non-empty Iterable and non-matching condition", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(1);
-                    test.assertEqual(new int[] { 0 }, Array.toIntArray(iterable));
-
-                    test.assertFalse(iterable.contains(Math.isOdd));
+                    test.assertEqual(Iterable.create(0), iterable);
+                    test.assertFalse(iterable.contains(Math::isOdd));
                 });
                 
                 runner.test("with non-empty Iterable and matching condition", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(5);
-                    test.assertEqual(new int[] { 0, 1, 2, 3, 4 }, Array.toIntArray(iterable));
-
-                    test.assertTrue(iterable.contains(Math.isOdd));
+                    test.assertEqual(Iterable.create(0, 1, 2, 3, 4), iterable);
+                    test.assertTrue(iterable.contains(Math::isOdd));
                 });
             });
             
@@ -701,8 +603,7 @@ public class IterableTests
                     // an Iterable with 0 elements is requested.
                     if (iterable != null)
                     {
-                        final Iterable<Integer> skipIterable = iterable.skip(-1);
-                        test.assertSame(iterable, skipIterable);
+                        test.assertThrows(() -> iterable.skip(-1), new PreConditionFailure("toSkip (-1) must be greater than or equal to 0."));
                     }
                 });
                 
@@ -713,8 +614,7 @@ public class IterableTests
                     // an Iterable with 0 elements is requested.
                     if (iterable != null)
                     {
-                        final Iterable<Integer> skipIterable = iterable.skip(0);
-                        test.assertSame(iterable, skipIterable);
+                        test.assertEqual(Iterable.create(), iterable.skip(0));
                     }
                 });
                 
@@ -725,68 +625,38 @@ public class IterableTests
                     // an Iterable with 0 elements is requested.
                     if (iterable != null)
                     {
-                        final Iterable<Integer> skipIterable = iterable.skip(3);
-                        test.assertFalse(skipIterable.any());
-                        test.assertEqual(0, skipIterable.getCount());
-
-                        final Iterator<Integer> skipIterator = skipIterable.iterate();
-                        test.assertFalse(skipIterator.any());
-                        test.assertEqual(0, skipIterator.getCount());
+                        test.assertEqual(Iterable.create(), iterable.skip(3));
                     }
                 });
                 
                 runner.test("with non-empty Iterable and negative toSkip value", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(4);
-                    final Iterable<Integer> skipIterable = iterable.skip(-1);
-                    test.assertSame(iterable, skipIterable);
+                    test.assertThrows(() -> iterable.skip(-1), new PreConditionFailure("toSkip (-1) must be greater than or equal to 0."));
                 });
                 
                 runner.test("with non-empty Iterable and zero toSkip value", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(4);
-
-                    final Iterable<Integer> skipIterable = iterable.skip(0);
-                    test.assertSame(iterable, skipIterable);
+                    test.assertEqual(Iterable.create(0, 1, 2, 3), iterable.skip(0));
                 });
                 
                 runner.test("with non-empty Iterable and positive less than Iterable count toSkip value", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(4);
-
-                    final Iterable<Integer> skipIterable = iterable.skip(3);
-                    test.assertTrue(skipIterable.any());
-                    test.assertEqual(1, skipIterable.getCount());
-
-                    final Iterator<Integer> skipIterator = skipIterable.iterate();
-                    test.assertTrue(skipIterator.any());
-                    test.assertEqual(1, skipIterator.getCount());
+                    test.assertEqual(Iterable.create(3), iterable.skip(3));
                 });
                 
                 runner.test("with non-empty Iterable and positive equal to Iterable count toSkip value", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(4);
-
-                    final Iterable<Integer> skipIterable = iterable.skip(iterable.getCount());
-                    test.assertFalse(skipIterable.any());
-                    test.assertEqual(0, skipIterable.getCount());
-
-                    final Iterator<Integer> skipIterator = skipIterable.iterate();
-                    test.assertFalse(skipIterator.any());
-                    test.assertEqual(0, skipIterator.getCount());
+                    test.assertEqual(Iterable.create(), iterable.skip(iterable.getCount()));
                 });
                 
                 runner.test("with non-empty Iterable and positive greater than Iterable count toSkip value", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(4);
-
-                    final Iterable<Integer> skipIterable = iterable.skip(14);
-                    test.assertFalse(skipIterable.any());
-                    test.assertEqual(0, skipIterable.getCount());
-
-                    final Iterator<Integer> skipIterator = skipIterable.iterate();
-                    test.assertFalse(skipIterator.any());
-                    test.assertEqual(0, skipIterator.getCount());
+                    test.assertEqual(Iterable.create(), iterable.skip(14));
                 });
             });
 
@@ -797,25 +667,20 @@ public class IterableTests
                     final Iterable<Integer> iterable = createIterable.run(0);
                     if (iterable != null)
                     {
-                        final Iterable<Integer> skipIterable = iterable.skipFirst();
-                        test.assertFalse(skipIterable.any());
+                        test.assertEqual(Iterable.create(), iterable.skipFirst());
                     }
                 });
 
                 runner.test("with one-valued Iterable", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(1);
-                    final Iterable<Integer> skipIterable = iterable.skipFirst();
-                    test.assertFalse(skipIterable.any());
+                    test.assertEqual(Iterable.create(), iterable.skipFirst());
                 });
 
                 runner.test("with more than one valued Iterable", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(2);
-                    final Iterable<Integer> skipIterable = iterable.skipFirst();
-                    test.assertTrue(skipIterable.any());
-                    test.assertEqual(1, skipIterable.getCount());
-                    test.assertEqual(1, skipIterable.first());
+                    test.assertEqual(Iterable.create(1), iterable.skipFirst());
                 });
             });
             
@@ -826,25 +691,20 @@ public class IterableTests
                     final Iterable<Integer> iterable = createIterable.run(0);
                     if (iterable != null)
                     {
-                        final Iterable<Integer> skipIterable = iterable.skipLast();
-                        test.assertFalse(skipIterable.any());
+                        test.assertEqual(Iterable.create(), iterable.skipLast());
                     }
                 });
                 
                 runner.test("with one-valued Iterable", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(1);
-                    final Iterable<Integer> skipIterable = iterable.skipLast();
-                    test.assertFalse(skipIterable.any());
+                    test.assertEqual(Iterable.create(), iterable.skipLast());
                 });
                 
                 runner.test("with more than one valued Iterable", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(2);
-                    final Iterable<Integer> skipIterable = iterable.skipLast();
-                    test.assertTrue(skipIterable.any());
-                    test.assertEqual(1, skipIterable.getCount());
-                    test.assertEqual(0, skipIterable.first());
+                    test.assertEqual(Iterable.create(0), iterable.skipLast());
                 });
                 
                 runner.test("with empty Iterable and negative toSkip value", (Test test) ->
@@ -852,8 +712,7 @@ public class IterableTests
                     final Iterable<Integer> iterable = createIterable.run(0);
                     if (iterable != null)
                     {
-                        final Iterable<Integer> skipIterable = iterable.skipLast(-3);
-                        test.assertSame(iterable, skipIterable);
+                        test.assertThrows(() -> iterable.skipLast(-3), new PreConditionFailure("toSkip (-3) must be greater than or equal to 0."));
                     }
                 });
                 
@@ -862,8 +721,7 @@ public class IterableTests
                     final Iterable<Integer> iterable = createIterable.run(0);
                     if (iterable != null)
                     {
-                        final Iterable<Integer> skipIterable = iterable.skipLast(0);
-                        test.assertSame(iterable, skipIterable);
+                        test.assertEqual(Iterable.create(), iterable.skipLast(0));
                     }
                 });
                 
@@ -872,49 +730,38 @@ public class IterableTests
                     final Iterable<Integer> iterable = createIterable.run(0);
                     if (iterable != null)
                     {
-                        final Iterable<Integer> skipIterable = iterable.skipLast(10);
-                        test.assertNotSame(iterable, skipIterable);
-                        test.assertFalse(skipIterable.any());
+                        test.assertEqual(Iterable.create(), iterable.skipLast(10));
                     }
                 });
 
                 runner.test("with non-empty Iterable and negative toSkip value", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(5);
-                    final Iterable<Integer> skipIterable = iterable.skipLast(-5);
-                    test.assertSame(iterable, skipIterable);
+                    test.assertThrows(() -> iterable.skipLast(-5), new PreConditionFailure("toSkip (-5) must be greater than or equal to 0."));
                 });
 
                 runner.test("with non-empty Iterable and zero toSkip value", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(5);
-                    final Iterable<Integer> skipIterable = iterable.skipLast(0);
-                    test.assertSame(iterable, skipIterable);
+                    test.assertEqual(Iterable.create(0, 1, 2, 3, 4), iterable.skipLast(0));
                 });
 
                 runner.test("with non-empty Iterable and positive less than Iterable count toSkip value", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(5);
-                    final Iterable<Integer> skipIterable = iterable.skipLast(4);
-                    test.assertTrue(skipIterable.any());
-                    test.assertEqual(1, skipIterable.getCount());
-                    test.assertEqual(0, skipIterable.first());
+                    test.assertEqual(Iterable.create(0), iterable.skipLast(4));
                 });
 
                 runner.test("with non-empty Iterable and positive equal to Iterable count toSkip value", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(5);
-                    final Iterable<Integer> skipIterable = iterable.skipLast(5);
-                    test.assertFalse(skipIterable.any());
-                    test.assertEqual(0, skipIterable.getCount());
+                    test.assertEqual(Iterable.create(), iterable.skipLast(5));
                 });
 
                 runner.test("with non-empty Iterable and positive greater than Iterable count toSkip value", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(5);
-                    final Iterable<Integer> skipIterable = iterable.skipLast(6);
-                    test.assertFalse(skipIterable.any());
-                    test.assertEqual(0, skipIterable.getCount());
+                    test.assertEqual(Iterable.create(), iterable.skipLast(6));
                 });
             });
 
@@ -927,13 +774,7 @@ public class IterableTests
                     // an Iterable with 0 elements is requested.
                     if (iterable != null)
                     {
-                        final Iterable<Integer> skipUntilIterable = iterable.skipUntil(null);
-                        test.assertFalse(skipUntilIterable.any());
-                        test.assertEqual(0, skipUntilIterable.getCount());
-
-                        final Iterator<Integer> skipUntilIterator = skipUntilIterable.iterate();
-                        test.assertFalse(skipUntilIterator.any());
-                        test.assertEqual(0, skipUntilIterator.getCount());
+                        test.assertThrows(() -> iterable.skipUntil(null), new PreConditionFailure("condition cannot be null."));
                     }
                 });
 
@@ -944,53 +785,26 @@ public class IterableTests
                     // an Iterable with 0 elements is requested.
                     if (iterable != null)
                     {
-                        final Iterable<Integer> skipUntilIterable = iterable.skipUntil(Math.isOdd);
-                        test.assertFalse(skipUntilIterable.any());
-                        test.assertEqual(0, skipUntilIterable.getCount());
-
-                        final Iterator<Integer> skipUntilIterator = skipUntilIterable.iterate();
-                        test.assertFalse(skipUntilIterator.any());
-                        test.assertEqual(0, skipUntilIterator.getCount());
+                        test.assertEqual(Iterable.create(), iterable.skipUntil(Math::isOdd));
                     }
                 });
 
                 runner.test("with non-empty Iterable and null condition", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(4);
-
-                    final Iterable<Integer> skipUntilIterable = iterable.skipUntil(null);
-                    test.assertFalse(skipUntilIterable.any());
-                    test.assertEqual(0, skipUntilIterable.getCount());
-
-                    final Iterator<Integer> skipUntilIterator = skipUntilIterable.iterate();
-                    test.assertFalse(skipUntilIterator.any());
-                    test.assertEqual(0, skipUntilIterator.getCount());
+                    test.assertThrows(() -> iterable.skipUntil(null), new PreConditionFailure("condition cannot be null."));
                 });
 
                 runner.test("with non-empty Iterable and non-matching condition", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(4);
-
-                    final Iterable<Integer> skipUntilIterable = iterable.skipUntil(value -> value != null && value > 10);
-                    test.assertFalse(skipUntilIterable.any());
-                    test.assertEqual(0, skipUntilIterable.getCount());
-
-                    final Iterator<Integer> skipUntilIterator = skipUntilIterable.iterate();
-                    test.assertFalse(skipUntilIterator.any());
-                    test.assertEqual(0, skipUntilIterator.getCount());
+                    test.assertEqual(Iterable.create(), iterable.skipUntil(value -> value > 10));
                 });
 
                 runner.test("with non-empty Iterable and matching condition", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(4);
-
-                    final Iterable<Integer> skipUntilIterable = iterable.skipUntil(Math.isOdd);
-                    test.assertTrue(skipUntilIterable.any());
-                    test.assertEqual(3, skipUntilIterable.getCount());
-
-                    final Iterator<Integer> skipUntilIterator = skipUntilIterable.iterate();
-                    test.assertTrue(skipUntilIterator.any());
-                    test.assertEqual(3, skipUntilIterator.getCount());
+                    test.assertEqual(Iterable.create(1, 2, 3), iterable.skipUntil(Math::isOdd));
                 });
             });
 
@@ -1003,8 +817,7 @@ public class IterableTests
                     // an Iterable with 0 elements is requested.
                     if (iterable != null)
                     {
-                        final Iterable<Integer> takeIterable = iterable.where(null);
-                        test.assertSame(iterable, takeIterable);
+                        test.assertThrows(() -> iterable.where(null), new PreConditionFailure("condition cannot be null."));
                     }
                 });
 
@@ -1015,7 +828,7 @@ public class IterableTests
                     // an Iterable with 0 elements is requested.
                     if (iterable != null)
                     {
-                        final Iterable<Integer> whereIterable = iterable.where(Math.isOdd);
+                        final Iterable<Integer> whereIterable = iterable.where(Math::isOdd);
                         test.assertFalse(whereIterable.any());
                         test.assertEqual(0, whereIterable.getCount());
 
@@ -1029,8 +842,7 @@ public class IterableTests
                 {
                     final Iterable<Integer> iterable = createIterable.run(4);
 
-                    final Iterable<Integer> whereIterable = iterable.where(null);
-                    test.assertSame(iterable, whereIterable);
+                    test.assertThrows(() -> iterable.where(null), new PreConditionFailure("condition cannot be null."));
                 });
 
                 runner.test("with non-empty Iterable and non-matching condition", (Test test) ->
@@ -1038,25 +850,15 @@ public class IterableTests
                     final Iterable<Integer> iterable = createIterable.run(4);
 
                     final Iterable<Integer> takeIterable = iterable.where(value -> value != null && value > 10);
-                    test.assertFalse(takeIterable.any());
-                    test.assertEqual(0, takeIterable.getCount());
-
-                    final Iterator<Integer> takeIterator = takeIterable.iterate();
-                    test.assertFalse(takeIterator.any());
-                    test.assertEqual(0, takeIterator.getCount());
+                    test.assertEqual(Iterable.create(), takeIterable);
                 });
 
                 runner.test("with non-empty Iterable and matching condition", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(4);
 
-                    final Iterable<Integer> whereIterable = iterable.where(Math.isOdd);
-                    test.assertTrue(whereIterable.any());
-                    test.assertEqual(2, whereIterable.getCount());
-
-                    final Iterator<Integer> whereIterator = whereIterable.iterate();
-                    test.assertTrue(whereIterator.any());
-                    test.assertEqual(2, whereIterator.getCount());
+                    final Iterable<Integer> whereIterable = iterable.where(Math::isOdd);
+                    test.assertEqual(Iterable.create(1, 3), whereIterable);
                 });
             });
 
@@ -1080,34 +882,20 @@ public class IterableTests
                     // an Iterable with 0 elements is requested.
                     if (iterable != null)
                     {
-                        final Iterable<Boolean> mapIterable = iterable.map(Math.isOdd);
-                        test.assertFalse(mapIterable.any());
-                        test.assertEqual(0, mapIterable.getCount());
-
-                        final Iterator<Boolean> mapIterator = mapIterable.iterate();
-                        test.assertFalse(mapIterator.any());
-                        test.assertEqual(0, mapIterator.getCount());
+                        test.assertEqual(Iterable.create(), iterable.map(Math::isOdd));
                     }
                 });
 
                 runner.test("with non-empty Iterable and null conversion", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(4);
-
                     test.assertThrows(() -> iterable.map(null));
                 });
 
                 runner.test("with non-empty Iterable and non-null conversion", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(4);
-
-                    final Iterable<Boolean> mapIterable = iterable.map(Math.isOdd);
-                    test.assertTrue(mapIterable.any());
-                    test.assertEqual(4, mapIterable.getCount());
-
-                    final Iterator<Boolean> mapIterator = mapIterable.iterate();
-                    test.assertTrue(mapIterator.any());
-                    test.assertEqual(4, mapIterator.getCount());
+                    test.assertEqual(Iterable.create(false, true, false, true), iterable.map(Math::isOdd));
                 });
             });
 
@@ -1120,13 +908,7 @@ public class IterableTests
                     // an Iterable with 0 elements is requested.
                     if (iterable != null)
                     {
-                        final Iterable<Boolean> instanceOfIterable = iterable.instanceOf(Boolean.class);
-                        test.assertFalse(instanceOfIterable.any());
-                        test.assertEqual(0, instanceOfIterable.getCount());
-
-                        final Iterator<Boolean> instanceOfIterator = instanceOfIterable.iterate();
-                        test.assertFalse(instanceOfIterator.any());
-                        test.assertEqual(0, instanceOfIterator.getCount());
+                        test.assertEqual(Iterable.create(), iterable.instanceOf(Boolean.class));
                     }
                 });
 
@@ -1137,13 +919,7 @@ public class IterableTests
                     // an Iterable with 0 elements is requested.
                     if (iterable != null)
                     {
-                        final Iterable<Number> instanceOfIterable = iterable.instanceOf(Number.class);
-                        test.assertFalse(instanceOfIterable.any());
-                        test.assertEqual(0, instanceOfIterable.getCount());
-
-                        final Iterator<Number> instanceOfIterator = instanceOfIterable.iterate();
-                        test.assertFalse(instanceOfIterator.any());
-                        test.assertEqual(0, instanceOfIterator.getCount());
+                        test.assertEqual(Iterable.create(), iterable.instanceOf(Number.class));
                     }
                 });
 
@@ -1154,13 +930,7 @@ public class IterableTests
                     // an Iterable with 0 elements is requested.
                     if (iterable != null)
                     {
-                        final Iterable<Number> instanceOfIterable = iterable.instanceOf(Number.class);
-                        test.assertFalse(instanceOfIterable.any());
-                        test.assertEqual(0, instanceOfIterable.getCount());
-
-                        final Iterator<Number> instanceOfIterator = instanceOfIterable.iterate();
-                        test.assertFalse(instanceOfIterator.any());
-                        test.assertEqual(0, instanceOfIterator.getCount());
+                        test.assertEqual(Iterable.create(), iterable.instanceOf(Number.class));
                     }
                 });
 
@@ -1168,13 +938,7 @@ public class IterableTests
                 {
                     final Iterable<Integer> iterable = createIterable.run(4);
 
-                    final Iterable<Integer> instanceOfIterable = iterable.instanceOf(Integer.class);
-                    test.assertTrue(instanceOfIterable.any());
-                    test.assertEqual(4, instanceOfIterable.getCount());
-
-                    final Iterator<Integer> instanceOfIterator = instanceOfIterable.iterate();
-                    test.assertTrue(instanceOfIterator.any());
-                    test.assertEqual(4, instanceOfIterator.getCount());
+                    test.assertEqual(Iterable.create(0, 1, 2, 3), iterable.instanceOf(Integer.class));
                 });
             });
 
@@ -1183,7 +947,7 @@ public class IterableTests
                 runner.test("with null comparer", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(1);
-                    test.assertThrows(() -> iterable.minimum(null));
+                    test.assertThrows(() -> iterable.minimum(null), new PreConditionFailure("comparer cannot be null."));
                 });
             });
 
@@ -1204,7 +968,7 @@ public class IterableTests
                     final Iterable<Integer> iterable = createIterable.run(0);
                     if (iterable != null)
                     {
-                        final Iterable<Integer> rhs = new Array<>(0);
+                        final Iterable<Integer> rhs = Iterable.create();
                         test.assertTrue(iterable.equals((Object) rhs));
                         test.assertTrue(iterable.equals(rhs));
                     }
@@ -1215,7 +979,7 @@ public class IterableTests
                     final Iterable<Integer> iterable = createIterable.run(0);
                     if (iterable != null)
                     {
-                        final Iterable<Integer> rhs = Array.create(new Integer[] { 0 });
+                        final Iterable<Integer> rhs = Iterable.create(0);
                         test.assertFalse(iterable.equals((Object)rhs));
                         test.assertFalse(iterable.equals(rhs));
                     }
@@ -1226,7 +990,7 @@ public class IterableTests
                     final Iterable<Integer> iterable = createIterable.run(0);
                     if (iterable != null)
                     {
-                        final Iterable<Integer> rhs = Array.create(new Integer[] { 0, 1 });
+                        final Iterable<Integer> rhs = Iterable.create(0, 1);
                         test.assertFalse(iterable.equals((Object)rhs));
                         test.assertFalse(iterable.equals(rhs));
                     }
@@ -1247,7 +1011,7 @@ public class IterableTests
                     final Iterable<Integer> iterable = createIterable.run(1);
                     if (iterable != null)
                     {
-                        final Iterable<Integer> rhs = new Array<>(0);
+                        final Iterable<Integer> rhs = Iterable.create();
                         test.assertFalse(iterable.equals((Object) rhs));
                         test.assertFalse(iterable.equals(rhs));
                     }
@@ -1258,7 +1022,7 @@ public class IterableTests
                     final Iterable<Integer> iterable = createIterable.run(1);
                     if (iterable != null)
                     {
-                        final Iterable<Integer> rhs = Array.create(new Integer[] { 0 });
+                        final Iterable<Integer> rhs = Iterable.create(0);
                         test.assertTrue(iterable.equals((Object)rhs));
                         test.assertTrue(iterable.equals(rhs));
                     }
@@ -1269,7 +1033,7 @@ public class IterableTests
                     final Iterable<Integer> iterable = createIterable.run(1);
                     if (iterable != null)
                     {
-                        final Iterable<Integer> rhs = Array.create(new Integer[] { 0, 1 });
+                        final Iterable<Integer> rhs = Iterable.create(0, 1);
                         test.assertFalse(iterable.equals((Object)rhs));
                         test.assertFalse(iterable.equals(rhs));
                     }
@@ -1290,7 +1054,7 @@ public class IterableTests
                     final Iterable<Integer> iterable = createIterable.run(2);
                     if (iterable != null)
                     {
-                        final Iterable<Integer> rhs = new Array<>(0);
+                        final Iterable<Integer> rhs = Iterable.create();
                         test.assertFalse(iterable.equals((Object) rhs));
                         test.assertFalse(iterable.equals(rhs));
                     }
@@ -1301,7 +1065,7 @@ public class IterableTests
                     final Iterable<Integer> iterable = createIterable.run(2);
                     if (iterable != null)
                     {
-                        final Iterable<Integer> rhs = Array.create(new Integer[] { 0 });
+                        final Iterable<Integer> rhs = Iterable.create(0);
                         test.assertFalse(iterable.equals((Object)rhs));
                         test.assertFalse(iterable.equals(rhs));
                     }
@@ -1312,7 +1076,7 @@ public class IterableTests
                     final Iterable<Integer> iterable = createIterable.run(2);
                     if (iterable != null)
                     {
-                        final Iterable<Integer> rhs = Array.create(new Integer[] { 0, 1 });
+                        final Iterable<Integer> rhs = Iterable.create(0, 1);
                         test.assertTrue(iterable.equals((Object)rhs));
                         test.assertTrue(iterable.equals(rhs));
                     }
@@ -1323,7 +1087,7 @@ public class IterableTests
                     final Iterable<Integer> iterable = createIterable.run(2);
                     if (iterable != null)
                     {
-                        final Iterable<Integer> rhs = Array.create(new Integer[] { 2, 3 });
+                        final Iterable<Integer> rhs = Iterable.create(2, 3);
                         test.assertFalse(iterable.equals((Object)rhs));
                         test.assertFalse(iterable.equals(rhs));
                     }

@@ -47,7 +47,7 @@ public interface CharacterEncoding
     /**
      * Decode the provided byte[] into a char[].
      * @param bytes The byte[] to decode.
-     * @return The characters from the decoded byte[].
+     * @return The characters create the decoded byte[].
      */
     default Result<char[]> decode(byte[] bytes)
     {
@@ -61,7 +61,7 @@ public interface CharacterEncoding
     /**
      * Decode the provided byte[] into a String.
      * @param bytes The byte[] to decode.
-     * @return The String from the decoded byte[].
+     * @return The String create the decoded byte[].
      */
     default Result<String> decodeAsString(byte[] bytes)
     {
@@ -72,8 +72,8 @@ public interface CharacterEncoding
     }
 
     /**
-     * Decode the next character from the provided byte Iterator.
-     * @param bytes The bytes to get the next character from.
+     * Decode the next character create the provided byte Iterator.
+     * @param bytes The bytes to get the next character create.
      * @return The next character.
      */
     Result<Character> decodeNextCharacter(Iterator<Byte> bytes);

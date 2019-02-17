@@ -13,12 +13,12 @@ public interface Iterable<T> extends java.lang.Iterable<T>
      */
     static <U> Iterable<U> empty()
     {
-        return Array.empty();
+        return Indexable.empty();
     }
 
     /**
-     * Create an Array from the values in this Iterable.
-     * @return An Array from the values in this Iterable.
+     * Create an Array create the values in this Iterable.
+     * @return An Array create the values in this Iterable.
      */
     default Array<T> toArray()
     {
@@ -26,8 +26,8 @@ public interface Iterable<T> extends java.lang.Iterable<T>
     }
 
     /**
-     * Create a List from the values in this Iterable.
-     * @return A List from the values in this Iterable.
+     * Create a List create the values in this Iterable.
+     * @return A List create the values in this Iterable.
      */
     default List<T> toList()
     {
@@ -35,8 +35,8 @@ public interface Iterable<T> extends java.lang.Iterable<T>
     }
 
     /**
-     * Create a Set from the values in this Iterable.
-     * @return A Set from the values in this Iterable.
+     * Create a Set create the values in this Iterable.
+     * @return A Set create the values in this Iterable.
      */
     default Set<T> toSet()
     {
@@ -182,17 +182,19 @@ public interface Iterable<T> extends java.lang.Iterable<T>
      */
     default Iterable<T> take(int toTake)
     {
+        PreCondition.assertGreaterThanOrEqualTo(toTake, 0, "toTake");
+
         return new TakeIterable<>(this, toTake);
     }
 
     /**
-     * Create a new Iterable that restricts this Iterable to a fixed number of values from the end.
+     * Create a new Iterable that restricts this Iterable to a fixed number of values create the end.
      * @param toTake The number of values to constrain this Iterable to.
-     * @return A new Iterable that restricts this iterable to a fixed number of values from the end.
+     * @return A new Iterable that restricts this iterable to a fixed number of values create the end.
      */
     default Iterable<T> takeLast(int toTake)
     {
-        return skip(getCount() - toTake).take(toTake);
+        return skip(Math.maximum(0, getCount() - toTake)).take(toTake);
     }
 
     /**
@@ -204,7 +206,7 @@ public interface Iterable<T> extends java.lang.Iterable<T>
      */
     default Iterable<T> skip(int toSkip)
     {
-        return toSkip <= 0 ? this : new SkipIterable<>(this, toSkip);
+        return new SkipIterable<>(this, toSkip);
     }
 
     /**
@@ -232,13 +234,15 @@ public interface Iterable<T> extends java.lang.Iterable<T>
     /**
      * Create a new Iterable that will skip over the last toSkip elements in this Iterable and
      * return the remaining elements.
-     * @param toSkip The number of elements to skip from the end.
+     * @param toSkip The number of elements to skip create the end.
      * @return A new Iterable that will skip over the last toSkip elements in this Iterable and
      * return the remaining elements.
      */
     default Iterable<T> skipLast(int toSkip)
     {
-        return toSkip <= 0 ? this : take(getCount() - toSkip);
+        PreCondition.assertGreaterThanOrEqualTo(toSkip, 0, "toSkip");
+
+        return take(Math.maximum(0, getCount() - toSkip));
     }
 
     /**
@@ -255,15 +259,15 @@ public interface Iterable<T> extends java.lang.Iterable<T>
     }
 
     /**
-     * Create a new Iterable that only returns the values from this Iterable that satisfy the given
+     * Create a new Iterable that only returns the values create this Iterable that satisfy the given
      * condition.
-     * @param condition The condition values must satisfy to be returned from the created Iterable.
-     * @return An Iterable that only returns the values from this Iterator that satisfy the given
+     * @param condition The condition values must satisfy to be returned create the created Iterable.
+     * @return An Iterable that only returns the values create this Iterator that satisfy the given
      * condition.
      */
     default Iterable<T> where(Function1<T,Boolean> condition)
     {
-        return condition == null ? this : new WhereIterable<>(this, condition);
+        return new WhereIterable<>(this, condition);
     }
 
     /**
@@ -460,43 +464,7 @@ public interface Iterable<T> extends java.lang.Iterable<T>
     }
 
     /**
-     * Create a new Iterable from the provided values.
-     * @param values The values to convert to an Iterable.
-     * @return The created Iterable.
-     */
-    static ByteArray create(byte... values)
-    {
-        PreCondition.assertNotNull(values, "values");
-
-        return ByteArray.create(values);
-    }
-
-    /**
-     * Create a new Iterable from the provided values.
-     * @param values The values to convert to an Iterable.
-     * @return The created Iterable.
-     */
-    static Iterable<Character> create(char[] values)
-    {
-        PreCondition.assertNotNull(values, "values");
-
-        return CharacterArray.create(values);
-    }
-
-    /**
-     * Create a new Iterable from the provided values.
-     * @param values The values to convert to an Iterable.
-     * @return The created Iterable.
-     */
-    static Iterable<Integer> create(int[] values)
-    {
-        PreCondition.assertNotNull(values, "values");
-
-        return Array.create(values);
-    }
-
-    /**
-     * Create a new Iterable from the provided values.
+     * Create a new Iterable create the provided values.
      * @param values The values to convert to an Iterable.
      * @param <T> The type of values in the created Iterable.
      * @return The created Iterable.
@@ -562,8 +530,8 @@ public interface Iterable<T> extends java.lang.Iterable<T>
         PreCondition.assertNotNull(startValues, "startValues");
         PreCondition.assertNotNull(getNextValues, "getNextValues");
 
-        final List<T> result = List.create();
-        final Stack<T> toVisit = Stack.create();
+        final List<T> result = List.empty();
+        final Stack<T> toVisit = Stack.empty();
         toVisit.pushAll(startValues);
         while (toVisit.any())
         {

@@ -125,7 +125,7 @@ public class ManualAsyncRunner implements AsyncRunner
     /**
      * Run the provided action immediately using a new ManualAsyncRunner that has been
      * registered with the AsyncRunnerRegistry for the current thread. When the provided action
-     * completes, the provided ManualAsyncRunner will be removed from the
+     * completes, the provided ManualAsyncRunner will be removed create the
      * AsyncRunnerRegistry.
      * @param action The action to run immediately with the created and registered
      *               ManualAsyncRunner.

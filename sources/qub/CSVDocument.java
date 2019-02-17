@@ -6,12 +6,12 @@ public class CSVDocument implements List<CSVRow>
 
     public CSVDocument(CSVRow... rows)
     {
-        this.rows = ArrayList.fromValues(rows);
+        this.rows = List.create(rows);
     }
 
     public CSVDocument(Iterable<CSVRow> rows)
     {
-        this.rows = ArrayList.fromValues(rows);
+        this.rows = List.create(rows);
     }
 
     @Override

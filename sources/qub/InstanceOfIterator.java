@@ -7,6 +7,9 @@ class InstanceOfIterator<TInner,TOuter> implements Iterator<TOuter>
 
     InstanceOfIterator(Iterator<TInner> innerIterator, Class<TOuter> type)
     {
+        PreCondition.assertNotNull(innerIterator, "innerIterator");
+        PreCondition.assertNotNull(type, "type");
+
         this.innerIterator = innerIterator;
         this.type = type;
     }
@@ -15,20 +18,16 @@ class InstanceOfIterator<TInner,TOuter> implements Iterator<TOuter>
     {
         boolean foundMatch = false;
 
-        if (type != null)
+        while (innerIterator.hasCurrent())
         {
-            while (innerIterator.hasCurrent())
+            if (Types.instanceOf(innerIterator.getCurrent(), type))
             {
-                final TInner innerCurrent = innerIterator.getCurrent();
-                if (innerCurrent != null && Types.instanceOf(innerCurrent, type))
-                {
-                    foundMatch = true;
-                    break;
-                }
-                else
-                {
-                    innerIterator.next();
-                }
+                foundMatch = true;
+                break;
+            }
+            else
+            {
+                innerIterator.next();
             }
         }
 
@@ -51,27 +50,15 @@ class InstanceOfIterator<TInner,TOuter> implements Iterator<TOuter>
     @SuppressWarnings("unchecked")
     public TOuter getCurrent()
     {
-        return !hasCurrent() ? null : (TOuter)innerIterator.getCurrent();
+        PreCondition.assertTrue(hasCurrent(), "hasCurrent()");
+
+        return (TOuter)innerIterator.getCurrent();
     }
 
     @Override
     public boolean next()
     {
-        boolean result;
-        if (type == null)
-        {
-            result = false;
-            if (!innerIterator.hasStarted())
-            {
-                innerIterator.next();
-            }
-        }
-        else
-        {
-            innerIterator.next();
-            result = skipToMatch();
-        }
-
-        return result;
+        innerIterator.next();
+        return skipToMatch();
     }
 }

@@ -3,11 +3,16 @@ package qub;
 /**
  * A wrapper class around the int[] primitive type.
  */
-public class IntegerArray implements MutableIndexable<Integer>
+public class IntegerArray extends Array<Integer>
 {
     private final int[] values;
 
-    private IntegerArray(int[] values)
+    public IntegerArray(int count)
+    {
+        this(new int[count]);
+    }
+
+    public IntegerArray(int... values)
     {
         PreCondition.assertNotNull(values, "values");
 
@@ -49,48 +54,6 @@ public class IntegerArray implements MutableIndexable<Integer>
         return values[index];
     }
 
-    @Override
-    public Iterator<Integer> iterate()
-    {
-        return new IntegerArrayIterator(values);
-    }
-
-    @Override
-    public boolean equals(Object rhs)
-    {
-        return Iterable.equals(this, rhs);
-    }
-
-    @Override
-    public String toString()
-    {
-        return Iterable.toString(this);
-    }
-
-    /**
-     * Create a new IntegerArray with the provided number of elements.
-     * @param count The number of elements.
-     * @return The new IntegerArray.
-     */
-    public static IntegerArray createWithLength(int count)
-    {
-        PreCondition.assertGreaterThanOrEqualTo(count, 0, "count");
-
-        return new IntegerArray(new int[count]);
-    }
-
-    /**
-     * Create a new IntegerArray with the provided elements.
-     * @param values The elements of the new IntegerArray.
-     * @return The new IntegerArray.
-     */
-    public static IntegerArray create(int... values)
-    {
-        PreCondition.assertNotNull(values, "values");
-
-        return new IntegerArray(values);
-    }
-
     /**
      * Create a new CharacterArray with the provided elements.
      * @param values The elements of the new CharacterArray.
@@ -104,7 +67,7 @@ public class IntegerArray implements MutableIndexable<Integer>
         PreCondition.assertStartIndex(startIndex, values.length);
         PreCondition.assertLength(length, startIndex, values.length);
 
-        final IntegerArray result = IntegerArray.createWithLength(length);
+        final IntegerArray result = new IntegerArray(length);
         for (int i = 0; i < length; ++i)
         {
             result.set(i, values[startIndex + i]);

@@ -10,7 +10,7 @@ public class WhereIteratorTests
             {
                 final int additionalValues = 5;
 
-                final Array<Integer> array = new Array<>(count + additionalValues);
+                final Array<Integer> array = Array.createWithLength(count + additionalValues);
                 for (int i = 0; i < count + additionalValues; ++i)
                 {
                     array.set(i, i - additionalValues);

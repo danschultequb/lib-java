@@ -6,12 +6,12 @@ public class CSVRow implements List<String>
 
     public CSVRow(String... cells)
     {
-        this.cells = ArrayList.fromValues(cells);
+        this.cells = List.create(cells);
     }
 
     public CSVRow(Iterable<String> cells)
     {
-        this.cells = ArrayList.fromValues(cells);
+        this.cells = List.create(cells);
     }
 
     public String get(int index)

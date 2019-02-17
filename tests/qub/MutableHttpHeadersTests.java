@@ -23,7 +23,7 @@ public class MutableHttpHeadersTests
 
                 runner.test("with empty", (Test test) ->
                 {
-                    final List<HttpHeader> headerList = new ArrayList<HttpHeader>();
+                    final List<HttpHeader> headerList = List.empty();
                     final MutableHttpHeaders headers = new MutableHttpHeaders(headerList);
                     test.assertEqual(0, headers.getCount());
 
@@ -34,11 +34,9 @@ public class MutableHttpHeadersTests
 
                 runner.test("with non-empty", (Test test) ->
                 {
-                    final List<HttpHeader> headerList = ArrayList.fromValues(new HttpHeader[]
-                    {
+                    final List<HttpHeader> headerList = List.create(
                         new HttpHeader("a", "A"),
-                        new HttpHeader("b", "B")
-                    });
+                        new HttpHeader("b", "B"));
                     final MutableHttpHeaders headers = new MutableHttpHeaders(headerList);
                     test.assertEqual(2, headers.getCount());
                     test.assertSuccess(new HttpHeader("a", "A"), headers.get("a"));

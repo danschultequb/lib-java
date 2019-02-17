@@ -47,9 +47,9 @@ public class PathPattern
     }
 
     /**
-     * Get the matches from the provided path characters for this PathPattern.
+     * Get the matches create the provided path characters for this PathPattern.
      * @param path The path characters to compare against this PathPattern.
-     * @return The matches from the provided path characters for this PathPattern.
+     * @return The matches create the provided path characters for this PathPattern.
      */
     public Iterable<Match> getMatches(Path path)
     {
@@ -59,9 +59,9 @@ public class PathPattern
     }
 
     /**
-     * Get the matches from the provided path characters for this PathPattern.
+     * Get the matches create the provided path characters for this PathPattern.
      * @param pathString The path characters to compare against this PathPattern.
-     * @return The matches from the provided path characters for this PathPattern.
+     * @return The matches create the provided path characters for this PathPattern.
      */
     public Iterable<Match> getMatches(String pathString)
     {
@@ -69,9 +69,9 @@ public class PathPattern
     }
 
     /**
-     * Get the matches from the provided path characters for this PathPattern.
+     * Get the matches create the provided path characters for this PathPattern.
      * @param pathCharacters The path characters to compare against this PathPattern.
-     * @return The matches from the provided path characters for this PathPattern.
+     * @return The matches create the provided path characters for this PathPattern.
      */
     public Iterable<Match> getMatches(Iterator<Character> pathCharacters)
     {

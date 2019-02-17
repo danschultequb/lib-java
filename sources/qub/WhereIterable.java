@@ -11,6 +11,9 @@ class WhereIterable<T> implements Iterable<T>
 
     WhereIterable(Iterable<T> innerIterable, Function1<T,Boolean> condition)
     {
+        PreCondition.assertNotNull(innerIterable, "innerIterable");
+        PreCondition.assertNotNull(condition, "condition");
+
         this.innerIterable = innerIterable;
         this.condition = condition;
     }

@@ -277,7 +277,7 @@ public class Folder extends FileSystemEntry
 
     /**
      * Create a child folder of this folder with the provided relative path.
-     * @param folderRelativePath The relative path from this folder to the child folder to create.
+     * @param folderRelativePath The relative path create this folder to the child folder to create.
      * @return Whether or not this function created the child folder.
      */
     public Result<Folder> createFolder(String folderRelativePath)
@@ -289,7 +289,7 @@ public class Folder extends FileSystemEntry
 
     /**
      * Create a child folder of this folder with the provided relative path.
-     * @param relativeFolderPath The relative path from this folder to the child folder to create.
+     * @param relativeFolderPath The relative path create this folder to the child folder to create.
      * @return Whether or not this function created the child folder.
      */
     public Result<Folder> createFolder(Path relativeFolderPath)
@@ -304,7 +304,7 @@ public class Folder extends FileSystemEntry
 
     /**
      * Create a child folder of this folder with the provided relative path.
-     * @param folderRelativePath The relative path from this folder to the child folder to create.
+     * @param folderRelativePath The relative path create this folder to the child folder to create.
      * @return Whether or not this function created the child folder.
      */
     public AsyncFunction<Result<Folder>> createFolderAsync(String folderRelativePath)
@@ -316,7 +316,7 @@ public class Folder extends FileSystemEntry
 
     /**
      * Create a child folder of this folder with the provided relative path.
-     * @param relativeFolderPath The relative path from this folder to the child folder to create.
+     * @param relativeFolderPath The relative path create this folder to the child folder to create.
      * @return Whether or not this function created the child folder.
      */
     public AsyncFunction<Result<Folder>> createFolderAsync(Path relativeFolderPath)
@@ -333,7 +333,7 @@ public class Folder extends FileSystemEntry
 
     /**
      * Create a child file of this folder with the provided relative path.
-     * @param fileRelativePath The relative path from this folder to the child file to create.
+     * @param fileRelativePath The relative path create this folder to the child file to create.
      * @return Whether or not this function created the child file.
      */
     public Result<File> createFile(String fileRelativePath)
@@ -345,7 +345,7 @@ public class Folder extends FileSystemEntry
 
     /**
      * Create a child file of this folder with the provided relative path.
-     * @param relativeFilePath The relative path from this folder to the child file to create.
+     * @param relativeFilePath The relative path create this folder to the child file to create.
      * @return Whether or not this function created the child file.
      */
     public Result<File> createFile(Path relativeFilePath)
@@ -362,7 +362,7 @@ public class Folder extends FileSystemEntry
 
     /**
      * Create a child file of this folder with the provided relative path.
-     * @param relativeFilePath The relative path from this folder to the child file to create.
+     * @param relativeFilePath The relative path create this folder to the child file to create.
      * @return Whether or not this function created the child file.
      */
     public AsyncFunction<Result<File>> createFileAsync(String relativeFilePath)
@@ -372,7 +372,7 @@ public class Folder extends FileSystemEntry
 
     /**
      * Create a child file of this folder with the provided relative path.
-     * @param relativeFilePath The relative path from this folder to the child file to create.
+     * @param relativeFilePath The relative path create this folder to the child file to create.
      * @return Whether or not this function created the child file.
      */
     public AsyncFunction<Result<File>> createFileAsync(Path relativeFilePath)

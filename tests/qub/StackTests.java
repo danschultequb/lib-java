@@ -6,16 +6,25 @@ public class StackTests
     {
         runner.testGroup(Stack.class, () ->
         {
-            runner.test("constructor()", (Test test) ->
+            runner.test("empty()", (Test test) ->
             {
-                final Stack<Double> stack = new Stack<>();
+                final Stack<Double> stack = Stack.empty();
                 test.assertFalse(stack.any());
                 test.assertEqual(0, stack.getCount());
             });
 
+            runner.test("create()", (Test test) ->
+            {
+                final Stack<String> stack = Stack.create("a", "b", "c");
+                test.assertEqual(3, stack.getCount());
+                test.assertEqual("c", stack.pop());
+                test.assertEqual("b", stack.pop());
+                test.assertEqual("a", stack.pop());
+            });
+
             runner.test("push()", (Test test) ->
             {
-                final Stack<Double> stack = new Stack<>();
+                final Stack<Double> stack = Stack.empty();
                 stack.push(5.6);
                 test.assertTrue(stack.any());
                 test.assertEqual(1, stack.getCount());
@@ -26,13 +35,13 @@ public class StackTests
             {
                 runner.test("when empty", (Test test) ->
                 {
-                    final Stack<Double> stack = new Stack<>();
+                    final Stack<Double> stack = Stack.empty();
                     test.assertNull(stack.pop());
                 });
 
                 runner.test("when not empty", (Test test) ->
                 {
-                    final Stack<Double> stack = new Stack<>();
+                    final Stack<Double> stack = Stack.empty();
                     stack.push(1.2);
                     stack.push(3.4);
                     test.assertEqual(3.4, stack.pop());
@@ -49,13 +58,13 @@ public class StackTests
             {
                 runner.test("when empty", (Test test) ->
                 {
-                    final Stack<Double> stack = new Stack<>();
+                    final Stack<Double> stack = Stack.empty();
                     test.assertNull(stack.peek());
                 });
 
                 runner.test("when not empty", (Test test) ->
                 {
-                    final Stack<Double> stack = new Stack<>();
+                    final Stack<Double> stack = Stack.empty();
 
                     stack.push(1.2);
                     for (int i = 0; i < 3; ++i)

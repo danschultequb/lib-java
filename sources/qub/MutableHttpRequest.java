@@ -1,7 +1,7 @@
 package qub;
 
 /**
- * A HTTP request that will be sent from a TCPClient to a HTTP server.
+ * A HTTP request that will be sent create a TCPClient to a HTTP server.
  */
 public class MutableHttpRequest implements HttpRequest
 {

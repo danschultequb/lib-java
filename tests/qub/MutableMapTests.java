@@ -168,9 +168,7 @@ public class MutableMapTests
                 runner.test("with empty map", test ->
                 {
                     final MutableMap<Integer,Boolean> map = creator.run();
-                    final Iterable<Integer> keys = map.getKeys();
-                    test.assertNotNull(keys);
-                    test.assertEqual(0, keys.getCount());
+                    test.assertEqual(Iterable.create(), map.getKeys());
                 });
 
                 runner.test("with non-empty map", test ->
@@ -178,10 +176,7 @@ public class MutableMapTests
                     final MutableMap<Integer,Boolean> map = creator.run();
                     map.set(0, false);
                     map.set(1, true);
-                    final Iterable<Integer> keys = map.getKeys();
-                    test.assertNotNull(keys);
-                    test.assertEqual(2, keys.getCount());
-                    test.assertEqual(new int[] { 0, 1 }, Array.toIntArray(keys));
+                    test.assertEqual(Iterable.create(0, 1), map.getKeys());
                 });
             });
 
@@ -190,9 +185,7 @@ public class MutableMapTests
                 runner.test("with empty map", test ->
                 {
                     final MutableMap<Integer,Boolean> map = creator.run();
-                    final Iterable<Boolean> values = map.getValues();
-                    test.assertNotNull(values);
-                    test.assertEqual(0, values.getCount());
+                    test.assertEqual(Iterable.create(), map.getValues());
                 });
 
                 runner.test("with non-empty map", test ->
@@ -201,10 +194,7 @@ public class MutableMapTests
                     map.set(0, false);
                     map.set(1, true);
                     map.set(2, false);
-                    final Iterable<Boolean> values = map.getValues();
-                    test.assertNotNull(values);
-                    test.assertEqual(3, values.getCount());
-                    test.assertEqual(new boolean[] { false, true, false }, Array.toBooleanArray(values));
+                    test.assertEqual(Iterable.create(false, true, false), map.getValues());
                 });
             });
 

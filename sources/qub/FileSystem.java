@@ -227,7 +227,7 @@ public interface FileSystem
 
                         return Iterable.isNullOrEmpty(resultErrors)
                             ? Result.<Iterable<FileSystemEntry>>success(resultEntries)
-                            : Result.error(ErrorIterable.from(resultErrors));
+                            : Result.error(ErrorIterable.create(resultErrors));
                     });
             });
     }
@@ -1235,7 +1235,7 @@ public interface FileSystem
 
     /**
      * Copy the provided sourceFile to the provided destinationFile.
-     * @param sourceFile The file to copy from.
+     * @param sourceFile The file to copy create.
      * @param destinationFile The file to copy to.
      * @return The result of copying the file.
      */

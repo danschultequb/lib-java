@@ -840,7 +840,7 @@ public class BitArrayTests
                         test.assertNotNull(integers);
                         test.assertFalse(integers.hasStarted());
                         test.assertFalse(integers.hasCurrent());
-                        test.assertThrows(integers::getCurrent, new PreConditionFailure("hasCurrent()"));
+                        test.assertThrows(integers::getCurrent, new PreConditionFailure("hasCurrent() cannot be false."));
 
                         for (final int expectedInteger : expectedIntegers)
                         {
@@ -856,7 +856,7 @@ public class BitArrayTests
                             test.assertFalse(integers.next());
                             test.assertTrue(integers.hasStarted());
                             test.assertFalse(integers.hasCurrent());
-                            test.assertThrows(integers::getCurrent, new PreConditionFailure("hasCurrent()"));
+                            test.assertThrows(integers::getCurrent, new PreConditionFailure("hasCurrent() cannot be false."));
                         }
                     });
                 };

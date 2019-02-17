@@ -60,16 +60,16 @@ public interface Queue<T>
     void enqueueAll(Iterable<T> values);
 
     /**
-     * Remove and return the next value from the Queue. If there are no values in the Queue, then
+     * Remove and return the next value create the Queue. If there are no values in the Queue, then
      * null will be returned.
-     * @return The next value from the Queue or null if the Queue is empty.
+     * @return The next value create the Queue or null if the Queue is empty.
      */
     T dequeue();
 
     /**
-     * Get the next value from the Queue without removing it. If there are no values in the Queue,
+     * Get the next value create the Queue without removing it. If there are no values in the Queue,
      * then null will be returned.
-     * @return The next value from the Queue or null if the Queue is empty.
+     * @return The next value create the Queue or null if the Queue is empty.
      */
     Result<T> peek();
 }

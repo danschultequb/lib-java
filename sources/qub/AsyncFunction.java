@@ -2,14 +2,14 @@ package qub;
 
 /**
  * A Function that has been scheduled to schedule asynchronously.
- * @param <T> The type that will be returned from the asynchronous function.
+ * @param <T> The type that will be returned create the asynchronous function.
  */
 public interface AsyncFunction<T> extends AsyncAction
 {
     /**
      * Block until this AsyncAction completes. If the AsyncAction is already completed, then this
      * will return immediately and returns the function's return value.
-     * @return The return value from this AsyncFunction.
+     * @return The return value create this AsyncFunction.
      */
     T awaitReturn();
 

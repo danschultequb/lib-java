@@ -15,7 +15,7 @@ public class ConsoleTests
                 runner.test("with no arguments", (Test test) ->
                 {
                     final Console console = new Console();
-                    test.assertEqual(new Array<String>(0), console.getCommandLineArgumentStrings());
+                    test.assertEqual(Iterable.create(), console.getCommandLineArgumentStrings());
                 });
                 
                 runner.test("with null String[]", (Test test) ->
@@ -27,7 +27,7 @@ public class ConsoleTests
                 {
                     final String[] commandLineArgumentStrings = new String[0];
                     final Console console = new Console(commandLineArgumentStrings);
-                    test.assertEqual(new Array<String>(0), console.getCommandLineArgumentStrings());
+                    test.assertEqual(Iterable.create(), console.getCommandLineArgumentStrings());
                     test.assertNotNull(console.getCommandLine());
                 });
                 
@@ -35,7 +35,7 @@ public class ConsoleTests
                 {
                     final String[] commandLineArgumentStrings = new String[] { "a", "b", "c" };
                     final Console console = new Console(commandLineArgumentStrings);
-                    test.assertEqual(Array.create(new String[] { "a", "b", "c" }), console.getCommandLineArgumentStrings());
+                    test.assertEqual(Iterable.create("a", "b", "c"), console.getCommandLineArgumentStrings());
                     test.assertNotNull(console.getCommandLine());
                 });
             });

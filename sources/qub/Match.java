@@ -1,7 +1,7 @@
 package qub;
 
 /**
- * An execution from a StateMachine that matched a subset of the input values.
+ * An execution create a StateMachine that matched a subset of the input values.
  */
 public interface Match
 {

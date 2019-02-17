@@ -48,9 +48,9 @@ public class CSVRowTests
                 };
 
                 constructorTest.run(null);
-                constructorTest.run(new Array<>(0));
-                constructorTest.run(Array.create(new String[] { "a" }));
-                constructorTest.run(Array.create(new String[] { "1", "2", "3 4"}));
+                constructorTest.run(Iterable.empty());
+                constructorTest.run(Iterable.create("a"));
+                constructorTest.run(Iterable.create("1", "2", "3 4"));
             });
 
             runner.testGroup("removeAt(int)", () ->
@@ -72,18 +72,18 @@ public class CSVRowTests
                     });
                 };
 
-                removeAtTest.run(new Array<>(0), -1, new Array<>(0));
-                removeAtTest.run(new Array<>(0), 0, new Array<>(0));
-                removeAtTest.run(new Array<>(0), 1, new Array<>(0));
+                removeAtTest.run(Indexable.empty(), -1, Iterable.empty());
+                removeAtTest.run(Indexable.empty(), 0, Iterable.empty());
+                removeAtTest.run(Indexable.empty(), 1, Iterable.empty());
 
-                removeAtTest.run(Array.create(new String[] { "a" }), -1, Array.create(new String[] { "a" }));
-                removeAtTest.run(Array.create(new String[] { "a" }), 0, new Array<>(0));
-                removeAtTest.run(Array.create(new String[] { "a" }), 1, Array.create(new String[] { "a" }));
+                removeAtTest.run(Indexable.create("a"), -1, Iterable.create("a"));
+                removeAtTest.run(Indexable.create("a"), 0, Iterable.empty());
+                removeAtTest.run(Indexable.create("a"), 1, Iterable.create("a"));
 
-                removeAtTest.run(Array.create(new String[] { "a", "b" }), -1, Array.create(new String[] { "a", "b" }));
-                removeAtTest.run(Array.create(new String[] { "a", "b" }), 0, Array.create(new String[] { "b" }));
-                removeAtTest.run(Array.create(new String[] { "a", "b" }), 1, Array.create(new String[] { "a" }));
-                removeAtTest.run(Array.create(new String[] { "a", "b" }), 2, Array.create(new String[] { "a", "b" }));
+                removeAtTest.run(Indexable.create("a", "b"), -1, Iterable.create("a", "b"));
+                removeAtTest.run(Indexable.create("a", "b"), 0, Iterable.create("b"));
+                removeAtTest.run(Indexable.create("a", "b"), 1, Iterable.create("a"));
+                removeAtTest.run(Indexable.create("a", "b"), 2, Iterable.create("a", "b"));
             });
 
             runner.testGroup("set(int,String)", () ->
@@ -105,9 +105,9 @@ public class CSVRowTests
                     });
                 };
 
-                setTest.run(new Array<>(0), -1, "z", new Array<>(0));
-                setTest.run(new Array<>(0), 0, "z", new Array<>(0));
-                setTest.run(new Array<>(0), 1, "z", new Array<>(0));
+                setTest.run(Iterable.empty(), -1, "z", Iterable.empty());
+                setTest.run(Iterable.empty(), 0, "z", Iterable.empty());
+                setTest.run(Iterable.empty(), 1, "z", Iterable.empty());
 
                 setTest.run(Array.create(new String[] { "a" }), -1, "z", Array.create(new String[] { "a" }));
                 setTest.run(Array.create(new String[] { "a" }), 0, "z", Array.create(new String[] { "z" }));

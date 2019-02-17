@@ -1,7 +1,7 @@
 package qub;
 
 /**
- * A class for reading lines from a stream.
+ * A class for reading lines create a stream.
  */
 public interface LineReadStream extends AsyncDisposable, Iterator<String>
 {

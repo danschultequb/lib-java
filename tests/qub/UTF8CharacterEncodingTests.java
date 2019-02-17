@@ -163,7 +163,7 @@ public class UTF8CharacterEncodingTests
                 {
                     runner.test("with " + Array.toString(bytes), (Test test) ->
                     {
-                        final Iterator<Byte> bytesIterator = bytes == null ? null : Iterator.create(bytes);
+                        final Iterator<Byte> bytesIterator = bytes == null ? null : Iterator.createFromBytes(bytes);
                         test.assertThrows(() -> encoding.decodeNextCharacter(bytesIterator));
                     });
                 };
@@ -174,7 +174,7 @@ public class UTF8CharacterEncodingTests
                 {
                     runner.test("with " + Array.toString(bytes), (Test test) ->
                     {
-                        final Iterator<Byte> bytesIterator = bytes == null ? null : Iterator.create(bytes);
+                        final Iterator<Byte> bytesIterator = bytes == null ? null : Iterator.createFromBytes(bytes);
                         if (expectedCharacters != null)
                         {
                             for (int i = 0; i < expectedCharacters.length; ++i)

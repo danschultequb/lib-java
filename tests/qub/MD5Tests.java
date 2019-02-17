@@ -176,13 +176,13 @@ public class MD5Tests
 
             hashTestGroup.run("hash(Iterator<Byte>)", (String message) ->
             {
-                final Iterator<Byte> bytes = Iterator.create(Strings.isNullOrEmpty(message) ? new byte[0] : CharacterEncoding.US_ASCII.encode(message).await());
+                final Iterator<Byte> bytes = Iterator.createFromBytes(Strings.isNullOrEmpty(message) ? new byte[0] : CharacterEncoding.US_ASCII.encode(message).await());
                 return md5.hash(bytes);
             });
 
             hashTestGroup.run("hash(Iterable<Byte>)", (String message) ->
             {
-                final Iterable<Byte> bytes = Iterable.create(Strings.isNullOrEmpty(message) ? new byte[0] : CharacterEncoding.US_ASCII.encode(message).await());
+                final Iterable<Byte> bytes = Array.createByte(Strings.isNullOrEmpty(message) ? new byte[0] : CharacterEncoding.US_ASCII.encode(message).await());
                 return md5.hash(bytes);
             });
         });

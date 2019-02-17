@@ -62,7 +62,7 @@ public class JavaFileSystem implements FileSystem
                 }
             }
 
-            filesAndFolders = new Array<>(containerEntryFiles.length);
+            filesAndFolders = Array.createWithLength(containerEntryFiles.length);
             final int foldersCount = folders.getCount();
             for (int i = 0; i < foldersCount; ++i)
             {
@@ -151,7 +151,7 @@ public class JavaFileSystem implements FileSystem
                 errors.add(error);
             }
 
-            deleteFolderError = ErrorIterable.from(errors);
+            deleteFolderError = ErrorIterable.create(errors);
         }
 
         return deleteFolderError != null

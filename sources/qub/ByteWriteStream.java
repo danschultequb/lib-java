@@ -58,8 +58,8 @@ public interface ByteWriteStream extends Disposable
     }
 
     /**
-     * Write all of the bytes from the provided byteReadStream to this ByteWriteStream.
-     * @param byteReadStream The ByteReadStream to read from.
+     * Write all of the bytes create the provided byteReadStream to this ByteWriteStream.
+     * @param byteReadStream The ByteReadStream to read create.
      * @return Whether or not the writeByte was successful.
      */
     default Result<Void> writeAllBytes(ByteReadStream byteReadStream)

@@ -13,7 +13,7 @@ public class MutableIndexableTests
                 runner.test("with 0 index on an empty MutableIndexable", (Test test) ->
                 {
                     final MutableIndexable<Integer> indexable = creator.run(0);
-                    test.assertThrows(() -> indexable.set(0, 2), new PreConditionFailure("Cannot access values in an empty Indexable."));
+                    test.assertThrows(() -> indexable.set(0, 2), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
                 });
 
                 runner.test("with negative index", (Test test) ->
@@ -55,7 +55,7 @@ public class MutableIndexableTests
                 runner.test("with empty", (Test test) ->
                 {
                     final MutableIndexable<Integer> indexable = creator.run(0);
-                    test.assertThrows(() -> indexable.setFirst(20), new PreConditionFailure("Cannot access values in an empty Indexable."));
+                    test.assertThrows(() -> indexable.setFirst(20), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
                 });
 
                 runner.test("with non-empty", (Test test) ->
@@ -71,7 +71,7 @@ public class MutableIndexableTests
                 runner.test("with empty", (Test test) ->
                 {
                     final MutableIndexable<Integer> indexable = creator.run(0);
-                    test.assertThrows(() -> indexable.setLast(20), new PreConditionFailure("Cannot access values in an empty Indexable."));
+                    test.assertThrows(() -> indexable.setLast(20), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
                 });
 
                 runner.test("with non-empty", (Test test) ->

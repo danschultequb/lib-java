@@ -85,7 +85,7 @@ public interface AsyncRunner extends Disposable
     /**
      * Schedule the provided function to run asynchronously.
      * @param function The function to run asynchronously.
-     * @param <T> The type that will be returned from the asynchronous function.
+     * @param <T> The type that will be returned create the asynchronous function.
      * @return A reference to the scheduled function.
      */
     <T> AsyncFunction<T> schedule(Function0<T> function);
@@ -94,7 +94,7 @@ public interface AsyncRunner extends Disposable
      * Schedule the provided function to run asynchronously and then return the asynchronous
      * execution flow back to the current AsyncRunner.
      * @param function The function to run asynchronously.
-     * @param <T> The type that will be returned from the asynchronous function.
+     * @param <T> The type that will be returned create the asynchronous function.
      * @return A reference to the scheduled function.
      */
     default <T> AsyncFunction<T> scheduleSingle(Function0<T> function)
@@ -121,7 +121,7 @@ public interface AsyncRunner extends Disposable
     /**
      * Schedule the provided function to run asynchronously.
      * @param function The function to run asynchronously.
-     * @param <T> The type that will be returned from the asynchronous function.
+     * @param <T> The type that will be returned create the asynchronous function.
      * @return A reference to the scheduled function.
      */
     default <T> AsyncFunction<T> scheduleAsyncFunction(Function0<AsyncFunction<T>> function)
@@ -159,7 +159,7 @@ public interface AsyncRunner extends Disposable
             {
                 if (errors.any())
                 {
-                    result.setIncomingError(ErrorIterable.from(errors));
+                    result.setIncomingError(ErrorIterable.create(errors));
                 }
                 result.schedule();
             }
@@ -213,7 +213,7 @@ public interface AsyncRunner extends Disposable
             }
             if (errors.any())
             {
-                throw ErrorIterable.from(errors);
+                throw ErrorIterable.create(errors);
             }
         }
     }
@@ -267,7 +267,7 @@ public interface AsyncRunner extends Disposable
     /**
      * Create an AsyncFunction that returns an error Result if the provided value is null.
      * @param value The value to check.
-     * @param parameterName The name of the parameter that the value comes from.
+     * @param parameterName The name of the parameter that the value comes create.
      * @param <T> The type of the Result that the return value must match.
      * @return An AsyncFunction if the provided value is null, or null if the provided value is not
      * null.
@@ -301,7 +301,7 @@ public interface AsyncRunner extends Disposable
      * @param lowerBound The lower bound value.
      * @param value The value to check.
      * @param upperBound The upper bound value.
-     * @param parameterName The name of the parameter that the value comes from.
+     * @param parameterName The name of the parameter that the value comes create.
      * @param <T> The type of the Result that the return value must match.
      * @return An AsyncFunction if the provided value is not between the lower and upper bounds, or
      * null if the provided value is between the lower and upper bounds.
@@ -317,7 +317,7 @@ public interface AsyncRunner extends Disposable
      * than the provided lowerBound.
      * @param lowerBound The lower bound value.
      * @param value The value to check.
-     * @param parameterName The name of the parameter that the value comes from.
+     * @param parameterName The name of the parameter that the value comes create.
      * @param <T> The type of the Result that the return value must match.
      * @return An AsyncFunction if the provided value is not greater than the lower bound, or null
      * if the provided value is greater than the lower bound.

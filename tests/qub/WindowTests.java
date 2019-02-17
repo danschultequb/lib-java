@@ -105,7 +105,7 @@ public class WindowTests
 
             runner.testGroup("setContent(UIElement)", () ->
             {
-                runner.test("from null to null", (Test test) ->
+                runner.test("create null to null", (Test test) ->
                 {
                     try (final Window window = windowCreator.run(test))
                     {
@@ -114,7 +114,7 @@ public class WindowTests
                     }
                 });
 
-                runner.test("from null to non-null", (Test test) ->
+                runner.test("create null to non-null", (Test test) ->
                 {
                     try (final Window window = windowCreator.run(test))
                     {
@@ -137,7 +137,7 @@ public class WindowTests
                     }
                 });
 
-                runner.test("from non-null to null", (Test test) ->
+                runner.test("create non-null to null", (Test test) ->
                 {
                     try (final Window window = windowCreator.run(test))
                     {
@@ -168,7 +168,7 @@ public class WindowTests
                     }
                 });
 
-                runner.test("from non-null to non-null", (Test test) ->
+                runner.test("create non-null to non-null", (Test test) ->
                 {
                     try (final Window window = windowCreator.run(test))
                     {

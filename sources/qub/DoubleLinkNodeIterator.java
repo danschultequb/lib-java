@@ -26,7 +26,9 @@ public class DoubleLinkNodeIterator<T> implements Iterator<T>
     @Override
     public T getCurrent()
     {
-        return hasCurrent() ? currentNode.getValue() : null;
+        PreCondition.assertTrue(hasCurrent(), "hasCurrent()");
+
+        return currentNode.getValue();
     }
 
     @Override

@@ -57,8 +57,8 @@ public interface CharacterWriteStream extends Disposable
     }
 
     /**
-     * Write all of the bytes from the provided characterReadStream to this ByteWriteStream.
-     * @param characterReadStream The ByteReadStream to read from.
+     * Write all of the bytes create the provided characterReadStream to this ByteWriteStream.
+     * @param characterReadStream The ByteReadStream to read create.
      * @return Whether or not the writeByte was successful.
      */
     default Result<Long> writeAll(CharacterReadStream characterReadStream)

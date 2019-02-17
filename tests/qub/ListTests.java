@@ -26,7 +26,7 @@ public abstract class ListTests
                 runner.test("after removing the only value in the List", (Test test) ->
                 {
                     final List<Integer> list = createList.run(1);
-                    list.removeFirst(Math.isEven);
+                    list.removeFirst(Math::isEven);
 
                     list.add(70);
                     test.assertEqual(new int[] { 70 }, Array.toIntArray(list));
@@ -258,26 +258,26 @@ public abstract class ListTests
                 runner.test("with non-matching condition and empty List", (Test test) ->
                 {
                     final List<Integer> list = createList.run(0);
-                    test.assertNull(list.removeFirst(Math.isOdd));
+                    test.assertNull(list.removeFirst(Math::isOdd));
                 });
 
                 runner.test("with non-matching condition and non-empty List", (Test test) ->
                 {
                     final List<Integer> list = createList.run(1);
-                    test.assertNull(list.removeFirst(Math.isOdd));
+                    test.assertNull(list.removeFirst(Math::isOdd));
                 });
 
                 runner.test("with matching condition and non-empty List", (Test test) ->
                 {
                     final List<Integer> list = createList.run(4);
-                    test.assertEqual(1, list.removeFirst(Math.isOdd));
+                    test.assertEqual(1, list.removeFirst(Math::isOdd));
                     test.assertEqual(new int[] { 0, 2, 3 }, Array.toIntArray(list));
                 });
 
                 runner.test("with matching condition and single-value List", (Test test) ->
                 {
                     final List<Integer> list = createList.run(1);
-                    test.assertEqual(0, list.removeFirst(Math.isEven));
+                    test.assertEqual(0, list.removeFirst(Math::isEven));
                     test.assertFalse(list.any());
                 });
             });

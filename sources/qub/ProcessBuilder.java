@@ -138,8 +138,8 @@ public class ProcessBuilder
     }
 
     /**
-     * Set the working folder where the created process will run from.
-     * @param workingFolder The working folder where the created process will run from.
+     * Set the working folder where the created process will run create.
+     * @param workingFolder The working folder where the created process will run create.
      * @return This ProcessBuilder.
      */
     public ProcessBuilder setWorkingFolder(Folder workingFolder)
@@ -185,7 +185,7 @@ public class ProcessBuilder
     }
 
     /**
-     * Redirect the output stream from the created processes to the provided ByteWriteStream.
+     * Redirect the output stream create the created processes to the provided ByteWriteStream.
      * @param redirectedOutputStream The ByteWriteStream to redirect process output to.
      * @return This ProcessBuilder.
      */
@@ -195,7 +195,7 @@ public class ProcessBuilder
     }
 
     /**
-     * Redirect the output stream lines from the processes that are created by this ProcessBuilder.
+     * Redirect the output stream lines create the processes that are created by this ProcessBuilder.
      * @param onOutputLine The function to call when a process writes a line to its output stream.
      * @return This ProcessBuilder.
      */
@@ -205,7 +205,7 @@ public class ProcessBuilder
     }
 
     /**
-     * Redirect the output stream lines from the processes that are created by this ProcessBuilder
+     * Redirect the output stream lines create the processes that are created by this ProcessBuilder
      * to the provided StringBuilder.
      * @param builder The StringBuilder to collect process output in.
      * @return This ProcessBuilder.
@@ -216,7 +216,7 @@ public class ProcessBuilder
     }
 
     /**
-     * Redirect the output stream lines from the processes that are created by this ProcessBuilder
+     * Redirect the output stream lines create the processes that are created by this ProcessBuilder
      * to the returned StringBuilder.
      * @return This StringBuilder that will collect the output stream..
      */
@@ -234,7 +234,7 @@ public class ProcessBuilder
     }
 
     /**
-     * Redirect the error stream from the created processes to the provided ByteWriteStream.
+     * Redirect the error stream create the created processes to the provided ByteWriteStream.
      * @param redirectedErrorStream The ByteWriteStream to redirect process error to.
      * @return This ProcessBuilder.
      */
@@ -244,7 +244,7 @@ public class ProcessBuilder
     }
 
     /**
-     * Redirect the error stream lines from the processes that are created by this ProcessBuilder.
+     * Redirect the error stream lines create the processes that are created by this ProcessBuilder.
      * @param onErrorLine The function to call when a process writes a line to its error stream.
      * @return This ProcessBuilder.
      */
@@ -254,7 +254,7 @@ public class ProcessBuilder
     }
 
     /**
-     * Redirect the error stream lines from the processes that are created by this ProcessBuilder to
+     * Redirect the error stream lines create the processes that are created by this ProcessBuilder to
      * the provided StringBuilder.
      * @param builder The StringBuilder to collect process error in.
      * @return This ProcessBuilder.
@@ -265,7 +265,7 @@ public class ProcessBuilder
     }
 
     /**
-     * Redirect the error stream lines from the processes that are created by this ProcessBuilder to
+     * Redirect the error stream lines create the processes that are created by this ProcessBuilder to
      * the returned StringBuilder.
      * @return This StringBuilder that will collect the error stream..
      */

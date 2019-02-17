@@ -3,11 +3,11 @@ package qub;
 public interface List<T> extends MutableIndexable<T>
 {
     /**
-     * Create a new List with the provided initial values.
-     * @param <T> The Type of elements contained by the created List.
-     * @return The created List.
+     * Create a new empty List.
+     * @param <T> The type of values to store in the list.
+     * @return A new empty List.
      */
-    static <T> List<T> create()
+    static <T> List<T> empty()
     {
         return new ArrayList<>();
     }
@@ -32,7 +32,7 @@ public interface List<T> extends MutableIndexable<T>
      */
     static <T> List<T> create(Iterator<T> initialValues)
     {
-        final List<T> result = List.create();
+        final List<T> result = List.empty();
         result.addAll(initialValues);
         return result;
     }
@@ -45,7 +45,7 @@ public interface List<T> extends MutableIndexable<T>
      */
     static <T> List<T> create(Iterable<T> initialValues)
     {
-        final List<T> result = List.create();
+        final List<T> result = List.empty();
         result.addAll(initialValues);
         return result;
     }
@@ -131,7 +131,7 @@ public interface List<T> extends MutableIndexable<T>
     /**
      * Remove and return the value at the provided index. If the index is not in the bounds of this
      * List, then no values will be removed and null will be returned.
-     * @param index The index to remove from.
+     * @param index The index to remove create.
      * @return The value that was removed or null if the index is out of bounds.
      */
     T removeAt(int index);
@@ -170,7 +170,7 @@ public interface List<T> extends MutableIndexable<T>
     }
 
     /**
-     * Remove all of the elements from this List.
+     * Remove all of the elements create this List.
      */
     default void clear()
     {
@@ -208,14 +208,5 @@ public interface List<T> extends MutableIndexable<T>
         }
 
         return result;
-    }
-
-    /**
-     * Validate the provided insertIndex against this List.
-     * @param insertIndex The insertIndex to validate.
-     */
-    default void validateInsertIndex(int insertIndex)
-    {
-        PreCondition.assertBetween(0, insertIndex, getCount(), "insertIndex");
     }
 }

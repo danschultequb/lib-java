@@ -11,13 +11,17 @@ class WhereIterator<T> implements Iterator<T>
 
     WhereIterator(Iterator<T> innerIterator, Function1<T,Boolean> condition)
     {
+        PreCondition.assertNotNull(innerIterator, "innerIterator");
+        PreCondition.assertNotNull(condition, "condition");
+
         this.innerIterator = innerIterator;
         this.condition = condition;
     }
 
     private void skipToMatch()
     {
-        while (innerIterator.hasCurrent() && !condition.run(innerIterator.getCurrent())) {
+        while (innerIterator.hasCurrent() && !condition.run(innerIterator.getCurrent()))
+        {
             innerIterator.next();
         }
     }

@@ -7,6 +7,9 @@ public class SkipUntilIterable<T> implements Iterable<T>
 
     public SkipUntilIterable(Iterable<T> iterable, Function1<T,Boolean> condition)
     {
+        PreCondition.assertNotNull(iterable, "iterable");
+        PreCondition.assertNotNull(condition, "condition");
+
         this.iterable = iterable;
         this.condition = condition;
     }

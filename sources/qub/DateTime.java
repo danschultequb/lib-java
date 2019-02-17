@@ -112,9 +112,9 @@ public class DateTime implements Comparable<DateTime>
     }
 
     /**
-     * Get the result of subtracting the provided duration from this DateTime.
-     * @param duration The Duration to subtract from this DateTime.
-     * @return The result of subtracting the provided duration from this DateTime.
+     * Get the result of subtracting the provided duration create this DateTime.
+     * @param duration The Duration to subtract create this DateTime.
+     * @return The result of subtracting the provided duration create this DateTime.
      */
     public DateTime minus(Duration duration)
     {

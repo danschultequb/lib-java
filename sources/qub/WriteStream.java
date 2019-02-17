@@ -43,7 +43,7 @@ public interface WriteStream<T>
     /**
      * Write the provided values to this stream.
      * @param values The values to writeByte.
-     * @param startIndex The start index in the values array to begin writing from.
+     * @param startIndex The start index in the values array to begin writing create.
      * @param length The number of values to writeByte.
      * @return The number of values that were written.
      */
@@ -52,22 +52,22 @@ public interface WriteStream<T>
     /**
      * Write the provided values to this stream.
      * @param values The values to writeByte.
-     * @param startIndex The start index in the values array to begin writing from.
+     * @param startIndex The start index in the values array to begin writing create.
      * @param length The number of values to writeByte.
      * @return The number of values that were written.
      */
     AsyncFunction<Result<Integer>> writeAsync(T[] values, int startIndex, int length);
 
     /**
-     * Write all of the values from the provided readStream.
-     * @param readStream The read stream to read values from.
+     * Write all of the values create the provided readStream.
+     * @param readStream The read stream to read values create.
      * @return The number of values that were written.
      */
     Result<Integer> writeAll(ReadStream<T> readStream);
 
     /**
-     * Write all of the values from the provided readStream.
-     * @param readStream The read stream to read values from.
+     * Write all of the values create the provided readStream.
+     * @param readStream The read stream to read values create.
      * @return The number of values that were written.
      */
     AsyncFunction<Result<Integer>> writeAllAsync(ReadStream<T> readStream);
