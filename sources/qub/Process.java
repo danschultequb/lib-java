@@ -40,12 +40,12 @@ public class Process implements Disposable
      */
     public Process(String... commandLineArgumentStrings)
     {
-        this(CommandLine.parse(commandLineArgumentStrings));
+        this(CommandLine.create(commandLineArgumentStrings));
     }
 
     public Process(Iterable<String> commandLineArgumentStrings)
     {
-        this(CommandLine.parse(commandLineArgumentStrings));
+        this(CommandLine.create(commandLineArgumentStrings));
     }
 
     /**

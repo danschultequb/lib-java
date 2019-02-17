@@ -6,6 +6,8 @@ public class CommandLine implements Indexable<CommandLineArgument>
 
     private CommandLine(List<CommandLineArgument> arguments)
     {
+        PreCondition.assertNotNull(arguments, "arguments");
+
         this.arguments = arguments;
     }
 
@@ -95,14 +97,14 @@ public class CommandLine implements Indexable<CommandLineArgument>
         return Iterable.toString(this);
     }
 
-    public static CommandLine parse(String... rawCommandLineArguments)
+    public static CommandLine create(String... rawCommandLineArguments)
     {
         PreCondition.assertNotNull(rawCommandLineArguments, "rawCommandLineArguments");
 
-        return parse(Iterable.create(rawCommandLineArguments));
+        return create(Iterable.create(rawCommandLineArguments));
     }
 
-    public static CommandLine parse(Iterable<String> rawCommandLineArguments)
+    public static CommandLine create(Iterable<String> rawCommandLineArguments)
     {
         PreCondition.assertNotNull(rawCommandLineArguments, "rawCommandLineArguments");
 

@@ -25,7 +25,7 @@ public class ConsoleTestRunner extends Console implements TestRunner
      */
     public ConsoleTestRunner(String[] commandLineArgumentStrings)
     {
-        this(CommandLine.parse(commandLineArgumentStrings));
+        this(CommandLine.create(commandLineArgumentStrings));
     }
 
     /**
