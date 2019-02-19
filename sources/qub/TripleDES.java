@@ -20,9 +20,9 @@ public class TripleDES
     public BitArray encrypt(BitArray initializationVector, BitArray plaintext)
     {
         PreCondition.assertNotNull(initializationVector, "initializationVector");
-        PreCondition.assertOneOf(initializationVector.getBitCount(), new long[] { DES.blockSize * 2, DES.blockSize * 3 }, "initializationVector.getBitCount()");
+        PreCondition.assertOneOf(initializationVector.getCount(), new long[] { DES.blockSize * 2, DES.blockSize * 3 }, "initializationVector.getCount()");
         PreCondition.assertNotNull(plaintext, "plaintext");
-        PreCondition.assertEqual(DES.blockSize, plaintext.getBitCount(), "plaintext.getBitCount()");
+        PreCondition.assertEqual(DES.blockSize, plaintext.getCount(), "plaintext.getCount()");
 
         final BitArray k1 = new BitArray(DES.blockSize);
         k1.copyFrom(initializationVector, 0, 0, DES.blockSize);
@@ -31,7 +31,7 @@ public class TripleDES
         k2.copyFrom(initializationVector, DES.blockSize, 0, DES.blockSize);
 
         BitArray k3;
-        if (initializationVector.getBitCount() == DES.blockSize * 2)
+        if (initializationVector.getCount() == DES.blockSize * 2)
         {
             k3 = k1;
         }
@@ -44,7 +44,7 @@ public class TripleDES
         final BitArray result = des.encrypt(k3, des.decrypt(k2, des.encrypt(k1, plaintext)));
 
         PostCondition.assertNotNull(result, "result");
-        PostCondition.assertEqual(DES.blockSize, result.getBitCount(), "result.getBitCount()");
+        PostCondition.assertEqual(DES.blockSize, result.getCount(), "result.getCount()");
 
         return result;
     }
@@ -61,9 +61,9 @@ public class TripleDES
     public BitArray decrypt(BitArray initializationVector, BitArray ciphertext)
     {
         PreCondition.assertNotNull(initializationVector, "initializationVector");
-        PreCondition.assertOneOf(initializationVector.getBitCount(), new long[] { DES.blockSize * 2, DES.blockSize * 3 }, "initializationVector.getBitCount()");
+        PreCondition.assertOneOf(initializationVector.getCount(), new long[] { DES.blockSize * 2, DES.blockSize * 3 }, "initializationVector.getCount()");
         PreCondition.assertNotNull(ciphertext, "ciphertext");
-        PreCondition.assertEqual(DES.blockSize, ciphertext.getBitCount(), "ciphertext.getBitCount()");
+        PreCondition.assertEqual(DES.blockSize, ciphertext.getCount(), "ciphertext.getCount()");
 
         final BitArray k1 = new BitArray(DES.blockSize);
         k1.copyFrom(initializationVector, 0, 0, DES.blockSize);
@@ -72,7 +72,7 @@ public class TripleDES
         k2.copyFrom(initializationVector, DES.blockSize, 0, DES.blockSize);
 
         BitArray k3;
-        if (initializationVector.getBitCount() == DES.blockSize * 2)
+        if (initializationVector.getCount() == DES.blockSize * 2)
         {
             k3 = k1;
         }
@@ -85,7 +85,7 @@ public class TripleDES
         final BitArray result = des.decrypt(k1, des.encrypt(k2, des.decrypt(k3, ciphertext)));
 
         PostCondition.assertNotNull(result, "result");
-        PostCondition.assertEqual(DES.blockSize, result.getBitCount(), "result.getBitCount()");
+        PostCondition.assertEqual(DES.blockSize, result.getCount(), "result.getCount()");
 
         return result;
     }

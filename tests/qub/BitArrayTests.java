@@ -23,13 +23,13 @@ public class BitArrayTests
                     test.assertNotSame(bits, clone);
                     test.assertEqual(bits, clone);
 
-                    bits.setBit(0, 0);
+                    bits.set(0, 0);
                     test.assertEqual("0", bits.toBitString());
                     test.assertEqual("1", clone.toBitString());
                 });
             });
 
-            runner.testGroup("fromBitCount(long)", () ->
+            runner.testGroup("constructor(long)", () ->
             {
                 runner.test("with -1 bitCount", (Test test) ->
                 {
@@ -42,17 +42,17 @@ public class BitArrayTests
                 {
                     final BitArray bits = new BitArray(0);
                     test.assertNotNull(bits);
-                    test.assertEqual(0, bits.getBitCount());
+                    test.assertEqual(0, bits.getCount());
                 });
 
                 runner.test("with 1 bitCount", (Test test) ->
                 {
                     final BitArray block = new BitArray(1);
                     test.assertNotNull(block);
-                    test.assertEqual(1, block.getBitCount());
-                    test.assertEqual(1, block.getChunkCount());
-                    test.assertEqual(0, block.getBit(0));
-                    for (long i = 0; i < block.getBitCount(); ++i)
+                    test.assertEqual(1, block.getCount());
+                    test.assertEqual(1, block.getBitChunkCount());
+                    test.assertEqual(0, block.get(0));
+                    for (long i = 0; i < block.getCount(); ++i)
                     {
                         test.assertEqual(0, block.getBit(i));
                     }
@@ -62,9 +62,9 @@ public class BitArrayTests
                 {
                     final BitArray block = new BitArray(7);
                     test.assertNotNull(block);
-                    test.assertEqual(7, block.getBitCount());
-                    test.assertEqual(1, block.getChunkCount());
-                    for (long i = 0; i < block.getBitCount(); ++i)
+                    test.assertEqual(7, block.getCount());
+                    test.assertEqual(1, block.getBitChunkCount());
+                    for (long i = 0; i < block.getCount(); ++i)
                     {
                         test.assertEqual(0, block.getBit(i));
                     }
@@ -74,9 +74,9 @@ public class BitArrayTests
                 {
                     final BitArray block = new BitArray(8);
                     test.assertNotNull(block);
-                    test.assertEqual(8, block.getBitCount());
-                    test.assertEqual(1, block.getChunkCount());
-                    for (long i = 0; i < block.getBitCount(); ++i)
+                    test.assertEqual(8, block.getCount());
+                    test.assertEqual(1, block.getBitChunkCount());
+                    for (long i = 0; i < block.getCount(); ++i)
                     {
                         test.assertEqual(0, block.getBit(i));
                     }
@@ -86,9 +86,9 @@ public class BitArrayTests
                 {
                     final BitArray block = new BitArray(9);
                     test.assertNotNull(block);
-                    test.assertEqual(9, block.getBitCount());
-                    test.assertEqual(1, block.getChunkCount());
-                    for (long i = 0; i < block.getBitCount(); ++i)
+                    test.assertEqual(9, block.getCount());
+                    test.assertEqual(1, block.getBitChunkCount());
+                    for (long i = 0; i < block.getCount(); ++i)
                     {
                         test.assertEqual(0, block.getBit(i));
                     }
@@ -98,9 +98,9 @@ public class BitArrayTests
                 {
                     final BitArray block = new BitArray(100);
                     test.assertNotNull(block);
-                    test.assertEqual(100, block.getBitCount());
-                    test.assertEqual(4, block.getChunkCount());
-                    for (long i = 0; i < block.getBitCount(); ++i)
+                    test.assertEqual(100, block.getCount());
+                    test.assertEqual(4, block.getBitChunkCount());
+                    for (long i = 0; i < block.getCount(); ++i)
                     {
                         test.assertEqual(0, block.getBit(i));
                     }
@@ -121,48 +121,192 @@ public class BitArrayTests
                 });
             });
 
-            runner.testGroup("getBit(long)", () ->
+            runner.testGroup("get(int)", () ->
             {
                 runner.test("with negative bitIndex", (Test test) ->
                 {
                     final BitArray block = new BitArray(10);
                     test.assertThrows(
-                        () -> block.getBit(-1),
-                        new PreConditionFailure("bitIndex (-1) must be between 0 and 9."));
+                        () -> block.get(-1),
+                        new PreConditionFailure("index (-1) must be between 0 and 9."));
                 });
 
                 runner.test("with 0 bitIndex", (Test test) ->
                 {
                     final BitArray block = new BitArray(10);
-                    test.assertEqual(0, block.getBit(0));
+                    test.assertEqual(0, block.get(0));
                 });
 
                 runner.test("with 1 bitIndex", (Test test) ->
                 {
                     final BitArray block = new BitArray(10);
-                    test.assertEqual(0, block.getBit(0));
+                    test.assertEqual(0, block.get(0));
                 });
 
                 runner.test("with bitIndex assertEqual to bitCount - 1", (Test test) ->
                 {
                     final BitArray block = new BitArray(10);
-                    test.assertEqual(0, block.getBit(9));
+                    test.assertEqual(0, block.get(9));
                 });
 
                 runner.test("with bitIndex assertEqual to bitCount", (Test test) ->
                 {
                     final BitArray block = new BitArray(10);
                     test.assertThrows(
-                        () -> block.getBit(10),
-                        new PreConditionFailure("bitIndex (10) must be between 0 and 9."));
+                        () -> block.get(10),
+                        new PreConditionFailure("index (10) must be between 0 and 9."));
                 });
 
                 runner.test("with bitIndex assertEqual to bitCount + 1", (Test test) ->
                 {
                     final BitArray block = new BitArray(10);
                     test.assertThrows(
-                        () -> block.getBit(11),
-                        new PreConditionFailure("bitIndex (11) must be between 0 and 9."));
+                        () -> block.get(11),
+                        new PreConditionFailure("index (11) must be between 0 and 9."));
+                });
+            });
+
+            runner.testGroup("set(int,Integer)", () ->
+            {
+                runner.test("with negative bitIndex", (Test test) ->
+                {
+                    final BitArray block = new BitArray(10);
+                    test.assertThrows(
+                        () -> block.set(-1, Integer.valueOf(1)),
+                        new PreConditionFailure("index (-1) must be between 0 and 9."));
+                    for (int i = 0; i < 10; ++i)
+                    {
+                        test.assertEqual(0, block.get(i), "Expected bit at index " + i + " to be 0.");
+                    }
+                });
+
+                runner.test("with 0 bitIndex", (Test test) ->
+                {
+                    final BitArray block = new BitArray(10);
+                    block.set(0, Integer.valueOf(1));
+                    for (int i = 0; i < 10; ++i)
+                    {
+                        final int expected = i == 0 ? 1 : 0;
+                        test.assertEqual(expected, block.get(i), "Expected bit at index " + i + " to be " + expected + ".");
+                    }
+                });
+
+                runner.test("with 1 bitIndex", (Test test) ->
+                {
+                    final BitArray block = new BitArray(10);
+                    block.set(1, Integer.valueOf(1));
+                    for (int i = 0; i < 10; ++i)
+                    {
+                        final int expected = i == 1 ? 1 : 0;
+                        test.assertEqual(expected, block.get(i), "Expected bit at index " + i + " to be " + expected + ".");
+                    }
+                });
+
+                runner.test("with bitIndex equal to bitCount - 1", (Test test) ->
+                {
+                    final BitArray block = new BitArray(10);
+                    block.set(9, Integer.valueOf(1));
+                    for (int i = 0; i < 10; ++i)
+                    {
+                        final int expected = i == 9 ? 1 : 0;
+                        test.assertEqual(expected, block.get(i), "Expected bit at index " + i + " to be " + expected + ".");
+                    }
+                });
+
+                runner.test("with bitIndex equal to bitCount", (Test test) ->
+                {
+                    final BitArray block = new BitArray(10);
+                    test.assertThrows(
+                        () -> block.set(10, Integer.valueOf(1)),
+                        new PreConditionFailure("index (10) must be between 0 and 9."));
+                    for (int i = 0; i < 10; ++i)
+                    {
+                        test.assertEqual(0, block.get(i), "Expected bit at index " + i + " to be 0.");
+                    }
+                });
+
+                runner.test("with bitIndex equal to bitCount + 1", (Test test) ->
+                {
+                    final BitArray block = new BitArray(10);
+                    test.assertThrows(
+                        () -> block.set(11, Integer.valueOf(1)),
+                        new PreConditionFailure("index (11) must be between 0 and 9."));
+                    for (int i = 0; i < 10; ++i)
+                    {
+                        test.assertEqual(0, block.get(i), "Expected bit at index " + i + " to be 0.");
+                    }
+                });
+            });
+
+            runner.testGroup("set(int,int)", () ->
+            {
+                runner.test("with negative bitIndex", (Test test) ->
+                {
+                    final BitArray block = new BitArray(10);
+                    test.assertThrows(
+                        () -> block.set(-1, 1),
+                        new PreConditionFailure("index (-1) must be between 0 and 9."));
+                    for (int i = 0; i < 10; ++i)
+                    {
+                        test.assertEqual(0, block.get(i), "Expected bit at index " + i + " to be 0.");
+                    }
+                });
+
+                runner.test("with 0 bitIndex", (Test test) ->
+                {
+                    final BitArray block = new BitArray(10);
+                    block.set(0, 1);
+                    for (int i = 0; i < 10; ++i)
+                    {
+                        final int expected = i == 0 ? 1 : 0;
+                        test.assertEqual(expected, block.get(i), "Expected bit at index " + i + " to be " + expected + ".");
+                    }
+                });
+
+                runner.test("with 1 bitIndex", (Test test) ->
+                {
+                    final BitArray block = new BitArray(10);
+                    block.set(1, 1);
+                    for (int i = 0; i < 10; ++i)
+                    {
+                        final int expected = i == 1 ? 1 : 0;
+                        test.assertEqual(expected, block.get(i), "Expected bit at index " + i + " to be " + expected + ".");
+                    }
+                });
+
+                runner.test("with bitIndex equal to bitCount - 1", (Test test) ->
+                {
+                    final BitArray block = new BitArray(10);
+                    block.set(9, 1);
+                    for (int i = 0; i < 10; ++i)
+                    {
+                        final int expected = i == 9 ? 1 : 0;
+                        test.assertEqual(expected, block.get(i), "Expected bit at index " + i + " to be " + expected + ".");
+                    }
+                });
+
+                runner.test("with bitIndex equal to bitCount", (Test test) ->
+                {
+                    final BitArray block = new BitArray(10);
+                    test.assertThrows(
+                        () -> block.set(10, 1),
+                        new PreConditionFailure("index (10) must be between 0 and 9."));
+                    for (int i = 0; i < 10; ++i)
+                    {
+                        test.assertEqual(0, block.get(i), "Expected bit at index " + i + " to be 0.");
+                    }
+                });
+
+                runner.test("with bitIndex equal to bitCount + 1", (Test test) ->
+                {
+                    final BitArray block = new BitArray(10);
+                    test.assertThrows(
+                        () -> block.set(11, 1),
+                        new PreConditionFailure("index (11) must be between 0 and 9."));
+                    for (int i = 0; i < 10; ++i)
+                    {
+                        test.assertEqual(0, block.get(i), "Expected bit at index " + i + " to be 0.");
+                    }
                 });
             });
 
@@ -173,10 +317,10 @@ public class BitArrayTests
                     final BitArray block = new BitArray(10);
                     test.assertThrows(
                         () -> block.setBit(-1, 1),
-                        new PreConditionFailure("bitIndex (-1) must be between 0 and 9."));
+                        new PreConditionFailure("index (-1) must be between 0 and 9."));
                     for (int i = 0; i < 10; ++i)
                     {
-                        test.assertEqual(0, block.getBit(i), "Expected bit at index " + i + " to be 0.");
+                        test.assertEqual(0, block.get(i), "Expected bit at index " + i + " to be 0.");
                     }
                 });
 
@@ -187,7 +331,7 @@ public class BitArrayTests
                     for (int i = 0; i < 10; ++i)
                     {
                         final int expected = i == 0 ? 1 : 0;
-                        test.assertEqual(expected, block.getBit(i), "Expected bit at index " + i + " to be " + expected + ".");
+                        test.assertEqual(expected, block.get(i), "Expected bit at index " + i + " to be " + expected + ".");
                     }
                 });
 
@@ -198,7 +342,7 @@ public class BitArrayTests
                     for (int i = 0; i < 10; ++i)
                     {
                         final int expected = i == 1 ? 1 : 0;
-                        test.assertEqual(expected, block.getBit(i), "Expected bit at index " + i + " to be " + expected + ".");
+                        test.assertEqual(expected, block.get(i), "Expected bit at index " + i + " to be " + expected + ".");
                     }
                 });
 
@@ -209,7 +353,7 @@ public class BitArrayTests
                     for (int i = 0; i < 10; ++i)
                     {
                         final int expected = i == 9 ? 1 : 0;
-                        test.assertEqual(expected, block.getBit(i), "Expected bit at index " + i + " to be " + expected + ".");
+                        test.assertEqual(expected, block.get(i), "Expected bit at index " + i + " to be " + expected + ".");
                     }
                 });
 
@@ -218,10 +362,10 @@ public class BitArrayTests
                     final BitArray block = new BitArray(10);
                     test.assertThrows(
                         () -> block.setBit(10, 1),
-                        new PreConditionFailure("bitIndex (10) must be between 0 and 9."));
+                        new PreConditionFailure("index (10) must be between 0 and 9."));
                     for (int i = 0; i < 10; ++i)
                     {
-                        test.assertEqual(0, block.getBit(i), "Expected bit at index " + i + " to be 0.");
+                        test.assertEqual(0, block.get(i), "Expected bit at index " + i + " to be 0.");
                     }
                 });
 
@@ -230,10 +374,10 @@ public class BitArrayTests
                     final BitArray block = new BitArray(10);
                     test.assertThrows(
                         () -> block.setBit(11, 1),
-                        new PreConditionFailure("bitIndex (11) must be between 0 and 9."));
+                        new PreConditionFailure("index (11) must be between 0 and 9."));
                     for (int i = 0; i < 10; ++i)
                     {
-                        test.assertEqual(0, block.getBit(i), "Expected bit at index " + i + " to be 0.");
+                        test.assertEqual(0, block.get(i), "Expected bit at index " + i + " to be 0.");
                     }
                 });
             });
@@ -252,7 +396,7 @@ public class BitArrayTests
                 runner.test("with 0", (Test test) ->
                 {
                     final BitArray block = new BitArray(3);
-                    block.setBit(1, 1);
+                    block.set(1, 1);
                     block.setAllBits(0);
                     test.assertEqual("000", block.toString());
                 });
@@ -765,6 +909,7 @@ public class BitArrayTests
                         test.assertNotNull(iterator);
                         test.assertFalse(iterator.hasStarted());
                         test.assertFalse(iterator.hasCurrent());
+                        test.assertThrows(iterator::getCurrent, new PreConditionFailure("hasCurrent() cannot be false."));
 
                         for (int expectedBit : expectedBits)
                         {
@@ -779,7 +924,7 @@ public class BitArrayTests
                             test.assertFalse(iterator.next());
                             test.assertTrue(iterator.hasStarted());
                             test.assertFalse(iterator.hasCurrent());
-                            test.assertNull(iterator.getCurrent());
+                            test.assertThrows(iterator::getCurrent, new PreConditionFailure("hasCurrent() cannot be false."));
                         }
                     });
                 };
@@ -879,14 +1024,14 @@ public class BitArrayTests
                 runner.test("with first bit on", (Test test) ->
                 {
                     final BitArray block = new BitArray(5);
-                    block.setBit(0, 1);
+                    block.set(0, 1);
                     test.assertEqual("10000", block.toString());
                 });
 
                 runner.test("with last bit on", (Test test) ->
                 {
                     final BitArray block = new BitArray(5);
-                    block.setBit(4, 1);
+                    block.set(4, 1);
                     test.assertEqual("00001", block.toString());
                 });
 
@@ -935,7 +1080,7 @@ public class BitArrayTests
                 {
                     final BitArray block = new BitArray(5);
                     final BitArray otherBits = new BitArray(5);
-                    otherBits.setBit(0, 1);
+                    otherBits.set(0, 1);
                     test.assertFalse(block.equals((Object)otherBits));
                 });
             });
@@ -971,7 +1116,7 @@ public class BitArrayTests
                 {
                     final BitArray block = new BitArray(5);
                     final BitArray otherBits = new BitArray(5);
-                    otherBits.setBit(0, 1);
+                    otherBits.set(0, 1);
                     test.assertFalse(block.equals(otherBits));
                 });
             });
@@ -1060,41 +1205,41 @@ public class BitArrayTests
                 });
             });
 
-            runner.testGroup("fromByteArray(byte[])", () ->
+            runner.testGroup("createFromBytes(byte[])", () ->
             {
                 runner.test("with []", (Test test) ->
                 {
-                    final BitArray bits = BitArray.fromByteArray(new byte[0]);
+                    final BitArray bits = BitArray.createFromBytes(new byte[0]);
                     test.assertEqual("", bits.toBitString());
                 });
 
                 runner.test("with [0]", (Test test) ->
                 {
-                    final BitArray bits = BitArray.fromByteArray(new byte[] { 0 });
+                    final BitArray bits = BitArray.createFromBytes(new byte[] { 0 });
                     test.assertEqual("00", bits.toHexString());
                 });
 
                 runner.test("with [-1]", (Test test) ->
                 {
-                    final BitArray bits = BitArray.fromByteArray(new byte[] { -1 });
+                    final BitArray bits = BitArray.createFromBytes(new byte[] { -1 });
                     test.assertEqual("FF", bits.toHexString());
                 });
 
                 runner.test("with [-1, 0]", (Test test) ->
                 {
-                    final BitArray bits = BitArray.fromByteArray(new byte[] { -1, 0 });
+                    final BitArray bits = BitArray.createFromBytes(new byte[] { -1, 0 });
                     test.assertEqual("FF00", bits.toHexString());
                 });
 
                 runner.test("with [-1, 0, -2, 1]", (Test test) ->
                 {
-                    final BitArray bits = BitArray.fromByteArray(new byte[] { -1, 0, -2, 1 });
+                    final BitArray bits = BitArray.createFromBytes(new byte[] { -1, 0, -2, 1 });
                     test.assertEqual("FF00FE01", bits.toHexString());
                 });
 
                 runner.test("with [-1, 0, -1, 0, -2, 1, -2, 1, -3]", (Test test) ->
                 {
-                    final BitArray bits = BitArray.fromByteArray(new byte[] { -1, 0, -1, 0, -2, 1, -2, 1, -3 });
+                    final BitArray bits = BitArray.createFromBytes(new byte[] { -1, 0, -1, 0, -2, 1, -2, 1, -3 });
                     test.assertEqual("FF00FF00FE01FE01FD", bits.toHexString());
                 });
             });
@@ -1153,6 +1298,45 @@ public class BitArrayTests
                 {
                     final BitArray bits = BitArray.createFromBitString("110010");
                     test.assertEqual(9, bits.toInteger(1, 4));
+                });
+            });
+
+            runner.testGroup("toByteArray()", () ->
+            {
+                runner.test("with empty", (Test test) ->
+                {
+                    final BitArray array = new BitArray(0);
+                    test.assertEqual(new byte[0], array.toByteArray());
+                });
+
+                runner.test("with " + Strings.quote("1"), (Test test) ->
+                {
+                    final BitArray array = BitArray.createFromBitString("1");
+                    test.assertEqual(new byte[] { -128 }, array.toByteArray());
+                });
+
+                runner.test("with " + Strings.quote("11"), (Test test) ->
+                {
+                    final BitArray array = BitArray.createFromBitString("11");
+                    test.assertEqual(new byte[] { -64 }, array.toByteArray());
+                });
+
+                runner.test("with " + Strings.quote("1100011"), (Test test) ->
+                {
+                    final BitArray array = BitArray.createFromBitString("1100011");
+                    test.assertEqual(new byte[] { -58 }, array.toByteArray());
+                });
+
+                runner.test("with " + Strings.quote("11000011"), (Test test) ->
+                {
+                    final BitArray array = BitArray.createFromBitString("11000011");
+                    test.assertEqual(new byte[] { -61 }, array.toByteArray());
+                });
+
+                runner.test("with " + Strings.quote("110000110"), (Test test) ->
+                {
+                    final BitArray array = BitArray.createFromBitString("110000110");
+                    test.assertEqual(new byte[] { -61, 0 }, array.toByteArray());
                 });
             });
 

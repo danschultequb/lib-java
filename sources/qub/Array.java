@@ -46,6 +46,105 @@ public abstract class Array<T> implements MutableIndexable<T>
     }
 
     /**
+     * Create a new BitArray with the provided length.
+     * @param length The length of the BitArray.
+     * @return The new BooleanArray.
+     */
+    static BitArray createBitArray(long length)
+    {
+        PreCondition.assertBetween(0, length, BitArray.maximumBitCount, "length");
+
+        return new BitArray(length);
+    }
+
+    /**
+     * Create a new BitArray from the provided bit values.
+     * @param values The bit values.
+     * @return The new BitArray.
+     */
+    static BitArray createBitArrayFromBits(int... values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        final BitArray result = Array.createBitArray(values.length);
+        for (int i = 0; i < values.length; ++i)
+        {
+            PreCondition.assertBit(values[i], "The " + i + " bit");
+            result.set(i, values[i]);
+        }
+
+        return result;
+    }
+
+    /**
+     * Create a BitArray from the provided values.
+     * @param values The values to create the BitArray from.
+     * @return The new BitArray.
+     */
+    static BitArray createBitArrayFromBytes(byte... values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        return BitArray.createFromBytes(values);
+    }
+
+    /**
+     * Create a BitArray from the provided values.
+     * @param values The values to create the BitArray from.
+     * @return The new BitArray.
+     */
+    static BitArray createBitArrayFromBytes(byte[] values, long bitCount)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        return BitArray.createFromBytes(values, bitCount);
+    }
+
+    /**
+     * Create a BitArray from the provided values.
+     * @param values The values to create the BitArray from.
+     * @return The new BitArray.
+     */
+    static BitArray createBitArrayFromBytes(int... values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        return Array.createBitArrayFromBytes(Array.toByteArray(values));
+    }
+
+    /**
+     * Create a BitArray from the provided values.
+     * @param values The values to create the BitArray from.
+     * @return The new BitArray.
+     */
+    static BitArray createBitArrayFromIntegers(int... values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        return BitArray.createFromIntegers(values);
+    }
+
+    /**
+     * Create a BitArray from the provided bit string.
+     * @param bitString The bit string.
+     * @return The new BitArray.
+     */
+    static BitArray createBitArrayFromBitString(String bitString)
+    {
+        return BitArray.createFromBitString(bitString);
+    }
+
+    /**
+     * Create a BitArray from the provided hexadecimal string.
+     * @param hexString The hexadecimal string.
+     * @return The new BitArray.
+     */
+    static BitArray createBitArrayFromHexString(String hexString)
+    {
+        return BitArray.createFromHexString(hexString);
+    }
+
+    /**
      * Create a new BooleanArray with the provided length.
      * @param length The length of the BooleanArray.
      * @return The new BooleanArray.
@@ -206,6 +305,28 @@ public abstract class Array<T> implements MutableIndexable<T>
         }
 
         PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    /**
+     * Create a new byte[] from the provided integer values.
+     * @param values The integer values.
+     * @return The new byte[].
+     */
+    static byte[] toByteArray(int... values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        final byte[] result = new byte[values.length];
+        for (int i = 0; i < values.length; ++i)
+        {
+            PreCondition.assertByte(values[i], "The " + i + " value");
+            result[i] = (byte)values[i];
+        }
+
+        PostCondition.assertNotNull(result, "result");
+        PostCondition.assertEqual(values.length, result.length, "result.length");
 
         return result;
     }

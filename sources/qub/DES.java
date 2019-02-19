@@ -169,9 +169,9 @@ public class DES
     public BitArray encrypt(BitArray initializationVector, BitArray plaintext)
     {
         PreCondition.assertNotNull(initializationVector, "initializationVector");
-        PreCondition.assertEqual(blockSize, initializationVector.getBitCount(), "initializationVector.getBitCount()");
+        PreCondition.assertEqual(blockSize, initializationVector.getCount(), "initializationVector.getCount()");
         PreCondition.assertNotNull(plaintext, "plaintext");
-        PreCondition.assertEqual(blockSize, plaintext.getBitCount(), "plaintext.getBitCount()");
+        PreCondition.assertEqual(blockSize, plaintext.getCount(), "plaintext.getCount()");
 
         final BitArray[] kArray = getKArray(initializationVector);
 
@@ -188,7 +188,7 @@ public class DES
         final BitArray result = getFinalResult(lrArray[iterationCount]);
 
         PostCondition.assertNotNull(result, "result");
-        PostCondition.assertEqual(blockSize, result.getBitCount(), "result.getBitCount()");
+        PostCondition.assertEqual(blockSize, result.getCount(), "result.getCount()");
 
         return result;
     }
@@ -205,9 +205,9 @@ public class DES
     public BitArray decrypt(BitArray initializationVector, BitArray ciphertext)
     {
         PreCondition.assertNotNull(initializationVector, "initializationVector");
-        PreCondition.assertEqual(blockSize, initializationVector.getBitCount(), "initializationVector.getBitCount()");
+        PreCondition.assertEqual(blockSize, initializationVector.getCount(), "initializationVector.getCount()");
         PreCondition.assertNotNull(ciphertext, "ciphertext");
-        PreCondition.assertEqual(blockSize, ciphertext.getBitCount(), "ciphertext.getBitCount()");
+        PreCondition.assertEqual(blockSize, ciphertext.getCount(), "ciphertext.getCount()");
 
         final BitArray[] kArray = getKArray(initializationVector);
 
@@ -224,7 +224,7 @@ public class DES
         final BitArray result = getFinalResult(lrArray[iterationCount]);
 
         PostCondition.assertNotNull(result, "result");
-        PostCondition.assertEqual(64, result.getBitCount(), "result.getBitCount()");
+        PostCondition.assertEqual(64, result.getCount(), "result.getCount()");
 
         return result;
     }
@@ -232,11 +232,11 @@ public class DES
     BitArray[] getKArray(BitArray initializationVector)
     {
         PreCondition.assertNotNull(initializationVector, "initializationVector");
-        PreCondition.assertEqual(64, initializationVector.getBitCount(), "initializationVector.getBitCount()");
+        PreCondition.assertEqual(64, initializationVector.getCount(), "initializationVector.getCount()");
 
         final BitArray[] result = new BitArray[iterationCount + 1];
         result[0] = initializationVector.permuteByBitNumber(permutedChoice1BitNumbers);
-        final long kSize = result[0].getBitCount();
+        final long kSize = result[0].getCount();
 
         for (int i = 1; i <= iterationCount; ++i)
         {
@@ -255,7 +255,7 @@ public class DES
     BitArray getIterationK(BitArray cAndD, int iterationNumber)
     {
         PreCondition.assertNotNull(cAndD, "cAndD");
-        PreCondition.assertEqual(56, cAndD.getBitCount(), "cAndD.getBitCount()");
+        PreCondition.assertEqual(56, cAndD.getCount(), "cAndD.getCount()");
         PreCondition.assertBetween(1, iterationNumber, 16, "iterationNumber");
 
         final int iterationShiftCount = iterationShiftCounts[iterationNumber];
@@ -264,7 +264,7 @@ public class DES
         final BitArray result = cAndD.permuteByBitNumber(permutedChoice2BitNumbers);
 
         PostCondition.assertNotNull(result, "result");
-        PostCondition.assertEqual(48, result.getBitCount(), "result.getBitCount()");
+        PostCondition.assertEqual(48, result.getCount(), "result.getCount()");
 
         return result;
     }
@@ -272,7 +272,7 @@ public class DES
     BitArray getPreOutput(BitArray lr)
     {
         PreCondition.assertNotNull(lr, "lr");
-        PreCondition.assertEqual(blockSize, lr.getBitCount(), "lr.getBitCount()");
+        PreCondition.assertEqual(blockSize, lr.getCount(), "lr.getCount()");
 
         // Swap L and R.
         final BitArray result = new BitArray(blockSize);
@@ -280,7 +280,7 @@ public class DES
         result.copyFrom(lr, 0, blockSize / 2, blockSize / 2);
 
         PostCondition.assertNotNull(result, "result");
-        PostCondition.assertEqual(blockSize, result.getBitCount(), "result.getBitCount()");
+        PostCondition.assertEqual(blockSize, result.getCount(), "result.getCount()");
 
         return result;
     }
@@ -288,11 +288,11 @@ public class DES
     BitArray getLRNextAfterIteration(BitArray lrPrevious, BitArray iterationK)
     {
         PreCondition.assertNotNull(lrPrevious, "lrPrevious");
-        PreCondition.assertEqual(blockSize, lrPrevious.getBitCount(), "lrPrevious.getBitCount()");
+        PreCondition.assertEqual(blockSize, lrPrevious.getCount(), "lrPrevious.getCount()");
         PreCondition.assertNotNull(iterationK, "iterationK");
-        PreCondition.assertEqual(48, iterationK.getBitCount(), "iterationK.getBitCount()");
+        PreCondition.assertEqual(48, iterationK.getCount(), "iterationK.getCount()");
 
-        final long lrSize = lrPrevious.getBitCount();
+        final long lrSize = lrPrevious.getCount();
 
         final BitArray lPrevious = new BitArray(lrSize / 2);
         lPrevious.copyFrom(lrPrevious, 0, 0, lrSize / 2);
@@ -316,7 +316,7 @@ public class DES
             final BitArray b = new BitArray(6);
             b.copyFrom(sInput, sIndex * 6, 0, 6);
 
-            final int row = (b.getBit(0) << 1) | b.getBit(5);
+            final int row = (b.get(0) << 1) | b.get(5);
             final int column = b.toInteger(1, 4);
             final int sValueIndex = (row * 16) + column;
             final int sValue = sFunctions[sIndex][sValueIndex];
@@ -333,7 +333,7 @@ public class DES
         result.copyFrom(rNext, 0, lrSize / 2, lrSize / 2);
 
         PostCondition.assertNotNull(result, "result");
-        PostCondition.assertEqual(blockSize, result.getBitCount(), "result.getBitCount()");
+        PostCondition.assertEqual(blockSize, result.getCount(), "result.getCount()");
 
         return result;
     }
@@ -341,13 +341,13 @@ public class DES
     public BitArray getFinalResult(BitArray lr)
     {
         PreCondition.assertNotNull(lr, "lr");
-        PreCondition.assertEqual(blockSize, lr.getBitCount(), "lr.getBitCount()");
+        PreCondition.assertEqual(blockSize, lr.getCount(), "lr.getCount()");
 
         final BitArray preoutput = getPreOutput(lr);
         final BitArray result = preoutput.permuteByBitNumber(initialPermutationInverseBitNumbers);
 
         PostCondition.assertNotNull(result, "result");
-        PostCondition.assertEqual(blockSize, result.getBitCount(), "result.getBitCount()");
+        PostCondition.assertEqual(blockSize, result.getCount(), "result.getCount()");
 
         return result;
     }

@@ -39,12 +39,12 @@ public class BitArrayBlockIterator implements Iterator<BitArray>
         {
             hasStarted = true;
         }
-        else if (currentBitIndex < source.getBitCount())
+        else if (currentBitIndex < source.getCount())
         {
             currentBitIndex += blockSize;
         }
 
-        if (currentBitIndex < source.getBitCount())
+        if (currentBitIndex < source.getCount())
         {
             currentBlock = new BitArray(blockSize);
             currentBlock.copyFrom(source, currentBitIndex, 0, blockSize);

@@ -585,6 +585,16 @@ public class PreCondition
     }
 
     /**
+     * Assert that the int value is either 0 or 1.
+     * @param value The int value to check.
+     * @param expressionName The name of the expression value.
+     */
+    public static void assertBit(int value, String expressionName)
+    {
+        assertOneOf(value, new int[] { 0, 1 }, expressionName);
+    }
+
+    /**
      * Assert that the int value is in the range of a byte.
      * @param value The int value to check.
      * @param expressionName The name of the expression value.

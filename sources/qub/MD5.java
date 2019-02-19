@@ -38,13 +38,13 @@ public class MD5
             resultBitCount += BlockBitCount;
         }
         final BitArray result = new BitArray(resultBitCount);
-        result.setBit(0, 1);
+        result.set(0, 1);
 
         final long littleEndianBitCount = ByteOrder.toLittleEndianLong(bitCount);
         result.setLastBitsFromLong(littleEndianBitCount);
 
         PostCondition.assertNotNull(result, "result");
-        PostCondition.assertGreaterThanOrEqualTo(result.getBitCount(), 65, "result.getBitCount()");
+        PostCondition.assertGreaterThanOrEqualTo(result.getCount(), 65, "result.getCount()");
 
         return result;
     }
@@ -53,7 +53,7 @@ public class MD5
     {
         PreCondition.assertNotNull(bits, "bytes");
 
-        final long bitCount = bits.getBitCount();
+        final long bitCount = bits.getCount();
         final BitArray padding = getPaddingFromBitCount(bitCount);
         final BitArray paddedBits = bits.concatenate(padding);
 
@@ -69,7 +69,7 @@ public class MD5
         final BitArray result = new BitArray(resultBitCount);
 
         PostCondition.assertNotNull(result, "result");
-        PostCondition.assertEqual(resultBitCount, result.getBitCount(), "result.getBitCount()");
+        PostCondition.assertEqual(resultBitCount, result.getCount(), "result.getCount()");
 
         return result;
     }
@@ -81,7 +81,7 @@ public class MD5
         final BitArray result = new BitArray(resultBitCount);
 
         PostCondition.assertNotNull(result, "result");
-        PostCondition.assertEqual(resultBitCount, result.getBitCount(), "result.getBitCount()");
+        PostCondition.assertEqual(resultBitCount, result.getCount(), "result.getCount()");
 
         return result;
     }
@@ -100,7 +100,7 @@ public class MD5
         final BitArray result = new BitArray(resultBitCount);
 
         PostCondition.assertNotNull(result, "result");
-        PostCondition.assertEqual(resultBitCount, result.getBitCount(), "result.getBitCount()");
+        PostCondition.assertEqual(resultBitCount, result.getCount(), "result.getCount()");
 
         return result;
     }
@@ -134,7 +134,7 @@ public class MD5
         final BitArray result = new BitArray(resultBitCount);
 
         PostCondition.assertNotNull(result, "result");
-        PostCondition.assertEqual(resultBitCount, result.getBitCount(), "result.getBitCount()");
+        PostCondition.assertEqual(resultBitCount, result.getCount(), "result.getCount()");
 
         return result;
     }
