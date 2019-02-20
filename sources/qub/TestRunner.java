@@ -84,6 +84,15 @@ public interface TestRunner
     void test(String testName, Skip skip, Action1<Test> testAction);
 
     /**
+     * Run the provided test and assert that it runs within the provided maximum duration.
+     * @param testName The name of the test.
+     * @param maximumDuration The maximum amount of time that the test can take. The test will fail
+     *                        if it takes longer than this duration.
+     * @param testAction The action for the test.
+     */
+    void speedTest(String testName, Duration maximumDuration, Action1<Test> testAction);
+
+    /**
      * Set an action that will be run before each test group.
      * @param beforeTestGroupAction The action that will be run before each test group.
      */

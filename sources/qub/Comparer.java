@@ -375,16 +375,9 @@ public interface Comparer<T> extends Function2<T,T,Comparison>
      * @param <T> The type of the values to compare.
      * @return A Function1 that compares other values against the provided lhs value.
      */
-    static <T> Function1<T,Boolean> equal(final T lhs)
+    static <T> Function1<T,Boolean> equal(T lhs)
     {
-        return new Function1<T,Boolean>()
-        {
-            @Override
-            public Boolean run(T rhs)
-            {
-                return Comparer.equal(lhs, rhs);
-            }
-        };
+        return (T rhs) -> Comparer.equal(lhs, rhs);
     }
 
     static <T> boolean same(T arg1, T arg2)
@@ -402,9 +395,7 @@ public interface Comparer<T> extends Function2<T,T,Comparison>
      */
     static boolean between(int lowerBound, int value, int upperBound)
     {
-        return lowerBound > upperBound
-           ? between(upperBound, value, lowerBound)
-           : lowerBound <= value && value <= upperBound;
+        return lowerBound <= value && value <= upperBound;
     }
 
     /**
@@ -430,9 +421,21 @@ public interface Comparer<T> extends Function2<T,T,Comparison>
      */
     static boolean between(double lowerBound, double value, double upperBound)
     {
-        return lowerBound > upperBound
-                   ? between(upperBound, value, lowerBound)
-                   : lowerBound <= value && value <= upperBound;
+        return lowerBound <= value && value <= upperBound;
+    }
+
+    /**
+     * Return whether or not the provided value is greater than or equal to the provided lowerBound
+     * and is less than or equal to the provided upper bound.
+     * @param lowerBound The lower bound.
+     * @param value The value to compare.
+     * @param upperBound The upper bound.
+     * @return Whether or not the value is between the provided lower and upper bounds.
+     */
+    static <T extends Comparable<T>> boolean between(T lowerBound, T value, T upperBound)
+    {
+        return Comparer.lessThanOrEqualTo(lowerBound, value) &&
+            Comparer.lessThanOrEqualTo(value, upperBound);
     }
 
     /**
@@ -652,14 +655,7 @@ public interface Comparer<T> extends Function2<T,T,Comparison>
 
     static <T extends Comparable<T>> T minimum(Iterable<T> values)
     {
-        return Comparer.minimum(values, new Function2<T,T,Comparison>()
-        {
-            @Override
-            public Comparison run(T lhs, T rhs)
-            {
-                return compare(lhs, rhs);
-            }
-        });
+        return Comparer.minimum(values, Comparer::compare);
     }
 
     static <T> T minimum(Iterable<T> values, Function2<T,T,Comparison> comparer)

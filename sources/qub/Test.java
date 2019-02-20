@@ -884,16 +884,16 @@ public class Test
         }
     }
 
-    public <T extends Comparable<T>> void assertLessThan(T lhs, T rhs)
+    public <T extends Comparable<T>> void assertLessThan(T value, T upperBound)
     {
-        assertLessThan(lhs, rhs, null);
+        assertLessThan(value, upperBound, null);
     }
 
-    public <T extends Comparable<T>> void assertLessThan(T lhs, T rhs, String message)
+    public <T extends Comparable<T>> void assertLessThan(T value, T upperBound, String message)
     {
-        if (!Comparer.lessThan(lhs, rhs))
+        if (!Comparer.lessThan(value, upperBound))
         {
-            throw new TestAssertionFailure(getFullName(), getMessageLines(message, "less than " + Objects.toString(rhs), lhs));
+            throw new TestAssertionFailure(getFullName(), getMessageLines(message, "less than " + Objects.toString(upperBound), value));
         }
     }
 
@@ -946,6 +946,33 @@ public class Test
         if (!Comparer.greaterThan(lhs, rhs))
         {
             throw new TestAssertionFailure(getFullName(), getMessageLines(message, "greater than " + Objects.toString(rhs), lhs));
+        }
+    }
+
+    /**
+     * Assert that the provided value is greater than or equal to the provided lowerBound and is
+     * less than or equal to the provided upper bound.
+     * @param lowerBound The lower bound.
+     * @param value The value to compare.
+     * @param upperBound The upper bound.
+     */
+    public <T extends Comparable<T>> void assertBetween(T lowerBound, T value, T upperBound)
+    {
+        assertBetween(lowerBound, value, upperBound, null);
+    }
+
+    /**
+     * Assert that the provided value is greater than or equal to the provided lowerBound and is
+     * less than or equal to the provided upper bound.
+     * @param lowerBound The lower bound.
+     * @param value The value to compare.
+     * @param upperBound The upper bound.
+     */
+    public <T extends Comparable<T>> void assertBetween(T lowerBound, T value, T upperBound, String message)
+    {
+        if (!Comparer.between(lowerBound, value, upperBound))
+        {
+            throw new TestAssertionFailure(getFullName(), getMessageLines(message, "between " + Objects.toString(lowerBound) + " and " + Objects.toString(upperBound), value));
         }
     }
 

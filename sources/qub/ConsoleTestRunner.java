@@ -330,6 +330,12 @@ public class ConsoleTestRunner extends Console implements TestRunner
     }
 
     @Override
+    public void speedTest(String testName, Duration maximumDuration, Action1<Test> testAction)
+    {
+        testRunner.speedTest(testName, maximumDuration, testAction);
+    }
+
+    @Override
     public void beforeTestGroup(Action1<TestGroup> beforeTestGroupAction)
     {
         testRunner.beforeTestGroup(beforeTestGroupAction);

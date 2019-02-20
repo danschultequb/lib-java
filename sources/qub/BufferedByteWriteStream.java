@@ -42,6 +42,19 @@ public class BufferedByteWriteStream implements ByteWriteStream
     }
 
     @Override
+    public Result<Boolean> writeByte(byte toWrite)
+    {
+        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+
+        buffer[currentBufferIndex++] = toWrite;
+        final Result<Boolean> result = flushBufferIfFull().then(() -> true);
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    @Override
     public Result<Integer> writeBytes(byte[] toWrite, int startIndex, int length)
     {
         PreCondition.assertNotNull(toWrite, "toWrite");
@@ -53,10 +66,19 @@ public class BufferedByteWriteStream implements ByteWriteStream
         Array.copy(toWrite, startIndex, buffer, currentBufferIndex, bytesToAddToBuffer);
         currentBufferIndex += bytesToAddToBuffer;
 
-        Result<Integer> result;
+        final Result<Integer> result = flushBufferIfFull().then(() -> bytesToAddToBuffer);
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    private Result<?> flushBufferIfFull()
+    {
+        Result<?> result;
         if (currentBufferIndex < buffer.length)
         {
-            result = Result.success(bytesToAddToBuffer);
+            result = Result.success();
         }
         else
         {
@@ -70,12 +92,9 @@ public class BufferedByteWriteStream implements ByteWriteStream
                     }
                     else
                     {
-                        final byte[] newBuffer = new byte[buffer.length];
-                        Array.copy(buffer, bytesWritten, newBuffer, 0, currentBufferIndex - bytesWritten);
-                        buffer = newBuffer;
+                        Array.copy(buffer, bytesWritten, buffer, 0, buffer.length - bytesWritten);
                         currentBufferIndex -= bytesWritten;
                     }
-                    return bytesToAddToBuffer;
                 });
         }
 

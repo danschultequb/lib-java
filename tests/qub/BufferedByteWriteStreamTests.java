@@ -70,6 +70,24 @@ public class BufferedByteWriteStreamTests
                 });
             });
 
+            runner.testGroup("writeByte(byte)", () ->
+            {
+                final int byteCount = 1500000;
+                runner.speedTest("with " + byteCount + " bytes", Duration.milliseconds(100), (Test test) ->
+                {
+                    final InMemoryByteStream innerStream = new InMemoryByteStream();
+                    final BufferedByteWriteStream writeStream = new BufferedByteWriteStream(innerStream);
+
+                    for (int i = 0; i < byteCount; ++i)
+                    {
+                        writeStream.writeByte((byte)42).await();
+                    }
+
+                    test.assertTrue(writeStream.dispose().await());
+                    test.assertEqual(byteCount, innerStream.getCount());
+                });
+            });
+
             runner.testGroup("writeBytes(byte[],int,int)", () ->
             {
                 runner.test("with null bytes", (Test test) ->

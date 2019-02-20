@@ -30,7 +30,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
     public InMemoryByteStream(byte[] bytes, AsyncRunner asyncRunner)
     {
         this.asyncRunner = asyncRunner;
-        this.bytes = ByteList.create(bytes);
+        this.bytes = ByteList.createFromBytes(bytes);
         this.mutex = new SpinMutex();
         this.bytesAvailable = this.mutex.createCondition();
     }

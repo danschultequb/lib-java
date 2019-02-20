@@ -9,7 +9,7 @@ public class UTF8CharacterEncoding implements CharacterEncoding
         PreCondition.assertStartIndex(startIndex, characters.length);
         PreCondition.assertLength(length, startIndex, characters.length);
 
-        final List<Byte> encodedBytes = List.create();
+        final ByteList encodedBytes = new ByteList(length);
         for (int i = 0; i < length; ++i)
         {
             final char character = characters[startIndex + i];
@@ -61,7 +61,7 @@ public class UTF8CharacterEncoding implements CharacterEncoding
                 encodedBytes.add(fourthByte);
             }
         }
-        return Array.toByteArray(encodedBytes);
+        return Result.success(encodedBytes.toByteArray());
     }
 
     @Override

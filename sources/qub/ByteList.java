@@ -11,7 +11,14 @@ public class ByteList implements List<Byte>
 
     public ByteList()
     {
-        this.bytes = new byte[0];
+        this(64);
+    }
+
+    public ByteList(int capacity)
+    {
+        PreCondition.assertGreaterThanOrEqualTo(capacity, 0, "capacity");
+
+        this.bytes = new byte[capacity];
     }
 
     public ByteList(byte... values)
@@ -31,12 +38,12 @@ public class ByteList implements List<Byte>
         return new ByteList();
     }
 
-    public static ByteList create(byte... values)
+    public static ByteList createFromBytes(byte... values)
     {
         return new ByteList(values);
     }
 
-    public static ByteList create(int... values)
+    public static ByteList createFromBytes(int... values)
     {
         return new ByteList(values);
     }

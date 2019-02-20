@@ -281,6 +281,10 @@ public abstract class Array<T> implements MutableIndexable<T>
         {
             result = Result.success(((ByteArray)values).toByteArray());
         }
+        else if (values instanceof ByteList)
+        {
+            result = Result.success(((ByteList)values).toByteArray());
+        }
         else
         {
             final byte[] array = new byte[values.getCount()];
