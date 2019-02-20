@@ -3,7 +3,6 @@ package qub;
 public class CharacterArrayIterator implements Iterator<Character>
 {
     private final char[] characters;
-    private final int startIndex;
     private final int length;
     private boolean hasStarted;
     private int currentIndex;
@@ -20,7 +19,7 @@ public class CharacterArrayIterator implements Iterator<Character>
         PreCondition.assertLength(length, startIndex, characters.length);
 
         this.characters = characters;
-        this.startIndex = startIndex;
+        this.currentIndex = startIndex;
         this.length = length;
     }
 

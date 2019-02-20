@@ -2,14 +2,13 @@ package qub;
 
 public class BufferedByteWriteStream implements ByteWriteStream
 {
-    public static final int defaultInitialBufferSize = 1024;
     private final ByteWriteStream byteWriteStream;
     private byte[] buffer;
     private int currentBufferIndex;
 
     public BufferedByteWriteStream(ByteWriteStream byteWriteStream)
     {
-        this(byteWriteStream, defaultInitialBufferSize);
+        this(byteWriteStream, 1024);
     }
 
     public BufferedByteWriteStream(ByteWriteStream byteWriteStream, int initialBufferSize)
@@ -73,9 +72,9 @@ public class BufferedByteWriteStream implements ByteWriteStream
         return result;
     }
 
-    private Result<?> flushBufferIfFull()
+    private Result<Void> flushBufferIfFull()
     {
-        Result<?> result;
+        Result<Void> result;
         if (currentBufferIndex < buffer.length)
         {
             result = Result.success();
@@ -103,6 +102,34 @@ public class BufferedByteWriteStream implements ByteWriteStream
         return result;
     }
 
+    /**
+     * Write the bytes that are in the buffer to the inner ByteWriteStream.
+     * @return The number of bytes that were written to the inner ByteWriteStream.
+     */
+    public Result<Integer> flushBuffer()
+    {
+        Result<Integer> result;
+        if (currentBufferIndex == 0)
+        {
+            result = Result.success(0);
+        }
+        else
+        {
+            result = byteWriteStream.writeAllBytes(buffer, 0, currentBufferIndex)
+                .then(() ->
+                {
+                    buffer = null;
+                    final int bytesWritten = currentBufferIndex;
+                    currentBufferIndex = 0;
+                    return bytesWritten;
+                });
+        }
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
     @Override
     public boolean isDisposed()
     {
@@ -119,19 +146,14 @@ public class BufferedByteWriteStream implements ByteWriteStream
         }
         else
         {
-            Result<Void> writeBufferResult;
+            Result<Integer> writeBufferResult;
             if (currentBufferIndex == 0)
             {
-                writeBufferResult = Result.success();
+                writeBufferResult = Result.success(0);
             }
             else
             {
-                writeBufferResult = byteWriteStream.writeAllBytes(buffer, 0, currentBufferIndex)
-                    .then(() ->
-                    {
-                        buffer = null;
-                        currentBufferIndex = 0;
-                    });
+                writeBufferResult = flushBuffer();
             }
             result = writeBufferResult
                 .onError(byteWriteStream::dispose)

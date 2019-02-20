@@ -32,10 +32,7 @@ public class ByteArray extends Array<Byte>
         else
         {
             this.values = new byte[length];
-            for (int i = 0; i < length; ++i)
-            {
-                this.values[i] = values[startIndex + i];
-            }
+            Array.copy(values, startIndex, this.values, 0, length);
         }
     }
 
@@ -60,9 +57,8 @@ public class ByteArray extends Array<Byte>
         this.values = new byte[length];
         for (int i = 0; i < length; ++i)
         {
-            final int value = values[i];
-            PreCondition.assertByte(value, "The " + i + " element");
-            this.values[i] = (byte)value;
+            PreCondition.assertByte(values[i], "The " + i + " element");
+            this.values[i] = (byte)values[i];
         }
     }
 

@@ -9,7 +9,9 @@ public class CharacterArray extends Array<Character>
 
     public CharacterArray(int count)
     {
-        this(new char[count]);
+        PreCondition.assertGreaterThanOrEqualTo(count, 0, "count");
+
+        this.characters = new char[count];
     }
 
     public CharacterArray(char[] characters)
@@ -17,6 +19,23 @@ public class CharacterArray extends Array<Character>
         PreCondition.assertNotNull(characters, "characters");
 
         this.characters = characters;
+    }
+
+    public CharacterArray(char[] characters, int startIndex, int length)
+    {
+        PreCondition.assertNotNull(characters, "characters");
+        PreCondition.assertStartIndex(startIndex, characters.length);
+        PreCondition.assertLength(length, startIndex, characters.length);
+
+        if (characters.length == length)
+        {
+            this.characters = characters;
+        }
+        else
+        {
+            this.characters = new char[length];
+            Array.copy(characters, startIndex, this.characters, 0, length);
+        }
     }
 
     @Override
@@ -52,30 +71,5 @@ public class CharacterArray extends Array<Character>
         PreCondition.assertIndexAccess(index, getCount(), "index");
 
         return characters[index];
-    }
-
-    /**
-     * Create a new CharacterArray with the provided elements.
-     * @param values The elements of the new CharacterArray.
-     * @param startIndex The start index into the values.
-     * @param length The number of characters to copy.
-     * @return The new CharacterArray.
-     */
-    public static CharacterArray create(char[] values, int startIndex, int length)
-    {
-        PreCondition.assertNotNull(values, "values");
-        PreCondition.assertStartIndex(startIndex, values.length);
-        PreCondition.assertLength(length, startIndex, values.length);
-
-        final CharacterArray result = new CharacterArray(length);
-        for (int i = 0; i < length; ++i)
-        {
-            result.set(i, values[startIndex + i]);
-        }
-
-        PostCondition.assertNotNull(result, "result");
-        PostCondition.assertEqual(length, result.getCount(), "length");
-
-        return result;
     }
 }

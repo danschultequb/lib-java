@@ -72,7 +72,7 @@ public class BufferedByteWriteStreamTests
 
             runner.testGroup("writeByte(byte)", () ->
             {
-                final int byteCount = 1500000;
+                final int byteCount = 500000;
                 runner.speedTest("with " + byteCount + " bytes", Duration.milliseconds(100), (Test test) ->
                 {
                     final InMemoryByteStream innerStream = new InMemoryByteStream();
