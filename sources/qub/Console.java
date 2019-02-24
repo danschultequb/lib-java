@@ -266,4 +266,32 @@ public class Console extends Process
 
         return result;
     }
+
+    /**
+     * Run the provided console main function using the provided String arguments. This function
+     * will not return because it calls java.lang.System.exit() using the exit code set in the main
+     * function.
+     * @param args The String arguments provided.
+     * @param main The main function that will be run.
+     */
+    public static void run(String[] args, Action1<Console> main)
+    {
+        PreCondition.assertNotNull(args, "args");
+        PreCondition.assertNotNull(main, "main");
+
+        final Console console = new Console(args);
+        try
+        {
+            main.run(console);
+        }
+        catch (Throwable error)
+        {
+            console.writeLine("Unhandled exception: " + error);
+        }
+        finally
+        {
+            console.dispose().await();
+            java.lang.System.exit(console.getExitCode());
+        }
+    }
 }

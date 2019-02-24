@@ -6,6 +6,44 @@ public class ProcessTests
     {
         runner.testGroup(Process.class, () ->
         {
+            runner.test("getExitCode()", (Test test) ->
+            {
+                final Process process = creator.run();
+                test.assertEqual(0, process.getExitCode());
+            });
+
+            runner.testGroup("setExitCode(int)", () ->
+            {
+                runner.test("with negative", (Test test) ->
+                {
+                    final Process process = creator.run();
+                    test.assertSame(process, process.setExitCode(-1));
+                    test.assertEqual(-1, process.getExitCode());
+                });
+
+                runner.test("with zero", (Test test) ->
+                {
+                    final Process process = creator.run();
+                    test.assertSame(process, process.setExitCode(0));
+                    test.assertEqual(0, process.getExitCode());
+                });
+
+                runner.test("with positive", (Test test) ->
+                {
+                    final Process process = creator.run();
+                    test.assertSame(process, process.setExitCode(2));
+                    test.assertEqual(2, process.getExitCode());
+                });
+            });
+
+            runner.test("incrementExitCode()", (Test test) ->
+            {
+                final Process process = creator.run();
+                test.assertEqual(0, process.getExitCode());
+                test.assertSame(process, process.incrementExitCode());
+                test.assertEqual(1, process.getExitCode());
+            });
+
             runner.test("getCharacterEncoding()", (Test test) ->
             {
                 final Process process = creator.run();

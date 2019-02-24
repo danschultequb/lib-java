@@ -6,6 +6,7 @@ package qub;
 public class Process implements Disposable
 {
     private final CommandLine commandLine;
+    private volatile int exitCode;
 
     private final Value<CharacterEncoding> characterEncoding;
     private final Value<String> lineSeparator;
@@ -83,6 +84,35 @@ public class Process implements Disposable
         this.mainAsyncRunner = mainAsyncRunner;
         mainAsyncRunner.setClockGetter(this::getClock);
         AsyncRunnerRegistry.setCurrentThreadAsyncRunner(mainAsyncRunner);
+    }
+
+    /**
+     * Get the exit code that this process will return when it finishes.
+     * @return The exit code that this process will return when it finishes.
+     */
+    public int getExitCode()
+    {
+        return exitCode;
+    }
+
+    /**
+     * Set the exit code that this process will return when it finishes.
+     * @param exitCode The exit code that this process will return when it finishes.
+     * @return This Process for method chaining.
+     */
+    public Process setExitCode(int exitCode)
+    {
+        this.exitCode = exitCode;
+        return this;
+    }
+
+    /**
+     * Add one to the current exit code.
+     * @return This Process for method chaining.
+     */
+    public Process incrementExitCode()
+    {
+        return setExitCode(getExitCode() + 1);
     }
 
     public AsyncRunner getMainAsyncRunner()
