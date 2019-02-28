@@ -210,7 +210,7 @@ public class MutexTests
                 runner.test("with non-null action", (Test test) ->
                 {
                     final Mutex mutex = create(creator);
-                    final Value<Integer> value = new Value<>();
+                    final Value<Integer> value = IntegerValue.create();
                     mutex.criticalSection(() ->
                     {
                         test.assertTrue(mutex.isAcquired());
@@ -226,7 +226,7 @@ public class MutexTests
                 runner.test("with null Duration", (Test test) ->
                 {
                     final Mutex mutex = create(creator, test);
-                    final Value<Boolean> value = new Value<>(false);
+                    final Value<Boolean> value = Value.create(false);
                     test.assertThrows(() -> mutex.criticalSection((Duration)null, () -> value.set(true)));
                     test.assertFalse(mutex.isAcquired());
                     test.assertFalse(value.get());
@@ -235,7 +235,7 @@ public class MutexTests
                 runner.test("with negative Duration", (Test test) ->
                 {
                     final Mutex mutex = create(creator, test);
-                    final Value<Boolean> value = new Value<>(false);
+                    final Value<Boolean> value = Value.create(false);
                     test.assertThrows(() -> mutex.criticalSection(Duration.seconds(-1), () -> value.set(true)));
                     test.assertFalse(mutex.isAcquired());
                     test.assertFalse(value.get());
@@ -244,7 +244,7 @@ public class MutexTests
                 runner.test("with zero Duration", (Test test) ->
                 {
                     final Mutex mutex = create(creator, test);
-                    final Value<Boolean> value = new Value<>(false);
+                    final Value<Boolean> value = Value.create(false);
                     test.assertThrows(() -> mutex.criticalSection(Duration.zero, () -> value.set(true)));
                     test.assertFalse(mutex.isAcquired());
                     test.assertFalse(value.get());
@@ -253,7 +253,7 @@ public class MutexTests
                 runner.test("with positive duration when Mutex is not acquired", (Test test) ->
                 {
                     final Mutex mutex = create(creator, test);
-                    final Value<Boolean> value = new Value<>(false);
+                    final Value<Boolean> value = Value.create(false);
                     test.assertSuccess(true, mutex.criticalSection(Duration.seconds(1), () -> value.set(true)));
                     test.assertFalse(mutex.isAcquired());
                     test.assertTrue(value.get());
@@ -264,7 +264,7 @@ public class MutexTests
                     final Mutex mutex = create(creator, test);
                     mutex.acquire();
 
-                    final Value<Boolean> value = new Value<>(false);
+                    final Value<Boolean> value = Value.create(false);
                     test.assertSuccess(true, mutex.criticalSection(Duration.seconds(1), () -> value.set(true)));
                     test.assertTrue(mutex.isAcquired());
                     test.assertTrue(value.get());
@@ -279,7 +279,7 @@ public class MutexTests
 
                     final Duration timeout = Duration.seconds(1);
 
-                    final Value<Boolean> value = new Value<>(false);
+                    final Value<Boolean> value = Value.create(false);
                     final DateTime startTime = clock.getCurrentDateTime();
                     test.assertError(new TimeoutException(), mutex.criticalSection(timeout, () -> value.set(true)));
                     final DateTime endTime = clock.getCurrentDateTime();
@@ -295,7 +295,7 @@ public class MutexTests
                 runner.test("with null DateTime", (Test test) ->
                 {
                     final Mutex mutex = create(creator, test);
-                    final Value<Boolean> value = new Value<>(false);
+                    final Value<Boolean> value = Value.create(false);
                     test.assertThrows(() -> mutex.criticalSection((DateTime)null, () -> value.set(true)));
                     test.assertFalse(mutex.isAcquired());
                     test.assertFalse(value.get());
@@ -304,7 +304,7 @@ public class MutexTests
                 runner.test("with DateTime in the past", (Test test) ->
                 {
                     final Mutex mutex = create(creator, test);
-                    final Value<Boolean> value = new Value<>(false);
+                    final Value<Boolean> value = Value.create(false);
                     final Result<Boolean> result = mutex.criticalSection(test.getClock().getCurrentDateTime().minus(Duration.seconds(1)), () -> value.set(true));
                     test.assertFalse(mutex.isAcquired());
                     test.assertFalse(value.get());
@@ -314,7 +314,7 @@ public class MutexTests
                 runner.test("with current DateTime", (Test test) ->
                 {
                     final Mutex mutex = create(creator, test);
-                    final Value<Boolean> value = new Value<>(false);
+                    final Value<Boolean> value = Value.create(false);
                     final Result<Boolean> result = mutex.criticalSection(test.getClock().getCurrentDateTime(), () -> value.set(true));
                     test.assertFalse(mutex.isAcquired());
                     test.assertFalse(value.get());
@@ -324,7 +324,7 @@ public class MutexTests
                 runner.test("with DateTime in the future when Mutex is not acquired", (Test test) ->
                 {
                     final Mutex mutex = create(creator, test);
-                    final Value<Boolean> value = new Value<>(false);
+                    final Value<Boolean> value = Value.create(false);
                     test.assertSuccess(true, mutex.criticalSection(test.getClock().getCurrentDateTime().plus(Duration.seconds(1)), () -> value.set(true)));
                     test.assertFalse(mutex.isAcquired());
                     test.assertTrue(value.get());
@@ -335,7 +335,7 @@ public class MutexTests
                     final Mutex mutex = create(creator, test);
                     mutex.acquire();
 
-                    final Value<Boolean> value = new Value<>(false);
+                    final Value<Boolean> value = Value.create(false);
                     test.assertSuccess(true, mutex.criticalSection(test.getClock().getCurrentDateTime().plus(Duration.seconds(1)), () -> value.set(true)));
                     test.assertTrue(mutex.isAcquired());
                     test.assertTrue(value.get());
@@ -350,7 +350,7 @@ public class MutexTests
 
                     final Duration timeoutDuration = Duration.seconds(0.1);
 
-                    final Value<Boolean> value = new Value<>(false);
+                    final Value<Boolean> value = Value.create(false);
                     final DateTime startTime = clock.getCurrentDateTime();
                     final DateTime timeout = startTime.plus(timeoutDuration);
                     test.assertError(new TimeoutException(), mutex.criticalSection(startTime.plus(timeoutDuration), () -> value.set(true)));
@@ -373,7 +373,7 @@ public class MutexTests
                 runner.test("with non-null function", (Test test) ->
                 {
                     final Mutex mutex = create(creator);
-                    final Value<Integer> value = new Value<>();
+                    final Value<Integer> value = Value.create();
                     final Boolean result = mutex.criticalSection(() ->
                     {
                         test.assertTrue(mutex.isAcquired());
@@ -398,7 +398,7 @@ public class MutexTests
                 runner.test("with non-null function", (Test test) ->
                 {
                     final Mutex mutex = create(creator, test);
-                    final Value<Integer> value = new Value<>();
+                    final Value<Integer> value = Value.create();
                     final Result<Boolean> result = mutex.criticalSection(Duration.seconds(1), () ->
                     {
                         test.assertTrue(mutex.isAcquired());
@@ -423,7 +423,7 @@ public class MutexTests
                 runner.test("with non-null function", (Test test) ->
                 {
                     final Mutex mutex = create(creator, test);
-                    final Value<Integer> value = new Value<>();
+                    final Value<Integer> value = Value.create();
                     final Result<Boolean> result = mutex.criticalSection(test.getClock().getCurrentDateTime().plus(Duration.seconds(1)), () ->
                     {
                         test.assertTrue(mutex.isAcquired());
@@ -448,7 +448,7 @@ public class MutexTests
                 runner.test("with non-null function", (Test test) ->
                 {
                     final Mutex mutex = create(creator, test);
-                    final Value<Integer> value = new Value<>();
+                    final Value<Integer> value = Value.create();
                     final Result<Boolean> result = mutex.criticalSectionResult(Duration.seconds(1), () ->
                     {
                         test.assertTrue(mutex.isAcquired());
@@ -473,7 +473,7 @@ public class MutexTests
                 runner.test("with non-null function", (Test test) ->
                 {
                     final Mutex mutex = create(creator, test);
-                    final Value<Integer> value = new Value<>();
+                    final Value<Integer> value = Value.create();
                     final Result<Boolean> result = mutex.criticalSectionResult(test.getClock().getCurrentDateTime().plus(Duration.seconds(1)), () ->
                     {
                         test.assertTrue(mutex.isAcquired());
@@ -488,7 +488,7 @@ public class MutexTests
                 runner.test("with null DateTime", (Test test) ->
                 {
                     final Mutex mutex = create(creator, test);
-                    final Value<Boolean> value = new Value<>(false);
+                    final Value<Boolean> value = Value.create(false);
                     test.assertThrows(() -> mutex.criticalSectionResult((DateTime)null, () ->
                     {
                         value.set(true);
@@ -501,7 +501,7 @@ public class MutexTests
                 runner.test("with DateTime in the past", (Test test) ->
                 {
                     final Mutex mutex = create(creator, test);
-                    final Value<Boolean> value = new Value<>(false);
+                    final Value<Boolean> value = Value.create(false);
                     final Result<Boolean> result = mutex.criticalSectionResult(test.getClock().getCurrentDateTime().minus(Duration.seconds(1)), () ->
                     {
                         value.set(true);
@@ -515,7 +515,7 @@ public class MutexTests
                 runner.test("with current DateTime", (Test test) ->
                 {
                     final Mutex mutex = create(creator, test);
-                    final Value<Boolean> value = new Value<>(false);
+                    final Value<Boolean> value = Value.create(false);
                     final Result<Boolean> result = mutex.criticalSectionResult(test.getClock().getCurrentDateTime(), () ->
                     {
                         value.set(true);
@@ -529,7 +529,7 @@ public class MutexTests
                 runner.test("with DateTime in the future when Mutex is not acquired", (Test test) ->
                 {
                     final Mutex mutex = create(creator, test);
-                    final Value<Boolean> value = new Value<>(false);
+                    final Value<Boolean> value = Value.create(false);
                     test.assertSuccess(true, mutex.criticalSectionResult(test.getClock().getCurrentDateTime().plus(Duration.seconds(1)), () ->
                     {
                         value.set(true);
@@ -554,7 +554,7 @@ public class MutexTests
                     final Mutex mutex = create(creator, test);
                     mutex.acquire();
 
-                    final Value<Boolean> value = new Value<>(false);
+                    final Value<Boolean> value = Value.create(false);
                     test.assertSuccess(true, mutex.criticalSectionResult(test.getClock().getCurrentDateTime().plus(Duration.seconds(1)), () ->
                     {
                         value.set(true);
@@ -573,7 +573,7 @@ public class MutexTests
 
                     final Duration timeoutDuration = Duration.seconds(0.1);
 
-                    final Value<Boolean> value = new Value<>(false);
+                    final Value<Boolean> value = Value.create(false);
                     final DateTime startTime = clock.getCurrentDateTime();
                     final DateTime timeout = startTime.plus(timeoutDuration);
                     test.assertError(new TimeoutException(), mutex.criticalSectionResult(startTime.plus(timeoutDuration), () ->

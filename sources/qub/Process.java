@@ -61,23 +61,23 @@ public class Process implements Disposable
     {
         this.commandLine = commandLine;
 
-        characterEncoding = new Value<>();
-        lineSeparator = new Value<>();
-        includeNewLines = new Value<>();
-        outputWriteStream = new Value<>();
-        errorWriteStream = new Value<>();
-        byteReadStream = new Value<>();
-        characterReadStream = new Value<>();
-        lineReadStream = new Value<>();
-        random = new Value<>();
-        fileSystem = new Value<>();
-        network = new Value<>();
-        currentFolderPathString = new Value<>();
-        environmentVariables = new Value<>();
-        synchronization = new Value<>();
-        stopwatchCreator = new Value<>();
-        clock = new Value<>();
-        displays = new Value<>();
+        characterEncoding = Value.create();
+        lineSeparator = Value.create();
+        includeNewLines = Value.create();
+        outputWriteStream = Value.create();
+        errorWriteStream = Value.create();
+        byteReadStream = Value.create();
+        characterReadStream = Value.create();
+        lineReadStream = Value.create();
+        random = Value.create();
+        fileSystem = Value.create();
+        network = Value.create();
+        currentFolderPathString = Value.create();
+        environmentVariables = Value.create();
+        synchronization = Value.create();
+        stopwatchCreator = Value.create();
+        clock = Value.create();
+        displays = Value.create();
 
         windows = new ArrayList<>();
 

@@ -19,7 +19,7 @@ public class SyncEvent0Tests
                 runner.test("with one action", (Test test) ->
                 {
                     final SyncEvent0 event = new SyncEvent0();
-                    final Value<Integer> value = new Value<>(0);
+                    final Value<Integer> value = Value.create(0);
                     event.subscribe(() -> value.set(value.get() + 1));
 
                     event.run();
@@ -32,9 +32,9 @@ public class SyncEvent0Tests
                 runner.test("with two actions", (Test test) ->
                 {
                     final SyncEvent0 event = new SyncEvent0();
-                    final Value<Integer> value1 = new Value<>(0);
+                    final Value<Integer> value1 = Value.create(0);
                     event.subscribe(() -> value1.set(value1.get() + 1));
-                    final Value<Integer> value2 = new Value<>(10);
+                    final Value<Integer> value2 = Value.create(10);
                     event.subscribe(() -> value2.set(value2.get() + 1));
 
                     event.run();

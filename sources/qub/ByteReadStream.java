@@ -294,7 +294,7 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
         PreCondition.assertNotNullAndNotEmpty(stopBytes, "stopBytes");
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
-        final Value<Result<byte[]>> resultValue = new Value<>();
+        final Value<Result<byte[]>> resultValue = Value.create();
 
         final ByteList bytesReadList = ByteList.empty();
         while(!resultValue.hasValue())

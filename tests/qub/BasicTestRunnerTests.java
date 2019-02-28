@@ -128,7 +128,7 @@ public class BasicTestRunnerTests
 
                 runner.test("with no event actions", (Test test) ->
                 {
-                    final Value<Integer> value = new Value<>(0);
+                    final Value<Integer> value = Value.create(0);
                     final BasicTestRunner btr = create(test);
                     btr.testGroup(BasicTestRunnerTests.class, () -> value.set(value.get() + 1));
                     test.assertEqual(1, value.get());
@@ -138,7 +138,7 @@ public class BasicTestRunnerTests
                 {
                     final BasicTestRunner btr = create(test);
                     final AtomicInteger counter = new AtomicInteger(0);
-                    final Value<Integer> value = new Value<>(0);
+                    final Value<Integer> value = Value.create(0);
                     final MutableMap<Integer,TestGroup> beforeTestGroup = Map.create();
                     final MutableMap<Integer,TestGroup> afterTestGroupSkipped = Map.create();
                     final MutableMap<Integer,TestError> afterTestGroupError = Map.create();
@@ -181,7 +181,7 @@ public class BasicTestRunnerTests
                 {
                     final BasicTestRunner btr = create(test);
                     final AtomicInteger counter = new AtomicInteger(0);
-                    final Value<Integer> value = new Value<>(0);
+                    final Value<Integer> value = Value.create(0);
                     final MutableMap<Integer,TestGroup> beforeTestGroup = Map.create();
                     final MutableMap<Integer,TestGroup> afterTestGroupSkipped = Map.create();
                     final MutableMap<Integer,TestError> afterTestGroupError = Map.create();
@@ -240,7 +240,7 @@ public class BasicTestRunnerTests
                 runner.test("with no event actions", (Test test) ->
                 {
                     final BasicTestRunner btr = create(test);
-                    final Value<Integer> value = new Value<>(0);
+                    final Value<Integer> value = Value.create(0);
                     btr.testGroup("abc", () -> value.set(value.get() + 1));
                     test.assertEqual(1, value.get());
                 });
@@ -249,7 +249,7 @@ public class BasicTestRunnerTests
                 {
                     final BasicTestRunner btr = create(test);
                     final AtomicInteger counter = new AtomicInteger(0);
-                    final Value<Integer> value = new Value<>(0);
+                    final Value<Integer> value = Value.create(0);
                     final MutableMap<Integer,TestGroup> beforeTestGroup = Map.create();
                     btr.beforeTestGroup((TestGroup tg) ->
                     {

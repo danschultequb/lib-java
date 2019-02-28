@@ -137,7 +137,7 @@ public class ConsoleTestRunner extends Console implements TestRunner
     @Override
     public Result<Boolean> write(String line, Object... formattedStringArguments)
     {
-        final Value<Result<Boolean>> resultValue = new Value<>(Result.successTrue());
+        final Value<Result<Boolean>> resultValue = Value.create(Result.successTrue());
 
         if (onNewLine)
         {
@@ -163,7 +163,7 @@ public class ConsoleTestRunner extends Console implements TestRunner
     @Override
     public Result<Boolean> writeLine(String line, Object... formattedStringArguments)
     {
-        final Value<Result<Boolean>> resultValue = new Value<>(Result.successTrue());
+        final Value<Result<Boolean>> resultValue = Value.create(Result.successTrue());
 
         if (onNewLine)
         {

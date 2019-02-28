@@ -6,12 +6,12 @@ public class BasicAsyncAction extends BasicAsyncTask implements AsyncAction
 
     BasicAsyncAction(AsyncRunner runner)
     {
-        this(new Value<>(runner), Action0.empty);
+        this(Value.create(runner), Action0.empty);
     }
 
     BasicAsyncAction(AsyncRunner runner, String label)
     {
-        this(new Value<>(runner), label, Action0.empty);
+        this(Value.create(runner), label, Action0.empty);
     }
 
     BasicAsyncAction(Getable<AsyncRunner> runner, Action0 action)
@@ -35,7 +35,7 @@ public class BasicAsyncAction extends BasicAsyncTask implements AsyncAction
     @Override
     public AsyncAction catchErrorOn(AsyncRunner asyncRunner, Action1<Throwable> action)
     {
-        return asyncRunner == null || action == null ? null : catchErrorOnInner(new Value<>(asyncRunner), action);
+        return asyncRunner == null || action == null ? null : catchErrorOnInner(Value.create(asyncRunner), action);
     }
 
     private AsyncAction catchErrorOnInner(Getable<AsyncRunner> asyncRunner, Action1<Throwable> action)
@@ -54,7 +54,7 @@ public class BasicAsyncAction extends BasicAsyncTask implements AsyncAction
     @Override
     public AsyncAction catchErrorAsyncActionOn(AsyncRunner asyncRunner, Function1<Throwable, AsyncAction> function)
     {
-        return asyncRunner == null || function == null ? null : catchErrorAsyncActionOnInner(new Value<>(asyncRunner), function);
+        return asyncRunner == null || function == null ? null : catchErrorAsyncActionOnInner(Value.create(asyncRunner), function);
     }
 
     @Override

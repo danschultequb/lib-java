@@ -70,7 +70,7 @@ public class InMemoryFileSystem implements FileSystem
             {
                 boolean createdFolder = false;
                 final Iterator<String> folderPathSegments = resolvedInMemoryFolderPath.getSegments().iterate();
-                final Value<InMemoryFolder> folder = new Value<>(getInMemoryRoot(folderPathSegments.first()));
+                final Value<InMemoryFolder> folder = Value.create(getInMemoryRoot(folderPathSegments.first()));
                 while (folderPathSegments.next())
                 {
                     final String folderName = folderPathSegments.getCurrent();

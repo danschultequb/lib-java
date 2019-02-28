@@ -339,7 +339,7 @@ public class BasicAsyncTaskTests
                     final AsyncRunner asyncRunner = test.getMainAsyncRunner();
                     final BasicAsyncTask basicAsyncTask = createScheduled(creator, asyncRunner);
 
-                    final Value<Integer> value = new Value<>();
+                    final Value<Integer> value = Value.create();
                     final AsyncAction thenAsyncAction = basicAsyncTask.thenAsyncAction(() ->
                     {
                         return asyncRunner.schedule(() -> value.set(5));
@@ -360,7 +360,7 @@ public class BasicAsyncTaskTests
                     final BasicAsyncTask basicAsyncTask = createScheduled(creator, asyncRunner);
                     basicAsyncTask.await();
 
-                    final Value<Integer> value = new Value<>();
+                    final Value<Integer> value = Value.create();
                     final AsyncAction thenAsyncAction = basicAsyncTask.thenAsyncAction(() ->
                     {
                         return asyncRunner.schedule(() -> value.set(5));
@@ -381,7 +381,7 @@ public class BasicAsyncTaskTests
                     final AsyncRunner asyncRunner = test.getMainAsyncRunner();
                     final BasicAsyncTask basicAsyncTask = createScheduled(creator, asyncRunner);
 
-                    final Value<Integer> value = new Value<>();
+                    final Value<Integer> value = Value.create();
                     final AsyncAction thenAsyncAction = basicAsyncTask.thenAsyncAction(() ->
                     {
                         if (1 + 1 == 2)
@@ -410,7 +410,7 @@ public class BasicAsyncTaskTests
                     final AsyncRunner asyncRunner = test.getMainAsyncRunner();
                     final BasicAsyncTask basicAsyncTask = createScheduled(creator, asyncRunner);
 
-                    final Value<Integer> value = new Value<>();
+                    final Value<Integer> value = Value.create();
                     final AsyncAction thenAsyncAction = basicAsyncTask.thenAsyncAction(() ->
                     {
                         return asyncRunner.schedule(() ->
@@ -452,7 +452,7 @@ public class BasicAsyncTaskTests
                     final AsyncRunner asyncRunner = test.getMainAsyncRunner();
                     final BasicAsyncTask basicAsyncTask = createScheduled(creator, asyncRunner);
 
-                    final Value<Integer> value = new Value<>();
+                    final Value<Integer> value = Value.create();
                     final AsyncAction thenAsyncAction = basicAsyncTask
                         .thenAsyncFunction(() ->
                         {
@@ -482,7 +482,7 @@ public class BasicAsyncTaskTests
                     final BasicAsyncTask basicAsyncTask = createScheduled(creator, asyncRunner);
                     basicAsyncTask.await();
 
-                    final Value<Integer> value = new Value<>();
+                    final Value<Integer> value = Value.create();
                     final AsyncAction thenAsyncAction = basicAsyncTask
                         .thenAsyncFunction(() ->
                         {
@@ -512,7 +512,7 @@ public class BasicAsyncTaskTests
                     final AsyncRunner asyncRunner = test.getMainAsyncRunner();
                     final BasicAsyncTask basicAsyncTask = createScheduled(creator, asyncRunner);
 
-                    final Value<Integer> value = new Value<>();
+                    final Value<Integer> value = Value.create();
                     final AsyncFunction<Integer> thenAsyncFunction = basicAsyncTask.thenAsyncFunction(() ->
                     {
                         if (1 + 1 == 2)
@@ -546,7 +546,7 @@ public class BasicAsyncTaskTests
                     final AsyncRunner asyncRunner = test.getMainAsyncRunner();
                     final BasicAsyncTask basicAsyncTask = createScheduled(creator, asyncRunner);
 
-                    final Value<Integer> value = new Value<>();
+                    final Value<Integer> value = Value.create();
                     final AsyncFunction<Integer> thenAsyncFunction = basicAsyncTask.thenAsyncFunction(() ->
                     {
                         return asyncRunner.schedule(() ->
@@ -583,7 +583,7 @@ public class BasicAsyncTaskTests
                     final AsyncRunner asyncRunner = test.getMainAsyncRunner();
                     final BasicAsyncTask basicAsyncTask = create(creator);
 
-                    final Value<Integer> value = new Value<>();
+                    final Value<Integer> value = Value.create();
                     test.assertThrows(() -> basicAsyncTask.thenAsyncActionOn(null, () ->
                     {
                         return asyncRunner.schedule(() ->
@@ -611,7 +611,7 @@ public class BasicAsyncTaskTests
                     final ManualAsyncRunner runner3 = new ManualAsyncRunner();
                     final BasicAsyncTask basicAsyncTask = createScheduled(creator, runner1);
 
-                    final Value<Integer> value = new Value<>();
+                    final Value<Integer> value = Value.create();
                     final AsyncAction thenOnAsyncAction = basicAsyncTask
                         .thenAsyncActionOn(runner2, () ->
                         {
@@ -661,7 +661,7 @@ public class BasicAsyncTaskTests
                     final BasicAsyncTask basicAsyncTask = createScheduled(creator, runner1);
                     runner1.await();
 
-                    final Value<Integer> value = new Value<>();
+                    final Value<Integer> value = Value.create();
                     final AsyncAction thenOnAsyncAction = basicAsyncTask
                         .thenAsyncActionOn(runner2, () ->
                         {
@@ -703,7 +703,7 @@ public class BasicAsyncTaskTests
                     final ManualAsyncRunner runner3 = new ManualAsyncRunner();
                     final BasicAsyncTask basicAsyncTask = createScheduled(creator, runner1);
 
-                    final Value<Integer> value1 = new Value<>();
+                    final Value<Integer> value1 = Value.create();
                     final AsyncAction thenOnAsyncAction1 = basicAsyncTask
                         .thenAsyncActionOn(runner2, () ->
                         {
@@ -714,7 +714,7 @@ public class BasicAsyncTaskTests
                             test.assertEqual(4, value1.get());
                         });
 
-                    final Value<Integer> value2 = new Value<>();
+                    final Value<Integer> value2 = Value.create();
                     final AsyncAction thenOnAsyncAction2 = basicAsyncTask
                         .thenAsyncActionOn(runner3, () ->
                         {
@@ -795,7 +795,7 @@ public class BasicAsyncTaskTests
                     final ManualAsyncRunner runner3 = new ManualAsyncRunner();
                     final BasicAsyncTask basicAsyncTask = createScheduled(creator, runner1);
 
-                    final Value<Integer> value = new Value<>();
+                    final Value<Integer> value = Value.create();
                     final AsyncAction thenOnAsyncAction = basicAsyncTask
                         .thenAsyncFunctionOn(runner2, () ->
                         {
@@ -846,7 +846,7 @@ public class BasicAsyncTaskTests
                     final BasicAsyncTask basicAsyncTask = createScheduled(creator, runner1);
                     runner1.await();
 
-                    final Value<Integer> value = new Value<>();
+                    final Value<Integer> value = Value.create();
                     final AsyncAction thenOnAsyncAction = basicAsyncTask
                         .thenAsyncFunctionOn(runner2, () ->
                         {

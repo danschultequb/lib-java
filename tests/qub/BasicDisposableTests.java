@@ -8,7 +8,7 @@ public class BasicDisposableTests
         {
             runner.test("dispose()", (Test test) ->
             {
-                final Value<Integer> value = new Value<>(0);
+                final Value<Integer> value = Value.create(0);
                 final BasicDisposable disposable = new BasicDisposable()
                 {
                     @Override

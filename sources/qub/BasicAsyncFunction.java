@@ -10,7 +10,7 @@ public class BasicAsyncFunction<T> extends BasicAsyncTask implements AsyncFuncti
         super(runner, null);
 
         this.function = function;
-        this.functionResult = new Value<>();
+        this.functionResult = Value.create();
     }
 
     protected void setFunctionResult(T functionResult)
@@ -22,200 +22,173 @@ public class BasicAsyncFunction<T> extends BasicAsyncTask implements AsyncFuncti
     public T awaitReturn()
     {
         await();
-        return functionResult.get();
+        return functionResult.hasValue() ? functionResult.get() : null;
     }
 
     @Override
-    public AsyncAction then(final Action1<T> action)
+    public AsyncAction then(Action1<T> action)
     {
         PreCondition.assertNotNull(action, "action");
 
-        return then(() -> action.run(functionResult.get()));
+        return then(() -> action.run(functionResult.hasValue() ? functionResult.get() : null));
     }
 
     @Override
-    public <U> AsyncFunction<U> then(final Function1<T, U> function)
+    public <U> AsyncFunction<U> then(Function1<T, U> function)
     {
-        return function == null ? null : then(new Function0<U>()
-        {
-            @Override
-            public U run()
-            {
-                return function.run(functionResult.get());
-            }
-        });
+        PreCondition.assertNotNull(function, "function");
+
+        return then(() -> function.run(functionResult.hasValue() ? functionResult.get() : null));
     }
 
     @Override
-    public AsyncAction thenAsyncAction(final Function1<T,AsyncAction> function)
+    public AsyncAction thenAsyncAction(Function1<T,AsyncAction> function)
     {
-        return function == null ? null : thenAsyncAction(new Function0<AsyncAction>()
-        {
-            @Override
-            public AsyncAction run()
-            {
-                return function.run(functionResult.get());
-            }
-        });
+        PreCondition.assertNotNull(function, "function");
+
+        return thenAsyncAction(() -> function.run(functionResult.hasValue() ? functionResult.get() : null));
     }
 
     @Override
-    public <U> AsyncFunction<U> thenAsyncFunction(final Function1<T, AsyncFunction<U>> function)
+    public <U> AsyncFunction<U> thenAsyncFunction(Function1<T, AsyncFunction<U>> function)
     {
-        return function == null ? null : thenAsyncFunction(new Function0<AsyncFunction<U>>()
-        {
-            @Override
-            public AsyncFunction<U> run()
-            {
-                return function.run(functionResult.get());
-            }
-        });
+        PreCondition.assertNotNull(function, "function");
+
+        return thenAsyncFunction(() -> function.run(functionResult.hasValue() ? functionResult.get() : null));
     }
 
     @Override
     public AsyncFunction<T> thenOn(AsyncRunner runner)
     {
-        return runner == null ? null : runner == getAsyncRunner() ? this : thenOn(runner, new Function1<T, T>()
-        {
-            @Override
-            public T run(T value)
-            {
-                return value;
-            }
-        });
+        PreCondition.assertNotNull(runner, "runner");
+
+        return runner == getAsyncRunner() ? this : thenOn(runner, (T value) -> value);
     }
 
     @Override
-    public AsyncAction thenOn(AsyncRunner runner, final Action1<T> action)
+    public AsyncAction thenOn(AsyncRunner runner, Action1<T> action)
     {
-        return runner == null || action == null ? null : thenOn(runner, new Action0()
-        {
-            @Override
-            public void run()
-            {
-                action.run(functionResult.get());
-            }
-        });
+        PreCondition.assertNotNull(runner, "runner");
+        PreCondition.assertNotNull(action, "action");
+
+        return thenOn(runner, () -> action.run(functionResult.hasValue() ? functionResult.get() : null));
     }
 
     @Override
-    public <U> AsyncFunction<U> thenOn(AsyncRunner runner, final Function1<T, U> function)
+    public <U> AsyncFunction<U> thenOn(AsyncRunner runner, Function1<T, U> function)
     {
-        return runner == null || function == null ? null : thenOn(runner, new Function0<U>()
-        {
-            @Override
-            public U run()
-            {
-                return function.run(functionResult.get());
-            }
-        });
+        PreCondition.assertNotNull(runner, "runner");
+        PreCondition.assertNotNull(function, "function");
+
+        return thenOn(runner, () -> function.run(functionResult.hasValue() ? functionResult.get() : null));
     }
 
     @Override
     public AsyncFunction<T> catchError(final Action1<Throwable> action)
     {
-        return action == null ? null : catchError(new Function1<Throwable,T>()
+        PreCondition.assertNotNull(action, "action");
+
+        return catchError((Throwable error) ->
         {
-            @Override
-            public T run(Throwable error)
-            {
-                action.run(error);
-                return null;
-            }
+            action.run(error);
+            return null;
         });
     }
 
     @Override
     public AsyncAction catchErrorAsyncAction(Function1<Throwable, AsyncAction> function)
     {
-        return function == null ? null : catchErrorAsyncActionOnInner(getAsyncRunnerGetable(), function);
+        PreCondition.assertNotNull(function, "function");
+
+        return catchErrorAsyncActionOnInner(getAsyncRunnerGetable(), function);
     }
 
     @Override
     public AsyncFunction<T> catchError(Function1<Throwable, T> function)
     {
-        return function == null ? null : catchErrorOnInner(getAsyncRunnerGetable(), function);
+        PreCondition.assertNotNull(function, "function");
+
+        return catchErrorOnInner(getAsyncRunnerGetable(), function);
     }
 
     @Override
     public AsyncAction catchErrorOn(AsyncRunner asyncRunner, final Action1<Throwable> action)
     {
-        return asyncRunner == null || action == null ? null : catchErrorOnInner(new Value<>(asyncRunner), new Function1<Throwable, T>()
+        PreCondition.assertNotNull(asyncRunner, "asyncRunner");
+        PreCondition.assertNotNull(action, "action");
+
+        return catchErrorOnInner(Value.create(asyncRunner), (Throwable error) ->
         {
-            @Override
-            public T run(Throwable error)
-            {
-                action.run(error);
-                return null;
-            }
+            action.run(error);
+            return null;
         });
     }
 
     @Override
     public AsyncFunction<T> catchErrorOn(AsyncRunner asyncRunner, Function1<Throwable, T> function)
     {
-        return asyncRunner == null || function == null ? null : catchErrorOnInner(new Value<>(asyncRunner), function);
+        PreCondition.assertNotNull(asyncRunner, "asyncRunner");
+        PreCondition.assertNotNull(function, "function");
+
+        return catchErrorOnInner(Value.create(asyncRunner), function);
     }
 
     @Override
     public AsyncFunction<T> catchErrorAsyncFunction(Function1<Throwable, AsyncFunction<T>> function)
     {
-        return function == null ? null : catchErrorAsyncFunctionOnInner(getAsyncRunnerGetable(), function);
+        PreCondition.assertNotNull(function, "function");
+
+        return catchErrorAsyncFunctionOnInner(getAsyncRunnerGetable(), function);
     }
 
     @Override
     public AsyncAction catchErrorAsyncActionOn(AsyncRunner asyncRunner, Function1<Throwable, AsyncAction> function)
     {
-        return asyncRunner == null || function == null ? null : catchErrorOnInner(new Value<>(asyncRunner), function);
+        PreCondition.assertNotNull(asyncRunner, "asyncRunner");
+        PreCondition.assertNotNull(function, "function");
+
+        return catchErrorOnInner(Value.create(asyncRunner), function);
     }
 
     @Override
     public AsyncFunction<T> catchErrorAsyncFunctionOn(AsyncRunner asyncRunner, Function1<Throwable, AsyncFunction<T>> function)
     {
-        return asyncRunner == null || function == null ? null : catchErrorAsyncFunctionOnInner(new Value<>(asyncRunner), function);
+        PreCondition.assertNotNull(asyncRunner, "asyncRunner");
+        PreCondition.assertNotNull(function, "function");
+
+        return catchErrorAsyncFunctionOnInner(Value.create(asyncRunner), function);
     }
 
-    private AsyncFunction<T> catchErrorAsyncFunctionOnInner(final Getable<AsyncRunner> asyncRunner, Function1<Throwable,AsyncFunction<T>> function)
+    private AsyncFunction<T> catchErrorAsyncFunctionOnInner(Getable<AsyncRunner> asyncRunner, Function1<Throwable,AsyncFunction<T>> function)
     {
-        final Value<AsyncRunner> resultAsyncRunner = new Value<AsyncRunner>();
-        final Value<T> resultReturnValue = new Value<T>();
-        final BasicAsyncFunction<T> result = new BasicAsyncFunction<T>(resultAsyncRunner, new Function0<T>()
-        {
-            @Override
-            public T run()
-            {
-                return resultReturnValue.get();
-            }
-        });
+        PreCondition.assertNotNull(asyncRunner, "asyncRunner");
+        PreCondition.assertNotNull(function, "function");
+
+        final Value<AsyncRunner> resultAsyncRunner = Value.create();
+        final Value<T> resultReturnValue = Value.create();
+        final BasicAsyncFunction<T> result = new BasicAsyncFunction<>(resultAsyncRunner, () -> resultReturnValue.hasValue() ? resultReturnValue.get() : null);
 
         result.addParentTask(this.catchErrorOnInner(asyncRunner, function)
-            .then(new Action1<AsyncFunction<T>>()
+            .then((AsyncFunction<T> asyncFunctionResult) ->
             {
-                @Override
-                public void run(final AsyncFunction<T> asyncFunctionResult)
+                if (asyncFunctionResult == null)
                 {
-                    if (asyncFunctionResult == null)
+                    resultAsyncRunner.set(asyncRunner.hasValue() ? asyncRunner.get() : null);
+                    result.schedule();
+                }
+                else
+                {
+                    resultAsyncRunner.set(asyncFunctionResult.getAsyncRunner());
+                    if (asyncFunctionResult.getOutgoingError() != null)
                     {
-                        resultAsyncRunner.set(asyncRunner.get());
-                        result.schedule();
+                        result.setIncomingError(asyncFunctionResult.getOutgoingError());
                     }
-                    else
-                    {
-                        resultAsyncRunner.set(asyncFunctionResult.getAsyncRunner());
-                        if (asyncFunctionResult.getOutgoingError() != null)
+                    result.addParentTask(asyncFunctionResult
+                        .then((T asyncFunctionResultResult) ->
                         {
-                            result.setIncomingError(asyncFunctionResult.getOutgoingError());
-                        }
-                        result.addParentTask(asyncFunctionResult.then(new Action1<T>()
-                        {
-                            @Override
-                            public void run(T asyncFunctionResultResult)
-                            {
-                                resultReturnValue.set(asyncFunctionResultResult);
-                                result.schedule();
-                            }
+                            resultReturnValue.set(asyncFunctionResultResult);
+                            result.schedule();
                         }));
-                    }
                 }
             }));
 

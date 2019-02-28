@@ -118,7 +118,7 @@ public class WindowTests
                 {
                     try (final Window window = windowCreator.run(test))
                     {
-                        final Value<Integer> parentWindowChangedCalls = new Value<>(0);
+                        final Value<Integer> parentWindowChangedCalls = Value.create(0);
                         final UIText text = new UIText("abc")
                         {
                             @Override
@@ -141,7 +141,7 @@ public class WindowTests
                 {
                     try (final Window window = windowCreator.run(test))
                     {
-                        final Value<Integer> parentWindowChangedCalls = new Value<>(0);
+                        final Value<Integer> parentWindowChangedCalls = Value.create(0);
                         final UIText text = new UIText("abc")
                         {
                             @Override
@@ -172,7 +172,7 @@ public class WindowTests
                 {
                     try (final Window window = windowCreator.run(test))
                     {
-                        final Value<Integer> parentWindowChangedCalls1 = new Value<>(0);
+                        final Value<Integer> parentWindowChangedCalls1 = Value.create(0);
                         final UIText text1 = new UIText("abc")
                         {
                             @Override
@@ -186,7 +186,7 @@ public class WindowTests
                         window.setContent(text1);
                         test.assertEqual(1, parentWindowChangedCalls1.get());
 
-                        final Value<Integer> parentWindowChangedCalls2 = new Value<>(0);
+                        final Value<Integer> parentWindowChangedCalls2 = Value.create(0);
                         final UIText text2 = new UIText("xyz")
                         {
                             @Override
@@ -226,7 +226,7 @@ public class WindowTests
                     try (final Window window = windowCreator.run(test))
                     {
                         window.dispose();
-                        final Value<Integer> parentWindowChangedCalls2 = new Value<>(0);
+                        final Value<Integer> parentWindowChangedCalls2 = Value.create(0);
                         final UIText text = new UIText("apples");
 
                         test.assertThrows(() -> window.setContent(text));

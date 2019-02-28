@@ -2,14 +2,14 @@ package qub;
 
 public class ParallelAsyncRunner implements AsyncRunner
 {
-    private final java.util.concurrent.atomic.AtomicInteger scheduledTaskCount;
+    private final IntegerValue scheduledTaskCount;
     private final Mutex spinMutex;
     private Function0<Clock> clockGetter;
     private volatile boolean disposed;
 
     public ParallelAsyncRunner()
     {
-        scheduledTaskCount = new java.util.concurrent.atomic.AtomicInteger(0);
+        scheduledTaskCount = Value.create(0);
         spinMutex = new SpinMutex();
     }
 
@@ -42,7 +42,7 @@ public class ParallelAsyncRunner implements AsyncRunner
 
         spinMutex.criticalSection(() ->
         {
-            scheduledTaskCount.decrementAndGet();
+            scheduledTaskCount.decrement();
             asyncTaskCompleted.set(true);
         });
     }
@@ -55,7 +55,7 @@ public class ParallelAsyncRunner implements AsyncRunner
 
         if (!disposed)
         {
-            spinMutex.criticalSection(scheduledTaskCount::incrementAndGet);
+            spinMutex.criticalSection(scheduledTaskCount::increment);
             final java.lang.Thread thread = new java.lang.Thread(() ->
             {
                 AsyncRunnerRegistry.setCurrentThreadAsyncRunner(ParallelAsyncRunner.this);
@@ -77,7 +77,7 @@ public class ParallelAsyncRunner implements AsyncRunner
     {
         PreCondition.assertNotNull(action, "action");
 
-        final BasicAsyncAction result = new BasicAsyncAction(new Value<>(this), label, action);
+        final BasicAsyncAction result = new BasicAsyncAction(Value.create(this), label, action);
         schedule(result);
 
         PostCondition.assertNotNull(result, "result");
@@ -90,7 +90,7 @@ public class ParallelAsyncRunner implements AsyncRunner
     {
         PreCondition.assertNotNull(function, "function");
 
-        final BasicAsyncFunction<T> result = new BasicAsyncFunction<>(new Value<>(this), function);
+        final BasicAsyncFunction<T> result = new BasicAsyncFunction<>(Value.create(this), function);
         schedule(result);
 
         PostCondition.assertNotNull(result, "result");

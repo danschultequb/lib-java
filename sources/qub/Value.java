@@ -4,81 +4,66 @@ package qub;
  * A wrapper around a value of type T.
  * @param <T> The type of the inner value.
  */
-public class Value<T> implements Getable<T>, Setable<T>
+public interface Value<T> extends Getable<T>, Setable<T>
 {
-    private volatile T value;
-    private volatile boolean hasValue;
-
     /**
-     * Create a new Value with no inner value.
+     * Create a new Value object that stores the provided type.
+     * @param <T> The type that the created Value will contain.
+     * @return The new Value object.
      */
-    public Value()
+    static <T> ObjectValue<T> create()
     {
-        value = null;
-        hasValue = false;
+        return new ObjectValue<>();
     }
 
     /**
-     * Create a new Value with the provided inner value.
-     * @param value The inner value to store in this Value object.
+     * Create a new Value object that contains the provided value.
+     * @param value The value to assign to the new Value object.
+     * @param <T> The type that the created Value will contain.
+     * @return The new Value object.
      */
-    public Value(T value)
+    static <T> ObjectValue<T> create(T value)
     {
-        this.value = value;
-        hasValue = true;
+        return new ObjectValue<>(value);
     }
 
-    @Override
-    public boolean hasValue()
+    /**
+     * Create a new Value object that contains the provided value.
+     * @param value The value to assign to the new Value object.
+     * @return The new Value object.
+     */
+    static BooleanValue create(boolean value)
     {
-        return hasValue;
+        return new BooleanValue(value);
     }
 
-    @Override
-    public T get()
+    /**
+     * Create a new Value object that contains the provided value.
+     * @param value The value to assign to the new Value object.
+     * @return The new Value object.
+     */
+    static BooleanValue create(java.lang.Boolean value)
     {
-        return value;
+        return new BooleanValue(value);
     }
 
-    @Override
-    public void set(T value)
+    /**
+     * Create a new Value object that contains the provided value.
+     * @param value The value to assign to the new Value object.
+     * @return The new Value object.
+     */
+    static IntegerValue create(int value)
     {
-        this.value = value;
-        hasValue = true;
+        return new IntegerValue(value);
     }
 
-    @Override
-    public void clear()
+    /**
+     * Create a new Value object that contains the provided value.
+     * @param value The value to assign to the new Value object.
+     * @return The new Value object.
+     */
+    static IntegerValue create(java.lang.Integer value)
     {
-        value = null;
-        hasValue = false;
-    }
-
-    @Override
-    public String toString()
-    {
-        return value == null ? null : value.toString();
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public boolean equals(Object rhs)
-    {
-        return rhs instanceof Value && equals((Value<T>)rhs);
-    }
-
-    public boolean equals(Value<T> rhs)
-    {
-        return rhs != null && hasValue == rhs.hasValue && Comparer.equal(value, rhs.value);
-    }
-
-    public static <T> Value<T> create()
-    {
-        return new Value<>();
-    }
-
-    public static <T> Value<T> create(T value)
-    {
-        return new Value<>(value);
+        return new IntegerValue(value);
     }
 }

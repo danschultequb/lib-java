@@ -55,14 +55,14 @@ public class ManualClockTests
                 runner.test("with null Duration", (Test test) ->
                 {
                     final ManualClock clock = createClock(test);
-                    final Value<Boolean> value = new Value<>();
+                    final Value<Boolean> value = BooleanValue.create();
                     test.assertThrows(() -> clock.scheduleAfter(null, () -> value.set(true)).await());
                 });
 
                 runner.test("with negative Duration", (Test test) ->
                 {
                     final ManualClock clock = createClock(test);
-                    final Value<Boolean> value = new Value<>();
+                    final Value<Boolean> value = BooleanValue.create();
                     clock.scheduleAfter(Duration.seconds(-5), () -> value.set(true)).await();
                     test.assertTrue(value.hasValue());
                     test.assertTrue(value.get());
@@ -71,7 +71,7 @@ public class ManualClockTests
                 runner.test("with zero Duration", (Test test) ->
                 {
                     final ManualClock clock = createClock(test);
-                    final Value<Boolean> value = new Value<>();
+                    final Value<Boolean> value = BooleanValue.create();
                     clock.scheduleAfter(Duration.seconds(0), () -> value.set(true)).await();
                     test.assertTrue(value.hasValue());
                     test.assertTrue(value.get());
@@ -80,7 +80,7 @@ public class ManualClockTests
                 runner.test("with positive Duration", (Test test) ->
                 {
                     final ManualClock clock = createClock(test);
-                    final Value<Boolean> value = new Value<>();
+                    final Value<Boolean> value = BooleanValue.create();
 
                     final AsyncAction asyncAction = clock.scheduleAfter(Duration.milliseconds(50), () -> value.set(true));
                     test.assertFalse(value.hasValue());
@@ -104,11 +104,11 @@ public class ManualClockTests
                 {
                     final AsyncRunner mainAsyncRunner = test.getMainAsyncRunner();
                     final ManualClock clock = createClock(mainAsyncRunner);
-                    final Value<Integer> value = new Value<>();
+                    final IntegerValue value = Value.create(0);
 
                     final AsyncAction asyncAction1 = clock.scheduleAfter(Duration.milliseconds(50), () -> value.set(1));
                     final AsyncAction asyncAction2 = clock.scheduleAfter(Duration.milliseconds(50), () -> value.set(2));
-                    test.assertFalse(value.hasValue());
+                    test.assertEqual(0, value.get());
                     test.assertEqual(DateTime.local(0), clock.getCurrentDateTime());
                     test.assertEqual(2, clock.getPausedTaskCount());
 
@@ -118,13 +118,11 @@ public class ManualClockTests
                     test.assertEqual(2, mainAsyncRunner.getScheduledTaskCount());
 
                     asyncAction1.await();
-                    test.assertTrue(value.hasValue());
                     test.assertEqual(1, value.get());
                     test.assertTrue(asyncAction1.isCompleted());
                     test.assertFalse(asyncAction2.isCompleted());
 
                     asyncAction2.await();
-                    test.assertTrue(value.hasValue());
                     test.assertEqual(2, value.get());
                     test.assertTrue(asyncAction1.isCompleted());
                     test.assertTrue(asyncAction2.isCompleted());
@@ -134,7 +132,7 @@ public class ManualClockTests
                 {
                     final AsyncRunner mainAsyncRunner = test.getMainAsyncRunner();
                     final ManualClock clock = createClock(mainAsyncRunner);
-                    final Value<DateTime> value = new Value<>();
+                    final Value<DateTime> value = Value.create();
 
                     final AsyncAction asyncAction1 = clock.scheduleAfter(Duration.milliseconds(50), () -> value.set(clock.getCurrentDateTime()));
                     final AsyncAction asyncAction2 = clock.scheduleAfter(Duration.milliseconds(25), () -> value.set(clock.getCurrentDateTime()));
@@ -177,7 +175,7 @@ public class ManualClockTests
                 runner.test("with DateTime before now", (Test test) ->
                 {
                     final ManualClock clock = createClock(test);
-                    final Value<Boolean> value = new Value<>();
+                    final Value<Boolean> value = BooleanValue.create();
                     final DateTime startTime = clock.getCurrentDateTime();
                     clock.scheduleAt(
                         startTime.minus(Duration.seconds(1)),
@@ -192,7 +190,7 @@ public class ManualClockTests
                 runner.test("with DateTime \"at\" now", (Test test) ->
                 {
                     final ManualClock clock = createClock(test);
-                    final Value<Boolean> value = new Value<>();
+                    final Value<Boolean> value = BooleanValue.create();
                     final DateTime startTime = clock.getCurrentDateTime();
                     clock.scheduleAt(
                         startTime,
@@ -207,11 +205,14 @@ public class ManualClockTests
                 runner.test("with Datetime after now", (Test test) ->
                 {
                     final ManualClock clock = createClock(test);
-                    final Value<Boolean> value = new Value<>();
+                    final Value<Boolean> value = BooleanValue.create();
 
                     final AsyncAction asyncAction = clock.scheduleAt(
                         currentDateTime.plus(Duration.milliseconds(50)),
-                        () -> value.set(true));
+                        () ->
+                        {
+                            value.set(true);
+                        });
                     test.assertFalse(value.hasValue());
                     test.assertEqual(DateTime.local(0), clock.getCurrentDateTime());
 

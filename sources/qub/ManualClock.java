@@ -51,7 +51,7 @@ public class ManualClock implements Clock
         }
         else
         {
-            final BasicAsyncAction pausedAsyncAction = new BasicAsyncAction(new Value<>(mainAsyncRunner), action);
+            final BasicAsyncAction pausedAsyncAction = new BasicAsyncAction(Value.create(mainAsyncRunner), action);
             result = pausedAsyncAction;
 
             final PausedTask pausedTask = new PausedTask(pausedAsyncAction, dateTime);

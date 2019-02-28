@@ -24,7 +24,7 @@ public class JavaClockTests
                 runner.test("with negative Duration", (Test test) ->
                 {
                     final JavaClock clock = createClock(test);
-                    final Value<Boolean> value = new Value<>();
+                    final Value<Boolean> value = Value.create();
                     clock.scheduleAfter(Duration.seconds(-5), () -> value.set(true)).await();
                     test.assertTrue(value.hasValue());
                     test.assertTrue(value.get());
@@ -34,7 +34,7 @@ public class JavaClockTests
                 runner.test("with zero Duration", (Test test) ->
                 {
                     final JavaClock clock = createClock(test);
-                    final Value<Boolean> value = new Value<>();
+                    final Value<Boolean> value = Value.create();
                     clock.scheduleAfter(Duration.seconds(0), () -> value.set(true)).await();
                     test.assertTrue(value.hasValue());
                     test.assertTrue(value.get());
@@ -43,7 +43,7 @@ public class JavaClockTests
                 runner.test("with positive Duration", (Test test) ->
                 {
                     final JavaClock clock = createClock(test);
-                    final Value<Boolean> value = new Value<>();
+                    final Value<Boolean> value = Value.create();
                     final DateTime startTime = clock.getCurrentDateTime();
                     final Duration delay = Duration.milliseconds(50);
                     clock.scheduleAfter(delay, () -> value.set(true)).await();
@@ -74,7 +74,7 @@ public class JavaClockTests
                 runner.test("with DateTime before now", (Test test) ->
                 {
                     final JavaClock clock = createClock(test);
-                    final Value<Boolean> value = new Value<>();
+                    final Value<Boolean> value = Value.create();
                     final DateTime startTime = clock.getCurrentDateTime();
                     clock.scheduleAt(
                         startTime.minus(Duration.seconds(1)),
@@ -89,7 +89,7 @@ public class JavaClockTests
                 runner.test("with DateTime \"at\" now", (Test test) ->
                 {
                     final JavaClock clock = createClock(test);
-                    final Value<Boolean> value = new Value<>();
+                    final Value<Boolean> value = Value.create();
                     final DateTime startTime = clock.getCurrentDateTime();
                     clock.scheduleAt(
                         startTime,
@@ -104,7 +104,7 @@ public class JavaClockTests
                 runner.test("with Datetime after now", (Test test) ->
                 {
                     final JavaClock clock = createClock(test);
-                    final Value<Boolean> value = new Value<>();
+                    final Value<Boolean> value = Value.create();
                     final DateTime startTime = clock.getCurrentDateTime();
                     final Duration delay = Duration.milliseconds(50);
                     clock.scheduleAt(

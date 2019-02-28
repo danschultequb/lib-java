@@ -26,7 +26,7 @@ public class BasicAsyncActionTests
             runner.test("constructor(Getable<AsyncRunner>,Getable<AsyncTask>,Action0)", (Test test) ->
             {
                 final AsyncRunner asyncRunner = test.getMainAsyncRunner();
-                final BasicAsyncAction basicAsyncAction = new BasicAsyncAction(new Value<>(asyncRunner), () -> {});
+                final BasicAsyncAction basicAsyncAction = new BasicAsyncAction(Value.create(asyncRunner), () -> {});
                 test.assertSame(asyncRunner, basicAsyncAction.getAsyncRunner());
                 test.assertEqual(0, asyncRunner.getScheduledTaskCount());
                 test.assertEqual(0, basicAsyncAction.getPausedTaskCount());
@@ -87,7 +87,7 @@ public class BasicAsyncActionTests
                     final ManualAsyncRunner asyncRunner = new ManualAsyncRunner();
                     final BasicAsyncAction basicAsyncAction = createScheduled(asyncRunner);
 
-                    final Value<Integer> value = new Value<>();
+                    final Value<Integer> value = Value.create();
                     final AsyncAction onErrorAsyncAction = basicAsyncAction
                         .catchError((Throwable error) ->
                         {
@@ -105,7 +105,7 @@ public class BasicAsyncActionTests
                     final ManualAsyncRunner asyncRunner = new ManualAsyncRunner();
                     final BasicAsyncAction basicAsyncAction = createScheduled(asyncRunner);
 
-                    final Value<Boolean> value = new Value<>();
+                    final Value<Boolean> value = Value.create();
                     final AsyncAction onErrorAsyncAction = basicAsyncAction
                         .then((Action0)() ->
                         {
@@ -151,7 +151,7 @@ public class BasicAsyncActionTests
 
                     final BasicAsyncAction basicAsyncAction = createScheduled(asyncRunner1);
 
-                    final Value<Boolean> value = new Value<>();
+                    final Value<Boolean> value = Value.create();
                     final AsyncAction onErrorAsyncAction = basicAsyncAction.catchErrorOn(asyncRunner2, (Throwable error) ->
                     {
                         value.set(true);
@@ -176,7 +176,7 @@ public class BasicAsyncActionTests
 
                     final BasicAsyncAction basicAsyncAction = createScheduled(asyncRunner1);
 
-                    final Value<Boolean> value = new Value<>();
+                    final Value<Boolean> value = Value.create();
                     final AsyncAction onErrorAsyncAction = basicAsyncAction
                         .then((Action0)() ->
                         {
@@ -215,8 +215,8 @@ public class BasicAsyncActionTests
                     final ManualAsyncRunner asyncRunner = new ManualAsyncRunner();
                     final BasicAsyncAction basicAsyncAction = createScheduled(asyncRunner);
 
-                    final Value<Boolean> value1 = new Value<>();
-                    final Value<String> value2 = new Value<>();
+                    final Value<Boolean> value1 = Value.create();
+                    final Value<String> value2 = Value.create();
                     final AsyncAction onErrorAsyncAction = basicAsyncAction.catchErrorAsyncAction((Throwable error) ->
                     {
                         value1.set(true);
@@ -238,8 +238,8 @@ public class BasicAsyncActionTests
                     final ManualAsyncRunner asyncRunner = new ManualAsyncRunner();
                     final BasicAsyncAction basicAsyncAction = createScheduled(asyncRunner);
 
-                    final Value<Boolean> value1 = new Value<>();
-                    final Value<String> value2 = new Value<>();
+                    final Value<Boolean> value1 = Value.create();
+                    final Value<String> value2 = Value.create();
                     final AsyncAction onErrorAsyncAction = basicAsyncAction
                         .then((Action0)() ->
                         {
@@ -290,8 +290,8 @@ public class BasicAsyncActionTests
                     final ManualAsyncRunner asyncRunner2 = new ManualAsyncRunner();
                     final BasicAsyncAction basicAsyncAction = createScheduled(asyncRunner1);
 
-                    final Value<Boolean> value1 = new Value<>();
-                    final Value<String> value2 = new Value<>();
+                    final Value<Boolean> value1 = Value.create();
+                    final Value<String> value2 = Value.create();
                     final AsyncAction onErrorAsyncAction = basicAsyncAction.catchErrorAsyncActionOn(asyncRunner2, (Throwable error) ->
                     {
                         value1.set(true);
@@ -322,8 +322,8 @@ public class BasicAsyncActionTests
                     final ManualAsyncRunner asyncRunner2 = new ManualAsyncRunner();
                     final BasicAsyncAction basicAsyncAction = createScheduled(asyncRunner1);
 
-                    final Value<Boolean> value1 = new Value<>();
-                    final Value<String> value2 = new Value<>();
+                    final Value<Boolean> value1 = Value.create();
+                    final Value<String> value2 = Value.create();
                     final AsyncAction onErrorAsyncAction = basicAsyncAction
                         .then((Action0)() ->
                         {
@@ -348,7 +348,7 @@ public class BasicAsyncActionTests
                     test.assertEqual(0, asyncRunner2.getScheduledTaskCount());
                     test.assertFalse(onErrorAsyncAction.isCompleted());
                     test.assertEqual(true, value1.get());
-                    test.assertNull(value2.get());
+                    test.assertFalse(value2.hasValue());
 
                     asyncRunner1.await();
                     test.assertEqual(0, asyncRunner1.getScheduledTaskCount());
@@ -363,7 +363,7 @@ public class BasicAsyncActionTests
 
     private static BasicAsyncAction create(AsyncRunner asyncRunner)
     {
-        return new BasicAsyncAction(new Value<>(asyncRunner), () -> {});
+        return new BasicAsyncAction(Value.create(asyncRunner), () -> {});
     }
 
     private static BasicAsyncAction createScheduled(AsyncRunner runner)

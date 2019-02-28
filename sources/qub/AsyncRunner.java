@@ -148,7 +148,7 @@ public interface AsyncRunner extends Disposable
     {
         PreCondition.assertNotNullAndNotEmpty(asyncActions, "asyncActions");
 
-        final BasicAsyncAction result = new BasicAsyncAction(new Value<>(this), null);
+        final BasicAsyncAction result = new BasicAsyncAction(Value.create(this), null);
         final int asyncActionsCount = asyncActions.length;
         final java.util.concurrent.atomic.AtomicInteger completedAsyncActions = new java.util.concurrent.atomic.AtomicInteger(0);
         final List<Throwable> errors = new ArrayList<>();
@@ -258,7 +258,7 @@ public interface AsyncRunner extends Disposable
      */
     default <T> AsyncFunction<Result<T>> done(Result<T> asyncResult)
     {
-        final BasicAsyncFunction<Result<T>> result = new BasicAsyncFunction<>(new Value<>(this), null);
+        final BasicAsyncFunction<Result<T>> result = new BasicAsyncFunction<>(Value.create(this), null);
         result.markCompleted();
         result.setFunctionResult(asyncResult);
         return result;

@@ -10,21 +10,21 @@ public class ValueTests
             {
                 runner.test("with no arguments", (Test test) ->
                 {
-                    final Value<Character> value = new Value<>();
+                    final Value<java.lang.Character> value = Value.create();
                     test.assertFalse(value.hasValue());
-                    test.assertNull(value.get());
+                    test.assertThrows(value::get);
                 });
 
                 runner.test("with null argument", (Test test) ->
                 {
-                    final Value<Character> value = new Value<>(null);
+                    final Value<java.lang.Character> value = Value.create((java.lang.Character)null);
                     test.assertTrue(value.hasValue());
                     test.assertNull(value.get());
                 });
 
                 runner.test("with argument", (Test test) ->
                 {
-                    final Value<Character> value = new Value<>('n');
+                    final Value<java.lang.Character> value = Value.create(java.lang.Character.valueOf('n'));
                     test.assertTrue(value.hasValue());
                     test.assertEqual('n', value.get());
                 });
@@ -34,7 +34,7 @@ public class ValueTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final Value<Character> value = new Value<>();
+                    final Value<java.lang.Character> value = Value.create();
                     value.set(null);
                     test.assertTrue(value.hasValue());
                     test.assertNull(value.get());
@@ -42,7 +42,7 @@ public class ValueTests
 
                 runner.test("with non-null", (Test test) ->
                 {
-                    final Value<Character> value = new Value<>();
+                    final Value<java.lang.Character> value = Value.create();
                     value.set('z');
                     test.assertTrue(value.hasValue());
                     test.assertEqual('z', value.get());
@@ -51,10 +51,10 @@ public class ValueTests
 
             runner.test("clear()", (Test test) ->
             {
-                final Value<Character> value = new Value<>('v');
+                final Value<java.lang.Character> value = Value.create(java.lang.Character.valueOf('v'));
                 value.clear();
                 test.assertFalse(value.hasValue());
-                test.assertNull(value.get());
+                test.assertThrows(value::get);
             });
         });
     }

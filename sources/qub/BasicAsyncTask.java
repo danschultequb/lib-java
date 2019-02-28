@@ -29,7 +29,7 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
     @Override
     public AsyncRunner getAsyncRunner()
     {
-        return asyncRunner.get();
+        return asyncRunner.hasValue() ? asyncRunner.get() : null;
     }
 
     protected Getable<AsyncRunner> getAsyncRunnerGetable()
@@ -105,7 +105,7 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
     @Override
     public boolean isCompleted()
     {
-        return completed.get((Value<Boolean> value) -> value.get());
+        return completed.get((Value<Boolean> value) -> value.hasValue() && value.get());
     }
 
     @Override
@@ -157,7 +157,7 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
         PreCondition.assertNotNull(runner, "runner");
         PreCondition.assertNotNull(action, "action");
 
-        return thenOnInner(new Value<>(runner), action);
+        return thenOnInner(Value.create(runner), action);
     }
 
     public <T> AsyncFunction<T> thenOn(AsyncRunner runner, Function0<T> function)
@@ -165,7 +165,7 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
         PreCondition.assertNotNull(runner, "runner");
         PreCondition.assertNotNull(function, "function");
 
-        return thenOnInner(new Value<>(runner), function);
+        return thenOnInner(Value.create(runner), function);
     }
 
     private BasicAsyncAction thenOnInner(Getable<AsyncRunner> runner, Action0 action)
@@ -207,12 +207,12 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
         PreCondition.assertNotNull(runner, "runner");
         PreCondition.assertNotNull(function, "function");
 
-        return thenOnAsyncActionInner(new Value<>(runner), function);
+        return thenOnAsyncActionInner(Value.create(runner), function);
     }
 
     private AsyncAction thenOnAsyncActionInner(Getable<AsyncRunner> runner, Function0<AsyncAction> function)
     {
-        final Value<AsyncRunner> resultAsyncRunner = new Value<>();
+        final Value<AsyncRunner> resultAsyncRunner = Value.create();
         final BasicAsyncAction result = new BasicAsyncAction(resultAsyncRunner, null);
         result.addParentTask(this);
 
@@ -227,7 +227,7 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
             .catchError((Throwable error) ->
             {
                 result.setOutgoingError(error);
-                resultAsyncRunner.set(runner.get());
+                resultAsyncRunner.set(runner.hasValue() ? runner.get() : null);
                 result.schedule();
             }));
 
@@ -239,7 +239,7 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
         PreCondition.assertNotNull(runner, "runner");
         PreCondition.assertNotNull(function, "function");
 
-        return thenOnAsyncFunctionInner(new Value<>(runner), function);
+        return thenOnAsyncFunctionInner(Value.create(runner), function);
     }
 
     private <T> AsyncFunction<T> thenOnAsyncFunctionInner(Getable<AsyncRunner> runner, Function0<AsyncFunction<T>> function)
@@ -247,9 +247,9 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
         PreCondition.assertNotNull(runner, "runner");
         PreCondition.assertNotNull(function, "function");
 
-        final Value<AsyncRunner> resultAsyncRunner = new Value<>();
-        final Value<T> asyncFunctionResultValue = new Value<>();
-        final BasicAsyncFunction<T> result = new BasicAsyncFunction<>(resultAsyncRunner, asyncFunctionResultValue::get);
+        final Value<AsyncRunner> resultAsyncRunner = Value.create();
+        final Value<T> asyncFunctionResultValue = Value.create();
+        final BasicAsyncFunction<T> result = new BasicAsyncFunction<>(resultAsyncRunner, () -> asyncFunctionResultValue.hasValue() ? asyncFunctionResultValue.get() : null);
         result.addParentTask(this);
 
         result.addParentTask(this.thenOnInner(runner, function)
@@ -264,7 +264,7 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
             .catchError((Throwable error) ->
             {
                 result.setOutgoingError(error);
-                resultAsyncRunner.set(runner.get());
+                resultAsyncRunner.set(runner.hasValue() ? runner.get() : null);
                 result.schedule();
             }));
 
@@ -286,7 +286,7 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
         PreCondition.assertNotNull(asyncRunner, "asyncRunner");
         PreCondition.assertNotNull(function, "function");
 
-        final Value<AsyncRunner> resultAsyncRunner = new Value<>();
+        final Value<AsyncRunner> resultAsyncRunner = Value.create();
         final BasicAsyncAction result = new BasicAsyncAction(resultAsyncRunner, Action0.empty);
         result.addParentTask(this);
 
@@ -295,7 +295,7 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
             {
                 if (asyncFunctionResult == null)
                 {
-                    resultAsyncRunner.set(asyncRunner.get());
+                    resultAsyncRunner.set(asyncRunner.hasValue() ? asyncRunner.get() : null);
                     result.schedule();
                 }
                 else

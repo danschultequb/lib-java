@@ -20,7 +20,7 @@ public class AsyncRunnerTests
                 {
                     try (final AsyncRunner asyncRunner = createAsyncRunner.run())
                     {
-                        final Value<Boolean> value = new Value<>();
+                        final Value<Boolean> value = Value.create();
                         asyncRunner.markCompleted(value);
                         test.assertTrue(value.get());
                     }
@@ -77,8 +77,8 @@ public class AsyncRunnerTests
                     {
                         AsyncRunnerRegistry.withCurrentThreadAsyncRunner(asyncRunner, () ->
                         {
-                            final Value<Boolean> value1 = new Value<>();
-                            final Value<Boolean> value2 = new Value<>();
+                            final Value<Boolean> value1 = Value.create();
+                            final Value<Boolean> value2 = Value.create();
 
                             final AsyncAction asyncAction = asyncRunner.scheduleAsyncAction(() ->
                             {
@@ -115,8 +115,8 @@ public class AsyncRunnerTests
                     {
                         AsyncRunnerRegistry.withCurrentThreadAsyncRunner(asyncRunner, () ->
                         {
-                            final Value<Boolean> value1 = new Value<>();
-                            final Value<Boolean> value2 = new Value<>();
+                            final Value<Boolean> value1 = Value.create();
+                            final Value<Boolean> value2 = Value.create();
 
                             final AsyncFunction<Integer> asyncFunction = asyncRunner.scheduleAsyncFunction(() ->
                             {

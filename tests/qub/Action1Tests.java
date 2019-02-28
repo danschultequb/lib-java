@@ -38,7 +38,7 @@ public class Action1Tests
 
                 runner.test("with one non-null argument", (Test test) ->
                 {
-                    final Value<String> value = new Value<>();
+                    final Value<String> value = Value.create();
                     final Action1<String> setValue = value::set;
                     final Action1<String> action = Action1.sequence(setValue);
                     test.assertSame(action, setValue);
@@ -53,7 +53,7 @@ public class Action1Tests
 
                 runner.test("with null and non-null arguments", (Test test) ->
                 {
-                    final Value<String> value = new Value<>();
+                    final Value<String> value = Value.create();
                     final Action1<String> setValue = value::set;
                     final Action1<String> action = Action1.sequence(null, setValue);
                     test.assertSame(action, setValue);
@@ -61,7 +61,7 @@ public class Action1Tests
 
                 runner.test("with non-null and null arguments", (Test test) ->
                 {
-                    final Value<String> value = new Value<>();
+                    final Value<String> value = Value.create();
                     final Action1<String> setValue = value::set;
                     final Action1<String> action = Action1.sequence(setValue, null);
                     test.assertSame(action, setValue);
@@ -69,8 +69,8 @@ public class Action1Tests
 
                 runner.test("with non-null and non-null arguments", (Test test) ->
                 {
-                    final Value<String> value1 = new Value<>();
-                    final Value<String> value2 = new Value<>();
+                    final Value<String> value1 = Value.create();
+                    final Value<String> value2 = Value.create();
                     final Action1<String> action = Action1.sequence(value1::set, value2::set);
                     test.assertNotNull(action);
                     action.run("oops");

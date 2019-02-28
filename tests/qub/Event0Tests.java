@@ -18,7 +18,7 @@ public class Event0Tests
                 runner.test("with non-null", (Test test) ->
                 {
                     final Event0 event = creator.run();
-                    final Value<Integer> value = new Value<>(0);
+                    final Value<Integer> value = Value.create(0);
 
                     event.subscribe(() -> value.set(value.get() + 1));
 

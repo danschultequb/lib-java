@@ -1,10 +1,14 @@
 package qub;
 
+/**
+ * A Type that can only be read from.
+ * @param <T> The type of value that can be read.
+ */
 public interface Getable<T>
 {
     /**
-     * Get whether or not this Getable has a value.
-     * @return Whether or not this Getable has a value.
+     * Get whether or not this object has a value.
+     * @return Whether or not this object has a value.
      */
     boolean hasValue();
 

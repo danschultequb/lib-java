@@ -6,9 +6,9 @@ public class JavaFileSystemTests
     {
         String tempFolderPathString = System.getProperty("java.io.tmpdir");
         final Path tempFolderPath = Path.parse(tempFolderPathString).concatenateSegment("qub-tests");
-        final java.util.concurrent.atomic.AtomicInteger testNumber = new java.util.concurrent.atomic.AtomicInteger(0);
+        final IntegerValue testNumber = new IntegerValue(0);
 
-        final Value<FolderFileSystem> folderFileSystem = new Value<>();
+        final Value<FolderFileSystem> folderFileSystem = Value.create();
 
         runner.afterTest((Test test) ->
         {
@@ -23,7 +23,7 @@ public class JavaFileSystemTests
         {
             FileSystemTests.test(runner, (AsyncRunner asyncRunner) ->
             {
-                final Path testFolderPath = tempFolderPath.concatenateSegment(Integer.toString(testNumber.incrementAndGet()));
+                final Path testFolderPath = tempFolderPath.concatenateSegment(testNumber.increment().toString());
                 folderFileSystem.set(FolderFileSystem.get(new JavaFileSystem(asyncRunner), testFolderPath).getValue());
                 if (folderFileSystem.get().exists().getValue())
                 {

@@ -38,7 +38,7 @@ public class Action2Tests
 
                 runner.test("with one non-null argument", (Test test) ->
                 {
-                    final Value<String> value = new Value<>();
+                    final Value<String> value = Value.create();
                     final Action2<String,Integer> setValue = (String s, Integer i) -> value.set(Strings.repeat(s, i));
                     final Action2<String,Integer> action = Action2.sequence(setValue);
                     test.assertSame(action, setValue);
@@ -53,7 +53,7 @@ public class Action2Tests
 
                 runner.test("with null and non-null arguments", (Test test) ->
                 {
-                    final Value<String> value = new Value<>();
+                    final Value<String> value = Value.create();
                     final Action2<String,Integer> setValue = (String s, Integer i) -> value.set(Strings.repeat(s, i));
                     final Action2<String,Integer> action = Action2.sequence(null, setValue);
                     test.assertSame(action, setValue);
@@ -61,7 +61,7 @@ public class Action2Tests
 
                 runner.test("with non-null and null arguments", (Test test) ->
                 {
-                    final Value<String> value = new Value<>();
+                    final Value<String> value = Value.create();
                     final Action2<String,Integer> setValue = (String s, Integer i) -> value.set(Strings.repeat(s, i));
                     final Action2<String,Integer> action = Action2.sequence(setValue, null);
                     test.assertSame(action, setValue);
@@ -69,8 +69,8 @@ public class Action2Tests
 
                 runner.test("with non-null and non-null arguments", (Test test) ->
                 {
-                    final Value<String> value1 = new Value<>();
-                    final Value<String> value2 = new Value<>();
+                    final Value<String> value1 = Value.create();
+                    final Value<String> value2 = Value.create();
                     final Action2<String,Integer> action = Action2.sequence(
                         (String s, Integer i) -> value1.set(Strings.repeat(s, i)),
                         (String s, Integer i) -> value2.set(Strings.repeat(s, i + 1)));

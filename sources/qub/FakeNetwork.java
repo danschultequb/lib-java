@@ -58,8 +58,8 @@ public class FakeNetwork implements Network
 
         return mutex.criticalSection(() ->
         {
-            final Value<Result<TCPClient>> resultValue = new Value<>();
-            final Value<FakeTCPServer> remoteTCPServerValue = new Value<>();
+            final Value<Result<TCPClient>> resultValue = Value.create();
+            final Value<FakeTCPServer> remoteTCPServerValue = Value.create();
 
             final Clock clock = getAsyncRunner().getClock();
 
@@ -271,7 +271,7 @@ public class FakeNetwork implements Network
 
         return mutex.criticalSection(() ->
         {
-            final Value<Boolean> resultValue = new Value<>(true);
+            final Value<Boolean> resultValue = Value.create(true);
 
             boundTCPClients.get(ipAddress)
                 .then((MutableMap<Integer,FakeTCPClient> localTCPClients) ->

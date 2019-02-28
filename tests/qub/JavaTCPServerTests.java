@@ -112,7 +112,7 @@ public class JavaTCPServerTests
                     final AsyncRunner asyncRunner = test.getParallelAsyncRunner();
 
                     final Network network = new JavaNetwork(asyncRunner);
-                    final Value<byte[]> clientReadBytes = new Value<>();
+                    final Value<byte[]> clientReadBytes = Value.create();
                     final AsyncAction clientTask = asyncRunner.schedule(() ->
                     {
                         final Result<TCPClient> tcpClientResult = network.createTCPClient(ipAddress, port.get());
@@ -168,7 +168,7 @@ public class JavaTCPServerTests
                     final byte[] bytes = new byte[] { 1, 2, 3, 4, 5, 6 };
                     final AsyncRunner asyncRunner = test.getParallelAsyncRunner();
                     final Network network = new JavaNetwork(asyncRunner);
-                    final Value<byte[]> clientReadBytes = new Value<>();
+                    final Value<byte[]> clientReadBytes = Value.create();
 
                     try (final TCPServer tcpServer = network.createTCPServer(ipAddress, port.get()).getValue())
                     {

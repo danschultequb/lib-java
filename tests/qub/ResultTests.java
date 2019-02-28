@@ -113,7 +113,7 @@ public class ResultTests
                 runner.test("with non-error Result and non-throwing action", (Test test) ->
                 {
                     final Result<Boolean> result1 = Result.successTrue();
-                    final Value<Boolean> value = new Value<>();
+                    final Value<Boolean> value = Value.create();
                     final Result<Void> result2 = result1.then(() -> value.set(false));
                     test.assertSuccess(null, result2);
                     test.assertEqual(false, value.get());
@@ -132,10 +132,10 @@ public class ResultTests
                 runner.test("with error Result and non-throwing action", (Test test) ->
                 {
                     final Result<Character> result1 = Result.error(new RuntimeException("blah"));
-                    final Value<Character> value = new Value<>();
+                    final Value<Character> value = Value.create();
                     final Result<Void> result2 = result1.then(() -> value.set('z'));
                     test.assertError(new RuntimeException("blah"), result2);
-                    test.assertEqual(null, value.get());
+                    test.assertFalse(value.hasValue());
                 });
 
                 runner.test("with error Result and throwing action", (Test test) ->
@@ -159,9 +159,10 @@ public class ResultTests
                 runner.test("with non-error Result and non-throwing action", (Test test) ->
                 {
                     final Result<Boolean> result1 = Result.successTrue();
-                    final Value<Boolean> value = new Value<>();
+                    final Value<Boolean> value = Value.create();
                     final Result<Void> result2 = result1.then(value::set);
                     test.assertSuccess(null, result2);
+                    test.assertTrue(value.hasValue());
                     test.assertEqual(true, value.get());
                 });
 
@@ -178,10 +179,10 @@ public class ResultTests
                 runner.test("with error Result and non-throwing action", (Test test) ->
                 {
                     final Result<Character> result1 = Result.error(new RuntimeException("blah"));
-                    final Value<Character> value = new Value<>();
+                    final Value<Character> value = Value.create();
                     final Result<Void> result2 = result1.then(value::set);
                     test.assertError(new RuntimeException("blah"), result2);
-                    test.assertEqual(null, value.get());
+                    test.assertFalse(value.hasValue());
                 });
 
                 runner.test("with error Result and throwing action", (Test test) ->
@@ -373,7 +374,7 @@ public class ResultTests
                 runner.test("with non-error Result and non-throwing action", (Test test) ->
                 {
                     final Result<Boolean> result1 = Result.successTrue();
-                    final Value<Integer> value = new Value<>(0);
+                    final Value<Integer> value = Value.create(0);
                     final Result<Boolean> result2 = result1.catchError((Action0)() -> value.set(5));
                     test.assertSame(result2, result1);
                     test.assertEqual(0, value.get());
@@ -389,7 +390,7 @@ public class ResultTests
                 runner.test("with error Result and non-throwing action", (Test test) ->
                 {
                     final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
-                    final Value<Integer> value = new Value<>(0);
+                    final Value<Integer> value = Value.create(0);
                     final Result<Boolean> result2 = result1.catchError((Action0)() -> value.set(5));
                     test.assertSuccess(null, result2);
                     test.assertEqual(5, value.get());
@@ -413,7 +414,7 @@ public class ResultTests
                 runner.test("with non-error Result and non-throwing action", (Test test) ->
                 {
                     final Result<Boolean> result1 = Result.successTrue();
-                    final Value<Integer> value = new Value<>(0);
+                    final Value<Integer> value = Value.create(0);
                     final Result<Boolean> result2 = result1.catchError((Throwable error) -> value.set(5));
                     test.assertSame(result2, result1);
                     test.assertEqual(0, value.get());
@@ -429,7 +430,7 @@ public class ResultTests
                 runner.test("with error Result and non-throwing action", (Test test) ->
                 {
                     final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
-                    final Value<Integer> value = new Value<>(0);
+                    final Value<Integer> value = Value.create(0);
                     final Result<Boolean> result2 = result1.catchError((Throwable error) -> value.set(5));
                     test.assertSuccess(null, result2);
                     test.assertEqual(5, value.get());
@@ -453,7 +454,7 @@ public class ResultTests
                 runner.test("with non-error Result and non-throwing action", (Test test) ->
                 {
                     final Result<Boolean> result1 = Result.successTrue();
-                    final Value<Integer> value = new Value<>(0);
+                    final Value<Integer> value = Value.create(0);
                     final Result<Boolean> result2 = result1.catchResultError((Result<Boolean> errorResult) ->
                     {
                         test.assertSame(result1, errorResult);
@@ -477,7 +478,7 @@ public class ResultTests
                 runner.test("with error Result and non-throwing action", (Test test) ->
                 {
                     final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
-                    final Value<Integer> value = new Value<>(0);
+                    final Value<Integer> value = Value.create(0);
                     final Result<Boolean> result2 = result1.catchResultError((Result<Boolean> resultError) ->
                     {
                         test.assertSame(result1, resultError);
@@ -514,7 +515,7 @@ public class ResultTests
                 runner.test("with non-error Result and non-throwing action", (Test test) ->
                 {
                     final Result<Boolean> result1 = Result.successTrue();
-                    final Value<Integer> value = new Value<>(0);
+                    final Value<Integer> value = Value.create(0);
                     final Result<Boolean> result2 = result1.catchError(NullPointerException.class, (Action0)() -> value.set(5));
                     test.assertSame(result2, result1);
                     test.assertEqual(0, value.get());
@@ -530,7 +531,7 @@ public class ResultTests
                 runner.test("with error Result with wrong error type and non-throwing action", (Test test) ->
                 {
                     final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
-                    final Value<Integer> value = new Value<>(0);
+                    final Value<Integer> value = Value.create(0);
                     final Result<Boolean> result2 = result1.catchError(NullPointerException.class, (Action0)() -> value.set(5));
                     test.assertSame(result2, result1);
                     test.assertEqual(0, value.get());
@@ -539,7 +540,7 @@ public class ResultTests
                 runner.test("with error Result with correct error type and non-throwing action", (Test test) ->
                 {
                     final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
-                    final Value<Integer> value = new Value<>(0);
+                    final Value<Integer> value = Value.create(0);
                     final Result<Boolean> result2 = result1.catchError(RuntimeException.class, (Action0)() -> value.set(5));
                     test.assertSuccess(null, result2);
                     test.assertEqual(5, value.get());
@@ -575,7 +576,7 @@ public class ResultTests
                 runner.test("with non-error Result and non-throwing action", (Test test) ->
                 {
                     final Result<Boolean> result1 = Result.successTrue();
-                    final Value<Integer> value = new Value<>(0);
+                    final Value<Integer> value = Value.create(0);
                     final Result<Boolean> result2 = result1.catchError(NullPointerException.class, (Action1<NullPointerException>)error -> value.set(5));
                     test.assertSame(result2, result1);
                     test.assertEqual(0, value.get());
@@ -591,7 +592,7 @@ public class ResultTests
                 runner.test("with error Result with wrong error type and non-throwing action", (Test test) ->
                 {
                     final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
-                    final Value<Integer> value = new Value<>(0);
+                    final Value<Integer> value = Value.create(0);
                     final Result<Boolean> result2 = result1.catchError(NullPointerException.class, (Action1<NullPointerException>)error -> value.set(5));
                     test.assertSame(result2, result1);
                     test.assertEqual(0, value.get());
@@ -600,7 +601,7 @@ public class ResultTests
                 runner.test("with error Result with correct error type and non-throwing action", (Test test) ->
                 {
                     final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
-                    final Value<Integer> value = new Value<>(0);
+                    final Value<Integer> value = Value.create(0);
                     final Result<Boolean> result2 = result1.catchError(RuntimeException.class, (Action1<RuntimeException>)error -> value.set(5));
                     test.assertSuccess(null, result2);
                     test.assertEqual(5, value.get());
@@ -631,7 +632,7 @@ public class ResultTests
                 runner.test("with non-error Result and non-throwing function", (Test test) ->
                 {
                     final Result<Boolean> result1 = Result.successTrue();
-                    final Value<Integer> value = new Value<>(0);
+                    final Value<Integer> value = Value.create(0);
                     final Result<Boolean> result2 = result1.catchError(() ->
                     {
                         value.set(5);
@@ -651,7 +652,7 @@ public class ResultTests
                 runner.test("with error Result and null-returning function", (Test test) ->
                 {
                     final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
-                    final Value<Integer> value = new Value<>(0);
+                    final Value<Integer> value = Value.create(0);
                     final Result<Boolean> result2 = result1.catchError((Function0<Boolean>)() ->
                     {
                         value.set(5);
@@ -664,7 +665,7 @@ public class ResultTests
                 runner.test("with error Result and non-throwing function", (Test test) ->
                 {
                     final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
-                    final Value<Integer> value = new Value<>(0);
+                    final Value<Integer> value = Value.create(0);
                     final Result<Boolean> result2 = result1.catchError(() ->
                     {
                         value.set(5);
@@ -692,7 +693,7 @@ public class ResultTests
                 runner.test("with non-error Result and non-throwing function", (Test test) ->
                 {
                     final Result<Boolean> result1 = Result.successTrue();
-                    final Value<Integer> value = new Value<>(0);
+                    final Value<Integer> value = Value.create(0);
                     final Result<Boolean> result2 = result1.catchError((Throwable error) ->
                     {
                         value.set(5);
@@ -712,7 +713,7 @@ public class ResultTests
                 runner.test("with error Result and null-returning function", (Test test) ->
                 {
                     final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
-                    final Value<Integer> value = new Value<>(0);
+                    final Value<Integer> value = Value.create(0);
                     final Result<Boolean> result2 = result1.catchError((Throwable error) ->
                     {
                         value.set(5);
@@ -725,7 +726,7 @@ public class ResultTests
                 runner.test("with error Result and non-throwing function", (Test test) ->
                 {
                     final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
-                    final Value<Integer> value = new Value<>(0);
+                    final Value<Integer> value = Value.create(0);
                     final Result<Boolean> result2 = result1.catchError((Throwable error) ->
                     {
                         value.set(5);
@@ -758,7 +759,7 @@ public class ResultTests
                 runner.test("with non-error Result and non-throwing function", (Test test) ->
                 {
                     final Result<Boolean> result1 = Result.successTrue();
-                    final Value<Integer> value = new Value<>(0);
+                    final Value<Integer> value = Value.create(0);
                     final Result<Boolean> result2 = result1.catchError(NullPointerException.class, () ->
                     {
                         value.set(5);
@@ -778,7 +779,7 @@ public class ResultTests
                 runner.test("with error Result with wrong error type and non-throwing function", (Test test) ->
                 {
                     final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
-                    final Value<Integer> value = new Value<>(0);
+                    final Value<Integer> value = Value.create(0);
                     final Result<Boolean> result2 = result1.catchError(NullPointerException.class, () ->
                     {
                         value.set(5);
@@ -791,7 +792,7 @@ public class ResultTests
                 runner.test("with error Result with correct error type and non-throwing function", (Test test) ->
                 {
                     final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
-                    final Value<Integer> value = new Value<>(0);
+                    final Value<Integer> value = Value.create(0);
                     final Result<Boolean> result2 = result1.catchError(RuntimeException.class, () ->
                     {
                         value.set(5);
@@ -831,7 +832,7 @@ public class ResultTests
                 runner.test("with non-error Result and non-throwing function", (Test test) ->
                 {
                     final Result<Boolean> result1 = Result.successTrue();
-                    final Value<Integer> value = new Value<>(0);
+                    final Value<Integer> value = Value.create(0);
                     final Result<Boolean> result2 = result1.catchError(NullPointerException.class, error ->
                     {
                         value.set(5);
@@ -851,7 +852,7 @@ public class ResultTests
                 runner.test("with error Result with wrong error type and non-throwing function", (Test test) ->
                 {
                     final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
-                    final Value<Integer> value = new Value<>(0);
+                    final Value<Integer> value = Value.create(0);
                     final Result<Boolean> result2 = result1.catchError(NullPointerException.class, error ->
                     {
                         value.set(5);
@@ -864,7 +865,7 @@ public class ResultTests
                 runner.test("with error Result with correct error type and non-throwing function", (Test test) ->
                 {
                     final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
-                    final Value<Integer> value = new Value<>(0);
+                    final Value<Integer> value = Value.create(0);
                     final Result<Boolean> result2 = result1.catchError(RuntimeException.class, error ->
                     {
                         value.set(5);
@@ -899,7 +900,7 @@ public class ResultTests
                 runner.test("with non-error Result and non-throwing function", (Test test) ->
                 {
                     final Result<Boolean> result1 = Result.successTrue();
-                    final Value<Integer> value = new Value<>(0);
+                    final Value<Integer> value = Value.create(0);
                     final Result<Boolean> result2 = result1.catchErrorResult(() ->
                     {
                         value.set(5);
@@ -919,7 +920,7 @@ public class ResultTests
                 runner.test("with error Result and null-returning function", (Test test) ->
                 {
                     final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
-                    final Value<Integer> value = new Value<>(0);
+                    final Value<Integer> value = Value.create(0);
                     test.assertThrows(() -> result1.catchErrorResult((Function0<Result<Boolean>>)() ->
                         {
                             value.set(5);
@@ -932,7 +933,7 @@ public class ResultTests
                 runner.test("with error Result and non-throwing function", (Test test) ->
                 {
                     final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
-                    final Value<Integer> value = new Value<>(0);
+                    final Value<Integer> value = Value.create(0);
                     final Result<Boolean> result2 = result1.catchErrorResult(() ->
                     {
                         value.set(5);
@@ -960,7 +961,7 @@ public class ResultTests
                 runner.test("with non-error Result and null-returning function", (Test test) ->
                 {
                     final Result<Boolean> result1 = Result.successTrue();
-                    final Value<Integer> value = new Value<>(0);
+                    final Value<Integer> value = Value.create(0);
                     final Result<Boolean> result2 = result1.catchErrorResult((Throwable error) ->
                     {
                         value.set(5);
@@ -973,7 +974,7 @@ public class ResultTests
                 runner.test("with non-error Result and non-throwing function", (Test test) ->
                 {
                     final Result<Boolean> result1 = Result.successTrue();
-                    final Value<Integer> value = new Value<>(0);
+                    final Value<Integer> value = Value.create(0);
                     final Result<Boolean> result2 = result1.catchErrorResult((Throwable error) ->
                     {
                         value.set(5);
@@ -999,7 +1000,7 @@ public class ResultTests
                 runner.test("with error Result and non-throwing function", (Test test) ->
                 {
                     final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
-                    final Value<Integer> value = new Value<>(0);
+                    final Value<Integer> value = Value.create(0);
                     final Result<Boolean> result2 = result1.catchErrorResult((Throwable error) ->
                     {
                         value.set(5);
@@ -1032,7 +1033,7 @@ public class ResultTests
                 runner.test("with non-error Result and non-throwing function", (Test test) ->
                 {
                     final Result<Boolean> result1 = Result.successTrue();
-                    final Value<Integer> value = new Value<>(0);
+                    final Value<Integer> value = Value.create(0);
                     final Result<Boolean> result2 = result1.catchErrorResult(NullPointerException.class, () ->
                     {
                         value.set(5);
@@ -1052,7 +1053,7 @@ public class ResultTests
                 runner.test("with error Result with wrong error type and non-throwing function", (Test test) ->
                 {
                     final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
-                    final Value<Integer> value = new Value<>(0);
+                    final Value<Integer> value = Value.create(0);
                     final Result<Boolean> result2 = result1.catchErrorResult(NullPointerException.class, () ->
                     {
                         value.set(5);
@@ -1065,7 +1066,7 @@ public class ResultTests
                 runner.test("with error Result with correct error type and non-throwing function", (Test test) ->
                 {
                     final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
-                    final Value<Integer> value = new Value<>(0);
+                    final Value<Integer> value = Value.create(0);
                     final Result<Boolean> result2 = result1.catchErrorResult(RuntimeException.class, () ->
                     {
                         value.set(5);
@@ -1105,7 +1106,7 @@ public class ResultTests
                 runner.test("with non-error Result and non-throwing function", (Test test) ->
                 {
                     final Result<Boolean> result1 = Result.successTrue();
-                    final Value<Integer> value = new Value<>(0);
+                    final Value<Integer> value = Value.create(0);
                     final Result<Boolean> result2 = result1.catchErrorResult(NullPointerException.class, error ->
                     {
                         value.set(5);
@@ -1125,7 +1126,7 @@ public class ResultTests
                 runner.test("with error Result with wrong error type and non-throwing function", (Test test) ->
                 {
                     final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
-                    final Value<Integer> value = new Value<>(0);
+                    final Value<Integer> value = Value.create(0);
                     final Result<Boolean> result2 = result1.catchErrorResult(NullPointerException.class, error ->
                     {
                         value.set(5);
@@ -1138,7 +1139,7 @@ public class ResultTests
                 runner.test("with error Result with correct error type and non-throwing function", (Test test) ->
                 {
                     final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
-                    final Value<Integer> value = new Value<>(0);
+                    final Value<Integer> value = Value.create(0);
                     final Result<Boolean> result2 = result1.catchErrorResult(RuntimeException.class, error ->
                     {
                         value.set(5);
@@ -1529,7 +1530,7 @@ public class ResultTests
 
                 runner.test("with condition that returns false", (Test test) ->
                 {
-                    final Value<Integer> value = new Value<>(0);
+                    final Value<Integer> value = Value.create(0);
                     final Result<Void> result = Result.runWhile(() -> false, () -> value.set(5));
                     test.assertSuccess(result);
                     test.assertEqual(0, value.get());
@@ -1537,7 +1538,7 @@ public class ResultTests
 
                 runner.test("with condition that returns null", (Test test) ->
                 {
-                    final Value<Integer> value = new Value<>(0);
+                    final Value<Integer> value = Value.create(0);
                     final Result<Void> result = Result.runWhile(() -> null, () -> value.set(5));
                     test.assertSuccess(result);
                     test.assertEqual(0, value.get());
@@ -1545,7 +1546,7 @@ public class ResultTests
 
                 runner.test("with condition that throws", (Test test) ->
                 {
-                    final Value<Integer> value = new Value<>(0);
+                    final Value<Integer> value = Value.create(0);
                     final Result<Void> result = Result.runWhile(() -> { throw new RuntimeException("xyz"); }, () -> value.set(5));
                     test.assertError(new RuntimeException("xyz"), result);
                     test.assertEqual(0, value.get());
@@ -1562,7 +1563,7 @@ public class ResultTests
 
                 runner.test("with condition that runs body a few times", (Test test) ->
                 {
-                    final Value<Integer> value = new Value<>(0);
+                    final Value<Integer> value = Value.create(0);
                     final Result<Void> result = Result.runWhile(() -> value.get() < 5, () -> value.set(value.get() + 1));
                     test.assertSuccess(result);
                     test.assertEqual(5, value.get());

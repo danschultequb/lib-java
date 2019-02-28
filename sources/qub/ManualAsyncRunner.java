@@ -56,7 +56,7 @@ public class ManualAsyncRunner implements AsyncRunner
         PreCondition.assertNotNull(action, "action");
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
-        final BasicAsyncAction result = new BasicAsyncAction(new Value<AsyncRunner>(this), label, action);
+        final BasicAsyncAction result = new BasicAsyncAction(Value.create(this), label, action);
         schedule(result);
 
         PostCondition.assertNotNull(result, "result");
@@ -70,7 +70,7 @@ public class ManualAsyncRunner implements AsyncRunner
         PreCondition.assertNotNull(function, "function");
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
-        final BasicAsyncFunction<T> result = new BasicAsyncFunction<>(new Value<AsyncRunner>(this), function);
+        final BasicAsyncFunction<T> result = new BasicAsyncFunction<>(Value.create(this), function);
         schedule(result);
 
         PostCondition.assertNotNull(result, "result");
@@ -81,8 +81,7 @@ public class ManualAsyncRunner implements AsyncRunner
     private void dequeueAndRunNextTask()
     {
         final Result<PausedAsyncTask> asyncTask = scheduledTasks.dequeue();
-        asyncTask.throwError();
-        asyncTask.getValue().runAndSchedulePausedTasks();
+        asyncTask.await().runAndSchedulePausedTasks();
     }
 
     public void await()
