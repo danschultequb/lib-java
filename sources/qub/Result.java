@@ -5,74 +5,63 @@ public class Result<T>
     private final T value;
     private final Throwable error;
 
-    Result(T value, Throwable error)
+    private Result(T value, Throwable error)
     {
         this.value = value;
         this.error = error;
     }
 
-    final public T await()
+    public T await()
     {
-        return throwErrorOrGetValue();
+        Exceptions.throwAsRuntime(error);
+        return value;
     }
 
+    @Deprecated
     final public T getValue()
     {
         return value;
     }
 
+    @Deprecated
     final public boolean hasError()
     {
         return error != null;
     }
 
+    @Deprecated
     final public Throwable getError()
     {
         return error;
     }
 
+    @Deprecated
     final public Class<? extends Throwable> getErrorType()
     {
         return error == null ? null : error.getClass();
     }
 
-    /**
-     * If this Result has an error, then return the error's message. If this Result doesn't have an
-     * error, then return null.
-     * @return The message of this Result's error, or null if this Result doesn't have an error.
-     */
+    @Deprecated
     final public String getErrorMessage()
     {
         return error == null ? null : error.getMessage();
     }
 
-    /**
-     * If this Result has an error, then the error will be thrown as a RuntimeException.
-     */
+    @Deprecated
     final public void throwError()
     {
         Exceptions.throwAsRuntime(error);
     }
 
-    /**
-     * If this Result has an error, then the error will be thrown as a RuntimeException. If the
-     * Result does not have an error, then the value will be returned.
-     * @return The value of this Result.
-     */
+    @Deprecated
     public T throwErrorOrGetValue()
     {
         throwError();
         return value;
     }
 
-    /**
-     * Convert this Result object to the target Result object type if this Result has an error. If
-     * this Result does not have an error, then return null.
-     * @param <U> The target Result object type.
-     * @return The converted Result object if this Result has an error or null if this Result does
-     * not have an error.
-     */
-    final <U> Result<U> convertError()
+    @Deprecated
+    final public <U> Result<U> convertError()
     {
         return hasError() ? Result.error(error) : null;
     }
@@ -175,7 +164,7 @@ public class Result<T>
         PreCondition.assertNotNull(function, "function");
 
         final Result<Result<U>> resultResult = then(function);
-        final Result<U> result = resultResult.hasError() ? resultResult.convertError() : resultResult.value;
+        final Result<U> result = resultResult.hasError() ? resultResult.convertError() : resultResult.getValue();
 
         PostCondition.assertNotNull(result, "result");
 
@@ -315,7 +304,6 @@ public class Result<T>
      * @param action The action to run if this result has an error.
      * @return This result.
      */
-    @SuppressWarnings("unchecked")
     public <TError extends Throwable> Result<T> catchError(Class<TError> errorType, Action0 action)
     {
         PreCondition.assertNotNull(errorType, "errorType");
@@ -449,7 +437,7 @@ public class Result<T>
         Result<T> result = this;
         if (hasError())
         {
-            result = invokeResult(function::run);
+            result = invokeResult(function);
         }
 
         PostCondition.assertNotNull(result, "result");
@@ -490,7 +478,7 @@ public class Result<T>
         Result<T> result = this;
         if (hasError() && Types.instanceOf(getError(), errorType))
         {
-            result = invokeResult(function::run);
+            result = invokeResult(function);
         }
 
         PostCondition.assertNotNull(result, "result");
@@ -560,7 +548,6 @@ public class Result<T>
      * @param action The action to run if this Result has an error of the provided type.
      * @return This Result with its error.
      */
-    @SuppressWarnings("unchecked")
     public <TError extends Throwable> Result<T> onError(Class<TError> errorType, Action0 action)
     {
         PreCondition.assertNotNull(errorType, "errorType");
@@ -663,6 +650,7 @@ public class Result<T>
         return result;
     }
 
+    @Deprecated
     @SuppressWarnings("unchecked")
     final public <U extends Exception> void throwError(Class<U> exceptionType) throws U
     {
@@ -682,16 +670,65 @@ public class Result<T>
     @SuppressWarnings("unchecked")
     public boolean equals(Object rhs)
     {
-        return rhs instanceof Result && equals((Result<T>)rhs);
+        return rhs instanceof Result && equals((Result<?>)rhs);
     }
 
-    public boolean equals(Result<T> rhs)
+    /**
+     * Get whether or not the provided Result is equal to this Result.
+     * @param rhs The provided Result.
+     */
+    public boolean equals(Result<?> rhs)
     {
         return rhs != null && Comparer.equal(value, rhs.value) && Comparer.equal(error, rhs.error);
     }
 
+    private static final Result<?> successNull = Result.success(null);
+    /**
+     * Create a new empty successful Result.
+     * @param <U> The type of value the Result should contain.
+     */
+    @SuppressWarnings("unchecked")
+    public static <U> Result<U> success()
+    {
+        return (Result<U>)successNull;
+    }
+
+    private static final Result<Boolean> successTrue = Result.success(true);
+    /**
+     * Get a successful Result that contains a true boolean value.
+     */
+    static Result<Boolean> successTrue()
+    {
+        return successTrue;
+    }
+
+    private static final Result<Boolean> successFalse = Result.success(false);
+    /**
+     * Get a successful Result that contains a true boolean value.
+     */
+    static Result<Boolean> successFalse()
+    {
+        return successFalse;
+    }
+
+    /**
+     * Create a new successful Result that contains the provided value.
+     * @param value The value the Result should contain.
+     * @param <U> The type of the value.
+     */
+    public static <U> Result<U> success(U value)
+    {
+        return new Result<U>(value, null);
+    }
+
+    /**
+     * Create a new Result by synchronously running the provided Action and returning the result.
+     * @param action The action to run.
+     */
     public static Result<Void> create(Action0 action)
     {
+        PreCondition.assertNotNull(action, "action");
+
         return Result.create(() ->
         {
             action.run();
@@ -699,11 +736,11 @@ public class Result<T>
         });
     }
 
-    public static <U> Result<U> create(U value)
-    {
-        return new Result<U>(value, null);
-    }
-
+    /**
+     * Create a new Result by synchronously running the provided Function and returning the result.
+     * @param function The function to run.
+     * @param <U> The type of value the function will return.
+     */
     public static <U> Result<U> create(Function0<U> function)
     {
         PreCondition.assertNotNull(function, "function");
@@ -723,28 +760,11 @@ public class Result<T>
         return result;
     }
 
-    public static <U> Result<U> success()
-    {
-        return success(null);
-    }
-
-    public static <U> Result<U> success(U value)
-    {
-        return new Result<>(value, null);
-    }
-
-    private static final Result<Boolean> successFalse = Result.success(false);
-    public static Result<Boolean> successFalse()
-    {
-        return successFalse;
-    }
-
-    private static final Result<Boolean> successTrue = Result.success(true);
-    public static Result<Boolean> successTrue()
-    {
-        return successTrue;
-    }
-
+    /**
+     * Create a new Result that contains the provided error.
+     * @param error The error that the Result should contain.
+     * @param <U> The type of value the Result can contain.
+     */
     public static <U> Result<U> error(Throwable error)
     {
         PreCondition.assertNotNull(error, "error");
@@ -759,6 +779,7 @@ public class Result<T>
      * @param body The body of the while loop.
      * @return The result of the while loop.
      */
+    @Deprecated
     public static Result<Void> runWhile(Function0<Boolean> condition, Action0 body)
     {
         PreCondition.assertNotNull(condition, "condition");
@@ -784,6 +805,7 @@ public class Result<T>
         return result;
     }
 
+    @Deprecated
     public static <U> Result<U> isFalse(boolean value, String expressionName)
     {
         PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
@@ -791,6 +813,7 @@ public class Result<T>
         return Result.equal(false, value, expressionName);
     }
 
+    @Deprecated
     public static <U> Result<U> isTrue(boolean value, String expressionName)
     {
         PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
@@ -798,6 +821,7 @@ public class Result<T>
         return Result.equal(true, value, expressionName);
     }
 
+    @Deprecated
     public static <T,U> Result<U> equal(T expectedValue, T value, String expressionName)
     {
         PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
@@ -810,6 +834,7 @@ public class Result<T>
         return result;
     }
 
+    @Deprecated
     public static <U> Result<U> notNull(Object value, String expressionName)
     {
         PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
@@ -822,6 +847,7 @@ public class Result<T>
         return result;
     }
 
+    @Deprecated
     public static <U> Result<U> notNullAndNotEmpty(String value, String expressionName)
     {
         PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
@@ -837,6 +863,7 @@ public class Result<T>
         return result;
     }
 
+    @Deprecated
     public static <U> Result<U> greaterThan(int value, int lowerBound, String expressionName)
     {
         PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
@@ -849,6 +876,7 @@ public class Result<T>
         return result;
     }
 
+    @Deprecated
     public static <U> Result<U> greaterThanOrEqualTo(int value, int lowerBound, String expressionName)
     {
         PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
@@ -861,6 +889,7 @@ public class Result<T>
         return result;
     }
 
+    @Deprecated
     public static <U> Result<U> between(int lowerBound, int value, int upperBound, String expressionName)
     {
         PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
