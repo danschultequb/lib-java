@@ -34,9 +34,10 @@ public class SyncResult<T> implements Result<T>
     {
         if (error != null)
         {
-            if (Types.instanceOf(error, expectedErrorType))
+            final Throwable unwrappedError = Exceptions.unwrap(error);
+            if (Types.instanceOf(unwrappedError, expectedErrorType))
             {
-                throw (TError)error;
+                throw (TError)unwrappedError;
             }
             else
             {
@@ -79,7 +80,10 @@ public class SyncResult<T> implements Result<T>
     @Deprecated
     final public void throwError()
     {
-        Exceptions.throwAsRuntime(error);
+        if (error != null)
+        {
+            throw Exceptions.asRuntime(error);
+        }
     }
 
     @Deprecated
@@ -335,9 +339,13 @@ public class SyncResult<T> implements Result<T>
         PreCondition.assertNotNull(action, "action");
 
         Result<T> result = this;
-        if (hasError() && Types.instanceOf(getError(), errorType))
+        if (error != null)
         {
-            result = invokeCatch(() -> action.run((TError)getError()));
+            final Throwable unwrappedError = Exceptions.unwrap(error);
+            if (Types.instanceOf(unwrappedError, errorType))
+            {
+                result = invokeCatch(() -> action.run((TError)unwrappedError));
+            }
         }
 
         PostCondition.assertNotNull(result, "result");
@@ -659,13 +667,17 @@ public class SyncResult<T> implements Result<T>
     {
         PreCondition.assertNotNull(exceptionType, "exceptionType");
 
-        if (Types.instanceOf(error, exceptionType))
+        if (error != null)
         {
-            throw (U)error;
-        }
-        else
-        {
-            Exceptions.throwAsRuntime(error);
+            final Throwable unwrappedError = Exceptions.unwrap(error);
+            if (Types.instanceOf(unwrappedError, exceptionType))
+            {
+                throw (U)unwrappedError;
+            }
+            else
+            {
+                throw Exceptions.asRuntime(error);
+            }
         }
     }
 

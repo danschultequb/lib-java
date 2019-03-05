@@ -80,6 +80,6 @@ public class BasicCharacterReadStream implements CharacterReadStream
     @Override
     public boolean next()
     {
-        return readCharacter().getValue() != null;
+        return readCharacter().await() != null;
     }
 }

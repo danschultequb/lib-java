@@ -33,7 +33,7 @@ public class BufferedByteReadStream implements ByteReadStream
 
         hasStarted = true;
 
-        Result<Byte> result = null;
+        Result<Byte> result;
         if (currentBufferIndex < 0 || currentBufferIndex == bytesInBuffer - 1)
         {
             if (growOnNextBufferFill)
@@ -42,31 +42,28 @@ public class BufferedByteReadStream implements ByteReadStream
                 buffer = new byte[newBufferSize];
             }
 
-            final Result<Integer> bytesRead = byteReadStream.readBytes(buffer);
-            if (bytesRead.hasError())
-            {
-                if (bytesRead.getError() instanceof EndOfStreamException)
+            result = byteReadStream.readBytes(buffer)
+                .then((Integer bytesRead) ->
+                {
+                    bytesInBuffer = bytesRead;
+                    growOnNextBufferFill = (bytesInBuffer == buffer.length);
+                    currentBufferIndex = 0;
+                    return buffer[currentBufferIndex];
+                })
+                .onError(EndOfStreamException.class, () ->
                 {
                     buffer = null;
                     growOnNextBufferFill = false;
                     bytesInBuffer = 0;
                     currentBufferIndex = -1;
-                }
-                result = bytesRead.convertError();
-            }
-            else
-            {
-                bytesInBuffer = bytesRead.getValue();
-                growOnNextBufferFill = (bytesInBuffer == buffer.length);
-                currentBufferIndex = -1;
-            }
+                });
+        }
+        else
+        {
+            result = Result.success(buffer[++currentBufferIndex]);
         }
 
-        if (result == null)
-        {
-            final byte byteRead = buffer[++currentBufferIndex];
-            result = Result.success(byteRead);
-        }
+        PostCondition.assertNotNull(result, "result");
 
         return result;
     }

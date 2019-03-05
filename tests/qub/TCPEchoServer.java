@@ -75,7 +75,7 @@ public class TCPEchoServer implements AsyncDisposable
                     }
                     catch (Exception e)
                     {
-                        Exceptions.throwAsRuntime(e);
+                        throw Exceptions.asRuntime(e);
                     }
                 }
             })

@@ -5,7 +5,7 @@ public final class BasicTestRunner implements TestRunner
     private static final Skip noMessageSkip = new Skip(null);
 
     private final Process process;
-    private Boolean hasNetworkConnection;
+    private Result<Boolean> hasNetworkConnection;
 
     private int passedTestCount;
     private int failedTestCount;
@@ -332,11 +332,11 @@ public final class BasicTestRunner implements TestRunner
     }
 
     @Override
-    public boolean hasNetworkConnection()
+    public Result<Boolean> hasNetworkConnection()
     {
         if (hasNetworkConnection == null)
         {
-            hasNetworkConnection = process.getNetwork().isConnected().getValue();
+            hasNetworkConnection = process.getNetwork().isConnected();
         }
         return hasNetworkConnection;
     }

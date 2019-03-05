@@ -39,28 +39,25 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
         PreCondition.assertGreaterThan(bytesToRead, 0, "bytesToRead");
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
-        Result<byte[]> result;
-
-        byte[] bytes = new byte[bytesToRead];
-        final Result<Integer> readBytesResult = readBytes(bytes);
-        if (readBytesResult.hasError())
-        {
-            result = Result.error(readBytesResult.getError());
-        }
-        else
-        {
-            final Integer bytesRead = readBytesResult.getValue();
-            if (bytesRead == null)
+        final byte[] bytes = new byte[bytesToRead];
+        return readBytes(bytes)
+            .thenResult((Integer bytesRead) ->
             {
-                bytes = null;
-            }
-            else if (bytesRead < bytesToRead)
-            {
-                bytes = Array.clone(bytes, 0, readBytesResult.getValue());
-            }
-            result = Result.success(bytes);
-        }
-        return result;
+                Result<byte[]> result;
+                if (bytesRead == null || bytesRead < 0)
+                {
+                    result = Result.error(new EndOfStreamException());
+                }
+                else if (bytesRead < bytesToRead)
+                {
+                    result = Result.success(Array.clone(bytes, 0, bytesRead));
+                }
+                else
+                {
+                    result = Result.success(bytes);
+                }
+                return result;
+            });
     }
 
     /**

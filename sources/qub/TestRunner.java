@@ -158,5 +158,5 @@ public interface TestRunner
      * Get whether or not this TestRunner has a connection to the internet.
      * @return Whether or not this TestRunner has a connection to the internet.
      */
-    boolean hasNetworkConnection();
+    Result<Boolean> hasNetworkConnection();
 }

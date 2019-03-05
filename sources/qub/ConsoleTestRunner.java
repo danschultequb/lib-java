@@ -396,7 +396,7 @@ public class ConsoleTestRunner extends Console implements TestRunner
     }
 
     @Override
-    public boolean hasNetworkConnection()
+    public Result<Boolean> hasNetworkConnection()
     {
         return testRunner.hasNetworkConnection();
     }

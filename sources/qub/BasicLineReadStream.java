@@ -50,9 +50,11 @@ public class BasicLineReadStream implements LineReadStream
     @Override
     public Result<String> readLine()
     {
-        final Result<String> result = LineReadStream.super.readLine();
-        current = result.getValue();
-        return result;
+        return LineReadStream.super.readLine()
+            .onValue((String line) ->
+            {
+                current = line;
+            });
     }
 
     @Override

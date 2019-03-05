@@ -14,26 +14,26 @@ public class HttpClientTests
                     test.assertThrows(() -> httpClient.send(null));
                 });
 
-                runner.test("with unknown host", runner.skip(!runner.hasNetworkConnection()), (Test test) ->
+                runner.test("with unknown host", runner.skip(!runner.hasNetworkConnection().await()), (Test test) ->
                 {
                     final HttpClient httpClient = creator.run(test);
-                    final MutableHttpRequest httpRequest = new MutableHttpRequest(HttpMethod.GET, URL.parse("http://www.idontexistbecauseimnotagoodurl.com").throwErrorOrGetValue());
+                    final MutableHttpRequest httpRequest = new MutableHttpRequest(HttpMethod.GET, URL.parse("http://www.idontexistbecauseimnotagoodurl.com").await());
                     httpClient.send(httpRequest)
-                        .onError((Throwable error) ->
-                        {
-                            test.assertInstanceOf(error, java.net.UnknownHostException.class);
-                            test.assertEqual("www.idontexistbecauseimnotagoodurl.com", error.getMessage());
-                        })
                         .then((HttpResponse response) ->
                         {
-                            test.fail();
-                        });
+                            test.fail("Expected a java.net.UnknownHostException to be thrown.");
+                        })
+                        .catchError(java.net.UnknownHostException.class, (java.net.UnknownHostException error) ->
+                        {
+                            test.assertEqual("www.idontexistbecauseimnotagoodurl.com", error.getMessage());
+                        })
+                        .await();
                 });
 
-                runner.test("with GET request to www.example.com", runner.skip(!runner.hasNetworkConnection()), (Test test) ->
+                runner.test("with GET request to www.example.com", runner.skip(!runner.hasNetworkConnection().await()), (Test test) ->
                 {
                     final HttpClient httpClient = creator.run(test);
-                    final MutableHttpRequest httpRequest = new MutableHttpRequest(HttpMethod.GET, URL.parse("http://www.example.com").throwErrorOrGetValue());
+                    final MutableHttpRequest httpRequest = new MutableHttpRequest(HttpMethod.GET, URL.parse("http://www.example.com").await());
 
                     final Result<HttpResponse> httpResponseResult = httpClient.send(httpRequest);
                     test.assertSuccess(httpResponseResult);
@@ -55,7 +55,7 @@ public class HttpClientTests
                     test.assertContains(bodyString, "</div>");
                 });
 
-                runner.test("with GET request to http://www.treasurydirect.gov/TA_WS/securities/auctioned?format=json&type=Bill", runner.skip(!runner.hasNetworkConnection()), (Test test) ->
+                runner.test("with GET request to http://www.treasurydirect.gov/TA_WS/securities/auctioned?format=json&type=Bill", runner.skip(!runner.hasNetworkConnection().await()), (Test test) ->
                 {
                     final HttpClient httpClient = creator.run(test);
                     final MutableHttpRequest httpRequest = new MutableHttpRequest(HttpMethod.GET, URL.parse("http://www.treasurydirect.gov/TA_WS/securities/auctioned?format=json&type=Bill").throwErrorOrGetValue());

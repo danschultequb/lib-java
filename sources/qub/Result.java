@@ -115,6 +115,15 @@ public interface Result<T>
     /**
      * If this Result has an error of the provided type, then catch that error and return a
      * successful Result instead.
+     */
+    default Result<T> catchError()
+    {
+        return catchError(() -> {});
+    }
+
+    /**
+     * If this Result has an error of the provided type, then catch that error and return a
+     * successful Result instead.
      * @param errorType The type of error to catch.
      * @param <TError> The type of error to catch.
      * @return This Result if it is successful, or an empty successful Result if this Result
