@@ -59,12 +59,30 @@ public class ResultTests
 
                 runner.test("with RuntimeException", (Test test) ->
                 {
-                    test.assertThrows(() -> Result.error(new RuntimeException("abc")).await(), new RuntimeException("abc"));
+                    test.assertThrows(() -> Result.error(new RuntimeException("abc")).await(), new AwaitException(new RuntimeException("abc")));
                 });
 
                 runner.test("with Exception", (Test test) ->
                 {
-                    test.assertThrows(() -> Result.error(new Exception("abc")).await(), new RuntimeException(new Exception("abc")));
+                    test.assertThrows(() -> Result.error(new Exception("abc")).await(), new AwaitException(new Exception("abc")));
+                });
+            });
+
+            runner.testGroup("awaitError()", () ->
+            {
+                runner.test("with no error", (Test test) ->
+                {
+                    test.assertEqual(null, Result.success().awaitError());
+                });
+
+                runner.test("with RuntimeException", (Test test) ->
+                {
+                    test.assertThrows(() -> Result.error(new RuntimeException("abc")).awaitError(), new RuntimeException("abc"));
+                });
+
+                runner.test("with Exception", (Test test) ->
+                {
+                    test.assertThrows(() -> Result.error(new Exception("abc")).awaitError(), new RuntimeException(new Exception("abc")));
                 });
             });
 
@@ -1341,52 +1359,6 @@ public class ResultTests
                 runner.test("with error result", (Test test) ->
                 {
                     test.assertEqual("error: java.lang.NullPointerException: oops", Result.error(new NullPointerException("oops")).toString());
-                });
-            });
-
-            runner.testGroup("throwError(Class<T>)", () ->
-            {
-                runner.test("with null exception type", (Test test) ->
-                {
-                    test.assertThrows(() -> Result.successTrue().throwError(null), new PreConditionFailure("exceptionType cannot be null."));
-                });
-
-                runner.test("with non-null exception type but null error", (Test test) ->
-                {
-                    try
-                    {
-                        Result.successTrue().throwError(java.io.IOException.class);
-                    }
-                    catch (java.io.IOException e)
-                    {
-                        test.fail(e);
-                    }
-                });
-
-                runner.test("with non-null exception type and same typed error", (Test test) ->
-                {
-                    try
-                    {
-                        Result.error(new java.io.IOException("abc")).throwError(java.io.IOException.class);
-                        test.fail("Expected java.io.IOException to be thrown.");
-                    }
-                    catch (java.io.IOException e)
-                    {
-                        test.assertEqual(new java.io.IOException("abc"), e);
-                    }
-                });
-
-                runner.test("with non-null exception type and different typed error", (Test test) ->
-                {
-                    try
-                    {
-                        Result.error(new NullPointerException("abc")).throwError(java.io.IOException.class);
-                        test.fail("Expected NullPointerException to be thrown.");
-                    }
-                    catch (Throwable e)
-                    {
-                        test.assertEqual(new NullPointerException("abc"), e);
-                    }
                 });
             });
 

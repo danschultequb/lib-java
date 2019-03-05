@@ -1,70 +1,56 @@
 package qub;
 
-public class Result<T>
+public interface Result<T>
 {
-    private final T value;
-    private final Throwable error;
+    /**
+     * Wait for this Result to complete. If this Result contains an error, then the error will be
+     * wrapped in an AwaitException and then thrown. If this Result does not contain an error, then
+     * the Result's value will be returned.
+     * @return The value of this Result.
+     */
+    T await();
 
-    private Result(T value, Throwable error)
-    {
-        this.value = value;
-        this.error = error;
-    }
+    /**
+     * Wait for this Result to complete. If this Result contains an error, then the error will be
+     * thrown as a RuntimeException. If this Result does not contain an error, then the Result's
+     * value will be returned.
+     * @return The value of this Result.
+     */
+    T awaitError();
 
-    public T await()
-    {
-        Exceptions.throwAsRuntime(error);
-        return value;
-    }
-
-    @Deprecated
-    final public T getValue()
-    {
-        return value;
-    }
-
-    @Deprecated
-    final public boolean hasError()
-    {
-        return error != null;
-    }
-
-    @Deprecated
-    final public Throwable getError()
-    {
-        return error;
-    }
+    /**
+     * Wait for this Result to complete. If this Result contains an error, then the error will be
+     * thrown if it is the same type as the expectedErrorType. If it is not the same type as the
+     * expectedErrorType, then it will be thrown as a RuntimeException. If this Result does not
+     * contain an error, then the Result's value will be returned.
+     * @param expectedErrorType The type of error that is expected to occur from this Result.
+     * @return The value of this Result.
+     */
+    <TError extends Throwable> T awaitError(Class<TError> expectedErrorType) throws TError;
 
     @Deprecated
-    final public Class<? extends Throwable> getErrorType()
-    {
-        return error == null ? null : error.getClass();
-    }
+    T getValue();
 
     @Deprecated
-    final public String getErrorMessage()
-    {
-        return error == null ? null : error.getMessage();
-    }
+    boolean hasError();
 
     @Deprecated
-    final public void throwError()
-    {
-        Exceptions.throwAsRuntime(error);
-    }
+    Throwable getError();
 
     @Deprecated
-    public T throwErrorOrGetValue()
-    {
-        throwError();
-        return value;
-    }
+    Class<? extends Throwable> getErrorType();
 
     @Deprecated
-    final public <U> Result<U> convertError()
-    {
-        return hasError() ? Result.error(error) : null;
-    }
+    String getErrorMessage();
+
+    @Deprecated
+    void throwError();
+
+    @Deprecated
+    T throwErrorOrGetValue();
+
+    @Deprecated
+    <U> Result<U> convertError();
 
     /**
      * If this Result doesn't have an error, then run the provided action and return a new Result
@@ -72,24 +58,7 @@ public class Result<T>
      * @param action The action to run if this result does not have an error.
      * @return The Result of running the provided action.
      */
-    public Result<Void> then(Action0 action)
-    {
-        PreCondition.assertNotNull(action, "action");
-
-        Result<Void> result;
-        if (hasError())
-        {
-            result = convertError();
-        }
-        else
-        {
-            result = invokeThen(action);
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
+    Result<Void> then(Action0 action);
 
     /**
      * If this Result doesn't have an error, then run the provided action and return a new Result
@@ -97,38 +66,7 @@ public class Result<T>
      * @param action The action to run if this result does not have an error.
      * @return The Result of running the provided action.
      */
-    public Result<Void> then(Action1<T> action)
-    {
-        PreCondition.assertNotNull(action, "action");
-
-        return then(() -> action.run(value));
-    }
-
-    /**
-     * If this Result doesn't have an error, then run the provided action and return a new Result
-     * object with the action's result. If this Result's value is Disposable, then the value will be
-     * disposed when the action is complete.
-     * @param action The action to run if this result does not have an error.
-     * @return The Result of running the provided action.
-     */
-    public Result<Void> thenDispose(Action1<T> action)
-    {
-        PreCondition.assertNotNull(action, "action");
-
-        Result<Void> result;
-        try
-        {
-            result = then(action);
-        }
-        finally
-        {
-            if (Types.instanceOf(value, Disposable.class))
-            {
-                ((Disposable)value).dispose();
-            }
-        }
-        return result;
-    }
+    Result<Void> then(Action1<T> action);
 
     /**
      * If this Result doesn't have an error, then run the provided function and return a new Result
@@ -137,20 +75,7 @@ public class Result<T>
      * @param <U> The type of value stored in the returned Result object.
      * @return The Result of running the provided function.
      */
-    public <U> Result<U> then(Function0<U> function)
-    {
-        PreCondition.assertNotNull(function, "function");
-
-        final Value<U> resultValue = Value.create();
-        final Result<Void> thenActionResult = then(() -> resultValue.set(function.run()));
-        final Result<U> result = thenActionResult.hasError()
-            ? thenActionResult.convertError()
-            : Result.success(resultValue.get());
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
+    <U> Result<U> then(Function0<U> function);
 
     /**
      * If this Result doesn't have an error, then run the provided function and return a new Result
@@ -159,17 +84,7 @@ public class Result<T>
      * @param <U> The type of value stored in the returned Result object.
      * @return The Result of running the provided function.
      */
-    public <U> Result<U> thenResult(Function0<Result<U>> function)
-    {
-        PreCondition.assertNotNull(function, "function");
-
-        final Result<Result<U>> resultResult = then(function);
-        final Result<U> result = resultResult.hasError() ? resultResult.convertError() : resultResult.getValue();
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
+    <U> Result<U> thenResult(Function0<Result<U>> function);
 
     /**
      * If this Result doesn't have an error, then run the provided function and return a new Result
@@ -178,12 +93,7 @@ public class Result<T>
      * @param <U> The type of value stored in the returned Result object.
      * @return The Result of running the provided function.
      */
-    public <U> Result<U> then(Function1<T,U> function)
-    {
-        PreCondition.assertNotNull(function, "function");
-
-        return then(() -> function.run(value));
-    }
+    <U> Result<U> then(Function1<T,U> function);
 
     /**
      * If this Result doesn't have an error, then run the provided function and return a new Result
@@ -192,12 +102,7 @@ public class Result<T>
      * @param <U> The type of value stored in the returned Result object.
      * @return The Result of running the provided function.
      */
-    public <U> Result<U> thenResult(Function1<T,Result<U>> function)
-    {
-        PreCondition.assertNotNull(function, "function");
-
-        return thenResult(() -> function.run(value));
-    }
+    <U> Result<U> thenResult(Function1<T,Result<U>> function);
 
     /**
      * If this result doesn't have an error, then run the provided action and return this Result
@@ -205,16 +110,7 @@ public class Result<T>
      * @param action The action to run if this result does not have an error.
      * @return This Result object.
      */
-    public Result<T> onValue(Action1<T> action)
-    {
-        PreCondition.assertNotNull(action, "action");
-
-        return thenResult(() ->
-        {
-            action.run(value);
-            return this;
-        });
-    }
+    Result<T> onValue(Action1<T> action);
 
     /**
      * If this Result has an error of the provided type, then catch that error and return a
@@ -224,323 +120,112 @@ public class Result<T>
      * @return This Result if it is successful, or an empty successful Result if this Result
      * contains an error of the provided type.
      */
-    public <TError extends Throwable> Result<T> catchError(Class<TError> errorType)
-    {
-        PreCondition.assertNotNull(errorType, "errorType");
-
-        Result<T> result = this;
-        if (Types.instanceOf(getError(), errorType))
-        {
-            result = Result.success();
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
+    <TError extends Throwable> Result<T> catchError(Class<TError> errorType);
 
     /**
      * If this Result has an error, then run the provided action.
      * @param action The action to run if this result has an error.
      * @return This result.
      */
-    public Result<T> catchError(Action0 action)
-    {
-        PreCondition.assertNotNull(action, "action");
-
-        Result<T> result = this;
-        if (hasError())
-        {
-            result = invokeCatch(action);
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
+    Result<T> catchError(Action0 action);
 
     /**
      * If this Result has an error, then run the provided action.
      * @param action The action to run if this result has an error.
      * @return This result.
      */
-    public Result<T> catchError(Action1<Throwable> action)
-    {
-        PreCondition.assertNotNull(action, "action");
-
-        Result<T> result = this;
-        if (hasError())
-        {
-            result = invokeCatch(() -> action.run(getError()));
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
+    Result<T> catchError(Action1<Throwable> action);
 
     /**
      * If this Result has an error, then run the provided action.
      * @param action The action to run if this result has an error.
      * @return This result.
      */
-    public Result<T> catchResultError(Action1<Result<T>> action)
-    {
-        PreCondition.assertNotNull(action, "action");
-
-        Result<T> result = this;
-        if (hasError())
-        {
-            result = invokeCatch(() -> action.run(this));
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
+    Result<T> catchResultError(Action1<Result<T>> action);
 
     /**
      * If this Result has an error, then run the provided action.
      * @param action The action to run if this result has an error.
      * @return This result.
      */
-    public <TError extends Throwable> Result<T> catchError(Class<TError> errorType, Action0 action)
-    {
-        PreCondition.assertNotNull(errorType, "errorType");
-        PreCondition.assertNotNull(action, "action");
-
-        Result<T> result = this;
-        if (hasError() && Types.instanceOf(getError(), errorType))
-        {
-            result = invokeCatch(action);
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
+    <TError extends Throwable> Result<T> catchError(Class<TError> errorType, Action0 action);
 
     /**
      * If this Result has an error, then run the provided action.
      * @param action The action to run if this result has an error.
      * @return This result.
      */
-    @SuppressWarnings("unchecked")
-    public <TError extends Throwable> Result<T> catchError(Class<TError> errorType, Action1<TError> action)
-    {
-        PreCondition.assertNotNull(errorType, "errorType");
-        PreCondition.assertNotNull(action, "action");
-
-        Result<T> result = this;
-        if (hasError() && Types.instanceOf(getError(), errorType))
-        {
-            result = invokeCatch(() -> action.run((TError)getError()));
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
+    <TError extends Throwable> Result<T> catchError(Class<TError> errorType, Action1<TError> action);
 
     /**
      * If this Result has an error, then run the provided function.
      * @param function The function to run if this result has an error.
      * @return This Result of running the provided function.
      */
-    public Result<T> catchError(Function0<T> function)
-    {
-        PreCondition.assertNotNull(function, "function");
-
-        Result<T> result = this;
-        if (hasError())
-        {
-            result = invoke(function);
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
+    Result<T> catchError(Function0<T> function);
 
     /**
      * If this Result has an error, then run the provided function.
      * @param function The function to run if this result has an error.
      * @return This Result of running the provided function.
      */
-    public Result<T> catchError(Function1<Throwable,T> function)
-    {
-        PreCondition.assertNotNull(function, "function");
-
-        Result<T> result = this;
-        if (hasError())
-        {
-            result = invoke(() -> function.run(getError()));
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
+    Result<T> catchError(Function1<Throwable,T> function);
 
     /**
      * If this Result has an error, then run the provided function.
      * @param function The function to run if this result has an error.
      * @return This Result of running the provided function.
      */
-    public <TError extends Throwable> Result<T> catchError(Class<TError> errorType, Function0<T> function)
-    {
-        PreCondition.assertNotNull(errorType, "errorType");
-        PreCondition.assertNotNull(function, "function");
-
-        Result<T> result = this;
-        if (hasError() && Types.instanceOf(getError(), errorType))
-        {
-            result = invoke(function);
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
+    <TError extends Throwable> Result<T> catchError(Class<TError> errorType, Function0<T> function);
 
     /**
      * If this Result has an error, then run the provided function.
      * @param function The function to run if this result has an error.
      * @return This Result of running the provided function.
      */
-    @SuppressWarnings("unchecked")
-    public <TError extends Throwable> Result<T> catchError(Class<TError> errorType, Function1<TError,T> function)
-    {
-        PreCondition.assertNotNull(errorType, "errorType");
-        PreCondition.assertNotNull(function, "function");
-
-        Result<T> result = this;
-        if (hasError() && Types.instanceOf(getError(), errorType))
-        {
-            result = invoke(() -> function.run((TError)getError()));
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
+    <TError extends Throwable> Result<T> catchError(Class<TError> errorType, Function1<TError,T> function);
 
     /**
      * If this Result has an error, then run the provided function.
      * @param function The function to run if this result has an error.
      * @return This Result of running the provided function.
      */
-    public Result<T> catchErrorResult(Function0<Result<T>> function)
-    {
-        PreCondition.assertNotNull(function, "function");
-
-        Result<T> result = this;
-        if (hasError())
-        {
-            result = invokeResult(function);
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
+    Result<T> catchErrorResult(Function0<Result<T>> function);
 
     /**
      * If this Result has an error, then run the provided function.
      * @param function The function to run if this result has an error.
      * @return This Result of running the provided function.
      */
-    public Result<T> catchErrorResult(Function1<Throwable,Result<T>> function)
-    {
-        PreCondition.assertNotNull(function, "function");
-
-        Result<T> result = this;
-        if (hasError())
-        {
-            result = invokeResult(() -> function.run(getError()));
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
+    Result<T> catchErrorResult(Function1<Throwable,Result<T>> function);
 
     /**
      * If this Result has an error, then run the provided function.
      * @param function The function to run if this result has an error.
      * @return This Result of running the provided function.
      */
-    public <TError extends Throwable> Result<T> catchErrorResult(Class<TError> errorType, Function0<Result<T>> function)
-    {
-        PreCondition.assertNotNull(errorType, "errorType");
-        PreCondition.assertNotNull(function, "function");
-
-        Result<T> result = this;
-        if (hasError() && Types.instanceOf(getError(), errorType))
-        {
-            result = invokeResult(function);
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
+    <TError extends Throwable> Result<T> catchErrorResult(Class<TError> errorType, Function0<Result<T>> function);
 
     /**
      * If this Result has an error, then run the provided function.
      * @param function The function to run if this result has an error.
      * @return This Result of running the provided function.
      */
-    @SuppressWarnings("unchecked")
-    public <TError extends Throwable> Result<T> catchErrorResult(Class<TError> errorType, Function1<TError,Result<T>> function)
-    {
-        PreCondition.assertNotNull(errorType, "errorType");
-        PreCondition.assertNotNull(function, "function");
-
-        Result<T> result = this;
-        if (hasError() && Types.instanceOf(getError(), errorType))
-        {
-            result = invokeResult(() -> function.run((TError)getError()));
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
+    <TError extends Throwable> Result<T> catchErrorResult(Class<TError> errorType, Function1<TError,Result<T>> function);
 
     /**
      * Run the provided action if this Result has an error.
      * @param action The action to run if this Result has an error.
      * @return This Result with its error.
      */
-    public Result<T> onError(Action0 action)
-    {
-        PreCondition.assertNotNull(action, "action");
-
-        if (hasError())
-        {
-            action.run();
-        }
-
-        return this;
-    }
+    Result<T> onError(Action0 action);
 
     /**
      * Run the provided action if this Result has an error.
      * @param action The action to run if this Result has an error.
      * @return This Result with its error.
      */
-    public Result<T> onError(Action1<Throwable> action)
-    {
-        PreCondition.assertNotNull(action, "action");
-
-        if (hasError())
-        {
-            action.run(getError());
-        }
-
-        return this;
-    }
+    Result<T> onError(Action1<Throwable> action);
 
     /**
      * Run the provided action if this Result has an error of the provided type.
@@ -548,19 +233,7 @@ public class Result<T>
      * @param action The action to run if this Result has an error of the provided type.
      * @return This Result with its error.
      */
-    public <TError extends Throwable> Result<T> onError(Class<TError> errorType, Action0 action)
-    {
-        PreCondition.assertNotNull(errorType, "errorType");
-        PreCondition.assertNotNull(action, "action");
-
-        final Throwable error = getError();
-        if (Types.instanceOf(error, errorType))
-        {
-            action.run();
-        }
-
-        return this;
-    }
+    <TError extends Throwable> Result<T> onError(Class<TError> errorType, Action0 action);
 
     /**
      * Run the provided action if this Result has an error of the provided type.
@@ -568,147 +241,37 @@ public class Result<T>
      * @param action The action to run if this Result has an error of the provided type.
      * @return This Result with its error.
      */
-    @SuppressWarnings("unchecked")
-    public <TError extends Throwable> Result<T> onError(Class<TError> errorType, Action1<TError> action)
-    {
-        PreCondition.assertNotNull(errorType, "errorType");
-        PreCondition.assertNotNull(action, "action");
-
-        final Throwable error = getError();
-        if (Types.instanceOf(error, errorType))
-        {
-            action.run((TError)error);
-        }
-
-        return this;
-    }
-
-    private Result<Void> invokeThen(Action0 action)
-    {
-        PreCondition.assertNotNull(action, "action");
-
-        return invokeResult(() ->
-        {
-            action.run();
-            return Result.success();
-        });
-    }
-
-    private Result<T> invokeCatch(Action0 action)
-    {
-        PreCondition.assertNotNull(action, "action");
-
-        return invokeResult(() ->
-        {
-            action.run();
-            return Result.success(getValue());
-        });
-    }
-
-    private <U> Result<U> invoke(Function0<U> function)
-    {
-        PreCondition.assertNotNull(function, "function");
-
-        return invokeResult(() -> Result.success(function.run()));
-    }
-
-    private <U> Result<U> invokeResult(Function0<Result<U>> function)
-    {
-        PreCondition.assertNotNull(function, "function");
-
-        Result<U> result;
-        try
-        {
-            result = function.run();
-        }
-        catch (Throwable error)
-        {
-            result = Result.error(error);
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
-
-    @Override
-    public String toString()
-    {
-        String result = "";
-        if (error == null)
-        {
-            result = "value: " + Objects.toString(value);
-        }
-        else
-        {
-            if (value != null)
-            {
-                result = "value: " + value.toString() + ", ";
-            }
-            result += "error: " + error.toString();
-        }
-        return result;
-    }
-
-    @Deprecated
-    @SuppressWarnings("unchecked")
-    final public <U extends Exception> void throwError(Class<U> exceptionType) throws U
-    {
-        PreCondition.assertNotNull(exceptionType, "exceptionType");
-
-        if (Types.instanceOf(error, exceptionType))
-        {
-            throw (U)error;
-        }
-        else
-        {
-            Exceptions.throwAsRuntime(error);
-        }
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public boolean equals(Object rhs)
-    {
-        return rhs instanceof Result && equals((Result<?>)rhs);
-    }
+    <TError extends Throwable> Result<T> onError(Class<TError> errorType, Action1<TError> action);
 
     /**
      * Get whether or not the provided Result is equal to this Result.
      * @param rhs The provided Result.
      */
-    public boolean equals(Result<?> rhs)
-    {
-        return rhs != null && Comparer.equal(value, rhs.value) && Comparer.equal(error, rhs.error);
-    }
+    boolean equals(Result<?> rhs);
 
-    private static final Result<?> successNull = Result.success(null);
     /**
      * Create a new empty successful Result.
      * @param <U> The type of value the Result should contain.
      */
-    @SuppressWarnings("unchecked")
-    public static <U> Result<U> success()
+    static <U> Result<U> success()
     {
-        return (Result<U>)successNull;
+        return SyncResult.success();
     }
 
-    private static final Result<Boolean> successTrue = Result.success(true);
     /**
      * Get a successful Result that contains a true boolean value.
      */
     static Result<Boolean> successTrue()
     {
-        return successTrue;
+        return SyncResult.successTrue();
     }
 
-    private static final Result<Boolean> successFalse = Result.success(false);
     /**
      * Get a successful Result that contains a true boolean value.
      */
     static Result<Boolean> successFalse()
     {
-        return successFalse;
+        return SyncResult.successFalse();
     }
 
     /**
@@ -716,16 +279,16 @@ public class Result<T>
      * @param value The value the Result should contain.
      * @param <U> The type of the value.
      */
-    public static <U> Result<U> success(U value)
+    static <U> Result<U> success(U value)
     {
-        return new Result<U>(value, null);
+        return SyncResult.success(value);
     }
 
     /**
      * Create a new Result by synchronously running the provided Action and returning the result.
      * @param action The action to run.
      */
-    public static Result<Void> create(Action0 action)
+    static Result<Void> create(Action0 action)
     {
         PreCondition.assertNotNull(action, "action");
 
@@ -741,7 +304,7 @@ public class Result<T>
      * @param function The function to run.
      * @param <U> The type of value the function will return.
      */
-    public static <U> Result<U> create(Function0<U> function)
+    static <U> Result<U> create(Function0<U> function)
     {
         PreCondition.assertNotNull(function, "function");
 
@@ -765,11 +328,11 @@ public class Result<T>
      * @param error The error that the Result should contain.
      * @param <U> The type of value the Result can contain.
      */
-    public static <U> Result<U> error(Throwable error)
+    static <U> Result<U> error(Throwable error)
     {
         PreCondition.assertNotNull(error, "error");
 
-        return new Result<>(null, error);
+        return SyncResult.error(error);
     }
 
     /**
@@ -780,7 +343,7 @@ public class Result<T>
      * @return The result of the while loop.
      */
     @Deprecated
-    public static Result<Void> runWhile(Function0<Boolean> condition, Action0 body)
+    static Result<Void> runWhile(Function0<Boolean> condition, Action0 body)
     {
         PreCondition.assertNotNull(condition, "condition");
         PreCondition.assertNotNull(body, "body");
@@ -806,7 +369,7 @@ public class Result<T>
     }
 
     @Deprecated
-    public static <U> Result<U> isFalse(boolean value, String expressionName)
+    static <U> Result<U> isFalse(boolean value, String expressionName)
     {
         PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
 
@@ -814,7 +377,7 @@ public class Result<T>
     }
 
     @Deprecated
-    public static <U> Result<U> isTrue(boolean value, String expressionName)
+    static <U> Result<U> isTrue(boolean value, String expressionName)
     {
         PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
 
@@ -822,33 +385,33 @@ public class Result<T>
     }
 
     @Deprecated
-    public static <T,U> Result<U> equal(T expectedValue, T value, String expressionName)
+    static <T,U> Result<U> equal(T expectedValue, T value, String expressionName)
     {
         PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
 
         Result<U> result = null;
         if (!Comparer.equal(expectedValue, value))
         {
-            result = Result.error(createError(expressionName + " (" + value + ") must be " + expectedValue + "."));
+            result = Result.error(SyncResult.createError(expressionName + " (" + value + ") must be " + expectedValue + "."));
         }
         return result;
     }
 
     @Deprecated
-    public static <U> Result<U> notNull(Object value, String expressionName)
+    static <U> Result<U> notNull(Object value, String expressionName)
     {
         PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
 
         Result<U> result = null;
         if (value == null)
         {
-            result = Result.error(createError(expressionName + " cannot be null."));
+            result = Result.error(SyncResult.createError(expressionName + " cannot be null."));
         }
         return result;
     }
 
     @Deprecated
-    public static <U> Result<U> notNullAndNotEmpty(String value, String expressionName)
+    static <U> Result<U> notNullAndNotEmpty(String value, String expressionName)
     {
         PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
 
@@ -857,40 +420,40 @@ public class Result<T>
         {
             if (value.isEmpty())
             {
-                result = Result.error(createError(expressionName + " cannot be empty."));
+                result = Result.error(SyncResult.createError(expressionName + " cannot be empty."));
             }
         }
         return result;
     }
 
     @Deprecated
-    public static <U> Result<U> greaterThan(int value, int lowerBound, String expressionName)
+    static <U> Result<U> greaterThan(int value, int lowerBound, String expressionName)
     {
         PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
 
         Result<U> result = null;
         if (value <= lowerBound)
         {
-            result = Result.error(createError(expressionName + " (" + value + ") must be greater than " + lowerBound + "."));
+            result = Result.error(SyncResult.createError(expressionName + " (" + value + ") must be greater than " + lowerBound + "."));
         }
         return result;
     }
 
     @Deprecated
-    public static <U> Result<U> greaterThanOrEqualTo(int value, int lowerBound, String expressionName)
+    static <U> Result<U> greaterThanOrEqualTo(int value, int lowerBound, String expressionName)
     {
         PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
 
         Result<U> result = null;
         if (!Comparer.greaterThanOrEqualTo(value, lowerBound))
         {
-            result = Result.error(createError(AssertionMessages.greaterThanOrEqualTo(value, lowerBound, expressionName)));
+            result = Result.error(SyncResult.createError(AssertionMessages.greaterThanOrEqualTo(value, lowerBound, expressionName)));
         }
         return result;
     }
 
     @Deprecated
-    public static <U> Result<U> between(int lowerBound, int value, int upperBound, String expressionName)
+    static <U> Result<U> between(int lowerBound, int value, int upperBound, String expressionName)
     {
         PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
 
@@ -905,13 +468,8 @@ public class Result<T>
         }
         else if (value < lowerBound || upperBound < value)
         {
-            result = Result.error(createError(AssertionMessages.between(lowerBound, value, upperBound, expressionName)));
+            result = Result.error(SyncResult.createError(AssertionMessages.between(lowerBound, value, upperBound, expressionName)));
         }
         return result;
-    }
-
-    private static Throwable createError(String message)
-    {
-        return new IllegalArgumentException(message);
     }
 }

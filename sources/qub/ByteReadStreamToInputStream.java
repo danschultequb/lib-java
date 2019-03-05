@@ -15,27 +15,14 @@ public class ByteReadStreamToInputStream extends InputStream
     @Override
     public void close() throws IOException
     {
-        final Result<Boolean> result = byteReadStream.dispose();
-        result.throwError(IOException.class);
+        byteReadStream.dispose().awaitError(IOException.class);
     }
 
     @Override
     public int read() throws IOException
     {
-        final Result<Byte> byteRead = byteReadStream.readByte();
-        if (byteRead.hasError())
-        {
-            final Throwable error = byteRead.getError();
-            if (error instanceof IOException)
-            {
-                throw (IOException)error;
-            }
-            else if (error instanceof RuntimeException)
-            {
-                throw (RuntimeException)error;
-            }
-        }
-        return byteRead.getValue() == null ? -1 : byteRead.getValue().intValue();
+        final Byte byteRead = byteReadStream.readByte().awaitError(IOException.class);
+        return byteRead == null ? -1 : byteRead.intValue();
     }
 
     @Override
