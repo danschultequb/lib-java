@@ -1,6 +1,7 @@
 package qub;
 
 import java.io.InputStream;
+import java.util.Objects;
 
 /**
  * A ReadStream interface that reads bytes.
@@ -125,23 +126,16 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
         PreCondition.assertBetween(1, length, outputBytes.length - startIndex, "length");
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
-        int bytesRead = 0;
-        Throwable error = null;
-        for (int i = 0; i < length; ++i)
+        return Result.create(() ->
         {
-            final Result<Byte> readByte = readByte();
-            if (readByte.hasError())
+            int bytesRead = 0;
+            while (bytesRead < length)
             {
-                error = readByte.getError();
-                break;
-            }
-            else
-            {
-                outputBytes[startIndex + i] = readByte.getValue();
+                outputBytes[startIndex + bytesRead] = readByte().awaitError();
                 ++bytesRead;
             }
-        }
-        return error == null ? Result.success(bytesRead) : Result.error(error);
+            return bytesRead;
+        });
     }
 
     /**
@@ -176,20 +170,15 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
     {
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
-        final List<byte[]> readByteArrays = new ArrayList<>();
-        byte[] buffer = new byte[1024];
-
-        while (true)
+        return Result.create(() ->
         {
-            final Result<Integer> readBytesResult = readBytes(buffer);
-
-            if (readBytesResult.hasError())
+            final List<byte[]> readByteArrays = new ArrayList<>();
+            byte[] buffer = new byte[1024];
+            while (true)
             {
-                break;
-            }
-            else
-            {
-                final Integer bytesRead = readBytesResult.getValue();
+                final Integer bytesRead = readBytes(buffer)
+                    .catchError(EndOfStreamException.class)
+                    .awaitError();
                 if (bytesRead == null || bytesRead == -1)
                 {
                     break;
@@ -197,16 +186,14 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
                 else
                 {
                     readByteArrays.add(Array.clone(buffer, 0, bytesRead));
-
                     if (buffer.length == bytesRead)
                     {
                         buffer = new byte[buffer.length * 2];
                     }
                 }
             }
-        }
-
-        return Result.success(Array.mergeBytes(readByteArrays));
+            return Array.mergeBytes(readByteArrays);
+        });
     }
 
     /**
@@ -344,8 +331,10 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
     {
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
-        final Result<Byte> byteRead = readByte();
-        return !byteRead.hasError() && byteRead.getValue() != null;
+        return readByte()
+            .then(Objects::nonNull)
+            .catchError(() -> false)
+            .await();
     }
 
     /**

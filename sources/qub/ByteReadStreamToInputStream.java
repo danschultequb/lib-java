@@ -1,9 +1,6 @@
 package qub;
 
-import java.io.IOException;
-import java.io.InputStream;
-
-public class ByteReadStreamToInputStream extends InputStream
+public class ByteReadStreamToInputStream extends java.io.InputStream
 {
     private final ByteReadStream byteReadStream;
 
@@ -13,53 +10,36 @@ public class ByteReadStreamToInputStream extends InputStream
     }
 
     @Override
-    public void close() throws IOException
+    public void close() throws java.io.IOException
     {
-        byteReadStream.dispose().awaitError(IOException.class);
+        byteReadStream.dispose()
+            .awaitError(java.io.IOException.class);
     }
 
     @Override
-    public int read() throws IOException
+    public int read() throws java.io.IOException
     {
-        final Byte byteRead = byteReadStream.readByte().awaitError(IOException.class);
-        return byteRead == null ? -1 : byteRead.intValue();
+        return byteReadStream.readByte()
+            .then((Byte valueRead) -> valueRead == null ? -1 : Bytes.toUnsignedInt(valueRead))
+            .catchError(EndOfStreamException.class, () -> -1)
+            .awaitError(java.io.IOException.class);
     }
 
     @Override
-    public int read(byte[] outputBytes) throws IOException
+    public int read(byte[] outputBytes) throws java.io.IOException
     {
-        final Result<Integer> readBytesResult = byteReadStream.readBytes(outputBytes);
-        if (readBytesResult.hasError())
-        {
-            final Throwable error = readBytesResult.getError();
-            if (error instanceof IOException)
-            {
-                throw (IOException)error;
-            }
-            else if (error instanceof RuntimeException)
-            {
-                throw (RuntimeException)error;
-            }
-        }
-        return readBytesResult.getValue() == null ? -1 : readBytesResult.getValue();
+        return byteReadStream.readBytes(outputBytes)
+            .then((Integer bytesRead) -> bytesRead == null ? -1 : bytesRead)
+            .catchError(EndOfStreamException.class, () -> -1)
+            .awaitError(java.io.IOException.class);
     }
 
     @Override
-    public int read(byte[] outputBytes, int startIndex, int length) throws IOException
+    public int read(byte[] outputBytes, int startIndex, int length) throws java.io.IOException
     {
-        final Result<Integer> readBytesResult = byteReadStream.readBytes(outputBytes, startIndex, length);
-        if (readBytesResult.hasError())
-        {
-            final Throwable error = readBytesResult.getError();
-            if (error instanceof IOException)
-            {
-                throw (IOException)error;
-            }
-            else if (error instanceof RuntimeException)
-            {
-                throw (RuntimeException)error;
-            }
-        }
-        return readBytesResult.getValue() == null ? -1 : readBytesResult.getValue();
+        return byteReadStream.readBytes(outputBytes, startIndex, length)
+            .then((Integer bytesRead) -> bytesRead == null ? -1 : bytesRead)
+            .catchError(EndOfStreamException.class, () -> -1)
+            .awaitError(java.io.IOException.class);
     }
 }

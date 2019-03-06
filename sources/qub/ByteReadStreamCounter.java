@@ -36,45 +36,57 @@ public class ByteReadStreamCounter implements ByteReadStream
     @Override
     public Result<Byte> readByte()
     {
-        final Result<Byte> result = innerStream.readByte();
-        if (result.getValue() != null)
-        {
-            ++bytesRead;
-        }
-        return result;
+        return innerStream.readByte()
+            .onValue((Byte value) ->
+            {
+                if (value != null)
+                {
+                    ++bytesRead;
+                }
+            });
     }
 
     @Override
     public Result<byte[]> readBytes(int bytesToRead)
     {
-        final Result<byte[]> result = innerStream.readBytes(bytesToRead);
-        if (result.getValue() != null)
-        {
-            bytesRead += result.getValue().length;
-        }
-        return result;
+        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+
+        return innerStream.readBytes(bytesToRead)
+            .onValue((byte[] values) ->
+            {
+                if (values != null)
+                {
+                    bytesRead += values.length;
+                }
+            });
     }
 
     @Override
     public Result<Integer> readBytes(byte[] outputBytes)
     {
-        final Result<Integer> result = innerStream.readBytes(outputBytes);
-        if (result.getValue() != null)
-        {
-            bytesRead += result.getValue();
-        }
-        return result;
+        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+
+        return innerStream.readBytes(outputBytes)
+            .onValue((Integer bytesRead) ->
+            {
+                if (bytesRead != null)
+                {
+                    this.bytesRead += bytesRead;
+                }
+            });
     }
 
     @Override
     public Result<Integer> readBytes(byte[] outputBytes, int startIndex, int length)
     {
-        final Result<Integer> result = innerStream.readBytes(outputBytes, startIndex, length);
-        if (result.getValue() != null)
-        {
-            bytesRead += result.getValue();
-        }
-        return result;
+        return innerStream.readBytes(outputBytes, startIndex, length)
+            .onValue((Integer bytesRead) ->
+            {
+                if (bytesRead != null)
+                {
+                    this.bytesRead += bytesRead;
+                }
+            });
     }
 
     @Override
