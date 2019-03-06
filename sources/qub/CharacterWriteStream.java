@@ -43,41 +43,34 @@ public interface CharacterWriteStream extends Disposable
      * @param characterReadStream The ByteReadStream to read create.
      * @return Whether or not the writeByte was successful.
      */
-    default Result<Long> writeAll(CharacterReadStream characterReadStream)
+    default Result<Void> writeAll(CharacterReadStream characterReadStream)
     {
         PreCondition.assertNotNull(characterReadStream, "characterReadStream");
         PreCondition.assertFalse(characterReadStream.isDisposed(), "characterReadStream.isDisposed()");
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
-        long charactersWritten = 0;
-        char[] buffer = new char[1024];
-
-        Result<Long> result = null;
-        while (result == null)
+        return Result.create(() ->
         {
-            final Result<Integer> readCharactersResult = characterReadStream.readCharacters(buffer);
-            result = readCharactersResult.convertError();
-            if (result == null)
+            char[] buffer = new char[1024];
+            while (true)
             {
-                final Integer charactersRead = readCharactersResult.getValue();
+                final Integer charactersRead = characterReadStream.readCharacters(buffer)
+                    .catchError(EndOfStreamException.class)
+                    .awaitError();
                 if (charactersRead == null || charactersRead == -1)
                 {
-                    result = Result.success(charactersWritten);
+                    break;
                 }
                 else
                 {
-                    result = write(buffer, 0, charactersRead).convertError();
-                    if (result == null && charactersRead == buffer.length)
+                    write(buffer, 0, charactersRead).awaitError();
+                    if (charactersRead == buffer.length)
                     {
                         buffer = new char[buffer.length * 2];
                     }
                 }
             }
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+        });
     }
 
     /**

@@ -64,11 +64,8 @@ public class FileSystemTests
 
             runner.test("getRoot()", (Test test) ->
             {
-                FileSystem fileSystem = creator.run(test.getParallelAsyncRunner());
-                final Result<Root> rootResult = fileSystem.getRoot("/daffy/");
-                test.assertNotNull(rootResult);
-
-                final Root root = rootResult.getValue();
+                final FileSystem fileSystem = creator.run(test.getParallelAsyncRunner());
+                final Root root = fileSystem.getRoot("/daffy/").awaitError();
                 test.assertNotNull(root);
                 test.assertEqual("/", root.toString());
             });
@@ -76,9 +73,7 @@ public class FileSystemTests
             runner.test("getRoots()", (Test test) ->
             {
                 final FileSystem fileSystem = creator.run(test.getParallelAsyncRunner());
-                final Result<Iterable<Root>> rootsResult = fileSystem.getRoots();
-                test.assertSuccess(rootsResult);
-                test.assertTrue(rootsResult.getValue().any());
+                test.assertNotNullAndNotEmpty(fileSystem.getRoots().awaitError());
             });
 
             runner.testGroup("getFilesAndFolders(String)", () ->
@@ -109,12 +104,11 @@ public class FileSystemTests
 
                         if (expectedEntryPaths == null)
                         {
-                            test.assertError(expectedError, result);
+                            test.assertThrows(result::awaitError, expectedError);
                         }
                         else
                         {
-                            test.assertSuccess(result);
-                            test.assertEqual(Iterable.create(expectedEntryPaths), result.getValue().map(FileSystemEntry::toString));
+                            test.assertEqual(Iterable.create(expectedEntryPaths), result.awaitError().map(FileSystemEntry::toString));
                         }
                     });
                 };
@@ -178,12 +172,11 @@ public class FileSystemTests
 
                         if (expectedEntryPaths == null)
                         {
-                            test.assertError(expectedError, result);
+                            test.assertThrows(result::awaitError, expectedError);
                         }
                         else
                         {
-                            test.assertSuccess(result);
-                            test.assertEqual(Iterable.create(expectedEntryPaths), result.getValue().map(FileSystemEntry::toString));
+                            test.assertEqual(Iterable.create(expectedEntryPaths), result.awaitError().map(FileSystemEntry::toString));
                         }
                     });
                 };
@@ -266,22 +259,21 @@ public class FileSystemTests
                         final Result<Iterable<Folder>> result = fileSystem.getFoldersRecursively(folderPath);
                         test.assertNotNull(result);
 
-                        if (expectedFolderPaths == null)
+                        if (expectedError != null)
                         {
-                            test.assertNull(result.getValue());
+                            test.assertThrows(result::awaitError, expectedError);
                         }
                         else
                         {
-                            test.assertEqual(Iterable.create(expectedFolderPaths), result.getValue().map(FileSystemEntry::toString));
-                        }
-
-                        if (expectedError == null)
-                        {
-                            test.assertNull(result.getError());
-                        }
-                        else
-                        {
-                            test.assertError(expectedError, result);
+                            final Iterable<Folder> folders = result.awaitError();
+                            if (expectedFolderPaths == null)
+                            {
+                                test.assertNull(folders);
+                            }
+                            else
+                            {
+                                test.assertEqual(Iterable.create(expectedFolderPaths), folders.map(FileSystemEntry::toString));
+                            }
                         }
                     });
                 };

@@ -1004,14 +1004,14 @@ public class Test
      * @param action The action to run.
      * @param expectedException The expected exception.
      */
-    public void assertThrows(Action0 action, RuntimeException expectedException)
+    public void assertThrows(Action0 action, Throwable expectedException)
     {
         Throwable exceptionThrown = null;
         try
         {
             action.run();
         }
-        catch (RuntimeException e)
+        catch (Throwable e)
         {
             exceptionThrown = e;
         }

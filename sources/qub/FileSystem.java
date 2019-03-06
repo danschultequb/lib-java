@@ -176,59 +176,37 @@ public interface FileSystem
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
         return rootedFolderPath.resolve()
-            .thenResult((Path resolvedRootedFolderPath) ->
+            .thenResult(this::getFolder)
+            .then((Folder folder) ->
             {
-                return getFolder(resolvedRootedFolderPath)
-                    .thenResult((Folder folder) ->
+                List<FileSystemEntry> result = null;
+
+                final Iterable<FileSystemEntry> folderEntries = folder.getFilesAndFolders()
+                    .awaitError();
+
+                if (folderEntries != null)
+                {
+                    result = List.create();
+
+                    final Queue<Folder> foldersToVisit = new ArrayListQueue<>();
+                    foldersToVisit.enqueue(folder);
+
+                    while (foldersToVisit.any())
                     {
-                        final List<Throwable> resultErrors = List.create();
-                        List<FileSystemEntry> resultEntries = null;
-
-                        final Result<Iterable<FileSystemEntry>> folderEntriesResult = folder.getFilesAndFolders();
-
-                        boolean folderExists = true;
-                        if (folderEntriesResult.hasError())
+                        final Folder currentFolder = foldersToVisit.dequeue();
+                        final Iterable<FileSystemEntry> currentFolderEntries = currentFolder.getFilesAndFolders().awaitError();
+                        for (final FileSystemEntry entry : currentFolderEntries)
                         {
-                            final Throwable error = folderEntriesResult.getError();
-                            folderExists = !(error instanceof FolderNotFoundException);
-                            resultErrors.add(error);
-                        }
-
-                        if (folderExists)
-                        {
-                            resultEntries = new ArrayList<>();
-
-                            final Queue<Folder> foldersToVisit = new ArrayListQueue<>();
-                            foldersToVisit.enqueue(folder);
-
-                            while (foldersToVisit.any())
+                            result.add(entry);
+                            if (entry instanceof Folder)
                             {
-                                final Folder currentFolder = foldersToVisit.dequeue();
-                                final Result<Iterable<FileSystemEntry>> getFilesAndFoldersResult = currentFolder.getFilesAndFolders();
-                                if (getFilesAndFoldersResult.hasError())
-                                {
-                                    resultErrors.add(getFilesAndFoldersResult.getError());
-                                }
-                                else
-                                {
-                                    final Iterable<FileSystemEntry> currentFolderEntries = getFilesAndFoldersResult.getValue();
-                                    for (final FileSystemEntry entry : currentFolderEntries)
-                                    {
-                                        resultEntries.add(entry);
-
-                                        if (entry instanceof Folder)
-                                        {
-                                            foldersToVisit.enqueue((Folder)entry);
-                                        }
-                                    }
-                                }
+                                foldersToVisit.enqueue((Folder)entry);
                             }
                         }
+                    }
+                }
 
-                        return Iterable.isNullOrEmpty(resultErrors)
-                            ? Result.<Iterable<FileSystemEntry>>success(resultEntries)
-                            : Result.error(ErrorIterable.create(resultErrors));
-                    });
+                return result;
             });
     }
 
@@ -483,17 +461,8 @@ public interface FileSystem
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        Result<Folder> result;
-        final Result<Path> resolvedRootedFolderPath = rootedFolderPath.resolve();
-        if (resolvedRootedFolderPath.hasError())
-        {
-            result = Result.error(resolvedRootedFolderPath.getError());
-        }
-        else
-        {
-            result = Result.success(new Folder(this, resolvedRootedFolderPath.getValue()));
-        }
-        return result;
+        return rootedFolderPath.resolve()
+            .then((Path resolvedRootedFolderPath) -> new Folder(this, resolvedRootedFolderPath));
     }
 
     /**
@@ -656,17 +625,8 @@ public interface FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        Result<File> result;
-        final Result<Path> resolvedRootedFilePath = rootedFilePath.resolve();
-        if (resolvedRootedFilePath.hasError())
-        {
-            result = Result.error(resolvedRootedFilePath.getError());
-        }
-        else
-        {
-            result = Result.success(new File(this, resolvedRootedFilePath.getValue()));
-        }
-        return result;
+        return rootedFilePath.resolve()
+            .then((Path resolvedRootedFilePath) -> new File(this, resolvedRootedFilePath));
     }
 
     /**
@@ -972,21 +932,20 @@ public interface FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        Result<byte[]> result;
-        final Result<ByteReadStream> byteReadStreamResult = getFileContentByteReadStream(rootedFilePath);
-        if (byteReadStreamResult.hasError())
-        {
-            result = Result.error(byteReadStreamResult.getError());
-        }
-        else
-        {
-            try (final ByteReadStream byteReadStream = byteReadStreamResult.getValue())
+        return getFileContentByteReadStream(rootedFilePath)
+            .then((ByteReadStream byteReadStream) ->
             {
-                result = byteReadStream.readAllBytes();
-            }
-        }
-
-        return result;
+                byte[] result;
+                try
+                {
+                    result = byteReadStream.readAllBytes().awaitError();
+                }
+                finally
+                {
+                    byteReadStream.dispose().awaitError();
+                }
+                return result;
+            });
     }
 
     /**
@@ -1182,28 +1141,21 @@ public interface FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        Result<Void> result;
-        final Result<ByteWriteStream> byteWriteStreamResult = getFileContentByteWriteStream(rootedFilePath);
-        if (byteWriteStreamResult.hasError())
-        {
-            result = Result.error(byteWriteStreamResult.getError());
-        }
-        else
-        {
-            try (final ByteWriteStream byteWriteStream = byteWriteStreamResult.getValue())
+        return getFileContentByteWriteStream(rootedFilePath)
+            .then((ByteWriteStream byteWriteStream) ->
             {
-                if (content == null || content.length == 0)
+                try
                 {
-                    // If we want to set the file to have no/empty contents.
-                    result = Result.success();
+                    if (content != null && content.length > 0)
+                    {
+                        byteWriteStream.writeAllBytes(content).awaitError();
+                    }
                 }
-                else
+                finally
                 {
-                    result = byteWriteStream.writeAllBytes(content);
+                    byteWriteStream.dispose().awaitError();
                 }
-            }
-        }
-        return result;
+            });
     }
 
     /**
