@@ -22,7 +22,7 @@ public class OutputStreamWriterToCharacterWriteStreamTests
                 {
                     InMemoryByteStream byteWriteStream = new InMemoryByteStream();
                     final OutputStreamWriterToCharacterWriteStream characterWriteStream = getCharacterWriteStream(byteWriteStream);
-                    test.assertSuccess(true, characterWriteStream.write('a'));
+                    characterWriteStream.write('a').awaitError();
                     test.assertEqual(new byte[] { 97 }, byteWriteStream.getBytes());
                 });
                 
@@ -41,7 +41,7 @@ public class OutputStreamWriterToCharacterWriteStreamTests
                 {
                     InMemoryByteStream byteWriteStream = new InMemoryByteStream();
                     final OutputStreamWriterToCharacterWriteStream characterWriteStream = getCharacterWriteStream(byteWriteStream);
-                    test.assertSuccess(true, characterWriteStream.write("test"));
+                    characterWriteStream.write("test").awaitError();
                     test.assertEqual(new byte[] { 116, 101, 115, 116 }, byteWriteStream.getBytes());
                 });
                 
@@ -81,14 +81,7 @@ public class OutputStreamWriterToCharacterWriteStreamTests
                     TestStubOutputStream outputStream = new TestStubOutputStream();
                     OutputStreamToByteWriteStream byteWriteStream = new OutputStreamToByteWriteStream(outputStream);
                     final OutputStreamWriterToCharacterWriteStream characterWriteStream = getCharacterWriteStream(byteWriteStream);
-                    try
-                    {
-                        characterWriteStream.close();
-                        test.fail("Expected an exception to be thrown.");
-                    }
-                    catch (Exception e)
-                    {
-                    }
+                    test.assertThrows(characterWriteStream::close);
                     test.assertTrue(characterWriteStream.isDisposed());
                     test.assertTrue(byteWriteStream.isDisposed());
                 });

@@ -2256,11 +2256,11 @@ public class FileSystemTests
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
                     fileSystem.setFileContent("/source.txt", new byte[] { 0, 1, 2, 3 });
                     fileSystem.setFileContent("/dest.txt", new byte[] { 10, 11 });
-                    test.assertNull(fileSystem.copyFileTo(Path.parse("/source.txt"), Path.parse("/dest.txt")).throwErrorOrGetValue());
-                    test.assertTrue(fileSystem.fileExists("/source.txt").throwErrorOrGetValue());
-                    test.assertEqual(new byte[] { 0, 1, 2, 3 }, fileSystem.getFileContent("/source.txt").throwErrorOrGetValue());
-                    test.assertTrue(fileSystem.fileExists("/dest.txt").throwErrorOrGetValue());
-                    test.assertEqual(new byte[] { 0, 1, 2, 3 }, fileSystem.getFileContent("/dest.txt").throwErrorOrGetValue());
+                    test.assertNull(fileSystem.copyFileTo(Path.parse("/source.txt"), Path.parse("/dest.txt")).awaitError());
+                    test.assertTrue(fileSystem.fileExists("/source.txt").awaitError());
+                    test.assertEqual(new byte[] { 0, 1, 2, 3 }, fileSystem.getFileContent("/source.txt").awaitError());
+                    test.assertTrue(fileSystem.fileExists("/dest.txt").awaitError());
+                    test.assertEqual(new byte[] { 0, 1, 2, 3 }, fileSystem.getFileContent("/dest.txt").awaitError());
                 });
             });
 

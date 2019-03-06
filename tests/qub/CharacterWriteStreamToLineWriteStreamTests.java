@@ -10,45 +10,45 @@ public class CharacterWriteStreamToLineWriteStreamTests
             {
                 final InMemoryCharacterStream characterWriteStream = new InMemoryCharacterStream();
                 final CharacterWriteStreamToLineWriteStream lineWriteStream = getLineWriteStream(characterWriteStream);
-                test.assertSuccess(true, lineWriteStream.write('z'));
+                lineWriteStream.write('z').awaitError();
                 test.assertEqual(new byte[] { 122 }, characterWriteStream.getBytes());
-                test.assertSuccess("z", characterWriteStream.getText());
+                test.assertEqual("z", characterWriteStream.getText().awaitError());
             });
 
             runner.test("writeByte(String)", (Test test) ->
             {
                 final InMemoryCharacterStream characterWriteStream = new InMemoryCharacterStream();
                 final CharacterWriteStreamToLineWriteStream lineWriteStream = getLineWriteStream(characterWriteStream);
-                test.assertSuccess(true, lineWriteStream.write("tuv"));
+                lineWriteStream.write("tuv").awaitError();
                 test.assertEqual(new byte[] { 116, 117, 118 }, characterWriteStream.getBytes());
-                test.assertSuccess("tuv", characterWriteStream.getText());
+                test.assertEqual("tuv", characterWriteStream.getText().awaitError());
             });
 
             runner.test("writeByte(String,Object...)", (Test test) ->
             {
                 final InMemoryCharacterStream characterWriteStream = new InMemoryCharacterStream();
                 final CharacterWriteStreamToLineWriteStream lineWriteStream = getLineWriteStream(characterWriteStream);
-                test.assertSuccess(true, lineWriteStream.write("%s == %d", "1", 2));
+                lineWriteStream.write("%s == %d", "1", 2).awaitError();
                 test.assertEqual(new byte[] { 49, 32, 61, 61, 32, 50 }, characterWriteStream.getBytes());
-                test.assertSuccess("1 == 2", characterWriteStream.getText());
+                test.assertEqual("1 == 2", characterWriteStream.getText().awaitError());
             });
 
             runner.test("writeLine()", (Test test) ->
             {
                 final InMemoryCharacterStream characterWriteStream = new InMemoryCharacterStream();
                 final CharacterWriteStreamToLineWriteStream lineWriteStream = getLineWriteStream(characterWriteStream);
-                test.assertSuccess(true, lineWriteStream.writeLine());
+                lineWriteStream.writeLine().awaitError();
                 test.assertEqual(new byte[] { 10 }, characterWriteStream.getBytes());
-                test.assertSuccess("\n", characterWriteStream.getText());
+                test.assertEqual("\n", characterWriteStream.getText().awaitError());
             });
 
             runner.test("writeLine(String,Object...)", (Test test) ->
             {
                 final InMemoryCharacterStream characterWriteStream = new InMemoryCharacterStream();
                 final CharacterWriteStreamToLineWriteStream lineWriteStream = getLineWriteStream(characterWriteStream);
-                test.assertSuccess(true, lineWriteStream.writeLine("hello"));
+                lineWriteStream.writeLine("hello").awaitError();
                 test.assertEqual(new byte[] { 104, 101, 108, 108, 111, 10 }, characterWriteStream.getBytes());
-                test.assertSuccess("hello\n", characterWriteStream.getText());
+                test.assertEqual("hello\n", characterWriteStream.getText().awaitError());
             });
         });
     }

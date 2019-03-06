@@ -16,7 +16,7 @@ public class AsyncRunnerRegistry
     public static AsyncRunner getCurrentThreadAsyncRunner()
     {
         final long currentThreadId = getCurrentThreadId();
-        return getThreadAsyncRunner(currentThreadId).throwErrorOrGetValue();
+        return getThreadAsyncRunner(currentThreadId).awaitError();
     }
 
     public static Result<AsyncRunner> getThreadAsyncRunner(long threadId)

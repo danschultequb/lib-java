@@ -135,55 +135,19 @@ public class ConsoleTestRunner extends Console implements TestRunner
     }
 
     @Override
-    public Result<Boolean> write(String line, Object... formattedStringArguments)
+    public Result<Void> write(String line, Object... formattedStringArguments)
     {
-        final Value<Result<Boolean>> resultValue = Value.create(Result.successTrue());
-
-        if (onNewLine)
-        {
-            resultValue.set(super.write(currentIndent));
-        }
-
-        resultValue.get().then((Boolean writeResult) ->
-        {
-            if (Booleans.isTrue(writeResult))
-            {
-                resultValue.set(super.write(line, formattedStringArguments));
-                onNewLine = (line != null && line.endsWith("\n"));
-            }
-        });
-
-        final Result<Boolean> result = resultValue.get();
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+        return (onNewLine ? super.write(currentIndent) : Result.success())
+            .thenResult(() -> super.write(line, formattedStringArguments))
+            .then(() -> { onNewLine = (line != null && line.endsWith("\n")); });
     }
 
     @Override
-    public Result<Boolean> writeLine(String line, Object... formattedStringArguments)
+    public Result<Void> writeLine(String line, Object... formattedStringArguments)
     {
-        final Value<Result<Boolean>> resultValue = Value.create(Result.successTrue());
-
-        if (onNewLine)
-        {
-            resultValue.set(super.write(currentIndent));
-        }
-
-        resultValue.get().then((Boolean writeResult) ->
-        {
-            if (Booleans.isTrue(writeResult))
-            {
-                resultValue.set(super.writeLine(line, formattedStringArguments));
-                onNewLine = true;
-            }
-        });
-
-        final Result<Boolean> result = resultValue.get();
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+        return (onNewLine ? super.write(currentIndent) : Result.success())
+            .thenResult(() -> super.writeLine(line, formattedStringArguments))
+            .then(() -> { onNewLine = true; });
     }
 
     private void writeFailure(TestAssertionFailure failure)

@@ -21,7 +21,7 @@ public class Folder extends FileSystemEntry
      */
     public Root getRoot()
     {
-        return getFileSystem().getRoot(getPath()).throwErrorOrGetValue();
+        return getFileSystem().getRoot(getPath()).awaitError();
     }
 
     /**

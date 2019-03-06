@@ -5,8 +5,7 @@ public interface Disposable extends AutoCloseable
     @Override
     default void close()
     {
-        final Result<Boolean> result = dispose();
-        result.throwError();
+        dispose().awaitError();
     }
     
     boolean isDisposed();

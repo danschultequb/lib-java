@@ -11,14 +11,14 @@ public class FileTests
                 runner.test("with file at root", (Test test) ->
                 {
                     final FileSystem fileSystem = getFileSystem(test);
-                    final File file = fileSystem.getFile("/file.txt").throwErrorOrGetValue();
+                    final File file = fileSystem.getFile("/file.txt").awaitError();
                     test.assertEqual("/", file.getParentFolder().toString());
                 });
 
                 runner.test("with file in folder", (Test test) ->
                 {
                     final FileSystem fileSystem = getFileSystem(test);
-                    final File file = fileSystem.getFile("/folder/file.txt").throwErrorOrGetValue();
+                    final File file = fileSystem.getFile("/folder/file.txt").awaitError();
                     test.assertEqual("/folder", file.getParentFolder().toString());
                 });
             });

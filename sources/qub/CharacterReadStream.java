@@ -37,29 +37,21 @@ public interface CharacterReadStream extends AsyncDisposable, Iterator<Character
         PreCondition.assertGreaterThan(charactersToRead, 0, "charactersToRead");
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
-        Result<char[]> result;
-
-        char[] buffer = new char[charactersToRead];
-        final Result<Integer> readCharactersResult = readCharacters(buffer);
-        if (readCharactersResult.hasError())
-        {
-            result = readCharactersResult.convertError();
-        }
-        else
-        {
-            final Integer charactersRead = readCharactersResult.getValue();
-            if (charactersRead == null)
+        final char[] buffer = new char[charactersToRead];
+        return readCharacters(buffer)
+            .then((Integer charactersRead) ->
             {
-                buffer = null;
-            }
-            else if (charactersRead < charactersToRead)
-            {
-                buffer = Array.clone(buffer, 0, charactersRead);
-            }
-            result = Result.success(buffer);
-        }
-
-        return result;
+                char[] result = buffer;
+                if (charactersRead == null)
+                {
+                    result = null;
+                }
+                else if (charactersRead < charactersToRead)
+                {
+                    result = Array.clone(buffer, 0, charactersRead);
+                }
+                return result;
+            });
     }
 
     /**
@@ -122,34 +114,30 @@ public interface CharacterReadStream extends AsyncDisposable, Iterator<Character
     default Result<Integer> readCharacters(char[] outputCharacters, int startIndex, int length)
     {
         PreCondition.assertNotNullAndNotEmpty(outputCharacters, "outputCharacters");
-        PreCondition.assertBetween(0, startIndex, outputCharacters.length - 1, "startIndex");
-        PreCondition.assertBetween(1, length, outputCharacters.length - startIndex, "length");
+        PreCondition.assertStartIndex(startIndex, outputCharacters.length);
+        PreCondition.assertLength(length, startIndex, outputCharacters.length);
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
-        int charactersRead = 0;
-        Throwable error = null;
-
-        while (error == null && charactersRead < length)
+        return Result.create(() ->
         {
-            final Result<Character> readCharacterResult = readCharacter();
-            if (readCharacterResult.hasError())
+            int charactersRead = 0;
+            while(charactersRead < length)
             {
-                error = readCharacterResult.getError();
+                final Character c = readCharacter()
+                    .catchError(EndOfStreamException.class)
+                    .awaitError();
+                if (c == null)
+                {
+                    break;
+                }
+                else
+                {
+                    outputCharacters[startIndex + charactersRead] = c;
+                    ++charactersRead;
+                }
             }
-
-            final Character character = readCharacterResult.getValue();
-            if (character == null)
-            {
-                break;
-            }
-            else
-            {
-                outputCharacters[startIndex + charactersRead] = character;
-                ++charactersRead;
-            }
-        }
-
-        return error == null ? Result.success(charactersRead == 0 ? null : charactersRead) : Result.error(error);
+            return charactersRead == 0 ? null : charactersRead;
+        });
     }
 
     /**
@@ -181,37 +169,35 @@ public interface CharacterReadStream extends AsyncDisposable, Iterator<Character
      */
     default Result<char[]> readAllCharacters()
     {
-        final List<char[]> readCharacterArrays = new ArrayList<>();
-        char[] buffer = new char[1024];
+        PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
-        while (true)
+        return Result.create(() ->
         {
-            final Result<Integer> readCharacterResult = readCharacters(buffer);
+            final List<char[]> readCharacterArrays = new ArrayList<>();
+            char[] buffer = new char[1024];
 
-            if (readCharacterResult.hasError())
+            while(true)
             {
-                break;
-            }
-            else
-            {
-                final Integer bytesRead = readCharacterResult.getValue();
-                if (bytesRead == null || bytesRead == -1)
+                final Integer charactersRead = readCharacters(buffer)
+                    .catchError(EndOfStreamException.class)
+                    .awaitError();
+                if (charactersRead == null || charactersRead == -1)
                 {
                     break;
                 }
+                else if (charactersRead == buffer.length)
+                {
+                    readCharacterArrays.add(buffer);
+                    buffer = new char[buffer.length * 2];
+                }
                 else
                 {
-                    readCharacterArrays.add(Array.clone(buffer, 0, bytesRead));
-
-                    if (buffer.length == bytesRead)
-                    {
-                        buffer = new char[buffer.length * 2];
-                    }
+                    readCharacterArrays.add(Array.clone(buffer, 0, charactersRead));
                 }
             }
-        }
 
-        return Result.success(Array.mergeCharacters(readCharacterArrays));
+            return Array.mergeCharacters(readCharacterArrays);
+        });
     }
 
     /**
@@ -296,29 +282,11 @@ public interface CharacterReadStream extends AsyncDisposable, Iterator<Character
         PreCondition.assertNotNullAndNotEmpty(value, "value");
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
-        Result<char[]> result;
-
         final CharacterEncoding characterEncoding = getCharacterEncoding();
-        final Result<byte[]> encodedBytes = characterEncoding.encode(value);
-        if (encodedBytes.hasError())
-        {
-            result = Result.error(encodedBytes.getError());
-        }
-        else
-        {
-            final ByteReadStream byteReadStream = asByteReadStream();
-            final Result<byte[]> readBytes = byteReadStream.readBytesUntil(encodedBytes.getValue());
-            if (readBytes.hasError())
-            {
-                result = Result.error(readBytes.getError());
-            }
-            else
-            {
-                result = characterEncoding.decode(readBytes.getValue());
-            }
-        }
-
-        return result;
+        final ByteReadStream byteReadStream = asByteReadStream();
+        return characterEncoding.encode(value)
+            .thenResult(byteReadStream::readBytesUntil)
+            .thenResult(characterEncoding::decode);
     }
 
     /**
@@ -467,17 +435,8 @@ public interface CharacterReadStream extends AsyncDisposable, Iterator<Character
         PreCondition.assertNotNullAndNotEmpty(value, "value");
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
-        Result<String> result;
-        final Result<char[]> charactersResult = readCharactersUntil(value);
-        if (charactersResult.hasError())
-        {
-            result = Result.error(charactersResult.getError());
-        }
-        else
-        {
-            result = Result.success(String.valueOf(charactersResult.getValue()));
-        }
-        return result;
+        return readCharactersUntil(value)
+            .then((Function1<char[],String>)String::valueOf);
     }
 
     /**

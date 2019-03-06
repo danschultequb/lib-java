@@ -84,187 +84,92 @@ public class Console extends Process
         return result;
     }
 
-    public Result<Boolean> write(char toWrite)
+    public Result<Void> write(char toWrite)
     {
-        Result<Boolean> result;
-
         final CharacterWriteStream writeStream = getOutputAsCharacterWriteStream();
-        if (writeStream != null)
-        {
-            result = writeStream.write(toWrite);
-        }
-        else
-        {
-            result = Result.successFalse();
-        }
-
-        return result;
+        return writeStream == null
+            ? Result.success()
+            : writeStream.write(toWrite);
     }
 
-    public Result<Boolean> write(String toWrite, Object... formattedStringArguments)
+    public Result<Void> write(String toWrite, Object... formattedStringArguments)
     {
-        Result<Boolean> result;
-
         final CharacterWriteStream writeStream = getOutputAsCharacterWriteStream();
-        if (writeStream != null)
-        {
-            result = writeStream.write(toWrite, formattedStringArguments);
-        }
-        else
-        {
-            result = Result.successFalse();
-        }
-
-        return result;
+        return writeStream == null
+            ? Result.success()
+            : writeStream.write(toWrite, formattedStringArguments);
     }
 
-    public Result<Boolean> writeLine()
+    public Result<Void> writeLine()
     {
-        Result<Boolean> result;
-
         final LineWriteStream writeStream = getOutputAsLineWriteStream();
-        if (writeStream != null)
-        {
-            result = writeStream.writeLine();
-        }
-        else
-        {
-            result = Result.successFalse();
-        }
-
-        return result;
+        return writeStream == null
+            ? Result.success()
+            : writeStream.writeLine();
     }
 
-    public Result<Boolean> writeLine(String toWrite, Object... formattedStringArguments)
+    public Result<Void> writeLine(String toWrite, Object... formattedStringArguments)
     {
-        Result<Boolean> result;
-
         final LineWriteStream writeStream = getOutputAsLineWriteStream();
-        if (writeStream != null)
-        {
-            result = writeStream.writeLine(toWrite, formattedStringArguments);
-        }
-        else
-        {
-            result = Result.successFalse();
-        }
-
-        return result;
+        return writeStream == null
+            ? Result.success()
+            : writeStream.writeLine(toWrite, formattedStringArguments);
     }
 
     public Result<Boolean> writeError(byte toWrite)
     {
-        Result<Boolean> result = Result.successFalse();
-
         final ByteWriteStream writeStream = getErrorAsByteWriteStream();
-        if (writeStream != null)
-        {
-            result = writeStream.writeByte(toWrite);
-        }
-
-        return result;
+        return writeStream == null
+            ? Result.success()
+            : writeStream.writeByte(toWrite);
     }
 
     public Result<Integer> writeError(byte[] toWrite)
     {
-        Result<Integer> result;
-
         final ByteWriteStream writeStream = getErrorAsByteWriteStream();
-        if (writeStream != null)
-        {
-            result = writeStream.writeBytes(toWrite);
-        }
-        else
-        {
-            result = Result.success(null);
-        }
-
-        return result;
+        return writeStream == null
+            ? Result.success()
+            : writeStream.writeBytes(toWrite);
     }
 
     public Result<Integer> writeError(byte[] toWrite, int startIndex, int length)
     {
-        Result<Integer> result;
-
         final ByteWriteStream writeStream = getErrorAsByteWriteStream();
-        if (writeStream != null)
-        {
-            result = writeStream.writeBytes(toWrite, startIndex, length);
-        }
-        else
-        {
-            result = Result.success(null);
-        }
-
-        return result;
+        return writeStream == null
+            ? Result.success()
+            : writeStream.writeBytes(toWrite, startIndex, length);
     }
 
-    public Result<Boolean> writeError(char toWrite)
+    public Result<Void> writeError(char toWrite)
     {
-        Result<Boolean> result;
-
         final CharacterWriteStream writeStream = getErrorAsCharacterWriteStream();
-        if (writeStream != null)
-        {
-            result = writeStream.write(toWrite);
-        }
-        else
-        {
-            result = Result.successFalse();
-        }
-
-        return result;
+        return writeStream == null
+            ? Result.success()
+            : writeStream.write(toWrite);
     }
 
-    public Result<Boolean> writeError(String toWrite, Object... formattedStringArguments)
+    public Result<Void> writeError(String toWrite, Object... formattedStringArguments)
     {
-        Result<Boolean> result;
-
         final CharacterWriteStream writeStream = getErrorAsCharacterWriteStream();
-        if (writeStream != null)
-        {
-            result = writeStream.write(toWrite, formattedStringArguments);
-        }
-        else
-        {
-            result = Result.successFalse();
-        }
-
-        return result;
+        return writeStream == null
+            ? Result.success()
+            : writeStream.write(toWrite, formattedStringArguments);
     }
 
-    public Result<Boolean> writeErrorLine()
+    public Result<Void> writeErrorLine()
     {
-        Result<Boolean> result;
-
         final LineWriteStream writeStream = getErrorAsLineWriteStream();
-        if (writeStream != null)
-        {
-            result = writeStream.writeLine();
-        }
-        else
-        {
-            result = Result.successFalse();
-        }
-
-        return result;
+        return writeStream == null
+            ? Result.success()
+            : writeStream.writeLine();
     }
 
-    public Result<Boolean> writeErrorLine(String toWrite, Object... formattedStringArguments)
+    public Result<Void> writeErrorLine(String toWrite, Object... formattedStringArguments)
     {
-        Result<Boolean> result;
-
         final LineWriteStream writeStream = getErrorAsLineWriteStream();
-        if (writeStream != null)
-        {
-            result = writeStream.writeLine(toWrite, formattedStringArguments);
-        }
-        else
-        {
-            result = Result.successFalse();
-        }
-
-        return result;
+        return writeStream == null
+            ? Result.success()
+            : writeStream.writeLine(toWrite, formattedStringArguments);
     }
 
     /**

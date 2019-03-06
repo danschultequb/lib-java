@@ -4,12 +4,12 @@ public interface CharacterWriteStream extends Disposable
 {
     CharacterEncoding getCharacterEncoding();
 
-    default Result<Boolean> write(char toWrite)
+    default Result<Void> write(char toWrite)
     {
         return write(String.valueOf(toWrite));
     }
 
-    default Result<Boolean> write(char[] toWrite)
+    default Result<Void> write(char[] toWrite)
     {
         PreCondition.assertNotNullAndNotEmpty(toWrite, "toWrite");
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
@@ -17,38 +17,20 @@ public interface CharacterWriteStream extends Disposable
         return write(toWrite, 0, toWrite.length);
     }
 
-    default Result<Boolean> write(char[] toWrite, int startIndex, int length)
+    default Result<Void> write(char[] toWrite, int startIndex, int length)
     {
         PreCondition.assertNotNullAndNotEmpty(toWrite, "toWrite");
-        PreCondition.assertBetween(0, startIndex, toWrite.length - 1, "startIndex");
-        PreCondition.assertBetween(1, length, toWrite.length - startIndex, "length");
+        PreCondition.assertStartIndex(startIndex, toWrite.length);
+        PreCondition.assertLength(length, startIndex, toWrite.length);
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
-        final Result<byte[]> bytesToWriteResult = getCharacterEncoding().encode(toWrite, startIndex, length);
-        Result<Boolean> result = bytesToWriteResult.convertError();
-        if (result == null)
-        {
-            final byte[] bytesToWrite = bytesToWriteResult.getValue();
-            int bytesWritten = 0;
-            final ByteWriteStream byteWriteStream = asByteWriteStream();
-            while (result == null && bytesWritten < bytesToWrite.length)
-            {
-                final Result<Integer> bytesWrittenResult = byteWriteStream.writeBytes(bytesToWrite, bytesWritten, bytesToWrite.length - bytesWritten);
-                result = bytesWrittenResult.convertError();
-                if (result == null)
-                {
-                    bytesWritten += bytesWrittenResult.getValue();
-                }
-            }
-            if (result == null)
-            {
-                result = Result.successTrue();
-            }
-        }
-        return result;
+        final CharacterEncoding characterEncoding = getCharacterEncoding();
+        final ByteWriteStream byteWriteStream = asByteWriteStream();
+        return characterEncoding.encode(toWrite, startIndex, length)
+            .thenResult(byteWriteStream::writeAllBytes);
     }
 
-    default Result<Boolean> write(String toWrite, Object... formattedStringArguments)
+    default Result<Void> write(String toWrite, Object... formattedStringArguments)
     {
         PreCondition.assertNotNull(toWrite, "toWrite");
 

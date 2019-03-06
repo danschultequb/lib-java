@@ -158,7 +158,7 @@ public class ProcessTests
                     test.assertEqual(new byte[] { 32, 104 }, byteBuffer);
 
                     final CharacterReadStream characterReadStream = process.getInputAsCharacterReadStream();
-                    test.assertSuccess(new char[] { 'e', 'r', 'e' }, characterReadStream.readCharacters(3));
+                    test.assertEqual(new char[] { 'e', 'r', 'e' }, characterReadStream.readCharacters(3).awaitError());
 
                     final char[] characterBuffer = new char[4];
                     test.assertSuccess(4, characterReadStream.readCharacters(characterBuffer));

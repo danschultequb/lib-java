@@ -4,20 +4,20 @@ public class FakeDNS implements DNS
 {
     private final MutableMap<String,IPv4Address> hostToIPAddressMap = Map.create();
 
-    public Result<Boolean> set(String host, IPv4Address ipAddress)
+    public Result<Void> set(String host, IPv4Address ipAddress)
     {
         PreCondition.assertNotNullAndNotEmpty(host, "host");
         PreCondition.assertNotNull(ipAddress, "ipAddress");
 
         hostToIPAddressMap.set(host, ipAddress);
-        return Result.successTrue();
+        return Result.success();
     }
 
-    public Result<Boolean> remove(String host)
+    public Result<IPv4Address> remove(String host)
     {
         PreCondition.assertNotNullAndNotEmpty(host, "host");
 
-        return hostToIPAddressMap.remove(host).convertError();
+        return hostToIPAddressMap.remove(host);
     }
 
     @Override

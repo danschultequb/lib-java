@@ -18,7 +18,7 @@ public class File extends FileSystemEntry
      */
     public Folder getParentFolder()
     {
-        return getFileSystem().getFolder(getPath().getParent()).throwErrorOrGetValue();
+        return getFileSystem().getFolder(getPath().getParent()).awaitError();
     }
 
     /**

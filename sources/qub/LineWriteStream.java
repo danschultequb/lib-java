@@ -9,22 +9,22 @@ public interface LineWriteStream extends Disposable
 
     String getLineSeparator();
 
-    default Result<Boolean> write(char toWrite)
+    default Result<Void> write(char toWrite)
     {
         return asCharacterWriteStream().write(toWrite);
     }
 
-    default Result<Boolean> write(String toWrite, Object... formattedStringArguments)
+    default Result<Void> write(String toWrite, Object... formattedStringArguments)
     {
         return asCharacterWriteStream().write(toWrite, formattedStringArguments);
     }
 
-    default Result<Boolean> writeLine()
+    default Result<Void> writeLine()
     {
         return write(getLineSeparator());
     }
 
-    default Result<Boolean> writeLine(String toWrite, Object... formattedStringArguments)
+    default Result<Void> writeLine(String toWrite, Object... formattedStringArguments)
     {
         toWrite = Strings.concatenate(toWrite, getLineSeparator());
         return write(toWrite, formattedStringArguments);

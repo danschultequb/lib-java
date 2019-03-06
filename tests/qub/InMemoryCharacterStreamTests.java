@@ -302,72 +302,79 @@ public class InMemoryCharacterStreamTests
                     final InMemoryCharacterStream characterReadStream = createStream();
                     characterReadStream.dispose();
                     final char[] outputCharacters = new char[5];
-                    test.assertThrows(() -> characterReadStream.readCharacters(outputCharacters, 2, 3));
+                    test.assertThrows(() -> characterReadStream.readCharacters(outputCharacters, 2, 3),
+                        new PreConditionFailure("isDisposed() cannot be true."));
                 });
 
                 runner.test("with null outputCharacters", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream();
                     final char[] outputCharacters = null;
-                    test.assertThrows(() -> characterReadStream.readCharacters(outputCharacters, 2, 3));
+                    test.assertThrows(() -> characterReadStream.readCharacters(outputCharacters, 2, 3),
+                        new PreConditionFailure("outputCharacters cannot be null."));
                 });
 
                 runner.test("with empty outputCharacters", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream();
                     final char[] outputCharacters = new char[0];
-                    test.assertThrows(() -> characterReadStream.readCharacters(outputCharacters, 2, 3));
+                    test.assertThrows(() -> characterReadStream.readCharacters(outputCharacters, 2, 3),
+                        new PreConditionFailure("outputCharacters cannot be empty."));
                 });
 
                 runner.test("with negative startIndex", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream();
                     final char[] outputCharacters = new char[6];
-                    test.assertThrows(() -> characterReadStream.readCharacters(outputCharacters, -10, 3));
+                    test.assertThrows(() -> characterReadStream.readCharacters(outputCharacters, -10, 3),
+                        new PreConditionFailure("startIndex (-10) must be between 0 and 5."));
                 });
 
                 runner.test("with startIndex equal to outputCharacters.length", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream();
                     final char[] outputCharacters = new char[6];
-                    test.assertThrows(() -> characterReadStream.readCharacters(outputCharacters, outputCharacters.length, 3));
+                    test.assertThrows(() -> characterReadStream.readCharacters(outputCharacters, outputCharacters.length, 3),
+                        new PreConditionFailure("startIndex (6) must be between 0 and 5."));
                 });
 
                 runner.test("with negative length", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream();
                     final char[] outputCharacters = new char[6];
-                    test.assertThrows(() -> characterReadStream.readCharacters(outputCharacters, 2, -50));
+                    test.assertThrows(() -> characterReadStream.readCharacters(outputCharacters, 2, -50),
+                        new PreConditionFailure("length (-50) must be between 0 and 4."));
                 });
 
                 runner.test("with zero length", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream();
                     final char[] outputCharacters = new char[6];
-                    test.assertThrows(() -> characterReadStream.readCharacters(outputCharacters, 2, 0));
+                    test.assertEqual(null, characterReadStream.readCharacters(outputCharacters, 2, 0).awaitError());
                 });
 
                 runner.test("with length greater than outputCharacters.length - startIndex", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream();
                     final char[] outputCharacters = new char[6];
-                    test.assertThrows(() -> characterReadStream.readCharacters(outputCharacters, 2, 5));
+                    test.assertThrows(() -> characterReadStream.readCharacters(outputCharacters, 2, 5),
+                        new PreConditionFailure("length (5) must be between 0 and 4."));
                 });
 
                 runner.test("with no characters to read.", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream();
                     final char[] outputCharacters = new char[6];
-                    test.assertSuccess(null, characterReadStream.readCharacters(outputCharacters, 2, 3));
+                    test.assertEqual(null, characterReadStream.readCharacters(outputCharacters, 2, 3).awaitError());
                 });
 
                 runner.test("with fewer characters to read than length", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream("a");
                     final char[] outputCharacters = new char[6];
-                    test.assertSuccess(1, characterReadStream.readCharacters(outputCharacters, 2, 3));
+                    test.assertEqual(1, characterReadStream.readCharacters(outputCharacters, 2, 3).awaitError());
                     test.assertEqual(new char[] { '\0', '\0', 'a', '\0', '\0', '\0' }, outputCharacters);
-                    test.assertSuccess(null, characterReadStream.readCharacter());
+                    test.assertEqual(null, characterReadStream.readCharacter().awaitError());
                 });
 
                 runner.test("with equal characters to read to length", (Test test) ->

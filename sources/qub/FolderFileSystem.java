@@ -82,7 +82,7 @@ public class FolderFileSystem implements FileSystem
         Result<Path> result = outerPath.resolve();
         if (!result.hasError())
         {
-            final Path outerPathRoot = outerPath.getRoot().throwErrorOrGetValue();
+            final Path outerPathRoot = outerPath.getRoot().awaitError();
             if (!outerPathRoot.equals(Path.parse("/")))
             {
                 if (isFolderPath)

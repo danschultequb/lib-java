@@ -154,7 +154,7 @@ public class FakeNetwork implements Network
     {
         PreCondition.assertNotNull(networkStream, "networkStream");
 
-        final int currentStreamReferenceCount = streamReferenceCounts.get(networkStream).throwErrorOrGetValue();
+        final int currentStreamReferenceCount = streamReferenceCounts.get(networkStream).awaitError();
         if (currentStreamReferenceCount == 1)
         {
             networkStream.dispose();

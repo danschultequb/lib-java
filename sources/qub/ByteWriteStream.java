@@ -68,45 +68,39 @@ public interface ByteWriteStream extends Disposable
         PreCondition.assertFalse(byteReadStream.isDisposed(), "byteReadStream.isDisposed()");
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
-        byte[] buffer = new byte[1024];
-
-        Result<Void> result = null;
-        while (result == null)
+        return Result.create(() ->
         {
-            final Result<Integer> readBytesResult = byteReadStream.readBytes(buffer);
-            if (readBytesResult.hasError())
+            byte[] buffer = new byte[1024];
+            int bytesInBuffer = 0;
+            while(true)
             {
-                if (readBytesResult.getError() instanceof EndOfStreamException)
-                {
-                    result = Result.success();
-                }
-                else
-                {
-                    result = Result.error(readBytesResult.getError());
-                }
-            }
-            else
-            {
-                final Integer bytesRead = readBytesResult.getValue();
+                final Integer bytesRead = byteReadStream.readBytes(buffer, 0, buffer.length - bytesInBuffer)
+                    .catchError(EndOfStreamException.class)
+                    .awaitError();
                 if (bytesRead == null)
                 {
-                    result = Result.success();
+                    break;
                 }
                 else
                 {
-                    writeBytes(buffer, 0, bytesRead);
-
-                    if (bytesRead == buffer.length)
+                    bytesInBuffer += bytesRead;
+                    final int bytesWritten = writeBytes(buffer, 0, bytesInBuffer).awaitError();
+                    if (bytesWritten < bytesInBuffer)
                     {
-                        buffer = new byte[buffer.length * 2];
+                        Array.copy(buffer, 0, buffer, bytesWritten, bytesInBuffer - bytesWritten);
+                        bytesInBuffer -= bytesWritten;
+                    }
+                    else
+                    {
+                        if (bytesRead == bytesInBuffer)
+                        {
+                            buffer = new byte[buffer.length * 2];
+                        }
+                        bytesInBuffer = 0;
                     }
                 }
             }
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+        });
     }
 
     /**

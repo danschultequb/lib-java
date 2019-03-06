@@ -36,7 +36,7 @@ public interface FileSystem
         return getRoots()
             .then((Iterable<Root> roots) ->
             {
-                final Path root = rootPath.getRoot().throwErrorOrGetValue();
+                final Path root = rootPath.getRoot().awaitError();
                 return roots.map(Root::getPath).contains(root);
             });
     }
@@ -1426,6 +1426,6 @@ public interface FileSystem
                 return Strings.containsAny(pathString, invalidCharacters);
             })
             .catchError(NotFoundException.class, () -> false)
-            .throwErrorOrGetValue();
+            .awaitError();
     }
 }

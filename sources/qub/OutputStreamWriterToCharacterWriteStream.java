@@ -1,20 +1,16 @@
 package qub;
 
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
-
 public class OutputStreamWriterToCharacterWriteStream implements CharacterWriteStream
 {
     private final ByteWriteStream byteWriteStream;
-    private final OutputStreamWriter writer;
+    private final java.io.OutputStreamWriter writer;
     private final CharacterEncoding characterEncoding;
 
     OutputStreamWriterToCharacterWriteStream(ByteWriteStream byteWriteStream, CharacterEncoding characterEncoding)
     {
         this.byteWriteStream = byteWriteStream;
-        final OutputStream outputStream = new ByteWriteStreamToOutputStream(byteWriteStream);
-        this.writer = new OutputStreamWriter(outputStream, StandardCharsets.US_ASCII);
+        final java.io.OutputStream outputStream = new ByteWriteStreamToOutputStream(byteWriteStream);
+        this.writer = new java.io.OutputStreamWriter(outputStream, java.nio.charset.StandardCharsets.US_ASCII);
         this.characterEncoding = characterEncoding;
     }
 
@@ -25,18 +21,18 @@ public class OutputStreamWriterToCharacterWriteStream implements CharacterWriteS
     }
 
     @Override
-    public final Result<Boolean> write(String toWrite, Object... formattedStringArguments)
+    public final Result<Void> write(String toWrite, Object... formattedStringArguments)
     {
         toWrite = Strings.format(toWrite, formattedStringArguments);
 
-        Result<Boolean> result;
+        Result<Void> result;
         try
         {
             writer.write(toWrite);
             writer.flush();
-            result = Result.successTrue();
+            result = Result.success();
         }
-        catch (Exception e)
+        catch (Throwable e)
         {
             result = Result.error(e);
         }
