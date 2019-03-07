@@ -42,7 +42,7 @@ public class InMemoryFileSystemTests
                     fileSystem.createRoot("C:\\");
                     fileSystem.createFolder("C:\\folder");
                     fileSystem.createFile("C:\\folder\\file.bmp");
-                    test.assertSuccess(true, fileSystem.setFileCanDelete("C:\\folder\\file.bmp", true));
+                    fileSystem.setFileCanDelete("C:\\folder\\file.bmp", true).awaitError();
                 });
             });
 
@@ -53,7 +53,7 @@ public class InMemoryFileSystemTests
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner());
                     fileSystem.createRoot("Z:/");
                     fileSystem.createFile("Z:/file.png");
-                    test.assertSuccess(true, fileSystem.setFileCanDelete("Z:/file.png", false));
+                    fileSystem.setFileCanDelete("Z:/file.png", false).awaitError();
                     test.assertError(new FileNotFoundException("Z:/file.png"), fileSystem.deleteFile("Z:/file.png"));
                     test.assertSuccess(true, fileSystem.fileExists("Z:/file.png"));
                 });
@@ -87,7 +87,7 @@ public class InMemoryFileSystemTests
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner());
                     fileSystem.createRoot("C:\\");
                     fileSystem.createFolder("C:\\folder\\file.bmp");
-                    test.assertSuccess(true, fileSystem.setFolderCanDelete("C:\\folder\\file.bmp", true));
+                    fileSystem.setFolderCanDelete("C:\\folder\\file.bmp", true).awaitError();
                 });
             });
 
@@ -98,7 +98,7 @@ public class InMemoryFileSystemTests
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner());
                     fileSystem.createRoot("Z:/");
                     fileSystem.createFolder("Z:/file.png");
-                    test.assertSuccess(true, fileSystem.setFolderCanDelete("Z:/file.png", false));
+                    fileSystem.setFolderCanDelete("Z:/file.png", false).awaitError();
                     test.assertError(new FolderNotFoundException("Z:/file.png"), fileSystem.deleteFolder("Z:/file.png"));
                     test.assertSuccess(true, fileSystem.folderExists("Z:/file.png"));
                 });

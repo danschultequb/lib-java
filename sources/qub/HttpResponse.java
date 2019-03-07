@@ -56,13 +56,8 @@ public interface HttpResponse extends Disposable
      */
     default Result<Long> getContentLength()
     {
-        final Result<String> headerValue = getHeaderValue(HttpHeader.ContentLengthName);
-        Result<Long> result = headerValue.convertError();
-        if (result == null)
-        {
-            result = Longs.parse(headerValue.getValue());
-        }
-        return result;
+        return getHeaderValue(HttpHeader.ContentLengthName)
+            .thenResult(Longs::parse);
     }
 
     /**

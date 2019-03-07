@@ -246,22 +246,15 @@ public class FolderFileSystem implements FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        Result<DateTime> result;
-        final Result<Path> innerFilePath = getInnerPath(rootedFilePath, false);
-        if (innerFilePath.hasError())
-        {
-            result = Result.error(innerFilePath.getError());
-        }
-        else
-        {
-            result = innerFileSystem.getFileLastModified(innerFilePath.getValue());
-            if (result.getError() instanceof FileNotFoundException)
+        return getInnerPath(rootedFilePath, false)
+            .thenResult((Path innerFilePath) ->
             {
-                result = Result.error(new FileNotFoundException(getOuterPath(innerFilePath.getValue())));
-            }
-        }
-
-        return result;
+                return innerFileSystem.getFileLastModified(innerFilePath)
+                    .catchErrorResult(FileNotFoundException.class, (FileNotFoundException error) ->
+                    {
+                        return Result.error(new FileNotFoundException(getOuterPath(error.getFilePath())));
+                    });
+            });
     }
 
     @Override
@@ -269,22 +262,15 @@ public class FolderFileSystem implements FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        Result<ByteReadStream> result;
-        final Result<Path> innerFilePath = getInnerPath(rootedFilePath, false);
-        if (innerFilePath.hasError())
-        {
-            result = Result.error(innerFilePath.getError());
-        }
-        else
-        {
-            result = innerFileSystem.getFileContentByteReadStream(innerFilePath.getValue());
-            if (result.getError() instanceof FileNotFoundException)
+        return getInnerPath(rootedFilePath, false)
+            .thenResult((Path innerFilePath) ->
             {
-                result = Result.error(new FileNotFoundException(getOuterPath(innerFilePath.getValue())));
-            }
-        }
-
-        return result;
+                return innerFileSystem.getFileContentByteReadStream(innerFilePath)
+                    .catchErrorResult(FileNotFoundException.class, (FileNotFoundException error) ->
+                    {
+                        return Result.error(new FileNotFoundException(getOuterPath(error.getFilePath())));
+                    });
+            });
     }
 
     @Override
@@ -292,17 +278,7 @@ public class FolderFileSystem implements FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        Result<ByteWriteStream> result;
-        final Result<Path> innerFilePath = getInnerPath(rootedFilePath, false);
-        if (innerFilePath.hasError())
-        {
-            result = Result.error(innerFilePath.getError());
-        }
-        else
-        {
-            result = innerFileSystem.getFileContentByteWriteStream(innerFilePath.getValue());
-        }
-
-        return result;
+        return getInnerPath(rootedFilePath, false)
+            .thenResult(innerFileSystem::getFileContentByteWriteStream);
     }
 }

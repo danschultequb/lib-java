@@ -130,18 +130,18 @@ public class HttpServer implements AsyncDisposable
     {
         return Result.runWhile(() -> !isDisposed(), () ->
         {
-            try (final TCPClient acceptedClient = tcpServer.accept().throwErrorOrGetValue())
+            try (final TCPClient acceptedClient = tcpServer.accept().awaitError())
             {
                 final MutableHttpRequest request = new MutableHttpRequest();
                 final LineReadStream acceptedClientLineReadStream = acceptedClient.asLineReadStream();
 
-                final String firstLine = acceptedClientLineReadStream.readLine().throwErrorOrGetValue();
+                final String firstLine = acceptedClientLineReadStream.readLine().awaitError();
                 final String[] firstLineParts = firstLine.split(" ");
                 request.setMethod(HttpMethod.valueOf(firstLineParts[0]));
-                request.setUrl(URL.parse(firstLineParts[1]).throwErrorOrGetValue());
+                request.setUrl(URL.parse(firstLineParts[1]).awaitError());
                 request.setHttpVersion(firstLineParts[2]);
 
-                String headerLine = acceptedClientLineReadStream.readLine().throwErrorOrGetValue();
+                String headerLine = acceptedClientLineReadStream.readLine().awaitError();
                 while (!Strings.isNullOrEmpty(headerLine))
                 {
                     final int firstColonIndex = headerLine.indexOf(':');
@@ -149,14 +149,13 @@ public class HttpServer implements AsyncDisposable
                     final String headerValue = headerLine.substring(firstColonIndex + 1);
                     request.setHeader(headerName, headerValue);
 
-                    headerLine = acceptedClientLineReadStream.readLine().throwErrorOrGetValue();
+                    headerLine = acceptedClientLineReadStream.readLine().awaitError();
                 }
 
-                final Result<Long> contentLengthResult = request.getContentLength();
-                if (!contentLengthResult.hasError())
-                {
-                    request.setBody(contentLengthResult.getValue(), acceptedClient);
-                }
+                request.getContentLength()
+                    .then((Long contentLength) -> request.setBody(contentLength, acceptedClient))
+                    .catchError()
+                    .awaitError();
 
                 HttpResponse response;
                 final String pathString = request.getURL().getPath();
@@ -216,11 +215,9 @@ public class HttpServer implements AsyncDisposable
                 }
                 clientLineWriteStream.writeLine();
 
-                final ByteReadStream responseBody = response.getBody();
-                if (responseBody != null)
+                try (final ByteReadStream responseBody = response.getBody())
                 {
-                    acceptedClient.writeAllBytes(responseBody).throwError();
-                    responseBody.dispose().throwError();
+                    acceptedClient.writeAllBytes(responseBody).awaitError();
                 }
             }
         });

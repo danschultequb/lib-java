@@ -41,7 +41,7 @@ public class InMemoryCharacterStream extends BasicCharacterReadStream implements
 
     public InMemoryCharacterStream(String text, CharacterEncoding characterEncoding, AsyncRunner asyncRunner)
     {
-        this(new InMemoryByteStream(characterEncoding.encode(text).getValue(), asyncRunner), characterEncoding);
+        this(new InMemoryByteStream(characterEncoding.encode(text).awaitError(), asyncRunner), characterEncoding);
     }
 
     public InMemoryCharacterStream(InMemoryByteStream byteStream)

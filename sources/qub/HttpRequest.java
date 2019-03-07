@@ -56,13 +56,8 @@ public interface HttpRequest
      */
     default Result<Long> getContentLength()
     {
-        final Result<String> headerValue = getHeaderValue(HttpHeader.ContentLengthName);
-        Result<Long> result = headerValue.convertError();
-        if (result == null)
-        {
-            result = Longs.parse(headerValue.getValue());
-        }
-        return result;
+        return getHeaderValue(HttpHeader.ContentLengthName)
+            .thenResult(Longs::parse);
     }
 
     /**
@@ -75,13 +70,8 @@ public interface HttpRequest
     {
         PreCondition.assertNotNullAndNotEmpty(urlString, "urlString");
 
-        final Result<URL> url = URL.parse(urlString);
-        Result<MutableHttpRequest> result = url.convertError();
-        if (result == null)
-        {
-            result = Result.success(get(url.getValue()));
-        }
-        return result;
+        return URL.parse(urlString)
+            .then((URL url) -> get(url));
     }
 
     static MutableHttpRequest get(URL url)

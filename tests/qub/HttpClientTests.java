@@ -35,19 +35,15 @@ public class HttpClientTests
                     final HttpClient httpClient = creator.run(test);
                     final MutableHttpRequest httpRequest = new MutableHttpRequest(HttpMethod.GET, URL.parse("http://www.example.com").await());
 
-                    final Result<HttpResponse> httpResponseResult = httpClient.send(httpRequest);
-                    test.assertSuccess(httpResponseResult);
-
-                    final HttpResponse httpResponse = httpResponseResult.getValue();
+                    final HttpResponse httpResponse = httpClient.send(httpRequest).awaitError();
                     test.assertEqual("HTTP/1.1", httpResponse.getHTTPVersion());
                     test.assertEqual(200, httpResponse.getStatusCode());
                     test.assertEqual("OK", httpResponse.getReasonPhrase());
                     test.assertNotNull(httpResponse.getHeaders());
-                    final Result<String> contentLengthResult = httpResponse.getHeaders().getValue("content-length");
-                    test.assertSuccess(contentLengthResult);
-                    test.assertOneOf(new String[] { "1164", "1270" }, contentLengthResult.getValue());
+                    final String contentLength = httpResponse.getHeaders().getValue("content-length").awaitError();
+                    test.assertOneOf(new String[] { "1164", "1270" }, contentLength);
                     test.assertNotNull(httpResponse.getBody());
-                    final String bodyString = httpResponse.getBody().asCharacterReadStream().readString(3000).getValue();
+                    final String bodyString = httpResponse.getBody().asCharacterReadStream().readEntireString().awaitError();
                     test.assertNotNull(bodyString);
                     test.assertStartsWith(bodyString, "<!doctype html>", CharacterComparer.CaseInsensitive);
                     test.assertContains(bodyString, "<div>");
@@ -60,18 +56,14 @@ public class HttpClientTests
                     final HttpClient httpClient = creator.run(test);
                     final MutableHttpRequest httpRequest = new MutableHttpRequest(HttpMethod.GET, URL.parse("http://www.treasurydirect.gov/TA_WS/securities/auctioned?format=json&type=Bill").throwErrorOrGetValue());
 
-                    final Result<HttpResponse> httpResponseResult = httpClient.send(httpRequest);
-                    test.assertSuccess(httpResponseResult);
-
-                    final HttpResponse httpResponse = httpResponseResult.getValue();
+                    final HttpResponse httpResponse = httpClient.send(httpRequest).awaitError();
                     test.assertTrue(httpResponse.getHTTPVersion().equals("HTTP/1.0") || httpResponse.getHTTPVersion().equals("HTTP/1.1"));
                     test.assertEqual(302, httpResponse.getStatusCode());
                     test.assertEqual("Found", httpResponse.getReasonPhrase());
                     test.assertNotNull(httpResponse.getHeaders());
-                    final Result<String> locationHeader = httpResponse.getHeaders().getValue("location");
-                    test.assertSuccess(locationHeader);
-                    test.assertEndsWith(locationHeader.getValue(), "www.treasurydirect.gov/TA_WS/securities/auctioned?format=json&type=Bill", "Incorrect Location header");
-                    test.assertSuccess("0", httpResponse.getHeaders().getValue("content-length"));
+                    final String locationHeader = httpResponse.getHeaders().getValue("location").awaitError();
+                    test.assertEndsWith(locationHeader, "www.treasurydirect.gov/TA_WS/securities/auctioned?format=json&type=Bill", "Incorrect Location header");
+                    test.assertEqual("0", httpResponse.getHeaders().getValue("content-length").awaitError());
                     test.assertNull(httpResponse.getBody());
                 });
             });

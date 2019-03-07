@@ -234,29 +234,17 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
         PreCondition.assertFalse(endOfStream, "endOfStream");
 
         return mutex.criticalSection(() ->
-        {
-            Result<Void> result = null;
-            boolean bytesAdded = false;
-            while (result == null)
+            Result.create(() ->
             {
-                final Result<Byte> readByteResult = byteReadStream.readByte();
-                if (readByteResult.hasError())
+                boolean bytesAdded = false;
+                while (true)
                 {
-                    if (readByteResult.getError() instanceof EndOfStreamException)
-                    {
-                        result = Result.success();
-                    }
-                    else
-                    {
-                        result = Result.error(readByteResult.getError());
-                    }
-                }
-                else
-                {
-                    final Byte byteRead = readByteResult.getValue();
+                    final Byte byteRead = byteReadStream.readByte()
+                        .catchError(EndOfStreamException.class)
+                        .awaitError();
                     if (byteRead == null)
                     {
-                        result = Result.success();
+                        break;
                     }
                     else
                     {
@@ -264,14 +252,11 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
                         bytes.add(byteRead);
                     }
                 }
-            }
 
-            if (bytesAdded)
-            {
-                bytesAvailable.signalAll();
-            }
-
-            return result;
-        });
+                if (bytesAdded)
+                {
+                    bytesAvailable.signalAll();
+                }
+            }));
     }
 }
