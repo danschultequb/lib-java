@@ -54,7 +54,7 @@ public class FolderFileSystemTests
                     fileSystem.createRoot("/");
 
                     final Result<FolderFileSystem> folderFileSystem = FolderFileSystem.get(fileSystem, "\\basefolder");
-                    test.assertEqual(Path.parse("\\basefolder"), folderFileSystem.getValue().getBaseFolderPath());
+                    test.assertEqual(Path.parse("\\basefolder"), folderFileSystem.awaitError().getBaseFolderPath());
                 });
 
                 runner.test("with rooted path that ends with backslash", (Test test) ->
@@ -63,7 +63,7 @@ public class FolderFileSystemTests
                     fileSystem.createRoot("/");
 
                     final Result<FolderFileSystem> folderFileSystem = FolderFileSystem.get(fileSystem, "/basefolder\\");
-                    test.assertEqual(Path.parse("/basefolder"), folderFileSystem.getValue().getBaseFolderPath());
+                    test.assertEqual(Path.parse("/basefolder"), folderFileSystem.awaitError().getBaseFolderPath());
                 });
 
                 runner.test("with rooted path that ends with forward slash", (Test test) ->
@@ -72,7 +72,7 @@ public class FolderFileSystemTests
                     fileSystem.createRoot("/");
 
                     final Result<FolderFileSystem> folderFileSystem = FolderFileSystem.get(fileSystem, "/basefolder/");
-                    test.assertEqual(Path.parse("/basefolder"), folderFileSystem.getValue().getBaseFolderPath());
+                    test.assertEqual(Path.parse("/basefolder"), folderFileSystem.awaitError().getBaseFolderPath());
                 });
             });
         });

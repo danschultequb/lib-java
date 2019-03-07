@@ -16,13 +16,8 @@ public interface HttpClient
     {
         PreCondition.assertNotNullAndNotEmpty(urlString, "urlString");
 
-        final Result<URL> url = URL.parse(urlString);
-        Result<HttpResponse> result = url.convertError();
-        if (result == null)
-        {
-            result = get(url.getValue());
-        }
-        return result;
+        return URL.parse(urlString)
+            .thenResult(this::get);
     }
 
     default Result<HttpResponse> get(URL url)

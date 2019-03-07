@@ -27,10 +27,10 @@ public class FileTests
             {
                 final FileSystem fileSystem = getFileSystem(test);
 
-                final File fileWithoutExtension = fileSystem.getFile("/folder/file").getValue();
+                final File fileWithoutExtension = fileSystem.getFile("/folder/file").awaitError();
                 test.assertNull(fileWithoutExtension.getFileExtension());
 
-                final File fileWithExtension = fileSystem.getFile("/file.csv").getValue();
+                final File fileWithExtension = fileSystem.getFile("/file.csv").awaitError();
                 test.assertEqual(".csv", fileWithExtension.getFileExtension());
             });
 
@@ -55,13 +55,13 @@ public class FileTests
 
                 test.assertSuccess(null, file.create());
 
-                test.assertTrue(file.exists().getValue());
+                test.assertTrue(file.exists().awaitError());
 
-                test.assertEqual(new byte[0], file.getContents().getValue());
+                test.assertEqual(new byte[0], file.getContents().awaitError());
 
                 test.assertError(new FileAlreadyExistsException(file.toString()), file.create());
 
-                test.assertTrue(file.exists().getValue());
+                test.assertTrue(file.exists().awaitError());
             });
             
             runner.testGroup("exists()", () ->
@@ -69,14 +69,14 @@ public class FileTests
                 runner.test("when file doesn't exist", (Test test) ->
                 {
                     final File file = getFile(test);
-                    test.assertFalse(file.exists().getValue());
+                    test.assertFalse(file.exists().awaitError());
                 });
 
                 runner.test("when file does exist", (Test test) ->
                 {
                     final File file = getFile(test);
                     file.create();
-                    test.assertTrue(file.exists().getValue());
+                    test.assertTrue(file.exists().awaitError());
                 });
             });
 
@@ -95,7 +95,7 @@ public class FileTests
                     file.create();
 
                     test.assertSuccess(null, file.delete());
-                    test.assertFalse(file.exists().getValue());
+                    test.assertFalse(file.exists().awaitError());
                 });
             });
 
