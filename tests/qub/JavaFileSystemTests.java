@@ -24,8 +24,8 @@ public class JavaFileSystemTests
             FileSystemTests.test(runner, (AsyncRunner asyncRunner) ->
             {
                 final Path testFolderPath = tempFolderPath.concatenateSegment(testNumber.increment().toString());
-                folderFileSystem.set(FolderFileSystem.get(new JavaFileSystem(asyncRunner), testFolderPath).getValue());
-                if (folderFileSystem.get().exists().getValue())
+                folderFileSystem.set(FolderFileSystem.get(new JavaFileSystem(asyncRunner), testFolderPath).awaitError());
+                if (folderFileSystem.get().exists().awaitError())
                 {
                     folderFileSystem.get().delete();
                 }

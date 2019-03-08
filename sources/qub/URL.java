@@ -348,270 +348,272 @@ public class URL
      */
     public static Result<URL> parse(String urlString)
     {
-        Result<URL> result = Result.notNullAndNotEmpty(urlString, "urlString");
-        if (result == null)
+        PreCondition.assertNotNullAndNotEmpty(urlString, "urlString");
+
+        Result<URL> result = null;
+        final Lexer lexer = new Lexer(urlString);
+        final URL url = new URL();
+        URLParseState currentState = URLParseState.SchemeOrHost;
+        final StringBuilder builder = new StringBuilder();
+        while (lexer.next() && result == null)
         {
-            final Lexer lexer = new Lexer(urlString);
-            final URL url = new URL();
-            URLParseState currentState = URLParseState.SchemeOrHost;
-            final StringBuilder builder = new StringBuilder();
-            while (lexer.next() && result == null)
+            switch (currentState)
             {
-                switch (currentState)
-                {
-                    case SchemeOrHost:
-                        switch (lexer.getCurrent().getType())
-                        {
-                            case Letters:
-                            case Digits:
-                            case Plus:
-                            case Dash:
-                                builder.append(lexer.getCurrent().toString());
-                                break;
+                case SchemeOrHost:
+                    switch (lexer.getCurrent().getType())
+                    {
+                        case Letters:
+                        case Digits:
+                        case Plus:
+                        case Dash:
+                            builder.append(lexer.getCurrent().toString());
+                            break;
 
-                            case Colon:
-                                currentState = URLParseState.SchemeOrHostWithColon;
-                                break;
+                        case Colon:
+                            currentState = URLParseState.SchemeOrHostWithColon;
+                            break;
 
-                            case Period:
-                                if (builder.length() == 0)
-                                {
-                                    result = Result.error(new IllegalArgumentException("A URL must begin with either a scheme (such as \"http\") or a host (such as \"www.example.com\"), not \"" + lexer.getCurrent().toString() + "\"."));
-                                }
-                                else
-                                {
-                                    builder.append(lexer.getCurrent().toString());
-                                    currentState = URLParseState.Host;
-                                }
-                                break;
-
-                            default:
+                        case Period:
+                            if (builder.length() == 0)
+                            {
                                 result = Result.error(new IllegalArgumentException("A URL must begin with either a scheme (such as \"http\") or a host (such as \"www.example.com\"), not \"" + lexer.getCurrent().toString() + "\"."));
-                                break;
-                        }
-                        break;
-
-                    case SchemeOrHostWithColon:
-                        switch (lexer.getCurrent().getType())
-                        {
-                            case ForwardSlash:
-                                url.setScheme(takeText(builder));
-                                currentState = URLParseState.SchemeWithColonAndForwardSlash;
-                                break;
-
-                            case Digits:
-                                url.setHost(takeText(builder));
-                                url.setPort(Integer.parseInt(lexer.getCurrent().toString()));
-                                currentState = URLParseState.PathQueryOrFragment;
-                                break;
-
-                            default:
-                                result = Result.error(new IllegalArgumentException("After the scheme or host (" + builder.toString() + ") and a colon, the following text must be either a forward slash or a port number."));
-                                break;
-                        }
-                        break;
-
-                    case SchemeWithColonAndForwardSlash:
-                        switch (lexer.getCurrent().getType())
-                        {
-                            case ForwardSlash:
-                                currentState = URLParseState.Host;
-                                break;
-
-                            default:
-                                result = Result.error(new IllegalArgumentException("Could not parse \"" + urlString + "\" into a URL because the scheme (" + url.getScheme() + ") must be followed by \"://\"."));
-                                break;
-                        }
-                        break;
-
-                    case Host:
-                        switch (lexer.getCurrent().getType())
-                        {
-                            case Colon:
-                                if (builder.length() > 0)
-                                {
-                                    url.setHost(takeText(builder));
-                                    currentState = URLParseState.Port;
-                                }
-                                else
-                                {
-                                    result = Result.error(new IllegalArgumentException("Could not parse \"" + urlString + "\" into a URL because no host was specified before the port."));
-                                }
-                                break;
-
-                            case ForwardSlash:
-                                if (builder.length() > 0)
-                                {
-                                    url.setHost(takeText(builder));
-                                    builder.append(lexer.getCurrent().toString());
-                                    currentState = URLParseState.Path;
-                                }
-                                else
-                                {
-                                    result = Result.error(new IllegalArgumentException("Could not parse \"" + urlString + "\" into a URL because no host was specified before the path."));
-                                }
-                                break;
-
-                            case QuestionMark:
-                                if (builder.length() > 0)
-                                {
-                                    url.setHost(takeText(builder));
-                                    currentState = URLParseState.Query;
-                                }
-                                else
-                                {
-                                    result = Result.error(new IllegalArgumentException("Could not parse \"" + urlString + "\" into a URL because no host was specified before the query."));
-                                }
-                                break;
-
-                            case Hash:
-                                if (builder.length() > 0)
-                                {
-                                    url.setHost(takeText(builder));
-                                    builder.append(lexer.getCurrent().toString());
-                                    currentState = URLParseState.Fragment;
-                                }
-                                else
-                                {
-                                    result = Result.error(new IllegalArgumentException("Could not parse \"" + urlString + "\" into a URL because no host was specified before the fragment."));
-                                }
-                                break;
-
-                            default:
+                            }
+                            else
+                            {
                                 builder.append(lexer.getCurrent().toString());
-                                break;
-                        }
-                        break;
+                                currentState = URLParseState.Host;
+                            }
+                            break;
 
-                    case Port:
-                        switch (lexer.getCurrent().getType())
-                        {
-                            case Digits:
-                                url.setPort(Integer.parseInt(lexer.getCurrent().toString()));
-                                currentState = URLParseState.PathQueryOrFragment;
-                                break;
+                        default:
+                            result = Result.error(new IllegalArgumentException("A URL must begin with either a scheme (such as \"http\") or a host (such as \"www.example.com\"), not \"" + lexer.getCurrent().toString() + "\"."));
+                            break;
+                    }
+                    break;
 
-                            default:
-                                result = Result.error(new IllegalArgumentException("Could not parse \"" + urlString + "\" into a URL because the port specified was not a number."));
-                                break;
-                        }
-                        break;
+                case SchemeOrHostWithColon:
+                    switch (lexer.getCurrent().getType())
+                    {
+                        case ForwardSlash:
+                            url.setScheme(takeText(builder));
+                            currentState = URLParseState.SchemeWithColonAndForwardSlash;
+                            break;
 
-                    case PathQueryOrFragment:
-                        switch (lexer.getCurrent().getType())
-                        {
-                            case ForwardSlash:
+                        case Digits:
+                            url.setHost(takeText(builder));
+                            url.setPort(Integer.parseInt(lexer.getCurrent().toString()));
+                            currentState = URLParseState.PathQueryOrFragment;
+                            break;
+
+                        default:
+                            result = Result.error(new IllegalArgumentException("After the scheme or host (" + builder.toString() + ") and a colon, the following text must be either a forward slash or a port number."));
+                            break;
+                    }
+                    break;
+
+                case SchemeWithColonAndForwardSlash:
+                    switch (lexer.getCurrent().getType())
+                    {
+                        case ForwardSlash:
+                            currentState = URLParseState.Host;
+                            break;
+
+                        default:
+                            result = Result.error(new IllegalArgumentException("Could not parse \"" + urlString + "\" into a URL because the scheme (" + url.getScheme() + ") must be followed by \"://\"."));
+                            break;
+                    }
+                    break;
+
+                case Host:
+                    switch (lexer.getCurrent().getType())
+                    {
+                        case Colon:
+                            if (builder.length() > 0)
+                            {
+                                url.setHost(takeText(builder));
+                                currentState = URLParseState.Port;
+                            }
+                            else
+                            {
+                                result = Result.error(new IllegalArgumentException("Could not parse \"" + urlString + "\" into a URL because no host was specified before the port."));
+                            }
+                            break;
+
+                        case ForwardSlash:
+                            if (builder.length() > 0)
+                            {
+                                url.setHost(takeText(builder));
                                 builder.append(lexer.getCurrent().toString());
                                 currentState = URLParseState.Path;
-                                break;
+                            }
+                            else
+                            {
+                                result = Result.error(new IllegalArgumentException("Could not parse \"" + urlString + "\" into a URL because no host was specified before the path."));
+                            }
+                            break;
 
-                            case QuestionMark:
+                        case QuestionMark:
+                            if (builder.length() > 0)
+                            {
+                                url.setHost(takeText(builder));
                                 currentState = URLParseState.Query;
-                                break;
+                            }
+                            else
+                            {
+                                result = Result.error(new IllegalArgumentException("Could not parse \"" + urlString + "\" into a URL because no host was specified before the query."));
+                            }
+                            break;
 
-                            case Hash:
+                        case Hash:
+                            if (builder.length() > 0)
+                            {
+                                url.setHost(takeText(builder));
                                 builder.append(lexer.getCurrent().toString());
                                 currentState = URLParseState.Fragment;
-                                break;
+                            }
+                            else
+                            {
+                                result = Result.error(new IllegalArgumentException("Could not parse \"" + urlString + "\" into a URL because no host was specified before the fragment."));
+                            }
+                            break;
 
-                            default:
-                                result = Result.error(new IllegalArgumentException("Expected \"/\", \"?\", or \"#\", but found \"" + lexer.getCurrent().toString() + "\" instead."));
-                                break;
-                        }
-                        break;
+                        default:
+                            builder.append(lexer.getCurrent().toString());
+                            break;
+                    }
+                    break;
 
-                    case Path:
-                        switch (lexer.getCurrent().getType())
-                        {
-                            case QuestionMark:
-                                url.setPath(takeText(builder));
-                                currentState = URLParseState.Query;
-                                break;
+                case Port:
+                    switch (lexer.getCurrent().getType())
+                    {
+                        case Digits:
+                            url.setPort(Integer.parseInt(lexer.getCurrent().toString()));
+                            currentState = URLParseState.PathQueryOrFragment;
+                            break;
 
-                            case Hash:
-                                url.setPath(takeText(builder));
-                                builder.append(lexer.getCurrent().toString());
-                                currentState = URLParseState.Fragment;
-                                break;
+                        default:
+                            result = Result.error(new IllegalArgumentException("Could not parse \"" + urlString + "\" into a URL because the port specified was not a number."));
+                            break;
+                    }
+                    break;
 
-                            default:
-                                builder.append(lexer.getCurrent().toString());
-                                break;
-                        }
-                        break;
+                case PathQueryOrFragment:
+                    switch (lexer.getCurrent().getType())
+                    {
+                        case ForwardSlash:
+                            builder.append(lexer.getCurrent().toString());
+                            currentState = URLParseState.Path;
+                            break;
 
-                    case Query:
-                        switch (lexer.getCurrent().getType())
-                        {
-                            case Hash:
-                                url.setQuery(takeText(builder));
-                                builder.append(lexer.getCurrent().toString());
-                                currentState = URLParseState.Fragment;
-                                break;
+                        case QuestionMark:
+                            currentState = URLParseState.Query;
+                            break;
 
-                            default:
-                                builder.append(lexer.getCurrent().toString());
-                                break;
-                        }
-                        break;
+                        case Hash:
+                            builder.append(lexer.getCurrent().toString());
+                            currentState = URLParseState.Fragment;
+                            break;
 
-                    case Fragment:
-                        builder.append(lexer.getCurrent().toString());
-                        break;
+                        default:
+                            result = Result.error(new IllegalArgumentException("Expected \"/\", \"?\", or \"#\", but found \"" + lexer.getCurrent().toString() + "\" instead."));
+                            break;
+                    }
+                    break;
 
-                    default:
-                        result = Result.error(new IllegalStateException("Unrecognized URLParseState: " + currentState));
-                        break;
-                }
+                case Path:
+                    switch (lexer.getCurrent().getType())
+                    {
+                        case QuestionMark:
+                            url.setPath(takeText(builder));
+                            currentState = URLParseState.Query;
+                            break;
+
+                        case Hash:
+                            url.setPath(takeText(builder));
+                            builder.append(lexer.getCurrent().toString());
+                            currentState = URLParseState.Fragment;
+                            break;
+
+                        default:
+                            builder.append(lexer.getCurrent().toString());
+                            break;
+                    }
+                    break;
+
+                case Query:
+                    switch (lexer.getCurrent().getType())
+                    {
+                        case Hash:
+                            url.setQuery(takeText(builder));
+                            builder.append(lexer.getCurrent().toString());
+                            currentState = URLParseState.Fragment;
+                            break;
+
+                        default:
+                            builder.append(lexer.getCurrent().toString());
+                            break;
+                    }
+                    break;
+
+                case Fragment:
+                    builder.append(lexer.getCurrent().toString());
+                    break;
+
+                default:
+                    result = Result.error(new IllegalStateException("Unrecognized URLParseState: " + currentState));
+                    break;
+            }
+        }
+
+        if (result == null)
+        {
+            switch (currentState)
+            {
+                case SchemeOrHost:
+                case Host:
+                    url.setHost(takeText(builder));
+                    break;
+
+                case SchemeOrHostWithColon:
+                    result = Result.error(new IllegalArgumentException("Could not parse \"" + urlString + "\" into a URL because it is missing a port number."));
+                    break;
+
+                case SchemeWithColonAndForwardSlash:
+                    result = Result.error(new IllegalArgumentException("Could not parse \"" + urlString + "\" into a URL because it is missing the second forward slash after the scheme."));
+                    break;
+
+                case Port:
+                    result = Result.error(new IllegalArgumentException("Could not parse \"" + urlString + "\" into a URL because it is missing its port number."));
+                    break;
+
+                case PathQueryOrFragment:
+                    break;
+
+                case Path:
+                    url.setPath(takeText(builder));
+                    break;
+
+                case Query:
+                    url.setQuery(takeText(builder));
+                    break;
+
+                case Fragment:
+                    url.setFragment(takeText(builder));
+                    break;
+
+                default:
+                    result = Result.error(new IllegalArgumentException("Unrecognized URL parse end state: " + currentState));
+                    break;
             }
 
             if (result == null)
             {
-                switch (currentState)
-                {
-                    case SchemeOrHost:
-                    case Host:
-                        url.setHost(takeText(builder));
-                        break;
-
-                    case SchemeOrHostWithColon:
-                        result = Result.error(new IllegalArgumentException("Could not parse \"" + urlString + "\" into a URL because it is missing a port number."));
-                        break;
-
-                    case SchemeWithColonAndForwardSlash:
-                        result = Result.error(new IllegalArgumentException("Could not parse \"" + urlString + "\" into a URL because it is missing the second forward slash after the scheme."));
-                        break;
-
-                    case Port:
-                        result = Result.error(new IllegalArgumentException("Could not parse \"" + urlString + "\" into a URL because it is missing its port number."));
-                        break;
-
-                    case PathQueryOrFragment:
-                        break;
-
-                    case Path:
-                        url.setPath(takeText(builder));
-                        break;
-
-                    case Query:
-                        url.setQuery(takeText(builder));
-                        break;
-
-                    case Fragment:
-                        url.setFragment(takeText(builder));
-                        break;
-
-                    default:
-                        result = Result.error(new IllegalArgumentException("Unrecognized URL parse end state: " + currentState));
-                        break;
-                }
-
-                if (result == null)
-                {
-                    result = Result.success(url);
-                }
+                result = Result.success(url);
             }
         }
+
+        PostCondition.assertNotNull(result, "result");
+
         return result;
     }
 

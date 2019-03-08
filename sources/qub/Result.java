@@ -420,22 +420,6 @@ public interface Result<T>
     }
 
     @Deprecated
-    static <U> Result<U> notNullAndNotEmpty(String value, String expressionName)
-    {
-        PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
-
-        Result<U> result = Result.notNull(value, expressionName);
-        if (result == null)
-        {
-            if (value.isEmpty())
-            {
-                result = Result.error(SyncResult.createError(expressionName + " cannot be empty."));
-            }
-        }
-        return result;
-    }
-
-    @Deprecated
     static <U> Result<U> greaterThan(int value, int lowerBound, String expressionName)
     {
         PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");

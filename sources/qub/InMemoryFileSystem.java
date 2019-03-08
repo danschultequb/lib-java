@@ -82,15 +82,19 @@ public class InMemoryFileSystem implements FileSystem
 
     private Result<InMemoryFile> getInMemoryFile(Path filePath)
     {
-        return getInMemoryFolder(filePath.getParent())
-            .catchErrorResult(FolderNotFoundException.class, () -> Result.error(new FileNotFoundException(filePath)))
-            .thenResult((InMemoryFolder inMemoryFolder) ->
+        return filePath.resolve()
+            .thenResult((Path resolvedRootedFilePath) ->
             {
-                final String fileName = filePath.getSegments().last();
-                final InMemoryFile inMemoryFile = inMemoryFolder.getFile(fileName);
-                return inMemoryFile != null
-                    ? Result.success(inMemoryFile)
-                    : Result.error(new FileNotFoundException(filePath.resolve().awaitError()));
+                return getInMemoryFolder(resolvedRootedFilePath.getParent())
+                    .catchErrorResult(FolderNotFoundException.class, () -> Result.error(new FileNotFoundException(filePath)))
+                    .thenResult((InMemoryFolder inMemoryFolder) ->
+                    {
+                        final String fileName = filePath.getSegments().last();
+                        final InMemoryFile inMemoryFile = inMemoryFolder.getFile(fileName);
+                        return inMemoryFile != null
+                            ? Result.success(inMemoryFile)
+                            : Result.error(new FileNotFoundException(filePath.resolve().awaitError()));
+                    });
             });
     }
 
@@ -287,29 +291,17 @@ public class InMemoryFileSystem implements FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        Result<Void> result;
-        final Result<Path> resolvedRootedFilePath = rootedFilePath.resolve();
-        if (resolvedRootedFilePath.hasError())
-        {
-            result = Result.error(resolvedRootedFilePath.getError());
-        }
-        else
-        {
-            final Result<InMemoryFolder> parentFolder = getInMemoryFolder(resolvedRootedFilePath.getValue().getParent());
-            if (parentFolder.hasError())
+        return rootedFilePath.resolve()
+            .thenResult((Path resolvedRootedFilePath) ->
             {
-                result = Result.error(parentFolder.getError());
-            }
-            else if (!parentFolder.getValue().deleteFile(resolvedRootedFilePath.getValue().getSegments().last()))
-            {
-                result = Result.error(new FileNotFoundException(resolvedRootedFilePath.getValue()));
-            }
-            else
-            {
-                result = Result.success();
-            }
-        }
-        return result;
+                return getInMemoryFolder(resolvedRootedFilePath.getParent())
+                    .thenResult((InMemoryFolder parentFolder) ->
+                    {
+                        return parentFolder.deleteFile(resolvedRootedFilePath.getSegments().last())
+                            ? Result.<Void>success()
+                            : Result.error(new FileNotFoundException(resolvedRootedFilePath));
+                    });
+            });
     }
 
     @Override
@@ -317,26 +309,12 @@ public class InMemoryFileSystem implements FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        Result<DateTime> result;
-        final Result<Path> resolvedRootedFilePath = rootedFilePath.resolve();
-        if (resolvedRootedFilePath.hasError())
-        {
-            result = Result.error(resolvedRootedFilePath.getError());
-        }
-        else
-        {
-            final Result<InMemoryFile> file = getInMemoryFile(resolvedRootedFilePath.getValue());
-            if (file.hasError())
+        return rootedFilePath.resolve()
+            .thenResult((Path resolvedRootedFilePath) ->
             {
-                result = Result.error(file.getError());
-            }
-            else
-            {
-                result = Result.success(file.getValue().getLastModified());
-            }
-        }
-
-        return result;
+                return getInMemoryFile(resolvedRootedFilePath)
+                    .then(InMemoryFile::getLastModified);
+            });
     }
 
     @Override
@@ -344,18 +322,8 @@ public class InMemoryFileSystem implements FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        Result<ByteReadStream> result;
-        final Result<InMemoryFile> file = getInMemoryFile(rootedFilePath);
-        if (file.hasError())
-        {
-            result = Result.error(file.getError());
-        }
-        else
-        {
-            result = Result.success(file.getValue().getContentByteReadStream());
-        }
-
-        return result;
+        return getInMemoryFile(rootedFilePath)
+            .then(InMemoryFile::getContentByteReadStream);
     }
 
     @Override
@@ -363,32 +331,23 @@ public class InMemoryFileSystem implements FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        Result<ByteWriteStream> result;
-        final Result<Path> resolvedRootedFilePath = rootedFilePath.resolve();
-        if (resolvedRootedFilePath.hasError())
-        {
-            result = Result.error(resolvedRootedFilePath.getError());
-        }
-        else
-        {
-            Result<InMemoryFile> file = getInMemoryFile(rootedFilePath);
-            if (file.hasError())
+        return rootedFilePath.resolve()
+            .thenResult((Path resolvedRootedFilePath) ->
             {
-                final Path parentFolderPath = rootedFilePath.getParent();
-                Result<InMemoryFolder> parentFolder = getInMemoryFolder(parentFolderPath);
-                if (parentFolder.hasError() && parentFolder.getError() instanceof FolderNotFoundException)
-                {
-                    createInMemoryFolder(parentFolderPath);
-                    parentFolder = getInMemoryFolder(parentFolderPath);
-                }
-
-                parentFolder.getValue().createFile(rootedFilePath.getSegments().last());
-                file = getInMemoryFile(rootedFilePath);
-            }
-            result = Result.success(file.getValue().getContentByteWriteStream());
-        }
-
-        return result;
+                return getInMemoryFile(resolvedRootedFilePath)
+                    .catchErrorResult(FileNotFoundException.class, () ->
+                    {
+                        final Path parentFolderPath = rootedFilePath.getParent();
+                        return createInMemoryFolder(parentFolderPath)
+                            .thenResult(() -> getInMemoryFolder(parentFolderPath))
+                            .thenResult((InMemoryFolder parentFolder) ->
+                            {
+                                parentFolder.createFile(resolvedRootedFilePath.getSegments().last());
+                                return getInMemoryFile(resolvedRootedFilePath);
+                            });
+                    })
+                    .then(InMemoryFile::getContentByteWriteStream);
+            });
     }
 
     /**

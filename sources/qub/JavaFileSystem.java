@@ -21,13 +21,16 @@ public class JavaFileSystem implements FileSystem
     @Override
     public Result<Iterable<Root>> getRoots()
     {
-        final Iterable<java.io.File> javaRoots = Iterable.create(java.io.File.listRoots());
-        return Result.success(javaRoots.map((java.io.File root) ->
+        return Result.create(() ->
         {
-            final String rootPathString = root.getAbsolutePath();
-            final String trimmedRootPathString = rootPathString.equals("/") ? rootPathString : rootPathString.substring(0, rootPathString.length() - 1);
-            return JavaFileSystem.this.getRoot(trimmedRootPathString).getValue();
-        }));
+            return Iterable.create(java.io.File.listRoots())
+                .map((java.io.File root) ->
+                {
+                    final String rootPathString = root.getAbsolutePath();
+                    final String trimmedRootPathString = rootPathString.equals("/") ? rootPathString : rootPathString.substring(0, rootPathString.length() - 1);
+                    return getRoot(trimmedRootPathString).awaitError();
+                });
+        });
     }
 
     @Override
@@ -54,11 +57,11 @@ public class JavaFileSystem implements FileSystem
                 final Path containerEntryPath = Path.parse(containerEntryPathString).normalize();
                 if (containerEntryFile.isFile())
                 {
-                    files.add(getFile(containerEntryPath).getValue());
+                    files.add(getFile(containerEntryPath).awaitError());
                 }
                 else if (containerEntryFile.isDirectory())
                 {
-                    folders.add(getFolder(containerEntryPath).getValue());
+                    folders.add(getFolder(containerEntryPath).awaitError());
                 }
             }
 
@@ -102,7 +105,7 @@ public class JavaFileSystem implements FileSystem
                 java.nio.file.Files.createDirectories(java.nio.file.Paths.get(parentFolderPath.toString()));
             }
             java.nio.file.Files.createDirectory(java.nio.file.Paths.get(rootedFolderPath.toString()));
-            result = Result.success(getFolder(rootedFolderPath).getValue());
+            result = getFolder(rootedFolderPath);
         }
         catch (java.nio.file.FileAlreadyExistsException e)
         {
@@ -121,42 +124,26 @@ public class JavaFileSystem implements FileSystem
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        Throwable deleteFolderError;
-
-        final Result<Iterable<FileSystemEntry>> entriesResult = getFilesAndFolders(rootedFolderPath);
-        if (entriesResult.hasError())
-        {
-            deleteFolderError = entriesResult.getError();
-        }
-        else
-        {
-            final List<Throwable> errors = new ArrayList<>();
-            for (final FileSystemEntry entry : entriesResult.getValue())
+        return getFilesAndFolders(rootedFolderPath)
+            .then((Iterable<FileSystemEntry> entries) ->
             {
-                entry.delete()
-                    .catchError(ErrorIterable.class, (ErrorIterable errorIterable) -> errors.addAll(errorIterable))
-                    .catchError(errors::add);
-            }
-
-            try
-            {
-                java.nio.file.Files.delete(java.nio.file.Paths.get(rootedFolderPath.toString()));
-            }
-            catch (java.io.FileNotFoundException e)
-            {
-                errors.add(new FolderNotFoundException(rootedFolderPath));
-            }
-            catch (Throwable error)
-            {
-                errors.add(error);
-            }
-
-            deleteFolderError = ErrorIterable.create(errors);
-        }
-
-        return deleteFolderError != null
-            ? Result.error(deleteFolderError)
-            : Result.success();
+                for (final FileSystemEntry entry : entries)
+                {
+                    entry.delete().awaitError();
+                }
+                try
+                {
+                    java.nio.file.Files.delete(java.nio.file.Paths.get(rootedFolderPath.toString()));
+                }
+                catch (java.io.FileNotFoundException e)
+                {
+                    throw new FolderNotFoundException(rootedFolderPath);
+                }
+                catch (Throwable error)
+                {
+                    throw Exceptions.asRuntime(error);
+                }
+            });
     }
 
     @Override

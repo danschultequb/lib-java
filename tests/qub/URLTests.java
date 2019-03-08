@@ -475,14 +475,12 @@ public class URLTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final Result<URL> urlResult = URL.parse(null);
-                    test.assertError(new IllegalArgumentException("urlString cannot be null."), urlResult);
+                    test.assertThrows(() -> URL.parse(null), new PreConditionFailure("urlString cannot be null."));
                 });
 
                 runner.test("with \"\"", (Test test) ->
                 {
-                    final Result<URL> urlResult = URL.parse("");
-                    test.assertError(new IllegalArgumentException("urlString cannot be empty."), urlResult);
+                    test.assertThrows(() -> URL.parse(""), new PreConditionFailure("urlString cannot be empty."));
                 });
 
                 runner.test("with \"http\"", (Test test) ->

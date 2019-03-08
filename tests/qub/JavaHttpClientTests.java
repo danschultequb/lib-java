@@ -18,22 +18,22 @@ public class JavaHttpClientTests
                 runner.test("with GET request to https://www.treasurydirect.gov/TA_WS/securities/auctioned?format=json&type=Bill", (Test test) ->
                 {
                     final HttpClient httpClient = createHttpClient(test);
-                    final URL requestURL = URL.parse("https://www.treasurydirect.gov/TA_WS/securities/auctioned?format=json&type=Bill").throwErrorOrGetValue();
+                    final URL requestURL = URL.parse("https://www.treasurydirect.gov/TA_WS/securities/auctioned?format=json&type=Bill").awaitError();
                     final MutableHttpRequest httpRequest = new MutableHttpRequest(HttpMethod.GET, requestURL);
 
                     final Result<HttpResponse> httpResponseResult = httpClient.send(httpRequest);
                     test.assertSuccess(httpResponseResult);
 
-                    final HttpResponse httpResponse = httpResponseResult.getValue();
+                    final HttpResponse httpResponse = httpResponseResult.awaitError();
                     test.assertEqual("HTTP/1.1", httpResponse.getHTTPVersion());
                     test.assertEqual(200, httpResponse.getStatusCode());
                     test.assertEqual("OK", httpResponse.getReasonPhrase());
                     test.assertNotNull(httpResponse.getHeaders());
                     test.assertSuccess("application/json;charset=UTF-8", httpResponse.getHeaders().getValue("content-type"));
                     test.assertNotNull(httpResponse.getBody());
-                    final Result<String> responseBody = CharacterEncoding.UTF_8.decodeAsString(httpResponse.getBody().readAllBytes().getValue());
+                    final Result<String> responseBody = CharacterEncoding.UTF_8.decodeAsString(httpResponse.getBody().readAllBytes().awaitError());
                     test.assertSuccess(responseBody);
-                    final JSONDocument document = JSON.parse(responseBody.getValue());
+                    final JSONDocument document = JSON.parse(responseBody.awaitError());
                     test.assertNotNull(document);
                     test.assertSuccess(document.getRoot(), (JSONSegment root) ->
                     {

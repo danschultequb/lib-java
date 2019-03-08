@@ -1634,34 +1634,6 @@ public class ResultTests
                 });
             });
 
-            runner.testGroup("notNullAndNotEmpty(String,String)", () ->
-            {
-                runner.test("with null expression name", (Test test) ->
-                {
-                    test.assertThrows(() -> Result.notNullAndNotEmpty(null, null), new PreConditionFailure("expressionName cannot be null."));
-                });
-
-                runner.test("with empty expression name", (Test test) ->
-                {
-                    test.assertThrows(() -> Result.notNullAndNotEmpty(null, ""), new PreConditionFailure("expressionName cannot be empty."));
-                });
-
-                runner.test("with null", (Test test) ->
-                {
-                    test.assertError(new IllegalArgumentException("blah cannot be null."), Result.notNullAndNotEmpty(null, "blah"));
-                });
-
-                runner.test("with empty", (Test test) ->
-                {
-                    test.assertError(new IllegalArgumentException("blah cannot be empty."), Result.notNullAndNotEmpty("", "blah"));
-                });
-
-                runner.test("with non-empty", (Test test) ->
-                {
-                    test.assertNull(Result.notNullAndNotEmpty("test", "blah"));
-                });
-            });
-
             runner.testGroup("greaterThan(int,int,String)", () ->
             {
                 runner.test("with null expression name", (Test test) ->

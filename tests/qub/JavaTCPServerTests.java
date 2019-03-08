@@ -10,7 +10,7 @@ public class JavaTCPServerTests
         {
             final AtomicInteger port = new AtomicInteger(20138);
 
-            AsyncDisposableTests.test(runner, (Test test) -> JavaTCPServer.create(port.getAndIncrement(), test.getMainAsyncRunner()).getValue());
+            AsyncDisposableTests.test(runner, (Test test) -> JavaTCPServer.create(port.getAndIncrement(), test.getMainAsyncRunner()).awaitError());
 
             runner.testGroup("create(int, AsyncRunner)", () ->
             {
@@ -26,31 +26,31 @@ public class JavaTCPServerTests
 
                 runner.test("with null asyncRunner", (Test test) ->
                 {
-                    final Result<TCPServer> result = JavaTCPServer.create(1, null);
-                    test.assertSuccess(result);
-                    test.assertSuccess(true, result.getValue().dispose());
+                    final TCPServer server = JavaTCPServer.create(1, null).awaitError();
+                    test.assertNotNull(server);
+                    test.assertTrue(server.dispose().awaitError());
                 });
 
                 runner.test("with " + port.incrementAndGet() + " port", (Test test) ->
                 {
-                    final Result<TCPServer> tcpServer = JavaTCPServer.create(port.get(), test.getParallelAsyncRunner());
-                    test.assertSuccess(tcpServer);
-                    test.assertTrue(tcpServer.getValue().dispose().getValue());
+                    final TCPServer tcpServer = JavaTCPServer.create(port.get(), test.getParallelAsyncRunner()).awaitError();
+                    test.assertNotNull(tcpServer);
+                    test.assertTrue(tcpServer.dispose().awaitError());
                 });
 
                 runner.test("with " + port.incrementAndGet() + " port when a different TCPServer is already bound to " + port, (Test test) ->
                 {
-                    final Result<TCPServer> tcpServer1 = JavaTCPServer.create(port.get(), test.getParallelAsyncRunner());
-                    test.assertSuccess(tcpServer1);
+                    final TCPServer tcpServer1 = JavaTCPServer.create(port.get(), test.getParallelAsyncRunner()).awaitError();
+                    test.assertNotNull(tcpServer1);
 
                     try
                     {
-                        final Result<TCPServer> tcpServer2 = JavaTCPServer.create(port.get(), test.getParallelAsyncRunner());
-                        test.assertError(new java.net.BindException("Address already in use: JVM_Bind"), tcpServer2);
+                        test.assertThrows(() -> JavaTCPServer.create(port.get(), test.getParallelAsyncRunner()).awaitError(),
+                            new RuntimeException(new java.net.BindException("Address already in use: JVM_Bind")));
                     }
                     finally
                     {
-                        test.assertTrue(tcpServer1.getValue().dispose().getValue());
+                        test.assertTrue(tcpServer1.dispose().awaitError());
                     }
                 });
             });
