@@ -270,7 +270,7 @@ public class JavaFileSystem implements FileSystem
         {
             try
             {
-                createFolder(rootedFilePath.getParent()).throwError();
+                createFolder(rootedFilePath.getParent()).awaitError();
                 result = Result.success(
                     new BufferedByteWriteStream(
                         new OutputStreamToByteWriteStream(

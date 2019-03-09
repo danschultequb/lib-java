@@ -171,24 +171,9 @@ public class InMemoryFileSystem implements FileSystem
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        Result<Boolean> result;
-        final Result<InMemoryFolder> inMemoryFolder = getInMemoryFolder(rootedFolderPath);
-        if (inMemoryFolder.hasError())
-        {
-            if (inMemoryFolder.getError() instanceof FolderNotFoundException)
-            {
-                result = Result.successFalse();
-            }
-            else
-            {
-                result = Result.error(inMemoryFolder.getError());
-            }
-        }
-        else
-        {
-            result = Result.successTrue();
-        }
-        return result;
+        return getInMemoryFolder(rootedFolderPath)
+            .then(() -> true)
+            .catchError(FolderNotFoundException.class, () -> false);
     }
 
     @Override
@@ -239,24 +224,9 @@ public class InMemoryFileSystem implements FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        Result<Boolean> result;
-        final Result<InMemoryFile> inMemoryFile = getInMemoryFile(rootedFilePath);
-        if (inMemoryFile.hasError())
-        {
-            if (inMemoryFile.getError() instanceof FileNotFoundException)
-            {
-                result = Result.successFalse();
-            }
-            else
-            {
-                result = Result.error(inMemoryFile.getError());
-            }
-        }
-        else
-        {
-            result = Result.successTrue();
-        }
-        return result;
+        return getInMemoryFile(rootedFilePath)
+            .then(() -> true)
+            .catchError(FileNotFoundException.class, () -> false);
     }
 
     @Override
@@ -376,7 +346,7 @@ public class InMemoryFileSystem implements FileSystem
         FileSystem.validateRootedFolderPath(rootPath, "rootPath");
 
         Result<Root> result;
-        rootPath = rootPath.getRoot().throwErrorOrGetValue();
+        rootPath = rootPath.getRoot().awaitError();
         if (getInMemoryRoot(rootPath) != null)
         {
             result = Result.error(new RootAlreadyExistsException(rootPath));

@@ -29,25 +29,10 @@ public interface Result<T>
     <TError extends Throwable> T awaitError(Class<TError> expectedErrorType) throws TError;
 
     @Deprecated
-    T getValue();
-
-    @Deprecated
     boolean hasError();
 
     @Deprecated
     Throwable getError();
-
-    @Deprecated
-    Class<? extends Throwable> getErrorType();
-
-    @Deprecated
-    String getErrorMessage();
-
-    @Deprecated
-    void throwError();
-
-    @Deprecated
-    T throwErrorOrGetValue();
 
     @Deprecated
     <U> Result<U> convertError();
@@ -262,7 +247,7 @@ public interface Result<T>
      * Create a new empty successful Result.
      * @param <U> The type of value the Result should contain.
      */
-    static <U> Result<U> success()
+    static <U> SyncResult<U> success()
     {
         return SyncResult.success();
     }
@@ -270,7 +255,7 @@ public interface Result<T>
     /**
      * Get a successful Result that contains a true boolean value.
      */
-    static Result<Boolean> successTrue()
+    static SyncResult<Boolean> successTrue()
     {
         return SyncResult.successTrue();
     }
@@ -278,7 +263,7 @@ public interface Result<T>
     /**
      * Get a successful Result that contains a true boolean value.
      */
-    static Result<Boolean> successFalse()
+    static SyncResult<Boolean> successFalse()
     {
         return SyncResult.successFalse();
     }
@@ -288,7 +273,7 @@ public interface Result<T>
      * @param value The value the Result should contain.
      * @param <U> The type of the value.
      */
-    static <U> Result<U> success(U value)
+    static <U> SyncResult<U> success(U value)
     {
         return SyncResult.success(value);
     }
@@ -297,15 +282,11 @@ public interface Result<T>
      * Create a new Result by synchronously running the provided Action and returning the result.
      * @param action The action to run.
      */
-    static Result<Void> create(Action0 action)
+    static <U> SyncResult<U> create(Action0 action)
     {
         PreCondition.assertNotNull(action, "action");
 
-        return Result.create(() ->
-        {
-            action.run();
-            return null;
-        });
+        return SyncResult.create(action);
     }
 
     /**
@@ -313,23 +294,11 @@ public interface Result<T>
      * @param function The function to run.
      * @param <U> The type of value the function will return.
      */
-    static <U> Result<U> create(Function0<U> function)
+    static <U> SyncResult<U> create(Function0<U> function)
     {
         PreCondition.assertNotNull(function, "function");
 
-        Result<U> result;
-        try
-        {
-            result = Result.success(function.run());
-        }
-        catch (Throwable error)
-        {
-            result = Result.error(error);
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+        return SyncResult.create(function);
     }
 
     /**
@@ -337,7 +306,7 @@ public interface Result<T>
      * @param error The error that the Result should contain.
      * @param <U> The type of value the Result can contain.
      */
-    static <U> Result<U> error(Throwable error)
+    static <U> SyncResult<U> error(Throwable error)
     {
         PreCondition.assertNotNull(error, "error");
 
@@ -352,12 +321,12 @@ public interface Result<T>
      * @return The result of the while loop.
      */
     @Deprecated
-    static Result<Void> runWhile(Function0<Boolean> condition, Action0 body)
+    static SyncResult<Void> runWhile(Function0<Boolean> condition, Action0 body)
     {
         PreCondition.assertNotNull(condition, "condition");
         PreCondition.assertNotNull(body, "body");
 
-        Result<Void> result;
+        SyncResult<Void> result;
         try
         {
             Boolean conditionResult = condition.run();
@@ -367,7 +336,7 @@ public interface Result<T>
 
                 conditionResult = condition.run();
             }
-            result = Result.success();
+            result = SyncResult.success();
         }
         catch (Throwable error)
         {
@@ -375,22 +344,6 @@ public interface Result<T>
         }
 
         return result;
-    }
-
-    @Deprecated
-    static <U> Result<U> isFalse(boolean value, String expressionName)
-    {
-        PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
-
-        return Result.equal(false, value, expressionName);
-    }
-
-    @Deprecated
-    static <U> Result<U> isTrue(boolean value, String expressionName)
-    {
-        PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
-
-        return Result.equal(true, value, expressionName);
     }
 
     @Deprecated
@@ -415,53 +368,6 @@ public interface Result<T>
         if (value == null)
         {
             result = Result.error(SyncResult.createError(expressionName + " cannot be null."));
-        }
-        return result;
-    }
-
-    @Deprecated
-    static <U> Result<U> greaterThan(int value, int lowerBound, String expressionName)
-    {
-        PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
-
-        Result<U> result = null;
-        if (value <= lowerBound)
-        {
-            result = Result.error(SyncResult.createError(expressionName + " (" + value + ") must be greater than " + lowerBound + "."));
-        }
-        return result;
-    }
-
-    @Deprecated
-    static <U> Result<U> greaterThanOrEqualTo(int value, int lowerBound, String expressionName)
-    {
-        PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
-
-        Result<U> result = null;
-        if (!Comparer.greaterThanOrEqualTo(value, lowerBound))
-        {
-            result = Result.error(SyncResult.createError(AssertionMessages.greaterThanOrEqualTo(value, lowerBound, expressionName)));
-        }
-        return result;
-    }
-
-    @Deprecated
-    static <U> Result<U> between(int lowerBound, int value, int upperBound, String expressionName)
-    {
-        PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
-
-        Result<U> result = null;
-        if (lowerBound == upperBound)
-        {
-            result = Result.equal(lowerBound, value, expressionName);
-        }
-        else if (upperBound < lowerBound)
-        {
-            result = Result.between(upperBound, value, lowerBound, expressionName);
-        }
-        else if (value < lowerBound || upperBound < value)
-        {
-            result = Result.error(SyncResult.createError(AssertionMessages.between(lowerBound, value, upperBound, expressionName)));
         }
         return result;
     }

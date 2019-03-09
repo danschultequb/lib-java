@@ -210,17 +210,18 @@ public class MutableHttpResponse implements HttpResponse
         else
         {
             disposed = true;
-            result = Result.successTrue();
-
-            if (body != null)
+            if (body == null)
             {
-                final Result<Boolean> bodyDisposeResult = body.dispose();
-                if (bodyDisposeResult.hasError())
-                {
-                    result = bodyDisposeResult;
-                }
+                result = Result.successTrue();
+            }
+            else
+            {
+                result = body.dispose();
             }
         }
+
+        PostCondition.assertNotNull(result, "result");
+
         return result;
     }
 }

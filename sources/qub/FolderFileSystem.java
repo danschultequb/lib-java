@@ -79,29 +79,33 @@ public class FolderFileSystem implements FileSystem
     {
         FileSystem.validateRootedFolderPath(outerPath, "outerPath");
 
-        Result<Path> result = outerPath.resolve();
-        if (!result.hasError())
-        {
-            final Path outerPathRoot = outerPath.getRoot().awaitError();
-            if (!outerPathRoot.equals(Path.parse("/")))
+        return outerPath.resolve()
+            .thenResult((Path resolvedOuterPath) ->
             {
-                if (isFolderPath)
-                {
-                    result = Result.error(new FolderNotFoundException(outerPath));
-                }
-                else
-                {
-                    result = Result.error(new FileNotFoundException(outerPath));
-                }
-            }
-            else
-            {
-                result = outerPath.withoutRoot()
-                    .thenResult((Path outerPathWithoutRoot) -> baseFolderPath.resolve(outerPathWithoutRoot))
-                    .catchError(NotFoundException.class, () -> baseFolderPath);
-            }
-        }
-        return result;
+                return resolvedOuterPath.getRoot()
+                    .thenResult((Path outerRootPath) ->
+                    {
+                        Result<Path> innerResult;
+                        if (!outerRootPath.equals(Path.parse("/")))
+                        {
+                            if (isFolderPath)
+                            {
+                                innerResult = Result.error(new FolderNotFoundException(outerPath));
+                            }
+                            else
+                            {
+                                innerResult = Result.error(new FileNotFoundException(outerPath));
+                            }
+                        }
+                        else
+                        {
+                            innerResult = resolvedOuterPath.withoutRoot()
+                                .thenResult((Function1<Path,Result<Path>>)baseFolderPath::resolve)
+                                .catchError(NotFoundException.class, () -> baseFolderPath);
+                        }
+                        return innerResult;
+                    });
+            });
     }
 
     private Path getOuterPath(Path innerPath)

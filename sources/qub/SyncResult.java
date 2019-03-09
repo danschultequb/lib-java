@@ -89,14 +89,14 @@ public class SyncResult<T> implements Result<T>
     @Deprecated
     public T throwErrorOrGetValue()
     {
-        throwError();
-        return value;
+        return awaitError();
     }
 
     @Deprecated
-    final public <U> Result<U> convertError()
+    @SuppressWarnings("unchecked")
+    final public <U> SyncResult<U> convertError()
     {
-        return hasError() ? Result.error(error) : null;
+        return hasError() ? (SyncResult<U>)this : null;
     }
 
     /**
@@ -105,23 +105,14 @@ public class SyncResult<T> implements Result<T>
      * @param action The action to run if this result does not have an error.
      * @return The Result of running the provided action.
      */
-    public Result<Void> then(Action0 action)
+    @SuppressWarnings("unchecked")
+    public SyncResult<Void> then(Action0 action)
     {
         PreCondition.assertNotNull(action, "action");
 
-        Result<Void> result;
-        if (hasError())
-        {
-            result = convertError();
-        }
-        else
-        {
-            result = invokeThen(action);
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+        return error != null
+            ? (SyncResult<Void>)this
+            : SyncResult.create(action);
     }
 
     /**
@@ -130,11 +121,14 @@ public class SyncResult<T> implements Result<T>
      * @param action The action to run if this result does not have an error.
      * @return The Result of running the provided action.
      */
-    public Result<Void> then(Action1<T> action)
+    @SuppressWarnings("unchecked")
+    public SyncResult<Void> then(Action1<T> action)
     {
         PreCondition.assertNotNull(action, "action");
 
-        return then(() -> action.run(value));
+        return error != null
+            ? (SyncResult<Void>)this
+            : SyncResult.create(() -> action.run(value));
     }
 
     /**
@@ -144,19 +138,14 @@ public class SyncResult<T> implements Result<T>
      * @param <U> The type of value stored in the returned Result object.
      * @return The Result of running the provided function.
      */
+    @SuppressWarnings("unchecked")
     public <U> Result<U> then(Function0<U> function)
     {
         PreCondition.assertNotNull(function, "function");
 
-        final Value<U> resultValue = Value.create();
-        final Result<Void> thenActionResult = then(() -> resultValue.set(function.run()));
-        final Result<U> result = thenActionResult.hasError()
-            ? thenActionResult.convertError()
-            : Result.success(resultValue.get());
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+        return error != null
+            ? (SyncResult<U>)this
+            : SyncResult.create(function);
     }
 
     /**
@@ -166,16 +155,14 @@ public class SyncResult<T> implements Result<T>
      * @param <U> The type of value stored in the returned Result object.
      * @return The Result of running the provided function.
      */
+    @SuppressWarnings("unchecked")
     public <U> Result<U> thenResult(Function0<Result<U>> function)
     {
         PreCondition.assertNotNull(function, "function");
 
-        final Result<Result<U>> resultResult = then(function);
-        final Result<U> result = resultResult.hasError() ? resultResult.convertError() : resultResult.getValue();
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+        return error != null
+            ? (Result<U>)this
+            : SyncResult.createResult(function);
     }
 
     /**
@@ -185,11 +172,14 @@ public class SyncResult<T> implements Result<T>
      * @param <U> The type of value stored in the returned Result object.
      * @return The Result of running the provided function.
      */
-    public <U> Result<U> then(Function1<T,U> function)
+    @SuppressWarnings("unchecked")
+    public <U> SyncResult<U> then(Function1<T,U> function)
     {
         PreCondition.assertNotNull(function, "function");
 
-        return then(() -> function.run(value));
+        return error != null
+            ? (SyncResult<U>)this
+            : SyncResult.create(() -> function.run(value));
     }
 
     /**
@@ -199,11 +189,14 @@ public class SyncResult<T> implements Result<T>
      * @param <U> The type of value stored in the returned Result object.
      * @return The Result of running the provided function.
      */
+    @SuppressWarnings("unchecked")
     public <U> Result<U> thenResult(Function1<T,Result<U>> function)
     {
         PreCondition.assertNotNull(function, "function");
 
-        return thenResult(() -> function.run(value));
+        return error != null
+            ? (Result<U>)this
+            : SyncResult.createResult(() -> function.run(value));
     }
 
     /**
@@ -212,15 +205,26 @@ public class SyncResult<T> implements Result<T>
      * @param action The action to run if this result does not have an error.
      * @return This Result object.
      */
-    public Result<T> onValue(Action1<T> action)
+    public SyncResult<T> onValue(Action1<T> action)
     {
         PreCondition.assertNotNull(action, "action");
 
-        return thenResult(() ->
+        SyncResult<T> result = this;
+        if (error == null)
         {
-            action.run(value);
-            return this;
-        });
+            try
+            {
+                action.run(value);
+            }
+            catch (Throwable error)
+            {
+                result = SyncResult.error(error);
+            }
+        }
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
     }
 
     /**
@@ -231,19 +235,13 @@ public class SyncResult<T> implements Result<T>
      * @return This Result if it is successful, or an empty successful Result if this Result
      * contains an error of the provided type.
      */
-    public <TError extends Throwable> Result<T> catchError(Class<TError> errorType)
+    public <TError extends Throwable> SyncResult<T> catchError(Class<TError> errorType)
     {
         PreCondition.assertNotNull(errorType, "errorType");
 
-        Result<T> result = this;
-        if (Types.instanceOf(getError(), errorType))
-        {
-            result = Result.success();
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+        return Exceptions.instanceOf(error, errorType)
+            ? SyncResult.success()
+            : this;
     }
 
     /**
@@ -251,19 +249,13 @@ public class SyncResult<T> implements Result<T>
      * @param action The action to run if this result has an error.
      * @return This result.
      */
-    public Result<T> catchError(Action0 action)
+    public SyncResult<T> catchError(Action0 action)
     {
         PreCondition.assertNotNull(action, "action");
 
-        Result<T> result = this;
-        if (hasError())
-        {
-            result = invokeCatch(action);
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+        return error != null
+            ? SyncResult.create(action)
+            : this;
     }
 
     /**
@@ -271,19 +263,13 @@ public class SyncResult<T> implements Result<T>
      * @param action The action to run if this result has an error.
      * @return This result.
      */
-    public Result<T> catchError(Action1<Throwable> action)
+    public SyncResult<T> catchError(Action1<Throwable> action)
     {
         PreCondition.assertNotNull(action, "action");
 
-        Result<T> result = this;
-        if (hasError())
-        {
-            result = invokeCatch(() -> action.run(getError()));
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+        return error != null
+            ? SyncResult.create(() -> action.run(error))
+            : this;
     }
 
     /**
@@ -291,19 +277,13 @@ public class SyncResult<T> implements Result<T>
      * @param action The action to run if this result has an error.
      * @return This result.
      */
-    public Result<T> catchResultError(Action1<Result<T>> action)
+    public SyncResult<T> catchResultError(Action1<Result<T>> action)
     {
         PreCondition.assertNotNull(action, "action");
 
-        Result<T> result = this;
-        if (hasError())
-        {
-            result = invokeCatch(() -> action.run(this));
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+        return error != null
+            ? SyncResult.create(() -> action.run(this))
+            : this;
     }
 
     /**
@@ -311,20 +291,14 @@ public class SyncResult<T> implements Result<T>
      * @param action The action to run if this result has an error.
      * @return This result.
      */
-    public <TError extends Throwable> Result<T> catchError(Class<TError> errorType, Action0 action)
+    public <TError extends Throwable> SyncResult<T> catchError(Class<TError> errorType, Action0 action)
     {
         PreCondition.assertNotNull(errorType, "errorType");
         PreCondition.assertNotNull(action, "action");
 
-        Result<T> result = this;
-        if (hasError() && Types.instanceOf(getError(), errorType))
-        {
-            result = invokeCatch(action);
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+        return Exceptions.instanceOf(error, errorType)
+            ? SyncResult.create(action)
+            : this;
     }
 
     /**
@@ -332,25 +306,15 @@ public class SyncResult<T> implements Result<T>
      * @param action The action to run if this result has an error.
      * @return This result.
      */
-    @SuppressWarnings("unchecked")
-    public <TError extends Throwable> Result<T> catchError(Class<TError> errorType, Action1<TError> action)
+    public <TError extends Throwable> SyncResult<T> catchError(Class<TError> errorType, Action1<TError> action)
     {
         PreCondition.assertNotNull(errorType, "errorType");
         PreCondition.assertNotNull(action, "action");
 
-        Result<T> result = this;
-        if (error != null)
-        {
-            final Throwable unwrappedError = Exceptions.unwrap(error);
-            if (Types.instanceOf(unwrappedError, errorType))
-            {
-                result = invokeCatch(() -> action.run((TError)unwrappedError));
-            }
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+        final TError matchingError = Exceptions.getInstanceOf(error, errorType);
+        return matchingError != null
+            ? SyncResult.create(() -> action.run(matchingError))
+            : this;
     }
 
     /**
@@ -358,19 +322,13 @@ public class SyncResult<T> implements Result<T>
      * @param function The function to run if this result has an error.
      * @return This Result of running the provided function.
      */
-    public Result<T> catchError(Function0<T> function)
+    public SyncResult<T> catchError(Function0<T> function)
     {
         PreCondition.assertNotNull(function, "function");
 
-        Result<T> result = this;
-        if (hasError())
-        {
-            result = invoke(function);
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+        return error != null
+            ? SyncResult.create(function)
+            : this;
     }
 
     /**
@@ -378,19 +336,13 @@ public class SyncResult<T> implements Result<T>
      * @param function The function to run if this result has an error.
      * @return This Result of running the provided function.
      */
-    public Result<T> catchError(Function1<Throwable,T> function)
+    public SyncResult<T> catchError(Function1<Throwable,T> function)
     {
         PreCondition.assertNotNull(function, "function");
 
-        Result<T> result = this;
-        if (hasError())
-        {
-            result = invoke(() -> function.run(getError()));
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+        return error != null
+            ? SyncResult.create(() -> function.run(error))
+            : this;
     }
 
     /**
@@ -398,20 +350,14 @@ public class SyncResult<T> implements Result<T>
      * @param function The function to run if this result has an error.
      * @return This Result of running the provided function.
      */
-    public <TError extends Throwable> Result<T> catchError(Class<TError> errorType, Function0<T> function)
+    public <TError extends Throwable> SyncResult<T> catchError(Class<TError> errorType, Function0<T> function)
     {
         PreCondition.assertNotNull(errorType, "errorType");
         PreCondition.assertNotNull(function, "function");
 
-        Result<T> result = this;
-        if (hasError() && Types.instanceOf(getError(), errorType))
-        {
-            result = invoke(function);
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+        return Exceptions.instanceOf(error, errorType)
+            ? SyncResult.create(function)
+            : this;
     }
 
     /**
@@ -419,21 +365,15 @@ public class SyncResult<T> implements Result<T>
      * @param function The function to run if this result has an error.
      * @return This Result of running the provided function.
      */
-    @SuppressWarnings("unchecked")
-    public <TError extends Throwable> Result<T> catchError(Class<TError> errorType, Function1<TError,T> function)
+    public <TError extends Throwable> SyncResult<T> catchError(Class<TError> errorType, Function1<TError,T> function)
     {
         PreCondition.assertNotNull(errorType, "errorType");
         PreCondition.assertNotNull(function, "function");
 
-        Result<T> result = this;
-        if (hasError() && Types.instanceOf(getError(), errorType))
-        {
-            result = invoke(() -> function.run((TError)getError()));
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+        final TError matchingError = Exceptions.getInstanceOf(error, errorType);
+        return matchingError != null
+            ? SyncResult.create(() -> function.run(matchingError))
+            : this;
     }
 
     /**
@@ -445,15 +385,9 @@ public class SyncResult<T> implements Result<T>
     {
         PreCondition.assertNotNull(function, "function");
 
-        Result<T> result = this;
-        if (hasError())
-        {
-            result = invokeResult(function);
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+        return error != null
+            ? SyncResult.createResult(function)
+            : this;
     }
 
     /**
@@ -465,15 +399,9 @@ public class SyncResult<T> implements Result<T>
     {
         PreCondition.assertNotNull(function, "function");
 
-        Result<T> result = this;
-        if (hasError())
-        {
-            result = invokeResult(() -> function.run(getError()));
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+        return error != null
+            ? SyncResult.createResult(() -> function.run(error))
+            : this;
     }
 
     /**
@@ -486,15 +414,9 @@ public class SyncResult<T> implements Result<T>
         PreCondition.assertNotNull(errorType, "errorType");
         PreCondition.assertNotNull(function, "function");
 
-        Result<T> result = this;
-        if (hasError() && Types.instanceOf(getError(), errorType))
-        {
-            result = invokeResult(function);
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+        return Exceptions.instanceOf(error, errorType)
+            ? SyncResult.createResult(function)
+            : this;
     }
 
     /**
@@ -508,10 +430,32 @@ public class SyncResult<T> implements Result<T>
         PreCondition.assertNotNull(errorType, "errorType");
         PreCondition.assertNotNull(function, "function");
 
-        Result<T> result = this;
-        if (hasError() && Types.instanceOf(getError(), errorType))
+        final TError matchingError = Exceptions.getInstanceOf(error, errorType);
+        return matchingError != null
+            ? SyncResult.createResult(() -> function.run(matchingError))
+            : this;
+    }
+
+    /**
+     * Run the provided action if this Result has an error.
+     * @param action The action to run if this Result has an error.
+     * @return This Result with its error.
+     */
+    public Result<T> onError(Action0 action)
+    {
+        PreCondition.assertNotNull(action, "action");
+
+        SyncResult<T> result = this;
+        if (error != null)
         {
-            result = invokeResult(() -> function.run((TError)getError()));
+            try
+            {
+                action.run();
+            }
+            catch (Throwable error)
+            {
+                result = SyncResult.error(error);
+            }
         }
 
         PostCondition.assertNotNull(result, "result");
@@ -524,33 +468,26 @@ public class SyncResult<T> implements Result<T>
      * @param action The action to run if this Result has an error.
      * @return This Result with its error.
      */
-    public Result<T> onError(Action0 action)
-    {
-        PreCondition.assertNotNull(action, "action");
-
-        if (hasError())
-        {
-            action.run();
-        }
-
-        return this;
-    }
-
-    /**
-     * Run the provided action if this Result has an error.
-     * @param action The action to run if this Result has an error.
-     * @return This Result with its error.
-     */
     public Result<T> onError(Action1<Throwable> action)
     {
         PreCondition.assertNotNull(action, "action");
 
-        if (hasError())
+        SyncResult<T> result = this;
+        if (error != null)
         {
-            action.run(getError());
+            try
+            {
+                action.run(error);
+            }
+            catch (Throwable error)
+            {
+                result = SyncResult.error(error);
+            }
         }
 
-        return this;
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
     }
 
     /**
@@ -564,13 +501,22 @@ public class SyncResult<T> implements Result<T>
         PreCondition.assertNotNull(errorType, "errorType");
         PreCondition.assertNotNull(action, "action");
 
-        final Throwable error = getError();
-        if (Types.instanceOf(error, errorType))
+        SyncResult<T> result = this;
+        if (Exceptions.instanceOf(error, errorType))
         {
-            action.run();
+            try
+            {
+                action.run();
+            }
+            catch (Throwable error)
+            {
+                result = SyncResult.error(error);
+            }
         }
 
-        return this;
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
     }
 
     /**
@@ -585,56 +531,18 @@ public class SyncResult<T> implements Result<T>
         PreCondition.assertNotNull(errorType, "errorType");
         PreCondition.assertNotNull(action, "action");
 
-        final Throwable error = getError();
-        if (Types.instanceOf(error, errorType))
+        SyncResult<T> result = this;
+        final TError matchingError = Exceptions.getInstanceOf(error, errorType);
+        if (matchingError != null)
         {
-            action.run((TError)error);
-        }
-
-        return this;
-    }
-
-    private Result<Void> invokeThen(Action0 action)
-    {
-        PreCondition.assertNotNull(action, "action");
-
-        return invokeResult(() ->
-        {
-            action.run();
-            return Result.success();
-        });
-    }
-
-    private Result<T> invokeCatch(Action0 action)
-    {
-        PreCondition.assertNotNull(action, "action");
-
-        return invokeResult(() ->
-        {
-            action.run();
-            return Result.success(getValue());
-        });
-    }
-
-    private <U> Result<U> invoke(Function0<U> function)
-    {
-        PreCondition.assertNotNull(function, "function");
-
-        return invokeResult(() -> Result.success(function.run()));
-    }
-
-    private <U> Result<U> invokeResult(Function0<Result<U>> function)
-    {
-        PreCondition.assertNotNull(function, "function");
-
-        Result<U> result;
-        try
-        {
-            result = function.run();
-        }
-        catch (Throwable error)
-        {
-            result = Result.error(error);
+            try
+            {
+                action.run(matchingError);
+            }
+            catch (Throwable error)
+            {
+                result = SyncResult.error(error);
+            }
         }
 
         PostCondition.assertNotNull(result, "result");
@@ -682,7 +590,6 @@ public class SyncResult<T> implements Result<T>
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public boolean equals(Object rhs)
     {
         return rhs instanceof SyncResult && equals((SyncResult<?>)rhs);
@@ -706,31 +613,31 @@ public class SyncResult<T> implements Result<T>
         return rhs != null && Comparer.equal(value, rhs.value) && Comparer.equal(error, rhs.error);
     }
 
-    private static final Result<?> successNull = Result.success(null);
+    private static final SyncResult<?> successNull = SyncResult.success(null);
     /**
      * Create a new empty successful Result.
      * @param <U> The type of value the Result should contain.
      */
     @SuppressWarnings("unchecked")
-    public static <U> Result<U> success()
+    public static <U> SyncResult<U> success()
     {
-        return (Result<U>)successNull;
+        return (SyncResult<U>)successNull;
     }
 
-    private static final Result<Boolean> successTrue = Result.success(true);
+    private static final SyncResult<Boolean> successTrue = SyncResult.success(true);
     /**
      * Get a successful Result that contains a true boolean value.
      */
-    static Result<Boolean> successTrue()
+    static SyncResult<Boolean> successTrue()
     {
         return successTrue;
     }
 
-    private static final Result<Boolean> successFalse = Result.success(false);
+    private static final SyncResult<Boolean> successFalse = SyncResult.success(false);
     /**
      * Get a successful Result that contains a true boolean value.
      */
-    static Result<Boolean> successFalse()
+    static SyncResult<Boolean> successFalse()
     {
         return successFalse;
     }
@@ -740,7 +647,7 @@ public class SyncResult<T> implements Result<T>
      * @param value The value the Result should contain.
      * @param <U> The type of the value.
      */
-    public static <U> Result<U> success(U value)
+    public static <U> SyncResult<U> success(U value)
     {
         return new SyncResult<>(value, null);
     }
@@ -749,15 +656,24 @@ public class SyncResult<T> implements Result<T>
      * Create a new Result by synchronously running the provided Action and returning the result.
      * @param action The action to run.
      */
-    public static Result<Void> create(Action0 action)
+    public static <U> SyncResult<U> create(Action0 action)
     {
         PreCondition.assertNotNull(action, "action");
 
-        return Result.create(() ->
+        SyncResult<U> result;
+        try
         {
             action.run();
-            return null;
-        });
+            result = SyncResult.success();
+        }
+        catch (Throwable error)
+        {
+            result = SyncResult.error(error);
+        }
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
     }
 
     /**
@@ -765,14 +681,38 @@ public class SyncResult<T> implements Result<T>
      * @param function The function to run.
      * @param <U> The type of value the function will return.
      */
-    public static <U> Result<U> create(Function0<U> function)
+    public static <U> SyncResult<U> create(Function0<U> function)
+    {
+        PreCondition.assertNotNull(function, "function");
+
+        SyncResult<U> result;
+        try
+        {
+            result = SyncResult.success(function.run());
+        }
+        catch (Throwable error)
+        {
+            result = SyncResult.error(error);
+        }
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    /**
+     * Create a new Result by synchronously running the provided Function and returning the result.
+     * @param function The function to run.
+     * @param <U> The type of value the function will return.
+     */
+    public static <U> Result<U> createResult(Function0<Result<U>> function)
     {
         PreCondition.assertNotNull(function, "function");
 
         Result<U> result;
         try
         {
-            result = Result.success(function.run());
+            result = function.run();
         }
         catch (Throwable error)
         {
@@ -789,7 +729,7 @@ public class SyncResult<T> implements Result<T>
      * @param error The error that the Result should contain.
      * @param <U> The type of value the Result can contain.
      */
-    public static <U> Result<U> error(Throwable error)
+    public static <U> SyncResult<U> error(Throwable error)
     {
         PreCondition.assertNotNull(error, "error");
 

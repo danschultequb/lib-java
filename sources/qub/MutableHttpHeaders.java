@@ -94,7 +94,10 @@ public class MutableHttpHeaders implements HttpHeaders
     {
         PreCondition.assertNotNullAndNotEmpty(headerName, "headerName");
 
-        return !get(headerName).hasError();
+        return get(headerName)
+            .then(() -> true)
+            .catchError(() -> false)
+            .awaitError();
     }
 
     /**

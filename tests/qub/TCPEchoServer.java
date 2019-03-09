@@ -11,75 +11,40 @@ public class TCPEchoServer implements AsyncDisposable
 
     public static Result<TCPEchoServer> create(Network network, int localPort)
     {
-        Result<TCPEchoServer> result = Result.notNull(network, "network");
-        if (result == null)
-        {
-            final Result<TCPServer> tcpServerResult = network.createTCPServer(localPort);
-            if (tcpServerResult.hasError())
-            {
-                result = Result.error(tcpServerResult.getError());
-            }
-            else
-            {
-                final TCPEchoServer tcpEchoServer = new TCPEchoServer(tcpServerResult.getValue());
-                result = Result.success(tcpEchoServer);
-            }
-        }
-        return result;
+        PreCondition.assertNotNull(network, "network");
+        Network.validateLocalPort(localPort);
+
+        return network.createTCPServer(localPort)
+            .then(TCPEchoServer::new);
     }
 
-    public Result<Boolean> echo()
+    public Result<Void> echo()
     {
-        Result<Boolean> result = Result.successTrue();
-
-        final Result<TCPClient> acceptResult = tcpServer.accept();
-        if (acceptResult.hasError())
-        {
-            result = Result.error(acceptResult.getError());
-        }
-        else
-        {
-            try (final TCPClient tcpClient = acceptResult.getValue())
+        return tcpServer.accept()
+            .then((TCPClient tcpClient) ->
             {
-                final LineReadStream tcpClientLineReadStream = tcpClient.asLineReadStream(true);
-                final LineWriteStream tcpClientLineWriteStream = tcpClient.asLineWriteStream();
-
-                Result<String> readLineResult = tcpClientLineReadStream.readLine();
-                while (readLineResult.getValue() != null)
+                try
                 {
-                    tcpClientLineWriteStream.write(readLineResult.getValue());
-                    readLineResult = tcpClientLineReadStream.readLine();
-                }
-            }
-            catch (Exception e)
-            {
-                result = Result.error(e);
-            }
-        }
+                    final LineReadStream tcpClientLineReadStream = tcpClient.asLineReadStream(true);
+                    final LineWriteStream tcpClientLineWriteStream = tcpClient.asLineWriteStream();
 
-        return result;
+                    String line = tcpClientLineReadStream.readLine().awaitError();
+                    while (line != null)
+                    {
+                        tcpClientLineWriteStream.write(line);
+                        line = tcpClientLineReadStream.readLine().awaitError();
+                    }
+                }
+                finally
+                {
+                    tcpClient.dispose().awaitError();
+                }
+            });
     }
 
     public AsyncAction echoAsync()
     {
-        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        final AsyncRunner tcpServerAsyncRunner = tcpServer.getAsyncRunner();
-        return tcpServerAsyncRunner.schedule(new Action0()
-            {
-                @Override
-                public void run()
-                {
-                    try
-                    {
-                        echo();
-                    }
-                    catch (Exception e)
-                    {
-                        throw Exceptions.asRuntime(e);
-                    }
-                }
-            })
-            .thenOn(currentAsyncRunner);
+        return getAsyncRunner().scheduleSingle(this::echo);
     }
 
     @Override

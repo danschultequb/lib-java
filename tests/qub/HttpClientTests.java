@@ -54,7 +54,7 @@ public class HttpClientTests
                 runner.test("with GET request to http://www.treasurydirect.gov/TA_WS/securities/auctioned?format=json&type=Bill", runner.skip(!runner.hasNetworkConnection().await()), (Test test) ->
                 {
                     final HttpClient httpClient = creator.run(test);
-                    final MutableHttpRequest httpRequest = new MutableHttpRequest(HttpMethod.GET, URL.parse("http://www.treasurydirect.gov/TA_WS/securities/auctioned?format=json&type=Bill").throwErrorOrGetValue());
+                    final MutableHttpRequest httpRequest = new MutableHttpRequest(HttpMethod.GET, URL.parse("http://www.treasurydirect.gov/TA_WS/securities/auctioned?format=json&type=Bill").awaitError());
 
                     final HttpResponse httpResponse = httpClient.send(httpRequest).awaitError();
                     test.assertTrue(httpResponse.getHTTPVersion().equals("HTTP/1.0") || httpResponse.getHTTPVersion().equals("HTTP/1.1"));

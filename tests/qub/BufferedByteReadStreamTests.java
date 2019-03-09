@@ -227,7 +227,8 @@ public class BufferedByteReadStreamTests
                     }.endOfStream();
                     final BufferedByteReadStream byteReadStream = new BufferedByteReadStream(innerStream, 123);
 
-                    test.assertError(new Exception("BLAH"), byteReadStream.readByte());
+                    test.assertThrows(() -> byteReadStream.readByte().awaitError(),
+                        new RuntimeException(new Exception("BLAH")));
                     test.assertEqual(0, byteReadStream.getBufferedByteCount());
                     test.assertEqual(123, byteReadStream.getBufferCapacity());
                     test.assertEqual(false, byteReadStream.getGrowOnNextBufferFill());

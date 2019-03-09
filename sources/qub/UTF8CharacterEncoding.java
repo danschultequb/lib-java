@@ -71,29 +71,24 @@ public class UTF8CharacterEncoding implements CharacterEncoding
         PreCondition.assertStartIndex(startIndex, bytes.length);
         PreCondition.assertLength(length, startIndex, bytes.length);
 
-        final List<Character> characters = List.create();
-        final List<Throwable> errors = List.create();
-        final Iterator<Byte> byteIterator = Iterator.create(bytes, startIndex, length);
-        while (true)
+        return Result.create(() ->
         {
-            final Result<Character> nextCharacter = decodeNextCharacter(byteIterator);
-            if (nextCharacter.hasError())
+            final List<Character> characters = List.create();
+            final Iterator<Byte> byteIterator = Iterator.create(bytes, startIndex, length);
+            while (true)
             {
-                errors.add(nextCharacter.getError());
+                final Character decodedCharacter = decodeNextCharacter(byteIterator).awaitError();
+                if (decodedCharacter != null)
+                {
+                    characters.add(decodedCharacter);
+                }
+                else
+                {
+                    break;
+                }
             }
-
-            if (nextCharacter.getValue() != null)
-            {
-                characters.add(nextCharacter.getValue());
-            }
-            else
-            {
-                break;
-            }
-        }
-        return Iterable.isNullOrEmpty(errors)
-            ? Result.success(Array.toCharArray(characters))
-            : Result.error(ErrorIterable.create(errors));
+            return Array.toCharArray(characters);
+        });
     }
 
     @Override

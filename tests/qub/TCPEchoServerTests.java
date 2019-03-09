@@ -23,7 +23,7 @@ public class TCPEchoServerTests
 
                         final AsyncAction clientTask = asyncRunner.schedule(() ->
                         {
-                            try (final TCPClient tcpClient = network.createTCPClient(IPv4Address.localhost, port.get()).getValue())
+                            try (final TCPClient tcpClient = network.createTCPClient(IPv4Address.localhost, port.get()).awaitError())
                             {
                                 final LineWriteStream tcpClientLineWriteStream = tcpClient.asLineWriteStream();
                                 final LineReadStream tcpClientLineReadStream = tcpClient.asLineReadStream();
@@ -45,13 +45,13 @@ public class TCPEchoServerTests
                 final AsyncRunner asyncRunner = test.getParallelAsyncRunner();
 
                 final Network network = new JavaNetwork(asyncRunner);
-                try (final TCPEchoServer echoServer = TCPEchoServer.create(network, port.incrementAndGet()).getValue())
+                try (final TCPEchoServer echoServer = TCPEchoServer.create(network, port.incrementAndGet()).awaitError())
                 {
                     final AsyncAction echoServerTask = echoServer.echoAsync();
 
                     final AsyncAction clientTask = asyncRunner.schedule(() ->
                     {
-                        try (final TCPClient tcpClient = network.createTCPClient(IPv4Address.localhost, port.get()).getValue())
+                        try (final TCPClient tcpClient = network.createTCPClient(IPv4Address.localhost, port.get()).awaitError())
                         {
                             final LineWriteStream tcpClientLineWriteStream = tcpClient.asLineWriteStream();
                             final LineReadStream tcpClientLineReadStream = tcpClient.asLineReadStream();

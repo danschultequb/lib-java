@@ -31,7 +31,8 @@ public class OutputStreamWriterToCharacterWriteStreamTests
                     TestStubOutputStream outputStream = new TestStubOutputStream();
                     OutputStreamToByteWriteStream byteWriteStream = new OutputStreamToByteWriteStream(outputStream);
                     final OutputStreamWriterToCharacterWriteStream characterWriteStream = getCharacterWriteStream(byteWriteStream);
-                    test.assertError(new IOException(), characterWriteStream.write('a'));
+                    test.assertThrows(() -> characterWriteStream.write('a').awaitError(),
+                        new RuntimeException(new IOException()));
                 });
             });
             
@@ -50,7 +51,8 @@ public class OutputStreamWriterToCharacterWriteStreamTests
                     TestStubOutputStream outputStream = new TestStubOutputStream();
                     OutputStreamToByteWriteStream byteWriteStream = new OutputStreamToByteWriteStream(outputStream);
                     final OutputStreamWriterToCharacterWriteStream characterWriteStream = getCharacterWriteStream(byteWriteStream);
-                    test.assertError(new IOException(), characterWriteStream.write("test again"));
+                    test.assertThrows(() -> characterWriteStream.write("test again").awaitError(),
+                        new RuntimeException(new java.io.IOException()));
                 });
             });
             

@@ -363,7 +363,7 @@ public class ProcessTests
                 final String currentFolderPathString = process.getCurrentFolderPathString();
                 test.assertNotNull(currentFolderPathString);
                 test.assertFalse(currentFolderPathString.isEmpty());
-                test.assertTrue(process.getFileSystem().folderExists(currentFolderPathString).getValue());
+                test.assertTrue(process.getFileSystem().folderExists(currentFolderPathString).awaitError());
             });
 
             runner.testGroup("setCurrentFolderPathString(String)", () ->
@@ -396,7 +396,7 @@ public class ProcessTests
                 final Path currentFolderPath = process.getCurrentFolderPath();
                 test.assertNotNull(currentFolderPath);
                 test.assertTrue(currentFolderPath.isRooted());
-                test.assertTrue(process.getFileSystem().folderExists(currentFolderPath).getValue());
+                test.assertTrue(process.getFileSystem().folderExists(currentFolderPath).awaitError());
             });
 
             runner.test("setCurrentFolderPath(Path) with null", (Test test) ->
@@ -409,9 +409,9 @@ public class ProcessTests
             runner.test("getCurrentFolder()", (Test test) ->
             {
                 final Process process = creator.run();
-                final Folder currentFolder = process.getCurrentFolder().getValue();
+                final Folder currentFolder = process.getCurrentFolder().awaitError();
                 test.assertNotNull(currentFolder);
-                test.assertTrue(currentFolder.exists().getValue());
+                test.assertTrue(currentFolder.exists().awaitError());
             });
 
             runner.testGroup("getEnvironmentVariable()", () ->
@@ -538,9 +538,9 @@ public class ProcessTests
                 {
                     try (final Process process = creator.run())
                     {
-                        final ProcessBuilder builder = process.getProcessBuilder("pom.xml").getValue();
+                        final ProcessBuilder builder = process.getProcessBuilder("pom.xml").awaitError();
                         test.assertNotNull(builder);
-                        test.assertEqual(process.getCurrentFolder().getValue().getFile("pom.xml").getValue(), builder.getExecutableFile());
+                        test.assertEqual(process.getCurrentFolder().awaitError().getFile("pom.xml").awaitError(), builder.getExecutableFile());
                         test.assertEqual(0, builder.getArgumentCount());
                     }
                 });
@@ -549,9 +549,9 @@ public class ProcessTests
                 {
                     try (final Process process = creator.run())
                     {
-                        final ProcessBuilder builder = process.getProcessBuilder("pom").getValue();
+                        final ProcessBuilder builder = process.getProcessBuilder("pom").awaitError();
                         test.assertNotNull(builder, "The builder not have been null.");
-                        test.assertEqual(process.getCurrentFolder().getValue().getFile("pom.xml").getValue(), builder.getExecutableFile());
+                        test.assertEqual(process.getCurrentFolder().awaitError().getFile("pom.xml").awaitError(), builder.getExecutableFile());
                         test.assertEqual(0, builder.getArgumentCount());
                     }
                 });
@@ -560,10 +560,10 @@ public class ProcessTests
                 {
                     try (final Process process = creator.run())
                     {
-                        final Path executablePath = process.getCurrentFolder().getValue().getFile("pom.xml").getValue().getPath();
-                        final ProcessBuilder builder = process.getProcessBuilder(executablePath).getValue();
+                        final Path executablePath = process.getCurrentFolder().awaitError().getFile("pom.xml").awaitError().getPath();
+                        final ProcessBuilder builder = process.getProcessBuilder(executablePath).awaitError();
                         test.assertNotNull(builder);
-                        test.assertEqual(process.getCurrentFolder().getValue().getFile("pom.xml").getValue(), builder.getExecutableFile());
+                        test.assertEqual(process.getCurrentFolder().awaitError().getFile("pom.xml").awaitError(), builder.getExecutableFile());
                         test.assertEqual(0, builder.getArgumentCount());
                     }
                 });
@@ -572,10 +572,10 @@ public class ProcessTests
                 {
                     try (final Process process = creator.run())
                     {
-                        final Path executablePath = process.getCurrentFolder().getValue().getFile("pom").getValue().getPath();
-                        final ProcessBuilder builder = process.getProcessBuilder(executablePath).getValue();
+                        final Path executablePath = process.getCurrentFolder().awaitError().getFile("pom").awaitError().getPath();
+                        final ProcessBuilder builder = process.getProcessBuilder(executablePath).awaitError();
                         test.assertNotNull(builder);
-                        test.assertEqual(process.getCurrentFolder().getValue().getFile("pom.xml").getValue(), builder.getExecutableFile());
+                        test.assertEqual(process.getCurrentFolder().awaitError().getFile("pom.xml").awaitError(), builder.getExecutableFile());
                         test.assertEqual(0, builder.getArgumentCount());
                     }
                 });
@@ -586,7 +586,7 @@ public class ProcessTests
                     {
                         if (process.onWindows())
                         {
-                            final ProcessBuilder builder = process.getProcessBuilder("C:/Program Files/Java/jdk1.8.0_192/bin/javac.exe").getValue();
+                            final ProcessBuilder builder = process.getProcessBuilder("C:/Program Files/Java/jdk1.8.0_192/bin/javac.exe").awaitError();
                             test.assertEqual("javac.exe", builder.getExecutableFile().getPath().getSegments().last());
                             test.assertEqual(0, builder.getArgumentCount());
                             test.assertSuccess(2, builder.run());
@@ -600,7 +600,7 @@ public class ProcessTests
                     {
                         if (process.onWindows())
                         {
-                            final ProcessBuilder builder = process.getProcessBuilder("javac.exe").getValue();
+                            final ProcessBuilder builder = process.getProcessBuilder("javac.exe").awaitError();
                             test.assertEqual("javac.exe", builder.getExecutableFile().getPath().getSegments().last());
                             test.assertEqual(0, builder.getArgumentCount());
                             test.assertSuccess(2, builder.run());
@@ -614,7 +614,7 @@ public class ProcessTests
                     {
                         if (process.onWindows())
                         {
-                            final ProcessBuilder builder = process.getProcessBuilder("javac").getValue();
+                            final ProcessBuilder builder = process.getProcessBuilder("javac").awaitError();
                             test.assertTrue(builder.getExecutableFile().getPath().getSegments().last().contains("javac"));
                             test.assertEqual(0, builder.getArgumentCount());
 
@@ -636,23 +636,20 @@ public class ProcessTests
                 {
                     try (final Process process = creator.run())
                     {
-                        test.assertSuccess(process.getProcessBuilder("javac"),
-                            (ProcessBuilder builder) ->
-                            {
-                                final StringBuilder output = new StringBuilder();
-                                builder.redirectOutputTo(output);
-                                builder.redirectErrorTo(output);
+                        final ProcessBuilder builder = process.getProcessBuilder("javac").awaitError();
+                        final StringBuilder output = new StringBuilder();
+                        builder.redirectOutputTo(output);
+                        builder.redirectErrorTo(output);
 
-                                final Folder workingFolder = test.getProcess().getCurrentFolder()
-                                    .thenResult((Folder currentFolder) -> currentFolder.getFolder("I don't exist"))
-                                    .throwErrorOrGetValue();
-                                builder.setWorkingFolder(workingFolder);
-                                final java.io.IOException expectedError = new java.io.IOException("Cannot run program \"C:/Program Files/Java/jdk-11.0.1/bin/javac.exe\" (in directory \"C:\\Users\\dansc\\Sources\\qub-java\\I don't exist\"): CreateProcess error=267, The directory name is invalid",
-                                    new java.io.IOException("CreateProcess error=267, The directory name is invalid"));
-                                test.assertError(expectedError, builder.run());
-
-                                test.assertEqual("", output.toString());
-                            });
+                        final Folder workingFolder = test.getProcess().getCurrentFolder()
+                            .thenResult((Folder currentFolder) -> currentFolder.getFolder("I don't exist"))
+                            .awaitError();
+                        builder.setWorkingFolder(workingFolder);
+                        test.assertThrows(() -> builder.run().awaitError(),
+                            new RuntimeException(
+                                new java.io.IOException("Cannot run program \"C:/Program Files/Java/jdk-11.0.1/bin/javac.exe\" (in directory \"C:\\Users\\dansc\\Sources\\qub-java\\I don't exist\"): CreateProcess error=267, The directory name is invalid",
+                                    new java.io.IOException("CreateProcess error=267, The directory name is invalid"))));
+                        test.assertEqual("", output.toString());
                     }
                 });
 
@@ -669,7 +666,7 @@ public class ProcessTests
 
                                 final Folder workingFolder = test.getProcess().getCurrentFolder()
                                     .thenResult((Folder currentFolder) -> currentFolder.createFolder("temp"))
-                                    .throwErrorOrGetValue();
+                                    .awaitError();
                                 try
                                 {
                                     builder.setWorkingFolder(workingFolder);
@@ -699,7 +696,7 @@ public class ProcessTests
                                 builder.redirectOutputTo(output);
                                 builder.redirectErrorTo(output);
 
-                                final Folder workingFolder = test.getProcess().getCurrentFolder().throwErrorOrGetValue();
+                                final Folder workingFolder = test.getProcess().getCurrentFolder().awaitError();
                                 builder.setWorkingFolder(workingFolder);
                                 test.assertSuccess(2, builder.run());
 
@@ -717,7 +714,7 @@ public class ProcessTests
                     {
                         if (process.onWindows())
                         {
-                            final ProcessBuilder builder = process.getProcessBuilder("qub").getValue();
+                            final ProcessBuilder builder = process.getProcessBuilder("qub").awaitError();
                             test.assertTrue(builder.getExecutableFile().getPath().getSegments().last().contains("qub."));
                             test.assertEqual(0, builder.getArgumentCount());
 
@@ -739,7 +736,7 @@ public class ProcessTests
                     {
                         if (process.onWindows())
                         {
-                            final ProcessBuilder builder = process.getProcessBuilder("javac").getValue();
+                            final ProcessBuilder builder = process.getProcessBuilder("javac").awaitError();
                             builder.addArgument("notfound.java");
 
                             final InMemoryByteStream error = new InMemoryByteStream();

@@ -931,7 +931,14 @@ public class FileSystemTests
                         {
                             setup.run(fileSystem);
                         }
-                        test.assertError(expectedError, fileSystem.deleteFolder(folderPath));
+                        if (expectedError == null)
+                        {
+                            fileSystem.deleteFolder(folderPath).awaitError();
+                        }
+                        else
+                        {
+                            test.assertThrows(() -> fileSystem.deleteFolder(folderPath).awaitError(), expectedError);
+                        }
                     });
                 };
 
@@ -986,7 +993,14 @@ public class FileSystemTests
                         {
                             setup.run(fileSystem);
                         }
-                        test.assertError(expectedError, fileSystem.deleteFolder(Path.parse(folderPath)));
+                        if (expectedError == null)
+                        {
+                            fileSystem.deleteFolder(Path.parse(folderPath)).awaitError();
+                        }
+                        else
+                        {
+                            test.assertThrows(() -> fileSystem.deleteFolder(Path.parse(folderPath)).awaitError(), expectedError);
+                        }
                     });
                 };
 
@@ -1356,7 +1370,14 @@ public class FileSystemTests
                         {
                             setup.run(fileSystem);
                         }
-                        test.assertError(expectedError, fileSystem.deleteFile(filePath));
+                        if (expectedError == null)
+                        {
+                            fileSystem.deleteFile(filePath).awaitError();
+                        }
+                        else
+                        {
+                            test.assertThrows(() -> fileSystem.deleteFile(filePath).awaitError(), expectedError);
+                        }
                     });
                 };
 

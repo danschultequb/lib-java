@@ -225,32 +225,24 @@ public interface Mutex
         PreCondition.assertNotNull(function, "function");
         PreCondition.assertNotNull(getClock(), "getClock()");
 
-        Result<T> result;
-
-        final Result<Boolean> acquireResult = acquire(timeout);
-        if (acquireResult.hasError())
-        {
-            result = Result.error(acquireResult.getError());
-        }
-        else
-        {
-            try
+        return acquire(timeout)
+            .thenResult(() ->
             {
-                result = function.run();
-            }
-            catch (Throwable error)
-            {
-                result = Result.error(error);
-            }
-            finally
-            {
-                release();
-            }
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+                Result<T> result;
+                try
+                {
+                    result = function.run();
+                }
+                catch (Throwable error)
+                {
+                    result = Result.error(error);
+                }
+                finally
+                {
+                    release();
+                }
+                return result;
+            });
     }
 
     /**

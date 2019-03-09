@@ -638,71 +638,63 @@ public class Process implements Disposable
         return getProcessBuilder(Path.parse(executablePath));
     }
 
-    private Result<File> getExecutableFile(final Path executablePath, boolean checkExtensions)
+    private Result<File> getExecutableFile(final Path executableFilePath, boolean checkExtensions)
     {
-        PreCondition.assertNotNull(executablePath, "executablePath");
+        PreCondition.assertNotNull(executableFilePath, "executableFilePath");
+        PreCondition.assertTrue(executableFilePath.isRooted(), "executableFilePath.isRooted()");
 
         Result<File> result;
+        final FileSystem fileSystem = getFileSystem();
         if (checkExtensions)
         {
-            final File executableFile = getFileSystem().getFile(executablePath).getValue();
-            final Result<Boolean> fileExistsResult = executableFile.exists();
-
-            if (fileExistsResult.hasError())
-            {
-                result = Result.error(fileExistsResult.getError());
-            }
-            else if (!fileExistsResult.getValue())
-            {
-                result = Result.error(new FileNotFoundException(executablePath.toString()));
-            }
-            else
-            {
-                result = Result.success(executableFile);
-            }
+            result = fileSystem.fileExists(executableFilePath)
+                .thenResult((Boolean fileExists) ->
+                {
+                    return fileExists
+                        ? fileSystem.getFile(executableFilePath)
+                        : Result.error(new FileNotFoundException(executableFilePath.toString()));
+                });
         }
         else
         {
-            final Path executablePathWithoutExtension = executablePath.withoutFileExtension();
+            final Path executablePathWithoutExtension = executableFilePath.withoutFileExtension();
 
-            final Path folderPath = executablePath.getParent();
-            final Folder folder = getFileSystem().getFolder(folderPath).getValue();
-            final Result<Iterable<File>> getFilesResult = folder.getFiles();
-            if (getFilesResult.hasError())
-            {
-                result = Result.error(getFilesResult.getError());
-            }
-            else
-            {
-                result = null;
-
-                final String[] executableExtensions = new String[] { "", ".exe", ".bat", ".cmd" };
-                for (final String executableExtension : executableExtensions)
+            final Path folderPath = executableFilePath.getParent();
+            result = fileSystem.getFolder(folderPath)
+                .thenResult(Folder::getFiles)
+                .thenResult((Iterable<File> files) ->
                 {
-                    final Path executablePathWithExtension = Strings.isNullOrEmpty(executableExtension)
-                        ? executablePathWithoutExtension
-                        : executablePathWithoutExtension.concatenate(executableExtension);
-                    final File executableFile = getFilesResult.getValue().first((File file) -> executablePathWithExtension.equals(file.getPath()));
-                    if (executableFile != null)
-                    {
-                        result = Result.success(executableFile);
-                        break;
-                    }
-                }
+                    Result<File> fileResult = null;
 
-                if (result == null)
-                {
-                    final File executableFile = getFilesResult.getValue().first((File file) -> executablePathWithoutExtension.equals(file.getPath().withoutFileExtension()));
-                    if (executableFile != null)
+                    final String[] executableExtensions = new String[] { "", ".exe", ".bat", ".cmd" };
+                    for (final String executableExtension : executableExtensions)
                     {
-                        result = Result.success(executableFile);
+                        final Path executablePathWithExtension = Strings.isNullOrEmpty(executableExtension)
+                            ? executablePathWithoutExtension
+                            : executablePathWithoutExtension.concatenate(executableExtension);
+                        final File executableFile = files.first((File file) -> executablePathWithExtension.equals(file.getPath()));
+                        if (executableFile != null)
+                        {
+                            fileResult = Result.success(executableFile);
+                            break;
+                        }
                     }
-                    else
+
+                    if (fileResult == null)
                     {
-                        result = Result.error(new FileNotFoundException(executablePathWithoutExtension.toString()));
+                        final File executableFile = files.first((File file) -> executablePathWithoutExtension.equals(file.getPath().withoutFileExtension()));
+                        if (executableFile != null)
+                        {
+                            fileResult = Result.success(executableFile);
+                        }
+                        else
+                        {
+                            fileResult = Result.error(new FileNotFoundException(executablePathWithoutExtension.toString()));
+                        }
                     }
-                }
-            }
+
+                    return fileResult;
+                });
         }
         return result;
     }
@@ -770,15 +762,9 @@ public class Process implements Disposable
     {
         PreCondition.assertNotNull(executablePath, "executablePath");
 
-        Result<File> executableFileResult = findExecutableFile(executablePath, true);
-        if (executableFileResult.hasError())
-        {
-            executableFileResult = findExecutableFile(executablePath, false);
-        }
-
-        return !executableFileResult.hasError()
-            ? Result.success(new ProcessBuilder(getParallelAsyncRunner(), executableFileResult.getValue()))
-            : Result.error(executableFileResult.getError());
+        return findExecutableFile(executablePath, true)
+            .catchErrorResult(FileNotFoundException.class, () -> findExecutableFile(executablePath, false))
+            .then((File executableFile) -> new ProcessBuilder(getParallelAsyncRunner(), executableFile));
     }
 
     /**
@@ -803,34 +789,34 @@ public class Process implements Disposable
         Result<Boolean> result;
         if (disposed)
         {
-            result = Result.success(false);
+            result = Result.successFalse();
         }
         else
         {
             disposed = true;
-
-            Throwable error = null;
-            for (final Window window : windows)
+            result = Result.create(() ->
             {
-                final Result<Boolean> windowDisposedResult = window.dispose();
-                if (windowDisposedResult.hasError())
+                for (final Window window : windows)
                 {
-                    error = ErrorIterable.create(error, windowDisposedResult.getError());
+                    window.dispose().awaitError();
                 }
-            }
 
-            if (mainAsyncRunner != null)
-            {
-                error = ErrorIterable.create(error, mainAsyncRunner.dispose().getError());
-            }
+                if (mainAsyncRunner != null)
+                {
+                    mainAsyncRunner.dispose().awaitError();
+                }
 
-            if (parallelAsyncRunner != null)
-            {
-                error = ErrorIterable.create(error, parallelAsyncRunner.dispose().getError());
-            }
+                if (parallelAsyncRunner != null)
+                {
+                    parallelAsyncRunner.dispose().awaitError();
+                }
 
-            result = error == null ? Result.success(disposed) : Result.error(error);
+                return true;
+            });
         }
+
+        PostCondition.assertNotNull(result, "result");
+
         return result;
     }
 }

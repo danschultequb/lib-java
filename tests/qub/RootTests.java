@@ -204,21 +204,17 @@ public class RootTests
                 runner.test("with relative Path when root doesn't exist", (Test test) ->
                 {
                     final Root root = getRoot(test, "C:/");
-                    final Result<Folder> result = root.createFolder("folderName");
-                    test.assertError(new RootNotFoundException("C:"), result);
+                    test.assertThrows(() -> root.createFolder("folderName").awaitError(),
+                        new RootNotFoundException("C:"));
                 });
 
                 runner.test("with relative Path with folder that exists", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    root.createFolder("A");
+                    root.createFolder("A").awaitError();
 
-                    test.assertDone(new FolderAlreadyExistsException("/A"), root.createFolder("A"),
-                        (Folder folder) ->
-                        {
-                            test.assertNotNull(folder);
-                            test.assertEqual("/A", folder.toString());
-                        });
+                    test.assertThrows(() -> root.createFolder("A").awaitError(),
+                        new FolderAlreadyExistsException("/A"));
                 });
             });
 
@@ -233,11 +229,9 @@ public class RootTests
                 runner.test("with non-existing folder", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    final Result<Folder> result = root.createFolder(Path.parse("folderName"));
+                    final Folder result = root.createFolder(Path.parse("folderName")).awaitError();
                     test.assertNotNull(result);
-                    test.assertNotNull(result.await());
-                    test.assertEqual("/folderName", result.await().toString());
-                    test.assertFalse(result.hasError());
+                    test.assertEqual("/folderName", result.toString());
                 });
 
                 runner.test("with non-existing folder when root doesn't exist", (Test test) ->
@@ -345,7 +339,7 @@ public class RootTests
                 {
                     final Root root = getRoot(test);
                     root.createFolder("things");
-                    test.assertSuccess(Iterable.create(root.getFolder("things").throwErrorOrGetValue()), root.getFolders());
+                    test.assertSuccess(Iterable.create(root.getFolder("things").awaitError()), root.getFolders());
                 });
             });
 

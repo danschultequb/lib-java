@@ -345,7 +345,7 @@ public class PathTests
                     runner.test("with " + Strings.escapeAndQuote(pathString), (Test test) ->
                     {
                         final Path path = Path.parse(pathString);
-                        final Path pathWithoutRoot = path.withoutRoot().throwErrorOrGetValue();
+                        final Path pathWithoutRoot = path.withoutRoot().awaitError();
                         test.assertEqual(expectedPathString, pathWithoutRoot == null ? null : pathWithoutRoot.toString());
                     });
                 };

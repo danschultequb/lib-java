@@ -155,14 +155,11 @@ public class Folder extends FileSystemEntry
      */
     public AsyncFunction<Result<Boolean>> folderExistsAsync(Path relativeFolderPath)
     {
-        AsyncFunction<Result<Boolean>> result = validateRelativeFolderPathAsync(relativeFolderPath);
-        if (result == null)
-        {
-            final Path childFolderPath = getChildPath(relativeFolderPath);
-            final FileSystem fileSystem = getFileSystem();
-            result = fileSystem.folderExistsAsync(childFolderPath);
-        }
-        return result;
+        validateRelativeFolderPath(relativeFolderPath);
+
+        final Path childFolderPath = getChildPath(relativeFolderPath);
+        final FileSystem fileSystem = getFileSystem();
+        return fileSystem.folderExistsAsync(childFolderPath);
     }
 
     /**
@@ -321,14 +318,11 @@ public class Folder extends FileSystemEntry
      */
     public AsyncFunction<Result<Folder>> createFolderAsync(Path relativeFolderPath)
     {
-        AsyncFunction<Result<Folder>> result = validateRelativeFolderPathAsync(relativeFolderPath);
-        if (result == null)
-        {
-            final Path childFolderPath = getChildPath(relativeFolderPath);
-            final FileSystem fileSystem = getFileSystem();
-            result = fileSystem.createFolderAsync(childFolderPath);
-        }
-        return result;
+        validateRelativeFolderPath(relativeFolderPath);
+
+        final Path childFolderPath = getChildPath(relativeFolderPath);
+        final FileSystem fileSystem = getFileSystem();
+        return fileSystem.createFolderAsync(childFolderPath);
     }
 
     /**
@@ -452,24 +446,10 @@ public class Folder extends FileSystemEntry
         return getPath().concatenateSegment(relativePath);
     }
 
-    private static <T> Result<T> validateRelativeFolderPath(Path relativeFolderPath)
+    private static void validateRelativeFolderPath(Path relativeFolderPath)
     {
-        Result<T> result = Result.notNull(relativeFolderPath, "relativeFolderPath");
-        if (result == null)
-        {
-            if (relativeFolderPath.isRooted())
-            {
-                result = Result.error(new IllegalArgumentException("relativeFolderPath cannot be rooted."));
-            }
-        };
-        return result;
-    }
-
-    private static <T> AsyncFunction<Result<T>> validateRelativeFolderPathAsync(Path relativeFolderPath)
-    {
-        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        final Result<T> result = validateRelativeFolderPath(relativeFolderPath);
-        return result == null ? null : currentAsyncRunner.done(result);
+        PreCondition.assertNotNull(relativeFolderPath, "relativeFolderPath");
+        PreCondition.assertFalse(relativeFolderPath.isRooted(), "relativeFolderPath.isRooted()");
     }
 
     private static <T> Result<T> validateRelativeFilePath(Path relativeFilePath)

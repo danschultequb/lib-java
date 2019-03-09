@@ -276,7 +276,7 @@ public class ProcessBuilder
         return result;
     }
 
-    private static Action1<ByteReadStream> byteReadStreamToLineAction(final Action1<String> onLineAction)
+    private static Action1<ByteReadStream> byteReadStreamToLineAction(Action1<String> onLineAction)
     {
         PreCondition.assertNotNull(onLineAction, "onLineAction");
 
@@ -286,14 +286,14 @@ public class ProcessBuilder
             String line;
             do
             {
-                line = lineReadStream.readLine().getValue();
+                line = lineReadStream.readLine().awaitError();
                 onLineAction.run(line);
             }
             while (line != null);
         };
     }
 
-    private static Action1<String> appendLineToStringBuilder(final StringBuilder builder)
+    private static Action1<String> appendLineToStringBuilder(StringBuilder builder)
     {
         PreCondition.assertNotNull(builder, "builder");
 

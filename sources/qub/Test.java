@@ -982,6 +982,8 @@ public class Test
      */
     public void assertThrows(Action0 action)
     {
+        PreCondition.assertNotNull(action, "action");
+
         Throwable exceptionThrown = null;
         try
         {
@@ -1006,6 +1008,9 @@ public class Test
      */
     public void assertThrows(Action0 action, Throwable expectedException)
     {
+        PreCondition.assertNotNull(action, "action");
+        PreCondition.assertNotNull(expectedException, "expectedException");
+
         Throwable exceptionThrown = null;
         try
         {
@@ -1138,10 +1143,10 @@ public class Test
             }
             else
             {
-                assertFalse(result.hasError(), () -> result.getErrorType().getName() + ": " + result.getErrorMessage());
+                fail(error.getClass().getName() + ": " + error.getMessage());
             }
         })
-        .throwError();
+        .awaitError();
     }
 
     /**
@@ -1208,8 +1213,7 @@ public class Test
     public <T> void assertSuccess(T expectedValue, Result<T> result)
     {
         assertNotNull(result, "A successful Result should not be null");
-        assertNull(result.getError(), "A successful Result should not have an error");
-        assertEqual(expectedValue, result.getValue(), "Unexpected successful Result value");
+        assertEqual(expectedValue, result.awaitError(), "Unexpected successful Result value");
     }
 
     /**
@@ -1232,8 +1236,7 @@ public class Test
     public <T> void assertError(Throwable expectedError, Result<T> result)
     {
         assertNotNull(result, "The Result object should not be null.");
-        assertEqual(expectedError, result.getError(), "Unexpected error.");
-        assertNull(result.getValue(), "The Result's value should be null.");
+        assertThrows(result::awaitError, expectedError);
     }
 
     /**

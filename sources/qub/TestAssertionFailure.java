@@ -81,6 +81,6 @@ public class TestAssertionFailure extends RuntimeException
                 lineStream.writeLine(messageLine);
             }
         }
-        return lineStream.getText().throwErrorOrGetValue();
+        return lineStream.getText().awaitError();
     }
 }

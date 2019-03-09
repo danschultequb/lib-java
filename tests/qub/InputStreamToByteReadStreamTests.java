@@ -59,8 +59,8 @@ public class InputStreamToByteReadStreamTests
                 inputStream.setThrowOnRead(true);
                 
                 final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, inputStream);
-                final Result<Byte> result = byteReadStream.readByte();
-                test.assertError(new IOException(), result);
+                test.assertThrows(() -> byteReadStream.readByte().awaitError(),
+                    new RuntimeException(new IOException()));
             });
             
             runner.testGroup("readBytes(byte[])", () ->
@@ -70,7 +70,7 @@ public class InputStreamToByteReadStreamTests
                     final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, 0);
 
                     final byte[] buffer = new byte[10];
-                    test.assertSuccess(null, byteReadStream.readBytes(buffer));
+                    test.assertNull(byteReadStream.readBytes(buffer).awaitError());
                 });
                 
                 runner.test("with bytes", (Test test) ->
@@ -78,10 +78,10 @@ public class InputStreamToByteReadStreamTests
                     final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, 3);
 
                     final byte[] buffer = new byte[10];
-                    test.assertSuccess(3, byteReadStream.readBytes(buffer));
+                    test.assertEqual(3, byteReadStream.readBytes(buffer).awaitError());
                     test.assertEqual(new byte[] { 0, 1, 2, 0, 0, 0, 0, 0, 0, 0 }, buffer);
 
-                    test.assertSuccess(null, byteReadStream.readBytes(buffer));
+                    test.assertNull(byteReadStream.readBytes(buffer).awaitError());
                 });
                 
                 runner.test("asCharacterReadStream()", (Test test) ->
@@ -90,7 +90,7 @@ public class InputStreamToByteReadStreamTests
 
                     final CharacterReadStream characterReadStream = byteReadStream.asCharacterReadStream();
 
-                    test.assertSuccess('a', characterReadStream.readCharacter());
+                    test.assertEqual('a', characterReadStream.readCharacter().awaitError());
                 });
                 
                 runner.testGroup("asCharacterReadStream(CharacterEncoding)", () ->
@@ -109,7 +109,7 @@ public class InputStreamToByteReadStreamTests
 
                         final CharacterReadStream characterReadStream = byteReadStream.asCharacterReadStream(CharacterEncoding.US_ASCII);
 
-                        test.assertSuccess('a', characterReadStream.readCharacter());
+                        test.assertEqual('a', characterReadStream.readCharacter().awaitError());
                     });
                 });
 

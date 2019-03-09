@@ -11,26 +11,29 @@ public class NetworkTests
                 runner.test("with null remoteIPAddress", (Test test) ->
                 {
                     final Network network = creator.run(test);
-                    test.assertThrows(() -> network.createTCPClient(null, 80));
+                    test.assertThrows(() -> network.createTCPClient(null, 80),
+                        new PreConditionFailure("remoteIPAddress cannot be null."));
                 });
 
                 runner.test("with -1 remotePort", (Test test) ->
                 {
                     final Network network = creator.run(test);
-                    test.assertThrows(() -> network.createTCPClient(IPv4Address.parse("127.0.0.1"), -1));
+                    test.assertThrows(() -> network.createTCPClient(IPv4Address.parse("127.0.0.1"), -1),
+                        new PreConditionFailure("remotePort (-1) must be between 1 and 65535."));
                 });
 
                 runner.test("with 0 remotePort", (Test test) ->
                 {
                     final Network network = creator.run(test);
-                    test.assertThrows(() -> network.createTCPClient(IPv4Address.parse("127.0.0.1"), 0));
+                    test.assertThrows(() -> network.createTCPClient(IPv4Address.parse("127.0.0.1"), 0),
+                        new PreConditionFailure("remotePort (0) must be between 1 and 65535."));
                 });
 
                 runner.test("with valid arguments but no server listening", (Test test) ->
                 {
                     final Network network = creator.run(test);
-                    final Result<TCPClient> tcpClientResult = network.createTCPClient(IPv4Address.parse("127.0.0.1"), 38827);
-                    test.assertError(new java.net.ConnectException("Connection refused: connect"), tcpClientResult);
+                    test.assertThrows(() -> network.createTCPClient(IPv4Address.parse("127.0.0.1"), 38827).awaitError(),
+                        new RuntimeException(new java.net.ConnectException("Connection refused: connect")));
                 });
 
                 runner.test("with valid arguments and server listening", (Test test) ->

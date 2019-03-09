@@ -17,7 +17,7 @@ public class HttpServerTests
 
                 runner.test("with disposed TCPServer", (Test test) ->
                 {
-                    try (final TCPServer tcpServer = test.getNetwork().createTCPServer(23211).throwErrorOrGetValue())
+                    try (final TCPServer tcpServer = test.getNetwork().createTCPServer(23211).awaitError())
                     {
                         test.assertSuccess(true, tcpServer.dispose());
                         test.assertThrows(() -> new HttpServer(tcpServer));
@@ -67,7 +67,7 @@ public class HttpServerTests
                         try
                         {
                             final HttpClient client = createClient(test);
-                            final HttpResponse response = client.get("http://" + server.getLocalIPAddress() + ":" + server.getLocalPort() + "/").throwErrorOrGetValue();
+                            final HttpResponse response = client.get("http://" + server.getLocalIPAddress() + ":" + server.getLocalPort() + "/").awaitError();
                             test.assertNotNull(response);
                             test.assertEqual(200, response.getStatusCode());
                         }
@@ -156,7 +156,7 @@ public class HttpServerTests
                         try
                         {
                             final HttpClient client = createClient(test);
-                            final HttpResponse response1 = client.send(HttpRequest.get("http://" + server.getLocalIPAddress() + ":" + server.getLocalPort() + "/onefish").throwErrorOrGetValue()).throwErrorOrGetValue();
+                            final HttpResponse response1 = client.send(HttpRequest.get("http://" + server.getLocalIPAddress() + ":" + server.getLocalPort() + "/onefish").awaitError()).awaitError();
                             test.assertNotNull(response1);
                             test.assertEqual(200, response1.getStatusCode());
                             test.assertEqual("OK", response1.getReasonPhrase());
@@ -164,7 +164,7 @@ public class HttpServerTests
                             test.assertSuccess("Two Fish", response1.getBody().asCharacterReadStream().readEntireString());
                             test.assertSuccess("", response1.getBody().asCharacterReadStream().readEntireString());
 
-                            final HttpResponse response2 = client.send(HttpRequest.get("http://" + server.getLocalIPAddress() + ":" + server.getLocalPort() + "/redfish").throwErrorOrGetValue()).throwErrorOrGetValue();
+                            final HttpResponse response2 = client.send(HttpRequest.get("http://" + server.getLocalIPAddress() + ":" + server.getLocalPort() + "/redfish").awaitError()).awaitError();
                             test.assertNotNull(response2);
                             test.assertEqual(201, response2.getStatusCode());
                             test.assertEqual("Created", response2.getReasonPhrase());
@@ -194,7 +194,7 @@ public class HttpServerTests
                         try
                         {
                             final HttpClient client = createClient(test);
-                            final HttpResponse response = client.get("http://" + server.getLocalIPAddress() + ":" + server.getLocalPort() + "/things/catsanddogs").throwErrorOrGetValue();
+                            final HttpResponse response = client.get("http://" + server.getLocalIPAddress() + ":" + server.getLocalPort() + "/things/catsanddogs").awaitError();
                             test.assertNotNull(response);
                             test.assertEqual(200, response.getStatusCode());
                             test.assertSuccess("Hello, catsanddogs!", response.getBody().asCharacterReadStream().readEntireString());
@@ -233,7 +233,7 @@ public class HttpServerTests
                         try
                         {
                             final HttpClient client = createClient(test);
-                            final HttpResponse response = client.get("http://" + server.getLocalIPAddress() + ":" + server.getLocalPort() + "/notfound").throwErrorOrGetValue();
+                            final HttpResponse response = client.get("http://" + server.getLocalIPAddress() + ":" + server.getLocalPort() + "/notfound").awaitError();
                             test.assertNotNull(response);
                             test.assertEqual(456, response.getStatusCode());
                         }
@@ -250,7 +250,7 @@ public class HttpServerTests
 
     private static HttpServer createServer(Test test)
     {
-        return new HttpServer(test.getNetwork().createTCPServer(IPv4Address.localhost, 18084).throwErrorOrGetValue());
+        return new HttpServer(test.getNetwork().createTCPServer(IPv4Address.localhost, 18084).awaitError());
     }
 
     private static HttpClient createClient(Test test)

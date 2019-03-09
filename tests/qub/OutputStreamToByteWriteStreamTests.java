@@ -51,11 +51,12 @@ public class OutputStreamToByteWriteStreamTests
                         final Result<Boolean> writeResult = writeStream.writeByte(toWrite);
                         if (expectedWriteResult)
                         {
-                            test.assertSuccess(true, writeResult);
+                            test.assertEqual(true, writeResult.awaitError());
                         }
                         else
                         {
-                            test.assertError(new java.io.IOException(), writeResult);
+                            test.assertThrows(writeResult::awaitError,
+                                new RuntimeException(new java.io.IOException()));
                         }
 
                         if (outputStream instanceof ByteArrayOutputStream)
@@ -87,11 +88,11 @@ public class OutputStreamToByteWriteStreamTests
                             final Result<Integer> writeResult = writeStream.writeBytes(toWrite);
                             if (expectedError != null)
                             {
-                                test.assertError(expectedError, writeResult);
+                                test.assertThrows(writeResult::awaitError, expectedError);
                             }
                             else
                             {
-                                test.assertSuccess(expectedWriteResult, writeResult);
+                                test.assertEqual(expectedWriteResult, writeResult.awaitError());
                             }
 
                             if (outputStream instanceof ByteArrayOutputStream)
@@ -108,7 +109,7 @@ public class OutputStreamToByteWriteStreamTests
                 writeByteArrayTest.run(new ByteArrayOutputStream(), new byte[0], null, new IllegalArgumentException("toWrite.length (0) must be greater than 0."));
                 writeByteArrayTest.run(new TestStubOutputStream(), new byte[0], null, new IllegalArgumentException("toWrite.length (0) must be greater than 0."));
                 writeByteArrayTest.run(new ByteArrayOutputStream(), new byte[] { 0, 1, 2, 3 }, 4, null);
-                writeByteArrayTest.run(new TestStubOutputStream(), new byte[] { 0, 1, 2, 3 }, null, new IOException());
+                writeByteArrayTest.run(new TestStubOutputStream(), new byte[] { 0, 1, 2, 3 }, null, new RuntimeException(new IOException()));
             });
 
             runner.testGroup("writeByte(byte[],int,int)", () ->
@@ -128,13 +129,13 @@ public class OutputStreamToByteWriteStreamTests
                         else
                         {
                             final Result<Integer> writeResult = writeStream.writeBytes(toWrite, startIndex, length);
-                            if (expectedError != null)
+                            if (expectedError == null)
                             {
-                                test.assertError(expectedError, writeResult);
+                                test.assertEqual(expectedWriteResult, writeResult.awaitError());
                             }
                             else
                             {
-                                test.assertSuccess(expectedWriteResult, writeResult);
+                                test.assertThrows(writeResult::awaitError, expectedError);
                             }
 
                             if (outputStream instanceof ByteArrayOutputStream)
@@ -154,7 +155,7 @@ public class OutputStreamToByteWriteStreamTests
                 writeByteArrayStartIndexAndLengthTest.run(new ByteArrayOutputStream(), new byte[] { 0, 1, 2 }, 0, 0, null, null);
                 writeByteArrayStartIndexAndLengthTest.run(new TestStubOutputStream(), new byte[] { 0, 1, 2 }, 0, 0, null, null);
                 writeByteArrayStartIndexAndLengthTest.run(new ByteArrayOutputStream(), new byte[] { 0, 1, 2 }, 1, 1, 1, null);
-                writeByteArrayStartIndexAndLengthTest.run(new TestStubOutputStream(), new byte[] { 0, 1, 2 }, 1, 1, null, new IOException());
+                writeByteArrayStartIndexAndLengthTest.run(new TestStubOutputStream(), new byte[] { 0, 1, 2 }, 1, 1, null, new RuntimeException(new IOException()));
             });
 
             runner.test("asCharacterWriteStream()", test ->

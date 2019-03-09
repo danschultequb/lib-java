@@ -73,27 +73,19 @@ public class FakeTCPServer implements TCPServer
     {
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
-        return mutex.criticalSectionResult(timeout, () ->
+        return mutex.criticalSection(timeout, () ->
         {
-            Result<TCPClient> result = null;
-            while (!disposed && !clientsToAccept.any() && result == null)
+            while (!isDisposed() && !clientsToAccept.any())
             {
-                final Result<Void> awaitResult = hasClientsToAccept.await(timeout);
-                if (awaitResult.hasError())
-                {
-                    result = Result.error(awaitResult.getError());
-                }
+                hasClientsToAccept.await(timeout).awaitError();
             }
 
-            if (result == null)
+            if (isDisposed())
             {
-                result = Result.isFalse(disposed, "isDisposed()");
-                if (result == null)
-                {
-                    result = Result.success(clientsToAccept.removeFirst());
-                }
+                throw new IllegalStateException("isDisposed() cannot be true.");
             }
-            return result;
+
+            return clientsToAccept.removeFirst();
         });
     }
 

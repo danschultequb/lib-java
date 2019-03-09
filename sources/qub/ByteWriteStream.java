@@ -12,8 +12,7 @@ public interface ByteWriteStream extends Disposable
     default Result<Boolean> writeByte(byte toWrite)
     {
         return writeBytes(new byte[] { toWrite })
-            .thenResult(Result::successTrue)
-            .catchResultError(Result::convertError);
+            .thenResult(Result::successTrue);
     }
 
     /**
