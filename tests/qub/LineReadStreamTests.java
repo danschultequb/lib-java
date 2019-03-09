@@ -79,9 +79,8 @@ public class LineReadStreamTests
                             final int expectedLineCount = expectedLines == null ? 0 : expectedLines.length;
                             for (int i = 0; i < expectedLineCount; ++i)
                             {
-                                final Result<String> readLineResult = lineReadStream.readLine();
-                                test.assertSuccess(readLineResult);
-                                test.assertEqual(Strings.escape(expectedLines[i]), Strings.escape(readLineResult.getValue()));
+                                final String readLineResult = lineReadStream.readLine().awaitError();
+                                test.assertEqual(Strings.escape(expectedLines[i]), Strings.escape(readLineResult));
                                 assertLineReadStream(test, lineReadStream, false, true, expectedLines[i]);
                             }
                         }

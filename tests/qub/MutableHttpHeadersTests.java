@@ -79,7 +79,7 @@ public class MutableHttpHeadersTests
                 {
                     final MutableHttpHeaders headers = new MutableHttpHeaders();
                     headers.set(new HttpHeader("header-name", "header-value"));
-                    test.assertEqual("header-value", headers.get("header-name").getValue().getValue());
+                    test.assertEqual("header-value", headers.get("header-name").awaitError().getValue());
                 });
             });
 
@@ -115,7 +115,7 @@ public class MutableHttpHeadersTests
                 {
                     final MutableHttpHeaders headers = new MutableHttpHeaders();
                     headers.set("header-name", "header-value");
-                    test.assertEqual("header-value", headers.get("header-name").getValue().getValue());
+                    test.assertEqual("header-value", headers.get("header-name").awaitError().getValue());
                 });
 
                 runner.test("with existing header", (Test test) ->
@@ -125,7 +125,7 @@ public class MutableHttpHeadersTests
 
                     headers.set("header-name", "header-value-2");
 
-                    test.assertEqual("header-value-2", headers.get("header-name").getValue().getValue());
+                    test.assertEqual("header-value-2", headers.get("header-name").awaitError().getValue());
                 });
             });
 
@@ -147,17 +147,17 @@ public class MutableHttpHeadersTests
                 {
                     final MutableHttpHeaders headers = new MutableHttpHeaders();
                     headers.set("header-name", 3);
-                    test.assertEqual("3", headers.get("header-name").getValue().getValue());
+                    test.assertEqual("3", headers.get("header-name").awaitError().getValue());
                 });
 
                 runner.test("with existing header", (Test test) ->
                 {
                     final MutableHttpHeaders headers = new MutableHttpHeaders();
                     headers.set("header-name", 4);
-                    test.assertEqual("4", headers.get("header-name").getValue().getValue());
+                    test.assertEqual("4", headers.get("header-name").awaitError().getValue());
 
                     headers.set("header-name", 5);
-                    test.assertEqual("5", headers.get("header-name").getValue().getValue());
+                    test.assertEqual("5", headers.get("header-name").awaitError().getValue());
                 });
             });
 
@@ -179,17 +179,17 @@ public class MutableHttpHeadersTests
                 {
                     final MutableHttpHeaders headers = new MutableHttpHeaders();
                     headers.set("header-name", 3L);
-                    test.assertEqual("3", headers.get("header-name").getValue().getValue());
+                    test.assertEqual("3", headers.get("header-name").awaitError().getValue());
                 });
 
                 runner.test("with existing header", (Test test) ->
                 {
                     final MutableHttpHeaders headers = new MutableHttpHeaders();
                     headers.set("header-name", 4L);
-                    test.assertEqual("4", headers.get("header-name").getValue().getValue());
+                    test.assertEqual("4", headers.get("header-name").awaitError().getValue());
 
                     headers.set("header-name", 5L);
-                    test.assertEqual("5", headers.get("header-name").getValue().getValue());
+                    test.assertEqual("5", headers.get("header-name").awaitError().getValue());
                 });
             });
 

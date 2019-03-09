@@ -74,7 +74,7 @@ public interface LineReadStream extends AsyncDisposable, Iterator<String>
     @Override
     default boolean next()
     {
-        return readLine().getValue() != null;
+        return readLine().awaitError() != null;
     }
 
     @Override

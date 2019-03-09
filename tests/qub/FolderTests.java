@@ -41,28 +41,28 @@ public class FolderTests
                 runner.test("with " + Strings.escapeAndQuote("/apples"), (Test test) ->
                 {
                     final Folder folder = getFolder(test, "/apples");
-                    final Folder parentFolder = folder.getParentFolder().throwErrorOrGetValue();
+                    final Folder parentFolder = folder.getParentFolder().awaitError();
                     test.assertEqual("/", parentFolder.toString());
                 });
 
                 runner.test("with " + Strings.escapeAndQuote("/apples/"), (Test test) ->
                 {
                     final Folder folder = getFolder(test, "/apples/");
-                    final Folder parentFolder = folder.getParentFolder().throwErrorOrGetValue();
+                    final Folder parentFolder = folder.getParentFolder().awaitError();
                     test.assertEqual("/", parentFolder.toString());
                 });
 
                 runner.test("with " + Strings.escapeAndQuote("/apples/dates"), (Test test) ->
                 {
                     final Folder folder = getFolder(test, "/apples/dates");
-                    final Folder parentFolder = folder.getParentFolder().throwErrorOrGetValue();
+                    final Folder parentFolder = folder.getParentFolder().awaitError();
                     test.assertEqual("/apples", parentFolder.toString());
                 });
 
                 runner.test("with " + Strings.escapeAndQuote("/apples/dates/"), (Test test) ->
                 {
                     final Folder folder = getFolder(test, "/apples/dates/");
-                    final Folder parentFolder = folder.getParentFolder().throwErrorOrGetValue();
+                    final Folder parentFolder = folder.getParentFolder().awaitError();
                     test.assertEqual("/apples", parentFolder.toString());
                 });
             });
@@ -503,6 +503,6 @@ public class FolderTests
         final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner());
         fileSystem.createRoot("/");
 
-        return fileSystem.getFolder(folderPath).throwErrorOrGetValue();
+        return fileSystem.getFolder(folderPath).awaitError();
     }
 }

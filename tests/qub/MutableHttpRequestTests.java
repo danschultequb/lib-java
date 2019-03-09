@@ -75,7 +75,7 @@ public class MutableHttpRequestTests
                 runner.test("with valid URL", (Test test) ->
                 {
                     final MutableHttpRequest request = create(HttpMethod.GET, "https://www.example.com");
-                    test.assertSuccess(true, request.setUrl("http://www.google.com"));
+                    request.setUrl("http://www.google.com").awaitError();
                     test.assertEqual("http://www.google.com", request.getURL().toString());
                 });
             });

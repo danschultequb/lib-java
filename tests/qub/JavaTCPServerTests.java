@@ -172,17 +172,17 @@ public class JavaTCPServerTests
                     final Network network = new JavaNetwork(asyncRunner);
                     final Value<byte[]> clientReadBytes = Value.create();
 
-                    try (final TCPServer tcpServer = network.createTCPServer(ipAddress, port.get()).getValue())
+                    try (final TCPServer tcpServer = network.createTCPServer(ipAddress, port.get()).awaitError())
                     {
                         final AsyncAction clientTask = asyncRunner.schedule(() ->
                         {
                             // Parallel
-                            try (final TCPClient tcpClient = network.createTCPClient(ipAddress, port.get()).getValue())
+                            try (final TCPClient tcpClient = network.createTCPClient(ipAddress, port.get()).awaitError())
                             {
                                 // Block
                                 test.assertSuccess(bytes.length, tcpClient.writeBytes(bytes));
                                 // Block
-                                clientReadBytes.set(tcpClient.readBytes(bytes.length).getValue());
+                                clientReadBytes.set(tcpClient.readBytes(bytes.length).awaitError());
                             }
                         });
 
@@ -195,14 +195,14 @@ public class JavaTCPServerTests
                                 // Main
                                 test.assertSuccess(serverClientResult);
 
-                                try (final TCPClient serverClient = serverClientResult.getValue())
+                                try (final TCPClient serverClient = serverClientResult.awaitError())
                                 {
                                     // Block
-                                    final Result<byte[]> serverReadBytes = serverClient.readBytes(bytes.length);
-                                    test.assertSuccess(bytes, serverReadBytes);
+                                    final byte[] serverReadBytes = serverClient.readBytes(bytes.length).awaitError();
+                                    test.assertEqual(bytes, serverReadBytes);
 
                                     // Block
-                                    test.assertSuccess(serverReadBytes.getValue().length, serverClient.writeBytes(serverReadBytes.getValue()));
+                                    test.assertEqual(serverReadBytes.length, serverClient.writeBytes(serverReadBytes).awaitError());
                                 }
                             });
 
@@ -224,29 +224,27 @@ public class JavaTCPServerTests
                     final AsyncRunner asyncRunner = test.getParallelAsyncRunner();
                     final Network network = new JavaNetwork(asyncRunner);
 
-                    try (final TCPServer tcpServer = network.createTCPServer(IPv4Address.localhost, port.get()).getValue())
+                    try (final TCPServer tcpServer = network.createTCPServer(IPv4Address.localhost, port.get()).awaitError())
                     {
                         final AsyncAction serverTask = tcpServer.acceptAsync()
                             .then((Result<TCPClient> tcpClientResult) ->
                             {
-                                test.assertSuccess(tcpClientResult);
-
-                                final TCPClient tcpClient = tcpClientResult.getValue();
-                                final Result<byte[]> serverReadBytes = tcpClient.readBytes(bytes.length);
-                                test.assertSuccess(bytes, serverReadBytes);
-                                tcpClient.writeBytes(serverReadBytes.getValue());
-                                tcpClient.dispose();
+                                try (final TCPClient tcpClient = tcpClientResult.awaitError())
+                                {
+                                    final byte[] serverReadBytes = tcpClient.readBytes(bytes.length).awaitError();
+                                    test.assertEqual(bytes, serverReadBytes);
+                                    test.assertEqual(bytes.length, tcpClient.writeBytes(serverReadBytes).awaitError());
+                                }
                             });
 
                         final AsyncAction clientTask = asyncRunner.schedule(() ->
                         {
                             // The tcpClient code needs to be in a different thread because the
                             // tcpServer runs its acceptAsync().then() action on the main thread.
-                            try (final TCPClient tcpClient = network.createTCPClient(IPv4Address.localhost, port.get()).getValue())
+                            try (final TCPClient tcpClient = network.createTCPClient(IPv4Address.localhost, port.get()).awaitError())
                             {
                                 tcpClient.writeBytes(bytes);
-                                final Result<byte[]> clientReadBytes = tcpClient.readBytes(bytes.length);
-                                test.assertSuccess(bytes, clientReadBytes);
+                                test.assertEqual(bytes, tcpClient.readBytes(bytes.length).awaitError());
                             }
                             catch (Exception e)
                             {
@@ -268,17 +266,9 @@ public class JavaTCPServerTests
             {
                 runner.test("multiple times", (Test test) ->
                 {
-                    final TCPServer tcpServer = JavaTCPServer.create(port.incrementAndGet(), test.getParallelAsyncRunner()).getValue();
-
-                    final Result<Boolean> disposeResult1 = tcpServer.dispose();
-                    test.assertNotNull(disposeResult1);
-                    test.assertFalse(disposeResult1.hasError());
-                    test.assertTrue(disposeResult1.getValue());
-
-                    final Result<Boolean> disposeResult2 = tcpServer.dispose();
-                    test.assertNotNull(disposeResult2);
-                    test.assertFalse(disposeResult2.hasError());
-                    test.assertFalse(disposeResult2.getValue());
+                    final TCPServer tcpServer = JavaTCPServer.create(port.incrementAndGet(), test.getParallelAsyncRunner()).awaitError();
+                    test.assertTrue(tcpServer.dispose().awaitError());
+                    test.assertFalse(tcpServer.dispose().awaitError());
                 });
             });
         });

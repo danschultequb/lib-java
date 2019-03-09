@@ -56,22 +56,12 @@ public class MutableHttpRequest implements HttpRequest
         return url;
     }
 
-    public Result<Boolean> setUrl(String urlString)
+    public Result<Void> setUrl(String urlString)
     {
         PreCondition.assertNotNullAndNotEmpty(urlString, "urlString");
 
-        final Result<URL> url = URL.parse(urlString);
-        Result<Boolean> result;
-        if (url.hasError())
-        {
-            result = Result.error(url.getError());
-        }
-        else
-        {
-            setUrl(url.getValue());
-            result = Result.successTrue();
-        }
-        return result;
+        return URL.parse(urlString)
+            .then((Action1<URL>)this::setUrl);
     }
 
     public MutableHttpRequest setUrl(URL url)
@@ -157,11 +147,9 @@ public class MutableHttpRequest implements HttpRequest
         return this;
     }
 
-    public MutableHttpRequest setBody(String bodyText)
+    public Result<Void> setBody(String bodyText)
     {
-        final Result<byte[]> bodyBytes = CharacterEncoding.US_ASCII.encode(bodyText);
-        setBody(bodyBytes.hasError() ? null : bodyBytes.getValue());
-
-        return this;
+        return CharacterEncoding.UTF_8.encode(bodyText)
+            .then((Action1<byte[]>)this::setBody);
     }
 }
