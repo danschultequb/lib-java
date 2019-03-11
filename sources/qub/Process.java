@@ -713,41 +713,37 @@ public class Process implements Disposable
         {
             final Path currentFolderPath = getCurrentFolderPath();
             final Path currentFolderExecutablePath = currentFolderPath.concatenateSegment(executablePath);
-            final Result<File> getExecutableFileResult = getExecutableFile(currentFolderExecutablePath, checkExtensions);
-
-            if (!getExecutableFileResult.hasError())
-            {
-                result = getExecutableFileResult;
-            }
-            else
-            {
-                result = null;
-
-                final String pathEnvironmentVariable = getEnvironmentVariable("path");
-                if (!Strings.isNullOrEmpty(pathEnvironmentVariable))
+            result = getExecutableFile(currentFolderExecutablePath, checkExtensions)
+                .catchErrorResult(() ->
                 {
-                    final Iterable<String> pathStrings = Iterable.create(pathEnvironmentVariable.split(";"));
-                    for (final String pathString : pathStrings)
+                    Result<File> innerResult = null;
+                    final String pathEnvironmentVariable = getEnvironmentVariable("path");
+                    if (!Strings.isNullOrEmpty(pathEnvironmentVariable))
                     {
-                        if (!Strings.isNullOrEmpty(pathString))
+                        final Iterable<String> pathStrings = Iterable.create(pathEnvironmentVariable.split(";"));
+                        for (final String pathString : pathStrings)
                         {
-                            final Path path = Path.parse(pathString);
-                            final Path resolvedExecutablePath = path.concatenateSegment(executablePath);
-                            final Result<File> pathStringExecutableFileResult = getExecutableFile(resolvedExecutablePath, checkExtensions);
-                            if (!pathStringExecutableFileResult.hasError())
+                            if (!Strings.isNullOrEmpty(pathString))
                             {
-                                result = pathStringExecutableFileResult;
-                                break;
+                                final Path path = Path.parse(pathString);
+                                final Path resolvedExecutablePath = path.concatenateSegment(executablePath);
+                                final File executableFile = getExecutableFile(resolvedExecutablePath, checkExtensions).catchError().await();
+                                if (executableFile != null)
+                                {
+                                    innerResult = Result.success(executableFile);
+                                    break;
+                                }
                             }
                         }
                     }
-                }
 
-                if (result == null)
-                {
-                    result = Result.error(new qub.FileNotFoundException(executablePath));
-                }
-            }
+                    if (innerResult == null)
+                    {
+                        innerResult = Result.error(new qub.FileNotFoundException(executablePath));
+                    }
+
+                    return innerResult;
+                });
         }
 
         return result;

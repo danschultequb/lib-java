@@ -833,7 +833,16 @@ public class FileSystemTests
                         {
                             setup.run(fileSystem);
                         }
-                        test.assertDone(expectedCreatedFolderPath, expectedError, fileSystem.createFolder(folderPath).then(Folder::toString));
+
+                        final Result<Folder> createFolderResult = fileSystem.createFolder(folderPath);
+                        if (expectedError != null)
+                        {
+                            test.assertThrows(createFolderResult::awaitError, expectedError);
+                        }
+                        else
+                        {
+                            test.assertEqual(expectedCreatedFolderPath, createFolderResult.await().toString());
+                        }
                     });
                 };
 
@@ -882,7 +891,16 @@ public class FileSystemTests
                         {
                             setup.run(fileSystem);
                         }
-                        test.assertDone(expectedCreatedFolderPath, expectedError, fileSystem.createFolder(Path.parse(folderPath)).then(Folder::toString));
+
+                        final Result<Folder> createFolderResult = fileSystem.createFolder(Path.parse(folderPath));
+                        if (expectedError != null)
+                        {
+                            test.assertThrows(createFolderResult::awaitError, expectedError);
+                        }
+                        else
+                        {
+                            test.assertEqual(expectedCreatedFolderPath, createFolderResult.await().toString());
+                        }
                     });
                 };
 
@@ -1268,7 +1286,16 @@ public class FileSystemTests
                         {
                             setup.run(fileSystem);
                         }
-                        test.assertDone(expectedFilePath, expectedError, fileSystem.createFile(filePath).then(File::toString));
+
+                        final Result<File> createFileResult = fileSystem.createFile(filePath);
+                        if (expectedError != null)
+                        {
+                            test.assertThrows(createFileResult::awaitError, expectedError);
+                        }
+                        else
+                        {
+                            test.assertEqual(expectedFilePath, createFileResult.await().toString());
+                        }
                     });
                 };
 
@@ -1323,7 +1350,16 @@ public class FileSystemTests
                         {
                             setup.run(fileSystem);
                         }
-                        test.assertDone(expectedFilePath, expectedError, fileSystem.createFile(Path.parse(filePath)).then(File::toString));
+
+                        final Result<File> createFileResult = fileSystem.createFile(Path.parse(filePath));
+                        if (expectedError != null)
+                        {
+                            test.assertThrows(createFileResult::awaitError, expectedError);
+                        }
+                        else
+                        {
+                            test.assertEqual(expectedFilePath, createFileResult.await().toString());
+                        }
                     });
                 };
 
@@ -1420,7 +1456,16 @@ public class FileSystemTests
                         {
                             setup.run(fileSystem);
                         }
-                        test.assertDone(expectedLastModified, expectedError, fileSystem.getFileLastModified(filePath));
+
+                        final Result<DateTime> lastModifiedResult = fileSystem.getFileLastModified(filePath);
+                        if (expectedError != null)
+                        {
+                            test.assertThrows(lastModifiedResult::awaitError, expectedError);
+                        }
+                        else
+                        {
+                            test.assertEqual(expectedLastModified, lastModifiedResult.await());
+                        }
                     });
                 };
 

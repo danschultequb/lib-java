@@ -278,37 +278,37 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
         PreCondition.assertNotNullAndNotEmpty(stopBytes, "stopBytes");
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
-        final Value<Result<byte[]>> resultValue = Value.create();
-
-        final ByteList bytesReadList = ByteList.empty();
-        while(!resultValue.hasValue())
+        return Result.create(() ->
         {
-            readByte()
-                .then((Byte b) ->
+            byte[] result;
+            final ByteList byteList = ByteList.empty();
+            while(true)
+            {
+                final Byte byteRead = readByte()
+                    .catchErrorResult(EndOfStreamException.class, (EndOfStreamException error) ->
+                    {
+                        return byteList.any()
+                            ? Result.success()
+                            : Result.error(error);
+                    })
+                    .awaitError();
+                if (byteRead == null)
                 {
-                    bytesReadList.add(b);
-                    if (bytesReadList.endsWith(stopBytes))
-                    {
-                        resultValue.set(Array.toByteArray(bytesReadList));
-                    }
-                })
-                .catchResultError((Result<Void> errorResult) ->
+                    result = byteList.toByteArray();
+                    break;
+                }
+                else
                 {
-                    if (errorResult.getError() instanceof EndOfStreamException && bytesReadList.any())
+                    byteList.add(byteRead);
+                    if (byteList.endsWith(stopBytes))
                     {
-                        resultValue.set(Array.toByteArray(bytesReadList));
+                        result = byteList.toByteArray();
+                        break;
                     }
-                    else
-                    {
-                        resultValue.set(errorResult.convertError());
-                    }
-                });
-        }
-        final Result<byte[]> result = resultValue.get();
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+                }
+            }
+            return result;
+        });
     }
 
     /**

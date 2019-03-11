@@ -58,55 +58,42 @@ public class FakeNetwork implements Network
 
         return mutex.criticalSection(() ->
         {
-            final Value<Result<TCPClient>> resultValue = Value.create();
-            final Value<FakeTCPServer> remoteTCPServerValue = Value.create();
-
-            final Clock clock = getAsyncRunner().getClock();
-
-            if (timeout != null && clock.getCurrentDateTime().greaterThanOrEqualTo(timeout))
+            Result<TCPClient> result;
+            if (timeout != null && getAsyncRunner().getClock().getCurrentDateTime().greaterThanOrEqualTo(timeout))
             {
-                resultValue.set(Result.error(new TimeoutException()));
+                result = Result.error(new TimeoutException());
             }
             else
             {
-                while (!remoteTCPServerValue.hasValue() && !resultValue.hasValue())
+                result = Result.create(() ->
                 {
-                    boundTCPServers.get(remoteIPAddress)
-                        .thenResult((MutableMap<Integer,FakeTCPServer> remoteTCPServers) -> remoteTCPServers.get(remotePort))
-                        .then(remoteTCPServerValue::set)
-                        .catchError(NotFoundException.class, () ->
-                        {
-                            if (timeout == null)
-                            {
-                                resultValue.set(Result.error(new java.net.ConnectException("Connection refused: connect")));
-                            }
-                            else
-                            {
-                                boundTCPServerAvailable.await(timeout)
-                                    .catchResultError((Result<Void> error) ->
-                                    {
-                                        resultValue.set(error.convertError());
-                                    });
-                            }
-                        });
-                }
-            }
+                    FakeTCPServer remoteTCPServer = null;
 
-            if (!resultValue.hasValue())
-            {
-                final IPv4Address clientLocalIPAddress = IPv4Address.localhost;
-                int clientLocalPort = 65535;
-                while (1 <= clientLocalPort && !isAvailable(clientLocalIPAddress, clientLocalPort))
-                {
-                    --clientLocalPort;
-                }
+                    while (remoteTCPServer == null)
+                    {
+                        remoteTCPServer = boundTCPServers.get(remoteIPAddress)
+                            .thenResult((MutableMap<Integer,FakeTCPServer> remoteTCPServers) -> remoteTCPServers.get(remotePort))
+                            .catchErrorResult(NotFoundException.class, () ->
+                            {
+                                return timeout == null
+                                    ? Result.error(new java.net.ConnectException("Connection refused: connect"))
+                                    : boundTCPServerAvailable.await(timeout).then(() -> null);
+                            })
+                            .awaitError();
+                    }
 
-                if (clientLocalPort < 1)
-                {
-                    resultValue.set(Result.error(new IllegalStateException("No more ports available on IP address " + clientLocalIPAddress)));
-                }
-                else
-                {
+                    final IPv4Address clientLocalIPAddress = IPv4Address.localhost;
+                    int clientLocalPort = 65535;
+                    while (1 <= clientLocalPort && !isAvailable(clientLocalIPAddress, clientLocalPort))
+                    {
+                        --clientLocalPort;
+                    }
+
+                    if (clientLocalPort < 1)
+                    {
+                        throw new IllegalStateException("No more ports available on IP address " + clientLocalIPAddress);
+                    }
+
                     int serverClientLocalPort = 65535;
                     while (1 <= serverClientLocalPort && !isAvailable(remoteIPAddress, serverClientLocalPort))
                     {
@@ -115,27 +102,23 @@ public class FakeNetwork implements Network
 
                     if (serverClientLocalPort < 1)
                     {
-                        resultValue.set(Result.error(new IllegalStateException("No more ports available on IP address " + remoteIPAddress)));
+                        throw new IllegalStateException("No more ports available on IP address " + remoteIPAddress);
                     }
-                    else
-                    {
-                        final InMemoryByteStream clientToServer = createNetworkStream();
-                        final InMemoryByteStream serverToClient = createNetworkStream();
 
-                        final FakeTCPClient tcpClient = new FakeTCPClient(this, asyncRunner, clientLocalIPAddress, clientLocalPort, remoteIPAddress, remotePort, serverToClient, clientToServer);
-                        addLocalTCPClient(tcpClient);
+                    final InMemoryByteStream clientToServer = createNetworkStream();
+                    final InMemoryByteStream serverToClient = createNetworkStream();
 
-                        final FakeTCPClient serverTCPClient = new FakeTCPClient(this, asyncRunner, remoteIPAddress, serverClientLocalPort, clientLocalIPAddress, clientLocalPort, clientToServer, serverToClient);
-                        addLocalTCPClient(serverTCPClient);
+                    final FakeTCPClient tcpClient = new FakeTCPClient(this, asyncRunner, clientLocalIPAddress, clientLocalPort, remoteIPAddress, remotePort, serverToClient, clientToServer);
+                    addLocalTCPClient(tcpClient);
 
-                        remoteTCPServerValue.get().addIncomingClient(serverTCPClient);
+                    final FakeTCPClient serverTCPClient = new FakeTCPClient(this, asyncRunner, remoteIPAddress, serverClientLocalPort, clientLocalIPAddress, clientLocalPort, clientToServer, serverToClient);
+                    addLocalTCPClient(serverTCPClient);
 
-                        resultValue.set(Result.success(tcpClient));
-                    }
-                }
+                    remoteTCPServer.addIncomingClient(serverTCPClient);
+
+                    return tcpClient;
+                });
             }
-
-            final Result<TCPClient> result = resultValue.get();
 
             PostCondition.assertNotNull(result, "result");
 

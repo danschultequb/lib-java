@@ -28,15 +28,6 @@ public interface Result<T>
      */
     <TError extends Throwable> T awaitError(Class<TError> expectedErrorType) throws TError;
 
-    @Deprecated
-    boolean hasError();
-
-    @Deprecated
-    Throwable getError();
-
-    @Deprecated
-    <U> Result<U> convertError();
-
     /**
      * If this Result doesn't have an error, then run the provided action and return a new Result
      * object with the action's result.
@@ -311,64 +302,5 @@ public interface Result<T>
         PreCondition.assertNotNull(error, "error");
 
         return SyncResult.error(error);
-    }
-
-    /**
-     * Run the provided body action as long as the provided condition function returns true. If
-     * condition or body thrown an error, then the error will be returned as a Result.
-     * @param condition The condition that will determine whether or not the body action is run.
-     * @param body The body of the while loop.
-     * @return The result of the while loop.
-     */
-    @Deprecated
-    static SyncResult<Void> runWhile(Function0<Boolean> condition, Action0 body)
-    {
-        PreCondition.assertNotNull(condition, "condition");
-        PreCondition.assertNotNull(body, "body");
-
-        SyncResult<Void> result;
-        try
-        {
-            Boolean conditionResult = condition.run();
-            while (conditionResult != null && conditionResult)
-            {
-                body.run();
-
-                conditionResult = condition.run();
-            }
-            result = SyncResult.success();
-        }
-        catch (Throwable error)
-        {
-            result = error(error);
-        }
-
-        return result;
-    }
-
-    @Deprecated
-    static <T,U> Result<U> equal(T expectedValue, T value, String expressionName)
-    {
-        PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
-
-        Result<U> result = null;
-        if (!Comparer.equal(expectedValue, value))
-        {
-            result = Result.error(SyncResult.createError(expressionName + " (" + value + ") must be " + expectedValue + "."));
-        }
-        return result;
-    }
-
-    @Deprecated
-    static <U> Result<U> notNull(Object value, String expressionName)
-    {
-        PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
-
-        Result<U> result = null;
-        if (value == null)
-        {
-            result = Result.error(SyncResult.createError(expressionName + " cannot be null."));
-        }
-        return result;
     }
 }

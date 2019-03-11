@@ -78,7 +78,15 @@ public class JSONObjectTests
                     runner.test("with " + Strings.escapeAndQuote(objectText) + " and " + Strings.escapeAndQuote(propertyName), (Test test) ->
                     {
                         final JSONObject jsonObject = JSON.parseObject(objectText);
-                        test.assertDone(expectedProperty, expectedError, jsonObject.getProperty(propertyName));
+                        final Result<JSONProperty> propertyResult = jsonObject.getProperty(propertyName);
+                        if (expectedError != null)
+                        {
+                            test.assertThrows(propertyResult::awaitError, expectedError);
+                        }
+                        else
+                        {
+                            test.assertEqual(expectedProperty, propertyResult.await());
+                        }
                     });
                 };
 
@@ -202,7 +210,7 @@ public class JSONObjectTests
                 getArrayPropertyValueTest.run("{ \"a\":\"1\", \"b\": 2 }", "a", null, new WrongTypeException("Expected the value of the property named \"a\" to be a number."));
                 getArrayPropertyValueTest.run("{ \"a\":[], \"b\": 2 }", "a", null, new WrongTypeException("Expected the value of the property named \"a\" to be a number."));
                 getArrayPropertyValueTest.run("{ \"a\":\"1\", \"b\": 2 }", "\"b\"", null, new NotFoundException("No property was found with the name \"\\\"b\\\"\"."));
-                getArrayPropertyValueTest.run("{ \"a\":\"1\", \"b\": 2 }", "b", JSONToken.number("2", 14), null);
+                getArrayPropertyValueTest.run("{ \"a\":\"1\", \"b\": 2 }", "b", JSONToken.number("2", 16), null);
             });
 
             runner.testGroup("getNumberPropertyValue(String)", () ->

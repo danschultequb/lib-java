@@ -1259,27 +1259,15 @@ public class Test
      */
     public <T> void assertDone(T expectedValue, Throwable expectedError, Result<T> result)
     {
-        assertDone(expectedError, result,
-            (T value) ->
-            {
-                assertEqual(expectedValue, value);
-            });
-    }
-
-    /**
-     * Assert that the provided Result object has the provided expected value and error.
-     * @param expectedError The error that the reuslt should have.
-     * @param result The result to check.
-     * @param valueAction The action to run to validate the result's value.
-     * @param <T> The type of the value.
-     */
-    public <T> void assertDone(Throwable expectedError, Result<T> result, Action1<T> valueAction)
-    {
-        PreCondition.assertNotNull(valueAction, "valueAction");
-
-        assertNotNull(result, "The Result object should not be null.");
-        assertEqual(expectedError, result.getError());
-        result.then(valueAction);
+        assertNotNull(result);
+        if (expectedError != null)
+        {
+            assertThrows(result::awaitError, expectedError);
+        }
+        else
+        {
+            assertEqual(expectedValue, result.await());
+        }
     }
 
     /**

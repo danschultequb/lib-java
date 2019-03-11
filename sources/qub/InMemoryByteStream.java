@@ -68,20 +68,26 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
 
         return mutex.criticalSection(() ->
         {
-            Result<Byte> result;
             started = true;
 
-            while (!disposed && !endOfStream && !bytes.any())
+            while (!isDisposed() && !endOfStream && !bytes.any())
             {
                 bytesAvailable.await();
             }
 
-            result = Result.equal(false, isDisposed(), "byteReadStream.isDisposed()");
-            if (result == null)
+            Result<Byte> result;
+            if (isDisposed())
+            {
+                result = Result.error(new IllegalStateException("isDisposed() cannot be true."));
+            }
+            else
             {
                 current = bytes.any() ? bytes.removeFirst() : null;
-                result = current != null ? Result.success(current) : Result.error(new EndOfStreamException());
+                result = current != null
+                    ? Result.success(current)
+                    : Result.error(new EndOfStreamException());
             }
+
             return result;
         });
     }
@@ -103,33 +109,25 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
                 bytesAvailable.await();
             }
 
-            Result<Integer> result = Result.equal(false, isDisposed(), "isDisposed()");
-            if (result == null)
+            Result<Integer> result;
+            if (isDisposed())
             {
-                Integer bytesRead;
-                if (!bytes.any())
+                result = Result.error(new IllegalStateException("isDisposed() cannot be true."));
+            }
+            else if (!bytes.any())
+            {
+                current = null;
+                result = Result.error(new EndOfStreamException());
+            }
+            else
+            {
+                final int bytesRead = Math.minimum(bytes.getCount(), length);
+                for (int i = 0; i < bytesRead; ++i)
                 {
-                    bytesRead = null;
-                    current = null;
+                    outputBytes[startIndex + i] = bytes.removeFirst();
                 }
-                else
-                {
-                    if (bytes.getCount() < length)
-                    {
-                        bytesRead = bytes.getCount();
-                    }
-                    else
-                    {
-                        bytesRead = length;
-                    }
-
-                    for (int i = 0; i < bytesRead; ++i)
-                    {
-                        outputBytes[startIndex + i] = bytes.removeFirst();
-                    }
-                    current = outputBytes[startIndex + bytesRead - 1];
-                }
-                result = current != null ? Result.success(bytesRead) : Result.error(new EndOfStreamException());
+                current = outputBytes[startIndex + bytesRead - 1];
+                result = Result.success(bytesRead);
             }
             return result;
         });

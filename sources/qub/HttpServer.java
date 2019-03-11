@@ -128,96 +128,99 @@ public class HttpServer implements AsyncDisposable
      */
     public Result<Void> start()
     {
-        return Result.runWhile(() -> !isDisposed(), () ->
+        return Result.create(() ->
         {
-            try (final TCPClient acceptedClient = tcpServer.accept().awaitError())
+            while(!isDisposed())
             {
-                final MutableHttpRequest request = new MutableHttpRequest();
-                final LineReadStream acceptedClientLineReadStream = acceptedClient.asLineReadStream();
-
-                final String firstLine = acceptedClientLineReadStream.readLine().awaitError();
-                final String[] firstLineParts = firstLine.split(" ");
-                request.setMethod(HttpMethod.valueOf(firstLineParts[0]));
-                request.setUrl(URL.parse(firstLineParts[1]).awaitError());
-                request.setHttpVersion(firstLineParts[2]);
-
-                String headerLine = acceptedClientLineReadStream.readLine().awaitError();
-                while (!Strings.isNullOrEmpty(headerLine))
+                try (final TCPClient acceptedClient = tcpServer.accept().awaitError())
                 {
-                    final int firstColonIndex = headerLine.indexOf(':');
-                    final String headerName = headerLine.substring(0, firstColonIndex);
-                    final String headerValue = headerLine.substring(firstColonIndex + 1);
-                    request.setHeader(headerName, headerValue);
+                    final MutableHttpRequest request = new MutableHttpRequest();
+                    final LineReadStream acceptedClientLineReadStream = acceptedClient.asLineReadStream();
 
-                    headerLine = acceptedClientLineReadStream.readLine().awaitError();
-                }
+                    final String firstLine = acceptedClientLineReadStream.readLine().awaitError();
+                    final String[] firstLineParts = firstLine.split(" ");
+                    request.setMethod(HttpMethod.valueOf(firstLineParts[0]));
+                    request.setUrl(URL.parse(firstLineParts[1]).awaitError());
+                    request.setHttpVersion(firstLineParts[2]);
 
-                request.getContentLength()
-                    .then((Long contentLength) -> request.setBody(contentLength, acceptedClient))
-                    .catchError()
-                    .awaitError();
-
-                HttpResponse response;
-                final String pathString = request.getURL().getPath();
-                final Path path = Path.parse(Strings.isNullOrEmpty(pathString) ? "/" : pathString);
-                Indexable<String> pathTrackedValues = null;
-                Function2<Indexable<String>,HttpRequest,HttpResponse> pathAction = null;
-                for (final MapEntry<PathPattern,Function2<Indexable<String>,HttpRequest,HttpResponse>> entry : paths)
-                {
-                    final PathPattern pathPattern = entry.getKey();
-                    final Iterable<Match> pathMatches = pathPattern.getMatches(path);
-                    if (pathMatches.any())
+                    String headerLine = acceptedClientLineReadStream.readLine().awaitError();
+                    while (!Strings.isNullOrEmpty(headerLine))
                     {
-                        final Match firstMatch = pathMatches.first();
-                        final Iterable<Iterable<Character>> trackedCharacters = firstMatch.getTrackedValues();
-                        final Iterable<String> trackedStrings = trackedCharacters.map(Strings::join);
-                        pathTrackedValues = List.create(trackedStrings);
-                        pathAction = entry.getValue();
-                        break;
+                        final int firstColonIndex = headerLine.indexOf(':');
+                        final String headerName = headerLine.substring(0, firstColonIndex);
+                        final String headerValue = headerLine.substring(firstColonIndex + 1);
+                        request.setHeader(headerName, headerValue);
+
+                        headerLine = acceptedClientLineReadStream.readLine().awaitError();
                     }
-                }
 
-                if (pathAction == null)
-                {
-                    response = notFoundAction.run(request);
-                }
-                else
-                {
-                    response = pathAction.run(pathTrackedValues, request);
-                }
+                    request.getContentLength()
+                        .then((Long contentLength) -> request.setBody(contentLength, acceptedClient))
+                        .catchError()
+                        .awaitError();
 
-                if (response == null)
-                {
-                    final MutableHttpResponse mutableResponse = new MutableHttpResponse();
-                    mutableResponse.setHTTPVersion(request.getHttpVersion());
-                    mutableResponse.setStatusCode(500);
-                    mutableResponse.setBody("<html><body>" + mutableResponse.getStatusCode() + ": " + getReasonPhrase(mutableResponse.getStatusCode()) + "</body></html>");
-                    response = mutableResponse;
-                }
+                    HttpResponse response;
+                    final String pathString = request.getURL().getPath();
+                    final Path path = Path.parse(Strings.isNullOrEmpty(pathString) ? "/" : pathString);
+                    Indexable<String> pathTrackedValues = null;
+                    Function2<Indexable<String>,HttpRequest,HttpResponse> pathAction = null;
+                    for (final MapEntry<PathPattern,Function2<Indexable<String>,HttpRequest,HttpResponse>> entry : paths)
+                    {
+                        final PathPattern pathPattern = entry.getKey();
+                        final Iterable<Match> pathMatches = pathPattern.getMatches(path);
+                        if (pathMatches.any())
+                        {
+                            final Match firstMatch = pathMatches.first();
+                            final Iterable<Iterable<Character>> trackedCharacters = firstMatch.getTrackedValues();
+                            final Iterable<String> trackedStrings = trackedCharacters.map(Strings::join);
+                            pathTrackedValues = List.create(trackedStrings);
+                            pathAction = entry.getValue();
+                            break;
+                        }
+                    }
 
-                String httpVersion = response.getHTTPVersion();
-                if (Strings.isNullOrEmpty(httpVersion))
-                {
-                    httpVersion = "HTTP/1.1";
-                }
+                    if (pathAction == null)
+                    {
+                        response = notFoundAction.run(request);
+                    }
+                    else
+                    {
+                        response = pathAction.run(pathTrackedValues, request);
+                    }
 
-                String reasonPhrase = response.getReasonPhrase();
-                if (Strings.isNullOrEmpty(reasonPhrase))
-                {
-                    reasonPhrase = getReasonPhrase(response.getStatusCode());
-                }
+                    if (response == null)
+                    {
+                        final MutableHttpResponse mutableResponse = new MutableHttpResponse();
+                        mutableResponse.setHTTPVersion(request.getHttpVersion());
+                        mutableResponse.setStatusCode(500);
+                        mutableResponse.setBody("<html><body>" + mutableResponse.getStatusCode() + ": " + getReasonPhrase(mutableResponse.getStatusCode()) + "</body></html>");
+                        response = mutableResponse;
+                    }
 
-                final LineWriteStream clientLineWriteStream = acceptedClient.asLineWriteStream("\r\n");
-                clientLineWriteStream.writeLine("%s %s %s", httpVersion, response.getStatusCode(), reasonPhrase);
-                for (final HttpHeader header : response.getHeaders())
-                {
-                    clientLineWriteStream.writeLine("%s:%s", header.getName(), header.getValue());
-                }
-                clientLineWriteStream.writeLine();
+                    String httpVersion = response.getHTTPVersion();
+                    if (Strings.isNullOrEmpty(httpVersion))
+                    {
+                        httpVersion = "HTTP/1.1";
+                    }
 
-                try (final ByteReadStream responseBody = response.getBody())
-                {
-                    acceptedClient.writeAllBytes(responseBody).awaitError();
+                    String reasonPhrase = response.getReasonPhrase();
+                    if (Strings.isNullOrEmpty(reasonPhrase))
+                    {
+                        reasonPhrase = getReasonPhrase(response.getStatusCode());
+                    }
+
+                    final LineWriteStream clientLineWriteStream = acceptedClient.asLineWriteStream("\r\n");
+                    clientLineWriteStream.writeLine("%s %s %s", httpVersion, response.getStatusCode(), reasonPhrase);
+                    for (final HttpHeader header : response.getHeaders())
+                    {
+                        clientLineWriteStream.writeLine("%s:%s", header.getName(), header.getValue());
+                    }
+                    clientLineWriteStream.writeLine();
+
+                    try (final ByteReadStream responseBody = response.getBody())
+                    {
+                        acceptedClient.writeAllBytes(responseBody).awaitError();
+                    }
                 }
             }
         });

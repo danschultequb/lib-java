@@ -34,7 +34,15 @@ public class JSONDocumentTests
                     runner.test("with " + Strings.escapeAndQuote(text), (Test test) ->
                     {
                         final JSONDocument document = JSON.parse(text);
-                        test.assertDone(expectedRoot, expectedError, document.getRoot());
+                        final Result<JSONSegment> rootResult = document.getRoot();
+                        if (expectedError != null)
+                        {
+                            test.assertThrows(rootResult::awaitError, expectedError);
+                        }
+                        else
+                        {
+                            test.assertEqual(expectedRoot, rootResult.await());
+                        }
                     });
                 };
 
@@ -54,7 +62,15 @@ public class JSONDocumentTests
                     runner.test("with " + Strings.escapeAndQuote(text), (Test test) ->
                     {
                         final JSONDocument document = JSON.parse(text);
-                        test.assertDone(expectedRoot, expectedError, document.getRootArray());
+                        final Result<JSONArray> rootArrayResult = document.getRootArray();
+                        if (expectedError != null)
+                        {
+                            test.assertThrows(rootArrayResult::awaitError, expectedError);
+                        }
+                        else
+                        {
+                            test.assertEqual(expectedRoot, rootArrayResult.await());
+                        }
                     });
                 };
 
@@ -74,7 +90,15 @@ public class JSONDocumentTests
                     runner.test("with " + Strings.escapeAndQuote(text), (Test test) ->
                     {
                         final JSONDocument document = JSON.parse(text);
-                        test.assertDone(expectedRoot, expectedError, document.getRootObject());
+                        final Result<JSONObject> rootObjectResult = document.getRootObject();
+                        if (expectedError != null)
+                        {
+                            test.assertThrows(rootObjectResult::awaitError, expectedError);
+                        }
+                        else
+                        {
+                            test.assertEqual(expectedRoot, rootObjectResult.await());
+                        }
                     });
                 };
 

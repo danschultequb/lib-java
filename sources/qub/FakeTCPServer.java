@@ -59,12 +59,9 @@ public class FakeTCPServer implements TCPServer
                 hasClientsToAccept.await();
             }
 
-            Result<TCPClient> result = Result.equal(false, disposed, "tcpServer.isDisposed()");
-            if (result == null)
-            {
-                result = Result.success(clientsToAccept.removeFirst());
-            }
-            return result;
+            return isDisposed()
+                ? Result.error(new IllegalStateException("isDisposed() cannot be true."))
+                : Result.success(clientsToAccept.removeFirst());
         });
     }
 

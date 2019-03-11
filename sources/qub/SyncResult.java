@@ -47,58 +47,6 @@ public class SyncResult<T> implements Result<T>
         return value;
     }
 
-    @Deprecated
-    final public T getValue()
-    {
-        return value;
-    }
-
-    @Deprecated
-    final public boolean hasError()
-    {
-        return error != null;
-    }
-
-    @Deprecated
-    final public Throwable getError()
-    {
-        return error;
-    }
-
-    @Deprecated
-    final public Class<? extends Throwable> getErrorType()
-    {
-        return error == null ? null : error.getClass();
-    }
-
-    @Deprecated
-    final public String getErrorMessage()
-    {
-        return error == null ? null : error.getMessage();
-    }
-
-    @Deprecated
-    final public void throwError()
-    {
-        if (error != null)
-        {
-            throw Exceptions.asRuntime(error);
-        }
-    }
-
-    @Deprecated
-    public T throwErrorOrGetValue()
-    {
-        return awaitError();
-    }
-
-    @Deprecated
-    @SuppressWarnings("unchecked")
-    final public <U> SyncResult<U> convertError()
-    {
-        return hasError() ? (SyncResult<U>)this : null;
-    }
-
     /**
      * If this Result doesn't have an error, then run the provided action and return a new Result
      * object with the action's result.
@@ -569,26 +517,6 @@ public class SyncResult<T> implements Result<T>
         return result;
     }
 
-    @Deprecated
-    @SuppressWarnings("unchecked")
-    final public <U extends Exception> void throwError(Class<U> exceptionType) throws U
-    {
-        PreCondition.assertNotNull(exceptionType, "exceptionType");
-
-        if (error != null)
-        {
-            final Throwable unwrappedError = Exceptions.unwrap(error);
-            if (Types.instanceOf(unwrappedError, exceptionType))
-            {
-                throw (U)unwrappedError;
-            }
-            else
-            {
-                throw Exceptions.asRuntime(error);
-            }
-        }
-    }
-
     @Override
     public boolean equals(Object rhs)
     {
@@ -734,10 +662,5 @@ public class SyncResult<T> implements Result<T>
         PreCondition.assertNotNull(error, "error");
 
         return new SyncResult<>(null, error);
-    }
-
-    public static Throwable createError(String message)
-    {
-        return new IllegalArgumentException(message);
     }
 }

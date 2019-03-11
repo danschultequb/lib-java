@@ -206,15 +206,11 @@ public class Folder extends FileSystemEntry
      */
     public Result<Boolean> fileExists(Path relativeFilePath)
     {
-        Result<Boolean> result = validateRelativeFilePath(relativeFilePath);
-        if (result == null)
-        {
-            final Path childFilePath = getChildPath(relativeFilePath);
-            final FileSystem fileSystem = getFileSystem();
-            result = fileSystem.fileExists(childFilePath);
-        }
+        validateRelativeFilePath(relativeFilePath);
 
-        return result;
+        final Path childFilePath = getChildPath(relativeFilePath);
+        final FileSystem fileSystem = getFileSystem();
+        return fileSystem.fileExists(childFilePath);
     }
 
     /**
@@ -234,15 +230,11 @@ public class Folder extends FileSystemEntry
      */
     public AsyncFunction<Result<Boolean>> fileExistsAsync(Path relativeFilePath)
     {
-        AsyncFunction<Result<Boolean>> result = validateRelativeFilePathAsync(relativeFilePath);
-        if (result == null)
-        {
-            final Path childFilePath = getChildPath(relativeFilePath);
-            final FileSystem fileSystem = getFileSystem();
-            result = fileSystem.fileExistsAsync(childFilePath);
-        }
+        validateRelativeFilePath(relativeFilePath);
 
-        return result;
+        final Path childFilePath = getChildPath(relativeFilePath);
+        final FileSystem fileSystem = getFileSystem();
+        return fileSystem.fileExistsAsync(childFilePath);
     }
 
     /**
@@ -344,14 +336,11 @@ public class Folder extends FileSystemEntry
      */
     public Result<File> createFile(Path relativeFilePath)
     {
-        Result<File> result = validateRelativeFilePath(relativeFilePath);
-        if (result == null)
-        {
-            final Path childFilePath = getChildPath(relativeFilePath);
-            final FileSystem fileSystem = getFileSystem();
-            result = fileSystem.createFile(childFilePath);
-        }
-        return result;
+        validateRelativeFilePath(relativeFilePath);
+
+        final Path childFilePath = getChildPath(relativeFilePath);
+        final FileSystem fileSystem = getFileSystem();
+        return fileSystem.createFile(childFilePath);
     }
 
     /**
@@ -371,14 +360,11 @@ public class Folder extends FileSystemEntry
      */
     public AsyncFunction<Result<File>> createFileAsync(Path relativeFilePath)
     {
-        AsyncFunction<Result<File>> result = validateRelativeFilePathAsync(relativeFilePath);
-        if (result == null)
-        {
-            final Path childFilePath = getChildPath(relativeFilePath);
-            final FileSystem fileSystem = getFileSystem();
-            result = fileSystem.createFileAsync(childFilePath);
-        }
-        return result;
+        validateRelativeFilePath(relativeFilePath);
+
+        final Path childFilePath = getChildPath(relativeFilePath);
+        final FileSystem fileSystem = getFileSystem();
+        return fileSystem.createFileAsync(childFilePath);
     }
 
     public Result<Iterable<Folder>> getFolders()
@@ -452,27 +438,10 @@ public class Folder extends FileSystemEntry
         PreCondition.assertFalse(relativeFolderPath.isRooted(), "relativeFolderPath.isRooted()");
     }
 
-    private static <T> Result<T> validateRelativeFilePath(Path relativeFilePath)
+    private static void validateRelativeFilePath(Path relativeFilePath)
     {
-        Result<T> result = Result.notNull(relativeFilePath, "relativeFilePath");
-        if (result == null)
-        {
-            if (relativeFilePath.isRooted())
-            {
-                result = Result.error(new IllegalArgumentException("relativeFilePath cannot be rooted."));
-            }
-            else if (relativeFilePath.endsWith("/") || relativeFilePath.endsWith("\\"))
-            {
-                result = Result.error(new IllegalArgumentException("relativeFilePath cannot end with '/' or '\\'."));
-            }
-        };
-        return result;
-    }
-
-    private static <T> AsyncFunction<Result<T>> validateRelativeFilePathAsync(Path relativeFilePath)
-    {
-        final AsyncRunner currentAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        final Result<T> result = validateRelativeFilePath(relativeFilePath);
-        return result == null ? null : currentAsyncRunner.done(result);
+        PreCondition.assertNotNull(relativeFilePath, "relativeFilePath");
+        PreCondition.assertFalse(relativeFilePath.isRooted(), "relativeFilePath.isRooted()");
+        PreCondition.assertFalse(relativeFilePath.endsWith("/") || relativeFilePath.endsWith("\\"), "relativeFilePath.endsWith(\"/\") || relativeFilePath.endsWith(\"\\\\\")");
     }
 }
