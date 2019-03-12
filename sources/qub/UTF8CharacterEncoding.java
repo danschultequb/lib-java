@@ -3,65 +3,42 @@ package qub;
 public class UTF8CharacterEncoding implements CharacterEncoding
 {
     @Override
-    public Result<byte[]> encode(char[] characters, int startIndex, int length)
+    public Result<Integer> encode(char character, ByteWriteStream byteWriteStream)
     {
-        PreCondition.assertNotNull(characters, "characters");
-        PreCondition.assertStartIndex(startIndex, characters.length);
-        PreCondition.assertLength(length, startIndex, characters.length);
+        PreCondition.assertNotNull(byteWriteStream, "byteWriteStream");
 
-        final ByteList encodedBytes = new ByteList(length);
-        for (int i = 0; i < length; ++i)
+        return Result.create(() -> writeEncodedCharacter(character, byteWriteStream));
+    }
+
+    @Override
+    public Result<Integer> encode(String text, ByteWriteStream byteWriteStream)
+    {
+        PreCondition.assertNotNull(text, "text");
+        PreCondition.assertNotNull(byteWriteStream, "byteWriteStream");
+
+        return Result.create(() ->
         {
-            final char character = characters[startIndex + i];
-            final int characterAsInt = (int)character;
-            if (characterAsInt <= 0x00007F)
+            int result = 0;
+            for (final char character : Strings.iterate(text))
             {
-                encodedBytes.add((byte)characterAsInt);
+                result += writeEncodedCharacter(character, byteWriteStream);
             }
-            else if (characterAsInt <= 0x0007FF)
+            return result;
+        });
+    }
+
+    @Override
+    public Result<Integer> encode(char[] characters, int startIndex, int length, ByteWriteStream byteWriteStream)
+    {
+        return Result.create(() ->
+        {
+            int result = 0;
+            for (int i = 0; i < length; ++i)
             {
-                final int firstFiveBits = (characterAsInt >>> 6) & 0x1F;
-                final byte firstByte = (byte)(0xC0 | firstFiveBits);
-                encodedBytes.add(firstByte);
-
-                final int lastSixBits = characterAsInt & 0x3F;
-                final byte secondByte = (byte)(0x80 | lastSixBits);
-                encodedBytes.add(secondByte);
+                result += writeEncodedCharacter(characters[startIndex + i], byteWriteStream);
             }
-            else if (characterAsInt <= 0x00FFFF)
-            {
-                final int firstFourBits = (characterAsInt >>> 12) & 0xF;
-                final byte firstByte = (byte)(0xB0 | firstFourBits);
-                encodedBytes.add(firstByte);
-
-                final int middleSixBits = (characterAsInt >>> 6) & 0x3F;
-                final byte secondByte = (byte)(0x80 | middleSixBits);
-                encodedBytes.add(secondByte);
-
-                final int lastSixBites = characterAsInt & 0x3F;
-                final byte thirdByte = (byte)(0x80 | lastSixBites);
-                encodedBytes.add(thirdByte);
-            }
-            else if (characterAsInt <= 0x10FFFF)
-            {
-                final int firstThreeBits = (characterAsInt >>> 18) & 0x7;
-                final byte firstByte = (byte)(0xF0 | firstThreeBits);
-                encodedBytes.add(firstByte);
-
-                final int firstMiddleSixBits = (characterAsInt >>> 12) & 0x3F;
-                final byte secondByte = (byte)(0x80 | firstMiddleSixBits);
-                encodedBytes.add(secondByte);
-
-                final int secondMiddleSixBits = (characterAsInt >>> 6) & 0x3F;
-                final byte thirdByte = (byte)(0x80 | secondMiddleSixBits);
-                encodedBytes.add(thirdByte);
-
-                final int lastSixBits = (characterAsInt & 0x3F);
-                final byte fourthByte = (byte)(0x80 | lastSixBits);
-                encodedBytes.add(fourthByte);
-            }
-        }
-        return Result.success(encodedBytes.toByteArray());
+            return result;
+        });
     }
 
     @Override
@@ -181,5 +158,68 @@ public class UTF8CharacterEncoding implements CharacterEncoding
     public boolean equals(Object rhs)
     {
         return CharacterEncoding.equals(this, rhs);
+    }
+
+    private static int writeEncodedCharacter(char value, ByteWriteStream byteWriteStream)
+    {
+        PreCondition.assertNotNull(byteWriteStream, "byteWriteStream");
+
+        int result = 0;
+
+        final int characterAsInt = (int)value;
+        if (characterAsInt <= 0x00007F)
+        {
+            byteWriteStream.writeByte((byte)characterAsInt).awaitError();
+            result = 1;
+        }
+        else if (characterAsInt <= 0x0007FF)
+        {
+            final int firstFiveBits = (characterAsInt >>> 6) & 0x1F;
+            final byte firstByte = (byte)(0xC0 | firstFiveBits);
+            byteWriteStream.writeByte(firstByte).awaitError();
+
+            final int lastSixBits = characterAsInt & 0x3F;
+            final byte secondByte = (byte)(0x80 | lastSixBits);
+            byteWriteStream.writeByte(secondByte).awaitError();
+            result = 2;
+        }
+        else if (characterAsInt <= 0x00FFFF)
+        {
+            final int firstFourBits = (characterAsInt >>> 12) & 0xF;
+            final byte firstByte = (byte)(0xB0 | firstFourBits);
+            byteWriteStream.writeByte(firstByte).awaitError();
+
+            final int middleSixBits = (characterAsInt >>> 6) & 0x3F;
+            final byte secondByte = (byte)(0x80 | middleSixBits);
+            byteWriteStream.writeByte(secondByte).awaitError();
+
+            final int lastSixBites = characterAsInt & 0x3F;
+            final byte thirdByte = (byte)(0x80 | lastSixBites);
+            byteWriteStream.writeByte(thirdByte).awaitError();
+            result = 3;
+        }
+        else if (characterAsInt <= 0x10FFFF)
+        {
+            final int firstThreeBits = (characterAsInt >>> 18) & 0x7;
+            final byte firstByte = (byte)(0xF0 | firstThreeBits);
+            byteWriteStream.writeByte(firstByte).awaitError();
+
+            final int firstMiddleSixBits = (characterAsInt >>> 12) & 0x3F;
+            final byte secondByte = (byte)(0x80 | firstMiddleSixBits);
+            byteWriteStream.writeByte(secondByte).awaitError();
+
+            final int secondMiddleSixBits = (characterAsInt >>> 6) & 0x3F;
+            final byte thirdByte = (byte)(0x80 | secondMiddleSixBits);
+            byteWriteStream.writeByte(thirdByte).awaitError();
+
+            final int lastSixBits = (characterAsInt & 0x3F);
+            final byte fourthByte = (byte)(0x80 | lastSixBits);
+            byteWriteStream.writeByte(fourthByte).awaitError();
+            result = 4;
+        }
+
+        PostCondition.assertBetween(1, result, 4, "result");
+
+        return result;
     }
 }

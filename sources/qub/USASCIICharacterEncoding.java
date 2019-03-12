@@ -3,18 +3,44 @@ package qub;
 public class USASCIICharacterEncoding implements CharacterEncoding
 {
     @Override
-    public Result<byte[]> encode(char[] characters, int startIndex, int length)
+    public Result<Integer> encode(char character, ByteWriteStream byteWriteStream)
+    {
+        PreCondition.assertNotNull(byteWriteStream, "byteWriteStream");
+
+        return byteWriteStream.writeByte(encodeCharacter(character))
+            .then(() -> 1);
+    }
+
+    @Override
+    public Result<Integer> encode(String text, ByteWriteStream byteWriteStream)
+    {
+        PreCondition.assertNotNull(text, "text");
+        PreCondition.assertNotNull(byteWriteStream, "byteWriteStream");
+
+        final byte[] encodedBytes = new byte[text.length()];
+        for (int i = 0; i < text.length(); ++i)
+        {
+            encodedBytes[i] = encodeCharacter(text.charAt(i));
+        }
+        return byteWriteStream.writeAllBytes(encodedBytes)
+            .then(() -> encodedBytes.length);
+    }
+
+    @Override
+    public Result<Integer> encode(char[] characters, int startIndex, int length, ByteWriteStream byteWriteStream)
     {
         PreCondition.assertNotNull(characters, "characters");
         PreCondition.assertStartIndex(startIndex, characters.length);
         PreCondition.assertLength(length, startIndex, characters.length);
+        PreCondition.assertNotNull(byteWriteStream, "byteWriteStream");
 
         final byte[] encodedBytes = new byte[characters.length];
         for (int i = 0; i < length; ++i)
         {
-            encodedBytes[i] = (byte)characters[startIndex + i];
+            encodedBytes[i] = encodeCharacter(characters[startIndex + i]);
         }
-        return Result.success(encodedBytes);
+        return byteWriteStream.writeAllBytes(encodedBytes)
+            .then(() -> encodedBytes.length);
     }
 
     @Override
@@ -27,7 +53,7 @@ public class USASCIICharacterEncoding implements CharacterEncoding
         final char[] decodedCharacters = new char[bytes.length];
         for (int i = 0; i < length; ++i)
         {
-            decodedCharacters[i] = (char)Bytes.toUnsignedInt(bytes[startIndex + i]);
+            decodedCharacters[i] = decodeByte(bytes[startIndex + i]);
         }
         return Result.success(decodedCharacters);
     }
@@ -53,5 +79,15 @@ public class USASCIICharacterEncoding implements CharacterEncoding
     public boolean equals(Object rhs)
     {
         return CharacterEncoding.equals(this, rhs);
+    }
+
+    private static byte encodeCharacter(char value)
+    {
+        return (byte)value;
+    }
+
+    private static char decodeByte(byte value)
+    {
+        return (char)Bytes.toUnsignedInt(value);
     }
 }

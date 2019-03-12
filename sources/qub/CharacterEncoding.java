@@ -5,8 +5,8 @@ package qub;
  */
 public interface CharacterEncoding
 {
-    static final CharacterEncoding US_ASCII = new USASCIICharacterEncoding();
-    static final CharacterEncoding UTF_8 = new UTF8CharacterEncoding();
+    CharacterEncoding US_ASCII = new USASCIICharacterEncoding();
+    CharacterEncoding UTF_8 = new UTF8CharacterEncoding();
 
     /**
      * Encode the provided character as a byte[].
@@ -15,8 +15,19 @@ public interface CharacterEncoding
      */
     default Result<byte[]> encode(char character)
     {
-        return encode(new char[] { character });
+        final InMemoryByteStream byteStream = new InMemoryByteStream();
+        return encode(character, byteStream)
+            .then(byteStream::getBytes);
     }
+
+    /**
+     * Encode the provided character and write the encoded bytes to the provided ByteWriteStream.
+     * Return the number of bytes that were written.
+     * @param character The character to encode.
+     * @param byteWriteStream The ByteWriteStream to write the encoded bytes to.
+     * @return The number of bytes that were written.
+     */
+    Result<Integer> encode(char character, ByteWriteStream byteWriteStream);
 
     /**
      * Encode the provided String of characters into a byte[].
@@ -27,8 +38,19 @@ public interface CharacterEncoding
     {
         PreCondition.assertNotNull(text, "text");
 
-        return encode(text.toCharArray());
+        final InMemoryByteStream byteStream = new InMemoryByteStream();
+        return encode(text, byteStream)
+            .then(byteStream::getBytes);
     }
+
+    /**
+     * Encode the provided String of characters and write the encoded bytes to the provided
+     * ByteWriteStream. Return the number of bytes that were written.
+     * @param text The String of characters to encode.
+     * @param byteWriteStream The ByteWriteStream to write the encoded bytes to.
+     * @return The number of bytes that were written.
+     */
+    Result<Integer> encode(String text, ByteWriteStream byteWriteStream);
 
     /**
      * Encode the provided character array into a byte[].
@@ -39,10 +61,38 @@ public interface CharacterEncoding
     {
         PreCondition.assertNotNull(characters, "characters");
 
-        return encode(characters, 0, characters.length);
+        final InMemoryByteStream byteStream = new InMemoryByteStream();
+        return encode(characters, byteStream)
+            .then(byteStream::getBytes);
     }
 
-    Result<byte[]> encode(char[] characters, int startIndex, int length);
+    /**
+     * Encode the provided character array and write the encoded bytes to the provided
+     * ByteWriteStream. Return the number of bytes that were written.
+     * @param characters The character array to encode.
+     * @param byteWriteStream The ByteWriteStream to write the encoded bytes to.
+     * @return The number of bytes that were written.
+     */
+    default Result<Integer> encode(char[] characters, ByteWriteStream byteWriteStream)
+    {
+        PreCondition.assertNotNull(characters, "characters");
+        PreCondition.assertNotNull(byteWriteStream, "byteWriteStream");
+
+        return encode(characters, 0, characters.length, byteWriteStream);
+    }
+
+    default Result<byte[]> encode(char[] characters, int startIndex, int length)
+    {
+        PreCondition.assertNotNull(characters, "characters");
+        PreCondition.assertStartIndex(startIndex, characters.length);
+        PreCondition.assertLength(length, startIndex, characters.length);
+
+        final InMemoryByteStream byteStream = new InMemoryByteStream();
+        return encode(characters, startIndex, length)
+            .then(byteStream::getBytes);
+    }
+
+    Result<Integer> encode(char[] characters, int startIndex, int length, ByteWriteStream byteWriteStream);
 
     /**
      * Decode the provided byte[] into a char[].
