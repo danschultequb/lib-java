@@ -699,7 +699,7 @@ public class Process implements Disposable
         return result;
     }
 
-    private Result<File> findExecutableFile(Path executablePath, boolean checkExtensions)
+    public Result<File> findExecutableFile(Path executablePath, boolean checkExtensions)
     {
         PreCondition.assertNotNull(executablePath, "executablePath");
 

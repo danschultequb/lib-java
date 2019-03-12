@@ -1,7 +1,5 @@
 package qub;
 
-import java.util.IllegalFormatConversionException;
-
 public class ConsoleTests
 {
     public static void test(final TestRunner runner)
@@ -128,14 +126,8 @@ public class ConsoleTests
                         final InMemoryLineStream output = new InMemoryLineStream();
                         console.setOutput(output);
 
-                        try
-                        {
-                            console.write(toWrite, formattedStringArguments);
-                            test.fail();
-                        }
-                        catch (IllegalFormatConversionException ignored)
-                        {
-                        }
+                        test.assertThrows(() -> console.write(toWrite, formattedStringArguments),
+                            new java.util.IllegalFormatConversionException('d', String.class));
                     });
                 };
 

@@ -88,7 +88,7 @@ public interface CharacterEncoding
         PreCondition.assertLength(length, startIndex, characters.length);
 
         final InMemoryByteStream byteStream = new InMemoryByteStream();
-        return encode(characters, startIndex, length)
+        return encode(characters, startIndex, length, byteStream)
             .then(byteStream::getBytes);
     }
 

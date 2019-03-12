@@ -148,26 +148,26 @@ public class ProcessTests
                     process.setInput(readStream.asByteReadStream());
 
                     final ByteReadStream byteReadStream = process.getInputAsByteReadStream();
-                    test.assertSuccess(new byte[] { 104, 101, 108, 108, 111 }, byteReadStream.readBytes(5));
+                    test.assertEqual(new byte[] { 104, 101, 108, 108, 111 }, byteReadStream.readBytes(5).awaitError());
 
                     final byte[] byteBuffer = new byte[2];
-                    test.assertSuccess(2, byteReadStream.readBytes(byteBuffer));
+                    test.assertEqual(2, byteReadStream.readBytes(byteBuffer).awaitError());
                     test.assertEqual(new byte[] { 32, 116 }, byteBuffer);
 
-                    test.assertSuccess(1, byteReadStream.readBytes(byteBuffer, 1, 1));
+                    test.assertEqual(1, byteReadStream.readBytes(byteBuffer, 1, 1).awaitError());
                     test.assertEqual(new byte[] { 32, 104 }, byteBuffer);
 
                     final CharacterReadStream characterReadStream = process.getInputAsCharacterReadStream();
                     test.assertEqual(new char[] { 'e', 'r', 'e' }, characterReadStream.readCharacters(3).awaitError());
 
                     final char[] characterBuffer = new char[4];
-                    test.assertSuccess(4, characterReadStream.readCharacters(characterBuffer));
+                    test.assertEqual(4, characterReadStream.readCharacters(characterBuffer).awaitError());
                     test.assertEqual(new char[] { ' ', 'm', 'y', ' ' }, characterBuffer);
 
-                    test.assertSuccess(2, characterReadStream.readCharacters(characterBuffer, 0, 2));
+                    test.assertEqual(2, characterReadStream.readCharacters(characterBuffer, 0, 2).awaitError());
                     test.assertEqual(new char[] { 'g', 'o', 'y', ' ' }, characterBuffer);
 
-                    test.assertSuccess("od fr", characterReadStream.readString(5));
+                    test.assertEqual("od fr", characterReadStream.readString(5).awaitError());
                 });
             });
 
@@ -194,26 +194,26 @@ public class ProcessTests
                     process.setInput(readStream);
 
                     final ByteReadStream byteReadStream = process.getInputAsByteReadStream();
-                    test.assertSuccess(new byte[] { 104, 101, 108, 108, 111 }, byteReadStream.readBytes(5));
+                    test.assertEqual(new byte[] { 104, 101, 108, 108, 111 }, byteReadStream.readBytes(5).awaitError());
 
                     final byte[] byteBuffer = new byte[2];
-                    test.assertSuccess(2, byteReadStream.readBytes(byteBuffer));
+                    test.assertEqual(2, byteReadStream.readBytes(byteBuffer).awaitError());
                     test.assertEqual(new byte[] { 32, 116 }, byteBuffer);
 
-                    test.assertSuccess(1, byteReadStream.readBytes(byteBuffer, 1, 1));
+                    test.assertEqual(1, byteReadStream.readBytes(byteBuffer, 1, 1).awaitError());
                     test.assertEqual(new byte[] { 32, 104 }, byteBuffer);
 
                     final CharacterReadStream characterReadStream = process.getInputAsCharacterReadStream();
-                    test.assertSuccess(new char[] { 'e', 'r', 'e' }, characterReadStream.readCharacters(3));
+                    test.assertEqual(new char[] { 'e', 'r', 'e' }, characterReadStream.readCharacters(3).awaitError());
 
                     final char[] characterBuffer = new char[4];
-                    test.assertSuccess(4, characterReadStream.readCharacters(characterBuffer));
+                    test.assertEqual(4, characterReadStream.readCharacters(characterBuffer).awaitError());
                     test.assertEqual(new char[] { ' ', 'm', 'y', ' ' }, characterBuffer);
 
-                    test.assertSuccess(2, characterReadStream.readCharacters(characterBuffer, 0, 2));
+                    test.assertEqual(2, characterReadStream.readCharacters(characterBuffer, 0, 2).awaitError());
                     test.assertEqual(new char[] { 'g', 'o', 'y', ' ' }, characterBuffer);
 
-                    test.assertSuccess("od fr", characterReadStream.readString(5));
+                    test.assertEqual("od fr", characterReadStream.readString(5).awaitError());
                 });
             });
 
@@ -589,7 +589,7 @@ public class ProcessTests
                             final ProcessBuilder builder = process.getProcessBuilder("C:/Program Files/Java/jdk1.8.0_192/bin/javac.exe").awaitError();
                             test.assertEqual("javac.exe", builder.getExecutableFile().getPath().getSegments().last());
                             test.assertEqual(0, builder.getArgumentCount());
-                            test.assertSuccess(2, builder.run());
+                            test.assertEqual(2, builder.run().awaitError());
                         }
                     }
                 });
@@ -603,7 +603,7 @@ public class ProcessTests
                             final ProcessBuilder builder = process.getProcessBuilder("javac.exe").awaitError();
                             test.assertEqual("javac.exe", builder.getExecutableFile().getPath().getSegments().last());
                             test.assertEqual(0, builder.getArgumentCount());
-                            test.assertSuccess(2, builder.run());
+                            test.assertEqual(2, builder.run().awaitError());
                         }
                     }
                 });
@@ -622,7 +622,7 @@ public class ProcessTests
                             builder.redirectOutputTo(output);
                             builder.redirectErrorTo(output);
 
-                            test.assertSuccess(2, builder.run());
+                            test.assertEqual(2, builder.run().awaitError());
 
                             final String outputString = output.toString();
                             test.assertNotNullAndNotEmpty(outputString);
@@ -657,31 +657,28 @@ public class ProcessTests
                 {
                     try (final Process process = creator.run())
                     {
-                        test.assertSuccess(process.getProcessBuilder("javac"),
-                            (ProcessBuilder builder) ->
-                            {
-                                final StringBuilder output = new StringBuilder();
-                                builder.redirectOutputTo(output);
-                                builder.redirectErrorTo(output);
+                        final ProcessBuilder builder = process.getProcessBuilder("javac").awaitError();
+                        final StringBuilder output = new StringBuilder();
+                        builder.redirectOutputTo(output);
+                        builder.redirectErrorTo(output);
 
-                                final Folder workingFolder = test.getProcess().getCurrentFolder()
-                                    .thenResult((Folder currentFolder) -> currentFolder.createFolder("temp"))
-                                    .awaitError();
-                                try
-                                {
-                                    builder.setWorkingFolder(workingFolder);
-                                    test.assertSuccess(2, builder.run());
+                        final Folder workingFolder = test.getProcess().getCurrentFolder()
+                            .thenResult((Folder currentFolder) -> currentFolder.createFolder("temp"))
+                            .awaitError();
+                        try
+                        {
+                            builder.setWorkingFolder(workingFolder);
+                            test.assertEqual(2, builder.run().awaitError());
 
-                                    final String outputString = output.toString();
-                                    test.assertNotNullAndNotEmpty(outputString);
-                                    test.assertTrue(outputString.contains("javac <options> <source files>"), "Process output (" + outputString + ") should have contained \"javac <options> <source files>\".");
-                                    test.assertTrue(outputString.contains("Terminate compilation if warnings occur"), "Process output (" + outputString + ") should have contained \"Terminate compilation if warnings occur\".");
-                                }
-                                finally
-                                {
-                                    test.assertSuccess(workingFolder.delete());
-                                }
-                            });
+                            final String outputString = output.toString();
+                            test.assertNotNullAndNotEmpty(outputString);
+                            test.assertContains(outputString, "javac <options> <source files>");
+                            test.assertContains(outputString, "Terminate compilation if warnings occur");
+                        }
+                        finally
+                        {
+                            workingFolder.delete().awaitError();
+                        }
                     }
                 });
 
@@ -689,22 +686,20 @@ public class ProcessTests
                 {
                     try (final Process process = creator.run())
                     {
-                        test.assertSuccess(process.getProcessBuilder("javac"),
-                            (ProcessBuilder builder) ->
-                            {
-                                final StringBuilder output = new StringBuilder();
-                                builder.redirectOutputTo(output);
-                                builder.redirectErrorTo(output);
+                        final ProcessBuilder builder = process.getProcessBuilder("javac").awaitError();
 
-                                final Folder workingFolder = test.getProcess().getCurrentFolder().awaitError();
-                                builder.setWorkingFolder(workingFolder);
-                                test.assertSuccess(2, builder.run());
+                        final StringBuilder output = new StringBuilder();
+                        builder.redirectOutputTo(output);
+                        builder.redirectErrorTo(output);
 
-                                final String outputString = output.toString();
-                                test.assertNotNullAndNotEmpty(outputString);
-                                test.assertTrue(outputString.contains("javac <options> <source files>"), "Process output (" + outputString + ") should have contained \"javac <options> <source files>\".");
-                                test.assertTrue(outputString.contains("Terminate compilation if warnings occur"), "Process output (" + outputString + ") should have contained \"Terminate compilation if warnings occur\".");
-                            });
+                        final Folder workingFolder = test.getProcess().getCurrentFolder().awaitError();
+                        builder.setWorkingFolder(workingFolder);
+                        test.assertEqual(2, builder.run().awaitError());
+
+                        final String outputString = output.toString();
+                        test.assertNotNullAndNotEmpty(outputString);
+                        test.assertContains(outputString, "javac <options> <source files>");
+                        test.assertContains(outputString, "Terminate compilation if warnings occur");
                     }
                 });
 
@@ -721,7 +716,7 @@ public class ProcessTests
                             final InMemoryByteStream output = new InMemoryByteStream();
                             builder.redirectOutput(output);
 
-                            test.assertSuccess(0, builder.run());
+                            test.assertEqual(0, builder.run().awaitError());
 
                             final String outputString = new String(output.getBytes());
                             test.assertNotNullAndNotEmpty(outputString);
@@ -730,7 +725,7 @@ public class ProcessTests
                     }
                 });
 
-                runner.test("with path without file extension relative to PATH environment variable with redirected error", (Test test) ->
+                runner.test("with path without file extension relative to PATH environment variable with redirected error", runner.skip(), (Test test) ->
                 {
                     try (final Process process = creator.run())
                     {
@@ -742,10 +737,10 @@ public class ProcessTests
                             final InMemoryByteStream error = new InMemoryByteStream();
                             builder.redirectError(error);
 
-                            test.assertSuccess(2, builder.run());
+                            test.assertEqual(2, builder.run().awaitError());
 
                             final String errorString = new String(error.getBytes());
-                            test.assertTrue(errorString.contains("file not found: notfound.java"));
+                            test.assertContains(errorString, "file not found: notfound.java");
                         }
                     }
                 });
