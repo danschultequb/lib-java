@@ -30,15 +30,16 @@ public class USASCIICharacterEncodingTests
 
             runner.testGroup("encode(String)", () ->
             {
-                final Action1<String> encodeFailureTest = (String text) ->
+                final Action2<String,Throwable> encodeFailureTest = (String text, Throwable expectedError) ->
                 {
                     runner.test("with " + Strings.escapeAndQuote(text), (Test test) ->
                     {
-                        test.assertThrows(() -> encoding.encode(text));
+                        test.assertThrows(() -> encoding.encode(text), expectedError);
                     });
                 };
 
-                encodeFailureTest.run(null);
+                encodeFailureTest.run(null, new PreConditionFailure("text cannot be null."));
+                encodeFailureTest.run("", new PreConditionFailure("toWrite cannot be empty."));
 
                 final Action3<String,byte[],Throwable> encodeTest = (String text, byte[] expectedBytes, Throwable expectedError) ->
                 {
@@ -48,7 +49,6 @@ public class USASCIICharacterEncodingTests
                     });
                 };
 
-                encodeTest.run("", new byte[0], null);
                 encodeTest.run("a", new byte[] { 97 }, null);
                 encodeTest.run("b", new byte[] { 98 }, null);
                 encodeTest.run("ab", new byte[] { 97, 98 }, null);
@@ -61,15 +61,16 @@ public class USASCIICharacterEncodingTests
 
             runner.testGroup("encode(char[])", () ->
             {
-                final Action1<char[]> encodeFailureTest = (char[] characters) ->
+                final Action2<char[],Throwable> encodeFailureTest = (char[] characters, Throwable expectedError) ->
                 {
                     runner.test("with " + Array.toString(characters, Characters::escapeAndQuote), (Test test) ->
                     {
-                        test.assertThrows(() -> encoding.encode(characters));
+                        test.assertThrows(() -> encoding.encode(characters), expectedError);
                     });
                 };
 
-                encodeFailureTest.run(null);
+                encodeFailureTest.run(null, new PreConditionFailure("characters cannot be null."));
+                encodeFailureTest.run(new char[0], new PreConditionFailure("toWrite cannot be empty."));
 
                 final Action3<char[],byte[],Throwable> encodeTest = (char[] characters, byte[] expectedBytes, Throwable expectedError) ->
                 {
@@ -79,7 +80,6 @@ public class USASCIICharacterEncodingTests
                     });
                 };
 
-                encodeTest.run(new char[0], new byte[0], null);
                 encodeTest.run(new char[] { 'a' }, new byte[] { 97 }, null);
                 encodeTest.run(new char[] { 'b' }, new byte[] { 98 }, null);
                 encodeTest.run(new char[] { 'a', 'b' }, new byte[] { 97, 98 }, null);

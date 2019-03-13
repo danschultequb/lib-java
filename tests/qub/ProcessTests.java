@@ -725,7 +725,7 @@ public class ProcessTests
                     }
                 });
 
-                runner.test("with path without file extension relative to PATH environment variable with redirected error", runner.skip(), (Test test) ->
+                runner.test("with path without file extension relative to PATH environment variable with redirected error", (Test test) ->
                 {
                     try (final Process process = creator.run())
                     {

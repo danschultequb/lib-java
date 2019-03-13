@@ -1,7 +1,5 @@
 package qub;
 
-import java.io.IOException;
-
 /**
  * A builder that can create new Processes.
  */

@@ -16,8 +16,11 @@ public interface ByteWriteStream extends Disposable
     }
 
     /**
-     * Write the provided bytes to this ByteWriteStream.
+     * Write the provided bytes to this ByteWriteStream. It is possible that not all of the bytes
+     * will be written. If you want to ensure that all of the bytes will be written, then use
+     * writeAllBytes() instead.
      * @param toWrite The bytes to writeByte to this stream.
+     * @return The number of bytes that were written.
      */
     default Result<Integer> writeBytes(byte[] toWrite)
     {
@@ -28,13 +31,21 @@ public interface ByteWriteStream extends Disposable
     }
 
     /**
-     * Write the provided subsection of bytes to this ByteWriteStream.
+     * Attempt to write the provided subsection of bytes to this ByteWriteStream. It is possible
+     * that not all of the bytes will be written. If you want to ensure that all of the bytes will
+     * be written, then use writeAllBytes() instead.
      * @param toWrite The array of bytes that contains the bytes to writeByte to this stream.
      * @param startIndex The start index of the subsection inside toWrite to writeByte.
-     * @param length The number of bytes to writeByte.
+     * @param length The number of bytes to write.
+     * @return The number of bytes that were written.
      */
     Result<Integer> writeBytes(byte[] toWrite, int startIndex, int length);
 
+    /**
+     * Write all of the bytes in the provided byte[].
+     * @param toWrite The bytes to write.
+     * @return The number of bytes that were written.
+     */
     default Result<Void> writeAllBytes(byte[] toWrite)
     {
         PreCondition.assertNotNullAndNotEmpty(toWrite, "toWrite");
@@ -43,23 +54,33 @@ public interface ByteWriteStream extends Disposable
         return writeAllBytes(toWrite, 0, toWrite.length);
     }
 
+    /**
+     * Write all of the bytes in the provided subsection of bytes to this ByteWriteStream.
+     * @param toWrite The array of bytes that contains the bytes to writeByte to this stream.
+     * @param startIndex The start index of the subsection inside toWrite to writeByte.
+     * @param length The number of bytes to write.
+     * @return The number of bytes that were written.
+     */
     default Result<Void> writeAllBytes(byte[] toWrite, int startIndex, int length)
     {
         PreCondition.assertNotNullAndNotEmpty(toWrite, "toWrite");
-        PreCondition.assertBetween(0, startIndex, toWrite.length - 1, "startIndex");
-        PreCondition.assertBetween(1, length, toWrite.length - startIndex, "length");
+        PreCondition.assertStartIndex(startIndex, toWrite.length);
+        PreCondition.assertLength(length, startIndex, toWrite.length);
 
-        return writeBytes(toWrite, startIndex, length)
-            .thenResult((Integer bytesWritten) ->
-                bytesWritten == length
-                    ? Result.success()
-                    : writeAllBytes(toWrite, startIndex + bytesWritten, length - bytesWritten));
+        return Result.create(() ->
+        {
+            int result = 0;
+            while (result < length)
+            {
+                result += writeBytes(toWrite, startIndex + result, length - result).awaitError();
+            }
+        });
     }
 
     /**
      * Write all of the bytes create the provided byteReadStream to this ByteWriteStream.
      * @param byteReadStream The ByteReadStream to read create.
-     * @return Whether or not the writeByte was successful.
+     * @return The number of bytes that were written.
      */
     default Result<Void> writeAllBytes(ByteReadStream byteReadStream)
     {
