@@ -664,4 +664,13 @@ public class PreCondition
             throw new PreConditionFailure(AssertionMessages.instanceOf(value, type, variableName));
         }
     }
+
+    /**
+     * Assert that the provided value is not disposed.
+     * @param value The value to check.
+     */
+    public static void assertNotDisposed(Disposable value)
+    {
+        PreCondition.assertFalse(value.isDisposed(), "isDisposed()");
+    }
 }

@@ -244,6 +244,14 @@ public interface Result<T>
     }
 
     /**
+     * Get a successful Result that contains a 0 Integer value.
+     */
+    static SyncResult<Integer> successZero()
+    {
+        return SyncResult.successZero();
+    }
+
+    /**
      * Get a successful Result that contains a 1 Integer value.
      */
     static SyncResult<Integer> successOne()

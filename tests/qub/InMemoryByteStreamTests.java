@@ -748,7 +748,7 @@ public class InMemoryByteStreamTests
                 {
                     final InMemoryByteStream stream = new InMemoryByteStream();
                     final InMemoryByteStream readStream = new InMemoryByteStream().endOfStream();
-                    test.assertSuccess(null, stream.writeAllBytes(readStream));
+                    test.assertEqual(0L, stream.writeAllBytes(readStream).awaitError());
                     test.assertEqual(new byte[0], stream.getBytes());
                 });
 
@@ -756,7 +756,7 @@ public class InMemoryByteStreamTests
                 {
                     final InMemoryByteStream stream = new InMemoryByteStream();
                     final InMemoryByteStream readStream = new InMemoryByteStream(new byte[] { 0, 1, 2, 3 }).endOfStream();
-                    test.assertSuccess(null, stream.writeAllBytes(readStream));
+                    test.assertEqual(4, stream.writeAllBytes(readStream).awaitError());
                     test.assertEqual(new byte[] { 0, 1, 2, 3 }, stream.getBytes());
                 });
             });

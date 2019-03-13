@@ -8,12 +8,9 @@ public interface ByteWriteStream extends Disposable
     /**
      * Write the provided byte to this ByteWriteStream.
      * @param toWrite The byte to writeByte to this stream.
+     * @return The number of bytes that were written.
      */
-    default Result<Boolean> writeByte(byte toWrite)
-    {
-        return writeBytes(new byte[] { toWrite })
-            .thenResult(Result::successTrue);
-    }
+    Result<Integer> writeByte(byte toWrite);
 
     /**
      * Write the provided bytes to this ByteWriteStream. It is possible that not all of the bytes
@@ -46,7 +43,7 @@ public interface ByteWriteStream extends Disposable
      * @param toWrite The bytes to write.
      * @return The number of bytes that were written.
      */
-    default Result<Void> writeAllBytes(byte[] toWrite)
+    default Result<Integer> writeAllBytes(byte[] toWrite)
     {
         PreCondition.assertNotNullAndNotEmpty(toWrite, "toWrite");
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
@@ -61,7 +58,7 @@ public interface ByteWriteStream extends Disposable
      * @param length The number of bytes to write.
      * @return The number of bytes that were written.
      */
-    default Result<Void> writeAllBytes(byte[] toWrite, int startIndex, int length)
+    default Result<Integer> writeAllBytes(byte[] toWrite, int startIndex, int length)
     {
         PreCondition.assertNotNullAndNotEmpty(toWrite, "toWrite");
         PreCondition.assertStartIndex(startIndex, toWrite.length);
@@ -74,6 +71,7 @@ public interface ByteWriteStream extends Disposable
             {
                 result += writeBytes(toWrite, startIndex + result, length - result).awaitError();
             }
+            return result;
         });
     }
 
@@ -82,7 +80,7 @@ public interface ByteWriteStream extends Disposable
      * @param byteReadStream The ByteReadStream to read create.
      * @return The number of bytes that were written.
      */
-    default Result<Void> writeAllBytes(ByteReadStream byteReadStream)
+    default Result<Long> writeAllBytes(ByteReadStream byteReadStream)
     {
         PreCondition.assertNotNull(byteReadStream, "byteReadStream");
         PreCondition.assertFalse(byteReadStream.isDisposed(), "byteReadStream.isDisposed()");
@@ -90,6 +88,7 @@ public interface ByteWriteStream extends Disposable
 
         return Result.create(() ->
         {
+            long result = 0;
             byte[] buffer = new byte[1024];
             int bytesInBuffer = 0;
             while(true)
@@ -99,12 +98,27 @@ public interface ByteWriteStream extends Disposable
                     .awaitError();
                 if (bytesRead == null)
                 {
+                    while(bytesInBuffer > 0)
+                    {
+                        final int bytesWritten = writeBytes(buffer, 0, bytesInBuffer).awaitError();
+                        result += bytesWritten;
+                        if (bytesWritten < bytesInBuffer)
+                        {
+                            Array.copy(buffer, 0, buffer, bytesWritten, bytesInBuffer - bytesWritten);
+                            bytesInBuffer -= bytesWritten;
+                        }
+                        else
+                        {
+                            bytesInBuffer = 0;
+                        }
+                    }
                     break;
                 }
                 else
                 {
                     bytesInBuffer += bytesRead;
                     final int bytesWritten = writeBytes(buffer, 0, bytesInBuffer).awaitError();
+                    result += bytesWritten;
                     if (bytesWritten < bytesInBuffer)
                     {
                         Array.copy(buffer, 0, buffer, bytesWritten, bytesInBuffer - bytesWritten);
@@ -120,6 +134,7 @@ public interface ByteWriteStream extends Disposable
                     }
                 }
             }
+            return result;
         });
     }
 

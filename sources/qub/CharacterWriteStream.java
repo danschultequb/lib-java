@@ -27,7 +27,8 @@ public interface CharacterWriteStream extends Disposable
         final CharacterEncoding characterEncoding = getCharacterEncoding();
         final ByteWriteStream byteWriteStream = asByteWriteStream();
         return characterEncoding.encode(toWrite, startIndex, length)
-            .thenResult(byteWriteStream::writeAllBytes);
+            .thenResult(byteWriteStream::writeAllBytes)
+            .then(() -> {});
     }
 
     default Result<Void> write(String toWrite, Object... formattedStringArguments)

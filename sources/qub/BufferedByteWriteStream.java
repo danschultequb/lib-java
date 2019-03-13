@@ -41,12 +41,12 @@ public class BufferedByteWriteStream implements ByteWriteStream
     }
 
     @Override
-    public Result<Boolean> writeByte(byte toWrite)
+    public Result<Integer> writeByte(byte toWrite)
     {
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
         buffer[currentBufferIndex++] = toWrite;
-        final Result<Boolean> result = flushBufferIfFull().then(() -> true);
+        final Result<Integer> result = flushBufferIfFull().thenResult(Result::successOne);
 
         PostCondition.assertNotNull(result, "result");
 

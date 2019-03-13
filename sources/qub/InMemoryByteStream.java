@@ -203,6 +203,20 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
     }
 
     @Override
+    public Result<Integer> writeByte(byte toWrite)
+    {
+        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertFalse(endOfStream, "endOfStream");
+
+        return mutex.criticalSection(() ->
+        {
+            bytes.add(toWrite);
+            bytesAvailable.signalAll();
+            return Result.successOne();
+        });
+    }
+
+    @Override
     public Result<Integer> writeBytes(byte[] toWrite, int startIndex, int length)
     {
         PreCondition.assertNotNullAndNotEmpty(toWrite, "toWrite");
@@ -224,7 +238,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
     }
 
     @Override
-    public Result<Void> writeAllBytes(ByteReadStream byteReadStream)
+    public Result<Long> writeAllBytes(ByteReadStream byteReadStream)
     {
         PreCondition.assertNotNull(byteReadStream, "byteReadStream");
         PreCondition.assertFalse(byteReadStream.isDisposed(), "byteReadStream.isDisposed()");
@@ -234,6 +248,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
         return mutex.criticalSection(() ->
             Result.create(() ->
             {
+                long result = 0;
                 boolean bytesAdded = false;
                 while (true)
                 {
@@ -246,6 +261,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
                     }
                     else
                     {
+                        ++result;
                         bytesAdded = true;
                         bytes.add(byteRead);
                     }
@@ -255,6 +271,8 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
                 {
                     bytesAvailable.signalAll();
                 }
+
+                return result;
             }));
     }
 }

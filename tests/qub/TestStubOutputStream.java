@@ -13,4 +13,16 @@ public class TestStubOutputStream extends java.io.OutputStream
     {
         throw new java.io.IOException();
     }
+
+    @Override
+    public void write(byte[] b) throws java.io.IOException
+    {
+        throw new java.io.IOException();
+    }
+
+    @Override
+    public void write(byte[] b, int offset, int len) throws java.io.IOException
+    {
+        throw new java.io.IOException();
+    }
 }

@@ -552,6 +552,15 @@ public class SyncResult<T> implements Result<T>
         return (SyncResult<U>)successNull;
     }
 
+    private static final SyncResult<Integer> successZero = SyncResult.success(0);
+    /**
+     * Get a successful result that contains a 0 Integer value.
+     */
+    public static SyncResult<Integer> successZero()
+    {
+        return successZero;
+    }
+
     private static final SyncResult<Integer> successOne = SyncResult.success(1);
     /**
      * Get a successful result that contains a 1 Integer value.

@@ -37,15 +37,17 @@ public class Console extends Process
         return lineReadStream.readLine();
     }
 
-    public Result<Boolean> write(byte toWrite)
+    public Result<Integer> write(byte toWrite)
     {
-        Result<Boolean> result = Result.successFalse();
+        Result<Integer> result = Result.successZero();
 
         final ByteWriteStream writeStream = getOutputAsByteWriteStream();
         if (writeStream != null)
         {
             result = writeStream.writeByte(toWrite);
         }
+
+        PostCondition.assertNotNull(result, "result");
 
         return result;
     }
@@ -116,11 +118,11 @@ public class Console extends Process
             : writeStream.writeLine(toWrite, formattedStringArguments);
     }
 
-    public Result<Boolean> writeError(byte toWrite)
+    public Result<Integer> writeError(byte toWrite)
     {
         final ByteWriteStream writeStream = getErrorAsByteWriteStream();
         return writeStream == null
-            ? Result.success()
+            ? Result.successZero()
             : writeStream.writeByte(toWrite);
     }
 
@@ -128,7 +130,7 @@ public class Console extends Process
     {
         final ByteWriteStream writeStream = getErrorAsByteWriteStream();
         return writeStream == null
-            ? Result.success()
+            ? Result.successZero()
             : writeStream.writeBytes(toWrite);
     }
 
@@ -136,7 +138,7 @@ public class Console extends Process
     {
         final ByteWriteStream writeStream = getErrorAsByteWriteStream();
         return writeStream == null
-            ? Result.success()
+            ? Result.successZero()
             : writeStream.writeBytes(toWrite, startIndex, length);
     }
 

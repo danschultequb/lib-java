@@ -48,10 +48,10 @@ public class OutputStreamToByteWriteStreamTests
                     runner.test("with " + outputStream.getClass().getSimpleName() + " and " + toWrite, test ->
                     {
                         final OutputStreamToByteWriteStream writeStream = getWriteStream(outputStream);
-                        final Result<Boolean> writeResult = writeStream.writeByte(toWrite);
+                        final Result<Integer> writeResult = writeStream.writeByte(toWrite);
                         if (expectedWriteResult)
                         {
-                            test.assertEqual(true, writeResult.awaitError());
+                            test.assertEqual(1, writeResult.awaitError());
                         }
                         else
                         {
@@ -120,40 +120,30 @@ public class OutputStreamToByteWriteStreamTests
                     {
                         final OutputStreamToByteWriteStream writeStream = getWriteStream(outputStream);
 
-                        if (toWrite == null || toWrite.length == 0 ||
-                            startIndex < 0 || toWrite.length <= startIndex ||
-                            length <= 0 || toWrite.length - startIndex < length)
+                        if (expectedError == null)
                         {
-                            test.assertThrows(() -> writeStream.writeBytes(toWrite, startIndex, length));
+                            test.assertEqual(expectedWriteResult, writeStream.writeBytes(toWrite, startIndex, length).awaitError());
                         }
                         else
                         {
-                            final Result<Integer> writeResult = writeStream.writeBytes(toWrite, startIndex, length);
-                            if (expectedError == null)
-                            {
-                                test.assertEqual(expectedWriteResult, writeResult.awaitError());
-                            }
-                            else
-                            {
-                                test.assertThrows(writeResult::awaitError, expectedError);
-                            }
+                            test.assertThrows(() -> writeStream.writeBytes(toWrite, startIndex, length).awaitError(), expectedError);
+                        }
 
-                            if (outputStream instanceof ByteArrayOutputStream)
-                            {
-                                final ByteArrayOutputStream byteArrayOutputStream = (ByteArrayOutputStream)outputStream;
-                                final byte[] expectedWrittenBytes = Array.clone(toWrite, startIndex, length);
-                                test.assertEqual(expectedWrittenBytes, byteArrayOutputStream.toByteArray());
-                            }
+                        if (outputStream instanceof ByteArrayOutputStream)
+                        {
+                            final ByteArrayOutputStream byteArrayOutputStream = (ByteArrayOutputStream)outputStream;
+                            final byte[] expectedWrittenBytes = length <= 0 ? new byte[0] : Array.clone(toWrite, startIndex, length);
+                            test.assertEqual(expectedWrittenBytes, byteArrayOutputStream.toByteArray());
                         }
                     });
                 };
 
-                writeByteArrayStartIndexAndLengthTest.run(new ByteArrayOutputStream(), null, 0, 0, null, null);
-                writeByteArrayStartIndexAndLengthTest.run(new TestStubOutputStream(), null, 0, 0, null, null);
-                writeByteArrayStartIndexAndLengthTest.run(new ByteArrayOutputStream(), new byte[0], 0, 0, null, null);
-                writeByteArrayStartIndexAndLengthTest.run(new TestStubOutputStream(), new byte[0], 0, 0, null, null);
-                writeByteArrayStartIndexAndLengthTest.run(new ByteArrayOutputStream(), new byte[] { 0, 1, 2 }, 0, 0, null, null);
-                writeByteArrayStartIndexAndLengthTest.run(new TestStubOutputStream(), new byte[] { 0, 1, 2 }, 0, 0, null, null);
+                writeByteArrayStartIndexAndLengthTest.run(new ByteArrayOutputStream(), null, 0, 0, null, new PreConditionFailure("toWrite cannot be null."));
+                writeByteArrayStartIndexAndLengthTest.run(new TestStubOutputStream(), null, 0, 0, null, new PreConditionFailure("toWrite cannot be null."));
+                writeByteArrayStartIndexAndLengthTest.run(new ByteArrayOutputStream(), new byte[0], 0, 0, null, new PreConditionFailure("toWrite cannot be empty."));
+                writeByteArrayStartIndexAndLengthTest.run(new TestStubOutputStream(), new byte[0], 0, 0, null, new PreConditionFailure("toWrite cannot be empty."));
+                writeByteArrayStartIndexAndLengthTest.run(new ByteArrayOutputStream(), new byte[] { 0, 1, 2 }, 0, 0, 0, null);
+                writeByteArrayStartIndexAndLengthTest.run(new TestStubOutputStream(), new byte[] { 0, 1, 2 }, 0, 0, null, new RuntimeException(new java.io.IOException()));
                 writeByteArrayStartIndexAndLengthTest.run(new ByteArrayOutputStream(), new byte[] { 0, 1, 2 }, 1, 1, 1, null);
                 writeByteArrayStartIndexAndLengthTest.run(new TestStubOutputStream(), new byte[] { 0, 1, 2 }, 1, 1, null, new RuntimeException(new IOException()));
             });
