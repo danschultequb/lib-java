@@ -552,11 +552,20 @@ public class SyncResult<T> implements Result<T>
         return (SyncResult<U>)successNull;
     }
 
+    private static final SyncResult<Integer> successOne = SyncResult.success(1);
+    /**
+     * Get a successful result that contains a 1 Integer value.
+     */
+    public static SyncResult<Integer> successOne()
+    {
+        return successOne;
+    }
+
     private static final SyncResult<Boolean> successTrue = SyncResult.success(true);
     /**
      * Get a successful Result that contains a true boolean value.
      */
-    static SyncResult<Boolean> successTrue()
+    public static SyncResult<Boolean> successTrue()
     {
         return successTrue;
     }
@@ -565,7 +574,7 @@ public class SyncResult<T> implements Result<T>
     /**
      * Get a successful Result that contains a true boolean value.
      */
-    static SyncResult<Boolean> successFalse()
+    public static SyncResult<Boolean> successFalse()
     {
         return successFalse;
     }

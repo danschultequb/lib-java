@@ -244,6 +244,14 @@ public interface Result<T>
     }
 
     /**
+     * Get a successful Result that contains a 1 Integer value.
+     */
+    static SyncResult<Integer> successOne()
+    {
+        return SyncResult.successOne();
+    }
+
+    /**
      * Get a successful Result that contains a true boolean value.
      */
     static SyncResult<Boolean> successTrue()
