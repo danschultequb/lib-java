@@ -275,4 +275,26 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
                 return result;
             }));
     }
+
+    /**
+     * Convert this ByteReadStream to a CharacterReadStream using the default CharacterEncoding.
+     * @return A CharacterReadStream that uses the default CharacterEncoding.
+     */
+    @Override
+    public InMemoryCharacterStream asCharacterReadStream()
+    {
+        return asCharacterReadStream(CharacterEncoding.UTF_8);
+    }
+
+    /**
+     * Conert this ByteReadStream to a CharacterReadStream using the provided CharacterEncoding.
+     * @return A CharacterReadStream that uses the provided CharacterEncoding.
+     */
+    @Override
+    public InMemoryCharacterStream asCharacterReadStream(CharacterEncoding characterEncoding)
+    {
+        PreCondition.assertNotNull(characterEncoding, "characterEncoding");
+
+        return new InMemoryCharacterStream(this, characterEncoding);
+    }
 }

@@ -347,7 +347,7 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
     }
 
     /**
-     * Conert this ByteReadStream to a CharacterReadStream using the default CharacterEncoding.
+     * Convert this ByteReadStream to a CharacterReadStream using the default CharacterEncoding.
      * @return A CharacterReadStream that uses the default CharacterEncoding.
      */
     default CharacterReadStream asCharacterReadStream()
@@ -356,7 +356,7 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
     }
 
     /**
-     * Conert this ByteReadStream to a CharacterReadStream using the provided CharacterEncoding.
+     * Convert this ByteReadStream to a CharacterReadStream using the provided CharacterEncoding.
      * @return A CharacterReadStream that uses the provided CharacterEncoding.
      */
     default CharacterReadStream asCharacterReadStream(CharacterEncoding characterEncoding)
