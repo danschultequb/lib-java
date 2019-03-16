@@ -39,24 +39,24 @@ public class USASCIICharacterEncodingTests
                 };
 
                 encodeFailureTest.run(null, new PreConditionFailure("text cannot be null."));
-                encodeFailureTest.run("", new PreConditionFailure("toWrite cannot be empty."));
 
-                final Action3<String,byte[],Throwable> encodeTest = (String text, byte[] expectedBytes, Throwable expectedError) ->
+                final Action2<String,byte[]> encodeTest = (String text, byte[] expectedBytes) ->
                 {
                     runner.test("with " + Strings.escapeAndQuote(text), (Test test) ->
                     {
-                        test.assertDone(expectedBytes, expectedError, encoding.encode(text));
+                        test.assertEqual(expectedBytes, encoding.encode(text).await());
                     });
                 };
 
-                encodeTest.run("a", new byte[] { 97 }, null);
-                encodeTest.run("b", new byte[] { 98 }, null);
-                encodeTest.run("ab", new byte[] { 97, 98 }, null);
-                encodeTest.run("y", new byte[] { 121 }, null);
-                encodeTest.run("z", new byte[] { 122 }, null);
-                encodeTest.run("\n", new byte[] { 10 }, null);
-                encodeTest.run("~", new byte[] { 126 }, null);
-                encodeTest.run("" + (char)132, new byte[] { -124 }, null);
+                encodeTest.run("", new byte[0]);
+                encodeTest.run("a", new byte[] { 97 });
+                encodeTest.run("b", new byte[] { 98 });
+                encodeTest.run("ab", new byte[] { 97, 98 });
+                encodeTest.run("y", new byte[] { 121 });
+                encodeTest.run("z", new byte[] { 122 });
+                encodeTest.run("\n", new byte[] { 10 });
+                encodeTest.run("~", new byte[] { 126 });
+                encodeTest.run("" + (char)132, new byte[] { -124 });
             });
 
             runner.testGroup("encode(char[])", () ->
@@ -70,24 +70,24 @@ public class USASCIICharacterEncodingTests
                 };
 
                 encodeFailureTest.run(null, new PreConditionFailure("characters cannot be null."));
-                encodeFailureTest.run(new char[0], new PreConditionFailure("toWrite cannot be empty."));
 
-                final Action3<char[],byte[],Throwable> encodeTest = (char[] characters, byte[] expectedBytes, Throwable expectedError) ->
+                final Action2<char[],byte[]> encodeTest = (char[] characters, byte[] expectedBytes) ->
                 {
                     runner.test("with " + Array.toString(characters, Characters::escapeAndQuote), (Test test) ->
                     {
-                        test.assertDone(expectedBytes, expectedError, encoding.encode(characters));
+                        test.assertEqual(expectedBytes, encoding.encode(characters).await());
                     });
                 };
 
-                encodeTest.run(new char[] { 'a' }, new byte[] { 97 }, null);
-                encodeTest.run(new char[] { 'b' }, new byte[] { 98 }, null);
-                encodeTest.run(new char[] { 'a', 'b' }, new byte[] { 97, 98 }, null);
-                encodeTest.run(new char[] { 'y' }, new byte[] { 121 }, null);
-                encodeTest.run(new char[] { 'z' }, new byte[] { 122 }, null);
-                encodeTest.run(new char[] { '\n' }, new byte[] { 10 }, null);
-                encodeTest.run(new char[] { '~' }, new byte[] { 126 }, null);
-                encodeTest.run(new char[] { (char)132 }, new byte[] { -124 }, null);
+                encodeTest.run(new char[0], new byte[0]);
+                encodeTest.run(new char[] { 'a' }, new byte[] { 97 });
+                encodeTest.run(new char[] { 'b' }, new byte[] { 98 });
+                encodeTest.run(new char[] { 'a', 'b' }, new byte[] { 97, 98 });
+                encodeTest.run(new char[] { 'y' }, new byte[] { 121 });
+                encodeTest.run(new char[] { 'z' }, new byte[] { 122 });
+                encodeTest.run(new char[] { '\n' }, new byte[] { 10 });
+                encodeTest.run(new char[] { '~' }, new byte[] { 126 });
+                encodeTest.run(new char[] { (char)132 }, new byte[] { -124 });
             });
 
             runner.testGroup("decode(byte[])", () ->

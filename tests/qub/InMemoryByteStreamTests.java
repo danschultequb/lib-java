@@ -766,7 +766,6 @@ public class InMemoryByteStreamTests
                 final InMemoryByteStream stream = new InMemoryByteStream();
                 final CharacterWriteStream characterWriteStream = stream.asCharacterWriteStream();
                 test.assertNotNull(characterWriteStream);
-                test.assertSame(stream, characterWriteStream.asByteWriteStream());
             });
 
             runner.test("asCharacterWriteStream(CharacterEncoding)", (Test test) ->
@@ -774,42 +773,6 @@ public class InMemoryByteStreamTests
                 final InMemoryByteStream stream = new InMemoryByteStream();
                 final CharacterWriteStream characterWriteStream = stream.asCharacterWriteStream(CharacterEncoding.US_ASCII);
                 test.assertNotNull(characterWriteStream);
-                test.assertSame(stream, characterWriteStream.asByteWriteStream());
-            });
-
-            runner.test("asLineWriteStream()", (Test test) ->
-            {
-                final InMemoryByteStream stream = new InMemoryByteStream();
-                final LineWriteStream lineWriteStream = stream.asLineWriteStream();
-                test.assertNotNull(lineWriteStream);
-                test.assertSame(stream, lineWriteStream.asByteWriteStream());
-            });
-
-            runner.test("asLineWriteStream(CharacterEncoding)", (Test test) ->
-            {
-                final InMemoryByteStream stream = new InMemoryByteStream();
-                final LineWriteStream lineWriteStream = stream.asLineWriteStream(CharacterEncoding.US_ASCII);
-                test.assertNotNull(lineWriteStream);
-                test.assertSame(stream, lineWriteStream.asByteWriteStream());
-            });
-
-            runner.test("asLineWriteStream(String)", (Test test) ->
-            {
-                final InMemoryByteStream stream = new InMemoryByteStream();
-                final LineWriteStream lineWriteStream = stream.asLineWriteStream("\r\n");
-                test.assertNotNull(lineWriteStream);
-                test.assertEqual("\r\n", lineWriteStream.getLineSeparator());
-                test.assertSame(stream, lineWriteStream.asByteWriteStream());
-            });
-
-            runner.test("asLineWriteStream(CharacterEncoding,String)", (Test test) ->
-            {
-                final InMemoryByteStream stream = new InMemoryByteStream();
-                final LineWriteStream lineWriteStream = stream.asLineWriteStream(CharacterEncoding.US_ASCII, "\r\n");
-                test.assertNotNull(lineWriteStream);
-                test.assertSame(CharacterEncoding.US_ASCII, lineWriteStream.getCharacterEncoding());
-                test.assertEqual("\r\n", lineWriteStream.getLineSeparator());
-                test.assertSame(stream, lineWriteStream.asByteWriteStream());
             });
         });
     }

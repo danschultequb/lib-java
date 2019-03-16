@@ -86,6 +86,14 @@ public interface Result<T>
      * @param action The action to run if this result does not have an error.
      * @return This Result object.
      */
+    Result<T> onValue(Action0 action);
+
+    /**
+     * If this result doesn't have an error, then run the provided action and return this Result
+     * object.
+     * @param action The action to run if this result does not have an error.
+     * @return This Result object.
+     */
     Result<T> onValue(Action1<T> action);
 
     /**

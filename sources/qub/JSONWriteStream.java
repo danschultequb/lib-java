@@ -2,106 +2,116 @@ package qub;
 
 public class JSONWriteStream implements Disposable
 {
-    private final LineWriteStream writeStream;
+    private final CharacterWriteStream writeStream;
 
-    public JSONWriteStream(LineWriteStream writeStream)
+    public JSONWriteStream(CharacterWriteStream writeStream)
     {
         this.writeStream = writeStream;
     }
 
-    void writeColon()
+    public Result<?> writeColon()
     {
-        writeStream.write(':');
+        return writeStream.write(':');
     }
 
-    void writeComma()
+    public Result<?> writeComma()
     {
-        writeStream.write(',');
+        return writeStream.write(',');
     }
 
-    void writeLeftCurlyBracket()
+    public Result<?> writeLeftCurlyBracket()
     {
-        writeStream.write('{');
+        return writeStream.write('{');
     }
 
-    void writeRightCurlyBracket()
+    public Result<?> writeRightCurlyBracket()
     {
-        writeStream.write('}');
+        return writeStream.write('}');
     }
 
-    void writeLeftSquareBracket()
+    public Result<?> writeLeftSquareBracket()
     {
-        writeStream.write('[');
+        return writeStream.write('[');
     }
 
-    void writeRightSquareBracket()
+    public Result<?> writeRightSquareBracket()
     {
-        writeStream.write(']');
+        return writeStream.write(']');
     }
 
-    public void writeBoolean(boolean value)
+    public Result<?> writeBoolean(boolean value)
     {
-        writeStream.write(value ? "true" : "false");
+        return writeStream.write(value ? "true" : "false");
     }
 
-    public void writeNull()
+    public Result<?> writeNull()
     {
-        writeStream.write("null");
+        return writeStream.write("null");
     }
 
-    public void writeNumber(long value)
+    public Result<?> writeNumber(long value)
     {
-        writeStream.write(Long.toString(value));
+        return writeStream.write(Long.toString(value));
     }
 
-    public void writeNumber(double value)
+    public Result<?> writeNumber(double value)
     {
-        writeStream.write(Double.toString(value));
+        return writeStream.write(Double.toString(value));
     }
 
-    public void writeQuotedString(String unquotedText)
+    public Result<?> writeQuotedString(String unquotedText)
     {
-        writeQuotedString('\"', unquotedText);
+        return writeQuotedString('\"', unquotedText);
     }
 
-    public void writeQuotedString(char quoteCharacter, String unquotedText)
+    public Result<?> writeQuotedString(char quoteCharacter, String unquotedText)
     {
-        writeStream.write(quoteCharacter);
-        if (unquotedText != null && !unquotedText.isEmpty())
+        return Result.create(() ->
         {
-            writeStream.write(unquotedText);
-        }
-        writeStream.write(quoteCharacter);
+            writeStream.write(quoteCharacter).await();
+            if (unquotedText != null && !unquotedText.isEmpty())
+            {
+                writeStream.write(unquotedText).await();
+            }
+            writeStream.write(quoteCharacter).await();
+        });
     }
 
-    public void writeObject()
+    public Result<?> writeObject()
     {
-        writeObject(null);
+        return writeObject(null);
     }
 
-    public void writeObject(Action1<JSONObjectWriteStream> writeArrayAction)
+    public Result<?> writeObject(Action1<JSONObjectWriteStream> writeArrayAction)
     {
-        writeLeftCurlyBracket();
-        if (writeArrayAction != null)
+        return Result.create(() ->
         {
-            writeArrayAction.run(new JSONObjectWriteStream(this));
-        }
-        writeRightCurlyBracket();
+            writeLeftCurlyBracket().await();
+            if (writeArrayAction != null)
+            {
+                writeArrayAction.run(new JSONObjectWriteStream(this));
+            }
+            writeRightCurlyBracket().await();
+        });
+
     }
 
-    public void writeArray()
+    public Result<?> writeArray()
     {
-        writeArray(null);
+        return writeArray(null);
     }
 
-    public void writeArray(Action1<JSONArrayWriteStream> writeArrayAction)
+    public Result<?> writeArray(Action1<JSONArrayWriteStream> writeArrayAction)
     {
-        writeLeftSquareBracket();
-        if (writeArrayAction != null)
+        return Result.create(() ->
         {
-            writeArrayAction.run(new JSONArrayWriteStream(this));
-        }
-        writeRightSquareBracket();
+            writeLeftSquareBracket().await();
+            if (writeArrayAction != null)
+            {
+                writeArrayAction.run(new JSONArrayWriteStream(this));
+            }
+            writeRightSquareBracket().await();
+        });
     }
 
     @Override

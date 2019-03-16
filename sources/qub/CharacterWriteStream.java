@@ -1,15 +1,40 @@
 package qub;
 
+/**
+ * A WriteStream that writes Characters.
+ */
 public interface CharacterWriteStream extends Disposable
 {
-    CharacterEncoding getCharacterEncoding();
+    /**
+     * Write a single character.
+     * @param toWrite The character to write.
+     * @return The number of characters that were written.
+     */
+    Result<Integer> write(char toWrite);
 
-    default Result<Void> write(char toWrite)
+    /**
+     * Write the encoded bytes of the character to the byteWriteStream using the characterEncoding.
+     * @param toWrite The character to write.
+     * @param characterEncoding The character encoding to use.
+     * @param byteWriteStream The ByteWriteStream to write the encoded bytes to.
+     * @return The number of characters that were written.
+     */
+    static Result<Integer> write(char toWrite, CharacterEncoding characterEncoding, ByteWriteStream byteWriteStream)
     {
-        return write(String.valueOf(toWrite));
+        PreCondition.assertNotNull(characterEncoding, "characterEncoding");
+        PreCondition.assertNotNull(byteWriteStream, "byteWriteStream");
+        PreCondition.assertNotDisposed(byteWriteStream, "byteWriteStream");
+
+        return characterEncoding.encode(toWrite, byteWriteStream)
+            .thenResult(Result::successOne);
     }
 
-    default Result<Void> write(char[] toWrite)
+    /**
+     * Write the entire array of characters.
+     * @param toWrite The characters to write.
+     * @return The number of characters that were written.
+     */
+    default Result<Integer> write(char[] toWrite)
     {
         PreCondition.assertNotNullAndNotEmpty(toWrite, "toWrite");
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
@@ -17,26 +42,92 @@ public interface CharacterWriteStream extends Disposable
         return write(toWrite, 0, toWrite.length);
     }
 
-    default Result<Void> write(char[] toWrite, int startIndex, int length)
+    /**
+     * Write the subarray of characters starting at the provided startIndex and going for the
+     * provided length.
+     * @param toWrite The array of characters to get the subarray from.
+     * @param startIndex The start index into the array of characters to begin writing from.
+     * @param length The number of characters to write.
+     * @return The number of characters that were written.
+     */
+    Result<Integer> write(char[] toWrite, int startIndex, int length);
+
+    /**
+     * Write the subarray of characters starting at the startIndex and going for length number of
+     * characters.
+     * @param toWrite The array of characters to get the subarray from.
+     * @param startIndex The start index into the array of characters to begin writing from.
+     * @param length The number of characters to write.
+     * @param characterEncoding The CharacterEncoding to encode the characters with.
+     * @param byteWriteStream The ByteWriteStream to write the encoded bytes to.
+     * @return The number of characters that were written.
+     */
+    static Result<Integer> write(char[] toWrite, int startIndex, int length, CharacterEncoding characterEncoding, ByteWriteStream byteWriteStream)
     {
         PreCondition.assertNotNullAndNotEmpty(toWrite, "toWrite");
         PreCondition.assertStartIndex(startIndex, toWrite.length);
         PreCondition.assertLength(length, startIndex, toWrite.length);
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertNotNull(characterEncoding, "characterEncoding");
+        PreCondition.assertNotNull(byteWriteStream, "byteWriteStream");
+        PreCondition.assertNotDisposed(byteWriteStream, "byteWriteStream.isDisposed()");
 
-        final CharacterEncoding characterEncoding = getCharacterEncoding();
-        final ByteWriteStream byteWriteStream = asByteWriteStream();
-        return characterEncoding.encode(toWrite, startIndex, length)
-            .thenResult(byteWriteStream::writeAllBytes)
-            .then(() -> {});
+        return characterEncoding.encode(toWrite, startIndex, length, byteWriteStream)
+            .then(() -> length);
     }
 
-    default Result<Void> write(String toWrite, Object... formattedStringArguments)
+    /**
+     * Write the provided String of characters.
+     * @param toWrite The String to write.
+     * @param formattedStringArguments The formatted String arguments.
+     * @return The number of characters that were written.
+     */
+    Result<Integer> write(String toWrite, Object... formattedStringArguments);
+
+    /**
+     * Write the provided String of characters.
+     * @param toWrite The String to write.
+     * @param formattedStringArguments The formatted String arguments.
+     * @param characterEncoding The CharacterEncoding to encode the String with.
+     * @param byteWriteStream The ByteWriteStream to write the encoded bytes to.
+     * @return The number of characters that were written.
+     */
+    static Result<Integer> write(String toWrite, Object[] formattedStringArguments, CharacterEncoding characterEncoding, ByteWriteStream byteWriteStream)
+    {
+        PreCondition.assertNotNull(toWrite, "toWrite");
+        PreCondition.assertNotNull(characterEncoding, "characterEncoding");
+        PreCondition.assertNotNull(byteWriteStream, "byteWriteStream");
+        PreCondition.assertNotDisposed(byteWriteStream, "byteWriteStream.isDisposed()");
+
+        final String formattedString = Strings.format(toWrite, formattedStringArguments);
+        return characterEncoding.encode(formattedString, byteWriteStream)
+            .then(formattedString::length);
+    }
+
+    /**
+     * Write an end of line character sequence.
+     * @return The number of characters that were written.
+     */
+    Result<Integer> writeLine();
+
+    /**
+     * Write the provided String of characters followed by an end of line character sequence.
+     * @param toWrite The text to write.
+     * @param formattedStringArguments The formatted String arguments.
+     * @return The number of characters that were written.
+     */
+    default Result<Integer> writeLine(String toWrite, Object... formattedStringArguments)
     {
         PreCondition.assertNotNull(toWrite, "toWrite");
 
-        toWrite = Strings.format(toWrite, formattedStringArguments);
-        return write(toWrite.toCharArray());
+        return write(toWrite, formattedStringArguments)
+            .thenResult((Integer firstCharactersWrittenCount) ->
+            {
+                return writeLine()
+                    .then((Integer secondCharactersWrittenCount) ->
+                    {
+                        return firstCharactersWrittenCount + secondCharactersWrittenCount;
+                    });
+            });
     }
 
     /**
@@ -44,7 +135,7 @@ public interface CharacterWriteStream extends Disposable
      * @param characterReadStream The ByteReadStream to read create.
      * @return Whether or not the writeByte was successful.
      */
-    default Result<Void> writeAll(CharacterReadStream characterReadStream)
+    default Result<Long> writeAll(CharacterReadStream characterReadStream)
     {
         PreCondition.assertNotNull(characterReadStream, "characterReadStream");
         PreCondition.assertFalse(characterReadStream.isDisposed(), "characterReadStream.isDisposed()");
@@ -52,6 +143,7 @@ public interface CharacterWriteStream extends Disposable
 
         return Result.create(() ->
         {
+            long result = 0;
             char[] buffer = new char[1024];
             while (true)
             {
@@ -64,40 +156,14 @@ public interface CharacterWriteStream extends Disposable
                 }
                 else
                 {
-                    write(buffer, 0, charactersRead).awaitError();
+                    result += write(buffer, 0, charactersRead).awaitError();
                     if (charactersRead == buffer.length)
                     {
                         buffer = new char[buffer.length * 2];
                     }
                 }
             }
+            return result;
         });
-    }
-
-    /**
-     * Convert this CharacterWriteStream to a ByteWriteStream.
-     * @return The converted ByteWriteStream.
-     */
-    ByteWriteStream asByteWriteStream();
-
-    /**
-     * Convert this CharacterWriteStream to a LineWriteStream that uses UTF-8 for its character
-     * encoding and '\n' as its line separator.
-     * @return A LineWriteStream that wraps around this CharacterWriteStream.
-     */
-    default LineWriteStream asLineWriteStream()
-    {
-        return asLineWriteStream("\n");
-    }
-
-    /**
-     * Convert this CharacterWriteStream to a LineWriteStream that uses UTF-8 for its character
-     * encoding and the provided line separator.
-     * @param lineSeparator The separator to insert between lines.
-     * @return A LineWriteStream that wraps around this CharacterWriteStream.
-     */
-    default LineWriteStream asLineWriteStream(String lineSeparator)
-    {
-        return new CharacterWriteStreamToLineWriteStream(this, lineSeparator);
     }
 }

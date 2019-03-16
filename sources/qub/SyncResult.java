@@ -153,6 +153,34 @@ public class SyncResult<T> implements Result<T>
      * @param action The action to run if this result does not have an error.
      * @return This Result object.
      */
+    public SyncResult<T> onValue(Action0 action)
+    {
+        PreCondition.assertNotNull(action, "action");
+
+        SyncResult<T> result = this;
+        if (error == null)
+        {
+            try
+            {
+                action.run();
+            }
+            catch (Throwable error)
+            {
+                result = SyncResult.error(error);
+            }
+        }
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    /**
+     * If this result doesn't have an error, then run the provided action and return this Result
+     * object.
+     * @param action The action to run if this result does not have an error.
+     * @return This Result object.
+     */
     public SyncResult<T> onValue(Action1<T> action)
     {
         PreCondition.assertNotNull(action, "action");

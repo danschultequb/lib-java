@@ -157,7 +157,7 @@ public class HttpServer implements AsyncDisposable
                     request.getContentLength()
                         .then((Long contentLength) -> request.setBody(contentLength, acceptedClient))
                         .catchError()
-                        .awaitError();
+                        .await();
 
                     HttpResponse response;
                     final String pathString = request.getURL().getPath();
@@ -209,7 +209,7 @@ public class HttpServer implements AsyncDisposable
                         reasonPhrase = getReasonPhrase(response.getStatusCode());
                     }
 
-                    final LineWriteStream clientLineWriteStream = acceptedClient.asLineWriteStream("\r\n");
+                    final CharacterWriteStream clientLineWriteStream = acceptedClient.asCharacterWriteStream("\r\n");
                     clientLineWriteStream.writeLine("%s %s %s", httpVersion, response.getStatusCode(), reasonPhrase);
                     for (final HttpHeader header : response.getHeaders())
                     {

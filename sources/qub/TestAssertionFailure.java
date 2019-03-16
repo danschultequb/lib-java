@@ -72,15 +72,15 @@ public class TestAssertionFailure extends RuntimeException
 
     private static String getMessage(String fullTestName, Iterable<String> messageLines)
     {
-        final InMemoryLineStream lineStream = new InMemoryLineStream();
-        lineStream.writeLine(fullTestName);
+        final InMemoryCharacterStream characterStream = new InMemoryCharacterStream();
+        characterStream.writeLine(fullTestName);
         if (messageLines != null)
         {
             for (final String messageLine : messageLines)
             {
-                lineStream.writeLine(messageLine);
+                characterStream.writeLine(messageLine);
             }
         }
-        return lineStream.getText().awaitError();
+        return characterStream.getText().await();
     }
 }

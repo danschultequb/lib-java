@@ -45,7 +45,7 @@ public interface ByteWriteStream extends Disposable
      */
     default Result<Integer> writeAllBytes(byte[] toWrite)
     {
-        PreCondition.assertNotNullAndNotEmpty(toWrite, "toWrite");
+        PreCondition.assertNotNull(toWrite, "toWrite");
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
         return writeAllBytes(toWrite, 0, toWrite.length);
@@ -60,7 +60,7 @@ public interface ByteWriteStream extends Disposable
      */
     default Result<Integer> writeAllBytes(byte[] toWrite, int startIndex, int length)
     {
-        PreCondition.assertNotNullAndNotEmpty(toWrite, "toWrite");
+        PreCondition.assertNotNull(toWrite, "toWrite");
         PreCondition.assertStartIndex(startIndex, toWrite.length);
         PreCondition.assertLength(length, startIndex, toWrite.length);
 
@@ -145,7 +145,7 @@ public interface ByteWriteStream extends Disposable
      */
     default CharacterWriteStream asCharacterWriteStream()
     {
-        return asCharacterWriteStream(CharacterEncoding.UTF_8);
+        return new ByteWriteStreamToCharacterWriteStream(this);
     }
 
     /**
@@ -156,59 +156,29 @@ public interface ByteWriteStream extends Disposable
      */
     default CharacterWriteStream asCharacterWriteStream(CharacterEncoding characterEncoding)
     {
-        PreCondition.assertNotNull(characterEncoding, "characterEncoding");
-
-        return new BasicCharacterWriteStream(this, characterEncoding);
+        return new ByteWriteStreamToCharacterWriteStream(this, characterEncoding);
     }
 
     /**
-     * Convert this ByteWriteStream to a LineWriteStream that uses UTF-8 for its character
-     * encoding and '\n' as its line separator.
-     * @return A LineWriteStream that wraps around this ByteWriteStream.
+     * Convert this ByteWriteStream to a CharacterWriteStream that uses the provided character
+     * encoding.
+     * @param newLine The newLine String to use end each line.
+     * @return A CharacterWriteStream that wraps around this ByteWriteStream.
      */
-    default LineWriteStream asLineWriteStream()
+    default CharacterWriteStream asCharacterWriteStream(String newLine)
     {
-        return asCharacterWriteStream().asLineWriteStream();
+        return new ByteWriteStreamToCharacterWriteStream(this, newLine);
     }
 
     /**
-     * Convert this ByteWriteStream to a LineWriteStream that uses the provided character encoding
-     * and '\n' as its line separator.
+     * Convert this ByteWriteStream to a CharacterWriteStream that uses the provided character
+     * encoding.
      * @param characterEncoding The encoding to use to convert characters to bytes.
-     * @return A LineWriteStream that wraps around this ByteWriteStream.
+     * @param newLine The newLine String to use end each line.
+     * @return A CharacterWriteStream that wraps around this ByteWriteStream.
      */
-    default LineWriteStream asLineWriteStream(CharacterEncoding characterEncoding)
+    default CharacterWriteStream asCharacterWriteStream(CharacterEncoding characterEncoding, String newLine)
     {
-        PreCondition.assertNotNull(characterEncoding, "characterEncoding");
-
-        return asCharacterWriteStream(characterEncoding).asLineWriteStream();
-    }
-
-    /**
-     * Convert this ByteWriteStream to a LineWriteStream that uses UTF-8 for its character
-     * encoding and the provided line separator.
-     * @param lineSeparator The separator to insert between lines.
-     * @return A LineWriteStream that wraps around this ByteWriteStream.
-     */
-    default LineWriteStream asLineWriteStream(String lineSeparator)
-    {
-        PreCondition.assertNotNullAndNotEmpty(lineSeparator, "lineSeparator");
-
-        return asCharacterWriteStream().asLineWriteStream(lineSeparator);
-    }
-
-    /**
-     * Convert this ByteWriteStream to a LineWriteStream that uses the provided character encoding
-     * and the provided line separator.
-     * @param characterEncoding The encoding to use to convert characters to bytes.
-     * @param lineSeparator The separator to insert between lines.
-     * @return A LineWriteStream that wraps around this ByteWriteStream.
-     */
-    default LineWriteStream asLineWriteStream(CharacterEncoding characterEncoding, String lineSeparator)
-    {
-        PreCondition.assertNotNull(characterEncoding, "characterEncoding");
-        PreCondition.assertNotNullAndNotEmpty(lineSeparator, "lineSeparator");
-
-        return asCharacterWriteStream(characterEncoding).asLineWriteStream(lineSeparator);
+        return new ByteWriteStreamToCharacterWriteStream(this, characterEncoding, newLine);
     }
 }

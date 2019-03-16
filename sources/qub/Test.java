@@ -104,9 +104,9 @@ public class Test
     public void writeLine(String formattedText, Object... formattedTextArguments)
     {
         PreCondition.assertNotNullAndNotEmpty(formattedText, "formattedText");
-        PreCondition.assertNotNull(process.getOutputAsByteWriteStream(), "process.getOutputAsByteWriteStream()");
+        PreCondition.assertNotNull(process.getOutputByteWriteStream(), "process.getOutputByteWriteStream()");
 
-        process.getOutputAsLineWriteStream().writeLine(formattedText, formattedTextArguments);
+        process.getOutputCharacterWriteStream().writeLine(formattedText, formattedTextArguments);
     }
 
     /**

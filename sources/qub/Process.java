@@ -8,16 +8,16 @@ public class Process implements Disposable
     private final CommandLine commandLine;
     private volatile int exitCode;
 
+    private final Value<ByteWriteStream> outputByteWriteStream;
+    private final Value<ByteWriteStream> errorByteWriteStream;
+    private final Value<ByteReadStream> inputByteReadStream;
+    private final Value<CharacterWriteStream> outputCharacterWriteStream;
+    private final Value<CharacterWriteStream> errorCharacterWriteStream;
+    private final Value<CharacterReadStream> inputCharacterReadStream;
+    private final Value<LineReadStream> inputLineReadStream;
     private final Value<CharacterEncoding> characterEncoding;
     private final Value<String> lineSeparator;
     private final Value<Boolean> includeNewLines;
-
-    private final Value<ByteWriteStream> outputWriteStream;
-    private final Value<ByteWriteStream> errorWriteStream;
-
-    private final Value<ByteReadStream> byteReadStream;
-    private final Value<CharacterReadStream> characterReadStream;
-    private final Value<LineReadStream> lineReadStream;
 
     private final Value<Random> random;
     private final Value<FileSystem> fileSystem;
@@ -61,14 +61,17 @@ public class Process implements Disposable
     {
         this.commandLine = commandLine;
 
+        outputByteWriteStream = Value.create();
+        errorByteWriteStream = Value.create();
+        inputByteReadStream = Value.create();
+        outputCharacterWriteStream = Value.create();
+        errorCharacterWriteStream = Value.create();
+        inputCharacterReadStream = Value.create();
+        inputLineReadStream = Value.create();
         characterEncoding = Value.create();
         lineSeparator = Value.create();
         includeNewLines = Value.create();
-        outputWriteStream = Value.create();
-        errorWriteStream = Value.create();
-        byteReadStream = Value.create();
-        characterReadStream = Value.create();
-        lineReadStream = Value.create();
+
         random = Value.create();
         fileSystem = Value.create();
         network = Value.create();
@@ -140,9 +143,99 @@ public class Process implements Disposable
         return commandLine;
     }
 
-    public void setCharacterEncoding(CharacterEncoding characterEncoding)
+    /**
+     * Get the ByteWriteStream that is assigned to this Console.
+     * @return The ByteWriteStream that is assigned to this Console.
+     */
+    public ByteWriteStream getOutputByteWriteStream()
+    {
+        if (!outputByteWriteStream.hasValue())
+        {
+            outputByteWriteStream.set(new OutputStreamToByteWriteStream(System.out));
+        }
+        return outputByteWriteStream.get();
+    }
+
+    /**
+     * Get the error ByteWriteStream that is assigned to this Console.
+     * @return The error ByteWriteStream that is assigned to this Console.
+     */
+    public ByteWriteStream getErrorByteWriteStream()
+    {
+        if (!errorByteWriteStream.hasValue())
+        {
+            errorByteWriteStream.set(new OutputStreamToByteWriteStream(System.err));
+        }
+        return errorByteWriteStream.get();
+    }
+
+    /**
+     * Get the ByteReadStream that is assigned to this Console.
+     * @return The ByteReadStream that is assigned to this Console.
+     */
+    public ByteReadStream getInputByteReadStream()
+    {
+        if (!inputByteReadStream.hasValue())
+        {
+            setInputByteReadStream(new InputStreamToByteReadStream(System.in, getParallelAsyncRunner()));
+        }
+        return inputByteReadStream.get();
+    }
+
+    public CharacterReadStream getInputCharacterReadStream()
+    {
+        if (!inputCharacterReadStream.hasValue())
+        {
+            final ByteReadStream inputByteReadStream = getInputByteReadStream();
+            final CharacterEncoding characterEncoding = getCharacterEncoding();
+            inputCharacterReadStream.set(inputByteReadStream.asCharacterReadStream(characterEncoding));
+        }
+        return inputCharacterReadStream.get();
+    }
+
+    public LineReadStream getInputLineReadStream()
+    {
+        if (!inputLineReadStream.hasValue())
+        {
+            final CharacterReadStream inputCharacterReadStream = getInputCharacterReadStream();
+            final boolean includeNewLines = getIncludeNewLines();
+            inputLineReadStream.set(inputCharacterReadStream.asLineReadStream(includeNewLines));
+        }
+        return inputLineReadStream.get();
+    }
+
+    public CharacterWriteStream getOutputCharacterWriteStream()
+    {
+        if (!outputCharacterWriteStream.hasValue())
+        {
+            final ByteWriteStream outputByteWriteStream = getOutputByteWriteStream();
+            final CharacterEncoding characterEncoding = getCharacterEncoding();
+            final String lineSeparator = getLineSeparator();
+            outputCharacterWriteStream.set(outputByteWriteStream.asCharacterWriteStream(characterEncoding, lineSeparator));
+        }
+        return outputCharacterWriteStream.get();
+    }
+
+    public CharacterWriteStream getErrorCharacterWriteStream()
+    {
+        if (!errorCharacterWriteStream.hasValue())
+        {
+            final ByteWriteStream errorByteWriteStream = getErrorByteWriteStream();
+            final CharacterEncoding characterEncoding = getCharacterEncoding();
+            final String lineSeparator = getLineSeparator();
+            errorCharacterWriteStream.set(errorByteWriteStream.asCharacterWriteStream(characterEncoding, lineSeparator));
+        }
+        return errorCharacterWriteStream.get();
+    }
+
+    public Process setCharacterEncoding(CharacterEncoding characterEncoding)
     {
         this.characterEncoding.set(characterEncoding);
+        outputCharacterWriteStream.clear();
+        errorCharacterWriteStream.clear();
+        inputCharacterReadStream.clear();
+        inputLineReadStream.clear();
+        return this;
     }
 
     public CharacterEncoding getCharacterEncoding()
@@ -154,9 +247,14 @@ public class Process implements Disposable
         return characterEncoding.get();
     }
 
-    public void setLineSeparator(String lineSeparator)
+    public Process setLineSeparator(String lineSeparator)
     {
         this.lineSeparator.set(lineSeparator);
+        outputCharacterWriteStream.clear();
+        errorCharacterWriteStream.clear();
+        inputCharacterReadStream.clear();
+        inputLineReadStream.clear();
+        return this;
     }
 
     public String getLineSeparator()
@@ -168,9 +266,14 @@ public class Process implements Disposable
         return lineSeparator.get();
     }
 
-    public void setIncludeNewLines(boolean includeNewLines)
+    public Process setIncludeNewLines(boolean includeNewLines)
     {
         this.includeNewLines.set(includeNewLines);
+        outputCharacterWriteStream.clear();
+        errorCharacterWriteStream.clear();
+        inputCharacterReadStream.clear();
+        inputLineReadStream.clear();
+        return this;
     }
 
     public boolean getIncludeNewLines()
@@ -184,167 +287,102 @@ public class Process implements Disposable
 
     /**
      * Set the ByteWriteStream that is assigned to this Console's output.
-     * @param writeStream The ByteWriteStream that is assigned to this Console's output.
+     * @param outputByteWriteStream The ByteWriteStream that is assigned to this Console's output.
+     * @return This object for method chaining.
      */
-    public void setOutput(ByteWriteStream writeStream)
+    public Process setOutputByteWriteStream(ByteWriteStream outputByteWriteStream)
     {
-        this.outputWriteStream.set(writeStream);
+        this.outputByteWriteStream.set(outputByteWriteStream);
+        outputCharacterWriteStream.clear();
+        return this;
     }
 
     /**
-     * Get the ByteWriteStream that is assigned to this Console.
-     * @return The ByteWriteStream that is assigned to this Console.
+     * Set the CharacterWriteStream that is assigned to this Console's output.
+     * @param outputCharacterWriteStream The CharacterWriteStream that is assigned to this Console's
+     *                                   output.
+     * @return This object for method chaining.
      */
-    public ByteWriteStream getOutputAsByteWriteStream()
+    public Process setOutputCharacterWriteStream(CharacterWriteStream outputCharacterWriteStream)
     {
-        if (!outputWriteStream.hasValue())
-        {
-            outputWriteStream.set(new OutputStreamToByteWriteStream(System.out));
-        }
-        return outputWriteStream.get();
-    }
-
-    public void setOutput(CharacterWriteStream writeStream)
-    {
-        setOutput(writeStream == null ? null : writeStream.asByteWriteStream());
-    }
-
-    public CharacterWriteStream getOutputAsCharacterWriteStream()
-    {
-        final ByteWriteStream outputByteWriteStream = getOutputAsByteWriteStream();
-        return outputByteWriteStream == null ? null : outputByteWriteStream.asCharacterWriteStream(getCharacterEncoding());
-    }
-
-    public void setOutput(LineWriteStream writeStream)
-    {
-        setOutput(writeStream == null ? null : writeStream.asCharacterWriteStream());
-    }
-
-    public LineWriteStream getOutputAsLineWriteStream()
-    {
-        final ByteWriteStream outputByteWriteStream = getOutputAsByteWriteStream();
-        return outputByteWriteStream == null ? null : outputByteWriteStream.asLineWriteStream(getCharacterEncoding(), getLineSeparator());
+        this.outputByteWriteStream.clear();
+        this.outputCharacterWriteStream.set(outputCharacterWriteStream);
+        return this;
     }
 
     /**
      * Set the ByteWriteStream that is assigned to this Console's error.
-     * @param writeStream The ByteWriteStream that is assigned to this Console's error.
+     * @param errorByteWriteStream The ByteWriteStream that is assigned to this Console's error.
+     * @return This object for method chaining.
      */
-    public void setError(ByteWriteStream writeStream)
+    public Process setErrorByteWriteStream(ByteWriteStream errorByteWriteStream)
     {
-        this.errorWriteStream.set(writeStream);
+        this.errorByteWriteStream.set(errorByteWriteStream);
+        errorCharacterWriteStream.clear();
+        return this;
     }
 
     /**
-     * Get the error ByteWriteStream that is assigned to this Console.
-     * @return The error ByteWriteStream that is assigned to this Console.
+     * Set the CharacterWriteStream that is assigned to this Console's error.
+     * @param errorCharacterWriteStream The CharacterWriteStream that is assigned to this Console's
+     *                                  error.
+     * @return This object for method chaining.
      */
-    public ByteWriteStream getErrorAsByteWriteStream()
+    public Process setErrorCharacterWriteStream(CharacterWriteStream errorCharacterWriteStream)
     {
-        if (!errorWriteStream.hasValue())
-        {
-            errorWriteStream.set(new OutputStreamToByteWriteStream(System.err));
-        }
-        return errorWriteStream.get();
-    }
-
-    public void setError(CharacterWriteStream writeStream)
-    {
-        setError(writeStream == null ? null : writeStream.asByteWriteStream());
-    }
-
-    public CharacterWriteStream getErrorAsCharacterWriteStream()
-    {
-        final ByteWriteStream errorByteWriteStream = getErrorAsByteWriteStream();
-        return errorByteWriteStream == null ? null : errorByteWriteStream.asCharacterWriteStream(getCharacterEncoding());
-    }
-
-    public void setError(LineWriteStream writeStream)
-    {
-        setError(writeStream == null ? null : writeStream.asCharacterWriteStream());
-    }
-
-    public LineWriteStream getErrorAsLineWriteStream()
-    {
-        final ByteWriteStream errorByteWriteStream = getErrorAsByteWriteStream();
-        return errorByteWriteStream == null ? null : errorByteWriteStream.asLineWriteStream(getCharacterEncoding(), getLineSeparator());
+        this.errorByteWriteStream.clear();
+        this.errorCharacterWriteStream.set(errorCharacterWriteStream);
+        return this;
     }
 
     /**
-     * Set the ByteReadStream that is assigned to this Console.
-     * @param readStream The ByteReadStream that is assigned to this Console.
+     * Set the ByteReadStream that is assigned to this Console's input.
+     * @param inputByteReadStream The ByteReadStream that is assigned to this Console's input.
+     * @return This object for method chaining.
      */
-    public void setInput(ByteReadStream readStream)
+    public Process setInputByteReadStream(ByteReadStream inputByteReadStream)
     {
-        setInput(readStream == null ? null : readStream.asLineReadStream(getCharacterEncoding(), getIncludeNewLines()));
+        this.inputByteReadStream.set(inputByteReadStream);
+        inputCharacterReadStream.clear();
+        inputLineReadStream.clear();
+        return this;
     }
 
     /**
-     * Set the CharacterReadStream that is assigned to this Console.
-     * @param readStream The CharacterReadStream that is assigned to this Console.
+     * Set the CharacterReadStream that is assigned to this Console's input.
+     * @param inputCharacterReadStream The CharacterReadStream that is assigned to this Console's
+     *                                 input.
+     * @return This object for method chaining.
      */
-    public void setInput(CharacterReadStream readStream)
+    public Process setInputCharacterReadStream(CharacterReadStream inputCharacterReadStream)
     {
-        setInput(readStream == null ? null : readStream.asLineReadStream(getIncludeNewLines()));
+        this.inputByteReadStream.set(null);
+        this.inputCharacterReadStream.set(inputCharacterReadStream);
+        inputLineReadStream.clear();
+        return this;
     }
 
     /**
-     * Set the LineReadStream that is assigned to this Console.
-     * @param readStream The LineReadStream that is assigned to this Console.
+     * Set the LineReadStream that is assigned to this Console's input.
+     * @param inputLineReadStream The LineReadStream that is assigned to this Console's input.
+     * @return This object for method chaining.
      */
-    public void setInput(LineReadStream readStream)
+    public Process setInputLineReadStream(LineReadStream inputLineReadStream)
     {
-        lineReadStream.set(readStream);
-        characterReadStream.set(readStream == null ? null : readStream.asCharacterReadStream());
-        byteReadStream.set(readStream == null ? null : readStream.asByteReadStream());
-    }
-
-    /**
-     * Get the ByteReadStream that is assigned to this Console.
-     * @return The ByteReadStream that is assigned to this Console.
-     */
-    public ByteReadStream getInputAsByteReadStream()
-    {
-        if (!byteReadStream.hasValue())
-        {
-            setInput(new InputStreamToByteReadStream(System.in, getParallelAsyncRunner()));
-        }
-        return byteReadStream.get();
-    }
-
-    /**
-     * Get the CharacterReadStream that is assigned to this Console.
-     * @return The CharacterReadStream that is assigned to this Console.
-     */
-    public CharacterReadStream getInputAsCharacterReadStream()
-    {
-        if (!characterReadStream.hasValue())
-        {
-            getInputAsByteReadStream();
-        }
-        return characterReadStream.get();
-    }
-
-    /**
-     * Get the LineReadStream that is assigned to this Console.
-     * @return The LineReadStream that is assigned to this Console.
-     */
-    public LineReadStream getInputAsLineReadStream()
-    {
-        if (!lineReadStream.hasValue())
-        {
-            getInputAsByteReadStream();
-        }
-        return lineReadStream.get();
+        this.inputByteReadStream.set(null);
+        this.inputCharacterReadStream.set(null);
+        this.inputLineReadStream.set(inputLineReadStream);
+        return this;
     }
 
     /**
      * Set the Random number generator assigned to this Console.
      * @param random The Random number generator assigned to this Console.
      */
-    void setRandom(Random random)
+    public Process setRandom(Random random)
     {
         this.random.set(random);
+        return this;
     }
 
     /**
@@ -377,7 +415,7 @@ public class Process implements Disposable
      * Set the FileSystem that is assigned to this Console.
      * @param fileSystem The FileSystem that will be assigned to this Console.
      */
-    public void setFileSystem(FileSystem fileSystem)
+    public Process setFileSystem(FileSystem fileSystem)
     {
         this.fileSystem.set(fileSystem);
         if (fileSystem == null)
@@ -388,6 +426,7 @@ public class Process implements Disposable
         {
             currentFolderPathString.clear();
         }
+        return this;
     }
 
     public void setFileSystem(Function1<AsyncRunner,FileSystem> creator)
@@ -404,14 +443,16 @@ public class Process implements Disposable
         return network.get();
     }
 
-    public void setNetwork(Network network)
+    public Process setNetwork(Network network)
     {
         this.network.set(network);
+        return this;
     }
 
-    public void setNetwork(Function1<AsyncRunner,Network> creator)
+    public Process setNetwork(Function1<AsyncRunner,Network> creator)
     {
         setNetwork(creator == null ? null : creator.run(getParallelAsyncRunner()));
+        return this;
     }
 
     public String getCurrentFolderPathString()
@@ -423,9 +464,10 @@ public class Process implements Disposable
         return currentFolderPathString.get();
     }
 
-    public void setCurrentFolderPathString(String currentFolderPathString)
+    public Process setCurrentFolderPathString(String currentFolderPathString)
     {
         this.currentFolderPathString.set(currentFolderPathString);
+        return this;
     }
 
     /**
@@ -442,9 +484,10 @@ public class Process implements Disposable
      * Set the path to the folder that this Console is currently running in.
      * @param currentFolderPath The folder to the path that this Console is currently running in.
      */
-    public void setCurrentFolderPath(Path currentFolderPath)
+    public Process setCurrentFolderPath(Path currentFolderPath)
     {
         currentFolderPathString.set(currentFolderPath == null ? null : currentFolderPath.toString());
+        return this;
     }
 
     public Result<Folder> getCurrentFolder()
@@ -522,9 +565,10 @@ public class Process implements Disposable
         return synchronization.get();
     }
 
-    public void setStopwatchCreator(Function0<Stopwatch> stopwatchCreator)
+    public Process setStopwatchCreator(Function0<Stopwatch> stopwatchCreator)
     {
         this.stopwatchCreator.set(stopwatchCreator);
+        return this;
     }
 
     public Stopwatch getStopwatch()
@@ -547,9 +591,10 @@ public class Process implements Disposable
      * Set the Clock object that this Process will use.
      * @param clock The Clock object that this Process will use.
      */
-    public void setClock(Clock clock)
+    public Process setClock(Clock clock)
     {
         this.clock.set(clock);
+        return this;
     }
 
     /**
@@ -569,9 +614,10 @@ public class Process implements Disposable
      * Set the displays Iterable that this Process will use.
      * @param displays The displays Iterable that this Process will use.
      */
-    public void setDisplays(Iterable<Display> displays)
+    public Process setDisplays(Iterable<Display> displays)
     {
         this.displays.set(displays);
+        return this;
     }
 
     /**

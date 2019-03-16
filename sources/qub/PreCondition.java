@@ -671,6 +671,16 @@ public class PreCondition
      */
     public static void assertNotDisposed(Disposable value)
     {
-        PreCondition.assertFalse(value.isDisposed(), "isDisposed()");
+        PreCondition.assertNotDisposed(value, "isDisposed()");
+    }
+
+    /**
+     * Assert that the provided value is not disposed.
+     * @param value The value to check.
+     * @param expressionName The expression that created the value.
+     */
+    public static void assertNotDisposed(Disposable value, String expressionName)
+    {
+        PreCondition.assertFalse(value.isDisposed(), expressionName);
     }
 }

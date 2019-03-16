@@ -77,14 +77,6 @@ public class OutputStreamToByteWriteStream implements ByteWriteStream
     }
 
     @Override
-    public CharacterWriteStream asCharacterWriteStream(CharacterEncoding characterEncoding)
-    {
-        PreCondition.assertNotNull(characterEncoding, "characterEncoding");
-
-        return new OutputStreamWriterToCharacterWriteStream(this, characterEncoding);
-    }
-
-    @Override
     public boolean isDisposed()
     {
         return disposed;

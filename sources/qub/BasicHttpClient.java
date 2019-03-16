@@ -33,7 +33,7 @@ public class BasicHttpClient implements HttpClient
             try (final TCPClient tcpClient = network.createTCPClient(requestIPAddress, requestPort).awaitError())
             {
                 final InMemoryByteStream requestBeforeBodyByteStream = new InMemoryByteStream();
-                final LineWriteStream requestBeforeBodyLineStream = requestBeforeBodyByteStream.asLineWriteStream(CharacterEncoding.UTF_8, "\r\n");
+                final CharacterWriteStream requestBeforeBodyLineStream = requestBeforeBodyByteStream.asCharacterWriteStream(CharacterEncoding.UTF_8, "\r\n");
                 String httpVersion = request.getHttpVersion();
                 if (Strings.isNullOrEmpty(httpVersion))
                 {

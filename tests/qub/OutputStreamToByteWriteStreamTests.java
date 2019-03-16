@@ -166,7 +166,7 @@ public class OutputStreamToByteWriteStreamTests
                     final ByteArrayOutputStream outputStream = getOutputStream();
                     final OutputStreamToByteWriteStream writeStream = getWriteStream(outputStream);
 
-                    test.assertThrows(() -> writeStream.asCharacterWriteStream(null));
+                    test.assertThrows(() -> writeStream.asCharacterWriteStream((CharacterEncoding)null));
                 });
             });
         });

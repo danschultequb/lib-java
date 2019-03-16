@@ -179,7 +179,7 @@ public class MutableHttpResponse implements HttpResponse
         final InMemoryByteStream bodyStream = new InMemoryByteStream();
         if (!Strings.isNullOrEmpty(body))
         {
-            bodyStream.asLineWriteStream().write(body);
+            bodyStream.asCharacterWriteStream().write(body);
         }
         bodyStream.endOfStream();
         setBody(bodyStream);

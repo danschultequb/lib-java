@@ -1208,6 +1208,49 @@ public abstract class Array<T> implements MutableIndexable<T>
     }
 
     /**
+     * Get the first index of the provided character in the array of characters. If the character
+     * is not found, then -1 will be returned.
+     * @param characters The array of characters to look through.
+     * @param value The character to look for.
+     * @return The first index of the provided character in the array of characters, or -1 if the
+     * character is not found.
+     */
+    public static int indexOf(char[] characters, char value)
+    {
+        PreCondition.assertNotNull(characters, "characters");
+
+        final int result = Array.indexOf(characters, 0, characters.length, value);
+
+        PostCondition.assertBetween(-1, result, characters.length - 1, "result");
+
+        return result;
+    }
+
+    /**
+     * Get the first index of the provided character in the array of characters. If the character
+     * is not found, then -1 will be returned.
+     * @param characters The array of characters to look through.
+     * @param value The character to look for.
+     * @return The first index of the provided character in the array of characters, or -1 if the
+     * character is not found.
+     */
+    public static int indexOf(char[] characters, int startIndex, int length, char value)
+    {
+        PreCondition.assertNotNull(characters, "characters");
+
+        int result = -1;
+        for (int i = 0; i < length; ++i)
+        {
+            if (characters[startIndex + i] == value)
+            {
+                result = i;
+                break;
+            }
+        }
+        return result;
+    }
+
+    /**
      * Get whether or not the provided array contains the provided value.
      * @param array The array to check.
      * @param value The value to look for.

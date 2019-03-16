@@ -1,12 +1,10 @@
 package qub;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 public class TCPEchoServerTests
 {
     public static void test(TestRunner runner)
     {
-        final AtomicInteger port = new AtomicInteger(14000);
+        final IntegerValue port = new IntegerValue(14000);
 
         runner.testGroup(TCPEchoServer.class, () ->
         {
@@ -15,7 +13,7 @@ public class TCPEchoServerTests
                 final AsyncRunner asyncRunner = test.getParallelAsyncRunner();
 
                 final Network network = new JavaNetwork(asyncRunner);
-                final Result<TCPEchoServer> echoServerResult = TCPEchoServer.create(network, port.incrementAndGet());
+                final Result<TCPEchoServer> echoServerResult = TCPEchoServer.create(network, port.increment().getAsInt());
                 test.assertSuccessDispose(echoServerResult,
                     (TCPEchoServer echoServer) ->
                     {
@@ -23,16 +21,16 @@ public class TCPEchoServerTests
 
                         final AsyncAction clientTask = asyncRunner.schedule(() ->
                         {
-                            try (final TCPClient tcpClient = network.createTCPClient(IPv4Address.localhost, port.get()).awaitError())
+                            try (final TCPClient tcpClient = network.createTCPClient(IPv4Address.localhost, port.get()).await())
                             {
-                                final LineWriteStream tcpClientLineWriteStream = tcpClient.asLineWriteStream();
+                                final CharacterWriteStream tcpClientCharacterWriteStream = tcpClient.asCharacterWriteStream();
                                 final LineReadStream tcpClientLineReadStream = tcpClient.asLineReadStream();
 
-                                tcpClientLineWriteStream.writeLine("Hello");
-                                test.assertSuccess("Hello", tcpClientLineReadStream.readLine());
+                                tcpClientCharacterWriteStream.writeLine("Hello");
+                                test.assertEqual("Hello", tcpClientLineReadStream.readLine().await());
 
-                                tcpClientLineWriteStream.writeLine("World");
-                                test.assertSuccess("World", tcpClientLineReadStream.readLine());
+                                tcpClientCharacterWriteStream.writeLine("World");
+                                test.assertEqual("World", tcpClientLineReadStream.readLine().await());
                             }
                         });
 
@@ -45,22 +43,22 @@ public class TCPEchoServerTests
                 final AsyncRunner asyncRunner = test.getParallelAsyncRunner();
 
                 final Network network = new JavaNetwork(asyncRunner);
-                try (final TCPEchoServer echoServer = TCPEchoServer.create(network, port.incrementAndGet()).awaitError())
+                try (final TCPEchoServer echoServer = TCPEchoServer.create(network, port.increment().getAsInt()).await())
                 {
                     final AsyncAction echoServerTask = echoServer.echoAsync();
 
                     final AsyncAction clientTask = asyncRunner.schedule(() ->
                     {
-                        try (final TCPClient tcpClient = network.createTCPClient(IPv4Address.localhost, port.get()).awaitError())
+                        try (final TCPClient tcpClient = network.createTCPClient(IPv4Address.localhost, port.get()).await())
                         {
-                            final LineWriteStream tcpClientLineWriteStream = tcpClient.asLineWriteStream();
+                            final CharacterWriteStream tcpClientCharacterWriteStream = tcpClient.asCharacterWriteStream();
                             final LineReadStream tcpClientLineReadStream = tcpClient.asLineReadStream();
 
-                            tcpClientLineWriteStream.writeLine("Hello");
-                            test.assertSuccess("Hello", tcpClientLineReadStream.readLine());
+                            tcpClientCharacterWriteStream.writeLine("Hello");
+                            test.assertEqual("Hello", tcpClientLineReadStream.readLine().await());
 
-                            tcpClientLineWriteStream.writeLine("World");
-                            test.assertSuccess("World", tcpClientLineReadStream.readLine());
+                            tcpClientCharacterWriteStream.writeLine("World");
+                            test.assertEqual("World", tcpClientLineReadStream.readLine().await());
                         }
                     });
 

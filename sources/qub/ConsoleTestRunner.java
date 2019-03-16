@@ -5,11 +5,8 @@ package qub;
  */
 public class ConsoleTestRunner extends Console implements TestRunner
 {
-    private BasicTestRunner testRunner;
-
-    private final String singleIndent;
-    private String currentIndent;
-    private boolean onNewLine;
+    private final BasicTestRunner testRunner;
+    private final IndentedCharacterWriteStream indentedCharacterWriteStream;
 
     /**
      * Create a new ConsoleTestRunner with no command line arguments.
@@ -52,13 +49,15 @@ public class ConsoleTestRunner extends Console implements TestRunner
         }
 
         testRunner = new BasicTestRunner(this, testPattern);
+        indentedCharacterWriteStream = new IndentedCharacterWriteStream(getOutputCharacterWriteStream());
+        setOutputCharacterWriteStream(indentedCharacterWriteStream);
 
         final List<TestGroup> testGroupsWrittenToConsole = new ArrayList<>();
         testRunner.afterTestGroup((TestGroup testGroup) ->
         {
             if (testGroupsWrittenToConsole.remove(testGroup))
             {
-                ConsoleTestRunner.this.decreaseIndent();
+                decreaseIndent();
             }
         });
         testRunner.beforeTest((Test test) ->
@@ -76,41 +75,38 @@ public class ConsoleTestRunner extends Console implements TestRunner
                 final TestGroup testGroupToWrite = testGroupsToWrite.pop();
 
                 final String skipMessage = testGroupToWrite.getSkipMessage();
-                ConsoleTestRunner.this.writeLine(testGroupToWrite.getName() + (!testGroupToWrite.shouldSkip() ? "" : " - Skipped" + (Strings.isNullOrEmpty(skipMessage) ? "" : ": " + skipMessage)));
+                final String testGroupMessage = testGroupToWrite.getName() + (!testGroupToWrite.shouldSkip() ? "" : " - Skipped" + (Strings.isNullOrEmpty(skipMessage) ? "" : ": " + skipMessage));
+                writeLine(testGroupMessage).await();
                 testGroupsWrittenToConsole.add(testGroupToWrite);
-                ConsoleTestRunner.this.increaseIndent();
+                increaseIndent();
             }
 
-            write(test.getName());
-            ConsoleTestRunner.this.increaseIndent();
+            write(test.getName()).await();
+            increaseIndent();
         });
         testRunner.afterTestSuccess((Test test) ->
         {
-            ConsoleTestRunner.this.writeLine(" - Passed");
+            writeLine(" - Passed");
         });
         testRunner.afterTestFailure((Test test, TestAssertionFailure failure) ->
         {
-            ConsoleTestRunner.this.writeLine(" - Failed");
+            writeLine(" - Failed");
             writeFailure(failure);
         });
         testRunner.afterTestError((Test test, Throwable error) ->
         {
-            ConsoleTestRunner.this.writeLine(" - Error");
+            writeLine(" - Error");
             writeFailureCause(error);
         });
         testRunner.afterTestSkipped((Test test) ->
         {
             final String skipMessage = test.getSkipMessage();
-            ConsoleTestRunner.this.writeLine(" - Skipped" + (Strings.isNullOrEmpty(skipMessage) ? "" : ": " + skipMessage));
+            writeLine(" - Skipped" + (Strings.isNullOrEmpty(skipMessage) ? "" : ": " + skipMessage));
         });
         testRunner.afterTest((Test test) ->
         {
-            ConsoleTestRunner.this.decreaseIndent();
+            decreaseIndent();
         });
-
-        singleIndent = "  ";
-        currentIndent = "";
-        onNewLine = true;
     }
 
     /**
@@ -118,7 +114,7 @@ public class ConsoleTestRunner extends Console implements TestRunner
      */
     private void increaseIndent()
     {
-        currentIndent += singleIndent;
+        indentedCharacterWriteStream.increaseIndent();
     }
 
     /**
@@ -126,28 +122,12 @@ public class ConsoleTestRunner extends Console implements TestRunner
      */
     private void decreaseIndent()
     {
-        currentIndent = currentIndent.substring(0, currentIndent.length() - singleIndent.length());
+        indentedCharacterWriteStream.decreaseIndent();
     }
 
     public int getFailedTestCount()
     {
         return testRunner.getFailedTestCount();
-    }
-
-    @Override
-    public Result<Void> write(String line, Object... formattedStringArguments)
-    {
-        return (onNewLine ? super.write(currentIndent) : Result.success())
-            .thenResult(() -> super.write(line, formattedStringArguments))
-            .then(() -> { onNewLine = (line != null && line.endsWith("\n")); });
-    }
-
-    @Override
-    public Result<Void> writeLine(String line, Object... formattedStringArguments)
-    {
-        return (onNewLine ? super.write(currentIndent) : Result.success())
-            .thenResult(() -> super.writeLine(line, formattedStringArguments))
-            .then(() -> { onNewLine = true; });
     }
 
     private void writeFailure(TestAssertionFailure failure)

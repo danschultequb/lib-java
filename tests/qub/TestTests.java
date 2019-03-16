@@ -227,9 +227,10 @@ public class TestTests
                 {
                     try (final Process p = new Process())
                     {
-                        p.setOutput((ByteWriteStream)null);
+                        p.setOutputByteWriteStream((ByteWriteStream)null);
                         final Test t = new Test("abc", null, null, p);
-                        test.assertThrows(() -> t.writeLine("Hello"));
+                        test.assertThrows(() -> t.writeLine("Hello"),
+                            new PreConditionFailure("process.getOutputByteWriteStream() cannot be null."));
                     }
                 });
 
@@ -237,8 +238,8 @@ public class TestTests
                 {
                     try (final Process p = new Process())
                     {
-                        final InMemoryLineStream stdout = new InMemoryLineStream();
-                        p.setOutput(stdout);
+                        final InMemoryCharacterStream stdout = new InMemoryCharacterStream();
+                        p.setOutputCharacterWriteStream(stdout);
                         final Test t = new Test("abc", null, null, p);
                         test.assertThrows(() -> t.writeLine(null));
                     }
@@ -248,8 +249,8 @@ public class TestTests
                 {
                     try (final Process p = new Process())
                     {
-                        final InMemoryLineStream stdout = new InMemoryLineStream();
-                        p.setOutput(stdout);
+                        final InMemoryCharacterStream stdout = new InMemoryCharacterStream();
+                        p.setOutputCharacterWriteStream(stdout);
                         final Test t = new Test("abc", null, null, p);
                         test.assertThrows(() -> t.writeLine(""));
                     }
@@ -259,11 +260,11 @@ public class TestTests
                 {
                     try (final Process p = new Process())
                     {
-                        final InMemoryLineStream stdout = new InMemoryLineStream();
-                        p.setOutput(stdout);
+                        final InMemoryCharacterStream stdout = new InMemoryCharacterStream();
+                        p.setOutputCharacterWriteStream(stdout);
                         final Test t = new Test("abc", null, null, p);
                         t.writeLine("hello");
-                        test.assertSuccess("hello\r\n", stdout.getText());
+                        test.assertSuccess("hello\n", stdout.getText());
                     }
                 });
             });

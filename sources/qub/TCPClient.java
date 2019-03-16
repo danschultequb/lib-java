@@ -213,30 +213,6 @@ public interface TCPClient extends ByteWriteStream, ByteReadStream, AsyncDisposa
     }
 
     @Override
-    default LineWriteStream asLineWriteStream()
-    {
-        return getWriteStream().asLineWriteStream();
-    }
-
-    @Override
-    default LineWriteStream asLineWriteStream(CharacterEncoding characterEncoding)
-    {
-        return getWriteStream().asLineWriteStream(characterEncoding);
-    }
-
-    @Override
-    default LineWriteStream asLineWriteStream(String lineSeparator)
-    {
-        return getWriteStream().asLineWriteStream(lineSeparator);
-    }
-
-    @Override
-    default LineWriteStream asLineWriteStream(CharacterEncoding characterEncoding, String lineSeparator)
-    {
-        return getWriteStream().asLineWriteStream(characterEncoding, lineSeparator);
-    }
-
-    @Override
     default void ensureHasStarted()
     {
         getReadStream().ensureHasStarted();

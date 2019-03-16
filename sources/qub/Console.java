@@ -10,7 +10,7 @@ public class Console extends Process
      */
     public Console()
     {
-        super();
+        this(CommandLine.create());
     }
 
     /**
@@ -18,12 +18,12 @@ public class Console extends Process
      */
     public Console(String[] commandLineArgumentStrings)
     {
-        super(commandLineArgumentStrings);
+        this(CommandLine.create(commandLineArgumentStrings));
     }
 
     public Console(Iterable<String> commandLineArgumentStrings)
     {
-        super(commandLineArgumentStrings);
+        this(CommandLine.create(commandLineArgumentStrings));
     }
 
     public Console(CommandLine commandLine)
@@ -33,145 +33,47 @@ public class Console extends Process
 
     public Result<String> readLine()
     {
-        final LineReadStream lineReadStream = getInputAsLineReadStream();
-        return lineReadStream.readLine();
+        return getInputLineReadStream().readLine();
     }
 
-    public Result<Integer> write(byte toWrite)
+    public Result<Integer> write(char toWrite)
     {
-        Result<Integer> result = Result.successZero();
-
-        final ByteWriteStream writeStream = getOutputAsByteWriteStream();
-        if (writeStream != null)
-        {
-            result = writeStream.writeByte(toWrite);
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+        return getOutputCharacterWriteStream().write(toWrite);
     }
 
-    public Result<Integer> write(byte[] toWrite)
+    public Result<Integer> write(String toWrite, Object... formattedStringArguments)
     {
-        Result<Integer> result;
-
-        final ByteWriteStream writeStream = getOutputAsByteWriteStream();
-        if (writeStream != null)
-        {
-            result = writeStream.writeBytes(toWrite);
-        }
-        else
-        {
-            result = Result.success(null);
-        }
-
-        return result;
+        return getOutputCharacterWriteStream().write(toWrite, formattedStringArguments);
     }
 
-    public Result<Integer> write(byte[] toWrite, int startIndex, int length)
+    public Result<Integer> writeLine()
     {
-        Result<Integer> result;
-
-        final ByteWriteStream writeStream = getOutputAsByteWriteStream();
-        if (writeStream != null)
-        {
-            result = writeStream.writeBytes(toWrite, startIndex, length);
-        }
-        else
-        {
-            result = Result.success(null);
-        }
-
-        return result;
+        return getOutputCharacterWriteStream().writeLine();
     }
 
-    public Result<Void> write(char toWrite)
+    public Result<Integer> writeLine(String toWrite, Object... formattedStringArguments)
     {
-        final CharacterWriteStream writeStream = getOutputAsCharacterWriteStream();
-        return writeStream == null
-            ? Result.success()
-            : writeStream.write(toWrite);
+        return getOutputCharacterWriteStream().writeLine(toWrite, formattedStringArguments);
     }
 
-    public Result<Void> write(String toWrite, Object... formattedStringArguments)
+    public Result<Integer> writeError(char toWrite)
     {
-        final CharacterWriteStream writeStream = getOutputAsCharacterWriteStream();
-        return writeStream == null
-            ? Result.success()
-            : writeStream.write(toWrite, formattedStringArguments);
+        return getErrorCharacterWriteStream().write(toWrite);
     }
 
-    public Result<Void> writeLine()
+    public Result<Integer> writeError(String toWrite, Object... formattedStringArguments)
     {
-        final LineWriteStream writeStream = getOutputAsLineWriteStream();
-        return writeStream == null
-            ? Result.success()
-            : writeStream.writeLine();
+        return getErrorCharacterWriteStream().write(toWrite, formattedStringArguments);
     }
 
-    public Result<Void> writeLine(String toWrite, Object... formattedStringArguments)
+    public Result<Integer> writeErrorLine()
     {
-        final LineWriteStream writeStream = getOutputAsLineWriteStream();
-        return writeStream == null
-            ? Result.success()
-            : writeStream.writeLine(toWrite, formattedStringArguments);
+        return getErrorCharacterWriteStream().writeLine();
     }
 
-    public Result<Integer> writeError(byte toWrite)
+    public Result<Integer> writeErrorLine(String toWrite, Object... formattedStringArguments)
     {
-        final ByteWriteStream writeStream = getErrorAsByteWriteStream();
-        return writeStream == null
-            ? Result.successZero()
-            : writeStream.writeByte(toWrite);
-    }
-
-    public Result<Integer> writeError(byte[] toWrite)
-    {
-        final ByteWriteStream writeStream = getErrorAsByteWriteStream();
-        return writeStream == null
-            ? Result.successZero()
-            : writeStream.writeBytes(toWrite);
-    }
-
-    public Result<Integer> writeError(byte[] toWrite, int startIndex, int length)
-    {
-        final ByteWriteStream writeStream = getErrorAsByteWriteStream();
-        return writeStream == null
-            ? Result.successZero()
-            : writeStream.writeBytes(toWrite, startIndex, length);
-    }
-
-    public Result<Void> writeError(char toWrite)
-    {
-        final CharacterWriteStream writeStream = getErrorAsCharacterWriteStream();
-        return writeStream == null
-            ? Result.success()
-            : writeStream.write(toWrite);
-    }
-
-    public Result<Void> writeError(String toWrite, Object... formattedStringArguments)
-    {
-        final CharacterWriteStream writeStream = getErrorAsCharacterWriteStream();
-        return writeStream == null
-            ? Result.success()
-            : writeStream.write(toWrite, formattedStringArguments);
-    }
-
-    public Result<Void> writeErrorLine()
-    {
-        final LineWriteStream writeStream = getErrorAsLineWriteStream();
-        return writeStream == null
-            ? Result.success()
-            : writeStream.writeLine();
-    }
-
-    public Result<Void> writeErrorLine(String toWrite, Object... formattedStringArguments)
-    {
-        final LineWriteStream writeStream = getErrorAsLineWriteStream();
-        return writeStream == null
-            ? Result.success()
-            : writeStream.writeLine(toWrite, formattedStringArguments);
+        return getErrorCharacterWriteStream().writeLine(toWrite, formattedStringArguments);
     }
 
     /**
