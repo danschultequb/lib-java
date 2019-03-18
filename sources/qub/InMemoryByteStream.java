@@ -10,6 +10,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
     private boolean endOfStream;
     private final Mutex mutex;
     private final MutexCondition bytesAvailable;
+    private Integer maxBytesPerRead;
     private Integer maxBytesPerWrite;
 
     public InMemoryByteStream()
@@ -52,13 +53,54 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
     }
 
     /**
-     * Set the maximum number of bytes that can be written per writeBytes() call.
-     * @param maxBytesPerWrite The maximum number of bytes that can be written per writeBytes()
-     *                         call.
+     * Get the maximum number of bytes that can be read with a readBytes() call, or null if no limit
+     * has been set.
+     * @return The maximum number of bytes that can be read with a readBytes() call or null if no
+     * limit has been set.
      */
-    public void setMaxBytesPerWrite(Integer maxBytesPerWrite)
+    public Integer getMaxBytesPerRead()
     {
+        return maxBytesPerRead;
+    }
+
+    /**
+     * Set the maximum number of bytes that can be read with a readBytes() call.
+     * @param maxBytesPerRead The maximum number of bytes that can be read with a readBytes() call.
+     * @return This object for method chaining.
+     */
+    public InMemoryByteStream setMaxBytesPerRead(Integer maxBytesPerRead)
+    {
+        PreCondition.assertTrue(maxBytesPerRead == null || maxBytesPerRead >= 1, "maxBytesPerRead (" + maxBytesPerRead + ") == null || maxBytesPerRead (" + maxBytesPerRead + ") >= 1");
+
+        this.maxBytesPerRead = maxBytesPerRead;
+
+        return this;
+    }
+
+    /**
+     * Get the maximum number of bytes that can be written with a writeBytes() call, or null if no
+     * limit has been set.
+     * @return The maximum number of bytes that can be written with a writeBytes() call or null if
+     * no limit has been set.
+     */
+    public Integer getMaxBytesPerWrite()
+    {
+        return maxBytesPerWrite;
+    }
+
+    /**
+     * Set the maximum number of bytes that can be written with a writeBytes() call.
+     * @param maxBytesPerWrite The maximum number of bytes that can be written with a writeBytes()
+     *                         call.
+     * @return This object for method chaining.
+     */
+    public InMemoryByteStream setMaxBytesPerWrite(Integer maxBytesPerWrite)
+    {
+        PreCondition.assertTrue(maxBytesPerWrite == null || maxBytesPerWrite >= 1, "maxBytesPerWrite (" + maxBytesPerWrite + ") == null || maxBytesPerWrite (" + maxBytesPerWrite + ") >= 1");
+
         this.maxBytesPerWrite = maxBytesPerWrite;
+
+        return this;
     }
 
     @Override
@@ -121,7 +163,11 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
             }
             else
             {
-                final int bytesRead = Math.minimum(bytes.getCount(), length);
+                int bytesRead = Math.minimum(bytes.getCount(), length);
+                if (maxBytesPerRead != null && maxBytesPerRead < bytesRead)
+                {
+                    bytesRead = maxBytesPerRead;
+                }
                 for (int i = 0; i < bytesRead; ++i)
                 {
                     outputBytes[startIndex + i] = bytes.removeFirst();
@@ -187,7 +233,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
     /**
      * Mark that this stream has reached the end of its content. Future reads create this stream will
      * return null.
-     * @return This InMemoryByteStream.
+     * @return This object for method chaining.
      */
     public InMemoryByteStream endOfStream()
     {
@@ -217,63 +263,28 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
     }
 
     @Override
-    public Result<Integer> writeBytes(byte[] toWrite, int startIndex, int length)
+    public Result<Integer> writeBytes(byte[] bytes, int startIndex, int length)
     {
-        PreCondition.assertNotNullAndNotEmpty(toWrite, "toWrite");
-        PreCondition.assertStartIndex(startIndex, toWrite.length);
-        PreCondition.assertLength(length, startIndex, toWrite.length);
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertNotNull(bytes, "bytes");
+        PreCondition.assertStartIndex(startIndex, bytes.length);
+        PreCondition.assertLength(length, startIndex, bytes.length);
+        PreCondition.assertNotDisposed(this);
         PreCondition.assertFalse(endOfStream, "endOfStream");
 
         return mutex.criticalSection(() ->
         {
-            final int bytesToWrite = maxBytesPerWrite == null ? length : maxBytesPerWrite;
-            for (int i = 0; i < bytesToWrite; ++i)
+            int bytesWritten = length;
+            if (maxBytesPerWrite != null && maxBytesPerWrite < length)
             {
-                bytes.add(toWrite[startIndex + i]);
+                bytesWritten = maxBytesPerWrite;
+            }
+            for (int i = 0; i < bytesWritten; ++i)
+            {
+                this.bytes.add(bytes[startIndex + i]);
             }
             bytesAvailable.signalAll();
-            return Result.success(bytesToWrite);
+            return Result.success(bytesWritten);
         });
-    }
-
-    @Override
-    public Result<Long> writeAllBytes(ByteReadStream byteReadStream)
-    {
-        PreCondition.assertNotNull(byteReadStream, "byteReadStream");
-        PreCondition.assertFalse(byteReadStream.isDisposed(), "byteReadStream.isDisposed()");
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
-        PreCondition.assertFalse(endOfStream, "endOfStream");
-
-        return mutex.criticalSection(() ->
-            Result.create(() ->
-            {
-                long result = 0;
-                boolean bytesAdded = false;
-                while (true)
-                {
-                    final Byte byteRead = byteReadStream.readByte()
-                        .catchError(EndOfStreamException.class)
-                        .awaitError();
-                    if (byteRead == null)
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        ++result;
-                        bytesAdded = true;
-                        bytes.add(byteRead);
-                    }
-                }
-
-                if (bytesAdded)
-                {
-                    bytesAvailable.signalAll();
-                }
-
-                return result;
-            }));
     }
 
     /**
@@ -287,7 +298,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
     }
 
     /**
-     * Conert this ByteReadStream to a CharacterReadStream using the provided CharacterEncoding.
+     * Convert this ByteReadStream to a CharacterReadStream using the provided CharacterEncoding.
      * @return A CharacterReadStream that uses the provided CharacterEncoding.
      */
     @Override

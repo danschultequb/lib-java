@@ -29,7 +29,7 @@ class JavaTCPClient implements TCPClient
             final ByteWriteStream socketWriteStream = new OutputStreamToByteWriteStream(socket.getOutputStream());
             result = Result.success(new JavaTCPClient(socket, asyncRunner, socketReadStream, socketWriteStream));
         }
-        catch (java.io.IOException e)
+        catch (Throwable e)
         {
             result = Result.error(e);
         }

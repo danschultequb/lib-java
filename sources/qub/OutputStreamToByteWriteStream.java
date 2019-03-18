@@ -21,7 +21,6 @@ public class OutputStreamToByteWriteStream implements ByteWriteStream
         try
         {
             outputStream.write(toWrite);
-            outputStream.flush();
             result = Result.successOne();
         }
         catch (java.io.IOException e)
@@ -44,7 +43,6 @@ public class OutputStreamToByteWriteStream implements ByteWriteStream
         try
         {
             outputStream.write(toWrite);
-            outputStream.flush();
             result = Result.success(toWrite.length);
         }
         catch (java.io.IOException e)
@@ -66,7 +64,6 @@ public class OutputStreamToByteWriteStream implements ByteWriteStream
         try
         {
             outputStream.write(toWrite, startIndex, length);
-            outputStream.flush();
             result = Result.success(length);
         }
         catch (java.io.IOException e)

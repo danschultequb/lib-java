@@ -82,18 +82,29 @@ public interface ByteWriteStream extends Disposable
      */
     default Result<Long> writeAllBytes(ByteReadStream byteReadStream)
     {
+        return writeAllBytes(byteReadStream, 1024);
+    }
+
+    /**
+     * Write all of the bytes create the provided byteReadStream to this ByteWriteStream.
+     * @param byteReadStream The ByteReadStream to read create.
+     * @return The number of bytes that were written.
+     */
+    default Result<Long> writeAllBytes(ByteReadStream byteReadStream, int initialBufferCapacity)
+    {
         PreCondition.assertNotNull(byteReadStream, "byteReadStream");
-        PreCondition.assertFalse(byteReadStream.isDisposed(), "byteReadStream.isDisposed()");
+        PreCondition.assertNotDisposed(byteReadStream, "byteReadStream.isDisposed()");
+        PreCondition.assertGreaterThanOrEqualTo(initialBufferCapacity, 1, "initialBufferCapacity");
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
         return Result.create(() ->
         {
             long result = 0;
-            byte[] buffer = new byte[1024];
+            byte[] buffer = new byte[initialBufferCapacity];
             int bytesInBuffer = 0;
             while(true)
             {
-                final Integer bytesRead = byteReadStream.readBytes(buffer, 0, buffer.length - bytesInBuffer)
+                final Integer bytesRead = byteReadStream.readBytes(buffer, bytesInBuffer, buffer.length - bytesInBuffer)
                     .catchError(EndOfStreamException.class)
                     .awaitError();
                 if (bytesRead == null)
@@ -104,34 +115,28 @@ public interface ByteWriteStream extends Disposable
                         result += bytesWritten;
                         if (bytesWritten < bytesInBuffer)
                         {
-                            Array.copy(buffer, 0, buffer, bytesWritten, bytesInBuffer - bytesWritten);
-                            bytesInBuffer -= bytesWritten;
+                            Array.copy(buffer, bytesWritten, buffer, 0, bytesInBuffer - bytesWritten);
                         }
-                        else
-                        {
-                            bytesInBuffer = 0;
-                        }
+                        bytesInBuffer -= bytesWritten;
                     }
                     break;
                 }
                 else
                 {
                     bytesInBuffer += bytesRead;
+
                     final int bytesWritten = writeBytes(buffer, 0, bytesInBuffer).awaitError();
                     result += bytesWritten;
+
+                    final byte[] copyToBuffer = (bytesInBuffer == buffer.length && bytesWritten == buffer.length)
+                        ? new byte[buffer.length * 2]
+                        : buffer;
                     if (bytesWritten < bytesInBuffer)
                     {
-                        Array.copy(buffer, 0, buffer, bytesWritten, bytesInBuffer - bytesWritten);
-                        bytesInBuffer -= bytesWritten;
+                        Array.copy(buffer, bytesWritten, copyToBuffer, 0, bytesInBuffer - bytesWritten);
                     }
-                    else
-                    {
-                        if (bytesRead == bytesInBuffer)
-                        {
-                            buffer = new byte[buffer.length * 2];
-                        }
-                        bytesInBuffer = 0;
-                    }
+                    bytesInBuffer -= bytesWritten;
+                    buffer = copyToBuffer;
                 }
             }
             return result;

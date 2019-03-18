@@ -3,20 +3,28 @@ package qub;
 public class BufferedByteWriteStream implements ByteWriteStream
 {
     private final ByteWriteStream byteWriteStream;
+    private final int maximumBufferSize;
     private byte[] buffer;
     private int currentBufferIndex;
 
     public BufferedByteWriteStream(ByteWriteStream byteWriteStream)
     {
-        this(byteWriteStream, 1024);
+        this(byteWriteStream, 10000, 100000);
     }
 
-    public BufferedByteWriteStream(ByteWriteStream byteWriteStream, int initialBufferSize)
+    public BufferedByteWriteStream(ByteWriteStream byteWriteStream, int bufferSize)
+    {
+        this(byteWriteStream, bufferSize, bufferSize);
+    }
+
+    public BufferedByteWriteStream(ByteWriteStream byteWriteStream, int initialBufferSize, int maximumBufferSize)
     {
         PreCondition.assertNotNull(byteWriteStream, "byteWriteStream");
         PreCondition.assertGreaterThanOrEqualTo(initialBufferSize, 1, "initialBufferSize");
+        PreCondition.assertGreaterThanOrEqualTo(maximumBufferSize, initialBufferSize, "maximumBufferSize");
 
         this.byteWriteStream = byteWriteStream;
+        this.maximumBufferSize = maximumBufferSize;
         this.buffer = byteWriteStream.isDisposed() ? null : new byte[initialBufferSize];
     }
 
@@ -28,6 +36,15 @@ public class BufferedByteWriteStream implements ByteWriteStream
     public int getBufferCapacity()
     {
         return buffer == null ? 0 : buffer.length;
+    }
+
+    /**
+     * Get the maximum number of bytes that the buffer will grow to.
+     * @return The maximum number of bytes that the buffer will grow to.
+     */
+    public int getMaximumBufferSize()
+    {
+        return maximumBufferSize;
     }
 
     /**
@@ -72,29 +89,20 @@ public class BufferedByteWriteStream implements ByteWriteStream
         return result;
     }
 
-    private Result<Void> flushBufferIfFull()
+    /**
+     * If the buffer is full, then write its contents to the inner ByteWriteStream.
+     * @return The number of bytes that were written to the inner ByteWriteStream.
+     */
+    private Result<Integer> flushBufferIfFull()
     {
-        Result<Void> result;
+        Result<Integer> result;
         if (currentBufferIndex < buffer.length)
         {
-            result = Result.success();
+            result = Result.successZero();
         }
         else
         {
-            result = byteWriteStream.writeBytes(buffer, 0, currentBufferIndex)
-                .then((Integer bytesWritten) ->
-                {
-                    if (bytesWritten == buffer.length)
-                    {
-                        buffer = new byte[buffer.length * 2];
-                        currentBufferIndex = 0;
-                    }
-                    else
-                    {
-                        Array.copy(buffer, bytesWritten, buffer, 0, buffer.length - bytesWritten);
-                        currentBufferIndex -= bytesWritten;
-                    }
-                });
+            result = flush();
         }
 
         PostCondition.assertNotNull(result, "result");
@@ -103,31 +111,32 @@ public class BufferedByteWriteStream implements ByteWriteStream
     }
 
     /**
-     * Write the bytes that are in the buffer to the inner ByteWriteStream.
-     * @return The number of bytes that were written to the inner ByteWriteStream.
+     * Flush the bytes in the buffer and return how many bytes were written to the inner stream.
+     * It's possible that not all of the bytes in the buffer will be written to the inner stream.
+     * @return The number of bytes that were written to the inner stream.
      */
-    public Result<Integer> flushBuffer()
+    public Result<Integer> flush()
     {
-        Result<Integer> result;
-        if (currentBufferIndex == 0)
-        {
-            result = Result.success(0);
-        }
-        else
-        {
-            result = byteWriteStream.writeAllBytes(buffer, 0, currentBufferIndex)
-                .then(() ->
+        PreCondition.assertNotDisposed(this);
+
+        return byteWriteStream.writeBytes(buffer, 0, currentBufferIndex)
+            .onValue((Integer bytesWritten) ->
+            {
+                if (bytesWritten == buffer.length)
                 {
-                    buffer = null;
-                    final int bytesWritten = currentBufferIndex;
+                    final int newBufferLength = Math.minimum(maximumBufferSize, buffer.length * 2);
+                    if (newBufferLength != buffer.length)
+                    {
+                        buffer = new byte[newBufferLength];
+                    }
                     currentBufferIndex = 0;
-                    return bytesWritten;
-                });
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+                }
+                else
+                {
+                    Array.copy(buffer, bytesWritten, buffer, 0, buffer.length - bytesWritten);
+                    currentBufferIndex -= bytesWritten;
+                }
+            });
     }
 
     @Override
@@ -149,15 +158,19 @@ public class BufferedByteWriteStream implements ByteWriteStream
             Result<Integer> writeBufferResult;
             if (currentBufferIndex == 0)
             {
-                writeBufferResult = Result.success(0);
+                writeBufferResult = Result.successZero();
             }
             else
             {
-                writeBufferResult = flushBuffer();
+                writeBufferResult = byteWriteStream.writeAllBytes(buffer, 0, currentBufferIndex);
             }
             result = writeBufferResult
-                .onError(byteWriteStream::dispose)
-                .thenResult(byteWriteStream::dispose);
+                .thenResult(() ->
+                {
+                    buffer = null;
+                    currentBufferIndex = 0;
+                    return byteWriteStream.dispose();
+                });
         }
 
         PostCondition.assertNotNull(result, "result");

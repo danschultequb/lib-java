@@ -36,7 +36,7 @@ public class InputStreamToByteReadStream implements ByteReadStream
         Result<Boolean> result;
         if (disposed)
         {
-            result = Result.success(false);
+            result = Result.successFalse();
         }
         else
         {
@@ -44,7 +44,7 @@ public class InputStreamToByteReadStream implements ByteReadStream
             try
             {
                 inputStream.close();
-                result = Result.success(true);
+                result = Result.successTrue();
             }
             catch (java.io.IOException e)
             {
@@ -57,7 +57,7 @@ public class InputStreamToByteReadStream implements ByteReadStream
     @Override
     public Result<Byte> readByte()
     {
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertNotDisposed(this);
 
         Result<Byte> result;
         try
@@ -68,12 +68,13 @@ public class InputStreamToByteReadStream implements ByteReadStream
             if (byteAsInt == -1)
             {
                 current = null;
+                result = Result.error(new EndOfStreamException());
             }
             else
             {
                 current = (byte)byteAsInt;
+                result = Result.success(current);
             }
-            result = Result.success(current);
         }
         catch (java.io.IOException e)
         {
@@ -87,9 +88,9 @@ public class InputStreamToByteReadStream implements ByteReadStream
     public Result<Integer> readBytes(byte[] outputBytes, int startIndex, int length)
     {
         PreCondition.assertNotNullAndNotEmpty(outputBytes, "outputBytes");
-        PreCondition.assertBetween(0, startIndex, outputBytes.length - 1, "startIndex");
-        PreCondition.assertBetween(1, length, outputBytes.length - startIndex, "length");
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertStartIndex(startIndex, outputBytes.length);
+        PreCondition.assertLength(length, startIndex, outputBytes.length);
+        PreCondition.assertNotDisposed(this);
 
         Result<Integer> result;
         try
@@ -100,7 +101,7 @@ public class InputStreamToByteReadStream implements ByteReadStream
             if (bytesRead == -1)
             {
                 current = null;
-                result = Result.success(null);
+                result = Result.error(new EndOfStreamException());
             }
             else
             {

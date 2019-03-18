@@ -1,9 +1,5 @@
 package qub;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-
 public class InputStreamToByteReadStreamTests
 {
     public static void test(TestRunner runner)
@@ -14,7 +10,7 @@ public class InputStreamToByteReadStreamTests
 
             runner.test("constructor(InputStream)", (Test test) ->
             {
-                final ByteArrayInputStream inputStream = getInputStream(5);
+                final java.io.ByteArrayInputStream inputStream = getInputStream(5);
                 final InputStreamToByteReadStream readStream = new InputStreamToByteReadStream(inputStream, test.getMainAsyncRunner());
                 assertByteReadStream(test, readStream, false, false, null);
             });
@@ -24,12 +20,12 @@ public class InputStreamToByteReadStreamTests
                 closeTest(test, getInputStream(0), true, null);
                 closeTest(test, getInputStream(5), true, null);
 
-                final ByteArrayInputStream closedInputStream = getInputStream(1);
+                final java.io.ByteArrayInputStream closedInputStream = getInputStream(1);
                 try
                 {
                     closedInputStream.close();
                 }
-                catch (IOException e)
+                catch (java.io.IOException e)
                 {
                     test.fail(e);
                 }
@@ -41,7 +37,7 @@ public class InputStreamToByteReadStreamTests
 
                 final TestStubInputStream testStubInputStream = new TestStubInputStream();
                 testStubInputStream.setThrowOnClose(true);
-                closeTest(test, testStubInputStream, true, new RuntimeException(new IOException()));
+                closeTest(test, testStubInputStream, true, new RuntimeException(new java.io.IOException()));
             });
 
             runner.test("readByte()", (Test test) ->
@@ -50,7 +46,8 @@ public class InputStreamToByteReadStreamTests
 
                 test.assertEqual((byte)0, byteReadStream.readByte().awaitError());
                 test.assertEqual((byte)1, byteReadStream.readByte().awaitError());
-                test.assertEqual(null, byteReadStream.readByte().awaitError());
+                test.assertThrows(() -> byteReadStream.readByte().awaitError(),
+                    new EndOfStreamException());
             });
             
             runner.test("readByte() with exception", (Test test) ->
@@ -60,7 +57,7 @@ public class InputStreamToByteReadStreamTests
                 
                 final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, inputStream);
                 test.assertThrows(() -> byteReadStream.readByte().awaitError(),
-                    new RuntimeException(new IOException()));
+                    new RuntimeException(new java.io.IOException()));
             });
             
             runner.testGroup("readBytes(byte[])", () ->
@@ -70,7 +67,8 @@ public class InputStreamToByteReadStreamTests
                     final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, 0);
 
                     final byte[] buffer = new byte[10];
-                    test.assertNull(byteReadStream.readBytes(buffer).awaitError());
+                    test.assertThrows(() -> byteReadStream.readBytes(buffer).awaitError(),
+                        new EndOfStreamException());
                 });
                 
                 runner.test("with bytes", (Test test) ->
@@ -81,12 +79,13 @@ public class InputStreamToByteReadStreamTests
                     test.assertEqual(3, byteReadStream.readBytes(buffer).awaitError());
                     test.assertEqual(new byte[] { 0, 1, 2, 0, 0, 0, 0, 0, 0, 0 }, buffer);
 
-                    test.assertNull(byteReadStream.readBytes(buffer).awaitError());
+                    test.assertThrows(() -> byteReadStream.readBytes(buffer).awaitError(),
+                        new EndOfStreamException());
                 });
                 
                 runner.test("asCharacterReadStream()", (Test test) ->
                 {
-                    final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, new ByteArrayInputStream("abcd".getBytes()));
+                    final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, new java.io.ByteArrayInputStream("abcd".getBytes()));
 
                     final CharacterReadStream characterReadStream = byteReadStream.asCharacterReadStream();
 
@@ -105,7 +104,7 @@ public class InputStreamToByteReadStreamTests
 
                     runner.test("with non-null encoding", (Test test) ->
                     {
-                        final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, new ByteArrayInputStream("abcd".getBytes()));
+                        final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, new java.io.ByteArrayInputStream("abcd".getBytes()));
 
                         final CharacterReadStream characterReadStream = byteReadStream.asCharacterReadStream(CharacterEncoding.US_ASCII);
 
@@ -130,14 +129,14 @@ public class InputStreamToByteReadStreamTests
         });
     }
 
-    private static ByteArrayInputStream getInputStream(int byteCount)
+    private static java.io.ByteArrayInputStream getInputStream(int byteCount)
     {
         final byte[] bytes = new byte[byteCount];
         for (int i = 0; i < byteCount; ++i)
         {
             bytes[i] = (byte)i;
         }
-        return new ByteArrayInputStream(bytes);
+        return new java.io.ByteArrayInputStream(bytes);
     }
 
     private static InputStreamToByteReadStream getByteReadStream(Test test, int byteCount)
@@ -145,7 +144,7 @@ public class InputStreamToByteReadStreamTests
         return getByteReadStream(test, getInputStream(byteCount));
     }
 
-    private static InputStreamToByteReadStream getByteReadStream(Test test, InputStream inputStream)
+    private static InputStreamToByteReadStream getByteReadStream(Test test, java.io.InputStream inputStream)
     {
         return new InputStreamToByteReadStream(inputStream, test.getMainAsyncRunner());
     }
@@ -159,7 +158,7 @@ public class InputStreamToByteReadStreamTests
         test.assertEqual(current, byteReadStream.getCurrent());
     }
 
-    private static void closeTest(Test test, InputStream inputStream, boolean expectedIsDisposed, Throwable expectedError)
+    private static void closeTest(Test test, java.io.InputStream inputStream, boolean expectedIsDisposed, Throwable expectedError)
     {
         final InputStreamToByteReadStream readStream = getByteReadStream(test, inputStream);
         closeTest(test, readStream, expectedIsDisposed, expectedError);
@@ -177,7 +176,14 @@ public class InputStreamToByteReadStreamTests
         }
         catch (Exception e)
         {
-            test.assertEqual(expectedError, e);
+            if (expectedError == null)
+            {
+                test.fail(e);
+            }
+            else
+            {
+                test.assertEqual(expectedError, e);
+            }
         }
         test.assertEqual(expectedIsDisposed, readStream.isDisposed());
     }
