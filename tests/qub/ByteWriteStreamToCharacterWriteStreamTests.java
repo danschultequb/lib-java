@@ -73,7 +73,7 @@ public class ByteWriteStreamToCharacterWriteStreamTests
                     final InMemoryByteStream byteStream = new InMemoryByteStream();
                     final ByteWriteStreamToCharacterWriteStream characterStream = new ByteWriteStreamToCharacterWriteStream(byteStream);
                     test.assertThrows(() -> characterStream.write((char[])null, 0, 0),
-                        new PreConditionFailure("toWrite cannot be null."));
+                        new PreConditionFailure("characters cannot be null."));
                     test.assertEqual(new byte[0], byteStream.getBytes());
                 });
 
@@ -82,7 +82,7 @@ public class ByteWriteStreamToCharacterWriteStreamTests
                     final InMemoryByteStream byteStream = new InMemoryByteStream();
                     final ByteWriteStreamToCharacterWriteStream characterStream = new ByteWriteStreamToCharacterWriteStream(byteStream);
                     test.assertThrows(() -> characterStream.write(new char[0], 0, 0),
-                        new PreConditionFailure("toWrite cannot be empty."));
+                        new PreConditionFailure("characters cannot be empty."));
                     test.assertEqual(new byte[0], byteStream.getBytes());
                 });
 
@@ -118,7 +118,7 @@ public class ByteWriteStreamToCharacterWriteStreamTests
                     final InMemoryByteStream byteStream = new InMemoryByteStream();
                     final ByteWriteStreamToCharacterWriteStream characterStream = new ByteWriteStreamToCharacterWriteStream(byteStream);
                     test.assertThrows(() -> characterStream.write(new char[] { 'a', 'b', 'c' }, 1, -1),
-                        new PreConditionFailure("length (-1) must be between 0 and 2."));
+                        new PreConditionFailure("length (-1) must be between 1 and 2."));
                     test.assertEqual(new byte[0], byteStream.getBytes());
                 });
 
@@ -127,7 +127,7 @@ public class ByteWriteStreamToCharacterWriteStreamTests
                     final InMemoryByteStream byteStream = new InMemoryByteStream();
                     final ByteWriteStreamToCharacterWriteStream characterStream = new ByteWriteStreamToCharacterWriteStream(byteStream);
                     test.assertThrows(() -> characterStream.write(new char[] { 'a', 'b', 'c' }, 1, 3),
-                        new PreConditionFailure("length (3) must be between 0 and 2."));
+                        new PreConditionFailure("length (3) must be between 1 and 2."));
                     test.assertEqual(new byte[0], byteStream.getBytes());
                 });
 
@@ -165,7 +165,8 @@ public class ByteWriteStreamToCharacterWriteStreamTests
                 {
                     final InMemoryByteStream byteStream = new InMemoryByteStream();
                     final ByteWriteStreamToCharacterWriteStream characterStream = new ByteWriteStreamToCharacterWriteStream(byteStream);
-                    characterStream.write("").await();
+                    test.assertThrows(() -> characterStream.write(""),
+                        new PreConditionFailure("text cannot be empty."));
                     test.assertEqual(new byte[0], byteStream.getBytes());
                 });
 

@@ -40,7 +40,7 @@ public class ConsoleTests
 
             runner.testGroup("writeByte(String,Object...)", () ->
             {
-                final Action1<String> writeWithNoFormattedStringArgumentsFailureTest = (String toWrite) ->
+                final Action2<String,Throwable> writeWithNoFormattedStringArgumentsFailureTest = (String toWrite, Throwable expectedError) ->
                 {
                     runner.test("with " + Strings.escapeAndQuote(toWrite) + " and no formatted string arguments", (Test test) ->
                     {
@@ -48,15 +48,16 @@ public class ConsoleTests
                         final InMemoryCharacterStream output = new InMemoryCharacterStream();
                         console.setOutputCharacterWriteStream(output);
 
-                        test.assertThrows(() -> console.write(toWrite));
+                        test.assertThrows(() -> console.write(toWrite), expectedError);
 
-                        test.assertSuccess("", output.getText());
+                        test.assertEqual("", output.getText().await());
                     });
                 };
 
-                writeWithNoFormattedStringArgumentsFailureTest.run(null);
+                writeWithNoFormattedStringArgumentsFailureTest.run(null, new PreConditionFailure("toWrite cannot be null."));
+                writeWithNoFormattedStringArgumentsFailureTest.run("", new PreConditionFailure("text cannot be empty."));
 
-                final Action2<String,String> writeWithNoFormattedStringArgumentsTest = (String toWrite, String expectedText) ->
+                final Action1<String> writeWithNoFormattedStringArgumentsTest = (String toWrite) ->
                 {
                     runner.test("with " + Strings.escapeAndQuote(toWrite) + " and no formatted string arguments", (Test test) ->
                     {
@@ -64,15 +65,14 @@ public class ConsoleTests
                         final InMemoryCharacterStream output = new InMemoryCharacterStream();
                         console.setOutputCharacterWriteStream(output);
 
-                        console.write(toWrite);
+                        console.write(toWrite).await();
 
-                        test.assertEqual(expectedText, output.getText().await());
+                        test.assertEqual(toWrite, output.getText().await());
                     });
                 };
 
-                writeWithNoFormattedStringArgumentsTest.run("", "");
-                writeWithNoFormattedStringArgumentsTest.run("abcd", "abcd");
-                writeWithNoFormattedStringArgumentsTest.run("Hello %s!", "Hello %s!");
+                writeWithNoFormattedStringArgumentsTest.run("abcd");
+                writeWithNoFormattedStringArgumentsTest.run("Hello %s!");
 
                 final Action3<String,Object[],Throwable> writeWithFormattedStringArgumentsFailureTest = (String toWrite, Object[] formattedStringArguments, Throwable expectedError) ->
                 {
@@ -91,6 +91,9 @@ public class ConsoleTests
                 writeWithFormattedStringArgumentsFailureTest.run(null, null, new PreConditionFailure("toWrite cannot be null."));
                 writeWithFormattedStringArgumentsFailureTest.run(null, new Object[0], new PreConditionFailure("toWrite cannot be null."));
                 writeWithFormattedStringArgumentsFailureTest.run(null, new Object[] { "Dan" }, new PreConditionFailure("toWrite cannot be null."));
+                writeWithFormattedStringArgumentsFailureTest.run("", null, new PreConditionFailure("text cannot be empty."));
+                writeWithFormattedStringArgumentsFailureTest.run("", new Object[0], new PreConditionFailure("text cannot be empty."));
+                writeWithFormattedStringArgumentsFailureTest.run("", new Object[] { "Dan" }, new PreConditionFailure("text cannot be empty."));
 
                 final Action3<String,Object[],String> writeWithFormattedStringArgumentsTest = (String toWrite, Object[] formattedStringArguments, String expectedText) ->
                 {
@@ -106,9 +109,6 @@ public class ConsoleTests
                     });
                 };
 
-                writeWithFormattedStringArgumentsTest.run("", null, "");
-                writeWithFormattedStringArgumentsTest.run("", new Object[0], "");
-                writeWithFormattedStringArgumentsTest.run("", new Object[] { "Dan" }, "");
                 writeWithFormattedStringArgumentsTest.run("Hello!", null, "Hello!");
                 writeWithFormattedStringArgumentsTest.run("Hello!", new Object[0], "Hello!");
                 writeWithFormattedStringArgumentsTest.run("Hello!", new Object[] { "Dan" }, "Hello!");

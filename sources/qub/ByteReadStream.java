@@ -1,8 +1,5 @@
 package qub;
 
-import java.io.InputStream;
-import java.util.Objects;
-
 /**
  * A ReadStream interface that reads bytes.
  */
@@ -37,27 +34,16 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
      */
     default Result<byte[]> readBytes(int bytesToRead)
     {
-        PreCondition.assertGreaterThan(bytesToRead, 0, "bytesToRead");
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertGreaterThanOrEqualTo(bytesToRead, 1, "bytesToRead");
+        PreCondition.assertNotDisposed(this);
 
         final byte[] bytes = new byte[bytesToRead];
         return readBytes(bytes)
-            .thenResult((Integer bytesRead) ->
+            .then((Integer bytesRead) ->
             {
-                Result<byte[]> result;
-                if (bytesRead == null || bytesRead < 0)
-                {
-                    result = Result.error(new EndOfStreamException());
-                }
-                else if (bytesRead < bytesToRead)
-                {
-                    result = Result.success(Array.clone(bytes, 0, bytesRead));
-                }
-                else
-                {
-                    result = Result.success(bytes);
-                }
-                return result;
+                return bytesRead < bytesToRead
+                    ? Array.clone(bytes, 0, bytesRead)
+                    : bytes;
             });
     }
 
@@ -71,8 +57,8 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
      */
     default AsyncFunction<Result<byte[]>> readBytesAsync(int bytesToRead)
     {
-        PreCondition.assertGreaterThan(bytesToRead, 0, "bytesToRead");
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertGreaterThanOrEqualTo(bytesToRead, 1, "bytesToRead");
+        PreCondition.assertNotDisposed(this);
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
 
         return getAsyncRunner().scheduleSingle(() -> readBytes(bytesToRead));
@@ -88,7 +74,7 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
     default Result<Integer> readBytes(byte[] outputBytes)
     {
         PreCondition.assertNotNullAndNotEmpty(outputBytes, "outputBytes");
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertNotDisposed(this);
 
         return readBytes(outputBytes, 0, outputBytes.length);
     }
@@ -103,7 +89,7 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
     default AsyncFunction<Result<Integer>> readBytesAsync(byte[] outputBytes)
     {
         PreCondition.assertNotNullAndNotEmpty(outputBytes, "outputBytes");
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertNotDisposed(this);
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
 
         return getAsyncRunner().scheduleSingle(() -> readBytes(outputBytes));
@@ -122,9 +108,9 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
     default Result<Integer> readBytes(byte[] outputBytes, int startIndex, int length)
     {
         PreCondition.assertNotNullAndNotEmpty(outputBytes, "outputBytes");
-        PreCondition.assertBetween(0, startIndex, outputBytes.length - 1, "startIndex");
-        PreCondition.assertBetween(1, length, outputBytes.length - startIndex, "length");
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertStartIndex(startIndex, outputBytes.length);
+        PreCondition.assertLength(length, startIndex, outputBytes.length);
+        PreCondition.assertNotDisposed(this);
 
         return Result.create(() ->
         {
@@ -151,9 +137,9 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
     default AsyncFunction<Result<Integer>> readBytesAsync(byte[] outputBytes, int startIndex, int length)
     {
         PreCondition.assertNotNullAndNotEmpty(outputBytes, "outputBytes");
-        PreCondition.assertBetween(0, startIndex, outputBytes.length - 1, "startIndex");
-        PreCondition.assertBetween(1, length, outputBytes.length - startIndex, "length");
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertStartIndex(startIndex, outputBytes.length);
+        PreCondition.assertLength(length, startIndex, outputBytes.length);
+        PreCondition.assertNotDisposed(this);
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
 
         return getAsyncRunner().scheduleSingle(() -> readBytes(outputBytes, startIndex, length));
@@ -168,32 +154,11 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
      */
     default Result<byte[]> readAllBytes()
     {
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertNotDisposed(this);
 
-        return Result.create(() ->
-        {
-            final List<byte[]> readByteArrays = new ArrayList<>();
-            byte[] buffer = new byte[1024];
-            while (true)
-            {
-                final Integer bytesRead = readBytes(buffer)
-                    .catchError(EndOfStreamException.class)
-                    .awaitError();
-                if (bytesRead == null || bytesRead == -1)
-                {
-                    break;
-                }
-                else
-                {
-                    readByteArrays.add(Array.clone(buffer, 0, bytesRead));
-                    if (buffer.length == bytesRead)
-                    {
-                        buffer = new byte[buffer.length * 2];
-                    }
-                }
-            }
-            return Array.mergeBytes(readByteArrays);
-        });
+        final InMemoryByteStream byteStream = new InMemoryByteStream();
+        return byteStream.writeAllBytes(this)
+            .then(byteStream::getBytes);
     }
 
     /**
@@ -205,7 +170,7 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
      */
     default AsyncFunction<Result<byte[]>> readAllBytesAsync()
     {
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertNotDisposed(this);
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
 
         return getAsyncRunner().scheduleSingle(this::readAllBytes);
@@ -219,7 +184,7 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
      */
     default Result<byte[]> readBytesUntil(byte stopByte)
     {
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertNotDisposed(this);
 
         return readBytesUntil(new byte[] { stopByte });
     }
@@ -232,7 +197,7 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
      */
     default AsyncFunction<Result<byte[]>> readBytesUntilAsync(byte stopByte)
     {
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertNotDisposed(this);
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
 
         return getAsyncRunner().scheduleSingle(() -> readBytesUntil(stopByte));
@@ -247,7 +212,7 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
     default Result<byte[]> readBytesUntil(byte[] stopBytes)
     {
         PreCondition.assertNotNullAndNotEmpty(stopBytes, "stopBytes");
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertNotDisposed(this);
 
         return readBytesUntil(Array.createByte(stopBytes));
     }
@@ -261,7 +226,7 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
     default AsyncFunction<Result<byte[]>> readBytesUntilAsync(byte[] stopBytes)
     {
         PreCondition.assertNotNullAndNotEmpty(stopBytes, "stopBytes");
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertNotDisposed(this);
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
 
         return getAsyncRunner().scheduleSingle(() -> readBytesUntil(stopBytes));
@@ -276,7 +241,7 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
     default Result<byte[]> readBytesUntil(Iterable<Byte> stopBytes)
     {
         PreCondition.assertNotNullAndNotEmpty(stopBytes, "stopBytes");
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertNotDisposed(this);
 
         return Result.create(() ->
         {
@@ -320,7 +285,7 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
     default AsyncFunction<Result<byte[]>> readBytesUntilAsync(Iterable<Byte> stopBytes)
     {
         PreCondition.assertNotNullAndNotEmpty(stopBytes, "stopBytes");
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertNotDisposed(this);
         PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
 
         return getAsyncRunner().scheduleSingle(() -> readBytesUntil(stopBytes));
@@ -329,21 +294,12 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
     @Override
     default boolean next()
     {
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertNotDisposed(this);
 
         return readByte()
-            .then(Objects::nonNull)
-            .catchError(() -> false)
+            .thenResult(Result::successTrue)
+            .catchErrorResult(Result::successFalse)
             .await();
-    }
-
-    /**
-     * Convert this ByteReadStream to a java.io.InputStream.
-     * @return A java.io.InputStream representation of this ByteReadStream.
-     */
-    default InputStream asInputStream()
-    {
-        return new ByteReadStreamToInputStream(this);
     }
 
     /**

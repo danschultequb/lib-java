@@ -13,8 +13,9 @@ public class UTF8CharacterEncoding implements CharacterEncoding
     @Override
     public Result<Integer> encode(String text, ByteWriteStream byteWriteStream)
     {
-        PreCondition.assertNotNull(text, "text");
+        PreCondition.assertNotNullAndNotEmpty(text, "text");
         PreCondition.assertNotNull(byteWriteStream, "byteWriteStream");
+        PreCondition.assertNotDisposed(byteWriteStream, "byteWriteStream.isDisposed()");
 
         return Result.create(() ->
         {
@@ -30,6 +31,12 @@ public class UTF8CharacterEncoding implements CharacterEncoding
     @Override
     public Result<Integer> encode(char[] characters, int startIndex, int length, ByteWriteStream byteWriteStream)
     {
+        PreCondition.assertNotNullAndNotEmpty(characters, "characters");
+        PreCondition.assertStartIndex(startIndex, characters.length);
+        PreCondition.assertLength(length, startIndex, characters.length);
+        PreCondition.assertNotNull(byteWriteStream, "byteWriteStream");
+        PreCondition.assertNotDisposed(byteWriteStream, "byteWriteStream.isDisposed()");
+
         return Result.create(() ->
         {
             int result = 0;
@@ -44,7 +51,7 @@ public class UTF8CharacterEncoding implements CharacterEncoding
     @Override
     public Result<char[]> decode(byte[] bytes, int startIndex, int length)
     {
-        PreCondition.assertNotNull(bytes, "bytes");
+        PreCondition.assertNotNullAndNotEmpty(bytes, "bytes");
         PreCondition.assertStartIndex(startIndex, bytes.length);
         PreCondition.assertLength(length, startIndex, bytes.length);
 
@@ -54,7 +61,9 @@ public class UTF8CharacterEncoding implements CharacterEncoding
             final Iterator<Byte> byteIterator = Iterator.create(bytes, startIndex, length);
             while (true)
             {
-                final Character decodedCharacter = decodeNextCharacter(byteIterator).awaitError();
+                final Character decodedCharacter = decodeNextCharacter(byteIterator)
+                    .catchError(EndOfStreamException.class)
+                    .awaitError();
                 if (decodedCharacter != null)
                 {
                     characters.add(decodedCharacter);
@@ -74,9 +83,13 @@ public class UTF8CharacterEncoding implements CharacterEncoding
         PreCondition.assertNotNull(bytes, "bytes");
 
         Result<Character> result;
-        if (!bytes.next() || bytes.getCurrent() == null)
+        if (!bytes.next())
         {
-            result = Result.success(null);
+            result = Result.error(new EndOfStreamException());
+        }
+        else if (bytes.getCurrent() == null)
+        {
+            result = Result.success();
         }
         else
         {
@@ -108,6 +121,10 @@ public class UTF8CharacterEncoding implements CharacterEncoding
 
     private static Result<Character> decodeMultiByteCharacter(byte firstByte, int expectedBytesInCharacter, Iterator<Byte> bytes)
     {
+        PreCondition.assertGreaterThanOrEqualTo(expectedBytesInCharacter, 1, "expectedBytesInCharacter");
+        PreCondition.assertNotNull(bytes, "bytes");
+        PreCondition.assertTrue(bytes.hasCurrent(), "bytes.hasCurrent()");
+
         Result<Character> result;
         switch (expectedBytesInCharacter)
         {
@@ -163,6 +180,7 @@ public class UTF8CharacterEncoding implements CharacterEncoding
     private static int writeEncodedCharacter(char value, ByteWriteStream byteWriteStream)
     {
         PreCondition.assertNotNull(byteWriteStream, "byteWriteStream");
+        PreCondition.assertNotDisposed(byteWriteStream, "byteWriteStream.isDisposed()");
 
         int result = 0;
 

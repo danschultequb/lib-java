@@ -13,6 +13,8 @@ public class BasicLineReadStream implements LineReadStream
 
     public BasicLineReadStream(CharacterReadStream characterReadStream, boolean includeNewLines)
     {
+        PreCondition.assertNotNull(characterReadStream, "characterReadStream");
+
         this.characterReadStream = characterReadStream;
         this.includeNewLines = includeNewLines;
     }

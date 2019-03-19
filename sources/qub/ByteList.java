@@ -49,6 +49,12 @@ public class ByteList implements List<Byte>
     }
 
     @Override
+    public boolean any()
+    {
+        return count > 0;
+    }
+
+    @Override
     public int getCount()
     {
         return count;
@@ -180,7 +186,7 @@ public class ByteList implements List<Byte>
     @Override
     public Iterator<Byte> iterate()
     {
-        return new ByteArrayIterator(bytes, 0, count);
+        return count == 0 ? Iterator.empty() : new ByteArrayIterator(bytes, 0, count);
     }
 
     @Override

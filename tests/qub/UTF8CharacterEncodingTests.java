@@ -30,15 +30,16 @@ public class UTF8CharacterEncodingTests
 
             runner.testGroup("encode(String)", () ->
             {
-                final Action1<String> encodeFailureTest = (String text) ->
+                final Action2<String,Throwable> encodeFailureTest = (String text, Throwable expectedError) ->
                 {
                     runner.test("with " + Strings.escapeAndQuote(text), (Test test) ->
                     {
-                        test.assertThrows(() -> encoding.encode(text));
+                        test.assertThrows(() -> encoding.encode(text), expectedError);
                     });
                 };
 
-                encodeFailureTest.run(null);
+                encodeFailureTest.run(null, new PreConditionFailure("text cannot be null."));
+                encodeFailureTest.run("", new PreConditionFailure("text cannot be empty."));
 
                 final Action3<String, byte[], Throwable> encodeTest = (String text, byte[] expectedBytes, Throwable expectedError) ->
                 {
@@ -48,7 +49,6 @@ public class UTF8CharacterEncodingTests
                     });
                 };
 
-                encodeTest.run("", new byte[0], null);
                 encodeTest.run("a", new byte[]{97}, null);
                 encodeTest.run("b", new byte[]{98}, null);
                 encodeTest.run("ab", new byte[]{97, 98}, null);
@@ -61,15 +61,16 @@ public class UTF8CharacterEncodingTests
 
             runner.testGroup("encode(char[])", () ->
             {
-                final Action1<char[]> encodeFailureTest = (char[] characters) ->
+                final Action2<char[],Throwable> encodeFailureTest = (char[] characters, Throwable expectedError) ->
                 {
                     runner.test("with " + Array.toString(characters, Characters::escapeAndQuote), (Test test) ->
                     {
-                        test.assertThrows(() -> encoding.encode(characters));
+                        test.assertThrows(() -> encoding.encode(characters), expectedError);
                     });
                 };
 
-                encodeFailureTest.run(null);
+                encodeFailureTest.run(null, new PreConditionFailure("characters cannot be null."));
+                encodeFailureTest.run(new char[0], new PreConditionFailure("characters cannot be empty."));
 
                 final Action3<char[], byte[], Throwable> encodeTest = (char[] characters, byte[] expectedBytes, Throwable expectedError) ->
                 {
@@ -79,7 +80,6 @@ public class UTF8CharacterEncodingTests
                     });
                 };
 
-                encodeTest.run(new char[0], new byte[0], null);
                 encodeTest.run(new char[]{'a'}, new byte[]{97}, null);
                 encodeTest.run(new char[]{'b'}, new byte[]{98}, null);
                 encodeTest.run(new char[]{'a', 'b'}, new byte[]{97, 98}, null);
@@ -92,15 +92,16 @@ public class UTF8CharacterEncodingTests
 
             runner.testGroup("decode(byte[])", () ->
             {
-                final Action1<byte[]> decodeFailureTest = (byte[] bytes) ->
+                final Action2<byte[],Throwable> decodeFailureTest = (byte[] bytes, Throwable expectedError) ->
                 {
                     runner.test("with " + Array.toString(bytes), (Test test) ->
                     {
-                        test.assertThrows(() -> encoding.decode(bytes));
+                        test.assertThrows(() -> encoding.decode(bytes), expectedError);
                     });
                 };
 
-                decodeFailureTest.run(null);
+                decodeFailureTest.run(null, new PreConditionFailure("bytes cannot be null."));
+                decodeFailureTest.run(new byte[0], new PreConditionFailure("bytes cannot be empty."));
 
                 final Action3<byte[], char[], Throwable> decodeTest = (byte[] bytes, char[] expectedCharacters, Throwable expectedError) ->
                 {
@@ -118,7 +119,6 @@ public class UTF8CharacterEncodingTests
                     });
                 };
 
-                decodeTest.run(new byte[0], new char[0], null);
                 decodeTest.run(new byte[]{97}, new char[]{'a'}, null);
                 decodeTest.run(new byte[]{122, 121, 122}, new char[]{'z', 'y', 'z'}, null);
                 decodeTest.run(new byte[] { -62, -124 }, new char[] { (char)132 }, null);
@@ -133,63 +133,62 @@ public class UTF8CharacterEncodingTests
 
             runner.testGroup("decodeAsString(byte[])", () ->
             {
-                final Action1<byte[]> decodeAsStringFailureTest = (byte[] bytes) ->
+                final Action2<byte[],Throwable> decodeAsStringFailureTest = (byte[] bytes, Throwable expectedError) ->
                 {
                     runner.test("with " + Array.toString(bytes), (Test test) ->
                     {
-                        test.assertThrows(() -> encoding.decodeAsString(bytes));
+                        test.assertThrows(() -> encoding.decodeAsString(bytes),
+                            expectedError);
                     });
                 };
 
-                decodeAsStringFailureTest.run(null);
+                decodeAsStringFailureTest.run(null, new PreConditionFailure("bytes cannot be null."));
+                decodeAsStringFailureTest.run(new byte[0], new PreConditionFailure("bytes cannot be empty."));
 
-                final Action3<byte[], String, Throwable> decodeAsStringTest = (byte[] bytes, String expectedString, Throwable expectedError) ->
+                final Action2<byte[], String> decodeAsStringTest = (byte[] bytes, String expectedString) ->
                 {
                     runner.test("with " + Array.toString(bytes), (Test test) ->
                     {
-                        test.assertDone(expectedString, expectedError, encoding.decodeAsString(bytes));
+                        test.assertEqual(expectedString, encoding.decodeAsString(bytes).await());
                     });
                 };
 
-                decodeAsStringTest.run(new byte[0], "", null);
-                decodeAsStringTest.run(new byte[]{97}, "a", null);
-                decodeAsStringTest.run(new byte[]{98, 97}, "ba", null);
-                decodeAsStringTest.run(new byte[] { -62, -124 }, "" + (char)132, null);
+                decodeAsStringTest.run(new byte[]{97}, "a");
+                decodeAsStringTest.run(new byte[]{98, 97}, "ba");
+                decodeAsStringTest.run(new byte[] { -62, -124 }, "" + (char)132);
             });
 
             runner.testGroup("decodeNextCharacter(Iterator<Byte>)", () ->
             {
-                final Action1<byte[]> decodeNextCharacterFailureTest = (byte[] bytes) ->
+                runner.test("with null", (Test test) ->
+                {
+                    test.assertThrows(() -> encoding.decodeNextCharacter(null),
+                        new PreConditionFailure("bytes cannot be null."));
+                });
+
+                runner.test("with empty Iterator", (Test test) ->
+                {
+                    test.assertThrows(() -> encoding.decodeNextCharacter(Iterator.empty()).awaitError(),
+                        new EndOfStreamException());
+                });
+
+                final Action2<byte[],char[]> decodeNextCharacterTest = (byte[] bytes, char[] expectedCharacters) ->
                 {
                     runner.test("with " + Array.toString(bytes), (Test test) ->
                     {
-                        final Iterator<Byte> bytesIterator = bytes == null ? null : Iterator.createFromBytes(bytes);
-                        test.assertThrows(() -> encoding.decodeNextCharacter(bytesIterator));
-                    });
-                };
-
-                decodeNextCharacterFailureTest.run(null);
-
-                final Action3<byte[], char[], Throwable> decodeNextCharacterTest = (byte[] bytes, char[] expectedCharacters, Throwable expectedError) ->
-                {
-                    runner.test("with " + Array.toString(bytes), (Test test) ->
-                    {
-                        final Iterator<Byte> bytesIterator = bytes == null ? null : Iterator.createFromBytes(bytes);
-                        if (expectedCharacters != null)
+                        final Iterator<Byte> bytesIterator = Iterator.createFromBytes(bytes);
+                        for (int i = 0; i < expectedCharacters.length; ++i)
                         {
-                            for (int i = 0; i < expectedCharacters.length; ++i)
-                            {
-                                test.assertSuccess(expectedCharacters[i], encoding.decodeNextCharacter(bytesIterator));
-                            }
+                            test.assertEqual(expectedCharacters[i], encoding.decodeNextCharacter(bytesIterator).await());
                         }
-                        test.assertDone(null, expectedError, encoding.decodeNextCharacter(bytesIterator));
+                        test.assertThrows(() -> encoding.decodeNextCharacter(bytesIterator).awaitError(),
+                            new EndOfStreamException());
                     });
                 };
 
-                decodeNextCharacterTest.run(new byte[0], null, null);
-                decodeNextCharacterTest.run(new byte[]{97}, new char[]{'a'}, null);
-                decodeNextCharacterTest.run(new byte[]{97, 98, 99, 100}, new char[]{'a', 'b', 'c', 'd'}, null);
-                decodeNextCharacterTest.run(new byte[] { -62, -124 }, new char[] { (char)132 }, null);
+                decodeNextCharacterTest.run(new byte[] { 97 }, new char[]{'a'});
+                decodeNextCharacterTest.run(new byte[] { 97, 98, 99, 100 }, new char[]{'a', 'b', 'c', 'd'});
+                decodeNextCharacterTest.run(new byte[] { -62, -124 }, new char[] { (char)132 });
             });
 
             runner.testGroup("equals(Object)", () ->

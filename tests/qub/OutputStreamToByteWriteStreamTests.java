@@ -141,8 +141,8 @@ public class OutputStreamToByteWriteStreamTests
                 writeByteArrayStartIndexAndLengthTest.run(new TestStubOutputStream(), null, 0, 0, null, new PreConditionFailure("toWrite cannot be null."));
                 writeByteArrayStartIndexAndLengthTest.run(new java.io.ByteArrayOutputStream(), new byte[0], 0, 0, null, new PreConditionFailure("toWrite cannot be empty."));
                 writeByteArrayStartIndexAndLengthTest.run(new TestStubOutputStream(), new byte[0], 0, 0, null, new PreConditionFailure("toWrite cannot be empty."));
-                writeByteArrayStartIndexAndLengthTest.run(new java.io.ByteArrayOutputStream(), new byte[] { 0, 1, 2 }, 0, 0, 0, null);
-                writeByteArrayStartIndexAndLengthTest.run(new TestStubOutputStream(), new byte[] { 0, 1, 2 }, 0, 0, null, new RuntimeException(new java.io.IOException()));
+                writeByteArrayStartIndexAndLengthTest.run(new java.io.ByteArrayOutputStream(), new byte[] { 0, 1, 2 }, 0, 0, 0, new PreConditionFailure("length (0) must be between 1 and 3."));
+                writeByteArrayStartIndexAndLengthTest.run(new TestStubOutputStream(), new byte[] { 0, 1, 2 }, 0, 0, null, new PreConditionFailure("length (0) must be between 1 and 3."));
                 writeByteArrayStartIndexAndLengthTest.run(new java.io.ByteArrayOutputStream(), new byte[] { 0, 1, 2 }, 1, 1, 1, null);
                 writeByteArrayStartIndexAndLengthTest.run(new TestStubOutputStream(), new byte[] { 0, 1, 2 }, 1, 1, null, new RuntimeException(new java.io.IOException()));
             });

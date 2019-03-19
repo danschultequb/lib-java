@@ -30,62 +30,59 @@ public class ByteReadStreamCounter implements ByteReadStream
      */
     public long getBitsRead()
     {
-        return bytesRead * Byte.SIZE;
+        return bytesRead * Bytes.bitCount;
     }
 
     @Override
     public Result<Byte> readByte()
     {
+        PreCondition.assertNotDisposed(this);
+
         return innerStream.readByte()
             .onValue((Byte value) ->
             {
-                if (value != null)
-                {
-                    ++bytesRead;
-                }
+                 ++bytesRead;
             });
     }
 
     @Override
     public Result<byte[]> readBytes(int bytesToRead)
     {
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertGreaterThanOrEqualTo(bytesToRead, 1, "bytesToRead");
+        PreCondition.assertNotDisposed(this);
 
         return innerStream.readBytes(bytesToRead)
             .onValue((byte[] values) ->
             {
-                if (values != null)
-                {
-                    bytesRead += values.length;
-                }
+                bytesRead += values.length;
             });
     }
 
     @Override
     public Result<Integer> readBytes(byte[] outputBytes)
     {
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertNotNullAndNotEmpty(outputBytes, "outputBytes");
+        PreCondition.assertNotDisposed(this);
 
         return innerStream.readBytes(outputBytes)
             .onValue((Integer bytesRead) ->
             {
-                if (bytesRead != null)
-                {
-                    this.bytesRead += bytesRead;
-                }
+                this.bytesRead += bytesRead;
             });
     }
 
     @Override
     public Result<Integer> readBytes(byte[] outputBytes, int startIndex, int length)
     {
+        PreCondition.assertNotNullAndNotEmpty(outputBytes, "outputBytes");
+        PreCondition.assertStartIndex(startIndex, outputBytes.length);
+        PreCondition.assertLength(length, startIndex, outputBytes.length);
+        PreCondition.assertNotDisposed(this);
+
         return innerStream.readBytes(outputBytes, startIndex, length)
             .onValue((Integer bytesRead) ->
             {
-                if (bytesRead != null)
-                {
-                    this.bytesRead += bytesRead;
-                }
+                this.bytesRead += bytesRead;
             });
     }
 

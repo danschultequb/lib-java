@@ -6,16 +6,18 @@ public class USASCIICharacterEncoding implements CharacterEncoding
     public Result<Integer> encode(char character, ByteWriteStream byteWriteStream)
     {
         PreCondition.assertNotNull(byteWriteStream, "byteWriteStream");
+        PreCondition.assertNotDisposed(byteWriteStream, "byteWriteStream.isDiposed()");
 
         return byteWriteStream.writeByte(encodeCharacter(character))
-            .then(() -> 1);
+            .thenResult(Result::successOne);
     }
 
     @Override
     public Result<Integer> encode(String text, ByteWriteStream byteWriteStream)
     {
-        PreCondition.assertNotNull(text, "text");
+        PreCondition.assertNotNullAndNotEmpty(text, "text");
         PreCondition.assertNotNull(byteWriteStream, "byteWriteStream");
+        PreCondition.assertNotDisposed(byteWriteStream, "byteWriteStream.isDisposed()");
 
         final byte[] encodedBytes = new byte[text.length()];
         for (int i = 0; i < text.length(); ++i)
@@ -29,10 +31,11 @@ public class USASCIICharacterEncoding implements CharacterEncoding
     @Override
     public Result<Integer> encode(char[] characters, int startIndex, int length, ByteWriteStream byteWriteStream)
     {
-        PreCondition.assertNotNull(characters, "characters");
+        PreCondition.assertNotNullAndNotEmpty(characters, "characters");
         PreCondition.assertStartIndex(startIndex, characters.length);
         PreCondition.assertLength(length, startIndex, characters.length);
         PreCondition.assertNotNull(byteWriteStream, "byteWriteStream");
+        PreCondition.assertNotDisposed(byteWriteStream, "byteWriteStream.isDisposed()");
 
         final byte[] encodedBytes = new byte[characters.length];
         for (int i = 0; i < length; ++i)
@@ -46,7 +49,7 @@ public class USASCIICharacterEncoding implements CharacterEncoding
     @Override
     public Result<char[]> decode(byte[] bytes, int startIndex, int length)
     {
-        PreCondition.assertNotNull(bytes, "characters");
+        PreCondition.assertNotNullAndNotEmpty(bytes, "characters");
         PreCondition.assertStartIndex(startIndex, bytes.length);
         PreCondition.assertLength(length, startIndex, bytes.length);
 
@@ -65,6 +68,10 @@ public class USASCIICharacterEncoding implements CharacterEncoding
 
         Result<Character> result;
         if (!bytes.next())
+        {
+            result = Result.endOfStream();
+        }
+        else if (bytes.getCurrent() == null)
         {
             result = Result.success(null);
         }

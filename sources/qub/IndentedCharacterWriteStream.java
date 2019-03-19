@@ -127,8 +127,18 @@ public class IndentedCharacterWriteStream implements CharacterWriteStream
     {
         PreCondition.assertNotDisposed(this);
 
-        return innerStream.write(toWrite)
-            .onValue(() -> indentNextCharacter = (toWrite == '\n'));
+        return Result.create(() ->
+        {
+            int result = 0;
+            if (indentNextCharacter && !Strings.isNullOrEmpty(currentIndent))
+            {
+                result += innerStream.write(currentIndent).await();
+            }
+            result += innerStream.write(toWrite).await();
+            indentNextCharacter = (toWrite == '\n');
+            return result;
+        });
+
     }
 
     @Override
@@ -152,7 +162,7 @@ public class IndentedCharacterWriteStream implements CharacterWriteStream
                 final int lineEndIndex = newLineCharacterIndex + 1;
                 lineLength = lineEndIndex - lineStartIndex;
 
-                if (indentNextCharacter && lineLength != 1 && (lineLength != 2 || toWrite[lineStartIndex] != '\r'))
+                if (indentNextCharacter && !Strings.isNullOrEmpty(currentIndent) && lineLength != 1 && (lineLength != 2 || toWrite[lineStartIndex] != '\r'))
                 {
                     result += innerStream.write(currentIndent).await();
                 }
@@ -166,7 +176,7 @@ public class IndentedCharacterWriteStream implements CharacterWriteStream
 
             if (lineStartIndex < endIndex)
             {
-                if (indentNextCharacter)
+                if (indentNextCharacter && !Strings.isNullOrEmpty(currentIndent))
                 {
                     result += innerStream.write(currentIndent).await();
                 }
@@ -199,7 +209,7 @@ public class IndentedCharacterWriteStream implements CharacterWriteStream
                 final int lineEndIndex = newLineCharacterIndex + 1;
                 lineLength = lineEndIndex - lineStartIndex;
 
-                if (indentNextCharacter && lineLength != 1 && (lineLength != 2 || toWrite.charAt(lineStartIndex) != '\r'))
+                if (indentNextCharacter && !Strings.isNullOrEmpty(currentIndent) && lineLength != 1 && (lineLength != 2 || toWrite.charAt(lineStartIndex) != '\r'))
                 {
                     result += innerStream.write(currentIndent).await();
                 }
@@ -213,7 +223,7 @@ public class IndentedCharacterWriteStream implements CharacterWriteStream
 
             if (lineStartIndex < toWriteLength)
             {
-                if (indentNextCharacter)
+                if (indentNextCharacter && !Strings.isNullOrEmpty(currentIndent))
                 {
                     result += innerStream.write(currentIndent).await();
                 }
@@ -235,7 +245,7 @@ public class IndentedCharacterWriteStream implements CharacterWriteStream
         return Result.create(() ->
         {
             int result = 0;
-            if (indentNextCharacter)
+            if (indentNextCharacter && !Strings.isNullOrEmpty(currentIndent))
             {
                 result += innerStream.write(currentIndent).await();
             }

@@ -327,4 +327,14 @@ public interface Result<T>
 
         return SyncResult.error(error);
     }
+
+    /**
+     * Create a new Result that contains an end of stream error.
+     * @param <U> The type of value that the Result can contain.
+     * @return A Result that contains an end of stream error.
+     */
+    static <U> SyncResult<U> endOfStream()
+    {
+        return SyncResult.endOfStream();
+    }
 }

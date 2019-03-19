@@ -44,13 +44,13 @@ public class MD5Tests
 
             hashTestGroup.run("hash(Iterator<Byte>)", (String message) ->
             {
-                final Iterator<Byte> bytes = Iterator.createFromBytes(Strings.isNullOrEmpty(message) ? new byte[0] : CharacterEncoding.US_ASCII.encode(message).await());
+                final Iterator<Byte> bytes = Strings.isNullOrEmpty(message) ? Iterator.empty() : Iterator.createFromBytes(CharacterEncoding.US_ASCII.encode(message).await());
                 return MD5.hash(bytes);
             });
 
             hashTestGroup.run("hash(Iterable<Byte>)", (String message) ->
             {
-                final Iterable<Byte> bytes = Array.createByte(Strings.isNullOrEmpty(message) ? new byte[0] : CharacterEncoding.US_ASCII.encode(message).await());
+                final Iterable<Byte> bytes = Strings.isNullOrEmpty(message) ? Iterable.create() : Array.createByte(CharacterEncoding.US_ASCII.encode(message).await());
                 return MD5.hash(bytes);
             });
         });

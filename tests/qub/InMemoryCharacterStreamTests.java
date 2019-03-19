@@ -343,14 +343,15 @@ public class InMemoryCharacterStreamTests
                     final InMemoryCharacterStream characterReadStream = createStream();
                     final char[] outputCharacters = new char[6];
                     test.assertThrows(() -> characterReadStream.readCharacters(outputCharacters, 2, -50),
-                        new PreConditionFailure("length (-50) must be between 0 and 4."));
+                        new PreConditionFailure("length (-50) must be between 1 and 4."));
                 });
 
                 runner.test("with zero length", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream();
                     final char[] outputCharacters = new char[6];
-                    test.assertEqual(null, characterReadStream.readCharacters(outputCharacters, 2, 0).awaitError());
+                    test.assertThrows(() -> characterReadStream.readCharacters(outputCharacters, 2, 0),
+                        new PreConditionFailure("length (0) must be between 1 and 4."));
                 });
 
                 runner.test("with length greater than outputCharacters.length - startIndex", (Test test) ->
@@ -358,7 +359,7 @@ public class InMemoryCharacterStreamTests
                     final InMemoryCharacterStream characterReadStream = createStream();
                     final char[] outputCharacters = new char[6];
                     test.assertThrows(() -> characterReadStream.readCharacters(outputCharacters, 2, 5),
-                        new PreConditionFailure("length (5) must be between 0 and 4."));
+                        new PreConditionFailure("length (5) must be between 1 and 4."));
                 });
 
                 runner.test("with no characters to read.", (Test test) ->

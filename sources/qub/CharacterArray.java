@@ -23,7 +23,7 @@ public class CharacterArray extends Array<Character>
 
     public CharacterArray(char[] characters, int startIndex, int length)
     {
-        PreCondition.assertNotNull(characters, "characters");
+        PreCondition.assertNotNullAndNotEmpty(characters, "characters");
         PreCondition.assertStartIndex(startIndex, characters.length);
         PreCondition.assertLength(length, startIndex, characters.length);
 

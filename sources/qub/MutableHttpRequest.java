@@ -149,6 +149,8 @@ public class MutableHttpRequest implements HttpRequest
 
     public Result<Void> setBody(String bodyText)
     {
+        PreCondition.assertNotNullAndNotEmpty(bodyText, "bodyText");
+
         return CharacterEncoding.UTF_8.encode(bodyText)
             .then((Action1<byte[]>)this::setBody);
     }

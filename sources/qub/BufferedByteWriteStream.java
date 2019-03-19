@@ -71,15 +71,15 @@ public class BufferedByteWriteStream implements ByteWriteStream
     }
 
     @Override
-    public Result<Integer> writeBytes(byte[] toWrite, int startIndex, int length)
+    public Result<Integer> writeBytes(byte[] bytes, int startIndex, int length)
     {
-        PreCondition.assertNotNull(toWrite, "toWrite");
-        PreCondition.assertStartIndex(startIndex, toWrite.length);
-        PreCondition.assertLength(length, startIndex, toWrite.length);
+        PreCondition.assertNotNullAndNotEmpty(bytes, "bytes");
+        PreCondition.assertStartIndex(startIndex, bytes.length);
+        PreCondition.assertLength(length, startIndex, bytes.length);
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
         final int bytesToAddToBuffer = Math.minimum(length, buffer.length - currentBufferIndex);
-        Array.copy(toWrite, startIndex, buffer, currentBufferIndex, bytesToAddToBuffer);
+        Array.copy(bytes, startIndex, buffer, currentBufferIndex, bytesToAddToBuffer);
         currentBufferIndex += bytesToAddToBuffer;
 
         final Result<Integer> result = flushBufferIfFull().then(() -> bytesToAddToBuffer);

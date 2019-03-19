@@ -101,7 +101,7 @@ public interface CharacterEncoding
      */
     default Result<char[]> decode(byte[] bytes)
     {
-        PreCondition.assertNotNull(bytes, "bytes");
+        PreCondition.assertNotNullAndNotEmpty(bytes, "bytes");
 
         return decode(bytes, 0, bytes.length);
     }
@@ -115,7 +115,7 @@ public interface CharacterEncoding
      */
     default Result<String> decodeAsString(byte[] bytes)
     {
-        PreCondition.assertNotNull(bytes, "bytes");
+        PreCondition.assertNotNullAndNotEmpty(bytes, "bytes");
 
         return decode(bytes)
             .then((char[] characters) -> String.valueOf(characters));

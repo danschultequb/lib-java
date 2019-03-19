@@ -44,14 +44,14 @@ public class ByteWriteStreamToCharacterWriteStream implements CharacterWriteStre
     }
 
     @Override
-    public Result<Integer> write(char[] toWrite, int startIndex, int length)
+    public Result<Integer> write(char[] characters, int startIndex, int length)
     {
-        PreCondition.assertNotNullAndNotEmpty(toWrite, "toWrite");
-        PreCondition.assertStartIndex(startIndex, toWrite.length);
-        PreCondition.assertLength(length, startIndex, toWrite.length);
+        PreCondition.assertNotNullAndNotEmpty(characters, "characters");
+        PreCondition.assertStartIndex(startIndex, characters.length);
+        PreCondition.assertLength(length, startIndex, characters.length);
         PreCondition.assertNotDisposed(this);
 
-        return CharacterWriteStream.write(toWrite, startIndex, length, characterEncoding, byteWriteStream);
+        return CharacterWriteStream.write(characters, startIndex, length, characterEncoding, byteWriteStream);
     }
 
     @Override

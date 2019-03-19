@@ -140,7 +140,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
         PreCondition.assertNotNullAndNotEmpty(outputBytes, "outputBytes");
         PreCondition.assertStartIndex(startIndex, outputBytes.length);
         PreCondition.assertLength(length, startIndex, outputBytes.length);
-        PreCondition.assertFalse(this.isDisposed(), "this.isDisposed()");
+        PreCondition.assertNotDisposed(this);
 
         return mutex.criticalSection(() ->
         {
@@ -227,6 +227,8 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
     @Override
     public Byte getCurrent()
     {
+        PreCondition.assertTrue(hasCurrent(), "hasCurrent()");
+
         return current;
     }
 
@@ -265,7 +267,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
     @Override
     public Result<Integer> writeBytes(byte[] bytes, int startIndex, int length)
     {
-        PreCondition.assertNotNull(bytes, "bytes");
+        PreCondition.assertNotNullAndNotEmpty(bytes, "bytes");
         PreCondition.assertStartIndex(startIndex, bytes.length);
         PreCondition.assertLength(length, startIndex, bytes.length);
         PreCondition.assertNotDisposed(this);

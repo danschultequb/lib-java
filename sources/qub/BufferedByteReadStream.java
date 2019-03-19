@@ -2,8 +2,8 @@ package qub;
 
 public class BufferedByteReadStream implements ByteReadStream
 {
-    public static final int defaultInitialBufferSize = 1024;
     private final ByteReadStream byteReadStream;
+    private final int maximumBufferSize;
     private byte[] buffer;
     private boolean growOnNextBufferFill;
     private int currentBufferIndex;
@@ -12,19 +12,28 @@ public class BufferedByteReadStream implements ByteReadStream
 
     public BufferedByteReadStream(ByteReadStream byteReadStream)
     {
-        this(byteReadStream, defaultInitialBufferSize);
+        this(byteReadStream, 10000, 100000);
     }
 
-    public BufferedByteReadStream(ByteReadStream byteReadStream, int initialBufferSize)
+    public BufferedByteReadStream(ByteReadStream byteReadStream, int bufferSize)
+    {
+        this(byteReadStream, bufferSize, bufferSize);
+    }
+
+    public BufferedByteReadStream(ByteReadStream byteReadStream, int initialBufferSize, int maximumBufferSize)
     {
         PreCondition.assertNotNull(byteReadStream, "byteReadStream");
-        PreCondition.assertLessThanOrEqualTo(1, initialBufferSize, "initialBufferSize");
+        PreCondition.assertGreaterThanOrEqualTo(initialBufferSize, 1, "initialBufferSize");
+        PreCondition.assertGreaterThanOrEqualTo(maximumBufferSize, initialBufferSize, "maximumBufferSize");
 
         this.byteReadStream = byteReadStream;
+        this.maximumBufferSize = maximumBufferSize;
         this.buffer = byteReadStream.isDisposed() ? null : new byte[initialBufferSize];
         this.currentBufferIndex = -1;
         this.growOnNextBufferFill = false;
     }
+
+
 
     @Override
     public Result<Byte> readByte()
@@ -105,20 +114,43 @@ public class BufferedByteReadStream implements ByteReadStream
     @Override
     public Byte getCurrent()
     {
-        return hasCurrent() ? buffer[currentBufferIndex] : null;
+        PreCondition.assertTrue(hasCurrent(), "hasCurrent()");
+
+        return buffer[currentBufferIndex];
     }
 
-    int getBufferCapacity()
+    /**
+     * Get the number of bytes that are in the buffer.
+     * @return The number of bytes that are in the buffer.
+     */
+    public int getBufferSize()
     {
         return buffer == null ? 0 : buffer.length;
     }
 
-    int getBufferedByteCount()
+    /**
+     * Get the maximum byte count that the buffer can grow to.
+     * @return The maximum byte count that the buffer can grow to.
+     */
+    public int getMaximumBufferSize()
+    {
+        return maximumBufferSize;
+    }
+
+    /**
+     * Get the number of unread bytes in the buffer.
+     * @return The number of unread bytes in the buffer.
+     */
+    public int getBufferedByteCount()
     {
         return currentBufferIndex < 0 ? 0 : bytesInBuffer - currentBufferIndex;
     }
 
-    boolean getGrowOnNextBufferFill()
+    /**
+     * Get whether or not the buffer will be expanded on the next buffer fill.
+     * @return Get whether or not the buffer will be expanded on the next buffer fill.
+     */
+    public boolean getGrowOnNextBufferFill()
     {
         return growOnNextBufferFill;
     }

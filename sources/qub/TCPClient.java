@@ -135,12 +135,6 @@ public interface TCPClient extends ByteWriteStream, ByteReadStream, AsyncDisposa
     }
 
     @Override
-    default java.io.InputStream asInputStream()
-    {
-        return getReadStream().asInputStream();
-    }
-
-    @Override
     default CharacterReadStream asCharacterReadStream()
     {
         return getReadStream().asCharacterReadStream();

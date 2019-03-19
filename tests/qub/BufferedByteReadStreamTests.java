@@ -23,12 +23,14 @@ public class BufferedByteReadStreamTests
                     test.assertTrue(bufferedByteReadStream.isDisposed());
                     test.assertFalse(bufferedByteReadStream.hasStarted());
                     test.assertFalse(bufferedByteReadStream.hasCurrent());
-                    test.assertEqual(0, bufferedByteReadStream.getBufferCapacity());
+                    test.assertEqual(0, bufferedByteReadStream.getBufferSize());
+                    test.assertEqual(100000, bufferedByteReadStream.getMaximumBufferSize());
                     test.assertEqual(0, bufferedByteReadStream.getBufferedByteCount());
                     test.assertSame(byteReadStream.getAsyncRunner(), bufferedByteReadStream.getAsyncRunner());
                     test.assertFalse(byteReadStream.hasStarted());
                     test.assertFalse(byteReadStream.hasCurrent());
-                    test.assertEqual(null, byteReadStream.getCurrent());
+                    test.assertThrows(byteReadStream::getCurrent,
+                        new PreConditionFailure("hasCurrent() cannot be false."));
                 });
 
                 runner.test("with valid ByteReadStream", (Test test) ->
@@ -40,12 +42,14 @@ public class BufferedByteReadStreamTests
                     test.assertFalse(bufferedByteReadStream.isDisposed());
                     test.assertFalse(bufferedByteReadStream.hasStarted());
                     test.assertFalse(bufferedByteReadStream.hasCurrent());
-                    test.assertEqual(1024, bufferedByteReadStream.getBufferCapacity());
+                    test.assertEqual(10000, bufferedByteReadStream.getBufferSize());
+                    test.assertEqual(100000, bufferedByteReadStream.getMaximumBufferSize());
                     test.assertEqual(0, bufferedByteReadStream.getBufferedByteCount());
                     test.assertSame(byteReadStream.getAsyncRunner(), bufferedByteReadStream.getAsyncRunner());
                     test.assertFalse(byteReadStream.hasStarted());
                     test.assertFalse(byteReadStream.hasCurrent());
-                    test.assertEqual(null, byteReadStream.getCurrent());
+                    test.assertThrows(byteReadStream::getCurrent,
+                        new PreConditionFailure("hasCurrent() cannot be false."));
                 });
             });
 
@@ -66,22 +70,26 @@ public class BufferedByteReadStreamTests
                     test.assertTrue(bufferedByteReadStream.isDisposed());
                     test.assertFalse(bufferedByteReadStream.hasStarted());
                     test.assertFalse(bufferedByteReadStream.hasCurrent());
-                    test.assertEqual(0, bufferedByteReadStream.getBufferCapacity());
+                    test.assertEqual(0, bufferedByteReadStream.getBufferSize());
+                    test.assertEqual(5, bufferedByteReadStream.getMaximumBufferSize());
                     test.assertEqual(0, bufferedByteReadStream.getBufferedByteCount());
                     test.assertSame(byteReadStream.getAsyncRunner(), bufferedByteReadStream.getAsyncRunner());
                     test.assertFalse(byteReadStream.hasStarted());
                     test.assertFalse(byteReadStream.hasCurrent());
-                    test.assertEqual(null, byteReadStream.getCurrent());
+                    test.assertThrows(byteReadStream::getCurrent,
+                        new PreConditionFailure("hasCurrent() cannot be false."));
                 });
 
                 runner.test("with -1 initialBufferSize", (Test test) ->
                 {
-                    test.assertThrows(() -> new BufferedByteReadStream(null, -1));
+                    test.assertThrows(() -> new BufferedByteReadStream(new InMemoryByteStream(), -1),
+                        new PreConditionFailure("initialBufferSize (-1) must be greater than or equal to 1."));
                 });
 
                 runner.test("with -2 initialBufferSize", (Test test) ->
                 {
-                    test.assertThrows(() -> new BufferedByteReadStream(null, -2));
+                    test.assertThrows(() -> new BufferedByteReadStream(new InMemoryByteStream(), -2),
+                        new PreConditionFailure("initialBufferSize (-2) must be greater than or equal to 1."));
                 });
 
                 runner.test("with valid ByteReadStream and 2 initialBufferSize", (Test test) ->
@@ -93,12 +101,14 @@ public class BufferedByteReadStreamTests
                     test.assertFalse(bufferedByteReadStream.isDisposed());
                     test.assertFalse(bufferedByteReadStream.hasStarted());
                     test.assertFalse(bufferedByteReadStream.hasCurrent());
-                    test.assertEqual(2, bufferedByteReadStream.getBufferCapacity());
+                    test.assertEqual(2, bufferedByteReadStream.getBufferSize());
+                    test.assertEqual(2, bufferedByteReadStream.getMaximumBufferSize());
                     test.assertEqual(0, bufferedByteReadStream.getBufferedByteCount());
                     test.assertSame(byteReadStream.getAsyncRunner(), bufferedByteReadStream.getAsyncRunner());
                     test.assertFalse(byteReadStream.hasStarted());
                     test.assertFalse(byteReadStream.hasCurrent());
-                    test.assertEqual(null, byteReadStream.getCurrent());
+                    test.assertThrows(byteReadStream::getCurrent,
+                        new PreConditionFailure("hasCurrent() cannot be false."));
                 });
             });
 
@@ -110,7 +120,8 @@ public class BufferedByteReadStreamTests
                     final BufferedByteReadStream byteReadStream = new BufferedByteReadStream(innerStream, 1);
                     test.assertSuccess(true, byteReadStream.dispose());
                     test.assertThrows(byteReadStream::readByte, new PreConditionFailure("isDisposed() cannot be true."));
-                    test.assertEqual(null, byteReadStream.getCurrent());
+                    test.assertThrows(byteReadStream::getCurrent,
+                        new PreConditionFailure("hasCurrent() cannot be false."));
                     test.assertFalse(byteReadStream.hasStarted());
                 });
 
@@ -119,7 +130,8 @@ public class BufferedByteReadStreamTests
                     final InMemoryByteStream innerStream = new InMemoryByteStream().endOfStream();
                     final BufferedByteReadStream byteReadStream = new BufferedByteReadStream(innerStream, 1);
                     test.assertError(new EndOfStreamException(), byteReadStream.readByte());
-                    test.assertEqual(null, byteReadStream.getCurrent());
+                    test.assertThrows(byteReadStream::getCurrent,
+                        new PreConditionFailure("hasCurrent() cannot be false."));
                     test.assertTrue(byteReadStream.hasStarted());
                 });
 
@@ -131,7 +143,7 @@ public class BufferedByteReadStreamTests
                     test.assertSuccess((byte)0, byteReadStream.readByte());
                     test.assertEqual((byte)0, byteReadStream.getCurrent());
                     test.assertEqual(1, byteReadStream.getBufferedByteCount());
-                    test.assertEqual(1, byteReadStream.getBufferCapacity());
+                    test.assertEqual(1, byteReadStream.getBufferSize());
                     test.assertEqual(true, byteReadStream.getGrowOnNextBufferFill());
                     test.assertEqual((byte)0, innerStream.getCurrent());
                     test.assertTrue(byteReadStream.hasStarted());
@@ -139,7 +151,7 @@ public class BufferedByteReadStreamTests
                     test.assertSuccess((byte)1, byteReadStream.readByte());
                     test.assertEqual((byte)1, byteReadStream.getCurrent());
                     test.assertEqual(3, byteReadStream.getBufferedByteCount());
-                    test.assertEqual(3, byteReadStream.getBufferCapacity());
+                    test.assertEqual(3, byteReadStream.getBufferSize());
                     test.assertEqual(true, byteReadStream.getGrowOnNextBufferFill());
                     test.assertEqual((byte)3, innerStream.getCurrent());
                     test.assertTrue(byteReadStream.hasStarted());
@@ -147,7 +159,7 @@ public class BufferedByteReadStreamTests
                     test.assertSuccess((byte)2, byteReadStream.readByte());
                     test.assertEqual((byte)2, byteReadStream.getCurrent());
                     test.assertEqual(2, byteReadStream.getBufferedByteCount());
-                    test.assertEqual(3, byteReadStream.getBufferCapacity());
+                    test.assertEqual(3, byteReadStream.getBufferSize());
                     test.assertEqual(true, byteReadStream.getGrowOnNextBufferFill());
                     test.assertEqual((byte)3, innerStream.getCurrent());
                     test.assertTrue(byteReadStream.hasStarted());
@@ -155,7 +167,7 @@ public class BufferedByteReadStreamTests
                     test.assertSuccess((byte)3, byteReadStream.readByte());
                     test.assertEqual((byte)3, byteReadStream.getCurrent());
                     test.assertEqual(1, byteReadStream.getBufferedByteCount());
-                    test.assertEqual(3, byteReadStream.getBufferCapacity());
+                    test.assertEqual(3, byteReadStream.getBufferSize());
                     test.assertEqual(true, byteReadStream.getGrowOnNextBufferFill());
                     test.assertEqual((byte)3, innerStream.getCurrent());
                     test.assertTrue(byteReadStream.hasStarted());
@@ -163,7 +175,7 @@ public class BufferedByteReadStreamTests
                     test.assertSuccess((byte)4, byteReadStream.readByte());
                     test.assertEqual((byte)4, byteReadStream.getCurrent());
                     test.assertEqual(2, byteReadStream.getBufferedByteCount());
-                    test.assertEqual(7, byteReadStream.getBufferCapacity());
+                    test.assertEqual(7, byteReadStream.getBufferSize());
                     test.assertEqual(false, byteReadStream.getGrowOnNextBufferFill());
                     test.assertEqual((byte)5, innerStream.getCurrent());
                     test.assertTrue(byteReadStream.hasStarted());
@@ -171,17 +183,19 @@ public class BufferedByteReadStreamTests
                     test.assertSuccess((byte)5, byteReadStream.readByte());
                     test.assertEqual((byte)5, byteReadStream.getCurrent());
                     test.assertEqual(1, byteReadStream.getBufferedByteCount());
-                    test.assertEqual(7, byteReadStream.getBufferCapacity());
+                    test.assertEqual(7, byteReadStream.getBufferSize());
                     test.assertEqual(false, byteReadStream.getGrowOnNextBufferFill());
                     test.assertEqual((byte)5, innerStream.getCurrent());
                     test.assertTrue(byteReadStream.hasStarted());
 
                     test.assertError(new EndOfStreamException(), byteReadStream.readByte());
-                    test.assertEqual(null, byteReadStream.getCurrent());
+                    test.assertThrows(byteReadStream::getCurrent,
+                        new PreConditionFailure("hasCurrent() cannot be false."));
                     test.assertEqual(0, byteReadStream.getBufferedByteCount());
-                    test.assertEqual(0, byteReadStream.getBufferCapacity());
+                    test.assertEqual(0, byteReadStream.getBufferSize());
                     test.assertEqual(false, byteReadStream.getGrowOnNextBufferFill());
-                    test.assertEqual(null, innerStream.getCurrent());
+                    test.assertThrows(innerStream::getCurrent,
+                        new PreConditionFailure("hasCurrent() cannot be false."));
                     test.assertTrue(byteReadStream.hasStarted());
                 });
 
@@ -193,7 +207,7 @@ public class BufferedByteReadStreamTests
                     test.assertSuccess((byte)0, byteReadStream.readByte());
                     test.assertEqual((byte)0, byteReadStream.getCurrent());
                     test.assertEqual(2, byteReadStream.getBufferedByteCount());
-                    test.assertEqual(100, byteReadStream.getBufferCapacity());
+                    test.assertEqual(100, byteReadStream.getBufferSize());
                     test.assertEqual(false, byteReadStream.getGrowOnNextBufferFill());
                     test.assertEqual((byte)1, innerStream.getCurrent());
                     test.assertTrue(byteReadStream.hasStarted());
@@ -201,17 +215,19 @@ public class BufferedByteReadStreamTests
                     test.assertSuccess((byte)1, byteReadStream.readByte());
                     test.assertEqual((byte)1, byteReadStream.getCurrent());
                     test.assertEqual(1, byteReadStream.getBufferedByteCount());
-                    test.assertEqual(100, byteReadStream.getBufferCapacity());
+                    test.assertEqual(100, byteReadStream.getBufferSize());
                     test.assertEqual(false, byteReadStream.getGrowOnNextBufferFill());
                     test.assertEqual((byte)1, innerStream.getCurrent());
                     test.assertTrue(byteReadStream.hasStarted());
 
                     test.assertError(new EndOfStreamException(), byteReadStream.readByte());
-                    test.assertEqual(null, byteReadStream.getCurrent());
+                    test.assertThrows(byteReadStream::getCurrent,
+                        new PreConditionFailure("hasCurrent() cannot be false."));
                     test.assertEqual(0, byteReadStream.getBufferedByteCount());
-                    test.assertEqual(0, byteReadStream.getBufferCapacity());
+                    test.assertEqual(0, byteReadStream.getBufferSize());
                     test.assertEqual(false, byteReadStream.getGrowOnNextBufferFill());
-                    test.assertEqual(null, innerStream.getCurrent());
+                    test.assertThrows(innerStream::getCurrent,
+                        new PreConditionFailure("hasCurrent() cannot be false."));
                     test.assertTrue(byteReadStream.hasStarted());
                 });
 
@@ -230,12 +246,14 @@ public class BufferedByteReadStreamTests
                     test.assertThrows(() -> byteReadStream.readByte().awaitError(),
                         new RuntimeException(new Exception("BLAH")));
                     test.assertEqual(0, byteReadStream.getBufferedByteCount());
-                    test.assertEqual(123, byteReadStream.getBufferCapacity());
+                    test.assertEqual(123, byteReadStream.getBufferSize());
                     test.assertEqual(false, byteReadStream.getGrowOnNextBufferFill());
-                    test.assertEqual(null, innerStream.getCurrent());
+                    test.assertThrows(innerStream::getCurrent,
+                        new PreConditionFailure("hasCurrent() cannot be false."));
                     test.assertTrue(byteReadStream.hasStarted());
                     test.assertFalse(byteReadStream.hasCurrent());
-                    test.assertEqual(null, byteReadStream.getCurrent());
+                    test.assertThrows(byteReadStream::getCurrent,
+                        new PreConditionFailure("hasCurrent() cannot be false."));
                 });
             });
         });

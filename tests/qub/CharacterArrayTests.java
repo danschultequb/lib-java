@@ -50,33 +50,38 @@ public interface CharacterArrayTests
             {
                 runner.test("with null values", (Test test) ->
                 {
-                    test.assertThrows(() -> new CharacterArray(null, 0, 0), new PreConditionFailure("characters cannot be null."));
+                    test.assertThrows(() -> new CharacterArray(null, 0, 0),
+                        new PreConditionFailure("characters cannot be null."));
                 });
 
                 runner.test("with negative startIndex", (Test test) ->
                 {
-                    test.assertThrows(() -> new CharacterArray(new char[] { 'a', 'b', 'c' }, -1, 2), new PreConditionFailure("startIndex (-1) must be between 0 and 2."));
+                    test.assertThrows(() -> new CharacterArray(new char[] { 'a', 'b', 'c' }, -1, 2),
+                        new PreConditionFailure("startIndex (-1) must be between 0 and 2."));
                 });
 
                 runner.test("with startIndex equal to value count", (Test test) ->
                 {
-                    test.assertThrows(() -> new CharacterArray(new char[] { 'a', 'b', 'c' }, 3, 2), new PreConditionFailure("startIndex (3) must be between 0 and 2."));
+                    test.assertThrows(() -> new CharacterArray(new char[] { 'a', 'b', 'c' }, 3, 2),
+                        new PreConditionFailure("startIndex (3) must be between 0 and 2."));
                 });
 
                 runner.test("with negative length", (Test test) ->
                 {
-                    test.assertThrows(() -> new CharacterArray(new char[] { 'a', 'b', 'c' }, 0, -1), new PreConditionFailure("length (-1) must be between 0 and 3."));
+                    test.assertThrows(() -> new CharacterArray(new char[] { 'a', 'b', 'c' }, 0, -1),
+                        new PreConditionFailure("length (-1) must be between 1 and 3."));
                 });
 
                 runner.test("with length greater than array length", (Test test) ->
                 {
-                    test.assertThrows(() -> new CharacterArray(new char[] { 'a', 'b', 'c' }, 0, 4), new PreConditionFailure("length (4) must be between 0 and 3."));
+                    test.assertThrows(() -> new CharacterArray(new char[] { 'a', 'b', 'c' }, 0, 4),
+                        new PreConditionFailure("length (4) must be between 1 and 3."));
                 });
 
                 runner.test("with empty array", (Test test) ->
                 {
-                    final CharacterArray array = new CharacterArray(new char[0], 0, 0);
-                    test.assertEqual(0, array.getCount());
+                    test.assertThrows(() -> new CharacterArray(new char[0], 0, 0),
+                        new PreConditionFailure("characters cannot be empty."));
                 });
 
                 runner.test("with complete non-empty array", (Test test) ->
