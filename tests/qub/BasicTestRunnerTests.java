@@ -12,7 +12,8 @@ public class BasicTestRunnerTests
             {
                 runner.test("with null process", (Test test) ->
                 {
-                    test.assertThrows(() -> new BasicTestRunner(null, null));
+                    test.assertThrows(() -> new BasicTestRunner(null, null),
+                        new PreConditionFailure("process cannot be null."));
                 });
             });
 
@@ -47,13 +48,15 @@ public class BasicTestRunnerTests
                 runner.test("with false and null", (Test test) ->
                 {
                     final BasicTestRunner btr = create(test);
-                    test.assertThrows(() -> btr.skip(false, null));
+                    test.assertThrows(() -> btr.skip(false, null),
+                        new PreConditionFailure("message cannot be null."));
                 });
 
                 runner.test("with false and empty", (Test test) ->
                 {
                     final BasicTestRunner btr = create(test);
-                    test.assertThrows(() -> btr.skip(false, ""));
+                    test.assertThrows(() -> btr.skip(false, ""),
+                        new PreConditionFailure("message cannot be empty."));
                 });
 
                 runner.test("with false and non-empty", (Test test) ->
@@ -65,13 +68,15 @@ public class BasicTestRunnerTests
                 runner.test("with true and null", (Test test) ->
                 {
                     final BasicTestRunner btr = create(test);
-                    test.assertThrows(() -> btr.skip(true, null));
+                    test.assertThrows(() -> btr.skip(true, null),
+                        new PreConditionFailure("message cannot be null."));
                 });
 
                 runner.test("with true and empty", (Test test) ->
                 {
                     final BasicTestRunner btr = create(test);
-                    test.assertThrows(() -> btr.skip(true, ""));
+                    test.assertThrows(() -> btr.skip(true, ""),
+                        new PreConditionFailure("message cannot be empty."));
                 });
 
                 runner.test("with true and non-empty", (Test test) ->
@@ -88,13 +93,15 @@ public class BasicTestRunnerTests
                 runner.test("with null", (Test test) ->
                 {
                     final BasicTestRunner btr = create(test);
-                    test.assertThrows(() -> btr.skip(null));
+                    test.assertThrows(() -> btr.skip(null),
+                        new PreConditionFailure("message cannot be null."));
                 });
 
                 runner.test("with empty", (Test test) ->
                 {
                     final BasicTestRunner btr = create(test);
-                    test.assertThrows(() -> btr.skip(""));
+                    test.assertThrows(() -> btr.skip(""),
+                        new PreConditionFailure("message cannot be empty."));
                 });
 
                 runner.test("with non-empty", (Test test) ->
@@ -111,19 +118,22 @@ public class BasicTestRunnerTests
                 runner.test("with null class and null action", (Test test) ->
                 {
                     final BasicTestRunner btr = create(test);
-                    test.assertThrows(() -> btr.testGroup((Class<?>)null, null));
+                    test.assertThrows(() -> btr.testGroup((Class<?>)null, null),
+                        new PreConditionFailure("testClass cannot be null."));
                 });
 
                 runner.test("with null class and non-null action", (Test test) ->
                 {
                     final BasicTestRunner btr = create(test);
-                    test.assertThrows(() -> btr.testGroup((Class<?>)null, Action0.empty));
+                    test.assertThrows(() -> btr.testGroup((Class<?>)null, Action0.empty),
+                        new PreConditionFailure("testClass cannot be null."));
                 });
 
                 runner.test("with non-null class and null action", (Test test) ->
                 {
                     final BasicTestRunner btr = create(test);
-                    test.assertThrows(() -> btr.testGroup(BasicTestRunnerTests.class, null));
+                    test.assertThrows(() -> btr.testGroup(BasicTestRunnerTests.class, null),
+                        new PreConditionFailure("testGroupAction cannot be null."));
                 });
 
                 runner.test("with no event actions", (Test test) ->
@@ -222,19 +232,22 @@ public class BasicTestRunnerTests
                 runner.test("with null and null action", (Test test) ->
                 {
                     final BasicTestRunner btr = create(test);
-                    test.assertThrows(() -> btr.testGroup((String)null, null));
+                    test.assertThrows(() -> btr.testGroup((String)null, null),
+                        new PreConditionFailure("testGroupName cannot be null."));
                 });
 
                 runner.test("with empty and non-null action", (Test test) ->
                 {
                     final BasicTestRunner btr = create(test);
-                    test.assertThrows(() -> btr.testGroup("", Action0.empty));
+                    test.assertThrows(() -> btr.testGroup("", Action0.empty),
+                        new PreConditionFailure("testGroupName cannot be empty."));
                 });
 
                 runner.test("with non-empty and null action", (Test test) ->
                 {
                     final BasicTestRunner btr = create(test);
-                    test.assertThrows(() -> btr.testGroup("abc", null));
+                    test.assertThrows(() -> btr.testGroup("abc", null),
+                        new PreConditionFailure("testGroupAction cannot be null."));
                 });
 
                 runner.test("with no event actions", (Test test) ->

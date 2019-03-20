@@ -39,7 +39,8 @@ public class BasicAsyncActionTests
                 {
                     final AsyncRunner asyncRunner = test.getMainAsyncRunner();
                     final BasicAsyncAction basicAsyncAction = create(asyncRunner);
-                    test.assertThrows(() -> basicAsyncAction.thenOn(null));
+                    test.assertThrows(() -> basicAsyncAction.thenOn(null),
+                        new PreConditionFailure("runner cannot be null."));
                 });
 
                 runner.test("with same AsyncRunner", (Test test) ->

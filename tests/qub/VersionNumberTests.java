@@ -70,7 +70,8 @@ public class VersionNumberTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> VersionNumber.parse(null));
+                    test.assertThrows(() -> VersionNumber.parse(null),
+                        new PreConditionFailure("versionNumberString cannot be null."));
                 });
 
                 runner.test("with \"\"", (Test test) ->

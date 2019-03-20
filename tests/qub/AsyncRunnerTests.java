@@ -12,7 +12,8 @@ public class AsyncRunnerTests
                 {
                     try (final AsyncRunner asyncRunner = createAsyncRunner.run())
                     {
-                        test.assertThrows(() -> asyncRunner.markCompleted(null));
+                        test.assertThrows(() -> asyncRunner.markCompleted(null),
+                            new PreConditionFailure("asyncTaskCompleted cannot be null."));
                     }
                 });
 
@@ -33,7 +34,8 @@ public class AsyncRunnerTests
                 {
                     try (final AsyncRunner asyncRunner = createAsyncRunner.run())
                     {
-                        test.assertThrows(() -> asyncRunner.schedule((Action0)null));
+                        test.assertThrows(() -> asyncRunner.schedule((Action0)null),
+                            new PreConditionFailure("action cannot be null."));
                         test.assertEqual(0, asyncRunner.getScheduledTaskCount());
                     }
                 });
@@ -42,7 +44,8 @@ public class AsyncRunnerTests
                 {
                     try (final AsyncRunner asyncRunner = createAsyncRunner.run())
                     {
-                        test.assertThrows(() -> asyncRunner.schedule((Function0<Integer>)null));
+                        test.assertThrows(() -> asyncRunner.schedule((Function0<Integer>)null),
+                            new PreConditionFailure("function cannot be null."));
                         test.assertEqual(0, asyncRunner.getScheduledTaskCount());
                     }
                 });
@@ -51,7 +54,8 @@ public class AsyncRunnerTests
                 {
                     try (final AsyncRunner asyncRunner = createAsyncRunner.run())
                     {
-                        test.assertThrows(() -> asyncRunner.schedule((PausedAsyncTask)null));
+                        test.assertThrows(() -> asyncRunner.schedule((PausedAsyncTask)null),
+                            new PreConditionFailure("asyncTask cannot be null."));
                         test.assertEqual(0, asyncRunner.getScheduledTaskCount());
                     }
                 });
@@ -65,7 +69,8 @@ public class AsyncRunnerTests
                     {
                         AsyncRunnerRegistry.withCurrentThreadAsyncRunner(asyncRunner, () ->
                         {
-                            test.assertThrows(() -> asyncRunner.scheduleAsyncAction(null));
+                            test.assertThrows(() -> asyncRunner.scheduleAsyncAction(null),
+                                new PreConditionFailure("function cannot be null."));
                             test.assertEqual(0, asyncRunner.getScheduledTaskCount());
                         });
                     }
@@ -103,7 +108,8 @@ public class AsyncRunnerTests
                     {
                         AsyncRunnerRegistry.withCurrentThreadAsyncRunner(asyncRunner, () ->
                         {
-                            test.assertThrows(() -> asyncRunner.scheduleAsyncFunction(null));
+                            test.assertThrows(() -> asyncRunner.scheduleAsyncFunction(null),
+                                new PreConditionFailure("function cannot be null."));
                             test.assertEqual(0, asyncRunner.getScheduledTaskCount());
                         });
                     }
@@ -144,7 +150,8 @@ public class AsyncRunnerTests
                 {
                     try (final AsyncRunner asyncRunner = createAsyncRunner.run())
                     {
-                        test.assertThrows(asyncRunner::whenAll);
+                        test.assertThrows(asyncRunner::whenAll,
+                            new PreConditionFailure("asyncActions cannot be empty."));
                         test.assertEqual(0, asyncRunner.getScheduledTaskCount());
                     }
                 });
@@ -153,7 +160,8 @@ public class AsyncRunnerTests
                 {
                     try (final AsyncRunner asyncRunner = createAsyncRunner.run())
                     {
-                        test.assertThrows(() -> asyncRunner.whenAll((AsyncAction[])null));
+                        test.assertThrows(() -> asyncRunner.whenAll((AsyncAction[])null),
+                            new PreConditionFailure("asyncActions cannot be null."));
                         test.assertEqual(0, asyncRunner.getScheduledTaskCount());
                     }
                 });
@@ -343,7 +351,8 @@ public class AsyncRunnerTests
                 {
                     try (final AsyncRunner asyncRunner = createAsyncRunner.run())
                     {
-                        test.assertThrows(() -> asyncRunner.error(null));
+                        test.assertThrows(() -> asyncRunner.error(null),
+                            new PreConditionFailure("error cannot be null."));
                     }
                 });
 

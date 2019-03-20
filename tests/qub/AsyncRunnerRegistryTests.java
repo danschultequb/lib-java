@@ -19,7 +19,8 @@ public class AsyncRunnerRegistryTests
                     AsyncRunnerRegistry.removeCurrentThreadAsyncRunner();
                     try
                     {
-                        test.assertThrows(AsyncRunnerRegistry::getCurrentThreadAsyncRunner);
+                        test.assertThrows(AsyncRunnerRegistry::getCurrentThreadAsyncRunner,
+                            new NotFoundException("Could not find the provided key (1) in this Map."));
                     }
                     finally
                     {

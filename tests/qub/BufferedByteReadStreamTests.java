@@ -10,7 +10,8 @@ public class BufferedByteReadStreamTests
             {
                 runner.test("with null ByteReadStream", (Test test) ->
                 {
-                    test.assertThrows(() -> new BufferedByteReadStream(null));
+                    test.assertThrows(() -> new BufferedByteReadStream(null),
+                        new PreConditionFailure("byteReadStream cannot be null."));
                 });
 
                 runner.test("with disposed ByteReadStream", (Test test) ->
@@ -57,7 +58,8 @@ public class BufferedByteReadStreamTests
             {
                 runner.test("with null ByteReadStream", (Test test) ->
                 {
-                    test.assertThrows(() -> new BufferedByteReadStream(null, 5));
+                    test.assertThrows(() -> new BufferedByteReadStream(null, 5),
+                        new PreConditionFailure("byteReadStream cannot be null."));
                 });
 
                 runner.test("with disposed ByteReadStream", (Test test) ->

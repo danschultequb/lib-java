@@ -599,14 +599,16 @@ public class ArrayTests
             {
                 runner.test("with negative index", (Test test) ->
                 {
-                    final Array<Integer> a = Array.create(10);
-                    test.assertThrows(() -> a.get(-1));
+                    final Array<Integer> a = Array.createWithLength(10);
+                    test.assertThrows(() -> a.get(-1),
+                        new PreConditionFailure("index (-1) must be between 0 and 9."));
                 });
                 
                 runner.test("with too large index", (Test test) ->
                 {
-                    final Array<Integer> a = Array.create(10);
-                    test.assertThrows(() -> a.get(10));
+                    final Array<Integer> a = Array.createWithLength(10);
+                    test.assertThrows(() -> a.get(10),
+                        new PreConditionFailure("index (10) must be between 0 and 9."));
                 });
             });
             
@@ -614,19 +616,21 @@ public class ArrayTests
             {
                 runner.test("with negative index", (Test test) ->
                 {
-                    final Array<Integer> a = Array.create(10);
-                    test.assertThrows(() -> a.set(-1, 49));
+                    final Array<Integer> a = Array.createWithLength(10);
+                    test.assertThrows(() -> a.set(-1, 49),
+                        new PreConditionFailure("index (-1) must be between 0 and 9."));
                 });
                 
                 runner.test("with too large index", (Test test) ->
                 {
-                    final Array<Integer> a = Array.create(10);
-                    test.assertThrows(() -> a.set(10, 48));
+                    final Array<Integer> a = Array.createWithLength(10);
+                    test.assertThrows(() -> a.set(10, 48),
+                        new PreConditionFailure("index (10) must be between 0 and 9."));
                 });
                 
                 runner.test("with indexes in bounds", (Test test) ->
                 {
-                    final Array<Integer> a = Array.create(11);
+                    final Array<Integer> a = Array.createWithLength(11);
                     for (int i = 0; i < a.getCount(); ++i) {
                         a.set(i, i);
                         test.assertEqual(i, a.get(i));
@@ -681,7 +685,8 @@ public class ArrayTests
             {
                 runner.test("with null array", (Test test) ->
                 {
-                    test.assertThrows(() -> Array.createByte((byte[])null));
+                    test.assertThrows(() -> Array.createByte((byte[])null),
+                        new PreConditionFailure("values cannot be null."));
                 });
 
                 runner.test("with empty array", (Test test) ->
@@ -725,7 +730,8 @@ public class ArrayTests
             {
                 runner.test("with null array", (Test test) ->
                 {
-                    test.assertThrows(() -> Array.createByte((int[])null));
+                    test.assertThrows(() -> Array.createByte((int[])null),
+                        new PreConditionFailure("bytes cannot be null."));
                 });
 
                 runner.test("with empty array", (Test test) ->

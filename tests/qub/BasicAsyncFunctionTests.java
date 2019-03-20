@@ -22,7 +22,8 @@ public class BasicAsyncFunctionTests
                 runner.test("with null", (Test test) ->
                 {
                     final BasicAsyncFunction<Integer> basicAsyncFunction = create(test);
-                    test.assertThrows(() -> basicAsyncFunction.then((Action1<Integer>)null));
+                    test.assertThrows(() -> basicAsyncFunction.then((Action1<Integer>)null),
+                        new PreConditionFailure("action cannot be null."));
                     test.assertEqual(0, basicAsyncFunction.getPausedTaskCount());
                 });
 

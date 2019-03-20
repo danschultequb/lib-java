@@ -414,7 +414,8 @@ public class BitArrayTests
                 runner.test("with less than 64 bits", (Test test) ->
                 {
                     final BitArray bits = new BitArray(63);
-                    test.assertThrows(() -> bits.setLastBitsFromLong(1));
+                    test.assertThrows(() -> bits.setLastBitsFromLong(1),
+                        new PreConditionFailure("getCount() (63) must be greater than or equal to 64."));
                     test.assertEqual(new BitArray(63), bits);
                 });
 
@@ -755,14 +756,16 @@ public class BitArrayTests
                 runner.test("with \"11010\" and null", (Test test) ->
                 {
                     final BitArray bits = BitArray.createFromBitString("11010");
-                    test.assertThrows(() -> bits.xor(null));
+                    test.assertThrows(() -> bits.xor(null),
+                        new PreConditionFailure("rhs cannot be null."));
                 });
 
                 runner.test("with \"11010\" and \"0101\"", (Test test) ->
                 {
                     final BitArray bits = BitArray.createFromBitString("11010");
                     final BitArray rhs = BitArray.createFromBitString("0101");
-                    test.assertThrows(() -> bits.xor(rhs));
+                    test.assertThrows(() -> bits.xor(rhs),
+                        new PreConditionFailure("rhs.getCount() (4) must be 5."));
                 });
 
                 runner.test("with \"11010\" and \"01010\"", (Test test) ->
@@ -779,7 +782,8 @@ public class BitArrayTests
                 runner.test("with bit indexes than reference indexes greater than bits in the BitArray", (Test test) ->
                 {
                     final BitArray bits = BitArray.createFromBitString("");
-                    test.assertThrows(() -> bits.permuteByBitIndex(new long[] { 0 }));
+                    test.assertThrows(() -> bits.permuteByBitIndex(new long[] { 0 }),
+                        new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
                 });
 
                 runner.test("with empty bit indexes and empty BitArray", (Test test) ->
@@ -820,13 +824,15 @@ public class BitArrayTests
                 runner.test("with bit numbers than reference negative indexes in the BitArray", (Test test) ->
                 {
                     final BitArray bits = BitArray.createFromBitString("");
-                    test.assertThrows(() -> bits.permuteByBitNumber(new long[] { 0 }));
+                    test.assertThrows(() -> bits.permuteByBitNumber(new long[] { 0 }),
+                        new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
                 });
 
                 runner.test("with bit numbers that reference indexes greater than bits in the BitArray", (Test test) ->
                 {
                     final BitArray bits = BitArray.createFromBitString("");
-                    test.assertThrows(() -> bits.permuteByBitNumber(new long[] { 1 }));
+                    test.assertThrows(() -> bits.permuteByBitNumber(new long[] { 1 }),
+                        new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
                 });
 
                 runner.test("with empty bit numbers and empty BitArray", (Test test) ->
@@ -868,7 +874,8 @@ public class BitArrayTests
                 {
                     final BitArray bits = BitArray.createFromBitString("101");
                     final BitArray rhs = null;
-                    test.assertThrows(() -> bits.concatenate(rhs));
+                    test.assertThrows(() -> bits.concatenate(rhs),
+                        new PreConditionFailure("rhs cannot be null."));
                 });
 
                 runner.test("with 101 and empty", (Test test) ->
@@ -1257,7 +1264,8 @@ public class BitArrayTests
 
                 runner.test("with " + Strings.escapeAndQuote(Strings.repeat("0", 33)), (Test test) ->
                 {
-                    test.assertThrows(() -> BitArray.createFromBitString(Strings.repeat("0", 33)).toInteger());
+                    test.assertThrows(() -> BitArray.createFromBitString(Strings.repeat("0", 33)).toInteger(),
+                        new PreConditionFailure("length (33) must be between 1 and 32."));
                 });
 
                 runner.test("with \"1\"", (Test test) ->
