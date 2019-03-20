@@ -1049,7 +1049,7 @@ public class Test
 
         if (exceptionThrown == null)
         {
-            throw new TestAssertionFailure(getFullName(), new String[] { "Expected a " + expectedException.getClass().getCanonicalName() + " to be thrown with the message \"" + expectedException.getMessage() + "\"." });
+            throw new TestAssertionFailure(getFullName(), new String[] { "Expected a " + expectedException.getClass().getCanonicalName() + " to be thrown with " + (Strings.isNullOrEmpty(expectedException.getMessage()) ? "no message" : "the message \"" + expectedException.getMessage() + "\"") + "." });
         }
         else if (!Comparer.equal(expectedException, exceptionThrown))
         {

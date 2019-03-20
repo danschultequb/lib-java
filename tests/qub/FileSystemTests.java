@@ -1850,13 +1850,12 @@ public class FileSystemTests
                 {
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
                     final String filePath = "/i/dont/exist.txt";
-                    test.assertSuccess(fileSystem.getFileContentByteWriteStreamAsync(filePath).awaitReturn(),
-                        (ByteWriteStream byteWriteStream) ->
-                        {
-                            test.assertSuccess(true, byteWriteStream.dispose());
-                            test.assertSuccess(true, fileSystem.fileExists(filePath));
-                            test.assertSuccess(new byte[0], fileSystem.getFileContent(filePath));
-                        });
+                    try (final ByteWriteStream byteWriteStream = fileSystem.getFileContentByteWriteStreamAsync(filePath).awaitReturn().await())
+                    {
+                        test.assertTrue(byteWriteStream.dispose().await());
+                        test.assertTrue(fileSystem.fileExists(filePath).await());
+                        test.assertEqual(new byte[0], fileSystem.getFileContent(filePath).await());
+                    }
                 });
             });
 

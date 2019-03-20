@@ -938,7 +938,9 @@ public interface FileSystem
                 byte[] result;
                 try
                 {
-                    result = byteReadStream.readAllBytes().awaitError();
+                    result = byteReadStream.readAllBytes()
+                        .catchError(EndOfStreamException.class, () -> new byte[0])
+                        .awaitError();
                 }
                 finally
                 {

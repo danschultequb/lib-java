@@ -8,121 +8,534 @@ public class InputStreamToByteReadStreamTests
         {
             AsyncDisposableTests.test(runner, (Test test) -> new InputStreamToByteReadStream(getInputStream(10), test.getMainAsyncRunner()));
 
-            runner.test("constructor(InputStream)", (Test test) ->
+            runner.testGroup("constructor(InputStream,AsyncRunner)", () ->
             {
-                final java.io.ByteArrayInputStream inputStream = getInputStream(5);
-                final InputStreamToByteReadStream readStream = new InputStreamToByteReadStream(inputStream, test.getMainAsyncRunner());
-                assertByteReadStream(test, readStream, false, false, null);
-            });
-            
-            runner.test("close()", (Test test) ->
-            {
-                closeTest(test, getInputStream(0), true, null);
-                closeTest(test, getInputStream(5), true, null);
-
-                final java.io.ByteArrayInputStream closedInputStream = getInputStream(1);
-                try
+                runner.test("with null InputStream", (Test test) ->
                 {
-                    closedInputStream.close();
-                }
-                catch (java.io.IOException e)
+                    test.assertThrows(() -> new InputStreamToByteReadStream(null, test.getMainAsyncRunner()),
+                        new PreConditionFailure("inputStream cannot be null."));
+                });
+
+                runner.test("with null AsyncRunner", (Test test) ->
                 {
-                    test.fail(e);
-                }
-                closeTest(test, closedInputStream, true, null);
+                    final InputStreamToByteReadStream byteReadStream = new InputStreamToByteReadStream(getInputStream(5), null);
+                    test.assertNull(byteReadStream.getAsyncRunner());
+                    assertByteReadStream(test, byteReadStream, false, false, null);
+                });
 
-                final InputStreamToByteReadStream closedReadStream = getByteReadStream(test, 1);
-                closedReadStream.close();
-                closeTest(test, closedReadStream, true, null);
-
-                final TestStubInputStream testStubInputStream = new TestStubInputStream();
-                testStubInputStream.setThrowOnClose(true);
-                closeTest(test, testStubInputStream, true, new RuntimeException(new java.io.IOException()));
-            });
-
-            runner.test("readByte()", (Test test) ->
-            {
-                final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, 2);
-
-                test.assertEqual((byte)0, byteReadStream.readByte().awaitError());
-                test.assertEqual((byte)1, byteReadStream.readByte().awaitError());
-                test.assertThrows(() -> byteReadStream.readByte().awaitError(),
-                    new EndOfStreamException());
-            });
-            
-            runner.test("readByte() with exception", (Test test) ->
-            {
-                final TestStubInputStream inputStream = new TestStubInputStream();
-                inputStream.setThrowOnRead(true);
-                
-                final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, inputStream);
-                test.assertThrows(() -> byteReadStream.readByte().awaitError(),
-                    new RuntimeException(new java.io.IOException()));
-            });
-            
-            runner.testGroup("readBytes(byte[])", () ->
-            {
-                runner.test("with no bytes", (Test test) ->
+                runner.test("with non-null InputStream and non-null AsyncRunner", (Test test) ->
                 {
-                    final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, 0);
+                    final InputStreamToByteReadStream byteReadStream = new InputStreamToByteReadStream(getInputStream(5), test.getMainAsyncRunner());
+                    test.assertSame(test.getMainAsyncRunner(), byteReadStream.getAsyncRunner());
+                    assertByteReadStream(test, byteReadStream, false, false, null);
+                });
+            });
 
-                    final byte[] buffer = new byte[10];
-                    test.assertThrows(() -> byteReadStream.readBytes(buffer).awaitError(),
+            runner.testGroup("readByte()", () ->
+            {
+                runner.test("when disposed", (Test test) ->
+                {
+                    final InputStreamToByteReadStream readStream = getByteReadStream(test, 5);
+                    test.assertTrue(readStream.dispose().await());
+                    test.assertThrows(readStream::readByte,
+                        new PreConditionFailure("isDisposed() cannot be true."));
+                    assertByteReadStream(test, readStream, true, false, null);
+                });
+
+                runner.test("with bytes to read", (Test test) ->
+                {
+                    final InputStreamToByteReadStream readStream = getByteReadStream(test, 5);
+                    test.assertEqual(0, readStream.readByte().await());
+                    assertByteReadStream(test, readStream, false, true, 0);
+                });
+
+                runner.test("with no bytes to read", (Test test) ->
+                {
+                    final InputStreamToByteReadStream readStream = getByteReadStream(test, 0);
+                    test.assertThrows(() -> readStream.readByte().awaitError(),
                         new EndOfStreamException());
+                    assertByteReadStream(test, readStream, false, true, null);
                 });
-                
-                runner.test("with bytes", (Test test) ->
+
+                runner.test("when exception is thrown", (Test test) ->
                 {
-                    final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, 3);
+                    final TestStubInputStream inputStream = new TestStubInputStream();
+                    inputStream.setThrowOnRead(true);
 
-                    final byte[] buffer = new byte[10];
-                    test.assertEqual(3, byteReadStream.readBytes(buffer).awaitError());
-                    test.assertEqual(new byte[] { 0, 1, 2, 0, 0, 0, 0, 0, 0, 0 }, buffer);
-
-                    test.assertThrows(() -> byteReadStream.readBytes(buffer).awaitError(),
-                        new EndOfStreamException());
+                    final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, inputStream);
+                    test.assertThrows(() -> byteReadStream.readByte().awaitError(),
+                        new RuntimeException(new java.io.IOException()));
+                    assertByteReadStream(test, byteReadStream, false, true, null);
                 });
-                
-                runner.test("asCharacterReadStream()", (Test test) ->
+            });
+
+            runner.testGroup("readBytes(int)", () ->
+            {
+                runner.test("when disposed", (Test test) ->
                 {
-                    final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, new java.io.ByteArrayInputStream("abcd".getBytes()));
-
-                    final CharacterReadStream characterReadStream = byteReadStream.asCharacterReadStream();
-
-                    test.assertEqual('a', characterReadStream.readCharacter().awaitError());
-                });
-                
-                runner.testGroup("asCharacterReadStream(CharacterEncoding)", () ->
-                {
-                    runner.test("with null encoding", (Test test) ->
-                    {
-                        final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, 10);
-
-                        test.assertThrows(() -> byteReadStream.asCharacterReadStream((CharacterEncoding)null),
-                                          new PreConditionFailure("characterEncoding cannot be null."));
-                    });
-
-                    runner.test("with non-null encoding", (Test test) ->
-                    {
-                        final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, new java.io.ByteArrayInputStream("abcd".getBytes()));
-
-                        final CharacterReadStream characterReadStream = byteReadStream.asCharacterReadStream(CharacterEncoding.US_ASCII);
-
-                        test.assertEqual('a', characterReadStream.readCharacter().awaitError());
-                    });
+                    final InputStreamToByteReadStream readStream = getByteReadStream(test, 5);
+                    test.assertTrue(readStream.dispose().await());
+                    test.assertThrows(() -> readStream.readBytes(5),
+                        new PreConditionFailure("isDisposed() cannot be true."));
+                    assertByteReadStream(test, readStream, true, false, null);
                 });
 
-                runner.test("next()", (Test test) ->
+                runner.test("with negative", (Test test) ->
                 {
                     final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, 5);
+                    test.assertThrows(() -> byteReadStream.readBytes(-1),
+                        new PreConditionFailure("bytesToRead (-1) must be greater than or equal to 1."));
+                    assertByteReadStream(test, byteReadStream, false, false, null);
+                });
 
-                    for (int i = 0; i < 5; ++i)
-                    {
-                        test.assertTrue(byteReadStream.next());
-                        assertByteReadStream(test, byteReadStream, false, true, (byte)i);
-                    }
+                runner.test("with zero", (Test test) ->
+                {
+                    final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, 5);
+                    test.assertThrows(() -> byteReadStream.readBytes(0),
+                        new PreConditionFailure("bytesToRead (0) must be greater than or equal to 1."));
+                    assertByteReadStream(test, byteReadStream, false, false, null);
+                });
 
-                    test.assertFalse(byteReadStream.next());
+                runner.test("with fewer bytesToRead than available", (Test test) ->
+                {
+                    final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, 5);
+                    test.assertEqual(new byte[] { 0, 1, 2 }, byteReadStream.readBytes(3).await());
+                    assertByteReadStream(test, byteReadStream, false, true, 2);
+                });
+
+                runner.test("with bytesToRead equal to available", (Test test) ->
+                {
+                    final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, 5);
+                    test.assertEqual(new byte[] { 0, 1, 2, 3, 4 }, byteReadStream.readBytes(5).await());
+                    assertByteReadStream(test, byteReadStream, false, true, 4);
+                });
+
+                runner.test("with more bytesToRead than available", (Test test) ->
+                {
+                    final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, 5);
+                    test.assertEqual(new byte[] { 0, 1, 2, 3, 4 }, byteReadStream.readBytes(6).await());
+                    assertByteReadStream(test, byteReadStream, false, true, 4);
+                });
+
+                runner.test("when exception is thrown", (Test test) ->
+                {
+                    final TestStubInputStream inputStream = new TestStubInputStream();
+                    inputStream.setThrowOnRead(true);
+
+                    final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, inputStream);
+                    test.assertThrows(() -> byteReadStream.readBytes(5).awaitError(),
+                        new RuntimeException(new java.io.IOException()));
+                    assertByteReadStream(test, byteReadStream, false, true, null);
+                });
+            });
+
+            runner.testGroup("readBytes(byte[])", () ->
+            {
+                runner.test("when disposed", (Test test) ->
+                {
+                    final InputStreamToByteReadStream readStream = getByteReadStream(test, 5);
+                    test.assertTrue(readStream.dispose().await());
+                    final byte[] outputBytes = new byte[10];
+                    test.assertThrows(() -> readStream.readBytes(outputBytes),
+                        new PreConditionFailure("isDisposed() cannot be true."));
+                    assertByteReadStream(test, readStream, true, false, null);
+                });
+
+                runner.test("with null", (Test test) ->
+                {
+                    final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, 5);
+                    final byte[] outputBytes = null;
+                    test.assertThrows(() -> byteReadStream.readBytes(outputBytes),
+                        new PreConditionFailure("outputBytes cannot be null."));
+                    assertByteReadStream(test, byteReadStream, false, false, null);
+                });
+
+                runner.test("with empty", (Test test) ->
+                {
+                    final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, 5);
+                    final byte[] outputBytes = new byte[0];
+                    test.assertThrows(() -> byteReadStream.readBytes(outputBytes),
+                        new PreConditionFailure("outputBytes cannot be empty."));
+                    assertByteReadStream(test, byteReadStream, false, false, null);
+                });
+
+                runner.test("with fewer bytesToRead than available", (Test test) ->
+                {
+                    final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, 5);
+                    final byte[] outputBytes = new byte[3];
+                    test.assertEqual(3, byteReadStream.readBytes(outputBytes).await());
+                    assertByteReadStream(test, byteReadStream, false, true, 2);
+                    test.assertEqual(new byte[] { 0, 1, 2 }, outputBytes);
+                });
+
+                runner.test("with bytesToRead equal to available", (Test test) ->
+                {
+                    final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, 5);
+                    final byte[] outputBytes = new byte[5];
+                    test.assertEqual(5, byteReadStream.readBytes(outputBytes).await());
+                    assertByteReadStream(test, byteReadStream, false, true, 4);
+                    test.assertEqual(new byte[] { 0, 1, 2, 3, 4 }, outputBytes);
+                });
+
+                runner.test("with more bytesToRead than available", (Test test) ->
+                {
+                    final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, 5);
+                    final byte[] outputBytes = new byte[6];
+                    test.assertEqual(5, byteReadStream.readBytes(outputBytes).await());
+                    assertByteReadStream(test, byteReadStream, false, true, 4);
+                    test.assertEqual(new byte[] { 0, 1, 2, 3, 4, 0 }, outputBytes);
+                });
+
+                runner.test("when exception is thrown", (Test test) ->
+                {
+                    final TestStubInputStream inputStream = new TestStubInputStream();
+                    inputStream.setThrowOnRead(true);
+
+                    final byte[] outputBytes = new byte[3];
+                    final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, inputStream);
+                    test.assertThrows(() -> byteReadStream.readBytes(outputBytes).awaitError(),
+                        new RuntimeException(new java.io.IOException()));
+                    assertByteReadStream(test, byteReadStream, false, true, null);
+                    test.assertEqual(new byte[] { 0, 0, 0 }, outputBytes);
+                });
+            });
+
+            runner.testGroup("readBytes(byte[],int,int)", () ->
+            {
+                runner.test("when disposed", (Test test) ->
+                {
+                    final InputStreamToByteReadStream readStream = getByteReadStream(test, 5);
+                    test.assertTrue(readStream.dispose().await());
+                    final byte[] outputBytes = new byte[10];
+                    test.assertThrows(() -> readStream.readBytes(outputBytes, 0, 1),
+                        new PreConditionFailure("isDisposed() cannot be true."));
+                    assertByteReadStream(test, readStream, true, false, null);
+                });
+
+                runner.test("with null", (Test test) ->
+                {
+                    final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, 5);
+                    final byte[] outputBytes = null;
+                    test.assertThrows(() -> byteReadStream.readBytes(outputBytes, 0, 1),
+                        new PreConditionFailure("outputBytes cannot be null."));
+                    assertByteReadStream(test, byteReadStream, false, false, null);
+                });
+
+                runner.test("with empty", (Test test) ->
+                {
+                    final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, 5);
+                    final byte[] outputBytes = new byte[0];
+                    test.assertThrows(() -> byteReadStream.readBytes(outputBytes, 0, 1),
+                        new PreConditionFailure("outputBytes cannot be empty."));
+                    assertByteReadStream(test, byteReadStream, false, false, null);
+                });
+
+                runner.test("with negative startIndex", (Test test) ->
+                {
+                    final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, 5);
+                    final byte[] outputBytes = new byte[3];
+                    test.assertThrows(() -> byteReadStream.readBytes(outputBytes, -1, 1),
+                        new PreConditionFailure("startIndex (-1) must be between 0 and 2."));
+                    assertByteReadStream(test, byteReadStream, false, false, null);
+                });
+
+                runner.test("with too large startIndex", (Test test) ->
+                {
+                    final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, 5);
+                    final byte[] outputBytes = new byte[3];
+                    test.assertThrows(() -> byteReadStream.readBytes(outputBytes, 3, 1),
+                        new PreConditionFailure("startIndex (3) must be between 0 and 2."));
+                    assertByteReadStream(test, byteReadStream, false, false, null);
+                });
+
+                runner.test("with negative length", (Test test) ->
+                {
+                    final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, 5);
+                    final byte[] outputBytes = new byte[3];
+                    test.assertThrows(() -> byteReadStream.readBytes(outputBytes, 1, -1),
+                        new PreConditionFailure("length (-1) must be between 1 and 2."));
+                    assertByteReadStream(test, byteReadStream, false, false, null);
+                });
+
+                runner.test("with zero length", (Test test) ->
+                {
+                    final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, 5);
+                    final byte[] outputBytes = new byte[3];
+                    test.assertThrows(() -> byteReadStream.readBytes(outputBytes, 1, 0),
+                        new PreConditionFailure("length (0) must be between 1 and 2."));
+                    assertByteReadStream(test, byteReadStream, false, false, null);
+                });
+
+                runner.test("with too large length", (Test test) ->
+                {
+                    final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, 5);
+                    final byte[] outputBytes = new byte[3];
+                    test.assertThrows(() -> byteReadStream.readBytes(outputBytes, 1, 3),
+                        new PreConditionFailure("length (3) must be between 1 and 2."));
+                    assertByteReadStream(test, byteReadStream, false, false, null);
+                });
+
+                runner.test("with smaller length than available", (Test test) ->
+                {
+                    final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, 5);
+                    final byte[] outputBytes = new byte[6];
+                    test.assertEqual(3, byteReadStream.readBytes(outputBytes, 2, 3).await());
+                    assertByteReadStream(test, byteReadStream, false, true, 2);
+                    test.assertEqual(new byte[] { 0, 0, 0, 1, 2, 0 }, outputBytes);
+                });
+
+                runner.test("with bytesToRead equal to available", (Test test) ->
+                {
+                    final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, 5);
+                    final byte[] outputBytes = new byte[7];
+                    test.assertEqual(5, byteReadStream.readBytes(outputBytes, 1, 5).await());
+                    assertByteReadStream(test, byteReadStream, false, true, 4);
+                    test.assertEqual(new byte[] { 0, 0, 1, 2, 3, 4, 0 }, outputBytes);
+                });
+
+                runner.test("with more bytesToRead than available", (Test test) ->
+                {
+                    final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, 5);
+                    final byte[] outputBytes = new byte[6];
+                    test.assertEqual(5, byteReadStream.readBytes(outputBytes, 0, 6).await());
+                    assertByteReadStream(test, byteReadStream, false, true, 4);
+                    test.assertEqual(new byte[] { 0, 1, 2, 3, 4, 0 }, outputBytes);
+                });
+
+                runner.test("when exception is thrown", (Test test) ->
+                {
+                    final TestStubInputStream inputStream = new TestStubInputStream();
+                    inputStream.setThrowOnRead(true);
+
+                    final byte[] outputBytes = new byte[3];
+                    final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, inputStream);
+                    test.assertThrows(() -> byteReadStream.readBytes(outputBytes, 0, 3).awaitError(),
+                        new RuntimeException(new java.io.IOException()));
+                    assertByteReadStream(test, byteReadStream, false, true, null);
+                    test.assertEqual(new byte[] { 0, 0, 0 }, outputBytes);
+                });
+            });
+
+            runner.testGroup("readAllBytes()", () ->
+            {
+                runner.test("when disposed", (Test test) ->
+                {
+                    final InputStreamToByteReadStream readStream = getByteReadStream(test, 5);
+                    test.assertTrue(readStream.dispose().await());
+                    test.assertThrows(readStream::readAllBytes,
+                        new PreConditionFailure("isDisposed() cannot be true."));
+                    assertByteReadStream(test, readStream, true, false, null);
+                });
+
+                runner.test("when empty", (Test test) ->
+                {
+                    final InputStreamToByteReadStream readStream = getByteReadStream(test, 0);
+                    test.assertThrows(() -> readStream.readAllBytes().awaitError(),
+                        new EndOfStreamException());
+                    assertByteReadStream(test, readStream, false, true, null);
+                });
+
+                runner.test("when not empty", (Test test) ->
+                {
+                    final InputStreamToByteReadStream readStream = getByteReadStream(test, 5);
+                    test.assertEqual(new byte[] { 0, 1, 2, 3, 4 }, readStream.readAllBytes().await());
+                    assertByteReadStream(test, readStream, false, true, null);
+                    test.assertThrows(() -> readStream.readAllBytes().awaitError(),
+                        new EndOfStreamException());
+                    assertByteReadStream(test, readStream, false, true, null);
+                });
+            });
+
+            runner.testGroup("readBytesUntil(byte)", () ->
+            {
+                runner.test("when disposed", (Test test) ->
+                {
+                    final InputStreamToByteReadStream readStream = getByteReadStream(test, 5);
+                    test.assertTrue(readStream.dispose().await());
+                    test.assertThrows(() -> readStream.readBytesUntil((byte)3),
+                        new PreConditionFailure("isDisposed() cannot be true."));
+                    assertByteReadStream(test, readStream, true, false, null);
+                });
+
+                runner.test("when empty", (Test test) ->
+                {
+                    final InputStreamToByteReadStream readStream = getByteReadStream(test, 0);
+                    test.assertThrows(() -> readStream.readBytesUntil((byte)5).awaitError(),
+                        new EndOfStreamException());
+                    assertByteReadStream(test, readStream, false, true, null);
+                });
+
+                runner.test("with no match", (Test test) ->
+                {
+                    final InputStreamToByteReadStream readStream = getByteReadStream(test, 5);
+                    test.assertEqual(new byte[] { 0, 1, 2, 3, 4 }, readStream.readBytesUntil((byte)20).await());
+                    assertByteReadStream(test, readStream, false, true, null);
+                });
+
+                runner.test("with match", (Test test) ->
+                {
+                    final InputStreamToByteReadStream readStream = getByteReadStream(test, 5);
+                    test.assertEqual(new byte[] { 0, 1 }, readStream.readBytesUntil((byte)1).await());
+                    assertByteReadStream(test, readStream, false, true, 1);
+
+                    test.assertEqual(new byte[] { 2, 3, 4 }, readStream.readBytesUntil((byte)1).await());
+                    assertByteReadStream(test, readStream, false, true, null);
+                });
+            });
+
+            runner.testGroup("readBytesUntil(byte[])", () ->
+            {
+                runner.test("when disposed", (Test test) ->
+                {
+                    final InputStreamToByteReadStream readStream = getByteReadStream(test, 5);
+                    test.assertTrue(readStream.dispose().await());
+                    test.assertThrows(() -> readStream.readBytesUntil(new byte[] { 3 }),
+                        new PreConditionFailure("isDisposed() cannot be true."));
+                    assertByteReadStream(test, readStream, true, false, null);
+                });
+
+                runner.test("when empty", (Test test) ->
+                {
+                    final InputStreamToByteReadStream readStream = getByteReadStream(test, 0);
+                    test.assertThrows(() -> readStream.readBytesUntil(new byte[] { 5 }).awaitError(),
+                        new EndOfStreamException());
+                    assertByteReadStream(test, readStream, false, true, null);
+                });
+
+                runner.test("with null", (Test test) ->
+                {
+                    final InputStreamToByteReadStream readStream = getByteReadStream(test, 0);
+                    test.assertThrows(() -> readStream.readBytesUntil((byte[])null),
+                        new PreConditionFailure("stopBytes cannot be null."));
+                    assertByteReadStream(test, readStream, false, false, null);
+                });
+
+                runner.test("with empty", (Test test) ->
+                {
+                    final InputStreamToByteReadStream readStream = getByteReadStream(test, 0);
+                    test.assertThrows(() -> readStream.readBytesUntil(new byte[0]),
+                        new PreConditionFailure("stopBytes cannot be empty."));
+                    assertByteReadStream(test, readStream, false, false, null);
+                });
+
+                runner.test("with no match", (Test test) ->
+                {
+                    final InputStreamToByteReadStream readStream = getByteReadStream(test, 5);
+                    test.assertEqual(new byte[] { 0, 1, 2, 3, 4 }, readStream.readBytesUntil(new byte[] { 20 }).await());
+                    assertByteReadStream(test, readStream, false, true, null);
+                });
+
+                runner.test("with match", (Test test) ->
+                {
+                    final InputStreamToByteReadStream readStream = getByteReadStream(test, 5);
+                    test.assertEqual(new byte[] { 0, 1 }, readStream.readBytesUntil(new byte[] { 1 }).await());
+                    assertByteReadStream(test, readStream, false, true, 1);
+
+                    test.assertEqual(new byte[] { 2, 3, 4 }, readStream.readBytesUntil(new byte[] { 1 }).await());
+                    assertByteReadStream(test, readStream, false, true, null);
+                });
+
+                runner.test("with partial match", (Test test) ->
+                {
+                    final InputStreamToByteReadStream readStream = getByteReadStream(test, 5);
+                    test.assertEqual(new byte[] { 0, 1, 2, 3, 4 }, readStream.readBytesUntil(new byte[] { 1, 3 }).await());
+                    assertByteReadStream(test, readStream, false, true, null);
+                });
+            });
+
+            runner.testGroup("readBytesUntil(Iterable<Byte>)", () ->
+            {
+                runner.test("when disposed", (Test test) ->
+                {
+                    final InputStreamToByteReadStream readStream = getByteReadStream(test, 5);
+                    test.assertTrue(readStream.dispose().await());
+                    test.assertThrows(() -> readStream.readBytesUntil(Array.createByte(3)),
+                        new PreConditionFailure("isDisposed() cannot be true."));
+                    assertByteReadStream(test, readStream, true, false, null);
+                });
+
+                runner.test("when empty", (Test test) ->
+                {
+                    final InputStreamToByteReadStream readStream = getByteReadStream(test, 0);
+                    test.assertThrows(() -> readStream.readBytesUntil(Array.createByte(5)).awaitError(),
+                        new EndOfStreamException());
+                    assertByteReadStream(test, readStream, false, true, null);
+                });
+
+                runner.test("with null", (Test test) ->
+                {
+                    final InputStreamToByteReadStream readStream = getByteReadStream(test, 0);
+                    test.assertThrows(() -> readStream.readBytesUntil((Iterable<Byte>)null),
+                        new PreConditionFailure("stopBytes cannot be null."));
+                    assertByteReadStream(test, readStream, false, false, null);
+                });
+
+                runner.test("with empty", (Test test) ->
+                {
+                    final InputStreamToByteReadStream readStream = getByteReadStream(test, 0);
+                    test.assertThrows(() -> readStream.readBytesUntil(Array.createByte()),
+                        new PreConditionFailure("stopBytes cannot be empty."));
+                    assertByteReadStream(test, readStream, false, false, null);
+                });
+
+                runner.test("with no match", (Test test) ->
+                {
+                    final InputStreamToByteReadStream readStream = getByteReadStream(test, 5);
+                    test.assertEqual(new byte[] { 0, 1, 2, 3, 4 }, readStream.readBytesUntil(Array.createByte(20)).await());
+                    assertByteReadStream(test, readStream, false, true, null);
+                });
+
+                runner.test("with match", (Test test) ->
+                {
+                    final InputStreamToByteReadStream readStream = getByteReadStream(test, 5);
+                    test.assertEqual(new byte[] { 0, 1 }, readStream.readBytesUntil(Array.createByte(1)).await());
+                    assertByteReadStream(test, readStream, false, true, 1);
+
+                    test.assertEqual(new byte[] { 2, 3, 4 }, readStream.readBytesUntil(Array.createByte(1)).await());
+                    assertByteReadStream(test, readStream, false, true, null);
+                });
+
+                runner.test("with partial match", (Test test) ->
+                {
+                    final InputStreamToByteReadStream readStream = getByteReadStream(test, 5);
+                    test.assertEqual(new byte[] { 0, 1, 2, 3, 4 }, readStream.readBytesUntil(Array.createByte(1, 3)).await());
+                    assertByteReadStream(test, readStream, false, true, null);
+                });
+            });
+
+            runner.testGroup("next()", () ->
+            {
+                runner.test("when disposed", (Test test) ->
+                {
+                    final InputStreamToByteReadStream readStream = getByteReadStream(test, 5);
+                    test.assertTrue(readStream.dispose().await());
+                    test.assertThrows(readStream::next,
+                        new PreConditionFailure("isDisposed() cannot be true."));
+                    assertByteReadStream(test, readStream, true, false, null);
+                });
+
+                runner.test("with bytes to read", (Test test) ->
+                {
+                    final InputStreamToByteReadStream readStream = getByteReadStream(test, 5);
+                    test.assertEqual(true, readStream.next());
+                    assertByteReadStream(test, readStream, false, true, 0);
+                });
+
+                runner.test("with no bytes to read", (Test test) ->
+                {
+                    final InputStreamToByteReadStream readStream = getByteReadStream(test, 0);
+                    test.assertFalse(readStream.next());
+                    assertByteReadStream(test, readStream, false, true, null);
+                });
+
+                runner.test("when exception is thrown", (Test test) ->
+                {
+                    final TestStubInputStream inputStream = new TestStubInputStream();
+                    inputStream.setThrowOnRead(true);
+
+                    final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, inputStream);
+                    test.assertThrows(byteReadStream::next,
+                        new RuntimeException(new java.io.IOException()));
                     assertByteReadStream(test, byteReadStream, false, true, null);
                 });
             });
@@ -147,6 +560,13 @@ public class InputStreamToByteReadStreamTests
     private static InputStreamToByteReadStream getByteReadStream(Test test, java.io.InputStream inputStream)
     {
         return new InputStreamToByteReadStream(inputStream, test.getMainAsyncRunner());
+    }
+
+    private static void assertByteReadStream(Test test, ByteReadStream byteReadStream, boolean isDisposed, boolean hasStarted, int current)
+    {
+        PreCondition.assertByte(current, "current");
+
+        assertByteReadStream(test, byteReadStream, isDisposed, hasStarted, Byte.valueOf((byte)current));
     }
 
     private static void assertByteReadStream(Test test, ByteReadStream byteReadStream, boolean isDisposed, boolean hasStarted, Byte current)

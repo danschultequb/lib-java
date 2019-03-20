@@ -105,24 +105,7 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
      * @return The number of bytes that were read, null if the end of the stream has been reached,
      * or an error if bytes could not be read.
      */
-    default Result<Integer> readBytes(byte[] outputBytes, int startIndex, int length)
-    {
-        PreCondition.assertNotNullAndNotEmpty(outputBytes, "outputBytes");
-        PreCondition.assertStartIndex(startIndex, outputBytes.length);
-        PreCondition.assertLength(length, startIndex, outputBytes.length);
-        PreCondition.assertNotDisposed(this);
-
-        return Result.create(() ->
-        {
-            int bytesRead = 0;
-            while (bytesRead < length)
-            {
-                outputBytes[startIndex + bytesRead] = readByte().awaitError();
-                ++bytesRead;
-            }
-            return bytesRead;
-        });
-    }
+    Result<Integer> readBytes(byte[] outputBytes, int startIndex, int length);
 
     /**
      * Read up to length available bytes into the provided byte[] at the provided startIndex and
@@ -158,7 +141,13 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
 
         final InMemoryByteStream byteStream = new InMemoryByteStream();
         return byteStream.writeAllBytes(this)
-            .then(byteStream::getBytes);
+            .thenResult(() ->
+            {
+                final byte[] bytes = byteStream.getBytes();
+                return bytes.length == 0
+                    ? Result.endOfStream()
+                    : Result.success(bytes);
+            });
     }
 
     /**
@@ -298,8 +287,8 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
 
         return readByte()
             .thenResult(Result::successTrue)
-            .catchErrorResult(Result::successFalse)
-            .await();
+            .catchErrorResult(EndOfStreamException.class, Result::successFalse)
+            .awaitError();
     }
 
     /**

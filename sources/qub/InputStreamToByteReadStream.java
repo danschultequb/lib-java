@@ -14,6 +14,8 @@ public class InputStreamToByteReadStream implements ByteReadStream
 
     public InputStreamToByteReadStream(java.io.InputStream inputStream, AsyncRunner asyncRunner)
     {
+        PreCondition.assertNotNull(inputStream, "inputStream");
+
         this.asyncRunner = asyncRunner;
         this.inputStream = inputStream;
     }
@@ -68,7 +70,7 @@ public class InputStreamToByteReadStream implements ByteReadStream
             if (byteAsInt == -1)
             {
                 current = null;
-                result = Result.error(new EndOfStreamException());
+                result = Result.endOfStream();
             }
             else
             {
@@ -101,7 +103,7 @@ public class InputStreamToByteReadStream implements ByteReadStream
             if (bytesRead == -1)
             {
                 current = null;
-                result = Result.error(new EndOfStreamException());
+                result = Result.endOfStream();
             }
             else
             {

@@ -634,23 +634,8 @@ public class InMemoryByteStreamTests
                 runner.test("with no bytes to read", (Test test) ->
                 {
                     final InMemoryByteStream stream = create(test);
-                    test.assertSuccess(new byte[0], stream.readAllBytes());
-                });
-            });
-
-            runner.testGroup("readAllBytesAsync()", () ->
-            {
-                runner.test("with disposed ByteReadStream", (Test test) ->
-                {
-                    final InMemoryByteStream stream = create(test);
-                    stream.dispose();
-                    test.assertThrows(() -> stream.readAllBytesAsync());
-                });
-
-                runner.test("with no bytes to read", (Test test) ->
-                {
-                    final InMemoryByteStream stream = create(test);
-                    test.assertSuccess(new byte[0], stream.readAllBytesAsync().awaitReturn());
+                    test.assertThrows(() -> stream.readAllBytes().awaitError(),
+                        new EndOfStreamException());
                 });
             });
 
@@ -659,7 +644,7 @@ public class InMemoryByteStreamTests
                 runner.test("with disposed ByteReadStream", (Test test) ->
                 {
                     final InMemoryByteStream stream = create(test);
-                    stream.dispose();
+                    test.assertTrue(stream.dispose().await());
                     test.assertThrows(() -> stream.readBytesUntil((byte)5));
                 });
 

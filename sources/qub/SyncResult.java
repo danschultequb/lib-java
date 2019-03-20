@@ -710,15 +710,13 @@ public class SyncResult<T> implements Result<T>
         return new SyncResult<>(null, error);
     }
 
-    private static final SyncResult<?> errorEndOfStream = SyncResult.error(new EndOfStreamException());
     /**
      * Create a new Result that contains an end of stream error.
      * @param <U> The type of value that the Result can contain.
      * @return A Result that contains an end of stream error.
      */
-    @SuppressWarnings("unchecked")
     public static <U> SyncResult<U> endOfStream()
     {
-        return (SyncResult<U>)errorEndOfStream;
+        return Result.error(new EndOfStreamException());
     }
 }

@@ -33,29 +33,26 @@ public class BufferedByteReadStream implements ByteReadStream
         this.growOnNextBufferFill = false;
     }
 
-
-
     @Override
     public Result<Byte> readByte()
     {
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertNotDisposed(this);
 
         hasStarted = true;
 
         Result<Byte> result;
         if (currentBufferIndex < 0 || currentBufferIndex == bytesInBuffer - 1)
         {
-            if (growOnNextBufferFill)
+            if (growOnNextBufferFill && buffer.length < maximumBufferSize)
             {
-                final int newBufferSize = (buffer.length * 2) + 1;
-                buffer = new byte[newBufferSize];
+                buffer = new byte[Math.minimum(maximumBufferSize, buffer.length * 2)];
             }
 
             result = byteReadStream.readBytes(buffer)
                 .then((Integer bytesRead) ->
                 {
                     bytesInBuffer = bytesRead;
-                    growOnNextBufferFill = (bytesInBuffer == buffer.length);
+                    growOnNextBufferFill = (buffer.length == bytesRead);
                     currentBufferIndex = 0;
                     return buffer[currentBufferIndex];
                 })
@@ -70,6 +67,57 @@ public class BufferedByteReadStream implements ByteReadStream
         else
         {
             result = Result.success(buffer[++currentBufferIndex]);
+        }
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    @Override
+    public Result<Integer> readBytes(byte[] outputBytes, int startIndex, int length)
+    {
+        PreCondition.assertNotNullAndNotEmpty(outputBytes, "outputBytes");
+        PreCondition.assertStartIndex(startIndex, outputBytes.length);
+        PreCondition.assertLength(length, startIndex, outputBytes.length);
+        PreCondition.assertNotDisposed(this);
+
+        Result<Integer> result;
+
+        if (currentBufferIndex < 0 || currentBufferIndex == bytesInBuffer - 1)
+        {
+            if (growOnNextBufferFill && buffer.length < maximumBufferSize)
+            {
+                buffer = new byte[Math.minimum(maximumBufferSize, buffer.length * 2)];
+            }
+
+            result = byteReadStream.readBytes(buffer)
+                .then((Integer bytesRead) ->
+                {
+                    bytesInBuffer = bytesRead;
+                    growOnNextBufferFill = (buffer.length == bytesRead);
+
+                    final int bytesToCopy = Math.minimum(bytesRead, length);
+                    Array.copy(buffer, 0, outputBytes, startIndex, bytesToCopy);
+                    currentBufferIndex = bytesToCopy - 1;
+
+                    return bytesToCopy;
+                })
+                .onError(EndOfStreamException.class, () ->
+                {
+                    buffer = null;
+                    growOnNextBufferFill = false;
+                    bytesInBuffer = 0;
+                    currentBufferIndex = -1;
+                });
+        }
+        else
+        {
+            final int bytesToCopy = Math.minimum(length, bytesInBuffer - (currentBufferIndex + 1));
+            Array.copy(buffer, currentBufferIndex + 1, outputBytes, startIndex, bytesToCopy);
+            currentBufferIndex += bytesToCopy;
+
+            result = Result.success(bytesToCopy);
         }
 
         PostCondition.assertNotNull(result, "result");

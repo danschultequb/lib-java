@@ -138,7 +138,7 @@ public class BufferedByteReadStreamTests
                 runner.test("when buffer size is smaller than inner stream byte count", (Test test) ->
                 {
                     final InMemoryByteStream innerStream = new InMemoryByteStream(new byte[] { 0, 1, 2, 3, 4, 5 }).endOfStream();
-                    final BufferedByteReadStream byteReadStream = new BufferedByteReadStream(innerStream, 1);
+                    final BufferedByteReadStream byteReadStream = new BufferedByteReadStream(innerStream, 1, 10);
 
                     test.assertSuccess((byte)0, byteReadStream.readByte());
                     test.assertEqual((byte)0, byteReadStream.getCurrent());
@@ -150,32 +150,32 @@ public class BufferedByteReadStreamTests
 
                     test.assertSuccess((byte)1, byteReadStream.readByte());
                     test.assertEqual((byte)1, byteReadStream.getCurrent());
-                    test.assertEqual(3, byteReadStream.getBufferedByteCount());
-                    test.assertEqual(3, byteReadStream.getBufferSize());
+                    test.assertEqual(2, byteReadStream.getBufferedByteCount());
+                    test.assertEqual(2, byteReadStream.getBufferSize());
                     test.assertEqual(true, byteReadStream.getGrowOnNextBufferFill());
-                    test.assertEqual((byte)3, innerStream.getCurrent());
+                    test.assertEqual((byte)2, innerStream.getCurrent());
                     test.assertTrue(byteReadStream.hasStarted());
 
                     test.assertSuccess((byte)2, byteReadStream.readByte());
                     test.assertEqual((byte)2, byteReadStream.getCurrent());
-                    test.assertEqual(2, byteReadStream.getBufferedByteCount());
-                    test.assertEqual(3, byteReadStream.getBufferSize());
+                    test.assertEqual(1, byteReadStream.getBufferedByteCount());
+                    test.assertEqual(2, byteReadStream.getBufferSize());
                     test.assertEqual(true, byteReadStream.getGrowOnNextBufferFill());
-                    test.assertEqual((byte)3, innerStream.getCurrent());
+                    test.assertEqual((byte)2, innerStream.getCurrent());
                     test.assertTrue(byteReadStream.hasStarted());
 
                     test.assertSuccess((byte)3, byteReadStream.readByte());
                     test.assertEqual((byte)3, byteReadStream.getCurrent());
-                    test.assertEqual(1, byteReadStream.getBufferedByteCount());
-                    test.assertEqual(3, byteReadStream.getBufferSize());
-                    test.assertEqual(true, byteReadStream.getGrowOnNextBufferFill());
-                    test.assertEqual((byte)3, innerStream.getCurrent());
+                    test.assertEqual(3, byteReadStream.getBufferedByteCount());
+                    test.assertEqual(4, byteReadStream.getBufferSize());
+                    test.assertEqual(false, byteReadStream.getGrowOnNextBufferFill());
+                    test.assertEqual((byte)5, innerStream.getCurrent());
                     test.assertTrue(byteReadStream.hasStarted());
 
                     test.assertSuccess((byte)4, byteReadStream.readByte());
                     test.assertEqual((byte)4, byteReadStream.getCurrent());
                     test.assertEqual(2, byteReadStream.getBufferedByteCount());
-                    test.assertEqual(7, byteReadStream.getBufferSize());
+                    test.assertEqual(4, byteReadStream.getBufferSize());
                     test.assertEqual(false, byteReadStream.getGrowOnNextBufferFill());
                     test.assertEqual((byte)5, innerStream.getCurrent());
                     test.assertTrue(byteReadStream.hasStarted());
@@ -183,12 +183,13 @@ public class BufferedByteReadStreamTests
                     test.assertSuccess((byte)5, byteReadStream.readByte());
                     test.assertEqual((byte)5, byteReadStream.getCurrent());
                     test.assertEqual(1, byteReadStream.getBufferedByteCount());
-                    test.assertEqual(7, byteReadStream.getBufferSize());
+                    test.assertEqual(4, byteReadStream.getBufferSize());
                     test.assertEqual(false, byteReadStream.getGrowOnNextBufferFill());
                     test.assertEqual((byte)5, innerStream.getCurrent());
                     test.assertTrue(byteReadStream.hasStarted());
 
-                    test.assertError(new EndOfStreamException(), byteReadStream.readByte());
+                    test.assertThrows(() -> byteReadStream.readByte().awaitError(),
+                        new EndOfStreamException());
                     test.assertThrows(byteReadStream::getCurrent,
                         new PreConditionFailure("hasCurrent() cannot be false."));
                     test.assertEqual(0, byteReadStream.getBufferedByteCount());
