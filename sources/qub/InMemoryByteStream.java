@@ -168,10 +168,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
                 {
                     bytesRead = maxBytesPerRead;
                 }
-                for (int i = 0; i < bytesRead; ++i)
-                {
-                    outputBytes[startIndex + i] = bytes.removeFirst();
-                }
+                bytes.removeFirstBytes(outputBytes, startIndex, bytesRead);
                 current = outputBytes[startIndex + bytesRead - 1];
                 result = Result.success(bytesRead);
             }

@@ -8,20 +8,20 @@ public class ColorTests
         {
             runner.testGroup("rgb(double,double,double)", () ->
             {
-                final Action3<Double,Double,Double> rgbThrowTest = (Double red, Double green, Double blue) ->
+                final Action4<Double,Double,Double,Throwable> rgbThrowTest = (Double red, Double green, Double blue, Throwable expectedError) ->
                 {
                     runner.test("with " + red + ", " + green + ", and " + blue, (Test test) ->
                     {
-                        test.assertThrows(() -> Color.rgb(red, green, blue));
+                        test.assertThrows(() -> Color.rgb(red, green, blue), expectedError);
                     });
                 };
 
-                rgbThrowTest.run(-0.1, 0.0, 0.0);
-                rgbThrowTest.run(1.1, 0.0, 0.0);
-                rgbThrowTest.run(0.0, -1.0, 0.0);
-                rgbThrowTest.run(0.0, 10.0, 0.0);
-                rgbThrowTest.run(0.0, 0.0, -20.0);
-                rgbThrowTest.run(0.0, 0.0, 1.001);
+                rgbThrowTest.run(-0.1, 0.0, 0.0, new PreConditionFailure("red (-0.1) must be between 0.0 and 1.0."));
+                rgbThrowTest.run(1.1, 0.0, 0.0, new PreConditionFailure("red (1.1) must be between 0.0 and 1.0."));
+                rgbThrowTest.run(0.0, -1.0, 0.0, new PreConditionFailure("green (-1.0) must be between 0.0 and 1.0."));
+                rgbThrowTest.run(0.0, 10.0, 0.0, new PreConditionFailure("green (10.0) must be between 0.0 and 1.0."));
+                rgbThrowTest.run(0.0, 0.0, -20.0, new PreConditionFailure("blue (-20.0) must be between 0.0 and 1.0."));
+                rgbThrowTest.run(0.0, 0.0, 1.001, new PreConditionFailure("blue (1.001) must be between 0.0 and 1.0."));
 
                 final Action3<Double,Double,Double> rgbTest = (Double red, Double green, Double blue) ->
                 {
@@ -42,22 +42,22 @@ public class ColorTests
 
             runner.testGroup("rgba(double,double,double,double)", () ->
             {
-                final Action4<Double,Double,Double,Double> rgbaThrowTest = (Double red, Double green, Double blue, Double alpha) ->
+                final Action5<Double,Double,Double,Double,Throwable> rgbaThrowTest = (Double red, Double green, Double blue, Double alpha, Throwable expectedError) ->
                 {
                     runner.test("with " + red + ", " + green + ", " + blue + ", and " + alpha, (Test test) ->
                     {
-                        test.assertThrows(() -> Color.rgba(red, green, blue, alpha));
+                        test.assertThrows(() -> Color.rgba(red, green, blue, alpha), expectedError);
                     });
                 };
 
-                rgbaThrowTest.run(-0.1, 0.0, 0.0, 0.0);
-                rgbaThrowTest.run(1.1, 0.0, 0.0, 0.0);
-                rgbaThrowTest.run(0.0, -1.0, 0.0, 0.0);
-                rgbaThrowTest.run(0.0, 10.0, 0.0, 0.0);
-                rgbaThrowTest.run(0.0, 0.0, -20.0, 0.0);
-                rgbaThrowTest.run(0.0, 0.0, 1.001, 0.0);
-                rgbaThrowTest.run(0.0, 0.0, 0.0, -20.0);
-                rgbaThrowTest.run(0.0, 0.0, 0.0, 1.001);
+                rgbaThrowTest.run(-0.1, 0.0, 0.0, 0.0, new PreConditionFailure("red (-0.1) must be between 0.0 and 1.0."));
+                rgbaThrowTest.run(1.1, 0.0, 0.0, 0.0, new PreConditionFailure("red (1.1) must be between 0.0 and 1.0."));
+                rgbaThrowTest.run(0.0, -1.0, 0.0, 0.0, new PreConditionFailure("green (-1.0) must be between 0.0 and 1.0."));
+                rgbaThrowTest.run(0.0, 10.0, 0.0, 0.0, new PreConditionFailure("green (10.0) must be between 0.0 and 1.0."));
+                rgbaThrowTest.run(0.0, 0.0, -20.0, 0.0, new PreConditionFailure("blue (-20.0) must be between 0.0 and 1.0."));
+                rgbaThrowTest.run(0.0, 0.0, 1.001, 0.0, new PreConditionFailure("blue (1.001) must be between 0.0 and 1.0."));
+                rgbaThrowTest.run(0.0, 0.0, 0.0, -20.0, new PreConditionFailure("alpha (-20.0) must be between 0.0 and 1.0."));
+                rgbaThrowTest.run(0.0, 0.0, 0.0, 1.001, new PreConditionFailure("alpha (1.001) must be between 0.0 and 1.0."));
 
                 final Action4<Double,Double,Double,Double> rgbaTest = (Double red, Double green, Double blue, Double alpha) ->
                 {

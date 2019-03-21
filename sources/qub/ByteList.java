@@ -151,6 +151,64 @@ public class ByteList implements List<Byte>
         return result;
     }
 
+    /**
+     * Remove the first bytes from this ByteList as a ByteArray.
+     * @param valuesToRemove The number of bytes to remove from this ByteList.
+     * @return The removed bytes.
+     */
+    public ByteArray removeFirstBytes(int valuesToRemove)
+    {
+        PreCondition.assertNotNullAndNotEmpty(this, "list");
+        PreCondition.assertLength(valuesToRemove, 0, getCount());
+
+        final byte[] bytes = new byte[valuesToRemove];
+        removeFirstBytes(bytes);
+        return Array.createByte(bytes);
+    }
+
+    /**
+     * Remove the first bytes from this ByteList and put them into the outputBytes array. There must
+     * be enough bytes in this list to fill the provided array.
+     * @param outputBytes The array to put the bytes into.
+     */
+    public void removeFirstBytes(byte[] outputBytes)
+    {
+        PreCondition.assertNotNullAndNotEmpty(outputBytes, "outputBytes");
+        PreCondition.assertNotNullAndNotEmpty(this, "list");
+        PreCondition.assertLength(outputBytes.length, 0, getCount());
+
+        removeFirstBytes(outputBytes, 0, outputBytes.length);
+    }
+
+    /**
+     * Remove the first bytes from this ByteList and put them into the outputBytes array.
+     * @param outputBytes The array to put the bytes into.
+     * @param startIndex The start index in the array to start putting the bytes to.
+     * @param length The number of bytes to remove from the list and put into the array.
+     */
+    public void removeFirstBytes(byte[] outputBytes, int startIndex, int length)
+    {
+        PreCondition.assertNotNullAndNotEmpty(outputBytes, "outputBytes");
+        PreCondition.assertStartIndex(startIndex, outputBytes.length);
+        PreCondition.assertLength(length, startIndex, outputBytes.length);
+        PreCondition.assertNotNullAndNotEmpty(this, "list");
+        PreCondition.assertLength(length, 0, getCount());
+
+        Array.copy(bytes, 0, outputBytes, startIndex, length);
+        final int bytesInList = getCount();
+        if (length < bytesInList)
+        {
+            Array.copy(bytes, length, this.bytes, 0, bytesInList - length);
+        }
+        count -= length;
+    }
+
+    @Override
+    public Iterable<Byte> removeFirst(int valuesToRemove)
+    {
+        return removeFirstBytes(valuesToRemove);
+    }
+
     public void set(int index, byte value)
     {
         PreCondition.assertIndexAccess(index, count, "index");

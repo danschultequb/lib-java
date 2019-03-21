@@ -92,7 +92,8 @@ public class BytesTests
                 {
                     runner.test("with " + value, (Test test) ->
                     {
-                        test.assertThrows(() -> Bytes.toHexChar(value));
+                        test.assertThrows(() -> Bytes.toHexChar(value),
+                            new PreConditionFailure("value (" + value + ") must be between 0 and 15."));
                     });
                 };
 
@@ -125,7 +126,8 @@ public class BytesTests
                 {
                     runner.test("with " + value, (Test test) ->
                     {
-                        test.assertThrows(() -> Bytes.toHexChar(value.longValue()));
+                        test.assertThrows(() -> Bytes.toHexChar(value.longValue()),
+                            new PreConditionFailure("value (" + value + ") must be between 0 and 15."));
                     });
                 };
 

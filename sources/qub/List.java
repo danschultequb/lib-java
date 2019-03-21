@@ -18,7 +18,7 @@ public interface List<T> extends MutableIndexable<T>
      * @param <T> The Type of elements contained by the created List.
      * @return The created List.
      */
-    @SuppressWarnings("unchecked")
+    @SafeVarargs
     static <T> List<T> create(T... initialValues)
     {
         return create(Iterable.create(initialValues));
@@ -144,6 +144,26 @@ public interface List<T> extends MutableIndexable<T>
     default T removeFirst()
     {
         return removeAt(0);
+    }
+
+    /**
+     * Remove and return the first valuesToRemove values from this List. If the List does not have
+     * enough values, then all of the values in the list will be removed. If the List is empty,
+     * then null will be returned.
+     * @param valuesToRemove The number of values to remove.
+     * @return The values that were removed or null if the List was empty.
+     */
+    default Iterable<T> removeFirst(int valuesToRemove)
+    {
+        PreCondition.assertNotNullAndNotEmpty(this, "list");
+        PreCondition.assertLength(valuesToRemove, 0, getCount(), "valuesToRemove");
+
+        final List<T> result = List.create();
+        for (int i = 0; i < valuesToRemove; ++i)
+        {
+            result.add(removeFirst());
+        }
+        return result;
     }
 
     /**
