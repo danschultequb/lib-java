@@ -50,14 +50,13 @@ public class CSVDocumentTests
 
             runner.testGroup("get(int,int)", () ->
             {
-                final Action4<CSVDocument,Integer,Integer,String> getTest = (CSVDocument document, Integer rowIndex, Integer columnIndex, String expectedValue) ->
+                final Action5<CSVDocument,Integer,Integer,String,Throwable> getTest = (CSVDocument document, Integer rowIndex, Integer columnIndex, String expectedValue, Throwable expectedError) ->
                 {
                     runner.test("with " + document + " at row " + rowIndex + " and column " + columnIndex, (Test test) ->
                     {
-                        if (rowIndex < 0 || document.getCount() <= rowIndex ||
-                            columnIndex < 0 || document.get(rowIndex).getCount() <= columnIndex)
+                        if (expectedError != null)
                         {
-                            test.assertThrows(() -> document.get(rowIndex, columnIndex));
+                            test.assertThrows(() -> document.get(rowIndex, columnIndex), expectedError);
                         }
                         else
                         {
@@ -67,48 +66,48 @@ public class CSVDocumentTests
                 };
 
                 final CSVDocument emptyDocument = new CSVDocument();
-                getTest.run(emptyDocument, -1, -1, null);
-                getTest.run(emptyDocument, -1, 0, null);
-                getTest.run(emptyDocument, -1, 1, null);
-                getTest.run(emptyDocument, 0, -1, null);
-                getTest.run(emptyDocument, 0, 0, null);
-                getTest.run(emptyDocument, 0, 1, null);
-                getTest.run(emptyDocument, 1, -1, null);
-                getTest.run(emptyDocument, 1, 0, null);
-                getTest.run(emptyDocument, 1, 1, null);
+                getTest.run(emptyDocument, -1, -1, null, new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                getTest.run(emptyDocument, -1, 0, null, new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                getTest.run(emptyDocument, -1, 1, null, new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                getTest.run(emptyDocument, 0, -1, null, new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                getTest.run(emptyDocument, 0, 0, null, new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                getTest.run(emptyDocument, 0, 1, null, new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                getTest.run(emptyDocument, 1, -1, null, new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                getTest.run(emptyDocument, 1, 0, null, new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                getTest.run(emptyDocument, 1, 1, null, new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
 
                 final CSVDocument singleEmptyRowDocument = new CSVDocument(new CSVRow());
-                getTest.run(singleEmptyRowDocument, -1, -1, null);
-                getTest.run(singleEmptyRowDocument, -1, 0, null);
-                getTest.run(singleEmptyRowDocument, -1, 1, null);
-                getTest.run(singleEmptyRowDocument, 0, -1, null);
-                getTest.run(singleEmptyRowDocument, 0, 0, null);
-                getTest.run(singleEmptyRowDocument, 0, 1, null);
-                getTest.run(singleEmptyRowDocument, 1, -1, null);
-                getTest.run(singleEmptyRowDocument, 1, 0, null);
-                getTest.run(singleEmptyRowDocument, 1, 1, null);
+                getTest.run(singleEmptyRowDocument, -1, -1, null, new PreConditionFailure("index (-1) must be equal to 0."));
+                getTest.run(singleEmptyRowDocument, -1, 0, null, new PreConditionFailure("index (-1) must be equal to 0."));
+                getTest.run(singleEmptyRowDocument, -1, 1, null, new PreConditionFailure("index (-1) must be equal to 0."));
+                getTest.run(singleEmptyRowDocument, 0, -1, null, new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                getTest.run(singleEmptyRowDocument, 0, 0, null, new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                getTest.run(singleEmptyRowDocument, 0, 1, null, new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                getTest.run(singleEmptyRowDocument, 1, -1, null, new PreConditionFailure("index (1) must be equal to 0."));
+                getTest.run(singleEmptyRowDocument, 1, 0, null, new PreConditionFailure("index (1) must be equal to 0."));
+                getTest.run(singleEmptyRowDocument, 1, 1, null, new PreConditionFailure("index (1) must be equal to 0."));
 
                 final CSVDocument singleRowSingleColumnDocument = new CSVDocument(new CSVRow("test"));
-                getTest.run(singleRowSingleColumnDocument, -1, -1, null);
-                getTest.run(singleRowSingleColumnDocument, -1, 0, null);
-                getTest.run(singleRowSingleColumnDocument, -1, 1, null);
-                getTest.run(singleRowSingleColumnDocument, 0, -1, null);
-                getTest.run(singleRowSingleColumnDocument, 0, 0, "test");
-                getTest.run(singleRowSingleColumnDocument, 0, 1, null);
-                getTest.run(singleRowSingleColumnDocument, 1, -1, null);
-                getTest.run(singleRowSingleColumnDocument, 1, 0, null);
-                getTest.run(singleRowSingleColumnDocument, 1, 1, null);
+                getTest.run(singleRowSingleColumnDocument, -1, -1, null, new PreConditionFailure("index (-1) must be equal to 0."));
+                getTest.run(singleRowSingleColumnDocument, -1, 0, null, new PreConditionFailure("index (-1) must be equal to 0."));
+                getTest.run(singleRowSingleColumnDocument, -1, 1, null, new PreConditionFailure("index (-1) must be equal to 0."));
+                getTest.run(singleRowSingleColumnDocument, 0, -1, null, new PreConditionFailure("index (-1) must be equal to 0."));
+                getTest.run(singleRowSingleColumnDocument, 0, 0, "test", null);
+                getTest.run(singleRowSingleColumnDocument, 0, 1, null, new PreConditionFailure("index (1) must be equal to 0."));
+                getTest.run(singleRowSingleColumnDocument, 1, -1, null, new PreConditionFailure("index (1) must be equal to 0."));
+                getTest.run(singleRowSingleColumnDocument, 1, 0, null, new PreConditionFailure("index (1) must be equal to 0."));
+                getTest.run(singleRowSingleColumnDocument, 1, 1, null, new PreConditionFailure("index (1) must be equal to 0."));
             });
 
             runner.testGroup("set(int,CSVRow)", () ->
             {
-                final Action4<CSVDocument,Integer,CSVRow,CSVDocument> setTest = (CSVDocument document, Integer rowIndex, CSVRow row, CSVDocument expectedDocument) ->
+                final Action5<CSVDocument,Integer,CSVRow,CSVDocument,Throwable> setTest = (CSVDocument document, Integer rowIndex, CSVRow row, CSVDocument expectedDocument, Throwable expectedError) ->
                 {
                     runner.test("with " + document + " at row " + rowIndex + " with " + row, (Test test) ->
                     {
-                        if (rowIndex < 0 || document.getCount() <= rowIndex)
+                        if (expectedError != null)
                         {
-                            test.assertThrows(() -> document.set(rowIndex, row));
+                            test.assertThrows(() -> document.set(rowIndex, row), expectedError);
                         }
                         else
                         {
@@ -118,33 +117,32 @@ public class CSVDocumentTests
                     });
                 };
 
-                setTest.run(new CSVDocument(), -1, null, new CSVDocument());
-                setTest.run(new CSVDocument(), 0, null, new CSVDocument());
-                setTest.run(new CSVDocument(), 1, null, new CSVDocument());
+                setTest.run(new CSVDocument(), -1, null, new CSVDocument(), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                setTest.run(new CSVDocument(), 0, null, new CSVDocument(), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                setTest.run(new CSVDocument(), 1, null, new CSVDocument(), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
 
-                setTest.run(new CSVDocument(), -1, new CSVRow(), new CSVDocument());
-                setTest.run(new CSVDocument(), 0, new CSVRow(), new CSVDocument());
-                setTest.run(new CSVDocument(), 1, new CSVRow(), new CSVDocument());
+                setTest.run(new CSVDocument(), -1, new CSVRow(), new CSVDocument(), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                setTest.run(new CSVDocument(), 0, new CSVRow(), new CSVDocument(), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                setTest.run(new CSVDocument(), 1, new CSVRow(), new CSVDocument(), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
 
-                setTest.run(new CSVDocument(new CSVRow()), -1, null, new CSVDocument(new CSVRow()));
-                setTest.run(new CSVDocument(new CSVRow()), 0, null, new CSVDocument((CSVRow)null));
-                setTest.run(new CSVDocument(new CSVRow()), 1, null, new CSVDocument(new CSVRow()));
+                setTest.run(new CSVDocument(new CSVRow()), -1, null, new CSVDocument(new CSVRow()), new PreConditionFailure("index (-1) must be equal to 0."));
+                setTest.run(new CSVDocument(new CSVRow()), 0, null, new CSVDocument((CSVRow)null), null);
+                setTest.run(new CSVDocument(new CSVRow()), 1, null, new CSVDocument(new CSVRow()), new PreConditionFailure("index (1) must be equal to 0."));
 
-                setTest.run(new CSVDocument(new CSVRow("a")), -1, new CSVRow("b"), new CSVDocument(new CSVRow("a")));
-                setTest.run(new CSVDocument(new CSVRow("a")), 0, new CSVRow("b"), new CSVDocument(new CSVRow("b")));
-                setTest.run(new CSVDocument(new CSVRow("a")), 1, new CSVRow("b"), new CSVDocument(new CSVRow("a")));
+                setTest.run(new CSVDocument(new CSVRow("a")), -1, new CSVRow("b"), new CSVDocument(new CSVRow("a")), new PreConditionFailure("index (-1) must be equal to 0."));
+                setTest.run(new CSVDocument(new CSVRow("a")), 0, new CSVRow("b"), new CSVDocument(new CSVRow("b")), null);
+                setTest.run(new CSVDocument(new CSVRow("a")), 1, new CSVRow("b"), new CSVDocument(new CSVRow("a")), new PreConditionFailure("index (1) must be equal to 0."));
             });
 
             runner.testGroup("set(int,int,String)", () ->
             {
-                final Action5<CSVDocument,Integer,Integer,String,CSVDocument> setTest = (CSVDocument document, Integer rowIndex, Integer columnIndex, String value, CSVDocument expectedDocument) ->
+                final Action6<CSVDocument,Integer,Integer,String,CSVDocument,Throwable> setTest = (CSVDocument document, Integer rowIndex, Integer columnIndex, String value, CSVDocument expectedDocument, Throwable expectedError) ->
                 {
                     runner.test("with " + document + " at row " + rowIndex + " and column " + columnIndex + " with " + Strings.escapeAndQuote(value), (Test test) ->
                     {
-                        if (rowIndex < 0 || document.getCount() <= rowIndex ||
-                            columnIndex < 0 || document.get(rowIndex).getCount() <= columnIndex)
+                        if (expectedError != null)
                         {
-                            test.assertThrows(() -> document.set(rowIndex, columnIndex, value));
+                            test.assertThrows(() -> document.set(rowIndex, columnIndex, value), expectedError);
                         }
                         else
                         {
@@ -154,56 +152,56 @@ public class CSVDocumentTests
                     });
                 };
 
-                setTest.run(new CSVDocument(), -1, -1, null, new CSVDocument());
-                setTest.run(new CSVDocument(), -1, 0, null, new CSVDocument());
-                setTest.run(new CSVDocument(), -1, 1, null, new CSVDocument());
-                setTest.run(new CSVDocument(), 0, -1, null, new CSVDocument());
-                setTest.run(new CSVDocument(), 0, 0, null, new CSVDocument());
-                setTest.run(new CSVDocument(), 0, 1, null, new CSVDocument());
-                setTest.run(new CSVDocument(), 1, -1, null, new CSVDocument());
-                setTest.run(new CSVDocument(), 1, 0, null, new CSVDocument());
-                setTest.run(new CSVDocument(), 1, 1, null, new CSVDocument());
+                setTest.run(new CSVDocument(), -1, -1, null, new CSVDocument(), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                setTest.run(new CSVDocument(), -1, 0, null, new CSVDocument(), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                setTest.run(new CSVDocument(), -1, 1, null, new CSVDocument(), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                setTest.run(new CSVDocument(), 0, -1, null, new CSVDocument(), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                setTest.run(new CSVDocument(), 0, 0, null, new CSVDocument(), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                setTest.run(new CSVDocument(), 0, 1, null, new CSVDocument(), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                setTest.run(new CSVDocument(), 1, -1, null, new CSVDocument(), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                setTest.run(new CSVDocument(), 1, 0, null, new CSVDocument(), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                setTest.run(new CSVDocument(), 1, 1, null, new CSVDocument(), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
 
-                setTest.run(new CSVDocument(), -1, -1, "", new CSVDocument());
-                setTest.run(new CSVDocument(), -1, 0, "", new CSVDocument());
-                setTest.run(new CSVDocument(), -1, 1, "", new CSVDocument());
-                setTest.run(new CSVDocument(), 0, -1, "", new CSVDocument());
-                setTest.run(new CSVDocument(), 0, 0, "", new CSVDocument());
-                setTest.run(new CSVDocument(), 0, 1, "", new CSVDocument());
-                setTest.run(new CSVDocument(), 1, -1, "", new CSVDocument());
-                setTest.run(new CSVDocument(), 1, 0, "", new CSVDocument());
-                setTest.run(new CSVDocument(), 1, 1, "", new CSVDocument());
+                setTest.run(new CSVDocument(), -1, -1, "", new CSVDocument(), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                setTest.run(new CSVDocument(), -1, 0, "", new CSVDocument(), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                setTest.run(new CSVDocument(), -1, 1, "", new CSVDocument(), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                setTest.run(new CSVDocument(), 0, -1, "", new CSVDocument(), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                setTest.run(new CSVDocument(), 0, 0, "", new CSVDocument(), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                setTest.run(new CSVDocument(), 0, 1, "", new CSVDocument(), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                setTest.run(new CSVDocument(), 1, -1, "", new CSVDocument(), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                setTest.run(new CSVDocument(), 1, 0, "", new CSVDocument(), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                setTest.run(new CSVDocument(), 1, 1, "", new CSVDocument(), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
 
-                setTest.run(new CSVDocument(new CSVRow()), -1, -1, null, new CSVDocument(new CSVRow()));
-                setTest.run(new CSVDocument(new CSVRow()), -1, 0, null, new CSVDocument(new CSVRow()));
-                setTest.run(new CSVDocument(new CSVRow()), -1, 1, null, new CSVDocument(new CSVRow()));
-                setTest.run(new CSVDocument(new CSVRow()), 0, -1, null, new CSVDocument(new CSVRow()));
-                setTest.run(new CSVDocument(new CSVRow()), 0, 0, null, new CSVDocument(new CSVRow()));
-                setTest.run(new CSVDocument(new CSVRow()), 0, 1, null, new CSVDocument(new CSVRow()));
-                setTest.run(new CSVDocument(new CSVRow()), 1, -1, null, new CSVDocument(new CSVRow()));
-                setTest.run(new CSVDocument(new CSVRow()), 1, 0, null, new CSVDocument(new CSVRow()));
-                setTest.run(new CSVDocument(new CSVRow()), 1, 1, null, new CSVDocument(new CSVRow()));
+                setTest.run(new CSVDocument(new CSVRow()), -1, -1, null, new CSVDocument(new CSVRow()), new PreConditionFailure("index (-1) must be equal to 0."));
+                setTest.run(new CSVDocument(new CSVRow()), -1, 0, null, new CSVDocument(new CSVRow()), new PreConditionFailure("index (-1) must be equal to 0."));
+                setTest.run(new CSVDocument(new CSVRow()), -1, 1, null, new CSVDocument(new CSVRow()), new PreConditionFailure("index (-1) must be equal to 0."));
+                setTest.run(new CSVDocument(new CSVRow()), 0, -1, null, new CSVDocument(new CSVRow()), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                setTest.run(new CSVDocument(new CSVRow()), 0, 0, null, new CSVDocument(new CSVRow()), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                setTest.run(new CSVDocument(new CSVRow()), 0, 1, null, new CSVDocument(new CSVRow()), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                setTest.run(new CSVDocument(new CSVRow()), 1, -1, null, new CSVDocument(new CSVRow()), new PreConditionFailure("index (1) must be equal to 0."));
+                setTest.run(new CSVDocument(new CSVRow()), 1, 0, null, new CSVDocument(new CSVRow()), new PreConditionFailure("index (1) must be equal to 0."));
+                setTest.run(new CSVDocument(new CSVRow()), 1, 1, null, new CSVDocument(new CSVRow()), new PreConditionFailure("index (1) must be equal to 0."));
 
-                setTest.run(new CSVDocument(new CSVRow("a")), -1, -1, "b", new CSVDocument(new CSVRow("a")));
-                setTest.run(new CSVDocument(new CSVRow("a")), -1, 0, "b", new CSVDocument(new CSVRow("a")));
-                setTest.run(new CSVDocument(new CSVRow("a")), -1, 1, "b", new CSVDocument(new CSVRow("a")));
-                setTest.run(new CSVDocument(new CSVRow("a")), 0, -1, "b", new CSVDocument(new CSVRow("a")));
-                setTest.run(new CSVDocument(new CSVRow("a")), 0, 0, "b", new CSVDocument(new CSVRow("b")));
-                setTest.run(new CSVDocument(new CSVRow("a")), 0, 1, "b", new CSVDocument(new CSVRow("a")));
-                setTest.run(new CSVDocument(new CSVRow("a")), 1, -1, "b", new CSVDocument(new CSVRow("a")));
-                setTest.run(new CSVDocument(new CSVRow("a")), 1, 0, "b", new CSVDocument(new CSVRow("a")));
-                setTest.run(new CSVDocument(new CSVRow("a")), 1, 1, "b", new CSVDocument(new CSVRow("a")));
+                setTest.run(new CSVDocument(new CSVRow("a")), -1, -1, "b", new CSVDocument(new CSVRow("a")), new PreConditionFailure("index (-1) must be equal to 0."));
+                setTest.run(new CSVDocument(new CSVRow("a")), -1, 0, "b", new CSVDocument(new CSVRow("a")), new PreConditionFailure("index (-1) must be equal to 0."));
+                setTest.run(new CSVDocument(new CSVRow("a")), -1, 1, "b", new CSVDocument(new CSVRow("a")), new PreConditionFailure("index (-1) must be equal to 0."));
+                setTest.run(new CSVDocument(new CSVRow("a")), 0, -1, "b", new CSVDocument(new CSVRow("a")), new PreConditionFailure("index (-1) must be equal to 0."));
+                setTest.run(new CSVDocument(new CSVRow("a")), 0, 0, "b", new CSVDocument(new CSVRow("b")), null);
+                setTest.run(new CSVDocument(new CSVRow("a")), 0, 1, "b", new CSVDocument(new CSVRow("a")), new PreConditionFailure("index (1) must be equal to 0."));
+                setTest.run(new CSVDocument(new CSVRow("a")), 1, -1, "b", new CSVDocument(new CSVRow("a")), new PreConditionFailure("index (1) must be equal to 0."));
+                setTest.run(new CSVDocument(new CSVRow("a")), 1, 0, "b", new CSVDocument(new CSVRow("a")), new PreConditionFailure("index (1) must be equal to 0."));
+                setTest.run(new CSVDocument(new CSVRow("a")), 1, 1, "b", new CSVDocument(new CSVRow("a")), new PreConditionFailure("index (1) must be equal to 0."));
             });
 
             runner.testGroup("removeAt(int)", () ->
             {
-                final Action3<CSVDocument,Integer,CSVDocument> removeAtTest = (CSVDocument document, Integer rowIndex, CSVDocument expectedDocument) ->
+                final Action4<CSVDocument,Integer,CSVDocument,Throwable> removeAtTest = (CSVDocument document, Integer rowIndex, CSVDocument expectedDocument, Throwable expectedError) ->
                 {
                     runner.test("with " + document + " at row index " + rowIndex, (Test test) ->
                     {
-                        if (rowIndex < 0 || document.getCount() <= rowIndex)
+                        if (expectedError != null)
                         {
-                            test.assertThrows(() -> document.removeAt(rowIndex));
+                            test.assertThrows(() -> document.removeAt(rowIndex), expectedError);
                         }
                         else
                         {
@@ -214,30 +212,29 @@ public class CSVDocumentTests
                     });
                 };
 
-                removeAtTest.run(new CSVDocument(), -1, new CSVDocument());
-                removeAtTest.run(new CSVDocument(), 0, new CSVDocument());
-                removeAtTest.run(new CSVDocument(), 1, new CSVDocument());
+                removeAtTest.run(new CSVDocument(), -1, new CSVDocument(), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                removeAtTest.run(new CSVDocument(), 0, new CSVDocument(), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                removeAtTest.run(new CSVDocument(), 1, new CSVDocument(), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
 
-                removeAtTest.run(new CSVDocument(new CSVRow()), -1, new CSVDocument(new CSVRow()));
-                removeAtTest.run(new CSVDocument(new CSVRow()), 0, new CSVDocument());
-                removeAtTest.run(new CSVDocument(new CSVRow()), 1, new CSVDocument(new CSVRow()));
+                removeAtTest.run(new CSVDocument(new CSVRow()), -1, new CSVDocument(new CSVRow()), new PreConditionFailure("index (-1) must be equal to 0."));
+                removeAtTest.run(new CSVDocument(new CSVRow()), 0, new CSVDocument(), null);
+                removeAtTest.run(new CSVDocument(new CSVRow()), 1, new CSVDocument(new CSVRow()), new PreConditionFailure("index (1) must be equal to 0."));
 
-                removeAtTest.run(new CSVDocument(new CSVRow("a"), new CSVRow("b")), -1, new CSVDocument(new CSVRow("a"), new CSVRow("b")));
-                removeAtTest.run(new CSVDocument(new CSVRow("a"), new CSVRow("b")), 0, new CSVDocument(new CSVRow("b")));
-                removeAtTest.run(new CSVDocument(new CSVRow("a"), new CSVRow("b")), 1, new CSVDocument(new CSVRow("a")));
-                removeAtTest.run(new CSVDocument(new CSVRow("a"), new CSVRow("b")), 2, new CSVDocument(new CSVRow("a"), new CSVRow("b")));
+                removeAtTest.run(new CSVDocument(new CSVRow("a"), new CSVRow("b")), -1, new CSVDocument(new CSVRow("a"), new CSVRow("b")), new PreConditionFailure("index (-1) must be between 0 and 1."));
+                removeAtTest.run(new CSVDocument(new CSVRow("a"), new CSVRow("b")), 0, new CSVDocument(new CSVRow("b")), null);
+                removeAtTest.run(new CSVDocument(new CSVRow("a"), new CSVRow("b")), 1, new CSVDocument(new CSVRow("a")), null);
+                removeAtTest.run(new CSVDocument(new CSVRow("a"), new CSVRow("b")), 2, new CSVDocument(new CSVRow("a"), new CSVRow("b")), new PreConditionFailure("index (2) must be between 0 and 1."));
             });
 
             runner.testGroup("removeAt(int,int)", () ->
             {
-                final Action4<CSVDocument,Integer,Integer,CSVDocument> removeAtTest = (CSVDocument document, Integer rowIndex, Integer columnIndex, CSVDocument expectedDocument) ->
+                final Action5<CSVDocument,Integer,Integer,CSVDocument,Throwable> removeAtTest = (CSVDocument document, Integer rowIndex, Integer columnIndex, CSVDocument expectedDocument, Throwable expectedError) ->
                 {
                     runner.test("with " + document + " at row index " + rowIndex + " and column index " + columnIndex, (Test test) ->
                     {
-                        if (rowIndex < 0 || document.getCount() <= rowIndex ||
-                            columnIndex < 0 || document.get(rowIndex).getCount() <= columnIndex)
+                        if (expectedError != null)
                         {
-                            test.assertThrows(() -> document.removeAt(rowIndex, columnIndex));
+                            test.assertThrows(() -> document.removeAt(rowIndex, columnIndex), expectedError);
                         }
                         else
                         {
@@ -248,35 +245,35 @@ public class CSVDocumentTests
                     });
                 };
 
-                removeAtTest.run(new CSVDocument(), -1, -1, new CSVDocument());
-                removeAtTest.run(new CSVDocument(), -1, 0, new CSVDocument());
-                removeAtTest.run(new CSVDocument(), -1, 1, new CSVDocument());
-                removeAtTest.run(new CSVDocument(), 0, -1, new CSVDocument());
-                removeAtTest.run(new CSVDocument(), 0, 0, new CSVDocument());
-                removeAtTest.run(new CSVDocument(), 0, 1, new CSVDocument());
-                removeAtTest.run(new CSVDocument(), 1, -1, new CSVDocument());
-                removeAtTest.run(new CSVDocument(), 1, 0, new CSVDocument());
-                removeAtTest.run(new CSVDocument(), 1, 1, new CSVDocument());
+                removeAtTest.run(new CSVDocument(), -1, -1, new CSVDocument(), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                removeAtTest.run(new CSVDocument(), -1, 0, new CSVDocument(), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                removeAtTest.run(new CSVDocument(), -1, 1, new CSVDocument(), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                removeAtTest.run(new CSVDocument(), 0, -1, new CSVDocument(), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                removeAtTest.run(new CSVDocument(), 0, 0, new CSVDocument(), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                removeAtTest.run(new CSVDocument(), 0, 1, new CSVDocument(), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                removeAtTest.run(new CSVDocument(), 1, -1, new CSVDocument(), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                removeAtTest.run(new CSVDocument(), 1, 0, new CSVDocument(), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                removeAtTest.run(new CSVDocument(), 1, 1, new CSVDocument(), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
 
-                removeAtTest.run(new CSVDocument(new CSVRow()), -1, -1, new CSVDocument(new CSVRow()));
-                removeAtTest.run(new CSVDocument(new CSVRow()), -1, 0, new CSVDocument(new CSVRow()));
-                removeAtTest.run(new CSVDocument(new CSVRow()), -1, 1, new CSVDocument(new CSVRow()));
-                removeAtTest.run(new CSVDocument(new CSVRow()), 0, -1, new CSVDocument(new CSVRow()));
-                removeAtTest.run(new CSVDocument(new CSVRow()), 0, 0, new CSVDocument(new CSVRow()));
-                removeAtTest.run(new CSVDocument(new CSVRow()), 0, 1, new CSVDocument(new CSVRow()));
-                removeAtTest.run(new CSVDocument(new CSVRow()), 1, -1, new CSVDocument(new CSVRow()));
-                removeAtTest.run(new CSVDocument(new CSVRow()), 1, 0, new CSVDocument(new CSVRow()));
-                removeAtTest.run(new CSVDocument(new CSVRow()), 1, 1, new CSVDocument(new CSVRow()));
+                removeAtTest.run(new CSVDocument(new CSVRow()), -1, -1, new CSVDocument(new CSVRow()), new PreConditionFailure("index (-1) must be equal to 0."));
+                removeAtTest.run(new CSVDocument(new CSVRow()), -1, 0, new CSVDocument(new CSVRow()), new PreConditionFailure("index (-1) must be equal to 0."));
+                removeAtTest.run(new CSVDocument(new CSVRow()), -1, 1, new CSVDocument(new CSVRow()), new PreConditionFailure("index (-1) must be equal to 0."));
+                removeAtTest.run(new CSVDocument(new CSVRow()), 0, -1, new CSVDocument(new CSVRow()), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                removeAtTest.run(new CSVDocument(new CSVRow()), 0, 0, new CSVDocument(new CSVRow()), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                removeAtTest.run(new CSVDocument(new CSVRow()), 0, 1, new CSVDocument(new CSVRow()), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                removeAtTest.run(new CSVDocument(new CSVRow()), 1, -1, new CSVDocument(new CSVRow()), new PreConditionFailure("index (1) must be equal to 0."));
+                removeAtTest.run(new CSVDocument(new CSVRow()), 1, 0, new CSVDocument(new CSVRow()), new PreConditionFailure("index (1) must be equal to 0."));
+                removeAtTest.run(new CSVDocument(new CSVRow()), 1, 1, new CSVDocument(new CSVRow()), new PreConditionFailure("index (1) must be equal to 0."));
 
-                removeAtTest.run(new CSVDocument(new CSVRow("a")), -1, -1, new CSVDocument(new CSVRow("a")));
-                removeAtTest.run(new CSVDocument(new CSVRow("a")), -1, 0, new CSVDocument(new CSVRow("a")));
-                removeAtTest.run(new CSVDocument(new CSVRow("a")), -1, 1, new CSVDocument(new CSVRow("a")));
-                removeAtTest.run(new CSVDocument(new CSVRow("a")), 0, -1, new CSVDocument(new CSVRow("a")));
-                removeAtTest.run(new CSVDocument(new CSVRow("a")), 0, 0, new CSVDocument(new CSVRow()));
-                removeAtTest.run(new CSVDocument(new CSVRow("a")), 0, 1, new CSVDocument(new CSVRow("a")));
-                removeAtTest.run(new CSVDocument(new CSVRow("a")), 1, -1, new CSVDocument(new CSVRow("a")));
-                removeAtTest.run(new CSVDocument(new CSVRow("a")), 1, 0, new CSVDocument(new CSVRow("a")));
-                removeAtTest.run(new CSVDocument(new CSVRow("a")), 1, 1, new CSVDocument(new CSVRow("a")));
+                removeAtTest.run(new CSVDocument(new CSVRow("a")), -1, -1, new CSVDocument(new CSVRow("a")), new PreConditionFailure("index (-1) must be equal to 0."));
+                removeAtTest.run(new CSVDocument(new CSVRow("a")), -1, 0, new CSVDocument(new CSVRow("a")), new PreConditionFailure("index (-1) must be equal to 0."));
+                removeAtTest.run(new CSVDocument(new CSVRow("a")), -1, 1, new CSVDocument(new CSVRow("a")), new PreConditionFailure("index (-1) must be equal to 0."));
+                removeAtTest.run(new CSVDocument(new CSVRow("a")), 0, -1, new CSVDocument(new CSVRow("a")), new PreConditionFailure("index (-1) must be equal to 0."));
+                removeAtTest.run(new CSVDocument(new CSVRow("a")), 0, 0, new CSVDocument(new CSVRow()), null);
+                removeAtTest.run(new CSVDocument(new CSVRow("a")), 0, 1, new CSVDocument(new CSVRow("a")), new PreConditionFailure("index (1) must be equal to 0."));
+                removeAtTest.run(new CSVDocument(new CSVRow("a")), 1, -1, new CSVDocument(new CSVRow("a")), new PreConditionFailure("index (1) must be equal to 0."));
+                removeAtTest.run(new CSVDocument(new CSVRow("a")), 1, 0, new CSVDocument(new CSVRow("a")), new PreConditionFailure("index (1) must be equal to 0."));
+                removeAtTest.run(new CSVDocument(new CSVRow("a")), 1, 1, new CSVDocument(new CSVRow("a")), new PreConditionFailure("index (1) must be equal to 0."));
             });
         });
     }

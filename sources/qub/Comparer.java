@@ -660,6 +660,9 @@ public interface Comparer<T> extends Function2<T,T,Comparison>
 
     static <T> T minimum(Iterable<T> values, Function2<T,T,Comparison> comparer)
     {
+        PreCondition.assertNotNull(values, "values");
+        PreCondition.assertNotNull(comparer, "comparer");
+
         return values.minimum(comparer);
     }
 
@@ -676,6 +679,9 @@ public interface Comparer<T> extends Function2<T,T,Comparison>
 
     static <T> T maximum(Iterable<T> values, Function2<T,T,Comparison> comparer)
     {
+        PreCondition.assertNotNull(values, "values");
+        PreCondition.assertNotNull(comparer, "comparer");
+
         return values.maximum(comparer);
     }
 

@@ -161,14 +161,16 @@ public class CommandLineTests
                 runner.test("with negative index", (Test test) ->
                 {
                     final CommandLine commandLine = CommandLine.create("a", "b", "c");
-                    test.assertThrows(() -> commandLine.removeAt(-1));
+                    test.assertThrows(() -> commandLine.removeAt(-1),
+                        new PreConditionFailure("index (-1) must be between 0 and 2."));
                     test.assertEqual(Indexable.create("a", "b", "c"), commandLine.getArgumentStrings());
                 });
 
                 runner.test("with zero index with empty command line", (Test test) ->
                 {
                     final CommandLine commandLine = CommandLine.create();
-                    test.assertThrows(() -> commandLine.removeAt(0));
+                    test.assertThrows(() -> commandLine.removeAt(0),
+                        new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
                     test.assertEqual(Iterable.create(), commandLine.getArgumentStrings());
                 });
 

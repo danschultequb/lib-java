@@ -262,7 +262,8 @@ public class ComparerTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> Comparer.minimum(null));
+                    test.assertThrows(() -> Comparer.minimum(null),
+                        new PreConditionFailure("values cannot be null."));
                 });
 
                 runner.test("with empty", (Test test) ->
@@ -290,7 +291,8 @@ public class ComparerTests
             {
                 runner.test("with null values", (Test test) ->
                 {
-                    test.assertThrows(() -> Comparer.minimum((Iterable<Integer>)null, Integers::compare));
+                    test.assertThrows(() -> Comparer.minimum((Iterable<Integer>)null, Integers::compare),
+                        new PreConditionFailure("values cannot be null."));
                 });
             });
 
@@ -316,7 +318,8 @@ public class ComparerTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> Comparer.maximum((Iterable<VersionNumber>)null));
+                    test.assertThrows(() -> Comparer.maximum((Iterable<VersionNumber>)null),
+                        new PreConditionFailure("values cannot be null."));
                 });
 
                 runner.test("with empty", (Test test) ->
@@ -344,7 +347,8 @@ public class ComparerTests
             {
                 runner.test("with null values", (Test test) ->
                 {
-                    test.assertThrows(() -> Comparer.maximum((Iterable<Integer>)null, Integers::compare));
+                    test.assertThrows(() -> Comparer.maximum((Iterable<Integer>)null, Integers::compare),
+                        new PreConditionFailure("values cannot be null."));
                 });
             });
         });
