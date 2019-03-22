@@ -375,7 +375,8 @@ public class DateTimeTests
                 runner.test("with null", (Test test) ->
                 {
                     final DateTime dateTime = DateTime.utc(10);
-                    test.assertThrows(() -> dateTime.plus(null));
+                    test.assertThrows(() -> dateTime.plus(null),
+                        new PreConditionFailure("duration cannot be null."));
                 });
 
                 runner.test("with 0 seconds", (Test test) ->

@@ -61,6 +61,8 @@ public class FakePainter implements UIPainter
     @Override
     public void drawText(String text, Point2D topLeft)
     {
+        PreCondition.assertNotNull(topLeft, "topLeft");
+
         actions.add(new DrawTextAction(text, transform(topLeft), getFontSize(), getColor()));
     }
 
@@ -75,18 +77,29 @@ public class FakePainter implements UIPainter
     @Override
     public void drawText(String text, Distance topLeftX, Distance topLeftY)
     {
+        PreCondition.assertNotNull(topLeftX, "topLeftX");
+        PreCondition.assertNotNull(topLeftY, "topLeftY");
+
         drawText(text, new Point2D(topLeftX, topLeftY));
     }
 
     @Override
     public void drawLine(Point2D start, Point2D end)
     {
+        PreCondition.assertNotNull(start, "start");
+        PreCondition.assertNotNull(end, "end");
+
         actions.add(new DrawLineAction(transform(start), transform(end)));
     }
 
     @Override
     public void drawLine(Distance startX, Distance startY, Distance endX, Distance endY)
     {
+        PreCondition.assertNotNull(startX, "startX");
+        PreCondition.assertNotNull(startY, "startY");
+        PreCondition.assertNotNull(endX, "endX");
+        PreCondition.assertNotNull(endY, "endY");
+
         drawLine(new Point2D(startX, startY), new Point2D(endX, endY));
     }
 
@@ -101,7 +114,9 @@ public class FakePainter implements UIPainter
     {
         PreCondition.assertNotNull(topLeftX, "topLeftX");
         PreCondition.assertNotNull(topLeftY, "topLeftY");
+        PreCondition.assertNotNull(width, "width");
         PreCondition.assertGreaterThan(width, Distance.zero, "width");
+        PreCondition.assertNotNull(height, "height");
         PreCondition.assertGreaterThan(height, Distance.zero, "height");
 
         actions.add(new DrawRectangleAction(new Point2D(topLeftX, topLeftY), width, height, getColor()));
@@ -118,7 +133,9 @@ public class FakePainter implements UIPainter
     {
         PreCondition.assertNotNull(topLeftX, "topLeftX");
         PreCondition.assertNotNull(topLeftY, "topLeftY");
+        PreCondition.assertNotNull(width, "width");
         PreCondition.assertGreaterThan(width, Distance.zero, "width");
+        PreCondition.assertNotNull(height, "height");
         PreCondition.assertGreaterThan(height, Distance.zero, "height");
 
         actions.add(new FillRectangleAction(new Point2D(topLeftX, topLeftY), width, height, getColor()));

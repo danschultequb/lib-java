@@ -12,7 +12,8 @@ public class Event0Tests
                 {
                     final Event0 event = creator.run();
 
-                    test.assertThrows(() -> event.subscribe(null));
+                    test.assertThrows(() -> event.subscribe(null),
+                        new PreConditionFailure("action cannot be null."));
                 });
 
                 runner.test("with non-null", (Test test) ->

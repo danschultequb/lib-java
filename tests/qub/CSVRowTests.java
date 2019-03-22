@@ -55,14 +55,14 @@ public class CSVRowTests
 
             runner.testGroup("removeAt(int)", () ->
             {
-                final Action3<Indexable<String>,Integer,Iterable<String>> removeAtTest = (Indexable<String> cells, Integer index, Iterable<String> expectedCells) ->
+                final Action4<Indexable<String>,Integer,Iterable<String>,Throwable> removeAtTest = (Indexable<String> cells, Integer index, Iterable<String> expectedCells, Throwable expectedError) ->
                 {
                     runner.test("with " + cells + " at index " + index, (Test test) ->
                     {
                         final CSVRow row = new CSVRow(cells);
-                        if (index < 0 || cells.getCount() <= index)
+                        if (expectedError != null)
                         {
-                            test.assertThrows(() -> row.removeAt(index));
+                            test.assertThrows(() -> row.removeAt(index), expectedError);
                         }
                         else
                         {
@@ -72,30 +72,30 @@ public class CSVRowTests
                     });
                 };
 
-                removeAtTest.run(Indexable.create(), -1, Iterable.create());
-                removeAtTest.run(Indexable.create(), 0, Iterable.create());
-                removeAtTest.run(Indexable.create(), 1, Iterable.create());
+                removeAtTest.run(Indexable.create(), -1, Iterable.create(), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                removeAtTest.run(Indexable.create(), 0, Iterable.create(), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                removeAtTest.run(Indexable.create(), 1, Iterable.create(), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
 
-                removeAtTest.run(Indexable.create("a"), -1, Iterable.create("a"));
-                removeAtTest.run(Indexable.create("a"), 0, Iterable.create());
-                removeAtTest.run(Indexable.create("a"), 1, Iterable.create("a"));
+                removeAtTest.run(Indexable.create("a"), -1, Iterable.create("a"), new PreConditionFailure("index (-1) must be equal to 0."));
+                removeAtTest.run(Indexable.create("a"), 0, Iterable.create(), null);
+                removeAtTest.run(Indexable.create("a"), 1, Iterable.create("a"), new PreConditionFailure("index (1) must be equal to 0."));
 
-                removeAtTest.run(Indexable.create("a", "b"), -1, Iterable.create("a", "b"));
-                removeAtTest.run(Indexable.create("a", "b"), 0, Iterable.create("b"));
-                removeAtTest.run(Indexable.create("a", "b"), 1, Iterable.create("a"));
-                removeAtTest.run(Indexable.create("a", "b"), 2, Iterable.create("a", "b"));
+                removeAtTest.run(Indexable.create("a", "b"), -1, Iterable.create("a", "b"), new PreConditionFailure("index (-1) must be between 0 and 1."));
+                removeAtTest.run(Indexable.create("a", "b"), 0, Iterable.create("b"), null);
+                removeAtTest.run(Indexable.create("a", "b"), 1, Iterable.create("a"), null);
+                removeAtTest.run(Indexable.create("a", "b"), 2, Iterable.create("a", "b"), new PreConditionFailure("index (2) must be between 0 and 1."));
             });
 
             runner.testGroup("set(int,String)", () ->
             {
-                final Action4<Iterable<String>,Integer,String,Iterable<String>> setTest = (Iterable<String> cells, Integer index, String value, Iterable<String> expectedCells) ->
+                final Action5<Iterable<String>,Integer,String,Iterable<String>,Throwable> setTest = (Iterable<String> cells, Integer index, String value, Iterable<String> expectedCells, Throwable expectedError) ->
                 {
                     runner.test("with " + cells + " at index " + index + " with value " + Strings.escapeAndQuote(value), (Test test) ->
                     {
                         final CSVRow row = new CSVRow(cells);
-                        if (index < 0 || cells.getCount() <= index)
+                        if (expectedError != null)
                         {
-                            test.assertThrows(() -> row.set(index, value));
+                            test.assertThrows(() -> row.set(index, value), expectedError);
                         }
                         else
                         {
@@ -105,18 +105,18 @@ public class CSVRowTests
                     });
                 };
 
-                setTest.run(Iterable.create(), -1, "z", Iterable.create());
-                setTest.run(Iterable.create(), 0, "z", Iterable.create());
-                setTest.run(Iterable.create(), 1, "z", Iterable.create());
+                setTest.run(Iterable.create(), -1, "z", Iterable.create(), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                setTest.run(Iterable.create(), 0, "z", Iterable.create(), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                setTest.run(Iterable.create(), 1, "z", Iterable.create(), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
 
-                setTest.run(Iterable.create("a"), -1, "z", Iterable.create("a"));
-                setTest.run(Iterable.create("a"), 0, "z", Iterable.create("z"));
-                setTest.run(Iterable.create("a"), 1, "z", Iterable.create("a"));
+                setTest.run(Iterable.create("a"), -1, "z", Iterable.create("a"), new PreConditionFailure("index (-1) must be equal to 0."));
+                setTest.run(Iterable.create("a"), 0, "z", Iterable.create("z"), null);
+                setTest.run(Iterable.create("a"), 1, "z", Iterable.create("a"), new PreConditionFailure("index (1) must be equal to 0."));
 
-                setTest.run(Iterable.create("a", "b"), -1, "z", Iterable.create("a", "b"));
-                setTest.run(Iterable.create("a", "b"), 0, "z", Iterable.create("z", "b"));
-                setTest.run(Iterable.create("a", "b"), 1, "z", Iterable.create("a", "z"));
-                setTest.run(Iterable.create("a", "b"), 2, "z", Iterable.create("a", "b"));
+                setTest.run(Iterable.create("a", "b"), -1, "z", Iterable.create("a", "b"), new PreConditionFailure("index (-1) must be between 0 and 1."));
+                setTest.run(Iterable.create("a", "b"), 0, "z", Iterable.create("z", "b"), null);
+                setTest.run(Iterable.create("a", "b"), 1, "z", Iterable.create("a", "z"), null);
+                setTest.run(Iterable.create("a", "b"), 2, "z", Iterable.create("a", "b"), new PreConditionFailure("index (2) must be between 0 and 1."));
             });
         });
     }

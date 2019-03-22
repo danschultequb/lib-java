@@ -243,7 +243,8 @@ public class DurationTests
             {
                 runner.test("by zero", (Test test) ->
                 {
-                    test.assertThrows(() -> Duration.nanoseconds(50).dividedBy(0));
+                    test.assertThrows(() -> Duration.nanoseconds(50).dividedBy(0),
+                        new PreConditionFailure("rhs (0.0) must not be 0.0."));
                 });
 
                 final Action3<Duration,Double,Duration> dividedByTest = (Duration dividend, Double divisor, Duration expectedQuotient) ->
@@ -263,12 +264,14 @@ public class DurationTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> Duration.seconds(10).dividedBy(null));
+                    test.assertThrows(() -> Duration.seconds(10).dividedBy(null),
+                        new PreConditionFailure("rhs cannot be null."));
                 });
 
                 runner.test("with zero", (Test test) ->
                 {
-                    test.assertThrows(() -> Duration.seconds(10).dividedBy(Duration.seconds(0)));
+                    test.assertThrows(() -> Duration.seconds(10).dividedBy(Duration.seconds(0)),
+                        new PreConditionFailure("rhs.getValue() (0.0) must not be 0.0."));
                 });
 
                 final Action3<Duration,Duration,Double> dividedByTest = (Duration dividend, Duration divisor, Double expectedQuotient) ->

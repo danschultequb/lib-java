@@ -548,6 +548,8 @@ public class Distance implements Comparable<Distance>
 
     public String toString(String format)
     {
+        PreCondition.assertNotNull(format, "format");
+
         return new DecimalFormat(format).format(value) + " " + units;
     }
 

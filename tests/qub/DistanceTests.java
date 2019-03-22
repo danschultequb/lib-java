@@ -138,7 +138,8 @@ public class DistanceTests
                 runner.test("with null", (Test test) ->
                 {
                     final Distance value = Distance.meters(3);
-                    test.assertThrows(() -> value.convertTo(null));
+                    test.assertThrows(() -> value.convertTo(null),
+                        new PreConditionFailure("destinationUnits cannot be null."));
                 });
 
                 final Action3<Distance,DistanceUnit,Double> convertToTest = (Distance value, DistanceUnit expectedUnits, Double expectedValue) ->
@@ -553,7 +554,8 @@ public class DistanceTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> Distance.meters(5).plus(null));
+                    test.assertThrows(() -> Distance.meters(5).plus(null),
+                        new PreConditionFailure("rhs cannot be null."));
                 });
 
                 runner.test("with negative", (Test test) ->
@@ -614,7 +616,8 @@ public class DistanceTests
 
                 runner.test("with 0", (Test test) ->
                 {
-                    test.assertThrows(() -> Distance.millimeters(3).dividedBy(0));
+                    test.assertThrows(() -> Distance.millimeters(3).dividedBy(0),
+                        new PreConditionFailure("rhs (0.0) must not be 0.0."));
                 });
 
                 runner.test("with 1", (Test test) ->
@@ -642,7 +645,8 @@ public class DistanceTests
 
                 runner.test("with 0", (Test test) ->
                 {
-                    test.assertThrows(() -> Distance.millimeters(3).dividedBy(Distance.meters(0)));
+                    test.assertThrows(() -> Distance.millimeters(3).dividedBy(Distance.meters(0)),
+                        new PreConditionFailure("rhs.getValue() (0.0) must not be 0.0."));
                 });
 
                 runner.test("with 1", (Test test) ->
@@ -683,12 +687,14 @@ public class DistanceTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> Distance.meters(5).round(null));
+                    test.assertThrows(() -> Distance.meters(5).round(null),
+                        new PreConditionFailure("scale cannot be null."));
                 });
 
                 runner.test("with 0 Millimeters and 0 Meter scale", (Test test) ->
                 {
-                    test.assertThrows(() -> Distance.millimeters(0).round(Distance.meters(0)));
+                    test.assertThrows(() -> Distance.millimeters(0).round(Distance.meters(0)),
+                        new PreConditionFailure("scale.getValue() (0.0) must not be 0.0."));
                 });
 
                 runner.test("with 0 Millimeters and 1 Meter scale", (Test test) ->
@@ -706,7 +712,8 @@ public class DistanceTests
             {
                 runner.test("with 0", (Test test) ->
                 {
-                    test.assertThrows(() -> Distance.meters(5).round(0));
+                    test.assertThrows(() -> Distance.meters(5).round(0),
+                        new PreConditionFailure("scale (0.0) must not be 0.0."));
                 });
 
                 runner.test("with 0 Millimeters and 1 scale", (Test test) ->
@@ -724,7 +731,8 @@ public class DistanceTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> Distance.meters(1.23).toString(null));
+                    test.assertThrows(() -> Distance.meters(1.23).toString(null),
+                        new PreConditionFailure("format cannot be null."));
                 });
 
                 runner.test("with " + Strings.escapeAndQuote(""), (Test test) ->
