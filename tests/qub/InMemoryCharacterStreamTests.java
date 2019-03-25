@@ -14,7 +14,7 @@ public class InMemoryCharacterStreamTests
                 {
                     final InMemoryCharacterStream characterReadStream = createStream();
                     characterReadStream.dispose();
-                    test.assertThrows(characterReadStream::readCharacter);
+                    test.assertThrows(characterReadStream::readCharacter, new PreConditionFailure("isDisposed() cannot be true."));
                 });
 
                 runner.test("with no characters to read", (Test test) ->
@@ -45,13 +45,13 @@ public class InMemoryCharacterStreamTests
                 {
                     final InMemoryCharacterStream characterReadStream = createStream(test.getMainAsyncRunner());
                     characterReadStream.dispose();
-                    test.assertThrows(characterReadStream::readCharacterAsync);
+                    test.assertThrows(characterReadStream::readCharacterAsync, new PreConditionFailure("isDisposed() cannot be true."));
                 });
 
                 runner.test("with no AsyncRunner provided to CharacterReadStream's constructor", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream();
-                    test.assertThrows(characterReadStream::readCharacterAsync);
+                    test.assertThrows(characterReadStream::readCharacterAsync, new PreConditionFailure("getAsyncRunner() cannot be null."));
                 });
 
                 runner.test("with no characters to read", (Test test) ->
@@ -82,19 +82,19 @@ public class InMemoryCharacterStreamTests
                 {
                     final InMemoryCharacterStream characterReadStream = createStream();
                     characterReadStream.dispose();
-                    test.assertThrows(() -> characterReadStream.readCharacters(5));
+                    test.assertThrows(() -> characterReadStream.readCharacters(5), new PreConditionFailure("isDisposed() cannot be true."));
                 });
 
                 runner.test("with negative charactersToRead", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream();
-                    test.assertThrows(() -> characterReadStream.readCharacters(-1));
+                    test.assertThrows(() -> characterReadStream.readCharacters(-1), new PreConditionFailure("charactersToRead (-1) must be greater than 0."));
                 });
 
                 runner.test("with zero charactersToRead", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream();
-                    test.assertThrows(() -> characterReadStream.readCharacters(0));
+                    test.assertThrows(() -> characterReadStream.readCharacters(0), new PreConditionFailure("charactersToRead (0) must be greater than 0."));
                 });
 
                 runner.test("with no characters to read", (Test test) ->
@@ -106,7 +106,7 @@ public class InMemoryCharacterStreamTests
                 runner.test("with fewer available characters than charactersToRead", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream("abc");
-                    test.assertSuccess(new char[] { 'a', 'b', 'c' }, characterReadStream.readCharacters(5));
+                    test.assertEqual(new char[] { 'a', 'b', 'c' }, characterReadStream.readCharacters(5).await());
                     test.assertSuccess(null, characterReadStream.readCharacters(1));
                 });
 
@@ -132,13 +132,13 @@ public class InMemoryCharacterStreamTests
                 {
                     final InMemoryCharacterStream characterReadStream = createStream(test.getMainAsyncRunner());
                     characterReadStream.dispose();
-                    test.assertThrows(() -> characterReadStream.readCharactersAsync(5));
+                    test.assertThrows(() -> characterReadStream.readCharactersAsync(5), new PreConditionFailure("isDisposed() cannot be true."));
                 });
 
                 runner.test("with no AsyncRunner provided to CharacterReadStream's constructor", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream();
-                    test.assertThrows(() -> characterReadStream.readCharactersAsync(20));
+                    test.assertThrows(() -> characterReadStream.readCharactersAsync(20), new PreConditionFailure("getAsyncRunner() cannot be null."));
                 });
 
                 runner.test("with no characters to read", (Test test) ->
@@ -177,21 +177,21 @@ public class InMemoryCharacterStreamTests
                     final InMemoryCharacterStream characterReadStream = createStream();
                     characterReadStream.dispose();
                     final char[] outputCharacters = new char[5];
-                    test.assertThrows(() -> characterReadStream.readCharacters(outputCharacters));
+                    test.assertThrows(() -> characterReadStream.readCharacters(outputCharacters), new PreConditionFailure("isDisposed() cannot be true."));
                 });
 
                 runner.test("with null outputCharacters", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream();
                     final char[] outputCharacters = null;
-                    test.assertThrows(() -> characterReadStream.readCharacters(outputCharacters));
+                    test.assertThrows(() -> characterReadStream.readCharacters(outputCharacters), new PreConditionFailure("outputCharacters cannot be null."));
                 });
 
                 runner.test("with empty outputCharacters", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream();
                     final char[] outputCharacters = new char[0];
-                    test.assertThrows(() -> characterReadStream.readCharacters(outputCharacters));
+                    test.assertThrows(() -> characterReadStream.readCharacters(outputCharacters), new PreConditionFailure("outputCharacters cannot be empty."));
                 });
 
                 runner.test("with no characters to read.", (Test test) ->
@@ -236,28 +236,28 @@ public class InMemoryCharacterStreamTests
                     final InMemoryCharacterStream characterReadStream = createStream(test.getMainAsyncRunner());
                     characterReadStream.dispose();
                     final char[] outputCharacters = new char[5];
-                    test.assertThrows(() -> characterReadStream.readCharactersAsync(outputCharacters));
+                    test.assertThrows(() -> characterReadStream.readCharactersAsync(outputCharacters), new PreConditionFailure("isDisposed() cannot be true."));
                 });
 
                 runner.test("with no AsyncRunner provided to CharacterReadStream's constructor", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream();
                     final char[] outputCharacters = new char[5];
-                    test.assertThrows(() -> characterReadStream.readCharactersAsync(outputCharacters));
+                    test.assertThrows(() -> characterReadStream.readCharactersAsync(outputCharacters), new PreConditionFailure("getAsyncRunner() cannot be null."));
                 });
 
                 runner.test("with null outputCharacters", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream(test.getMainAsyncRunner());
                     final char[] outputCharacters = null;
-                    test.assertThrows(() -> characterReadStream.readCharactersAsync(outputCharacters));
+                    test.assertThrows(() -> characterReadStream.readCharactersAsync(outputCharacters), new PreConditionFailure("outputCharacters cannot be null."));
                 });
 
                 runner.test("with empty outputCharacters", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream(test.getMainAsyncRunner());
                     final char[] outputCharacters = new char[0];
-                    test.assertThrows(() -> characterReadStream.readCharactersAsync(outputCharacters));
+                    test.assertThrows(() -> characterReadStream.readCharactersAsync(outputCharacters), new PreConditionFailure("outputCharacters cannot be empty."));
                 });
 
                 runner.test("with no characters to read.", (Test test) ->
@@ -404,63 +404,63 @@ public class InMemoryCharacterStreamTests
                     final InMemoryCharacterStream characterReadStream = createStream(test.getMainAsyncRunner());
                     characterReadStream.dispose();
                     final char[] outputCharacters = new char[5];
-                    test.assertThrows(() -> characterReadStream.readCharactersAsync(outputCharacters, 2, 3));
+                    test.assertThrows(() -> characterReadStream.readCharactersAsync(outputCharacters, 2, 3), new PreConditionFailure("isDisposed() cannot be true."));
                 });
 
                 runner.test("with no AsyncRunner provided to CharacterReadStream's constructor", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream();
                     final char[] outputCharacters = new char[5];
-                    test.assertThrows(() -> characterReadStream.readCharactersAsync(outputCharacters, 2, 3));
+                    test.assertThrows(() -> characterReadStream.readCharactersAsync(outputCharacters, 2, 3), new PreConditionFailure("getAsyncRunner() cannot be null."));
                 });
 
                 runner.test("with null outputCharacters", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream(test.getMainAsyncRunner());
                     final char[] outputCharacters = null;
-                    test.assertThrows(() -> characterReadStream.readCharactersAsync(outputCharacters, 2, 3));
+                    test.assertThrows(() -> characterReadStream.readCharactersAsync(outputCharacters, 2, 3), new PreConditionFailure("characters cannot be null."));
                 });
 
                 runner.test("with empty outputCharacters", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream(test.getMainAsyncRunner());
                     final char[] outputCharacters = new char[0];
-                    test.assertThrows(() -> characterReadStream.readCharactersAsync(outputCharacters, 2, 3));
+                    test.assertThrows(() -> characterReadStream.readCharactersAsync(outputCharacters, 2, 3), new PreConditionFailure("characters cannot be empty."));
                 });
 
                 runner.test("with negative startIndex", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream(test.getMainAsyncRunner());
                     final char[] outputCharacters = new char[6];
-                    test.assertThrows(() -> characterReadStream.readCharactersAsync(outputCharacters, -10, 3));
+                    test.assertThrows(() -> characterReadStream.readCharactersAsync(outputCharacters, -10, 3), new PreConditionFailure("startIndex (-10) must be between 0 and 5."));
                 });
 
                 runner.test("with startIndex equal to outputCharacters.length", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream(test.getMainAsyncRunner());
                     final char[] outputCharacters = new char[6];
-                    test.assertThrows(() -> characterReadStream.readCharactersAsync(outputCharacters, outputCharacters.length, 3));
+                    test.assertThrows(() -> characterReadStream.readCharactersAsync(outputCharacters, outputCharacters.length, 3), new PreConditionFailure("startIndex (6) must be between 0 and 5."));
                 });
 
                 runner.test("with negative length", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream(test.getMainAsyncRunner());
                     final char[] outputCharacters = new char[6];
-                    test.assertThrows(() -> characterReadStream.readCharactersAsync(outputCharacters, 2, -50));
+                    test.assertThrows(() -> characterReadStream.readCharactersAsync(outputCharacters, 2, -50), new PreConditionFailure("length (-50) must be between 1 and 4."));
                 });
 
                 runner.test("with zero length", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream(test.getMainAsyncRunner());
                     final char[] outputCharacters = new char[6];
-                    test.assertThrows(() -> characterReadStream.readCharactersAsync(outputCharacters, 2, 0));
+                    test.assertThrows(() -> characterReadStream.readCharactersAsync(outputCharacters, 2, 0), new PreConditionFailure("length (0) must be between 1 and 4."));
                 });
 
                 runner.test("with length greater than outputCharacters.length - startIndex", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream(test.getMainAsyncRunner());
                     final char[] outputCharacters = new char[6];
-                    test.assertThrows(() -> characterReadStream.readCharactersAsync(outputCharacters, 2, 5));
+                    test.assertThrows(() -> characterReadStream.readCharactersAsync(outputCharacters, 2, 5), new PreConditionFailure("length (5) must be between 1 and 4."));
                 });
 
                 runner.test("with no characters to read.", (Test test) ->
@@ -504,25 +504,25 @@ public class InMemoryCharacterStreamTests
                 {
                     final InMemoryCharacterStream characterReadStream = createStream();
                     characterReadStream.dispose();
-                    test.assertThrows(characterReadStream::readAllCharacters);
+                    test.assertThrows(characterReadStream::readAllCharacters, new PreConditionFailure("isDisposed() cannot be true."));
                 });
 
                 runner.test("with no characters to read", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream("");
-                    test.assertSuccess(new char[0], characterReadStream.readAllCharacters());
+                    test.assertEqual(new char[0], characterReadStream.readAllCharacters().await());
                 });
 
                 runner.test("with one character to read", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream("f");
-                    test.assertSuccess(new char[] { 'f' }, characterReadStream.readAllCharacters());
+                    test.assertEqual(new char[] { 'f' }, characterReadStream.readAllCharacters().await());
                 });
 
                 runner.test("with multiple characters to read", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream("fedcb");
-                    test.assertSuccess(new char[] { 'f', 'e', 'd', 'c', 'b' }, characterReadStream.readAllCharacters());
+                    test.assertEqual(new char[] { 'f', 'e', 'd', 'c', 'b' }, characterReadStream.readAllCharacters().await());
                 });
             });
 
@@ -531,15 +531,14 @@ public class InMemoryCharacterStreamTests
                 runner.test("with disposed CharacterReadStream", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream(test.getMainAsyncRunner());
-                    characterReadStream.dispose();
-                    test.assertThrows(characterReadStream::readAllCharactersAsync);
+                    characterReadStream.dispose().await();
+                    test.assertThrows(characterReadStream::readAllCharactersAsync, new PreConditionFailure("isDisposed() cannot be true."));
                 });
 
                 runner.test("with null AsyncRunner", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream();
-                    characterReadStream.dispose();
-                    test.assertThrows(characterReadStream::readAllCharactersAsync);
+                    test.assertThrows(characterReadStream::readAllCharactersAsync, new PreConditionFailure("getAsyncRunner() cannot be null."));
                 });
 
                 runner.test("with no characters to read", (Test test) ->
@@ -567,7 +566,7 @@ public class InMemoryCharacterStreamTests
                 {
                     final InMemoryCharacterStream characterReadStream = createStream();
                     characterReadStream.dispose();
-                    test.assertThrows(() -> characterReadStream.readString(5));
+                    test.assertThrows(() -> characterReadStream.readString(5), new PreConditionFailure("isDisposed() cannot be true."));
                 });
 
                 runner.test("with no characters to read", (Test test) ->
@@ -605,13 +604,13 @@ public class InMemoryCharacterStreamTests
                 {
                     final InMemoryCharacterStream characterReadStream = createStream(test.getMainAsyncRunner());
                     characterReadStream.dispose();
-                    test.assertThrows(() -> characterReadStream.readStringAsync(5));
+                    test.assertThrows(() -> characterReadStream.readStringAsync(5), new PreConditionFailure("isDisposed() cannot be true."));
                 });
 
                 runner.test("with no AsyncRunner provided to CharacterReadStream's constructor", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream();
-                    test.assertThrows(() -> characterReadStream.readStringAsync(3));
+                    test.assertThrows(() -> characterReadStream.readStringAsync(3), new PreConditionFailure("getAsyncRunner() cannot be null."));
                 });
 
                 runner.test("with no characters to read", (Test test) ->

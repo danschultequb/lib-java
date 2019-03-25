@@ -13,7 +13,7 @@ public class FolderFileSystemTests
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner());
                     fileSystem.createRoot("/");
                     
-                    test.assertThrows(() -> FolderFileSystem.get(fileSystem, (String)null));
+                    test.assertThrows(() -> FolderFileSystem.get(fileSystem, (String)null), new PreConditionFailure("baseFolderPath cannot be null."));
                 });
 
                 runner.test("with empty path", (Test test) ->
@@ -21,7 +21,7 @@ public class FolderFileSystemTests
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner());
                     fileSystem.createRoot("/");
 
-                    test.assertThrows(() -> FolderFileSystem.get(fileSystem, ""));
+                    test.assertThrows(() -> FolderFileSystem.get(fileSystem, ""), new PreConditionFailure("baseFolderPath cannot be empty."));
                 });
 
                 runner.test("with relative path", (Test test) ->
@@ -29,7 +29,7 @@ public class FolderFileSystemTests
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner());
                     fileSystem.createRoot("/");
 
-                    test.assertThrows(() -> FolderFileSystem.get(fileSystem, "basefolder"));
+                    test.assertThrows(() -> FolderFileSystem.get(fileSystem, "basefolder"), new PreConditionFailure("baseFolderPath.isRooted() cannot be false."));
                 });
 
                 runner.test("with relative path that ends with backslash", (Test test) ->
@@ -37,7 +37,7 @@ public class FolderFileSystemTests
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner());
                     fileSystem.createRoot("/");
 
-                    test.assertThrows(() -> FolderFileSystem.get(fileSystem, "basefolder\\"));
+                    test.assertThrows(() -> FolderFileSystem.get(fileSystem, "basefolder\\"), new PreConditionFailure("baseFolderPath.isRooted() cannot be false."));
                 });
 
                 runner.test("with relative path that ends with forward slash", (Test test) ->
@@ -45,7 +45,7 @@ public class FolderFileSystemTests
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner());
                     fileSystem.createRoot("/");
 
-                    test.assertThrows(() -> FolderFileSystem.get(fileSystem, "basefolder/"));
+                    test.assertThrows(() -> FolderFileSystem.get(fileSystem, "basefolder/"), new PreConditionFailure("baseFolderPath.isRooted() cannot be false."));
                 });
 
                 runner.test("with rooted path", (Test test) ->

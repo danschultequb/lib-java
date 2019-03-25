@@ -1339,7 +1339,7 @@ public interface FileSystem
 
     static void validateRootedFilePath(String rootedFilePath)
     {
-        PreCondition.assertNotNull(rootedFilePath, "rootedFilePath");
+        PreCondition.assertNotNullAndNotEmpty(rootedFilePath, "rootedFilePath");
         PreCondition.assertFalse(rootedFilePath.endsWith("\\"), "rootedFilePath.endsWith(\"\\\")");
         PreCondition.assertFalse(rootedFilePath.endsWith("/"), "rootedFilePath.endsWith(\"/\")");
     }

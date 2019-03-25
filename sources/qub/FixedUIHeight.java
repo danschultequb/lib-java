@@ -6,6 +6,7 @@ public class FixedUIHeight extends UIHeight
 
     public FixedUIHeight(Distance height)
     {
+        PreCondition.assertNotNull(height, "height");
         PreCondition.assertGreaterThanOrEqualTo(height, Distance.zero, "height");
 
         this.height = height;

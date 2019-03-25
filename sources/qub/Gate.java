@@ -47,6 +47,7 @@ public interface Gate
      */
     default Result<Boolean> passThrough(Duration timeout)
     {
+        PreCondition.assertNotNull(timeout, "timeout");
         PreCondition.assertGreaterThan(timeout, Duration.zero, "timeout");
         PreCondition.assertNotNull(getClock(), "getClock()");
 

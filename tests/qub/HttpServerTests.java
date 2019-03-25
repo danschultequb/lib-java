@@ -12,15 +12,15 @@ public class HttpServerTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> new HttpServer(null));
+                    test.assertThrows(() -> new HttpServer(null), new PreConditionFailure("tcpServer cannot be null."));
                 });
 
                 runner.test("with disposed TCPServer", (Test test) ->
                 {
-                    try (final TCPServer tcpServer = test.getNetwork().createTCPServer(23211).awaitError())
+                    try (final TCPServer tcpServer = test.getNetwork().createTCPServer(23211).await())
                     {
-                        test.assertSuccess(true, tcpServer.dispose());
-                        test.assertThrows(() -> new HttpServer(tcpServer));
+                        test.assertTrue(tcpServer.dispose().await());
+                        test.assertThrows(() -> new HttpServer(tcpServer), new PreConditionFailure("tcpServer.isDisposed() cannot be true."));
                     }
                 });
 
@@ -28,7 +28,7 @@ public class HttpServerTests
                 {
                     try (final HttpServer server = createServer(test))
                     {
-                        test.assertSuccess(true, server.dispose());
+                        test.assertTrue(server.dispose().await());
                     }
                 });
             });
@@ -214,7 +214,7 @@ public class HttpServerTests
                 {
                     try (final HttpServer server = createServer(test))
                     {
-                        test.assertThrows(() -> server.setNotFound(null));
+                        test.assertThrows(() -> server.setNotFound(null), new PreConditionFailure("notFoundAction cannot be null."));
                     }
                 });
 

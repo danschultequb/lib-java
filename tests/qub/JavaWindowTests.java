@@ -44,7 +44,7 @@ public class JavaWindowTests
                 {
                     try (final JavaWindow window = createWindow(test))
                     {
-                        test.assertThrows(() -> window.setTitle(null));
+                        test.assertThrows(() -> window.setTitle(null), new PreConditionFailure("title cannot be null."));
                     }
                 });
 
@@ -76,7 +76,7 @@ public class JavaWindowTests
                 {
                     try (final JavaWindow window = createWindow(test))
                     {
-                        test.assertThrows(() -> window.setContent((javax.swing.JComponent)null));
+                        test.assertThrows(() -> window.setContent((javax.swing.JComponent)null), new NotSupportedException());
                     }
                 });
 
@@ -107,7 +107,7 @@ public class JavaWindowTests
                 {
                     try (final JavaWindow window = createWindow(test))
                     {
-                        test.assertThrows(() -> window.awaitClose());
+                        test.assertThrows(window::awaitClose, new PreConditionFailure("isOpen() cannot be false."));
                     }
                 });
 
@@ -116,7 +116,7 @@ public class JavaWindowTests
                     try (final JavaWindow window = createWindow(test))
                     {
                         window.dispose();
-                        test.assertThrows(() -> window.awaitClose());
+                        test.assertThrows(window::awaitClose, new PreConditionFailure("isOpen() cannot be false."));
                     }
                 });
 
@@ -136,8 +136,8 @@ public class JavaWindowTests
                     try (final JavaWindow window = createWindow(test))
                     {
                         window.open();
-                        window.dispose();
-                        test.assertThrows(() -> window.awaitClose());
+                        window.dispose().await();
+                        test.assertThrows(window::awaitClose, new PreConditionFailure("isOpen() cannot be false."));
                     }
                 });
             });

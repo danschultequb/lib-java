@@ -10,12 +10,12 @@ public class FixedUIHeightTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> new FixedUIHeight(null));
+                    test.assertThrows(() -> new FixedUIHeight(null), new PreConditionFailure("height cannot be null."));
                 });
 
                 runner.test("with negative", (Test test) ->
                 {
-                    test.assertThrows(() -> new FixedUIHeight(Distance.centimeters(-1)));
+                    test.assertThrows(() -> new FixedUIHeight(Distance.centimeters(-1)), new PreConditionFailure("height (-1.0 Centimeters) must be greater than or equal to 0.0 Inches."));
                 });
 
                 runner.test("with zero", (Test test) ->

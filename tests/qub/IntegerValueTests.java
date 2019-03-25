@@ -10,8 +10,8 @@ public class IntegerValueTests
             {
                 final IntegerValue value = new IntegerValue();
                 test.assertFalse(value.hasValue());
-                test.assertThrows(() -> value.get());
-                test.assertThrows(() -> value.getAsInt());
+                test.assertThrows(() -> value.get(), new PreConditionFailure("hasValue() cannot be false."));
+                test.assertThrows(() -> value.getAsInt(), new PreConditionFailure("hasValue() cannot be false."));
             });
 
             runner.test("constructor(int)", (Test test) ->
@@ -64,7 +64,7 @@ public class IntegerValueTests
                 runner.test("with null", (Test test) ->
                 {
                     final IntegerValue value = new IntegerValue(3);
-                    test.assertThrows(() -> value.plusAssign(null));
+                    test.assertThrows(() -> value.plusAssign(null), new PreConditionFailure("value cannot be null."));
                     test.assertEqual(3, value.get());
                 });
 
@@ -81,7 +81,7 @@ public class IntegerValueTests
                 runner.test("with null", (Test test) ->
                 {
                     final IntegerValue value = new IntegerValue(3);
-                    test.assertThrows(() -> value.minusAssign(null));
+                    test.assertThrows(() -> value.minusAssign(null), new PreConditionFailure("value cannot be null."));
                     test.assertEqual(3, value.get());
                 });
 

@@ -6,6 +6,7 @@ public class FixedUIWidth extends UIWidth
 
     public FixedUIWidth(Distance width)
     {
+        PreCondition.assertNotNull(width, "width");
         PreCondition.assertGreaterThanOrEqualTo(width, Distance.zero, "width");
 
         this.width = width;

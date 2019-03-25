@@ -10,7 +10,7 @@ public class JavaTCPClientTests
             {
                 runner.test("with null Socket", (Test test) ->
                 {
-                    test.assertThrows(() -> JavaTCPClient.create(null, test.getParallelAsyncRunner()));
+                    test.assertThrows(() -> JavaTCPClient.create(null, test.getParallelAsyncRunner()), new PreConditionFailure("socket cannot be null."));
                 });
             });
         });

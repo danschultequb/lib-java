@@ -11,7 +11,7 @@ public class FitContentUIWidthTests
                 runner.test("with null", (Test test) ->
                 {
                     final FitContentUIWidth uiWidth = new FitContentUIWidth();
-                    test.assertThrows(() -> uiWidth.getWidth(null));
+                    test.assertThrows(() -> uiWidth.getWidth(null), new PreConditionFailure("uiElement cannot be null."));
                 });
 
                 runner.test("with UIElement that has null content width", (Test test) ->

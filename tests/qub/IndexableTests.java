@@ -31,13 +31,13 @@ public class IndexableTests
                 runner.test("with index equal to Indexable count", (Test test) ->
                 {
                     final Indexable<Integer> indexable = createIndexable.run(3);
-                    test.assertThrows(() -> indexable.get(3));
+                    test.assertThrows(() -> indexable.get(3), new PreConditionFailure("index (3) must be between 0 and 2."));
                 });
 
                 runner.test("with index greater than Indexable count", (Test test) ->
                 {
                     final Indexable<Integer> indexable = createIndexable.run(3);
-                    test.assertThrows(() -> indexable.get(4));
+                    test.assertThrows(() -> indexable.get(4), new PreConditionFailure("index (4) must be between 0 and 2."));
                 });
             });
 
@@ -46,7 +46,7 @@ public class IndexableTests
                 runner.test("with empty Indexable and null condition", (Test test) ->
                 {
                     final Indexable<Integer> indexable = createIndexable.run(0);
-                    test.assertThrows(() -> indexable.indexOf((Function1<Integer,Boolean>)null));
+                    test.assertThrows(() -> indexable.indexOf((Function1<Integer,Boolean>)null), new PreConditionFailure("condition cannot be null."));
                 });
 
                 runner.test("with empty Indexable and non-null condition", (Test test) ->
@@ -58,7 +58,7 @@ public class IndexableTests
                 runner.test("with non-empty Indexable and null condition", (Test test) ->
                 {
                     final Indexable<Integer> indexable = createIndexable.run(1);
-                    test.assertThrows(() -> indexable.indexOf((Function1<Integer,Boolean>)null));
+                    test.assertThrows(() -> indexable.indexOf((Function1<Integer,Boolean>)null), new PreConditionFailure("condition cannot be null."));
                 });
 
                 runner.test("with non-empty Indexable and non-matching condition", (Test test) ->

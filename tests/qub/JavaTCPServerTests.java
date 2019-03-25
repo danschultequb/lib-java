@@ -16,12 +16,12 @@ public class JavaTCPServerTests
             {
                 runner.test("with -1 port", (Test test) ->
                 {
-                    test.assertThrows(() -> JavaTCPServer.create(-1, test.getParallelAsyncRunner()));
+                    test.assertThrows(() -> JavaTCPServer.create(-1, test.getParallelAsyncRunner()), new PreConditionFailure("localPort (-1) must be between 1 and 65535."));
                 });
 
                 runner.test("with 0 port", (Test test) ->
                 {
-                    test.assertThrows(() -> JavaTCPServer.create(0, test.getParallelAsyncRunner()));
+                    test.assertThrows(() -> JavaTCPServer.create(0, test.getParallelAsyncRunner()), new PreConditionFailure("localPort (0) must be between 1 and 65535."));
                 });
 
                 runner.test("with null asyncRunner", (Test test) ->
@@ -59,17 +59,17 @@ public class JavaTCPServerTests
             {
                 runner.test("with null and " + port.incrementAndGet() + " port", (Test test) ->
                 {
-                    test.assertThrows(() -> JavaTCPServer.create(null, port.get(), test.getParallelAsyncRunner()));
+                    test.assertThrows(() -> JavaTCPServer.create(null, port.get(), test.getParallelAsyncRunner()), new PreConditionFailure("localIPAddress cannot be null."));
                 });
 
                 runner.test("with 127.0.0.1 and -1 port", (Test test) ->
                 {
-                    test.assertThrows(() -> JavaTCPServer.create(IPv4Address.parse("127.0.0.1"), -1, test.getParallelAsyncRunner()));
+                    test.assertThrows(() -> JavaTCPServer.create(IPv4Address.parse("127.0.0.1"), -1, test.getParallelAsyncRunner()), new PreConditionFailure("localPort (-1) must be between 1 and 65535."));
                 });
 
                 runner.test("with 127.0.0.1 and 0 port", (Test test) ->
                 {
-                    test.assertThrows(() -> JavaTCPServer.create(IPv4Address.parse("127.0.0.1"), 0, test.getParallelAsyncRunner()));
+                    test.assertThrows(() -> JavaTCPServer.create(IPv4Address.parse("127.0.0.1"), 0, test.getParallelAsyncRunner()), new PreConditionFailure("localPort (0) must be between 1 and 65535."));
                 });
 
                 runner.test("with 127.0.0.1, " + port.incrementAndGet() + " port, and null asyncRunner", (Test test) ->

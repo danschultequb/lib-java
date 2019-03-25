@@ -10,12 +10,12 @@ public class LongsTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> Longs.parse(null));
+                    test.assertThrows(() -> Longs.parse(null), new PreConditionFailure("value cannot be null."));
                 });
 
                 runner.test("with empty", (Test test) ->
                 {
-                    test.assertThrows(() -> Longs.parse(""));
+                    test.assertThrows(() -> Longs.parse(""), new PreConditionFailure("value cannot be empty."));
                 });
 
                 runner.test("with non-number", (Test test) ->

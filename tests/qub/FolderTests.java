@@ -234,12 +234,11 @@ public class FolderTests
                 {
                     final Folder folder = getFolder(test);
 
-                    final Result<Folder> result = folder.createFolder("thing");
-                    test.assertSuccess(result);
-                    test.assertEqual("/test/folder/thing", result.awaitError().toString());
+                    final Folder createdFolder = folder.createFolder("thing").await();
+                    test.assertEqual("/test/folder/thing", createdFolder.toString());
 
-                    test.assertSuccess(true, folder.exists());
-                    test.assertSuccess(true, result.awaitError().exists());
+                    test.assertTrue(folder.exists().await());
+                    test.assertTrue(createdFolder.exists().await());
                 });
             });
 
@@ -255,12 +254,11 @@ public class FolderTests
                 {
                     final Folder folder = getFolder(test);
 
-                    final Result<Folder> result = folder.createFolder("place");
-                    test.assertSuccess(result);
-                    test.assertEqual("/test/folder/place", result.awaitError().toString());
+                    final Folder createdFolder = folder.createFolder("place").await();
+                    test.assertEqual("/test/folder/place", createdFolder.toString());
 
-                    test.assertSuccess(true, folder.exists());
-                    test.assertSuccess(true, result.awaitError().exists());
+                    test.assertTrue(folder.exists().await());
+                    test.assertTrue(createdFolder.exists().await());
                 });
             });
 

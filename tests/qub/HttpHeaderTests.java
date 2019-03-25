@@ -10,22 +10,22 @@ public class HttpHeaderTests
             {
                 runner.test("with null name", (Test test) ->
                 {
-                    test.assertThrows(() -> new HttpHeader(null, "V"));
+                    test.assertThrows(() -> new HttpHeader(null, "V"), new PreConditionFailure("name cannot be null."));
                 });
 
                 runner.test("with empty name", (Test test) ->
                 {
-                    test.assertThrows(() -> new HttpHeader("", "V"));
+                    test.assertThrows(() -> new HttpHeader("", "V"), new PreConditionFailure("name cannot be empty."));
                 });
 
                 runner.test("with null value", (Test test) ->
                 {
-                    test.assertThrows(() -> new HttpHeader("N", null));
+                    test.assertThrows(() -> new HttpHeader("N", null), new PreConditionFailure("value cannot be null."));
                 });
 
                 runner.test("with empty value", (Test test) ->
                 {
-                    test.assertThrows(() -> new HttpHeader("N", ""));
+                    test.assertThrows(() -> new HttpHeader("N", ""), new PreConditionFailure("value cannot be empty."));
                 });
 
                 runner.test("with name and value", (Test test) ->

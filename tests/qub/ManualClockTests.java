@@ -12,12 +12,12 @@ public class ManualClockTests
             {
                 runner.test("with null mainAsyncRunner", (Test test) ->
                 {
-                    test.assertThrows(() -> new ManualClock(null, currentDateTime));
+                    test.assertThrows(() -> new ManualClock(null, currentDateTime), new PreConditionFailure("mainAsyncRunner cannot be null."));
                 });
 
                 runner.test("with null currentDateTime", (Test test) ->
                 {
-                    test.assertThrows(() -> new ManualClock(test.getMainAsyncRunner(), null));
+                    test.assertThrows(() -> new ManualClock(test.getMainAsyncRunner(), null), new PreConditionFailure("currentDateTime cannot be null."));
                 });
 
                 runner.test("with non-null currentDateTime", (Test test) ->
@@ -32,7 +32,7 @@ public class ManualClockTests
                 runner.test("with null", (Test test) ->
                 {
                     final ManualClock clock = createClock(test);
-                    test.assertThrows(() -> clock.advance(null));
+                    test.assertThrows(() -> clock.advance(null), new PreConditionFailure("duration cannot be null."));
                 });
 
                 runner.test("with 0 seconds", (Test test) ->
@@ -56,7 +56,7 @@ public class ManualClockTests
                 {
                     final ManualClock clock = createClock(test);
                     final Value<Boolean> value = BooleanValue.create();
-                    test.assertThrows(() -> clock.scheduleAfter(null, () -> value.set(true)).await());
+                    test.assertThrows(() -> clock.scheduleAfter(null, () -> value.set(true)), new PreConditionFailure("duration cannot be null."));
                 });
 
                 runner.test("with negative Duration", (Test test) ->
@@ -169,7 +169,7 @@ public class ManualClockTests
                 runner.test("with null DateTime", (Test test) ->
                 {
                     final ManualClock clock = createClock(test);
-                    test.assertThrows(() -> clock.scheduleAt(null, () -> {}));
+                    test.assertThrows(() -> clock.scheduleAt(null, () -> {}), new PreConditionFailure("dateTime cannot be null."));
                 });
 
                 runner.test("with DateTime before now", (Test test) ->

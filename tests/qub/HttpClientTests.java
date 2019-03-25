@@ -11,23 +11,15 @@ public class HttpClientTests
                 runner.test("with null", (Test test) ->
                 {
                     final HttpClient httpClient = creator.run(test);
-                    test.assertThrows(() -> httpClient.send(null));
+                    test.assertThrows(() -> httpClient.send(null), new PreConditionFailure("request cannot be null."));
                 });
 
                 runner.test("with unknown host", runner.skip(!runner.hasNetworkConnection().await()), (Test test) ->
                 {
                     final HttpClient httpClient = creator.run(test);
                     final MutableHttpRequest httpRequest = new MutableHttpRequest(HttpMethod.GET, URL.parse("http://www.idontexistbecauseimnotagoodurl.com").await());
-                    httpClient.send(httpRequest)
-                        .then((HttpResponse response) ->
-                        {
-                            test.fail("Expected a java.net.UnknownHostException to be thrown.");
-                        })
-                        .catchError(java.net.UnknownHostException.class, (java.net.UnknownHostException error) ->
-                        {
-                            test.assertEqual("www.idontexistbecauseimnotagoodurl.com", error.getMessage());
-                        })
-                        .await();
+                    test.assertThrows(() -> httpClient.send(httpRequest).awaitError(),
+                        new RuntimeException(new java.net.UnknownHostException("www.idontexistbecauseimnotagoodurl.com")));
                 });
 
                 runner.test("with GET request to www.example.com", runner.skip(!runner.hasNetworkConnection().await()), (Test test) ->

@@ -40,7 +40,7 @@ public abstract class ListTests
                     final List<Integer> list = createList.run(0);
                     if (list != null)
                     {
-                        test.assertThrows(() -> list.insert(-1, 20));
+                        test.assertThrows(() -> list.insert(-1, 20), new PreConditionFailure("insertIndex (-1) must be equal to 0."));
                         test.assertEqual(Iterable.create(), list);
                     }
                 });
@@ -60,7 +60,7 @@ public abstract class ListTests
                     final List<Integer> list = createList.run(0);
                     if (list != null)
                     {
-                        test.assertThrows(() -> list.insert(1, 20));
+                        test.assertThrows(() -> list.insert(1, 20), new PreConditionFailure("insertIndex (1) must be equal to 0."));
                         test.assertEqual(Iterable.create(), list);
                     }
                 });
@@ -68,7 +68,7 @@ public abstract class ListTests
                 runner.test("with negative index when not empty", (Test test) ->
                 {
                     final List<Integer> list = createList.run(4);
-                    test.assertThrows(() -> list.insert(-1, 20));
+                    test.assertThrows(() -> list.insert(-1, 20), new PreConditionFailure("insertIndex (-1) must be between 0 and 4."));
                     test.assertEqual(Iterable.create(0, 1, 2, 3), list);
                 });
 
@@ -99,7 +99,7 @@ public abstract class ListTests
                 runner.test("with positive index greater than list count when not empty", (Test test) ->
                 {
                     final List<Integer> list = createList.run(4);
-                    test.assertThrows(() -> list.insert(5, 20));
+                    test.assertThrows(() -> list.insert(5, 20), new PreConditionFailure("insertIndex (5) must be between 0 and 4."));
                     test.assertEqual(Iterable.create(0, 1, 2, 3), list);
                 });
             });
@@ -146,7 +146,7 @@ public abstract class ListTests
                 for (int i = -1; i <= 1; ++i)
                 {
                     final int index = i;
-                    test.assertThrows(() -> list.set(index, index));
+                    test.assertThrows(() -> list.set(index, index), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
                 }
 
                 for (int i = 0; i < 10; ++i)
@@ -196,7 +196,7 @@ public abstract class ListTests
                 for (int i = -1; i <= 1; ++i)
                 {
                     final int removeIndex = i;
-                    test.assertThrows(() -> list.removeAt(removeIndex));
+                    test.assertThrows(() -> list.removeAt(removeIndex), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
                 }
                 test.assertEqual(0, list.getCount());
 
@@ -221,14 +221,14 @@ public abstract class ListTests
                 runner.test("with empty List", (Test test) ->
                 {
                     final List<Integer> list = createList.run(0);
-                    test.assertThrows(list::removeFirst);
+                    test.assertThrows(list::removeFirst, new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
                 });
 
                 runner.test("with single value List", (Test test) ->
                 {
                     final List<Integer> list = createList.run(1);
                     test.assertEqual(0, list.removeFirst());
-                    test.assertThrows(list::removeFirst);
+                    test.assertThrows(list::removeFirst, new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
                 });
 
                 runner.test("with multiple value List", (Test test) ->
@@ -237,7 +237,7 @@ public abstract class ListTests
                     test.assertEqual(0, list.removeFirst());
                     test.assertEqual(1, list.removeFirst());
                     test.assertEqual(2, list.removeFirst());
-                    test.assertThrows(list::removeFirst);
+                    test.assertThrows(list::removeFirst, new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
                 });
             });
 
@@ -246,13 +246,13 @@ public abstract class ListTests
                 runner.test("with null condition and empty List", (Test test) ->
                 {
                     final List<Integer> list = createList.run(0);
-                    test.assertThrows(() -> list.removeFirst(null));
+                    test.assertThrows(() -> list.removeFirst(null), new PreConditionFailure("condition cannot be null."));
                 });
 
                 runner.test("with null condition and non-empty List", (Test test) ->
                 {
                     final List<Integer> list = createList.run(4);
-                    test.assertThrows(() -> list.removeFirst(null));
+                    test.assertThrows(() -> list.removeFirst(null), new PreConditionFailure("condition cannot be null."));
                 });
 
                 runner.test("with non-matching condition and empty List", (Test test) ->

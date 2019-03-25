@@ -139,9 +139,9 @@ public class InMemoryByteStreamTests
                 runner.test("with disposed ByteReadStream", (Test test) ->
                 {
                     final InMemoryByteStream readStream = create(test);
-                    readStream.dispose();
+                    readStream.dispose().await();
 
-                    test.assertThrows(readStream::readByte);
+                    test.assertThrows(readStream::readByte, new PreConditionFailure("isDisposed() cannot be true."));
                 });
             });
 
@@ -151,14 +151,14 @@ public class InMemoryByteStreamTests
                 {
                     final InMemoryByteStream stream = new InMemoryByteStream((AsyncRunner)null);
 
-                    test.assertThrows(stream::readByteAsync);
+                    test.assertThrows(stream::readByteAsync, new PreConditionFailure("getAsyncRunner() cannot be null."));
                 });
 
                 runner.test("with no bytes to read", (Test test) ->
                 {
                     final InMemoryByteStream stream = create(test);
 
-                    test.assertError(new EndOfStreamException(), stream.readByteAsync().awaitReturn());
+                    test.assertThrows(() -> stream.readByteAsync().awaitReturn().awaitError(), new EndOfStreamException());
                 });
 
                 runner.test("with one byte to read", (Test test) ->
@@ -183,7 +183,7 @@ public class InMemoryByteStreamTests
                     final InMemoryByteStream readStream = create(test);
                     readStream.dispose().await();
 
-                    test.assertThrows(readStream::readByteAsync);
+                    test.assertThrows(readStream::readByteAsync, new PreConditionFailure("isDisposed() cannot be true."));
                 });
             });
             
@@ -191,39 +191,39 @@ public class InMemoryByteStreamTests
             {
                 final InMemoryByteStream readStream1 = create(test);
 
-                test.assertThrows(() -> readStream1.readBytes(-5));
-                test.assertThrows(() -> readStream1.readBytes(0));
-                test.assertError(new EndOfStreamException(), readStream1.readBytes(1));
-                test.assertError(new EndOfStreamException(), readStream1.readBytes(5));
+                test.assertThrows(() -> readStream1.readBytes(-5), new PreConditionFailure("bytesToRead (-5) must be greater than or equal to 1."));
+                test.assertThrows(() -> readStream1.readBytes(0), new PreConditionFailure("bytesToRead (0) must be greater than or equal to 1."));
+                test.assertThrows(() -> readStream1.readBytes(1).awaitError(), new EndOfStreamException());
+                test.assertThrows(() -> readStream1.readBytes(5).awaitError(), new EndOfStreamException());
 
                 final InMemoryByteStream readStream2 = create(new byte[] { 0, 1, 2, 3 }, test);
 
-                test.assertThrows(() -> readStream2.readBytes(-5));
-                test.assertThrows(() -> readStream2.readBytes(0));
-                test.assertSuccess(new byte[] { 0 }, readStream2.readBytes(1));
-                test.assertSuccess(new byte[] { 1, 2 }, readStream2.readBytes(2));
-                test.assertSuccess(new byte[] { 3 }, readStream2.readBytes(3));
-                test.assertError(new EndOfStreamException(), readStream2.readBytes(1));
-                test.assertError(new EndOfStreamException(), readStream2.readBytes(5));
+                test.assertThrows(() -> readStream2.readBytes(-5), new PreConditionFailure("bytesToRead (-5) must be greater than or equal to 1."));
+                test.assertThrows(() -> readStream2.readBytes(0), new PreConditionFailure("bytesToRead (0) must be greater than or equal to 1."));
+                test.assertEqual(new byte[] { 0 }, readStream2.readBytes(1).await());
+                test.assertEqual(new byte[] { 1, 2 }, readStream2.readBytes(2).await());
+                test.assertEqual(new byte[] { 3 }, readStream2.readBytes(3).await());
+                test.assertThrows(() -> readStream2.readBytes(1).awaitError(), new EndOfStreamException());
+                test.assertThrows(() -> readStream2.readBytes(5).awaitError(), new EndOfStreamException());
 
-                test.assertSuccess(true, readStream2.dispose());
+                test.assertTrue(readStream2.dispose().await());
 
-                test.assertThrows(() -> readStream2.readBytes(1));
+                test.assertThrows(() -> readStream2.readBytes(1), new PreConditionFailure("isDisposed() cannot be true."));
             });
 
             runner.test("readBytesAsync(int)", (Test test) ->
             {
                 final InMemoryByteStream readStream1 = create(test);
 
-                test.assertThrows(() -> readStream1.readBytesAsync(-5));
-                test.assertThrows(() -> readStream1.readBytesAsync(0));
+                test.assertThrows(() -> readStream1.readBytesAsync(-5), new PreConditionFailure("bytesToRead (-5) must be greater than or equal to 1."));
+                test.assertThrows(() -> readStream1.readBytesAsync(0), new PreConditionFailure("bytesToRead (0) must be greater than or equal to 1."));
                 test.assertErrorAsync(new EndOfStreamException(), readStream1.readBytesAsync(1));
                 test.assertErrorAsync(new EndOfStreamException(), readStream1.readBytesAsync(5));
 
                 final InMemoryByteStream readStream2 = create(new byte[] { 0, 1, 2, 3 }, test);
 
-                test.assertThrows(() -> readStream2.readBytesAsync(-5));
-                test.assertThrows(() -> readStream2.readBytesAsync(0));
+                test.assertThrows(() -> readStream2.readBytesAsync(-5), new PreConditionFailure("bytesToRead (-5) must be greater than or equal to 1."));
+                test.assertThrows(() -> readStream2.readBytesAsync(0), new PreConditionFailure("bytesToRead (0) must be greater than or equal to 1."));
                 test.assertSuccessAsync(new byte[] { 0 }, readStream2.readBytesAsync(1));
                 test.assertSuccessAsync(new byte[] { 1, 2 }, readStream2.readBytesAsync(2));
                 test.assertSuccessAsync(new byte[] { 3 }, readStream2.readBytesAsync(3));
@@ -232,7 +232,7 @@ public class InMemoryByteStreamTests
 
                 test.assertSuccess(true, readStream2.dispose());
 
-                test.assertThrows(() -> readStream2.readBytesAsync(1));
+                test.assertThrows(() -> readStream2.readBytesAsync(1), new PreConditionFailure("isDisposed() cannot be true."));
             });
 
             runner.testGroup("readBytes(byte[])", () ->
@@ -243,7 +243,7 @@ public class InMemoryByteStreamTests
                     stream.dispose().await();
 
                     final byte[] outputBytes = new byte[10];
-                    test.assertThrows(() -> stream.readBytes(outputBytes));
+                    test.assertThrows(() -> stream.readBytes(outputBytes), new PreConditionFailure("isDisposed() cannot be true."));
                     test.assertEqual(new byte[10], outputBytes);
                     test.assertThrows(stream::getCurrent,
                         new PreConditionFailure("hasCurrent() cannot be false."));
@@ -253,7 +253,7 @@ public class InMemoryByteStreamTests
                 {
                     final InMemoryByteStream stream = create(test);
                     final byte[] outputBytes = null;
-                    test.assertThrows(() -> stream.readBytes(outputBytes));
+                    test.assertThrows(() -> stream.readBytes(outputBytes), new PreConditionFailure("outputBytes cannot be null."));
                     test.assertThrows(stream::getCurrent,
                         new PreConditionFailure("hasCurrent() cannot be false."));
                 });
@@ -262,7 +262,7 @@ public class InMemoryByteStreamTests
                 {
                     final InMemoryByteStream stream = create(test);
                     final byte[] outputBytes = new byte[0];
-                    test.assertThrows(() -> stream.readBytes(outputBytes));
+                    test.assertThrows(() -> stream.readBytes(outputBytes), new PreConditionFailure("outputBytes cannot be empty."));
                     test.assertThrows(stream::getCurrent,
                         new PreConditionFailure("hasCurrent() cannot be false."));
                 });
@@ -362,7 +362,7 @@ public class InMemoryByteStreamTests
                     stream.dispose();
 
                     final byte[] outputBytes = new byte[10];
-                    test.assertThrows(() -> stream.readBytesAsync(outputBytes));
+                    test.assertThrows(() -> stream.readBytesAsync(outputBytes), new PreConditionFailure("isDisposed() cannot be true."));
                     test.assertEqual(new byte[10], outputBytes);
                 });
 
@@ -370,14 +370,14 @@ public class InMemoryByteStreamTests
                 {
                     final InMemoryByteStream stream = create(test);
                     final byte[] outputBytes = null;
-                    test.assertThrows(() -> stream.readBytesAsync(outputBytes));
+                    test.assertThrows(() -> stream.readBytesAsync(outputBytes), new PreConditionFailure("outputBytes cannot be null."));
                 });
 
                 runner.test("with empty outputBytes", (Test test) ->
                 {
                     final InMemoryByteStream stream = create(test);
                     final byte[] outputBytes = new byte[0];
-                    test.assertThrows(() -> stream.readBytesAsync(outputBytes));
+                    test.assertThrows(() -> stream.readBytesAsync(outputBytes), new PreConditionFailure("outputBytes cannot be empty."));
                 });
 
                 runner.test("with no bytes to read", (Test test) ->
@@ -530,7 +530,7 @@ public class InMemoryByteStreamTests
                     stream.dispose();
 
                     final byte[] outputBytes = new byte[10];
-                    test.assertThrows(() -> stream.readBytesAsync(outputBytes, 1, 3));
+                    test.assertThrows(() -> stream.readBytesAsync(outputBytes, 1, 3), new PreConditionFailure("isDisposed() cannot be true."));
                     test.assertEqual(new byte[10], outputBytes);
                 });
 
@@ -538,28 +538,28 @@ public class InMemoryByteStreamTests
                 {
                     final InMemoryByteStream stream = create(test);
                     final byte[] outputBytes = null;
-                    test.assertThrows(() -> stream.readBytesAsync(outputBytes, 1, 3));
+                    test.assertThrows(() -> stream.readBytesAsync(outputBytes, 1, 3), new PreConditionFailure("outputBytes cannot be null."));
                 });
 
                 runner.test("with empty outputBytes", (Test test) ->
                 {
                     final InMemoryByteStream stream = create(test);
                     final byte[] outputBytes = new byte[0];
-                    test.assertThrows(() -> stream.readBytesAsync(outputBytes, 1, 3));
+                    test.assertThrows(() -> stream.readBytesAsync(outputBytes, 1, 3), new PreConditionFailure("outputBytes cannot be empty."));
                 });
 
                 runner.test("with negative startIndex", (Test test) ->
                 {
                     final InMemoryByteStream stream = create(test);
                     final byte[] outputBytes = new byte[10];
-                    test.assertThrows(() -> stream.readBytesAsync(outputBytes, -2, 3));
+                    test.assertThrows(() -> stream.readBytesAsync(outputBytes, -2, 3), new PreConditionFailure("startIndex (-2) must be between 0 and 9."));
                 });
 
                 runner.test("with startIndex equal to outputBytes.length", (Test test) ->
                 {
                     final InMemoryByteStream stream = create(test);
                     final byte[] outputBytes = new byte[10];
-                    test.assertThrows(() -> stream.readBytesAsync(outputBytes, outputBytes.length, 3));
+                    test.assertThrows(() -> stream.readBytesAsync(outputBytes, outputBytes.length, 3), new PreConditionFailure("startIndex (10) must be between 0 and 9."));
                 });
 
                 runner.test("with negative length", (Test test) ->
@@ -628,7 +628,7 @@ public class InMemoryByteStreamTests
                 {
                     final InMemoryByteStream stream = create(test);
                     stream.dispose();
-                    test.assertThrows(stream::readAllBytes);
+                    test.assertThrows(stream::readAllBytes, new PreConditionFailure("isDisposed() cannot be true."));
                 });
 
                 runner.test("with no bytes to read", (Test test) ->
@@ -645,7 +645,7 @@ public class InMemoryByteStreamTests
                 {
                     final InMemoryByteStream stream = create(test);
                     test.assertTrue(stream.dispose().await());
-                    test.assertThrows(() -> stream.readBytesUntil((byte)5));
+                    test.assertThrows(() -> stream.readBytesUntil((byte)5), new PreConditionFailure("isDisposed() cannot be true."));
                 });
 
                 runner.test("with no bytes to read", (Test test) ->
@@ -676,7 +676,7 @@ public class InMemoryByteStreamTests
                 {
                     final InMemoryByteStream stream = create(test);
                     stream.dispose();
-                    test.assertThrows(() -> stream.readBytesUntilAsync((byte)5));
+                    test.assertThrows(() -> stream.readBytesUntilAsync((byte)5), new PreConditionFailure("isDisposed() cannot be true."));
                 });
 
                 runner.test("with no bytes to read", (Test test) ->
@@ -707,7 +707,7 @@ public class InMemoryByteStreamTests
                 {
                     final InMemoryByteStream stream = create(test);
                     stream.dispose();
-                    test.assertThrows(() -> stream.readBytesUntil(Array.createByte(5)));
+                    test.assertThrows(() -> stream.readBytesUntil(Array.createByte(5)), new PreConditionFailure("isDisposed() cannot be true."));
                 });
 
                 runner.test("with no bytes to read", (Test test) ->
@@ -738,7 +738,7 @@ public class InMemoryByteStreamTests
                 {
                     final InMemoryByteStream stream = create(test);
                     stream.dispose();
-                    test.assertThrows(() -> stream.readBytesUntilAsync(Array.createByte(5)));
+                    test.assertThrows(() -> stream.readBytesUntilAsync(Array.createByte(5)), new PreConditionFailure("isDisposed() cannot be true."));
                 });
 
                 runner.test("with no bytes to read", (Test test) ->
@@ -826,10 +826,10 @@ public class InMemoryByteStreamTests
             runner.test("writeBytes(byte[])", (Test test) ->
             {
                 final InMemoryByteStream stream = new InMemoryByteStream();
-                test.assertThrows(() -> stream.writeBytes(new byte[0]));
+                test.assertThrows(() -> stream.writeBytes(new byte[0]), new PreConditionFailure("toWrite cannot be empty."));
                 test.assertEqual(new byte[0], stream.getBytes());
 
-                stream.writeBytes(new byte[] { 1, 2, 3, 4 });
+                stream.writeBytes(new byte[] { 1, 2, 3, 4 }).await();
                 test.assertEqual(new byte[] { 1, 2, 3, 4 }, stream.getBytes());
             });
 

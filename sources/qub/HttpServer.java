@@ -17,7 +17,7 @@ public class HttpServer implements AsyncDisposable
     public HttpServer(TCPServer tcpServer)
     {
         PreCondition.assertNotNull(tcpServer, "tcpServer");
-        PreCondition.assertFalse(tcpServer.isDisposed(), "tcpServer.isDisposed()");
+        PreCondition.assertNotDisposed(tcpServer, "tcpServer.isDisposed()");
 
         this.tcpServer = tcpServer;
         this.paths = Map.create();

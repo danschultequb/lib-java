@@ -238,7 +238,7 @@ public class MathTests
             {
                 runner.test("with 1 and 0", (Test test) ->
                 {
-                    test.assertThrows(() -> Math.modulo(1L, 0L));
+                    test.assertThrows(() -> Math.modulo(1L, 0L), new PreConditionFailure("scale (0) must not be 0."));
                 });
 
                 final Action3<Long,Long,Long> moduloTest = (Long value, Long scale, Long expected) ->

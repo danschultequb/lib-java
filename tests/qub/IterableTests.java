@@ -871,7 +871,7 @@ public class IterableTests
                     // an Iterable with 0 elements is requested.
                     if (iterable != null)
                     {
-                        test.assertThrows(() -> iterable.map(null));
+                        test.assertThrows(() -> iterable.map(null), new PreConditionFailure("conversion cannot be null."));
                     }
                 });
 
@@ -889,7 +889,7 @@ public class IterableTests
                 runner.test("with non-empty Iterable and null conversion", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(4);
-                    test.assertThrows(() -> iterable.map(null));
+                    test.assertThrows(() -> iterable.map(null), new PreConditionFailure("conversion cannot be null."));
                 });
 
                 runner.test("with non-empty Iterable and non-null conversion", (Test test) ->
