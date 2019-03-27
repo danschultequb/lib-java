@@ -10,12 +10,12 @@ public class VersionRangeTests
             {
                 runner.test("with null text", (Test test) ->
                 {
-                    test.assertThrows(() -> VersionRange.parse(null));
+                    test.assertThrows(() -> VersionRange.parse(null), new PreConditionFailure("text cannot be null."));
                 });
 
                 runner.test("with empty text", (Test test) ->
                 {
-                    test.assertThrows(() -> VersionRange.parse(""));
+                    test.assertThrows(() -> VersionRange.parse(""), new PreConditionFailure("text cannot be empty."));
                 });
 
                 runner.test("with \"*\"", (Test test) ->

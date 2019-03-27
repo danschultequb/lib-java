@@ -88,13 +88,13 @@ public class NetworkTests
                 runner.test("with -1 localPort", (Test test) ->
                 {
                     final Network network = creator.run(test);
-                    test.assertThrows(() -> network.createTCPServer(-1));
+                    test.assertThrows(() -> network.createTCPServer(-1), new PreConditionFailure("localPort (-1) must be between 1 and 65535."));
                 });
 
                 runner.test("with 0 localPort", (Test test) ->
                 {
                     final Network network = creator.run(test);
-                    test.assertThrows(() -> network.createTCPServer(0));
+                    test.assertThrows(() -> network.createTCPServer(0), new PreConditionFailure("localPort (0) must be between 1 and 65535."));
                 });
 
                 runner.test("with 8088 localPort", (Test test) ->

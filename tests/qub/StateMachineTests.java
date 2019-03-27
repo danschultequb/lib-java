@@ -57,7 +57,7 @@ public class StateMachineTests
                 runner.test("with null input", (Test test) ->
                 {
                     final StateMachine stateMachine = new StateMachine();
-                    test.assertThrows(() -> stateMachine.isMatch((String)null));
+                    test.assertThrows(() -> stateMachine.isMatch((String)null), new PreConditionFailure("value cannot be null."));
                 });
 
                 final Action2<String,Boolean> isMatchTest = (String input, Boolean expected) ->
@@ -117,7 +117,7 @@ public class StateMachineTests
                 runner.test("with null input", (Test test) ->
                 {
                     final StateMachine stateMachine = new StateMachine();
-                    test.assertThrows(() -> stateMachine.isMatch((Iterable<Character>)null));
+                    test.assertThrows(() -> stateMachine.isMatch((Iterable<Character>)null), new PreConditionFailure("values cannot be null."));
                 });
 
                 final Action2<String,Boolean> isMatchTest = (String input, Boolean expected) ->
@@ -147,7 +147,7 @@ public class StateMachineTests
                 runner.test("with null input", (Test test) ->
                 {
                     final StateMachine stateMachine = new StateMachine();
-                    test.assertThrows(() -> stateMachine.isMatch((Iterator<Character>)null));
+                    test.assertThrows(() -> stateMachine.isMatch((Iterator<Character>)null), new PreConditionFailure("values cannot be null."));
                 });
 
                 final Action2<String,Boolean> isMatchTest = (String input, Boolean expected) ->
@@ -177,7 +177,7 @@ public class StateMachineTests
                 runner.test("with null input", (Test test) ->
                 {
                     final StateMachine stateMachine = new StateMachine();
-                    test.assertThrows(() -> stateMachine.containsMatch((String)null));
+                    test.assertThrows(() -> stateMachine.containsMatch((String)null), new PreConditionFailure("value cannot be null."));
                 });
 
                 final Action2<String,Boolean> containsMatchTest = (String input, Boolean expected) ->
@@ -210,7 +210,7 @@ public class StateMachineTests
                 runner.test("with null input", (Test test) ->
                 {
                     final StateMachine stateMachine = new StateMachine();
-                    test.assertThrows(() -> stateMachine.containsMatch((Iterable<Character>)null));
+                    test.assertThrows(() -> stateMachine.containsMatch((Iterable<Character>)null), new PreConditionFailure("values cannot be null."));
                 });
 
                 final Action2<String,Boolean> containsMatchTest = (String input, Boolean expected) ->
@@ -243,7 +243,7 @@ public class StateMachineTests
                 runner.test("with null input", (Test test) ->
                 {
                     final StateMachine stateMachine = new StateMachine();
-                    test.assertThrows(() -> stateMachine.containsMatch((Iterator<Character>)null));
+                    test.assertThrows(() -> stateMachine.containsMatch((Iterator<Character>)null), new PreConditionFailure("values cannot be null."));
                 });
 
                 final Action2<String,Boolean> containsMatchTest = (String input, Boolean expected) ->

@@ -461,7 +461,7 @@ public class ProcessTests
                 {
                     try (final Process process = creator.run())
                     {
-                        test.assertThrows(() -> process.getProcessBuilder((String)null));
+                        test.assertThrows(() -> process.getProcessBuilder((String)null), new PreConditionFailure("executablePath cannot be null."));
                     }
                 });
 
@@ -469,7 +469,7 @@ public class ProcessTests
                 {
                     try (final Process process = creator.run())
                     {
-                        test.assertThrows(() -> process.getProcessBuilder(""));
+                        test.assertThrows(() -> process.getProcessBuilder(""), new PreConditionFailure("executablePath cannot be empty."));
                     }
                 });
 

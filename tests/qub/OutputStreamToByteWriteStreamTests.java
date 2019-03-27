@@ -78,21 +78,13 @@ public class OutputStreamToByteWriteStreamTests
                     {
                         final OutputStreamToByteWriteStream writeStream = getWriteStream(outputStream);
 
-                        if (toWrite == null || toWrite.length == 0)
+                        if (expectedError != null)
                         {
-                            test.assertThrows(() -> writeStream.writeBytes(toWrite));
+                            test.assertThrows(() -> writeStream.writeBytes(toWrite).awaitError(), expectedError);
                         }
                         else
                         {
-                            final Result<Integer> writeResult = writeStream.writeBytes(toWrite);
-                            if (expectedError != null)
-                            {
-                                test.assertThrows(writeResult::awaitError, expectedError);
-                            }
-                            else
-                            {
-                                test.assertEqual(expectedWriteResult, writeResult.awaitError());
-                            }
+                            test.assertEqual(expectedWriteResult, writeStream.writeBytes(toWrite).await());
 
                             if (outputStream instanceof java.io.ByteArrayOutputStream)
                             {
@@ -103,10 +95,10 @@ public class OutputStreamToByteWriteStreamTests
                     });
                 };
 
-                writeByteArrayTest.run(new java.io.ByteArrayOutputStream(), null, null, new IllegalArgumentException("toWrite cannot be null."));
-                writeByteArrayTest.run(new TestStubOutputStream(), null, null, new IllegalArgumentException("toWrite cannot be null."));
-                writeByteArrayTest.run(new java.io.ByteArrayOutputStream(), new byte[0], null, new IllegalArgumentException("toWrite.length (0) must be greater than 0."));
-                writeByteArrayTest.run(new TestStubOutputStream(), new byte[0], null, new IllegalArgumentException("toWrite.length (0) must be greater than 0."));
+                writeByteArrayTest.run(new java.io.ByteArrayOutputStream(), null, null, new PreConditionFailure("toWrite cannot be null."));
+                writeByteArrayTest.run(new TestStubOutputStream(), null, null, new PreConditionFailure("toWrite cannot be null."));
+                writeByteArrayTest.run(new java.io.ByteArrayOutputStream(), new byte[0], null, new PreConditionFailure("toWrite cannot be empty."));
+                writeByteArrayTest.run(new TestStubOutputStream(), new byte[0], null, new PreConditionFailure("toWrite cannot be empty."));
                 writeByteArrayTest.run(new java.io.ByteArrayOutputStream(), new byte[] { 0, 1, 2, 3 }, 4, null);
                 writeByteArrayTest.run(new TestStubOutputStream(), new byte[] { 0, 1, 2, 3 }, null, new RuntimeException(new java.io.IOException()));
             });
@@ -165,7 +157,7 @@ public class OutputStreamToByteWriteStreamTests
                     final java.io.ByteArrayOutputStream outputStream = getOutputStream();
                     final OutputStreamToByteWriteStream writeStream = getWriteStream(outputStream);
 
-                    test.assertThrows(() -> writeStream.asCharacterWriteStream((CharacterEncoding)null));
+                    test.assertThrows(() -> writeStream.asCharacterWriteStream((CharacterEncoding)null), new PreConditionFailure("characterEncoding cannot be null."));
                 });
             });
         });

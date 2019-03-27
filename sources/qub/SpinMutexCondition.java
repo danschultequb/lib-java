@@ -38,6 +38,7 @@ public class SpinMutexCondition implements MutexCondition
     @Override
     public Result<Void> await(Duration timeout)
     {
+        PreCondition.assertNotNull(timeout, "timeout");
         PreCondition.assertGreaterThan(timeout, Duration.zero, "timeout");
         PreCondition.assertTrue(mutex.isAcquiredByCurrentThread(), "mutex.isAcquiredByCurrentThread()");
         PreCondition.assertNotNull(getClock(), "getClock()");

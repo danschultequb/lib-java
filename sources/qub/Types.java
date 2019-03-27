@@ -14,7 +14,7 @@ public class Types
         return containsMemberVariable(value.getClass(), memberVariableName);
     }
 
-    public static boolean containsMemberVariable(Class<?> type, final String memberVariableName)
+    public static boolean containsMemberVariable(Class<?> type, String memberVariableName)
     {
         PreCondition.assertNotNull(type, "type");
         PreCondition.assertNotNullAndNotEmpty(memberVariableName, "memberVariableName");

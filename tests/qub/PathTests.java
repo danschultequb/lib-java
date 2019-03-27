@@ -423,8 +423,14 @@ public class PathTests
                     runner.test("with " + Strings.escapeAndQuote(pathString), (Test test) ->
                     {
                         final Path path = Path.parse(pathString);
-                        final Path expectedResolvedPath = Strings.isNullOrEmpty(expectedResolvedPathString) ? null : Path.parse(expectedResolvedPathString);
-                        test.assertDone(expectedResolvedPath, expectedError, path.resolve());
+                        if (expectedError != null)
+                        {
+                            test.assertThrows(() -> path.resolve().awaitError(), expectedError);
+                        }
+                        else
+                        {
+                            test.assertEqual(Path.parse(expectedResolvedPathString), path.resolve().await());
+                        }
                     });
                 };
 
@@ -455,18 +461,18 @@ public class PathTests
 
             runner.testGroup("resolve(String)", () ->
             {
-                final Action2<String,String> resolveFailureTest = (String basePathString, String argumentPathString) ->
+                final Action3<String,String,Throwable> resolveFailureTest = (String basePathString, String argumentPathString, Throwable expectedError) ->
                 {
                     runner.test("with " + Strings.escapeAndQuote(basePathString) + " and " + Strings.escapeAndQuote(argumentPathString), (Test test) ->
                     {
                         final Path basePath = Path.parse(basePathString);
-                        test.assertThrows(() -> basePath.resolve(argumentPathString));
+                        test.assertThrows(() -> basePath.resolve(argumentPathString), expectedError);
                     });
                 };
 
-                resolveFailureTest.run("/", null);
-                resolveFailureTest.run("/", "");
-                resolveFailureTest.run("/", "C:/");
+                resolveFailureTest.run("/", null, new PreConditionFailure("pathString cannot be null."));
+                resolveFailureTest.run("/", "", new PreConditionFailure("pathString cannot be empty."));
+                resolveFailureTest.run("/", "C:/", new PreConditionFailure("relativePath.isRooted() cannot be true."));
 
                 final Action4<String,String,String,Throwable> resolveTest = (String basePathString, String argumentPathString, String expectedPathString, Throwable expectedError) ->
                 {

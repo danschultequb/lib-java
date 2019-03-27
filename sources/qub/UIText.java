@@ -179,6 +179,7 @@ public class UIText implements UIElement
      */
     public UIText setWidth(Distance width)
     {
+        PreCondition.assertNotNull(width, "width");
         PreCondition.assertGreaterThanOrEqualTo(width, Distance.zero, "width");
 
         return setWidth(UIWidth.fixed(width));
@@ -212,6 +213,7 @@ public class UIText implements UIElement
     @Override
     public UIText setHeight(Distance height)
     {
+        PreCondition.assertNotNull(height, "height");
         PreCondition.assertGreaterThanOrEqualTo(height, Distance.zero, "height");
 
         return setHeight(UIHeight.fixed(height));

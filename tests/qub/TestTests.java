@@ -10,17 +10,17 @@ public class TestTests
             {
                 runner.test("with null name", (Test test) ->
                 {
-                    test.assertThrows(() -> new Test(null, null, null, test.getProcess()));
+                    test.assertThrows(() -> new Test(null, null, null, test.getProcess()), new PreConditionFailure("name cannot be null."));
                 });
 
                 runner.test("with empty name", (Test test) ->
                 {
-                    test.assertThrows(() -> new Test("", null, null, test.getProcess()));
+                    test.assertThrows(() -> new Test("", null, null, test.getProcess()), new PreConditionFailure("name cannot be empty."));
                 });
 
                 runner.test("with null process", (Test test) ->
                 {
-                    test.assertThrows(() -> new Test("my fake test", null, null, null));
+                    test.assertThrows(() -> new Test("my fake test", null, null, null), new PreConditionFailure("process cannot be null."));
                 });
 
                 runner.test("with non-empty name and non-null process", (Test test) ->
@@ -241,7 +241,7 @@ public class TestTests
                         final InMemoryCharacterStream stdout = new InMemoryCharacterStream();
                         p.setOutputCharacterWriteStream(stdout);
                         final Test t = new Test("abc", null, null, p);
-                        test.assertThrows(() -> t.writeLine(null));
+                        test.assertThrows(() -> t.writeLine(null), new PreConditionFailure("formattedText cannot be null."));
                     }
                 });
 
@@ -252,7 +252,7 @@ public class TestTests
                         final InMemoryCharacterStream stdout = new InMemoryCharacterStream();
                         p.setOutputCharacterWriteStream(stdout);
                         final Test t = new Test("abc", null, null, p);
-                        test.assertThrows(() -> t.writeLine(""));
+                        test.assertThrows(() -> t.writeLine(""), new PreConditionFailure("formattedText cannot be empty."));
                     }
                 });
 
@@ -264,7 +264,7 @@ public class TestTests
                         p.setOutputCharacterWriteStream(stdout);
                         final Test t = new Test("abc", null, null, p);
                         t.writeLine("hello");
-                        test.assertSuccess("hello\n", stdout.getText());
+                        test.assertEqual("hello\n", stdout.getText().await());
                     }
                 });
             });

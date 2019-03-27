@@ -162,6 +162,7 @@ public class JavaWindow implements Window
     @Override
     public void setWidth(Distance width)
     {
+        PreCondition.assertNotNull(width, "width");
         PreCondition.assertGreaterThanOrEqualTo(width, Distance.zero, "width");
 
         final int widthInPixels = (int)convertHorizontalDistanceToPixels(width);
@@ -183,6 +184,7 @@ public class JavaWindow implements Window
     @Override
     public void setHeight(Distance height)
     {
+        PreCondition.assertNotNull(height, "height");
         PreCondition.assertGreaterThanOrEqualTo(height, Distance.zero, "height");
 
         final int widthInPixels = jFrame.getWidth();

@@ -16,6 +16,8 @@ public class UIVerticalLayout implements UIElement, UIElementParent
     @Override
     public void paint(UIPainter painter)
     {
+        PreCondition.assertNotNull(painter, "painter");
+
         try (final Disposable savedTransform1 = painter.saveTransform())
         {
             final Distance padding = getPadding();

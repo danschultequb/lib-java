@@ -72,7 +72,7 @@ public class MutableHttpHeadersTests
                 runner.test("with null header", (Test test) ->
                 {
                     final MutableHttpHeaders headers = new MutableHttpHeaders();
-                    test.assertThrows(() -> headers.set(null));
+                    test.assertThrows(() -> headers.set(null), new PreConditionFailure("header cannot be null."));
                 });
 
                 runner.test("with non-null header", (Test test) ->
@@ -88,26 +88,26 @@ public class MutableHttpHeadersTests
                 runner.test("with null header name", (Test test) ->
                 {
                     final MutableHttpHeaders headers = new MutableHttpHeaders();
-                    test.assertThrows(() -> headers.set(null, "header-value"));
+                    test.assertThrows(() -> headers.set(null, "header-value"), new PreConditionFailure("headerName cannot be null."));
                 });
 
                 runner.test("with empty header name", (Test test) ->
                 {
                     final MutableHttpHeaders headers = new MutableHttpHeaders();
-                    test.assertThrows(() -> headers.set("", "header-value"));
+                    test.assertThrows(() -> headers.set("", "header-value"), new PreConditionFailure("headerName cannot be empty."));
                 });
 
                 runner.test("with null header value", (Test test) ->
                 {
                     final MutableHttpHeaders headers = new MutableHttpHeaders();
-                    test.assertThrows(() -> headers.set("header-name", null));
+                    test.assertThrows(() -> headers.set("header-name", null), new PreConditionFailure("headerValue cannot be null."));
                     test.assertFalse(headers.contains("header-name"));
                 });
 
                 runner.test("with empty header value", (Test test) ->
                 {
                     final MutableHttpHeaders headers = new MutableHttpHeaders();
-                    test.assertThrows(() -> headers.set("header-name", ""));
+                    test.assertThrows(() -> headers.set("header-name", ""), new PreConditionFailure("headerValue cannot be empty."));
                     test.assertFalse(headers.contains("header-name"));
                 });
 
@@ -134,13 +134,13 @@ public class MutableHttpHeadersTests
                 runner.test("with null header name", (Test test) ->
                 {
                     final MutableHttpHeaders headers = new MutableHttpHeaders();
-                    test.assertThrows(() -> headers.set(null, 1));
+                    test.assertThrows(() -> headers.set(null, 1), new PreConditionFailure("headerName cannot be null."));
                 });
 
                 runner.test("with empty header name", (Test test) ->
                 {
                     final MutableHttpHeaders headers = new MutableHttpHeaders();
-                    test.assertThrows(() -> headers.set("", 2));
+                    test.assertThrows(() -> headers.set("", 2), new PreConditionFailure("headerName cannot be empty."));
                 });
 
                 runner.test("with non-existing header", (Test test) ->
@@ -166,13 +166,13 @@ public class MutableHttpHeadersTests
                 runner.test("with null header name", (Test test) ->
                 {
                     final MutableHttpHeaders headers = new MutableHttpHeaders();
-                    test.assertThrows(() -> headers.set(null, 1L));
+                    test.assertThrows(() -> headers.set(null, 1L), new PreConditionFailure("headerName cannot be null."));
                 });
 
                 runner.test("with empty header name", (Test test) ->
                 {
                     final MutableHttpHeaders headers = new MutableHttpHeaders();
-                    test.assertThrows(() -> headers.set("", 2L));
+                    test.assertThrows(() -> headers.set("", 2L), new PreConditionFailure("headerName cannot be empty."));
                 });
 
                 runner.test("with non-existing header", (Test test) ->
@@ -233,19 +233,19 @@ public class MutableHttpHeadersTests
                 runner.test("with null header name", (Test test) ->
                 {
                     final MutableHttpHeaders headers = new MutableHttpHeaders();
-                    test.assertThrows(() -> headers.get(null));
+                    test.assertThrows(() -> headers.get(null), new PreConditionFailure("headerName cannot be null."));
                 });
 
                 runner.test("with empty header name", (Test test) ->
                 {
                     final MutableHttpHeaders headers = new MutableHttpHeaders();
-                    test.assertThrows(() -> headers.get(""));
+                    test.assertThrows(() -> headers.get(""), new PreConditionFailure("headerName cannot be empty."));
                 });
 
                 runner.test("with non-existing header name", (Test test) ->
                 {
                     final MutableHttpHeaders headers = new MutableHttpHeaders();
-                    test.assertError(new NotFoundException("header-name"), headers.get("header-name"));
+                    test.assertThrows(() -> headers.get("header-name").awaitError(), new NotFoundException("header-name"));
                 });
 
                 runner.test("with existing header name", (Test test) ->
@@ -268,19 +268,19 @@ public class MutableHttpHeadersTests
                 runner.test("with null header name", (Test test) ->
                 {
                     final MutableHttpHeaders headers = new MutableHttpHeaders();
-                    test.assertThrows(() -> headers.getValue(null));
+                    test.assertThrows(() -> headers.getValue(null), new PreConditionFailure("headerName cannot be null."));
                 });
 
                 runner.test("with empty header name", (Test test) ->
                 {
                     final MutableHttpHeaders headers = new MutableHttpHeaders();
-                    test.assertThrows(() -> headers.getValue(""));
+                    test.assertThrows(() -> headers.getValue(""), new PreConditionFailure("headerName cannot be empty."));
                 });
 
                 runner.test("with non-existing header name", (Test test) ->
                 {
                     final MutableHttpHeaders headers = new MutableHttpHeaders();
-                    test.assertError(new NotFoundException("header-name"), headers.getValue("header-name"));
+                    test.assertThrows(() -> headers.getValue("header-name").awaitError(), new NotFoundException("header-name"));
                 });
 
                 runner.test("with existing header name", (Test test) ->
@@ -303,27 +303,27 @@ public class MutableHttpHeadersTests
                 runner.test("with null", (Test test) ->
                 {
                     final MutableHttpHeaders headers = new MutableHttpHeaders();
-                    test.assertThrows(() -> headers.remove(null));
+                    test.assertThrows(() -> headers.remove(null), new PreConditionFailure("headerName cannot be null."));
                 });
 
                 runner.test("with empty", (Test test) ->
                 {
                     final MutableHttpHeaders headers = new MutableHttpHeaders();
-                    test.assertThrows(() -> headers.remove(""));
+                    test.assertThrows(() -> headers.remove(""), new PreConditionFailure("headerName cannot be empty."));
                 });
 
                 runner.test("with not found header name", (Test test) ->
                 {
                     final MutableHttpHeaders headers = new MutableHttpHeaders();
-                    test.assertError(new NotFoundException("A"), headers.remove("A"));
+                    test.assertThrows(() -> headers.remove("A").awaitError(), new NotFoundException("A"));
                 });
 
                 runner.test("with found header name", (Test test) ->
                 {
                     final MutableHttpHeaders headers = new MutableHttpHeaders();
                     headers.set("A", "B");
-                    test.assertSuccess(new HttpHeader("A", "B"), headers.remove("A"));
-                    test.assertError(new NotFoundException("A"), headers.remove("A"));
+                    test.assertEqual(new HttpHeader("A", "B"), headers.remove("A").await());
+                    test.assertThrows(() -> headers.remove("A").awaitError(), new NotFoundException("A"));
                 });
             });
         });

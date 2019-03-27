@@ -93,7 +93,7 @@ public class StringsTests
 
                 runner.test("with \"a\" and -1", (Test test) ->
                 {
-                    test.assertThrows(() -> Strings.repeat("a", -1));
+                    test.assertThrows(() -> Strings.repeat("a", -1), new PreConditionFailure("repetitions (-1) must be greater than or equal to 0."));
                 });
 
                 runner.test("with \"a\" and 0", (Test test) ->
@@ -229,7 +229,7 @@ public class StringsTests
             {
                 runner.test("with null and null String[]", (Test test) ->
                 {
-                    test.assertThrows(() -> Strings.isOneOf(null, (String[])null));
+                    test.assertThrows(() -> Strings.isOneOf(null, (String[])null), new PreConditionFailure("values cannot be null."));
                 });
 
                 runner.test("with null and null String", (Test test) ->

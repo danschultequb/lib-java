@@ -68,7 +68,7 @@ public class WindowTests
                         window.open();
                         test.assertTrue(window.isOpen());
 
-                        test.assertThrows(window::open);
+                        test.assertThrows(window::open, new PreConditionFailure("isOpen() cannot be true."));
                         test.assertTrue(window.isOpen());
                     }
                 });
@@ -81,7 +81,7 @@ public class WindowTests
                         test.assertFalse(window.isOpen());
                         test.assertTrue(window.isDisposed());
 
-                        test.assertThrows(window::open);
+                        test.assertThrows(window::open, new PreConditionFailure("isDisposed() cannot be true."));
                         test.assertFalse(window.isOpen());
                         test.assertTrue(window.isDisposed());
                     }
@@ -96,7 +96,7 @@ public class WindowTests
                         test.assertFalse(window.isOpen());
                         test.assertTrue(window.isDisposed());
 
-                        test.assertThrows(window::open);
+                        test.assertThrows(window::open, new PreConditionFailure("isDisposed() cannot be true."));
                         test.assertFalse(window.isOpen());
                         test.assertTrue(window.isDisposed());
                     }
@@ -226,10 +226,9 @@ public class WindowTests
                     try (final Window window = windowCreator.run(test))
                     {
                         window.dispose();
-                        final Value<Integer> parentWindowChangedCalls2 = Value.create(0);
                         final UIText text = new UIText("apples");
 
-                        test.assertThrows(() -> window.setContent(text));
+                        test.assertThrows(() -> window.setContent(text), new PreConditionFailure("!isDisposed() || uiElement == null cannot be false."));
 
                         test.assertNull(window.getContent());
                         test.assertNull(text.getParent());
@@ -243,7 +242,7 @@ public class WindowTests
                 {
                     try (final Window window = windowCreator.run(test))
                     {
-                        test.assertThrows(() -> window.setPainter(null));
+                        test.assertThrows(() -> window.setPainter(null), new PreConditionFailure("painter cannot be null."));
                     }
                 });
 
@@ -307,7 +306,7 @@ public class WindowTests
                 {
                     try (final Window window = windowCreator.run(test))
                     {
-                        test.assertThrows(() -> window.setWidth(null));
+                        test.assertThrows(() -> window.setWidth(null), new PreConditionFailure("width cannot be null."));
                     }
                 });
 
@@ -315,7 +314,7 @@ public class WindowTests
                 {
                     try (final Window window = windowCreator.run(test))
                     {
-                        test.assertThrows(() -> window.setWidth(Distance.inches(-1)));
+                        test.assertThrows(() -> window.setWidth(Distance.inches(-1)), new PreConditionFailure("width (-1.0 Inches) must be greater than or equal to 0.0 Inches."));
                     }
                 });
 
@@ -356,7 +355,7 @@ public class WindowTests
                 {
                     try (final Window window = windowCreator.run(test))
                     {
-                        test.assertThrows(() -> window.setHeight(null));
+                        test.assertThrows(() -> window.setHeight(null), new PreConditionFailure("height cannot be null."));
                     }
                 });
 
@@ -364,7 +363,7 @@ public class WindowTests
                 {
                     try (final Window window = windowCreator.run(test))
                     {
-                        test.assertThrows(() -> window.setHeight(Distance.inches(-1)));
+                        test.assertThrows(() -> window.setHeight(Distance.inches(-1)), new PreConditionFailure("height (-1.0 Inches) must be greater than or equal to 0.0 Inches."));
                     }
                 });
 

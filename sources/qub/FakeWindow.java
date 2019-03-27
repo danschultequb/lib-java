@@ -118,6 +118,7 @@ public class FakeWindow implements Window
     @Override
     public void setWidth(Distance width)
     {
+        PreCondition.assertNotNull(width, "width");
         PreCondition.assertGreaterThanOrEqualTo(width, Distance.zero, "width");
 
         setSize(getSize().changeWidth(width));
@@ -132,6 +133,7 @@ public class FakeWindow implements Window
     @Override
     public void setHeight(Distance height)
     {
+        PreCondition.assertNotNull(height, "height");
         PreCondition.assertGreaterThanOrEqualTo(height, Distance.zero, "height");
 
         setSize(getSize().changeHeight(height));

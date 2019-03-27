@@ -9,7 +9,7 @@ public class QueueTests
             runner.test("enqueue()", test ->
             {
                 final Queue<Integer> queue = createQueue.run();
-                test.assertThrows(queue::dequeue);
+                test.assertThrows(queue::dequeue, new PreConditionFailure("any() cannot be false."));
                 test.assertFalse(queue.any());
 
                 queue.enqueue(0);
@@ -28,7 +28,7 @@ public class QueueTests
                 test.assertFalse(queue.any());
                 test.assertEqual(0, queue.getCount());
 
-                test.assertThrows(queue::dequeue);
+                test.assertThrows(queue::dequeue, new PreConditionFailure("any() cannot be false."));
                 test.assertFalse(queue.any());
                 test.assertEqual(0, queue.getCount());
             });

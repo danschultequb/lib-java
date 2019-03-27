@@ -10,12 +10,12 @@ public class UIHeightTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> UIHeight.fixed(null));
+                    test.assertThrows(() -> UIHeight.fixed(null), new PreConditionFailure("height cannot be null."));
                 });
 
                 runner.test("with negative", (Test test) ->
                 {
-                    test.assertThrows(() -> UIHeight.fixed(Distance.centimeters(-1)));
+                    test.assertThrows(() -> UIHeight.fixed(Distance.centimeters(-1)), new PreConditionFailure("height (-1.0 Centimeters) must be greater than or equal to 0.0 Inches."));
                 });
 
                 runner.test("with zero", (Test test) ->

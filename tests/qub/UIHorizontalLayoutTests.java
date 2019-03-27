@@ -11,7 +11,7 @@ public class UIHorizontalLayoutTests
                 runner.test("with null", (Test test) ->
                 {
                     final UIHorizontalLayout layout = new UIHorizontalLayout();
-                    test.assertThrows(() -> layout.paint(null));
+                    test.assertThrows(() -> layout.paint(null), new PreConditionFailure("painter cannot be null."));
                 });
 
                 runner.test("with two child elements with fixed widths", (Test test) ->

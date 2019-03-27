@@ -11,7 +11,7 @@ public class UIVerticalLayoutTests
                 runner.test("with null", (Test test) ->
                 {
                     final UIVerticalLayout layout = new UIVerticalLayout();
-                    test.assertThrows(() -> layout.paint(null));
+                    test.assertThrows(() -> layout.paint(null), new PreConditionFailure("painter cannot be null."));
                 });
 
                 runner.test("with two child elements with fixed heights", (Test test) ->

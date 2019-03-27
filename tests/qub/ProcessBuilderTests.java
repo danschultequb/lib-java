@@ -73,7 +73,7 @@ public class ProcessBuilderTests
                 runner.test("with negative index", (Test test) ->
                 {
                     final ProcessBuilder builder = createBuilder(test);
-                    test.assertThrows(() -> builder.setArgument(-1, "test"));
+                    test.assertThrows(() -> builder.setArgument(-1, "test"), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
                     test.assertEqual(0, builder.getArgumentCount());
                     test.assertEqual("C:/idontexist.exe", builder.getCommand());
                 });
@@ -83,7 +83,7 @@ public class ProcessBuilderTests
                     final ProcessBuilder builder = createBuilder(test);
                     builder.addArguments("a", "b", "c");
                     builder.setArgument(0, null);
-                    test.assertEqual(Array.create(new String[] { "b", "c" }), builder.getArguments());
+                    test.assertEqual(Iterable.create("b", "c"), builder.getArguments());
                     test.assertEqual("C:/idontexist.exe b c", builder.getCommand());
                 });
 
@@ -92,7 +92,7 @@ public class ProcessBuilderTests
                     final ProcessBuilder builder = createBuilder(test);
                     builder.addArguments("a", "b", "c");
                     builder.setArgument(2, "");
-                    test.assertEqual(Array.create(new String[] { "a", "b", "" }), builder.getArguments());
+                    test.assertEqual(Iterable.create("a", "b", ""), builder.getArguments());
                     test.assertEqual("C:/idontexist.exe a b \"\"", builder.getCommand());
                 });
 
@@ -101,7 +101,7 @@ public class ProcessBuilderTests
                     final ProcessBuilder builder = createBuilder(test);
                     builder.addArguments("a", "b", "c");
                     builder.setArgument(1, "\"d\"");
-                    test.assertEqual(Array.create(new String[] { "a", "\"d\"", "c" }), builder.getArguments());
+                    test.assertEqual(Iterable.create("a", "\"d\"", "c"), builder.getArguments());
                     test.assertEqual("C:/idontexist.exe a \"d\" c", builder.getCommand());
                 });
             });
@@ -111,7 +111,7 @@ public class ProcessBuilderTests
                 final ProcessBuilder builder = createBuilder(test);
                 builder.addArguments("a", "b", "c");
                 builder.removeArgument(1);
-                test.assertEqual(Array.create(new String[] { "a", "c" }), builder.getArguments());
+                test.assertEqual(Iterable.create("a", "c"), builder.getArguments());
                 test.assertEqual("C:/idontexist.exe a c", builder.getCommand());
             });
 

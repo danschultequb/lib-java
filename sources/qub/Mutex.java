@@ -36,6 +36,7 @@ public interface Mutex
      */
     default Result<Boolean> acquire(Duration timeout)
     {
+        PreCondition.assertNotNull(timeout, "timeout");
         PreCondition.assertGreaterThan(timeout, Duration.zero, "timeout");
         PreCondition.assertNotNull(getClock(), "getClock()");
 
@@ -111,6 +112,7 @@ public interface Mutex
      */
     default Result<Boolean> criticalSection(Duration timeout, Action0 action)
     {
+        PreCondition.assertNotNull(timeout, "timeout");
         PreCondition.assertGreaterThan(timeout, Duration.zero, "timeout");
         PreCondition.assertNotNull(action, "action");
         PreCondition.assertNotNull(getClock(), "getClock()");

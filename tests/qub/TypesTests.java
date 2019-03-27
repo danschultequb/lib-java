@@ -19,12 +19,17 @@ public class TypesTests
             {
                 runner.test("with null Object", (Test test) ->
                 {
-                    test.assertThrows(() -> Types.containsMemberVariable(null, "parent"));
+                    test.assertThrows(() -> Types.containsMemberVariable(null, "parent"), new PreConditionFailure("type cannot be null."));
                 });
 
                 runner.test("with null memberVariableName", (Test test) ->
                 {
-                    test.assertThrows(() -> Types.containsMemberVariable(test, (String)null));
+                    test.assertThrows(() -> Types.containsMemberVariable(test, (String)null), new PreConditionFailure("memberVariableName cannot be null."));
+                });
+
+                runner.test("with empty memberVariableName", (Test test) ->
+                {
+                    test.assertThrows(() -> Types.containsMemberVariable(test, ""), new PreConditionFailure("memberVariableName cannot be empty."));
                 });
             });
 
@@ -32,12 +37,12 @@ public class TypesTests
             {
                 runner.test("with null Object", (Test test) ->
                 {
-                    test.assertThrows(() -> Types.containsMemberVariable((Object)null, (java.lang.reflect.Field memberVariable) -> true));
+                    test.assertThrows(() -> Types.containsMemberVariable((Object)null, (java.lang.reflect.Field memberVariable) -> true), new PreConditionFailure("value cannot be null."));
                 });
 
                 runner.test("with null condition", (Test test) ->
                 {
-                    test.assertThrows(() -> Types.containsMemberVariable(test, (Function1<java.lang.reflect.Field,Boolean>)null));
+                    test.assertThrows(() -> Types.containsMemberVariable(test, (Function1<java.lang.reflect.Field,Boolean>)null), new PreConditionFailure("condition cannot be null."));
                 });
 
                 runner.test("with non-matching condition", (Test test) ->
@@ -55,22 +60,22 @@ public class TypesTests
             {
                 runner.test("with null Object", (Test test) ->
                 {
-                    test.assertThrows(() -> Types.getMemberVariable((Object)null, "parent"));
+                    test.assertThrows(() -> Types.getMemberVariable((Object)null, "parent"), new PreConditionFailure("value cannot be null."));
                 });
 
                 runner.test("with null memberVariableName", (Test test) ->
                 {
-                    test.assertThrows(() -> Types.getMemberVariable(test, (String)null));
+                    test.assertThrows(() -> Types.getMemberVariable(test, (String)null), new PreConditionFailure("memberVariableName cannot be null."));
                 });
 
                 runner.test("with empty memberVariableName", (Test test) ->
                 {
-                    test.assertThrows(() -> Types.getMemberVariable(test, ""));
+                    test.assertThrows(() -> Types.getMemberVariable(test, ""), new PreConditionFailure("memberVariableName cannot be empty."));
                 });
 
                 runner.test("with non-existing memberVariableName", (Test test) ->
                 {
-                    test.assertThrows(() -> Types.getMemberVariable(test, "abc"));
+                    test.assertThrows(() -> Types.getMemberVariable(test, "abc"), new PreConditionFailure("containsMemberVariable(value, memberVariableName) cannot be false."));
                 });
 
                 runner.test("with existing memberVariableName", (Test test) ->
@@ -86,17 +91,17 @@ public class TypesTests
             {
                 runner.test("with null Object", (Test test) ->
                 {
-                    test.assertThrows(() -> Types.getMemberVariable((Object)null, memberVariable -> true));
+                    test.assertThrows(() -> Types.getMemberVariable((Object)null, memberVariable -> true), new PreConditionFailure("value cannot be null."));
                 });
 
                 runner.test("with null condition", (Test test) ->
                 {
-                    test.assertThrows(() -> Types.getMemberVariable(test, (Function1<java.lang.reflect.Field,Boolean>)null));
+                    test.assertThrows(() -> Types.getMemberVariable(test, (Function1<java.lang.reflect.Field,Boolean>)null), new PreConditionFailure("condition cannot be null."));
                 });
 
                 runner.test("with non-matching condition", (Test test) ->
                 {
-                    test.assertThrows(() -> Types.getMemberVariable(test, memberVariable -> false));
+                    test.assertThrows(() -> Types.getMemberVariable(test, memberVariable -> false), new PreConditionFailure("containsMemberVariable(value, condition) cannot be false."));
                 });
 
                 runner.test("with matching condition", (Test test) ->
@@ -112,22 +117,22 @@ public class TypesTests
             {
                 runner.test("with null Object", (Test test) ->
                 {
-                    test.assertThrows(() -> Types.getMemberVariableValue((Object)null, "skip"));
+                    test.assertThrows(() -> Types.getMemberVariableValue((Object)null, "skip"), new PreConditionFailure("value cannot be null."));
                 });
 
                 runner.test("with null memberVariableName", (Test test) ->
                 {
-                    test.assertThrows(() -> Types.getMemberVariableValue(test, null));
+                    test.assertThrows(() -> Types.getMemberVariableValue(test, null), new PreConditionFailure("memberVariableName cannot be null."));
                 });
 
                 runner.test("with empty memberVariableName", (Test test) ->
                 {
-                    test.assertThrows(() -> Types.getMemberVariableValue(test, ""));
+                    test.assertThrows(() -> Types.getMemberVariableValue(test, ""), new PreConditionFailure("memberVariableName cannot be empty."));
                 });
 
                 runner.test("with non-existing memberVariableName", (Test test) ->
                 {
-                    test.assertThrows(() -> Types.getMemberVariableValue(test, "abc"));
+                    test.assertThrows(() -> Types.getMemberVariableValue(test, "abc"), new PreConditionFailure("containsMemberVariable(value, memberVariableName) cannot be false."));
                 });
 
                 runner.test("with existing public int memberVariable", (Test test) ->
@@ -154,22 +159,22 @@ public class TypesTests
             {
                 runner.test("with null Object", (Test test) ->
                 {
-                    test.assertThrows(() -> Types.setMemberVariableValue((Object)null, "publicInt", 7));
+                    test.assertThrows(() -> Types.setMemberVariableValue((Object)null, "publicInt", 7), new PreConditionFailure("value cannot be null."));
                 });
 
                 runner.test("with null memberVariableName", (Test test) ->
                 {
-                    test.assertThrows(() -> Types.setMemberVariableValue(test, null, 6));
+                    test.assertThrows(() -> Types.setMemberVariableValue(test, null, 6), new PreConditionFailure("memberVariableName cannot be null."));
                 });
 
                 runner.test("with empty memberVariableName", (Test test) ->
                 {
-                    test.assertThrows(() -> Types.setMemberVariableValue(test, "", 5));
+                    test.assertThrows(() -> Types.setMemberVariableValue(test, "", 5), new PreConditionFailure("memberVariableName cannot be empty."));
                 });
 
                 runner.test("with non-existing memberVariableName", (Test test) ->
                 {
-                    test.assertThrows(() -> Types.setMemberVariableValue(test, "abc", 4));
+                    test.assertThrows(() -> Types.setMemberVariableValue(test, "abc", 4), new PreConditionFailure("containsMemberVariable(value, memberVariableName) cannot be false."));
                 });
 
                 runner.test("with existing public int memberVariable", (Test test) ->
@@ -205,7 +210,7 @@ public class TypesTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> Types.getMemberVariables((Object)null));
+                    test.assertThrows(() -> Types.getMemberVariables((Object)null), new PreConditionFailure("value cannot be null."));
                 });
 
                 runner.test("with Object", (Test test) ->
@@ -218,14 +223,14 @@ public class TypesTests
                 runner.test("with String", (Test test) ->
                 {
                     final Iterable<String> actual = Types.getMemberVariables("test").map(java.lang.reflect.Field::getName);
-                    final Iterable<String> expected = Array.create(new String[] { "value", "hash", "serialVersionUID", "serialPersistentFields", "CASE_INSENSITIVE_ORDER" });
+                    final Iterable<String> expected = Iterable.create("value", "hash", "serialVersionUID", "serialPersistentFields", "CASE_INSENSITIVE_ORDER");
                     test.assertEqual(expected, actual);
                 });
 
                 runner.test("with Test", (Test test) ->
                 {
                     final Iterable<String> actual = Types.getMemberVariables(test).map(java.lang.reflect.Field::getName).where(value -> !value.equals("$jacocoData"));
-                    final Iterable<String> expected = Array.create(new String[] { "name", "parentTestGroup", "skip", "process" });
+                    final Iterable<String> expected = Iterable.create("name", "parentTestGroup", "skip", "process");
                     test.assertEqual(expected, actual);
                 });
             });
@@ -234,27 +239,27 @@ public class TypesTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> Types.getMemberVariables((Class<?>)null));
+                    test.assertThrows(() -> Types.getMemberVariables((Class<?>)null), new PreConditionFailure("type cannot be null."));
                 });
 
                 runner.test("with Object.getClass()", (Test test) ->
                 {
                     final Iterable<String> actual = Types.getMemberVariables(new Object().getClass()).map(java.lang.reflect.Field::getName);
-                    final Iterable<String> expected = new ArrayList<>();
+                    final Iterable<String> expected = Iterable.create();
                     test.assertEqual(expected, actual);
                 });
 
                 runner.test("with Object.class", (Test test) ->
                 {
                     final Iterable<String> actual = Types.getMemberVariables(Object.class).map(java.lang.reflect.Field::getName);
-                    final Iterable<String> expected = new ArrayList<>();
+                    final Iterable<String> expected = Iterable.create();
                     test.assertEqual(expected, actual);
                 });
 
                 runner.test("with String.getClass()", (Test test) ->
                 {
                     final Iterable<String> actual = Types.getMemberVariables("test").map(java.lang.reflect.Field::getName);
-                    final Iterable<String> expected = Array.create(new String[] { "value", "hash", "serialVersionUID", "serialPersistentFields", "CASE_INSENSITIVE_ORDER" });
+                    final Iterable<String> expected = Iterable.create("value", "hash", "serialVersionUID", "serialPersistentFields", "CASE_INSENSITIVE_ORDER");
                     test.assertEqual(expected, actual);
                 });
 
@@ -307,7 +312,7 @@ public class TypesTests
 
                 runner.test("Integer as null", (Test test) ->
                 {
-                    test.assertThrows(() -> Types.as(20, null));
+                    test.assertThrows(() -> Types.as(20, null), new PreConditionFailure("type cannot be null."));
                 });
 
                 runner.test("Integer as Number", (Test test) ->
@@ -339,7 +344,7 @@ public class TypesTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> Types.getTypeName((Object)null));
+                    test.assertThrows(() -> Types.getTypeName((Object)null), new PreConditionFailure("value cannot be null."));
                 });
 
                 runner.test("with Object", (Test test) ->
@@ -357,7 +362,7 @@ public class TypesTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> Types.getTypeName((Class<?>)null));
+                    test.assertThrows(() -> Types.getTypeName((Class<?>)null), new PreConditionFailure("type cannot be null."));
                 });
 
                 runner.test("with Object.getClass()", (Test test) ->
@@ -385,7 +390,7 @@ public class TypesTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> Types.getFullTypeName((Object)null));
+                    test.assertThrows(() -> Types.getFullTypeName((Object)null), new PreConditionFailure("value cannot be null."));
                 });
 
                 runner.test("with Object", (Test test) ->
@@ -403,7 +408,7 @@ public class TypesTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> Types.getFullTypeName((Class<?>)null));
+                    test.assertThrows(() -> Types.getFullTypeName((Class<?>)null), new PreConditionFailure("type cannot be null."));
                 });
 
                 runner.test("with Object.getClass()", (Test test) ->

@@ -12,7 +12,7 @@ public class ValueTests
                 {
                     final Value<java.lang.Character> value = Value.create();
                     test.assertFalse(value.hasValue());
-                    test.assertThrows(value::get);
+                    test.assertThrows(value::get, new PreConditionFailure("hasValue() cannot be false."));
                 });
 
                 runner.test("with null argument", (Test test) ->
@@ -54,7 +54,7 @@ public class ValueTests
                 final Value<java.lang.Character> value = Value.create(java.lang.Character.valueOf('v'));
                 value.clear();
                 test.assertFalse(value.hasValue());
-                test.assertThrows(value::get);
+                test.assertThrows(value::get, new PreConditionFailure("hasValue() cannot be false."));
             });
         });
     }

@@ -11,13 +11,13 @@ public class MutableHttpRequestTests
                 runner.test("with null HttpMethod", (Test test) ->
                 {
                     final URL url = URL.parse("https://www.example.com").await();
-                    test.assertThrows(() -> new MutableHttpRequest(null, url));
+                    test.assertThrows(() -> new MutableHttpRequest(null, url), new PreConditionFailure("method cannot be null."));
                 });
 
                 runner.test("with null url", (Test test) ->
                 {
                     final HttpMethod method = HttpMethod.GET;
-                    test.assertThrows(() -> new MutableHttpRequest(method, null));
+                    test.assertThrows(() -> new MutableHttpRequest(method, null), new PreConditionFailure("url cannot be null."));
                 });
 
                 runner.test("with valid HttpMethod and valid url", (Test test) ->
@@ -37,7 +37,7 @@ public class MutableHttpRequestTests
                 runner.test("with null", (Test test) ->
                 {
                     final MutableHttpRequest request = create(HttpMethod.GET, "https://www.example.com");
-                    test.assertThrows(() -> request.setMethod(null));
+                    test.assertThrows(() -> request.setMethod(null), new PreConditionFailure("method cannot be null."));
                     test.assertEqual(HttpMethod.GET, request.getMethod());
                 });
 
@@ -54,14 +54,14 @@ public class MutableHttpRequestTests
                 runner.test("with null", (Test test) ->
                 {
                     final MutableHttpRequest request = create(HttpMethod.GET, "https://www.example.com");
-                    test.assertThrows(() -> request.setUrl((String)null));
+                    test.assertThrows(() -> request.setUrl((String)null), new PreConditionFailure("urlString cannot be null."));
                     test.assertEqual(URL.parse("https://www.example.com").await(), request.getURL());
                 });
 
                 runner.test("with empty", (Test test) ->
                 {
                     final MutableHttpRequest request = create(HttpMethod.GET, "https://www.example.com");
-                    test.assertThrows(() -> request.setUrl(""));
+                    test.assertThrows(() -> request.setUrl(""), new PreConditionFailure("urlString cannot be empty."));
                     test.assertEqual("https://www.example.com", request.getURL().toString());
                 });
 
@@ -143,7 +143,7 @@ public class MutableHttpRequestTests
                 runner.test("with negative contentLength", (Test test) ->
                 {
                     final MutableHttpRequest request = create(HttpMethod.POST, "https://www.example.com");
-                    test.assertThrows(() -> request.setBody(-1, null));
+                    test.assertThrows(() -> request.setBody(-1, null), new PreConditionFailure("contentLength (-1) must be greater than or equal to 0."));
                     test.assertNull(request.getBody());
                     test.assertEqual(Iterable.create(), request.getHeaders());
                 });
@@ -159,7 +159,7 @@ public class MutableHttpRequestTests
                 runner.test("with 0 contentLength and non-null body", (Test test) ->
                 {
                     final MutableHttpRequest request = create(HttpMethod.POST, "https://www.example.com");
-                    test.assertThrows(() -> request.setBody(0, new InMemoryByteStream()));
+                    test.assertThrows(() -> request.setBody(0, new InMemoryByteStream()), new PreConditionFailure("If contentLength is 0, then the body must be null. cannot be false."));
                     test.assertNull(request.getBody());
                     test.assertEqual(Iterable.create(), request.getHeaders());
                 });
@@ -167,7 +167,7 @@ public class MutableHttpRequestTests
                 runner.test("with 3 contentLength and null body", (Test test) ->
                 {
                     final MutableHttpRequest request = create(HttpMethod.POST, "https://www.example.com");
-                    test.assertThrows(() -> request.setBody(3, null));
+                    test.assertThrows(() -> request.setBody(3, null), new PreConditionFailure("If contentLength is greater than 0, then body must be not null. cannot be false."));
                     test.assertNull(request.getBody());
                     test.assertEqual(Iterable.create(), request.getHeaders());
                 });

@@ -91,7 +91,7 @@ public class UITextTests
                 runner.test("with negative", (Test test) ->
                 {
                     final UIText text = new UIText("test");
-                    test.assertThrows(() -> text.setPadding(Distance.inches(-5)));
+                    test.assertThrows(() -> text.setPadding(Distance.inches(-5)), new PreConditionFailure("padding (-5.0 Inches) must be null or greater than or equal to 0.0 Inches."));
                     test.assertNull(text.getPadding());
                 });
 
@@ -115,7 +115,7 @@ public class UITextTests
                 runner.test("with null painter", (Test test) ->
                 {
                     final UIText text = new UIText("ABC");
-                    test.assertThrows(() -> text.paint(null));
+                    test.assertThrows(() -> text.paint(null), new PreConditionFailure("painter cannot be null."));
                 });
 
                 runner.test("with no padding or font size", (Test test) ->
@@ -176,11 +176,9 @@ public class UITextTests
                     text.paint(painter);
 
                     test.assertEqual(
-                        Array.create(new PainterAction[]
-                        {
+                        Iterable.create(
                             new FillRectangleAction(Point2D.zero, Distance.inches(2), Distance.inches(0.5), Color.red),
-                            new DrawTextAction("Answers", Point2D.zero, Distance.fontPoints(14), Color.black)
-                        }),
+                            new DrawTextAction("Answers", Point2D.zero, Distance.fontPoints(14), Color.black)),
                         painter.getActions());
                 });
             });
@@ -190,7 +188,7 @@ public class UITextTests
                 runner.test("with no parentElement", (Test test) ->
                 {
                     final UIText text = new UIText("apples");
-                    test.assertThrows(() -> text.repaint());
+                    test.assertThrows(text::repaint, new PreConditionFailure("parentElement cannot be null."));
                 });
 
                 runner.test("with parentElement", (Test test) ->
@@ -255,13 +253,13 @@ public class UITextTests
                 runner.test("with null", (Test test) ->
                 {
                     final UIText text = new UIText("apples");
-                    test.assertThrows(() -> text.setWidth((Distance)null));
+                    test.assertThrows(() -> text.setWidth((Distance)null), new PreConditionFailure("width cannot be null."));
                 });
 
                 runner.test("with negative", (Test test) ->
                 {
                     final UIText text = new UIText("apples");
-                    test.assertThrows(() -> text.setWidth(Distance.millimeters(-0.1)));
+                    test.assertThrows(() -> text.setWidth(Distance.millimeters(-0.1)), new PreConditionFailure("width (-0.1 Millimeters) must be greater than or equal to 0.0 Inches."));
                 });
 
                 runner.test("with zero", (Test test) ->
@@ -284,13 +282,13 @@ public class UITextTests
                 runner.test("with null", (Test test) ->
                 {
                     final UIText text = new UIText("apples");
-                    test.assertThrows(() -> text.setHeight((Distance)null));
+                    test.assertThrows(() -> text.setHeight((Distance)null), new PreConditionFailure("height cannot be null."));
                 });
 
                 runner.test("with negative", (Test test) ->
                 {
                     final UIText text = new UIText("apples");
-                    test.assertThrows(() -> text.setHeight(Distance.millimeters(-0.1)));
+                    test.assertThrows(() -> text.setHeight(Distance.millimeters(-0.1)), new PreConditionFailure("height (-0.1 Millimeters) must be greater than or equal to 0.0 Inches."));
                 });
 
                 runner.test("with zero", (Test test) ->

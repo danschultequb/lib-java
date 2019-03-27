@@ -10,12 +10,12 @@ public class UIWidthTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> UIWidth.fixed(null));
+                    test.assertThrows(() -> UIWidth.fixed(null), new PreConditionFailure("width cannot be null."));
                 });
 
                 runner.test("with negative", (Test test) ->
                 {
-                    test.assertThrows(() -> UIWidth.fixed(Distance.centimeters(-1)));
+                    test.assertThrows(() -> UIWidth.fixed(Distance.centimeters(-1)), new PreConditionFailure("width (-1.0 Centimeters) must be greater than or equal to 0.0 Inches."));
                 });
 
                 runner.test("with zero", (Test test) ->

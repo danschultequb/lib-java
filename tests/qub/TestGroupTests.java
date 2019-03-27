@@ -10,12 +10,12 @@ public class TestGroupTests
             {
                 runner.test("with null name", (Test test) ->
                 {
-                    test.assertThrows(() -> new TestGroup(null, null, null));
+                    test.assertThrows(() -> new TestGroup(null, null, null), new PreConditionFailure("name cannot be null."));
                 });
 
                 runner.test("with empty name", (Test test) ->
                 {
-                    test.assertThrows(() -> new TestGroup("", null, null));
+                    test.assertThrows(() -> new TestGroup("", null, null), new PreConditionFailure("name cannot be empty."));
                 });
 
                 runner.test("with non-empty name", (Test test) ->

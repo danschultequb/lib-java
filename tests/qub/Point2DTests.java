@@ -10,12 +10,12 @@ public class Point2DTests
             {
                 runner.test("with null x", (Test test) ->
                 {
-                    test.assertThrows(() -> new Point2D(null, Distance.inches(5)));
+                    test.assertThrows(() -> new Point2D(null, Distance.inches(5)), new PreConditionFailure("x cannot be null."));
                 });
 
                 runner.test("with null y", (Test test) ->
                 {
-                    test.assertThrows(() -> new Point2D(Distance.meters(2.3), null));
+                    test.assertThrows(() -> new Point2D(Distance.meters(2.3), null), new PreConditionFailure("y cannot be null."));
                 });
 
                 runner.test("with non-null coordinates", (Test test) ->

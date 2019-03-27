@@ -46,7 +46,7 @@ public class ResultTests
             {
                 runner.test("with null action", (Test test) ->
                 {
-                    test.assertThrows(() -> Result.successTrue().then((Action0)null));
+                    test.assertThrows(() -> Result.success().then((Action0)null), new PreConditionFailure("action cannot be null."));
                 });
 
                 runner.test("with non-error Result and non-throwing action", (Test test) ->
@@ -54,7 +54,7 @@ public class ResultTests
                     final Result<Boolean> result1 = Result.successTrue();
                     final Value<Boolean> value = Value.create();
                     final Result<Void> result2 = result1.then(() -> value.set(false));
-                    test.assertSuccess(null, result2);
+                    test.assertNull(result2.await());
                     test.assertEqual(false, value.get());
                 });
 
@@ -65,7 +65,7 @@ public class ResultTests
                     {
                         throw new RuntimeException("foo");
                     });
-                    test.assertError(new RuntimeException("foo"), result2);
+                    test.assertThrows(result2::awaitError, new RuntimeException("foo"));
                 });
 
                 runner.test("with error Result and non-throwing action", (Test test) ->
@@ -92,7 +92,7 @@ public class ResultTests
             {
                 runner.test("with null action", (Test test) ->
                 {
-                    test.assertThrows(() -> Result.successTrue().then((Action1<Boolean>)null));
+                    test.assertThrows(() -> Result.successTrue().then((Action1<Boolean>)null), new PreConditionFailure("action cannot be null."));
                 });
 
                 runner.test("with non-error Result and non-throwing action", (Test test) ->
@@ -139,7 +139,7 @@ public class ResultTests
             {
                 runner.test("with null function", (Test test) ->
                 {
-                    test.assertThrows(() -> Result.successTrue().then((Function0<Integer>)null));
+                    test.assertThrows(() -> Result.successTrue().then((Function0<Integer>)null), new PreConditionFailure("function cannot be null."));
                 });
 
                 runner.test("with non-error Result and non-throwing function", (Test test) ->
@@ -181,7 +181,7 @@ public class ResultTests
             {
                 runner.test("with null function", (Test test) ->
                 {
-                    test.assertThrows(() -> Result.successTrue().thenResult((Function0<Result<Integer>>)null));
+                    test.assertThrows(() -> Result.successTrue().thenResult((Function0<Result<Integer>>)null), new PreConditionFailure("function cannot be null."));
                 });
 
                 runner.test("with non-error Result and non-throwing function", (Test test) ->
@@ -223,7 +223,7 @@ public class ResultTests
             {
                 runner.test("with null function", (Test test) ->
                 {
-                    test.assertThrows(() -> Result.successTrue().then((Function1<Boolean,Integer>)null));
+                    test.assertThrows(() -> Result.successTrue().then((Function1<Boolean,Integer>)null), new PreConditionFailure("function cannot be null."));
                 });
 
                 runner.test("with non-error Result and non-throwing function", (Test test) ->
@@ -265,7 +265,7 @@ public class ResultTests
             {
                 runner.test("with null function", (Test test) ->
                 {
-                    test.assertThrows(() -> Result.successTrue().then((Function1<Boolean,Result<Integer>>)null));
+                    test.assertThrows(() -> Result.successTrue().then((Function1<Boolean,Result<Integer>>)null), new PreConditionFailure("function cannot be null."));
                 });
 
                 runner.test("with non-error Result and non-throwing function", (Test test) ->

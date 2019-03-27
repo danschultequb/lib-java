@@ -280,42 +280,42 @@ public class URLTests
                 runner.test("with null and null", (Test test) ->
                 {
                     final URL url = new URL();
-                    test.assertThrows(() -> url.setQueryParameter(null, null));
+                    test.assertThrows(() -> url.setQueryParameter(null, null), new PreConditionFailure("queryParameterName cannot be null."));
                     test.assertNull(url.getQuery());
                 });
 
                 runner.test("with null and \"\"", (Test test) ->
                 {
                     final URL url = new URL();
-                    test.assertThrows(() -> url.setQueryParameter(null, ""));
+                    test.assertThrows(() -> url.setQueryParameter(null, ""), new PreConditionFailure("queryParameterName cannot be null."));
                     test.assertNull(url.getQuery());
                 });
 
                 runner.test("with null and \"b\"", (Test test) ->
                 {
                     final URL url = new URL();
-                    test.assertThrows(() -> url.setQueryParameter(null, "b"));
+                    test.assertThrows(() -> url.setQueryParameter(null, "b"), new PreConditionFailure("queryParameterName cannot be null."));
                     test.assertNull(url.getQuery());
                 });
 
                 runner.test("with \"\" and null", (Test test) ->
                 {
                     final URL url = new URL();
-                    test.assertThrows(() -> url.setQueryParameter("", null));
+                    test.assertThrows(() -> url.setQueryParameter("", null), new PreConditionFailure("queryParameterName cannot be empty."));
                     test.assertNull(url.getQuery());
                 });
 
                 runner.test("with \"\" and \"\"", (Test test) ->
                 {
                     final URL url = new URL();
-                    test.assertThrows(() -> url.setQueryParameter("", ""));
+                    test.assertThrows(() -> url.setQueryParameter("", ""), new PreConditionFailure("queryParameterName cannot be empty."));
                     test.assertNull(url.getQuery());
                 });
 
                 runner.test("with \"\" and \"b\"", (Test test) ->
                 {
                     final URL url = new URL();
-                    test.assertThrows(() -> url.setQueryParameter("", "b"));
+                    test.assertThrows(() -> url.setQueryParameter("", "b"), new PreConditionFailure("queryParameterName cannot be empty."));
                     test.assertNull(url.getQuery());
                 });
 
@@ -324,8 +324,8 @@ public class URLTests
                     final URL url = new URL();
                     url.setQueryParameter("a", null);
                     test.assertEqual("a", url.getQuery());
-                    test.assertSuccess(null, url.getQueryParameterValue("a"));
-                    test.assertError(new NotFoundException("Could not find the provided key (A) in this Map."), url.getQueryParameterValue("A"));
+                    test.assertNull(url.getQueryParameterValue("a").await());
+                    test.assertThrows(() -> url.getQueryParameterValue("A").awaitError(), new NotFoundException("Could not find the provided key (A) in this Map."));
                 });
 
                 runner.test("with \"a\" and \"\"", (Test test) ->
@@ -333,8 +333,8 @@ public class URLTests
                     final URL url = new URL();
                     url.setQueryParameter("a", "");
                     test.assertEqual("a=", url.getQuery());
-                    test.assertSuccess("", url.getQueryParameterValue("a"));
-                    test.assertError(new NotFoundException("Could not find the provided key (A) in this Map."), url.getQueryParameterValue("A"));
+                    test.assertEqual("", url.getQueryParameterValue("a").await());
+                    test.assertThrows(() -> url.getQueryParameterValue("A").awaitError(), new NotFoundException("Could not find the provided key (A) in this Map."));
                 });
 
                 runner.test("with \"a\" and \"b\"", (Test test) ->
@@ -342,8 +342,8 @@ public class URLTests
                     final URL url = new URL();
                     url.setQueryParameter("a", "b");
                     test.assertEqual("a=b", url.getQuery());
-                    test.assertSuccess("b", url.getQueryParameterValue("a"));
-                    test.assertError(new NotFoundException("Could not find the provided key (A) in this Map."), url.getQueryParameterValue("A"));
+                    test.assertEqual("b", url.getQueryParameterValue("a").await());
+                    test.assertThrows(() -> url.getQueryParameterValue("A").awaitError(), new NotFoundException("Could not find the provided key (A) in this Map."));
                 });
             });
 

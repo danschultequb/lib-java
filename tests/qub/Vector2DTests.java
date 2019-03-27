@@ -17,12 +17,12 @@ public class Vector2DTests
             {
                 runner.test("with null x", (Test test) ->
                 {
-                    test.assertThrows(() -> new Vector2D(null, Distance.zero));
+                    test.assertThrows(() -> new Vector2D(null, Distance.zero), new PreConditionFailure("x cannot be null."));
                 });
 
                 runner.test("with null y", (Test test) ->
                 {
-                    test.assertThrows(() -> new Vector2D(Distance.zero, null));
+                    test.assertThrows(() -> new Vector2D(Distance.zero, null), new PreConditionFailure("y cannot be null."));
                 });
 
                 runner.test("with non-null x and y", (Test test) ->
@@ -94,7 +94,7 @@ public class Vector2DTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> new Vector2D(Distance.inches(1), Distance.miles(2)).plus((Point2D)null));
+                    test.assertThrows(() -> new Vector2D(Distance.inches(1), Distance.miles(2)).plus((Point2D)null), new PreConditionFailure("rhs cannot be null."));
                 });
 
                 runner.test("with zero vector", (Test test) ->
@@ -127,19 +127,19 @@ public class Vector2DTests
                 runner.test("with null x", (Test test) ->
                 {
                     final Vector2D vector = new Vector2D(Distance.inches(6), Distance.inches(1));
-                    test.assertThrows(() -> vector.plusPoint(null, Distance.inches(1)));
+                    test.assertThrows(() -> vector.plusPoint(null, Distance.inches(1)), new PreConditionFailure("x cannot be null."));
                 });
 
                 runner.test("with null y", (Test test) ->
                 {
                     final Vector2D vector = new Vector2D(Distance.inches(6), Distance.inches(1));
-                    test.assertThrows(() -> vector.plusPoint(Distance.inches(1), null));
+                    test.assertThrows(() -> vector.plusPoint(Distance.inches(1), null), new PreConditionFailure("y cannot be null."));
                 });
 
                 runner.test("with null x and y", (Test test) ->
                 {
                     final Vector2D vector = new Vector2D(Distance.inches(6), Distance.inches(1));
-                    test.assertThrows(() -> vector.plusPoint(null, null));
+                    test.assertThrows(() -> vector.plusPoint(null, null), new PreConditionFailure("x cannot be null."));
                 });
 
                 runner.test("with non-null x and y", (Test test) ->
@@ -155,19 +155,19 @@ public class Vector2DTests
                 runner.test("with null x", (Test test) ->
                 {
                     final Vector2D vector = new Vector2D(Distance.inches(6), Distance.inches(1));
-                    test.assertThrows(() -> vector.plusVector(null, Distance.inches(1)));
+                    test.assertThrows(() -> vector.plusVector(null, Distance.inches(1)), new PreConditionFailure("x cannot be null."));
                 });
 
                 runner.test("with null y", (Test test) ->
                 {
                     final Vector2D vector = new Vector2D(Distance.inches(6), Distance.inches(1));
-                    test.assertThrows(() -> vector.plusVector(Distance.inches(1), null));
+                    test.assertThrows(() -> vector.plusVector(Distance.inches(1), null), new PreConditionFailure("y cannot be null."));
                 });
 
                 runner.test("with null x and y", (Test test) ->
                 {
                     final Vector2D vector = new Vector2D(Distance.inches(6), Distance.inches(1));
-                    test.assertThrows(() -> vector.plusVector(null, null));
+                    test.assertThrows(() -> vector.plusVector(null, null), new PreConditionFailure("x cannot be null."));
                 });
 
                 runner.test("with non-null x and y", (Test test) ->
@@ -182,7 +182,7 @@ public class Vector2DTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> new Vector2D(Distance.inches(1), Distance.miles(2)).plus((Vector2D)null));
+                    test.assertThrows(() -> new Vector2D(Distance.inches(1), Distance.miles(2)).plus((Vector2D)null), new PreConditionFailure("rhs cannot be null."));
                 });
 
                 runner.test("with zero lhs", (Test test) ->

@@ -1003,30 +1003,6 @@ public class Test
     }
 
     /**
-     * Assert that when the provided action is run it throws an exception.
-     * @param action The action to run.
-     */
-    public void assertThrows(Action0 action)
-    {
-        PreCondition.assertNotNull(action, "action");
-
-        Throwable exceptionThrown = null;
-        try
-        {
-            action.run();
-        }
-        catch (RuntimeException e)
-        {
-            exceptionThrown = e;
-        }
-
-        if (exceptionThrown == null)
-        {
-            throw new TestAssertionFailure(getFullName(), new String[] { "Expected an exception to be thrown." });
-        }
-    }
-
-    /**
      * Assert that when the provided action is run it throws an exception that is equal to the
      * provided exception.
      * @param action The action to run.
