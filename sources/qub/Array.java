@@ -1363,12 +1363,50 @@ public abstract class Array<T> implements MutableIndexable<T>
 
     /**
      * Starting at the provided indexToRemove, shift the values in the provided array one position
+     * to the left. The result is that the value at the indexToRemove will be "removed".
+     * @param values The values.
+     * @param indexToRemove The index to "remove" create the array.
+     * @param valuesToShift The number of values to shift.
+     */
+    public static void shiftLeft(char[] values, int indexToRemove, int valuesToShift)
+    {
+        PreCondition.assertNotNullAndNotEmpty(values, "values");
+        PreCondition.assertBetween(0, indexToRemove, values.length - 2, "indexToRemove");
+        PreCondition.assertBetween(0, valuesToShift, values.length - indexToRemove - 1, "valuesToShift");
+
+        for (int i = indexToRemove; i < indexToRemove + valuesToShift; ++i)
+        {
+            values[i] = values[i + 1];
+        }
+    }
+
+    /**
+     * Starting at the provided indexToRemove, shift the values in the provided array one position
      * to the right. The result is that a new position will be opened up the array.
      * @param values The values.
      * @param indexToOpen The index to open up in the array.
      * @param valuesToShift The number of values to shift.
      */
     public static void shiftRight(byte[] values, int indexToOpen, int valuesToShift)
+    {
+        PreCondition.assertNotNullAndNotEmpty(values, "values");
+        PreCondition.assertBetween(0, indexToOpen, values.length - 2, "indexToOpen");
+        PreCondition.assertBetween(0, valuesToShift, values.length - indexToOpen - 1, "valuesToShift");
+
+        for (int i = indexToOpen + valuesToShift; indexToOpen < i; --i)
+        {
+            values[i] = values[i - 1];
+        }
+    }
+
+    /**
+     * Starting at the provided indexToRemove, shift the values in the provided array one position
+     * to the right. The result is that a new position will be opened up the array.
+     * @param values The values.
+     * @param indexToOpen The index to open up in the array.
+     * @param valuesToShift The number of values to shift.
+     */
+    public static void shiftRight(char[] values, int indexToOpen, int valuesToShift)
     {
         PreCondition.assertNotNullAndNotEmpty(values, "values");
         PreCondition.assertBetween(0, indexToOpen, values.length - 2, "indexToOpen");

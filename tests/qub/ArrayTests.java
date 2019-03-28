@@ -1360,7 +1360,7 @@ public class ArrayTests
             {
                 runner.test("with null values", (Test test) ->
                 {
-                    test.assertThrows(() -> Array.shiftLeft(null, 0, 1),
+                    test.assertThrows(() -> Array.shiftLeft((byte[])null, 0, 1),
                         new PreConditionFailure("values cannot be null."));
                 });
 
@@ -1458,7 +1458,7 @@ public class ArrayTests
             {
                 runner.test("with null values", (Test test) ->
                 {
-                    test.assertThrows(() -> Array.shiftRight(null, 0, 1),
+                    test.assertThrows(() -> Array.shiftRight((byte[])null, 0, 1),
                         new PreConditionFailure("values cannot be null."));
                 });
 
