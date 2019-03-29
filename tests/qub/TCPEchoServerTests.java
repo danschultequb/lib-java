@@ -23,14 +23,14 @@ public class TCPEchoServerTests
                         {
                             try (final TCPClient tcpClient = network.createTCPClient(IPv4Address.localhost, port.get()).await())
                             {
-                                final CharacterWriteStream tcpClientCharacterWriteStream = tcpClient.asCharacterWriteStream();
-                                final LineReadStream tcpClientLineReadStream = tcpClient.asLineReadStream();
+                                final CharacterWriteStream tcpClientWriteStream = tcpClient.asCharacterWriteStream();
+                                final CharacterReadStream tcpClientReadStream = tcpClient.asCharacterReadStream();
 
-                                tcpClientCharacterWriteStream.writeLine("Hello");
-                                test.assertEqual("Hello", tcpClientLineReadStream.readLine().await());
+                                tcpClientWriteStream.writeLine("Hello");
+                                test.assertEqual("Hello", tcpClientReadStream.readLine().await());
 
-                                tcpClientCharacterWriteStream.writeLine("World");
-                                test.assertEqual("World", tcpClientLineReadStream.readLine().await());
+                                tcpClientWriteStream.writeLine("World");
+                                test.assertEqual("World", tcpClientReadStream.readLine().await());
                             }
                         });
 
@@ -51,14 +51,14 @@ public class TCPEchoServerTests
                     {
                         try (final TCPClient tcpClient = network.createTCPClient(IPv4Address.localhost, port.get()).await())
                         {
-                            final CharacterWriteStream tcpClientCharacterWriteStream = tcpClient.asCharacterWriteStream();
-                            final LineReadStream tcpClientLineReadStream = tcpClient.asLineReadStream();
+                            final CharacterWriteStream tcpClientWriteStream = tcpClient.asCharacterWriteStream();
+                            final CharacterReadStream tcpClientReadStream = tcpClient.asCharacterReadStream();
 
-                            tcpClientCharacterWriteStream.writeLine("Hello");
-                            test.assertEqual("Hello", tcpClientLineReadStream.readLine().await());
+                            tcpClientWriteStream.writeLine("Hello");
+                            test.assertEqual("Hello", tcpClientReadStream.readLine().await());
 
-                            tcpClientCharacterWriteStream.writeLine("World");
-                            test.assertEqual("World", tcpClientLineReadStream.readLine().await());
+                            tcpClientWriteStream.writeLine("World");
+                            test.assertEqual("World", tcpClientReadStream.readLine().await());
                         }
                     });
 

@@ -33,7 +33,7 @@ public class Console extends Process
 
     public Result<String> readLine()
     {
-        return getInputLineReadStream().readLine();
+        return getInputCharacterReadStream().readLine();
     }
 
     public Result<Integer> write(char toWrite)

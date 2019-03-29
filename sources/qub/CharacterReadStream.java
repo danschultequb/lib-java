@@ -455,6 +455,86 @@ public interface CharacterReadStream extends AsyncDisposable, Iterator<Character
     }
 
     /**
+     * Read a line from this CharacterReadStream.
+     * @return The line that was read.
+     */
+    default Result<String> readLine()
+    {
+        return readLine(false);
+    }
+
+    /**
+     * Read a line from this CharacterReadStream.
+     * @param includeNewLine Whether or not to include the newline character sequence in the
+     *                       returned line.
+     * @return The line that was read.
+     */
+    default Result<String> readLine(boolean includeNewLine)
+    {
+        PreCondition.assertNotDisposed(this);
+
+        String result = null;
+        int charactersRead = 0;
+        final CharacterList list = new CharacterList();
+        if (includeNewLine)
+        {
+            result = readStringUntil('\n')
+                .catchError(EndOfStreamException.class)
+                .await();
+            if (result != null)
+            {
+                charactersRead = result.length();
+            }
+        }
+        else
+        {
+            boolean previousCharacterWasCarriageReturn = false;
+            while (next())
+            {
+                ++charactersRead;
+                final char currentCharacter = getCurrent();
+                if (currentCharacter == '\r')
+                {
+                    if (previousCharacterWasCarriageReturn)
+                    {
+                        list.add('\r');
+                    }
+                    else
+                    {
+                        previousCharacterWasCarriageReturn = true;
+                    }
+                }
+                else if (currentCharacter != '\n')
+                {
+                    if (previousCharacterWasCarriageReturn)
+                    {
+                        list.add('\r');
+                    }
+                    previousCharacterWasCarriageReturn = false;
+
+                    list.add(currentCharacter);
+                }
+                else
+                {
+                    previousCharacterWasCarriageReturn = false;
+                    break;
+                }
+            }
+
+            if (!hasCurrent() && previousCharacterWasCarriageReturn)
+            {
+                list.add('\r');
+            }
+
+            result = list.toString(true);
+        }
+
+        return charactersRead == 0
+            ? Result.endOfStream()
+            : Result.success(result);
+    }
+
+    /**
      * Get the CharacterEncoding that this CharacterReadStream uses to convert bytes to characters.
      * @return The CharacterEncoding that this CharacterReadStream uses to convert bytes to
      * characters.
@@ -466,24 +546,4 @@ public interface CharacterReadStream extends AsyncDisposable, Iterator<Character
      * @return The converted ByteReadStream.
      */
     ByteReadStream asByteReadStream();
-
-    /**
-     * Convert this CharacterReadStream to a LineReadStream.
-     * @return The converted LineReadStream.
-     */
-    default LineReadStream asLineReadStream()
-    {
-        return new BasicLineReadStream(this);
-    }
-
-    /**
-     * Convert this CharacterReadStream to a LineReadStream.
-     * @param includeNewLines Whether or not to include the line terminating sequences in the read
-     *                        lines.
-     * @return The converted LineReadStream.
-     */
-    default LineReadStream asLineReadStream(boolean includeNewLines)
-    {
-        return new BasicLineReadStream(this, includeNewLines);
-    }
 }

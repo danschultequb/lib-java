@@ -14,10 +14,8 @@ public class Process implements Disposable
     private final Value<CharacterWriteStream> outputCharacterWriteStream;
     private final Value<CharacterWriteStream> errorCharacterWriteStream;
     private final Value<CharacterReadStream> inputCharacterReadStream;
-    private final Value<LineReadStream> inputLineReadStream;
     private final Value<CharacterEncoding> characterEncoding;
     private final Value<String> lineSeparator;
-    private final Value<Boolean> includeNewLines;
 
     private final Value<Random> random;
     private final Value<FileSystem> fileSystem;
@@ -67,10 +65,8 @@ public class Process implements Disposable
         outputCharacterWriteStream = Value.create();
         errorCharacterWriteStream = Value.create();
         inputCharacterReadStream = Value.create();
-        inputLineReadStream = Value.create();
         characterEncoding = Value.create();
         lineSeparator = Value.create();
-        includeNewLines = Value.create();
 
         random = Value.create();
         fileSystem = Value.create();
@@ -193,17 +189,6 @@ public class Process implements Disposable
         return inputCharacterReadStream.get();
     }
 
-    public LineReadStream getInputLineReadStream()
-    {
-        if (!inputLineReadStream.hasValue())
-        {
-            final CharacterReadStream inputCharacterReadStream = getInputCharacterReadStream();
-            final boolean includeNewLines = getIncludeNewLines();
-            inputLineReadStream.set(inputCharacterReadStream.asLineReadStream(includeNewLines));
-        }
-        return inputLineReadStream.get();
-    }
-
     public CharacterWriteStream getOutputCharacterWriteStream()
     {
         if (!outputCharacterWriteStream.hasValue())
@@ -234,7 +219,6 @@ public class Process implements Disposable
         outputCharacterWriteStream.clear();
         errorCharacterWriteStream.clear();
         inputCharacterReadStream.clear();
-        inputLineReadStream.clear();
         return this;
     }
 
@@ -242,7 +226,7 @@ public class Process implements Disposable
     {
         if (!characterEncoding.hasValue())
         {
-            characterEncoding.set(CharacterEncoding.US_ASCII);
+            characterEncoding.set(CharacterEncoding.UTF_8);
         }
         return characterEncoding.get();
     }
@@ -253,7 +237,6 @@ public class Process implements Disposable
         outputCharacterWriteStream.clear();
         errorCharacterWriteStream.clear();
         inputCharacterReadStream.clear();
-        inputLineReadStream.clear();
         return this;
     }
 
@@ -264,25 +247,6 @@ public class Process implements Disposable
             lineSeparator.set(onWindows() ? "\r\n" : "\n");
         }
         return lineSeparator.get();
-    }
-
-    public Process setIncludeNewLines(boolean includeNewLines)
-    {
-        this.includeNewLines.set(includeNewLines);
-        outputCharacterWriteStream.clear();
-        errorCharacterWriteStream.clear();
-        inputCharacterReadStream.clear();
-        inputLineReadStream.clear();
-        return this;
-    }
-
-    public boolean getIncludeNewLines()
-    {
-        if (!includeNewLines.hasValue())
-        {
-            includeNewLines.set(false);
-        }
-        return includeNewLines.get();
     }
 
     /**
@@ -344,7 +308,6 @@ public class Process implements Disposable
     {
         this.inputByteReadStream.set(inputByteReadStream);
         inputCharacterReadStream.clear();
-        inputLineReadStream.clear();
         return this;
     }
 
@@ -358,20 +321,6 @@ public class Process implements Disposable
     {
         this.inputByteReadStream.set(null);
         this.inputCharacterReadStream.set(inputCharacterReadStream);
-        inputLineReadStream.clear();
-        return this;
-    }
-
-    /**
-     * Set the LineReadStream that is assigned to this Console's input.
-     * @param inputLineReadStream The LineReadStream that is assigned to this Console's input.
-     * @return This object for method chaining.
-     */
-    public Process setInputLineReadStream(LineReadStream inputLineReadStream)
-    {
-        this.inputByteReadStream.set(null);
-        this.inputCharacterReadStream.set(null);
-        this.inputLineReadStream.set(inputLineReadStream);
         return this;
     }
 

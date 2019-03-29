@@ -102,7 +102,7 @@ public class MutableHttpRequestTests
                 {
                     final MutableHttpRequest request = create(HttpMethod.GET, "https://www.example.com");
                     request.setBody("hello");
-                    test.assertSuccess("hello", request.getBody().asLineReadStream().readLine());
+                    test.assertEqual("hello", request.getBody().asCharacterReadStream().readLine().await());
                     test.assertEqual(
                         Iterable.create(new HttpHeader("Content-Length", 5)),
                         request.getHeaders());

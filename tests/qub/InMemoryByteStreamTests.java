@@ -763,42 +763,6 @@ public class InMemoryByteStreamTests
                 });
             });
 
-            runner.test("asLineReadStream()", (Test test) ->
-            {
-                final InMemoryByteStream stream = create(test);
-                final LineReadStream lineReadStream = stream.asLineReadStream();
-                test.assertEqual(CharacterEncoding.UTF_8, lineReadStream.getCharacterEncoding());
-                test.assertFalse(lineReadStream.getIncludeNewLines());
-                test.assertSame(stream, lineReadStream.asByteReadStream());
-            });
-
-            runner.test("asLineReadStream(CharacterEncoding)", (Test test) ->
-            {
-                final InMemoryByteStream stream = create(test);
-                final LineReadStream lineReadStream = stream.asLineReadStream(CharacterEncoding.US_ASCII);
-                test.assertEqual(CharacterEncoding.US_ASCII, lineReadStream.getCharacterEncoding());
-                test.assertFalse(lineReadStream.getIncludeNewLines());
-                test.assertSame(stream, lineReadStream.asByteReadStream());
-            });
-
-            runner.test("asLineReadStream(boolean)", (Test test) ->
-            {
-                final InMemoryByteStream stream = create(test);
-                final LineReadStream lineReadStream = stream.asLineReadStream(true);
-                test.assertEqual(CharacterEncoding.UTF_8, lineReadStream.getCharacterEncoding());
-                test.assertTrue(lineReadStream.getIncludeNewLines());
-                test.assertSame(stream, lineReadStream.asByteReadStream());
-            });
-
-            runner.test("asLineReadStream(CharacterEncoding,boolean)", (Test test) ->
-            {
-                final InMemoryByteStream stream = create(test);
-                final LineReadStream lineReadStream = stream.asLineReadStream(CharacterEncoding.US_ASCII, false);
-                test.assertEqual(CharacterEncoding.US_ASCII, lineReadStream.getCharacterEncoding());
-                test.assertFalse(lineReadStream.getIncludeNewLines());
-                test.assertSame(stream, lineReadStream.asByteReadStream());
-            });
-
             runner.testGroup("writeByte(byte)", () ->
             {
                 runner.test("with 1 byte", (Test test) ->

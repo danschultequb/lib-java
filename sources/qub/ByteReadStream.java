@@ -310,28 +310,4 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
 
         return new BasicCharacterReadStream(this, characterEncoding);
     }
-
-    default LineReadStream asLineReadStream()
-    {
-        return asCharacterReadStream().asLineReadStream();
-    }
-
-    default LineReadStream asLineReadStream(CharacterEncoding characterEncoding)
-    {
-        PreCondition.assertNotNull(characterEncoding, "characterEncoding");
-
-        return asCharacterReadStream(characterEncoding).asLineReadStream();
-    }
-
-    default LineReadStream asLineReadStream(boolean includeNewLines)
-    {
-        return asCharacterReadStream().asLineReadStream(includeNewLines);
-    }
-
-    default LineReadStream asLineReadStream(CharacterEncoding characterEncoding, boolean includeNewLines)
-    {
-        PreCondition.assertNotNull(characterEncoding, "characterEncoding");
-
-        return asCharacterReadStream(characterEncoding).asLineReadStream(includeNewLines);
-    }
 }

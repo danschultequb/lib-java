@@ -208,6 +208,19 @@ public class CharacterList implements List<Character>
     @Override
     public String toString()
     {
-        return Iterable.toString(this);
+        return toString(false);
+    }
+
+    /**
+     * Get the String representation of the characters in this CharacterList.
+     * @param asString Whether or not to display the characters as a concatenated String or as an
+     *                 Iterable.
+     * @return The String representation of the characters in this CharacterList.
+     */
+    public String toString(boolean asString)
+    {
+        return asString
+            ? String.valueOf(characters, 0, count)
+            : Iterable.toString(this);
     }
 }

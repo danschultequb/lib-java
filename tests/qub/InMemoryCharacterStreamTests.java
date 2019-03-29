@@ -642,11 +642,112 @@ public class InMemoryCharacterStreamTests
                 });
             });
 
-            runner.test("asLineReadStream()", (Test test) ->
+            runner.testGroup("readLine()", () ->
             {
-                final InMemoryCharacterStream characterReadStream = createStream();
-                final LineReadStream lineReadStream = characterReadStream.asLineReadStream();
-                test.assertNotNull(lineReadStream);
+                runner.test("with disposed", (Test test) ->
+                {
+                    final InMemoryCharacterStream characterReadStream = createStream();
+                    test.assertTrue(characterReadStream.dispose().await());
+                    test.assertThrows(characterReadStream::readLine, new PreConditionFailure("isDisposed() cannot be true."));
+                });
+
+                final Action2<String,Iterable<String>> readLineTest = (String text, Iterable<String> expectedLines) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(text), (Test test) ->
+                    {
+                        final InMemoryCharacterStream stream = createStream(text);
+                        int lineNumber = 0;
+                        for (final String expectedLine : expectedLines)
+                        {
+                            ++lineNumber;
+                            test.assertEqual(expectedLine, stream.readLine().await(), "Wrong line " + lineNumber);
+                        }
+                        test.assertThrows(() -> stream.readLine().awaitError(), new EndOfStreamException());
+                    });
+                };
+
+                readLineTest.run("", Iterable.create());
+                readLineTest.run("hello", Iterable.create("hello"));
+                readLineTest.run("hello\n", Iterable.create("hello"));
+                readLineTest.run("a\r", Iterable.create("a\r"));
+                readLineTest.run("a\r\n", Iterable.create("a"));
+                readLineTest.run("a\r\r\n", Iterable.create("a\r"));
+                readLineTest.run("\n\n\n", Iterable.create("", "", ""));
+                readLineTest.run("a\nb", Iterable.create("a", "b"));
+                readLineTest.run("a\rb", Iterable.create("a\rb"));
+            });
+
+            runner.testGroup("readLine(boolean)", () ->
+            {
+                runner.testGroup("with false includeNewLine", () ->
+                {
+                    runner.test("with disposed", (Test test) ->
+                    {
+                        final InMemoryCharacterStream characterReadStream = createStream();
+                        test.assertTrue(characterReadStream.dispose().await());
+                        test.assertThrows(characterReadStream::readLine, new PreConditionFailure("isDisposed() cannot be true."));
+                    });
+
+                    final Action2<String,Iterable<String>> readLineTest = (String text, Iterable<String> expectedLines) ->
+                    {
+                        runner.test("with " + Strings.escapeAndQuote(text), (Test test) ->
+                        {
+                            final InMemoryCharacterStream stream = createStream(text);
+                            int lineNumber = 0;
+                            for (final String expectedLine : expectedLines)
+                            {
+                                ++lineNumber;
+                                test.assertEqual(expectedLine, stream.readLine(false).await(), "Wrong line " + lineNumber);
+                            }
+                            test.assertThrows(() -> stream.readLine(false).awaitError(), new EndOfStreamException());
+                        });
+                    };
+
+                    readLineTest.run("", Iterable.create());
+                    readLineTest.run("hello", Iterable.create("hello"));
+                    readLineTest.run("hello\n", Iterable.create("hello"));
+                    readLineTest.run("a\r", Iterable.create("a\r"));
+                    readLineTest.run("a\r\n", Iterable.create("a"));
+                    readLineTest.run("a\r\r\n", Iterable.create("a\r"));
+                    readLineTest.run("\n\n\n", Iterable.create("", "", ""));
+                    readLineTest.run("a\nb", Iterable.create("a", "b"));
+                    readLineTest.run("a\rb", Iterable.create("a\rb"));
+                });
+
+                runner.testGroup("with true includeNewLine", () ->
+                {
+                    runner.test("with disposed", (Test test) ->
+                    {
+                        final InMemoryCharacterStream characterReadStream = createStream();
+                        test.assertTrue(characterReadStream.dispose().await());
+                        test.assertThrows(characterReadStream::readLine, new PreConditionFailure("isDisposed() cannot be true."));
+                    });
+
+                    final Action2<String,Iterable<String>> readLineTest = (String text, Iterable<String> expectedLines) ->
+                    {
+                        runner.test("with " + Strings.escapeAndQuote(text), (Test test) ->
+                        {
+                            final InMemoryCharacterStream stream = createStream(text);
+                            int lineNumber = 0;
+                            for (final String expectedLine : expectedLines)
+                            {
+                                ++lineNumber;
+                                test.assertEqual(expectedLine, stream.readLine(true).await(), "Wrong line " + lineNumber);
+                            }
+                            test.assertThrows(() -> stream.readLine(true).awaitError(), new EndOfStreamException());
+                        });
+                    };
+
+                    readLineTest.run("", Iterable.create());
+                    readLineTest.run("hello", Iterable.create("hello"));
+                    readLineTest.run("hello\n", Iterable.create("hello\n"));
+                    readLineTest.run("a\r", Iterable.create("a\r"));
+                    readLineTest.run("a\r\n", Iterable.create("a\r\n"));
+                    readLineTest.run("a\r\r\n", Iterable.create("a\r\r\n"));
+                    readLineTest.run("\n\n\n", Iterable.create("\n", "\n", "\n"));
+                    readLineTest.run("a\nb", Iterable.create("a\n", "b"));
+                    readLineTest.run("a\rb", Iterable.create("a\rb"));
+                });
             });
         });
     }

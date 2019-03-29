@@ -280,11 +280,13 @@ public class ProcessBuilder
 
         return (ByteReadStream byteReadStream) ->
         {
-            final LineReadStream lineReadStream = byteReadStream.asLineReadStream(true);
+            final CharacterReadStream characterReadStream = byteReadStream.asCharacterReadStream();
             String line;
             do
             {
-                line = lineReadStream.readLine().awaitError();
+                line = characterReadStream.readLine(true)
+                    .catchError(EndOfStreamException.class)
+                    .await();
                 onLineAction.run(line);
             }
             while (line != null);

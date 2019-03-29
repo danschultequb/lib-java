@@ -135,15 +135,15 @@ public class HttpServer implements AsyncDisposable
                 try (final TCPClient acceptedClient = tcpServer.accept().awaitError())
                 {
                     final MutableHttpRequest request = new MutableHttpRequest();
-                    final LineReadStream acceptedClientLineReadStream = acceptedClient.asLineReadStream();
+                    final CharacterReadStream acceptedClientReadStream = acceptedClient.asCharacterReadStream();
 
-                    final String firstLine = acceptedClientLineReadStream.readLine().awaitError();
+                    final String firstLine = acceptedClientReadStream.readLine().awaitError();
                     final String[] firstLineParts = firstLine.split(" ");
                     request.setMethod(HttpMethod.valueOf(firstLineParts[0]));
                     request.setUrl(URL.parse(firstLineParts[1]).awaitError());
                     request.setHttpVersion(firstLineParts[2]);
 
-                    String headerLine = acceptedClientLineReadStream.readLine().awaitError();
+                    String headerLine = acceptedClientReadStream.readLine().awaitError();
                     while (!Strings.isNullOrEmpty(headerLine))
                     {
                         final int firstColonIndex = headerLine.indexOf(':');
@@ -151,7 +151,7 @@ public class HttpServer implements AsyncDisposable
                         final String headerValue = headerLine.substring(firstColonIndex + 1);
                         request.setHeader(headerName, headerValue);
 
-                        headerLine = acceptedClientLineReadStream.readLine().awaitError();
+                        headerLine = acceptedClientReadStream.readLine().awaitError();
                     }
 
                     request.getContentLength()
@@ -209,17 +209,17 @@ public class HttpServer implements AsyncDisposable
                         reasonPhrase = getReasonPhrase(response.getStatusCode());
                     }
 
-                    final CharacterWriteStream clientLineWriteStream = acceptedClient.asCharacterWriteStream("\r\n");
-                    clientLineWriteStream.writeLine("%s %s %s", httpVersion, response.getStatusCode(), reasonPhrase);
+                    final CharacterWriteStream acceptedClientWriteStream = acceptedClient.asCharacterWriteStream("\r\n");
+                    acceptedClientWriteStream.writeLine("%s %s %s", httpVersion, response.getStatusCode(), reasonPhrase);
                     for (final HttpHeader header : response.getHeaders())
                     {
-                        clientLineWriteStream.writeLine("%s:%s", header.getName(), header.getValue());
+                        acceptedClientWriteStream.writeLine("%s:%s", header.getName(), header.getValue());
                     }
-                    clientLineWriteStream.writeLine();
+                    acceptedClientWriteStream.writeLine();
 
                     try (final ByteReadStream responseBody = response.getBody())
                     {
-                        acceptedClient.writeAllBytes(responseBody).awaitError();
+                        acceptedClient.writeAllBytes(responseBody).await();
                     }
                 }
             }

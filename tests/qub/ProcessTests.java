@@ -47,7 +47,7 @@ public class ProcessTests
             runner.test("getCharacterEncoding()", (Test test) ->
             {
                 final Process process = creator.run();
-                test.assertEqual(CharacterEncoding.US_ASCII, process.getCharacterEncoding());
+                test.assertEqual(CharacterEncoding.UTF_8, process.getCharacterEncoding());
 
                 process.setCharacterEncoding(CharacterEncoding.US_ASCII);
                 test.assertEqual(CharacterEncoding.US_ASCII, process.getCharacterEncoding());
@@ -72,15 +72,6 @@ public class ProcessTests
 
                 process.setLineSeparator(null);
                 test.assertEqual(null, process.getLineSeparator());
-            });
-
-            runner.test("getIncludeNewLines()", (Test test) ->
-            {
-                final Process process = creator.run();
-                test.assertFalse(process.getIncludeNewLines());
-
-                process.setIncludeNewLines(true);
-                test.assertTrue(process.getIncludeNewLines());
             });
 
             runner.test("getOutputByteWriteStream()", (Test test) ->
@@ -130,8 +121,8 @@ public class ProcessTests
                 runner.test("with non-null", (Test test) ->
                 {
                     final Process process = creator.run();
-                    final InMemoryCharacterStream readStream = new InMemoryCharacterStream("hello there my good friend\nHow are you?\r\nI'm alright.");
-                    process.setInputByteReadStream(readStream.asByteReadStream());
+                    final InMemoryByteStream readStream = new InMemoryByteStream(CharacterEncoding.UTF_8.encode("hello there my good friend\nHow are you?\r\nI'm alright.").await());
+                    process.setInputByteReadStream(readStream);
 
                     final ByteReadStream byteReadStream = process.getInputByteReadStream();
                     test.assertEqual(new byte[] { 104, 101, 108, 108, 111 }, byteReadStream.readBytes(5).awaitError());
@@ -193,13 +184,6 @@ public class ProcessTests
 
                     test.assertEqual("od fr", characterReadStream.readString(5).awaitError());
                 });
-            });
-
-            runner.test("getInputLineReadStream()", (Test test) ->
-            {
-                final Process process = creator.run();
-                final LineReadStream readStream = process.getInputLineReadStream();
-                test.assertNotNull(readStream);
             });
 
             runner.test("getRandom()", (Test test) ->

@@ -55,8 +55,8 @@ public class BasicHttpClient implements HttpClient
                 }
 
                 final BufferedByteReadStream bufferedByteReadStream = new BufferedByteReadStream(tcpClient);
-                final LineReadStream responseLineReadStream = bufferedByteReadStream.asLineReadStream(false);
-                String statusLine = responseLineReadStream.readLine().awaitError();
+                final CharacterReadStream responseCharacterReadStream = bufferedByteReadStream.asCharacterReadStream();
+                String statusLine = responseCharacterReadStream.readLine().awaitError();
                 final int httpVersionLength = statusLine.indexOf(' ');
 
                 result.setHTTPVersion(statusLine.substring(0, httpVersionLength));
@@ -67,7 +67,7 @@ public class BasicHttpClient implements HttpClient
                 result.setStatusCode(Integer.parseInt(statusCodeString));
                 result.setReasonPhrase(statusLine.substring(statusCodeStringLength + 1));
 
-                String headerLine = responseLineReadStream.readLine().awaitError();
+                String headerLine = responseCharacterReadStream.readLine().awaitError();
                 while (!headerLine.isEmpty())
                 {
                     final int colonIndex = headerLine.indexOf(':');
@@ -75,7 +75,7 @@ public class BasicHttpClient implements HttpClient
                     final String headerValue = headerLine.substring(colonIndex + 1).trim();
                     result.setHeader(headerName, headerValue);
 
-                    headerLine = responseLineReadStream.readLine().awaitError();
+                    headerLine = responseCharacterReadStream.readLine().awaitError();
                 }
 
                 result.getContentLength()

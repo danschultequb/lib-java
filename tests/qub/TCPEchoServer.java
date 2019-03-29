@@ -25,14 +25,14 @@ public class TCPEchoServer implements AsyncDisposable
             {
                 try
                 {
-                    final LineReadStream tcpClientLineReadStream = tcpClient.asLineReadStream(true);
-                    final CharacterWriteStream tcpClientLineWriteStream = tcpClient.asCharacterWriteStream();
+                    final CharacterReadStream tcpClientReadStream = tcpClient.asCharacterReadStream();
+                    final CharacterWriteStream tcpClientWriteStream = tcpClient.asCharacterWriteStream();
 
-                    String line = tcpClientLineReadStream.readLine().await();
+                    String line = tcpClientReadStream.readLine(true).await();
                     while (line != null)
                     {
-                        tcpClientLineWriteStream.write(line);
-                        line = tcpClientLineReadStream.readLine().await();
+                        tcpClientWriteStream.write(line);
+                        line = tcpClientReadStream.readLine(true).await();
                     }
                 }
                 finally
