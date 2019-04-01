@@ -237,6 +237,78 @@ public interface Result<T>
     <TError extends Throwable> Result<T> onError(Class<TError> errorType, Action1<TError> action);
 
     /**
+     * If this Result has an error, catch it and convert it to the error returned by the provided
+     * function.
+     * @param function The function that will return the new error.
+     * @param <TErrorOut> The type of error that will be returned by the function.
+     * @return The Result with the new error.
+     */
+    default <TErrorOut extends Throwable> Result<T> convertError(Function0<TErrorOut> function)
+    {
+        PreCondition.assertNotNull(function, "function");
+
+        return catchErrorResult(() ->
+        {
+            return Result.error(function.run());
+        });
+    }
+
+    /**
+     * If this Result has an error, catch it and convert it to the error returned by the provided
+     * function.
+     * @param function The function that will return the new error.
+     * @param <TErrorOut> The type of error that will be returned by the function.
+     * @return The Result with the new error.
+     */
+    default <TErrorOut extends Throwable> Result<T> convertError(Function1<Throwable,TErrorOut> function)
+    {
+        PreCondition.assertNotNull(function, "function");
+
+        return catchErrorResult((Throwable error) ->
+        {
+            return Result.error(function.run(error));
+        });
+    }
+
+    /**
+     * If this Result has an error of the provided errorType, catch it and convert it to the error
+     * returned by the provided function.
+     * @param function The function that will return the new error.
+     * @param <TErrorIn> The type of error that was caught.
+     * @param <TErrorOut> The type of error that will be returned by the function.
+     * @return The Result with the new error.
+     */
+    default <TErrorIn extends Throwable, TErrorOut extends Throwable> Result<T> convertError(Class<TErrorIn> errorType, Function0<TErrorOut> function)
+    {
+        PreCondition.assertNotNull(errorType, "errorType");
+        PreCondition.assertNotNull(function, "function");
+
+        return catchErrorResult(errorType, () ->
+        {
+            return Result.error(function.run());
+        });
+    }
+
+    /**
+     * If this Result has an error of the provided errorType, catch it and convert it to the error
+     * returned by the provided function.
+     * @param function The function that will return the new error.
+     * @param <TErrorIn> The type of error that was caught.
+     * @param <TErrorOut> The type of error that will be returned by the function.
+     * @return The Result with the new error.
+     */
+    default <TErrorIn extends Throwable, TErrorOut extends Throwable> Result<T> convertError(Class<TErrorIn> errorType, Function1<TErrorIn,TErrorOut> function)
+    {
+        PreCondition.assertNotNull(errorType, "errorType");
+        PreCondition.assertNotNull(function, "function");
+
+        return catchErrorResult(errorType, (TErrorIn error) ->
+        {
+            return Result.error(function.run(error));
+        });
+    }
+
+    /**
      * Get whether or not the provided Result is equal to this Result.
      * @param rhs The provided Result.
      */

@@ -1265,6 +1265,182 @@ public class ResultTests
                 });
             });
 
+            runner.testGroup("convertError(Function0<TErrorOut>)", () ->
+            {
+                runner.test("with null function", (Test test) ->
+                {
+                    final Result<Void> result = Result.success();
+                    test.assertThrows(() -> result.convertError((Function0<NotFoundException>)null),
+                        new PreConditionFailure("function cannot be null."));
+                });
+
+                runner.test("with successful Result", (Test test) ->
+                {
+                    final Result<Void> result = Result.success();
+                    test.assertNull(result.convertError(() -> new NotFoundException("blah")).await());
+                });
+
+                runner.test("with error Result", (Test test) ->
+                {
+                    final Result<Void> result = Result.error(new NotFoundException("blah"));
+                    test.assertThrows(() -> result.convertError(() -> new NotFoundException("blah2")).awaitError(),
+                        new NotFoundException("blah2"));
+                });
+            });
+
+            runner.testGroup("convertError(Function1<Throwable,TErrorOut>)", () ->
+            {
+                runner.test("with null function", (Test test) ->
+                {
+                    final Result<Void> result = Result.success();
+                    test.assertThrows(() -> result.convertError((Function1<Throwable,NotFoundException>)null),
+                        new PreConditionFailure("function cannot be null."));
+                });
+
+                runner.test("with successful Result", (Test test) ->
+                {
+                    final Result<Void> result = Result.success();
+                    final Value<Throwable> caughtError = Value.create();
+                    test.assertNull(result.convertError((Throwable error) ->
+                        {
+                            caughtError.set(error);
+                            return new NotFoundException("blah");
+                        })
+                        .await());
+                    test.assertFalse(caughtError.hasValue());
+                });
+
+                runner.test("with error Result", (Test test) ->
+                {
+                    final Result<Void> result = Result.error(new NotFoundException("blah"));
+                    final Value<Throwable> caughtError = Value.create();
+                    test.assertThrows(() -> result.convertError((Throwable error) ->
+                        {
+                            caughtError.set(error);
+                            return new NotFoundException("blah2");
+                        })
+                        .awaitError(),
+                        new NotFoundException("blah2"));
+                    test.assertEqual(new NotFoundException("blah"), caughtError.get());
+                });
+            });
+
+            runner.testGroup("convertError(Class<TErrorIn>,Function0<TErrorOut>)", () ->
+            {
+                runner.test("with null errorType", (Test test) ->
+                {
+                    final Result<Void> result = Result.success();
+                    test.assertThrows(() -> result.convertError(null, () -> new NotFoundException("blah")),
+                        new PreConditionFailure("errorType cannot be null."));
+                });
+
+                runner.test("with null function", (Test test) ->
+                {
+                    final Result<Void> result = Result.success();
+                    test.assertThrows(() -> result.convertError(NotFoundException.class, (Function0<NotFoundException>)null),
+                        new PreConditionFailure("function cannot be null."));
+                });
+
+                runner.test("with successful Result", (Test test) ->
+                {
+                    final Result<Void> result = Result.success();
+                    test.assertNull(result.convertError(NotFoundException.class, () -> new NotFoundException("blah")).await());
+                });
+
+                runner.test("with error Result with different error type", (Test test) ->
+                {
+                    final Result<Void> result = Result.error(new NotFoundException("blah"));
+                    test.assertThrows(() -> result.convertError(NullPointerException.class, () -> new EndOfStreamException()).awaitError(),
+                        new NotFoundException("blah"));
+                });
+
+                runner.test("with error Result with same error type", (Test test) ->
+                {
+                    final Result<Void> result = Result.error(new NotFoundException("blah"));
+                    test.assertThrows(() -> result.convertError(NotFoundException.class, () -> new EndOfStreamException()).awaitError(),
+                        new EndOfStreamException());
+                });
+
+                runner.test("with error Result with parent error type", (Test test) ->
+                {
+                    final Result<Void> result = Result.error(new NotFoundException("blah"));
+                    test.assertThrows(() -> result.convertError(RuntimeException.class, () -> new EndOfStreamException()).awaitError(),
+                        new EndOfStreamException());
+                });
+            });
+
+            runner.testGroup("convertError(Class<TErrorIn>,Function1<TErrorIn,TErrorOut>)", () ->
+            {
+                runner.test("with null errorType", (Test test) ->
+                {
+                    final Result<Void> result = Result.success();
+                    test.assertThrows(() -> result.convertError(null, (NullPointerException error) -> new NotFoundException("blah")),
+                        new PreConditionFailure("errorType cannot be null."));
+                });
+
+                runner.test("with null function", (Test test) ->
+                {
+                    final Result<Void> result = Result.success();
+                    test.assertThrows(() -> result.convertError(NullPointerException.class, (Function1<NullPointerException,NotFoundException>)null),
+                        new PreConditionFailure("function cannot be null."));
+                });
+
+                runner.test("with successful Result", (Test test) ->
+                {
+                    final Result<Void> result = Result.success();
+                    final Value<Throwable> caughtError = Value.create();
+                    test.assertNull(result.convertError(NullPointerException.class, (NullPointerException error) ->
+                    {
+                        caughtError.set(error);
+                        return new NotFoundException("blah");
+                    })
+                        .await());
+                    test.assertFalse(caughtError.hasValue());
+                });
+
+                runner.test("with error Result with different error type", (Test test) ->
+                {
+                    final Result<Void> result = Result.error(new NullPointerException("blah"));
+                    final Value<Throwable> caughtError = Value.create();
+                    test.assertThrows(() -> result.convertError(EndOfStreamException.class, (EndOfStreamException error) ->
+                        {
+                            caughtError.set(error);
+                            return new NotFoundException("blah2");
+                        })
+                            .awaitError(),
+                        new NullPointerException("blah"));
+                    test.assertFalse(caughtError.hasValue());
+                });
+
+                runner.test("with error Result with same error type", (Test test) ->
+                {
+                    final Result<Void> result = Result.error(new NullPointerException("blah"));
+                    final Value<NullPointerException> caughtError = Value.create();
+                    test.assertThrows(() -> result.convertError(NullPointerException.class, (NullPointerException error) ->
+                        {
+                            caughtError.set(error);
+                            return new NotFoundException("blah2");
+                        })
+                            .awaitError(),
+                        new NotFoundException("blah2"));
+                    test.assertEqual(new NullPointerException("blah"), caughtError.get());
+                });
+
+                runner.test("with error Result with parent error type", (Test test) ->
+                {
+                    final Result<Void> result = Result.error(new NullPointerException("blah"));
+                    final Value<Throwable> caughtError = Value.create();
+                    test.assertThrows(() -> result.convertError(RuntimeException.class, (RuntimeException error) ->
+                        {
+                            caughtError.set(error);
+                            return new NotFoundException("blah2");
+                        })
+                            .awaitError(),
+                        new NotFoundException("blah2"));
+                    test.assertEqual(new NullPointerException("blah"), caughtError.get());
+                });
+            });
+
             runner.testGroup("toString()", () ->
             {
                 runner.test("with successful result with null value", (Test test) ->
