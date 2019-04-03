@@ -20,7 +20,7 @@ public class BasicHttpClient implements HttpClient
         {
             final URL requestUrl = request.getURL();
             final String requestHost = requestUrl.getHost();
-            final IPv4Address requestIPAddress = network.getDNS().resolveHost(requestHost).awaitError();
+            final IPv4Address requestIPAddress = network.getDNS().resolveHost(requestHost).await();
 
             Integer requestPort = requestUrl.getPort();
             if (requestPort == null)
@@ -30,7 +30,7 @@ public class BasicHttpClient implements HttpClient
 
             final MutableHttpResponse result = new MutableHttpResponse();
 
-            try (final TCPClient tcpClient = network.createTCPClient(requestIPAddress, requestPort).awaitError())
+            try (final TCPClient tcpClient = network.createTCPClient(requestIPAddress, requestPort).await())
             {
                 final InMemoryByteStream requestBeforeBodyByteStream = new InMemoryByteStream();
                 final CharacterWriteStream requestBeforeBodyLineStream = requestBeforeBodyByteStream.asCharacterWriteStream(CharacterEncoding.UTF_8, "\r\n");
@@ -47,16 +47,16 @@ public class BasicHttpClient implements HttpClient
                 requestBeforeBodyLineStream.writeLine();
                 requestBeforeBodyByteStream.endOfStream();
 
-                tcpClient.writeAllBytes(requestBeforeBodyByteStream).awaitError();
+                tcpClient.writeAllBytes(requestBeforeBodyByteStream).await();
                 final ByteReadStream requestBodyStream = request.getBody();
                 if (requestBodyStream != null)
                 {
-                    tcpClient.writeAllBytes(requestBodyStream).awaitError();
+                    tcpClient.writeAllBytes(requestBodyStream).await();
                 }
 
                 final BufferedByteReadStream bufferedByteReadStream = new BufferedByteReadStream(tcpClient);
                 final CharacterReadStream responseCharacterReadStream = bufferedByteReadStream.asCharacterReadStream();
-                String statusLine = responseCharacterReadStream.readLine().awaitError();
+                String statusLine = responseCharacterReadStream.readLine().await();
                 final int httpVersionLength = statusLine.indexOf(' ');
 
                 result.setHTTPVersion(statusLine.substring(0, httpVersionLength));
@@ -67,7 +67,7 @@ public class BasicHttpClient implements HttpClient
                 result.setStatusCode(Integer.parseInt(statusCodeString));
                 result.setReasonPhrase(statusLine.substring(statusCodeStringLength + 1));
 
-                String headerLine = responseCharacterReadStream.readLine().awaitError();
+                String headerLine = responseCharacterReadStream.readLine().await();
                 while (!headerLine.isEmpty())
                 {
                     final int colonIndex = headerLine.indexOf(':');
@@ -75,7 +75,7 @@ public class BasicHttpClient implements HttpClient
                     final String headerValue = headerLine.substring(colonIndex + 1).trim();
                     result.setHeader(headerName, headerValue);
 
-                    headerLine = responseCharacterReadStream.readLine().awaitError();
+                    headerLine = responseCharacterReadStream.readLine().await();
                 }
 
                 result.getContentLength()
@@ -89,14 +89,14 @@ public class BasicHttpClient implements HttpClient
                             long bytesToRead = contentLength;
                             while (0 < bytesToRead)
                             {
-                                final byte[] bytesRead = bufferedByteReadStream.readBytes((int)Math.minimum(bytesToRead, Integers.maximum)).awaitError();
+                                final byte[] bytesRead = bufferedByteReadStream.readBytes((int)Math.minimum(bytesToRead, Integers.maximum)).await();
                                 if (bytesRead == null)
                                 {
                                     bytesToRead = 0;
                                 }
                                 else
                                 {
-                                    responseBodyStream.writeAllBytes(bytesRead).awaitError();
+                                    responseBodyStream.writeAllBytes(bytesRead).await();
                                     bytesToRead -= bytesRead.length;
                                 }
                             }
@@ -104,7 +104,7 @@ public class BasicHttpClient implements HttpClient
                             result.setBody(responseBodyStream);
                         }
                     })
-                    .awaitError();
+                    .await();
             }
 
             PostCondition.assertNotNull(result, "result");

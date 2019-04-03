@@ -20,6 +20,23 @@ public class SyncResult<T> implements Result<T>
         return value;
     }
 
+    public <TError extends Throwable> T await(Class<TError> expectedErrorType) throws TError
+    {
+        if (error != null)
+        {
+            final TError matchingError = Exceptions.getInstanceOf(error, expectedErrorType);
+            if (matchingError != null)
+            {
+                throw matchingError;
+            }
+            else
+            {
+                throw Exceptions.asRuntime(error);
+            }
+        }
+        return value;
+    }
+
     public T awaitError()
     {
         if (error != null)
@@ -29,15 +46,14 @@ public class SyncResult<T> implements Result<T>
         return value;
     }
 
-    @SuppressWarnings("unchecked")
     public <TError extends Throwable> T awaitError(Class<TError> expectedErrorType) throws TError
     {
         if (error != null)
         {
-            final Throwable unwrappedError = Exceptions.unwrap(error);
-            if (Types.instanceOf(unwrappedError, expectedErrorType))
+            final TError matchingError = Exceptions.getInstanceOf(error, expectedErrorType);
+            if (matchingError != null)
             {
-                throw (TError)unwrappedError;
+                throw matchingError;
             }
             else
             {

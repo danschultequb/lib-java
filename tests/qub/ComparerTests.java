@@ -256,6 +256,12 @@ public class ComparerTests
                 equalTest.run(new NotFoundException("a"), new EndOfStreamException(), false);
                 equalTest.run(new NotFoundException("a"), new NotFoundException("b"), false);
                 equalTest.run(new NotFoundException("a"), new NotFoundException("a"), true);
+                equalTest.run(new RuntimeException(new NotFoundException("a")), new NotFoundException("a"), false);
+                equalTest.run(new NotFoundException("a"), new RuntimeException(new NotFoundException("a")), false);
+                equalTest.run(new RuntimeException(new NotFoundException("a")), new RuntimeException(new NotFoundException("a")), true);
+                equalTest.run(new AwaitException(new NotFoundException("a")), new NotFoundException("a"), false);
+                equalTest.run(new NotFoundException("a"), new AwaitException(new NotFoundException("a")), false);
+                equalTest.run(new AwaitException(new NotFoundException("a")), new AwaitException(new NotFoundException("a")), true);
             });
 
             runner.testGroup("minimum(Iterable<T>)", () ->

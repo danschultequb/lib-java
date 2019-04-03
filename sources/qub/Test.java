@@ -1027,7 +1027,7 @@ public class Test
         {
             throw new TestAssertionFailure(getFullName(), new String[] { "Expected a " + expectedException.getClass().getCanonicalName() + " to be thrown with " + (Strings.isNullOrEmpty(expectedException.getMessage()) ? "no message" : "the message \"" + expectedException.getMessage() + "\"") + "." });
         }
-        else if (!Comparer.equal(expectedException, exceptionThrown))
+        else if (!Comparer.equal(expectedException, exceptionThrown, Exceptions.defaultErrorTypesToGoPast))
         {
             throw new TestAssertionFailure(getFullName(), getMessageLines("Incorrect exception thrown", expectedException, exceptionThrown));
         }
@@ -1194,16 +1194,6 @@ public class Test
                     }
                 }
             });
-    }
-
-    /**
-     * Assert that the provided Result object is a successful Result.
-     * @param result The Result to check.
-     */
-    public <T> void assertSuccessAsync(AsyncFunction<Result<T>> result)
-    {
-        assertNotNull(result);
-        assertSuccess(result.awaitReturn());
     }
 
     /**

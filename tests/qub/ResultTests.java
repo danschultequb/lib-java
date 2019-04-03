@@ -476,12 +476,48 @@ public class ResultTests
                     test.assertEqual(0, value.get());
                 });
 
+                runner.test("with error Result with RuntimeException-wrapped wrong error type and non-throwing action", (Test test) ->
+                {
+                    final Result<Boolean> result1 = Result.error(new RuntimeException(new RuntimeException("abc")));
+                    final Value<Integer> value = Value.create(0);
+                    final Result<Boolean> result2 = result1.catchError(NullPointerException.class, (Action0)() -> value.set(5));
+                    test.assertSame(result2, result1);
+                    test.assertEqual(0, value.get());
+                });
+
+                runner.test("with error Result with AwaitException-wrapped wrong error type and non-throwing action", (Test test) ->
+                {
+                    final Result<Boolean> result1 = Result.error(new RuntimeException(new RuntimeException("abc")));
+                    final Value<Integer> value = Value.create(0);
+                    final Result<Boolean> result2 = result1.catchError(NullPointerException.class, (Action0)() -> value.set(5));
+                    test.assertSame(result1, result2);
+                    test.assertEqual(0, value.get());
+                });
+
                 runner.test("with error Result with correct error type and non-throwing action", (Test test) ->
                 {
                     final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
                     final Value<Integer> value = Value.create(0);
                     final Result<Boolean> result2 = result1.catchError(RuntimeException.class, (Action0)() -> value.set(5));
-                    test.assertSuccess(null, result2);
+                    test.assertNull(result2.await());
+                    test.assertEqual(5, value.get());
+                });
+
+                runner.test("with error Result with RuntimeException-wrapped correct error type and non-throwing action", (Test test) ->
+                {
+                    final Result<Boolean> result1 = Result.error(new RuntimeException(new NotFoundException("abc")));
+                    final Value<Integer> value = Value.create(0);
+                    final Result<Boolean> result2 = result1.catchError(NotFoundException.class, (Action0)() -> value.set(5));
+                    test.assertNull(result2.await());
+                    test.assertEqual(5, value.get());
+                });
+
+                runner.test("with error Result with AwaitException-wrapped correct error type and non-throwing action", (Test test) ->
+                {
+                    final Result<Boolean> result1 = Result.error(new AwaitException(new NotFoundException("abc")));
+                    final Value<Integer> value = Value.create(0);
+                    final Result<Boolean> result2 = result1.catchError(NotFoundException.class, (Action0)() -> value.set(5));
+                    test.assertNull(result2.await());
                     test.assertEqual(5, value.get());
                 });
 

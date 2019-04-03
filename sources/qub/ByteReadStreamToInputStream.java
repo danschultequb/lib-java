@@ -13,7 +13,7 @@ public class ByteReadStreamToInputStream extends java.io.InputStream
     public void close() throws java.io.IOException
     {
         byteReadStream.dispose()
-            .awaitError(java.io.IOException.class);
+            .await(java.io.IOException.class);
     }
 
     @Override
@@ -22,7 +22,7 @@ public class ByteReadStreamToInputStream extends java.io.InputStream
         return byteReadStream.readByte()
             .then((Byte valueRead) -> valueRead == null ? -1 : Bytes.toUnsignedInt(valueRead))
             .catchError(EndOfStreamException.class, () -> -1)
-            .awaitError(java.io.IOException.class);
+            .await(java.io.IOException.class);
     }
 
     @Override
@@ -31,7 +31,7 @@ public class ByteReadStreamToInputStream extends java.io.InputStream
         return byteReadStream.readBytes(outputBytes)
             .then((Integer bytesRead) -> bytesRead == null ? -1 : bytesRead)
             .catchError(EndOfStreamException.class, () -> -1)
-            .awaitError(java.io.IOException.class);
+            .await(java.io.IOException.class);
     }
 
     @Override
@@ -40,6 +40,6 @@ public class ByteReadStreamToInputStream extends java.io.InputStream
         return byteReadStream.readBytes(outputBytes, startIndex, length)
             .then((Integer bytesRead) -> bytesRead == null ? -1 : bytesRead)
             .catchError(EndOfStreamException.class, () -> -1)
-            .awaitError(java.io.IOException.class);
+            .await(java.io.IOException.class);
     }
 }

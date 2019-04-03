@@ -112,12 +112,49 @@ public interface Comparer<T> extends Function2<T,T,Comparison>
      */
     static boolean equal(Throwable arg1, Throwable arg2)
     {
-        boolean result = arg1 == arg2;
-        if (!result && arg1 != null && arg2 != null && !arg1.equals(arg2))
+        return Comparer.equal(arg1, arg2, null);
+    }
+
+    /**
+     * Get whether or not the provided Throwable errors are equal, ignoring their stack traces.
+     * @param error1 The first Throwable error.
+     * @param error2 The second Throwable error.
+     * @param errorTypesToGoPast Error types that will be invested into to see if a matching error exists as the cause
+     *                           of the error.
+     * @return True if they are equal, false if they are not.
+     */
+    static boolean equal(Throwable error1, Throwable error2, Iterable<Class<? extends Throwable>> errorTypesToGoPast)
+    {
+        boolean result = error1 == error2;
+        final boolean hasErrorTypesToGoPast = !Iterable.isNullOrEmpty(errorTypesToGoPast);
+        while (error1 != null)
         {
-            result = Comparer.equal(arg1.getClass(), arg2.getClass()) &&
-                Comparer.equal(arg1.getMessage(), arg2.getMessage()) &&
-                Comparer.equal(arg1.getCause(), arg2.getCause());
+            final Throwable error2Backup = error2;
+            while (error2 != null)
+            {
+                result = Comparer.equal(error1.getClass(), error2.getClass()) &&
+                    Comparer.equal(error1.getMessage(), error2.getMessage()) &&
+                    Comparer.equal(error1.getCause(), error2.getCause());
+
+                if (result || !hasErrorTypesToGoPast || !errorTypesToGoPast.contains(error2.getClass()) || error2.getCause() == error2)
+                {
+                    error2 = null;
+                }
+                else
+                {
+                    error2 = error2.getCause();
+                }
+            }
+
+            if (result || !hasErrorTypesToGoPast || !errorTypesToGoPast.contains(error1.getClass()) || error1.getCause() == error1)
+            {
+                error1 = null;
+            }
+            else
+            {
+                error2 = error2Backup;
+                error1 = error1.getCause();
+            }
         }
         return result;
     }

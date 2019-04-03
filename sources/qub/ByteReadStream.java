@@ -245,7 +245,7 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
                             ? Result.success()
                             : Result.error(error);
                     })
-                    .awaitError();
+                    .await();
                 if (byteRead == null)
                 {
                     result = byteList.toByteArray();
@@ -288,7 +288,7 @@ public interface ByteReadStream extends AsyncDisposable, Iterator<Byte>
         return readByte()
             .thenResult(Result::successTrue)
             .catchErrorResult(EndOfStreamException.class, Result::successFalse)
-            .awaitError();
+            .await();
     }
 
     /**

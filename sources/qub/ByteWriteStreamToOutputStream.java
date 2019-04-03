@@ -12,24 +12,24 @@ public class ByteWriteStreamToOutputStream extends java.io.OutputStream
     @Override
     public void close() throws java.io.IOException
     {
-        byteWriteStream.dispose().awaitError(java.io.IOException.class);
+        byteWriteStream.dispose().await(java.io.IOException.class);
     }
 
     @Override
     public void write(int b) throws java.io.IOException
     {
-        byteWriteStream.writeByte((byte)b).awaitError(java.io.IOException.class);
+        byteWriteStream.writeByte((byte)b).await(java.io.IOException.class);
     }
 
     @Override
     public void write(byte[] bytes) throws java.io.IOException
     {
-        byteWriteStream.writeAllBytes(bytes).awaitError(java.io.IOException.class);
+        byteWriteStream.writeAllBytes(bytes).await(java.io.IOException.class);
     }
 
     @Override
     public void write(byte[] bytes, int startIndex, int length) throws java.io.IOException
     {
-        byteWriteStream.writeAllBytes(bytes, startIndex, length).awaitError(java.io.IOException.class);
+        byteWriteStream.writeAllBytes(bytes, startIndex, length).await(java.io.IOException.class);
     }
 }
