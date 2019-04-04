@@ -1,7 +1,7 @@
 {
   "publisher": "qub",
   "project": "qub-java",
-  "version": "54",
+  "version": "55",
   "java": {
     "version": "1.8",
     "sources": {

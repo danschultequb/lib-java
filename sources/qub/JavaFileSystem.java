@@ -28,7 +28,7 @@ public class JavaFileSystem implements FileSystem
                 {
                     final String rootPathString = root.getAbsolutePath();
                     final String trimmedRootPathString = rootPathString.equals("/") ? rootPathString : rootPathString.substring(0, rootPathString.length() - 1);
-                    return getRoot(trimmedRootPathString).awaitError();
+                    return getRoot(trimmedRootPathString).await();
                 });
         });
     }
@@ -57,11 +57,11 @@ public class JavaFileSystem implements FileSystem
                 final Path containerEntryPath = Path.parse(containerEntryPathString).normalize();
                 if (containerEntryFile.isFile())
                 {
-                    files.add(getFile(containerEntryPath).awaitError());
+                    files.add(getFile(containerEntryPath).await());
                 }
                 else if (containerEntryFile.isDirectory())
                 {
-                    folders.add(getFolder(containerEntryPath).awaitError());
+                    folders.add(getFolder(containerEntryPath).await());
                 }
             }
 
@@ -129,7 +129,7 @@ public class JavaFileSystem implements FileSystem
             {
                 for (final FileSystemEntry entry : entries)
                 {
-                    entry.delete().awaitError();
+                    entry.delete().await();
                 }
                 try
                 {
@@ -270,7 +270,7 @@ public class JavaFileSystem implements FileSystem
         {
             try
             {
-                createFolder(rootedFilePath.getParent()).awaitError();
+                createFolder(rootedFilePath.getParent()).await();
                 result = Result.success(
                     new BufferedByteWriteStream(
                         new OutputStreamToByteWriteStream(

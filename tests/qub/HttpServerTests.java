@@ -67,7 +67,7 @@ public class HttpServerTests
                         try
                         {
                             final HttpClient client = createClient(test);
-                            final HttpResponse response = client.get("http://" + server.getLocalIPAddress() + ":" + server.getLocalPort() + "/").awaitError();
+                            final HttpResponse response = client.get("http://" + server.getLocalIPAddress() + ":" + server.getLocalPort() + "/").await();
                             test.assertNotNull(response);
                             test.assertEqual(200, response.getStatusCode());
                         }
@@ -156,7 +156,7 @@ public class HttpServerTests
                         try
                         {
                             final HttpClient client = createClient(test);
-                            final HttpResponse response1 = client.send(HttpRequest.get("http://" + server.getLocalIPAddress() + ":" + server.getLocalPort() + "/onefish").awaitError()).awaitError();
+                            final HttpResponse response1 = client.send(HttpRequest.get("http://" + server.getLocalIPAddress() + ":" + server.getLocalPort() + "/onefish").await()).await();
                             test.assertNotNull(response1);
                             test.assertEqual(200, response1.getStatusCode());
                             test.assertEqual("OK", response1.getReasonPhrase());
@@ -164,7 +164,7 @@ public class HttpServerTests
                             test.assertSuccess("Two Fish", response1.getBody().asCharacterReadStream().readEntireString());
                             test.assertSuccess("", response1.getBody().asCharacterReadStream().readEntireString());
 
-                            final HttpResponse response2 = client.send(HttpRequest.get("http://" + server.getLocalIPAddress() + ":" + server.getLocalPort() + "/redfish").awaitError()).awaitError();
+                            final HttpResponse response2 = client.send(HttpRequest.get("http://" + server.getLocalIPAddress() + ":" + server.getLocalPort() + "/redfish").await()).await();
                             test.assertNotNull(response2);
                             test.assertEqual(201, response2.getStatusCode());
                             test.assertEqual("Created", response2.getReasonPhrase());
@@ -194,7 +194,7 @@ public class HttpServerTests
                         try
                         {
                             final HttpClient client = createClient(test);
-                            final HttpResponse response = client.get("http://" + server.getLocalIPAddress() + ":" + server.getLocalPort() + "/things/catsanddogs").awaitError();
+                            final HttpResponse response = client.get("http://" + server.getLocalIPAddress() + ":" + server.getLocalPort() + "/things/catsanddogs").await();
                             test.assertNotNull(response);
                             test.assertEqual(200, response.getStatusCode());
                             test.assertSuccess("Hello, catsanddogs!", response.getBody().asCharacterReadStream().readEntireString());
@@ -233,7 +233,7 @@ public class HttpServerTests
                         try
                         {
                             final HttpClient client = createClient(test);
-                            final HttpResponse response = client.get("http://" + server.getLocalIPAddress() + ":" + server.getLocalPort() + "/notfound").awaitError();
+                            final HttpResponse response = client.get("http://" + server.getLocalIPAddress() + ":" + server.getLocalPort() + "/notfound").await();
                             test.assertNotNull(response);
                             test.assertEqual(456, response.getStatusCode());
                         }
@@ -250,7 +250,7 @@ public class HttpServerTests
 
     private static HttpServer createServer(Test test)
     {
-        return new HttpServer(test.getNetwork().createTCPServer(IPv4Address.localhost, 18084).awaitError());
+        return new HttpServer(test.getNetwork().createTCPServer(IPv4Address.localhost, 18084).await());
     }
 
     private static HttpClient createClient(Test test)

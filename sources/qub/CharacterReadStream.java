@@ -125,7 +125,7 @@ public interface CharacterReadStream extends AsyncDisposable, Iterator<Character
             {
                 final Character c = readCharacter()
                     .catchError(EndOfStreamException.class)
-                    .awaitError();
+                    .await();
                 if (c == null)
                 {
                     break;
@@ -180,7 +180,7 @@ public interface CharacterReadStream extends AsyncDisposable, Iterator<Character
             {
                 final Integer charactersRead = readCharacters(buffer)
                     .catchError(EndOfStreamException.class)
-                    .awaitError();
+                    .await();
                 if (charactersRead == null || charactersRead == -1)
                 {
                     break;

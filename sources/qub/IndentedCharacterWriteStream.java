@@ -166,7 +166,7 @@ public class IndentedCharacterWriteStream implements CharacterWriteStream
                 {
                     result += innerStream.write(currentIndent).await();
                 }
-                result += innerStream.write(toWrite, lineStartIndex, lineLength).awaitError();
+                result += innerStream.write(toWrite, lineStartIndex, lineLength).await();
                 indentNextCharacter = true;
 
                 lineStartIndex = lineEndIndex;
@@ -180,7 +180,7 @@ public class IndentedCharacterWriteStream implements CharacterWriteStream
                 {
                     result += innerStream.write(currentIndent).await();
                 }
-                result += innerStream.write(toWrite, lineStartIndex, lineLength).awaitError();
+                result += innerStream.write(toWrite, lineStartIndex, lineLength).await();
                 indentNextCharacter = false;
             }
 

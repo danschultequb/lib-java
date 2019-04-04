@@ -1148,7 +1148,7 @@ public class Test
                 fail(error.getClass().getName() + ": " + error.getMessage());
             }
         })
-        .awaitError();
+        .await();
     }
 
     /**
@@ -1205,7 +1205,7 @@ public class Test
     public <T> void assertSuccess(T expectedValue, Result<T> result)
     {
         assertNotNull(result, "A successful Result should not be null");
-        assertEqual(expectedValue, result.awaitError(), "Unexpected successful Result value");
+        assertEqual(expectedValue, result.await(), "Unexpected successful Result value");
     }
 
     /**
@@ -1228,7 +1228,7 @@ public class Test
     public <T> void assertError(Throwable expectedError, Result<T> result)
     {
         assertNotNull(result, "The Result object should not be null.");
-        assertThrows(result::awaitError, expectedError);
+        assertThrows(result::await, expectedError);
     }
 
     /**
@@ -1254,7 +1254,7 @@ public class Test
         assertNotNull(result);
         if (expectedError != null)
         {
-            assertThrows(result::awaitError, expectedError);
+            assertThrows(result::await, expectedError);
         }
         else
         {

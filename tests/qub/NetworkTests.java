@@ -32,7 +32,7 @@ public class NetworkTests
                 runner.test("with valid arguments but no server listening", (Test test) ->
                 {
                     final Network network = creator.run(test);
-                    test.assertThrows(() -> network.createTCPClient(IPv4Address.parse("127.0.0.1"), 38827).awaitError(),
+                    test.assertThrows(() -> network.createTCPClient(IPv4Address.parse("127.0.0.1"), 38827).await(),
                         new RuntimeException(new java.net.ConnectException("Connection refused: connect")));
                 });
 
@@ -49,14 +49,14 @@ public class NetworkTests
                     {
                         final Result<TCPServer> tcpServerResult = network.createTCPServer(IPv4Address.localhost, port);
                         test.assertSuccess(tcpServerResult);
-                        try (final TCPServer tcpServer = tcpServerResult.awaitError())
+                        try (final TCPServer tcpServer = tcpServerResult.await())
                         {
                             test.assertEqual(IPv4Address.localhost, tcpServer.getLocalIPAddress());
                             test.assertEqual(port, tcpServer.getLocalPort());
                             final Duration acceptTimeout = Duration.seconds(5);
                             final Result<TCPClient> acceptedClientResult = tcpServer.accept(acceptTimeout);
                             test.assertSuccess(acceptedClientResult);
-                            try (final TCPClient acceptedClient = acceptedClientResult.awaitError())
+                            try (final TCPClient acceptedClient = acceptedClientResult.await())
                             {
                                 test.assertSuccess(bytes, acceptedClient.readBytes(bytes.length));
                                 test.assertSuccess(bytes.length, acceptedClient.writeBytes(bytes));
@@ -68,14 +68,14 @@ public class NetworkTests
                     {
                         final Result<TCPClient> tcpClientResult = network.createTCPClient(IPv4Address.localhost, port, Duration.seconds(5));
                         test.assertSuccess(tcpClientResult);
-                        try (final TCPClient tcpClient = tcpClientResult.awaitError())
+                        try (final TCPClient tcpClient = tcpClientResult.await())
                         {
                             test.assertEqual(IPv4Address.localhost, tcpClient.getLocalIPAddress());
                             test.assertNotEqual(port, tcpClient.getLocalPort());
                             test.assertEqual(IPv4Address.localhost, tcpClient.getRemoteIPAddress());
                             test.assertEqual(port, tcpClient.getRemotePort());
-                            test.assertEqual(bytes.length, tcpClient.writeBytes(bytes).awaitError());
-                            test.assertEqual(bytes, tcpClient.readBytes(bytes.length).awaitError());
+                            test.assertEqual(bytes.length, tcpClient.writeBytes(bytes).await());
+                            test.assertEqual(bytes, tcpClient.readBytes(bytes.length).await());
                         }
                     });
 
@@ -100,8 +100,8 @@ public class NetworkTests
                 runner.test("with 8088 localPort", (Test test) ->
                 {
                     final Network network = creator.run(test);
-                    final TCPServer tcpServer = network.createTCPServer(8088).awaitError();
-                    test.assertTrue(tcpServer.dispose().awaitError());
+                    final TCPServer tcpServer = network.createTCPServer(8088).await();
+                    test.assertTrue(tcpServer.dispose().await());
                 });
             });
         });

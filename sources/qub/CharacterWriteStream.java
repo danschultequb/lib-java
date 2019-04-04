@@ -149,14 +149,14 @@ public interface CharacterWriteStream extends Disposable
             {
                 final Integer charactersRead = characterReadStream.readCharacters(buffer)
                     .catchError(EndOfStreamException.class)
-                    .awaitError();
+                    .await();
                 if (charactersRead == null || charactersRead == -1)
                 {
                     break;
                 }
                 else
                 {
-                    result += write(buffer, 0, charactersRead).awaitError();
+                    result += write(buffer, 0, charactersRead).await();
                     if (charactersRead == buffer.length)
                     {
                         buffer = new char[buffer.length * 2];

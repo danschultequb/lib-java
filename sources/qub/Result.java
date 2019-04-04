@@ -21,14 +21,6 @@ public interface Result<T>
     <TError extends Throwable> T await(Class<TError> expectedErrorType) throws TError;
 
     /**
-     * Wait for this Result to complete. If this Result contains an error, then the error will be
-     * thrown as a RuntimeException. If this Result does not contain an error, then the Result's
-     * value will be returned.
-     * @return The value of this Result.
-     */
-    T awaitError();
-
-    /**
      * If this Result doesn't have an error, then run the provided action and return a new Result
      * object with the action's result.
      * @param action The action to run if this result does not have an error.

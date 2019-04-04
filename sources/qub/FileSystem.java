@@ -36,7 +36,7 @@ public interface FileSystem
         return getRoots()
             .then((Iterable<Root> roots) ->
             {
-                final Path root = rootPath.getRoot().awaitError();
+                final Path root = rootPath.getRoot().await();
                 return roots.map(Root::getPath).contains(root);
             });
     }
@@ -182,7 +182,7 @@ public interface FileSystem
                 List<FileSystemEntry> result = null;
 
                 final Iterable<FileSystemEntry> folderEntries = folder.getFilesAndFolders()
-                    .awaitError();
+                    .await();
 
                 if (folderEntries != null)
                 {
@@ -194,7 +194,7 @@ public interface FileSystem
                     while (foldersToVisit.any())
                     {
                         final Folder currentFolder = foldersToVisit.dequeue();
-                        final Iterable<FileSystemEntry> currentFolderEntries = currentFolder.getFilesAndFolders().awaitError();
+                        final Iterable<FileSystemEntry> currentFolderEntries = currentFolder.getFilesAndFolders().await();
                         for (final FileSystemEntry entry : currentFolderEntries)
                         {
                             result.add(entry);
@@ -940,11 +940,11 @@ public interface FileSystem
                 {
                     result = byteReadStream.readAllBytes()
                         .catchError(EndOfStreamException.class, () -> new byte[0])
-                        .awaitError();
+                        .await();
                 }
                 finally
                 {
-                    byteReadStream.dispose().awaitError();
+                    byteReadStream.dispose().await();
                 }
                 return result;
             });
@@ -1150,12 +1150,12 @@ public interface FileSystem
                 {
                     if (content != null && content.length > 0)
                     {
-                        byteWriteStream.writeAllBytes(content).awaitError();
+                        byteWriteStream.writeAllBytes(content).await();
                     }
                 }
                 finally
                 {
-                    byteWriteStream.dispose().awaitError();
+                    byteWriteStream.dispose().await();
                 }
             });
     }
@@ -1380,6 +1380,6 @@ public interface FileSystem
                 return Strings.containsAny(pathString, invalidCharacters);
             })
             .catchError(NotFoundException.class, () -> false)
-            .awaitError();
+            .await();
     }
 }

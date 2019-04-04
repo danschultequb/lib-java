@@ -24,21 +24,21 @@ public class ResultTests
                 });
             });
 
-            runner.testGroup("awaitError()", () ->
+            runner.testGroup("await()", () ->
             {
                 runner.test("with no error", (Test test) ->
                 {
-                    test.assertEqual(null, Result.success().awaitError());
+                    test.assertEqual(null, Result.success().await());
                 });
 
                 runner.test("with RuntimeException", (Test test) ->
                 {
-                    test.assertThrows(() -> Result.error(new RuntimeException("abc")).awaitError(), new RuntimeException("abc"));
+                    test.assertThrows(() -> Result.error(new RuntimeException("abc")).await(), new RuntimeException("abc"));
                 });
 
                 runner.test("with Exception", (Test test) ->
                 {
-                    test.assertThrows(() -> Result.error(new Exception("abc")).awaitError(), new RuntimeException(new Exception("abc")));
+                    test.assertThrows(() -> Result.error(new Exception("abc")).await(), new RuntimeException(new Exception("abc")));
                 });
             });
 
@@ -65,7 +65,7 @@ public class ResultTests
                     {
                         throw new RuntimeException("foo");
                     });
-                    test.assertThrows(result2::awaitError, new RuntimeException("foo"));
+                    test.assertThrows(result2::await, new RuntimeException("foo"));
                 });
 
                 runner.test("with error Result and non-throwing action", (Test test) ->
@@ -1319,7 +1319,7 @@ public class ResultTests
                 runner.test("with error Result", (Test test) ->
                 {
                     final Result<Void> result = Result.error(new NotFoundException("blah"));
-                    test.assertThrows(() -> result.convertError(() -> new NotFoundException("blah2")).awaitError(),
+                    test.assertThrows(() -> result.convertError(() -> new NotFoundException("blah2")).await(),
                         new NotFoundException("blah2"));
                 });
             });
@@ -1355,7 +1355,7 @@ public class ResultTests
                             caughtError.set(error);
                             return new NotFoundException("blah2");
                         })
-                        .awaitError(),
+                        .await(),
                         new NotFoundException("blah2"));
                     test.assertEqual(new NotFoundException("blah"), caughtError.get());
                 });
@@ -1386,21 +1386,21 @@ public class ResultTests
                 runner.test("with error Result with different error type", (Test test) ->
                 {
                     final Result<Void> result = Result.error(new NotFoundException("blah"));
-                    test.assertThrows(() -> result.convertError(NullPointerException.class, () -> new EndOfStreamException()).awaitError(),
+                    test.assertThrows(() -> result.convertError(NullPointerException.class, () -> new EndOfStreamException()).await(),
                         new NotFoundException("blah"));
                 });
 
                 runner.test("with error Result with same error type", (Test test) ->
                 {
                     final Result<Void> result = Result.error(new NotFoundException("blah"));
-                    test.assertThrows(() -> result.convertError(NotFoundException.class, () -> new EndOfStreamException()).awaitError(),
+                    test.assertThrows(() -> result.convertError(NotFoundException.class, () -> new EndOfStreamException()).await(),
                         new EndOfStreamException());
                 });
 
                 runner.test("with error Result with parent error type", (Test test) ->
                 {
                     final Result<Void> result = Result.error(new NotFoundException("blah"));
-                    test.assertThrows(() -> result.convertError(RuntimeException.class, () -> new EndOfStreamException()).awaitError(),
+                    test.assertThrows(() -> result.convertError(RuntimeException.class, () -> new EndOfStreamException()).await(),
                         new EndOfStreamException());
                 });
             });
@@ -1443,7 +1443,7 @@ public class ResultTests
                             caughtError.set(error);
                             return new NotFoundException("blah2");
                         })
-                            .awaitError(),
+                            .await(),
                         new NullPointerException("blah"));
                     test.assertFalse(caughtError.hasValue());
                 });
@@ -1457,7 +1457,7 @@ public class ResultTests
                             caughtError.set(error);
                             return new NotFoundException("blah2");
                         })
-                            .awaitError(),
+                            .await(),
                         new NotFoundException("blah2"));
                     test.assertEqual(new NullPointerException("blah"), caughtError.get());
                 });
@@ -1471,7 +1471,7 @@ public class ResultTests
                             caughtError.set(error);
                             return new NotFoundException("blah2");
                         })
-                            .awaitError(),
+                            .await(),
                         new NotFoundException("blah2"));
                     test.assertEqual(new NullPointerException("blah"), caughtError.get());
                 });
@@ -1614,14 +1614,14 @@ public class ResultTests
                 {
                     final Result<Integer> result = Result.error(new RuntimeException("abc"));
                     test.assertNotNull(result);
-                    test.assertThrows(result::awaitError, new RuntimeException("abc"));
+                    test.assertThrows(result::await, new RuntimeException("abc"));
                 });
 
                 runner.test("with Exception", (Test test) ->
                 {
                     final Result<Integer> result = Result.error(new Exception("abc"));
                     test.assertNotNull(result);
-                    test.assertThrows(result::awaitError, new RuntimeException(new Exception("abc")));
+                    test.assertThrows(result::await, new RuntimeException(new Exception("abc")));
                 });
             });
         });

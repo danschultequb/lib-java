@@ -194,7 +194,7 @@ public class FolderFileSystem implements FileSystem
             .thenResult((Path innerFolderPath) ->
             {
                 return innerFolderPath.equals(baseFolderPath)
-                    ? Result.error(new IllegalArgumentException("Cannot delete a root folder (" + rootedFolderPath.resolve().awaitError() + ")."))
+                    ? Result.error(new IllegalArgumentException("Cannot delete a root folder (" + rootedFolderPath.resolve().await() + ")."))
                     : innerFileSystem.deleteFolder(innerFolderPath)
                         .convertError(FolderNotFoundException.class, (FolderNotFoundException error) ->
                         {

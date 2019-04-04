@@ -118,7 +118,7 @@ public class GateTests
                 runner.test("with positive Duration when closed", (Test test) ->
                 {
                     final Gate gate = create(creator, false, test);
-                    test.assertThrows(() -> gate.passThrough(Duration.seconds(0.1)).awaitError(),
+                    test.assertThrows(() -> gate.passThrough(Duration.seconds(0.1)).await(),
                         new TimeoutException());
                 });
             });

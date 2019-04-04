@@ -31,33 +31,7 @@ public class SyncResult<T> implements Result<T>
             }
             else
             {
-                throw Exceptions.asRuntime(error);
-            }
-        }
-        return value;
-    }
-
-    public T awaitError()
-    {
-        if (error != null)
-        {
-            throw Exceptions.asRuntime(error);
-        }
-        return value;
-    }
-
-    public <TError extends Throwable> T awaitError(Class<TError> expectedErrorType) throws TError
-    {
-        if (error != null)
-        {
-            final TError matchingError = Exceptions.getInstanceOf(error, expectedErrorType);
-            if (matchingError != null)
-            {
-                throw matchingError;
-            }
-            else
-            {
-                throw Exceptions.asRuntime(error);
+                throw new AwaitException(error);
             }
         }
         return value;

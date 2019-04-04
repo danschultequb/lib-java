@@ -5,7 +5,7 @@ public class ProcessBuilderTests
     private static ProcessBuilder createBuilder(Test test)
     {
         final FileSystem fileSystem = test.getFileSystem();
-        final File fakeFile = fileSystem.getFile("C:/idontexist.exe").awaitError();
+        final File fakeFile = fileSystem.getFile("C:/idontexist.exe").await();
         return new ProcessBuilder(test.getParallelAsyncRunner(), fakeFile);
     }
 
@@ -119,7 +119,7 @@ public class ProcessBuilderTests
             {
                 final ProcessBuilder builder = createBuilder(test);
                 builder.addArgument("won't matter");
-                test.assertThrows(() -> builder.run().awaitError(),
+                test.assertThrows(() -> builder.run().await(),
                     new RuntimeException(
                         new java.io.IOException("Cannot run program \"C:/idontexist.exe\": CreateProcess error=2, The system cannot find the file specified",
                             new java.io.IOException("CreateProcess error=2, The system cannot find the file specified"))));
@@ -130,7 +130,7 @@ public class ProcessBuilderTests
             {
                 final ProcessBuilder builder = createBuilder(test);
                 builder.addArgument("won't matter");
-                test.assertThrows(() -> builder.runAsync().awaitReturn().awaitError(),
+                test.assertThrows(() -> builder.runAsync().awaitReturn().await(),
                     new RuntimeException(
                         new java.io.IOException("Cannot run program \"C:/idontexist.exe\": CreateProcess error=2, The system cannot find the file specified",
                             new java.io.IOException("CreateProcess error=2, The system cannot find the file specified"))));

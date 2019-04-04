@@ -18,7 +18,7 @@ public class HttpClientTests
                 {
                     final HttpClient httpClient = creator.run(test);
                     final MutableHttpRequest httpRequest = new MutableHttpRequest(HttpMethod.GET, URL.parse("http://www.idontexistbecauseimnotagoodurl.com").await());
-                    test.assertThrows(() -> httpClient.send(httpRequest).awaitError(),
+                    test.assertThrows(() -> httpClient.send(httpRequest).await(),
                         new RuntimeException(new java.net.UnknownHostException("www.idontexistbecauseimnotagoodurl.com")));
                 });
 
@@ -27,15 +27,15 @@ public class HttpClientTests
                     final HttpClient httpClient = creator.run(test);
                     final MutableHttpRequest httpRequest = new MutableHttpRequest(HttpMethod.GET, URL.parse("http://www.example.com").await());
 
-                    final HttpResponse httpResponse = httpClient.send(httpRequest).awaitError();
+                    final HttpResponse httpResponse = httpClient.send(httpRequest).await();
                     test.assertEqual("HTTP/1.1", httpResponse.getHTTPVersion());
                     test.assertEqual(200, httpResponse.getStatusCode());
                     test.assertEqual("OK", httpResponse.getReasonPhrase());
                     test.assertNotNull(httpResponse.getHeaders());
-                    final String contentLength = httpResponse.getHeaders().getValue("content-length").awaitError();
+                    final String contentLength = httpResponse.getHeaders().getValue("content-length").await();
                     test.assertOneOf(new String[] { "1164", "1270" }, contentLength);
                     test.assertNotNull(httpResponse.getBody());
-                    final String bodyString = httpResponse.getBody().asCharacterReadStream().readEntireString().awaitError();
+                    final String bodyString = httpResponse.getBody().asCharacterReadStream().readEntireString().await();
                     test.assertNotNull(bodyString);
                     test.assertStartsWith(bodyString, "<!doctype html>", CharacterComparer.CaseInsensitive);
                     test.assertContains(bodyString, "<div>");
@@ -46,16 +46,16 @@ public class HttpClientTests
                 runner.test("with GET request to http://www.treasurydirect.gov/TA_WS/securities/auctioned?format=json&type=Bill", runner.skip(!runner.hasNetworkConnection().await()), (Test test) ->
                 {
                     final HttpClient httpClient = creator.run(test);
-                    final MutableHttpRequest httpRequest = new MutableHttpRequest(HttpMethod.GET, URL.parse("http://www.treasurydirect.gov/TA_WS/securities/auctioned?format=json&type=Bill").awaitError());
+                    final MutableHttpRequest httpRequest = new MutableHttpRequest(HttpMethod.GET, URL.parse("http://www.treasurydirect.gov/TA_WS/securities/auctioned?format=json&type=Bill").await());
 
-                    final HttpResponse httpResponse = httpClient.send(httpRequest).awaitError();
+                    final HttpResponse httpResponse = httpClient.send(httpRequest).await();
                     test.assertTrue(httpResponse.getHTTPVersion().equals("HTTP/1.0") || httpResponse.getHTTPVersion().equals("HTTP/1.1"));
                     test.assertEqual(302, httpResponse.getStatusCode());
                     test.assertEqual("Found", httpResponse.getReasonPhrase());
                     test.assertNotNull(httpResponse.getHeaders());
-                    final String locationHeader = httpResponse.getHeaders().getValue("location").awaitError();
+                    final String locationHeader = httpResponse.getHeaders().getValue("location").await();
                     test.assertEndsWith(locationHeader, "www.treasurydirect.gov/TA_WS/securities/auctioned?format=json&type=Bill", "Incorrect Location header");
-                    test.assertEqual("0", httpResponse.getHeaders().getValue("content-length").awaitError());
+                    test.assertEqual("0", httpResponse.getHeaders().getValue("content-length").await());
                     test.assertNull(httpResponse.getBody());
                 });
             });

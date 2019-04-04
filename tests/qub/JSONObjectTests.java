@@ -81,7 +81,7 @@ public class JSONObjectTests
                         final Result<JSONProperty> propertyResult = jsonObject.getProperty(propertyName);
                         if (expectedError != null)
                         {
-                            test.assertThrows(propertyResult::awaitError, expectedError);
+                            test.assertThrows(propertyResult::await, expectedError);
                         }
                         else
                         {

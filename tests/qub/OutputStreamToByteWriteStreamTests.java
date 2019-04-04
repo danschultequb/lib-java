@@ -50,11 +50,11 @@ public class OutputStreamToByteWriteStreamTests
                         final Result<Integer> writeResult = writeStream.writeByte(toWrite);
                         if (expectedWriteResult)
                         {
-                            test.assertEqual(1, writeResult.awaitError());
+                            test.assertEqual(1, writeResult.await());
                         }
                         else
                         {
-                            test.assertThrows(writeResult::awaitError,
+                            test.assertThrows(writeResult::await,
                                 new RuntimeException(new java.io.IOException()));
                         }
 
@@ -80,7 +80,7 @@ public class OutputStreamToByteWriteStreamTests
 
                         if (expectedError != null)
                         {
-                            test.assertThrows(() -> writeStream.writeBytes(toWrite).awaitError(), expectedError);
+                            test.assertThrows(() -> writeStream.writeBytes(toWrite).await(), expectedError);
                         }
                         else
                         {
@@ -113,11 +113,11 @@ public class OutputStreamToByteWriteStreamTests
 
                         if (expectedError == null)
                         {
-                            test.assertEqual(expectedWriteResult, writeStream.writeBytes(toWrite, startIndex, length).awaitError());
+                            test.assertEqual(expectedWriteResult, writeStream.writeBytes(toWrite, startIndex, length).await());
                         }
                         else
                         {
-                            test.assertThrows(() -> writeStream.writeBytes(toWrite, startIndex, length).awaitError(), expectedError);
+                            test.assertThrows(() -> writeStream.writeBytes(toWrite, startIndex, length).await(), expectedError);
                         }
 
                         if (outputStream instanceof java.io.ByteArrayOutputStream)

@@ -64,7 +64,7 @@ public class FileSystemTests
             runner.test("getRoot()", (Test test) ->
             {
                 final FileSystem fileSystem = creator.run(test.getParallelAsyncRunner());
-                final Root root = fileSystem.getRoot("/daffy/").awaitError();
+                final Root root = fileSystem.getRoot("/daffy/").await();
                 test.assertNotNull(root);
                 test.assertEqual("/", root.toString());
             });
@@ -72,7 +72,7 @@ public class FileSystemTests
             runner.test("getRoots()", (Test test) ->
             {
                 final FileSystem fileSystem = creator.run(test.getParallelAsyncRunner());
-                test.assertNotNullAndNotEmpty(fileSystem.getRoots().awaitError());
+                test.assertNotNullAndNotEmpty(fileSystem.getRoots().await());
             });
 
             runner.testGroup("getFilesAndFolders(String)", () ->
@@ -103,11 +103,11 @@ public class FileSystemTests
 
                         if (expectedEntryPaths == null)
                         {
-                            test.assertThrows(result::awaitError, expectedError);
+                            test.assertThrows(result::await, expectedError);
                         }
                         else
                         {
-                            test.assertEqual(Iterable.create(expectedEntryPaths), result.awaitError().map(FileSystemEntry::toString));
+                            test.assertEqual(Iterable.create(expectedEntryPaths), result.await().map(FileSystemEntry::toString));
                         }
                     });
                 };
@@ -170,11 +170,11 @@ public class FileSystemTests
 
                         if (expectedEntryPaths == null)
                         {
-                            test.assertThrows(result::awaitError, expectedError);
+                            test.assertThrows(result::await, expectedError);
                         }
                         else
                         {
-                            test.assertEqual(Iterable.create(expectedEntryPaths), result.awaitError().map(FileSystemEntry::toString));
+                            test.assertEqual(Iterable.create(expectedEntryPaths), result.await().map(FileSystemEntry::toString));
                         }
                     });
                 };
@@ -226,7 +226,7 @@ public class FileSystemTests
                 runner.test("with " + Strings.escapeAndQuote("/.."), (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    test.assertThrows(() -> fileSystem.getFolders("/..").awaitError(),
+                    test.assertThrows(() -> fileSystem.getFolders("/..").await(),
                         new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
                 });
             });
@@ -260,11 +260,11 @@ public class FileSystemTests
 
                         if (expectedError != null)
                         {
-                            test.assertThrows(result::awaitError, expectedError);
+                            test.assertThrows(result::await, expectedError);
                         }
                         else
                         {
-                            final Iterable<Folder> folders = result.awaitError();
+                            final Iterable<Folder> folders = result.await();
                             if (expectedFolderPaths == null)
                             {
                                 test.assertNull(folders);
@@ -365,11 +365,11 @@ public class FileSystemTests
 
                         if (expectedError != null)
                         {
-                            test.assertThrows(result::awaitError, expectedError);
+                            test.assertThrows(result::await, expectedError);
                         }
                         else
                         {
-                            final Iterable<Folder> folders = result.awaitError();
+                            final Iterable<Folder> folders = result.await();
                             if (expectedFolderPaths == null)
                             {
                                 test.assertEqual(null, folders);
@@ -470,11 +470,11 @@ public class FileSystemTests
 
                         if (expectedError != null)
                         {
-                            test.assertThrows(result::awaitError, expectedError);
+                            test.assertThrows(result::await, expectedError);
                         }
                         else
                         {
-                            final Iterable<File> files = result.awaitError();
+                            final Iterable<File> files = result.await();
                             if (expectedFilePaths == null)
                             {
                                 test.assertNull(files);
@@ -526,11 +526,11 @@ public class FileSystemTests
 
                         if (expectedError != null)
                         {
-                            test.assertThrows(result::awaitError, expectedError);
+                            test.assertThrows(result::await, expectedError);
                         }
                         else
                         {
-                            final Iterable<File> files = result.awaitError();
+                            final Iterable<File> files = result.await();
                             if (expectedFilePaths == null)
                             {
                                 test.assertNull(files);
@@ -584,11 +584,11 @@ public class FileSystemTests
 
                         if (expectedError != null)
                         {
-                            test.assertThrows(result::awaitError, expectedError);
+                            test.assertThrows(result::await, expectedError);
                         }
                         else
                         {
-                            final Iterable<File> files = result.awaitError();
+                            final Iterable<File> files = result.await();
                             if (expectedFilePaths == null)
                             {
                                 test.assertNull(files);
@@ -687,11 +687,11 @@ public class FileSystemTests
                         final Result<Folder> folder = fileSystem.getFolder(folderPathString);
                         if (expectedError != null)
                         {
-                            test.assertThrows(folder::awaitError, expectedError);
+                            test.assertThrows(folder::await, expectedError);
                         }
                         else
                         {
-                            test.assertEqual(expectedFolderPathString, folder.awaitError().toString());
+                            test.assertEqual(expectedFolderPathString, folder.await().toString());
                         }
                     });
                 };
@@ -732,11 +732,11 @@ public class FileSystemTests
 
                         if (expectedError != null)
                         {
-                            test.assertThrows(result::awaitError, expectedError);
+                            test.assertThrows(result::await, expectedError);
                         }
                         else
                         {
-                            test.assertEqual(expectedFolderExists, result.awaitError());
+                            test.assertEqual(expectedFolderExists, result.await());
                         }
                     });
                 };
@@ -777,11 +777,11 @@ public class FileSystemTests
 
                         if (expectedError != null)
                         {
-                            test.assertThrows(result::awaitError, expectedError);
+                            test.assertThrows(result::await, expectedError);
                         }
                         else
                         {
-                            test.assertEqual(expectedFolderExists, result.awaitError());
+                            test.assertEqual(expectedFolderExists, result.await());
                         }
                     });
                 };
@@ -833,7 +833,7 @@ public class FileSystemTests
                         final Result<Folder> createFolderResult = fileSystem.createFolder(folderPath);
                         if (expectedError != null)
                         {
-                            test.assertThrows(createFolderResult::awaitError, expectedError);
+                            test.assertThrows(createFolderResult::await, expectedError);
                         }
                         else
                         {
@@ -890,7 +890,7 @@ public class FileSystemTests
                         final Result<Folder> createFolderResult = fileSystem.createFolder(Path.parse(folderPath));
                         if (expectedError != null)
                         {
-                            test.assertThrows(createFolderResult::awaitError, expectedError);
+                            test.assertThrows(createFolderResult::await, expectedError);
                         }
                         else
                         {
@@ -946,11 +946,11 @@ public class FileSystemTests
                         }
                         if (expectedError == null)
                         {
-                            fileSystem.deleteFolder(folderPath).awaitError();
+                            fileSystem.deleteFolder(folderPath).await();
                         }
                         else
                         {
-                            test.assertThrows(() -> fileSystem.deleteFolder(folderPath).awaitError(), expectedError);
+                            test.assertThrows(() -> fileSystem.deleteFolder(folderPath).await(), expectedError);
                         }
                     });
                 };
@@ -1004,11 +1004,11 @@ public class FileSystemTests
                         }
                         if (expectedError == null)
                         {
-                            fileSystem.deleteFolder(Path.parse(folderPath)).awaitError();
+                            fileSystem.deleteFolder(Path.parse(folderPath)).await();
                         }
                         else
                         {
-                            test.assertThrows(() -> fileSystem.deleteFolder(Path.parse(folderPath)).awaitError(), expectedError);
+                            test.assertThrows(() -> fileSystem.deleteFolder(Path.parse(folderPath)).await(), expectedError);
                         }
                     });
                 };
@@ -1064,11 +1064,11 @@ public class FileSystemTests
                         test.assertNotNull(result);
                         if (expectedError != null)
                         {
-                            test.assertThrows(result::awaitError, expectedError);
+                            test.assertThrows(result::await, expectedError);
                         }
                         else
                         {
-                            final File file = result.awaitError();
+                            final File file = result.await();
                             test.assertEqual(expectedFilePath, file == null ? null : file.toString());
                         }
                     });
@@ -1105,11 +1105,11 @@ public class FileSystemTests
                         test.assertNotNull(result);
                         if (expectedError != null)
                         {
-                            test.assertThrows(result::awaitError, expectedError);
+                            test.assertThrows(result::await, expectedError);
                         }
                         else
                         {
-                            final File file = result.awaitError();
+                            final File file = result.await();
                             test.assertEqual(expectedFilePath, file == null ? null : file.toString());
                         }
                     });
@@ -1151,11 +1151,11 @@ public class FileSystemTests
                         test.assertNotNull(result);
                         if (expectedError != null)
                         {
-                            test.assertThrows(result::awaitError, expectedError);
+                            test.assertThrows(result::await, expectedError);
                         }
                         else
                         {
-                            test.assertEqual(expectedFileExists, result.awaitError());
+                            test.assertEqual(expectedFileExists, result.await());
                         }
                     });
                 };
@@ -1212,11 +1212,11 @@ public class FileSystemTests
                         test.assertNotNull(result);
                         if (expectedError != null)
                         {
-                            test.assertThrows(result::awaitError, expectedError);
+                            test.assertThrows(result::await, expectedError);
                         }
                         else
                         {
-                            test.assertEqual(expectedFileExists, result.awaitError());
+                            test.assertEqual(expectedFileExists, result.await());
                         }
                     });
                 };
@@ -1279,7 +1279,7 @@ public class FileSystemTests
                         final Result<File> createFileResult = fileSystem.createFile(filePath);
                         if (expectedError != null)
                         {
-                            test.assertThrows(createFileResult::awaitError, expectedError);
+                            test.assertThrows(createFileResult::await, expectedError);
                         }
                         else
                         {
@@ -1342,7 +1342,7 @@ public class FileSystemTests
                         final Result<File> createFileResult = fileSystem.createFile(Path.parse(filePath));
                         if (expectedError != null)
                         {
-                            test.assertThrows(createFileResult::awaitError, expectedError);
+                            test.assertThrows(createFileResult::await, expectedError);
                         }
                         else
                         {
@@ -1396,11 +1396,11 @@ public class FileSystemTests
                         }
                         if (expectedError == null)
                         {
-                            fileSystem.deleteFile(filePath).awaitError();
+                            fileSystem.deleteFile(filePath).await();
                         }
                         else
                         {
-                            test.assertThrows(() -> fileSystem.deleteFile(filePath).awaitError(), expectedError);
+                            test.assertThrows(() -> fileSystem.deleteFile(filePath).await(), expectedError);
                         }
                     });
                 };
@@ -1448,7 +1448,7 @@ public class FileSystemTests
                         final Result<DateTime> lastModifiedResult = fileSystem.getFileLastModified(filePath);
                         if (expectedError != null)
                         {
-                            test.assertThrows(lastModifiedResult::awaitError, expectedError);
+                            test.assertThrows(lastModifiedResult::await, expectedError);
                         }
                         else
                         {
@@ -1476,7 +1476,7 @@ public class FileSystemTests
 
                     final Result<DateTime> result = fileSystem.getFileLastModified("/thing.txt");
                     test.assertNotNull(result);
-                    test.assertGreaterThan(result.awaitError(), DateTime.local(2018, 1, 1, 0, 0, 0, 0));
+                    test.assertGreaterThan(result.await(), DateTime.local(2018, 1, 1, 0, 0, 0, 0));
                 });
             });
 
@@ -1508,11 +1508,11 @@ public class FileSystemTests
                         test.assertNotNull(result);
                         if (expectedError != null)
                         {
-                            test.assertThrows(result::awaitError, expectedError);
+                            test.assertThrows(result::await, expectedError);
                         }
                         else
                         {
-                            test.assertEqual(expectedLastModified, result.awaitError());
+                            test.assertEqual(expectedLastModified, result.await());
                         }
                     });
                 };
@@ -1536,7 +1536,7 @@ public class FileSystemTests
 
                     final Result<DateTime> result = fileSystem.getFileLastModified(Path.parse("/thing.txt"));
                     test.assertNotNull(result);
-                    test.assertGreaterThan(result.awaitError(), DateTime.local(2018, 1, 1, 0, 0, 0, 0));
+                    test.assertGreaterThan(result.await(), DateTime.local(2018, 1, 1, 0, 0, 0, 0));
                 });
             });
 
@@ -1563,7 +1563,7 @@ public class FileSystemTests
                 runner.test("with non-existing rooted path", (Test test) ->
                 {
                     FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    test.assertThrows(() -> fileSystem.getFileContent("/thing.txt").awaitError(), new FileNotFoundException("/thing.txt"));
+                    test.assertThrows(() -> fileSystem.getFileContent("/thing.txt").await(), new FileNotFoundException("/thing.txt"));
                 });
 
                 runner.test("with existing rooted path with no contents", (Test test) ->
@@ -1577,13 +1577,13 @@ public class FileSystemTests
                 runner.test("with rooted path resolved outside the root", (Test test) ->
                 {
                     FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    test.assertThrows(() -> fileSystem.getFileContent("/../thing.txt").awaitError(), new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+                    test.assertThrows(() -> fileSystem.getFileContent("/../thing.txt").await(), new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
                 });
 
                 runner.test("with rooted path resolved inside the root", (Test test) ->
                 {
                     FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    test.assertThrows(() -> fileSystem.getFileContent("/a/../thing.txt").awaitError(), new FileNotFoundException("/thing.txt"));
+                    test.assertThrows(() -> fileSystem.getFileContent("/a/../thing.txt").await(), new FileNotFoundException("/thing.txt"));
                 });
             });
 
@@ -2011,7 +2011,7 @@ public class FileSystemTests
                 runner.test("with rooted path resolved outside the root", (Test test) ->
                 {
                     FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    test.assertThrows(() -> fileSystem.setFileContent("/../thing.txt", new byte[] { 0, 1, 2 }).awaitError(),
+                    test.assertThrows(() -> fileSystem.setFileContent("/../thing.txt", new byte[] { 0, 1, 2 }).await(),
                         new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
                 });
 
@@ -2103,7 +2103,7 @@ public class FileSystemTests
                 runner.test("with rooted path resolved outside the root", (Test test) ->
                 {
                     FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    test.assertThrows(() -> fileSystem.setFileContent(Path.parse("/../thing.txt"), new byte[] { 0, 1, 2 }).awaitError(),
+                    test.assertThrows(() -> fileSystem.setFileContent(Path.parse("/../thing.txt"), new byte[] { 0, 1, 2 }).await(),
                         new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
                 });
 
@@ -2138,14 +2138,14 @@ public class FileSystemTests
                 runner.test("with rooted path when root doesn't exist", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    test.assertThrows(() -> fileSystem.getFilesAndFoldersRecursively("F:/test/folder").awaitError(),
+                    test.assertThrows(() -> fileSystem.getFilesAndFoldersRecursively("F:/test/folder").await(),
                         new FolderNotFoundException("F:/test/folder"));
                 });
 
                 runner.test("with rooted path when parent folder doesn't exist", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    test.assertThrows(() -> fileSystem.getFilesAndFoldersRecursively("/test/folder").awaitError(),
+                    test.assertThrows(() -> fileSystem.getFilesAndFoldersRecursively("/test/folder").await(),
                         new FolderNotFoundException("/test/folder"));
                 });
 
@@ -2154,7 +2154,7 @@ public class FileSystemTests
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
                     fileSystem.createFolder("/test/").await();
 
-                    test.assertThrows(() -> fileSystem.getFilesAndFoldersRecursively("/test/folder").awaitError(),
+                    test.assertThrows(() -> fileSystem.getFilesAndFoldersRecursively("/test/folder").await(),
                         new FolderNotFoundException("/test/folder"));
                 });
 
@@ -2235,7 +2235,7 @@ public class FileSystemTests
                 runner.test("when source file doesn't exist", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    test.assertThrows(() -> fileSystem.copyFileTo(Path.parse("/source.txt"), Path.parse("/dest.txt")).awaitError(),
+                    test.assertThrows(() -> fileSystem.copyFileTo(Path.parse("/source.txt"), Path.parse("/dest.txt")).await(),
                         new FileNotFoundException("/source.txt"));
                     test.assertFalse(fileSystem.fileExists("/source.txt").await());
                     test.assertFalse(fileSystem.fileExists("/dest.txt").await());

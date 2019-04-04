@@ -48,7 +48,7 @@ public class ByteReadStreamCounterTests
                     final InMemoryByteStream innerStream = new InMemoryByteStream(new byte[] { 0, 1, 2, 3 });
                     innerStream.dispose().await();
                     final ByteReadStreamCounter counter = new ByteReadStreamCounter(innerStream);
-                    test.assertThrows(() -> counter.readByte().awaitError(),
+                    test.assertThrows(() -> counter.readByte().await(),
                         new PreConditionFailure("isDisposed() cannot be true."));
                     test.assertFalse(counter.hasStarted());
                     test.assertEqual(0, counter.getBytesRead());
@@ -61,7 +61,7 @@ public class ByteReadStreamCounterTests
                 {
                     final InMemoryByteStream innerStream = new InMemoryByteStream(new byte[0]).endOfStream();
                     final ByteReadStreamCounter counter = new ByteReadStreamCounter(innerStream);
-                    test.assertThrows(() -> counter.readByte().awaitError(),
+                    test.assertThrows(() -> counter.readByte().await(),
                         new EndOfStreamException());
                     test.assertTrue(counter.hasStarted());
                     test.assertEqual(0, counter.getBytesRead());
@@ -90,7 +90,7 @@ public class ByteReadStreamCounterTests
                     final InMemoryByteStream innerStream = new InMemoryByteStream(new byte[] { 0, 1, 2, 3 });
                     innerStream.dispose().await();
                     final ByteReadStreamCounter counter = new ByteReadStreamCounter(innerStream);
-                    test.assertThrows(() -> counter.readBytes(10).awaitError(),
+                    test.assertThrows(() -> counter.readBytes(10).await(),
                         new PreConditionFailure("isDisposed() cannot be true."));
                     test.assertFalse(counter.hasStarted());
                     test.assertEqual(0, counter.getBytesRead());
@@ -103,7 +103,7 @@ public class ByteReadStreamCounterTests
                 {
                     final InMemoryByteStream innerStream = new InMemoryByteStream(new byte[0]).endOfStream();
                     final ByteReadStreamCounter counter = new ByteReadStreamCounter(innerStream);
-                    test.assertThrows(() -> counter.readBytes(10).awaitError(),
+                    test.assertThrows(() -> counter.readBytes(10).await(),
                         new EndOfStreamException());
                     test.assertTrue(counter.hasStarted());
                     test.assertEqual(0, counter.getBytesRead());

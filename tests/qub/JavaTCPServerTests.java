@@ -10,7 +10,7 @@ public class JavaTCPServerTests
         {
             final AtomicInteger port = new AtomicInteger(20138);
 
-            AsyncDisposableTests.test(runner, (Test test) -> JavaTCPServer.create(port.getAndIncrement(), test.getMainAsyncRunner()).awaitError());
+            AsyncDisposableTests.test(runner, (Test test) -> JavaTCPServer.create(port.getAndIncrement(), test.getMainAsyncRunner()).await());
 
             runner.testGroup("create(int, AsyncRunner)", () ->
             {
@@ -26,31 +26,31 @@ public class JavaTCPServerTests
 
                 runner.test("with null asyncRunner", (Test test) ->
                 {
-                    final TCPServer server = JavaTCPServer.create(1, null).awaitError();
+                    final TCPServer server = JavaTCPServer.create(1, null).await();
                     test.assertNotNull(server);
-                    test.assertTrue(server.dispose().awaitError());
+                    test.assertTrue(server.dispose().await());
                 });
 
                 runner.test("with " + port.incrementAndGet() + " port", (Test test) ->
                 {
-                    final TCPServer tcpServer = JavaTCPServer.create(port.get(), test.getParallelAsyncRunner()).awaitError();
+                    final TCPServer tcpServer = JavaTCPServer.create(port.get(), test.getParallelAsyncRunner()).await();
                     test.assertNotNull(tcpServer);
-                    test.assertTrue(tcpServer.dispose().awaitError());
+                    test.assertTrue(tcpServer.dispose().await());
                 });
 
                 runner.test("with " + port.incrementAndGet() + " port when a different TCPServer is already bound to " + port, (Test test) ->
                 {
-                    final TCPServer tcpServer1 = JavaTCPServer.create(port.get(), test.getParallelAsyncRunner()).awaitError();
+                    final TCPServer tcpServer1 = JavaTCPServer.create(port.get(), test.getParallelAsyncRunner()).await();
                     test.assertNotNull(tcpServer1);
 
                     try
                     {
-                        test.assertThrows(() -> JavaTCPServer.create(port.get(), test.getParallelAsyncRunner()).awaitError(),
+                        test.assertThrows(() -> JavaTCPServer.create(port.get(), test.getParallelAsyncRunner()).await(),
                             new RuntimeException(new java.net.BindException("Address already in use: JVM_Bind")));
                     }
                     finally
                     {
-                        test.assertTrue(tcpServer1.dispose().awaitError());
+                        test.assertTrue(tcpServer1.dispose().await());
                     }
                 });
             });
@@ -74,42 +74,42 @@ public class JavaTCPServerTests
 
                 runner.test("with 127.0.0.1, " + port.incrementAndGet() + " port, and null asyncRunner", (Test test) ->
                 {
-                    final TCPServer tcpServer = JavaTCPServer.create(IPv4Address.parse("127.0.0.1"), port.get(), null).awaitError();
+                    final TCPServer tcpServer = JavaTCPServer.create(IPv4Address.parse("127.0.0.1"), port.get(), null).await();
                     try
                     {
                         test.assertNotNull(tcpServer);
                     }
                     finally
                     {
-                        tcpServer.dispose().awaitError();
+                        tcpServer.dispose().await();
                     }
                 });
 
                 runner.test("with 127.0.0.1 and " + port.incrementAndGet() + " port", (Test test) ->
                 {
-                    final TCPServer tcpServer = JavaTCPServer.create(IPv4Address.parse("127.0.0.1"), port.get(), test.getParallelAsyncRunner()).awaitError();
+                    final TCPServer tcpServer = JavaTCPServer.create(IPv4Address.parse("127.0.0.1"), port.get(), test.getParallelAsyncRunner()).await();
                     try
                     {
                         test.assertNotNull(tcpServer);
                     }
                     finally
                     {
-                        tcpServer.dispose().awaitError();
+                        tcpServer.dispose().await();
                     }
                 });
 
                 runner.test("with 127.0.0.1 and " + port.incrementAndGet() + " port when a different TCPServer is already bound to 127.0.0.1 and " + port, (Test test) ->
                 {
-                    final TCPServer tcpServer1 = JavaTCPServer.create(IPv4Address.parse("127.0.0.1"), port.get(), test.getParallelAsyncRunner()).awaitError();
+                    final TCPServer tcpServer1 = JavaTCPServer.create(IPv4Address.parse("127.0.0.1"), port.get(), test.getParallelAsyncRunner()).await();
                     test.assertNotNull(tcpServer1);
                     try
                     {
-                        test.assertThrows(() -> JavaTCPServer.create(IPv4Address.parse("127.0.0.1"), port.get(), test.getParallelAsyncRunner()).awaitError(),
+                        test.assertThrows(() -> JavaTCPServer.create(IPv4Address.parse("127.0.0.1"), port.get(), test.getParallelAsyncRunner()).await(),
                             new RuntimeException(new java.net.BindException("Address already in use: JVM_Bind")));
                     }
                     finally
                     {
-                        test.assertTrue(tcpServer1.dispose().awaitError());
+                        test.assertTrue(tcpServer1.dispose().await());
                     }
                 });
             });
@@ -128,24 +128,24 @@ public class JavaTCPServerTests
                     {
                         final Result<TCPClient> tcpClientResult = network.createTCPClient(ipAddress, port.get());
                         test.assertSuccess(tcpClientResult);
-                        try (final TCPClient tcpClient = tcpClientResult.awaitError())
+                        try (final TCPClient tcpClient = tcpClientResult.await())
                         {
                             test.assertSuccess(bytes.length, tcpClient.writeBytes(bytes));
-                            clientReadBytes.set(tcpClient.readBytes(bytes.length).awaitError());
+                            clientReadBytes.set(tcpClient.readBytes(bytes.length).await());
                         }
                     });
 
-                    try (final TCPServer tcpServer = network.createTCPServer(ipAddress, port.get()).awaitError())
+                    try (final TCPServer tcpServer = network.createTCPServer(ipAddress, port.get()).await())
                     {
                         test.assertNotNull(tcpServer);
 
-                        try (final TCPClient serverClient = tcpServer.accept().awaitError())
+                        try (final TCPClient serverClient = tcpServer.accept().await())
                         {
                             test.assertNotNull(serverClient);
 
-                            final byte[] serverReadBytes = serverClient.readBytes(bytes.length).awaitError();
+                            final byte[] serverReadBytes = serverClient.readBytes(bytes.length).await();
                             test.assertEqual(bytes, serverReadBytes);
-                            serverClient.writeAllBytes(serverReadBytes).awaitError();
+                            serverClient.writeAllBytes(serverReadBytes).await();
                         }
                     }
 
@@ -156,11 +156,11 @@ public class JavaTCPServerTests
 
                 runner.test("when disposed", (Test test) ->
                 {
-                    final TCPServer tcpServer = JavaTCPServer.create(port.incrementAndGet(), test.getParallelAsyncRunner()).awaitError();
+                    final TCPServer tcpServer = JavaTCPServer.create(port.incrementAndGet(), test.getParallelAsyncRunner()).await();
                     test.assertNotNull(tcpServer);
-                    test.assertTrue(tcpServer.dispose().awaitError());
+                    test.assertTrue(tcpServer.dispose().await());
 
-                    test.assertThrows(() -> tcpServer.accept().awaitError(),
+                    test.assertThrows(() -> tcpServer.accept().await(),
                         new RuntimeException(new java.net.SocketException("Socket is closed")));
                 });
 
@@ -172,17 +172,17 @@ public class JavaTCPServerTests
                     final Network network = new JavaNetwork(asyncRunner);
                     final Value<byte[]> clientReadBytes = Value.create();
 
-                    try (final TCPServer tcpServer = network.createTCPServer(ipAddress, port.get()).awaitError())
+                    try (final TCPServer tcpServer = network.createTCPServer(ipAddress, port.get()).await())
                     {
                         final AsyncAction clientTask = asyncRunner.schedule(() ->
                         {
                             // Parallel
-                            try (final TCPClient tcpClient = network.createTCPClient(ipAddress, port.get()).awaitError())
+                            try (final TCPClient tcpClient = network.createTCPClient(ipAddress, port.get()).await())
                             {
                                 // Block
                                 test.assertSuccess(bytes.length, tcpClient.writeBytes(bytes));
                                 // Block
-                                clientReadBytes.set(tcpClient.readBytes(bytes.length).awaitError());
+                                clientReadBytes.set(tcpClient.readBytes(bytes.length).await());
                             }
                         });
 
@@ -195,14 +195,14 @@ public class JavaTCPServerTests
                                 // Main
                                 test.assertSuccess(serverClientResult);
 
-                                try (final TCPClient serverClient = serverClientResult.awaitError())
+                                try (final TCPClient serverClient = serverClientResult.await())
                                 {
                                     // Block
-                                    final byte[] serverReadBytes = serverClient.readBytes(bytes.length).awaitError();
+                                    final byte[] serverReadBytes = serverClient.readBytes(bytes.length).await();
                                     test.assertEqual(bytes, serverReadBytes);
 
                                     // Block
-                                    test.assertEqual(serverReadBytes.length, serverClient.writeBytes(serverReadBytes).awaitError());
+                                    test.assertEqual(serverReadBytes.length, serverClient.writeBytes(serverReadBytes).await());
                                 }
                             });
 
@@ -224,16 +224,16 @@ public class JavaTCPServerTests
                     final AsyncRunner asyncRunner = test.getParallelAsyncRunner();
                     final Network network = new JavaNetwork(asyncRunner);
 
-                    try (final TCPServer tcpServer = network.createTCPServer(IPv4Address.localhost, port.get()).awaitError())
+                    try (final TCPServer tcpServer = network.createTCPServer(IPv4Address.localhost, port.get()).await())
                     {
                         final AsyncAction serverTask = tcpServer.acceptAsync()
                             .then((Result<TCPClient> tcpClientResult) ->
                             {
-                                try (final TCPClient tcpClient = tcpClientResult.awaitError())
+                                try (final TCPClient tcpClient = tcpClientResult.await())
                                 {
-                                    final byte[] serverReadBytes = tcpClient.readBytes(bytes.length).awaitError();
+                                    final byte[] serverReadBytes = tcpClient.readBytes(bytes.length).await();
                                     test.assertEqual(bytes, serverReadBytes);
-                                    test.assertEqual(bytes.length, tcpClient.writeBytes(serverReadBytes).awaitError());
+                                    test.assertEqual(bytes.length, tcpClient.writeBytes(serverReadBytes).await());
                                 }
                             });
 
@@ -241,10 +241,10 @@ public class JavaTCPServerTests
                         {
                             // The tcpClient code needs to be in a different thread because the
                             // tcpServer runs its acceptAsync().then() action on the main thread.
-                            try (final TCPClient tcpClient = network.createTCPClient(IPv4Address.localhost, port.get()).awaitError())
+                            try (final TCPClient tcpClient = network.createTCPClient(IPv4Address.localhost, port.get()).await())
                             {
                                 tcpClient.writeBytes(bytes);
-                                test.assertEqual(bytes, tcpClient.readBytes(bytes.length).awaitError());
+                                test.assertEqual(bytes, tcpClient.readBytes(bytes.length).await());
                             }
                             catch (Exception e)
                             {
@@ -266,9 +266,9 @@ public class JavaTCPServerTests
             {
                 runner.test("multiple times", (Test test) ->
                 {
-                    final TCPServer tcpServer = JavaTCPServer.create(port.incrementAndGet(), test.getParallelAsyncRunner()).awaitError();
-                    test.assertTrue(tcpServer.dispose().awaitError());
-                    test.assertFalse(tcpServer.dispose().awaitError());
+                    final TCPServer tcpServer = JavaTCPServer.create(port.incrementAndGet(), test.getParallelAsyncRunner()).await();
+                    test.assertTrue(tcpServer.dispose().await());
+                    test.assertFalse(tcpServer.dispose().await());
                 });
             });
         });

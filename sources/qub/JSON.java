@@ -452,7 +452,7 @@ public class JSON
 
         final InMemoryCharacterStream stream = new InMemoryCharacterStream();
         object(stream, action);
-        final JSONObject result = parseObject(stream.getText().awaitError());
+        final JSONObject result = parseObject(stream.getText().await());
 
         PostCondition.assertNotNull(result, "result");
 
@@ -476,7 +476,7 @@ public class JSON
 
         final InMemoryCharacterStream stream = new InMemoryCharacterStream();
         array(stream, action);
-        final JSONArray result = parseArray(stream.getText().awaitError());
+        final JSONArray result = parseArray(stream.getText().await());
 
         PostCondition.assertNotNull(result, "result");
 

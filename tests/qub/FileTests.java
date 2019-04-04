@@ -11,14 +11,14 @@ public class FileTests
                 runner.test("with file at root", (Test test) ->
                 {
                     final FileSystem fileSystem = getFileSystem(test);
-                    final File file = fileSystem.getFile("/file.txt").awaitError();
+                    final File file = fileSystem.getFile("/file.txt").await();
                     test.assertEqual("/", file.getParentFolder().toString());
                 });
 
                 runner.test("with file in folder", (Test test) ->
                 {
                     final FileSystem fileSystem = getFileSystem(test);
-                    final File file = fileSystem.getFile("/folder/file.txt").awaitError();
+                    final File file = fileSystem.getFile("/folder/file.txt").await();
                     test.assertEqual("/folder", file.getParentFolder().toString());
                 });
             });
@@ -27,10 +27,10 @@ public class FileTests
             {
                 final FileSystem fileSystem = getFileSystem(test);
 
-                final File fileWithoutExtension = fileSystem.getFile("/folder/file").awaitError();
+                final File fileWithoutExtension = fileSystem.getFile("/folder/file").await();
                 test.assertNull(fileWithoutExtension.getFileExtension());
 
-                final File fileWithExtension = fileSystem.getFile("/file.csv").awaitError();
+                final File fileWithExtension = fileSystem.getFile("/file.csv").await();
                 test.assertEqual(".csv", fileWithExtension.getFileExtension());
             });
 
@@ -55,13 +55,13 @@ public class FileTests
 
                 test.assertSuccess(null, file.create());
 
-                test.assertTrue(file.exists().awaitError());
+                test.assertTrue(file.exists().await());
 
-                test.assertEqual(new byte[0], file.getContents().awaitError());
+                test.assertEqual(new byte[0], file.getContents().await());
 
                 test.assertError(new FileAlreadyExistsException(file.toString()), file.create());
 
-                test.assertTrue(file.exists().awaitError());
+                test.assertTrue(file.exists().await());
             });
             
             runner.testGroup("exists()", () ->
@@ -69,14 +69,14 @@ public class FileTests
                 runner.test("when file doesn't exist", (Test test) ->
                 {
                     final File file = getFile(test);
-                    test.assertFalse(file.exists().awaitError());
+                    test.assertFalse(file.exists().await());
                 });
 
                 runner.test("when file does exist", (Test test) ->
                 {
                     final File file = getFile(test);
                     file.create();
-                    test.assertTrue(file.exists().awaitError());
+                    test.assertTrue(file.exists().await());
                 });
             });
 
@@ -95,7 +95,7 @@ public class FileTests
                     file.create();
 
                     test.assertSuccess(null, file.delete());
-                    test.assertFalse(file.exists().awaitError());
+                    test.assertFalse(file.exists().await());
                 });
             });
 

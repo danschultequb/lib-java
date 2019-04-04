@@ -37,7 +37,7 @@ public class JSONDocumentTests
                         final Result<JSONSegment> rootResult = document.getRoot();
                         if (expectedError != null)
                         {
-                            test.assertThrows(rootResult::awaitError, expectedError);
+                            test.assertThrows(rootResult::await, expectedError);
                         }
                         else
                         {
@@ -65,7 +65,7 @@ public class JSONDocumentTests
                         final Result<JSONArray> rootArrayResult = document.getRootArray();
                         if (expectedError != null)
                         {
-                            test.assertThrows(rootArrayResult::awaitError, expectedError);
+                            test.assertThrows(rootArrayResult::await, expectedError);
                         }
                         else
                         {
@@ -93,7 +93,7 @@ public class JSONDocumentTests
                         final Result<JSONObject> rootObjectResult = document.getRootObject();
                         if (expectedError != null)
                         {
-                            test.assertThrows(rootObjectResult::awaitError, expectedError);
+                            test.assertThrows(rootObjectResult::await, expectedError);
                         }
                         else
                         {

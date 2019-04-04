@@ -325,7 +325,7 @@ public class URLTests
                     url.setQueryParameter("a", null);
                     test.assertEqual("a", url.getQuery());
                     test.assertNull(url.getQueryParameterValue("a").await());
-                    test.assertThrows(() -> url.getQueryParameterValue("A").awaitError(), new NotFoundException("Could not find the provided key (A) in this Map."));
+                    test.assertThrows(() -> url.getQueryParameterValue("A").await(), new NotFoundException("Could not find the provided key (A) in this Map."));
                 });
 
                 runner.test("with \"a\" and \"\"", (Test test) ->
@@ -334,7 +334,7 @@ public class URLTests
                     url.setQueryParameter("a", "");
                     test.assertEqual("a=", url.getQuery());
                     test.assertEqual("", url.getQueryParameterValue("a").await());
-                    test.assertThrows(() -> url.getQueryParameterValue("A").awaitError(), new NotFoundException("Could not find the provided key (A) in this Map."));
+                    test.assertThrows(() -> url.getQueryParameterValue("A").await(), new NotFoundException("Could not find the provided key (A) in this Map."));
                 });
 
                 runner.test("with \"a\" and \"b\"", (Test test) ->
@@ -343,7 +343,7 @@ public class URLTests
                     url.setQueryParameter("a", "b");
                     test.assertEqual("a=b", url.getQuery());
                     test.assertEqual("b", url.getQueryParameterValue("a").await());
-                    test.assertThrows(() -> url.getQueryParameterValue("A").awaitError(), new NotFoundException("Could not find the provided key (A) in this Map."));
+                    test.assertThrows(() -> url.getQueryParameterValue("A").await(), new NotFoundException("Could not find the provided key (A) in this Map."));
                 });
             });
 

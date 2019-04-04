@@ -93,7 +93,7 @@ public class InMemoryFileSystem implements FileSystem
                         final InMemoryFile inMemoryFile = inMemoryFolder.getFile(fileName);
                         return inMemoryFile != null
                             ? Result.success(inMemoryFile)
-                            : Result.error(new FileNotFoundException(filePath.resolve().awaitError()));
+                            : Result.error(new FileNotFoundException(filePath.resolve().await()));
                     });
             });
     }
@@ -184,7 +184,7 @@ public class InMemoryFileSystem implements FileSystem
         return rootedFolderPath.resolve()
             .thenResult((Path resolvedRootedFolderPath) ->
             {
-                final Path rootPath = rootedFolderPath.getRoot().awaitError();
+                final Path rootPath = rootedFolderPath.getRoot().await();
                 return getInMemoryRoot(rootPath) == null
                     ? Result.error(new RootNotFoundException(rootPath))
                     : createInMemoryFolder(resolvedRootedFolderPath)
@@ -235,7 +235,7 @@ public class InMemoryFileSystem implements FileSystem
         FileSystem.validateRootedFilePath(rootedFilePath);
 
         Result<File> result;
-        final Path rootPath = rootedFilePath.getRoot().awaitError();
+        final Path rootPath = rootedFilePath.getRoot().await();
         if (getInMemoryRoot(rootPath) == null)
         {
             result = Result.error(new RootNotFoundException(rootPath));
@@ -346,7 +346,7 @@ public class InMemoryFileSystem implements FileSystem
         FileSystem.validateRootedFolderPath(rootPath, "rootPath");
 
         Result<Root> result;
-        rootPath = rootPath.getRoot().awaitError();
+        rootPath = rootPath.getRoot().await();
         if (getInMemoryRoot(rootPath) != null)
         {
             result = Result.error(new RootAlreadyExistsException(rootPath));

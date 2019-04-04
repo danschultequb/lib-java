@@ -789,17 +789,17 @@ public class Process implements Disposable
             {
                 for (final Window window : windows)
                 {
-                    window.dispose().awaitError();
+                    window.dispose().await();
                 }
 
                 if (mainAsyncRunner != null)
                 {
-                    mainAsyncRunner.dispose().awaitError();
+                    mainAsyncRunner.dispose().await();
                 }
 
                 if (parallelAsyncRunner != null)
                 {
-                    parallelAsyncRunner.dispose().awaitError();
+                    parallelAsyncRunner.dispose().await();
                 }
 
                 return true;

@@ -97,7 +97,7 @@ public class MutableHttpHeaders implements HttpHeaders
         return get(headerName)
             .then(() -> true)
             .catchError(() -> false)
-            .awaitError();
+            .await();
     }
 
     /**

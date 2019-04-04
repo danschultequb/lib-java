@@ -152,7 +152,7 @@ public class USASCIICharacterEncodingTests
                         final Iterator<Byte> bytesIterator = bytes == null ? null :
                             bytes.length == 0 ? Iterator.empty() :
                             Iterator.createFromBytes(bytes);
-                        test.assertThrows(() -> encoding.decodeNextCharacter(bytesIterator).awaitError(), expectedError);
+                        test.assertThrows(() -> encoding.decodeNextCharacter(bytesIterator).await(), expectedError);
                     });
                 };
 
@@ -171,7 +171,7 @@ public class USASCIICharacterEncodingTests
                                 test.assertEqual(expectedCharacters[i], encoding.decodeNextCharacter(bytesIterator).await());
                             }
                         }
-                        test.assertThrows(() -> encoding.decodeNextCharacter(bytesIterator).awaitError(),
+                        test.assertThrows(() -> encoding.decodeNextCharacter(bytesIterator).await(),
                             new EndOfStreamException());
                     });
                 };

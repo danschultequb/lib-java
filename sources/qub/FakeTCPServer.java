@@ -74,7 +74,7 @@ public class FakeTCPServer implements TCPServer
         {
             while (!isDisposed() && !clientsToAccept.any())
             {
-                hasClientsToAccept.await(timeout).awaitError();
+                hasClientsToAccept.await(timeout).await();
             }
 
             if (isDisposed())

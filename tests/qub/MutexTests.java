@@ -80,7 +80,7 @@ public class MutexTests
                     final Duration timeout = Duration.seconds(1);
 
                     final DateTime startTime = clock.getCurrentDateTime();
-                    test.assertThrows(() -> mutex.acquire(timeout).awaitError(), new TimeoutException());
+                    test.assertThrows(() -> mutex.acquire(timeout).await(), new TimeoutException());
                     final DateTime endTime = clock.getCurrentDateTime();
 
                     test.assertTrue(mutex.isAcquired());
@@ -281,7 +281,7 @@ public class MutexTests
 
                     final Value<Boolean> value = Value.create(false);
                     final DateTime startTime = clock.getCurrentDateTime();
-                    test.assertThrows(() -> mutex.criticalSection(timeout, () -> value.set(true)).awaitError(), new TimeoutException());
+                    test.assertThrows(() -> mutex.criticalSection(timeout, () -> value.set(true)).await(), new TimeoutException());
                     final DateTime endTime = clock.getCurrentDateTime();
 
                     test.assertTrue(mutex.isAcquired());
@@ -306,7 +306,7 @@ public class MutexTests
                     final Mutex mutex = create(creator, test);
                     final Value<Boolean> value = Value.create(false);
                     final DateTime timeout = test.getClock().getCurrentDateTime().minus(Duration.seconds(1));
-                    test.assertThrows(() -> mutex.criticalSection(timeout, () -> value.set(true)).awaitError(), new TimeoutException());
+                    test.assertThrows(() -> mutex.criticalSection(timeout, () -> value.set(true)).await(), new TimeoutException());
                     test.assertFalse(mutex.isAcquired());
                     test.assertFalse(value.get());
                 });

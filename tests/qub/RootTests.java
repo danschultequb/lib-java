@@ -204,16 +204,16 @@ public class RootTests
                 runner.test("with relative Path when root doesn't exist", (Test test) ->
                 {
                     final Root root = getRoot(test, "C:/");
-                    test.assertThrows(() -> root.createFolder("folderName").awaitError(),
+                    test.assertThrows(() -> root.createFolder("folderName").await(),
                         new RootNotFoundException("C:"));
                 });
 
                 runner.test("with relative Path with folder that exists", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    root.createFolder("A").awaitError();
+                    root.createFolder("A").await();
 
-                    test.assertThrows(() -> root.createFolder("A").awaitError(),
+                    test.assertThrows(() -> root.createFolder("A").await(),
                         new FolderAlreadyExistsException("/A"));
                 });
             });
@@ -229,7 +229,7 @@ public class RootTests
                 runner.test("with non-existing folder", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    final Folder result = root.createFolder(Path.parse("folderName")).awaitError();
+                    final Folder result = root.createFolder(Path.parse("folderName")).await();
                     test.assertNotNull(result);
                     test.assertEqual("/folderName", result.toString());
                 });
@@ -339,7 +339,7 @@ public class RootTests
                 {
                     final Root root = getRoot(test);
                     root.createFolder("things");
-                    test.assertSuccess(Iterable.create(root.getFolder("things").awaitError()), root.getFolders());
+                    test.assertSuccess(Iterable.create(root.getFolder("things").await()), root.getFolders());
                 });
             });
 

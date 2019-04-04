@@ -52,7 +52,7 @@ public class InputStreamToByteReadStreamTests
                 runner.test("with no bytes to read", (Test test) ->
                 {
                     final InputStreamToByteReadStream readStream = getByteReadStream(test, 0);
-                    test.assertThrows(() -> readStream.readByte().awaitError(),
+                    test.assertThrows(() -> readStream.readByte().await(),
                         new EndOfStreamException());
                     assertByteReadStream(test, readStream, false, true, null);
                 });
@@ -63,7 +63,7 @@ public class InputStreamToByteReadStreamTests
                     inputStream.setThrowOnRead(true);
 
                     final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, inputStream);
-                    test.assertThrows(() -> byteReadStream.readByte().awaitError(),
+                    test.assertThrows(() -> byteReadStream.readByte().await(),
                         new RuntimeException(new java.io.IOException()));
                     assertByteReadStream(test, byteReadStream, false, true, null);
                 });
@@ -123,7 +123,7 @@ public class InputStreamToByteReadStreamTests
                     inputStream.setThrowOnRead(true);
 
                     final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, inputStream);
-                    test.assertThrows(() -> byteReadStream.readBytes(5).awaitError(),
+                    test.assertThrows(() -> byteReadStream.readBytes(5).await(),
                         new RuntimeException(new java.io.IOException()));
                     assertByteReadStream(test, byteReadStream, false, true, null);
                 });
@@ -193,7 +193,7 @@ public class InputStreamToByteReadStreamTests
 
                     final byte[] outputBytes = new byte[3];
                     final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, inputStream);
-                    test.assertThrows(() -> byteReadStream.readBytes(outputBytes).awaitError(),
+                    test.assertThrows(() -> byteReadStream.readBytes(outputBytes).await(),
                         new RuntimeException(new java.io.IOException()));
                     assertByteReadStream(test, byteReadStream, false, true, null);
                     test.assertEqual(new byte[] { 0, 0, 0 }, outputBytes);
@@ -309,7 +309,7 @@ public class InputStreamToByteReadStreamTests
 
                     final byte[] outputBytes = new byte[3];
                     final InputStreamToByteReadStream byteReadStream = getByteReadStream(test, inputStream);
-                    test.assertThrows(() -> byteReadStream.readBytes(outputBytes, 0, 3).awaitError(),
+                    test.assertThrows(() -> byteReadStream.readBytes(outputBytes, 0, 3).await(),
                         new RuntimeException(new java.io.IOException()));
                     assertByteReadStream(test, byteReadStream, false, true, null);
                     test.assertEqual(new byte[] { 0, 0, 0 }, outputBytes);
@@ -330,7 +330,7 @@ public class InputStreamToByteReadStreamTests
                 runner.test("when empty", (Test test) ->
                 {
                     final InputStreamToByteReadStream readStream = getByteReadStream(test, 0);
-                    test.assertThrows(() -> readStream.readAllBytes().awaitError(),
+                    test.assertThrows(() -> readStream.readAllBytes().await(),
                         new EndOfStreamException());
                     assertByteReadStream(test, readStream, false, true, null);
                 });
@@ -340,7 +340,7 @@ public class InputStreamToByteReadStreamTests
                     final InputStreamToByteReadStream readStream = getByteReadStream(test, 5);
                     test.assertEqual(new byte[] { 0, 1, 2, 3, 4 }, readStream.readAllBytes().await());
                     assertByteReadStream(test, readStream, false, true, null);
-                    test.assertThrows(() -> readStream.readAllBytes().awaitError(),
+                    test.assertThrows(() -> readStream.readAllBytes().await(),
                         new EndOfStreamException());
                     assertByteReadStream(test, readStream, false, true, null);
                 });
@@ -360,7 +360,7 @@ public class InputStreamToByteReadStreamTests
                 runner.test("when empty", (Test test) ->
                 {
                     final InputStreamToByteReadStream readStream = getByteReadStream(test, 0);
-                    test.assertThrows(() -> readStream.readBytesUntil((byte)5).awaitError(),
+                    test.assertThrows(() -> readStream.readBytesUntil((byte)5).await(),
                         new EndOfStreamException());
                     assertByteReadStream(test, readStream, false, true, null);
                 });
@@ -397,7 +397,7 @@ public class InputStreamToByteReadStreamTests
                 runner.test("when empty", (Test test) ->
                 {
                     final InputStreamToByteReadStream readStream = getByteReadStream(test, 0);
-                    test.assertThrows(() -> readStream.readBytesUntil(new byte[] { 5 }).awaitError(),
+                    test.assertThrows(() -> readStream.readBytesUntil(new byte[] { 5 }).await(),
                         new EndOfStreamException());
                     assertByteReadStream(test, readStream, false, true, null);
                 });
@@ -457,7 +457,7 @@ public class InputStreamToByteReadStreamTests
                 runner.test("when empty", (Test test) ->
                 {
                     final InputStreamToByteReadStream readStream = getByteReadStream(test, 0);
-                    test.assertThrows(() -> readStream.readBytesUntil(Array.createByte(5)).awaitError(),
+                    test.assertThrows(() -> readStream.readBytesUntil(Array.createByte(5)).await(),
                         new EndOfStreamException());
                     assertByteReadStream(test, readStream, false, true, null);
                 });

@@ -168,7 +168,7 @@ public class UTF8CharacterEncodingTests
 
                 runner.test("with empty Iterator", (Test test) ->
                 {
-                    test.assertThrows(() -> encoding.decodeNextCharacter(Iterator.empty()).awaitError(),
+                    test.assertThrows(() -> encoding.decodeNextCharacter(Iterator.empty()).await(),
                         new EndOfStreamException());
                 });
 
@@ -181,7 +181,7 @@ public class UTF8CharacterEncodingTests
                         {
                             test.assertEqual(expectedCharacters[i], encoding.decodeNextCharacter(bytesIterator).await());
                         }
-                        test.assertThrows(() -> encoding.decodeNextCharacter(bytesIterator).awaitError(),
+                        test.assertThrows(() -> encoding.decodeNextCharacter(bytesIterator).await(),
                             new EndOfStreamException());
                     });
                 };

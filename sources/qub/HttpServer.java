@@ -132,18 +132,18 @@ public class HttpServer implements AsyncDisposable
         {
             while(!isDisposed())
             {
-                try (final TCPClient acceptedClient = tcpServer.accept().awaitError())
+                try (final TCPClient acceptedClient = tcpServer.accept().await())
                 {
                     final MutableHttpRequest request = new MutableHttpRequest();
                     final CharacterReadStream acceptedClientReadStream = acceptedClient.asCharacterReadStream();
 
-                    final String firstLine = acceptedClientReadStream.readLine().awaitError();
+                    final String firstLine = acceptedClientReadStream.readLine().await();
                     final String[] firstLineParts = firstLine.split(" ");
                     request.setMethod(HttpMethod.valueOf(firstLineParts[0]));
-                    request.setUrl(URL.parse(firstLineParts[1]).awaitError());
+                    request.setUrl(URL.parse(firstLineParts[1]).await());
                     request.setHttpVersion(firstLineParts[2]);
 
-                    String headerLine = acceptedClientReadStream.readLine().awaitError();
+                    String headerLine = acceptedClientReadStream.readLine().await();
                     while (!Strings.isNullOrEmpty(headerLine))
                     {
                         final int firstColonIndex = headerLine.indexOf(':');
@@ -151,7 +151,7 @@ public class HttpServer implements AsyncDisposable
                         final String headerValue = headerLine.substring(firstColonIndex + 1);
                         request.setHeader(headerName, headerValue);
 
-                        headerLine = acceptedClientReadStream.readLine().awaitError();
+                        headerLine = acceptedClientReadStream.readLine().await();
                     }
 
                     request.getContentLength()

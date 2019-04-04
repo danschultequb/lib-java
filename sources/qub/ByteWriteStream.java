@@ -69,7 +69,7 @@ public interface ByteWriteStream extends Disposable
             int result = 0;
             while (result < length)
             {
-                result += writeBytes(toWrite, startIndex + result, length - result).awaitError();
+                result += writeBytes(toWrite, startIndex + result, length - result).await();
             }
             return result;
         });
@@ -106,12 +106,12 @@ public interface ByteWriteStream extends Disposable
             {
                 final Integer bytesRead = byteReadStream.readBytes(buffer, bytesInBuffer, buffer.length - bytesInBuffer)
                     .catchError(EndOfStreamException.class)
-                    .awaitError();
+                    .await();
                 if (bytesRead == null)
                 {
                     while(bytesInBuffer > 0)
                     {
-                        final int bytesWritten = writeBytes(buffer, 0, bytesInBuffer).awaitError();
+                        final int bytesWritten = writeBytes(buffer, 0, bytesInBuffer).await();
                         result += bytesWritten;
                         if (bytesWritten < bytesInBuffer)
                         {
@@ -125,7 +125,7 @@ public interface ByteWriteStream extends Disposable
                 {
                     bytesInBuffer += bytesRead;
 
-                    final int bytesWritten = writeBytes(buffer, 0, bytesInBuffer).awaitError();
+                    final int bytesWritten = writeBytes(buffer, 0, bytesInBuffer).await();
                     result += bytesWritten;
 
                     final byte[] copyToBuffer = (bytesInBuffer == buffer.length && bytesWritten == buffer.length)

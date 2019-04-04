@@ -57,7 +57,7 @@ public interface Map<TKey,TValue> extends Iterable<MapEntry<TKey,TValue>>
             {
                 for (final MapEntry<TKey,TValue> rhsEntry : rhs)
                 {
-                    if (!this.containsKey(rhsEntry.getKey()) || !Comparer.equal(this.get(rhsEntry.getKey()).awaitError(), rhsEntry.getValue()))
+                    if (!this.containsKey(rhsEntry.getKey()) || !Comparer.equal(this.get(rhsEntry.getKey()).await(), rhsEntry.getValue()))
                     {
                         result = false;
                         break;

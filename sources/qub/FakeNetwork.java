@@ -79,7 +79,7 @@ public class FakeNetwork implements Network
                                     ? Result.error(new java.net.ConnectException("Connection refused: connect"))
                                     : boundTCPServerAvailable.await(timeout).then(() -> null);
                             })
-                            .awaitError();
+                            .await();
                     }
 
                     final IPv4Address clientLocalIPAddress = IPv4Address.localhost;
@@ -137,7 +137,7 @@ public class FakeNetwork implements Network
     {
         PreCondition.assertNotNull(networkStream, "networkStream");
 
-        final int currentStreamReferenceCount = streamReferenceCounts.get(networkStream).awaitError();
+        final int currentStreamReferenceCount = streamReferenceCounts.get(networkStream).await();
         if (currentStreamReferenceCount == 1)
         {
             networkStream.dispose();

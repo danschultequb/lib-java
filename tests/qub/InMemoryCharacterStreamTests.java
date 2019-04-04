@@ -366,16 +366,16 @@ public class InMemoryCharacterStreamTests
                 {
                     final InMemoryCharacterStream characterReadStream = createStream();
                     final char[] outputCharacters = new char[6];
-                    test.assertEqual(null, characterReadStream.readCharacters(outputCharacters, 2, 3).awaitError());
+                    test.assertEqual(null, characterReadStream.readCharacters(outputCharacters, 2, 3).await());
                 });
 
                 runner.test("with fewer characters to read than length", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream("a");
                     final char[] outputCharacters = new char[6];
-                    test.assertEqual(1, characterReadStream.readCharacters(outputCharacters, 2, 3).awaitError());
+                    test.assertEqual(1, characterReadStream.readCharacters(outputCharacters, 2, 3).await());
                     test.assertEqual(new char[] { '\0', '\0', 'a', '\0', '\0', '\0' }, outputCharacters);
-                    test.assertEqual(null, characterReadStream.readCharacter().awaitError());
+                    test.assertEqual(null, characterReadStream.readCharacter().await());
                 });
 
                 runner.test("with equal characters to read to length", (Test test) ->
@@ -662,7 +662,7 @@ public class InMemoryCharacterStreamTests
                             ++lineNumber;
                             test.assertEqual(expectedLine, stream.readLine().await(), "Wrong line " + lineNumber);
                         }
-                        test.assertThrows(() -> stream.readLine().awaitError(), new EndOfStreamException());
+                        test.assertThrows(() -> stream.readLine().await(), new EndOfStreamException());
                     });
                 };
 
@@ -699,7 +699,7 @@ public class InMemoryCharacterStreamTests
                                 ++lineNumber;
                                 test.assertEqual(expectedLine, stream.readLine(false).await(), "Wrong line " + lineNumber);
                             }
-                            test.assertThrows(() -> stream.readLine(false).awaitError(), new EndOfStreamException());
+                            test.assertThrows(() -> stream.readLine(false).await(), new EndOfStreamException());
                         });
                     };
 
@@ -734,7 +734,7 @@ public class InMemoryCharacterStreamTests
                                 ++lineNumber;
                                 test.assertEqual(expectedLine, stream.readLine(true).await(), "Wrong line " + lineNumber);
                             }
-                            test.assertThrows(() -> stream.readLine(true).awaitError(), new EndOfStreamException());
+                            test.assertThrows(() -> stream.readLine(true).await(), new EndOfStreamException());
                         });
                     };
 

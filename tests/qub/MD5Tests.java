@@ -31,14 +31,14 @@ public class MD5Tests
 
             hashTestGroup.run("hash(BitArray)", (String message) ->
             {
-                final byte[] bytes = Strings.isNullOrEmpty(message) ? new byte[0] : CharacterEncoding.US_ASCII.encode(message).awaitError();
+                final byte[] bytes = Strings.isNullOrEmpty(message) ? new byte[0] : CharacterEncoding.US_ASCII.encode(message).await();
                 final BitArray bits = Array.createBitArrayFromBytes(bytes);
                 return Result.success(MD5.hash(bits));
             });
 
             hashTestGroup.run("hash(byte[])", (String message) ->
             {
-                final byte[] bytes = Strings.isNullOrEmpty(message) ? new byte[0] : CharacterEncoding.US_ASCII.encode(message).awaitError();
+                final byte[] bytes = Strings.isNullOrEmpty(message) ? new byte[0] : CharacterEncoding.US_ASCII.encode(message).await();
                 return Result.success(MD5.hash(bytes));
             });
 
