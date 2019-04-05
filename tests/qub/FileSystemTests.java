@@ -1604,8 +1604,8 @@ public class FileSystemTests
                 runner.test("with non-existing rooted path", (Test test) ->
                 {
                     FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    final Result<byte[]> result = fileSystem.getFileContent(Path.parse("/thing.txt"));
-                    test.assertError(new FileNotFoundException("/thing.txt"), result);
+                    test.assertThrows(() -> fileSystem.getFileContent(Path.parse("/thing.txt")).await(),
+                        new FileNotFoundException("/thing.txt"));
                 });
 
                 runner.test("with existing rooted path with no contents", (Test test) ->
@@ -1620,15 +1620,15 @@ public class FileSystemTests
                 runner.test("with rooted path resolved outside the root", (Test test) ->
                 {
                     FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    final Result<byte[]> result = fileSystem.getFileContent("/../thing.txt");
-                    test.assertError(new IllegalArgumentException("Cannot resolve a rooted path outside of its root."), result);
+                    test.assertThrows(() -> fileSystem.getFileContent("/../thing.txt").await(),
+                        new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
                 });
 
                 runner.test("with rooted path resolved inside the root", (Test test) ->
                 {
                     FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    final Result<byte[]> result = fileSystem.getFileContent("/a/../thing.txt");
-                    test.assertError(new FileNotFoundException("/thing.txt"), result);
+                    test.assertThrows(() -> fileSystem.getFileContent("/a/../thing.txt").await(),
+                        new FileNotFoundException("/thing.txt"));
                 });
             });
 
@@ -1637,8 +1637,8 @@ public class FileSystemTests
                 runner.test("with non-existing file", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    final Result<ByteReadStream> result = fileSystem.getFileContentByteReadStream("/i/dont/exist.txt");
-                    test.assertError(new FileNotFoundException("/i/dont/exist.txt"), result);
+                    test.assertThrows(() -> fileSystem.getFileContentByteReadStream("/i/dont/exist.txt").await(),
+                        new FileNotFoundException("/i/dont/exist.txt"));
                 });
             });
 
@@ -1647,8 +1647,8 @@ public class FileSystemTests
                 runner.test("with non-existing file", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    final Result<ByteReadStream> result = fileSystem.getFileContentByteReadStream(Path.parse("/i/dont/exist.txt"));
-                    test.assertError(new FileNotFoundException("/i/dont/exist.txt"), result);
+                    test.assertThrows(() -> fileSystem.getFileContentByteReadStream(Path.parse("/i/dont/exist.txt")).await(),
+                        new FileNotFoundException("/i/dont/exist.txt"));
                 });
             });
 
@@ -1657,8 +1657,8 @@ public class FileSystemTests
                 runner.test("with non-existing file", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    final Result<ByteReadStream> result = fileSystem.getFileContentByteReadStreamAsync("/i/dont/exist.txt").awaitReturn();
-                    test.assertError(new FileNotFoundException("/i/dont/exist.txt"), result);
+                    test.assertThrows(() -> fileSystem.getFileContentByteReadStreamAsync("/i/dont/exist.txt").awaitReturn().await(),
+                        new FileNotFoundException("/i/dont/exist.txt"));
                 });
             });
 
@@ -1667,8 +1667,8 @@ public class FileSystemTests
                 runner.test("with non-existing file", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    final Result<ByteReadStream> result = fileSystem.getFileContentByteReadStreamAsync(Path.parse("/i/dont/exist.txt")).awaitReturn();
-                    test.assertError(new FileNotFoundException("/i/dont/exist.txt"), result);
+                    test.assertThrows(() -> fileSystem.getFileContentByteReadStreamAsync(Path.parse("/i/dont/exist.txt")).awaitReturn().await(),
+                        new FileNotFoundException("/i/dont/exist.txt"));
                 });
             });
 
@@ -1677,8 +1677,8 @@ public class FileSystemTests
                 runner.test("with non-existing file", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    final Result<CharacterReadStream> result = fileSystem.getFileContentCharacterReadStream("/i/dont/exist.txt");
-                    test.assertError(new FileNotFoundException("/i/dont/exist.txt"), result);
+                    test.assertThrows(() -> fileSystem.getFileContentCharacterReadStream("/i/dont/exist.txt").await(),
+                        new FileNotFoundException("/i/dont/exist.txt"));
                 });
 
                 runner.test("with existing empty file", (Test test) ->
@@ -1706,8 +1706,8 @@ public class FileSystemTests
                 runner.test("with non-existing file", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    final Result<CharacterReadStream> result = fileSystem.getFileContentCharacterReadStream(Path.parse("/i/dont/exist.txt"));
-                    test.assertError(new FileNotFoundException("/i/dont/exist.txt"), result);
+                    test.assertThrows(() -> fileSystem.getFileContentCharacterReadStream(Path.parse("/i/dont/exist.txt")).await(),
+                        new FileNotFoundException("/i/dont/exist.txt"));
                 });
 
                 runner.test("with existing empty file", (Test test) ->
@@ -1735,8 +1735,8 @@ public class FileSystemTests
                 runner.test("with non-existing file", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    final Result<CharacterReadStream> result = fileSystem.getFileContentCharacterReadStreamAsync("/i/dont/exist.txt").awaitReturn();
-                    test.assertError(new FileNotFoundException("/i/dont/exist.txt"), result);
+                    test.assertThrows(() -> fileSystem.getFileContentCharacterReadStreamAsync("/i/dont/exist.txt").awaitReturn().await(),
+                        new FileNotFoundException("/i/dont/exist.txt"));
                 });
 
                 runner.test("with existing empty file", (Test test) ->
@@ -1765,8 +1765,8 @@ public class FileSystemTests
                 {
                     final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
                     final String filePath = "/i/dont/exist.txt";
-                    final Result<CharacterReadStream> result = fileSystem.getFileContentCharacterReadStreamAsync(Path.parse(filePath)).awaitReturn();
-                    test.assertError(new FileNotFoundException(filePath), result);
+                    test.assertThrows(() -> fileSystem.getFileContentCharacterReadStreamAsync(Path.parse(filePath)).awaitReturn().await(),
+                        new FileNotFoundException(filePath));
                 });
 
                 runner.test("with existing empty file", (Test test) ->

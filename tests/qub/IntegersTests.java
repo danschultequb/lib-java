@@ -143,22 +143,25 @@ public class IntegersTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> Integers.parse(null), new PreConditionFailure("text cannot be null."));
+                    test.assertThrows(() -> Integers.parse(null),
+                        new PreConditionFailure("text cannot be null."));
                 });
 
                 runner.test("with empty", (Test test) ->
                 {
-                    test.assertThrows(() -> Integers.parse(""), new PreConditionFailure("text cannot be empty."));
+                    test.assertThrows(() -> Integers.parse(""),
+                        new PreConditionFailure("text cannot be empty."));
                 });
 
                 runner.test("with letters", (Test test) ->
                 {
-                    test.assertError(new NumberFormatException("For input string: \"abc\""), Integers.parse("abc"));
+                    test.assertThrows(() -> Integers.parse("abc").await(),
+                        new NumberFormatException("For input string: \"abc\""));
                 });
 
                 runner.test("with digits", (Test test) ->
                 {
-                    test.assertSuccess(512, Integers.parse("512"));
+                    test.assertEqual(512, Integers.parse("512").await());
                 });
             });
         });

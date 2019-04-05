@@ -238,14 +238,15 @@ public class RootTests
                 {
                     final Root root = getRoot(test, "C:/");
                     final Result<Folder> result = root.createFolder(Path.parse("folderName"));
-                    test.assertError(new RootNotFoundException("C:"), result);
+                    test.assertThrows(result::await, new RootNotFoundException("C:"));
                 });
 
                 runner.test("with existing folder", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    root.createFolder("A");
-                    test.assertError(new FolderAlreadyExistsException("/A"), root.createFolder(Path.parse("A")));
+                    root.createFolder("A").await();
+                    test.assertThrows(() -> root.createFolder(Path.parse("A")).await(),
+                        new FolderAlreadyExistsException("/A"));
                 });
             });
 
@@ -275,14 +276,15 @@ public class RootTests
                 {
                     final Root root = getRoot(test, "C:/");
                     final Result<File> result = root.createFile("fileName");
-                    test.assertError(new RootNotFoundException("C:"), result);
+                    test.assertThrows(result::await, new RootNotFoundException("C:"));
                 });
 
                 runner.test("with existing file", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    root.createFile("A");
-                    test.assertError(new FileAlreadyExistsException("/A"), root.createFile("A"));
+                    root.createFile("A").await();
+                    test.assertThrows(() -> root.createFile("A").await(),
+                        new FileAlreadyExistsException("/A"));
                 });
             });
 
@@ -297,20 +299,22 @@ public class RootTests
                 runner.test("with non-existing file", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    test.assertSuccess("/fileName", root.createFile(Path.parse("fileName")).then(File::toString));
+                    test.assertEqual("/fileName", root.createFile(Path.parse("fileName")).await().toString());
                 });
 
                 runner.test("with non-existing file when root doesn't exist", (Test test) ->
                 {
                     final Root root = getRoot(test, "C:/");
-                    test.assertError(new RootNotFoundException("C:"), root.createFile(Path.parse("fileName")));
+                    test.assertThrows(() -> root.createFile(Path.parse("fileName")).await(),
+                        new RootNotFoundException("C:"));
                 });
 
                 runner.test("with existing file", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    root.createFile("A");
-                    test.assertError(new FileAlreadyExistsException("/A"), root.createFile(Path.parse("A")));
+                    root.createFile("A").await();
+                    test.assertThrows(() -> root.createFile(Path.parse("A")).await(),
+                        new FileAlreadyExistsException("/A"));
                 });
             });
 
@@ -319,27 +323,28 @@ public class RootTests
                 runner.test("when root doesn't exist", (Test test) ->
                 {
                     final Root root = getRoot(test, "C:/");
-                    test.assertError(new FolderNotFoundException("C:"), root.getFolders());
+                    test.assertThrows(() -> root.getFolders().await(),
+                        new FolderNotFoundException("C:"));
                 });
 
                 runner.test("when root is empty", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    test.assertSuccess(Iterable.create(), root.getFolders());
+                    test.assertEqual(Iterable.create(), root.getFolders().await());
                 });
 
                 runner.test("when root has a file", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    root.createFile("thing.txt");
-                    test.assertSuccess(Iterable.create(), root.getFolders());
+                    root.createFile("thing.txt").await();
+                    test.assertEqual(Iterable.create(), root.getFolders().await());
                 });
 
                 runner.test("when root has a folder", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    root.createFolder("things");
-                    test.assertSuccess(Iterable.create(root.getFolder("things").await()), root.getFolders());
+                    root.createFolder("things").await();
+                    test.assertEqual(Iterable.create(root.getFolder("things").await()), root.getFolders().await());
                 });
             });
 
@@ -348,25 +353,24 @@ public class RootTests
                 runner.test("when root doesn't exist", (Test test) ->
                 {
                     final Root root = getRoot(test, "C:/");
-                    test.assertError(new FolderNotFoundException("C:"), root.getFiles());
+                    test.assertThrows(() -> root.getFiles().await(),
+                        new FolderNotFoundException("C:"));
                 });
 
                 runner.test("when root is empty", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    test.assertSuccess(Iterable.create(), root.getFiles());
+                    test.assertEqual(Iterable.create(), root.getFiles().await());
                 });
 
                 runner.test("when root has a file", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    root.createFile("thing.txt");
+                    root.createFile("thing.txt").await();
 
-                    final Result<Iterable<File>> result = root.getFiles();
-                    test.assertNotNull(result);
                     test.assertEqual(
                         Iterable.create(root.getFile("thing.txt").await()),
-                        result.await());
+                        root.getFiles().await());
                 });
 
                 runner.test("when root has a folder", (Test test) ->
@@ -386,7 +390,7 @@ public class RootTests
                 {
                     final Root root = getRoot(test, "C:/");
                     final Result<Iterable<FileSystemEntry>> result = root.getFilesAndFolders();
-                    test.assertError(new FolderNotFoundException("C:"), result);
+                    test.assertThrows(result::await, new FolderNotFoundException("C:"));
                 });
 
                 runner.test("when root is empty", (Test test) ->
@@ -399,23 +403,21 @@ public class RootTests
                 runner.test("when root has a file", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    root.createFile("thing.txt");
+                    root.createFile("thing.txt").await();
 
-                    final Result<Iterable<FileSystemEntry>> result = root.getFilesAndFolders();
                     test.assertEqual(
                         Iterable.create(root.getFile("thing.txt").await()),
-                        result.await());
+                        root.getFilesAndFolders().await());
                 });
 
                 runner.test("when root has a folder", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    root.createFolder("things");
+                    root.createFolder("things").await();
 
-                    final Result<Iterable<FileSystemEntry>> result = root.getFilesAndFolders();
                     test.assertEqual(
                         Iterable.create(root.getFolder("things").await()),
-                        result.await());
+                        root.getFilesAndFolders().await());
                 });
             });
 
@@ -425,7 +427,7 @@ public class RootTests
                 {
                     final Root root = getRoot(test, "C:/");
                     final Result<Iterable<FileSystemEntry>> result = root.getFilesAndFoldersRecursively();
-                    test.assertError(new FolderNotFoundException("C:/"), result);
+                    test.assertThrows(result::await, new FolderNotFoundException("C:/"));
                 });
 
                 runner.test("when root is empty", (Test test) ->
@@ -485,53 +487,55 @@ public class RootTests
                 runner.test("when root doesn't exist", (Test test) ->
                 {
                     final Root root = getRoot(test, "C:/");
-                    test.assertError(new FolderNotFoundException("C:/"), root.getFilesRecursively());
+                    test.assertThrows(() -> root.getFilesRecursively().await(),
+                        new FolderNotFoundException("C:/"));
                 });
 
                 runner.test("when root is empty", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    test.assertSuccess(Iterable.create(), root.getFilesRecursively());
+                    test.assertEqual(Iterable.create(), root.getFilesRecursively().await());
                 });
 
                 runner.test("when root has files", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    root.createFile("1.txt");
-                    root.createFile("2.txt");
-                    test.assertSuccess(
+                    root.createFile("1.txt").await();
+                    root.createFile("2.txt").await();
+                    test.assertEqual(
                         Iterable.create(
                             root.getFile("1.txt").await(),
                             root.getFile("2.txt").await()),
-                        root.getFilesRecursively());
+                        root.getFilesRecursively().await());
                 });
 
                 runner.test("when root has folders", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    root.createFolder("1.txt");
-                    root.createFolder("2.txt");
-                    test.assertSuccess(
+                    root.createFolder("1.txt").await();
+                    root.createFolder("2.txt").await();
+                    test.assertEqual(
                         Iterable.create(),
-                        root.getFilesRecursively());
+                        root.getFilesRecursively().await());
                 });
 
                 runner.test("when root has grandchild files and folders", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    root.createFile("1.txt");
-                    root.createFile("2.txt");
-                    root.createFile("A/3.csv");
-                    root.createFile("B/C/4.xml");
-                    root.createFile("A/5.png");
+                    root.createFile("1.txt").await();
+                    root.createFile("2.txt").await();
+                    root.createFile("A/3.csv").await();
+                    root.createFile("B/C/4.xml").await();
+                    root.createFile("A/5.png").await();
 
-                    final Iterable<File> expectedEntries = Iterable.create(
-                        root.getFile("1.txt").await(),
-                        root.getFile("2.txt").await(),
-                        root.getFile("A/3.csv").await(),
-                        root.getFile("A/5.png").await(),
-                        root.getFile("B/C/4.xml").await());
-                    test.assertSuccess(expectedEntries, root.getFilesRecursively());
+                    test.assertEqual(
+                        Iterable.create(
+                            root.getFile("1.txt").await(),
+                            root.getFile("2.txt").await(),
+                            root.getFile("A/3.csv").await(),
+                            root.getFile("A/5.png").await(),
+                            root.getFile("B/C/4.xml").await()),
+                        root.getFilesRecursively().await());
                 });
             });
 
@@ -540,53 +544,53 @@ public class RootTests
                 runner.test("when root doesn't exist", (Test test) ->
                 {
                     final Root root = getRoot(test, "C:/");
-                    test.assertError(new FolderNotFoundException("C:/"), root.getFoldersRecursively());
+                    test.assertThrows(() -> root.getFoldersRecursively().await(),
+                        new FolderNotFoundException("C:/"));
                 });
 
                 runner.test("when root is empty", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    test.assertSuccess(Iterable.create(), root.getFoldersRecursively());
+                    test.assertEqual(Iterable.create(), root.getFoldersRecursively().await());
                 });
 
                 runner.test("when root has files", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    root.createFile("1.txt");
-                    root.createFile("2.txt");
-                    test.assertSuccess(
+                    root.createFile("1.txt").await();
+                    root.createFile("2.txt").await();
+                    test.assertEqual(
                         Iterable.create(),
-                        root.getFoldersRecursively());
+                        root.getFoldersRecursively().await());
                 });
 
                 runner.test("when root has folders", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    root.createFolder("1.txt");
-                    root.createFolder("2.txt");
-                    test.assertSuccess(
+                    root.createFolder("1.txt").await();
+                    root.createFolder("2.txt").await();
+                    test.assertEqual(
                         Iterable.create(
                             root.getFolder("1.txt").await(),
                             root.getFolder("2.txt").await()),
-                        root.getFoldersRecursively());
+                        root.getFoldersRecursively().await());
                 });
 
                 runner.test("when root has grandchild files and folders", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    root.createFile("1.txt");
-                    root.createFile("2.txt");
-                    root.createFile("A/3.csv");
-                    root.createFile("B/C/4.xml");
-                    root.createFile("A/5.png");
+                    root.createFile("1.txt").await();
+                    root.createFile("2.txt").await();
+                    root.createFile("A/3.csv").await();
+                    root.createFile("B/C/4.xml").await();
+                    root.createFile("A/5.png").await();
 
-                    final Result<Iterable<Folder>> folders = root.getFoldersRecursively();
-                    test.assertSuccess(
+                    test.assertEqual(
                         Iterable.create(
                             root.getFolder("A").await(),
                             root.getFolder("B").await(),
                             root.getFolder("B/C").await()),
-                        folders);
+                        root.getFoldersRecursively().await());
                 });
             });
         });
@@ -595,7 +599,7 @@ public class RootTests
     private static InMemoryFileSystem getFileSystem(Test test)
     {
         final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner(), test.getClock());
-        fileSystem.createRoot("/");
+        fileSystem.createRoot("/").await();
         return fileSystem;
     }
 

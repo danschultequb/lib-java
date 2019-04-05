@@ -137,7 +137,8 @@ public class PathTests
                 runner.test("with " + Strings.escapeAndQuote("blah"), (Test test) ->
                 {
                     final Path path = Path.parse("blah");
-                    test.assertError(new NotFoundException("Could not find a root on the path \"blah\"."), path.getRoot());
+                    test.assertThrows(() -> path.getRoot().await(),
+                        new NotFoundException("Could not find a root on the path \"blah\"."));
                 });
 
                 final Action2<String,String> getRootTest = (String pathString, String expectedRoot) ->
@@ -145,7 +146,7 @@ public class PathTests
                     runner.test("with " + Strings.escapeAndQuote(pathString), (Test test) ->
                     {
                         final Path path = Path.parse(pathString);
-                        test.assertSuccess(Path.parse(expectedRoot), path.getRoot());
+                        test.assertEqual(Path.parse(expectedRoot), path.getRoot().await());
                     });
                 };
 
@@ -330,7 +331,8 @@ public class PathTests
                     runner.test("with " + Strings.escapeAndQuote(pathString), (Test test) ->
                     {
                         final Path path = Path.parse(pathString);
-                        test.assertError(expectedError, path.withoutRoot());
+                        test.assertThrows(() -> path.withoutRoot().await(),
+                            expectedError);
                     });
                 };
 
@@ -480,7 +482,15 @@ public class PathTests
                     {
                         final Path basePath = Path.parse(basePathString);
                         final Path expectedResolvedPath = Strings.isNullOrEmpty(expectedPathString) ? null : Path.parse(expectedPathString);
-                        test.assertDone(expectedResolvedPath, expectedError, basePath.resolve(argumentPathString));
+                        final Result<Path> result = basePath.resolve(argumentPathString);
+                        if (expectedError != null)
+                        {
+                            test.assertThrows(result::await, expectedError);
+                        }
+                        else
+                        {
+                            test.assertEqual(expectedResolvedPath, result.await());
+                        }
                     });
                 };
 

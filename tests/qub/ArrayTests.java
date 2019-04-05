@@ -422,9 +422,8 @@ public class ArrayTests
 
                 runner.test("with null value", (Test test) ->
                 {
-                    test.assertError(
-                        new NullPointerException("The 0 element cannot be null."),
-                        Array.toBooleanArray(Iterator.create(null, true, false)));
+                    test.assertThrows(() -> Array.toBooleanArray(Iterator.create(null, true, false)).await(),
+                        new NullPointerException("The 0 element cannot be null."));
                 });
             });
 
@@ -449,9 +448,8 @@ public class ArrayTests
 
                 runner.test("with null value", (Test test) ->
                 {
-                    test.assertError(
-                        new NullPointerException("The 0 element cannot be null."),
-                        Array.toBooleanArray(Iterable.create(null, true, false)));
+                    test.assertThrows(() -> Array.toBooleanArray(Iterable.create(null, true, false)).await(),
+                        new NullPointerException("The 0 element cannot be null."));
                 });
             });
 
@@ -796,7 +794,8 @@ public class ArrayTests
 
                 runner.test("with null value", (Test test) ->
                 {
-                    test.assertError(new NullPointerException("The 2 element cannot be null."), Array.toByteArray(Iterator.create((byte)0, (byte)1, null)));
+                    test.assertThrows(() -> Array.toByteArray(Iterator.create((byte)0, (byte)1, null)).await(),
+                        new NullPointerException("The 2 element cannot be null."));
                 });
             });
 
@@ -819,7 +818,8 @@ public class ArrayTests
 
                 runner.test("with null value", (Test test) ->
                 {
-                    test.assertError(new NullPointerException("The 2 element cannot be null."), Array.toByteArray(Iterable.create((byte)0, (byte)1, null)));
+                    test.assertThrows(() -> Array.toByteArray(Iterable.create((byte)0, (byte)1, null)).await(),
+                        new NullPointerException("The 2 element cannot be null."));
                 });
             });
 

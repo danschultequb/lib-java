@@ -92,16 +92,17 @@ public class QueueTests
             runner.test("peek()", test ->
             {
                 final Queue<Integer> queue = createQueue.run();
-                test.assertError(new QueueEmptyException(), queue.peek());
+                test.assertThrows(() -> queue.peek().await(),
+                    new QueueEmptyException());
 
                 queue.enqueue(20);
-                test.assertSuccess(20, queue.peek());
+                test.assertEqual(20, queue.peek().await());
 
                 queue.enqueue(21);
-                test.assertSuccess(20, queue.peek());
+                test.assertEqual(20, queue.peek().await());
 
                 test.assertEqual(20, queue.dequeue());
-                test.assertSuccess(21, queue.peek());
+                test.assertEqual(21, queue.peek().await());
             });
         });
     }

@@ -19,27 +19,29 @@ public class MutableMapTests
                     runner.test("with null non-existing key", test ->
                     {
                         final MutableMap<Integer, Boolean> map = creator.run();
-                        test.assertError(new NotFoundException("Could not find the provided key (null) in this Map."), map.get(null));
+                        test.assertThrows(() -> map.get(null).await(),
+                            new NotFoundException("Could not find the provided key (null) in this Map."));
                     });
 
                     runner.test("with null existing key", test ->
                     {
                         final MutableMap<Integer,Boolean> map = creator.run();
-                        map.set(null, true);
-                        test.assertSuccess(true, map.get(null));
+                        test.assertSame(map, map.set(null, true));
+                        test.assertTrue(map.get(null).await());
                     });
                 }
                 runner.test("with non-null non-existing key", test ->
                 {
                     final MutableMap<Integer,Boolean> map = creator.run();
-                    test.assertError(new NotFoundException("Could not find the provided key (20) in this Map."), map.get(20));
+                    test.assertThrows(() -> map.get(20).await(),
+                        new NotFoundException("Could not find the provided key (20) in this Map."));
                 });
 
                 runner.test("with non-null existing key", test ->
                 {
                     final MutableMap<Integer,Boolean> map = creator.run();
-                    map.set(100, false);
-                    test.assertSuccess(false, map.get(100));
+                    test.assertSame(map, map.set(100, false));
+                    test.assertFalse(map.get(100).await());
                 });
             });
 
@@ -134,15 +136,16 @@ public class MutableMapTests
                     runner.test("with null non-existing key", test ->
                     {
                         final MutableMap<Integer, Boolean> map = creator.run();
-                        test.assertError(new NotFoundException("Could not find the provided key (null) in this Map."), map.remove(null));
+                        test.assertThrows(() -> map.remove(null).await(),
+                            new NotFoundException("Could not find the provided key (null) in this Map."));
                     });
 
                     runner.test("with null existing key", test ->
                     {
                         final MutableMap<Integer, Boolean> map = creator.run();
-                        map.set(null, true);
+                        test.assertSame(map, map.set(null, true));
 
-                        test.assertSuccess(true, map.remove(null));
+                        test.assertTrue(map.remove(null).await());
                         test.assertEqual(0, map.getCount());
                     });
                 }
@@ -150,15 +153,16 @@ public class MutableMapTests
                 runner.test("with non-null non-existing key", test ->
                 {
                     final MutableMap<Integer,Boolean> map = creator.run();
-                    test.assertError(new NotFoundException("Could not find the provided key (100) in this Map."), map.remove(100));
+                    test.assertThrows(() -> map.remove(100).await(),
+                        new NotFoundException("Could not find the provided key (100) in this Map."));
                 });
 
                 runner.test("with non-null existing key", test ->
                 {
                     final MutableMap<Integer,Boolean> map = creator.run();
-                    map.set(101, false);
+                    test.assertSame(map, map.set(101, false));
 
-                    test.assertSuccess(false, map.remove(101));
+                    test.assertFalse(map.remove(101).await());
                     test.assertEqual(0, map.getCount());
                 });
             });
@@ -174,8 +178,8 @@ public class MutableMapTests
                 runner.test("with non-empty map", test ->
                 {
                     final MutableMap<Integer,Boolean> map = creator.run();
-                    map.set(0, false);
-                    map.set(1, true);
+                    test.assertSame(map, map.set(0, false));
+                    test.assertSame(map, map.set(1, true));
                     test.assertEqual(Iterable.create(0, 1), map.getKeys());
                 });
             });

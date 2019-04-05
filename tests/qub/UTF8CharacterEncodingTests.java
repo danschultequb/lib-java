@@ -45,7 +45,15 @@ public class UTF8CharacterEncodingTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(text), (Test test) ->
                     {
-                        test.assertDone(expectedBytes, expectedError, encoding.encode(text));
+                        final Result<byte[]> result = encoding.encode(text);
+                        if (expectedError != null)
+                        {
+                            test.assertThrows(result::await, expectedError);
+                        }
+                        else
+                        {
+                            test.assertEqual(expectedBytes, result.await());
+                        }
                     });
                 };
 
@@ -76,7 +84,15 @@ public class UTF8CharacterEncodingTests
                 {
                     runner.test("with " + Array.toString(characters, Characters::escapeAndQuote), (Test test) ->
                     {
-                        test.assertDone(expectedBytes, expectedError, encoding.encode(characters));
+                        final Result<byte[]> result = encoding.encode(characters);
+                        if (expectedError != null)
+                        {
+                            test.assertThrows(result::await, expectedError);
+                        }
+                        else
+                        {
+                            test.assertEqual(expectedBytes, result.await());
+                        }
                     });
                 };
 
@@ -110,7 +126,7 @@ public class UTF8CharacterEncodingTests
                         final Result<char[]> result = encoding.decode(bytes);
                         if (expectedError != null)
                         {
-                            test.assertError(expectedError, result);
+                            test.assertThrows(result::await, expectedError);
                         }
                         else
                         {

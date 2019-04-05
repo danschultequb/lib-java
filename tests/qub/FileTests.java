@@ -59,7 +59,8 @@ public class FileTests
 
                 test.assertEqual(new byte[0], file.getContents().await());
 
-                test.assertError(new FileAlreadyExistsException(file.toString()), file.create());
+                test.assertThrows(() -> file.create().await(),
+                    new FileAlreadyExistsException(file.toString()));
 
                 test.assertTrue(file.exists().await());
             });
@@ -85,16 +86,16 @@ public class FileTests
                 runner.test("when file doesn't exist", (Test test) ->
                 {
                     final File file = getFile(test);
-                    test.assertError(new FileNotFoundException(file.toString()), file.delete());
+                    test.assertThrows(() -> file.delete().await(), new FileNotFoundException(file.toString()));
                     test.assertSuccess(false, file.exists());
                 });
 
                 runner.test("when file does exist", (Test test) ->
                 {
                     final File file = getFile(test);
-                    file.create();
+                    test.assertNull(file.create().await());
 
-                    test.assertSuccess(null, file.delete());
+                    test.assertNull(file.delete().await());
                     test.assertFalse(file.exists().await());
                 });
             });
@@ -147,16 +148,14 @@ public class FileTests
                 runner.test("with non-existing file", (Test test) ->
                 {
                     final File file = getFile(test);
-                    final Result<byte[]> contents = file.getContents();
-                    test.assertError(new FileNotFoundException("/A"), contents);
+                    test.assertThrows(() -> file.getContents().await(), new FileNotFoundException("/A"));
                 });
 
                 runner.test("with existing file with no contents", (Test test) ->
                 {
                     final File file = getFile(test);
-                    file.create();
-                    final Result<byte[]> contents = file.getContents();
-                    test.assertSuccess(new byte[0], contents);
+                    test.assertNull(file.create().await());
+                    test.assertEqual(new byte[0], file.getContents().await());
                 });
             });
 
@@ -165,7 +164,8 @@ public class FileTests
                 runner.test("with non-existing file", (Test test) ->
                 {
                     final File file = getFile(test);
-                    test.assertError(new FileNotFoundException("/A"), file.getContentByteReadStream());
+                    test.assertThrows(() -> file.getContentByteReadStream().await(),
+                        new FileNotFoundException("/A"));
                 });
             });
 
@@ -174,7 +174,8 @@ public class FileTests
                 runner.test("with non-existing file", (Test test) ->
                 {
                     final File file = getFile(test);
-                    test.assertError(new FileNotFoundException("/A"), file.getContentByteReadStreamAsync().awaitReturn());
+                    test.assertThrows(() -> file.getContentByteReadStreamAsync().awaitReturn().await(),
+                        new FileNotFoundException("/A"));
                 });
             });
 
@@ -183,7 +184,8 @@ public class FileTests
                 runner.test("with non-existing file", (Test test) ->
                 {
                     final File file = getFile(test);
-                    test.assertError(new FileNotFoundException("/A"), file.getContentCharacterReadStream());
+                    test.assertThrows(() -> file.getContentCharacterReadStream().await(),
+                        new FileNotFoundException("/A"));
                 });
             });
 
@@ -192,7 +194,8 @@ public class FileTests
                 runner.test("with non-existing file", (Test test) ->
                 {
                     final File file = getFile(test);
-                    test.assertError(new FileNotFoundException("/A"), file.getContentCharacterReadStreamAsync().awaitReturn());
+                    test.assertThrows(() -> file.getContentCharacterReadStreamAsync().awaitReturn().await(),
+                        new FileNotFoundException("/A"));
                 });
             });
         });

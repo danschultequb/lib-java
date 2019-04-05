@@ -68,14 +68,15 @@ public class MutableHttpRequestTests
                 runner.test("with invalid URL", (Test test) ->
                 {
                     final MutableHttpRequest request = create(HttpMethod.GET, "https://www.example.com");
-                    test.assertError(new IllegalArgumentException("A URL must begin with either a scheme (such as \"http\") or a host (such as \"www.example.com\"), not \"'\"."), request.setUrl("I'm not a valid url"));
+                    test.assertThrows(() -> request.setUrl("I'm not a valid url").await(),
+                        new IllegalArgumentException("A URL must begin with either a scheme (such as \"http\") or a host (such as \"www.example.com\"), not \"'\"."));
                     test.assertEqual("https://www.example.com", request.getURL().toString());
                 });
 
                 runner.test("with valid URL", (Test test) ->
                 {
                     final MutableHttpRequest request = create(HttpMethod.GET, "https://www.example.com");
-                    request.setUrl("http://www.google.com").await();
+                    test.assertNull(request.setUrl("http://www.google.com").await());
                     test.assertEqual("http://www.google.com", request.getURL().toString());
                 });
             });

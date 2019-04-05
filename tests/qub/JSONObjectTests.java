@@ -105,7 +105,15 @@ public class JSONObjectTests
                     runner.test("with " + Strings.escapeAndQuote(objectText) + " and " + Strings.escapeAndQuote(propertyName), (Test test) ->
                     {
                         final JSONObject jsonObject = JSON.parseObject(objectText);
-                        test.assertDone(expectedPropertyValue, expectedError, jsonObject.getPropertyValue(propertyName));
+                        final Result<JSONSegment> result = jsonObject.getPropertyValue(propertyName);
+                        if (expectedError != null)
+                        {
+                            test.assertThrows(result::await, expectedError);
+                        }
+                        else
+                        {
+                            test.assertEqual(expectedPropertyValue, result.await());
+                        }
                     });
                 };
 
@@ -124,7 +132,15 @@ public class JSONObjectTests
                     runner.test("with " + Strings.escapeAndQuote(objectText) + " and " + Strings.escapeAndQuote(propertyName), (Test test) ->
                     {
                         final JSONObject jsonObject = JSON.parseObject(objectText);
-                        test.assertDone(expectedPropertyValue, expectedError, jsonObject.getQuotedStringPropertyValue(propertyName));
+                        final Result<JSONQuotedString> result = jsonObject.getQuotedStringPropertyValue(propertyName);
+                        if (expectedError != null)
+                        {
+                            test.assertThrows(result::await, expectedError);
+                        }
+                        else
+                        {
+                            test.assertEqual(expectedPropertyValue, result.await());
+                        }
                     });
                 };
 
@@ -143,7 +159,15 @@ public class JSONObjectTests
                     runner.test("with " + Strings.escapeAndQuote(objectText) + " and " + Strings.escapeAndQuote(propertyName), (Test test) ->
                     {
                         final JSONObject jsonObject = JSON.parseObject(objectText);
-                        test.assertDone(expectedPropertyValue, expectedError, jsonObject.getUnquotedStringPropertyValue(propertyName));
+                        final Result<String> result = jsonObject.getUnquotedStringPropertyValue(propertyName);
+                        if (expectedError != null)
+                        {
+                            test.assertThrows(result::await, expectedError);
+                        }
+                        else
+                        {
+                            test.assertEqual(expectedPropertyValue, result.await());
+                        }
                     });
                 };
 
@@ -162,7 +186,15 @@ public class JSONObjectTests
                     runner.test("with " + Strings.escapeAndQuote(objectText) + " and " + Strings.escapeAndQuote(propertyName), (Test test) ->
                     {
                         final JSONObject jsonObject = JSON.parseObject(objectText);
-                        test.assertDone(expectedPropertyValue, expectedError, jsonObject.getObjectPropertyValue(propertyName));
+                        final Result<JSONObject> result = jsonObject.getObjectPropertyValue(propertyName);
+                        if (expectedError != null)
+                        {
+                            test.assertThrows(result::await, expectedError);
+                        }
+                        else
+                        {
+                            test.assertEqual(expectedPropertyValue, result.await());
+                        }
                     });
                 };
 
@@ -181,7 +213,15 @@ public class JSONObjectTests
                     runner.test("with " + Strings.escapeAndQuote(objectText) + " and " + Strings.escapeAndQuote(propertyName), (Test test) ->
                     {
                         final JSONObject jsonObject = JSON.parseObject(objectText);
-                        test.assertDone(expectedPropertyValue, expectedError, jsonObject.getArrayPropertyValue(propertyName));
+                        final Result<JSONArray> result = jsonObject.getArrayPropertyValue(propertyName);
+                        if (expectedError != null)
+                        {
+                            test.assertThrows(result::await, expectedError);
+                        }
+                        else
+                        {
+                            test.assertEqual(expectedPropertyValue, result.await());
+                        }
                     });
                 };
 
@@ -200,7 +240,15 @@ public class JSONObjectTests
                     runner.test("with " + Strings.escapeAndQuote(objectText) + " and " + Strings.escapeAndQuote(propertyName), (Test test) ->
                     {
                         final JSONObject jsonObject = JSON.parseObject(objectText);
-                        test.assertDone(expectedPropertyValue, expectedError, jsonObject.getNumberTokenPropertyValue(propertyName));
+                        final Result<JSONToken> result = jsonObject.getNumberTokenPropertyValue(propertyName);
+                        if (expectedError != null)
+                        {
+                            test.assertThrows(result::await, expectedError);
+                        }
+                        else
+                        {
+                            test.assertEqual(expectedPropertyValue, result.await());
+                        }
                     });
                 };
 
@@ -220,7 +268,15 @@ public class JSONObjectTests
                     runner.test("with " + Strings.escapeAndQuote(objectText) + " and " + Strings.escapeAndQuote(propertyName), (Test test) ->
                     {
                         final JSONObject jsonObject = JSON.parseObject(objectText);
-                        test.assertDone(expectedPropertyValue, expectedError, jsonObject.getNumberPropertyValue(propertyName));
+                        final Result<Double> result = jsonObject.getNumberPropertyValue(propertyName);
+                        if (expectedError != null)
+                        {
+                            test.assertThrows(result::await, expectedError);
+                        }
+                        else
+                        {
+                            test.assertEqual(expectedPropertyValue, result.await());
+                        }
                     });
                 };
 

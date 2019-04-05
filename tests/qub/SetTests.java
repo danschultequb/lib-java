@@ -182,28 +182,30 @@ public class SetTests
                 runner.test("with not-found null", (Test test) ->
                 {
                     final Set<Integer> set = creator.run();
-                    test.assertError(new NotFoundException("Could not find the value null."), set.remove(null));
+                    test.assertThrows(() -> set.remove(null).await(),
+                        new NotFoundException("Could not find the value null."));
                 });
 
                 runner.test("with found null", (Test test) ->
                 {
                     final Set<Integer> set = creator.run();
                     set.add(null);
-                    test.assertSuccess(null, set.remove(null));
+                    test.assertNull(set.remove(null).await());
                     test.assertEqual(Iterable.create(), set);
                 });
 
                 runner.test("with not-found non-null", (Test test) ->
                 {
                     final Set<Integer> set = creator.run();
-                    test.assertError(new NotFoundException("Could not find the value 20."), set.remove(20));
+                    test.assertThrows(() -> set.remove(20).await(),
+                        new NotFoundException("Could not find the value 20."));
                 });
 
                 runner.test("with found non-null", (Test test) ->
                 {
                     final Set<Integer> set = creator.run();
                     set.add(20);
-                    test.assertSuccess(null, set.remove(20));
+                    test.assertNull(set.remove(20).await());
                     test.assertEqual(Iterable.create(), set);
                 });
             });

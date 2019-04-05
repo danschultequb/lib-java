@@ -134,31 +134,38 @@ public class GateTests
                 runner.test("with non-null DateTime and no clock", (Test test) ->
                 {
                     final Gate gate = create(creator, true);
-                    test.assertThrows(() -> gate.passThrough(test.getClock().getCurrentDateTime()), new PreConditionFailure("getClock() cannot be null."));
+                    final DateTime timeout = test.getClock().getCurrentDateTime();
+                    test.assertThrows(() -> gate.passThrough(timeout), new PreConditionFailure("getClock() cannot be null."));
                 });
 
                 runner.test("with DateTime before now", (Test test) ->
                 {
                     final Gate gate = create(creator, true, test);
-                    test.assertError(new TimeoutException(), gate.passThrough(test.getClock().getCurrentDateTime().minus(Duration.seconds(1))));
+                    final DateTime timeout = test.getClock().getCurrentDateTime().minus(Duration.seconds(1));
+                    test.assertThrows(() -> gate.passThrough(timeout).await(),
+                        new TimeoutException());
                 });
 
                 runner.test("with DateTime at now", (Test test) ->
                 {
                     final Gate gate = create(creator, true, test);
-                    test.assertError(new TimeoutException(), gate.passThrough(test.getClock().getCurrentDateTime()));
+                    final DateTime timeout = test.getClock().getCurrentDateTime();
+                    test.assertThrows(() -> gate.passThrough(timeout).await(),
+                        new TimeoutException());
                 });
 
                 runner.test("with future Duration when open", (Test test) ->
                 {
                     final Gate gate = create(creator, true, test);
-                    test.assertSuccess(true, gate.passThrough(test.getClock().getCurrentDateTime().plus(Duration.seconds(1))));
+                    final DateTime timeout = test.getClock().getCurrentDateTime().plus(Duration.seconds(1));
+                    test.assertTrue(gate.passThrough(timeout).await());
                 });
 
                 runner.test("with positive Duration when not open", (Test test) ->
                 {
                     final Gate gate = create(creator, false, test);
-                    test.assertError(new TimeoutException(), gate.passThrough(test.getClock().getCurrentDateTime().plus(Duration.seconds(0.1))));
+                    final DateTime timeout = test.getClock().getCurrentDateTime().plus(Duration.seconds(0.1));
+                    test.assertThrows(() -> gate.passThrough(timeout).await(), new TimeoutException());
                 });
             });
         });

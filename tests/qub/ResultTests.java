@@ -73,7 +73,7 @@ public class ResultTests
                     final Result<Character> result1 = Result.error(new RuntimeException("blah"));
                     final Value<Character> value = Value.create();
                     final Result<Void> result2 = result1.then(() -> value.set('z'));
-                    test.assertError(new RuntimeException("blah"), result2);
+                    test.assertThrows(result2::await, new RuntimeException("blah"));
                     test.assertFalse(value.hasValue());
                 });
 
@@ -84,7 +84,7 @@ public class ResultTests
                     {
                         throw new RuntimeException("abc");
                     });
-                    test.assertError(new RuntimeException("blah"), result2);
+                    test.assertThrows(result2::await, new RuntimeException("blah"));
                 });
             });
 
@@ -100,7 +100,7 @@ public class ResultTests
                     final Result<Boolean> result1 = Result.successTrue();
                     final Value<Boolean> value = Value.create();
                     final Result<Void> result2 = result1.then(value::set);
-                    test.assertSuccess(null, result2);
+                    test.assertNull(result2.await());
                     test.assertTrue(value.hasValue());
                     test.assertEqual(true, value.get());
                 });
@@ -112,7 +112,7 @@ public class ResultTests
                     {
                         throw new RuntimeException("foo");
                     });
-                    test.assertError(new RuntimeException("foo"), result2);
+                    test.assertThrows(result2::await, new RuntimeException("foo"));
                 });
 
                 runner.test("with error Result and non-throwing action", (Test test) ->
@@ -120,7 +120,7 @@ public class ResultTests
                     final Result<Character> result1 = Result.error(new RuntimeException("blah"));
                     final Value<Character> value = Value.create();
                     final Result<Void> result2 = result1.then(value::set);
-                    test.assertError(new RuntimeException("blah"), result2);
+                    test.assertThrows(result2::await, new RuntimeException("blah"));
                     test.assertFalse(value.hasValue());
                 });
 
@@ -131,7 +131,7 @@ public class ResultTests
                     {
                         throw new RuntimeException("abc");
                     });
-                    test.assertError(new RuntimeException("blah"), result2);
+                    test.assertThrows(result2::await, new RuntimeException("blah"));
                 });
             });
 
@@ -146,7 +146,7 @@ public class ResultTests
                 {
                     final Result<Boolean> result1 = Result.successTrue();
                     final Result<Integer> result2 = result1.then(() -> 1);
-                    test.assertSuccess(1, result2);
+                    test.assertEqual(1, result2.await());
                 });
 
                 runner.test("with non-error Result and throwing function", (Test test) ->
@@ -156,14 +156,14 @@ public class ResultTests
                     {
                         throw new RuntimeException("foo");
                     });
-                    test.assertError(new RuntimeException("foo"), result2);
+                    test.assertThrows(result2::await, new RuntimeException("foo"));
                 });
 
                 runner.test("with error Result and non-throwing function", (Test test) ->
                 {
                     final Result<Character> result1 = Result.error(new RuntimeException("blah"));
                     final Result<Integer> result2 = result1.then(() -> 1);
-                    test.assertError(new RuntimeException("blah"), result2);
+                    test.assertThrows(result2::await, new RuntimeException("blah"));
                 });
 
                 runner.test("with error Result and throwing function", (Test test) ->
@@ -173,7 +173,7 @@ public class ResultTests
                     {
                         throw new RuntimeException("abc");
                     });
-                    test.assertError(new RuntimeException("blah"), result2);
+                    test.assertThrows(result2::await, new RuntimeException("blah"));
                 });
             });
 
@@ -188,7 +188,7 @@ public class ResultTests
                 {
                     final Result<Boolean> result1 = Result.successTrue();
                     final Result<Integer> result2 = result1.thenResult(() -> Result.success(1));
-                    test.assertSuccess(1, result2);
+                    test.assertEqual(1, result2.await());
                 });
 
                 runner.test("with non-error Result and throwing function", (Test test) ->
@@ -198,14 +198,14 @@ public class ResultTests
                     {
                         throw new RuntimeException("foo");
                     });
-                    test.assertError(new RuntimeException("foo"), result2);
+                    test.assertThrows(result2::await, new RuntimeException("foo"));
                 });
 
                 runner.test("with error Result and non-throwing function", (Test test) ->
                 {
                     final Result<Character> result1 = Result.error(new RuntimeException("blah"));
                     final Result<Integer> result2 = result1.thenResult(() -> Result.success(1));
-                    test.assertError(new RuntimeException("blah"), result2);
+                    test.assertThrows(result2::await, new RuntimeException("blah"));
                 });
 
                 runner.test("with error Result and throwing function", (Test test) ->
@@ -215,7 +215,7 @@ public class ResultTests
                     {
                         throw new RuntimeException("abc");
                     });
-                    test.assertError(new RuntimeException("blah"), result2);
+                    test.assertThrows(result2::await, new RuntimeException("blah"));
                 });
             });
 
@@ -230,7 +230,7 @@ public class ResultTests
                 {
                     final Result<Boolean> result1 = Result.successTrue();
                     final Result<Integer> result2 = result1.then((Boolean value) -> value ? 1 : 0);
-                    test.assertSuccess(1, result2);
+                    test.assertEqual(1, result2.await());
                 });
 
                 runner.test("with non-error Result and throwing function", (Test test) ->
@@ -240,14 +240,14 @@ public class ResultTests
                     {
                         throw new RuntimeException("foo");
                     });
-                    test.assertError(new RuntimeException("foo"), result2);
+                    test.assertThrows(result2::await, new RuntimeException("foo"));
                 });
 
                 runner.test("with error Result and non-throwing function", (Test test) ->
                 {
                     final Result<Character> result1 = Result.error(new RuntimeException("blah"));
                     final Result<Integer> result2 = result1.then(Object::hashCode);
-                    test.assertError(new RuntimeException("blah"), result2);
+                    test.assertThrows(result2::await, new RuntimeException("blah"));
                 });
 
                 runner.test("with error Result and throwing function", (Test test) ->
@@ -257,7 +257,7 @@ public class ResultTests
                     {
                         throw new RuntimeException("abc");
                     });
-                    test.assertError(new RuntimeException("blah"), result2);
+                    test.assertThrows(result2::await, new RuntimeException("blah"));
                 });
             });
 
@@ -272,7 +272,7 @@ public class ResultTests
                 {
                     final Result<Boolean> result1 = Result.successTrue();
                     final Result<Integer> result2 = result1.thenResult((Boolean value) -> Result.success(value ? 1 : 0));
-                    test.assertSuccess(1, result2);
+                    test.assertEqual(1, result2.await());
                 });
 
                 runner.test("with non-error Result and throwing function", (Test test) ->
@@ -282,14 +282,14 @@ public class ResultTests
                     {
                         throw new RuntimeException("foo");
                     });
-                    test.assertError(new RuntimeException("foo"), result2);
+                    test.assertThrows(result2::await, new RuntimeException("foo"));
                 });
 
                 runner.test("with error Result and non-throwing function", (Test test) ->
                 {
                     final Result<Character> result1 = Result.error(new RuntimeException("blah"));
                     final Result<Integer> result2 = result1.thenResult((Character c) -> Result.success(c.hashCode()));
-                    test.assertError(new RuntimeException("blah"), result2);
+                    test.assertThrows(result2::await, new RuntimeException("blah"));
                 });
 
                 runner.test("with error Result and throwing function", (Test test) ->
@@ -299,7 +299,7 @@ public class ResultTests
                     {
                         throw new RuntimeException("abc");
                     });
-                    test.assertError(new RuntimeException("blah"), result2);
+                    test.assertThrows(result2::await, new RuntimeException("blah"));
                 });
             });
 
@@ -331,7 +331,7 @@ public class ResultTests
                     final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
                     final Value<Integer> value = Value.create(0);
                     final Result<Boolean> result2 = result1.catchError((Action0)() -> value.set(5));
-                    test.assertSuccess(null, result2);
+                    test.assertNull(result2.await());
                     test.assertEqual(5, value.get());
                 });
 
@@ -339,7 +339,7 @@ public class ResultTests
                 {
                     final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
                     final Result<Boolean> result2 = result1.catchError((Action0)() -> { throw new RuntimeException("xyz"); });
-                    test.assertError(new RuntimeException("xyz"), result2);
+                    test.assertThrows(result2::await, new RuntimeException("xyz"));
                 });
             });
 
@@ -379,7 +379,7 @@ public class ResultTests
                 {
                     final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
                     final Result<Boolean> result2 = result1.catchError((Action1<Throwable>)(Throwable error) -> { throw new RuntimeException("xyz"); });
-                    test.assertError(new RuntimeException("xyz"), result2);
+                    test.assertThrows(result2::await, new RuntimeException("xyz"));
                 });
             });
 
@@ -435,7 +435,7 @@ public class ResultTests
                         test.assertSame(result1, resultError);
                         throw new RuntimeException("xyz");
                     });
-                    test.assertError(new RuntimeException("xyz"), result2);
+                    test.assertThrows(result2::await, new RuntimeException("xyz"));
                 });
             });
 
@@ -532,7 +532,7 @@ public class ResultTests
                 {
                     final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
                     final Result<Boolean> result2 = result1.catchError(RuntimeException.class, (Action0)() -> { throw new NullPointerException("abc"); });
-                    test.assertError(new NullPointerException("abc"), result2);
+                    test.assertThrows(result2::await, new NullPointerException("abc"));
                 });
             });
 
@@ -593,7 +593,7 @@ public class ResultTests
                 {
                     final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
                     final Result<Boolean> result2 = result1.catchError(RuntimeException.class, (Action1<RuntimeException>)error -> { throw new NullPointerException("abc"); });
-                    test.assertError(new NullPointerException("abc"), result2);
+                    test.assertThrows(result2::await, new NullPointerException("abc"));
                 });
             });
 
@@ -654,7 +654,7 @@ public class ResultTests
                 {
                     final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
                     final Result<Boolean> result2 = result1.catchError((Function0<Boolean>)() -> { throw new RuntimeException("xyz"); });
-                    test.assertError(new RuntimeException("xyz"), result2);
+                    test.assertThrows(result2::await, new RuntimeException("xyz"));
                 });
             });
 
@@ -715,7 +715,7 @@ public class ResultTests
                 {
                     final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
                     final Result<Boolean> result2 = result1.catchError((Function1<Throwable,Boolean>)(Throwable error) -> { throw new RuntimeException("xyz"); });
-                    test.assertError(new RuntimeException("xyz"), result2);
+                    test.assertThrows(result2::await, new RuntimeException("xyz"));
                 });
             });
 
@@ -788,7 +788,7 @@ public class ResultTests
                 {
                     final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
                     final Result<Boolean> result2 = result1.catchError(RuntimeException.class, (Function0<Boolean>)() -> { throw new NullPointerException("abc"); });
-                    test.assertError(new NullPointerException("abc"), result2);
+                    test.assertThrows(result2::await, new NullPointerException("abc"));
                 });
             });
 
@@ -861,7 +861,7 @@ public class ResultTests
                 {
                     final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
                     final Result<Boolean> result2 = result1.catchError(RuntimeException.class, (Function1<RuntimeException,Boolean>)error -> { throw new NullPointerException("abc"); });
-                    test.assertError(new NullPointerException("abc"), result2);
+                    test.assertThrows(result2::await, new NullPointerException("abc"));
                 });
             });
 
@@ -922,7 +922,7 @@ public class ResultTests
                 {
                     final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
                     final Result<Boolean> result2 = result1.catchErrorResult((Function0<Result<Boolean>>)() -> { throw new RuntimeException("xyz"); });
-                    test.assertError(new RuntimeException("xyz"), result2);
+                    test.assertThrows(result2::await, new RuntimeException("xyz"));
                 });
             });
 
@@ -989,7 +989,7 @@ public class ResultTests
                 {
                     final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
                     final Result<Boolean> result2 = result1.catchErrorResult((Throwable error) -> { throw new RuntimeException("xyz"); });
-                    test.assertError(new RuntimeException("xyz"), result2);
+                    test.assertThrows(result2::await, new RuntimeException("xyz"));
                 });
             });
 
@@ -1062,7 +1062,7 @@ public class ResultTests
                 {
                     final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
                     final Result<Boolean> result2 = result1.catchErrorResult(RuntimeException.class, (Function0<Result<Boolean>>)() -> { throw new NullPointerException("abc"); });
-                    test.assertError(new NullPointerException("abc"), result2);
+                    test.assertThrows(result2::await, new NullPointerException("abc"));
                 });
             });
 
@@ -1135,7 +1135,7 @@ public class ResultTests
                 {
                     final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
                     final Result<Boolean> result2 = result1.catchErrorResult(RuntimeException.class, (Function1<RuntimeException,Result<Boolean>>)error -> { throw new NullPointerException("abc"); });
-                    test.assertError(new NullPointerException("abc"), result2);
+                    test.assertThrows(result2::await, new NullPointerException("abc"));
                 });
             });
 

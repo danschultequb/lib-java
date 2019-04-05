@@ -20,37 +20,38 @@ public class LongsTests
 
                 runner.test("with non-number", (Test test) ->
                 {
-                    test.assertError(new NumberFormatException("For input string: \"a\""), Longs.parse("a"));
+                    test.assertThrows(() -> Longs.parse("a").await(),
+                        new NumberFormatException("For input string: \"a\""));
                 });
 
                 runner.test("with negative long number", (Test test) ->
                 {
-                    test.assertSuccess(Longs.minimumValue, Longs.parse(Longs.toString(Longs.minimumValue)));
+                    test.assertEqual(Longs.minimumValue, Longs.parse(Longs.toString(Longs.minimumValue)).await());
                 });
 
                 runner.test("with negative integer number", (Test test) ->
                 {
-                    test.assertSuccess(-5L, Longs.parse("-5"));
+                    test.assertEqual(-5L, Longs.parse("-5").await());
                 });
 
                 runner.test("with negative zero", (Test test) ->
                 {
-                    test.assertSuccess(0L, Longs.parse("-0"));
+                    test.assertEqual(0L, Longs.parse("-0").await());
                 });
 
                 runner.test("with positive zero", (Test test) ->
                 {
-                    test.assertSuccess(0L, Longs.parse("0"));
+                    test.assertEqual(0L, Longs.parse("0").await());
                 });
 
                 runner.test("with positive integer number", (Test test) ->
                 {
-                    test.assertSuccess(5L, Longs.parse("5"));
+                    test.assertEqual(5L, Longs.parse("5").await());
                 });
 
                 runner.test("with positive long number", (Test test) ->
                 {
-                    test.assertSuccess(Longs.maximumValue, Longs.parse(Longs.toString(Longs.maximumValue)));
+                    test.assertEqual(Longs.maximumValue, Longs.parse(Longs.toString(Longs.maximumValue)).await());
                 });
             });
         });

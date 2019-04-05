@@ -137,25 +137,28 @@ public class JSONPropertyTests
                 runner.test("with no value", (Test test) ->
                 {
                     final JSONProperty property = JSON.parseProperty("\"a\":");
-                    test.assertError(new NotFoundException("No value was found for the JSONProperty."), property.getNumberTokenValue());
+                    test.assertThrows(() -> property.getNumberTokenValue().await(),
+                        new NotFoundException("No value was found for the JSONProperty."));
                 });
 
                 runner.test("with false token value", (Test test) ->
                 {
                     final JSONProperty property = JSON.parseProperty("\"a\":false");
-                    test.assertError(new WrongTypeException("Expected the value of the property named \"a\" to be a number."), property.getNumberTokenValue());
+                    test.assertThrows(() -> property.getNumberTokenValue().await(),
+                        new WrongTypeException("Expected the value of the property named \"a\" to be a number."));
                 });
 
                 runner.test("with object segment value", (Test test) ->
                 {
                     final JSONProperty property = JSON.parseProperty("\"a\":{}");
-                    test.assertError(new WrongTypeException("Expected the value of the property named \"a\" to be a number."), property.getNumberTokenValue());
+                    test.assertThrows(() -> property.getNumberTokenValue().await(),
+                        new WrongTypeException("Expected the value of the property named \"a\" to be a number."));
                 });
 
                 runner.test("with number value", (Test test) ->
                 {
                     final JSONProperty property = JSON.parseProperty("\"a\":5");
-                    test.assertSuccess(JSONToken.number("5", 4), property.getNumberTokenValue());
+                    test.assertEqual(JSONToken.number("5", 4), property.getNumberTokenValue().await());
                 });
             });
 
@@ -164,25 +167,28 @@ public class JSONPropertyTests
                 runner.test("with no value", (Test test) ->
                 {
                     final JSONProperty property = JSON.parseProperty("\"a\":");
-                    test.assertError(new NotFoundException("No value was found for the JSONProperty."), property.getNumberValue());
+                    test.assertThrows(() -> property.getNumberValue().await(),
+                        new NotFoundException("No value was found for the JSONProperty."));
                 });
 
                 runner.test("with false token value", (Test test) ->
                 {
                     final JSONProperty property = JSON.parseProperty("\"a\":false");
-                    test.assertError(new WrongTypeException("Expected the value of the property named \"a\" to be a number."), property.getNumberValue());
+                    test.assertThrows(() -> property.getNumberValue().await(),
+                        new WrongTypeException("Expected the value of the property named \"a\" to be a number."));
                 });
 
                 runner.test("with object segment value", (Test test) ->
                 {
                     final JSONProperty property = JSON.parseProperty("\"a\":{}");
-                    test.assertError(new WrongTypeException("Expected the value of the property named \"a\" to be a number."), property.getNumberValue());
+                    test.assertThrows(() -> property.getNumberValue().await(),
+                        new WrongTypeException("Expected the value of the property named \"a\" to be a number."));
                 });
 
                 runner.test("with number value", (Test test) ->
                 {
                     final JSONProperty property = JSON.parseProperty("\"a\":5");
-                    test.assertSuccess(5.0, property.getNumberValue());
+                    test.assertEqual(5.0, property.getNumberValue().await());
                 });
             });
 
@@ -191,25 +197,28 @@ public class JSONPropertyTests
                 runner.test("with no value", (Test test) ->
                 {
                     final JSONProperty property = JSON.parseProperty("\"a\":");
-                    test.assertError(new NotFoundException("No value was found for the JSONProperty."), property.getObjectValue());
+                    test.assertThrows(() -> property.getObjectValue().await(),
+                        new NotFoundException("No value was found for the JSONProperty."));
                 });
 
                 runner.test("with false token value", (Test test) ->
                 {
                     final JSONProperty property = JSON.parseProperty("\"a\":false");
-                    test.assertError(new WrongTypeException("Expected the value of the property named \"a\" to be an object."), property.getObjectValue());
+                    test.assertThrows(() -> property.getObjectValue().await(),
+                        new WrongTypeException("Expected the value of the property named \"a\" to be an object."));
                 });
 
                 runner.test("with array segment value", (Test test) ->
                 {
                     final JSONProperty property = JSON.parseProperty("\"a\":[]");
-                    test.assertError(new WrongTypeException("Expected the value of the property named \"a\" to be an object."), property.getObjectValue());
+                    test.assertThrows(() -> property.getObjectValue().await(),
+                        new WrongTypeException("Expected the value of the property named \"a\" to be an object."));
                 });
 
                 runner.test("with object value", (Test test) ->
                 {
                     final JSONProperty property = JSON.parseProperty("\"a\":{}");
-                    test.assertSuccess(JSON.parseObject("{}", 4), property.getObjectValue());
+                    test.assertEqual(JSON.parseObject("{}", 4), property.getObjectValue().await());
                 });
             });
 

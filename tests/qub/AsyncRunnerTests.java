@@ -365,7 +365,7 @@ public class AsyncRunnerTests
                         test.assertTrue(asyncFunction.isCompleted());
 
                         final Result<Integer> result = asyncFunction.awaitReturn();
-                        test.assertError(new IllegalArgumentException("blah"), result);
+                        test.assertThrows(result::await, new IllegalArgumentException("blah"));
                     }
                 });
             });

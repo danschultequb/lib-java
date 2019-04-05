@@ -83,8 +83,9 @@ public class HttpServerTests
                 {
                     try (final HttpServer server = createServer(test))
                     {
-                        server.addPath("/", (HttpRequest request) -> null);
-                        test.assertError(new AlreadyExistsException("The path \"/\" already exists."), server.addPath("/", (HttpRequest request) -> null));
+                        test.assertTrue(server.addPath("/", (HttpRequest request) -> null).await());
+                        test.assertThrows(() -> server.addPath("/", (HttpRequest request) -> null).await(),
+                            new AlreadyExistsException("The path \"/\" already exists."));
                     }
                 });
 
@@ -92,7 +93,7 @@ public class HttpServerTests
                 {
                     try (final HttpServer server = createServer(test))
                     {
-                        test.assertSuccess(server.addPath("/redfish", (HttpRequest request) -> null));
+                        test.assertTrue(server.addPath("/redfish", (HttpRequest request) -> null).await());
                         test.assertEqual(Array.create("/redfish"), server.getPaths().map(PathPattern::toString));
                     }
                 });

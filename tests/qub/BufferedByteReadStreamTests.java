@@ -131,7 +131,7 @@ public class BufferedByteReadStreamTests
                 {
                     final InMemoryByteStream innerStream = new InMemoryByteStream().endOfStream();
                     final BufferedByteReadStream byteReadStream = new BufferedByteReadStream(innerStream, 1);
-                    test.assertError(new EndOfStreamException(), byteReadStream.readByte());
+                    test.assertThrows(() -> byteReadStream.readByte().await(), new EndOfStreamException());
                     test.assertThrows(byteReadStream::getCurrent,
                         new PreConditionFailure("hasCurrent() cannot be false."));
                     test.assertTrue(byteReadStream.hasStarted());
@@ -223,7 +223,7 @@ public class BufferedByteReadStreamTests
                     test.assertEqual((byte)1, innerStream.getCurrent());
                     test.assertTrue(byteReadStream.hasStarted());
 
-                    test.assertError(new EndOfStreamException(), byteReadStream.readByte());
+                    test.assertThrows(() -> byteReadStream.readByte().await(), new EndOfStreamException());
                     test.assertThrows(byteReadStream::getCurrent,
                         new PreConditionFailure("hasCurrent() cannot be false."));
                     test.assertEqual(0, byteReadStream.getBufferedByteCount());

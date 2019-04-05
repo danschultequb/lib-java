@@ -1221,48 +1221,6 @@ public class Test
     }
 
     /**
-     * Assert that the provided Result object has the provided expected error.
-     * @param expectedError The error that the result should have.
-     * @param result The result to check.
-     */
-    public <T> void assertError(Throwable expectedError, Result<T> result)
-    {
-        assertNotNull(result, "The Result object should not be null.");
-        assertThrows(result::await, expectedError);
-    }
-
-    /**
-     * Assert that the provided Result object has the provided expected error.
-     * @param expectedError The error that the result should have.
-     * @param result The result to check.
-     */
-    public <T> void assertErrorAsync(Throwable expectedError, AsyncFunction<Result<T>> result)
-    {
-        assertNotNull(result, "The Result object should not be null.");
-        assertError(expectedError, result.awaitReturn());
-    }
-
-    /**
-     * Assert that the provided Result object has the provided expected value and error.
-     * @param expectedValue The value that the result should have.
-     * @param expectedError The error that the reuslt should have.
-     * @param result The result to check.
-     * @param <T> The type of the value.
-     */
-    public <T> void assertDone(T expectedValue, Throwable expectedError, Result<T> result)
-    {
-        assertNotNull(result);
-        if (expectedError != null)
-        {
-            assertThrows(result::await, expectedError);
-        }
-        else
-        {
-            assertEqual(expectedValue, result.await());
-        }
-    }
-
-    /**
      * Cause the test to fail instantly.
      */
     public void fail()

@@ -500,110 +500,98 @@ public class URLTests
 
                 runner.test("with \"http:\"", (Test test) ->
                 {
-                    final Result<URL> urlResult = URL.parse("http:");
-                    test.assertError(new IllegalArgumentException("Could not parse \"http:\" into a URL because it is missing a port number."), urlResult);
+                    test.assertThrows(() -> URL.parse("http:").await(),
+                        new IllegalArgumentException("Could not parse \"http:\" into a URL because it is missing a port number."));
                 });
 
                 runner.test("with \"http:81\"", (Test test) ->
                 {
-                    test.assertSuccess(URL.parse("http:81"),
-                        (URL url) ->
-                        {
-                            test.assertEqual("http:81", url.toString());
-                            test.assertEqual(null, url.getScheme());
-                            test.assertEqual("http", url.getHost());
-                            test.assertEqual(81, url.getPort());
-                            test.assertEqual(null, url.getPath());
-                            test.assertEqual(null, url.getQuery());
-                            test.assertEqual(null, url.getFragment());
-                        });
+                    final URL url = URL.parse("http:81").await();
+                    test.assertEqual("http:81", url.toString());
+                    test.assertEqual(null, url.getScheme());
+                    test.assertEqual("http", url.getHost());
+                    test.assertEqual(81, url.getPort());
+                    test.assertEqual(null, url.getPath());
+                    test.assertEqual(null, url.getQuery());
+                    test.assertEqual(null, url.getFragment());
                 });
 
                 runner.test("with \"http:/\"", (Test test) ->
                 {
-                    final Result<URL> urlResult = URL.parse("http:/");
-                    test.assertError(new IllegalArgumentException("Could not parse \"http:/\" into a URL because it is missing the second forward slash after the scheme."), urlResult);
+                    test.assertThrows(() -> URL.parse("http:/").await(),
+                        new IllegalArgumentException("Could not parse \"http:/\" into a URL because it is missing the second forward slash after the scheme."));
                 });
 
                 runner.test("with \"http://\"", (Test test) ->
                 {
-                    test.assertSuccess(URL.parse("http://"),
-                        (URL url) ->
-                        {
-                            test.assertEqual("http://", url.toString());
-                            test.assertEqual("http", url.getScheme());
-                            test.assertEqual(null, url.getHost());
-                            test.assertEqual(null, url.getPort());
-                            test.assertEqual(null, url.getPath());
-                            test.assertEqual(null, url.getQuery());
-                            test.assertEqual(null, url.getFragment());
-                        });
+                    final URL url = URL.parse("http://").await();
+                    test.assertEqual("http://", url.toString());
+                    test.assertEqual("http", url.getScheme());
+                    test.assertEqual(null, url.getHost());
+                    test.assertEqual(null, url.getPort());
+                    test.assertEqual(null, url.getPath());
+                    test.assertEqual(null, url.getQuery());
+                    test.assertEqual(null, url.getFragment());
                 });
 
                 runner.test("with \"http://:\"", (Test test) ->
                 {
-                    final Result<URL> urlResult = URL.parse("http://:");
-                    test.assertError(new IllegalArgumentException("Could not parse \"http://:\" into a URL because no host was specified before the port."), urlResult);
+                    test.assertThrows(() -> URL.parse("http://:").await(),
+                        new IllegalArgumentException("Could not parse \"http://:\" into a URL because no host was specified before the port."));
                 });
 
                 runner.test("with \"http:///\"", (Test test) ->
                 {
-                    final Result<URL> urlResult = URL.parse("http:///");
-                    test.assertError(new IllegalArgumentException("Could not parse \"http:///\" into a URL because no host was specified before the path."), urlResult);
+                    test.assertThrows(() -> URL.parse("http:///").await(),
+                        new IllegalArgumentException("Could not parse \"http:///\" into a URL because no host was specified before the path."));
                 });
 
                 runner.test("with \"http://?\"", (Test test) ->
                 {
-                    final Result<URL> urlResult = URL.parse("http://?");
-                    test.assertError(new IllegalArgumentException("Could not parse \"http://?\" into a URL because no host was specified before the query."), urlResult);
+                    test.assertThrows(() -> URL.parse("http://?").await(),
+                        new IllegalArgumentException("Could not parse \"http://?\" into a URL because no host was specified before the query."));
                 });
 
                 runner.test("with \"http://#\"", (Test test) ->
                 {
-                    final Result<URL> urlResult = URL.parse("http://#");
-                    test.assertError(new IllegalArgumentException("Could not parse \"http://#\" into a URL because no host was specified before the fragment."), urlResult);
+                    test.assertThrows(() -> URL.parse("http://#").await(),
+                        new IllegalArgumentException("Could not parse \"http://#\" into a URL because no host was specified before the fragment."));
                 });
 
                 runner.test("with \"http://www\"", (Test test) ->
                 {
-                    test.assertSuccess(URL.parse("http://www"),
-                        (URL url) ->
-                        {
-                            test.assertEqual("http://www", url.toString());
-                            test.assertEqual("http", url.getScheme());
-                            test.assertEqual("www", url.getHost());
-                            test.assertEqual(null, url.getPort());
-                            test.assertEqual(null, url.getPath());
-                            test.assertEqual(null, url.getQuery());
-                            test.assertEqual(null, url.getFragment());
-                        });
+                    final URL url = URL.parse("http://www").await();
+                    test.assertEqual("http://www", url.toString());
+                    test.assertEqual("http", url.getScheme());
+                    test.assertEqual("www", url.getHost());
+                    test.assertEqual(null, url.getPort());
+                    test.assertEqual(null, url.getPath());
+                    test.assertEqual(null, url.getQuery());
+                    test.assertEqual(null, url.getFragment());
                 });
 
                 runner.test("with \"http://www.example.com\"", (Test test) ->
                 {
-                    test.assertSuccess(URL.parse("http://www.example.com"),
-                        (URL url) ->
-                        {
-                            test.assertEqual("http://www.example.com", url.toString());
-                            test.assertEqual("http", url.getScheme());
-                            test.assertEqual("www.example.com", url.getHost());
-                            test.assertEqual(null, url.getPort());
-                            test.assertEqual(null, url.getPath());
-                            test.assertEqual(null, url.getQuery());
-                            test.assertEqual(null, url.getFragment());
-                        });
+                    final URL url = URL.parse("http://www.example.com").await();
+                    test.assertEqual("http://www.example.com", url.toString());
+                    test.assertEqual("http", url.getScheme());
+                    test.assertEqual("www.example.com", url.getHost());
+                    test.assertEqual(null, url.getPort());
+                    test.assertEqual(null, url.getPath());
+                    test.assertEqual(null, url.getQuery());
+                    test.assertEqual(null, url.getFragment());
                 });
 
                 runner.test("with \"http://www.example.com:\"", (Test test) ->
                 {
-                    final Result<URL> urlResult = URL.parse("http://www.example.com:");
-                    test.assertError(new IllegalArgumentException("Could not parse \"http://www.example.com:\" into a URL because it is missing its port number."), urlResult);
+                    test.assertThrows(() -> URL.parse("http://www.example.com:").await(),
+                        new IllegalArgumentException("Could not parse \"http://www.example.com:\" into a URL because it is missing its port number."));
                 });
 
                 runner.test("with \"http://www.example.com:whoops\"", (Test test) ->
                 {
-                    final Result<URL> urlResult = URL.parse("http://www.example.com:whoops");
-                    test.assertError(new IllegalArgumentException("Could not parse \"http://www.example.com:whoops\" into a URL because the port specified was not a number."), urlResult);
+                    test.assertThrows(() -> URL.parse("http://www.example.com:whoops").await(),
+                        new IllegalArgumentException("Could not parse \"http://www.example.com:whoops\" into a URL because the port specified was not a number."));
                 });
 
                 runner.test("with \"http://www.example.com:20\"", (Test test) ->
@@ -623,8 +611,8 @@ public class URLTests
 
                 runner.test("with \"http://www.example.com:20^\"", (Test test) ->
                 {
-                    final Result<URL> urlResult = URL.parse("http://www.example.com:20^");
-                    test.assertError(new IllegalArgumentException("Expected \"/\", \"?\", or \"#\", but found \"^\" instead."), urlResult);
+                    test.assertThrows(() -> URL.parse("http://www.example.com:20^").await(),
+                        new IllegalArgumentException("Expected \"/\", \"?\", or \"#\", but found \"^\" instead."));
                 });
 
                 runner.test("with \"http://www.example.com:20/\"", (Test test) ->
@@ -914,41 +902,38 @@ public class URLTests
 
                 runner.test("with \".\"", (Test test) ->
                 {
-                    final Result<URL> urlResult = URL.parse(".");
-                    test.assertError(new IllegalArgumentException("A URL must begin with either a scheme (such as \"http\") or a host (such as \"www.example.com\"), not \".\"."), urlResult);
+                    test.assertThrows(() -> URL.parse(".").await(),
+                        new IllegalArgumentException("A URL must begin with either a scheme (such as \"http\") or a host (such as \"www.example.com\"), not \".\"."));
                 });
 
                 runner.test("with \"%\"", (Test test) ->
                 {
-                    final Result<URL> urlResult = URL.parse("%");
-                    test.assertError(new IllegalArgumentException("A URL must begin with either a scheme (such as \"http\") or a host (such as \"www.example.com\"), not \"%\"."), urlResult);
+                    test.assertThrows(() -> URL.parse("%").await(),
+                        new IllegalArgumentException("A URL must begin with either a scheme (such as \"http\") or a host (such as \"www.example.com\"), not \"%\"."));
                 });
 
                 runner.test("with \"www.example.com\"", (Test test) ->
                 {
-                    test.assertSuccess(URL.parse("www.example.com"),
-                        (URL url) ->
-                        {
-                            test.assertEqual(null, url.getScheme());
-                            test.assertEqual("www.example.com", url.getHost());
-                            test.assertEqual(null, url.getPort());
-                            test.assertEqual(null, url.getPath());
-                            test.assertEqual(null, url.getQuery());
-                            test.assertEqual(null, url.getFragment());
-                            test.assertEqual("www.example.com", url.toString());
-                        });
+                    final URL url = URL.parse("www.example.com").await();
+                    test.assertEqual(null, url.getScheme());
+                    test.assertEqual("www.example.com", url.getHost());
+                    test.assertEqual(null, url.getPort());
+                    test.assertEqual(null, url.getPath());
+                    test.assertEqual(null, url.getQuery());
+                    test.assertEqual(null, url.getFragment());
+                    test.assertEqual("www.example.com", url.toString());
                 });
 
                 runner.test("with \"http:*\"", (Test test) ->
                 {
-                    final Result<URL> urlResult = URL.parse("http:*");
-                    test.assertError(new IllegalArgumentException("After the scheme or host (http) and a colon, the following text must be either a forward slash or a port number."), urlResult);
+                    test.assertThrows(() -> URL.parse("http:*").await(),
+                        new IllegalArgumentException("After the scheme or host (http) and a colon, the following text must be either a forward slash or a port number."));
                 });
 
                 runner.test("with \"http:/*\"", (Test test) ->
                 {
-                    final Result<URL> urlResult = URL.parse("http:/*");
-                    test.assertError(new IllegalArgumentException("Could not parse \"http:/*\" into a URL because the scheme (http) must be followed by \"://\"."), urlResult);
+                    test.assertThrows(() -> URL.parse("http:/*").await(),
+                        new IllegalArgumentException("Could not parse \"http:/*\" into a URL because the scheme (http) must be followed by \"://\"."));
                 });
             });
         });
