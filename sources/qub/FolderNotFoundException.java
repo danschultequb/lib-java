@@ -1,6 +1,6 @@
 package qub;
 
-public class FolderNotFoundException extends RuntimeException
+public class FolderNotFoundException extends NotFoundException
 {
     private final Path folderPath;
 
