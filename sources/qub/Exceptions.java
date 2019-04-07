@@ -128,8 +128,13 @@ public interface Exceptions
                     writeStream.writeLine("Caused by: " + Types.getFullTypeName(cause)).await();
 
                     writeStream.increaseIndent();
-                    writeStream.writeLine("Message: " + cause.getMessage()).await();
-                    for (final StackTraceElement stackTraceElement : stackTraceElements)
+                    final String causeMessage = cause.getMessage();
+                    if (!Strings.isNullOrEmpty(causeMessage))
+                    {
+                        writeStream.writeLine("Message: " + cause.getMessage()).await();
+                    }
+                    final StackTraceElement[] causeStackTraceElements = cause.getStackTrace();
+                    for (final StackTraceElement stackTraceElement : causeStackTraceElements)
                     {
                         writeStream.writeLine("at " + stackTraceElement.toString()).await();
                     }
