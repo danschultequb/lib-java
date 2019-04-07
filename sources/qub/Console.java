@@ -95,7 +95,11 @@ public class Console extends Process
         }
         catch (Throwable error)
         {
-            console.writeLine("Unhandled exception: " + error);
+            console.writeLine("Unhandled exception: " + error.toString()).await();
+            for (final StackTraceElement stackTraceElement : error.getStackTrace())
+            {
+                console.writeLine("  at " + stackTraceElement.toString());
+            }
         }
         finally
         {
