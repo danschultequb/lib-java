@@ -20,22 +20,22 @@ public class InMemoryCharacterStreamTests
                 runner.test("with no characters to read", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream();
-                    test.assertSuccess(null, characterReadStream.readCharacter());
+                    test.assertNull(characterReadStream.readCharacter().await());
                 });
 
                 runner.test("with one character to read", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream("d");
-                    test.assertSuccess('d', characterReadStream.readCharacter());
-                    test.assertSuccess(null, characterReadStream.readCharacter());
+                    test.assertEqual('d', characterReadStream.readCharacter().await());
+                    test.assertNull(characterReadStream.readCharacter().await());
                 });
 
                 runner.test("with two characters to read", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream("ef");
-                    test.assertSuccess('e', characterReadStream.readCharacter());
-                    test.assertSuccess('f', characterReadStream.readCharacter());
-                    test.assertSuccess(null, characterReadStream.readCharacter());
+                    test.assertEqual('e', characterReadStream.readCharacter().await());
+                    test.assertEqual('f', characterReadStream.readCharacter().await());
+                    test.assertNull(characterReadStream.readCharacter().await());
                 });
             });
 
@@ -44,7 +44,7 @@ public class InMemoryCharacterStreamTests
                 runner.test("with disposed CharacterReadStream", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream(test.getMainAsyncRunner());
-                    characterReadStream.dispose();
+                    test.assertTrue(characterReadStream.dispose().await());
                     test.assertThrows(characterReadStream::readCharacterAsync, new PreConditionFailure("isDisposed() cannot be true."));
                 });
 
@@ -57,22 +57,22 @@ public class InMemoryCharacterStreamTests
                 runner.test("with no characters to read", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream(test.getMainAsyncRunner());
-                    test.assertSuccessAsync(null, characterReadStream.readCharacterAsync());
+                    test.assertNull(characterReadStream.readCharacterAsync().awaitReturn().await());
                 });
 
                 runner.test("with one character to read", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream("d", test.getMainAsyncRunner());
-                    test.assertSuccessAsync('d', characterReadStream.readCharacterAsync());
-                    test.assertSuccessAsync(null, characterReadStream.readCharacterAsync());
+                    test.assertEqual('d', characterReadStream.readCharacterAsync().awaitReturn().await());
+                    test.assertNull(characterReadStream.readCharacterAsync().awaitReturn().await());
                 });
 
                 runner.test("with two characters to read", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream("hi", test.getMainAsyncRunner());
-                    test.assertSuccessAsync('h', characterReadStream.readCharacterAsync());
-                    test.assertSuccessAsync('i', characterReadStream.readCharacterAsync());
-                    test.assertSuccessAsync(null, characterReadStream.readCharacterAsync());
+                    test.assertEqual('h', characterReadStream.readCharacterAsync().awaitReturn().await());
+                    test.assertEqual('i', characterReadStream.readCharacterAsync().awaitReturn().await());
+                    test.assertNull(characterReadStream.readCharacterAsync().awaitReturn().await());
                 });
             });
 
@@ -100,29 +100,29 @@ public class InMemoryCharacterStreamTests
                 runner.test("with no characters to read", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream();
-                    test.assertSuccess(null, characterReadStream.readCharacters(5));
+                    test.assertNull(characterReadStream.readCharacters(5).await());
                 });
 
                 runner.test("with fewer available characters than charactersToRead", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream("abc");
                     test.assertEqual(new char[] { 'a', 'b', 'c' }, characterReadStream.readCharacters(5).await());
-                    test.assertSuccess(null, characterReadStream.readCharacters(1));
+                    test.assertNull(characterReadStream.readCharacters(1).await());
                 });
 
                 runner.test("with available characters equal to charactersToRead", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream("abcd");
-                    test.assertSuccess(new char[] { 'a', 'b', 'c', 'd' }, characterReadStream.readCharacters(4));
-                    test.assertSuccess(null, characterReadStream.readCharacters(1));
+                    test.assertEqual(new char[] { 'a', 'b', 'c', 'd' }, characterReadStream.readCharacters(4).await());
+                    test.assertNull(characterReadStream.readCharacters(1).await());
                 });
 
                 runner.test("with more available characters than charactersToRead", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream("abcdefghi");
-                    test.assertSuccess(new char[] { 'a', 'b', 'c' }, characterReadStream.readCharacters(3));
-                    test.assertSuccess(new char[] { 'd' }, characterReadStream.readCharacters(1));
-                    test.assertSuccess(new char[] { 'e', 'f', 'g', 'h', 'i' }, characterReadStream.readCharacters(1000));
+                    test.assertEqual(new char[] { 'a', 'b', 'c' }, characterReadStream.readCharacters(3).await());
+                    test.assertEqual(new char[] { 'd' }, characterReadStream.readCharacters(1).await());
+                    test.assertEqual(new char[] { 'e', 'f', 'g', 'h', 'i' }, characterReadStream.readCharacters(1000).await());
                 });
             });
 
@@ -131,7 +131,7 @@ public class InMemoryCharacterStreamTests
                 runner.test("with disposed CharacterReadStream", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream(test.getMainAsyncRunner());
-                    characterReadStream.dispose();
+                    test.assertTrue(characterReadStream.dispose().await());
                     test.assertThrows(() -> characterReadStream.readCharactersAsync(5), new PreConditionFailure("isDisposed() cannot be true."));
                 });
 
@@ -144,29 +144,29 @@ public class InMemoryCharacterStreamTests
                 runner.test("with no characters to read", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream(test.getMainAsyncRunner());
-                    test.assertSuccessAsync(null, characterReadStream.readCharactersAsync(5));
+                    test.assertNull(characterReadStream.readCharactersAsync(5).awaitReturn().await());
                 });
 
                 runner.test("with fewer available characters than charactersToRead", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream("abc", test.getMainAsyncRunner());
-                    test.assertSuccessAsync(new char[] { 'a', 'b', 'c' }, characterReadStream.readCharactersAsync(5));
-                    test.assertSuccessAsync(null, characterReadStream.readCharactersAsync(1));
+                    test.assertEqual(new char[] { 'a', 'b', 'c' }, characterReadStream.readCharactersAsync(5).awaitReturn().await());
+                    test.assertNull(characterReadStream.readCharactersAsync(1).awaitReturn().await());
                 });
 
                 runner.test("with available characters equal to charactersToRead", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream("abcd", test.getMainAsyncRunner());
-                    test.assertSuccessAsync(new char[] { 'a', 'b', 'c', 'd' }, characterReadStream.readCharactersAsync(4));
-                    test.assertSuccessAsync(null, characterReadStream.readCharactersAsync(1));
+                    test.assertEqual(new char[] { 'a', 'b', 'c', 'd' }, characterReadStream.readCharactersAsync(4).awaitReturn().await());
+                    test.assertNull(characterReadStream.readCharactersAsync(1).awaitReturn().await());
                 });
 
                 runner.test("with more available characters than charactersToRead", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream("abcdefghi", test.getMainAsyncRunner());
-                    test.assertSuccessAsync(new char[] { 'a', 'b', 'c' }, characterReadStream.readCharactersAsync(3));
-                    test.assertSuccessAsync(new char[] { 'd' }, characterReadStream.readCharactersAsync(1));
-                    test.assertSuccessAsync(new char[] { 'e', 'f', 'g', 'h', 'i' }, characterReadStream.readCharactersAsync(1000));
+                    test.assertEqual(new char[] { 'a', 'b', 'c' }, characterReadStream.readCharactersAsync(3).awaitReturn().await());
+                    test.assertEqual(new char[] { 'd' }, characterReadStream.readCharactersAsync(1).awaitReturn().await());
+                    test.assertEqual(new char[] { 'e', 'f', 'g', 'h', 'i' }, characterReadStream.readCharactersAsync(1000).awaitReturn().await());
                 });
             });
 
@@ -175,7 +175,7 @@ public class InMemoryCharacterStreamTests
                 runner.test("with disposed CharacterReadStream", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream();
-                    characterReadStream.dispose();
+                    test.assertTrue(characterReadStream.dispose().await());
                     final char[] outputCharacters = new char[5];
                     test.assertThrows(() -> characterReadStream.readCharacters(outputCharacters), new PreConditionFailure("isDisposed() cannot be true."));
                 });
@@ -198,34 +198,34 @@ public class InMemoryCharacterStreamTests
                 {
                     final InMemoryCharacterStream characterReadStream = createStream();
                     final char[] outputCharacters = new char[5];
-                    test.assertSuccess(null, characterReadStream.readCharacters(outputCharacters));
+                    test.assertNull(characterReadStream.readCharacters(outputCharacters).await());
                 });
 
                 runner.test("with fewer characters to read than outputCharacters.length", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream("abc");
                     final char[] outputCharacters = new char[5];
-                    test.assertSuccess(3, characterReadStream.readCharacters(outputCharacters));
+                    test.assertEqual(3, characterReadStream.readCharacters(outputCharacters).await());
                     test.assertEqual(new char[] { 'a', 'b', 'c', '\0', '\0' }, outputCharacters);
-                    test.assertSuccess(null, characterReadStream.readCharacter());
+                    test.assertNull(characterReadStream.readCharacter().await());
                 });
 
                 runner.test("with equal characters to read to outputCharacters.length", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream("defgh");
                     final char[] outputCharacters = new char[5];
-                    test.assertSuccess(5, characterReadStream.readCharacters(outputCharacters));
+                    test.assertEqual(5, characterReadStream.readCharacters(outputCharacters).await());
                     test.assertEqual(new char[] { 'd', 'e', 'f', 'g', 'h' }, outputCharacters);
-                    test.assertSuccess(null, characterReadStream.readCharacter());
+                    test.assertNull(characterReadStream.readCharacter().await());
                 });
 
                 runner.test("with more characters to read than outputCharacters.length", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream("defghij");
                     final char[] outputCharacters = new char[5];
-                    test.assertSuccess(5, characterReadStream.readCharacters(outputCharacters));
+                    test.assertEqual(5, characterReadStream.readCharacters(outputCharacters).await());
                     test.assertEqual(new char[] { 'd', 'e', 'f', 'g', 'h' }, outputCharacters);
-                    test.assertSuccess('i', characterReadStream.readCharacter());
+                    test.assertEqual('i', characterReadStream.readCharacter().await());
                 });
             });
 
@@ -234,7 +234,7 @@ public class InMemoryCharacterStreamTests
                 runner.test("with disposed CharacterReadStream", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream(test.getMainAsyncRunner());
-                    characterReadStream.dispose();
+                    test.assertTrue(characterReadStream.dispose().await());
                     final char[] outputCharacters = new char[5];
                     test.assertThrows(() -> characterReadStream.readCharactersAsync(outputCharacters), new PreConditionFailure("isDisposed() cannot be true."));
                 });
@@ -264,34 +264,34 @@ public class InMemoryCharacterStreamTests
                 {
                     final InMemoryCharacterStream characterReadStream = createStream(test.getMainAsyncRunner());
                     final char[] outputCharacters = new char[5];
-                    test.assertSuccessAsync(null, characterReadStream.readCharactersAsync(outputCharacters));
+                    test.assertNull(characterReadStream.readCharactersAsync(outputCharacters).awaitReturn().await());
                 });
 
                 runner.test("with fewer characters to read than outputCharacters.length", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream("abc", test.getMainAsyncRunner());
                     final char[] outputCharacters = new char[5];
-                    test.assertSuccessAsync(3, characterReadStream.readCharactersAsync(outputCharacters));
+                    test.assertEqual(3, characterReadStream.readCharactersAsync(outputCharacters).awaitReturn().await());
                     test.assertEqual(new char[] { 'a', 'b', 'c', '\0', '\0' }, outputCharacters);
-                    test.assertSuccess(null, characterReadStream.readCharacter());
+                    test.assertNull(characterReadStream.readCharacter().await());
                 });
 
                 runner.test("with equal characters to read to outputCharacters.length", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream("defgh", test.getMainAsyncRunner());
                     final char[] outputCharacters = new char[5];
-                    test.assertSuccessAsync(5, characterReadStream.readCharactersAsync(outputCharacters));
+                    test.assertEqual(5, characterReadStream.readCharactersAsync(outputCharacters).awaitReturn().await());
                     test.assertEqual(new char[] { 'd', 'e', 'f', 'g', 'h' }, outputCharacters);
-                    test.assertSuccess(null, characterReadStream.readCharacter());
+                    test.assertNull(characterReadStream.readCharacter().await());
                 });
 
                 runner.test("with more characters to read than outputCharacters.length", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream("defghij", test.getMainAsyncRunner());
                     final char[] outputCharacters = new char[5];
-                    test.assertSuccessAsync(5, characterReadStream.readCharactersAsync(outputCharacters));
+                    test.assertEqual(5, characterReadStream.readCharactersAsync(outputCharacters).awaitReturn().await());
                     test.assertEqual(new char[] { 'd', 'e', 'f', 'g', 'h' }, outputCharacters);
-                    test.assertSuccess('i', characterReadStream.readCharacter());
+                    test.assertEqual('i', characterReadStream.readCharacter().await());
                 });
             });
 
@@ -300,7 +300,7 @@ public class InMemoryCharacterStreamTests
                 runner.test("with disposed CharacterReadStream", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream();
-                    characterReadStream.dispose();
+                    test.assertTrue(characterReadStream.dispose().await());
                     final char[] outputCharacters = new char[5];
                     test.assertThrows(() -> characterReadStream.readCharacters(outputCharacters, 2, 3),
                         new PreConditionFailure("isDisposed() cannot be true."));
@@ -366,7 +366,7 @@ public class InMemoryCharacterStreamTests
                 {
                     final InMemoryCharacterStream characterReadStream = createStream();
                     final char[] outputCharacters = new char[6];
-                    test.assertEqual(null, characterReadStream.readCharacters(outputCharacters, 2, 3).await());
+                    test.assertNull(characterReadStream.readCharacters(outputCharacters, 2, 3).await());
                 });
 
                 runner.test("with fewer characters to read than length", (Test test) ->
@@ -375,25 +375,25 @@ public class InMemoryCharacterStreamTests
                     final char[] outputCharacters = new char[6];
                     test.assertEqual(1, characterReadStream.readCharacters(outputCharacters, 2, 3).await());
                     test.assertEqual(new char[] { '\0', '\0', 'a', '\0', '\0', '\0' }, outputCharacters);
-                    test.assertEqual(null, characterReadStream.readCharacter().await());
+                    test.assertNull(characterReadStream.readCharacter().await());
                 });
 
                 runner.test("with equal characters to read to length", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream("def");
                     final char[] outputCharacters = new char[6];
-                    test.assertSuccess(3, characterReadStream.readCharacters(outputCharacters, 2, 3));
+                    test.assertEqual(3, characterReadStream.readCharacters(outputCharacters, 2, 3).await());
                     test.assertEqual(new char[] { '\0', '\0', 'd', 'e', 'f', '\0' }, outputCharacters);
-                    test.assertSuccess(null, characterReadStream.readCharacter());
+                    test.assertNull(characterReadStream.readCharacter().await());
                 });
 
                 runner.test("with more characters to read than length", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream("defghij");
                     final char[] outputCharacters = new char[6];
-                    test.assertSuccess(4, characterReadStream.readCharacters(outputCharacters, 2, 4));
+                    test.assertEqual(4, characterReadStream.readCharacters(outputCharacters, 2, 4).await());
                     test.assertEqual(new char[] { '\0', '\0', 'd', 'e', 'f', 'g' }, outputCharacters);
-                    test.assertSuccess('h', characterReadStream.readCharacter());
+                    test.assertEqual('h', characterReadStream.readCharacter().await());
                 });
             });
 
@@ -402,7 +402,7 @@ public class InMemoryCharacterStreamTests
                 runner.test("with disposed CharacterReadStream", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream(test.getMainAsyncRunner());
-                    characterReadStream.dispose();
+                    test.assertTrue(characterReadStream.dispose().await());
                     final char[] outputCharacters = new char[5];
                     test.assertThrows(() -> characterReadStream.readCharactersAsync(outputCharacters, 2, 3), new PreConditionFailure("isDisposed() cannot be true."));
                 });
@@ -467,34 +467,34 @@ public class InMemoryCharacterStreamTests
                 {
                     final InMemoryCharacterStream characterReadStream = createStream(test.getMainAsyncRunner());
                     final char[] outputCharacters = new char[6];
-                    test.assertSuccessAsync(null, characterReadStream.readCharactersAsync(outputCharacters, 2, 3));
+                    test.assertNull(characterReadStream.readCharactersAsync(outputCharacters, 2, 3).awaitReturn().await());
                 });
 
                 runner.test("with fewer characters to read than length", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream("a", test.getMainAsyncRunner());
                     final char[] outputCharacters = new char[6];
-                    test.assertSuccessAsync(1, characterReadStream.readCharactersAsync(outputCharacters, 2, 3));
+                    test.assertEqual(1, characterReadStream.readCharactersAsync(outputCharacters, 2, 3).awaitReturn().await());
                     test.assertEqual(new char[] { '\0', '\0', 'a', '\0', '\0', '\0' }, outputCharacters);
-                    test.assertSuccess(null, characterReadStream.readCharacter());
+                    test.assertNull(characterReadStream.readCharacter().await());
                 });
 
                 runner.test("with equal characters to read to length", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream("def", test.getMainAsyncRunner());
                     final char[] outputCharacters = new char[6];
-                    test.assertSuccessAsync(3, characterReadStream.readCharactersAsync(outputCharacters, 2, 3));
+                    test.assertEqual(3, characterReadStream.readCharactersAsync(outputCharacters, 2, 3).awaitReturn().await());
                     test.assertEqual(new char[] { '\0', '\0', 'd', 'e', 'f', '\0' }, outputCharacters);
-                    test.assertSuccess(null, characterReadStream.readCharacter());
+                    test.assertNull(characterReadStream.readCharacter().await());
                 });
 
                 runner.test("with more characters to read than length", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream("defghij", test.getMainAsyncRunner());
                     final char[] outputCharacters = new char[6];
-                    test.assertSuccessAsync(4, characterReadStream.readCharactersAsync(outputCharacters, 2, 4));
+                    test.assertEqual(4, characterReadStream.readCharactersAsync(outputCharacters, 2, 4).awaitReturn().await());
                     test.assertEqual(new char[] { '\0', '\0', 'd', 'e', 'f', 'g' }, outputCharacters);
-                    test.assertSuccess('h', characterReadStream.readCharacter());
+                    test.assertEqual('h', characterReadStream.readCharacter().await());
                 });
             });
 
@@ -503,7 +503,7 @@ public class InMemoryCharacterStreamTests
                 runner.test("with disposed CharacterReadStream", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream();
-                    characterReadStream.dispose();
+                    test.assertTrue(characterReadStream.dispose().await());
                     test.assertThrows(characterReadStream::readAllCharacters, new PreConditionFailure("isDisposed() cannot be true."));
                 });
 
@@ -531,7 +531,7 @@ public class InMemoryCharacterStreamTests
                 runner.test("with disposed CharacterReadStream", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream(test.getMainAsyncRunner());
-                    characterReadStream.dispose().await();
+                    test.assertTrue(characterReadStream.dispose().await());
                     test.assertThrows(characterReadStream::readAllCharactersAsync, new PreConditionFailure("isDisposed() cannot be true."));
                 });
 
@@ -544,19 +544,19 @@ public class InMemoryCharacterStreamTests
                 runner.test("with no characters to read", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream("", test.getMainAsyncRunner());
-                    test.assertSuccessAsync(new char[0], characterReadStream.readAllCharactersAsync());
+                    test.assertEqual(new char[0], characterReadStream.readAllCharactersAsync().awaitReturn().await());
                 });
 
                 runner.test("with one character to read", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream("g", test.getMainAsyncRunner());
-                    test.assertSuccessAsync(new char[] { 'g' }, characterReadStream.readAllCharactersAsync());
+                    test.assertEqual(new char[] { 'g' }, characterReadStream.readAllCharactersAsync().awaitReturn().await());
                 });
 
                 runner.test("with multiple characters to read", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream("ghij", test.getMainAsyncRunner());
-                    test.assertSuccessAsync(new char[] { 'g', 'h', 'i', 'j' }, characterReadStream.readAllCharactersAsync());
+                    test.assertEqual(new char[] { 'g', 'h', 'i', 'j' }, characterReadStream.readAllCharactersAsync().awaitReturn().await());
                 });
             });
 
@@ -572,29 +572,29 @@ public class InMemoryCharacterStreamTests
                 runner.test("with no characters to read", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream();
-                    test.assertSuccess(null, characterReadStream.readString(5));
+                    test.assertNull(characterReadStream.readString(5).await());
                 });
 
                 runner.test("with fewer available characters than charactersToRead", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream("abc");
-                    test.assertSuccess("abc", characterReadStream.readString(5));
-                    test.assertSuccess(null, characterReadStream.readString(1));
+                    test.assertEqual("abc", characterReadStream.readString(5).await());
+                    test.assertNull(characterReadStream.readString(1).await());
                 });
 
                 runner.test("with available characters equal to charactersToRead", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream("abcd");
-                    test.assertSuccess("abcd", characterReadStream.readString(4));
-                    test.assertSuccess(null, characterReadStream.readString(1));
+                    test.assertEqual("abcd", characterReadStream.readString(4).await());
+                    test.assertNull(characterReadStream.readString(1).await());
                 });
 
                 runner.test("with more available characters than charactersToRead", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream("abcdefghi");
-                    test.assertSuccess("abc", characterReadStream.readString(3));
-                    test.assertSuccess("d", characterReadStream.readString(1));
-                    test.assertSuccess("efghi", characterReadStream.readString(1000));
+                    test.assertEqual("abc", characterReadStream.readString(3).await());
+                    test.assertEqual("d", characterReadStream.readString(1).await());
+                    test.assertEqual("efghi", characterReadStream.readString(1000).await());
                 });
             });
 
@@ -603,7 +603,7 @@ public class InMemoryCharacterStreamTests
                 runner.test("with disposed CharacterReadStream", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream(test.getMainAsyncRunner());
-                    characterReadStream.dispose();
+                    test.assertTrue(characterReadStream.dispose().await());
                     test.assertThrows(() -> characterReadStream.readStringAsync(5), new PreConditionFailure("isDisposed() cannot be true."));
                 });
 
@@ -616,29 +616,29 @@ public class InMemoryCharacterStreamTests
                 runner.test("with no characters to read", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream(test.getMainAsyncRunner());
-                    test.assertSuccessAsync(null, characterReadStream.readStringAsync(5));
+                    test.assertNull(characterReadStream.readStringAsync(5).awaitReturn().await());
                 });
 
                 runner.test("with fewer available characters than charactersToRead", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream("abc", test.getMainAsyncRunner());
-                    test.assertSuccessAsync("abc", characterReadStream.readStringAsync(5));
-                    test.assertSuccessAsync(null, characterReadStream.readStringAsync(1));
+                    test.assertEqual("abc", characterReadStream.readStringAsync(5).awaitReturn().await());
+                    test.assertNull(characterReadStream.readStringAsync(1).awaitReturn().await());
                 });
 
                 runner.test("with available characters equal to charactersToRead", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream("abcd", test.getMainAsyncRunner());
-                    test.assertSuccessAsync("abcd", characterReadStream.readStringAsync(4));
-                    test.assertSuccessAsync(null, characterReadStream.readStringAsync(1));
+                    test.assertEqual("abcd", characterReadStream.readStringAsync(4).awaitReturn().await());
+                    test.assertNull(characterReadStream.readStringAsync(1).awaitReturn().await());
                 });
 
                 runner.test("with more available characters than charactersToRead", (Test test) ->
                 {
                     final InMemoryCharacterStream characterReadStream = createStream("abcdefghi", test.getMainAsyncRunner());
-                    test.assertSuccessAsync("abc", characterReadStream.readStringAsync(3));
-                    test.assertSuccessAsync("d", characterReadStream.readStringAsync(1));
-                    test.assertSuccessAsync("efghi", characterReadStream.readStringAsync(1000));
+                    test.assertEqual("abc", characterReadStream.readStringAsync(3).awaitReturn().await());
+                    test.assertEqual("d", characterReadStream.readStringAsync(1).awaitReturn().await());
+                    test.assertEqual("efghi", characterReadStream.readStringAsync(1000).awaitReturn().await());
                 });
             });
 

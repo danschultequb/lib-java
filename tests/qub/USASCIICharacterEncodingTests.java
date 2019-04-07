@@ -14,7 +14,7 @@ public class USASCIICharacterEncodingTests
                 {
                     runner.test("with " + Characters.escapeAndQuote(character), (Test test) ->
                     {
-                        test.assertSuccess(new byte[] { expectedByte }, encoding.encode(character));
+                        test.assertEqual(new byte[] { expectedByte }, encoding.encode(character).await());
                     });
                 };
 

@@ -298,8 +298,8 @@ public class AsyncRunnerTests
             {
                 try (final AsyncRunner asyncRunner = createAsyncRunner.run())
                 {
-                    test.assertSuccess(true, asyncRunner.dispose());
-                    test.assertSuccess(false, asyncRunner.dispose());
+                    test.assertTrue(asyncRunner.dispose().await());
+                    test.assertFalse(asyncRunner.dispose().await());
                 }
             });
 
@@ -311,8 +311,7 @@ public class AsyncRunnerTests
                     test.assertNotNull(asyncFunction);
                     test.assertTrue(asyncFunction.isCompleted());
 
-                    final Result<Boolean> result = asyncFunction.awaitReturn();
-                    test.assertSuccess(null, result);
+                    test.assertNull(asyncFunction.awaitReturn().await());
                 }
             });
 
@@ -326,8 +325,7 @@ public class AsyncRunnerTests
                         test.assertNotNull(asyncFunction);
                         test.assertTrue(asyncFunction.isCompleted());
 
-                        final Result<Integer> result = asyncFunction.awaitReturn();
-                        test.assertSuccess(null, result);
+                        test.assertNull(asyncFunction.awaitReturn().await());
                     }
                 });
 
@@ -339,8 +337,7 @@ public class AsyncRunnerTests
                         test.assertNotNull(asyncFunction);
                         test.assertTrue(asyncFunction.isCompleted());
 
-                        final Result<Integer> result = asyncFunction.awaitReturn();
-                        test.assertSuccess(19, result);
+                        test.assertEqual(19, asyncFunction.awaitReturn().await());
                     }
                 });
             });

@@ -13,29 +13,27 @@ public class TCPEchoServerTests
                 final AsyncRunner asyncRunner = test.getParallelAsyncRunner();
 
                 final Network network = new JavaNetwork(asyncRunner);
-                final Result<TCPEchoServer> echoServerResult = TCPEchoServer.create(network, port.increment().getAsInt());
-                test.assertSuccessDispose(echoServerResult,
-                    (TCPEchoServer echoServer) ->
+                try (final TCPEchoServer echoServer = TCPEchoServer.create(network, port.increment().getAsInt()).await())
+                {
+                    final AsyncAction serverTask = echoServer.echoAsync();
+
+                    final AsyncAction clientTask = asyncRunner.schedule(() ->
                     {
-                        final AsyncAction serverTask = echoServer.echoAsync();
-
-                        final AsyncAction clientTask = asyncRunner.schedule(() ->
+                        try (final TCPClient tcpClient = network.createTCPClient(IPv4Address.localhost, port.get()).await())
                         {
-                            try (final TCPClient tcpClient = network.createTCPClient(IPv4Address.localhost, port.get()).await())
-                            {
-                                final CharacterWriteStream tcpClientWriteStream = tcpClient.asCharacterWriteStream();
-                                final CharacterReadStream tcpClientReadStream = tcpClient.asCharacterReadStream();
+                            final CharacterWriteStream tcpClientWriteStream = tcpClient.asCharacterWriteStream();
+                            final CharacterReadStream tcpClientReadStream = tcpClient.asCharacterReadStream();
 
-                                tcpClientWriteStream.writeLine("Hello");
-                                test.assertEqual("Hello", tcpClientReadStream.readLine().await());
+                            tcpClientWriteStream.writeLine("Hello");
+                            test.assertEqual("Hello", tcpClientReadStream.readLine().await());
 
-                                tcpClientWriteStream.writeLine("World");
-                                test.assertEqual("World", tcpClientReadStream.readLine().await());
-                            }
-                        });
-
-                        asyncRunner.awaitAll(clientTask, serverTask);
+                            tcpClientWriteStream.writeLine("World");
+                            test.assertEqual("World", tcpClientReadStream.readLine().await());
+                        }
                     });
+
+                    asyncRunner.awaitAll(clientTask, serverTask);
+                }
             });
 
             runner.test("echoAsync()", (Test test) ->

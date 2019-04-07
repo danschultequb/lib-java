@@ -39,8 +39,8 @@ public class MutableHttpHeadersTests
                         new HttpHeader("b", "B"));
                     final MutableHttpHeaders headers = new MutableHttpHeaders(headerList);
                     test.assertEqual(2, headers.getCount());
-                    test.assertSuccess(new HttpHeader("a", "A"), headers.get("a"));
-                    test.assertSuccess(new HttpHeader("b", "B"), headers.get("b"));
+                    test.assertEqual(new HttpHeader("a", "A"), headers.get("a").await());
+                    test.assertEqual(new HttpHeader("b", "B"), headers.get("b").await());
 
                     headerList.add(new HttpHeader("c", "C"));
                     test.assertEqual(3, headerList.getCount());
@@ -252,14 +252,14 @@ public class MutableHttpHeadersTests
                 {
                     final MutableHttpHeaders headers = new MutableHttpHeaders();
                     headers.set("header-name", "header-value");
-                    test.assertSuccess(new HttpHeader("header-name", "header-value"), headers.get("header-name"));
+                    test.assertEqual(new HttpHeader("header-name", "header-value"), headers.get("header-name").await());
                 });
 
                 runner.test("with different case of existing header name", (Test test) ->
                 {
                     final MutableHttpHeaders headers = new MutableHttpHeaders();
                     headers.set("header-name", "header-value");
-                    test.assertSuccess(new HttpHeader("header-name", "header-value"), headers.get("HEADER-NAME"));
+                    test.assertEqual(new HttpHeader("header-name", "header-value"), headers.get("HEADER-NAME").await());
                 });
             });
 
@@ -287,14 +287,14 @@ public class MutableHttpHeadersTests
                 {
                     final MutableHttpHeaders headers = new MutableHttpHeaders();
                     headers.set("header-name", "header-value");
-                    test.assertSuccess("header-value", headers.getValue("header-name"));
+                    test.assertEqual("header-value", headers.getValue("header-name").await());
                 });
 
                 runner.test("with different case of existing header name", (Test test) ->
                 {
                     final MutableHttpHeaders headers = new MutableHttpHeaders();
                     headers.set("header-name", "header-value");
-                    test.assertSuccess("header-value", headers.getValue("HEADER-NAME"));
+                    test.assertEqual("header-value", headers.getValue("HEADER-NAME").await());
                 });
             });
 

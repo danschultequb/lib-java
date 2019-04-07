@@ -41,7 +41,7 @@ public class FileTests
                     runner.test("with " + Strings.escapeAndQuote(filePath), (Test test) ->
                     {
                         final FileSystem fileSystem = getFileSystem(test);
-                        test.assertSuccess(expectedNameWithoutFileExtension, fileSystem.getFile(filePath).then(File::getNameWithoutFileExtension));
+                        test.assertEqual(expectedNameWithoutFileExtension, fileSystem.getFile(filePath).await().getNameWithoutFileExtension());
                     });
                 };
 
@@ -53,7 +53,7 @@ public class FileTests
             {
                 final File file = getFile(test);
 
-                test.assertSuccess(null, file.create());
+                test.assertNull(file.create().await());
 
                 test.assertTrue(file.exists().await());
 
@@ -87,7 +87,7 @@ public class FileTests
                 {
                     final File file = getFile(test);
                     test.assertThrows(() -> file.delete().await(), new FileNotFoundException(file.toString()));
-                    test.assertSuccess(false, file.exists());
+                    test.assertFalse(file.exists().await());
                 });
 
                 runner.test("when file does exist", (Test test) ->

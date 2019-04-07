@@ -14,7 +14,7 @@ public class AsyncDisposableTests
                     test.assertNotNull(asyncDisposable);
                     test.assertFalse(asyncDisposable.isDisposed());
 
-                    test.assertSuccess(true, asyncDisposable.disposeAsync().awaitReturn());
+                    test.assertTrue(asyncDisposable.disposeAsync().awaitReturn().await());
                     test.assertTrue(asyncDisposable.isDisposed());
                 });
 
@@ -22,11 +22,10 @@ public class AsyncDisposableTests
                 {
                     final AsyncDisposable asyncDisposable = creator.run(test);
                     test.assertNotNull(asyncDisposable);
-                    test.assertSuccess(true, asyncDisposable.dispose());
+                    test.assertTrue(asyncDisposable.dispose().await());
                     test.assertTrue(asyncDisposable.isDisposed());
 
-                    final Result<Boolean> result = asyncDisposable.disposeAsync().awaitReturn();
-                    test.assertSuccess(false, result);
+                    test.assertFalse(asyncDisposable.disposeAsync().awaitReturn().await());
                     test.assertTrue(asyncDisposable.isDisposed());
                 });
             });

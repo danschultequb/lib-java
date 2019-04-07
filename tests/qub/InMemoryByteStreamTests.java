@@ -311,7 +311,7 @@ public class InMemoryByteStreamTests
                 {
                     final InMemoryByteStream stream = create(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 }, test);
                     final byte[] outputBytes = new byte[10];
-                    test.assertSuccess(10, stream.readBytes(outputBytes));
+                    test.assertEqual(10, stream.readBytes(outputBytes).await());
                     test.assertEqual(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, outputBytes);
                     test.assertEqual((byte)10, stream.getCurrent());
 

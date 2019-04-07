@@ -368,18 +368,18 @@ public class ResultTests
 
                 runner.test("with error Result and non-throwing action", (Test test) ->
                 {
-                    final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
                     final Value<Integer> value = Value.create(0);
-                    final Result<Boolean> result2 = result1.catchError((Throwable error) -> value.set(5));
-                    test.assertSuccess(null, result2);
+                    test.assertNull(Result.error(new RuntimeException("abc"))
+                        .catchError((Throwable error) -> value.set(5))
+                        .await());
                     test.assertEqual(5, value.get());
                 });
 
                 runner.test("with error Result and throwing action", (Test test) ->
                 {
-                    final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
-                    final Result<Boolean> result2 = result1.catchError((Action1<Throwable>)(Throwable error) -> { throw new RuntimeException("xyz"); });
-                    test.assertThrows(result2::await, new RuntimeException("xyz"));
+                    final Result<?> result = Result.error(new RuntimeException("abc"))
+                        .catchError((Throwable error) -> { throw new RuntimeException("xyz"); });
+                    test.assertThrows(result::await, new RuntimeException("xyz"));
                 });
             });
 
@@ -423,7 +423,7 @@ public class ResultTests
                         test.assertSame(result1, resultError);
                         value.set(5);
                     });
-                    test.assertSuccess(null, result2);
+                    test.assertNull(result2.await());
                     test.assertEqual(5, value.get());
                 });
 
@@ -578,7 +578,7 @@ public class ResultTests
                     final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
                     final Value<Integer> value = Value.create(0);
                     final Result<Boolean> result2 = result1.catchError(RuntimeException.class, (Action1<RuntimeException>)error -> value.set(5));
-                    test.assertSuccess(null, result2);
+                    test.assertNull(result2.await());
                     test.assertEqual(5, value.get());
                 });
 
@@ -633,7 +633,7 @@ public class ResultTests
                         value.set(5);
                         return null;
                     });
-                    test.assertSuccess(null, result2);
+                    test.assertNull(result2.await());
                     test.assertEqual(5, value.get());
                 });
 
@@ -646,7 +646,7 @@ public class ResultTests
                         value.set(5);
                         return false;
                     });
-                    test.assertSuccess(false, result2);
+                    test.assertFalse(result2.await());
                     test.assertEqual(5, value.get());
                 });
 
@@ -694,7 +694,7 @@ public class ResultTests
                         value.set(5);
                         return null;
                     });
-                    test.assertSuccess(null, result2);
+                    test.assertNull(result2.await());
                     test.assertEqual(5, value.get());
                 });
 
@@ -707,7 +707,7 @@ public class ResultTests
                         value.set(5);
                         return false;
                     });
-                    test.assertSuccess(false, result2);
+                    test.assertFalse(result2.await());
                     test.assertEqual(5, value.get());
                 });
 
@@ -773,7 +773,7 @@ public class ResultTests
                         value.set(5);
                         return false;
                     });
-                    test.assertSuccess(false, result2);
+                    test.assertFalse(result2.await());
                     test.assertEqual(5, value.get());
                 });
 
@@ -846,7 +846,7 @@ public class ResultTests
                         value.set(5);
                         return false;
                     });
-                    test.assertSuccess(false, result2);
+                    test.assertFalse(result2.await());
                     test.assertEqual(5, value.get());
                 });
 
@@ -914,7 +914,7 @@ public class ResultTests
                         value.set(5);
                         return Result.successFalse();
                     });
-                    test.assertSuccess(false, result2);
+                    test.assertFalse(result2.await());
                     test.assertEqual(5, value.get());
                 });
 
@@ -981,7 +981,7 @@ public class ResultTests
                         value.set(5);
                         return Result.successFalse();
                     });
-                    test.assertSuccess(false, result2);
+                    test.assertFalse(result2.await());
                     test.assertEqual(5, value.get());
                 });
 
@@ -1047,7 +1047,7 @@ public class ResultTests
                         value.set(5);
                         return Result.successFalse();
                     });
-                    test.assertSuccess(false, result2);
+                    test.assertFalse(result2.await());
                     test.assertEqual(5, value.get());
                 });
 
@@ -1120,7 +1120,7 @@ public class ResultTests
                         value.set(5);
                         return Result.successFalse();
                     });
-                    test.assertSuccess(false, result2);
+                    test.assertFalse(result2.await());
                     test.assertEqual(5, value.get());
                 });
 
@@ -1580,26 +1580,26 @@ public class ResultTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertSuccess(null, Result.success(null));
+                    test.assertNull(Result.success(null).await());
                 });
 
                 runner.test("with non-null", (Test test) ->
                 {
-                    test.assertSuccess("hello", Result.success("hello"));
+                    test.assertEqual("hello", Result.success("hello").await());
                 });
             });
 
             runner.test("successFalse()", (Test test) ->
             {
                 final Result<Boolean> result = Result.successFalse();
-                test.assertSuccess(false, result);
+                test.assertFalse(result.await());
                 test.assertSame(result, Result.successFalse());
             });
 
             runner.test("successTrue()", (Test test) ->
             {
                 final Result<Boolean> result = Result.successTrue();
-                test.assertSuccess(true, result);
+                test.assertTrue(result.await());
                 test.assertSame(result, Result.successTrue());
             });
 

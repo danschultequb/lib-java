@@ -66,25 +66,19 @@ public class RootTests
                 runner.test("with relative path that doesn't exist", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    test.assertSuccess(root.getFolder("folderName"),
-                        (Folder folder) ->
-                        {
-                            test.assertEqual("/folderName", folder.toString());
-                        });
+                    final Folder folder = root.getFolder("folderName").await();
+                    test.assertEqual("/folderName", folder.toString());
                 });
 
                 runner.test("with relative path that exists", (Test test) ->
                 {
                     final Root root = getRoot(test);
 
-                    root.createFolder("folderName");
+                    root.createFolder("folderName").await();
                     test.assertEqual(0, test.getMainAsyncRunner().getScheduledTaskCount());
 
-                    test.assertSuccess(root.getFolder("folderName"),
-                        (Folder folder) ->
-                        {
-                            test.assertEqual("/folderName", folder.toString());
-                        });
+                    final Folder folder = root.getFolder("folderName").await();
+                    test.assertEqual("/folderName", folder.toString());
                 });
             });
 
@@ -99,19 +93,15 @@ public class RootTests
                 runner.test("with relative path that doesn't exist", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    final Result<Folder> folder = root.getFolder(Path.parse("folderName"));
-                    test.assertSuccess(folder);
-                    test.assertEqual("/folderName", folder.await().toString());
+                    test.assertEqual("/folderName", root.getFolder(Path.parse("folderName")).await().toString());
                 });
 
                 runner.test("with relative path that exists", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    root.createFolder("folderName");
+                    root.createFolder("folderName").await();
 
-                    final Result<Folder> folder = root.getFolder(Path.parse("folderName"));
-                    test.assertSuccess(folder);
-                    test.assertEqual("/folderName", folder.await().toString());
+                    test.assertEqual("/folderName", root.getFolder(Path.parse("folderName")).await().toString());
                 });
             });
 
@@ -132,19 +122,15 @@ public class RootTests
                 runner.test("with relative path that doesn't exist", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    final Result<File> file = root.getFile("fileName");
-                    test.assertSuccess(file);
-                    test.assertEqual("/fileName", file.await().toString());
+                    test.assertEqual("/fileName", root.getFile("fileName").await().toString());
                 });
 
                 runner.test("with relative path that exists", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    root.createFile("fileName");
+                    root.createFile("fileName").await();
 
-                    final Result<File> file = root.getFile("fileName");
-                    test.assertSuccess(file);
-                    test.assertEqual("/fileName", file.await().toString());
+                    test.assertEqual("/fileName", root.getFile("fileName").await().toString());
                 });
             });
 
@@ -159,21 +145,15 @@ public class RootTests
                 runner.test("with relative Path that doesn't exist", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    final Result<File> file = root.getFile(Path.parse("fileName"));
-                    test.assertSuccess(file);
-                    test.assertEqual("/fileName", file.await().toString());
+                    test.assertEqual("/fileName", root.getFile(Path.parse("fileName")).await().toString());
                 });
 
                 runner.test("with relative Path that exists", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    root.createFile("fileName");
+                    root.createFile("fileName").await();
 
-                    test.assertSuccess(root.getFile(Path.parse("fileName")),
-                        (File file) ->
-                        {
-                            test.assertEqual("/fileName", file.toString());
-                        });
+                    test.assertEqual("/fileName", root.getFile(Path.parse("fileName")).await().toString());
                 });
             });
 
@@ -194,11 +174,8 @@ public class RootTests
                 runner.test("with relative Path with non-existing folder", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    test.assertSuccess(root.createFolder("folderName"),
-                        (Folder folder) ->
-                        {
-                            test.assertEqual("/folderName", folder.toString());
-                        });
+                    final Folder folder = root.createFolder("folderName").await();
+                    test.assertEqual("/folderName", folder.toString());
                 });
 
                 runner.test("with relative Path when root doesn't exist", (Test test) ->
@@ -267,9 +244,7 @@ public class RootTests
                 runner.test("with non-existing file", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    final Result<File> result = root.createFile("fileName");
-                    test.assertSuccess(result);
-                    test.assertEqual("/fileName", result.await().toString());
+                    test.assertEqual("/fileName", root.createFile("fileName").await().toString());
                 });
 
                 runner.test("with non-exisitng file when root doesn't exist", (Test test) ->

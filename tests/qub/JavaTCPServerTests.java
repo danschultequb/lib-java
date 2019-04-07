@@ -126,11 +126,9 @@ public class JavaTCPServerTests
                     final Value<byte[]> clientReadBytes = Value.create();
                     final AsyncAction clientTask = asyncRunner.schedule(() ->
                     {
-                        final Result<TCPClient> tcpClientResult = network.createTCPClient(ipAddress, port.get());
-                        test.assertSuccess(tcpClientResult);
-                        try (final TCPClient tcpClient = tcpClientResult.await())
+                        try (final TCPClient tcpClient = network.createTCPClient(ipAddress, port.get()).await())
                         {
-                            test.assertSuccess(bytes.length, tcpClient.writeBytes(bytes));
+                            test.assertEqual(bytes.length, tcpClient.writeBytes(bytes).await());
                             clientReadBytes.set(tcpClient.readBytes(bytes.length).await());
                         }
                     });
@@ -180,7 +178,7 @@ public class JavaTCPServerTests
                             try (final TCPClient tcpClient = network.createTCPClient(ipAddress, port.get()).await())
                             {
                                 // Block
-                                test.assertSuccess(bytes.length, tcpClient.writeBytes(bytes));
+                                test.assertEqual(bytes.length, tcpClient.writeBytes(bytes).await());
                                 // Block
                                 clientReadBytes.set(tcpClient.readBytes(bytes.length).await());
                             }
@@ -192,9 +190,6 @@ public class JavaTCPServerTests
                             .thenOn(currentThreadAsyncRunner)
                             .then((Result<TCPClient> serverClientResult) ->
                             {
-                                // Main
-                                test.assertSuccess(serverClientResult);
-
                                 try (final TCPClient serverClient = serverClientResult.await())
                                 {
                                     // Block

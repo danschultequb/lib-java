@@ -76,22 +76,22 @@ public class FolderTests
             {
                 final Folder folder = getFolder(test);
                 
-                test.assertSuccess(false, folder.exists());
+                test.assertFalse(folder.exists().await());
                 
-                folder.create();
+                folder.create().await();
                 
-                test.assertSuccess(true, folder.exists());
+                test.assertTrue(folder.exists().await());
             });
 
             runner.test("existsAsync()", (Test test) ->
             {
                 final Folder folder = getFolder(test);
 
-                test.assertSuccess(false, folder.existsAsync().awaitReturn());
+                test.assertFalse(folder.existsAsync().awaitReturn().await());
 
-                folder.create();
+                folder.create().await();
 
-                test.assertSuccess(true, folder.existsAsync().awaitReturn());
+                test.assertTrue(folder.existsAsync().awaitReturn().await());
             });
 
             runner.testGroup("delete()", () ->
@@ -106,10 +106,10 @@ public class FolderTests
                 runner.test("when folder exists", (Test test) ->
                 {
                     final Folder folder = getFolder(test);
-                    folder.create();
+                    folder.create().await();
 
-                    test.assertSuccess(null, folder.delete());
-                    test.assertSuccess(false, folder.exists());
+                    test.assertNull(folder.delete().await());
+                    test.assertFalse(folder.exists().await());
                 });
             });
 
@@ -290,38 +290,35 @@ public class FolderTests
                 {
                     final Folder folder = getFolder(test);
 
-                    final Result<File> result = folder.createFile("file.xml");
-                    test.assertSuccess(result);
-                    test.assertEqual("/test/folder/file.xml", result.await().toString());
+                    final File file = folder.createFile("file.xml").await();
+                    test.assertEqual("/test/folder/file.xml", file.toString());
 
-                    test.assertSuccess(true, folder.exists());
-                    test.assertSuccess(true, result.await().exists());
+                    test.assertTrue(folder.exists().await());
+                    test.assertTrue(file.exists().await());
                 });
 
                 runner.test("with non-existing relative path in subfolder with backslash separator", (Test test) ->
                 {
                     final Folder folder = getFolder(test);
 
-                    final Result<File> result = folder.createFile("subfolder\\file.xml");
-                    test.assertSuccess(result);
-                    test.assertEqual("/test/folder/subfolder/file.xml", result.await().toString());
+                    final File file = folder.createFile("subfolder\\file.xml").await();
+                    test.assertEqual("/test/folder/subfolder/file.xml", file.toString());
 
-                    test.assertSuccess(true, folder.exists());
-                    test.assertSuccess(true, folder.getFolder("subfolder").await().exists());
-                    test.assertSuccess(true, result.await().exists());
+                    test.assertTrue(folder.exists().await());
+                    test.assertTrue(folder.getFolder("subfolder").await().exists().await());
+                    test.assertTrue(file.exists().await());
                 });
 
                 runner.test("with non-existing relative path in subfolder with forward slash separator", (Test test) ->
                 {
                     final Folder folder = getFolder(test);
 
-                    final Result<File> result = folder.createFile("subfolder/file.xml");
-                    test.assertSuccess(result);
-                    test.assertEqual("/test/folder/subfolder/file.xml", result.await().toString());
+                    final File file = folder.createFile("subfolder/file.xml").await();
+                    test.assertEqual("/test/folder/subfolder/file.xml", file.toString());
 
-                    test.assertSuccess(true, folder.exists());
-                    test.assertSuccess(true, folder.getFolder("subfolder").await().exists());
-                    test.assertSuccess(true, result.await().exists());
+                    test.assertTrue(folder.exists().await());
+                    test.assertTrue(folder.getFolder("subfolder").await().exists().await());
+                    test.assertTrue(file.exists().await());
                 });
             });
 
@@ -331,35 +328,32 @@ public class FolderTests
                 {
                     final Folder folder = getFolder(test);
 
-                    final Result<File> result = folder.createFile(Path.parse("file.xml"));
-                    test.assertSuccess(result);
-                    test.assertEqual("/test/folder/file.xml", result.await().toString());
-                    test.assertSuccess(true, folder.exists());
-                    test.assertSuccess(true, result.await().exists());
+                    final File file = folder.createFile(Path.parse("file.xml")).await();
+                    test.assertEqual("/test/folder/file.xml", file.toString());
+                    test.assertTrue(folder.exists().await());
+                    test.assertTrue(file.exists().await());
                 });
 
                 runner.test("with non-existing subfolder relative path with backslash separator", (Test test) ->
                 {
                     final Folder folder = getFolder(test);
 
-                    final Result<File> result = folder.createFile(Path.parse("subfolder\\file.xml"));
-                    test.assertSuccess(result);
-                    test.assertEqual("/test/folder/subfolder/file.xml", result.await().toString());
-                    test.assertSuccess(true, folder.exists());
-                    test.assertSuccess(true, folder.getFolder("subfolder").await().exists());
-                    test.assertSuccess(true, result.await().exists());
+                    final File file = folder.createFile(Path.parse("subfolder\\file.xml")).await();
+                    test.assertEqual("/test/folder/subfolder/file.xml", file.toString());
+                    test.assertTrue(folder.exists().await());
+                    test.assertTrue(folder.getFolder("subfolder").await().exists().await());
+                    test.assertTrue(file.exists().await());
                 });
 
                 runner.test("with non-existing subfolder relative path with forward slash separator", (Test test) ->
                 {
                     final Folder folder = getFolder(test);
 
-                    final Result<File> result = folder.createFile(Path.parse("subfolder/file.xml"));
-                    test.assertSuccess(result);
-                    test.assertEqual("/test/folder/subfolder/file.xml", result.await().toString());
-                    test.assertSuccess(true, folder.exists());
-                    test.assertSuccess(true, folder.getFolder("subfolder").await().exists());
-                    test.assertSuccess(true, result.await().exists());
+                    final File file = folder.createFile(Path.parse("subfolder/file.xml")).await();
+                    test.assertEqual("/test/folder/subfolder/file.xml", file.toString());
+                    test.assertTrue(folder.exists().await());
+                    test.assertTrue(folder.getFolder("subfolder").await().exists().await());
+                    test.assertTrue(file.exists().await());
                 });
             });
 
@@ -447,22 +441,22 @@ public class FolderTests
                 runner.test("when folder exists and has one child file", (Test test) ->
                 {
                     final Folder folder = getFolder(test);
-                    test.assertSuccess(null, folder.create());
-                    test.assertSuccess(folder.createFile("file.java"));
-                    test.assertSuccess(Iterable.create("/test/folder/file.java"), folder.getFilesAndFolders().then((Iterable<FileSystemEntry> entries) -> entries.map(FileSystemEntry::toString)));
+                    test.assertNull(folder.create().await());
+                    folder.createFile("file.java").await();
+                    test.assertEqual(Iterable.create("/test/folder/file.java"), folder.getFilesAndFolders().await().map(FileSystemEntry::toString));
                 });
 
                 runner.test("when folder exists and has one child file and one child folder", (Test test) ->
                 {
                     final Folder folder = getFolder(test);
-                    test.assertSuccess(null, folder.create());
-                    test.assertSuccess(folder.createFile("file.java"));
-                    test.assertSuccess(folder.createFolder("childfolder"));
-                    test.assertSuccess(
+                    test.assertNull(folder.create().await());
+                    folder.createFile("file.java").await();
+                    folder.createFolder("childfolder").await();
+                    test.assertEqual(
                         Iterable.create(
                             "/test/folder/childfolder",
                             "/test/folder/file.java"),
-                        folder.getFilesAndFolders().then((Iterable<FileSystemEntry> entries) -> entries.map(FileSystemEntry::toString)));
+                        folder.getFilesAndFolders().await().map(FileSystemEntry::toString));
                 });
             });
 
@@ -471,14 +465,14 @@ public class FolderTests
                 runner.test("when file doesn't exist", (Test test) ->
                 {
                     final Folder folder = getFolder(test);
-                    test.assertSuccess(false, folder.fileExists("test.txt"));
+                    test.assertFalse(folder.fileExists("test.txt").await());
                 });
 
                 runner.test("when file exists", (Test test) ->
                 {
                     final Folder folder = getFolder(test);
-                    test.assertSuccess(folder.createFile("test.txt"));
-                    test.assertSuccess(true, folder.fileExists("test.txt"));
+                    folder.createFile("test.txt").await();
+                    test.assertTrue(folder.fileExists("test.txt").await());
                 });
             });
 
@@ -487,14 +481,14 @@ public class FolderTests
                 runner.test("when folder doesn't exist", (Test test) ->
                 {
                     final Folder folder = getFolder(test);
-                    test.assertSuccess(false, folder.folderExists("test"));
+                    test.assertFalse(folder.folderExists("test").await());
                 });
 
                 runner.test("when folder does exist", (Test test) ->
                 {
                     final Folder folder = getFolder(test);
-                    test.assertSuccess(folder.createFolder("test"));
-                    test.assertSuccess(true, folder.folderExists("test"));
+                    folder.createFolder("test").await();
+                    test.assertTrue(folder.folderExists("test").await());
                 });
             });
         });

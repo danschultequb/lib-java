@@ -175,7 +175,7 @@ public class PathTests
                     test.assertNotNull(path);
                     test.assertEqual("/hello/there.txt", path.toString());
                     test.assertTrue(path.isRooted());
-                    test.assertSuccess(Path.parse("/"), path.getRoot());
+                    test.assertEqual(Path.parse("/"), path.getRoot().await());
                     test.assertTrue(path.equals(path));
                     test.assertTrue(path.equals((Object)path));
                     final Indexable<String> pathSegments = path.getSegments();
@@ -196,7 +196,7 @@ public class PathTests
                     test.assertNotNull(path);
                     test.assertEqual("/\\/test1//", path.toString());
                     test.assertTrue(path.isRooted());
-                    test.assertSuccess(Path.parse("/"), path.getRoot());
+                    test.assertEqual(Path.parse("/"), path.getRoot().await());
                     final Indexable<String> pathSegments = path.getSegments();
                     test.assertNotNull(pathSegments);
                     test.assertEqual(new String[] { "/", "test1" }, Array.toStringArray(pathSegments));
@@ -214,7 +214,7 @@ public class PathTests
                     test.assertNotNull(path);
                     test.assertEqual("C:\\Windows\\System32\\cmd.exe", path.toString());
                     test.assertTrue(path.isRooted());
-                    test.assertSuccess(Path.parse("C:"), path.getRoot());
+                    test.assertEqual(Path.parse("C:"), path.getRoot().await());
                     final Indexable<String> pathSegments = path.getSegments();
                     test.assertNotNull(pathSegments);
                     test.assertEqual(new String[] { "C:", "Windows", "System32", "cmd.exe" }, Array.toStringArray(pathSegments));
@@ -402,11 +402,8 @@ public class PathTests
                         final Path path = Path.parse(pathString);
 
                         final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner());
-                        test.assertSuccess(fileSystem.getFolder(basePathString),
-                            (Folder folder) ->
-                            {
-                                test.assertEqual(Path.parse(expectedPathString), path.relativeTo(folder));
-                            });
+                        final Folder folder = fileSystem.getFolder(basePathString).await();
+                        test.assertEqual(Path.parse(expectedPathString), path.relativeTo(folder));
                     });
                 };
 

@@ -21,24 +21,18 @@ public class JavaHttpClientTests
                     final URL requestURL = URL.parse("https://www.treasurydirect.gov/TA_WS/securities/auctioned?format=json&type=Bill").await();
                     final MutableHttpRequest httpRequest = new MutableHttpRequest(HttpMethod.GET, requestURL);
 
-                    final Result<HttpResponse> httpResponseResult = httpClient.send(httpRequest);
-                    test.assertSuccess(httpResponseResult);
-
-                    final HttpResponse httpResponse = httpResponseResult.await();
+                    final HttpResponse httpResponse = httpClient.send(httpRequest).await();
                     test.assertEqual("HTTP/1.1", httpResponse.getHTTPVersion());
                     test.assertEqual(200, httpResponse.getStatusCode());
                     test.assertEqual("OK", httpResponse.getReasonPhrase());
                     test.assertNotNull(httpResponse.getHeaders());
-                    test.assertSuccess("application/json;charset=UTF-8", httpResponse.getHeaders().getValue("content-type"));
+                    test.assertEqual("application/json;charset=UTF-8", httpResponse.getHeaders().getValue("content-type").await());
                     test.assertNotNull(httpResponse.getBody());
-                    final Result<String> responseBody = CharacterEncoding.UTF_8.decodeAsString(httpResponse.getBody().readAllBytes().await());
-                    test.assertSuccess(responseBody);
-                    final JSONDocument document = JSON.parse(responseBody.await());
+                    final String responseBody = CharacterEncoding.UTF_8.decodeAsString(httpResponse.getBody().readAllBytes().await()).await();
+                    final JSONDocument document = JSON.parse(responseBody);
                     test.assertNotNull(document);
-                    test.assertSuccess(document.getRoot(), (JSONSegment root) ->
-                    {
-                        test.assertEqual(JSONArray.class, root.getClass());
-                    });
+                    final JSONSegment root = document.getRoot().await();
+                    test.assertEqual(JSONArray.class, root.getClass());
                 });
             });
         });

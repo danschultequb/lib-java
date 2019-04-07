@@ -14,7 +14,7 @@ public class UTF8CharacterEncodingTests
                 {
                     runner.test("with " + Characters.escapeAndQuote(character), (Test test) ->
                     {
-                        test.assertSuccess(expectedBytes, encoding.encode(character));
+                        test.assertEqual(expectedBytes, encoding.encode(character).await());
                     });
                 };
 
@@ -130,7 +130,7 @@ public class UTF8CharacterEncodingTests
                         }
                         else
                         {
-                            test.assertSuccess(expectedCharacters, result);
+                            test.assertEqual(expectedCharacters, result.await());
                         }
                     });
                 };

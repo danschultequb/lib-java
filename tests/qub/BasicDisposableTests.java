@@ -20,11 +20,11 @@ public class BasicDisposableTests
                 test.assertFalse(disposable.isDisposed());
                 test.assertEqual(0, value.get());
 
-                test.assertSuccess(true, disposable.dispose());
+                test.assertTrue(disposable.dispose().await());
                 test.assertTrue(disposable.isDisposed());
                 test.assertEqual(1, value.get());
 
-                test.assertSuccess(false, disposable.dispose());
+                test.assertFalse(disposable.dispose().await());
                 test.assertTrue(disposable.isDisposed());
                 test.assertEqual(1, value.get());
             });

@@ -47,28 +47,22 @@ public class NetworkTests
 
                     final AsyncAction serverTask = asyncRunner.schedule(() ->
                     {
-                        final Result<TCPServer> tcpServerResult = network.createTCPServer(IPv4Address.localhost, port);
-                        test.assertSuccess(tcpServerResult);
-                        try (final TCPServer tcpServer = tcpServerResult.await())
+                        try (final TCPServer tcpServer = network.createTCPServer(IPv4Address.localhost, port).await())
                         {
                             test.assertEqual(IPv4Address.localhost, tcpServer.getLocalIPAddress());
                             test.assertEqual(port, tcpServer.getLocalPort());
                             final Duration acceptTimeout = Duration.seconds(5);
-                            final Result<TCPClient> acceptedClientResult = tcpServer.accept(acceptTimeout);
-                            test.assertSuccess(acceptedClientResult);
-                            try (final TCPClient acceptedClient = acceptedClientResult.await())
+                            try (final TCPClient acceptedClient = tcpServer.accept(acceptTimeout).await())
                             {
-                                test.assertSuccess(bytes, acceptedClient.readBytes(bytes.length));
-                                test.assertSuccess(bytes.length, acceptedClient.writeBytes(bytes));
+                                test.assertEqual(bytes, acceptedClient.readBytes(bytes.length).await());
+                                test.assertEqual(bytes.length, acceptedClient.writeBytes(bytes).await());
                             }
                         }
                     });
 
                     final AsyncAction clientTask = asyncRunner.schedule(() ->
                     {
-                        final Result<TCPClient> tcpClientResult = network.createTCPClient(IPv4Address.localhost, port, Duration.seconds(5));
-                        test.assertSuccess(tcpClientResult);
-                        try (final TCPClient tcpClient = tcpClientResult.await())
+                        try (final TCPClient tcpClient = network.createTCPClient(IPv4Address.localhost, port, Duration.seconds(5)).await())
                         {
                             test.assertEqual(IPv4Address.localhost, tcpClient.getLocalIPAddress());
                             test.assertNotEqual(port, tcpClient.getLocalPort());

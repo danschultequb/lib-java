@@ -31,7 +31,7 @@ public class JavaWindowTests
                     test.assertFalse(window.isOpen());
                     test.assertEqual("", window.getTitle());
 
-                    test.assertSuccess(true, window.dispose());
+                    test.assertTrue(window.dispose().await());
                     test.assertTrue(window.isDisposed());
                     test.assertFalse(window.isOpen());
                     test.assertEqual("", window.getTitle());

@@ -454,15 +454,14 @@ public class MutexTests
                 {
                     final Mutex mutex = create(creator, test);
                     final Value<Integer> value = Value.create();
-                    final Result<Boolean> result = mutex.criticalSectionResult(Duration.seconds(1), () ->
+                    test.assertTrue(mutex.criticalSectionResult(Duration.seconds(1), () ->
                     {
                         test.assertTrue(mutex.isAcquired());
                         value.set(20);
                         return Result.successTrue();
-                    });
+                    }).await());
                     test.assertFalse(mutex.isAcquired());
                     test.assertEqual(20, value.get());
-                    test.assertSuccess(true, result);
                 });
             });
 
@@ -479,15 +478,14 @@ public class MutexTests
                 {
                     final Mutex mutex = create(creator, test);
                     final Value<Integer> value = Value.create();
-                    final Result<Boolean> result = mutex.criticalSectionResult(test.getClock().getCurrentDateTime().plus(Duration.seconds(1)), () ->
+                    test.assertTrue(mutex.criticalSectionResult(test.getClock().getCurrentDateTime().plus(Duration.seconds(1)), () ->
                     {
                         test.assertTrue(mutex.isAcquired());
                         value.set(20);
                         return Result.successTrue();
-                    });
+                    }).await());
                     test.assertFalse(mutex.isAcquired());
                     test.assertEqual(20, value.get());
-                    test.assertSuccess(true, result);
                 });
 
                 runner.test("with null DateTime", (Test test) ->

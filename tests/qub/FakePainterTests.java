@@ -369,9 +369,9 @@ public class FakePainterTests
                     final Disposable disposable = painter.saveTransform();
                     test.assertNotNull(disposable);
                     test.assertEqual(Vector2D.zero, painter.getTranslation());
-                    test.assertSuccess(true, disposable.dispose());
+                    test.assertTrue(disposable.dispose().await());
                     test.assertEqual(Vector2D.zero, painter.getTranslation());
-                    test.assertSuccess(false, disposable.dispose());
+                    test.assertFalse(disposable.dispose().await());
                     test.assertEqual(Vector2D.zero, painter.getTranslation());
                 });
 
@@ -385,9 +385,9 @@ public class FakePainterTests
                     painter.translate(Distance.inches(1), Distance.inches(2));
                     test.assertEqual(new Vector2D(Distance.inches(1), Distance.inches(2)), painter.getTranslation());
 
-                    test.assertSuccess(true, disposable.dispose());
+                    test.assertTrue(disposable.dispose().await());
                     test.assertEqual(Vector2D.zero, painter.getTranslation());
-                    test.assertSuccess(false, disposable.dispose());
+                    test.assertFalse(disposable.dispose().await());
                     test.assertEqual(Vector2D.zero, painter.getTranslation());
                 });
             });

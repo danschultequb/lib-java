@@ -105,7 +105,7 @@ public class ConsoleTests
 
                         console.write(toWrite, formattedStringArguments);
 
-                        test.assertSuccess(expectedText, output.getText());
+                        test.assertEqual(expectedText, output.getText().await());
                     });
                 };
 

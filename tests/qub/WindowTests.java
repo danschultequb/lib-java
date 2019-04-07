@@ -12,7 +12,7 @@ public class WindowTests
                 {
                     try (final Window window = windowCreator.run(test))
                     {
-                        test.assertSuccess(true, window.dispose());
+                        test.assertTrue(window.dispose().await());
                         test.assertFalse(window.isOpen());
                         test.assertTrue(window.isDisposed());
                     }
@@ -25,7 +25,7 @@ public class WindowTests
                         window.open();
                         test.assertTrue(window.isOpen());
 
-                        test.assertSuccess(true, window.dispose());
+                        test.assertTrue(window.dispose().await());
 
                         test.assertFalse(window.isOpen());
                         test.assertTrue(window.isDisposed());
@@ -41,7 +41,7 @@ public class WindowTests
                         test.assertSame(window, text.getParent());
                         test.assertSame(window, text.getParentWindow());
 
-                        test.assertSuccess(true, window.dispose());
+                        test.assertTrue(window.dispose().await());
 
                         test.assertNull(window.getContent());
                         test.assertNull(text.getParent());
