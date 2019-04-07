@@ -101,4 +101,42 @@ public interface Exceptions
         }
         return result;
     }
+
+    static Result<Void> writeErrorString(CharacterWriteStream stream, Throwable error)
+    {
+        PreCondition.assertNotNull(stream, "stream");
+        PreCondition.assertNotNull(error, "error");
+
+        return Result.create(() ->
+        {
+            final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(stream);
+            writeStream.writeLine(error.toString()).await();
+
+            final StackTraceElement[] stackTraceElements = error.getStackTrace();
+            if (stackTraceElements != null && stackTraceElements.length > 0)
+            {
+                writeStream.increaseIndent();
+                for (final StackTraceElement stackTraceElement : stackTraceElements)
+                {
+                    writeStream.writeLine("at " + stackTraceElement.toString()).await();
+                }
+
+                Throwable cause = error.getCause();
+                while (cause != null)
+                {
+                    writeStream.increaseIndent();
+                    writeStream.writeLine("Caused by: " + Types.getFullTypeName(cause)).await();
+
+                    writeStream.increaseIndent();
+                    writeStream.writeLine("Message: " + cause.getMessage()).await();
+                    for (final StackTraceElement stackTraceElement : stackTraceElements)
+                    {
+                        writeStream.writeLine("at " + stackTraceElement.toString()).await();
+                    }
+
+                    cause = cause.getCause();
+                }
+            }
+        });
+    }
 }
