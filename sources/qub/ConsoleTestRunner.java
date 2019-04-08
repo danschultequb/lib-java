@@ -435,6 +435,23 @@ public class ConsoleTestRunner extends Console implements TestRunner
         writeLine("Test Errors:    " + testRunner.getErrorTestCount());
     }
 
+    public static boolean getProfile(Console console)
+    {
+        PreCondition.assertNotNull(console, "console");
+
+        final CommandLine commandLine = console.getCommandLine();
+
+        boolean result = false;
+        final CommandLineArgument profileArgument = commandLine.get("profile");
+        if (profileArgument != null)
+        {
+            final String profileArgumentValue = profileArgument.getValue();
+            result = Strings.isNullOrEmpty(profileArgumentValue) || profileArgumentValue.equalsIgnoreCase("true");
+        }
+
+        return result;
+    }
+
     public static void main(String[] args)
     {
         int testsFailed;
@@ -443,6 +460,11 @@ public class ConsoleTestRunner extends Console implements TestRunner
         {
             final CommandLine commandLine = console.getCommandLine();
             final boolean debug = commandLine.remove("debug") != null;
+
+            if (Profiler.takeProfilerArgument(console))
+            {
+                Profiler.waitForProfiler(console, ConsoleTestRunner.class);
+            }
 
             final Stopwatch stopwatch = console.getStopwatch();
             stopwatch.start();
