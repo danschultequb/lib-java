@@ -452,7 +452,12 @@ public class ConsoleTestRunner extends Console implements TestRunner
         return result;
     }
 
-    public static void main(String[] args)
+    public static int run(String[] args)
+    {
+        return ConsoleTestRunner.run(CommandLine.create(args));
+    }
+
+    public static int run(CommandLine args)
     {
         int testsFailed;
 
@@ -548,6 +553,11 @@ public class ConsoleTestRunner extends Console implements TestRunner
             testsFailed = -1;
         }
 
-        System.exit(testsFailed);
+        return testsFailed;
+    }
+
+    public static void main(String[] args)
+    {
+        System.exit(ConsoleTestRunner.run(args));
     }
 }

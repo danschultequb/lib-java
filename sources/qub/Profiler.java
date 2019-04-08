@@ -2,6 +2,8 @@ package qub;
 
 public interface Profiler
 {
+    String parameterName = "pause";
+
     static boolean takeProfilerArgument(Console console)
     {
         PreCondition.assertNotNull(console, "console");
@@ -9,7 +11,7 @@ public interface Profiler
         final CommandLine commandLine = console.getCommandLine();
 
         boolean result = false;
-        final CommandLineArgument profileArgument = commandLine.get("profiler");
+        final CommandLineArgument profileArgument = commandLine.remove(parameterName);
         if (profileArgument != null)
         {
             final String profileArgumentValue = profileArgument.getValue();
