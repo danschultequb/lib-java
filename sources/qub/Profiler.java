@@ -2,7 +2,7 @@ package qub;
 
 public interface Profiler
 {
-    String parameterName = "pause";
+    String parameterName = "profiler";
 
     static boolean takeProfilerArgument(Console console)
     {
