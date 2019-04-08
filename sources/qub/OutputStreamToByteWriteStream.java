@@ -12,6 +12,24 @@ public class OutputStreamToByteWriteStream implements ByteWriteStream
         this.outputStream = outputStream;
     }
 
+    public Result<Void> flush()
+    {
+        Result<Void> result;
+        try
+        {
+            outputStream.flush();
+            result = Result.success();
+        }
+        catch (java.io.IOException e)
+        {
+            result = Result.error(e);
+        }
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
     @Override
     public Result<Integer> writeByte(byte toWrite)
     {

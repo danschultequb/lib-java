@@ -426,19 +426,19 @@ public class ProcessBuilder
             {
                 inputAction = parallelAsyncRunner.schedule(() ->
                 {
-                    final ByteWriteStream processInputStream = new OutputStreamToByteWriteStream(process.getOutputStream());
+                    final OutputStreamToByteWriteStream processInputStream = new OutputStreamToByteWriteStream(process.getOutputStream());
+                    processInputStream.writeAllBytes(redirectedInputStream).await();
                     while (process.isAlive())
                     {
-                        final Byte value = redirectedInputStream.readByte()
-                            .catchError()
-                            .await();
-                        if (value == null)
+                        final Byte value = redirectedInputStream.readByte().catchError().await();
+                        if (value != null)
                         {
                             break;
                         }
                         else
                         {
-                            processInputStream.writeByte(value).await();
+                            processInputStream.writeByte(value).catchError().await();
+                            processInputStream.flush().catchError().await();
                         }
                     }
                 });
