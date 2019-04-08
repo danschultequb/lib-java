@@ -9,6 +9,7 @@ public class ProcessBuilder
     private final File executableFile;
     private Folder workingFolder;
     private final List<String> arguments;
+    private ByteReadStream redirectedInputStream;
     private Action1<ByteReadStream> redirectOutputAction;
     private Action1<ByteReadStream> redirectErrorAction;
 
@@ -176,6 +177,12 @@ public class ProcessBuilder
         return builder.toString();
     }
 
+    public ProcessBuilder redirectInput(ByteReadStream redirectedInputStream)
+    {
+        this.redirectedInputStream = redirectedInputStream;
+        return this;
+    }
+
     public ProcessBuilder redirectOutput(Action1<ByteReadStream> redirectOutputAction)
     {
         this.redirectOutputAction = redirectOutputAction;
@@ -236,7 +243,7 @@ public class ProcessBuilder
      * @param redirectedErrorStream The ByteWriteStream to redirect process error to.
      * @return This ProcessBuilder.
      */
-    public ProcessBuilder redirectError(final ByteWriteStream redirectedErrorStream)
+    public ProcessBuilder redirectError(ByteWriteStream redirectedErrorStream)
     {
         return redirectError(redirectedErrorStream::writeAllBytes);
     }
@@ -392,6 +399,11 @@ public class ProcessBuilder
             builder.directory(new java.io.File(workingFolder.getPath().toString()));
         }
 
+        if (redirectedInputStream != null)
+        {
+            builder.redirectInput();
+        }
+
         if (redirectOutputAction != null)
         {
             builder.redirectOutput();
@@ -406,8 +418,31 @@ public class ProcessBuilder
         try
         {
             final java.lang.Process process = builder.start();
+            AsyncAction inputAction = null;
             AsyncAction outputAction = null;
             AsyncAction errorAction = null;
+
+            if (redirectedInputStream != null)
+            {
+                inputAction = parallelAsyncRunner.schedule(() ->
+                {
+                    final ByteWriteStream processInputStream = new OutputStreamToByteWriteStream(process.getOutputStream());
+                    while (process.isAlive())
+                    {
+                        final Byte value = redirectedInputStream.readByte()
+                            .catchError()
+                            .await();
+                        if (value == null)
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            processInputStream.writeByte(value).await();
+                        }
+                    }
+                });
+            }
 
             if (redirectOutputAction != null)
             {
@@ -427,6 +462,10 @@ public class ProcessBuilder
             if (errorAction != null)
             {
                 errorAction.await();
+            }
+            if (inputAction != null)
+            {
+                inputAction.await();
             }
         }
         catch (Throwable error)

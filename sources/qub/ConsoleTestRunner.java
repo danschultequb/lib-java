@@ -497,7 +497,7 @@ public class ConsoleTestRunner extends Console implements TestRunner
                     {
                         if (debug)
                         {
-                            console.writeLine("Couldn't find.");
+                            console.writeLine("Couldn't find " + fullClassName + ".");
                         }
                     }
 
