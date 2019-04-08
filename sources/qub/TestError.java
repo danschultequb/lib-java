@@ -1,14 +1,34 @@
 package qub;
 
-public class TestError
+public class TestError extends RuntimeException
 {
     private final String testScope;
-    private final Throwable error;
+    private final Iterable<String> messageLines;
 
-    public TestError(String testScope, Throwable error)
+    public TestError(String testScope, String message)
     {
+        this(testScope, Iterable.create(message), null);
+    }
+
+    public TestError(String testScope, String message, Throwable cause)
+    {
+        this(testScope, Iterable.create(message), cause);
+    }
+
+    public TestError(String testScope, Iterable<String> messageLines)
+    {
+        this(testScope, messageLines, null);
+    }
+
+    public TestError(String testScope, Iterable<String> messageLines, Throwable cause)
+    {
+        super(getMessage(testScope, messageLines), cause);
+
+        PreCondition.assertNotNullAndNotEmpty(testScope, "testScope");
+        PreCondition.assertNotNullAndNotEmpty(messageLines, "messageLines");
+
         this.testScope = testScope;
-        this.error = error;
+        this.messageLines = messageLines;
     }
 
     public String getTestScope()
@@ -16,20 +36,13 @@ public class TestError
         return testScope;
     }
 
-    public Throwable getError()
+    /**
+     * Get the lines that explain the test assertion failure.
+     * @return The lines that explain the test assertion failure.
+     */
+    public Iterable<String> getMessageLines()
     {
-        return error;
-    }
-
-    public String getMessage()
-    {
-        return "An unexpected error occurred during: " + Strings.escapeAndQuote(testScope);
-    }
-
-    @Override
-    public String toString()
-    {
-        return getMessage();
+        return messageLines;
     }
 
     @Override
@@ -41,13 +54,30 @@ public class TestError
     public boolean equals(TestError rhs)
     {
         return rhs != null &&
-                   Comparer.equal(testScope, rhs.testScope) &&
-                   Comparer.equal(error, rhs.error);
+                   Comparer.equal(getMessage(), rhs.getMessage()) &&
+                   Comparer.equal(getCause(), rhs.getCause());
     }
 
     @Override
     public int hashCode()
     {
-        return Hash.getHashCode(testScope, error);
+        return Hash.getHashCode(getMessage(), getCause());
+    }
+
+    private static String getMessage(String testScope, Iterable<String> messageLines)
+    {
+        PreCondition.assertNotNullAndNotEmpty(testScope, "testScope");
+        PreCondition.assertNotNullAndNotEmpty(messageLines, "messageLines");
+
+        final InMemoryCharacterStream characterStream = new InMemoryCharacterStream();
+        characterStream.writeLine(testScope);
+        if (messageLines != null)
+        {
+            for (final String messageLine : messageLines)
+            {
+                characterStream.writeLine(messageLine);
+            }
+        }
+        return characterStream.getText().await();
     }
 }

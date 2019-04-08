@@ -275,11 +275,9 @@ public class TestTests
                 {
                     final Test t = createTest("abc", test);
                     test.assertThrows(() -> t.assertTrue(false),
-                        new TestAssertionFailure("abc", new String[]
-                            {
-                                "Expected: true",
-                                "Actual:   false"
-                            }));
+                        new TestError("abc", Iterable.create(
+                            "Expected: true",
+                            "Actual:   false")));
                 });
 
                 runner.test("with true", (Test test) ->
@@ -294,34 +292,28 @@ public class TestTests
                 {
                     final Test t = createTest("abc", test);
                     test.assertThrows(() -> t.assertTrue(false, null),
-                        new TestAssertionFailure("abc", new String[]
-                                                            {
-                                                                "Expected: true",
-                                                                "Actual:   false"
-                                                            }));
+                        new TestError("abc", Iterable.create(
+                            "Expected: true",
+                            "Actual:   false")));
                 });
 
                 runner.test("with false and empty", (Test test) ->
                 {
                     final Test t = createTest("abc", test);
                     test.assertThrows(() -> t.assertTrue(false, ""),
-                        new TestAssertionFailure("abc", new String[]
-                                                            {
-                                                                "Expected: true",
-                                                                "Actual:   false"
-                                                            }));
+                        new TestError("abc", Iterable.create(
+                            "Expected: true",
+                            "Actual:   false")));
                 });
 
                 runner.test("with false and non-empty", (Test test) ->
                 {
                     final Test t = createTest("abc", test);
                     test.assertThrows(() -> t.assertTrue(false, "blah"),
-                        new TestAssertionFailure("abc", new String[]
-                                                            {
-                                                                "Message:  blah",
-                                                                "Expected: true",
-                                                                "Actual:   false"
-                                                            }));
+                        new TestError("abc", Iterable.create(
+                            "Message:  blah",
+                            "Expected: true",
+                            "Actual:   false")));
                 });
 
                 runner.test("with true and null", (Test test) ->
@@ -346,11 +338,9 @@ public class TestTests
                 {
                     final Test t = createTest("abc", test);
                     test.assertThrows(() -> t.assertFalse(true),
-                        new TestAssertionFailure("abc", new String[]
-                                                            {
-                                                                "Expected: false",
-                                                                "Actual:   true"
-                                                            }));
+                        new TestError("abc", Iterable.create(
+                            "Expected: false",
+                            "Actual:   true")));
                 });
 
                 runner.test("with false", (Test test) ->
@@ -365,34 +355,28 @@ public class TestTests
                 {
                     final Test t = createTest("abc", test);
                     test.assertThrows(() -> t.assertFalse(true, (String)null),
-                        new TestAssertionFailure("abc", new String[]
-                                                            {
-                                                                "Expected: false",
-                                                                "Actual:   true"
-                                                            }));
+                        new TestError("abc", Iterable.create(
+                            "Expected: false",
+                            "Actual:   true")));
                 });
 
                 runner.test("with true and empty", (Test test) ->
                 {
                     final Test t = createTest("abc", test);
                     test.assertThrows(() -> t.assertFalse(true, ""),
-                        new TestAssertionFailure("abc", new String[]
-                                                            {
-                                                                "Expected: false",
-                                                                "Actual:   true"
-                                                            }));
+                        new TestError("abc", Iterable.create(
+                            "Expected: false",
+                            "Actual:   true")));
                 });
 
                 runner.test("with true and non-empty", (Test test) ->
                 {
                     final Test t = createTest("abc", test);
                     test.assertThrows(() -> t.assertFalse(true, "blah"),
-                        new TestAssertionFailure("abc", new String[]
-                                                            {
-                                                                "Message:  blah",
-                                                                "Expected: false",
-                                                                "Actual:   true"
-                                                            }));
+                        new TestError("abc", Iterable.create(
+                            "Message:  blah",
+                            "Expected: false",
+                            "Actual:   true")));
                 });
 
                 runner.test("with false and null", (Test test) ->
@@ -417,45 +401,37 @@ public class TestTests
                 {
                     final Test t = createTest("abc", test);
                     test.assertThrows(() -> t.assertFalse(true, (Function0<String>)null),
-                        new TestAssertionFailure("abc", new String[]
-                                                            {
-                                                                "Expected: false",
-                                                                "Actual:   true"
-                                                            }));
+                        new TestError("abc", Iterable.create(
+                            "Expected: false",
+                            "Actual:   true")));
                 });
 
                 runner.test("with true and function that returns null", (Test test) ->
                 {
                     final Test t = createTest("abc", test);
                     test.assertThrows(() -> t.assertFalse(true, () -> null),
-                        new TestAssertionFailure("abc", new String[]
-                                                            {
-                                                                "Expected: false",
-                                                                "Actual:   true"
-                                                            }));
+                        new TestError("abc", Iterable.create(
+                            "Expected: false",
+                            "Actual:   true")));
                 });
 
                 runner.test("with true and function that returns empty", (Test test) ->
                 {
                     final Test t = createTest("abc", test);
                     test.assertThrows(() -> t.assertFalse(true, () -> ""),
-                        new TestAssertionFailure("abc", new String[]
-                                                            {
-                                                                "Expected: false",
-                                                                "Actual:   true"
-                                                            }));
+                        new TestError("abc", Iterable.create(
+                            "Expected: false",
+                            "Actual:   true")));
                 });
 
                 runner.test("with true and function that returns non-empty", (Test test) ->
                 {
                     final Test t = createTest("abc", test);
                     test.assertThrows(() -> t.assertFalse(true, () -> "blah"),
-                        new TestAssertionFailure("abc", new String[]
-                                                            {
-                                                                "Message:  blah",
-                                                                "Expected: false",
-                                                                "Actual:   true"
-                                                            }));
+                        new TestError("abc", Iterable.create(
+                            "Message:  blah",
+                            "Expected: false",
+                            "Actual:   true")));
                 });
 
                 runner.test("with false and null", (Test test) ->
@@ -490,11 +466,9 @@ public class TestTests
                 {
                     final Test t = createTest("abc", test);
                     test.assertThrows(() -> t.assertNull("Hello"),
-                        new TestAssertionFailure("abc", new String[]
-                                                            {
-                                                                "Expected: null",
-                                                                "Actual:   \"Hello\""
-                                                            }));
+                        new TestError("abc", Iterable.create(
+                            "Expected: null",
+                            "Actual:   \"Hello\"")));
                 });
             });
 
@@ -519,34 +493,28 @@ public class TestTests
                 {
                     final Test t = createTest("abc", test);
                     test.assertThrows(() -> t.assertNull("Hello", null),
-                        new TestAssertionFailure("abc", new String[]
-                                                            {
-                                                                "Expected: null",
-                                                                "Actual:   \"Hello\""
-                                                            }));
+                        new TestError("abc", Iterable.create(
+                            "Expected: null",
+                            "Actual:   \"Hello\"")));
                 });
 
                 runner.test("with non-null and empty message", (Test test) ->
                 {
                     final Test t = createTest("abc", test);
                     test.assertThrows(() -> t.assertNull("Hello", ""),
-                        new TestAssertionFailure("abc", new String[]
-                                                            {
-                                                                "Expected: null",
-                                                                "Actual:   \"Hello\""
-                                                            }));
+                        new TestError("abc", Iterable.create(
+                            "Expected: null",
+                            "Actual:   \"Hello\"")));
                 });
 
                 runner.test("with non-null and non-empty message", (Test test) ->
                 {
                     final Test t = createTest("abc", test);
                     test.assertThrows(() -> t.assertNull("Hello", "blah"),
-                        new TestAssertionFailure("abc", new String[]
-                                                            {
-                                                                "Message:  blah",
-                                                                "Expected: null",
-                                                                "Actual:   \"Hello\""
-                                                            }));
+                        new TestError("abc", Iterable.create(
+                            "Message:  blah",
+                            "Expected: null",
+                            "Actual:   \"Hello\"")));
                 });
             });
 
@@ -556,11 +524,9 @@ public class TestTests
                 {
                     final Test t = createTest("abc", test);
                     test.assertThrows(() -> t.assertNotNull(null),
-                        new TestAssertionFailure("abc", new String[]
-                                                            {
-                                                                "Expected: \"not null\"",
-                                                                "Actual:   null"
-                                                            }));
+                        new TestError("abc", Iterable.create(
+                            "Expected: \"not null\"",
+                            "Actual:   null")));
                 });
 
                 runner.test("with non-null", (Test test) ->
@@ -576,34 +542,28 @@ public class TestTests
                 {
                     final Test t = createTest("abc", test);
                     test.assertThrows(() -> t.assertNotNull(null),
-                        new TestAssertionFailure("abc", new String[]
-                                                            {
-                                                                "Expected: \"not null\"",
-                                                                "Actual:   null"
-                                                            }));
+                        new TestError("abc", Iterable.create(
+                            "Expected: \"not null\"",
+                            "Actual:   null")));
                 });
 
                 runner.test("with null and empty message", (Test test) ->
                 {
                     final Test t = createTest("abc", test);
                     test.assertThrows(() -> t.assertNotNull(null, ""),
-                        new TestAssertionFailure("abc", new String[]
-                                                            {
-                                                                "Expected: \"not null\"",
-                                                                "Actual:   null"
-                                                            }));
+                        new TestError("abc", Iterable.create(
+                            "Expected: \"not null\"",
+                            "Actual:   null")));
                 });
 
                 runner.test("with null and non-empty message", (Test test) ->
                 {
                     final Test t = createTest("abc", test);
                     test.assertThrows(() -> t.assertNotNull(null, "blah"),
-                        new TestAssertionFailure("abc", new String[]
-                                                            {
-                                                                "Message:  blah",
-                                                                "Expected: \"not null\"",
-                                                                "Actual:   null"
-                                                            }));
+                        new TestError("abc", Iterable.create(
+                            "Message:  blah",
+                            "Expected: \"not null\"",
+                            "Actual:   null")));
                 });
 
                 runner.test("with non-null and null message", (Test test) ->
@@ -631,18 +591,16 @@ public class TestTests
                 {
                     final Test t = createTest("abc", test);
                     test.assertThrows(() -> t.assertNotNullAndNotEmpty((String)null),
-                        new TestAssertionFailure("abc", new String[]
-                                                            {
-                                                                "Expected: \"not null and not empty\"",
-                                                                "Actual:   null"
-                                                            }));
+                        new TestError("abc", Iterable.create(
+                            "Expected: \"not null and not empty\"",
+                            "Actual:   null")));
                 });
 
                 runner.test("with empty", (Test test) ->
                 {
                     final Test t = createTest("abc", test);
                     test.assertThrows(() -> t.assertNotNullAndNotEmpty(""),
-                        new TestAssertionFailure("abc", Iterable.create("Expected: \"not null and not empty\"", "Actual:   \"\"")));
+                        new TestError("abc", Iterable.create("Expected: \"not null and not empty\"", "Actual:   \"\"")));
                 });
 
                 runner.test("with non-empty", (Test test) ->
@@ -664,33 +622,27 @@ public class TestTests
                 {
                     final Test t = createTest("abc", test);
                     test.assertThrows(() -> t.assertEqual(null, new NullPointerException("abc")),
-                        new TestAssertionFailure("abc", new String[]
-                        {
+                        new TestError("abc", Iterable.create(
                             "Expected: null",
-                            "Actual:   java.lang.NullPointerException: abc"
-                        }));
+                            "Actual:   java.lang.NullPointerException: abc")));
                 });
 
                 runner.test("with NullPointerException and null", (Test test) ->
                 {
                     final Test t = createTest("abc", test);
                     test.assertThrows(() -> t.assertEqual(new NullPointerException("abc"), null),
-                        new TestAssertionFailure("abc", new String[]
-                        {
+                        new TestError("abc", Iterable.create(
                             "Expected: java.lang.NullPointerException: abc",
-                            "Actual:   null"
-                        }));
+                            "Actual:   null")));
                 });
 
                 runner.test("with NullPointerException(a) and NullPointerException(b)", (Test test) ->
                 {
                     final Test t = createTest("abc", test);
                     test.assertThrows(() -> t.assertEqual(new NullPointerException("a"), new NullPointerException("b")),
-                        new TestAssertionFailure("abc", new String[]
-                        {
+                        new TestError("abc", Iterable.create(
                             "Expected: java.lang.NullPointerException: a",
-                            "Actual:   java.lang.NullPointerException: b"
-                        }));
+                            "Actual:   java.lang.NullPointerException: b")));
                 });
 
                 runner.test("with NullPointerException(a) and NullPointerException(a)", (Test test) ->
@@ -720,26 +672,24 @@ public class TestTests
                 {
                     final Test t = createTest("abc", test);
                     test.assertThrows(() -> t.assertThrows(() -> {}, new EndOfStreamException()),
-                        new TestAssertionFailure("abc", new String[] { "Expected a qub.EndOfStreamException to be thrown with no message." }));
+                        new TestError("abc", "Expected a qub.EndOfStreamException to be thrown with no message."));
                 });
 
                 runner.test("with action that doesn't throw and expected error with no message", (Test test) ->
                 {
                     final Test t = createTest("abcd", test);
                     test.assertThrows(() -> t.assertThrows(() -> {}, new NotFoundException("blah")),
-                        new TestAssertionFailure("abcd", new String[] { "Expected a qub.NotFoundException to be thrown with the message \"blah\"." }));
+                        new TestError("abcd", "Expected a qub.NotFoundException to be thrown with the message \"blah\"."));
                 });
 
                 runner.test("with action that throws a different error", (Test test) ->
                 {
                     final Test t = createTest("abcd", test);
                     test.assertThrows(() -> t.assertThrows(() -> { throw new NullPointerException(); }, new NotFoundException("blah")),
-                        new TestAssertionFailure("abcd", new String[]
-                            {
-                                "Message:  Incorrect exception thrown",
-                                "Expected: qub.NotFoundException: blah",
-                                "Actual:   java.lang.NullPointerException"
-                            }));
+                        new TestError("abcd", Iterable.create(
+                            "Message:  Incorrect exception thrown",
+                            "Expected: qub.NotFoundException: blah",
+                            "Actual:   java.lang.NullPointerException")));
                 });
 
                 runner.test("with action that throws the same error", (Test test) ->
@@ -751,24 +701,20 @@ public class TestTests
                 {
                     final Test t = createTest("abcd", test);
                     test.assertThrows(() -> t.assertThrows(() -> { throw new NotFoundException("grapes"); }, new NotFoundException("blah")),
-                        new TestAssertionFailure("abcd", new String[]
-                            {
-                                "Message:  Incorrect exception thrown",
-                                "Expected: qub.NotFoundException: blah",
-                                "Actual:   qub.NotFoundException: grapes"
-                            }));
+                        new TestError("abcd", Iterable.create(
+                            "Message:  Incorrect exception thrown",
+                            "Expected: qub.NotFoundException: blah",
+                            "Actual:   qub.NotFoundException: grapes")));
                 });
 
                 runner.test("with action that throws an error derived from the expected error", (Test test) ->
                 {
                     final Test t = createTest("abcd", test);
                     test.assertThrows(() -> t.assertThrows(() -> { throw new NotFoundException("blah"); }, new RuntimeException("blah")),
-                        new TestAssertionFailure("abcd", new String[]
-                            {
-                                "Message:  Incorrect exception thrown",
-                                "Expected: java.lang.RuntimeException: blah",
-                                "Actual:   qub.NotFoundException: blah"
-                            }));
+                        new TestError("abcd", Iterable.create(
+                            "Message:  Incorrect exception thrown",
+                            "Expected: java.lang.RuntimeException: blah",
+                            "Actual:   qub.NotFoundException: blah")));
                 });
 
                 runner.test("with action that throws the same error but is wrapped in a RuntimeException", (Test test) ->
@@ -785,12 +731,10 @@ public class TestTests
                 {
                     final Test t = createTest("abcd", test);
                     test.assertThrows(() -> t.assertThrows(() -> { throw new RuntimeException(new NotFoundException("grapes")); }, new NotFoundException("blah")),
-                        new TestAssertionFailure("abcd", new String[]
-                            {
-                                "Message:  Incorrect exception thrown",
-                                "Expected: qub.NotFoundException: blah",
-                                "Actual:   java.lang.RuntimeException: qub.NotFoundException: grapes"
-                            }));
+                        new TestError("abcd", Iterable.create(
+                            "Message:  Incorrect exception thrown",
+                            "Expected: qub.NotFoundException: blah",
+                            "Actual:   java.lang.RuntimeException: qub.NotFoundException: grapes")));
                 });
 
                 runner.test("with action that throws the same error but is wrapped in an AwaitException", (Test test) ->
@@ -812,12 +756,10 @@ public class TestTests
                 {
                     final Test t = createTest("abcd", test);
                     test.assertThrows(() -> t.assertThrows(() -> { throw new AwaitException(new NotFoundException("grapes")); }, new NotFoundException("blah")),
-                        new TestAssertionFailure("abcd", new String[]
-                            {
-                                "Message:  Incorrect exception thrown",
-                                "Expected: qub.NotFoundException: blah",
-                                "Actual:   qub.AwaitException: qub.NotFoundException: grapes"
-                            }));
+                        new TestError("abcd", Iterable.create(
+                            "Message:  Incorrect exception thrown",
+                            "Expected: qub.NotFoundException: blah",
+                            "Actual:   qub.AwaitException: qub.NotFoundException: grapes")));
                 });
             });
         });

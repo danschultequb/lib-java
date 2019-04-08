@@ -110,10 +110,10 @@ public class Test
     }
 
     /**
-     * Assert that the provided value is true. If it is not true, then a TestAssertionFailure will
+     * Assert that the provided value is true. If it is not true, then a TestError will
      * be thrown.
      * @param value The value to assert is true.
-     * @throws TestAssertionFailure if the value is not true.
+     * @throws TestError if the value is not true.
      */
     public void assertTrue(boolean value)
     {
@@ -121,25 +121,25 @@ public class Test
     }
 
     /**
-     * Assert that the provided value is true. If it is not true, then a TestAssertionFailure will
+     * Assert that the provided value is true. If it is not true, then a TestError will
      * be thrown with the provided message.
      * @param value The value to assert is true.
      * @param message The message to show if the value is not true.
-     * @throws TestAssertionFailure if the value is not true.
+     * @throws TestError if the value is not true.
      */
     public void assertTrue(boolean value, String message)
     {
         if (!value)
         {
-            throw new TestAssertionFailure(getFullName(), getMessageLines(message, true, false));
+            throw new TestError(getFullName(), getMessageLines(message, true, false));
         }
     }
 
     /**
-     * Assert that the provided value is false. If it is not false, then a TestAssertionFailure will
+     * Assert that the provided value is false. If it is not false, then a TestError will
      * be thrown.
      * @param value The value to assert is false.
-     * @throws TestAssertionFailure if the value is not false.
+     * @throws TestError if the value is not false.
      */
     public void assertFalse(boolean value)
     {
@@ -147,11 +147,11 @@ public class Test
     }
 
     /**
-     * Assert that the provided value is false. If it is not false, then a TestAssertionFailure will
+     * Assert that the provided value is false. If it is not false, then a TestError will
      * be thrown with the provided message.
      * @param value The value to assert is false.
      * @param message The message to show if the value is not false.
-     * @throws TestAssertionFailure if the value is not false.
+     * @throws TestError if the value is not false.
      */
     public void assertFalse(boolean value, String message)
     {
@@ -159,22 +159,22 @@ public class Test
     }
 
     /**
-     * Assert that the provided value is false. If it is not false, then a TestAssertionFailure will
+     * Assert that the provided value is false. If it is not false, then a TestError will
      * be thrown with the provided message.
      * @param value The value to assert is false.
      * @param message The message to show if the value is not false.
-     * @throws TestAssertionFailure if the value is not false.
+     * @throws TestError if the value is not false.
      */
     public void assertFalse(boolean value, Function0<String> message)
     {
         if (value)
         {
-            throw new TestAssertionFailure(getFullName(), getMessageLines(message, false, true));
+            throw new TestError(getFullName(), getMessageLines(message, false, true));
         }
     }
 
     /**
-     * Assert that the provided value is null. If it is not null, then a TestAssertionFailure will
+     * Assert that the provided value is null. If it is not null, then a TestError will
      * be thrown.
      * @param value The value to check.
      */
@@ -184,7 +184,7 @@ public class Test
     }
 
     /**
-     * Assert that the provided value is null. If it is not null, then a TestAssertionFailure will
+     * Assert that the provided value is null. If it is not null, then a TestError will
      * be thrown with the provided message.
      * @param value The value to check.
      * @param message The message to show if the value is not null.
@@ -193,12 +193,12 @@ public class Test
     {
         if (value != null)
         {
-            throw new TestAssertionFailure(getFullName(), getMessageLines(message, null, value));
+            throw new TestError(getFullName(), getMessageLines(message, null, value));
         }
     }
 
     /**
-     * Assert that the provided value is not null. If it is null, then a TestAssertionFailure will
+     * Assert that the provided value is not null. If it is null, then a TestError will
      * be thrown.
      * @param value The value to check.
      */
@@ -208,7 +208,7 @@ public class Test
     }
 
     /**
-     * Assert that the provided value is not null. If it is null, then a TestAssertionFailure will
+     * Assert that the provided value is not null. If it is null, then a TestError will
      * be thrown with the provided message.
      * @param value The value to check.
      * @param message The message to show if the value is null.
@@ -217,7 +217,7 @@ public class Test
     {
         if (value == null)
         {
-            throw new TestAssertionFailure(getFullName(), getMessageLines(message, "not null", value));
+            throw new TestError(getFullName(), getMessageLines(message, "not null", value));
         }
     }
 
@@ -231,7 +231,7 @@ public class Test
     {
         if (Strings.isNullOrEmpty(value))
         {
-            throw new TestAssertionFailure(getFullName(), getMessageLines((String)null, "not null and not empty", value));
+            throw new TestError(getFullName(), getMessageLines((String)null, "not null and not empty", value));
         }
     }
 
@@ -246,12 +246,12 @@ public class Test
         assertNotNull(value);
         if (!value.any())
         {
-            throw new TestAssertionFailure(getFullName(), getMessageLines((String)null, "not null and not empty", value));
+            throw new TestError(getFullName(), getMessageLines((String)null, "not null and not empty", value));
         }
     }
 
     /**
-     * Assert that the provided values are equal. If they are not equal, then a TestAssertionFailure
+     * Assert that the provided values are equal. If they are not equal, then a TestError
      * will be thrown.
      * @param expected The first value to compare.
      * @param actual The second value to compare.
@@ -263,7 +263,7 @@ public class Test
     }
 
     /**
-     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestAssertionFailure
+     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestError
      * will be thrown.
      * @param expected The first value to compare.
      * @param actual The second value to compare.
@@ -274,7 +274,7 @@ public class Test
     }
 
     /**
-     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestAssertionFailure
+     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestError
      * will be thrown.
      * @param expected The first value to compare.
      * @param actual The second value to compare.
@@ -285,7 +285,7 @@ public class Test
     }
 
     /**
-     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestAssertionFailure
+     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestError
      * will be thrown.
      * @param expected The first value to compare.
      * @param actual The second value to compare.
@@ -296,7 +296,7 @@ public class Test
     }
 
     /**
-     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestAssertionFailure
+     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestError
      * will be thrown.
      * @param expected The first value to compare.
      * @param actual The second value to compare.
@@ -307,7 +307,7 @@ public class Test
     }
 
     /**
-     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestAssertionFailure
+     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestError
      * will be thrown.
      * @param expected The first value to compare.
      * @param actual The second value to compare.
@@ -318,7 +318,7 @@ public class Test
     }
 
     /**
-     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestAssertionFailure
+     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestError
      * will be thrown.
      * @param expected The first value to compare.
      * @param actual The second value to compare.
@@ -329,7 +329,7 @@ public class Test
     }
 
     /**
-     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestAssertionFailure
+     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestError
      * will be thrown.
      * @param expected The first value to compare.
      * @param actual The second value to compare.
@@ -340,7 +340,7 @@ public class Test
     }
 
     /**
-     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestAssertionFailure
+     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestError
      * will be thrown.
      * @param expected The first value to compare.
      * @param actual The second value to compare.
@@ -351,7 +351,7 @@ public class Test
     }
 
     /**
-     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestAssertionFailure
+     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestError
      * will be thrown.
      * @param expected The first value to compare.
      * @param actual The second value to compare.
@@ -362,7 +362,7 @@ public class Test
     }
 
     /**
-     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestAssertionFailure
+     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestError
      * will be thrown.
      * @param expected The first value to compare.
      * @param actual The second value to compare.
@@ -373,7 +373,7 @@ public class Test
     }
 
     /**
-     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestAssertionFailure
+     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestError
      * will be thrown.
      * @param expected The first value to compare.
      * @param actual The second value to compare.
@@ -384,7 +384,7 @@ public class Test
     }
 
     /**
-     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestAssertionFailure
+     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestError
      * will be thrown.
      * @param expected The first value to compare.
      * @param actual The second value to compare.
@@ -395,7 +395,7 @@ public class Test
     }
 
     /**
-     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestAssertionFailure
+     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestError
      * will be thrown.
      * @param expected The first value to compare.
      * @param actual The second value to compare.
@@ -406,7 +406,7 @@ public class Test
     }
 
     /**
-     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestAssertionFailure
+     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestError
      * will be thrown.
      * @param expected The first value to compare.
      * @param actual The second value to compare.
@@ -417,7 +417,7 @@ public class Test
     }
 
     /**
-     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestAssertionFailure
+     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestError
      * will be thrown.
      * @param expected The first value to compare.
      * @param actual The second value to compare.
@@ -426,12 +426,12 @@ public class Test
     {
         if (expected != actual)
         {
-            throw new TestAssertionFailure(getFullName(), getMessageLines(message, expected, actual));
+            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
         }
     }
 
     /**
-     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestAssertionFailure
+     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestError
      * will be thrown.
      * @param expected The first value to compare.
      * @param actual The second value to compare.
@@ -442,7 +442,7 @@ public class Test
     }
 
     /**
-     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestAssertionFailure
+     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestError
      * will be thrown.
      * @param expected The first value to compare.
      * @param actual The second value to compare.
@@ -451,12 +451,12 @@ public class Test
     {
         if (expected != actual)
         {
-            throw new TestAssertionFailure(getFullName(), getMessageLines(message, expected, actual));
+            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
         }
     }
 
     /**
-     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestAssertionFailure
+     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestError
      * will be thrown.
      * @param expected The first value to compare.
      * @param actual The second value to compare.
@@ -467,7 +467,7 @@ public class Test
     }
 
     /**
-     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestAssertionFailure
+     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestError
      * will be thrown.
      * @param expected The first value to compare.
      * @param actual The second value to compare.
@@ -476,12 +476,12 @@ public class Test
     {
         if (expected != actual)
         {
-            throw new TestAssertionFailure(getFullName(), getMessageLines(message, expected, actual));
+            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
         }
     }
 
     /**
-     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestAssertionFailure
+     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestError
      * will be thrown.
      * @param expected The first value to compare.
      * @param actual The second value to compare.
@@ -492,7 +492,7 @@ public class Test
     }
 
     /**
-     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestAssertionFailure
+     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestError
      * will be thrown.
      * @param expected The first value to compare.
      * @param actual The second value to compare.
@@ -501,12 +501,12 @@ public class Test
     {
         if (expected != actual)
         {
-            throw new TestAssertionFailure(getFullName(), getMessageLines(message, expected, actual));
+            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
         }
     }
 
     /**
-     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestAssertionFailure
+     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestError
      * will be thrown.
      * @param expected The first value to compare.
      * @param actual The second value to compare.
@@ -517,7 +517,7 @@ public class Test
     }
 
     /**
-     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestAssertionFailure
+     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestError
      * will be thrown.
      * @param expected The first value to compare.
      * @param actual The second value to compare.
@@ -526,12 +526,12 @@ public class Test
     {
         if (expected != actual)
         {
-            throw new TestAssertionFailure(getFullName(), getMessageLines(message, expected, actual));
+            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
         }
     }
 
     /**
-     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestAssertionFailure
+     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestError
      * will be thrown.
      * @param expected The first value to compare.
      * @param actual The second value to compare.
@@ -542,7 +542,7 @@ public class Test
     }
 
     /**
-     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestAssertionFailure
+     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestError
      * will be thrown.
      * @param expected The first value to compare.
      * @param actual The second value to compare.
@@ -551,7 +551,7 @@ public class Test
     {
         if (expected != actual)
         {
-            throw new TestAssertionFailure(getFullName(), getMessageLines(message, expected, actual));
+            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
         }
     }
 
@@ -564,13 +564,13 @@ public class Test
     {
         if (!Comparer.equal(expected, actual))
         {
-            throw new TestAssertionFailure(getFullName(), getMessageLines(message, expected, actual));
+            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
         }
     }
 
     /**
      * Assert that the provided values are equal with the provided margin of error. If they are not
-     * equal with the provided margin of error, then a TestAssertionFailure will be thrown.
+     * equal with the provided margin of error, then a TestError will be thrown.
      * @param expected The first value to compare.
      * @param actual The second value to compare.
      * @param marginOfError The margin of error to allow when comparing the two values.
@@ -581,7 +581,7 @@ public class Test
     }
 
     /**
-     * Assert that the provided values are equal. If they are not equal, then a TestAssertionFailure
+     * Assert that the provided values are equal. If they are not equal, then a TestError
      * will be thrown with the provided message.
      * @param expected The first value to compare.
      * @param actual The second value to compare.
@@ -592,12 +592,12 @@ public class Test
     {
         if (!Comparer.equal(expected, actual))
         {
-            throw new TestAssertionFailure(getFullName(), getMessageLines(message, expected, actual));
+            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
         }
     }
 
     /**
-     * Assert that the provided values are equal. If they are not equal, then a TestAssertionFailure
+     * Assert that the provided values are equal. If they are not equal, then a TestError
      * will be thrown with the provided message.
      * @param expected The first value to compare.
      * @param actual The second value to compare.
@@ -607,12 +607,12 @@ public class Test
     {
         if (!Comparer.equal(expected, actual))
         {
-            throw new TestAssertionFailure(getFullName(), getMessageLines(message, expected, actual));
+            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
         }
     }
 
     /**
-     * Assert that the provided values are equal. If they are not equal, then a TestAssertionFailure
+     * Assert that the provided values are equal. If they are not equal, then a TestError
      * will be thrown with the provided message.
      * @param expected The first value to compare.
      * @param actual The second value to compare.
@@ -622,12 +622,12 @@ public class Test
     {
         if (!Comparer.equal(expected, actual))
         {
-            throw new TestAssertionFailure(getFullName(), getMessageLines(message, expected, actual));
+            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
         }
     }
 
     /**
-     * Assert that the provided values are equal. If they are not equal, then a TestAssertionFailure
+     * Assert that the provided values are equal. If they are not equal, then a TestError
      * will be thrown with the provided message.
      * @param expected The first value to compare.
      * @param actual The second value to compare.
@@ -637,12 +637,12 @@ public class Test
     {
         if (!Comparer.equal(expected, actual))
         {
-            throw new TestAssertionFailure(getFullName(), getMessageLines(message, expected, actual));
+            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
         }
     }
 
     /**
-     * Assert that the provided values are equal. If they are not equal, then a TestAssertionFailure
+     * Assert that the provided values are equal. If they are not equal, then a TestError
      * will be thrown with the provided message.
      * @param expected The first value to compare.
      * @param actual The second value to compare.
@@ -652,12 +652,12 @@ public class Test
     {
         if (!Comparer.equal(expected, actual))
         {
-            throw new TestAssertionFailure(getFullName(), getMessageLines(message, expected, actual));
+            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
         }
     }
 
     /**
-     * Assert that the provided values are equal. If they are not equal, then a TestAssertionFailure
+     * Assert that the provided values are equal. If they are not equal, then a TestError
      * will be thrown with the provided message.
      * @param expected The first value to compare.
      * @param actual The second value to compare.
@@ -667,12 +667,12 @@ public class Test
     {
         if (!Comparer.equal(expected, actual))
         {
-            throw new TestAssertionFailure(getFullName(), getMessageLines(message, expected, actual));
+            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
         }
     }
 
     /**
-     * Assert that the provided values are equal. If they are not equal, then a TestAssertionFailure
+     * Assert that the provided values are equal. If they are not equal, then a TestError
      * will be thrown with the provided message.
      * @param expected The first value to compare.
      * @param actual The second value to compare.
@@ -682,12 +682,12 @@ public class Test
     {
         if (!Comparer.equal(expected, actual))
         {
-            throw new TestAssertionFailure(getFullName(), getMessageLines(message, expected, actual));
+            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
         }
     }
 
     /**
-     * Assert that the provided values are equal. If they are not equal, then a TestAssertionFailure
+     * Assert that the provided values are equal. If they are not equal, then a TestError
      * will be thrown with the provided message.
      * @param expected The first value to compare.
      * @param actual The second value to compare.
@@ -697,12 +697,12 @@ public class Test
     {
         if (!Comparer.equal(expected, actual))
         {
-            throw new TestAssertionFailure(getFullName(), getMessageLines(message, expected, actual));
+            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
         }
     }
 
     /**
-     * Assert that the provided values are equal. If they are not equal, then a TestAssertionFailure
+     * Assert that the provided values are equal. If they are not equal, then a TestError
      * will be thrown with the provided message.
      * @param expected The first value to compare.
      * @param actual The second value to compare.
@@ -712,12 +712,12 @@ public class Test
     {
         if (!Comparer.equal(expected, actual))
         {
-            throw new TestAssertionFailure(getFullName(), getMessageLines(message, expected, actual));
+            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
         }
     }
 
     /**
-     * Assert that the provided values are equal. If they are not equal, then a TestAssertionFailure
+     * Assert that the provided values are equal. If they are not equal, then a TestError
      * will be thrown with the provided message.
      * @param expected The first value to compare.
      * @param actual The second value to compare.
@@ -727,12 +727,12 @@ public class Test
     {
         if (!Comparer.equal(expected, actual))
         {
-            throw new TestAssertionFailure(getFullName(), getMessageLines(message, expected, actual));
+            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
         }
     }
 
     /**
-     * Assert that the provided values are equal. If they are not equal, then a TestAssertionFailure
+     * Assert that the provided values are equal. If they are not equal, then a TestError
      * will be thrown with the provided message.
      * @param expected The first value to compare.
      * @param actual The second value to compare.
@@ -742,12 +742,12 @@ public class Test
     {
         if (!Comparer.equal(expected, actual))
         {
-            throw new TestAssertionFailure(getFullName(), getMessageLines(message, expected, actual));
+            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
         }
     }
 
     /**
-     * Assert that the provided values are equal. If they are not equal, then a TestAssertionFailure
+     * Assert that the provided values are equal. If they are not equal, then a TestError
      * will be thrown with the provided message.
      * @param expected The first value to compare.
      * @param actual The second value to compare.
@@ -757,12 +757,12 @@ public class Test
     {
         if (!Comparer.equal(expected, actual))
         {
-            throw new TestAssertionFailure(getFullName(), getMessageLines(message, expected, actual));
+            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
         }
     }
 
     /**
-     * Assert that the provided values are equal. If they are not equal, then a TestAssertionFailure
+     * Assert that the provided values are equal. If they are not equal, then a TestError
      * will be thrown with the provided message.
      * @param expected The first value to compare.
      * @param actual The second value to compare.
@@ -772,13 +772,13 @@ public class Test
     {
         if (!Comparer.equal(expected, actual))
         {
-            throw new TestAssertionFailure(getFullName(), getMessageLines(message, expected, actual));
+            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
         }
     }
 
     /**
      * Assert that the provided values are equal with the provided margin of error. If they are not
-     * equal with the provided margin of error, then a TestAssertionFailure will be thrown with the
+     * equal with the provided margin of error, then a TestError will be thrown with the
      * provided message.
      * @param expected The first value to compare.
      * @param actual The second value to compare.
@@ -789,12 +789,12 @@ public class Test
     {
         if (!Comparer.equal(expected, actual, marginOfError))
         {
-            throw new TestAssertionFailure(getFullName(), getMessageLines(message, expected, actual));
+            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
         }
     }
 
     /**
-     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestAssertionFailure
+     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestError
      * will be thrown.
      * @param expected The first value to compare.
      * @param actual The second value to compare.
@@ -805,7 +805,7 @@ public class Test
     }
 
     /**
-     * Assert that the provided values are not equal. If they are equal, then a TestAssertionFailure
+     * Assert that the provided values are not equal. If they are equal, then a TestError
      * will be thrown.
      * @param expected The first value to compare.
      * @param actual The second value to compare.
@@ -817,7 +817,7 @@ public class Test
     }
 
     /**
-     * Assert that the provided values are not equal. If they are equal, then a TestAssertionFailure
+     * Assert that the provided values are not equal. If they are equal, then a TestError
      * will be thrown with the provided message.
      * @param expected The first value to compare.
      * @param actual The second value to compare.
@@ -828,13 +828,13 @@ public class Test
     {
         if (Comparer.equal(expected, actual))
         {
-            throw new TestAssertionFailure(getFullName(), getMessageLines(message, "not " + expected, actual));
+            throw new TestError(getFullName(), getMessageLines(message, "not " + expected, actual));
         }
     }
 
     /**
      * Assert that the provided values point to the same object. If they don't point to the same
-     * object, then a TestAssertionFailure will be thrown.
+     * object, then a TestError will be thrown.
      * @param expected The first value to compare.
      * @param actual The second value to compare.
      * @param <T> The type of values to compare.
@@ -846,7 +846,7 @@ public class Test
 
     /**
      * Assert that the provided values point to the same object. If they don't point to the same
-     * object, then a TestAssertionFailure will be thrown with the provided message.
+     * object, then a TestError will be thrown with the provided message.
      * @param expected The first value to compare.
      * @param actual The second value to compare.
      * @param message The message to show if the values are not the same.
@@ -856,13 +856,13 @@ public class Test
     {
         if (!Comparer.same(expected, actual))
         {
-            throw new TestAssertionFailure(getFullName(), getMessageLines(message, expected, actual));
+            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
         }
     }
 
     /**
      * Assert that the provided values don't point to the same object. If they do point to the same
-     * object, then a TestAssertionFailure will be thrown.
+     * object, then a TestError will be thrown.
      * @param lhs The first value to compare.
      * @param rhs The second value to compare.
      * @param <T> The type of values to compare.
@@ -874,7 +874,7 @@ public class Test
 
     /**
      * Assert that the provided values don't point to the same object. If they do point to the same
-     * object, then a TestAssertionFailure will be thrown with the provided message.
+     * object, then a TestError will be thrown with the provided message.
      * @param lhs The first value to compare.
      * @param rhs The second value to compare.
      * @param message The message to show if the values are the same.
@@ -884,7 +884,7 @@ public class Test
     {
         if (Comparer.same(lhs, rhs))
         {
-            throw new TestAssertionFailure(getFullName(), getMessageLines(message, lhs, rhs));
+            throw new TestError(getFullName(), getMessageLines(message, lhs, rhs));
         }
     }
 
@@ -906,7 +906,7 @@ public class Test
     {
         if (values.any())
         {
-            throw new TestAssertionFailure(getFullName(), getMessageLines(message, Iterable.create(), values));
+            throw new TestError(getFullName(), getMessageLines(message, Iterable.create(), values));
         }
     }
 
@@ -919,7 +919,7 @@ public class Test
     {
         if (!Comparer.lessThan(value, upperBound))
         {
-            throw new TestAssertionFailure(getFullName(), getMessageLines(message, "less than " + Objects.toString(upperBound), value));
+            throw new TestError(getFullName(), getMessageLines(message, "less than " + Objects.toString(upperBound), value));
         }
     }
 
@@ -932,7 +932,7 @@ public class Test
     {
         if (!Comparer.lessThanOrEqualTo(lhs, rhs))
         {
-            throw new TestAssertionFailure(getFullName(), getMessageLines(message, "less than or equal to " + Objects.toString(rhs), lhs));
+            throw new TestError(getFullName(), getMessageLines(message, "less than or equal to " + Objects.toString(rhs), lhs));
         }
     }
 
@@ -945,7 +945,7 @@ public class Test
     {
         if (!Comparer.greaterThanOrEqualTo(value, lowerBound))
         {
-            throw new TestAssertionFailure(getFullName(), getMessageLines(message, "greater than or equal to " + Objects.toString(lowerBound), value));
+            throw new TestError(getFullName(), getMessageLines(message, "greater than or equal to " + Objects.toString(lowerBound), value));
         }
     }
 
@@ -958,7 +958,7 @@ public class Test
     {
         if (!(value >= lowerBound))
         {
-            throw new TestAssertionFailure(getFullName(), getMessageLines(message, "greater than or equal to " + Objects.toString(lowerBound), value));
+            throw new TestError(getFullName(), getMessageLines(message, "greater than or equal to " + Objects.toString(lowerBound), value));
         }
     }
 
@@ -971,7 +971,7 @@ public class Test
     {
         if (!Comparer.greaterThan(lhs, rhs))
         {
-            throw new TestAssertionFailure(getFullName(), getMessageLines(message, "greater than " + Objects.toString(rhs), lhs));
+            throw new TestError(getFullName(), getMessageLines(message, "greater than " + Objects.toString(rhs), lhs));
         }
     }
 
@@ -998,7 +998,7 @@ public class Test
     {
         if (!Comparer.between(lowerBound, value, upperBound))
         {
-            throw new TestAssertionFailure(getFullName(), getMessageLines(message, "between " + Objects.toString(lowerBound) + " and " + Objects.toString(upperBound), value));
+            throw new TestError(getFullName(), getMessageLines(message, "between " + Objects.toString(lowerBound) + " and " + Objects.toString(upperBound), value));
         }
     }
 
@@ -1025,11 +1025,15 @@ public class Test
 
         if (exceptionThrown == null)
         {
-            throw new TestAssertionFailure(getFullName(), new String[] { "Expected a " + expectedException.getClass().getCanonicalName() + " to be thrown with " + (Strings.isNullOrEmpty(expectedException.getMessage()) ? "no message" : "the message \"" + expectedException.getMessage() + "\"") + "." });
+            throw new TestError(
+                getFullName(),
+                "Expected a " + expectedException.getClass().getCanonicalName() + " to be thrown with " + (Strings.isNullOrEmpty(expectedException.getMessage()) ? "no message" : "the message \"" + expectedException.getMessage() + "\"") + ".");
         }
         else if (!Comparer.equal(expectedException, exceptionThrown, Exceptions.defaultErrorTypesToGoPast))
         {
-            throw new TestAssertionFailure(getFullName(), getMessageLines("Incorrect exception thrown", expectedException, exceptionThrown));
+            throw new TestError(
+                getFullName(),
+                getMessageLines("Incorrect exception thrown", expectedException, exceptionThrown));
         }
     }
 
@@ -1042,7 +1046,9 @@ public class Test
     {
         if (!Strings.startsWith(value, prefix))
         {
-            throw new TestAssertionFailure(getFullName(), new String[] { "Expected " + Strings.escapeAndQuote(value) + " to start with " + Strings.escapeAndQuote(prefix) + "." });
+            throw new TestError(
+                getFullName(),
+                "Expected " + Strings.escapeAndQuote(value) + " to start with " + Strings.escapeAndQuote(prefix) + ".");
         }
     }
 
@@ -1055,7 +1061,9 @@ public class Test
     {
         if (!Strings.startsWith(value, prefix, characterComparer))
         {
-            throw new TestAssertionFailure(getFullName(), new String[] { "Expected " + Strings.escapeAndQuote(value) + " to start with " + Strings.escapeAndQuote(prefix) + "." });
+            throw new TestError(
+                getFullName(),
+                "Expected " + Strings.escapeAndQuote(value) + " to start with " + Strings.escapeAndQuote(prefix) + ".");
         }
     }
 
@@ -1068,7 +1076,11 @@ public class Test
     {
         if (!Strings.startsWith(value, prefix))
         {
-            throw new TestAssertionFailure(getFullName(), new String[] { message, "Expected " + Strings.escapeAndQuote(value) + " to start with " + Strings.escapeAndQuote(prefix) + "." });
+            throw new TestError(
+                getFullName(),
+                Iterable.create(
+                    message,
+                    "Expected " + Strings.escapeAndQuote(value) + " to start with " + Strings.escapeAndQuote(prefix) + "."));
         }
     }
 
@@ -1081,7 +1093,9 @@ public class Test
     {
         if (!Strings.endsWith(value, suffix))
         {
-            throw new TestAssertionFailure(getFullName(), new String[] { "Expected " + Strings.escapeAndQuote(value) + " to end with " + Strings.escapeAndQuote(suffix) + "." });
+            throw new TestError(
+                getFullName(),
+                "Expected " + Strings.escapeAndQuote(value) + " to end with " + Strings.escapeAndQuote(suffix) + ".");
         }
     }
 
@@ -1094,7 +1108,11 @@ public class Test
     {
         if (!Strings.endsWith(value, suffix))
         {
-            throw new TestAssertionFailure(getFullName(), new String[] { message, "Expected " + Strings.escapeAndQuote(value) + " to end with " + Strings.escapeAndQuote(suffix) + "." });
+            throw new TestError(
+                getFullName(),
+                Iterable.create(
+                    message,
+                    "Expected " + Strings.escapeAndQuote(value) + " to end with " + Strings.escapeAndQuote(suffix) + "."));
         }
     }
 
@@ -1102,7 +1120,9 @@ public class Test
     {
         if (!Strings.contains(value, substring))
         {
-            throw new TestAssertionFailure(getFullName(), new String[] { "Expected " + Strings.escapeAndQuote(value) + " to contain " + Strings.escapeAndQuote(substring) + "." });
+            throw new TestError(
+                getFullName(),
+                "Expected " + Strings.escapeAndQuote(value) + " to contain " + Strings.escapeAndQuote(substring) + ".");
         }
     }
 
@@ -1110,7 +1130,11 @@ public class Test
     {
         if (!Strings.contains(value, substring))
         {
-            throw new TestAssertionFailure(getFullName(), new String[] { message, "Expected " + Strings.escapeAndQuote(value) + " to contain " + Strings.escapeAndQuote(substring) + "." });
+            throw new TestError(
+                getFullName(),
+                Iterable.create(
+                    message,
+                    "Expected " + Strings.escapeAndQuote(value) + " to contain " + Strings.escapeAndQuote(substring) + "."));
         }
     }
 
@@ -1118,7 +1142,9 @@ public class Test
     {
         if (!Array.contains(possibleValues, value))
         {
-            throw new TestAssertionFailure(getFullName(), new String[] { AssertionMessages.oneOf(value, possibleValues, "Actual value")});
+            throw new TestError(
+                getFullName(),
+                AssertionMessages.oneOf(value, possibleValues, "Actual value"));
         }
     }
 
@@ -1136,7 +1162,7 @@ public class Test
      */
     public void fail(String message)
     {
-        throw new TestAssertionFailure(getFullName(), new String[] { message });
+        throw new TestError(getFullName(), message);
     }
 
     /**
@@ -1154,34 +1180,27 @@ public class Test
         fail(failMessage);
     }
 
-    private static String[] getMessageLines(Function0<String> message, Object expected, Object actual)
+    private static Iterable<String> getMessageLines(Function0<String> message, Object expected, Object actual)
     {
         return getMessageLines(message == null ? (String)null : message.run(), expected, actual);
     }
 
-    private static String[] getMessageLines(String message, Object expected, Object actual)
+    private static Iterable<String> getMessageLines(String message, Object expected, Object actual)
     {
-        int nextMessageIndex;
-        final String[] messageLines;
-        if (Strings.isNullOrEmpty(message))
+        final List<String> result = List.create();
+        if (!Strings.isNullOrEmpty(message))
         {
-            messageLines = new String[2];
-            nextMessageIndex = 0;
-        }
-        else
-        {
-            messageLines = new String[3];
-            messageLines[0] = "Message:  " + message;
-            nextMessageIndex = 1;
+            result.add("Message:  " + message);
         }
 
         final String expectedString = toString(expected);
         final String actualString = toString(actual);
-        messageLines[nextMessageIndex] = "Expected: " + addType(expected, actual, expectedString, actualString);
-        ++nextMessageIndex;
-        messageLines[nextMessageIndex] = "Actual:   " + addType(actual, expected, actualString, expectedString);
+        result.add("Expected: " + addType(expected, actual, expectedString, actualString));
+        result.add("Actual:   " + addType(actual, expected, actualString, expectedString));
 
-        return messageLines;
+        PostCondition.assertNotNullAndNotEmpty(result, "result");
+
+        return result;
     }
 
     private static String toString(Object value)

@@ -99,10 +99,10 @@ public interface TestRunner
     void beforeTestGroup(Action1<TestGroup> beforeTestGroupAction);
 
     /**
-     * Set an action that will be run after a test group has an error.
-     * @param afterTestGroupErrorAction The action that will be run after a test group has an error.
+     * Set an action that will be run after a test group has an unexpected error.
+     * @param afterTestGroupFailureAction The action that will be run after a test group has an unexpected error.
      */
-    void afterTestGroupError(Action2<TestGroup,Throwable> afterTestGroupErrorAction);
+    void afterTestGroupFailure(Action2<TestGroup,TestError> afterTestGroupFailureAction);
 
     /**
      * Set an action that will be run after a test group is skipped.
@@ -126,14 +126,7 @@ public interface TestRunner
      * Set an action that will be run after a test assertion fails.
      * @param afterTestFailureAction The action that will be run after a test assertion fails.
      */
-    void afterTestFailure(Action2<Test,TestAssertionFailure> afterTestFailureAction);
-
-    /**
-     * Set an action that will be run after a test has an error (throws an exception outside of an
-     * assertion).
-     * @param afterTestErrorAction The action that will be run after a test has an error.
-     */
-    void afterTestError(Action2<Test,Throwable> afterTestErrorAction);
+    void afterTestFailure(Action2<Test,TestError> afterTestFailureAction);
 
     /**
      * Set an action that will be run after a test completes successfully.

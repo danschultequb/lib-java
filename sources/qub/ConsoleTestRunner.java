@@ -88,15 +88,10 @@ public class ConsoleTestRunner extends Console implements TestRunner
         {
             writeLine(" - Passed");
         });
-        testRunner.afterTestFailure((Test test, TestAssertionFailure failure) ->
+        testRunner.afterTestFailure((Test test, TestError failure) ->
         {
             writeLine(" - Failed");
             writeFailure(failure);
-        });
-        testRunner.afterTestError((Test test, Throwable error) ->
-        {
-            writeLine(" - Error");
-            writeFailureCause(error);
         });
         testRunner.afterTestSkipped((Test test) ->
         {
@@ -130,7 +125,7 @@ public class ConsoleTestRunner extends Console implements TestRunner
         return testRunner.getFailedTestCount();
     }
 
-    private void writeFailure(TestAssertionFailure failure)
+    private void writeFailure(TestError failure)
     {
         increaseIndent();
         writeMessageLines(failure);
@@ -144,7 +139,7 @@ public class ConsoleTestRunner extends Console implements TestRunner
         }
     }
 
-    private void writeMessageLines(TestAssertionFailure failure)
+    private void writeMessageLines(TestError failure)
     {
         for (final String messageLine : failure.getMessageLines())
         {
@@ -157,9 +152,9 @@ public class ConsoleTestRunner extends Console implements TestRunner
 
     private void writeMessage(Throwable throwable)
     {
-        if (throwable instanceof TestAssertionFailure)
+        if (throwable instanceof TestError)
         {
-            writeMessageLines((TestAssertionFailure)throwable);
+            writeMessageLines((TestError)throwable);
         }
         else if (!Strings.isNullOrEmpty(throwable.getMessage()))
         {
@@ -286,9 +281,9 @@ public class ConsoleTestRunner extends Console implements TestRunner
     }
 
     @Override
-    public void afterTestGroupError(Action2<TestGroup,Throwable> afterTestGroupErrorAction)
+    public void afterTestGroupFailure(Action2<TestGroup,TestError> afterTestGroupFailureAction)
     {
-        testRunner.afterTestGroupError(afterTestGroupErrorAction);
+        testRunner.afterTestGroupFailure(afterTestGroupFailureAction);
     }
 
     @Override
@@ -310,15 +305,9 @@ public class ConsoleTestRunner extends Console implements TestRunner
     }
 
     @Override
-    public void afterTestFailure(Action2<Test,TestAssertionFailure> afterTestFailureAction)
+    public void afterTestFailure(Action2<Test,TestError> afterTestFailureAction)
     {
         testRunner.afterTestFailure(afterTestFailureAction);
-    }
-
-    @Override
-    public void afterTestError(Action2<Test,Throwable> afterTestErrorAction)
-    {
-        testRunner.afterTestError(afterTestErrorAction);
     }
 
     @Override
@@ -386,16 +375,16 @@ public class ConsoleTestRunner extends Console implements TestRunner
             writeLine();
         }
 
-        final Iterable<TestAssertionFailure> testFailures = testRunner.getTestFailures();
+        final Iterable<TestError> testFailures = testRunner.getTestFailures();
         if (testFailures.any())
         {
             writeLine("Test failures:");
             increaseIndent();
 
             int testFailureNumber = 1;
-            for (final TestAssertionFailure failure : testFailures)
+            for (final TestError failure : testFailures)
             {
-                writeLine(testFailureNumber + ") " + failure.getFullTestName());
+                writeLine(testFailureNumber + ") " + failure.getTestScope());
                 ++testFailureNumber;
                 increaseIndent();
                 writeFailure(failure);
@@ -407,32 +396,19 @@ public class ConsoleTestRunner extends Console implements TestRunner
             decreaseIndent();
         }
 
-        final Iterable<TestError> testErrors = testRunner.getTestErrors();
-        if (testErrors.any())
-        {
-            writeLine("Test errors:");
-            increaseIndent();
-
-            int testErrorNumber = 1;
-            for (final TestError error : testErrors)
-            {
-                writeLine(testErrorNumber + ") " + error.getTestScope());
-                ++testErrorNumber;
-                increaseIndent();
-                writeFailureCause(error.getError());
-                decreaseIndent();
-
-                writeLine();
-            }
-
-            decreaseIndent();
-        }
-
         writeLine("Tests Run:      " + testRunner.getFinishedTestCount());
-        writeLine("Tests Passed:   " + testRunner.getPassedTestCount());
-        writeLine("Tests Failed:   " + testRunner.getFailedTestCount());
-        writeLine("Tests Skipped:  " + testRunner.getSkippedTestCount());
-        writeLine("Test Errors:    " + testRunner.getErrorTestCount());
+        if (testRunner.getPassedTestCount() > 0)
+        {
+            writeLine("Tests Passed:   " + testRunner.getPassedTestCount());
+        }
+        if (testRunner.getFailedTestCount() > 0)
+        {
+            writeLine("Tests Failed:   " + testRunner.getFailedTestCount());
+        }
+        if (testRunner.getSkippedTestCount() > 0)
+        {
+            writeLine("Tests Skipped:  " + testRunner.getSkippedTestCount());
+        }
     }
 
     public static boolean getProfile(Console console)

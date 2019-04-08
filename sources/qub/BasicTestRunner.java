@@ -9,20 +9,17 @@ public final class BasicTestRunner implements TestRunner
 
     private int passedTestCount;
     private int failedTestCount;
-    private int errorTestCount;
     private int skippedTestCount;
-    private final List<TestAssertionFailure> testFailures = new SingleLinkList<>();
-    private final List<TestError> testErrors = new SingleLinkList<>();
-    private final List<Test> skippedTests = new SingleLinkList<>();
+    private final List<TestError> testFailures = List.create();
+    private final List<Test> skippedTests = List.create();
 
     private Action1<TestGroup> beforeTestGroupAction;
-    private Action2<TestGroup,Throwable> afterTestGroupErrorAction;
+    private Action2<TestGroup,TestError> afterTestGroupFailureAction;
     private Action1<TestGroup> afterTestGroupSkippedAction;
     private Action1<TestGroup> afterTestGroupAction;
     private Action1<Test> beforeTestAction;
     private Action1<Test> afterTestSuccessAction;
-    private Action2<Test,TestAssertionFailure> afterTestFailureAction;
-    private Action2<Test,Throwable> afterTestErrorAction;
+    private Action2<Test,TestError> afterTestFailureAction;
     private Action1<Test> afterTestSkippedAction;
     private Action1<Test> afterTestAction;
     
@@ -122,12 +119,14 @@ public final class BasicTestRunner implements TestRunner
         }
         catch (Throwable error)
         {
-            ++errorTestCount;
-            testErrors.add(new TestError(currentTestGroup.getFullName(), error));
+            ++failedTestCount;
+            final String testGroupFullName = currentTestGroup.getFullName();
+            final TestError testError = new TestError(testGroupFullName, "An unexpected error occurred during " + Strings.escapeAndQuote(testGroupFullName) + ".", error);
+            testFailures.add(testError);
 
-            if (afterTestGroupErrorAction != null)
+            if (afterTestGroupFailureAction != null)
             {
-                afterTestGroupErrorAction.run(currentTestGroup, error);
+                afterTestGroupFailureAction.run(currentTestGroup, testError);
             }
         }
 
@@ -187,7 +186,7 @@ public final class BasicTestRunner implements TestRunner
                             afterTestSuccessAction.run(test);
                         }
                     }
-                    catch (TestAssertionFailure failure)
+                    catch (TestError failure)
                     {
                         testFailures.add(failure);
 
@@ -201,12 +200,14 @@ public final class BasicTestRunner implements TestRunner
             }
             catch (Throwable error)
             {
-                ++errorTestCount;
-                testErrors.add(new TestError(test.getFullName(), error));
+                ++failedTestCount;
+                final String testFullName = test.getFullName();
+                final TestError testError = new TestError(testFullName, "An unexpected error occurred during " + Strings.escapeAndQuote(testFullName) + ".", error);
+                testFailures.add(testError);
 
-                if (afterTestErrorAction != null)
+                if (afterTestFailureAction != null)
                 {
-                    afterTestErrorAction.run(test, error);
+                    afterTestFailureAction.run(test, testError);
                 }
             }
 
@@ -260,11 +261,11 @@ public final class BasicTestRunner implements TestRunner
     }
 
     @Override
-    public void afterTestGroupError(Action2<TestGroup,Throwable> afterTestGroupErrorAction)
+    public void afterTestGroupFailure(Action2<TestGroup,TestError> afterTestGroupFailureAction)
     {
-        PreCondition.assertNotNull(afterTestGroupErrorAction, "afterTestGroupErrorAction");
+        PreCondition.assertNotNull(afterTestGroupFailureAction, "afterTestGroupFailureAction");
 
-        this.afterTestGroupErrorAction = Action2.sequence(this.afterTestGroupErrorAction, afterTestGroupErrorAction);
+        this.afterTestGroupFailureAction = Action2.sequence(this.afterTestGroupFailureAction, afterTestGroupFailureAction);
     }
 
     @Override
@@ -292,19 +293,11 @@ public final class BasicTestRunner implements TestRunner
     }
 
     @Override
-    public void afterTestFailure(Action2<Test,TestAssertionFailure> afterTestFailureAction)
+    public void afterTestFailure(Action2<Test,TestError> afterTestFailureAction)
     {
         PreCondition.assertNotNull(afterTestFailureAction, "afterTestFailureAction");
 
         this.afterTestFailureAction = Action2.sequence(this.afterTestFailureAction, afterTestFailureAction);
-    }
-
-    @Override
-    public void afterTestError(Action2<Test,Throwable> afterTestErrorAction)
-    {
-        PreCondition.assertNotNull(afterTestErrorAction, "afterTestErrorAction");
-
-        this.afterTestErrorAction = Action2.sequence(this.afterTestErrorAction, afterTestErrorAction);
     }
 
     @Override
@@ -347,7 +340,7 @@ public final class BasicTestRunner implements TestRunner
      */
     public int getFinishedTestCount()
     {
-        return getPassedTestCount() + getFailedTestCount() + getSkippedTestCount() + getErrorTestCount();
+        return getPassedTestCount() + getFailedTestCount() + getSkippedTestCount();
     }
 
     /**
@@ -372,23 +365,9 @@ public final class BasicTestRunner implements TestRunner
      * Get the test failures.
      * @return The test failures.
      */
-    public Iterable<TestAssertionFailure> getTestFailures()
+    public Iterable<TestError> getTestFailures()
     {
         return testFailures;
-    }
-
-    public int getErrorTestCount()
-    {
-        return errorTestCount;
-    }
-
-    /**
-     * Get the test errors.
-     * @return The test errors.
-     */
-    public Iterable<TestError> getTestErrors()
-    {
-        return testErrors;
     }
 
     /**

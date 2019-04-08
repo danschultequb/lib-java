@@ -161,9 +161,9 @@ public class BasicTestRunnerTests
                     {
                         afterTestGroupSkipped.set(counter.incrementAndGet(), tg);
                     });
-                    btr.afterTestGroupError((TestGroup tg, Throwable error) ->
+                    btr.afterTestGroupFailure((TestGroup tg, TestError error) ->
                     {
-                        afterTestGroupError.set(counter.incrementAndGet(), new TestError(tg.getFullName(), error));
+                        afterTestGroupError.set(counter.incrementAndGet(), new TestError(tg.getFullName(), "blah", error));
                     });
                     btr.afterTestGroup((TestGroup tg) ->
                     {
@@ -204,9 +204,9 @@ public class BasicTestRunnerTests
                     {
                         afterTestGroupSkipped.set(counter.incrementAndGet(), tg);
                     });
-                    btr.afterTestGroupError((TestGroup tg, Throwable error) ->
+                    btr.afterTestGroupFailure((TestGroup tg, TestError error) ->
                     {
-                        afterTestGroupError.set(counter.incrementAndGet(), new TestError(tg.getFullName(), error));
+                        afterTestGroupError.set(counter.incrementAndGet(), error);
                     });
                     btr.afterTestGroup((TestGroup tg) ->
                     {
@@ -219,7 +219,7 @@ public class BasicTestRunnerTests
                     test.assertEqual(0, value.get());
                     test.assertEqual(Iterable.create(), afterTestGroupSkipped);
                     test.assertEqual(
-                        Map.<Integer,TestError>create().set(1, new TestError("BasicTestRunnerTests", new RuntimeException("abc"))),
+                        Map.<Integer,TestError>create().set(1, new TestError("BasicTestRunnerTests", "An unexpected error occurred during \"BasicTestRunnerTests\".", new RuntimeException("abc"))),
                         afterTestGroupError);
                     test.assertEqual(
                         Map.<Integer,TestGroup>create().set(2, new TestGroup("BasicTestRunnerTests", null, null)),
