@@ -4,12 +4,19 @@ public class OutputStreamToByteWriteStream implements ByteWriteStream
 {
     private final java.io.OutputStream outputStream;
     private boolean disposed;
+    private final boolean autoFlush;
 
     public OutputStreamToByteWriteStream(java.io.OutputStream outputStream)
+    {
+        this(outputStream, true);
+    }
+
+    public OutputStreamToByteWriteStream(java.io.OutputStream outputStream, boolean autoFlush)
     {
         PreCondition.assertNotNull(outputStream, "outputStream");
 
         this.outputStream = outputStream;
+        this.autoFlush = autoFlush;
     }
 
     public Result<Void> flush()
@@ -39,6 +46,10 @@ public class OutputStreamToByteWriteStream implements ByteWriteStream
         try
         {
             outputStream.write(toWrite);
+            if (autoFlush)
+            {
+                outputStream.flush();
+            }
             result = Result.successOne();
         }
         catch (java.io.IOException e)
@@ -61,6 +72,10 @@ public class OutputStreamToByteWriteStream implements ByteWriteStream
         try
         {
             outputStream.write(toWrite);
+            if (autoFlush)
+            {
+                outputStream.flush();
+            }
             result = Result.success(toWrite.length);
         }
         catch (java.io.IOException e)
@@ -82,6 +97,10 @@ public class OutputStreamToByteWriteStream implements ByteWriteStream
         try
         {
             outputStream.write(toWrite, startIndex, length);
+            if (autoFlush)
+            {
+                outputStream.flush();
+            }
             result = Result.success(length);
         }
         catch (java.io.IOException e)

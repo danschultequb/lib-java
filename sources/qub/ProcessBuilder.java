@@ -418,29 +418,15 @@ public class ProcessBuilder
         try
         {
             final java.lang.Process process = builder.start();
-            AsyncAction inputAction = null;
             AsyncAction outputAction = null;
             AsyncAction errorAction = null;
 
             if (redirectedInputStream != null)
             {
-                inputAction = parallelAsyncRunner.schedule(() ->
+                parallelAsyncRunner.schedule(() ->
                 {
-                    final OutputStreamToByteWriteStream processInputStream = new OutputStreamToByteWriteStream(process.getOutputStream());
-                    processInputStream.writeAllBytes(redirectedInputStream).await();
-                    while (process.isAlive())
-                    {
-                        final Byte value = redirectedInputStream.readByte().catchError().await();
-                        if (value != null)
-                        {
-                            break;
-                        }
-                        else
-                        {
-                            processInputStream.writeByte(value).catchError().await();
-                            processInputStream.flush().catchError().await();
-                        }
-                    }
+                    final OutputStreamToByteWriteStream processInputStream = new OutputStreamToByteWriteStream(process.getOutputStream(), true);
+                    processInputStream.writeAllBytes(redirectedInputStream).catchError().await();
                 });
             }
 
@@ -462,10 +448,6 @@ public class ProcessBuilder
             if (errorAction != null)
             {
                 errorAction.await();
-            }
-            if (inputAction != null)
-            {
-                inputAction.await();
             }
         }
         catch (Throwable error)
