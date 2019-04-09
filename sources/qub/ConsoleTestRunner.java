@@ -62,7 +62,7 @@ public class ConsoleTestRunner extends Console implements TestRunner
         });
         testRunner.beforeTest((Test test) ->
         {
-            final Stack<TestGroup> testGroupsToWrite = Stack.empty();
+            final Stack<TestGroup> testGroupsToWrite = Stack.create();
             TestGroup currentTestGroup = test.getParentTestGroup();
             while (currentTestGroup != null && !testGroupsWrittenToConsole.contains(currentTestGroup))
             {
@@ -72,7 +72,7 @@ public class ConsoleTestRunner extends Console implements TestRunner
 
             while (testGroupsToWrite.any())
             {
-                final TestGroup testGroupToWrite = testGroupsToWrite.pop();
+                final TestGroup testGroupToWrite = testGroupsToWrite.pop().await();
 
                 final String skipMessage = testGroupToWrite.getSkipMessage();
                 final String testGroupMessage = testGroupToWrite.getName() + (!testGroupToWrite.shouldSkip() ? "" : " - Skipped" + (Strings.isNullOrEmpty(skipMessage) ? "" : ": " + skipMessage));

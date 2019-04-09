@@ -17,17 +17,9 @@ public class Stack<T>
     }
 
     /**
-     * Create a new Stack.
-     * @param <T> The type of values stored in the new Stack.
-     * @return The new Stack.
-     */
-    public static <T> Stack<T> empty()
-    {
-        return new Stack<>();
-    }
-
-    /**
-     * Create a new Stack.
+     * Create a new Stack. The last value in the values will be on the top of the returned Stack.
+     * @param values The values to initialize the Stack with. The last value of these values will be
+     *               on the top of the returned Stack.
      * @param <T> The type of values stored in the new Stack.
      * @return The new Stack.
      */
@@ -36,14 +28,31 @@ public class Stack<T>
     {
         PreCondition.assertNotNull(values, "values");
 
-        final Stack<T> result = Stack.empty();
-        for (final T value : values)
-        {
-            result.push(value);
-        }
+        final Stack<T> result = Stack.create(Iterable.create(values));
 
         PostCondition.assertNotNull(result, "result");
         PostCondition.assertEqual(values.length, result.getCount(), "result.getCount()");
+
+        return result;
+    }
+
+    /**
+     * Create a new Stack using the provided values. The last value in the provided Iterable will be
+     * on the top of the returned Stack.
+     * @param values The values to initialize the Stack with. The last value of this Iterable will
+     *               be on the top of the returned Stack.
+     * @param <T> The type of values that will be stored in the Stack.
+     * @return The newly created Stack.
+     */
+    public static <T> Stack<T> create(Iterable<T> values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        final Stack<T> result = new Stack<T>();
+        result.pushAll(values);
+
+        PostCondition.assertNotNull(result, "result");
+        PostCondition.assertEqual(values.getCount(), result.getCount(), "result.getCount()");
 
         return result;
     }
@@ -75,37 +84,38 @@ public class Stack<T>
     }
 
     /**
-     * Push each of the provided values on top of this Stack.
+     * Push each of the provided values on top of this Stack. The last value in the Iterable will be
+     * the new top of this Stack.
      * @param values The values to push on top of this Stack.
      */
     public void pushAll(Iterable<T> values)
     {
-        if (values != null)
-        {
-            for (final T value : values)
-            {
-                push(value);
-            }
-        }
+        PreCondition.assertNotNull(values, "values");
+
+        this.values.addAll(values);
     }
 
     /**
      * Remove and return the most recently pushed value. If the Stack is empty, then null will be
      * returned.
-     * @return The most recently pushed value, or null if the Stack is empty.
+     * @return The most recently pushed value.
      */
-    public T pop()
+    public Result<T> pop()
     {
-        return !any() ? null : values.removeAt(getCount() - 1);
+        return any()
+            ? Result.success(values.removeAt(getCount() - 1))
+            : Result.error(new StackEmptyException());
     }
 
     /**
      * Get the most recently pushed value. If the Stack is empty, then null will be returned.
      * @return The most recently pushed value, or null if the Stack is empty.
      */
-    public T peek()
+    public Result<T> peek()
     {
-        return !any() ? null : values.get(getCount() - 1);
+        return any()
+            ? Result.success(values.get(getCount() - 1))
+            : Result.error(new StackEmptyException());
     }
 
     /**
@@ -126,5 +136,11 @@ public class Stack<T>
     public boolean doesNotContain(T value)
     {
         return !contains(value);
+    }
+
+    @Override
+    public String toString()
+    {
+        return values.toString();
     }
 }

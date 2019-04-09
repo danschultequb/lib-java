@@ -521,18 +521,18 @@ public interface Iterable<T> extends java.lang.Iterable<T>
         PreCondition.assertNotNull(getNextValues, "getNextValues");
 
         final List<T> result = List.empty();
-        final Stack<T> toVisit = Stack.empty();
+        final Stack<T> toVisit = Stack.create();
         toVisit.pushAll(startValues);
         while (toVisit.any())
         {
-            final T value = toVisit.pop();
+            final T value = toVisit.pop().await();
 
             result.add(value);
 
             final Iterable<T> nextValues = getNextValues.run(value);
             for (final T nextValue : nextValues)
             {
-                if (result.doesNotContain(nextValue) && toVisit.doesNotContain(nextValue))
+                if (!result.contains(nextValue) && !toVisit.contains(nextValue))
                 {
                     toVisit.push(nextValue);
                 }
