@@ -18,8 +18,8 @@ public class JavaBlockingQueue<T> implements BlockingQueue<T>
     {
         this.asyncRunner = asyncRunner;
         javaQueue = capacity == null
-            ? new java.util.concurrent.LinkedBlockingQueue<T>()
-            : new java.util.concurrent.LinkedBlockingQueue<T>(capacity);
+            ? new java.util.concurrent.LinkedBlockingQueue<>()
+            : new java.util.concurrent.LinkedBlockingQueue<>(capacity);
     }
 
     @Override

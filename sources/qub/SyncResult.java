@@ -22,6 +22,8 @@ public class SyncResult<T> implements Result<T>
 
     public <TError extends Throwable> T await(Class<TError> expectedErrorType) throws TError
     {
+        PreCondition.assertNotNull(expectedErrorType, "expectedErrorType");
+
         if (error != null)
         {
             final TError matchingError = Exceptions.getInstanceOf(error, expectedErrorType);
