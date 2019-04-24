@@ -35,30 +35,30 @@ public class JavaMutex implements Mutex
     }
 
     @Override
-    public Result<Boolean> acquire()
+    public Result<Void> acquire()
     {
         lock.lock();
-        return Result.successTrue();
+        return Result.success();
     }
 
     @Override
-    public boolean tryAcquire()
+    public Result<Boolean> tryAcquire()
     {
-        return lock.tryLock();
+        return Result.success(lock.tryLock());
     }
 
     @Override
-    public boolean release()
+    public Result<Void> release()
     {
-        boolean result;
+        Result<Void> result;
         try
         {
             lock.unlock();
-            result = true;
+            result = Result.success();
         }
         catch (IllegalMonitorStateException e)
         {
-            result = false;
+            result = Result.error(e);
         }
         return result;
     }

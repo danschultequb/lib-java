@@ -50,16 +50,16 @@ public class FakeNetwork implements Network
         return createTCPClientInner(remoteIPAddress, remotePort, timeout);
     }
 
-    private Result<TCPClient> createTCPClientInner(IPv4Address remoteIPAddress, int remotePort, DateTime timeout)
+    private Result<TCPClient> createTCPClientInner(IPv4Address remoteIPAddress, int remotePort, DateTime dateTimeTimeout)
     {
         PreCondition.assertNotNull(remoteIPAddress, "remoteIPAddress");
         Network.validateRemoteIPAddress(remoteIPAddress);
         Network.validateRemotePort(remotePort);
 
-        return mutex.criticalSection(() ->
+        final Function0<Result<TCPClient>> function = () ->
         {
             Result<TCPClient> result;
-            if (timeout != null && getAsyncRunner().getClock().getCurrentDateTime().greaterThanOrEqualTo(timeout))
+            if (dateTimeTimeout != null && getAsyncRunner().getClock().getCurrentDateTime().greaterThanOrEqualTo(dateTimeTimeout))
             {
                 result = Result.error(new TimeoutException());
             }
@@ -75,9 +75,9 @@ public class FakeNetwork implements Network
                             .thenResult((MutableMap<Integer,FakeTCPServer> remoteTCPServers) -> remoteTCPServers.get(remotePort))
                             .catchErrorResult(NotFoundException.class, () ->
                             {
-                                return timeout == null
+                                return dateTimeTimeout == null
                                     ? Result.error(new java.net.ConnectException("Connection refused: connect"))
-                                    : boundTCPServerAvailable.await(timeout).then(() -> null);
+                                    : boundTCPServerAvailable.await(dateTimeTimeout).then(() -> null);
                             })
                             .await();
                     }
@@ -123,7 +123,11 @@ public class FakeNetwork implements Network
             PostCondition.assertNotNull(result, "result");
 
             return result;
-        });
+        };
+
+        return dateTimeTimeout != null
+            ? mutex.criticalSectionResult(dateTimeTimeout, function)
+            : mutex.criticalSectionResult(function);
     }
 
     private InMemoryByteStream createNetworkStream()
@@ -174,7 +178,7 @@ public class FakeNetwork implements Network
         Network.validateLocalIPAddress(localIPAddress);
         Network.validateLocalPort(localPort);
 
-        return mutex.criticalSection(() ->
+        return mutex.criticalSectionResult(() ->
         {
             Result<TCPServer> result;
             if (!isAvailable(localIPAddress, localPort))
@@ -254,29 +258,26 @@ public class FakeNetwork implements Network
 
         return mutex.criticalSection(() ->
         {
-            final Value<Boolean> resultValue = Value.create(true);
+            boolean result = true;
 
-            boundTCPClients.get(ipAddress)
-                .then((MutableMap<Integer,FakeTCPClient> localTCPClients) ->
+            final Map<Integer,FakeTCPClient> localTCPClients = boundTCPClients.get(ipAddress)
+                .catchError(NotFoundException.class)
+                .await();
+            if (localTCPClients != null && localTCPClients.containsKey(port))
+            {
+                result = false;
+            }
+            else
+            {
+                final Map<Integer,FakeTCPServer> localTCPServers = boundTCPServers.get(ipAddress)
+                    .catchError(NotFoundException.class)
+                    .await();
+                if (localTCPServers != null && localTCPServers.containsKey(port))
                 {
-                    if (localTCPClients.containsKey(port))
-                    {
-                        resultValue.set(false);
-                    }
-                    else
-                    {
-                        boundTCPServers.get(ipAddress)
-                            .then((MutableMap<Integer,FakeTCPServer> localTCPServers) ->
-                            {
-                                if (localTCPServers.containsKey(port))
-                                {
-                                    resultValue.set(false);
-                                }
-                            });
-                    }
-                });
-
-            return resultValue.get();
-        });
+                    result = false;
+                }
+            }
+            return result;
+        }).await();
     }
 }

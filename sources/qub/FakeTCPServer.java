@@ -52,7 +52,7 @@ public class FakeTCPServer implements TCPServer
     {
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
-        return mutex.criticalSection(() ->
+        return mutex.criticalSectionResult(() ->
         {
             while (!disposed && !clientsToAccept.any())
             {
@@ -95,7 +95,7 @@ public class FakeTCPServer implements TCPServer
     @Override
     public boolean isDisposed()
     {
-        return mutex.criticalSection(() -> disposed);
+        return mutex.criticalSection(() -> disposed).await();
     }
 
     @Override
@@ -103,16 +103,11 @@ public class FakeTCPServer implements TCPServer
     {
         return mutex.criticalSection(() ->
         {
-            Result<Boolean> result;
-            if (disposed)
-            {
-                result = Result.successFalse();
-            }
-            else
+            final boolean result = !disposed;
+            if (result)
             {
                 disposed = true;
                 network.serverDisposed(getLocalIPAddress(), getLocalPort());
-                result = Result.successTrue();
             }
             return result;
         });

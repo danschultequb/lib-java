@@ -52,6 +52,6 @@ public class Locked<T>
     {
         PreCondition.assertNotNull(function, "function");
 
-        return mutex.criticalSection(() -> function.run(value));
+        return mutex.criticalSection(() -> function.run(value)).await();
     }
 }

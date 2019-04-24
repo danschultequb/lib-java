@@ -126,13 +126,6 @@ public interface Result<T>
      * @param action The action to run if this result has an error.
      * @return This result.
      */
-    Result<T> catchResultError(Action1<Result<T>> action);
-
-    /**
-     * If this Result has an error, then run the provided action.
-     * @param action The action to run if this result has an error.
-     * @return This result.
-     */
     <TError extends Throwable> Result<T> catchError(Class<TError> errorType, Action0 action);
 
     /**
@@ -299,12 +292,6 @@ public interface Result<T>
             return Result.error(function.run(error));
         });
     }
-
-    /**
-     * Get whether or not the provided Result is equal to this Result.
-     * @param rhs The provided Result.
-     */
-    boolean equals(Result<?> rhs);
 
     /**
      * Create a new empty successful Result.

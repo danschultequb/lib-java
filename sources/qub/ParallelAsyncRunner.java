@@ -32,7 +32,7 @@ public class ParallelAsyncRunner implements AsyncRunner
     @Override
     public int getScheduledTaskCount()
     {
-        return spinMutex.criticalSection(scheduledTaskCount::get);
+        return spinMutex.criticalSection(scheduledTaskCount::get).await();
     }
 
     @Override

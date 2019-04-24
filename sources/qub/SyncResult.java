@@ -245,20 +245,6 @@ public class SyncResult<T> implements Result<T>
      * @param action The action to run if this result has an error.
      * @return This result.
      */
-    public SyncResult<T> catchResultError(Action1<Result<T>> action)
-    {
-        PreCondition.assertNotNull(action, "action");
-
-        return error != null
-            ? SyncResult.create(() -> action.run(this))
-            : this;
-    }
-
-    /**
-     * If this Result has an error, then run the provided action.
-     * @param action The action to run if this result has an error.
-     * @return This result.
-     */
     public <TError extends Throwable> SyncResult<T> catchError(Class<TError> errorType, Action0 action)
     {
         PreCondition.assertNotNull(errorType, "errorType");
@@ -535,30 +521,6 @@ public class SyncResult<T> implements Result<T>
             result += "error: " + error.toString();
         }
         return result;
-    }
-
-    @Override
-    public boolean equals(Object rhs)
-    {
-        return rhs instanceof SyncResult && equals((SyncResult<?>)rhs);
-    }
-
-    /**
-     * Get whether or not the provided Result is equal to this Result.
-     * @param rhs The provided Result.
-     */
-    public boolean equals(Result<?> rhs)
-    {
-        return rhs instanceof SyncResult && equals((SyncResult<?>)rhs);
-    }
-
-    /**
-     * Get whether or not the provided Result is equal to this Result.
-     * @param rhs The provided Result.
-     */
-    public boolean equals(SyncResult<?> rhs)
-    {
-        return rhs != null && Comparer.equal(value, rhs.value) && Comparer.equal(error, rhs.error);
     }
 
     private static final SyncResult<?> successNull = SyncResult.success(null);

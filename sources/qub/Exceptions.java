@@ -102,6 +102,24 @@ public interface Exceptions
         return result;
     }
 
+    static Throwable unwrap(Throwable error)
+    {
+        PreCondition.assertNotNull(error, "error");
+
+        while (error != null)
+        {
+            if (defaultErrorTypesToGoPast.contains(error.getClass()))
+            {
+                error = error.getCause();
+            }
+            else
+            {
+                break;
+            }
+        }
+        return error;
+    }
+
     static Result<Void> writeErrorString(CharacterWriteStream stream, Throwable error)
     {
         PreCondition.assertNotNull(stream, "stream");

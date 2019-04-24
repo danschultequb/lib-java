@@ -42,7 +42,8 @@ public class BasicAsyncAction extends BasicAsyncTask implements AsyncAction
     {
         final BasicAsyncActionErrorHandler asyncAction = new BasicAsyncActionErrorHandler(asyncRunner, action);
         asyncAction.addParentTask(this);
-        return scheduleOrEnqueue(asyncAction);
+        scheduleOrEnqueue(asyncAction);
+        return asyncAction;
     }
 
     @Override

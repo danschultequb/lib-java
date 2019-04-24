@@ -55,7 +55,7 @@ public class SpinMutex implements Mutex
      * thread releases this mutex and this thread acquires the mutex.
      */
     @Override
-    public Result<Boolean> acquire()
+    public Result<Void> acquire()
     {
         final long threadId = Thread.currentThread().getId();
         if (acquiredByThreadId.get() != threadId)
@@ -69,7 +69,7 @@ public class SpinMutex implements Mutex
         }
         acquiredCount.incrementAndGet();
 
-        return Result.successTrue();
+        return Result.success();
     }
 
     /**
@@ -77,7 +77,7 @@ public class SpinMutex implements Mutex
      * @return Whether or not the SpinMutex was acquired.
      */
     @Override
-    public boolean tryAcquire()
+    public Result<Boolean> tryAcquire()
     {
         final long threadId = Thread.currentThread().getId();
         final boolean acquired = acquiredByThreadId.get() == threadId || acquiredByThreadId.compareAndSet(-1, threadId);
@@ -85,7 +85,7 @@ public class SpinMutex implements Mutex
         {
             acquiredCount.incrementAndGet();
         }
-        return acquired;
+        return Result.success(acquired);
     }
 
     /**
@@ -93,19 +93,17 @@ public class SpinMutex implements Mutex
      * @return Whether or not this SpinMutex was released.
      */
     @Override
-    public boolean release()
+    public Result<Void> release()
     {
         final long threadId = Thread.currentThread().getId();
-        boolean result = false;
         if (acquiredByThreadId.get() == threadId)
         {
             if (acquiredCount.decrementAndGet() == 0)
             {
                 acquiredByThreadId.compareAndSet(threadId, -1);
-                result = true;
             }
         }
-        return result;
+        return Result.success();
     }
 
     @Override

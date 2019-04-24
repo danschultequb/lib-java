@@ -108,7 +108,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
     {
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
-        return mutex.criticalSection(() ->
+        return mutex.criticalSectionResult(() ->
         {
             started = true;
 
@@ -142,7 +142,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
         PreCondition.assertLength(length, startIndex, outputBytes.length);
         PreCondition.assertNotDisposed(this);
 
-        return mutex.criticalSection(() ->
+        return mutex.criticalSectionResult(() ->
         {
             started = true;
 
@@ -193,17 +193,12 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
     {
         return mutex.criticalSection(() ->
         {
-            Result<Boolean> result;
-            if (!disposed)
+            boolean result = !disposed;
+            if (result)
             {
                 disposed = true;
                 current = null;
                 bytesAvailable.signalAll();
-                result = Result.successTrue();
-            }
-            else
-            {
-                result = Result.successFalse();
             }
             return result;
         });
@@ -244,7 +239,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
                 bytesAvailable.signalAll();
             }
             return this;
-        });
+        }).await();
     }
 
     @Override
@@ -253,7 +248,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
         PreCondition.assertFalse(endOfStream, "endOfStream");
 
-        return mutex.criticalSection(() ->
+        return mutex.criticalSectionResult(() ->
         {
             bytes.add(toWrite);
             bytesAvailable.signalAll();
@@ -282,7 +277,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
                 this.bytes.add(bytes[startIndex + i]);
             }
             bytesAvailable.signalAll();
-            return Result.success(bytesWritten);
+            return bytesWritten;
         });
     }
 

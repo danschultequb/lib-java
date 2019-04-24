@@ -33,7 +33,7 @@ public class NetworkTests
                 {
                     final Network network = creator.run(test);
                     test.assertThrows(() -> network.createTCPClient(IPv4Address.parse("127.0.0.1"), 38827).await(),
-                        new RuntimeException(new java.net.ConnectException("Connection refused: connect")));
+                        new java.net.ConnectException("Connection refused: connect"));
                 });
 
                 runner.test("with valid arguments and server listening", (Test test) ->

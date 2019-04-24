@@ -175,7 +175,8 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
 
         final BasicAsyncAction asyncAction = new BasicAsyncAction(runner, action);
         asyncAction.addParentTask(this);
-        return scheduleOrEnqueue(asyncAction);
+        scheduleOrEnqueue(asyncAction);
+        return asyncAction;
     }
 
     private <T> BasicAsyncFunction<T> thenOnInner(Getable<AsyncRunner> runner, Function0<T> function)
@@ -185,7 +186,8 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
 
         final BasicAsyncFunction<T> asyncFunction = new BasicAsyncFunction<T>(runner, function);
         asyncFunction.addParentTask(this);
-        return scheduleOrEnqueue(asyncFunction);
+        scheduleOrEnqueue(asyncFunction);
+        return asyncFunction;
     }
 
     public AsyncAction thenAsyncAction(Function0<AsyncAction> function)
@@ -278,7 +280,8 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
 
         final BasicAsyncFunctionErrorHandler<T> asyncFunction = new BasicAsyncFunctionErrorHandler<>(asyncRunner, function);
         asyncFunction.addParentTask(this);
-        return scheduleOrEnqueue(asyncFunction);
+        scheduleOrEnqueue(asyncFunction);
+        return asyncFunction;
     }
 
     protected AsyncAction catchErrorAsyncActionOnInner(final Getable<AsyncRunner> asyncRunner, Function1<Throwable, AsyncAction> function)
@@ -312,9 +315,9 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
         return result;
     }
 
-    protected <T extends BasicAsyncTask> T scheduleOrEnqueue(T asyncTask)
+    protected <T extends BasicAsyncTask> void scheduleOrEnqueue(T asyncTask)
     {
-        return mutex.criticalSection(() ->
+        mutex.criticalSection(() ->
         {
             if (isCompleted())
             {
@@ -329,8 +332,7 @@ public abstract class BasicAsyncTask implements PausedAsyncTask
             {
                 pausedTasks.get((List<BasicAsyncTask> values) -> values.add(asyncTask));
             }
-            return asyncTask;
-        });
+        }).await();
     }
 
     @Override

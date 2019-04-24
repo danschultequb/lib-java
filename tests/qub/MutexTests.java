@@ -37,36 +37,39 @@ public class MutexTests
                 runner.test("with null", (Test test) ->
                 {
                     final Mutex mutex = create(creator, test);
-                    test.assertThrows(() -> mutex.acquire((Duration)null), new PreConditionFailure("timeout cannot be null."));
+                    test.assertThrows(() -> mutex.acquire((Duration)null),
+                        new PreConditionFailure("durationTimeout cannot be null."));
                     test.assertFalse(mutex.isAcquired());
                 });
 
                 runner.test("with zero", (Test test) ->
                 {
                     final Mutex mutex = create(creator, test);
-                    test.assertThrows(() -> mutex.acquire(Duration.zero), new PreConditionFailure("timeout (0.0 Seconds) must be greater than 0.0 Seconds."));
+                    test.assertThrows(() -> mutex.acquire(Duration.zero),
+                        new PreConditionFailure("durationTimeout (0.0 Seconds) must be greater than 0.0 Seconds."));
                     test.assertFalse(mutex.isAcquired());
                 });
 
                 runner.test("with null Clock", (Test test) ->
                 {
                     final Mutex mutex = create(creator);
-                    test.assertThrows(() -> mutex.acquire(Duration.minutes(5)), new PreConditionFailure("getClock() cannot be null."));
+                    test.assertThrows(() -> mutex.acquire(Duration.minutes(5)),
+                        new PreConditionFailure("getClock() cannot be null."));
                     test.assertFalse(mutex.isAcquired());
                 });
 
                 runner.test("with positive duration when Mutex is not acquired", (Test test) ->
                 {
                     final Mutex mutex = create(creator, test);
-                    test.assertTrue(mutex.acquire(Duration.seconds(5)).await());
+                    test.assertNull(mutex.acquire(Duration.seconds(5)).await());
                     test.assertTrue(mutex.isAcquired());
                 });
 
                 runner.test("with positive duration when Mutex is already acquired by the current thread", (Test test) ->
                 {
                     final Mutex mutex = create(creator, test);
-                    test.assertTrue(mutex.acquire().await());
-                    test.assertTrue(mutex.acquire(Duration.seconds(5)).await());
+                    test.assertNull(mutex.acquire().await());
+                    test.assertNull(mutex.acquire(Duration.seconds(5)).await());
                     test.assertTrue(mutex.isAcquired());
                 });
 
@@ -94,14 +97,16 @@ public class MutexTests
                 runner.test("with null", (Test test) ->
                 {
                     final Mutex mutex = create(creator, test);
-                    test.assertThrows(() -> mutex.acquire((DateTime)null), new PreConditionFailure("timeout cannot be null."));
+                    test.assertThrows(() -> mutex.acquire((DateTime)null),
+                        new PreConditionFailure("dateTimeTimeout cannot be null."));
                     test.assertFalse(mutex.isAcquired());
                 });
 
                 runner.test("with null Clock", (Test test) ->
                 {
                     final Mutex mutex = create(creator);
-                    test.assertThrows(() -> mutex.acquire(DateTime.date(2018, 1, 1)), new PreConditionFailure("getClock() cannot be null."));
+                    test.assertThrows(() -> mutex.acquire(DateTime.date(2018, 1, 1)),
+                        new PreConditionFailure("getClock() cannot be null."));
                     test.assertFalse(mutex.isAcquired());
                 });
 
@@ -130,7 +135,7 @@ public class MutexTests
                     final Mutex mutex = create(creator, test);
                     final Clock clock = mutex.getClock();
                     final DateTime timeout = clock.getCurrentDateTime().plus(Duration.seconds(1));
-                    test.assertTrue(mutex.acquire(timeout).await());
+                    test.assertNull(mutex.acquire(timeout).await());
                     test.assertTrue(mutex.isAcquired());
                 });
 
@@ -155,26 +160,26 @@ public class MutexTests
                 runner.test("when not locked", (Test test) ->
                 {
                     final Mutex mutex = create(creator);
-                    test.assertTrue(mutex.tryAcquire());
+                    test.assertTrue(mutex.tryAcquire().await());
                     test.assertTrue(mutex.isAcquired());
                 });
 
                 runner.test("when locked by same thread", (Test test) ->
                 {
                     final Mutex mutex = create(creator);
-                    test.assertTrue(mutex.acquire().await());
-                    test.assertTrue(mutex.tryAcquire());
+                    test.assertNull(mutex.acquire().await());
+                    test.assertTrue(mutex.tryAcquire().await());
                     test.assertTrue(mutex.isAcquired());
                 });
 
                 runner.test("when locked by different thread", (Test test) ->
                 {
                     final Mutex mutex = create(creator);
-                    test.assertTrue(mutex.acquire().await());
+                    test.assertNull(mutex.acquire().await());
 
                     test.getParallelAsyncRunner().schedule(() ->
                     {
-                        test.assertFalse(mutex.tryAcquire());
+                        test.assertFalse(mutex.tryAcquire().await());
                         test.assertTrue(mutex.isAcquired());
                     }).await();
 
@@ -196,7 +201,7 @@ public class MutexTests
                     final Mutex mutex = create(creator);
                     mutex.acquire();
                     test.assertTrue(mutex.isAcquired());
-                    test.assertTrue(mutex.release());
+                    test.assertNull(mutex.release().await());
                     test.assertFalse(mutex.isAcquired());
                 });
             });
@@ -230,7 +235,8 @@ public class MutexTests
                 {
                     final Mutex mutex = create(creator, test);
                     final Value<Boolean> value = Value.create(false);
-                    test.assertThrows(() -> mutex.criticalSection((Duration)null, () -> value.set(true)), new PreConditionFailure("timeout cannot be null."));
+                    test.assertThrows(() -> mutex.criticalSection((Duration)null, () -> value.set(true)),
+                        new PreConditionFailure("durationTimeout cannot be null."));
                     test.assertFalse(mutex.isAcquired());
                     test.assertFalse(value.get());
                 });
@@ -239,7 +245,8 @@ public class MutexTests
                 {
                     final Mutex mutex = create(creator, test);
                     final Value<Boolean> value = Value.create(false);
-                    test.assertThrows(() -> mutex.criticalSection(Duration.seconds(-1), () -> value.set(true)), new PreConditionFailure("timeout (-1.0 Seconds) must be greater than 0.0 Seconds."));
+                    test.assertThrows(() -> mutex.criticalSection(Duration.seconds(-1), () -> value.set(true)),
+                        new PreConditionFailure("durationTimeout (-1.0 Seconds) must be greater than 0.0 Seconds."));
                     test.assertFalse(mutex.isAcquired());
                     test.assertFalse(value.get());
                 });
@@ -248,7 +255,8 @@ public class MutexTests
                 {
                     final Mutex mutex = create(creator, test);
                     final Value<Boolean> value = Value.create(false);
-                    test.assertThrows(() -> mutex.criticalSection(Duration.zero, () -> value.set(true)), new PreConditionFailure("timeout (0.0 Seconds) must be greater than 0.0 Seconds."));
+                    test.assertThrows(() -> mutex.criticalSection(Duration.zero, () -> value.set(true)),
+                        new PreConditionFailure("durationTimeout (0.0 Seconds) must be greater than 0.0 Seconds."));
                     test.assertFalse(mutex.isAcquired());
                     test.assertFalse(value.get());
                 });
@@ -257,7 +265,7 @@ public class MutexTests
                 {
                     final Mutex mutex = create(creator, test);
                     final Value<Boolean> value = Value.create(false);
-                    test.assertTrue(mutex.criticalSection(Duration.seconds(1), () -> value.set(true)).await());
+                    test.assertNull(mutex.criticalSection(Duration.seconds(1), () -> value.set(true)).await());
                     test.assertFalse(mutex.isAcquired());
                     test.assertTrue(value.get());
                 });
@@ -265,10 +273,10 @@ public class MutexTests
                 runner.test("with positive duration when Mutex is already acquired by the current thread", (Test test) ->
                 {
                     final Mutex mutex = create(creator, test);
-                    test.assertTrue(mutex.acquire().await());
+                    test.assertNull(mutex.acquire().await());
 
                     final Value<Boolean> value = Value.create(false);
-                    test.assertTrue(mutex.criticalSection(Duration.seconds(1), () -> value.set(true)).await());
+                    test.assertNull(mutex.criticalSection(Duration.seconds(1), () -> value.set(true)).await());
                     test.assertTrue(mutex.isAcquired());
                     test.assertTrue(value.get());
                 });
@@ -299,7 +307,8 @@ public class MutexTests
                 {
                     final Mutex mutex = create(creator, test);
                     final Value<Boolean> value = Value.create(false);
-                    test.assertThrows(() -> mutex.criticalSection((DateTime)null, () -> value.set(true)), new PreConditionFailure("timeout cannot be null."));
+                    test.assertThrows(() -> mutex.criticalSection((DateTime)null, () -> value.set(true)),
+                        new PreConditionFailure("dateTimeTimeout cannot be null."));
                     test.assertFalse(mutex.isAcquired());
                     test.assertFalse(value.get());
                 });
@@ -330,7 +339,7 @@ public class MutexTests
                     final Mutex mutex = create(creator, test);
                     final Value<Boolean> value = Value.create(false);
                     final DateTime timeout = test.getClock().getCurrentDateTime().plus(Duration.seconds(1));
-                    test.assertTrue(mutex.criticalSection(timeout, () -> value.set(true)).await());
+                    test.assertNull(mutex.criticalSection(timeout, () -> value.set(true)).await());
                     test.assertFalse(mutex.isAcquired());
                     test.assertTrue(value.get());
                 });
@@ -342,7 +351,7 @@ public class MutexTests
 
                     final Value<Boolean> value = Value.create(false);
                     final DateTime timeout = test.getClock().getCurrentDateTime().plus(Duration.seconds(1));
-                    test.assertTrue(mutex.criticalSection(timeout, () -> value.set(true)).await());
+                    test.assertNull(mutex.criticalSection(timeout, () -> value.set(true)).await());
                     test.assertTrue(mutex.isAcquired());
                     test.assertTrue(value.get());
                 });
@@ -381,15 +390,14 @@ public class MutexTests
                 {
                     final Mutex mutex = create(creator);
                     final Value<Integer> value = Value.create();
-                    final Boolean result = mutex.criticalSection(() ->
+                    test.assertTrue(mutex.criticalSection(() ->
                     {
                         test.assertTrue(mutex.isAcquired());
                         value.set(20);
                         return true;
-                    });
+                    }).await());
                     test.assertFalse(mutex.isAcquired());
                     test.assertEqual(20, value.get());
-                    test.assertTrue(result);
                 });
             });
 
@@ -496,7 +504,7 @@ public class MutexTests
                     {
                         value.set(true);
                         return Result.successTrue();
-                    }), new PreConditionFailure("timeout cannot be null."));
+                    }), new PreConditionFailure("dateTimeTimeout cannot be null."));
                     test.assertFalse(mutex.isAcquired());
                     test.assertFalse(value.get());
                 });
