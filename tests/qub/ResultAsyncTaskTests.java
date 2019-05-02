@@ -6,71 +6,97 @@ public interface ResultAsyncTaskTests
     {
         runner.testGroup(ResultAsyncTask.class, () ->
         {
-            runner.testGroup("constructor(Action0)", () ->
+            runner.testGroup("constructor(AsyncScheduler,Action0)", () ->
             {
+                runner.test("with null AsyncScheduler", (Test test) ->
+                {
+                    test.assertThrows(() -> new ResultAsyncTask<Integer>(null, () -> {}),
+                        new PreConditionFailure("asyncScheduler cannot be null."));
+                });
+
                 runner.test("with null action", (Test test) ->
                 {
-                    test.assertThrows(() -> new ResultAsyncTask<Integer>((Action0)null),
+                    test.assertThrows(() -> new ResultAsyncTask<Integer>(new ResultManualAsyncRunner(), (Action0)null),
                         new PreConditionFailure("action cannot be null."));
                 });
 
                 runner.test("with non-null action", (Test test) ->
                 {
                     final Value<Integer> value = Value.create();
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> value.set(5));
+                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(new ResultManualAsyncRunner(), () -> value.set(5));
                     test.assertNotNull(asyncTask);
                     test.assertFalse(value.hasValue());
+                    test.assertEqual(Iterable.create(), asyncTask.getNextTasks());
                 });
             });
 
-            runner.testGroup("constructor(Action0,Result<?>)", () ->
+            runner.testGroup("constructor(AsyncScheduler,Result<?>,Action0)", () ->
             {
-                runner.test("with null action", (Test test) ->
+                runner.test("with null AsyncScheduler", (Test test) ->
                 {
-                    test.assertThrows(() -> new ResultAsyncTask<Integer>((Action0)null, Result.success()),
-                        new PreConditionFailure("action cannot be null."));
+                    test.assertThrows(() -> new ResultAsyncTask<Integer>(null, Result.success(), () -> {}),
+                        new PreConditionFailure("asyncScheduler cannot be null."));
                 });
 
                 runner.test("with null parentResult", (Test test) ->
                 {
-                    test.assertThrows(() -> new ResultAsyncTask<>(() -> {}, null),
+                    test.assertThrows(() -> new ResultAsyncTask<>(new ResultManualAsyncRunner(), null, () -> {}),
                         new PreConditionFailure("parentResult cannot be null."));
+                });
+
+                runner.test("with null action", (Test test) ->
+                {
+                    test.assertThrows(() -> new ResultAsyncTask<Integer>(null, Result.success(), (Action0)null),
+                        new PreConditionFailure("asyncScheduler cannot be null."));
                 });
             });
 
-            runner.testGroup("constructor(Function0<T>)", () ->
+            runner.testGroup("constructor(AsyncScheduler,Function0<T>)", () ->
             {
+                runner.test("with null AsyncScheduler", (Test test) ->
+                {
+                    test.assertThrows(() -> new ResultAsyncTask<>(null, () -> 11),
+                        new PreConditionFailure("asyncScheduler cannot be null."));
+                });
+
                 runner.test("with null function", (Test test) ->
                 {
-                    test.assertThrows(() -> new ResultAsyncTask<Boolean>((Function0<Boolean>)null),
+                    test.assertThrows(() -> new ResultAsyncTask<>(new ResultManualAsyncRunner(), (Function0<Boolean>)null),
                         new PreConditionFailure("function cannot be null."));
                 });
 
                 runner.test("with non-null function", (Test test) ->
                 {
                     final Value<Integer> value = Value.create();
-                    final ResultAsyncTask<Integer> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Integer> asyncTask = new ResultAsyncTask<>(new ResultManualAsyncRunner(), () ->
                     {
                         value.set(5);
                         return 7;
                     });
                     test.assertNotNull(asyncTask);
                     test.assertFalse(value.hasValue());
+                    test.assertEqual(Iterable.create(), asyncTask.getNextTasks());
                 });
             });
 
-            runner.testGroup("constructor(Function0<T>,Result<?>)", () ->
+            runner.testGroup("constructor(AsyncScheduler,Result<?>,Function0<T>)", () ->
             {
-                runner.test("with null function", (Test test) ->
+                runner.test("with null AsyncScheduler", (Test test) ->
                 {
-                    test.assertThrows(() -> new ResultAsyncTask<>((Function0<Integer>)null, Result.success()),
-                        new PreConditionFailure("function cannot be null."));
+                    test.assertThrows(() -> new ResultAsyncTask<>(null, Result.success(), () -> 11),
+                        new PreConditionFailure("asyncScheduler cannot be null."));
                 });
 
                 runner.test("with null parentResult", (Test test) ->
                 {
-                    test.assertThrows(() -> new ResultAsyncTask<>(() -> 8, null),
+                    test.assertThrows(() -> new ResultAsyncTask<>(new ResultManualAsyncRunner(), null, () -> 8),
                         new PreConditionFailure("parentResult cannot be null."));
+                });
+
+                runner.test("with null function", (Test test) ->
+                {
+                    test.assertThrows(() -> new ResultAsyncTask<>(new ResultManualAsyncRunner(), Result.success(), (Function0<Integer>)null),
+                        new PreConditionFailure("function cannot be null."));
                 });
             });
 
@@ -78,8 +104,9 @@ public interface ResultAsyncTaskTests
             {
                 runner.test("when AsyncTask hasn't been awaited yet", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-                    final ResultAsyncTask<Void> asyncTask = new ResultAsyncTask<>((Action0)value::increment);
+                    final ResultAsyncTask<Void> asyncTask = asyncRunner.schedule((Action0)value::increment);
 
                     test.assertNull(asyncTask.await());
                     test.assertEqual(1, value.get());
@@ -87,8 +114,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("when AsyncTask has already been awaited", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>((Action0)value::increment);
+                    final ResultAsyncTask<Void> asyncTask = asyncRunner.schedule((Action0)value::increment);
 
                     test.assertNull(asyncTask.await());
                     test.assertEqual(1, value.get());
@@ -99,14 +127,16 @@ public interface ResultAsyncTaskTests
 
                 runner.test("when the action throws", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new NullPointerException("abc"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new NullPointerException("abc"); });
                     test.assertThrows(asyncTask::await,
                         new AwaitException(new NullPointerException("abc")));
                 });
 
                 runner.test("when the action throws and the AsyncTask has already been awaited", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new NullPointerException("abc"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new NullPointerException("abc"); });
                     test.assertThrows(asyncTask::await,
                         new AwaitException(new NullPointerException("abc")));
                     test.assertThrows(asyncTask::await,
@@ -115,18 +145,15 @@ public interface ResultAsyncTaskTests
 
                 runner.test("when parentResult doesn't throw but the AsyncTask expects an AwaitException", (Test test) ->
                 {
-                    final Result<Void> parentResult = Result.success();
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Void> parentResult = asyncRunner.schedule(() -> {});
                     final IntegerValue value = IntegerValue.create(0);
                     final Value<Throwable> value2 = Value.create();
-                    final ResultAsyncTask<Void> asyncTask = new ResultAsyncTask<>(
-                        AwaitException.class,
-                        (Throwable parentError) ->
+                    final ResultAsyncTask<Void> asyncTask = parentResult.catchError(AwaitException.class, (AwaitException parentError) ->
                         {
                             value.increment();
                             value2.set(parentError);
-                            return null;
-                        },
-                        parentResult);
+                        });
                     test.assertNull(asyncTask.await());
                     test.assertEqual(0, value.get());
                     test.assertFalse(value2.hasValue());
@@ -134,18 +161,15 @@ public interface ResultAsyncTaskTests
 
                 runner.test("when the parentResult throws and the expectedErrorType is AwaitException", (Test test) ->
                 {
-                    final Result<Void> parentResult = Result.error(new FolderNotFoundException("abc"));
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Void> parentResult = asyncRunner.schedule(() -> { throw new FolderNotFoundException("abc"); });
                     final IntegerValue value = IntegerValue.create(0);
                     final Value<Throwable> value2 = Value.create();
-                    final ResultAsyncTask<Void> asyncTask = new ResultAsyncTask<>(
-                        AwaitException.class,
-                        (Throwable parentError) ->
+                    final ResultAsyncTask<Void> asyncTask = parentResult.catchError(AwaitException.class, (AwaitException parentError) ->
                         {
                             value.increment();
                             value2.set(parentError);
-                            return null;
-                        },
-                        parentResult);
+                        });
                     test.assertNull(asyncTask.await());
                     test.assertEqual(1, value.get());
                     test.assertEqual(new AwaitException(new FolderNotFoundException("abc")), value2.get());
@@ -153,18 +177,15 @@ public interface ResultAsyncTaskTests
 
                 runner.test("when the parentResult throws and the expectedErrorType is RuntimeException", (Test test) ->
                 {
-                    final Result<Void> parentResult = Result.error(new FolderNotFoundException("abc"));
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Void> parentResult = asyncRunner.schedule(() -> { throw new FolderNotFoundException("abc"); });
                     final IntegerValue value = IntegerValue.create(0);
                     final Value<Throwable> value2 = Value.create();
-                    final ResultAsyncTask<Void> asyncTask = new ResultAsyncTask<>(
-                        RuntimeException.class,
-                        (Throwable parentError) ->
+                    final ResultAsyncTask<Void> asyncTask = parentResult.catchError(RuntimeException.class, (RuntimeException parentError) ->
                         {
                             value.increment();
                             value2.set(parentError);
-                            return null;
-                        },
-                        parentResult);
+                        });
                     test.assertNull(asyncTask.await());
                     test.assertEqual(1, value.get());
                     test.assertEqual(new AwaitException(new FolderNotFoundException("abc")), value2.get());
@@ -175,16 +196,18 @@ public interface ResultAsyncTaskTests
             {
                 runner.test("with null expectedErrorType", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(value::increment);
+                    final ResultAsyncTask<Void> asyncTask = asyncRunner.schedule((Action0)value::increment);
                     test.assertThrows(() -> asyncTask.await(null),
                         new PreConditionFailure("expectedErrorType cannot be null."));
                 });
 
                 runner.test("when AsyncTask hasn't been awaited yet", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(value::increment);
+                    final ResultAsyncTask<Void> asyncTask = asyncRunner.schedule((Action0)value::increment);
 
                     test.assertNull(asyncTask.await(NotFoundException.class));
                     test.assertEqual(1, value.get());
@@ -192,8 +215,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("when AsyncTask has already been awaited", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(value::increment);
+                    final ResultAsyncTask<Void> asyncTask = asyncRunner.schedule((Action0)value::increment);
 
                     test.assertNull(asyncTask.await(NotFoundException.class));
                     test.assertEqual(1, value.get());
@@ -204,14 +228,16 @@ public interface ResultAsyncTaskTests
 
                 runner.test("when the action throws a different error type", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new NullPointerException("abc"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new NullPointerException("abc"); });
                     test.assertThrows(() -> asyncTask.await(NotFoundException.class),
                         new AwaitException(new NullPointerException("abc")));
                 });
 
                 runner.test("when the action throws a different error type and the AsyncTask has already been awaited", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new NullPointerException("abc"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new NullPointerException("abc"); });
                     test.assertThrows(() -> asyncTask.await(NotFoundException.class),
                         new AwaitException(new NullPointerException("abc")));
                     test.assertThrows(() -> asyncTask.await(NotFoundException.class),
@@ -220,14 +246,16 @@ public interface ResultAsyncTaskTests
 
                 runner.test("when the action throws the same error type", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new NotFoundException("abc"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new NotFoundException("abc"); });
                     test.assertThrows(() -> asyncTask.await(NotFoundException.class),
                         new NotFoundException("abc"));
                 });
 
                 runner.test("when the action throws the same error type and the AsyncTask has already been awaited", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new NotFoundException("abc"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new NotFoundException("abc"); });
                     test.assertThrows(() -> asyncTask.await(NotFoundException.class),
                         new NotFoundException("abc"));
                     test.assertThrows(() -> asyncTask.await(NotFoundException.class),
@@ -236,14 +264,16 @@ public interface ResultAsyncTaskTests
 
                 runner.test("when the action throws matching error type", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("abc"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("abc"); });
                     test.assertThrows(() -> asyncTask.await(NotFoundException.class),
                         new FileNotFoundException("abc"));
                 });
 
                 runner.test("when the action throws matching error type and the AsyncTask has already been awaited", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("abc"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("abc"); });
                     test.assertThrows(() -> asyncTask.await(NotFoundException.class),
                         new FileNotFoundException("abc"));
                     test.assertThrows(() -> asyncTask.await(NotFoundException.class),
@@ -252,18 +282,15 @@ public interface ResultAsyncTaskTests
 
                 runner.test("when parentResult doesn't throw but the AsyncTask expects an AwaitException", (Test test) ->
                 {
-                    final Result<Void> parentResult = Result.success();
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Void> parentResult = asyncRunner.schedule(() -> {});
                     final IntegerValue value = IntegerValue.create(0);
                     final Value<Throwable> value2 = Value.create();
-                    final ResultAsyncTask<Void> asyncTask = new ResultAsyncTask<>(
-                        AwaitException.class,
-                        (Throwable parentError) ->
+                    final ResultAsyncTask<Void> asyncTask = parentResult.catchError(AwaitException.class, (AwaitException parentError) ->
                         {
                             value.increment();
                             value2.set(parentError);
-                            return null;
-                        },
-                        parentResult);
+                        });
                     test.assertNull(asyncTask.await(AwaitException.class));
                     test.assertEqual(0, value.get());
                     test.assertFalse(value2.hasValue());
@@ -271,18 +298,15 @@ public interface ResultAsyncTaskTests
 
                 runner.test("when the parentResult throws and the expectedErrorType is AwaitException", (Test test) ->
                 {
-                    final Result<Void> parentResult = Result.error(new FolderNotFoundException("abc"));
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Void> parentResult = asyncRunner.schedule(() -> { throw new FolderNotFoundException("abc"); });
                     final IntegerValue value = IntegerValue.create(0);
                     final Value<Throwable> value2 = Value.create();
-                    final ResultAsyncTask<Void> asyncTask = new ResultAsyncTask<>(
-                        AwaitException.class,
-                        (Throwable parentError) ->
-                        {
-                            value.increment();
-                            value2.set(parentError);
-                            return null;
-                        },
-                        parentResult);
+                    final ResultAsyncTask<Void> asyncTask = parentResult.catchError(AwaitException.class, (AwaitException parentError) ->
+                    {
+                        value.increment();
+                        value2.set(parentError);
+                    });
                     test.assertNull(asyncTask.await(AwaitException.class));
                     test.assertEqual(1, value.get());
                     test.assertEqual(new AwaitException(new FolderNotFoundException("abc")), value2.get());
@@ -290,18 +314,15 @@ public interface ResultAsyncTaskTests
 
                 runner.test("when the parentResult throws and the expectedErrorType is RuntimeException", (Test test) ->
                 {
-                    final Result<Void> parentResult = Result.error(new FolderNotFoundException("abc"));
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Void> parentResult = asyncRunner.schedule(() -> { throw new FolderNotFoundException("abc"); });
                     final IntegerValue value = IntegerValue.create(0);
                     final Value<Throwable> value2 = Value.create();
-                    final ResultAsyncTask<Void> asyncTask = new ResultAsyncTask<>(
-                        RuntimeException.class,
-                        (Throwable parentError) ->
-                        {
-                            value.increment();
-                            value2.set(parentError);
-                            return null;
-                        },
-                        parentResult);
+                    final ResultAsyncTask<Void> asyncTask = parentResult.catchError(RuntimeException.class, (RuntimeException parentError) ->
+                    {
+                        value.increment();
+                        value2.set(parentError);
+                    });
                     test.assertNull(asyncTask.await(RuntimeException.class));
                     test.assertEqual(1, value.get());
                     test.assertEqual(new AwaitException(new FolderNotFoundException("abc")), value2.get());
@@ -309,18 +330,15 @@ public interface ResultAsyncTaskTests
 
                 runner.test("when the parentResult throws an unhandled and unexpected error type", (Test test) ->
                 {
-                    final Result<Void> parentResult = Result.error(new FolderNotFoundException("abc"));
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Void> parentResult = asyncRunner.schedule(() -> { throw new FolderNotFoundException("abc"); });
                     final IntegerValue value = IntegerValue.create(0);
                     final Value<Throwable> value2 = Value.create();
-                    final ResultAsyncTask<Void> asyncTask = new ResultAsyncTask<>(
-                        QueueEmptyException.class,
-                        (Throwable parentError) ->
-                        {
-                            value.increment();
-                            value2.set(parentError);
-                            return null;
-                        },
-                        parentResult);
+                    final ResultAsyncTask<Void> asyncTask = parentResult.catchError(QueueEmptyException.class, (QueueEmptyException parentError) ->
+                    {
+                        value.increment();
+                        value2.set(parentError);
+                    });
                     test.assertThrows(() -> asyncTask.await(QueueEmptyException.class), new AwaitException(new FolderNotFoundException("abc")));
                     test.assertEqual(0, value.get());
                     test.assertFalse(value2.hasValue());
@@ -328,18 +346,15 @@ public interface ResultAsyncTaskTests
 
                 runner.test("when the parentResult throws an unhandled but expected error type", (Test test) ->
                 {
-                    final Result<Void> parentResult = Result.error(new FolderNotFoundException("abc"));
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Void> parentResult = asyncRunner.schedule(() -> { throw new FolderNotFoundException("abc"); });
                     final IntegerValue value = IntegerValue.create(0);
                     final Value<Throwable> value2 = Value.create();
-                    final ResultAsyncTask<Void> asyncTask = new ResultAsyncTask<>(
-                        QueueEmptyException.class,
-                        (Throwable parentError) ->
-                        {
-                            value.increment();
-                            value2.set(parentError);
-                            return null;
-                        },
-                        parentResult);
+                    final ResultAsyncTask<Void> asyncTask = parentResult.catchError(QueueEmptyException.class, (QueueEmptyException parentError) ->
+                    {
+                        value.increment();
+                        value2.set(parentError);
+                    });
                     test.assertThrows(() -> asyncTask.await(FolderNotFoundException.class), new FolderNotFoundException("abc"));
                     test.assertEqual(0, value.get());
                     test.assertFalse(value2.hasValue());
@@ -347,18 +362,16 @@ public interface ResultAsyncTaskTests
 
                 runner.test("when the parentResult throws and the error handler function throws", (Test test) ->
                 {
-                    final Result<Void> parentResult = Result.error(new FolderNotFoundException("abc"));
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Void> parentResult = asyncRunner.schedule(() -> { throw new FolderNotFoundException("abc"); });
                     final IntegerValue value = IntegerValue.create(0);
                     final Value<Throwable> value2 = Value.create();
-                    final ResultAsyncTask<Void> asyncTask = new ResultAsyncTask<>(
-                        NotFoundException.class,
-                        (Throwable parentError) ->
-                        {
-                            value.increment();
-                            value2.set(parentError);
-                            throw new FileNotFoundException("blah");
-                        },
-                        parentResult);
+                    final ResultAsyncTask<Void> asyncTask = parentResult.catchError(NotFoundException.class, (Action1<NotFoundException>)(NotFoundException parentError) ->
+                    {
+                        value.increment();
+                        value2.set(parentError);
+                        throw new FileNotFoundException("blah");
+                    });
                     test.assertThrows(() -> asyncTask.await(FileNotFoundException.class), new FileNotFoundException("blah"));
                     test.assertEqual(1, value.get());
                     test.assertEqual(new FolderNotFoundException("abc"), value2.get());
@@ -369,20 +382,23 @@ public interface ResultAsyncTaskTests
             {
                 runner.test("with null action", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(value::increment);
+                    final ResultAsyncTask<Void> asyncTask = asyncRunner.schedule(() -> { value.increment(); });
                     test.assertThrows(() -> asyncTask.then((Action0)null),
                         new PreConditionFailure("action cannot be null."));
                 });
 
                 runner.test("with non-null action, await child after parent", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(value1::increment);
+                    final ResultAsyncTask<Void> asyncTask = asyncRunner.schedule(() -> { value1.increment(); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Result<Void> result = asyncTask.then(() -> { value2.increment(); });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -398,12 +414,14 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(value1::increment);
+                    final ResultAsyncTask<Void> asyncTask = asyncRunner.schedule(() -> { value1.increment(); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Result<Void> result = asyncTask.then(() -> { value2.increment(); });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -419,11 +437,13 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child after parent when parent throws", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Void> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value = IntegerValue.create(10);
                     final Result<Void> result = asyncTask.then(() -> { value.increment(); });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value.get());
 
@@ -436,11 +456,13 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent when parent throws", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Void> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value = IntegerValue.create(10);
                     final Result<Void> result = asyncTask.then(() -> { value.increment(); });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value.get());
 
@@ -453,11 +475,13 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child after parent when child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(value::increment);
+                    final ResultAsyncTask<Void> asyncTask = asyncRunner.schedule(() -> { value.increment(); });
 
                     final Result<Void> result = asyncTask.then((Action0)() -> { throw new FolderNotFoundException("abc"); });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value.get());
 
@@ -470,11 +494,13 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent when child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(value::increment);
+                    final ResultAsyncTask<Void> asyncTask = asyncRunner.schedule(() -> { value.increment(); });
 
                     final Result<Void> result = asyncTask.then((Action0)() -> { throw new FolderNotFoundException("abc"); });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value.get());
 
@@ -490,16 +516,18 @@ public interface ResultAsyncTaskTests
             {
                 runner.test("with null action", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(value::increment);
-                    test.assertThrows(() -> asyncTask.then((Action1<Boolean>)null),
+                    final ResultAsyncTask<IntegerValue> asyncTask = asyncRunner.schedule(() -> value.increment());
+                    test.assertThrows(() -> asyncTask.then((Action1<IntegerValue>)null),
                         new PreConditionFailure("action cannot be null."));
                 });
 
                 runner.test("with non-null action, await child after parent", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Integer> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Integer> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return 5;
@@ -508,6 +536,7 @@ public interface ResultAsyncTaskTests
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Result<Void> result = asyncTask.then((Integer parentValue) -> { value2.set(value2.get() + parentValue); });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -523,8 +552,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Integer> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Integer> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return 5;
@@ -533,6 +563,7 @@ public interface ResultAsyncTaskTests
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Result<Void> result = asyncTask.then((Integer parentValue) -> { value2.set(value2.get() + parentValue); });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -548,11 +579,13 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child after parent when parent throws", (Test test) ->
                 {
-                    final ResultAsyncTask<Integer> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Integer> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value = IntegerValue.create(10);
                     final Result<Void> result = asyncTask.then((Action1<Integer>)value::plusAssign);
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value.get());
 
@@ -565,11 +598,13 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent when parent throws", (Test test) ->
                 {
-                    final ResultAsyncTask<Integer> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Integer> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value = IntegerValue.create(10);
                     final Result<Void> result = asyncTask.then((Action1<Integer>)value::plusAssign);
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value.get());
 
@@ -582,8 +617,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child after parent when child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-                    final ResultAsyncTask<Integer> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Integer> asyncTask = asyncRunner.schedule(() ->
                     {
                         value.increment();
                         return 5;
@@ -591,6 +627,7 @@ public interface ResultAsyncTaskTests
 
                     final Result<Void> result = asyncTask.then((Action1<Integer>)(Integer parentValue) -> { throw new FolderNotFoundException("abc"); });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value.get());
 
@@ -603,8 +640,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent when child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-                    final ResultAsyncTask<Integer> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Integer> asyncTask = asyncRunner.schedule(() ->
                     {
                         value.increment();
                         return 5;
@@ -612,6 +650,7 @@ public interface ResultAsyncTaskTests
 
                     final Result<Void> result = asyncTask.then((Action1<Integer>)(Integer parentValue) -> { throw new FolderNotFoundException("abc"); });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value.get());
 
@@ -627,16 +666,18 @@ public interface ResultAsyncTaskTests
             {
                 runner.test("with null function", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(value::increment);
+                    final ResultAsyncTask<Void> asyncTask = asyncRunner.schedule(() -> { value.increment(); });
                     test.assertThrows(() -> asyncTask.then((Function0<String>)null),
                         new PreConditionFailure("function cannot be null."));
                 });
 
                 runner.test("with non-null function, await child after parent", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(value1::increment);
+                    final ResultAsyncTask<Void> asyncTask = asyncRunner.schedule(() -> { value1.increment(); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Result<String> result = asyncTask.then(() -> {
@@ -644,6 +685,7 @@ public interface ResultAsyncTaskTests
                         return "hello";
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -659,8 +701,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(value1::increment);
+                    final ResultAsyncTask<Void> asyncTask = asyncRunner.schedule(() -> { value1.increment(); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Result<String> result = asyncTask.then(() -> {
@@ -668,6 +711,7 @@ public interface ResultAsyncTaskTests
                         return "hello";
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -683,7 +727,8 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child after parent when parent throws", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Void> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value = IntegerValue.create(10);
                     final Result<String> result = asyncTask.then(() ->
@@ -692,6 +737,7 @@ public interface ResultAsyncTaskTests
                         return "hello";
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value.get());
 
@@ -704,7 +750,8 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent when parent throws", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Void> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value = IntegerValue.create(10);
                     final Result<String> result = asyncTask.then(() ->
@@ -713,6 +760,7 @@ public interface ResultAsyncTaskTests
                         return "hello";
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value.get());
 
@@ -725,11 +773,13 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child after parent when child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(value::increment);
+                    final ResultAsyncTask<Void> asyncTask = asyncRunner.schedule(() -> { value.increment(); });
 
                     final Result<String> result = asyncTask.then((Function0<String>)() -> { throw new FolderNotFoundException("abc"); });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value.get());
 
@@ -742,11 +792,13 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent when child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(value::increment);
+                    final ResultAsyncTask<Void> asyncTask = asyncRunner.schedule(() -> { value.increment(); });
 
                     final Result<String> result = asyncTask.then((Function0<String>)() -> { throw new FolderNotFoundException("abc"); });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value.get());
 
@@ -762,28 +814,31 @@ public interface ResultAsyncTaskTests
             {
                 runner.test("with null function", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(value::increment);
+                    final ResultAsyncTask<Void> asyncTask = asyncRunner.schedule(() -> { value.increment(); });
                     test.assertThrows(() -> asyncTask.thenResult((Function0<Result<String>>)null),
                         new PreConditionFailure("function cannot be null."));
                 });
 
                 runner.test("with non-null function, await child after parent", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(value1::increment);
+                    final ResultAsyncTask<Void> asyncTask = asyncRunner.schedule(() -> { value1.increment(); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final IntegerValue value3 = IntegerValue.create(100);
                     final Result<String> result = asyncTask.thenResult(() -> {
                         value2.increment();
-                        return new ResultAsyncTask<>(() ->
+                        return asyncRunner.schedule(() ->
                         {
                             value3.increment();
                             return "hello";
                         });
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -802,20 +857,22 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(value1::increment);
+                    final ResultAsyncTask<Void> asyncTask = asyncRunner.schedule(() -> { value1.increment(); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final IntegerValue value3 = IntegerValue.create(100);
                     final Result<String> result = asyncTask.thenResult(() -> {
                         value2.increment();
-                        return new ResultAsyncTask<>(() ->
+                        return asyncRunner.schedule(() ->
                         {
                             value3.increment();
                             return "hello";
                         });
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -834,20 +891,22 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child after parent when parent throws", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Void> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value = IntegerValue.create(10);
                     final IntegerValue value3 = IntegerValue.create(100);
                     final Result<String> result = asyncTask.thenResult(() ->
                     {
                         value.increment();
-                        return new ResultAsyncTask<>(() ->
+                        return asyncRunner.schedule(() ->
                         {
                             value3.increment();
                             return "hello";
                         });
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value.get());
                     test.assertEqual(100, value3.get());
@@ -863,20 +922,22 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent when parent throws", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Void> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final IntegerValue value3 = IntegerValue.create(100);
                     final Result<String> result = asyncTask.thenResult(() ->
                     {
                         value2.increment();
-                        return new ResultAsyncTask<>(() ->
+                        return asyncRunner.schedule(() ->
                         {
                             value3.increment();
                             return "hello";
                         });
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
                     test.assertEqual(100, value3.get());
@@ -892,11 +953,13 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child after parent when child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(value::increment);
+                    final ResultAsyncTask<Void> asyncTask = asyncRunner.schedule(() -> { value.increment(); });
 
                     final Result<String> result = asyncTask.thenResult((Function0<Result<String>>)() -> { throw new FolderNotFoundException("abc"); });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value.get());
 
@@ -909,11 +972,13 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent when child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(value::increment);
+                    final ResultAsyncTask<Void> asyncTask = asyncRunner.schedule(() -> { value.increment(); });
 
                     final Result<String> result = asyncTask.thenResult((Function0<Result<String>>)() -> { throw new FolderNotFoundException("abc"); });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value.get());
 
@@ -926,21 +991,23 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child after parent when inner-child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(value1::increment);
+                    final ResultAsyncTask<Void> asyncTask = asyncRunner.schedule(() -> { value1.increment(); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final IntegerValue value3 = IntegerValue.create(100);
                     final Result<String> result = asyncTask.thenResult(() ->
                     {
                         value2.increment();
-                        return new ResultAsyncTask<>(() ->
+                        return asyncRunner.schedule(() ->
                         {
                             value3.increment();
                             throw new FileNotFoundException("blah");
                         });
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -959,21 +1026,23 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent when inner-child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(value1::increment);
+                    final ResultAsyncTask<Void> asyncTask = asyncRunner.schedule(() -> { value1.increment(); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final IntegerValue value3 = IntegerValue.create(100);
                     final Result<String> result = asyncTask.thenResult(() ->
                     {
                         value2.increment();
-                        return new ResultAsyncTask<>(() ->
+                        return asyncRunner.schedule(() ->
                         {
                             value3.increment();
                             throw new FileNotFoundException("blah");
                         });
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -995,16 +1064,22 @@ public interface ResultAsyncTaskTests
             {
                 runner.test("with null function", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(value::increment);
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
+                    {
+                        value.increment();
+                        return false;
+                    });
                     test.assertThrows(() -> asyncTask.then((Function1<Boolean,String>)null),
                         new PreConditionFailure("function cannot be null."));
                 });
 
                 runner.test("with non-null function, await child after parent", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -1018,6 +1093,7 @@ public interface ResultAsyncTaskTests
                         return "hello";
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -1036,8 +1112,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return false;
@@ -1051,6 +1128,7 @@ public interface ResultAsyncTaskTests
                         return "hello";
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -1069,7 +1147,8 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child after parent when parent throws", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final BooleanValue value3 = BooleanValue.create();
@@ -1080,6 +1159,7 @@ public interface ResultAsyncTaskTests
                         return "hello";
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
                     test.assertFalse(value3.hasValue());
@@ -1095,7 +1175,8 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent when parent throws", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final BooleanValue value3 = BooleanValue.create();
@@ -1106,6 +1187,7 @@ public interface ResultAsyncTaskTests
                         return "hello";
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
                     test.assertFalse(value3.hasValue());
@@ -1121,8 +1203,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child after parent when child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -1135,6 +1218,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("abc");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertFalse(value3.hasValue());
@@ -1150,8 +1234,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent when child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -1164,6 +1249,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("abc");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertFalse(value3.hasValue());
@@ -1182,16 +1268,22 @@ public interface ResultAsyncTaskTests
             {
                 runner.test("with null function", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(value::increment);
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
+                    {
+                        value.increment();
+                        return true;
+                    });
                     test.assertThrows(() -> asyncTask.thenResult((Function1<Boolean,Result<String>>)null),
                         new PreConditionFailure("function cannot be null."));
                 });
 
                 runner.test("with non-null function, await child after parent", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return false;
@@ -1203,13 +1295,14 @@ public interface ResultAsyncTaskTests
                     final Result<String> result = asyncTask.thenResult((Boolean parentValue) -> {
                         value2.increment();
                         value4.set(parentValue);
-                        return new ResultAsyncTask<>(() ->
+                        return asyncRunner.schedule(() ->
                         {
                             value3.increment();
                             return "hello";
                         });
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -1231,8 +1324,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -1244,13 +1338,14 @@ public interface ResultAsyncTaskTests
                     final Result<String> result = asyncTask.thenResult((Boolean parentValue) -> {
                         value2.increment();
                         value4.set(parentValue);
-                        return new ResultAsyncTask<>(() ->
+                        return asyncRunner.schedule(() ->
                         {
                             value3.increment();
                             return "hello";
                         });
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -1272,7 +1367,8 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child after parent when parent throws", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value = IntegerValue.create(10);
                     final IntegerValue value3 = IntegerValue.create(100);
@@ -1281,13 +1377,14 @@ public interface ResultAsyncTaskTests
                     {
                         value.increment();
                         value4.set(parentValue);
-                        return new ResultAsyncTask<>(() ->
+                        return asyncRunner.schedule(() ->
                         {
                             value3.increment();
                             return "hello";
                         });
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value.get());
                     test.assertEqual(100, value3.get());
@@ -1306,7 +1403,8 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent when parent throws", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final IntegerValue value3 = IntegerValue.create(100);
@@ -1315,13 +1413,14 @@ public interface ResultAsyncTaskTests
                     {
                         value2.increment();
                         value4.set(parentValue);
-                        return new ResultAsyncTask<>(() ->
+                        return asyncRunner.schedule(() ->
                         {
                             value3.increment();
                             return "hello";
                         });
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
                     test.assertEqual(100, value3.get());
@@ -1340,8 +1439,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child after parent when child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return false;
@@ -1354,6 +1454,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("abc");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertFalse(value4.hasValue());
@@ -1369,8 +1470,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent when child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -1383,6 +1485,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("abc");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertFalse(value4.hasValue());
@@ -1398,8 +1501,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child after parent when inner-child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return false;
@@ -1412,13 +1516,14 @@ public interface ResultAsyncTaskTests
                     {
                         value2.increment();
                         value4.set(parentValue);
-                        return new ResultAsyncTask<>(() ->
+                        return asyncRunner.schedule(() ->
                         {
                             value3.increment();
                             throw new FileNotFoundException("blah");
                         });
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -1440,8 +1545,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent when inner-child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -1454,13 +1560,14 @@ public interface ResultAsyncTaskTests
                     {
                         value2.increment();
                         value4.set(parentValue);
-                        return new ResultAsyncTask<>(() ->
+                        return asyncRunner.schedule(() ->
                         {
                             value3.increment();
                             throw new FileNotFoundException("blah");
                         });
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -1485,16 +1592,18 @@ public interface ResultAsyncTaskTests
             {
                 runner.test("with null action", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(value::increment);
+                    final ResultAsyncTask<Void> asyncTask = asyncRunner.schedule(() -> { value.increment(); });
                     test.assertThrows(() -> asyncTask.onValue((Action0)null),
                         new PreConditionFailure("action cannot be null."));
                 });
 
                 runner.test("with non-null action, await child after parent", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return false;
@@ -1503,6 +1612,7 @@ public interface ResultAsyncTaskTests
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Result<Boolean> result = asyncTask.onValue(() -> { value2.increment(); });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -1518,8 +1628,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -1528,6 +1639,7 @@ public interface ResultAsyncTaskTests
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Result<Boolean> result = asyncTask.onValue(() -> { value2.increment(); });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -1543,11 +1655,13 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child after parent when parent throws", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value = IntegerValue.create(10);
                     final Result<Boolean> result = asyncTask.onValue(() -> { value.increment(); });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value.get());
 
@@ -1560,11 +1674,13 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent when parent throws", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value = IntegerValue.create(10);
                     final Result<Boolean> result = asyncTask.onValue(() -> { value.increment(); });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value.get());
 
@@ -1577,8 +1693,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child after parent when child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value.increment();
                         return false;
@@ -1586,6 +1703,7 @@ public interface ResultAsyncTaskTests
 
                     final Result<Boolean> result = asyncTask.onValue((Action0)() -> { throw new FolderNotFoundException("abc"); });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value.get());
 
@@ -1598,8 +1716,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent when child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value.increment();
                         return true;
@@ -1607,6 +1726,7 @@ public interface ResultAsyncTaskTests
 
                     final Result<Boolean> result = asyncTask.onValue((Action0)() -> { throw new FolderNotFoundException("abc"); });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value.get());
 
@@ -1622,16 +1742,22 @@ public interface ResultAsyncTaskTests
             {
                 runner.test("with null action", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(value::increment);
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
+                    {
+                        value.increment();
+                        return true;
+                    });
                     test.assertThrows(() -> asyncTask.onValue((Action1<Boolean>)null),
                         new PreConditionFailure("action cannot be null."));
                 });
 
                 runner.test("with non-null action, await child after parent", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return false;
@@ -1645,6 +1771,7 @@ public interface ResultAsyncTaskTests
                         value3.set(parentValue);
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -1663,8 +1790,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -1678,6 +1806,7 @@ public interface ResultAsyncTaskTests
                         value3.set(parentValue);
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -1696,7 +1825,8 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child after parent when parent throws", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final BooleanValue value3 = BooleanValue.create();
@@ -1706,6 +1836,7 @@ public interface ResultAsyncTaskTests
                         value3.set(parentValue);
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
                     test.assertFalse(value3.hasValue());
@@ -1721,7 +1852,8 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent when parent throws", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final BooleanValue value3 = BooleanValue.create();
@@ -1731,6 +1863,7 @@ public interface ResultAsyncTaskTests
                         value3.set(parentValue);
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
                     test.assertFalse(value3.hasValue());
@@ -1746,8 +1879,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child after parent when child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value.increment();
                         return false;
@@ -1760,6 +1894,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("abc");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value.get());
                     test.assertFalse(value3.hasValue());
@@ -1775,8 +1910,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent when child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value.increment();
                         return true;
@@ -1789,6 +1925,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("abc");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value.get());
                     test.assertFalse(value3.hasValue());
@@ -1807,16 +1944,22 @@ public interface ResultAsyncTaskTests
             {
                 runner.test("with null errorType", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(value::increment);
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
+                    {
+                        value.increment();
+                        return true;
+                    });
                     test.assertThrows(() -> asyncTask.catchError((Class<Throwable>)null),
                         new PreConditionFailure("errorType cannot be null."));
                 });
 
                 runner.test("with non-null errorType, await child after parent", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return false;
@@ -1824,6 +1967,7 @@ public interface ResultAsyncTaskTests
 
                     final Result<Boolean> result = asyncTask.catchError(NotFoundException.class);
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
 
@@ -1836,8 +1980,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -1845,6 +1990,7 @@ public interface ResultAsyncTaskTests
 
                     final Result<Boolean> result = asyncTask.catchError(NotFoundException.class);
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
 
@@ -1857,10 +2003,12 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child after parent when parent throws", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final Result<Boolean> result = asyncTask.catchError(NotFoundException.class);
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertThrows(asyncTask::await, new FileNotFoundException("blah"));
                     test.assertNull(result.await());
@@ -1868,10 +2016,12 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent when parent throws", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final Result<Boolean> result = asyncTask.catchError(NotFoundException.class);
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertNull(result.await());
                     test.assertThrows(asyncTask::await, new FileNotFoundException("blah"));
@@ -1882,16 +2032,22 @@ public interface ResultAsyncTaskTests
             {
                 runner.test("with null action", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(value::increment);
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
+                    {
+                        value.increment();
+                        return true;
+                    });
                     test.assertThrows(() -> asyncTask.catchError((Action0)null),
                         new PreConditionFailure("action cannot be null."));
                 });
 
                 runner.test("with non-null action, await child after parent", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return false;
@@ -1900,6 +2056,7 @@ public interface ResultAsyncTaskTests
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Result<Boolean> result = asyncTask.catchError(() -> { value2.increment(); });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -1915,8 +2072,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -1925,6 +2083,7 @@ public interface ResultAsyncTaskTests
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Result<Boolean> result = asyncTask.catchError(() -> { value2.increment(); });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -1940,11 +2099,13 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child after parent when parent throws", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Result<Boolean> result = asyncTask.catchError(() -> { value2.increment(); });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
 
@@ -1957,11 +2118,13 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent when parent throws", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Result<Boolean> result = asyncTask.catchError(() -> { value2.increment(); });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
 
@@ -1974,8 +2137,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child after parent when child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -1983,6 +2147,7 @@ public interface ResultAsyncTaskTests
 
                     final Result<Boolean> result = asyncTask.catchError((Action0)() -> { throw new FolderNotFoundException("blah"); });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
 
@@ -1995,8 +2160,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent when child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -2009,6 +2175,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -2024,8 +2191,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child after parent when parent and child throw", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         throw new FileNotFoundException("abc");
@@ -2038,6 +2206,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -2053,8 +2222,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent when parent and child throw", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         throw new FileNotFoundException("abc");
@@ -2067,6 +2237,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -2085,16 +2256,22 @@ public interface ResultAsyncTaskTests
             {
                 runner.test("with null action", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(value::increment);
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
+                    {
+                        value.increment();
+                        return true;
+                    });
                     test.assertThrows(() -> asyncTask.catchError((Action1<Throwable>)null),
                         new PreConditionFailure("action cannot be null."));
                 });
 
                 runner.test("with non-null action, await child after parent", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return false;
@@ -2108,6 +2285,7 @@ public interface ResultAsyncTaskTests
                         value3.set(parentError);
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -2126,8 +2304,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -2141,6 +2320,7 @@ public interface ResultAsyncTaskTests
                         value3.set(parentError);
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -2159,7 +2339,8 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child after parent when parent throws", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Value<Throwable> value3 = Value.create();
@@ -2169,6 +2350,7 @@ public interface ResultAsyncTaskTests
                         value3.set(parentError);
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
                     test.assertFalse(value3.hasValue());
@@ -2184,7 +2366,8 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent when parent throws", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Value<Throwable> value3 = Value.create();
@@ -2194,6 +2377,7 @@ public interface ResultAsyncTaskTests
                         value3.set(parentError);
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
                     test.assertFalse(value3.hasValue());
@@ -2209,8 +2393,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child after parent when child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -2223,6 +2408,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertFalse(value3.hasValue());
@@ -2238,8 +2424,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent when child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -2254,6 +2441,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -2272,8 +2460,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child after parent when parent and child throw", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         throw new FileNotFoundException("abc");
@@ -2288,6 +2477,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -2306,8 +2496,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent when parent and child throw", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         throw new FileNotFoundException("abc");
@@ -2322,6 +2513,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -2343,24 +2535,35 @@ public interface ResultAsyncTaskTests
             {
                 runner.test("with null errorType", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(value::increment);
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
+                    {
+                        value.increment();
+                        return true;
+                    });
                     test.assertThrows(() -> asyncTask.catchError(null, () -> {}),
                         new PreConditionFailure("errorType cannot be null."));
                 });
 
                 runner.test("with null action", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(value::increment);
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
+                    {
+                        value.increment();
+                        return false;
+                    });
                     test.assertThrows(() -> asyncTask.catchError(FileNotFoundException.class, (Action0)null),
                         new PreConditionFailure("action cannot be null."));
                 });
 
                 runner.test("with non-null action, await child after parent", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return false;
@@ -2372,6 +2575,7 @@ public interface ResultAsyncTaskTests
                         value2.increment();
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -2387,8 +2591,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -2400,6 +2605,7 @@ public interface ResultAsyncTaskTests
                         value2.increment();
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -2415,7 +2621,8 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child after parent when parent throws matching error", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Result<Boolean> result = asyncTask.catchError(FileNotFoundException.class, () ->
@@ -2423,6 +2630,7 @@ public interface ResultAsyncTaskTests
                         value2.increment();
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
 
@@ -2435,7 +2643,8 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent when parent throws matching error", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Result<Boolean> result = asyncTask.catchError(FileNotFoundException.class, () ->
@@ -2443,6 +2652,7 @@ public interface ResultAsyncTaskTests
                         value2.increment();
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
 
@@ -2455,7 +2665,8 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child after parent when parent throws non-matching error", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Result<Boolean> result = asyncTask.catchError(FolderNotFoundException.class, () ->
@@ -2463,6 +2674,7 @@ public interface ResultAsyncTaskTests
                         value2.increment();
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
 
@@ -2475,7 +2687,8 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent when parent throws non-matching error", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Result<Boolean> result = asyncTask.catchError(FolderNotFoundException.class, () ->
@@ -2483,6 +2696,7 @@ public interface ResultAsyncTaskTests
                         value2.increment();
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
 
@@ -2495,8 +2709,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child after parent when child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -2509,6 +2724,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -2524,8 +2740,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent when child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -2538,6 +2755,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -2553,8 +2771,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child after parent when parent throws matching error and child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         throw new FileNotFoundException("abc");
@@ -2567,6 +2786,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -2582,8 +2802,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent when parent throws matching error and child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         throw new FileNotFoundException("abc");
@@ -2596,6 +2817,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -2611,8 +2833,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child after parent when parent throws non-matching error and child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         throw new FileNotFoundException("abc");
@@ -2625,6 +2848,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -2640,8 +2864,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent when parent throws non-matching error and child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         throw new FileNotFoundException("abc");
@@ -2654,6 +2879,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -2672,24 +2898,35 @@ public interface ResultAsyncTaskTests
             {
                 runner.test("with null errorType", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(value::increment);
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
+                    {
+                        value.increment();
+                        return true;
+                    });
                     test.assertThrows(() -> asyncTask.catchError(null, (FileNotFoundException error) -> {}),
                         new PreConditionFailure("errorType cannot be null."));
                 });
 
                 runner.test("with null action", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(value::increment);
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
+                    {
+                        value.increment();
+                        return false;
+                    });
                     test.assertThrows(() -> asyncTask.catchError(FileNotFoundException.class, (Action1<FileNotFoundException>)null),
                         new PreConditionFailure("action cannot be null."));
                 });
 
                 runner.test("with non-null action, await child after parent", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return false;
@@ -2703,6 +2940,7 @@ public interface ResultAsyncTaskTests
                         value3.set(parentError);
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -2721,8 +2959,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -2736,6 +2975,7 @@ public interface ResultAsyncTaskTests
                         value3.set(parentError);
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -2754,7 +2994,8 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child after parent when parent throws matching error", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Value<Throwable> value3 = Value.create();
@@ -2764,6 +3005,7 @@ public interface ResultAsyncTaskTests
                         value3.set(parentError);
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
                     test.assertFalse(value3.hasValue());
@@ -2779,7 +3021,8 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent when parent throws matching error", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Value<Throwable> value3 = Value.create();
@@ -2789,6 +3032,7 @@ public interface ResultAsyncTaskTests
                         value3.set(parentError);
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
                     test.assertFalse(value3.hasValue());
@@ -2804,7 +3048,8 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child after parent when parent throws non-matching error", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Value<Throwable> value3 = Value.create();
@@ -2814,6 +3059,7 @@ public interface ResultAsyncTaskTests
                         value3.set(parentError);
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
                     test.assertFalse(value3.hasValue());
@@ -2829,7 +3075,8 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent when parent throws non-matching error", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Value<Throwable> value3 = Value.create();
@@ -2839,6 +3086,7 @@ public interface ResultAsyncTaskTests
                         value3.set(parentError);
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
                     test.assertFalse(value3.hasValue());
@@ -2854,8 +3102,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child after parent when child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -2870,6 +3119,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -2888,8 +3138,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent when child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -2904,6 +3155,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -2922,8 +3174,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child after parent when parent throws matching error and child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         throw new FileNotFoundException("abc");
@@ -2938,6 +3191,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -2956,8 +3210,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent when parent throws matching error and child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         throw new FileNotFoundException("abc");
@@ -2972,6 +3227,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -2990,8 +3246,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child after parent when parent throws non-matching error and child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         throw new FileNotFoundException("abc");
@@ -3006,6 +3263,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -3024,8 +3282,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent when parent throws non-matching error and child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         throw new FileNotFoundException("abc");
@@ -3040,6 +3299,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -3061,16 +3321,22 @@ public interface ResultAsyncTaskTests
             {
                 runner.test("with null function", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(value::increment);
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
+                    {
+                        value.increment();
+                        return true;
+                    });
                     test.assertThrows(() -> asyncTask.catchError((Function0<Boolean>)null),
                         new PreConditionFailure("function cannot be null."));
                 });
 
                 runner.test("with non-null function, await child after parent", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return false;
@@ -3083,6 +3349,7 @@ public interface ResultAsyncTaskTests
                         return true;
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -3098,8 +3365,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -3112,6 +3380,7 @@ public interface ResultAsyncTaskTests
                         return false;
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -3127,7 +3396,8 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child after parent when parent throws", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Result<Boolean> result = asyncTask.catchError(() ->
@@ -3136,6 +3406,7 @@ public interface ResultAsyncTaskTests
                         return true;
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
 
@@ -3148,7 +3419,8 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent when parent throws", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Result<Boolean> result = asyncTask.catchError(() ->
@@ -3157,6 +3429,7 @@ public interface ResultAsyncTaskTests
                         return false;
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
 
@@ -3169,8 +3442,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child after parent when child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -3178,6 +3452,7 @@ public interface ResultAsyncTaskTests
 
                     final Result<Boolean> result = asyncTask.catchError((Function0<Boolean>)() -> { throw new FolderNotFoundException("blah"); });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
 
@@ -3190,8 +3465,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent when child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -3204,6 +3480,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -3219,8 +3496,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child after parent when parent and child throw", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         throw new FileNotFoundException("abc");
@@ -3233,6 +3511,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -3248,8 +3527,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent when parent and child throw", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         throw new FileNotFoundException("abc");
@@ -3262,6 +3542,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -3280,16 +3561,22 @@ public interface ResultAsyncTaskTests
             {
                 runner.test("with null function", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(value::increment);
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
+                    {
+                        value.increment();
+                        return true;
+                    });
                     test.assertThrows(() -> asyncTask.catchError((Function1<Throwable,Boolean>)null),
                         new PreConditionFailure("function cannot be null."));
                 });
 
                 runner.test("with non-null function, await child after parent", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return false;
@@ -3304,6 +3591,7 @@ public interface ResultAsyncTaskTests
                         return true;
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -3322,8 +3610,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -3338,6 +3627,7 @@ public interface ResultAsyncTaskTests
                         return false;
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -3356,7 +3646,8 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child after parent when parent throws", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Value<Throwable> value3 = Value.create();
@@ -3367,6 +3658,7 @@ public interface ResultAsyncTaskTests
                         return true;
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
                     test.assertFalse(value3.hasValue());
@@ -3382,7 +3674,8 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent when parent throws", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Value<Throwable> value3 = Value.create();
@@ -3393,6 +3686,7 @@ public interface ResultAsyncTaskTests
                         return false;
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
                     test.assertFalse(value3.hasValue());
@@ -3408,8 +3702,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child after parent when child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -3422,6 +3717,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertFalse(value3.hasValue());
@@ -3437,8 +3733,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent when child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -3453,6 +3750,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -3471,8 +3769,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child after parent when parent and child throw", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         throw new FileNotFoundException("abc");
@@ -3487,6 +3786,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -3505,8 +3805,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent when parent and child throw", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         throw new FileNotFoundException("abc");
@@ -3521,6 +3822,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -3542,24 +3844,35 @@ public interface ResultAsyncTaskTests
             {
                 runner.test("with null errorType", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(value::increment);
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
+                    {
+                        value.increment();
+                        return false;
+                    });
                     test.assertThrows(() -> asyncTask.catchError(null, () -> false),
                         new PreConditionFailure("errorType cannot be null."));
                 });
 
                 runner.test("with null function", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(value::increment);
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
+                    {
+                        value.increment();
+                        return true;
+                    });
                     test.assertThrows(() -> asyncTask.catchError(FileNotFoundException.class, (Function0<Boolean>)null),
                         new PreConditionFailure("function cannot be null."));
                 });
 
                 runner.test("with non-null function, await child after parent", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return false;
@@ -3572,6 +3885,7 @@ public interface ResultAsyncTaskTests
                         return true;
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -3587,8 +3901,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -3601,6 +3916,7 @@ public interface ResultAsyncTaskTests
                         return false;
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -3616,7 +3932,8 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child after parent when parent throws matching error", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Result<Boolean> result = asyncTask.catchError(FileNotFoundException.class, () ->
@@ -3625,6 +3942,7 @@ public interface ResultAsyncTaskTests
                         return true;
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
 
@@ -3637,7 +3955,8 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent when parent throws matching error", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Result<Boolean> result = asyncTask.catchError(FileNotFoundException.class, () ->
@@ -3646,6 +3965,7 @@ public interface ResultAsyncTaskTests
                         return false;
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
 
@@ -3658,7 +3978,8 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child after parent when parent throws non-matching error", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Result<Boolean> result = asyncTask.catchError(FolderNotFoundException.class, () ->
@@ -3667,6 +3988,7 @@ public interface ResultAsyncTaskTests
                         return true;
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
 
@@ -3679,7 +4001,8 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent when parent throws non-matching error", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Result<Boolean> result = asyncTask.catchError(FolderNotFoundException.class, () ->
@@ -3688,6 +4011,7 @@ public interface ResultAsyncTaskTests
                         return false;
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
 
@@ -3700,8 +4024,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child after parent when child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -3714,6 +4039,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -3729,8 +4055,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent when child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -3743,6 +4070,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -3758,8 +4086,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child after parent when parent throws matching error and child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         throw new FileNotFoundException("abc");
@@ -3772,6 +4101,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -3787,8 +4117,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent when parent throws matching error and child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         throw new FileNotFoundException("abc");
@@ -3801,6 +4132,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -3816,8 +4148,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child after parent when parent throws non-matching error and child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         throw new FileNotFoundException("abc");
@@ -3830,6 +4163,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -3845,8 +4179,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent when parent throws non-matching error and child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         throw new FileNotFoundException("abc");
@@ -3859,6 +4194,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -3877,24 +4213,35 @@ public interface ResultAsyncTaskTests
             {
                 runner.test("with null errorType", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(value::increment);
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
+                    {
+                        value.increment();
+                        return false;
+                    });
                     test.assertThrows(() -> asyncTask.catchError(null, (FileNotFoundException error) -> true),
                         new PreConditionFailure("errorType cannot be null."));
                 });
 
                 runner.test("with null function", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(value::increment);
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
+                    {
+                        value.increment();
+                        return true;
+                    });
                     test.assertThrows(() -> asyncTask.catchError(FileNotFoundException.class, (Function1<FileNotFoundException,Boolean>)null),
                         new PreConditionFailure("function cannot be null."));
                 });
 
                 runner.test("with non-null function, await child after parent", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return false;
@@ -3909,6 +4256,7 @@ public interface ResultAsyncTaskTests
                         return true;
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -3927,8 +4275,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -3943,6 +4292,7 @@ public interface ResultAsyncTaskTests
                         return false;
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -3961,7 +4311,8 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child after parent when parent throws matching error", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Value<Throwable> value3 = Value.create();
@@ -3972,6 +4323,7 @@ public interface ResultAsyncTaskTests
                         return true;
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
                     test.assertFalse(value3.hasValue());
@@ -3987,7 +4339,8 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent when parent throws matching error", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Value<Throwable> value3 = Value.create();
@@ -3998,6 +4351,7 @@ public interface ResultAsyncTaskTests
                         return false;
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
                     test.assertFalse(value3.hasValue());
@@ -4013,7 +4367,8 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child after parent when parent throws non-matching error", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Value<Throwable> value3 = Value.create();
@@ -4024,6 +4379,7 @@ public interface ResultAsyncTaskTests
                         return true;
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
                     test.assertFalse(value3.hasValue());
@@ -4039,7 +4395,8 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent when parent throws non-matching error", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Value<Throwable> value3 = Value.create();
@@ -4050,6 +4407,7 @@ public interface ResultAsyncTaskTests
                         return false;
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
                     test.assertFalse(value3.hasValue());
@@ -4065,8 +4423,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child after parent when child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -4081,6 +4440,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -4099,8 +4459,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent when child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -4115,6 +4476,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -4133,8 +4495,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child after parent when parent throws matching error and child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         throw new FileNotFoundException("abc");
@@ -4149,6 +4512,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -4167,8 +4531,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent when parent throws matching error and child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         throw new FileNotFoundException("abc");
@@ -4183,6 +4548,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -4201,8 +4567,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child after parent when parent throws non-matching error and child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         throw new FileNotFoundException("abc");
@@ -4217,6 +4584,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -4235,8 +4603,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent when parent throws non-matching error and child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         throw new FileNotFoundException("abc");
@@ -4251,6 +4620,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -4272,16 +4642,22 @@ public interface ResultAsyncTaskTests
             {
                 runner.test("with null function", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(value::increment);
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
+                    {
+                        value.increment();
+                        return true;
+                    });
                     test.assertThrows(() -> asyncTask.catchErrorResult((Function0<Result<Boolean>>)null),
                         new PreConditionFailure("function cannot be null."));
                 });
 
                 runner.test("with non-null function, await child after parent", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return false;
@@ -4292,13 +4668,14 @@ public interface ResultAsyncTaskTests
                     final Result<Boolean> result = asyncTask.catchErrorResult(() ->
                     {
                         value2.increment();
-                        return new ResultAsyncTask<>(() ->
+                        return asyncRunner.schedule(() ->
                         {
                             value3.increment();
                             return true;
                         });
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -4317,8 +4694,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -4329,13 +4707,14 @@ public interface ResultAsyncTaskTests
                     final Result<Boolean> result = asyncTask.catchErrorResult(() ->
                     {
                         value2.increment();
-                        return new ResultAsyncTask<>(() ->
+                        return asyncRunner.schedule(() ->
                         {
                             value3.increment();
                             return false;
                         });
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -4354,20 +4733,22 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child after parent when parent throws", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final IntegerValue value3 = IntegerValue.create(100);
                     final Result<Boolean> result = asyncTask.catchErrorResult(() ->
                     {
                         value2.increment();
-                        return new ResultAsyncTask<>(() ->
+                        return asyncRunner.schedule(() ->
                         {
                             value3.increment();
                             return true;
                         });
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
                     test.assertEqual(100, value3.get());
@@ -4383,20 +4764,22 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent when parent throws", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final IntegerValue value3 = IntegerValue.create(100);
                     final Result<Boolean> result = asyncTask.catchErrorResult(() ->
                     {
                         value2.increment();
-                        return new ResultAsyncTask<>(() ->
+                        return asyncRunner.schedule(() ->
                         {
                             value3.increment();
                             return false;
                         });
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
                     test.assertEqual(100, value3.get());
@@ -4412,8 +4795,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child after parent when child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -4421,6 +4805,7 @@ public interface ResultAsyncTaskTests
 
                     final Result<Boolean> result = asyncTask.catchErrorResult((Function0<Result<Boolean>>)() -> { throw new FolderNotFoundException("blah"); });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
 
@@ -4433,8 +4818,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent when child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -4447,6 +4833,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -4462,8 +4849,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child after parent when parent and child throw", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         throw new FileNotFoundException("abc");
@@ -4476,6 +4864,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -4491,8 +4880,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent when parent and child throw", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         throw new FileNotFoundException("abc");
@@ -4505,6 +4895,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -4520,20 +4911,22 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child after parent when parent and inner-child throw", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FolderNotFoundException("abc"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FolderNotFoundException("abc"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final IntegerValue value3 = IntegerValue.create(100);
                     final Result<Boolean> result = asyncTask.catchErrorResult(() ->
                     {
                         value2.increment();
-                        return new ResultAsyncTask<>(() ->
+                        return asyncRunner.schedule(() ->
                         {
                             value3.increment();
                             throw new FileNotFoundException("blah");
                         });
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
                     test.assertEqual(100, value3.get());
@@ -4549,20 +4942,22 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent when parent and inner-child throw", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FolderNotFoundException("abc"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FolderNotFoundException("abc"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final IntegerValue value3 = IntegerValue.create(100);
                     final Result<Boolean> result = asyncTask.catchErrorResult(() ->
                     {
                         value2.increment();
-                        return new ResultAsyncTask<>(() ->
+                        return asyncRunner.schedule(() ->
                         {
                             value3.increment();
                             throw new FileNotFoundException("blah");
                         });
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
                     test.assertEqual(100, value3.get());
@@ -4581,16 +4976,22 @@ public interface ResultAsyncTaskTests
             {
                 runner.test("with null function", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(value::increment);
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
+                    {
+                        value.increment();
+                        return true;
+                    });
                     test.assertThrows(() -> asyncTask.catchErrorResult((Function1<Throwable,Result<Boolean>>)null),
                         new PreConditionFailure("function cannot be null."));
                 });
 
                 runner.test("with non-null function, await child after parent", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return false;
@@ -4603,13 +5004,14 @@ public interface ResultAsyncTaskTests
                     {
                         value2.increment();
                         value4.set(parentError);
-                        return new ResultAsyncTask<>(() ->
+                        return asyncRunner.schedule(() ->
                         {
                             value3.increment();
                             return true;
                         });
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -4631,8 +5033,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -4645,13 +5048,14 @@ public interface ResultAsyncTaskTests
                     {
                         value2.increment();
                         value4.set(parentError);
-                        return new ResultAsyncTask<>(() ->
+                        return asyncRunner.schedule(() ->
                         {
                             value3.increment();
                             return false;
                         });
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -4673,7 +5077,8 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child after parent when parent throws", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final IntegerValue value3 = IntegerValue.create(100);
@@ -4682,13 +5087,14 @@ public interface ResultAsyncTaskTests
                     {
                         value2.increment();
                         value4.set(parentError);
-                        return new ResultAsyncTask<>(() ->
+                        return asyncRunner.schedule(() ->
                         {
                             value3.increment();
                             return true;
                         });
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
                     test.assertEqual(100, value3.get());
@@ -4707,7 +5113,8 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent when parent throws", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final IntegerValue value3 = IntegerValue.create(100);
@@ -4716,13 +5123,14 @@ public interface ResultAsyncTaskTests
                     {
                         value2.increment();
                         value4.set(parentError);
-                        return new ResultAsyncTask<>(() ->
+                        return asyncRunner.schedule(() ->
                         {
                             value3.increment();
                             return false;
                         });
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
                     test.assertEqual(100, value3.get());
@@ -4741,8 +5149,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child after parent when child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -4755,6 +5164,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertFalse(value4.hasValue());
@@ -4770,8 +5180,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent when child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -4786,6 +5197,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -4804,8 +5216,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child after parent when parent and child throw", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         throw new FileNotFoundException("abc");
@@ -4820,6 +5233,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -4838,8 +5252,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent when parent and child throw", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         throw new FileNotFoundException("abc");
@@ -4854,6 +5269,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -4872,7 +5288,8 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child after parent when parent and inner-child throw", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FolderNotFoundException("abc"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FolderNotFoundException("abc"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final IntegerValue value3 = IntegerValue.create(100);
@@ -4881,13 +5298,14 @@ public interface ResultAsyncTaskTests
                     {
                         value2.increment();
                         value4.set(parentError);
-                        return new ResultAsyncTask<>(() ->
+                        return asyncRunner.schedule(() ->
                         {
                             value3.increment();
                             throw new FileNotFoundException("blah");
                         });
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
                     test.assertEqual(100, value3.get());
@@ -4906,7 +5324,8 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent when parent and inner-child throw", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FolderNotFoundException("abc"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FolderNotFoundException("abc"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final IntegerValue value3 = IntegerValue.create(100);
@@ -4915,13 +5334,14 @@ public interface ResultAsyncTaskTests
                     {
                         value2.increment();
                         value4.set(parentError);
-                        return new ResultAsyncTask<>(() ->
+                        return asyncRunner.schedule(() ->
                         {
                             value3.increment();
                             throw new FileNotFoundException("blah");
                         });
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
                     test.assertEqual(100, value3.get());
@@ -4943,24 +5363,35 @@ public interface ResultAsyncTaskTests
             {
                 runner.test("with null errorType", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(value::increment);
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
+                    {
+                        value.increment();
+                        return false;
+                    });
                     test.assertThrows(() -> asyncTask.catchErrorResult(null, () -> Result.successTrue()),
                         new PreConditionFailure("errorType cannot be null."));
                 });
 
                 runner.test("with null function", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(value::increment);
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
+                    {
+                        value.increment();
+                        return true;
+                    });
                     test.assertThrows(() -> asyncTask.catchErrorResult(FileNotFoundException.class, (Function0<Result<Boolean>>)null),
                         new PreConditionFailure("function cannot be null."));
                 });
 
                 runner.test("with non-null function, await child after parent", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return false;
@@ -4971,13 +5402,14 @@ public interface ResultAsyncTaskTests
                     final Result<Boolean> result = asyncTask.catchErrorResult(FileNotFoundException.class, () ->
                     {
                         value2.increment();
-                        return new ResultAsyncTask<>(() ->
+                        return asyncRunner.schedule(() ->
                         {
                             value4.increment();
                             return true;
                         });
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -4996,8 +5428,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -5008,13 +5441,14 @@ public interface ResultAsyncTaskTests
                     final Result<Boolean> result = asyncTask.catchErrorResult(FileNotFoundException.class, () ->
                     {
                         value2.increment();
-                        return new ResultAsyncTask<>(() ->
+                        return asyncRunner.schedule(() ->
                         {
                             value4.increment();
                             return false;
                         });
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -5033,20 +5467,22 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child after parent when parent throws matching error", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final IntegerValue value4 = IntegerValue.create(100);
                     final Result<Boolean> result = asyncTask.catchErrorResult(FileNotFoundException.class, () ->
                     {
                         value2.increment();
-                        return new ResultAsyncTask<>(() ->
+                        return asyncRunner.schedule(() ->
                         {
                             value4.increment();
                             return true;
                         });
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
                     test.assertEqual(100, value4.get());
@@ -5062,20 +5498,22 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent when parent throws matching error", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final IntegerValue value4 = IntegerValue.create(100);
                     final Result<Boolean> result = asyncTask.catchErrorResult(FileNotFoundException.class, () ->
                     {
                         value2.increment();
-                        return new ResultAsyncTask<>(() ->
+                        return asyncRunner.schedule(() ->
                         {
                             value4.increment();
                             return false;
                         });
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
                     test.assertEqual(100, value4.get());
@@ -5091,20 +5529,22 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child after parent when parent throws non-matching error", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final IntegerValue value4 = IntegerValue.create(100);
                     final Result<Boolean> result = asyncTask.catchErrorResult(FolderNotFoundException.class, () ->
                     {
                         value2.increment();
-                        return new ResultAsyncTask<>(() ->
+                        return asyncRunner.schedule(() ->
                         {
                             value4.increment();
                             return true;
                         });
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
                     test.assertEqual(100, value4.get());
@@ -5120,20 +5560,22 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent when parent throws non-matching error", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final IntegerValue value4 = IntegerValue.create(100);
                     final Result<Boolean> result = asyncTask.catchErrorResult(FolderNotFoundException.class, () ->
                     {
                         value2.increment();
-                        return new ResultAsyncTask<>(() ->
+                        return asyncRunner.schedule(() ->
                         {
                             value4.increment();
                             return false;
                         });
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
                     test.assertEqual(100, value4.get());
@@ -5149,8 +5591,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child after parent when child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -5163,6 +5606,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -5178,8 +5622,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent when child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -5192,6 +5637,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -5207,8 +5653,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child after parent when parent throws matching error and child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         throw new FileNotFoundException("abc");
@@ -5222,6 +5669,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -5237,8 +5685,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent when parent throws matching error and child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         throw new FileNotFoundException("abc");
@@ -5251,6 +5700,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -5266,8 +5716,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child after parent when parent throws non-matching error and child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         throw new FileNotFoundException("abc");
@@ -5280,6 +5731,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -5295,8 +5747,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent when parent throws non-matching error and child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         throw new FileNotFoundException("abc");
@@ -5309,6 +5762,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -5327,24 +5781,35 @@ public interface ResultAsyncTaskTests
             {
                 runner.test("with null errorType", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(value::increment);
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
+                    {
+                        value.increment();
+                        return false;
+                    });
                     test.assertThrows(() -> asyncTask.catchErrorResult(null, (FileNotFoundException error) -> Result.successTrue()),
                         new PreConditionFailure("errorType cannot be null."));
                 });
 
                 runner.test("with null function", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(value::increment);
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
+                    {
+                        value.increment();
+                        return true;
+                    });
                     test.assertThrows(() -> asyncTask.catchErrorResult(FileNotFoundException.class, (Function1<FileNotFoundException,Result<Boolean>>)null),
                         new PreConditionFailure("function cannot be null."));
                 });
 
                 runner.test("with non-null function, await child after parent", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return false;
@@ -5357,13 +5822,14 @@ public interface ResultAsyncTaskTests
                     {
                         value2.increment();
                         value3.set(parentError);
-                        return new ResultAsyncTask<>(() ->
+                        return asyncRunner.schedule(() ->
                         {
                             value4.increment();
                             return true;
                         });
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -5385,8 +5851,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -5399,13 +5866,14 @@ public interface ResultAsyncTaskTests
                     {
                         value2.increment();
                         value3.set(parentError);
-                        return new ResultAsyncTask<>(() ->
+                        return asyncRunner.schedule(() ->
                         {
                             value4.increment();
                             return false;
                         });
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -5427,7 +5895,8 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child after parent when parent throws matching error", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Value<Throwable> value3 = Value.create();
@@ -5436,13 +5905,14 @@ public interface ResultAsyncTaskTests
                     {
                         value2.increment();
                         value3.set(parentError);
-                        return new ResultAsyncTask<>(() ->
+                        return asyncRunner.schedule(() ->
                         {
                             value4.increment();
                             return true;
                         });
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
                     test.assertFalse(value3.hasValue());
@@ -5461,7 +5931,8 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent when parent throws matching error", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Value<Throwable> value3 = Value.create();
@@ -5470,13 +5941,14 @@ public interface ResultAsyncTaskTests
                     {
                         value2.increment();
                         value3.set(parentError);
-                        return new ResultAsyncTask<>(() ->
+                        return asyncRunner.schedule(() ->
                         {
                             value4.increment();
                             return false;
                         });
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
                     test.assertFalse(value3.hasValue());
@@ -5495,7 +5967,8 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child after parent when parent throws non-matching error", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Value<Throwable> value3 = Value.create();
@@ -5504,13 +5977,14 @@ public interface ResultAsyncTaskTests
                     {
                         value2.increment();
                         value3.set(parentError);
-                        return new ResultAsyncTask<>(() ->
+                        return asyncRunner.schedule(() ->
                         {
                             value4.increment();
                             return true;
                         });
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
                     test.assertFalse(value3.hasValue());
@@ -5529,7 +6003,8 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent when parent throws non-matching error", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Value<Throwable> value3 = Value.create();
@@ -5538,13 +6013,14 @@ public interface ResultAsyncTaskTests
                     {
                         value2.increment();
                         value3.set(parentError);
-                        return new ResultAsyncTask<>(() ->
+                        return asyncRunner.schedule(() ->
                         {
                             value4.increment();
                             return false;
                         });
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
                     test.assertFalse(value3.hasValue());
@@ -5563,8 +6039,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child after parent when child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -5579,6 +6056,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -5597,8 +6075,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent when child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -5613,6 +6092,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -5631,8 +6111,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child after parent when parent throws matching error and child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         throw new FileNotFoundException("abc");
@@ -5647,6 +6128,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -5665,8 +6147,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent when parent throws matching error and child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         throw new FileNotFoundException("abc");
@@ -5681,6 +6164,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -5699,8 +6183,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child after parent when parent throws non-matching error and child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         throw new FileNotFoundException("abc");
@@ -5715,6 +6200,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -5733,8 +6219,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null function, await child before parent when parent throws non-matching error and child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         throw new FileNotFoundException("abc");
@@ -5749,6 +6236,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -5770,16 +6258,22 @@ public interface ResultAsyncTaskTests
             {
                 runner.test("with null action", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(value::increment);
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
+                    {
+                        value.increment();
+                        return true;
+                    });
                     test.assertThrows(() -> asyncTask.onError((Action0)null),
                         new PreConditionFailure("action cannot be null."));
                 });
 
                 runner.test("with non-null action, await child after parent", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return false;
@@ -5788,6 +6282,7 @@ public interface ResultAsyncTaskTests
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Result<Boolean> result = asyncTask.onError(() -> { value2.increment(); });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -5803,8 +6298,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -5813,6 +6309,7 @@ public interface ResultAsyncTaskTests
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Result<Boolean> result = asyncTask.onError(() -> { value2.increment(); });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -5828,11 +6325,13 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child after parent when parent throws", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Result<Boolean> result = asyncTask.onError(() -> { value2.increment(); });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
 
@@ -5845,11 +6344,13 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent when parent throws", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Result<Boolean> result = asyncTask.onError(() -> { value2.increment(); });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
 
@@ -5862,8 +6363,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child after parent when child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -5871,6 +6373,7 @@ public interface ResultAsyncTaskTests
 
                     final Result<Boolean> result = asyncTask.onError((Action0)() -> { throw new FolderNotFoundException("blah"); });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
 
@@ -5883,8 +6386,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent when child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -5897,6 +6401,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -5912,8 +6417,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child after parent when parent and child throw", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         throw new FileNotFoundException("abc");
@@ -5926,6 +6432,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -5941,8 +6448,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent when parent and child throw", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         throw new FileNotFoundException("abc");
@@ -5955,6 +6463,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -5973,16 +6482,22 @@ public interface ResultAsyncTaskTests
             {
                 runner.test("with null action", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(value::increment);
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
+                    {
+                        value.increment();
+                        return true;
+                    });
                     test.assertThrows(() -> asyncTask.onError((Action1<Throwable>)null),
                         new PreConditionFailure("action cannot be null."));
                 });
 
                 runner.test("with non-null action, await child after parent", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return false;
@@ -5996,6 +6511,7 @@ public interface ResultAsyncTaskTests
                         value3.set(parentError);
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -6014,8 +6530,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -6029,6 +6546,7 @@ public interface ResultAsyncTaskTests
                         value3.set(parentError);
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -6047,7 +6565,8 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child after parent when parent throws", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Value<Throwable> value3 = Value.create();
@@ -6057,6 +6576,7 @@ public interface ResultAsyncTaskTests
                         value3.set(parentError);
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
                     test.assertFalse(value3.hasValue());
@@ -6072,7 +6592,8 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent when parent throws", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Value<Throwable> value3 = Value.create();
@@ -6082,6 +6603,7 @@ public interface ResultAsyncTaskTests
                         value3.set(parentError);
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
                     test.assertFalse(value3.hasValue());
@@ -6097,8 +6619,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child after parent when child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -6111,6 +6634,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertFalse(value3.hasValue());
@@ -6126,8 +6650,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent when child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -6142,6 +6667,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -6160,8 +6686,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child after parent when parent and child throw", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         throw new FileNotFoundException("abc");
@@ -6176,6 +6703,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -6194,8 +6722,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent when parent and child throw", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         throw new FileNotFoundException("abc");
@@ -6210,6 +6739,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -6231,24 +6761,35 @@ public interface ResultAsyncTaskTests
             {
                 runner.test("with null errorType", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(value::increment);
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
+                    {
+                        value.increment();
+                        return false;
+                    });
                     test.assertThrows(() -> asyncTask.onError(null, () -> {}),
                         new PreConditionFailure("errorType cannot be null."));
                 });
 
                 runner.test("with null action", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(value::increment);
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
+                    {
+                        value.increment();
+                        return true;
+                    });
                     test.assertThrows(() -> asyncTask.onError(FileNotFoundException.class, (Action0)null),
                         new PreConditionFailure("action cannot be null."));
                 });
 
                 runner.test("with non-null action, await child after parent", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return false;
@@ -6260,6 +6801,7 @@ public interface ResultAsyncTaskTests
                         value2.increment();
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -6275,8 +6817,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -6288,6 +6831,7 @@ public interface ResultAsyncTaskTests
                         value2.increment();
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -6303,7 +6847,8 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child after parent when parent throws matching error", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Result<Boolean> result = asyncTask.onError(FileNotFoundException.class, () ->
@@ -6311,6 +6856,7 @@ public interface ResultAsyncTaskTests
                         value2.increment();
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
 
@@ -6323,7 +6869,8 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent when parent throws matching error", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Result<Boolean> result = asyncTask.onError(FileNotFoundException.class, () ->
@@ -6331,6 +6878,7 @@ public interface ResultAsyncTaskTests
                         value2.increment();
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
 
@@ -6343,7 +6891,8 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child after parent when parent throws non-matching error", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Result<Boolean> result = asyncTask.onError(FolderNotFoundException.class, () ->
@@ -6351,6 +6900,7 @@ public interface ResultAsyncTaskTests
                         value2.increment();
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
 
@@ -6363,7 +6913,8 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent when parent throws non-matching error", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Result<Boolean> result = asyncTask.onError(FolderNotFoundException.class, () ->
@@ -6371,6 +6922,7 @@ public interface ResultAsyncTaskTests
                         value2.increment();
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
 
@@ -6383,8 +6935,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child after parent when child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -6397,6 +6950,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -6412,8 +6966,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent when child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -6426,6 +6981,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -6441,8 +6997,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child after parent when parent throws matching error and child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         throw new FileNotFoundException("abc");
@@ -6455,6 +7012,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -6470,8 +7028,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent when parent throws matching error and child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         throw new FileNotFoundException("abc");
@@ -6484,6 +7043,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -6499,8 +7059,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child after parent when parent throws non-matching error and child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         throw new FileNotFoundException("abc");
@@ -6513,6 +7074,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -6528,8 +7090,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent when parent throws non-matching error and child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         throw new FileNotFoundException("abc");
@@ -6542,6 +7105,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -6560,24 +7124,35 @@ public interface ResultAsyncTaskTests
             {
                 runner.test("with null errorType", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(value::increment);
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
+                    {
+                        value.increment();
+                        return false;
+                    });
                     test.assertThrows(() -> asyncTask.onError(null, (FileNotFoundException error) -> {}),
                         new PreConditionFailure("errorType cannot be null."));
                 });
 
                 runner.test("with null action", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<Boolean>(value::increment);
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
+                    {
+                        value.increment();
+                        return true;
+                    });
                     test.assertThrows(() -> asyncTask.onError(FileNotFoundException.class, (Action1<FileNotFoundException>)null),
                         new PreConditionFailure("action cannot be null."));
                 });
 
                 runner.test("with non-null action, await child after parent", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return false;
@@ -6591,6 +7166,7 @@ public interface ResultAsyncTaskTests
                         value3.set(parentError);
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -6609,8 +7185,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -6624,6 +7201,7 @@ public interface ResultAsyncTaskTests
                         value3.set(parentError);
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -6642,7 +7220,8 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child after parent when parent throws matching error", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Value<Throwable> value3 = Value.create();
@@ -6652,6 +7231,7 @@ public interface ResultAsyncTaskTests
                         value3.set(parentError);
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
                     test.assertFalse(value3.hasValue());
@@ -6667,7 +7247,8 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent when parent throws matching error", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Value<Throwable> value3 = Value.create();
@@ -6677,6 +7258,7 @@ public interface ResultAsyncTaskTests
                         value3.set(parentError);
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
                     test.assertFalse(value3.hasValue());
@@ -6692,7 +7274,8 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child after parent when parent throws non-matching error", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Value<Throwable> value3 = Value.create();
@@ -6702,6 +7285,7 @@ public interface ResultAsyncTaskTests
                         value3.set(parentError);
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
                     test.assertFalse(value3.hasValue());
@@ -6717,7 +7301,8 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent when parent throws non-matching error", (Test test) ->
                 {
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() -> { throw new FileNotFoundException("blah"); });
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> { throw new FileNotFoundException("blah"); });
 
                     final IntegerValue value2 = IntegerValue.create(10);
                     final Value<Throwable> value3 = Value.create();
@@ -6727,6 +7312,7 @@ public interface ResultAsyncTaskTests
                         value3.set(parentError);
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(10, value2.get());
                     test.assertFalse(value3.hasValue());
@@ -6742,8 +7328,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child after parent when child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -6758,6 +7345,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -6776,8 +7364,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent when child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         return true;
@@ -6792,6 +7381,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -6810,8 +7400,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child after parent when parent throws matching error and child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         throw new FileNotFoundException("abc");
@@ -6826,6 +7417,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -6844,8 +7436,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent when parent throws matching error and child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         throw new FileNotFoundException("abc");
@@ -6860,6 +7453,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -6878,8 +7472,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child after parent when parent throws non-matching error and child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         throw new FileNotFoundException("abc");
@@ -6894,6 +7489,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());
@@ -6912,8 +7508,9 @@ public interface ResultAsyncTaskTests
 
                 runner.test("with non-null action, await child before parent when parent throws non-matching error and child throws", (Test test) ->
                 {
+                    final ResultManualAsyncRunner asyncRunner = new ResultManualAsyncRunner();
                     final IntegerValue value1 = IntegerValue.create(0);
-                    final ResultAsyncTask<Boolean> asyncTask = new ResultAsyncTask<>(() ->
+                    final ResultAsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                     {
                         value1.increment();
                         throw new FileNotFoundException("abc");
@@ -6928,6 +7525,7 @@ public interface ResultAsyncTaskTests
                         throw new FolderNotFoundException("blah");
                     });
                     test.assertNotNull(result);
+                    test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                     test.assertEqual(0, value1.get());
                     test.assertEqual(10, value2.get());

@@ -6,12 +6,12 @@ public interface ResultAsyncRunnerTests
     {
         runner.testGroup(ResultAsyncRunner.class, () ->
         {
-            runner.testGroup("run(Action0)", () ->
+            runner.testGroup("schedule(Action0)", () ->
             {
                 runner.test("with null action", (Test test) ->
                 {
                     final ResultAsyncRunner asyncRunner = creator.run();
-                    test.assertThrows(() -> asyncRunner.run((Action0)null),
+                    test.assertThrows(() -> asyncRunner.schedule((Action0)null),
                         new PreConditionFailure("action cannot be null."));
                 });
 
@@ -20,7 +20,7 @@ public interface ResultAsyncRunnerTests
                     final ResultAsyncRunner asyncRunner = creator.run();
                     final Value<Integer> value = Value.create();
 
-                    final Result<Void> result = asyncRunner.run(() -> value.set(10));
+                    final Result<Void> result = asyncRunner.schedule(() -> value.set(10));
                     test.assertNotNull(result);
 
                     test.assertNull(result.await());
@@ -31,12 +31,12 @@ public interface ResultAsyncRunnerTests
                 });
             });
 
-            runner.testGroup("run(Function0<T>)", () ->
+            runner.testGroup("schedule(Function0<T>)", () ->
             {
                 runner.test("with null function", (Test test) ->
                 {
                     final ResultAsyncRunner asyncRunner = creator.run();
-                    test.assertThrows(() -> asyncRunner.run((Function0<Integer>)null),
+                    test.assertThrows(() -> asyncRunner.schedule((Function0<Integer>)null),
                         new PreConditionFailure("function cannot be null."));
                 });
 
@@ -45,22 +45,24 @@ public interface ResultAsyncRunnerTests
                     final ResultAsyncRunner asyncRunner = creator.run();
 
                     final Value<Integer> value = Value.create();
-                    final Result<Integer> result = asyncRunner.run(() ->
+                    final Result<Integer> result = asyncRunner.schedule(() ->
                     {
                         value.set(10);
                         return 5;
                     });
-                    test.assertNull(result);
-                    test.assertFalse(value.hasValue());
+                    test.assertNotNull(result);
+
+                    test.assertEqual(5, result.await());
+                    test.assertEqual(10, value.get());
                 });
             });
 
-            runner.testGroup("runResult(Function0<Result<T>>)", () ->
+            runner.testGroup("scheduleResult(Function0<Result<T>>)", () ->
             {
                 runner.test("with null function", (Test test) ->
                 {
                     final ResultAsyncRunner asyncRunner = creator.run();
-                    test.assertThrows(() -> asyncRunner.runResult((Function0<Result<Integer>>)null),
+                    test.assertThrows(() -> asyncRunner.scheduleResult((Function0<Result<Integer>>)null),
                         new PreConditionFailure("function cannot be null."));
                 });
 
@@ -69,13 +71,15 @@ public interface ResultAsyncRunnerTests
                     final ResultAsyncRunner asyncRunner = creator.run();
 
                     final Value<Integer> value = Value.create();
-                    final Result<Integer> result = asyncRunner.runResult(() ->
+                    final Result<Integer> result = asyncRunner.scheduleResult(() ->
                     {
                         value.set(10);
                         return Result.success(5);
                     });
-                    test.assertNull(result);
-                    test.assertFalse(value.hasValue());
+                    test.assertNotNull(result);
+
+                    test.assertEqual(5, result.await());
+                    test.assertEqual(10, value.get());
                 });
             });
         });

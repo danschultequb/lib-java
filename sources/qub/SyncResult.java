@@ -11,6 +11,12 @@ public class SyncResult<T> implements Result<T>
         this.error = error;
     }
 
+    @Override
+    public boolean isCompleted()
+    {
+        return true;
+    }
+
     public T await()
     {
         if (error != null)

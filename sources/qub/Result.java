@@ -3,6 +3,12 @@ package qub;
 public interface Result<T>
 {
     /**
+     * Get whether or not this Result has completed running.
+     * @return Whether or not this Result has completed running.
+     */
+    boolean isCompleted();
+
+    /**
      * Wait for this Result to complete. If this Result contains an error, then the error will be
      * wrapped in an AwaitException and then thrown. If this Result does not contain an error, then
      * the Result's value will be returned.
