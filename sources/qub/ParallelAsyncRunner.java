@@ -1,130 +1,79 @@
 package qub;
 
-public class ParallelAsyncRunner implements AsyncRunner
+/**
+ * An AsyncRunner implementation that runs its tasks on a thread pool.
+ */
+public class ParallelAsyncRunner implements AsyncScheduler
 {
-    private final IntegerValue scheduledTaskCount;
-    private final Mutex spinMutex;
-    private Function0<Clock> clockGetter;
-    private volatile boolean disposed;
-
-    public ParallelAsyncRunner()
-    {
-        scheduledTaskCount = Value.create(0);
-        spinMutex = new SpinMutex();
-    }
-
     @Override
-    public void setClockGetter(Function0<Clock> clockGetter)
-    {
-        PreCondition.assertNotNull(clockGetter, "clockGetter");
-
-        this.clockGetter = clockGetter;
-    }
-
-    @Override
-    public Clock getClock()
-    {
-        PreCondition.assertNotNull(clockGetter, "clockGetter");
-
-        return clockGetter.run();
-    }
-
-    @Override
-    public int getScheduledTaskCount()
-    {
-        return spinMutex.criticalSection(scheduledTaskCount::get).await();
-    }
-
-    @Override
-    public void markCompleted(Setable<Boolean> asyncTaskCompleted)
-    {
-        PreCondition.assertNotNull(asyncTaskCompleted, "asyncTaskCompleted");
-
-        spinMutex.criticalSection(() ->
-        {
-            scheduledTaskCount.decrement();
-            asyncTaskCompleted.set(true);
-        });
-    }
-
-    @Override
-    public void schedule(final PausedAsyncTask asyncTask)
-    {
-        PreCondition.assertNotNull(asyncTask, "asyncTask");
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
-
-        if (!disposed)
-        {
-            spinMutex.criticalSection(scheduledTaskCount::increment);
-            final java.lang.Thread thread = new java.lang.Thread(() ->
-            {
-                AsyncRunnerRegistry.setCurrentThreadAsyncRunner(ParallelAsyncRunner.this);
-                try
-                {
-                    asyncTask.runAndSchedulePausedTasks();
-                }
-                finally
-                {
-                    AsyncRunnerRegistry.removeCurrentThreadAsyncRunner();
-                }
-            });
-            thread.start();
-        }
-    }
-
-    @Override
-    public AsyncAction schedule(String label, Action0 action)
+    public AsyncTask<Void> schedule(Action0 action)
     {
         PreCondition.assertNotNull(action, "action");
 
-        final BasicAsyncAction result = new BasicAsyncAction(Value.create(this), label, action);
-        schedule(result);
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+        return schedule(create(action));
     }
 
     @Override
-    public <T> AsyncFunction<T> schedule(Function0<T> function)
+    public <T> AsyncTask<T> schedule(Function0<T> function)
     {
         PreCondition.assertNotNull(function, "function");
 
-        final BasicAsyncFunction<T> result = new BasicAsyncFunction<>(Value.create(this), function);
-        schedule(result);
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+        return schedule(create(function));
     }
 
     @Override
-    public void await(AsyncTask asyncTask)
+    public <T> AsyncTask<T> scheduleResult(Function0<Result<T>> function)
     {
-        while (!asyncTask.isCompleted())
-        {
-        }
+        PreCondition.assertNotNull(function, "function");
+
+        return schedule(createResult(function));
     }
 
     @Override
-    public boolean isDisposed()
+    public AsyncTask<Void> create(Action0 action)
     {
-        return disposed;
+        PreCondition.assertNotNull(action, "action");
+
+        return new AsyncTask<>(this, action);
     }
 
     @Override
-    public Result<Boolean> dispose()
+    public <T> AsyncTask<T> create(Function0<T> function)
     {
-        Result<Boolean> result;
-        if (disposed)
+        PreCondition.assertNotNull(function, "function");
+
+        return new AsyncTask<>(this, function);
+    }
+
+    @Override
+    public <T> AsyncTask<T> createResult(Function0<Result<T>> function)
+    {
+        PreCondition.assertNotNull(function, "function");
+
+        return new AsyncTask<>(this, () -> function.run().await());
+    }
+
+    @Override
+    public <T> AsyncTask<T> schedule(AsyncTask<T> task)
+    {
+        PreCondition.assertNotNull(task, "task");
+        PreCondition.assertFalse(task.isCompleted(), "task.isCompleted()");
+
+        new Thread(() ->
         {
-            result = Result.successFalse();
-        }
-        else
+            CurrentThread.setAsyncRunner(this);
+            task.run();
+        }).start();
+        return task;
+    }
+
+    @Override
+    public void await(Result<?> result)
+    {
+        PreCondition.assertNotNull(result, "result");
+
+        while (!result.isCompleted())
         {
-            disposed = true;
-            result = Result.successTrue();
         }
-        return result;
     }
 }

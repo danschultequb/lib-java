@@ -6,27 +6,17 @@ public class InputStreamToByteReadStreamTests
     {
         runner.testGroup(InputStreamToByteReadStream.class, () ->
         {
-            AsyncDisposableTests.test(runner, (Test test) -> new InputStreamToByteReadStream(getInputStream(10), test.getMainAsyncRunner()));
-
             runner.testGroup("constructor(InputStream,AsyncRunner)", () ->
             {
                 runner.test("with null InputStream", (Test test) ->
                 {
-                    test.assertThrows(() -> new InputStreamToByteReadStream(null, test.getMainAsyncRunner()),
+                    test.assertThrows(() -> new InputStreamToByteReadStream(null),
                         new PreConditionFailure("inputStream cannot be null."));
                 });
 
-                runner.test("with null AsyncRunner", (Test test) ->
+                runner.test("with non-null InputStream", (Test test) ->
                 {
-                    final InputStreamToByteReadStream byteReadStream = new InputStreamToByteReadStream(getInputStream(5), null);
-                    test.assertNull(byteReadStream.getAsyncRunner());
-                    assertByteReadStream(test, byteReadStream, false, false, null);
-                });
-
-                runner.test("with non-null InputStream and non-null AsyncRunner", (Test test) ->
-                {
-                    final InputStreamToByteReadStream byteReadStream = new InputStreamToByteReadStream(getInputStream(5), test.getMainAsyncRunner());
-                    test.assertSame(test.getMainAsyncRunner(), byteReadStream.getAsyncRunner());
+                    final InputStreamToByteReadStream byteReadStream = new InputStreamToByteReadStream(getInputStream(5));
                     assertByteReadStream(test, byteReadStream, false, false, null);
                 });
             });
@@ -559,7 +549,7 @@ public class InputStreamToByteReadStreamTests
 
     private static InputStreamToByteReadStream getByteReadStream(Test test, java.io.InputStream inputStream)
     {
-        return new InputStreamToByteReadStream(inputStream, test.getMainAsyncRunner());
+        return new InputStreamToByteReadStream(inputStream);
     }
 
     private static void assertByteReadStream(Test test, ByteReadStream byteReadStream, boolean isDisposed, boolean hasStarted, int current)
@@ -576,35 +566,5 @@ public class InputStreamToByteReadStreamTests
         test.assertEqual(hasStarted, byteReadStream.hasStarted());
         test.assertEqual(current != null, byteReadStream.hasCurrent());
         test.assertEqual(current, byteReadStream.getCurrent());
-    }
-
-    private static void closeTest(Test test, java.io.InputStream inputStream, boolean expectedIsDisposed, Throwable expectedError)
-    {
-        final InputStreamToByteReadStream readStream = getByteReadStream(test, inputStream);
-        closeTest(test, readStream, expectedIsDisposed, expectedError);
-    }
-
-    private static void closeTest(Test test, InputStreamToByteReadStream readStream, boolean expectedIsDisposed, Throwable expectedError)
-    {
-        try
-        {
-            readStream.close();
-            if (expectedError != null)
-            {
-                test.fail("Expected an Exception to be thrown.");
-            }
-        }
-        catch (Exception e)
-        {
-            if (expectedError == null)
-            {
-                test.fail(e);
-            }
-            else
-            {
-                test.assertEqual(expectedError, e);
-            }
-        }
-        test.assertEqual(expectedIsDisposed, readStream.isDisposed());
     }
 }

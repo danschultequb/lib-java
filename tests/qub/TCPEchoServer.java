@@ -1,6 +1,6 @@
 package qub;
 
-public class TCPEchoServer implements AsyncDisposable
+public class TCPEchoServer implements Disposable
 {
     private final TCPServer tcpServer;
 
@@ -28,11 +28,16 @@ public class TCPEchoServer implements AsyncDisposable
                     final CharacterReadStream tcpClientReadStream = tcpClient.asCharacterReadStream();
                     final CharacterWriteStream tcpClientWriteStream = tcpClient.asCharacterWriteStream();
 
-                    String line = tcpClientReadStream.readLine(true).await();
+                    String line = tcpClientReadStream.readLine(true)
+                        .catchError(EndOfStreamException.class)
+                        .await();
                     while (line != null)
                     {
-                        tcpClientWriteStream.write(line);
-                        line = tcpClientReadStream.readLine(true).await();
+                        tcpClientWriteStream.write(line).await();
+
+                        line = tcpClientReadStream.readLine(true)
+                            .catchError(EndOfStreamException.class)
+                            .await();
                     }
                 }
                 finally
@@ -40,17 +45,6 @@ public class TCPEchoServer implements AsyncDisposable
                     tcpClient.dispose().await();
                 }
             });
-    }
-
-    public AsyncAction echoAsync()
-    {
-        return getAsyncRunner().scheduleSingle(this::echo);
-    }
-
-    @Override
-    public AsyncRunner getAsyncRunner()
-    {
-        return tcpServer.getAsyncRunner();
     }
 
     @Override

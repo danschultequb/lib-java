@@ -10,69 +10,74 @@ public class FolderFileSystemTests
             {
                 runner.test("with null path", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner());
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/");
                     
-                    test.assertThrows(() -> FolderFileSystem.get(fileSystem, (String)null), new PreConditionFailure("baseFolderPath cannot be null."));
+                    test.assertThrows(() -> FolderFileSystem.get(fileSystem, (String)null),
+                        new PreConditionFailure("baseFolderPath cannot be null."));
                 });
 
                 runner.test("with empty path", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner());
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/");
 
-                    test.assertThrows(() -> FolderFileSystem.get(fileSystem, ""), new PreConditionFailure("baseFolderPath cannot be empty."));
+                    test.assertThrows(() -> FolderFileSystem.get(fileSystem, ""),
+                        new PreConditionFailure("baseFolderPath cannot be empty."));
                 });
 
                 runner.test("with relative path", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner());
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/");
 
-                    test.assertThrows(() -> FolderFileSystem.get(fileSystem, "basefolder"), new PreConditionFailure("baseFolderPath.isRooted() cannot be false."));
+                    test.assertThrows(() -> FolderFileSystem.get(fileSystem, "basefolder"),
+                        new PreConditionFailure("baseFolderPath.isRooted() cannot be false."));
                 });
 
                 runner.test("with relative path that ends with backslash", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner());
-                    fileSystem.createRoot("/");
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    fileSystem.createRoot("/").await();
 
-                    test.assertThrows(() -> FolderFileSystem.get(fileSystem, "basefolder\\"), new PreConditionFailure("baseFolderPath.isRooted() cannot be false."));
+                    test.assertThrows(() -> FolderFileSystem.get(fileSystem, "basefolder\\"),
+                        new PreConditionFailure("baseFolderPath.isRooted() cannot be false."));
                 });
 
                 runner.test("with relative path that ends with forward slash", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner());
-                    fileSystem.createRoot("/");
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    fileSystem.createRoot("/").await();
 
-                    test.assertThrows(() -> FolderFileSystem.get(fileSystem, "basefolder/"), new PreConditionFailure("baseFolderPath.isRooted() cannot be false."));
+                    test.assertThrows(() -> FolderFileSystem.get(fileSystem, "basefolder/"),
+                        new PreConditionFailure("baseFolderPath.isRooted() cannot be false."));
                 });
 
                 runner.test("with rooted path", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner());
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/");
 
-                    final Result<FolderFileSystem> folderFileSystem = FolderFileSystem.get(fileSystem, "\\basefolder");
-                    test.assertEqual(Path.parse("\\basefolder"), folderFileSystem.await().getBaseFolderPath());
+                    final FolderFileSystem folderFileSystem = FolderFileSystem.get(fileSystem, "\\basefolder");
+                    test.assertEqual(Path.parse("\\basefolder"), folderFileSystem.getBaseFolderPath());
                 });
 
                 runner.test("with rooted path that ends with backslash", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner());
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/");
 
-                    final Result<FolderFileSystem> folderFileSystem = FolderFileSystem.get(fileSystem, "/basefolder\\");
-                    test.assertEqual(Path.parse("/basefolder"), folderFileSystem.await().getBaseFolderPath());
+                    final FolderFileSystem folderFileSystem = FolderFileSystem.get(fileSystem, "/basefolder\\");
+                    test.assertEqual(Path.parse("/basefolder"), folderFileSystem.getBaseFolderPath());
                 });
 
                 runner.test("with rooted path that ends with forward slash", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner());
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     fileSystem.createRoot("/");
 
-                    final Result<FolderFileSystem> folderFileSystem = FolderFileSystem.get(fileSystem, "/basefolder/");
-                    test.assertEqual(Path.parse("/basefolder"), folderFileSystem.await().getBaseFolderPath());
+                    final FolderFileSystem folderFileSystem = FolderFileSystem.get(fileSystem, "/basefolder/");
+                    test.assertEqual(Path.parse("/basefolder"), folderFileSystem.getBaseFolderPath());
                 });
             });
         });

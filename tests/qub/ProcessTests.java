@@ -44,6 +44,24 @@ public class ProcessTests
                 test.assertEqual(1, process.getExitCode());
             });
 
+            runner.test("getMainAsyncRunner()", (Test test) ->
+            {
+                final Process process = creator.run();
+                final AsyncScheduler mainAsyncRunner = process.getMainAsyncRunner();
+                test.assertNotNull(mainAsyncRunner);
+                test.assertSame(mainAsyncRunner, process.getMainAsyncRunner());
+                test.assertSame(mainAsyncRunner, CurrentThread.getAsyncRunner());
+            });
+
+            runner.test("getResultParallelAsyncRunner()", (Test test) ->
+            {
+                final Process process = creator.run();
+                final AsyncScheduler parallelAsyncRunner = process.getParallelAsyncRunner();
+                test.assertNotNull(parallelAsyncRunner);
+                test.assertSame(parallelAsyncRunner, process.getParallelAsyncRunner() );
+                test.assertNotSame(parallelAsyncRunner, CurrentThread.getAsyncRunner());
+            });
+
             runner.test("getCharacterEncoding()", (Test test) ->
             {
                 final Process process = creator.run();
@@ -228,7 +246,7 @@ public class ProcessTests
                 runner.test("with non-null", (Test test) ->
                 {
                     final Process process = creator.run();
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner());
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     process.setFileSystem(fileSystem);
                     test.assertSame(fileSystem, process.getFileSystem());
                 });
@@ -255,27 +273,8 @@ public class ProcessTests
                 runner.test("with non-null", (Test test) ->
                 {
                     final Process process = creator.run();
-                    final Network network = new JavaNetwork(test.getMainAsyncRunner());
+                    final Network network = new JavaNetwork(test.getClock(), test.getParallelAsyncRunner());
                     process.setNetwork(network);
-                    test.assertSame(network, process.getNetwork());
-                });
-            });
-
-            runner.testGroup("setNetwork(Function1<AsyncRunner,Network>)", () ->
-            {
-                runner.test("with null", (Test test) ->
-                {
-                    final Process process = creator.run();
-                    process.setNetwork((Function1<AsyncRunner,Network>)null);
-                    test.assertNull(process.getNetwork());
-                });
-
-                runner.test("with non-null", (Test test) ->
-                {
-                    final Process process = creator.run();
-                    process.setNetwork(JavaNetwork::new);
-                    final Network network = process.getNetwork();
-                    test.assertTrue(network instanceof JavaNetwork);
                     test.assertSame(network, process.getNetwork());
                 });
             });
@@ -413,7 +412,7 @@ public class ProcessTests
                 runner.test("with manual", (Test test) ->
                 {
                     final Process process = creator.run();
-                    process.setClock(new ManualClock(test.getMainAsyncRunner(), DateTime.date(123, 4, 5)));
+                    process.setClock(new ManualClock(DateTime.date(123, 4, 5), test.getMainAsyncRunner()));
                     final Clock clock = process.getClock();
                     test.assertNotNull(clock);
                     test.assertTrue(clock instanceof ManualClock);

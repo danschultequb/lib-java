@@ -3,6 +3,7 @@ package qub;
 public class FakeNetwork implements Network
 {
     private final AsyncRunner asyncRunner;
+    private final Clock clock;
     private final Mutex mutex;
     private final MutexCondition boundTCPServerAvailable;
     private final MutableMap<IPv4Address,MutableMap<Integer,FakeTCPClient>> boundTCPClients;
@@ -11,12 +12,14 @@ public class FakeNetwork implements Network
     private final FakeDNS dns;
     private final HttpClient httpClient;
 
-    public FakeNetwork(AsyncRunner asyncRunner)
+    public FakeNetwork(AsyncRunner asyncRunner, Clock clock)
     {
         PreCondition.assertNotNull(asyncRunner, "asyncRunner");
+        PreCondition.assertNotNull(clock, "clock");
 
         this.asyncRunner = asyncRunner;
-        mutex = new SpinMutex(asyncRunner.getClock());
+        this.clock = clock;
+        mutex = new SpinMutex(clock);
         boundTCPServerAvailable = mutex.createCondition();
         boundTCPClients = Map.create();
         boundTCPServers = Map.create();
@@ -26,18 +29,23 @@ public class FakeNetwork implements Network
     }
 
     @Override
-    public AsyncRunner getAsyncRunner()
-    {
-        return asyncRunner;
-    }
-
-    @Override
     public Result<TCPClient> createTCPClient(IPv4Address remoteIPAddress, int remotePort)
     {
         Network.validateRemoteIPAddress(remoteIPAddress);
         Network.validateRemotePort(remotePort);
 
         return createTCPClientInner(remoteIPAddress, remotePort, null);
+    }
+
+    @Override
+    public Result<TCPClient> createTCPClient(IPv4Address remoteIPAddress, int remotePort, Duration timeout)
+    {
+        Network.validateRemoteIPAddress(remoteIPAddress);
+        Network.validateRemotePort(remotePort);
+        Network.validateTimeout(timeout);
+
+        final DateTime dateTimeTimeout = clock.getCurrentDateTime().plus(timeout);
+        return createTCPClient(remoteIPAddress, remotePort, dateTimeTimeout);
     }
 
     @Override
@@ -59,13 +67,13 @@ public class FakeNetwork implements Network
         final Function0<Result<TCPClient>> function = () ->
         {
             Result<TCPClient> result;
-            if (dateTimeTimeout != null && getAsyncRunner().getClock().getCurrentDateTime().greaterThanOrEqualTo(dateTimeTimeout))
+            if (dateTimeTimeout != null && clock.getCurrentDateTime().greaterThanOrEqualTo(dateTimeTimeout))
             {
                 result = Result.error(new TimeoutException());
             }
             else
             {
-                result = Result.create(() ->
+                result = asyncRunner.schedule(() ->
                 {
                     FakeTCPServer remoteTCPServer = null;
 
@@ -108,10 +116,10 @@ public class FakeNetwork implements Network
                     final InMemoryByteStream clientToServer = createNetworkStream();
                     final InMemoryByteStream serverToClient = createNetworkStream();
 
-                    final FakeTCPClient tcpClient = new FakeTCPClient(this, asyncRunner, clientLocalIPAddress, clientLocalPort, remoteIPAddress, remotePort, serverToClient, clientToServer);
+                    final FakeTCPClient tcpClient = new FakeTCPClient(this, clientLocalIPAddress, clientLocalPort, remoteIPAddress, remotePort, serverToClient, clientToServer);
                     addLocalTCPClient(tcpClient);
 
-                    final FakeTCPClient serverTCPClient = new FakeTCPClient(this, asyncRunner, remoteIPAddress, serverClientLocalPort, clientLocalIPAddress, clientLocalPort, clientToServer, serverToClient);
+                    final FakeTCPClient serverTCPClient = new FakeTCPClient(this, remoteIPAddress, serverClientLocalPort, clientLocalIPAddress, clientLocalPort, clientToServer, serverToClient);
                     addLocalTCPClient(serverTCPClient);
 
                     remoteTCPServer.addIncomingClient(serverTCPClient);
@@ -132,7 +140,7 @@ public class FakeNetwork implements Network
 
     private InMemoryByteStream createNetworkStream()
     {
-        final InMemoryByteStream networkStream = new InMemoryByteStream(asyncRunner);
+        final InMemoryByteStream networkStream = new InMemoryByteStream();
         streamReferenceCounts.set(networkStream, 2);
         return networkStream;
     }
@@ -187,7 +195,7 @@ public class FakeNetwork implements Network
             }
             else
             {
-                final FakeTCPServer tcpServer = new FakeTCPServer(localIPAddress, localPort, this, asyncRunner);
+                final FakeTCPServer tcpServer = new FakeTCPServer(localIPAddress, localPort, this, clock);
 
                 boundTCPServers.getOrSet(localIPAddress, Map::create)
                     .then((MutableMap<Integer,FakeTCPServer> localTCPServers) ->

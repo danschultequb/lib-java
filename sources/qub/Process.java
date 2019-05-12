@@ -29,8 +29,8 @@ public class Process implements Disposable
 
     private final List<Window> windows;
 
-    private final AsyncRunner mainAsyncRunner;
-    private volatile AsyncRunner parallelAsyncRunner;
+    private final AsyncScheduler mainAsyncRunner;
+    private final AsyncScheduler parallelAsyncRunner;
 
     private volatile boolean disposed;
 
@@ -55,8 +55,11 @@ public class Process implements Disposable
         this(commandLine, new ManualAsyncRunner());
     }
 
-    Process(CommandLine commandLine, AsyncRunner mainAsyncRunner)
+    Process(CommandLine commandLine, AsyncScheduler mainAsyncRunner)
     {
+        PreCondition.assertNotNull(commandLine, "commandLine");
+        PreCondition.assertNotNull(mainAsyncRunner, "mainAsyncRunner");
+
         this.commandLine = commandLine;
 
         outputByteWriteStream = Value.create();
@@ -78,11 +81,12 @@ public class Process implements Disposable
         clock = Value.create();
         displays = Value.create();
 
-        windows = new ArrayList<>();
+        windows = List.create();
 
         this.mainAsyncRunner = mainAsyncRunner;
-        mainAsyncRunner.setClockGetter(this::getClock);
-        AsyncRunnerRegistry.setCurrentThreadAsyncRunner(mainAsyncRunner);
+        CurrentThread.setAsyncRunner(mainAsyncRunner);
+
+        this.parallelAsyncRunner = new ParallelAsyncRunner();
     }
 
     /**
@@ -114,18 +118,13 @@ public class Process implements Disposable
         return setExitCode(getExitCode() + 1);
     }
 
-    public AsyncRunner getMainAsyncRunner()
+    public AsyncScheduler getMainAsyncRunner()
     {
         return mainAsyncRunner;
     }
 
-    public AsyncRunner getParallelAsyncRunner()
+    public AsyncScheduler getParallelAsyncRunner()
     {
-        if (parallelAsyncRunner == null)
-        {
-            parallelAsyncRunner = new ParallelAsyncRunner();
-            parallelAsyncRunner.setClockGetter(this::getClock);
-        }
         return parallelAsyncRunner;
     }
 
@@ -173,7 +172,7 @@ public class Process implements Disposable
     {
         if (!inputByteReadStream.hasValue())
         {
-            setInputByteReadStream(new InputStreamToByteReadStream(System.in, getParallelAsyncRunner()));
+            setInputByteReadStream(new InputStreamToByteReadStream(System.in));
         }
         return inputByteReadStream.get();
     }
@@ -355,7 +354,7 @@ public class Process implements Disposable
     {
         if (!fileSystem.hasValue())
         {
-            setFileSystem(new JavaFileSystem(getParallelAsyncRunner()));
+            setFileSystem(new JavaFileSystem());
         }
         return fileSystem.get();
     }
@@ -378,16 +377,11 @@ public class Process implements Disposable
         return this;
     }
 
-    public void setFileSystem(Function1<AsyncRunner,FileSystem> creator)
-    {
-        setFileSystem(creator.run(getParallelAsyncRunner()));
-    }
-
     public Network getNetwork()
     {
         if (!network.hasValue())
         {
-            setNetwork(new JavaNetwork(getParallelAsyncRunner()));
+            setNetwork(new JavaNetwork(getClock(), getParallelAsyncRunner()));
         }
         return network.get();
     }
@@ -395,12 +389,6 @@ public class Process implements Disposable
     public Process setNetwork(Network network)
     {
         this.network.set(network);
-        return this;
-    }
-
-    public Process setNetwork(Function1<AsyncRunner,Network> creator)
-    {
-        setNetwork(creator == null ? null : creator.run(getParallelAsyncRunner()));
         return this;
     }
 
@@ -554,7 +542,7 @@ public class Process implements Disposable
     {
         if (!clock.hasValue())
         {
-            clock.set(new JavaClock(getMainAsyncRunner(), getParallelAsyncRunner()));
+            clock.set(new JavaClock(getParallelAsyncRunner()));
         }
         return clock.get();
     }
@@ -613,7 +601,7 @@ public class Process implements Disposable
      */
     public Window createWindow()
     {
-        final Window result = new JavaWindow(getMainAsyncRunner(), getDisplays());
+        final Window result = new JavaWindow(mainAsyncRunner, getDisplays());
         windows.add(result);
 
         PostCondition.assertNotNull(result, "result");
@@ -790,16 +778,6 @@ public class Process implements Disposable
                 for (final Window window : windows)
                 {
                     window.dispose().await();
-                }
-
-                if (mainAsyncRunner != null)
-                {
-                    mainAsyncRunner.dispose().await();
-                }
-
-                if (parallelAsyncRunner != null)
-                {
-                    parallelAsyncRunner.dispose().await();
                 }
 
                 return true;

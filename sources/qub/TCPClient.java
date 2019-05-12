@@ -1,6 +1,6 @@
 package qub;
 
-public interface TCPClient extends ByteWriteStream, ByteReadStream, AsyncDisposable
+public interface TCPClient extends ByteWriteStream, ByteReadStream
 {
     /**
      * Get the local IP address that this client is connected to.
@@ -45,21 +45,9 @@ public interface TCPClient extends ByteWriteStream, ByteReadStream, AsyncDisposa
     }
 
     @Override
-    default AsyncFunction<Result<Byte>> readByteAsync()
-    {
-        return getReadStream().readByteAsync();
-    }
-
-    @Override
     default Result<byte[]> readBytes(int bytesToRead)
     {
         return getReadStream().readBytes(bytesToRead);
-    }
-
-    @Override
-    default AsyncFunction<Result<byte[]>> readBytesAsync(int bytesToRead)
-    {
-        return getReadStream().readBytesAsync(bytesToRead);
     }
 
     @Override
@@ -69,21 +57,9 @@ public interface TCPClient extends ByteWriteStream, ByteReadStream, AsyncDisposa
     }
 
     @Override
-    default AsyncFunction<Result<Integer>> readBytesAsync(byte[] outputBytes)
-    {
-        return getReadStream().readBytesAsync(outputBytes);
-    }
-
-    @Override
     default Result<Integer> readBytes(byte[] outputBytes, int startIndex, int length)
     {
         return getReadStream().readBytes(outputBytes, startIndex, length);
-    }
-
-    @Override
-    default AsyncFunction<Result<Integer>> readBytesAsync(byte[] outputBytes, int startIndex, int length)
-    {
-        return getReadStream().readBytesAsync(outputBytes, startIndex, length);
     }
 
     @Override
@@ -93,21 +69,9 @@ public interface TCPClient extends ByteWriteStream, ByteReadStream, AsyncDisposa
     }
 
     @Override
-    default AsyncFunction<Result<byte[]>> readAllBytesAsync()
-    {
-        return getReadStream().readAllBytesAsync();
-    }
-
-    @Override
     default Result<byte[]> readBytesUntil(byte stopByte)
     {
         return getReadStream().readBytesUntil(stopByte);
-    }
-
-    @Override
-    default AsyncFunction<Result<byte[]>> readBytesUntilAsync(byte stopByte)
-    {
-        return getReadStream().readBytesUntilAsync(stopByte);
     }
 
     @Override
@@ -117,21 +81,9 @@ public interface TCPClient extends ByteWriteStream, ByteReadStream, AsyncDisposa
     }
 
     @Override
-    default AsyncFunction<Result<byte[]>> readBytesUntilAsync(byte[] stopBytes)
-    {
-        return getReadStream().readBytesUntilAsync(stopBytes);
-    }
-
-    @Override
     default Result<byte[]> readBytesUntil(Iterable<Byte> stopBytes)
     {
         return getReadStream().readBytesUntil(stopBytes);
-    }
-
-    @Override
-    default AsyncFunction<Result<byte[]>> readBytesUntilAsync(Iterable<Byte> stopBytes)
-    {
-        return getReadStream().readBytesUntilAsync(stopBytes);
     }
 
     @Override

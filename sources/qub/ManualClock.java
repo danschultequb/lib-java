@@ -5,19 +5,19 @@ package qub;
  */
 public class ManualClock implements Clock
 {
-    private final AsyncRunner mainAsyncRunner;
+    private final AsyncScheduler asyncRunner;
     private final List<PausedTask> pausedTasks;
     private DateTime currentDateTime;
 
     /**
      * Create a new ManualClock object that starts at the provided current date and time.
      */
-    public ManualClock(AsyncRunner mainAsyncRunner, DateTime currentDateTime)
+    public ManualClock(DateTime currentDateTime, AsyncScheduler asyncRunner)
     {
-        PreCondition.assertNotNull(mainAsyncRunner, "mainAsyncRunner");
         PreCondition.assertNotNull(currentDateTime, "currentDateTime");
+        PreCondition.assertNotNull(asyncRunner, "asyncRunner");
 
-        this.mainAsyncRunner = mainAsyncRunner;
+        this.asyncRunner = asyncRunner;
         this.pausedTasks = new ArrayList<>();
         this.currentDateTime = currentDateTime;
     }
@@ -39,22 +39,21 @@ public class ManualClock implements Clock
     }
 
     @Override
-    public AsyncAction scheduleAt(DateTime dateTime, Action0 action)
+    public Result<Void> scheduleAt(DateTime dateTime, Action0 action)
     {
         PreCondition.assertNotNull(dateTime, "dateTime");
         PreCondition.assertNotNull(action, "action");
 
-        AsyncAction result;
+        AsyncTask<Void> result;
         if (dateTime.lessThanOrEqualTo(getCurrentDateTime()))
         {
-            result = mainAsyncRunner.schedule(action);
+            result = asyncRunner.schedule(action);
         }
         else
         {
-            final BasicAsyncAction pausedAsyncAction = new BasicAsyncAction(Value.create(mainAsyncRunner), action);
-            result = pausedAsyncAction;
+            result = asyncRunner.create(action);
 
-            final PausedTask pausedTask = new PausedTask(pausedAsyncAction, dateTime);
+            final PausedTask pausedTask = new PausedTask(result, dateTime);
 
             int insertIndex = -1;
             final int pausedTaskCount = pausedTasks.getCount();
@@ -97,10 +96,10 @@ public class ManualClock implements Clock
 
     private static class PausedTask
     {
-        private final BasicAsyncAction pausedAction;
+        private final PausedAsyncTask<?> pausedAction;
         private final DateTime scheduleAt;
 
-        PausedTask(BasicAsyncAction pausedAction, DateTime scheduleAt)
+        PausedTask(PausedAsyncTask<?> pausedAction, DateTime scheduleAt)
         {
             this.pausedAction = pausedAction;
             this.scheduleAt = scheduleAt;

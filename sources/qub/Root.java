@@ -50,15 +50,6 @@ public class Root
         return folder.exists();
     }
 
-
-    /**
-     * Get whether or not this Root exists.
-     */
-    public AsyncFunction<Result<Boolean>> existsAsync()
-    {
-        return folder.existsAsync();
-    }
-
     /**
      * Get a reference to the Folder at the provided relative folderPath.
      * @param relativeFolderPath The path to the folder relative to this folder.
@@ -120,26 +111,6 @@ public class Root
     }
 
     /**
-     * Create a child folder of this Root with the provided relative path.
-     * @param folderRelativePath The relative path create this folder to the child folder to create.
-     * @return Whether or not this function created the child folder.
-     */
-    public AsyncFunction<Result<Folder>> createFolderAsync(String folderRelativePath)
-    {
-        return folder.createFolderAsync(folderRelativePath);
-    }
-
-    /**
-     * Create a child folder of this Root with the provided relative path.
-     * @param folderRelativePath The relative path create this Root to the child folder to create.
-     * @return Whether or not this function created the child folder.
-     */
-    public AsyncFunction<Result<Folder>> createFolderAsync(Path folderRelativePath)
-    {
-        return folder.createFolderAsync(folderRelativePath);
-    }
-
-    /**
      * Create a child file of this Root with the provided relative path.
      * @param fileRelativePath The relative path create this folder to the child file to create.
      * @return Whether or not this function created the child file.
@@ -163,36 +134,9 @@ public class Root
         return folder.createFile(fileRelativePath);
     }
 
-    /**
-     * Create a child file of this Root with the provided relative path.
-     * @param fileRelativePath The relative path create this folder to the child file to create.
-     * @return Whether or not this function created the child file.
-     */
-    public AsyncFunction<Result<File>> createFileAsync(String fileRelativePath)
-    {
-        PreCondition.assertNotNullAndNotEmpty(fileRelativePath, "fileRelativePath");
-
-        return folder.createFileAsync(fileRelativePath);
-    }
-
-    /**
-     * Create a child file of this folder with the provided relative path.
-     * @param fileRelativePath The relative path create this folder to the child file to create.
-     * @return Whether or not this function created the child file.
-     */
-    public AsyncFunction<Result<File>> createFileAsync(Path fileRelativePath)
-    {
-        return folder.createFileAsync(fileRelativePath);
-    }
-
     public Result<Iterable<Folder>> getFolders()
     {
         return folder.getFolders();
-    }
-
-    public AsyncFunction<Result<Iterable<Folder>>> getFoldersAsync()
-    {
-        return folder.getFoldersAsync();
     }
 
     public Result<Iterable<Folder>> getFoldersRecursively()
@@ -200,19 +144,9 @@ public class Root
         return folder.getFoldersRecursively();
     }
 
-    public AsyncFunction<Result<Iterable<Folder>>> getFoldersRecursivelyAsync()
-    {
-        return folder.getFoldersRecursivelyAsync();
-    }
-
     public Result<Iterable<File>> getFiles()
     {
         return folder.getFiles();
-    }
-
-    public AsyncFunction<Result<Iterable<File>>> getFilesAsync()
-    {
-        return folder.getFilesAsync();
     }
 
     public Result<Iterable<File>> getFilesRecursively()
@@ -220,28 +154,13 @@ public class Root
         return folder.getFilesRecursively();
     }
 
-    public AsyncFunction<Result<Iterable<File>>> getFilesRecursivelyAsync()
-    {
-        return folder.getFilesRecursivelyAsync();
-    }
-
     public Result<Iterable<FileSystemEntry>> getFilesAndFolders()
     {
         return folder.getFilesAndFolders();
     }
 
-    public AsyncFunction<Result<Iterable<FileSystemEntry>>> getFilesAndFoldersAsync()
-    {
-        return folder.getFilesAndFoldersAsync();
-    }
-
     public Result<Iterable<FileSystemEntry>> getFilesAndFoldersRecursively()
     {
         return folder.getFilesAndFoldersRecursively();
-    }
-
-    public AsyncFunction<Result<Iterable<FileSystemEntry>>> getFilesAndFoldersRecursivelyAsync()
-    {
-        return folder.getFilesAndFoldersRecursivelyAsync();
     }
 }

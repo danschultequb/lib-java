@@ -3,31 +3,27 @@ package qub;
 class JavaTCPClient implements TCPClient
 {
     private final java.net.Socket socket;
-    private final AsyncRunner asyncRunner;
     private final ByteReadStream socketReadStream;
     private final ByteWriteStream socketWriteStream;
 
-    private JavaTCPClient(java.net.Socket socket, AsyncRunner asyncRunner, ByteReadStream socketReadStream, ByteWriteStream socketWriteStream)
+    private JavaTCPClient(java.net.Socket socket, ByteReadStream socketReadStream, ByteWriteStream socketWriteStream)
     {
         this.socket = socket;
-        this.asyncRunner = asyncRunner;
         this.socketReadStream = socketReadStream;
         this.socketWriteStream = socketWriteStream;
     }
 
-    static Result<TCPClient> create(java.net.Socket socket, AsyncRunner asyncRunner)
+    static Result<TCPClient> create(java.net.Socket socket)
     {
         PreCondition.assertNotNull(socket, "socket");
         PreCondition.assertFalse(socket.isClosed(), "socket.isClosed()");
-        PreCondition.assertNotNull(asyncRunner, "asyncRunner");
-        PreCondition.assertFalse(asyncRunner.isDisposed(), "asyncRunner.isDisposed()");
 
         Result<TCPClient> result;
         try
         {
-            final ByteReadStream socketReadStream = new InputStreamToByteReadStream(socket.getInputStream(), asyncRunner);
+            final ByteReadStream socketReadStream = new InputStreamToByteReadStream(socket.getInputStream());
             final ByteWriteStream socketWriteStream = new OutputStreamToByteWriteStream(socket.getOutputStream());
-            result = Result.success(new JavaTCPClient(socket, asyncRunner, socketReadStream, socketWriteStream));
+            result = Result.success(new JavaTCPClient(socket, socketReadStream, socketWriteStream));
         }
         catch (Throwable e)
         {
@@ -46,12 +42,6 @@ class JavaTCPClient implements TCPClient
     public ByteWriteStream getWriteStream()
     {
         return socketWriteStream;
-    }
-
-    @Override
-    public AsyncRunner getAsyncRunner()
-    {
-        return asyncRunner;
     }
 
     @Override

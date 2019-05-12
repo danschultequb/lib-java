@@ -42,12 +42,6 @@ public class BasicCharacterReadStream implements CharacterReadStream
     }
 
     @Override
-    public AsyncRunner getAsyncRunner()
-    {
-        return byteReadStream.getAsyncRunner();
-    }
-
-    @Override
     public boolean isDisposed()
     {
         return byteReadStream.isDisposed();

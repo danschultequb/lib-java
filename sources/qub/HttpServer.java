@@ -3,9 +3,10 @@ package qub;
 /**
  * A type that can receive incoming HTTP requests.
  */
-public class HttpServer implements AsyncDisposable
+public class HttpServer implements Disposable
 {
     private final TCPServer tcpServer;
+    private final AsyncRunner asyncRunner;
     private boolean disposed;
     private final MutableMap<PathPattern,Function2<Indexable<String>,HttpRequest,HttpResponse>> paths;
     private Function1<HttpRequest,HttpResponse> notFoundAction;
@@ -14,12 +15,14 @@ public class HttpServer implements AsyncDisposable
      * Create a new HTTP server based on the provided TCPServer.
      * @param tcpServer The TCPServer that will accept incoming HTTP requests.
      */
-    public HttpServer(TCPServer tcpServer)
+    public HttpServer(TCPServer tcpServer, AsyncRunner asyncRunner)
     {
         PreCondition.assertNotNull(tcpServer, "tcpServer");
         PreCondition.assertNotDisposed(tcpServer, "tcpServer.isDisposed()");
+        PreCondition.assertNotNull(asyncRunner, "asyncRunner");
 
         this.tcpServer = tcpServer;
+        this.asyncRunner = asyncRunner;
         this.paths = Map.create();
         notFoundAction = (HttpRequest request) ->
         {
@@ -128,113 +131,125 @@ public class HttpServer implements AsyncDisposable
      */
     public Result<Void> start()
     {
-        return Result.create(() ->
+        return asyncRunner.schedule(() ->
         {
             while(!isDisposed())
             {
-                try (final TCPClient acceptedClient = tcpServer.accept().await())
+                final TCPClient acceptedClient = tcpServer.accept()
+                    .catchErrorResult(java.net.SocketException.class, (java.net.SocketException error) ->
+                    {
+                        return error.getMessage().equals("socket closed")
+                            ? Result.success()
+                            : Result.error(error);
+                    })
+                    .await();
+                if (acceptedClient != null)
                 {
-                    final MutableHttpRequest request = new MutableHttpRequest();
-                    final CharacterReadStream acceptedClientReadStream = acceptedClient.asCharacterReadStream();
-
-                    final String firstLine = acceptedClientReadStream.readLine().await();
-                    final String[] firstLineParts = firstLine.split(" ");
-                    request.setMethod(HttpMethod.valueOf(firstLineParts[0]));
-                    request.setUrl(URL.parse(firstLineParts[1]).await());
-                    request.setHttpVersion(firstLineParts[2]);
-
-                    String headerLine = acceptedClientReadStream.readLine().await();
-                    while (!Strings.isNullOrEmpty(headerLine))
+                    try
                     {
-                        final int firstColonIndex = headerLine.indexOf(':');
-                        final String headerName = headerLine.substring(0, firstColonIndex);
-                        final String headerValue = headerLine.substring(firstColonIndex + 1);
-                        request.setHeader(headerName, headerValue);
+                        final MutableHttpRequest request = new MutableHttpRequest();
+                        final CharacterReadStream acceptedClientReadStream = acceptedClient.asCharacterReadStream();
 
-                        headerLine = acceptedClientReadStream.readLine().await();
-                    }
+                        final String firstLine = acceptedClientReadStream.readLine().await();
+                        final String[] firstLineParts = firstLine.split(" ");
+                        request.setMethod(HttpMethod.valueOf(firstLineParts[0]));
+                        request.setUrl(URL.parse(firstLineParts[1]).await());
+                        request.setHttpVersion(firstLineParts[2]);
 
-                    request.getContentLength()
-                        .then((Long contentLength) -> request.setBody(contentLength, acceptedClient))
-                        .catchError()
-                        .await();
-
-                    HttpResponse response;
-                    final String pathString = request.getURL().getPath();
-                    final Path path = Path.parse(Strings.isNullOrEmpty(pathString) ? "/" : pathString);
-                    Indexable<String> pathTrackedValues = null;
-                    Function2<Indexable<String>,HttpRequest,HttpResponse> pathAction = null;
-                    for (final MapEntry<PathPattern,Function2<Indexable<String>,HttpRequest,HttpResponse>> entry : paths)
-                    {
-                        final PathPattern pathPattern = entry.getKey();
-                        final Iterable<Match> pathMatches = pathPattern.getMatches(path);
-                        if (pathMatches.any())
+                        String headerLine = acceptedClientReadStream.readLine().await();
+                        while (!Strings.isNullOrEmpty(headerLine))
                         {
-                            final Match firstMatch = pathMatches.first();
-                            final Iterable<Iterable<Character>> trackedCharacters = firstMatch.getTrackedValues();
-                            final Iterable<String> trackedStrings = trackedCharacters.map(Strings::join);
-                            pathTrackedValues = List.create(trackedStrings);
-                            pathAction = entry.getValue();
-                            break;
+                            final int firstColonIndex = headerLine.indexOf(':');
+                            final String headerName = headerLine.substring(0, firstColonIndex);
+                            final String headerValue = headerLine.substring(firstColonIndex + 1);
+                            request.setHeader(headerName, headerValue);
+
+                            headerLine = acceptedClientReadStream.readLine().await();
+                        }
+
+                        request.getContentLength()
+                            .then((Long contentLength) -> request.setBody(contentLength, acceptedClient))
+                            .catchError()
+                            .await();
+
+                        HttpResponse response;
+                        final String pathString = request.getURL().getPath();
+                        final Path path = Path.parse(Strings.isNullOrEmpty(pathString) ? "/" : pathString);
+                        Indexable<String> pathTrackedValues = null;
+                        Function2<Indexable<String>,HttpRequest,HttpResponse> pathAction = null;
+                        for (final MapEntry<PathPattern,Function2<Indexable<String>,HttpRequest,HttpResponse>> entry : paths)
+                        {
+                            final PathPattern pathPattern = entry.getKey();
+                            final Iterable<Match> pathMatches = pathPattern.getMatches(path);
+                            if (pathMatches.any())
+                            {
+                                final Match firstMatch = pathMatches.first();
+                                final Iterable<Iterable<Character>> trackedCharacters = firstMatch.getTrackedValues();
+                                final Iterable<String> trackedStrings = trackedCharacters.map(Strings::join);
+                                pathTrackedValues = List.create(trackedStrings);
+                                pathAction = entry.getValue();
+                                break;
+                            }
+                        }
+
+                        if (pathAction == null)
+                        {
+                            response = notFoundAction.run(request);
+                        }
+                        else
+                        {
+                            response = pathAction.run(pathTrackedValues, request);
+                        }
+
+                        if (response == null)
+                        {
+                            final MutableHttpResponse mutableResponse = new MutableHttpResponse();
+                            mutableResponse.setHTTPVersion(request.getHttpVersion());
+                            mutableResponse.setStatusCode(500);
+                            mutableResponse.setBody("<html><body>" + mutableResponse.getStatusCode() + ": " + getReasonPhrase(mutableResponse.getStatusCode()) + "</body></html>");
+                            response = mutableResponse;
+                        }
+
+                        String httpVersion = response.getHTTPVersion();
+                        if (Strings.isNullOrEmpty(httpVersion))
+                        {
+                            httpVersion = "HTTP/1.1";
+                        }
+
+                        String reasonPhrase = response.getReasonPhrase();
+                        if (Strings.isNullOrEmpty(reasonPhrase))
+                        {
+                            reasonPhrase = getReasonPhrase(response.getStatusCode());
+                        }
+
+                        final CharacterWriteStream acceptedClientWriteStream = acceptedClient.asCharacterWriteStream("\r\n");
+                        acceptedClientWriteStream.writeLine("%s %s %s", httpVersion, response.getStatusCode(), reasonPhrase).await();
+                        for (final HttpHeader header : response.getHeaders())
+                        {
+                            acceptedClientWriteStream.writeLine("%s:%s", header.getName(), header.getValue()).await();
+                        }
+                        acceptedClientWriteStream.writeLine().await();
+
+                        final ByteReadStream responseBody = response.getBody();
+                        if (responseBody != null)
+                        {
+                            try
+                            {
+                                acceptedClient.writeAllBytes(responseBody).await();
+                            }
+                            finally
+                            {
+                                responseBody.dispose().await();
+                            }
                         }
                     }
-
-                    if (pathAction == null)
+                    finally
                     {
-                        response = notFoundAction.run(request);
-                    }
-                    else
-                    {
-                        response = pathAction.run(pathTrackedValues, request);
-                    }
-
-                    if (response == null)
-                    {
-                        final MutableHttpResponse mutableResponse = new MutableHttpResponse();
-                        mutableResponse.setHTTPVersion(request.getHttpVersion());
-                        mutableResponse.setStatusCode(500);
-                        mutableResponse.setBody("<html><body>" + mutableResponse.getStatusCode() + ": " + getReasonPhrase(mutableResponse.getStatusCode()) + "</body></html>");
-                        response = mutableResponse;
-                    }
-
-                    String httpVersion = response.getHTTPVersion();
-                    if (Strings.isNullOrEmpty(httpVersion))
-                    {
-                        httpVersion = "HTTP/1.1";
-                    }
-
-                    String reasonPhrase = response.getReasonPhrase();
-                    if (Strings.isNullOrEmpty(reasonPhrase))
-                    {
-                        reasonPhrase = getReasonPhrase(response.getStatusCode());
-                    }
-
-                    final CharacterWriteStream acceptedClientWriteStream = acceptedClient.asCharacterWriteStream("\r\n");
-                    acceptedClientWriteStream.writeLine("%s %s %s", httpVersion, response.getStatusCode(), reasonPhrase);
-                    for (final HttpHeader header : response.getHeaders())
-                    {
-                        acceptedClientWriteStream.writeLine("%s:%s", header.getName(), header.getValue());
-                    }
-                    acceptedClientWriteStream.writeLine();
-
-                    try (final ByteReadStream responseBody = response.getBody())
-                    {
-                        acceptedClient.writeAllBytes(responseBody).await();
+                        acceptedClient.dispose().await();
                     }
                 }
             }
         });
-    }
-
-    /**
-     * Start listening on a separate thread for incoming requests.
-     */
-    public AsyncAction startAsync()
-    {
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-        PreCondition.assertFalse(getAsyncRunner().isDisposed(), "getAsyncRunner().isDisposed()");
-
-        return getAsyncRunner().scheduleSingle(this::start);
     }
 
     /**
@@ -247,12 +262,6 @@ public class HttpServer implements AsyncDisposable
     }
 
     @Override
-    public AsyncRunner getAsyncRunner()
-    {
-        return tcpServer.getAsyncRunner();
-    }
-
-    @Override
     public boolean isDisposed()
     {
         return disposed;
@@ -261,18 +270,21 @@ public class HttpServer implements AsyncDisposable
     @Override
     public Result<Boolean> dispose()
     {
-        Result<Boolean> result;
-        if (disposed)
+        return asyncRunner.scheduleResult(() ->
         {
-            result = Result.successFalse();
-        }
-        else
-        {
-            disposed = true;
+            Result<Boolean> result;
+            if (disposed)
+            {
+                result = Result.successFalse();
+            }
+            else
+            {
+                disposed = true;
 
-            result = tcpServer.dispose();
-        }
-        return result;
+                result = tcpServer.dispose();
+            }
+            return result;
+        });
     }
 
     /**

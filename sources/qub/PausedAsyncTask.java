@@ -1,20 +1,13 @@
 package qub;
 
 /**
- * A PausedAsyncTask that can be scheduled on the AsyncRunner that created it by calling this
- * PausedAsyncTasks's schedule() function.
+ * An AsyncTask that has not yet been scheduled.
+ * @param <T> The type of value that the AsyncTask will return when it is scheduled and run.
  */
-public interface PausedAsyncTask extends AsyncTask
+public interface PausedAsyncTask<T> extends Result<T>
 {
     /**
-     * Set the error that is active when this PausedAsyncTask is being scheduled.
-     * @param incomingError The error that is active when this PausedAsyncTask is being scheduled.
+     * Schedule this PausedAsyncTask to run on its AsyncRunner.
      */
-    void setIncomingError(Throwable incomingError);
-
-    /**
-     * Run this PausedAsyncTask and schedule all of the PausedAsyncTasks waiting on this
-     * PausedAsyncTask.
-     */
-    void runAndSchedulePausedTasks();
+    void schedule();
 }

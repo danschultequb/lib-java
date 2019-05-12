@@ -6,28 +6,13 @@ package qub;
 public class InMemoryFileSystem implements FileSystem
 {
     private final List<InMemoryRoot> roots;
-    private final AsyncRunner asyncRunner;
     private final Clock clock;
-
-    public InMemoryFileSystem(AsyncRunner asyncRunner)
-    {
-        this(asyncRunner, asyncRunner.getClock());
-    }
 
     public InMemoryFileSystem(Clock clock)
     {
-        this(null, clock);
-    }
-
-    /**
-     * Create a new InMemoryFileSystem.
-     */
-    public InMemoryFileSystem(AsyncRunner asyncRunner, Clock clock)
-    {
         PreCondition.assertNotNull(clock, "clock");
 
-        roots = new ArrayList<>();
-        this.asyncRunner = asyncRunner;
+        roots = List.create();
         this.clock = clock;
     }
 
@@ -38,14 +23,7 @@ public class InMemoryFileSystem implements FileSystem
 
     private InMemoryRoot getInMemoryRoot(final Path inMemoryRootPath)
     {
-        return roots.first(new Function1<InMemoryRoot, Boolean>()
-        {
-            @Override
-            public Boolean run(InMemoryRoot inMemoryRoot)
-            {
-                return inMemoryRoot.getPath().equals(inMemoryRootPath);
-            }
-        });
+        return roots.first((InMemoryRoot inMemoryRoot) -> inMemoryRoot.getPath().equals(inMemoryRootPath));
     }
 
     private Result<InMemoryFolder> getInMemoryFolder(Path inMemoryFolderPath)
@@ -126,12 +104,6 @@ public class InMemoryFileSystem implements FileSystem
 
         return getInMemoryFolder(rootedFolderPath)
             .then((InMemoryFolder inMemoryFolder) -> inMemoryFolder.setCanDelete(canDelete));
-    }
-
-    @Override
-    public AsyncRunner getAsyncRunner()
-    {
-        return asyncRunner;
     }
 
     @Override

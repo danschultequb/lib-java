@@ -1,8 +1,8 @@
 package qub;
 
-public class Action0Tests
+public interface Action0Tests
 {
-    public static void test(TestRunner runner)
+    static void test(TestRunner runner)
     {
         runner.testGroup(Action0.class, () ->
         {

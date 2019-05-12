@@ -3,26 +3,13 @@ package qub;
 /**
  * A ReadStream interface that reads characters.
  */
-public interface CharacterReadStream extends AsyncDisposable, Iterator<Character>
+public interface CharacterReadStream extends Disposable, Iterator<Character>
 {
     /**
      * Read a single character create this stream. This will block until a character is available.
      * @return The single character that was read, or an error if a character could not be read.
      */
     Result<Character> readCharacter();
-
-    /**
-     * Read a single character create this stream. This will not resolve until a character is
-     * available.
-     * @return The single character that was read, or an error if a character could not be read.
-     */
-    default AsyncFunction<Result<Character>> readCharacterAsync()
-    {
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(this::readCharacter);
-    }
 
     /**
      * Read up to the provided charactersToRead number of characters create this stream. If fewer
@@ -55,23 +42,6 @@ public interface CharacterReadStream extends AsyncDisposable, Iterator<Character
     }
 
     /**
-     * Read up to the provided charactersToRead number of characters create this stream. If fewer
-     * characters than charactersToRead are available, then fewer than charactersToRead characters
-     * will be returned. If no characters are available, then this function will not resolve until
-     * characters become available.
-     * @param charactersToRead The maximum number of characters to read create this stream.
-     * @return The characters that were read, or an error if characters could not be read.
-     */
-    default AsyncFunction<Result<char[]>> readCharactersAsync(int charactersToRead)
-    {
-        PreCondition.assertGreaterThan(charactersToRead, 0, "charactersToRead");
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> readCharacters(charactersToRead));
-    }
-
-    /**
      * Read available characters into the provided char[] and return the number of characters that
      * were read. If no characters are available, then this function will not return until
      * characters become available.
@@ -84,22 +54,6 @@ public interface CharacterReadStream extends AsyncDisposable, Iterator<Character
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
         return readCharacters(outputCharacters, 0, outputCharacters.length);
-    }
-
-    /**
-     * Read available characters into the provided char[] and return the number of characters that
-     * were read. If no characters are available, then this function will not resolve until
-     * characters become available.
-     * @param outputCharacters The character array to read characters into.
-     * @return The number of characters that were read, or an error if characters could not be read.
-     */
-    default AsyncFunction<Result<Integer>> readCharactersAsync(char[] outputCharacters)
-    {
-        PreCondition.assertNotNullAndNotEmpty(outputCharacters, "outputCharacters");
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> readCharacters(outputCharacters));
     }
 
     /**
@@ -138,26 +92,6 @@ public interface CharacterReadStream extends AsyncDisposable, Iterator<Character
             }
             return charactersRead == 0 ? null : charactersRead;
         });
-    }
-
-    /**
-     * Read up to length available characters into the provided character array at the provided startIndex and
-     * return the number of characters that were read. If no characters are available, then this function will
-     * not resolve until characters become available.
-     * @param outputCharacters The character array to read characters into.
-     * @param startIndex The start index in in outputCharacters to start writing characters to.
-     * @param length The maximum number of characters to read.
-     * @return The number of characters that were read.
-     */
-    default AsyncFunction<Result<Integer>> readCharactersAsync(char[] outputCharacters, int startIndex, int length)
-    {
-        PreCondition.assertNotNullAndNotEmpty(outputCharacters, "characters");
-        PreCondition.assertBetween(0, startIndex, outputCharacters.length - 1, "startIndex");
-        PreCondition.assertBetween(1, length, outputCharacters.length - startIndex, "length");
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> readCharacters(outputCharacters, startIndex, length));
     }
 
     /**
@@ -201,21 +135,6 @@ public interface CharacterReadStream extends AsyncDisposable, Iterator<Character
     }
 
     /**
-     * Read all of the characters in this stream. The termination of the stream is marked when
-     * readCharacter() returns a null character. This function will not return until all of the
-     * characters in the stream have been read.
-     * @return All of the characters in this stream, null if the end of the stream has been reached,
-     * or an error if characters could not be read.
-     */
-    default AsyncFunction<Result<char[]>> readAllCharactersAsync()
-    {
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(this::readAllCharacters);
-    }
-
-    /**
      * Read characters create this stream until the end of the stream or until the provided value is
      * read.
      * @param value The value that will trigger the end of reading.
@@ -226,20 +145,6 @@ public interface CharacterReadStream extends AsyncDisposable, Iterator<Character
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
         return readCharactersUntil(new char[] { value });
-    }
-
-    /**
-     * Read characters create this stream until the end of the stream or until the provided value is
-     * read.
-     * @param value The value that will trigger the end of reading.
-     * @return The characters read up until reading the provided value.
-     */
-    default AsyncFunction<Result<char[]>> readCharactersUntilAsync(char value)
-    {
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> readCharactersUntil(value));
     }
 
     /**
@@ -254,21 +159,6 @@ public interface CharacterReadStream extends AsyncDisposable, Iterator<Character
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
         return readCharactersUntil(String.valueOf(values));
-    }
-
-    /**
-     * Read characters create this stream until the end of the stream or until the provided values is
-     * read.
-     * @param values The values that will trigger the end of reading.
-     * @return The characters read up until reading the provided values.
-     */
-    default AsyncFunction<Result<char[]>> readCharactersUntilAsync(char[] values)
-    {
-        PreCondition.assertNotNullAndNotEmpty(values, "values");
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> readCharactersUntil(values));
     }
 
     /**
@@ -287,21 +177,6 @@ public interface CharacterReadStream extends AsyncDisposable, Iterator<Character
         return characterEncoding.encode(value)
             .thenResult(byteReadStream::readBytesUntil)
             .thenResult(characterEncoding::decode);
-    }
-
-    /**
-     * Read characters create this stream until the end of the stream or until the provided value is
-     * read.
-     * @param value The value that will trigger the end of reading.
-     * @return The characters read up until reading the provided value.
-     */
-    default AsyncFunction<Result<char[]>> readCharactersUntilAsync(String value)
-    {
-        PreCondition.assertNotNullAndNotEmpty(value, "value");
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> readCharactersUntil(value));
     }
 
     /**
@@ -337,38 +212,6 @@ public interface CharacterReadStream extends AsyncDisposable, Iterator<Character
     }
 
     /**
-     * Read all of the characters in this stream. The termination of the stream is marked when
-     * readCharacter() returns a null character. This function will not return until all of the
-     * characters in the stream have been read.
-     * @return All of the characters in this stream, null if the end of the stream has been reached,
-     * or an error if characters could not be read.
-     */
-    default AsyncFunction<Result<String>> readEntireStringAsync()
-    {
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(this::readEntireString);
-    }
-
-    /**
-     * Read up to the provided charactersToRead number of characters create this stream. If fewer
-     * characters than charactersToRead are available, then fewer than charactersToRead characters
-     * will be returned. If no characters are available, then this function will not resolve until
-     * characters become available.
-     * @param charactersToRead The maximum number of characters to read create this stream.
-     * @return The characters that were read, or an error if characters could not be read.
-     */
-    default AsyncFunction<Result<String>> readStringAsync(int charactersToRead)
-    {
-        PreCondition.assertGreaterThan(charactersToRead, 0, "charactersToRead");
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> readString(charactersToRead));
-    }
-
-    /**
      * Read characters create this stream until the end of the stream or until the provided value is
      * read.
      * @param value The value that will trigger the end of reading.
@@ -379,20 +222,6 @@ public interface CharacterReadStream extends AsyncDisposable, Iterator<Character
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
         return readStringUntil(new char[] { value });
-    }
-
-    /**
-     * Read characters create this stream until the end of the stream or until the provided value is
-     * read.
-     * @param value The value that will trigger the end of reading.
-     * @return The characters read up until reading the provided value.
-     */
-    default AsyncFunction<Result<String>> readStringUntilAsync(char value)
-    {
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> readStringUntil(value));
     }
 
     /**
@@ -410,21 +239,6 @@ public interface CharacterReadStream extends AsyncDisposable, Iterator<Character
     }
 
     /**
-     * Read characters create this stream until the end of the stream or until the provided values is
-     * read.
-     * @param values The values that will trigger the end of reading.
-     * @return The characters read up until reading the provided values.
-     */
-    default AsyncFunction<Result<String>> readStringUntilAsync(char[] values)
-    {
-        PreCondition.assertNotNullAndNotEmpty(values, "values");
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> readStringUntil(values));
-    }
-
-    /**
      * Read characters create this stream until the end of the stream or until the provided value is
      * read.
      * @param value The value that will trigger the end of reading.
@@ -437,21 +251,6 @@ public interface CharacterReadStream extends AsyncDisposable, Iterator<Character
 
         return readCharactersUntil(value)
             .then((Function1<char[],String>)String::valueOf);
-    }
-
-    /**
-     * Read characters create this stream until the end of the stream or until the provided value is
-     * read.
-     * @param value The value that will trigger the end of reading.
-     * @return The characters read up until reading the provided value.
-     */
-    default AsyncFunction<Result<String>> readStringUntilAsync(String value)
-    {
-        PreCondition.assertNotNullAndNotEmpty(value, "value");
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> readStringUntil(value));
     }
 
     /**

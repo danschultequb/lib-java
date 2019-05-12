@@ -125,16 +125,6 @@ public class ProcessBuilderTests
                 test.assertEqual("C:/idontexist.exe \"won't matter\"", builder.getCommand());
             });
 
-            runner.test("runAsync() with not found executable file", (Test test) ->
-            {
-                final ProcessBuilder builder = createBuilder(test);
-                builder.addArgument("won't matter");
-                test.assertThrows(() -> builder.runAsync().awaitReturn().await(),
-                    new java.io.IOException("Cannot run program \"C:/idontexist.exe\": CreateProcess error=2, The system cannot find the file specified",
-                        new java.io.IOException("CreateProcess error=2, The system cannot find the file specified")));
-                test.assertEqual("C:/idontexist.exe \"won't matter\"", builder.getCommand());
-            });
-
             runner.test("escapeArgument()", (Test test) ->
             {
                 test.assertEqual("\"Then he said, \\\"Hey there!\\\"\"", ProcessBuilder.escapeArgument("Then he said, \"Hey there!\""));

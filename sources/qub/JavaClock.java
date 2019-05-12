@@ -5,12 +5,10 @@ package qub;
  */
 public class JavaClock implements Clock
 {
-    private final AsyncRunner mainAsyncRunner;
     private final AsyncRunner parallelAsyncRunner;
 
-    public JavaClock(AsyncRunner mainAsyncRunner, AsyncRunner parallelAsyncRunner)
+    public JavaClock(AsyncRunner parallelAsyncRunner)
     {
-        this.mainAsyncRunner = mainAsyncRunner;
         this.parallelAsyncRunner = parallelAsyncRunner;
     }
 
@@ -21,17 +19,23 @@ public class JavaClock implements Clock
     }
 
     @Override
-    public AsyncAction scheduleAt(final DateTime dateTime, final Action0 action)
+    public Result<Void> scheduleAt(DateTime dateTime, Action0 action)
     {
         PreCondition.assertNotNull(dateTime, "dateTime");
         PreCondition.assertNotNull(action, "action");
 
-        return parallelAsyncRunner.schedule(() ->
+        return Result.create(() ->
+        {
+            if (getCurrentDateTime().lessThan(dateTime))
             {
-                while (getCurrentDateTime().lessThan(dateTime))
+                parallelAsyncRunner.schedule(() ->
                 {
-                }
-            })
-            .thenOn(mainAsyncRunner, action);
+                    while (getCurrentDateTime().lessThan(dateTime))
+                    {
+                    }
+                }).await();
+            }
+            action.run();
+        });
     }
 }

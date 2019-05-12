@@ -418,8 +418,8 @@ public class ProcessBuilder
         try
         {
             final java.lang.Process process = builder.start();
-            AsyncAction outputAction = null;
-            AsyncAction errorAction = null;
+            Result<Void> outputAction = null;
+            Result<Void> errorAction = null;
 
             if (redirectedInputStream != null)
             {
@@ -432,12 +432,12 @@ public class ProcessBuilder
 
             if (redirectOutputAction != null)
             {
-                outputAction = parallelAsyncRunner.schedule(() -> redirectOutputAction.run(new InputStreamToByteReadStream(process.getInputStream(), parallelAsyncRunner)));
+                outputAction = parallelAsyncRunner.schedule(() -> redirectOutputAction.run(new InputStreamToByteReadStream(process.getInputStream())));
             }
 
             if (redirectErrorAction != null)
             {
-                errorAction = parallelAsyncRunner.schedule(() -> redirectErrorAction.run(new InputStreamToByteReadStream(process.getErrorStream(), parallelAsyncRunner)));
+                errorAction = parallelAsyncRunner.schedule(() -> redirectErrorAction.run(new InputStreamToByteReadStream(process.getErrorStream())));
             }
 
             result = Result.success(process.waitFor());
@@ -456,14 +456,5 @@ public class ProcessBuilder
         }
 
         return result;
-    }
-
-    /**
-     * Create a process with this ProcessBuilder's properties and wait for the process to complete.
-     * @return The exit code of the Process, or null if the process couldn't start.
-     */
-    public AsyncFunction<Result<Integer>> runAsync()
-    {
-        return parallelAsyncRunner.scheduleSingle(this::run);
     }
 }

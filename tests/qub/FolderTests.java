@@ -83,16 +83,6 @@ public class FolderTests
                 test.assertTrue(folder.exists().await());
             });
 
-            runner.test("existsAsync()", (Test test) ->
-            {
-                final Folder folder = getFolder(test);
-
-                test.assertFalse(folder.existsAsync().awaitReturn().await());
-
-                folder.create().await();
-
-                test.assertTrue(folder.existsAsync().awaitReturn().await());
-            });
 
             runner.testGroup("delete()", () ->
             {
@@ -109,25 +99,6 @@ public class FolderTests
                     folder.create().await();
 
                     test.assertNull(folder.delete().await());
-                    test.assertFalse(folder.exists().await());
-                });
-            });
-
-            runner.testGroup("deleteAsync()", () ->
-            {
-                runner.test("when folder doesn't exist", (Test test) ->
-                {
-                    final Folder folder = getFolder(test);
-                    test.assertThrows(() -> folder.deleteAsync().awaitReturn().await(),
-                        new FolderNotFoundException("/test/folder"));
-                });
-
-                runner.test("when folder exists", (Test test) ->
-                {
-                    final Folder folder = getFolder(test);
-                    test.assertNull(folder.create().await());
-
-                    test.assertNull(folder.deleteAsync().awaitReturn().await());
                     test.assertFalse(folder.exists().await());
                 });
             });
@@ -501,8 +472,8 @@ public class FolderTests
 
     private static Folder getFolder(Test test, String folderPath)
     {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner());
-        fileSystem.createRoot("/");
+        final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+        fileSystem.createRoot("/").await();
 
         return fileSystem.getFolder(folderPath).await();
     }

@@ -27,7 +27,6 @@ public class BufferedByteReadStreamTests
                     test.assertEqual(0, bufferedByteReadStream.getBufferSize());
                     test.assertEqual(100000, bufferedByteReadStream.getMaximumBufferSize());
                     test.assertEqual(0, bufferedByteReadStream.getBufferedByteCount());
-                    test.assertSame(byteReadStream.getAsyncRunner(), bufferedByteReadStream.getAsyncRunner());
                     test.assertFalse(byteReadStream.hasStarted());
                     test.assertFalse(byteReadStream.hasCurrent());
                     test.assertThrows(byteReadStream::getCurrent,
@@ -46,7 +45,6 @@ public class BufferedByteReadStreamTests
                     test.assertEqual(10000, bufferedByteReadStream.getBufferSize());
                     test.assertEqual(100000, bufferedByteReadStream.getMaximumBufferSize());
                     test.assertEqual(0, bufferedByteReadStream.getBufferedByteCount());
-                    test.assertSame(byteReadStream.getAsyncRunner(), bufferedByteReadStream.getAsyncRunner());
                     test.assertFalse(byteReadStream.hasStarted());
                     test.assertFalse(byteReadStream.hasCurrent());
                     test.assertThrows(byteReadStream::getCurrent,
@@ -75,7 +73,6 @@ public class BufferedByteReadStreamTests
                     test.assertEqual(0, bufferedByteReadStream.getBufferSize());
                     test.assertEqual(5, bufferedByteReadStream.getMaximumBufferSize());
                     test.assertEqual(0, bufferedByteReadStream.getBufferedByteCount());
-                    test.assertSame(byteReadStream.getAsyncRunner(), bufferedByteReadStream.getAsyncRunner());
                     test.assertFalse(byteReadStream.hasStarted());
                     test.assertFalse(byteReadStream.hasCurrent());
                     test.assertThrows(byteReadStream::getCurrent,
@@ -106,7 +103,6 @@ public class BufferedByteReadStreamTests
                     test.assertEqual(2, bufferedByteReadStream.getBufferSize());
                     test.assertEqual(2, bufferedByteReadStream.getMaximumBufferSize());
                     test.assertEqual(0, bufferedByteReadStream.getBufferedByteCount());
-                    test.assertSame(byteReadStream.getAsyncRunner(), bufferedByteReadStream.getAsyncRunner());
                     test.assertFalse(byteReadStream.hasStarted());
                     test.assertFalse(byteReadStream.hasCurrent());
                     test.assertThrows(byteReadStream::getCurrent,

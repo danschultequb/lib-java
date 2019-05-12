@@ -5,19 +5,6 @@ package qub;
  */
 public class JavaFileSystem implements FileSystem
 {
-    private final AsyncRunner asyncRunner;
-
-    JavaFileSystem(AsyncRunner asyncRunner)
-    {
-        this.asyncRunner = asyncRunner;
-    }
-
-    @Override
-    public AsyncRunner getAsyncRunner()
-    {
-        return asyncRunner;
-    }
-
     @Override
     public Result<Iterable<Root>> getRoots()
     {
@@ -236,7 +223,7 @@ public class JavaFileSystem implements FileSystem
         {
             final java.io.InputStream fileContentsInputStream = java.nio.file.Files.newInputStream(
                 java.nio.file.Paths.get(rootedFilePath.toString()));
-            result = Result.success(new InputStreamToByteReadStream(fileContentsInputStream, asyncRunner));
+            result = Result.success(new InputStreamToByteReadStream(fileContentsInputStream));
         }
         catch (java.nio.file.NoSuchFileException e)
         {

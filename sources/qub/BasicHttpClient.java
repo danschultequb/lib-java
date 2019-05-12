@@ -84,7 +84,7 @@ public class BasicHttpClient implements HttpClient
                     {
                         if (0 < contentLength)
                         {
-                            final InMemoryByteStream responseBodyStream = new InMemoryByteStream(network.getAsyncRunner());
+                            final InMemoryByteStream responseBodyStream = new InMemoryByteStream();
 
                             long bytesToRead = contentLength;
                             while (0 < bytesToRead)

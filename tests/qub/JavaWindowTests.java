@@ -96,18 +96,19 @@ public class JavaWindowTests
                         button.setSize(200, 300);
                         window.setContent(button);
                         window.open();
-                        window.awaitClose();
+                        window.await();
                     }
                 });
             });
 
-            runner.testGroup("awaitClose()", () ->
+            runner.testGroup("await()", () ->
             {
                 runner.test("when not open", (Test test) ->
                 {
                     try (final JavaWindow window = createWindow(test))
                     {
-                        test.assertThrows(window::awaitClose, new PreConditionFailure("isOpen() cannot be false."));
+                        test.assertThrows(window::await,
+                            new PreConditionFailure("isOpen() cannot be false."));
                     }
                 });
 
@@ -116,7 +117,8 @@ public class JavaWindowTests
                     try (final JavaWindow window = createWindow(test))
                     {
                         window.dispose();
-                        test.assertThrows(window::awaitClose, new PreConditionFailure("isOpen() cannot be false."));
+                        test.assertThrows(window::await,
+                            new PreConditionFailure("isOpen() cannot be false."));
                     }
                 });
 
@@ -125,7 +127,7 @@ public class JavaWindowTests
                     try (final JavaWindow window = createWindow(test))
                     {
                         window.open();
-                        window.awaitClose();
+                        window.await();
                         test.assertFalse(window.isOpen());
                         test.assertTrue(window.isDisposed());
                     }
@@ -137,7 +139,8 @@ public class JavaWindowTests
                     {
                         window.open();
                         window.dispose().await();
-                        test.assertThrows(window::awaitClose, new PreConditionFailure("isOpen() cannot be false."));
+                        test.assertThrows(window::await,
+                            new PreConditionFailure("isOpen() cannot be false."));
                     }
                 });
             });
@@ -156,7 +159,7 @@ public class JavaWindowTests
                                 .setPadding(Distance.inches(0.1))));
 
                     window.open();
-                    window.awaitClose();
+                    window.await();
                 }
             });
         });

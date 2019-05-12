@@ -2,12 +2,17 @@ package qub;
 
 class JavaNetwork implements Network
 {
+    private final Clock clock;
     private final AsyncRunner asyncRunner;
     private final JavaHttpClient httpClient;
     private final DNS dns;
 
-    JavaNetwork(AsyncRunner asyncRunner)
+    JavaNetwork(Clock clock, AsyncRunner asyncRunner)
     {
+        PreCondition.assertNotNull(clock, "clock");
+        PreCondition.assertNotNull(asyncRunner, "asyncRunner");
+
+        this.clock = clock;
         this.asyncRunner = asyncRunner;
         httpClient = new JavaHttpClient(this);
         dns = new JavaDNS();
@@ -25,7 +30,7 @@ class JavaNetwork implements Network
             final byte[] remoteIPAddressBytes = remoteIPAddress.toBytes();
             final java.net.InetAddress remoteInetAddress = java.net.InetAddress.getByAddress(remoteIPAddressBytes);
             final java.net.Socket socket = new java.net.Socket(remoteInetAddress, remotePort);
-            result = JavaTCPClient.create(socket, asyncRunner);
+            result = JavaTCPClient.create(socket);
         }
         catch (java.io.IOException e)
         {
@@ -35,12 +40,22 @@ class JavaNetwork implements Network
     }
 
     @Override
+    public Result<TCPClient> createTCPClient(IPv4Address remoteIPAddress, int remotePort, Duration timeout)
+    {
+        Network.validateRemoteIPAddress(remoteIPAddress);
+        Network.validateRemotePort(remotePort);
+        Network.validateTimeout(timeout);
+
+        final DateTime dateTimeTimeout = clock.getCurrentDateTime().plus(timeout);
+        return createTCPClient(remoteIPAddress, remotePort, dateTimeTimeout);
+    }
+
+    @Override
     public Result<TCPClient> createTCPClient(IPv4Address remoteIPAddress, int remotePort, DateTime timeout)
     {
         Network.validateRemoteIPAddress(remoteIPAddress);
         Network.validateRemotePort(remotePort);
         Network.validateTimeout(timeout);
-        validateClock();
 
         Result<TCPClient> result;
         try
@@ -51,7 +66,7 @@ class JavaNetwork implements Network
             final java.net.Socket socket = new java.net.Socket();
             socket.connect(socketAddress);
 
-            result = JavaTCPClient.create(socket, asyncRunner);
+            result = JavaTCPClient.create(socket);
         }
         catch (java.io.IOException e)
         {
@@ -65,7 +80,7 @@ class JavaNetwork implements Network
     {
         Network.validateLocalPort(localPort);
 
-        return JavaTCPServer.create(localPort, getAsyncRunner());
+        return JavaTCPServer.create(localPort, clock, asyncRunner);
     }
 
     @Override
@@ -74,7 +89,7 @@ class JavaNetwork implements Network
         Network.validateLocalIPAddress(localIPAddress);
         Network.validateLocalPort(localPort);
 
-        return JavaTCPServer.create(localIPAddress, localPort, getAsyncRunner());
+        return JavaTCPServer.create(localIPAddress, localPort, clock, asyncRunner);
     }
 
     @Override
@@ -96,11 +111,5 @@ class JavaNetwork implements Network
     public DNS getDNS()
     {
         return dns;
-    }
-
-    @Override
-    public AsyncRunner getAsyncRunner()
-    {
-        return asyncRunner;
     }
 }

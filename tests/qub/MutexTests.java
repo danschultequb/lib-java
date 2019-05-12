@@ -625,7 +625,7 @@ public class MutexTests
 
                     final AsyncRunner parallelAsyncRunner = test.getParallelAsyncRunner();
 
-                    final List<AsyncTask> producers = new ArrayList<>();
+                    final List<Result<Void>> producers = List.create();
                     for (int i = 0; i < count; ++i)
                     {
                         final int currentValue = i;
@@ -639,7 +639,7 @@ public class MutexTests
                         }));
                     }
 
-                    final List<Integer> resultList = new ArrayList<>();
+                    final List<Integer> resultList = List.create();
                     mutex.criticalSection(() ->
                     {
                         while (resultList.getCount() < count)
@@ -659,7 +659,7 @@ public class MutexTests
                     }
                     test.assertEqual(count, resultList.getCount());
 
-                    parallelAsyncRunner.awaitAll(producers);
+                    Result.await(producers);
                 });
             });
         });

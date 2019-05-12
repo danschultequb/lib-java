@@ -126,12 +126,6 @@ public class BufferedByteReadStream implements ByteReadStream
     }
 
     @Override
-    public AsyncRunner getAsyncRunner()
-    {
-        return byteReadStream.getAsyncRunner();
-    }
-
-    @Override
     public boolean isDisposed()
     {
         return byteReadStream.isDisposed();

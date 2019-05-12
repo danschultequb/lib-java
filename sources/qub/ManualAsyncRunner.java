@@ -1,169 +1,113 @@
 package qub;
 
-public class ManualAsyncRunner implements AsyncRunner
+/**
+ * An AsyncRunner implementation that runs its tasks concurrently on the current thread (usually the
+ * main thread).
+ */
+public class ManualAsyncRunner implements AsyncScheduler
 {
-    private final BlockingQueue<PausedAsyncTask> scheduledTasks;
-    private Function0<Clock> clockGetter;
-    private boolean disposed;
+    /**
+     * The AsyncTasks that have been scheduled to run on this AsyncRunner.
+     */
+    private final List<AsyncTask<?>> scheduledTasks;
 
     public ManualAsyncRunner()
     {
-        this.scheduledTasks = new JavaBlockingQueue<>(null);
+        scheduledTasks = List.create();
     }
 
-    @Override
-    public void setClockGetter(Function0<Clock> clockGetter)
+    /**
+     * Get the AsyncTasks that have been scheduled to run on this AsyncRunner.
+     * @return The AsyncTasks that have been scheduled to run on this AsyncRunner.
+     */
+    public Iterable<AsyncTask<?>> getScheduledTasks()
     {
-        PreCondition.assertNotNull(clockGetter, "clockGetter");
-
-        this.clockGetter = clockGetter;
+        return scheduledTasks;
     }
 
-    @Override
-    public Clock getClock()
-    {
-        PreCondition.assertNotNull(clockGetter, "clockGetter");
-
-        return clockGetter.run();
-    }
-
-    @Override
+    /**
+     * Get the number of AsyncTasks that have been scheduled to run on this AsyncRunner.
+     * @return The number of AsyncTasks that have been scheduled to run on this AsyncRunner.
+     */
     public int getScheduledTaskCount()
     {
         return scheduledTasks.getCount();
     }
 
     @Override
-    public void markCompleted(Setable<Boolean> asyncTaskCompleted)
-    {
-        PreCondition.assertNotNull(asyncTaskCompleted, "asyncTaskCompleted");
-
-        asyncTaskCompleted.set(true);
-    }
-
-    @Override
-    public void schedule(PausedAsyncTask asyncTask)
-    {
-        PreCondition.assertNotNull(asyncTask, "asyncTask");
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
-
-        scheduledTasks.enqueue(asyncTask);
-    }
-
-    @Override
-    public AsyncAction schedule(String label, Action0 action)
+    public AsyncTask<Void> schedule(Action0 action)
     {
         PreCondition.assertNotNull(action, "action");
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
-        final BasicAsyncAction result = new BasicAsyncAction(Value.create(this), label, action);
-        schedule(result);
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+        return schedule(create(action));
     }
 
     @Override
-    public <T> AsyncFunction<T> schedule(Function0<T> function)
+    public <T> AsyncTask<T> schedule(Function0<T> function)
     {
         PreCondition.assertNotNull(function, "function");
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
-        final BasicAsyncFunction<T> result = new BasicAsyncFunction<>(Value.create(this), function);
-        schedule(result);
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
-
-    private void dequeueAndRunNextTask()
-    {
-        final Result<PausedAsyncTask> asyncTask = scheduledTasks.dequeue();
-        asyncTask.await().runAndSchedulePausedTasks();
-    }
-
-    public void await()
-    {
-        while (scheduledTasks.any())
-        {
-            dequeueAndRunNextTask();
-        }
+        return schedule(create(function));
     }
 
     @Override
-    public void await(AsyncTask asyncTask)
+    public <T> AsyncTask<T> scheduleResult(Function0<Result<T>> function)
     {
-        PreCondition.assertNotNull(asyncTask, "asyncTask");
-        PreCondition.assertFalse(asyncTask.isCompleted(), "asyncTask.isCompleted()");
-        PreCondition.assertSame(this, asyncTask.getAsyncRunner(), "asyncTask.getAsyncRunner()");
+        PreCondition.assertNotNull(function, "function");
 
-        final AsyncRunner currentThreadAsyncRunner = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        if (currentThreadAsyncRunner == this)
-        {
-            // If the thread that is running this is the same thread that this ManualAsyncRunner
-            // is using, then let's help it along by executing the scheduled tasks until the
-            // provided task is completed.
-            while (!asyncTask.isCompleted())
-            {
-                dequeueAndRunNextTask();
-            }
-        }
-        else
-        {
-            // If the thread that is running this is not the same thread that this
-            // ManualAsyncRunner is using, then let's just wait for the task to be completed by
-            // the thread that this ManualAsyncRunner is using.
-            while (!asyncTask.isCompleted())
-            {
-            }
-        }
-    }
-
-    /**
-     * Run the provided action immediately using a new ManualAsyncRunner that has been
-     * registered with the AsyncRunnerRegistry for the current thread. When the provided action
-     * completes, the provided ManualAsyncRunner will be removed create the
-     * AsyncRunnerRegistry.
-     * @param action The action to run immediately with the created and registered
-     *               ManualAsyncRunner.
-     */
-    public static void withRegistered(Action1<ManualAsyncRunner> action)
-    {
-        final AsyncRunner runnerBackup = AsyncRunnerRegistry.getCurrentThreadAsyncRunner();
-        try (final ManualAsyncRunner runner = new ManualAsyncRunner())
-        {
-            AsyncRunnerRegistry.setCurrentThreadAsyncRunner(runner);
-            action.run(runner);
-        }
-        finally
-        {
-            if (runnerBackup == null)
-            {
-                AsyncRunnerRegistry.removeCurrentThreadAsyncRunner();
-            }
-            else
-            {
-                AsyncRunnerRegistry.setCurrentThreadAsyncRunner(runnerBackup);
-            }
-        }
+        return schedule(createResult(function));
     }
 
     @Override
-    public boolean isDisposed()
+    public AsyncTask<Void> create(Action0 action)
     {
-        return disposed;
+        PreCondition.assertNotNull(action, "action");
+
+        return new AsyncTask<>(this, action);
     }
 
     @Override
-    public Result<Boolean> dispose()
+    public <T> AsyncTask<T> create(Function0<T> function)
     {
-        final Result<Boolean> result = (disposed ? Result.successFalse() : Result.successTrue());
-        disposed = true;
+        PreCondition.assertNotNull(function, "function");
 
-        PostCondition.assertTrue(isDisposed(), "isDisposed()");
+        return new AsyncTask<>(this, function);
+    }
 
-        return result;
+    @Override
+    public <T> AsyncTask<T> createResult(Function0<Result<T>> function)
+    {
+        PreCondition.assertNotNull(function, "function");
+
+        return new AsyncTask<>(this, () -> function.run().await());
+    }
+
+    @Override
+    public <T> AsyncTask<T> schedule(AsyncTask<T> task)
+    {
+        PreCondition.assertNotNull(task, "task");
+        PreCondition.assertFalse(task.isCompleted(), "task.isCompleted()");
+
+        scheduledTasks.add(task);
+
+        return task;
+    }
+
+    @Override
+    public void await(Result<?> result)
+    {
+        PreCondition.assertNotNull(result, "result");
+
+        while (!result.isCompleted())
+        {
+            if (scheduledTasks.any())
+            {
+                final AsyncTask<?> asyncTask = scheduledTasks.removeFirst();
+                if (!asyncTask.isCompleted())
+                {
+                    asyncTask.run();
+                }
+            }
+        }
     }
 }

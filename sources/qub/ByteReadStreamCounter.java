@@ -87,12 +87,6 @@ public class ByteReadStreamCounter implements ByteReadStream
     }
 
     @Override
-    public AsyncRunner getAsyncRunner()
-    {
-        return innerStream.getAsyncRunner();
-    }
-
-    @Override
     public boolean isDisposed()
     {
         return innerStream.isDisposed();

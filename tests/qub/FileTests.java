@@ -169,16 +169,6 @@ public class FileTests
                 });
             });
 
-            runner.testGroup("getContentByteReadStreamAsync()", () ->
-            {
-                runner.test("with non-existing file", (Test test) ->
-                {
-                    final File file = getFile(test);
-                    test.assertThrows(() -> file.getContentByteReadStreamAsync().awaitReturn().await(),
-                        new FileNotFoundException("/A"));
-                });
-            });
-
             runner.testGroup("getContentCharacterReadStream()", () ->
             {
                 runner.test("with non-existing file", (Test test) ->
@@ -188,23 +178,13 @@ public class FileTests
                         new FileNotFoundException("/A"));
                 });
             });
-
-            runner.testGroup("getContentCharacterReadStreamAsync()", () ->
-            {
-                runner.test("with non-existing file", (Test test) ->
-                {
-                    final File file = getFile(test);
-                    test.assertThrows(() -> file.getContentCharacterReadStreamAsync().awaitReturn().await(),
-                        new FileNotFoundException("/A"));
-                });
-            });
         });
     }
 
     private static FileSystem getFileSystem(Test test)
     {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner());
-        fileSystem.createRoot("/");
+        final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+        fileSystem.createRoot("/").await();
         return fileSystem;
     }
 

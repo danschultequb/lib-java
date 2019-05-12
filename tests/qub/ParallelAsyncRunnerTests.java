@@ -1,23 +1,79 @@
 package qub;
 
-public class ParallelAsyncRunnerTests
+public interface ParallelAsyncRunnerTests
 {
-    public static void test(final TestRunner runner)
+    static void test(TestRunner runner)
     {
         runner.testGroup(ParallelAsyncRunner.class, () ->
         {
-            AsyncRunnerTests.test(runner, ParallelAsyncRunner::new);
+            AsyncSchedulerTests.test(runner, ParallelAsyncRunner::new);
 
             runner.test("constructor()", (Test test) ->
             {
-                try (final ParallelAsyncRunner runner1 = new ParallelAsyncRunner())
+                final ParallelAsyncRunner asyncRunner = new ParallelAsyncRunner();
+                test.assertNotNull(asyncRunner);
+            });
+
+            runner.test("schedule(Action0)", (Test test) ->
+            {
+                CurrentThread.withParallelAsyncScheduler((ParallelAsyncRunner asyncRunner) ->
                 {
-                    test.assertEqual(0, runner1.getScheduledTaskCount());
-                }
-                catch (Exception e)
+                    final IntegerValue value = IntegerValue.create(0);
+                    final AsyncTask<Void> result = asyncRunner.schedule(() -> { value.increment(); });
+
+                    test.assertNull(result.await());
+                    test.assertEqual(1, value.get());
+
+                    test.assertNull(result.await());
+                    test.assertEqual(1, value.get());
+                });
+            });
+
+            runner.testGroup("await(Result<?>)", () ->
+            {
+                runner.test("await task that was scheduled for the ParallelAsyncRunner in ParallelAsyncRunner's thread", (Test test) ->
                 {
-                    test.fail(e);
-                }
+                    CurrentThread.withParallelAsyncScheduler((ParallelAsyncRunner asyncRunner) ->
+                    {
+                        final long mainThreadId = CurrentThread.getId();
+                        final Value<Long> asyncTaskThreadId = Value.create();
+
+                        final Result<Void> asyncTask = asyncRunner.schedule(() -> asyncTaskThreadId.set(CurrentThread.getId()));
+                        test.assertFalse(asyncTask.isCompleted());
+                        test.assertFalse(asyncTaskThreadId.hasValue());
+
+                        final Value<Long> asyncTaskThreadId2 = Value.create();
+                        final Result<Void> asyncTask2 = asyncRunner.schedule(() ->
+                        {
+                            asyncTaskThreadId2.set(CurrentThread.getId());
+                            asyncTask.await();
+                        });
+                        asyncRunner.await(asyncTask2);
+
+                        test.assertTrue(asyncTask.isCompleted());
+                        test.assertNotEqual(mainThreadId, asyncTaskThreadId.get());
+                        test.assertNotEqual(mainThreadId, asyncTaskThreadId2.get());
+                        test.assertNotEqual(asyncTaskThreadId.get(), asyncTaskThreadId2.get());
+                    });
+                });
+
+                runner.test("await task that was scheduled for the ParallelAsyncRunner in ManualAsyncRunner's thread", (Test test) ->
+                {
+                    CurrentThread.withParallelAsyncScheduler((ParallelAsyncRunner asyncRunner) ->
+                    {
+                        final long mainThreadId = CurrentThread.getId();
+                        final Value<Long> asyncTaskThreadId = Value.create();
+
+                        final Result<Void> asyncTask = asyncRunner.schedule(() -> asyncTaskThreadId.set(CurrentThread.getId()));
+                        test.assertFalse(asyncTask.isCompleted());
+                        test.assertFalse(asyncTaskThreadId.hasValue());
+
+                        asyncRunner.await(asyncTask);
+
+                        test.assertTrue(asyncTask.isCompleted());
+                        test.assertNotEqual(mainThreadId, asyncTaskThreadId.get());
+                    });
+                });
             });
         });
     }

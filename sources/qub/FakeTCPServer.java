@@ -2,37 +2,29 @@ package qub;
 
 public class FakeTCPServer implements TCPServer
 {
+    private final Clock clock;
     private final IPv4Address localIPAddress;
     private final int localPort;
     private final FakeNetwork network;
-    private final AsyncRunner asyncRunner;
     private final Mutex mutex;
     private final MutexCondition hasClientsToAccept;
     private final List<FakeTCPClient> clientsToAccept;
     private volatile boolean disposed;
 
-    public FakeTCPServer(IPv4Address localIPAddress, int localPort, FakeNetwork network, AsyncRunner asyncRunner)
+    public FakeTCPServer(IPv4Address localIPAddress, int localPort, FakeNetwork network, Clock clock)
     {
         PreCondition.assertNotNull(localIPAddress, "localIPAddress");
         PreCondition.assertBetween(1, localPort, 65535, "localPort");
         PreCondition.assertNotNull(network, "network");
-        PreCondition.assertNotNull(asyncRunner, "asyncRunner");
+        PreCondition.assertNotNull(clock, "clock");
 
+        this.clock = clock;
         this.localIPAddress = localIPAddress;
         this.localPort = localPort;
         this.network = network;
-        this.asyncRunner = asyncRunner;
-        mutex = new SpinMutex(asyncRunner.getClock());
+        mutex = new SpinMutex(clock);
         hasClientsToAccept = mutex.createCondition();
         clientsToAccept = new ArrayList<>();
-    }
-
-    @Override
-    public Clock getClock()
-    {
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return asyncRunner.getClock();
     }
 
     @Override
@@ -66,8 +58,20 @@ public class FakeTCPServer implements TCPServer
     }
 
     @Override
+    public Result<TCPClient> accept(Duration timeout)
+    {
+        PreCondition.assertNotNull(timeout, "timeout");
+        PreCondition.assertGreaterThan(timeout, Duration.zero, "timeout");
+        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+
+        final DateTime dateTimeTimeout = clock.getCurrentDateTime().plus(timeout);
+        return accept(dateTimeTimeout);
+    }
+
+    @Override
     public Result<TCPClient> accept(DateTime timeout)
     {
+        PreCondition.assertNotNull(timeout, "timeout");
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
         return mutex.criticalSection(timeout, () ->
@@ -84,12 +88,6 @@ public class FakeTCPServer implements TCPServer
 
             return clientsToAccept.removeFirst();
         });
-    }
-
-    @Override
-    public AsyncRunner getAsyncRunner()
-    {
-        return asyncRunner;
     }
 
     @Override

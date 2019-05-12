@@ -27,11 +27,6 @@ public abstract class FileSystemEntry
         return fileSystem;
     }
 
-    protected AsyncRunner getAsyncRunner()
-    {
-        return fileSystem.getAsyncRunner();
-    }
-
     /**
      * Get the name of this FileSystemEntry.
      * @return The name of this FileSystemEntry.
@@ -55,23 +50,11 @@ public abstract class FileSystemEntry
     public abstract Result<Boolean> exists();
 
     /**
-     * Get whether or not this FileSystemEntry exists.
-     */
-    public abstract AsyncFunction<Result<Boolean>> existsAsync();
-
-    /**
      * Attempt to delete this FileSystemEntry. Return whether or not this function deleted the
      * entry.
      * @return Whether or not this function deleted the entry.
      */
     public abstract Result<Void> delete();
-
-    /**
-     * Attempt to delete this FileSystemEntry. Return whether or not this function deleted the
-     * entry.
-     * @return Whether or not this function deleted the entry.
-     */
-    public abstract AsyncFunction<Result<Void>> deleteAsync();
 
     @Override
     public String toString()

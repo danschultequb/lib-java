@@ -401,7 +401,7 @@ public class PathTests
                     {
                         final Path path = Path.parse(pathString);
 
-                        final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner());
+                        final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                         final Folder folder = fileSystem.getFolder(basePathString).await();
                         test.assertEqual(Path.parse(expectedPathString), path.relativeTo(folder));
                     });

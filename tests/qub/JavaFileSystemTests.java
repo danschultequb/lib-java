@@ -14,22 +14,22 @@ public class JavaFileSystemTests
         {
             if (folderFileSystem.hasValue())
             {
-                folderFileSystem.get().delete();
+                folderFileSystem.get().delete().await();
                 folderFileSystem.clear();
             }
         });
 
         runner.testGroup(JavaFileSystem.class, () ->
         {
-            FileSystemTests.test(runner, (AsyncRunner asyncRunner) ->
+            FileSystemTests.test(runner, (Test test) ->
             {
                 final Path testFolderPath = tempFolderPath.concatenateSegment(testNumber.increment().toString());
-                folderFileSystem.set(FolderFileSystem.get(new JavaFileSystem(asyncRunner), testFolderPath).await());
+                folderFileSystem.set(FolderFileSystem.get(new JavaFileSystem(), testFolderPath));
                 if (folderFileSystem.get().exists().await())
                 {
-                    folderFileSystem.get().delete();
+                    folderFileSystem.get().delete().await();
                 }
-                folderFileSystem.get().create();
+                folderFileSystem.get().create().await();
                 return folderFileSystem.get();
             });
         });

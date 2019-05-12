@@ -394,4 +394,36 @@ public interface Result<T>
     {
         return SyncResult.endOfStream();
     }
+
+    /**
+     * Await all of the provided Result objects.
+     * @param resultsToAwait The Result objects to await.
+     */
+    @SafeVarargs
+    static <T> Iterable<T> await(Result<T>... resultsToAwait)
+    {
+        PreCondition.assertNotNull(resultsToAwait, "resultsToAwait");
+
+        return Result.await(Array.create(resultsToAwait));
+    }
+
+    /**
+     * Await all of the Result objects in the provided Iterable.
+     * @param resultsToAwait The Result objects to await.
+     */
+    static <T> Iterable<T> await(Iterable<Result<T>> resultsToAwait)
+    {
+        PreCondition.assertNotNull(resultsToAwait, "resultsToAwait");
+
+        List<T> result = List.create();
+        for (final Result<T> resultToAwait : resultsToAwait)
+        {
+            result.add(resultToAwait.await());
+        }
+
+        PostCondition.assertNotNull(result, "result");
+        PostCondition.assertEqual(resultsToAwait.getCount(), result.getCount(), "result.getCount()");
+
+        return result;
+    }
 }

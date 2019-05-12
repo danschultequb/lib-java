@@ -76,9 +76,9 @@ public class JavaHttpClient implements HttpClient
                 }
             }
 
-            InMemoryByteStream resultBody = new InMemoryByteStream(network.getAsyncRunner());
+            InMemoryByteStream resultBody = new InMemoryByteStream();
             final int statusCode = response.getStatusCode();
-            final ByteReadStream responseBody = new InputStreamToByteReadStream((400 <= statusCode && statusCode <= 599) ? urlConnection.getErrorStream() : urlConnection.getInputStream(), network.getAsyncRunner());
+            final ByteReadStream responseBody = new InputStreamToByteReadStream((400 <= statusCode && statusCode <= 599) ? urlConnection.getErrorStream() : urlConnection.getInputStream());
             resultBody.writeAllBytes(responseBody);
             responseBody.close();
             resultBody.endOfStream();

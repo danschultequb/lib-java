@@ -5,25 +5,17 @@ package qub;
  */
 public class InputStreamToByteReadStream implements ByteReadStream
 {
-    private final AsyncRunner asyncRunner;
     private final java.io.InputStream inputStream;
 
     private boolean disposed;
     private boolean hasStarted;
     private Byte current;
 
-    public InputStreamToByteReadStream(java.io.InputStream inputStream, AsyncRunner asyncRunner)
+    public InputStreamToByteReadStream(java.io.InputStream inputStream)
     {
         PreCondition.assertNotNull(inputStream, "inputStream");
 
-        this.asyncRunner = asyncRunner;
         this.inputStream = inputStream;
-    }
-
-    @Override
-    public AsyncRunner getAsyncRunner()
-    {
-        return asyncRunner;
     }
 
     @Override

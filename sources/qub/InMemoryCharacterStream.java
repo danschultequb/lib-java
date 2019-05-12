@@ -8,42 +8,22 @@ public class InMemoryCharacterStream extends BasicCharacterReadStream implements
 
     public InMemoryCharacterStream()
     {
-        this((AsyncRunner)null);
+        this("");
     }
 
     public InMemoryCharacterStream(CharacterEncoding characterEncoding)
     {
-        this(characterEncoding, null);
-    }
-
-    public InMemoryCharacterStream(CharacterEncoding characterEncoding, AsyncRunner asyncRunner)
-    {
-        this("", characterEncoding, asyncRunner);
-    }
-
-    public InMemoryCharacterStream(AsyncRunner asyncRunner)
-    {
-        this("", asyncRunner);
+        this("", characterEncoding);
     }
 
     public InMemoryCharacterStream(String text)
     {
-        this(text, (AsyncRunner)null);
-    }
-
-    public InMemoryCharacterStream(String text, AsyncRunner asyncRunner)
-    {
-        this(text, CharacterEncoding.UTF_8, asyncRunner);
+        this(text, CharacterEncoding.UTF_8);
     }
 
     public InMemoryCharacterStream(String text, CharacterEncoding characterEncoding)
     {
-        this(text, characterEncoding, null);
-    }
-
-    public InMemoryCharacterStream(String text, CharacterEncoding characterEncoding, AsyncRunner asyncRunner)
-    {
-        this(new InMemoryByteStream(Strings.isNullOrEmpty(text) ?null : characterEncoding.encode(text).await(), asyncRunner), characterEncoding);
+        this(new InMemoryByteStream(Strings.isNullOrEmpty(text) ?null : characterEncoding.encode(text).await()), characterEncoding);
     }
 
     public InMemoryCharacterStream(InMemoryByteStream byteStream)

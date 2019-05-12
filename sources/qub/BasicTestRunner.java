@@ -177,8 +177,6 @@ public final class BasicTestRunner implements TestRunner
                     try
                     {
                         testAction.run(test);
-                        test.assertEqual(0, process.getMainAsyncRunner().getScheduledTaskCount(), "The main AsyncRunner should not have any scheduled tasks when a synchronous test completes.");
-                        test.assertEqual(0, process.getParallelAsyncRunner().getScheduledTaskCount(), "The parallel AsyncRunner should not have any scheduled tasks when a synchronous test completes.");
 
                         ++passedTestCount;
                         if (afterTestSuccessAction != null)
@@ -216,7 +214,7 @@ public final class BasicTestRunner implements TestRunner
                 afterTestAction.run(test);
             }
 
-            AsyncRunnerRegistry.setCurrentThreadAsyncRunner(process.getMainAsyncRunner());
+            CurrentThread.setAsyncRunner(process.getMainAsyncRunner());
         }
     }
 

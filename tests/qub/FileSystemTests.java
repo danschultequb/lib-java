@@ -2,7 +2,7 @@ package qub;
 
 public class FileSystemTests
 {
-    public static void test(TestRunner runner, Function1<AsyncRunner,FileSystem> creator)
+    public static void test(TestRunner runner, Function1<Test,FileSystem> creator)
     {
         runner.testGroup(FileSystem.class, () ->
         {
@@ -12,7 +12,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(rootPath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         test.assertThrows(() -> fileSystem.rootExists(rootPath), expectedError);
                     });
                 };
@@ -24,7 +24,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(rootPath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         test.assertEqual(expectedValue, fileSystem.rootExists(rootPath).await());
                     });
                 };
@@ -40,7 +40,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(rootPath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         test.assertThrows(() -> fileSystem.rootExists(rootPath), expectedError);
                     });
                 };
@@ -51,7 +51,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(rootPath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         test.assertEqual(expectedValue, fileSystem.rootExists(Path.parse(rootPath)).await());
                     });
                 };
@@ -63,7 +63,7 @@ public class FileSystemTests
 
             runner.test("getRoot()", (Test test) ->
             {
-                final FileSystem fileSystem = creator.run(test.getParallelAsyncRunner());
+                final FileSystem fileSystem = creator.run(test);
                 final Root root = fileSystem.getRoot("/daffy/").await();
                 test.assertNotNull(root);
                 test.assertEqual("/", root.toString());
@@ -71,7 +71,7 @@ public class FileSystemTests
 
             runner.test("getRoots()", (Test test) ->
             {
-                final FileSystem fileSystem = creator.run(test.getParallelAsyncRunner());
+                final FileSystem fileSystem = creator.run(test);
                 test.assertNotNullAndNotEmpty(fileSystem.getRoots().await());
             });
 
@@ -81,7 +81,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         test.assertThrows(() -> fileSystem.getFilesAndFolders(folderPath), expectedError);
                     });
                 };
@@ -93,7 +93,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         if (setup != null)
                         {
                             setup.run(fileSystem);
@@ -149,7 +149,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         test.assertThrows(() -> fileSystem.getFilesAndFolders(folderPath), expectedError);
                     });
                 };
@@ -160,7 +160,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         if (setup != null)
                         {
                             setup.run(fileSystem);
@@ -215,7 +215,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(path), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         test.assertThrows(() -> fileSystem.getFolders(path), expectedError);
                     });
                 };
@@ -225,7 +225,7 @@ public class FileSystemTests
 
                 runner.test("with " + Strings.escapeAndQuote("/.."), (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
                     test.assertThrows(() -> fileSystem.getFolders("/..").await(),
                         new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
                 });
@@ -237,7 +237,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         test.assertThrows(() -> fileSystem.getFoldersRecursively(folderPath), expectedError);
                     });
                 };
@@ -250,7 +250,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         if (setup != null)
                         {
                             setup.run(fileSystem);
@@ -343,7 +343,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         test.assertThrows(() -> fileSystem.getFoldersRecursively(folderPath), expectedError);
                     });
                 };
@@ -355,7 +355,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         if (setup != null)
                         {
                             setup.run(fileSystem);
@@ -448,7 +448,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         test.assertThrows(() -> fileSystem.getFiles(folderPath), expectedError);
                     });
                 };
@@ -460,7 +460,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         if (setup != null)
                         {
                             setup.run(fileSystem);
@@ -505,7 +505,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         test.assertThrows(() -> fileSystem.getFiles(folderPath), expectedError);
                     });
                 };
@@ -516,7 +516,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         if (setup != null)
                         {
                             setup.run(fileSystem);
@@ -561,7 +561,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         test.assertThrows(() -> fileSystem.getFilesRecursively(folderPath), expectedError);
                     });
                 };
@@ -574,7 +574,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         if (setup != null)
                         {
                             setup.run(fileSystem);
@@ -670,7 +670,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPathString), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         test.assertThrows(() -> fileSystem.getFolder(folderPathString), expectedError);
                     });
                 };
@@ -683,7 +683,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPathString), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         final Result<Folder> folder = fileSystem.getFolder(folderPathString);
                         if (expectedError != null)
                         {
@@ -710,7 +710,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         test.assertThrows(() -> fileSystem.folderExists(folderPath), expectedError);
                     });
                 };
@@ -722,7 +722,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         if (setup != null)
                         {
                             setup.run(fileSystem);
@@ -756,7 +756,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         test.assertThrows(() -> fileSystem.folderExists(folderPath), expectedError);
                     });
                 };
@@ -767,7 +767,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         if (setup != null)
                         {
                             setup.run(fileSystem);
@@ -811,7 +811,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         test.assertThrows(() -> fileSystem.createFolder(folderPath), expectedError);
                     });
                 };
@@ -824,7 +824,7 @@ public class FileSystemTests
                 {
                     runner.test(testName + " (" + folderPath + ")", (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         if (setup != null)
                         {
                             setup.run(fileSystem);
@@ -869,7 +869,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         test.assertThrows(() -> fileSystem.createFolder(folderPath), expectedError);
                     });
                 };
@@ -881,7 +881,7 @@ public class FileSystemTests
                 {
                     runner.test(testName + " (" + folderPath + ")", (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         if (setup != null)
                         {
                             setup.run(fileSystem);
@@ -926,7 +926,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         test.assertThrows(() -> fileSystem.deleteFolder(folderPath), expectedError);
                     });
                 };
@@ -939,7 +939,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         if (setup != null)
                         {
                             setup.run(fileSystem);
@@ -985,7 +985,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         test.assertThrows(() -> fileSystem.deleteFolder(folderPath), expectedError);
                     });
                 };
@@ -997,7 +997,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         if (setup != null)
                         {
                             setup.run(fileSystem);
@@ -1043,7 +1043,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(filePath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         test.assertThrows(() -> fileSystem.getFile(filePath), expectedError);
                     });
                 };
@@ -1059,7 +1059,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(filePath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         final Result<File> result = fileSystem.getFile(filePath);
                         test.assertNotNull(result);
                         if (expectedError != null)
@@ -1085,7 +1085,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(filePath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         test.assertThrows(() -> fileSystem.getFile(filePath), expectedError);
                     });
                 };
@@ -1100,7 +1100,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(filePath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         final Result<File> result = fileSystem.getFile(Path.parse(filePath));
                         test.assertNotNull(result);
                         if (expectedError != null)
@@ -1126,7 +1126,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(filePath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         test.assertThrows(() -> fileSystem.fileExists(filePath), expectedError);
                     });
                 };
@@ -1141,7 +1141,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(filePath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         if (setup != null)
                         {
                             setup.run(fileSystem);
@@ -1188,7 +1188,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(filePath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         test.assertThrows(() -> fileSystem.fileExists(filePath), expectedError);
                     });
                 };
@@ -1202,7 +1202,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(filePath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         if (setup != null)
                         {
                             setup.run(fileSystem);
@@ -1249,7 +1249,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(filePath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         test.assertThrows(() -> fileSystem.createFile(filePath), expectedError);
                     });
                 };
@@ -1270,7 +1270,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(filePath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         if (setup != null)
                         {
                             setup.run(fileSystem);
@@ -1313,7 +1313,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(filePath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         test.assertThrows(() -> fileSystem.createFile(filePath), expectedError);
                     });
                 };
@@ -1333,7 +1333,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(filePath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         if (setup != null)
                         {
                             setup.run(fileSystem);
@@ -1376,7 +1376,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(filePath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         test.assertThrows(() -> fileSystem.deleteFile(filePath), expectedError);
                     });
                 };
@@ -1389,7 +1389,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(filePath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         if (setup != null)
                         {
                             setup.run(fileSystem);
@@ -1426,7 +1426,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(filePath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         test.assertThrows(() -> fileSystem.getFileLastModified(filePath), expectedError);
                     });
                 };
@@ -1439,7 +1439,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(filePath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         if (setup != null)
                         {
                             setup.run(fileSystem);
@@ -1471,7 +1471,7 @@ public class FileSystemTests
 
                 runner.test("with existing rooted path", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
                     fileSystem.createFile("/thing.txt");
 
                     final Result<DateTime> result = fileSystem.getFileLastModified("/thing.txt");
@@ -1486,7 +1486,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(filePath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         test.assertThrows(() -> fileSystem.getFileLastModified(filePath), expectedError);
                     });
                 };
@@ -1498,7 +1498,7 @@ public class FileSystemTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(filePath), (Test test) ->
                     {
-                        final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                        final FileSystem fileSystem = creator.run(test);
                         if (setup != null)
                         {
                             setup.run(fileSystem);
@@ -1531,7 +1531,7 @@ public class FileSystemTests
 
                 runner.test("with existing rooted path", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
                     fileSystem.createFile("/thing.txt");
 
                     final Result<DateTime> result = fileSystem.getFileLastModified(Path.parse("/thing.txt"));
@@ -1544,31 +1544,31 @@ public class FileSystemTests
             {
                 runner.test("with null path", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
                     test.assertThrows(() -> fileSystem.getFileContent((String)null), new PreConditionFailure("rootedFilePath cannot be null."));
                 });
 
                 runner.test("with empty path", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
                     test.assertThrows(() -> fileSystem.getFileContent(""), new PreConditionFailure("rootedFilePath cannot be empty."));
                 });
 
                 runner.test("with relative path", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
                     test.assertThrows(() -> fileSystem.getFileContent("thing.txt"), new PreConditionFailure("rootedFilePath.isRooted() cannot be false."));
                 });
 
                 runner.test("with non-existing rooted path", (Test test) ->
                 {
-                    FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    FileSystem fileSystem = creator.run(test);
                     test.assertThrows(() -> fileSystem.getFileContent("/thing.txt").await(), new FileNotFoundException("/thing.txt"));
                 });
 
                 runner.test("with existing rooted path with no contents", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
                     fileSystem.createFile("/thing.txt").await();
 
                     test.assertEqual(new byte[0], fileSystem.getFileContent("/thing.txt").await());
@@ -1576,13 +1576,13 @@ public class FileSystemTests
 
                 runner.test("with rooted path resolved outside the root", (Test test) ->
                 {
-                    FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    FileSystem fileSystem = creator.run(test);
                     test.assertThrows(() -> fileSystem.getFileContent("/../thing.txt").await(), new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
                 });
 
                 runner.test("with rooted path resolved inside the root", (Test test) ->
                 {
-                    FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    FileSystem fileSystem = creator.run(test);
                     test.assertThrows(() -> fileSystem.getFileContent("/a/../thing.txt").await(), new FileNotFoundException("/thing.txt"));
                 });
             });
@@ -1591,26 +1591,26 @@ public class FileSystemTests
             {
                 runner.test("with null path", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
                     test.assertThrows(() -> fileSystem.getFileContent((Path)null), new PreConditionFailure("rootedFilePath cannot be null."));
                 });
 
                 runner.test("with relative path", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
                     test.assertThrows(() -> fileSystem.getFileContent(Path.parse("thing.txt")), new PreConditionFailure("rootedFilePath.isRooted() cannot be false."));
                 });
 
                 runner.test("with non-existing rooted path", (Test test) ->
                 {
-                    FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    FileSystem fileSystem = creator.run(test);
                     test.assertThrows(() -> fileSystem.getFileContent(Path.parse("/thing.txt")).await(),
                         new FileNotFoundException("/thing.txt"));
                 });
 
                 runner.test("with existing rooted path with no contents", (Test test) ->
                 {
-                    FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    FileSystem fileSystem = creator.run(test);
                     test.assertEqual("/thing.txt", fileSystem.createFile("/thing.txt").await().toString());
 
                     test.assertEqual(new byte[0], fileSystem.getFileContent(Path.parse("/thing.txt")).await());
@@ -1618,14 +1618,14 @@ public class FileSystemTests
 
                 runner.test("with rooted path resolved outside the root", (Test test) ->
                 {
-                    FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    FileSystem fileSystem = creator.run(test);
                     test.assertThrows(() -> fileSystem.getFileContent("/../thing.txt").await(),
                         new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
                 });
 
                 runner.test("with rooted path resolved inside the root", (Test test) ->
                 {
-                    FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    FileSystem fileSystem = creator.run(test);
                     test.assertThrows(() -> fileSystem.getFileContent("/a/../thing.txt").await(),
                         new FileNotFoundException("/thing.txt"));
                 });
@@ -1635,7 +1635,7 @@ public class FileSystemTests
             {
                 runner.test("with non-existing file", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
                     test.assertThrows(() -> fileSystem.getFileContentByteReadStream("/i/dont/exist.txt").await(),
                         new FileNotFoundException("/i/dont/exist.txt"));
                 });
@@ -1645,28 +1645,8 @@ public class FileSystemTests
             {
                 runner.test("with non-existing file", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
                     test.assertThrows(() -> fileSystem.getFileContentByteReadStream(Path.parse("/i/dont/exist.txt")).await(),
-                        new FileNotFoundException("/i/dont/exist.txt"));
-                });
-            });
-
-            runner.testGroup("getFileContentByteReadStreamAsync(String)", () ->
-            {
-                runner.test("with non-existing file", (Test test) ->
-                {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    test.assertThrows(() -> fileSystem.getFileContentByteReadStreamAsync("/i/dont/exist.txt").awaitReturn().await(),
-                        new FileNotFoundException("/i/dont/exist.txt"));
-                });
-            });
-
-            runner.testGroup("getFileContentByteReadStreamAsync(Path)", () ->
-            {
-                runner.test("with non-existing file", (Test test) ->
-                {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    test.assertThrows(() -> fileSystem.getFileContentByteReadStreamAsync(Path.parse("/i/dont/exist.txt")).awaitReturn().await(),
                         new FileNotFoundException("/i/dont/exist.txt"));
                 });
             });
@@ -1675,14 +1655,14 @@ public class FileSystemTests
             {
                 runner.test("with non-existing file", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
                     test.assertThrows(() -> fileSystem.getFileContentCharacterReadStream("/i/dont/exist.txt").await(),
                         new FileNotFoundException("/i/dont/exist.txt"));
                 });
 
                 runner.test("with existing empty file", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
                     final String filePath = "/i/exist.txt";
                     test.assertEqual(filePath, fileSystem.createFile(filePath).await().toString());
                     try (final CharacterReadStream content = fileSystem.getFileContentCharacterReadStream(filePath).await())
@@ -1696,14 +1676,14 @@ public class FileSystemTests
             {
                 runner.test("with non-existing file", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
                     test.assertThrows(() -> fileSystem.getFileContentCharacterReadStream(Path.parse("/i/dont/exist.txt")).await(),
                         new FileNotFoundException("/i/dont/exist.txt"));
                 });
 
                 runner.test("with existing empty file", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
                     final String filePath = "/i/exist.txt";
                     test.assertEqual(filePath, fileSystem.createFile(filePath).await().toString());
                     try (final CharacterReadStream content = fileSystem.getFileContentCharacterReadStream(Path.parse(filePath)).await())
@@ -1713,54 +1693,11 @@ public class FileSystemTests
                 });
             });
 
-            runner.testGroup("getFileContentCharacterReadStreamAsync(String)", () ->
-            {
-                runner.test("with non-existing file", (Test test) ->
-                {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    test.assertThrows(() -> fileSystem.getFileContentCharacterReadStreamAsync("/i/dont/exist.txt").awaitReturn().await(),
-                        new FileNotFoundException("/i/dont/exist.txt"));
-                });
-
-                runner.test("with existing empty file", (Test test) ->
-                {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    final String filePath = "/i/exist.txt";
-                    test.assertEqual(filePath, fileSystem.createFile(filePath).await().toString());
-                    try (final CharacterReadStream content = fileSystem.getFileContentCharacterReadStreamAsync(filePath).awaitReturn().await())
-                    {
-                        test.assertEqual("", content.readEntireString().await());
-                    }
-                });
-            });
-
-            runner.testGroup("getFileContentCharacterReadStreamAsync(Path)", () ->
-            {
-                runner.test("with non-existing file", (Test test) ->
-                {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    final String filePath = "/i/dont/exist.txt";
-                    test.assertThrows(() -> fileSystem.getFileContentCharacterReadStreamAsync(Path.parse(filePath)).awaitReturn().await(),
-                        new FileNotFoundException(filePath));
-                });
-
-                runner.test("with existing empty file", (Test test) ->
-                {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    final String filePath = "/i/exist.txt";
-                    test.assertEqual(filePath, fileSystem.createFile(filePath).await().toString());
-                    try (final CharacterReadStream readStream = fileSystem.getFileContentCharacterReadStreamAsync(Path.parse(filePath)).awaitReturn().await())
-                    {
-                        test.assertEqual("", readStream.readEntireString().await());
-                    }
-                });
-            });
-
             runner.testGroup("getFileContentByteWriteStream(String)", () ->
             {
                 runner.test("with non-existing file", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
                     final String filePath = "/i/dont/exist.txt";
                     try (final ByteWriteStream byteWriteStream = fileSystem.getFileContentByteWriteStream(filePath).await())
                     {
@@ -1775,39 +1712,9 @@ public class FileSystemTests
             {
                 runner.test("with non-existing file", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
                     final String filePath = "/i/dont/exist.txt";
                     try (final ByteWriteStream byteWriteStream = fileSystem.getFileContentByteWriteStream(Path.parse(filePath)).await())
-                    {
-                        test.assertTrue(byteWriteStream.dispose().await());
-                        test.assertTrue(fileSystem.fileExists(filePath).await());
-                        test.assertEqual(new byte[0], fileSystem.getFileContent(filePath).await());
-                    }
-                });
-            });
-
-            runner.testGroup("getFileContentByteWriteStreamAsync(String)", () ->
-            {
-                runner.test("with non-existing file", (Test test) ->
-                {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    final String filePath = "/i/dont/exist.txt";
-                    try (final ByteWriteStream byteWriteStream = fileSystem.getFileContentByteWriteStreamAsync(filePath).awaitReturn().await())
-                    {
-                        test.assertTrue(byteWriteStream.dispose().await());
-                        test.assertTrue(fileSystem.fileExists(filePath).await());
-                        test.assertEqual(new byte[0], fileSystem.getFileContent(filePath).await());
-                    }
-                });
-            });
-
-            runner.testGroup("getFileContentByteWriteStreamAsync(Path)", () ->
-            {
-                runner.test("with non-existing file", (Test test) ->
-                {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    final String filePath = "/i/dont/exist.txt";
-                    try (final ByteWriteStream byteWriteStream = fileSystem.getFileContentByteWriteStreamAsync(Path.parse(filePath)).awaitReturn().await())
                     {
                         test.assertTrue(byteWriteStream.dispose().await());
                         test.assertTrue(fileSystem.fileExists(filePath).await());
@@ -1820,7 +1727,7 @@ public class FileSystemTests
             {
                 runner.test("with non-existing file", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
                     final String filePath = "/i/dont/exist.txt";
                     try (final CharacterWriteStream characterWriteStream = fileSystem.getFileContentCharacterWriteStream(filePath).await())
                     {
@@ -1835,39 +1742,9 @@ public class FileSystemTests
             {
                 runner.test("with non-existing file", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
                     final String filePath = "/i/dont/exist.txt";
                     try (final CharacterWriteStream characterWriteStream = fileSystem.getFileContentCharacterWriteStream(Path.parse(filePath)).await())
-                    {
-                        test.assertTrue(characterWriteStream.dispose().await());
-                        test.assertTrue(fileSystem.fileExists(filePath).await());
-                        test.assertEqual(new byte[0], fileSystem.getFileContent(filePath).await());
-                    }
-                });
-            });
-
-            runner.testGroup("getFileContentCharacterWriteStreamAsync(String)", () ->
-            {
-                runner.test("with non-existing file", (Test test) ->
-                {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    final String filePath = "/i/dont/exist.txt";
-                    try (final CharacterWriteStream characterWriteStream = fileSystem.getFileContentCharacterWriteStreamAsync(filePath).awaitReturn().await())
-                    {
-                        test.assertTrue(characterWriteStream.dispose().await());
-                        test.assertTrue(fileSystem.fileExists(filePath).await());
-                        test.assertEqual(new byte[0], fileSystem.getFileContent(filePath).await());
-                    }
-                });
-            });
-
-            runner.testGroup("getFileContentCharacterWriteStreamAsync(Path)", () ->
-            {
-                runner.test("with non-existing file", (Test test) ->
-                {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    final String filePath = "/i/dont/exist.txt";
-                    try (final CharacterWriteStream characterWriteStream = fileSystem.getFileContentCharacterWriteStreamAsync(Path.parse(filePath)).awaitReturn().await())
                     {
                         test.assertTrue(characterWriteStream.dispose().await());
                         test.assertTrue(fileSystem.fileExists(filePath).await());
@@ -1880,25 +1757,27 @@ public class FileSystemTests
             {
                 runner.test("with null path", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
                     test.assertThrows(() -> fileSystem.setFileContent((String)null, new byte[] { 0, 1, 2 }), new PreConditionFailure("rootedFilePath cannot be null."));
                 });
 
                 runner.test("with empty path", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    test.assertThrows(() -> fileSystem.setFileContent("", new byte[] { 0, 1, 2 }), new PreConditionFailure("rootedFilePath cannot be empty."));
+                    final FileSystem fileSystem = creator.run(test);
+                    test.assertThrows(() -> fileSystem.setFileContent("", new byte[] { 0, 1, 2 }),
+                        new PreConditionFailure("rootedFilePath cannot be empty."));
                 });
 
                 runner.test("with relative path", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
-                    test.assertThrows(() -> fileSystem.setFileContent("relative.file", new byte[] { 0, 1, 2 }), new PreConditionFailure("rootedFilePath.isRooted() cannot be false."));
+                    final FileSystem fileSystem = creator.run(test);
+                    test.assertThrows(() -> fileSystem.setFileContent("relative.file", new byte[] { 0, 1, 2 }),
+                        new PreConditionFailure("rootedFilePath.isRooted() cannot be false."));
                 });
 
                 runner.test("with non-existing rooted path with null contents", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
                     fileSystem.setFileContent("/A.txt", null).await();
                     
                     test.assertTrue(fileSystem.fileExists("/A.txt").await());
@@ -1906,7 +1785,7 @@ public class FileSystemTests
 
                 runner.test("with existing rooted path and null contents", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
                     fileSystem.setFileContent("/A.txt", new byte[] { 0, 1 }).await();
                     
                     fileSystem.setFileContent("/A.txt", null).await();
@@ -1917,7 +1796,7 @@ public class FileSystemTests
 
                 runner.test("with non-existing rooted path and empty contents", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
                     
                     fileSystem.setFileContent("/A.txt", new byte[0]).await();
                     
@@ -1927,7 +1806,7 @@ public class FileSystemTests
 
                 runner.test("with existing rooted path and empty contents", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
                     fileSystem.setFileContent("/A.txt", new byte[] { 0, 1 }).await();
 
                     fileSystem.setFileContent("/A.txt", new byte[0]).await();
@@ -1938,7 +1817,7 @@ public class FileSystemTests
 
                 runner.test("with non-existing rooted path and non-empty contents", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
 
                     fileSystem.setFileContent("/A.txt", new byte[] { 0, 1, 2 }).await();
                     
@@ -1948,7 +1827,7 @@ public class FileSystemTests
 
                 runner.test("with non-existing rooted path with non-existing parent folder and non-empty contents", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
                     
                     fileSystem.setFileContent("/folder/A.txt", new byte[] { 0, 1, 2 }).await();
                     
@@ -1959,7 +1838,7 @@ public class FileSystemTests
 
                 runner.test("with existing rooted path and non-empty contents", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
                     fileSystem.createFile("/A.txt");
 
                     fileSystem.setFileContent("/A.txt", new byte[] { 0, 1, 2 }).await();
@@ -1970,14 +1849,14 @@ public class FileSystemTests
 
                 runner.test("with rooted path resolved outside the root", (Test test) ->
                 {
-                    FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    FileSystem fileSystem = creator.run(test);
                     test.assertThrows(() -> fileSystem.setFileContent("/../thing.txt", new byte[] { 0, 1, 2 }).await(),
                         new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
                 });
 
                 runner.test("with rooted path resolved inside the root", (Test test) ->
                 {
-                    FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    FileSystem fileSystem = creator.run(test);
                     fileSystem.setFileContent("/a/../thing.txt", new byte[] { 0, 1, 2 }).await();
                     test.assertEqual(new byte[] { 0, 1, 2 }, fileSystem.getFileContent("/thing.txt").await());
                 });
@@ -1987,19 +1866,19 @@ public class FileSystemTests
             {
                 runner.test("with null path", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
                     test.assertThrows(() -> fileSystem.setFileContent((Path)null, new byte[] { 0, 1, 2 }), new PreConditionFailure("rootedFilePath cannot be null."));
                 });
 
                 runner.test("with relative path", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
                     test.assertThrows(() -> fileSystem.setFileContent(Path.parse("relative.file"), new byte[] { 0, 1, 2 }), new PreConditionFailure("rootedFilePath.isRooted() cannot be false."));
                 });
 
                 runner.test("with non-existing rooted path and null contents", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
                     
                     fileSystem.setFileContent(Path.parse("/A.txt"), null).await();
                     
@@ -2009,7 +1888,7 @@ public class FileSystemTests
 
                 runner.test("with existing rooted path and null contents", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
                     fileSystem.setFileContent("/A.txt", new byte[] { 0, 1 });
 
                     fileSystem.setFileContent(Path.parse("/A.txt"), (byte[])null).await();
@@ -2020,7 +1899,7 @@ public class FileSystemTests
 
                 runner.test("with non-existing rooted path and empty contents", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
 
                     fileSystem.setFileContent(Path.parse("/A.txt"), new byte[0]).await();
 
@@ -2030,7 +1909,7 @@ public class FileSystemTests
 
                 runner.test("with existing rooted path and empty contents", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
                     fileSystem.setFileContent("/A.txt", new byte[] { 0, 1 }).await();
 
                     fileSystem.setFileContent(Path.parse("/A.txt"), new byte[0]).await();
@@ -2041,7 +1920,7 @@ public class FileSystemTests
 
                 runner.test("with non-existing rooted path and non-empty contents", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
 
                     fileSystem.setFileContent(Path.parse("/A.txt"), new byte[] { 0, 1, 2 }).await();
 
@@ -2051,7 +1930,7 @@ public class FileSystemTests
 
                 runner.test("with existing rooted path and non-empty contents", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
                     fileSystem.createFile("/A.txt").await();
 
                     fileSystem.setFileContent(Path.parse("/A.txt"), new byte[] { 0, 1, 2 }).await();
@@ -2062,14 +1941,14 @@ public class FileSystemTests
 
                 runner.test("with rooted path resolved outside the root", (Test test) ->
                 {
-                    FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    FileSystem fileSystem = creator.run(test);
                     test.assertThrows(() -> fileSystem.setFileContent(Path.parse("/../thing.txt"), new byte[] { 0, 1, 2 }).await(),
                         new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
                 });
 
                 runner.test("with rooted path resolved inside the root", (Test test) ->
                 {
-                    FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    FileSystem fileSystem = creator.run(test);
                     fileSystem.setFileContent(Path.parse("/a/../thing.txt"), new byte[] { 0, 1, 2 }).await();
                     test.assertEqual(new byte[] { 0, 1, 2 }, fileSystem.getFileContent("/thing.txt").await());
                 });
@@ -2079,39 +1958,39 @@ public class FileSystemTests
             {
                 runner.test("with null path", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
                     test.assertThrows(() -> fileSystem.getFilesAndFoldersRecursively((String)null), new PreConditionFailure("rootedFolderPath cannot be null."));
                 });
 
                 runner.test("with empty path", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
                     test.assertThrows(() -> fileSystem.getFilesAndFoldersRecursively(""), new PreConditionFailure("rootedFolderPath cannot be empty."));
                 });
 
                 runner.test("with relative path", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
                     test.assertThrows(() -> fileSystem.getFilesAndFoldersRecursively("test/folder"), new PreConditionFailure("rootedFolderPath.isRooted() cannot be false."));
                 });
 
                 runner.test("with rooted path when root doesn't exist", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
                     test.assertThrows(() -> fileSystem.getFilesAndFoldersRecursively("F:/test/folder").await(),
                         new FolderNotFoundException("F:/test/folder"));
                 });
 
                 runner.test("with rooted path when parent folder doesn't exist", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
                     test.assertThrows(() -> fileSystem.getFilesAndFoldersRecursively("/test/folder").await(),
                         new FolderNotFoundException("/test/folder"));
                 });
 
                 runner.test("with rooted path when folder doesn't exist", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
                     fileSystem.createFolder("/test/").await();
 
                     test.assertThrows(() -> fileSystem.getFilesAndFoldersRecursively("/test/folder").await(),
@@ -2120,7 +1999,7 @@ public class FileSystemTests
 
                 runner.test("with rooted path when folder is empty", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
                     fileSystem.createFolder("/test/folder").await();
 
                     test.assertEqual(Iterable.create(), fileSystem.getFilesAndFoldersRecursively("/test/folder").await());
@@ -2128,7 +2007,7 @@ public class FileSystemTests
 
                 runner.test("with rooted path when folder has files", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
                     fileSystem.createFolder("/test/folder").await();
                     fileSystem.createFile("/test/folder/1.txt").await();
                     fileSystem.createFile("/test/folder/2.txt").await();
@@ -2142,7 +2021,7 @@ public class FileSystemTests
 
                 runner.test("with rooted path when folder has folders", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
                     fileSystem.createFolder("/test/folder/1.txt").await();
                     fileSystem.createFolder("/test/folder/2.txt").await();
 
@@ -2155,7 +2034,7 @@ public class FileSystemTests
 
                 runner.test("with rooted path when folder has grandchild files and folders", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
                     fileSystem.createFile("/test/folder/1.txt").await();
                     fileSystem.createFile("/test/folder/2.txt").await();
                     fileSystem.createFile("/test/folder/A/3.csv").await();
@@ -2180,21 +2059,21 @@ public class FileSystemTests
             {
                 runner.test("with null rootedFilePath", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
                     test.assertThrows(() -> fileSystem.copyFileTo((Path)null, Path.parse("/dest.txt")), new PreConditionFailure("sourceFilePath cannot be null."));
                     test.assertFalse(fileSystem.fileExists("/dest.txt").await());
                 });
 
                 runner.test("with null destinationFilePath", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
                     test.assertThrows(() -> fileSystem.copyFileTo(Path.parse("/source.txt"), (Path)null), new PreConditionFailure("destinationFilePath cannot be null."));
                     test.assertFalse(fileSystem.fileExists("/source.txt").await());
                 });
 
                 runner.test("when source file doesn't exist", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
                     test.assertThrows(() -> fileSystem.copyFileTo(Path.parse("/source.txt"), Path.parse("/dest.txt")).await(),
                         new FileNotFoundException("/source.txt"));
                     test.assertFalse(fileSystem.fileExists("/source.txt").await());
@@ -2203,7 +2082,7 @@ public class FileSystemTests
 
                 runner.test("when source file is empty and destination file doesn't exist", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
                     fileSystem.createFile("/source.txt").await();
                     fileSystem.copyFileTo(Path.parse("/source.txt"), Path.parse("/dest.txt")).await();
                     test.assertTrue(fileSystem.fileExists("/source.txt").await());
@@ -2214,7 +2093,7 @@ public class FileSystemTests
 
                 runner.test("when source file is not empty and destination file doesn't exist", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
                     fileSystem.setFileContent("/source.txt", new byte[] { 0, 1, 2, 3 }).await();
                     fileSystem.copyFileTo(Path.parse("/source.txt"), Path.parse("/dest.txt")).await();
                     test.assertTrue(fileSystem.fileExists("/source.txt").await());
@@ -2225,7 +2104,7 @@ public class FileSystemTests
 
                 runner.test("when source file is empty and destination file already exists", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
                     fileSystem.createFile("/source.txt").await();
                     fileSystem.setFileContent("/dest.txt", new byte[] { 10, 11 }).await();
                     test.assertNull(fileSystem.copyFileTo(Path.parse("/source.txt"), Path.parse("/dest.txt")).await());
@@ -2237,7 +2116,7 @@ public class FileSystemTests
 
                 runner.test("when source file is not empty and destination file already exists", (Test test) ->
                 {
-                    final FileSystem fileSystem = creator.run(test.getMainAsyncRunner());
+                    final FileSystem fileSystem = creator.run(test);
                     fileSystem.setFileContent("/source.txt", new byte[] { 0, 1, 2, 3 }).await();
                     fileSystem.setFileContent("/dest.txt", new byte[] { 10, 11 }).await();
                     fileSystem.copyFileTo(Path.parse("/source.txt"), Path.parse("/dest.txt")).await();

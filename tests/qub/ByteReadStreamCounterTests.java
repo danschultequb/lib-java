@@ -6,8 +6,6 @@ public class ByteReadStreamCounterTests
     {
         runner.testGroup(ByteReadStreamCounter.class, () ->
         {
-            AsyncDisposableTests.test(runner, (Test test) -> new ByteReadStreamCounter(new InMemoryByteStream(test.getMainAsyncRunner())));
-
             runner.testGroup("constructor(ByteReadStream)", () ->
             {
                 runner.test("with null", (Test test) ->
@@ -26,7 +24,6 @@ public class ByteReadStreamCounterTests
                     test.assertFalse(counter.hasStarted());
                     test.assertEqual(0, counter.getBytesRead());
                     test.assertEqual(0, counter.getBitsRead());
-                    test.assertSame(byteStream.getAsyncRunner(), counter.getAsyncRunner());
                 });
 
                 runner.test("with not disposed", (Test test) ->
@@ -37,7 +34,6 @@ public class ByteReadStreamCounterTests
                     test.assertFalse(counter.hasStarted());
                     test.assertEqual(0, counter.getBytesRead());
                     test.assertEqual(0, counter.getBitsRead());
-                    test.assertSame(byteStream.getAsyncRunner(), counter.getAsyncRunner());
                 });
             });
 

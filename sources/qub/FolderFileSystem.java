@@ -23,31 +23,23 @@ public class FolderFileSystem implements FileSystem
         this.baseFolderPath = normalizedBaseFolderPath;
     }
 
-    public static Result<FolderFileSystem> get(FileSystem innerFileSystem, String baseFolderPath)
+    public static FolderFileSystem get(FileSystem innerFileSystem, String baseFolderPath)
     {
         FileSystem.validateRootedFolderPath(baseFolderPath, "baseFolderPath");
 
         return get(innerFileSystem, Path.parse(baseFolderPath));
     }
 
-    public static Result<FolderFileSystem> get(FileSystem innerFileSystem, Path baseFolderPath)
+    public static FolderFileSystem get(FileSystem innerFileSystem, Path baseFolderPath)
     {
         FileSystem.validateRootedFolderPath(baseFolderPath, "baseFolderPath");
 
-        return Result.success(new FolderFileSystem(innerFileSystem, baseFolderPath));
+        return new FolderFileSystem(innerFileSystem, baseFolderPath);
     }
 
-    public Result<Void> create()
+    public Result<?> create()
     {
-        return innerFileSystem.createFolder(baseFolderPath)
-            .then(() -> {});
-    }
-
-    public AsyncFunction<Result<Void>> createAsync()
-    {
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(this::create);
+        return innerFileSystem.createFolder(baseFolderPath);
     }
 
     public Result<Void> delete()
@@ -55,19 +47,9 @@ public class FolderFileSystem implements FileSystem
         return innerFileSystem.deleteFolder(baseFolderPath);
     }
 
-    public AsyncFunction<Result<Void>> deleteAsync()
-    {
-        return innerFileSystem.deleteFolderAsync(baseFolderPath);
-    }
-
     public Result<Boolean> exists()
     {
         return innerFileSystem.folderExists(baseFolderPath);
-    }
-
-    public AsyncFunction<Result<Boolean>> existsAsync()
-    {
-        return innerFileSystem.folderExistsAsync(baseFolderPath);
     }
 
     public Path getBaseFolderPath()
@@ -116,12 +98,6 @@ public class FolderFileSystem implements FileSystem
             outerPathString = "/";
         }
         return Path.parse(outerPathString);
-    }
-
-    @Override
-    public AsyncRunner getAsyncRunner()
-    {
-        return innerFileSystem.getAsyncRunner();
     }
 
     @Override

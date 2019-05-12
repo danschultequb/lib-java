@@ -6,13 +6,21 @@ public class HttpServerTests
     {
         runner.testGroup(HttpServer.class, () ->
         {
-            AsyncDisposableTests.test(runner, HttpServerTests::createServer);
-
             runner.testGroup("constructor(TCPServer)", () ->
             {
-                runner.test("with null", (Test test) ->
+                runner.test("with null TCPServer", (Test test) ->
                 {
-                    test.assertThrows(() -> new HttpServer(null), new PreConditionFailure("tcpServer cannot be null."));
+                    test.assertThrows(() -> new HttpServer(null, test.getParallelAsyncRunner()),
+                        new PreConditionFailure("tcpServer cannot be null."));
+                });
+
+                runner.test("with null AsyncRunner", (Test test) ->
+                {
+                    try (final TCPServer tcpServer = test.getNetwork().createTCPServer(23211).await())
+                    {
+                        test.assertThrows(() -> new HttpServer(tcpServer, null),
+                            new PreConditionFailure("asyncRunner cannot be null."));
+                    }
                 });
 
                 runner.test("with disposed TCPServer", (Test test) ->
@@ -20,7 +28,8 @@ public class HttpServerTests
                     try (final TCPServer tcpServer = test.getNetwork().createTCPServer(23211).await())
                     {
                         test.assertTrue(tcpServer.dispose().await());
-                        test.assertThrows(() -> new HttpServer(tcpServer), new PreConditionFailure("tcpServer.isDisposed() cannot be true."));
+                        test.assertThrows(() -> new HttpServer(tcpServer, test.getParallelAsyncRunner()),
+                            new PreConditionFailure("tcpServer.isDisposed() cannot be true."));
                     }
                 });
 
@@ -39,7 +48,8 @@ public class HttpServerTests
                 {
                     try (final HttpServer server = createServer(test))
                     {
-                        test.assertThrows(() -> server.addPath(null, (HttpRequest request) -> null), new PreConditionFailure("pathString cannot be null."));
+                        test.assertThrows(() -> server.addPath(null, (HttpRequest request) -> null),
+                            new PreConditionFailure("pathString cannot be null."));
                         test.assertEqual(Iterable.create(), server.getPaths());
                     }
                 });
@@ -48,7 +58,8 @@ public class HttpServerTests
                 {
                     try (final HttpServer server = createServer(test))
                     {
-                        test.assertThrows(() -> server.addPath("", (HttpRequest request) -> null), new PreConditionFailure("pathString cannot be empty."));
+                        test.assertThrows(() -> server.addPath("", (HttpRequest request) -> null),
+                            new PreConditionFailure("pathString cannot be empty."));
                         test.assertEqual(Iterable.create(), server.getPaths());
                     }
                 });
@@ -63,7 +74,7 @@ public class HttpServerTests
                                 .setBody("Hello!")).await());
                         test.assertEqual(Array.create("/"), server.getPaths().map(PathPattern::toString));
 
-                        final AsyncTask serverTask = server.startAsync();
+                        final Result<Void> serverTask = server.start();
                         try
                         {
                             final HttpClient client = createClient(test);
@@ -153,7 +164,7 @@ public class HttpServerTests
                         server.addPath("/redfish", (HttpRequest request) -> new MutableHttpResponse()
                                                                                 .setStatusCode(201)
                                                                                 .setBody("Blue Fish")).await();
-                        final AsyncAction serverTask = server.startAsync();
+                        final Result<Void> serverTask = server.start();
                         try
                         {
                             final HttpClient client = createClient(test);
@@ -191,7 +202,7 @@ public class HttpServerTests
                                  .setBody("Hello, " + trackedValues.first() + "!")).await());
                         test.assertEqual(Array.create("/things/*"), server.getPaths().map(PathPattern::toString));
 
-                        final AsyncTask serverTask = server.startAsync();
+                        final Result<Void> serverTask = server.start();
                         try
                         {
                             final HttpClient client = createClient(test);
@@ -215,7 +226,8 @@ public class HttpServerTests
                 {
                     try (final HttpServer server = createServer(test))
                     {
-                        test.assertThrows(() -> server.setNotFound(null), new PreConditionFailure("notFoundAction cannot be null."));
+                        test.assertThrows(() -> server.setNotFound(null),
+                            new PreConditionFailure("notFoundAction cannot be null."));
                     }
                 });
 
@@ -230,7 +242,7 @@ public class HttpServerTests
                             return response;
                         });
 
-                        final AsyncTask serverTask = server.startAsync();
+                        final Result<Void> serverTask = server.start();
                         try
                         {
                             final HttpClient client = createClient(test);
@@ -251,7 +263,7 @@ public class HttpServerTests
 
     private static HttpServer createServer(Test test)
     {
-        return new HttpServer(test.getNetwork().createTCPServer(IPv4Address.localhost, 18084).await());
+        return new HttpServer(test.getNetwork().createTCPServer(IPv4Address.localhost, 18084).await(), test.getParallelAsyncRunner());
     }
 
     private static HttpClient createClient(Test test)

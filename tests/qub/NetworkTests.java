@@ -45,7 +45,7 @@ public class NetworkTests
 
                     final int port = 8088;
 
-                    final AsyncAction serverTask = asyncRunner.schedule(() ->
+                    final Result<Void> serverTask = asyncRunner.schedule(() ->
                     {
                         try (final TCPServer tcpServer = network.createTCPServer(IPv4Address.localhost, port).await())
                         {
@@ -60,7 +60,7 @@ public class NetworkTests
                         }
                     });
 
-                    final AsyncAction clientTask = asyncRunner.schedule(() ->
+                    final Result<Void> clientTask = asyncRunner.schedule(() ->
                     {
                         try (final TCPClient tcpClient = network.createTCPClient(IPv4Address.localhost, port, Duration.seconds(5)).await())
                         {
@@ -73,7 +73,7 @@ public class NetworkTests
                         }
                     });
 
-                    asyncRunner.awaitAll(clientTask, serverTask);
+                    Result.await(clientTask, serverTask);
                 });
             });
 

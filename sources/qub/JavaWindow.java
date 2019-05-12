@@ -2,30 +2,24 @@ package qub;
 
 public class JavaWindow implements Window
 {
-    private final AsyncRunner mainAsyncRunner;
     private final Iterable<Display> displays;
-    private BasicAsyncAction windowClosedTask;
+    private final AsyncRunner mainAsyncRunner;
+    private PausedAsyncTask<Void> windowClosedTask;
     private final javax.swing.JFrame jFrame;
     private UIElement content;
     private boolean disposed;
     private Function1<java.awt.Graphics2D,UIPainter> painterCreator;
 
-    public JavaWindow(final AsyncRunner mainAsyncRunner, Iterable<Display> displays)
+    public JavaWindow(AsyncScheduler mainAsyncRunner, Iterable<Display> displays)
     {
         PreCondition.assertNotNull(mainAsyncRunner, "mainAsyncRunner");
         PreCondition.assertNotNull(displays, "displays");
 
-        this.mainAsyncRunner = mainAsyncRunner;
         this.displays = displays;
+        this.mainAsyncRunner = mainAsyncRunner;
+        this.windowClosedTask = mainAsyncRunner.create(Action0.empty);
 
-        this.painterCreator = new Function1<java.awt.Graphics2D,UIPainter>()
-        {
-            @Override
-            public UIPainter run(java.awt.Graphics2D graphics)
-            {
-                return new Graphics2DUIPainter(graphics, JavaWindow.this);
-            }
-        };
+        this.painterCreator = (java.awt.Graphics2D graphics) -> new Graphics2DUIPainter(graphics, JavaWindow.this);
 
         this.jFrame = new javax.swing.JFrame();
         this.jFrame.setDefaultCloseOperation(javax.swing.JFrame.DISPOSE_ON_CLOSE);
@@ -44,17 +38,7 @@ public class JavaWindow implements Window
             @Override
             public void windowClosed(java.awt.event.WindowEvent e)
             {
-                if (!isDisposed())
-                {
-                    mainAsyncRunner.schedule("WindowListener.windowClose()", new Action0()
-                    {
-                        @Override
-                        public void run()
-                        {
-                            dispose();
-                        }
-                    }).await();
-                }
+                mainAsyncRunner.schedule(JavaWindow.this::dispose);
             }
 
             @Override
@@ -96,9 +80,9 @@ public class JavaWindow implements Window
     }
 
     /**
-     * Wait for this Window to close. This will block the current thread.
+     * Wait for this Window to close.
      */
-    public void awaitClose()
+    public void await()
     {
         PreCondition.assertTrue(isOpen(), "isOpen()");
 
@@ -114,7 +98,6 @@ public class JavaWindow implements Window
         PreCondition.assertFalse(isOpen(), "isOpen()");
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
-        windowClosedTask = new BasicAsyncAction(mainAsyncRunner, "Window Closed Task");
         jFrame.setVisible(true);
     }
 
@@ -125,7 +108,7 @@ public class JavaWindow implements Window
     @Override
     public boolean isOpen()
     {
-        return windowClosedTask != null && !isDisposed();
+        return jFrame.isVisible() && !isDisposed();
     }
 
     /**
@@ -133,18 +116,11 @@ public class JavaWindow implements Window
      * @param painter The painter that will be used for this Window.
      */
     @Override
-    public void setPainter(final UIPainter painter)
+    public void setPainter(UIPainter painter)
     {
         PreCondition.assertNotNull(painter, "painter");
 
-        setPainterCreator(new Function1<java.awt.Graphics2D,UIPainter>()
-        {
-            @Override
-            public UIPainter run(java.awt.Graphics2D graphics)
-            {
-                return painter;
-            }
-        });
+        setPainterCreator((java.awt.Graphics2D graphics) -> painter);
     }
 
     /**
@@ -321,13 +297,11 @@ public class JavaWindow implements Window
             {
                 jFrame.dispose();
             }
-            if (windowClosedTask != null)
-            {
-                windowClosedTask.schedule();
-                windowClosedTask.await();
-            }
 
             setContent((UIElement)null);
+
+            windowClosedTask.schedule();
+            windowClosedTask.await();
 
             result = Result.successTrue();
         }

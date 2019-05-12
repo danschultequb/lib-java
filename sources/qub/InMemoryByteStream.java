@@ -2,7 +2,6 @@ package qub;
 
 public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
 {
-    private final AsyncRunner asyncRunner;
     private boolean disposed;
     private final ByteList bytes;
     private Byte current;
@@ -15,22 +14,11 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
 
     public InMemoryByteStream()
     {
-        this(null, null);
-    }
-
-    public InMemoryByteStream(AsyncRunner asyncRunner)
-    {
-        this(null, asyncRunner);
+        this(null);
     }
 
     public InMemoryByteStream(byte[] bytes)
     {
-        this(bytes, null);
-    }
-
-    public InMemoryByteStream(byte[] bytes, AsyncRunner asyncRunner)
-    {
-        this.asyncRunner = asyncRunner;
         this.bytes = ByteList.createFromBytes(bytes);
         this.mutex = new SpinMutex();
         this.bytesAvailable = this.mutex.createCondition();
@@ -174,12 +162,6 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
             }
             return result;
         });
-    }
-
-    @Override
-    public AsyncRunner getAsyncRunner()
-    {
-        return asyncRunner;
     }
 
     @Override

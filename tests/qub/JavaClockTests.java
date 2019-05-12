@@ -122,6 +122,6 @@ public class JavaClockTests
 
     private static JavaClock createClock(Test test)
     {
-        return new JavaClock(test.getMainAsyncRunner(), test.getParallelAsyncRunner());
+        return new JavaClock(test.getParallelAsyncRunner());
     }
 }

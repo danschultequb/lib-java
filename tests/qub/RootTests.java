@@ -75,7 +75,6 @@ public class RootTests
                     final Root root = getRoot(test);
 
                     root.createFolder("folderName").await();
-                    test.assertEqual(0, test.getMainAsyncRunner().getScheduledTaskCount());
 
                     final Folder folder = root.getFolder("folderName").await();
                     test.assertEqual("/folderName", folder.toString());
@@ -573,7 +572,7 @@ public class RootTests
 
     private static InMemoryFileSystem getFileSystem(Test test)
     {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getMainAsyncRunner(), test.getClock());
+        final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
         fileSystem.createRoot("/").await();
         return fileSystem;
     }

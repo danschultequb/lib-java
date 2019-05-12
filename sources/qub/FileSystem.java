@@ -6,13 +6,6 @@ package qub;
 public interface FileSystem
 {
     /**
-     * Get the AsyncRunner that this FileSystem object will use to schedule its asynchronous
-     * operations.
-     * @return The AsyncRunner to use to schedule asynchronous operations.
-     */
-    AsyncRunner getAsyncRunner();
-
-    /**
      * Get whether or not a Root exists in this FileSystem with the provided path.
      * @param rootPath The path to the Root.
      * @return Whether or not a Root exists in this FileSystem with the provided path.
@@ -39,32 +32,6 @@ public interface FileSystem
                 final Path root = rootPath.getRoot().await();
                 return roots.map(Root::getPath).contains(root);
             });
-    }
-
-    /**
-     * Get whether or not a Root exists in this FileSystem with the provided path.
-     * @param rootPath The path to the Root.
-     * @return Whether or not a Root exists in this FileSystem with the provided path.
-     */
-    default AsyncFunction<Result<Boolean>> rootExistsAsync(String rootPath)
-    {
-        FileSystem.validateRootedFolderPath(rootPath, "rootPath");
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> rootExists(rootPath));
-    }
-
-    /**
-     * Get whether or not a Root exists in this FileSystem with the provided path.
-     * @param rootPath The path to the Root.
-     * @return Whether or not a Root exists in this FileSystem with the provided path.
-     */
-    default AsyncFunction<Result<Boolean>> rootExistsAsync(Path rootPath)
-    {
-        FileSystem.validateRootedFolderPath(rootPath, "rootPath");
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> rootExists(rootPath));
     }
 
     /**
@@ -99,17 +66,6 @@ public interface FileSystem
     Result<Iterable<Root>> getRoots();
 
     /**
-     * Get the roots of this FileSystem.
-     * @return The roots of this FileSystem.
-     */
-    default AsyncFunction<Result<Iterable<Root>>> getRootsAsync()
-    {
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(this::getRoots);
-    }
-
-    /**
      * Get the files and folders (entries) at the provided folder path.
      * @param rootedFolderPath The path to the folder (Root or Folder).
      * @return The files and folders (entries) at the provided folder path.
@@ -127,32 +83,6 @@ public interface FileSystem
      * @return The files and folders (entries) at the provided folder Path.
      */
     Result<Iterable<FileSystemEntry>> getFilesAndFolders(Path folderPath);
-
-    /**
-     * Get the files and folders (entries) at the provided folder path.
-     * @param rootedFolderPath The path to the folder (Root or Folder).
-     * @return The files and folders (entries) at the provided folder path.
-     */
-    default AsyncFunction<Result<Iterable<FileSystemEntry>>> getFilesAndFoldersAsync(String rootedFolderPath)
-    {
-        FileSystem.validateRootedFolderPath(rootedFolderPath);
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> getFilesAndFolders(rootedFolderPath));
-    }
-
-    /**
-     * Get the files and folders (entries) at the provided folder Path.
-     * @param rootedFolderPath The Path to the folder (Root or Folder).
-     * @return The files and folders (entries) at the provided folder Path.
-     */
-    default AsyncFunction<Result<Iterable<FileSystemEntry>>> getFilesAndFoldersAsync(Path rootedFolderPath)
-    {
-        FileSystem.validateRootedFolderPath(rootedFolderPath);
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> getFilesAndFolders(rootedFolderPath));
-    }
 
     /**
      * Get the files and folders (entries) at the provided folder path and its subfolders.
@@ -211,32 +141,6 @@ public interface FileSystem
     }
 
     /**
-     * Get the files and folders (entries) at the provided folder path and its subfolders.
-     * @param rootedFolderPath The path to the folder (Root or Folder).
-     * @return The files and folders (entries) at the provided folder path and its subfolders.
-     */
-    default AsyncFunction<Result<Iterable<FileSystemEntry>>> getFilesAndFoldersRecursivelyAsync(String rootedFolderPath)
-    {
-        FileSystem.validateRootedFolderPath(rootedFolderPath);
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> getFilesAndFoldersRecursively(rootedFolderPath));
-    }
-
-    /**
-     * Get the files and folders (entries) at the provided folder path and its subfolders.
-     * @param rootedFolderPath The path to the folder (Root or Folder).
-     * @return The files and folders (entries) at the provided folder path and its subfolders.
-     */
-    default AsyncFunction<Result<Iterable<FileSystemEntry>>> getFilesAndFoldersRecursivelyAsync(Path rootedFolderPath)
-    {
-        FileSystem.validateRootedFolderPath(rootedFolderPath);
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> getFilesAndFoldersRecursively(rootedFolderPath));
-    }
-
-    /**
      * Get the folders at the provided folder path.
      * @param rootedFolderPath The path to the folder (Root or Folder).
      * @return The folders at the provided container path.
@@ -259,32 +163,6 @@ public interface FileSystem
 
         return getFilesAndFolders(rootedFolderPath)
             .then((Iterable<FileSystemEntry> entries) -> entries.instanceOf(Folder.class));
-    }
-
-    /**
-     * Get the folders at the provided folder path.
-     * @param rootedFolderPath The path to the folder (Root or Folder).
-     * @return The folders at the provided container path.
-     */
-    default AsyncFunction<Result<Iterable<Folder>>> getFoldersAsync(String rootedFolderPath)
-    {
-        FileSystem.validateRootedFolderPath(rootedFolderPath);
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> getFolders(rootedFolderPath));
-    }
-
-    /**
-     * Get the folders at the provided folder path.
-     * @param rootedFolderPath The path to the folder (Root or Folder).
-     * @return The folders at the provided container path.
-     */
-    default AsyncFunction<Result<Iterable<Folder>>> getFoldersAsync(Path rootedFolderPath)
-    {
-        FileSystem.validateRootedFolderPath(rootedFolderPath);
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> getFolders(rootedFolderPath));
     }
 
     /**
@@ -313,32 +191,6 @@ public interface FileSystem
     }
 
     /**
-     * Get the folders at the provided folder path and its subfolders.
-     * @param rootedFolderPath The path to the folder (Root or Folder).
-     * @return The folders at the provided container path and its subfolders.
-     */
-    default AsyncFunction<Result<Iterable<Folder>>> getFoldersRecursivelyAsync(String rootedFolderPath)
-    {
-        FileSystem.validateRootedFolderPath(rootedFolderPath);
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> getFoldersRecursively(rootedFolderPath));
-    }
-
-    /**
-     * Get the folders at the provided folder path and its subfolders.
-     * @param rootedFolderPath The path to the folder (Root or Folder).
-     * @return The folders at the provided container path and its subfolders.
-     */
-    default AsyncFunction<Result<Iterable<Folder>>> getFoldersRecursivelyAsync(Path rootedFolderPath)
-    {
-        FileSystem.validateRootedFolderPath(rootedFolderPath);
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> getFoldersRecursively(rootedFolderPath));
-    }
-
-    /**
      * Get the files at the provided folder path.
      * @param rootedFolderPath The path to the folder (Root or Folder).
      * @return The files at the provided container path.
@@ -364,32 +216,6 @@ public interface FileSystem
     }
 
     /**
-     * Get the files at the provided folder path.
-     * @param rootedFolderPath The path to the folder (Root or Folder).
-     * @return The files at the provided container path.
-     */
-    default AsyncFunction<Result<Iterable<File>>> getFilesAsync(String rootedFolderPath)
-    {
-        FileSystem.validateRootedFolderPath(rootedFolderPath);
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> getFiles(rootedFolderPath));
-    }
-
-    /**
-     * Get the files at the provided folder path.
-     * @param rootedFolderPath The path to the folder (Root or Folder).
-     * @return The files at the provided container path.
-     */
-    default AsyncFunction<Result<Iterable<File>>> getFilesAsync(Path rootedFolderPath)
-    {
-        FileSystem.validateRootedFolderPath(rootedFolderPath);
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> getFiles(rootedFolderPath));
-    }
-
-    /**
      * Get the files at the provided folder path and each of the subfolders recursively.
      * @param rootedFolderPath The path to the folder (Root or Folder).
      * @return The files at the provided container path and its subfolders.
@@ -412,32 +238,6 @@ public interface FileSystem
 
         return getFilesAndFoldersRecursively(rootedFolderPath)
             .then((Iterable<FileSystemEntry> entries) -> entries.instanceOf(File.class));
-    }
-
-    /**
-     * Get the files at the provided folder path and each of the subfolders recursively.
-     * @param rootedFolderPath The path to the folder (Root or Folder).
-     * @return The files at the provided container path and its subfolders.
-     */
-    default AsyncFunction<Result<Iterable<File>>> getFilesRecursivelyAsync(String rootedFolderPath)
-    {
-        FileSystem.validateRootedFolderPath(rootedFolderPath);
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> getFiles(rootedFolderPath));
-    }
-
-    /**
-     * Get the files at the provided folder path and each of the subfolders recursively.
-     * @param rootedFolderPath The path to the folder (Root or Folder).
-     * @return The files at the provided container path and its subfolders.
-     */
-    default AsyncFunction<Result<Iterable<File>>> getFilesRecursivelyAsync(Path rootedFolderPath)
-    {
-        FileSystem.validateRootedFolderPath(rootedFolderPath);
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> getFiles(rootedFolderPath));
     }
 
     /**
@@ -485,32 +285,6 @@ public interface FileSystem
     Result<Boolean> folderExists(Path rootedFolderPath);
 
     /**
-     * Get whether or not a Folder exists in this FileSystem with the provided path.
-     * @param rootedFolderPath The path to the Folder.
-     * @return Whether or not a Folder exists in this FileSystem with the provided path.
-     */
-    default AsyncFunction<Result<Boolean>> folderExistsAsync(String rootedFolderPath)
-    {
-        FileSystem.validateRootedFolderPath(rootedFolderPath);
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> folderExists(rootedFolderPath));
-    }
-
-    /**
-     * Get whether or not a Folder exists in this FileSystem with the provided path.
-     * @param rootedFolderPath The path to the Folder.
-     * @return Whether or not a Folder exists in this FileSystem with the provided path.
-     */
-    default AsyncFunction<Result<Boolean>> folderExistsAsync(Path rootedFolderPath)
-    {
-        FileSystem.validateRootedFolderPath(rootedFolderPath);
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> folderExists(rootedFolderPath));
-    }
-
-    /**
      * Create a folder at the provided path and return whether or not this function created the
      * folder.
      * @param rootedFolderPath The path to the folder to create.
@@ -532,34 +306,6 @@ public interface FileSystem
     Result<Folder> createFolder(Path rootedFolderPath);
 
     /**
-     * Create a folder at the provided path and return whether or not this function created the
-     * folder.
-     * @param rootedFolderPath The path to the folder to create.
-     * @return Whether or not this function created the folder.
-     */
-    default AsyncFunction<Result<Folder>> createFolderAsync(String rootedFolderPath)
-    {
-        FileSystem.validateRootedFolderPath(rootedFolderPath);
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> createFolder(rootedFolderPath));
-    }
-
-    /**
-     * Create a folder at the provided path and return whether or not this function created the
-     * folder.
-     * @param rootedFolderPath The path to the folder to create.
-     * @return Whether or not this function created the folder.
-     */
-    default AsyncFunction<Result<Folder>> createFolderAsync(Path rootedFolderPath)
-    {
-        FileSystem.validateRootedFolderPath(rootedFolderPath);
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> createFolder(rootedFolderPath));
-    }
-
-    /**
      * Delete the folder at the provided path and return whether this function deleted the folder.
      * @param rootedFolderPath The path to the folder to delete.
      * @return Whether or not this function deleted the folder.
@@ -577,32 +323,6 @@ public interface FileSystem
      * @return Whether or not this function deleted the folder.
      */
     Result<Void> deleteFolder(Path rootedFolderPath);
-
-    /**
-     * Delete the folder at the provided path and return whether this function deleted the folder.
-     * @param rootedFolderPath The path to the folder to delete.
-     * @return Whether or not this function deleted the folder.
-     */
-    default AsyncFunction<Result<Void>> deleteFolderAsync(String rootedFolderPath)
-    {
-        FileSystem.validateRootedFolderPath(rootedFolderPath);
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> deleteFolder(rootedFolderPath));
-    }
-
-    /**
-     * Delete the folder at the provided path and return whether this function deleted the folder.
-     * @param rootedFolderPath The path to the folder to delete.
-     * @return Whether or not this function deleted the folder.
-     */
-    default AsyncFunction<Result<Void>> deleteFolderAsync(Path rootedFolderPath)
-    {
-        FileSystem.validateRootedFolderPath(rootedFolderPath);
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> deleteFolder(rootedFolderPath));
-    }
 
     /**
      * Get a reference to the File at the provided folderPath.
@@ -649,32 +369,6 @@ public interface FileSystem
     Result<Boolean> fileExists(Path rootedFilePath);
 
     /**
-     * Get whether or not a File exists in this FileSystem with the provided path.
-     * @param rootedFilePath The path to the File.
-     * @return Whether or not a File exists in this FileSystem with the provided path.
-     */
-    default AsyncFunction<Result<Boolean>> fileExistsAsync(String rootedFilePath)
-    {
-        FileSystem.validateRootedFilePath(rootedFilePath);
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> fileExists(rootedFilePath));
-    }
-
-    /**
-     * Get whether or not a File exists in this FileSystem with the provided path.
-     * @param rootedFilePath The path to the File.
-     * @return Whether or not a File exists in this FileSystem with the provided path.
-     */
-    default AsyncFunction<Result<Boolean>> fileExistsAsync(Path rootedFilePath)
-    {
-        FileSystem.validateRootedFilePath(rootedFilePath);
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> fileExists(rootedFilePath));
-    }
-
-    /**
      * Create a file at the provided path and return whether or not this function created the file.
      * @param rootedFilePath The path to the file to create.
      * @return Whether or not this function created the file.
@@ -694,32 +388,6 @@ public interface FileSystem
     Result<File> createFile(Path rootedFilePath);
 
     /**
-     * Create a file at the provided path and return whether or not this function created the file.
-     * @param rootedFilePath The path to the file to create.
-     * @return Whether or not this function created the file.
-     */
-    default AsyncFunction<Result<File>> createFileAsync(String rootedFilePath)
-    {
-        FileSystem.validateRootedFilePath(rootedFilePath);
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> createFile(rootedFilePath));
-    }
-
-    /**
-     * Create a file at the provided path and return whether or not this function created the file.
-     * @param rootedFilePath The path to the file to create.
-     * @return Whether or not this function created the file.
-     */
-    default AsyncFunction<Result<File>> createFileAsync(Path rootedFilePath)
-    {
-        FileSystem.validateRootedFilePath(rootedFilePath);
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> createFile(rootedFilePath));
-    }
-
-    /**
      * Delete the file at the provided path and return whether this function deleted the file.
      * @param rootedFilePath The path to the file to delete.
      * @return Whether or not this function deleted the file.
@@ -737,32 +405,6 @@ public interface FileSystem
      * @return Whether or not this function deleted the file.
      */
     Result<Void> deleteFile(Path rootedFilePath);
-
-    /**
-     * Delete the file at the provided path and return whether this function deleted the file.
-     * @param rootedFilePath The path to the file to delete.
-     * @return Whether or not this function deleted the file.
-     */
-    default AsyncFunction<Result<Void>> deleteFileAsync(String rootedFilePath)
-    {
-        FileSystem.validateRootedFilePath(rootedFilePath);
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> deleteFile(rootedFilePath));
-    }
-
-    /**
-     * Delete the file at the provided path and return whether this function deleted the file.
-     * @param rootedFilePath The path to the file to delete.
-     * @return Whether or not this function deleted the file.
-     */
-    default AsyncFunction<Result<Void>> deleteFileAsync(Path rootedFilePath)
-    {
-        FileSystem.validateRootedFilePath(rootedFilePath);
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> deleteFile(rootedFilePath));
-    }
 
     /**
      * Get the date and time of the most recent modification of the given file, or null if the file
@@ -788,36 +430,6 @@ public interface FileSystem
     Result<DateTime> getFileLastModified(Path rootedFilePath);
 
     /**
-     * Get the date and time of the most recent modification of the given file, or null if the file
-     * doesn't exist.
-     * @param rootedFilePath The path to the file.
-     * @return The date and time of the most recent modification of the given file, or null if the
-     * file doesn't exist.
-     */
-    default AsyncFunction<Result<DateTime>> getFileLastModifiedAsync(String rootedFilePath)
-    {
-        FileSystem.validateRootedFilePath(rootedFilePath);
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> getFileLastModified(rootedFilePath));
-    }
-
-    /**
-     * Get the date and time of the most recent modification of the given file, or null if the file
-     * doesn't exist.
-     * @param rootedFilePath The path to the file.
-     * @return The date and time of the most recent modification of the given file, or null if the
-     * file doesn't exist.
-     */
-    default AsyncFunction<Result<DateTime>> getFileLastModifiedAsync(Path rootedFilePath)
-    {
-        FileSystem.validateRootedFilePath(rootedFilePath);
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> getFileLastModified(rootedFilePath));
-    }
-
-    /**
      * Get a ByteReadStream to the file at the provided rootedFilePath.
      * @param rootedFilePath The rooted file path to the file.
      * @return A ByteReadStream to the contents of the file.
@@ -835,32 +447,6 @@ public interface FileSystem
      * @return A ByteReadStream to the contents of the file.
      */
     Result<ByteReadStream> getFileContentByteReadStream(Path rootedFilePath);
-
-    /**
-     * Get a ByteReadStream to the file at the provided rootedFilePath.
-     * @param rootedFilePath The rooted file path to the file.
-     * @return A ByteReadStream to the contents of the file.
-     */
-    default AsyncFunction<Result<ByteReadStream>> getFileContentByteReadStreamAsync(String rootedFilePath)
-    {
-        FileSystem.validateRootedFilePath(rootedFilePath);
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> getFileContentByteReadStream(rootedFilePath));
-    }
-
-    /**
-     * Get a ByteReadStream to the file at the provided rootedFilePath.
-     * @param rootedFilePath The rooted file path to the file.
-     * @return A ByteReadStream to the contents of the file.
-     */
-    default AsyncFunction<Result<ByteReadStream>> getFileContentByteReadStreamAsync(Path rootedFilePath)
-    {
-        FileSystem.validateRootedFilePath(rootedFilePath);
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> getFileContentByteReadStream(rootedFilePath));
-    }
 
     /**
      * Get a CharacterReadStream to the file at the provided rootedFilePath.
@@ -883,32 +469,6 @@ public interface FileSystem
     {
         return getFileContentByteReadStream(rootedFilePath)
             .then((ByteReadStream byteReadStream) -> byteReadStream.asCharacterReadStream());
-    }
-
-    /**
-     * Get a CharacterReadStream to the file at the provided rootedFilePath.
-     * @param rootedFilePath The rooted file path to the file.
-     * @return A CharacterReadStream to the contents of the file.
-     */
-    default AsyncFunction<Result<CharacterReadStream>> getFileContentCharacterReadStreamAsync(String rootedFilePath)
-    {
-        FileSystem.validateRootedFilePath(rootedFilePath);
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> getFileContentCharacterReadStream(rootedFilePath));
-    }
-
-    /**
-     * Get a CharacterReadStream to the file at the provided rootedFilePath.
-     * @param rootedFilePath The rooted file path to the file.
-     * @return A CharacterReadStream to the contents of the file.
-     */
-    default AsyncFunction<Result<CharacterReadStream>> getFileContentCharacterReadStreamAsync(Path rootedFilePath)
-    {
-        FileSystem.validateRootedFilePath(rootedFilePath);
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> getFileContentCharacterReadStream(rootedFilePath));
     }
 
     /**
@@ -953,32 +513,6 @@ public interface FileSystem
     /**
      * Get the contents of the file at the provided rootedFilePath.
      * @param rootedFilePath The rooted file path to the file.
-     * @return The byte[] contents of the file at the provided rootedFilePath.
-     */
-    default AsyncFunction<Result<byte[]>> getFileContentAsync(String rootedFilePath)
-    {
-        FileSystem.validateRootedFilePath(rootedFilePath);
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> getFileContent(rootedFilePath));
-    }
-
-    /**
-     * Get the contents of the file at the provided rootedFilePath.
-     * @param rootedFilePath The rooted file path to the file.
-     * @return The byte[] contents of the file at the provided rootedFilePath.
-     */
-    default AsyncFunction<Result<byte[]>> getFileContentAsync(Path rootedFilePath)
-    {
-        FileSystem.validateRootedFilePath(rootedFilePath);
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> getFileContent(rootedFilePath));
-    }
-
-    /**
-     * Get the contents of the file at the provided rootedFilePath.
-     * @param rootedFilePath The rooted file path to the file.
      * @return The String contents of the file at the provided rootedFilePath.
      */
     default Result<String> getFileContentAsString(String rootedFilePath)
@@ -1001,32 +535,6 @@ public interface FileSystem
     }
 
     /**
-     * Get the contents of the file at the provided rootedFilePath.
-     * @param rootedFilePath The rooted file path to the file.
-     * @return The String contents of the file at the provided rootedFilePath.
-     */
-    default AsyncFunction<Result<String>> getFileContentAsStringAsync(String rootedFilePath)
-    {
-        FileSystem.validateRootedFilePath(rootedFilePath);
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> getFileContentAsString(rootedFilePath));
-    }
-
-    /**
-     * Get the contents of the file at the provided rootedFilePath.
-     * @param rootedFilePath The rooted file path to the file.
-     * @return The String contents of the file at the provided rootedFilePath.
-     */
-    default AsyncFunction<Result<String>> getFileContentAsStringAsync(Path rootedFilePath)
-    {
-        FileSystem.validateRootedFilePath(rootedFilePath);
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> getFileContentAsString(rootedFilePath));
-    }
-
-    /**
      * Get a ByteWriteStream to the file at the provided rootedFilePath.
      * @param rootedFilePath The rooted file path to the file.
      * @return A ByteWriteStream to the contents of the file.
@@ -1044,32 +552,6 @@ public interface FileSystem
      * @return A ByteReadStream to the contents of the file.
      */
     Result<ByteWriteStream> getFileContentByteWriteStream(Path rootedFilePath);
-
-    /**
-     * Get a ByteWriteStream to the file at the provided rootedFilePath.
-     * @param rootedFilePath The rooted file path to the file.
-     * @return A ByteWriteStream to the contents of the file.
-     */
-    default AsyncFunction<Result<ByteWriteStream>> getFileContentByteWriteStreamAsync(String rootedFilePath)
-    {
-        FileSystem.validateRootedFilePath(rootedFilePath);
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> getFileContentByteWriteStream(rootedFilePath));
-    }
-
-    /**
-     * Get a ByteReadStream to the file at the provided rootedFilePath.
-     * @param rootedFilePath The rooted file path to the file.
-     * @return A ByteReadStream to the contents of the file.
-     */
-    default AsyncFunction<Result<ByteWriteStream>> getFileContentByteWriteStreamAsync(Path rootedFilePath)
-    {
-        FileSystem.validateRootedFilePath(rootedFilePath);
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> getFileContentByteWriteStream(rootedFilePath));
-    }
 
     /**
      * Get a CharacterWriteStream to the file at the provided rootedFilePath.
@@ -1092,32 +574,6 @@ public interface FileSystem
     {
         return getFileContentByteWriteStream(rootedFilePath)
             .then((ByteWriteStream writeStream) -> writeStream.asCharacterWriteStream());
-    }
-
-    /**
-     * Get a CharacterWriteStream to the file at the provided rootedFilePath.
-     * @param rootedFilePath The rooted file path to the file.
-     * @return A CharacterWriteStream to the contents of the file.
-     */
-    default AsyncFunction<Result<CharacterWriteStream>> getFileContentCharacterWriteStreamAsync(String rootedFilePath)
-    {
-        FileSystem.validateRootedFilePath(rootedFilePath);
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> getFileContentCharacterWriteStream(rootedFilePath));
-    }
-
-    /**
-     * Get a CharacterReadStream to the file at the provided rootedFilePath.
-     * @param rootedFilePath The rooted file path to the file.
-     * @return A CharacterReadStream to the contents of the file.
-     */
-    default AsyncFunction<Result<CharacterWriteStream>> getFileContentCharacterWriteStreamAsync(Path rootedFilePath)
-    {
-        FileSystem.validateRootedFilePath(rootedFilePath);
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> getFileContentCharacterWriteStream(rootedFilePath));
     }
 
     /**
@@ -1270,49 +726,6 @@ public interface FileSystem
         PostCondition.assertNotNull(result, "result");
 
         return result;
-    }
-
-    /**
-     * Copy the file at the provided rootedFilePath to the provided destinationFilePath.
-     * @param rootedFilePath The path to the file to copy.
-     * @param destinationFilePath The path to copy the file to.
-     * @return The result of copying the file.
-     */
-    default AsyncFunction<Result<Void>> copyFileToAsync(Path rootedFilePath, Path destinationFilePath)
-    {
-        FileSystem.validateRootedFilePath(rootedFilePath);
-        FileSystem.validateRootedFilePath(destinationFilePath, "destinationFilePath");
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> copyFileTo(rootedFilePath, destinationFilePath));
-    }
-
-    /**
-     * Set the contents of the file at the provided rootedFilePath.
-     * @param rootedFilePath The rooted path to the file.
-     * @param content The byte[] contents to set.
-     * @return Whether or not the file's contents were set.
-     */
-    default AsyncFunction<Result<Void>> setFileContentAsync(String rootedFilePath, byte[] content)
-    {
-        FileSystem.validateRootedFilePath(rootedFilePath);
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> setFileContent(rootedFilePath, content));
-    }
-
-    /**
-     * Set the contents of the file at the provided rootedFilePath.
-     * @param rootedFilePath The rooted path to the file.
-     * @param content The byte[] contents to set.
-     * @return Whether or not the file's contents were set.
-     */
-    default AsyncFunction<Result<Void>> setFileContentAsync(Path rootedFilePath, byte[] content)
-    {
-        FileSystem.validateRootedFilePath(rootedFilePath);
-        PreCondition.assertNotNull(getAsyncRunner(), "getAsyncRunner()");
-
-        return getAsyncRunner().scheduleSingle(() -> setFileContent(rootedFilePath, content));
     }
 
     static void validateRootedFolderPath(String rootedFolderPath)

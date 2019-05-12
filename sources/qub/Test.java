@@ -59,12 +59,12 @@ public class Test
         return process;
     }
 
-    public AsyncRunner getMainAsyncRunner()
+    public AsyncScheduler getMainAsyncRunner()
     {
         return process.getMainAsyncRunner();
     }
 
-    public AsyncRunner getParallelAsyncRunner()
+    public AsyncScheduler getParallelAsyncRunner()
     {
         return process.getParallelAsyncRunner();
     }
