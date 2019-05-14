@@ -74,6 +74,7 @@ public class ParallelAsyncRunner implements AsyncScheduler
 
         while (!result.isCompleted())
         {
+            java.lang.Thread.yield();
         }
     }
 }
