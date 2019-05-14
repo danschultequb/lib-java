@@ -696,36 +696,16 @@ public interface FileSystem
         FileSystem.validateRootedFilePath(sourceFilePath, "sourceFilePath");
         FileSystem.validateRootedFilePath(destinationFilePath, "destinationFilePath");
 
-        final Result<Void> result = getFileContentByteReadStream(sourceFilePath)
-            .thenResult((ByteReadStream fileContents) ->
+        return Result.create(() ->
+        {
+            try (final ByteReadStream sourceStream = getFileContentByteReadStream(sourceFilePath).await())
             {
-                try
+                try (final ByteWriteStream destinationStream = getFileContentByteWriteStream(destinationFilePath).await())
                 {
-                    return getFileContentByteWriteStream(destinationFilePath)
-                        .thenResult((ByteWriteStream destinationStream) ->
-                        {
-                            try
-                            {
-                                return destinationStream.writeAllBytes(fileContents);
-                            }
-                            finally
-                            {
-                                destinationStream.dispose();
-                            }
-                        });
+                    destinationStream.writeAllBytes(sourceStream).await();
                 }
-                finally
-                {
-                    fileContents.dispose();
-                }
-            })
-            .then(() -> {
-                return null;
-            });
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+            }
+        });
     }
 
     static void validateRootedFolderPath(String rootedFolderPath)

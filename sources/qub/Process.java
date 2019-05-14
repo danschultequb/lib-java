@@ -354,7 +354,7 @@ public class Process implements Disposable
     {
         if (!fileSystem.hasValue())
         {
-            setFileSystem(new JavaFileSystem());
+            setFileSystem(new JavaFileSystem(this::getParallelAsyncRunner));
         }
         return fileSystem.get();
     }

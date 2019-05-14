@@ -117,7 +117,7 @@ public class FileSystemTests
                     "/folderA",
                     (FileSystem fileSystem) ->
                     {
-                        fileSystem.createFolder("/folderA");
+                        fileSystem.createFolder("/folderA").await();
                     },
                     new String[0],
                     null);
@@ -125,9 +125,9 @@ public class FileSystemTests
                     "/",
                     (FileSystem fileSystem) ->
                     {
-                        fileSystem.createFolder("/folderA/folderB");
-                        fileSystem.createFile("/file1.txt");
-                        fileSystem.createFile("/folderA/file2.csv");
+                        fileSystem.createFolder("/folderA/folderB").await();
+                        fileSystem.createFile("/file1.txt").await();
+                        fileSystem.createFile("/folderA/file2.csv").await();
                     },
                     new String[] { "/folderA", "/file1.txt" },
                     null);
@@ -183,7 +183,7 @@ public class FileSystemTests
                     "/folderA",
                     (FileSystem fileSystem) ->
                     {
-                        fileSystem.createFolder("/folderA");
+                        fileSystem.createFolder("/folderA").await();
                     },
                     new String[0],
                     null);
@@ -191,9 +191,9 @@ public class FileSystemTests
                     "/",
                     (FileSystem fileSystem) ->
                     {
-                        fileSystem.createFolder("/folderA/folderB");
-                        fileSystem.createFile("/file1.txt");
-                        fileSystem.createFile("/folderA/file2.csv");
+                        fileSystem.createFolder("/folderA/folderB").await();
+                        fileSystem.createFile("/file1.txt").await();
+                        fileSystem.createFile("/folderA/file2.csv").await();
                     },
                     new String[] { "/folderA", "/file1.txt" },
                     null);
@@ -283,7 +283,7 @@ public class FileSystemTests
                     "/test/folder",
                     (FileSystem fileSystem) ->
                     {
-                        fileSystem.createFolder("/test/");
+                        fileSystem.createFolder("/test/").await();
                     },
                     null,
                     new FolderNotFoundException("/test/folder"));
@@ -291,7 +291,7 @@ public class FileSystemTests
                     "/test/folder/",
                     (FileSystem fileSystem) ->
                     {
-                        fileSystem.createFolder("/test/folder");
+                        fileSystem.createFolder("/test/folder").await();
                     },
                     new String[0],
                     null);
@@ -299,8 +299,8 @@ public class FileSystemTests
                     "/test/folder",
                     (FileSystem fileSystem) ->
                     {
-                        fileSystem.createFile("/test/folder/1.txt");
-                        fileSystem.createFile("/test/folder/2.txt");
+                        fileSystem.createFile("/test/folder/1.txt").await();
+                        fileSystem.createFile("/test/folder/2.txt").await();
                     },
                     new String[0],
                     null);
@@ -308,8 +308,8 @@ public class FileSystemTests
                     "/test/folder",
                     (FileSystem fileSystem) ->
                     {
-                        fileSystem.createFolder("/test/folder/1.txt");
-                        fileSystem.createFolder("/test/folder/2.txt");
+                        fileSystem.createFolder("/test/folder/1.txt").await();
+                        fileSystem.createFolder("/test/folder/2.txt").await();
                     },
                     new String[] { "/test/folder/1.txt", "/test/folder/2.txt" },
                     null);
@@ -317,11 +317,11 @@ public class FileSystemTests
                     "/test/folder",
                     (FileSystem fileSystem) ->
                     {
-                        fileSystem.createFile("/test/folder/1.txt");
-                        fileSystem.createFile("/test/folder/2.txt");
-                        fileSystem.createFile("/test/folder/A/3.csv");
-                        fileSystem.createFile("/test/folder/B/C/4.xml");
-                        fileSystem.createFile("/test/folder/A/5.png");
+                        fileSystem.createFile("/test/folder/1.txt").await();
+                        fileSystem.createFile("/test/folder/2.txt").await();
+                        fileSystem.createFile("/test/folder/A/3.csv").await();
+                        fileSystem.createFile("/test/folder/B/C/4.xml").await();
+                        fileSystem.createFile("/test/folder/A/5.png").await();
                     },
                     new String[] { "/test/folder/A", "/test/folder/B", "/test/folder/B/C" },
                     null);
@@ -388,7 +388,7 @@ public class FileSystemTests
                     "/test/folder",
                     (FileSystem fileSystem) ->
                     {
-                        fileSystem.createFolder("/test/");
+                        fileSystem.createFolder("/test/").await();
                     },
                     null,
                     new FolderNotFoundException("/test/folder"));
@@ -396,7 +396,7 @@ public class FileSystemTests
                     "/test/folder/",
                     (FileSystem fileSystem) ->
                     {
-                        fileSystem.createFolder("/test/folder");
+                        fileSystem.createFolder("/test/folder").await();
                     },
                     new String[0],
                     null);
@@ -404,8 +404,8 @@ public class FileSystemTests
                     "/test/folder",
                     (FileSystem fileSystem) ->
                     {
-                        fileSystem.createFile("/test/folder/1.txt");
-                        fileSystem.createFile("/test/folder/2.txt");
+                        fileSystem.createFile("/test/folder/1.txt").await();
+                        fileSystem.createFile("/test/folder/2.txt").await();
                     },
                     new String[0],
                     null);
@@ -413,8 +413,8 @@ public class FileSystemTests
                     "/test/folder",
                     (FileSystem fileSystem) ->
                     {
-                        fileSystem.createFolder("/test/folder/1.txt");
-                        fileSystem.createFolder("/test/folder/2.txt");
+                        fileSystem.createFolder("/test/folder/1.txt").await();
+                        fileSystem.createFolder("/test/folder/2.txt").await();
                     },
                     new String[] { "/test/folder/1.txt", "/test/folder/2.txt" },
                     null);
@@ -422,11 +422,11 @@ public class FileSystemTests
                     "/test/folder",
                     (FileSystem fileSystem) ->
                     {
-                        fileSystem.createFile("/test/folder/1.txt");
-                        fileSystem.createFile("/test/folder/2.txt");
-                        fileSystem.createFile("/test/folder/A/3.csv");
-                        fileSystem.createFile("/test/folder/B/C/4.xml");
-                        fileSystem.createFile("/test/folder/A/5.png");
+                        fileSystem.createFile("/test/folder/1.txt").await();
+                        fileSystem.createFile("/test/folder/2.txt").await();
+                        fileSystem.createFile("/test/folder/A/3.csv").await();
+                        fileSystem.createFile("/test/folder/B/C/4.xml").await();
+                        fileSystem.createFile("/test/folder/A/5.png").await();
                     },
                     new String[] { "/test/folder/A", "/test/folder/B", "/test/folder/B/C" },
                     null);
@@ -605,21 +605,21 @@ public class FileSystemTests
                 getFilesRecursivelyTest.run("/test/folder", null, null, new FolderNotFoundException("/test/folder"));
                 getFilesRecursivelyTest.run(
                     "/test/folder",
-                    (FileSystem fileSystem) -> fileSystem.createFolder("/test"),
+                    (FileSystem fileSystem) -> fileSystem.createFolder("/test").await(),
                     null,
                     new FolderNotFoundException("/test/folder"));
                 getFilesRecursivelyTest.run(
                     "/test/folder",
-                    (FileSystem fileSystem) -> fileSystem.createFolder("/test/folder"),
+                    (FileSystem fileSystem) -> fileSystem.createFolder("/test/folder").await(),
                     new String[0],
                     null);
                 getFilesRecursivelyTest.run(
                     "/test/folder",
                     (FileSystem fileSystem) ->
                     {
-                        fileSystem.createFolder("/test/folder");
-                        fileSystem.createFile("/test/folder/1.txt");
-                        fileSystem.createFile("/test/folder/2.txt");
+                        fileSystem.createFolder("/test/folder").await();
+                        fileSystem.createFile("/test/folder/1.txt").await();
+                        fileSystem.createFile("/test/folder/2.txt").await();
                     },
                     new String[] { "/test/folder/1.txt", "/test/folder/2.txt" },
                     null);
@@ -627,9 +627,9 @@ public class FileSystemTests
                     "/test/folder",
                     (FileSystem fileSystem) ->
                     {
-                        fileSystem.createFolder("/test/folder");
-                        fileSystem.createFolder("/test/folder/1.txt");
-                        fileSystem.createFolder("/test/folder/2.txt");
+                        fileSystem.createFolder("/test/folder").await();
+                        fileSystem.createFolder("/test/folder/1.txt").await();
+                        fileSystem.createFolder("/test/folder/2.txt").await();
                     },
                     new String[0],
                     null);
@@ -637,11 +637,11 @@ public class FileSystemTests
                     "/test/folder",
                     (FileSystem fileSystem) ->
                     {
-                        fileSystem.createFile("/test/folder/1.txt");
-                        fileSystem.createFile("/test/folder/2.txt");
-                        fileSystem.createFile("/test/folder/A/3.csv");
-                        fileSystem.createFile("/test/folder/B/C/4.xml");
-                        fileSystem.createFile("/test/folder/A/5.png");
+                        fileSystem.createFile("/test/folder/1.txt").await();
+                        fileSystem.createFile("/test/folder/2.txt").await();
+                        fileSystem.createFile("/test/folder/A/3.csv").await();
+                        fileSystem.createFile("/test/folder/B/C/4.xml").await();
+                        fileSystem.createFile("/test/folder/A/5.png").await();
                     },
                     new String[]
                     {
@@ -745,7 +745,7 @@ public class FileSystemTests
                 folderExistsTest.run("/folderName", null, false, null);
                 folderExistsTest.run(
                     "/folderName",
-                    (FileSystem fileSystem) -> fileSystem.createFolder("/folderName"),
+                    (FileSystem fileSystem) -> fileSystem.createFolder("/folderName").await(),
                     true,
                     null);
             });
@@ -790,7 +790,7 @@ public class FileSystemTests
                 folderExistsTest.run("/folderName", null, false, null);
                 folderExistsTest.run(
                     "/folderName",
-                    (FileSystem fileSystem) -> fileSystem.createFolder("/folderName"),
+                    (FileSystem fileSystem) -> fileSystem.createFolder("/folderName").await(),
                     true,
                     null);
                 folderExistsTest.run(
@@ -846,7 +846,7 @@ public class FileSystemTests
                 createFolderTest.run(
                     "with rooted path that already exists",
                     "/folder",
-                    (FileSystem fileSystem) -> fileSystem.createFolder("/folder"),
+                    (FileSystem fileSystem) -> fileSystem.createFolder("/folder").await(),
                     "/folder",
                     new FolderAlreadyExistsException("/folder"));
                 createFolderTest.run(
@@ -874,8 +874,10 @@ public class FileSystemTests
                     });
                 };
 
-                createFolderFailureTest.run(null, new PreConditionFailure("rootedFolderPath cannot be null."));
-                createFolderFailureTest.run(Path.parse("folder"), new PreConditionFailure("rootedFolderPath.isRooted() cannot be false."));
+                createFolderFailureTest.run(null,
+                    new PreConditionFailure("rootedFolderPath cannot be null."));
+                createFolderFailureTest.run(Path.parse("folder"),
+                    new PreConditionFailure("rootedFolderPath.isRooted() cannot be false."));
 
                 final Action5<String,String,Action1<FileSystem>,String,Throwable> createFolderTest = (String testName, String folderPath, Action1<FileSystem> setup, String expectedCreatedFolderPath, Throwable expectedError) ->
                 {
@@ -903,7 +905,7 @@ public class FileSystemTests
                 createFolderTest.run(
                     "with rooted path that already exists",
                     "/folder",
-                    (FileSystem fileSystem) -> fileSystem.createFolder("/folder"),
+                    (FileSystem fileSystem) -> fileSystem.createFolder("/folder").await(),
                     "/folder",
                     new FolderAlreadyExistsException("/folder"));
                 createFolderTest.run(
@@ -958,15 +960,15 @@ public class FileSystemTests
                 deleteFolderTest.run("/folder", null, new FolderNotFoundException("/folder"));
                 deleteFolderTest.run(
                     "/folder",
-                    (FileSystem fileSystem) -> fileSystem.createFolder("/folder"),
+                    (FileSystem fileSystem) -> fileSystem.createFolder("/folder").await(),
                     null);
                 deleteFolderTest.run(
                     "/folder/c",
                     (FileSystem fileSystem) ->
                     {
-                        fileSystem.createFolder("/folder/a");
-                        fileSystem.createFolder("/folder/b");
-                        fileSystem.createFolder("/folder/c");
+                        fileSystem.createFolder("/folder/a").await();
+                        fileSystem.createFolder("/folder/b").await();
+                        fileSystem.createFolder("/folder/c").await();
                     },
                     null);
                 deleteFolderTest.run(
@@ -1016,15 +1018,15 @@ public class FileSystemTests
                 deleteFolderTest.run("/folder", null, new FolderNotFoundException("/folder"));
                 deleteFolderTest.run(
                     "/folder",
-                    (FileSystem fileSystem) -> fileSystem.createFolder("/folder"),
+                    (FileSystem fileSystem) -> fileSystem.createFolder("/folder").await(),
                     null);
                 deleteFolderTest.run(
                     "/folder/c",
                     (FileSystem fileSystem) ->
                     {
-                        fileSystem.createFolder("/folder/a");
-                        fileSystem.createFolder("/folder/b");
-                        fileSystem.createFolder("/folder/c");
+                        fileSystem.createFolder("/folder/a").await();
+                        fileSystem.createFolder("/folder/b").await();
+                        fileSystem.createFolder("/folder/c").await();
                     },
                     null);
                 deleteFolderTest.run(
@@ -1162,12 +1164,12 @@ public class FileSystemTests
 
                 fileExistsTest.run(
                     "/folderName",
-                    (FileSystem fileSystem) -> fileSystem.createFolder("/folderName"),
+                    (FileSystem fileSystem) -> fileSystem.createFolder("/folderName").await(),
                     false,
                     null);
                 fileExistsTest.run(
                     "/fileName",
-                    (FileSystem fileSystem) -> fileSystem.createFile("/fileName"),
+                    (FileSystem fileSystem) -> fileSystem.createFile("/fileName").await(),
                     true,
                     null);
                 fileExistsTest.run(
@@ -1223,12 +1225,12 @@ public class FileSystemTests
 
                 fileExistsTest.run(
                     "/folderName",
-                    (FileSystem fileSystem) -> fileSystem.createFolder("/folderName"),
+                    (FileSystem fileSystem) -> fileSystem.createFolder("/folderName").await(),
                     false,
                     null);
                 fileExistsTest.run(
                     "/fileName",
-                    (FileSystem fileSystem) -> fileSystem.createFile("/fileName"),
+                    (FileSystem fileSystem) -> fileSystem.createFile("/fileName").await(),
                     true,
                     null);
                 fileExistsTest.run(
@@ -1292,7 +1294,7 @@ public class FileSystemTests
                 createFileTest.run("/things.txt", null, "/things.txt", null);
                 createFileTest.run(
                     "/things.txt",
-                    (FileSystem fileSystem) -> fileSystem.createFile("/things.txt"),
+                    (FileSystem fileSystem) -> fileSystem.createFile("/things.txt").await(),
                     "/things.txt",
                     new FileAlreadyExistsException("/things.txt"));
                 createFileTest.run(
@@ -1355,7 +1357,7 @@ public class FileSystemTests
                 createFileTest.run("/things.txt", null, "/things.txt", null);
                 createFileTest.run(
                     "/things.txt",
-                    (FileSystem fileSystem) -> fileSystem.createFile("/things.txt"),
+                    (FileSystem fileSystem) -> fileSystem.createFile("/things.txt").await(),
                     "/things.txt",
                     new FileAlreadyExistsException("/things.txt"));
                 createFileTest.run(
@@ -1408,7 +1410,7 @@ public class FileSystemTests
                 deleteFileTest.run("/idontexist.txt", null, new FileNotFoundException("/idontexist.txt"));
                 deleteFileTest.run(
                     "/iexist.txt",
-                    (FileSystem fileSystem) -> fileSystem.createFile("/iexist.txt"),
+                    (FileSystem fileSystem) -> fileSystem.createFile("/iexist.txt").await(),
                     null);
                 deleteFileTest.run(
                     "/../file.txt",
@@ -1472,11 +1474,11 @@ public class FileSystemTests
                 runner.test("with existing rooted path", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test);
-                    fileSystem.createFile("/thing.txt");
+                    fileSystem.createFile("/thing.txt").await();
 
-                    final Result<DateTime> result = fileSystem.getFileLastModified("/thing.txt");
+                    final DateTime result = fileSystem.getFileLastModified("/thing.txt").await();
                     test.assertNotNull(result);
-                    test.assertGreaterThan(result.await(), DateTime.local(2018, 1, 1, 0, 0, 0, 0));
+                    test.assertGreaterThan(result, DateTime.local(2018, 1, 1, 0, 0, 0, 0));
                 });
             });
 
@@ -1532,11 +1534,11 @@ public class FileSystemTests
                 runner.test("with existing rooted path", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test);
-                    fileSystem.createFile("/thing.txt");
+                    fileSystem.createFile("/thing.txt").await();
 
-                    final Result<DateTime> result = fileSystem.getFileLastModified(Path.parse("/thing.txt"));
+                    final DateTime result = fileSystem.getFileLastModified(Path.parse("/thing.txt")).await();
                     test.assertNotNull(result);
-                    test.assertGreaterThan(result.await(), DateTime.local(2018, 1, 1, 0, 0, 0, 0));
+                    test.assertGreaterThan(result, DateTime.local(2018, 1, 1, 0, 0, 0, 0));
                 });
             });
 
@@ -1889,7 +1891,7 @@ public class FileSystemTests
                 runner.test("with existing rooted path and null contents", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test);
-                    fileSystem.setFileContent("/A.txt", new byte[] { 0, 1 });
+                    fileSystem.setFileContent("/A.txt", new byte[] { 0, 1 }).await();
 
                     fileSystem.setFileContent(Path.parse("/A.txt"), (byte[])null).await();
 

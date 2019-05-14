@@ -5,10 +5,24 @@ package qub;
  */
 public class JavaFileSystem implements FileSystem
 {
+    private final Function0<AsyncRunner> asyncRunnerGetter;
+
+    public JavaFileSystem(Function0<AsyncRunner> asyncRunnerGetter)
+    {
+        PreCondition.assertNotNull(asyncRunnerGetter, "asyncRunnerGetter");
+
+        this.asyncRunnerGetter = asyncRunnerGetter;
+    }
+
+    private AsyncRunner getAsyncRunner()
+    {
+        return asyncRunnerGetter.run();
+    }
+
     @Override
     public Result<Iterable<Root>> getRoots()
     {
-        return Result.create(() ->
+        return getAsyncRunner().schedule(() ->
         {
             return Iterable.create(java.io.File.listRoots())
                 .map((java.io.File root) ->
@@ -25,47 +39,50 @@ public class JavaFileSystem implements FileSystem
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        Result<Iterable<FileSystemEntry>> result;
-        Array<FileSystemEntry> filesAndFolders;
-
-        final java.io.File containerFile = new java.io.File(rootedFolderPath.toString());
-        final java.io.File[] containerEntryFiles = containerFile.listFiles();
-        if (containerEntryFiles == null)
+        return getAsyncRunner().scheduleResult(() ->
         {
-            result = Result.error(new FolderNotFoundException(rootedFolderPath));
-        }
-        else
-        {
-            final List<Folder> folders = List.create();
-            final List<File> files = List.create();
-            for (final java.io.File containerEntryFile : containerEntryFiles)
-            {
-                final String containerEntryPathString = containerEntryFile.getAbsolutePath();
-                final Path containerEntryPath = Path.parse(containerEntryPathString).normalize();
-                if (containerEntryFile.isFile())
-                {
-                    files.add(getFile(containerEntryPath).await());
-                }
-                else if (containerEntryFile.isDirectory())
-                {
-                    folders.add(getFolder(containerEntryPath).await());
-                }
-            }
+            Result<Iterable<FileSystemEntry>> result;
+            Array<FileSystemEntry> filesAndFolders;
 
-            filesAndFolders = Array.createWithLength(containerEntryFiles.length);
-            final int foldersCount = folders.getCount();
-            for (int i = 0; i < foldersCount; ++i)
+            final java.io.File containerFile = new java.io.File(rootedFolderPath.toString());
+            final java.io.File[] containerEntryFiles = containerFile.listFiles();
+            if (containerEntryFiles == null)
             {
-                filesAndFolders.set(i, folders.get(i));
+                result = Result.error(new FolderNotFoundException(rootedFolderPath));
             }
-            for (int i = 0; i < files.getCount(); ++i)
+            else
             {
-                filesAndFolders.set(i + foldersCount, files.get(i));
-            }
+                final List<Folder> folders = List.create();
+                final List<File> files = List.create();
+                for (final java.io.File containerEntryFile : containerEntryFiles)
+                {
+                    final String containerEntryPathString = containerEntryFile.getAbsolutePath();
+                    final Path containerEntryPath = Path.parse(containerEntryPathString).normalize();
+                    if (containerEntryFile.isFile())
+                    {
+                        files.add(getFile(containerEntryPath).await());
+                    }
+                    else if (containerEntryFile.isDirectory())
+                    {
+                        folders.add(getFolder(containerEntryPath).await());
+                    }
+                }
 
-            result = Result.success(filesAndFolders);
-        }
-        return result;
+                filesAndFolders = Array.createWithLength(containerEntryFiles.length);
+                final int foldersCount = folders.getCount();
+                for (int i = 0; i < foldersCount; ++i)
+                {
+                    filesAndFolders.set(i, folders.get(i));
+                }
+                for (int i = 0; i < files.getCount(); ++i)
+                {
+                    filesAndFolders.set(i + foldersCount, files.get(i));
+                }
+
+                result = Result.success(filesAndFolders);
+            }
+            return result;
+        });
     }
 
     @Override
@@ -73,9 +90,12 @@ public class JavaFileSystem implements FileSystem
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        final String folderPathString = rootedFolderPath.toString();
-        final java.io.File folderFile = new java.io.File(folderPathString);
-        return Result.success(folderFile.exists() && folderFile.isDirectory());
+        return getAsyncRunner().schedule(() ->
+        {
+            final String folderPathString = rootedFolderPath.toString();
+            final java.io.File folderFile = new java.io.File(folderPathString);
+            return folderFile.exists() && folderFile.isDirectory();
+        });
     }
 
     @Override
@@ -83,27 +103,29 @@ public class JavaFileSystem implements FileSystem
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        Result<Folder> result;
-        try
+        return getAsyncRunner().scheduleResult(() ->
         {
-            final Path parentFolderPath = rootedFolderPath.getParent();
-            if (parentFolderPath != null)
+            Result<Folder> result;
+            try
             {
-                java.nio.file.Files.createDirectories(java.nio.file.Paths.get(parentFolderPath.toString()));
+                final Path parentFolderPath = rootedFolderPath.getParent();
+                if (parentFolderPath != null)
+                {
+                    java.nio.file.Files.createDirectories(java.nio.file.Paths.get(parentFolderPath.toString()));
+                }
+                java.nio.file.Files.createDirectory(java.nio.file.Paths.get(rootedFolderPath.toString()));
+                result = getFolder(rootedFolderPath);
             }
-            java.nio.file.Files.createDirectory(java.nio.file.Paths.get(rootedFolderPath.toString()));
-            result = getFolder(rootedFolderPath);
-        }
-        catch (java.nio.file.FileAlreadyExistsException e)
-        {
-            result = Result.error(new FolderAlreadyExistsException(rootedFolderPath));
-        }
-        catch (Throwable e)
-        {
-            result = Result.error(e);
-        }
-
-        return result;
+            catch (java.nio.file.FileAlreadyExistsException e)
+            {
+                result = Result.error(new FolderAlreadyExistsException(rootedFolderPath));
+            }
+            catch (Throwable e)
+            {
+                result = Result.error(e);
+            }
+            return result;
+        });
     }
 
     @Override
@@ -114,13 +136,12 @@ public class JavaFileSystem implements FileSystem
         return getFilesAndFolders(rootedFolderPath)
             .then((Iterable<FileSystemEntry> entries) ->
             {
-                for (final FileSystemEntry entry : entries)
-                {
-                    entry.delete().await();
-                }
+                Result.await(entries.map(FileSystemEntry::delete).toList());
                 try
                 {
-                    java.nio.file.Files.delete(java.nio.file.Paths.get(rootedFolderPath.toString()));
+                    final String rootedFolderPathString = rootedFolderPath.toString();
+                    final java.nio.file.Path folderPath = java.nio.file.Paths.get(rootedFolderPathString);
+                    java.nio.file.Files.delete(folderPath);
                 }
                 catch (java.io.FileNotFoundException e)
                 {
@@ -138,7 +159,12 @@ public class JavaFileSystem implements FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        return Result.success(java.nio.file.Files.isRegularFile(java.nio.file.Paths.get(rootedFilePath.toString())));
+        return getAsyncRunner().schedule(() ->
+        {
+            final String rootedFilePathString = rootedFilePath.toString();
+            final java.nio.file.Path path = java.nio.file.Paths.get(rootedFilePathString);
+            return java.nio.file.Files.isRegularFile(path);
+        });
     }
 
     @Override
@@ -173,22 +199,26 @@ public class JavaFileSystem implements FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        Result<Void> result;
-        try
+        return getAsyncRunner().scheduleResult(() ->
         {
-            java.nio.file.Files.delete(java.nio.file.Paths.get(rootedFilePath.toString()));
-            result = Result.success();
-        }
-        catch (java.nio.file.NoSuchFileException e)
-        {
-            result = Result.error(new FileNotFoundException(rootedFilePath));
-        }
-        catch (java.io.IOException e)
-        {
-            result = Result.error(e);
-        }
-
-        return result;
+            Result<Void> result;
+            try
+            {
+                final String rootedFilePathString = rootedFilePath.toString();
+                final java.nio.file.Path filePath = java.nio.file.Paths.get(rootedFilePathString);
+                java.nio.file.Files.delete(filePath);
+                result = Result.success();
+            }
+            catch (java.nio.file.NoSuchFileException e)
+            {
+                result = Result.error(new FileNotFoundException(rootedFilePath));
+            }
+            catch (java.io.IOException e)
+            {
+                result = Result.error(e);
+            }
+            return result;
+        });
     }
 
     @Override
@@ -196,45 +226,53 @@ public class JavaFileSystem implements FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        Result<DateTime> result;
-        try
+        return getAsyncRunner().scheduleResult(() ->
         {
-            final java.nio.file.attribute.FileTime lastModifiedTime = java.nio.file.Files.getLastModifiedTime(java.nio.file.Paths.get(rootedFilePath.toString()));
-            result = Result.success(DateTime.local(lastModifiedTime.toMillis()));
-        }
-        catch (java.nio.file.NoSuchFileException e)
-        {
-            result = Result.error(new FileNotFoundException(rootedFilePath));
-        }
-        catch (java.io.IOException e)
-        {
-            result = Result.error(e);
-        }
-
-        return result;
+            Result<DateTime> result;
+            try
+            {
+                final String rootedFilePathString = rootedFilePath.toString();
+                final java.nio.file.Path filePath = java.nio.file.Paths.get(rootedFilePathString);
+                final java.nio.file.attribute.FileTime lastModifiedTime = java.nio.file.Files.getLastModifiedTime(filePath);
+                result = Result.success(DateTime.local(lastModifiedTime.toMillis()));
+            }
+            catch (java.nio.file.NoSuchFileException e)
+            {
+                result = Result.error(new FileNotFoundException(rootedFilePath));
+            }
+            catch (java.io.IOException e)
+            {
+                result = Result.error(e);
+            }
+            return result;
+        });
     }
 
     @Override
     public Result<ByteReadStream> getFileContentByteReadStream(Path rootedFilePath)
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
-        Result<ByteReadStream> result;
-        try
-        {
-            final java.io.InputStream fileContentsInputStream = java.nio.file.Files.newInputStream(
-                java.nio.file.Paths.get(rootedFilePath.toString()));
-            result = Result.success(new InputStreamToByteReadStream(fileContentsInputStream));
-        }
-        catch (java.nio.file.NoSuchFileException e)
-        {
-            result = Result.error(new FileNotFoundException(rootedFilePath));
-        }
-        catch (java.io.IOException e)
-        {
-            result = Result.error(e);
-        }
 
-        return result;
+        return getAsyncRunner().scheduleResult(() ->
+        {
+            Result<ByteReadStream> result;
+            try
+            {
+                final String rootedFilePathString = rootedFilePath.toString();
+                final java.nio.file.Path filePath = java.nio.file.Paths.get(rootedFilePathString);
+                final java.io.InputStream fileContentsInputStream = java.nio.file.Files.newInputStream(filePath);
+                result = Result.success(new InputStreamToByteReadStream(fileContentsInputStream));
+            }
+            catch (java.nio.file.NoSuchFileException e)
+            {
+                result = Result.error(new FileNotFoundException(rootedFilePath));
+            }
+            catch (java.io.IOException e)
+            {
+                result = Result.error(e);
+            }
+            return result;
+        });
     }
 
     @Override
@@ -242,22 +280,11 @@ public class JavaFileSystem implements FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        Result<ByteWriteStream> result;
-        try
+        return getAsyncRunner().scheduleResult(() ->
         {
-            result = Result.success(
-                new BufferedByteWriteStream(
-                    new OutputStreamToByteWriteStream(
-                        java.nio.file.Files.newOutputStream(
-                            java.nio.file.Paths.get(rootedFilePath.toString()),
-                            java.nio.file.StandardOpenOption.CREATE,
-                            java.nio.file.StandardOpenOption.TRUNCATE_EXISTING))));
-        }
-        catch (java.nio.file.NoSuchFileException e)
-        {
+            Result<ByteWriteStream> result;
             try
             {
-                createFolder(rootedFilePath.getParent()).await();
                 result = Result.success(
                     new BufferedByteWriteStream(
                         new OutputStreamToByteWriteStream(
@@ -266,18 +293,32 @@ public class JavaFileSystem implements FileSystem
                                 java.nio.file.StandardOpenOption.CREATE,
                                 java.nio.file.StandardOpenOption.TRUNCATE_EXISTING))));
             }
-            catch (Throwable e1)
+            catch (java.nio.file.NoSuchFileException e)
             {
-                result = Result.error(e1);
+                try
+                {
+                    createFolder(rootedFilePath.getParent()).await();
+                    result = Result.success(
+                        new BufferedByteWriteStream(
+                            new OutputStreamToByteWriteStream(
+                                java.nio.file.Files.newOutputStream(
+                                    java.nio.file.Paths.get(rootedFilePath.toString()),
+                                    java.nio.file.StandardOpenOption.CREATE,
+                                    java.nio.file.StandardOpenOption.TRUNCATE_EXISTING))));
+                }
+                catch (Throwable e1)
+                {
+                    result = Result.error(e1);
+                }
             }
-        }
-        catch (Throwable e)
-        {
-            result = Result.error(e);
-        }
+            catch (Throwable e)
+            {
+                result = Result.error(e);
+            }
 
-        PostCondition.assertNotNull(result, "result");
+            PostCondition.assertNotNull(result, "result");
 
-        return result;
+            return result;
+        });
     }
 }

@@ -472,7 +472,7 @@ public class FolderTests
 
     private static Folder getFolder(Test test, String folderPath)
     {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+        final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock(), test::getParallelAsyncRunner);
         fileSystem.createRoot("/").await();
 
         return fileSystem.getFolder(folderPath).await();

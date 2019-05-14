@@ -8,7 +8,7 @@ public class InMemoryFileSystemTests
         {
             FileSystemTests.test(runner, (Test test) ->
             {
-                final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock(), test::getParallelAsyncRunner);
                 fileSystem.createRoot("/");
                 return fileSystem;
             });
@@ -17,14 +17,14 @@ public class InMemoryFileSystemTests
             {
                 runner.test("when root doesn't exist", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock(), test::getParallelAsyncRunner);
                     test.assertThrows(() -> fileSystem.setFileCanDelete("C:\\folder\\file.bmp", true).await(),
                         new FileNotFoundException("C:\\folder\\file.bmp"));
                 });
                 
                 runner.test("when parent folder doesn't exist", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock(), test::getParallelAsyncRunner);
                     test.assertEqual("C:", fileSystem.createRoot("C:\\").await().toString());
                     test.assertThrows(() -> fileSystem.setFileCanDelete("C:\\folder\\file.bmp", true).await(),
                         new FileNotFoundException("C:\\folder\\file.bmp"));
@@ -32,7 +32,7 @@ public class InMemoryFileSystemTests
                 
                 runner.test("when file doesn't exist", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock(), test::getParallelAsyncRunner);
                     test.assertEqual("C:", fileSystem.createRoot("C:\\").await().toString());
                     test.assertEqual("C:/folder", fileSystem.createFolder("C:\\folder").await().toString());
                     test.assertThrows(() -> fileSystem.setFileCanDelete("C:\\folder\\file.bmp", true).await(),
@@ -41,7 +41,7 @@ public class InMemoryFileSystemTests
                 
                 runner.test("when file exists", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock(), test::getParallelAsyncRunner);
                     fileSystem.createRoot("C:\\").await();
                     fileSystem.createFolder("C:\\folder").await();
                     fileSystem.createFile("C:\\folder\\file.bmp").await();
@@ -53,7 +53,7 @@ public class InMemoryFileSystemTests
             {
                 runner.test("when file cannot be deleted", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock(), test::getParallelAsyncRunner);
                     fileSystem.createRoot("Z:/").await();
                     fileSystem.createFile("Z:/file.png").await();
                     fileSystem.setFileCanDelete("Z:/file.png", false).await();
@@ -67,14 +67,14 @@ public class InMemoryFileSystemTests
             {
                 runner.test("when root doesn't exist", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock(), test::getParallelAsyncRunner);
                     test.assertThrows(() -> fileSystem.setFolderCanDelete("C:\\folder\\file.bmp", true).await(),
                         new FolderNotFoundException("C:\\folder\\file.bmp"));
                 });
 
                 runner.test("when parent folder doesn't exist", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock(), test::getParallelAsyncRunner);
                     fileSystem.createRoot("C:\\").await();
                     test.assertThrows(() -> fileSystem.setFolderCanDelete("C:\\folder\\file.bmp", true).await(),
                         new FolderNotFoundException("C:\\folder\\file.bmp"));
@@ -82,7 +82,7 @@ public class InMemoryFileSystemTests
 
                 runner.test("when folder doesn't exist", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock(), test::getParallelAsyncRunner);
                     fileSystem.createRoot("C:\\").await();
                     fileSystem.createFolder("C:\\folder").await();
                     test.assertThrows(() -> fileSystem.setFolderCanDelete("C:\\folder\\file.bmp", true).await(),
@@ -91,7 +91,7 @@ public class InMemoryFileSystemTests
 
                 runner.test("when folder exists", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock(), test::getParallelAsyncRunner);
                     fileSystem.createRoot("C:\\").await();
                     fileSystem.createFolder("C:\\folder\\file.bmp").await();
                     test.assertNull(fileSystem.setFolderCanDelete("C:\\folder\\file.bmp", true).await());
@@ -102,7 +102,7 @@ public class InMemoryFileSystemTests
             {
                 runner.test("when folder cannot be deleted", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock(), test::getParallelAsyncRunner);
                     fileSystem.createRoot("Z:/").await();
                     fileSystem.createFolder("Z:/file.png").await();
                     fileSystem.setFolderCanDelete("Z:/file.png", false).await();
@@ -113,7 +113,7 @@ public class InMemoryFileSystemTests
 
                 runner.test("when child file cannot be deleted", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock(), test::getParallelAsyncRunner);
                     fileSystem.createRoot("Z:/").await();
                     fileSystem.createFolder("Z:/file.png").await();
                     fileSystem.createFile("Z:/file.png/notme").await();
@@ -125,7 +125,7 @@ public class InMemoryFileSystemTests
 
                 runner.test("when child folder cannot be deleted", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock(), test::getParallelAsyncRunner);
                     fileSystem.createRoot("Z:/").await();
                     fileSystem.createFolder("Z:/file.png").await();
                     fileSystem.createFolder("Z:/file.png/notme").await();

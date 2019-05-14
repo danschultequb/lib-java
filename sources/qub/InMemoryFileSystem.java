@@ -5,15 +5,23 @@ package qub;
  */
 public class InMemoryFileSystem implements FileSystem
 {
+    private final Function0<AsyncRunner> asyncRunnerGetter;
     private final List<InMemoryRoot> roots;
     private final Clock clock;
 
-    public InMemoryFileSystem(Clock clock)
+    public InMemoryFileSystem(Clock clock, Function0<AsyncRunner> asyncRunnerGetter)
     {
         PreCondition.assertNotNull(clock, "clock");
+        PreCondition.assertNotNull(asyncRunnerGetter, "asyncRunnerGetter");
 
+        this.asyncRunnerGetter = asyncRunnerGetter;
         roots = List.create();
         this.clock = clock;
+    }
+
+    private AsyncRunner getAsyncRunner()
+    {
+        return asyncRunnerGetter.run();
     }
 
     private InMemoryRoot getInMemoryRoot(String inMemoryRootPath)
@@ -109,7 +117,7 @@ public class InMemoryFileSystem implements FileSystem
     @Override
     public Result<Iterable<Root>> getRoots()
     {
-        return Result.success(roots.map((InMemoryRoot inMemoryRoot) -> new Root(this, inMemoryRoot.getPath())));
+        return getAsyncRunner().schedule(() -> roots.map((InMemoryRoot inMemoryRoot) -> new Root(this, inMemoryRoot.getPath())));
     }
 
     @Override

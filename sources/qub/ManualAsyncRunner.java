@@ -9,11 +9,11 @@ public class ManualAsyncRunner implements AsyncScheduler
     /**
      * The AsyncTasks that have been scheduled to run on this AsyncRunner.
      */
-    private final List<AsyncTask<?>> scheduledTasks;
+    private final Locked<List<AsyncTask<?>>> scheduledTasks;
 
     public ManualAsyncRunner()
     {
-        scheduledTasks = List.create();
+        scheduledTasks = new Locked<>(List.create());
     }
 
     /**
@@ -22,7 +22,7 @@ public class ManualAsyncRunner implements AsyncScheduler
      */
     public Iterable<AsyncTask<?>> getScheduledTasks()
     {
-        return scheduledTasks;
+        return scheduledTasks.get((List<AsyncTask<?>> tasks) -> tasks);
     }
 
     /**
@@ -31,7 +31,7 @@ public class ManualAsyncRunner implements AsyncScheduler
      */
     public int getScheduledTaskCount()
     {
-        return scheduledTasks.getCount();
+        return scheduledTasks.get((List<AsyncTask<?>> tasks) -> tasks.getCount());
     }
 
     @Override
@@ -88,7 +88,10 @@ public class ManualAsyncRunner implements AsyncScheduler
         PreCondition.assertNotNull(task, "task");
         PreCondition.assertFalse(task.isCompleted(), "task.isCompleted()");
 
-        scheduledTasks.add(task);
+        scheduledTasks.get((List<AsyncTask<?>> tasks) ->
+        {
+            tasks.add(task);
+        });
 
         return task;
     }
@@ -100,13 +103,10 @@ public class ManualAsyncRunner implements AsyncScheduler
 
         while (!result.isCompleted())
         {
-            if (scheduledTasks.any())
+            final AsyncTask<?> asyncTask = scheduledTasks.get((List<AsyncTask<?>> tasks) -> tasks.any() ? tasks.removeFirst() : null);
+            if (asyncTask != null)
             {
-                final AsyncTask<?> asyncTask = scheduledTasks.removeFirst();
-                if (!asyncTask.isCompleted())
-                {
-                    asyncTask.run();
-                }
+                asyncTask.run();
             }
         }
     }

@@ -100,7 +100,7 @@ public interface Result<T>
      */
     default Result<T> catchError()
     {
-        return catchError(() -> {});
+        return catchError(() -> (T)null);
     }
 
     /**
