@@ -55,10 +55,11 @@ public class ByteArray extends Array<Byte>
         PreCondition.assertLength(length, startIndex, values.length);
 
         this.values = new byte[length];
-        for (int i = 0; i < length; ++i)
+        for (int writeIndex = 0; writeIndex < length; ++writeIndex)
         {
-            PreCondition.assertByte(values[i], "The " + i + " element");
-            this.values[i] = (byte)values[i];
+            final int readIndex = startIndex + writeIndex;
+            PreCondition.assertByte(values[readIndex], "The " + readIndex + " element");
+            this.values[writeIndex] = (byte)values[readIndex];
         }
     }
 

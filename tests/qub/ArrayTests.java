@@ -724,6 +724,113 @@ public class ArrayTests
                 });
             });
 
+            runner.testGroup("createByte(byte[],int,int)", () ->
+            {
+                runner.test("with null array", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.createByte((byte[])null, 1, 2),
+                        new PreConditionFailure("values cannot be null."));
+                });
+
+                runner.test("with empty array and negative start index", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.createByte(new byte[0], -1, 1),
+                        new PreConditionFailure("startIndex (-1) must be equal to 0."));
+                });
+
+                runner.test("with empty array and too large start index", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.createByte(new byte[0], 1, 2),
+                        new PreConditionFailure("startIndex (1) must be equal to 0."));
+                });
+
+                runner.test("with empty array and negative length", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.createByte(new byte[0], 0, -1),
+                        new PreConditionFailure("length (-1) must be between 1 and 0."));
+                });
+
+                runner.test("with empty array and zero length", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.createByte(new byte[0], 0, 0),
+                        new PreConditionFailure("length (0) must be between 1 and 0."));
+                });
+
+                runner.test("with empty array and too large length", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.createByte(new byte[0], 0, 1),
+                        new PreConditionFailure("length (1) must be between 1 and 0."));
+                });
+
+                runner.test("with one value array and negative start index", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.createByte(new byte[] { 12 }, -1, 1),
+                        new PreConditionFailure("startIndex (-1) must be equal to 0."));
+                });
+
+                runner.test("with one value array and too large start index", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.createByte(new byte[] { 12 }, 1, 1),
+                        new PreConditionFailure("startIndex (1) must be equal to 0."));
+                });
+
+                runner.test("with one value array and negative length", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.createByte(new byte[] { 12 }, 0, -1),
+                        new PreConditionFailure("length (-1) must be equal to 1."));
+                });
+
+                runner.test("with one value array and zero length", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.createByte(new byte[] { 12 }, 0, 0),
+                        new PreConditionFailure("length (0) must be equal to 1."));
+                });
+
+                runner.test("with one value array and too large length", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.createByte(new byte[] { 12 }, 0, 2),
+                        new PreConditionFailure("length (2) must be equal to 1."));
+                });
+
+                runner.test("with one value array and valid startIndex and length", (Test test) ->
+                {
+                    final ByteArray array = Array.createByte(new byte[] { 12 }, 0, 1);
+                    test.assertEqual(1, array.getCount());
+                    test.assertEqual(12, array.get(0).intValue());
+                });
+
+                runner.test("with two value array and negative startIndex", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.createByte(new byte[] { 13, 14 }, -1, 1),
+                        new PreConditionFailure("startIndex (-1) must be between 0 and 1."));
+                });
+
+                runner.test("with two value array and too large startIndex", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.createByte(new byte[] { 13, 14 }, 2, 1),
+                        new PreConditionFailure("startIndex (2) must be between 0 and 1."));
+                });
+
+                runner.test("with two value array and negative length", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.createByte(new byte[] { 13, 14 }, 0, -1),
+                        new PreConditionFailure("length (-1) must be between 1 and 2."));
+                });
+
+                runner.test("with two value array and too large length", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.createByte(new byte[] { 13, 14 }, 0, 3),
+                        new PreConditionFailure("length (3) must be between 1 and 2."));
+                });
+
+                runner.test("with two value array and valid startIndex and length", (Test test) ->
+                {
+                    final ByteArray array = Array.createByte(new byte[] { 13, 14 }, 1, 1);
+                    test.assertEqual(1, array.getCount());
+                    test.assertEqual(14, array.get(0).intValue());
+                });
+            });
+
             runner.testGroup("createByte(int...)", () ->
             {
                 runner.test("with null array", (Test test) ->
@@ -772,6 +879,113 @@ public class ArrayTests
                 {
                     test.assertThrows(() -> Array.createByte(13, 1334),
                         new PreConditionFailure("The 1 element (1334) must be between -128 and 127."));
+                });
+            });
+
+            runner.testGroup("createByte(int[],int,int)", () ->
+            {
+                runner.test("with null array", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.createByte((int[])null, 1, 2),
+                        new PreConditionFailure("values cannot be null."));
+                });
+
+                runner.test("with empty array and negative start index", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.createByte(new int[0], -1, 1),
+                        new PreConditionFailure("startIndex (-1) must be equal to 0."));
+                });
+
+                runner.test("with empty array and too large start index", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.createByte(new int[0], 1, 2),
+                        new PreConditionFailure("startIndex (1) must be equal to 0."));
+                });
+
+                runner.test("with empty array and negative length", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.createByte(new int[0], 0, -1),
+                        new PreConditionFailure("length (-1) must be between 1 and 0."));
+                });
+
+                runner.test("with empty array and zero length", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.createByte(new int[0], 0, 0),
+                        new PreConditionFailure("length (0) must be between 1 and 0."));
+                });
+
+                runner.test("with empty array and too large length", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.createByte(new int[0], 0, 1),
+                        new PreConditionFailure("length (1) must be between 1 and 0."));
+                });
+
+                runner.test("with one value array and negative start index", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.createByte(new int[] { 12 }, -1, 1),
+                        new PreConditionFailure("startIndex (-1) must be equal to 0."));
+                });
+
+                runner.test("with one value array and too large start index", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.createByte(new int[] { 12 }, 1, 1),
+                        new PreConditionFailure("startIndex (1) must be equal to 0."));
+                });
+
+                runner.test("with one value array and negative length", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.createByte(new int[] { 12 }, 0, -1),
+                        new PreConditionFailure("length (-1) must be equal to 1."));
+                });
+
+                runner.test("with one value array and zero length", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.createByte(new int[] { 12 }, 0, 0),
+                        new PreConditionFailure("length (0) must be equal to 1."));
+                });
+
+                runner.test("with one value array and too large length", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.createByte(new int[] { 12 }, 0, 2),
+                        new PreConditionFailure("length (2) must be equal to 1."));
+                });
+
+                runner.test("with one value array and valid startIndex and length", (Test test) ->
+                {
+                    final ByteArray array = Array.createByte(new int[] { 12 }, 0, 1);
+                    test.assertEqual(1, array.getCount());
+                    test.assertEqual(12, array.get(0).intValue());
+                });
+
+                runner.test("with two value array and negative startIndex", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.createByte(new int[] { 13, 14 }, -1, 1),
+                        new PreConditionFailure("startIndex (-1) must be between 0 and 1."));
+                });
+
+                runner.test("with two value array and too large startIndex", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.createByte(new int[] { 13, 14 }, 2, 1),
+                        new PreConditionFailure("startIndex (2) must be between 0 and 1."));
+                });
+
+                runner.test("with two value array and negative length", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.createByte(new int[] { 13, 14 }, 0, -1),
+                        new PreConditionFailure("length (-1) must be between 1 and 2."));
+                });
+
+                runner.test("with two value array and too large length", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.createByte(new int[] { 13, 14 }, 0, 3),
+                        new PreConditionFailure("length (3) must be between 1 and 2."));
+                });
+
+                runner.test("with two value array and valid startIndex and length", (Test test) ->
+                {
+                    final ByteArray array = Array.createByte(new int[] { 13, 14 }, 1, 1);
+                    test.assertEqual(1, array.getCount());
+                    test.assertEqual(14, array.get(0).intValue());
                 });
             });
 
@@ -993,6 +1207,64 @@ public class ArrayTests
                 cloneTest.run(new char[0], 1, 2, null);
                 cloneTest.run(new char[] { 'a', 'b', 'c' }, 0, 3, new char[] { 'a', 'b', 'c' });
                 cloneTest.run(new char[] { 'x', 'y', 'z' }, 1, 1, new char[] { 'y' });
+            });
+
+            runner.testGroup("clone(int[])", () ->
+            {
+                final Action1<int[]> test = (int[] integers) ->
+                {
+                    runner.test("with " + (integers == null ? "null int[]" : ("int[" + integers.length + "]")), test1 ->
+                    {
+                        final int[] clonedIntegers = Array.clone(integers);
+                        if (integers == null || integers.length == 0)
+                        {
+                            test1.assertSame(integers, clonedIntegers);
+                        }
+                        else
+                        {
+                            test1.assertEqual(integers, clonedIntegers);
+                            test1.assertNotSame(integers, clonedIntegers);
+                        }
+                    });
+                };
+
+                test.run(null);
+                test.run(new int[0]);
+                test.run(new int[] { 1 });
+                test.run(new int[] { 1, 2, 3, 4, 5 });
+            });
+
+            runner.testGroup("clone(int[],int,int)", () ->
+            {
+                final Action4<int[],Integer,Integer,int[]> cloneTest = (int[] integers, Integer startIndex, Integer length, int[] expectedIntegers) ->
+                {
+                    runner.test("with " + (integers == null ? "null int[]" : ("int[" + integers.length + "]")) + " at " + startIndex + " for " + length + " length", (Test test) ->
+                    {
+                        final int[] clonedCharacters = Array.clone(integers, startIndex, length);
+                        test.assertEqual(expectedIntegers, clonedCharacters);
+                    });
+                };
+
+                cloneTest.run(null, -1, -2, null);
+                cloneTest.run(null, -1, 0, null);
+                cloneTest.run(null, -1, 2, null);
+                cloneTest.run(null, 0, -2, null);
+                cloneTest.run(null, 0, 0, null);
+                cloneTest.run(null, 0, 2, null);
+                cloneTest.run(null, 1, -2, null);
+                cloneTest.run(null, 1, 0, null);
+                cloneTest.run(null, 1, 2, null);
+                cloneTest.run(new int[0], -1, -2, null);
+                cloneTest.run(new int[0], -1, 0, null);
+                cloneTest.run(new int[0], -1, 2, null);
+                cloneTest.run(new int[0], 0, -2, null);
+                cloneTest.run(new int[0], 0, 0, new int[0]);
+                cloneTest.run(new int[0], 0, 2, new int[0]);
+                cloneTest.run(new int[0], 1, -2, null);
+                cloneTest.run(new int[0], 1, 0, null);
+                cloneTest.run(new int[0], 1, 2, null);
+                cloneTest.run(new int[] { 1, 2, 3 }, 0, 3, new int[] { 1, 2, 3 });
+                cloneTest.run(new int[] { 10, 11, 12 }, 1, 1, new int[] { 11 });
             });
 
             runner.testGroup("copy(byte[],int,byte[],int,int)", () ->
@@ -1299,6 +1571,98 @@ public class ArrayTests
                 copyTest.run(new char[] { 'a' }, 1, new char[] { 'b' }, 1, -1, new char[] { 'b' });
                 copyTest.run(new char[] { 'a' }, 1, new char[] { 'b' }, 1, 0, new char[] { 'b' });
                 copyTest.run(new char[] { 'a' }, 1, new char[] { 'b' }, 1, 1, new char[] { 'b' });
+            });
+
+            runner.testGroup("contains(char[],char)", () ->
+            {
+                runner.test("with null array", (Test test) ->
+                {
+                    test.assertFalse(Array.contains((char[])null, 'a'));
+                });
+
+                runner.test("with empty array", (Test test) ->
+                {
+                    test.assertFalse(Array.contains(new char[0], 'a'));
+                });
+
+                runner.test("with not found value", (Test test) ->
+                {
+                    test.assertFalse(Array.contains(new char[] { 'a', 'b', 'c' }, 'd'));
+                });
+
+                runner.test("with found value", (Test test) ->
+                {
+                    test.assertTrue(Array.contains(new char[] { 'a', 'b' , 'c' }, 'c'));
+                });
+            });
+
+            runner.testGroup("contains(int[],int)", () ->
+            {
+                runner.test("with null array", (Test test) ->
+                {
+                    test.assertFalse(Array.contains((int[])null, 7));
+                });
+
+                runner.test("with empty array", (Test test) ->
+                {
+                    test.assertFalse(Array.contains(new int[0], 7));
+                });
+
+                runner.test("with not found value", (Test test) ->
+                {
+                    test.assertFalse(Array.contains(new int[] { 4, 5, 6 }, 7));
+                });
+
+                runner.test("with found value", (Test test) ->
+                {
+                    test.assertTrue(Array.contains(new int[] { 5, 6, 7 }, 7));
+                });
+            });
+
+            runner.testGroup("contains(long[],long)", () ->
+            {
+                runner.test("with null array", (Test test) ->
+                {
+                    test.assertFalse(Array.contains((long[])null, 7));
+                });
+
+                runner.test("with empty array", (Test test) ->
+                {
+                    test.assertFalse(Array.contains(new long[0], 7));
+                });
+
+                runner.test("with not found value", (Test test) ->
+                {
+                    test.assertFalse(Array.contains(new long[] { 4, 5, 6 }, 7));
+                });
+
+                runner.test("with found value", (Test test) ->
+                {
+                    test.assertTrue(Array.contains(new long[] { 5, 6, 7 }, 7));
+                });
+            });
+
+            runner.testGroup("contains(Object[],Object)", () ->
+            {
+                runner.test("with null array", (Test test) ->
+                {
+                    test.assertFalse(Array.contains((String[])null, "hello"));
+                });
+
+                runner.test("with empty array", (Test test) ->
+                {
+                    test.assertFalse(Array.contains(new String[0], "hello"));
+                });
+
+                runner.test("with not found value", (Test test) ->
+                {
+                    test.assertFalse(Array.contains(new String[] { "hello", "there", "buddy" }, "oops"));
+                });
+
+                runner.test("with found value", (Test test) ->
+                {
+                    test.assertTrue(Array.contains(new String[] { "hello", "there", "buddy" }, "hello"));
+                });
             });
 
             runner.testGroup("mergeBytes(Iterable<byte[]>)", () ->

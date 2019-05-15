@@ -583,9 +583,8 @@ public class ProcessTests
                         builder.redirectOutputTo(output);
                         builder.redirectErrorTo(output);
 
-                        final Folder workingFolder = test.getProcess().getCurrentFolder()
-                            .thenResult((Folder currentFolder) -> currentFolder.createFolder("temp"))
-                            .await();
+                        final Folder currentFolder = test.getProcess().getCurrentFolder().await();
+                        final Folder workingFolder = currentFolder.createFolder("temp2").await();
                         try
                         {
                             builder.setWorkingFolder(workingFolder);
