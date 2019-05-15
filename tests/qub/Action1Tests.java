@@ -10,23 +10,14 @@ public class Action1Tests
             {
                 runner.test("with no arguments", (Test test) ->
                 {
-                    final Action1<String> action = Action1.sequence();
-                    test.assertNotNull(action);
-                    action.run("hello");
+                    test.assertThrows(() -> Action1.sequence(),
+                        new PreConditionFailure("actions cannot be empty."));
                 });
 
                 runner.test("with null argument array", (Test test) ->
                 {
-                    final Action1<String> action = Action1.sequence((Action1<String>[])null);
-                    test.assertNotNull(action);
-                    action.run("hello");
-                });
-
-                runner.test("with empty argument array", (Test test) ->
-                {
-                    final Action1<String> action = Action1.sequence((Action1<String>[])null);
-                    test.assertNotNull(action);
-                    action.run("hello");
+                    test.assertThrows(() -> Action1.sequence((Action1<String>[])null),
+                        new PreConditionFailure("actions cannot be null."));
                 });
 
                 runner.test("with one null argument", (Test test) ->
