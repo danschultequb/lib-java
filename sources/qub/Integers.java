@@ -1,36 +1,32 @@
 package qub;
 
-public final class Integers
+public interface Integers
 {
-    Integers()
-    {
-    }
-
     /**
      * The number of bits in an int/Integer.
      */
-    public static final int bitCount = 32;
+    int bitCount = 32;
 
     /**
      * The number of bytes in an int/Integer.
      */
-    public static final int byteCount = 4;
+    int byteCount = 4;
 
     /**
      * The number of hex characters in an int/Integer.
      */
-    public static final int hexCharCount = 8;
+    int hexCharCount = 8;
 
-    public static final int maximum = Integer.MAX_VALUE;
+    int maximum = java.lang.Integer.MAX_VALUE;
 
-    public static final int minimum = Integer.MIN_VALUE;
+    int minimum = java.lang.Integer.MIN_VALUE;
 
     /**
      * Get whether or not the provided value is zero or null.
      * @param value The value to check.
      * @return Whether or not the provided value is zero or null.
      */
-    public static boolean isZeroOrNull(int value)
+    static boolean isZeroOrNull(int value)
     {
         return value == 0;
     }
@@ -40,32 +36,32 @@ public final class Integers
      * @param value The value to check.
      * @return Whether or not the provided value is zero or null.
      */
-    public static boolean isZeroOrNull(Integer value)
+    static boolean isZeroOrNull(Integer value)
     {
         return value == null || value == 0;
     }
 
-    public static boolean equal(int lhs, int rhs)
+    static boolean equal(int lhs, int rhs)
     {
         return lhs == rhs;
     }
 
-    public static boolean equal(Integer lhs, Integer rhs)
+    static boolean equal(Integer lhs, Integer rhs)
     {
         return Comparer.equal(lhs, rhs);
     }
 
-    public static boolean lessThan(int lhs, int rhs)
+    static boolean lessThan(int lhs, int rhs)
     {
         return lhs < rhs;
     }
 
-    public static boolean lessThan(Integer lhs, Integer rhs)
+    static boolean lessThan(Integer lhs, Integer rhs)
     {
         return compare(lhs, rhs) == Comparison.LessThan;
     }
 
-    public static boolean lessThanOrEqualTo(Integer lhs, Integer rhs)
+    static boolean lessThanOrEqualTo(Integer lhs, Integer rhs)
     {
         return compare(lhs, rhs) != Comparison.GreaterThan;
     }
@@ -76,7 +72,7 @@ public final class Integers
      * @param rhs The second int to compare.
      * @return The comparison of the two ints.
      */
-    public static Comparison compare(int lhs, int rhs)
+    static Comparison compare(int lhs, int rhs)
     {
         return Comparison.from(lhs - rhs);
     }
@@ -87,7 +83,7 @@ public final class Integers
      * @param rhs The second Integer to compare.
      * @return The comparison of the two Integers.
      */
-    public static Comparison compare(Integer lhs, Integer rhs)
+    static Comparison compare(Integer lhs, Integer rhs)
     {
         return lhs == rhs ? Comparison.Equal :
                 lhs == null ? Comparison.LessThan :
@@ -100,7 +96,7 @@ public final class Integers
      * @param value The value to rotate.
      * @return The rotated value.
      */
-    public static int rotateLeft(int value)
+    static int rotateLeft(int value)
     {
         return rotateLeft(value, 1);
     }
@@ -111,7 +107,7 @@ public final class Integers
      * @param places The number of bit places to rotate to the left.
      * @return The rotated value.
      */
-    public static int rotateLeft(int value, int places)
+    static int rotateLeft(int value, int places)
     {
         int result = value;
 
@@ -133,7 +129,7 @@ public final class Integers
      * @param value The value to rotate.
      * @return The rotated value.
      */
-    public static int rotateRight(int value)
+    static int rotateRight(int value)
     {
         return rotateRight(value, 1);
     }
@@ -144,7 +140,7 @@ public final class Integers
      * @param places The number of bit places to rotate to the right.
      * @return The rotated value.
      */
-    public static int rotateRight(int value, int places)
+    static int rotateRight(int value, int places)
     {
         return rotateLeft(value, -places);
     }
@@ -154,7 +150,7 @@ public final class Integers
      * @param value The value.
      * @return The String representation of the provided value.
      */
-    public static String toString(int value)
+    static String toString(int value)
     {
         return java.lang.Integer.toString(value);
     }
@@ -164,19 +160,19 @@ public final class Integers
      * @param value The value.
      * @return The String representation of the provided value.
      */
-    public static String toString(java.lang.Integer value)
+    static String toString(java.lang.Integer value)
     {
         PreCondition.assertNotNull(value, "value");
 
         return java.lang.Integer.toString(value);
     }
 
-    public static String toHexString(int value)
+    static String toHexString(int value)
     {
         return toHexString(value, false);
     }
 
-    public static String toHexString(int value, boolean trimLeadingZeros)
+    static String toHexString(int value, boolean trimLeadingZeros)
     {
         final StringBuilder builder = new StringBuilder(hexCharCount);
         if (trimLeadingZeros)
@@ -199,7 +195,7 @@ public final class Integers
         return builder.toString();
     }
 
-    public static int fromHexString(String hexString)
+    static int fromHexString(String hexString)
     {
         PreCondition.assertNotNullAndNotEmpty(hexString, "hexString");
         PreCondition.assertBetween(1, hexString.length(), hexCharCount, "hexString.length()");
@@ -216,7 +212,7 @@ public final class Integers
         return result;
     }
 
-    public static int fromHexChar(char hexChar)
+    static int fromHexChar(char hexChar)
     {
         PreCondition.assertOneOf(hexChar, new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'A', 'b', 'B', 'c', 'C', 'd', 'D', 'e', 'E', 'f', 'F' }, "hexChar");
 
@@ -241,7 +237,7 @@ public final class Integers
      * @param text The text to parse.
      * @return The parsed Integer.
      */
-    public static Result<Integer> parse(String text)
+    static Result<Integer> parse(String text)
     {
         PreCondition.assertNotNullAndNotEmpty(text, "text");
 
@@ -254,14 +250,14 @@ public final class Integers
      * @param bitIndex The bitIndex (where 0 is the most significant bit digit).
      * @return The bit at the provided bitIndex.
      */
-    public static int getBit(int value, int bitIndex)
+    static int getBit(int value, int bitIndex)
     {
         PreCondition.assertBetween(0, bitIndex, Integers.bitCount - 1, "bitIndex");
 
         return (value >>> ((Integers.bitCount - 1) - bitIndex)) & 0x1;
     }
 
-    public static int getBits(int value, int startIndex, int length)
+    static int getBits(int value, int startIndex, int length)
     {
         PreCondition.assertBetween(0, startIndex, Integers.bitCount - 1, "startIndex");
         PreCondition.assertBetween(1, length, Integers.bitCount - startIndex, "length");
@@ -281,7 +277,7 @@ public final class Integers
      * @preCondition 0 <= bitIndex <= Integer.SIZE - 1
      * @preCondition bit == 0 || bit == 1
      */
-    public static int setBit(int value, int bitIndex, int bit)
+    static int setBit(int value, int bitIndex, int bit)
     {
         PreCondition.assertBetween(0, bitIndex, Integer.SIZE - 1, "bitIndex");
         PreCondition.assertOneOf(bit, new int[] { 0, 1 }, "value");
@@ -298,7 +294,7 @@ public final class Integers
         return value;
     }
 
-    private static final int[] allOnExceptMasks = new int[]
+    int[] allOnExceptMasks = new int[]
     {
         0x7FFFFFFF,
         0xBFFFFFFF,
@@ -333,14 +329,14 @@ public final class Integers
         0xFFFFFFFD,
         0xFFFFFFFE
     };
-    private static int getAllOnExceptMask(int bitOffset)
+    static int getAllOnExceptMask(int bitOffset)
     {
         PreCondition.assertBetween(0, bitOffset, Integer.SIZE - 1, "bitOffset");
 
         return allOnExceptMasks[bitOffset];
     }
 
-    private static final int[] allOffExceptMasks = new int[]
+    int[] allOffExceptMasks = new int[]
     {
         0x80000000,
         0x40000000,
@@ -375,7 +371,7 @@ public final class Integers
         0x00000002,
         0x00000001
     };
-    private static int getAllOffExceptMask(int bitOffset)
+    static int getAllOffExceptMask(int bitOffset)
     {
         PreCondition.assertBetween(0, bitOffset, Integer.SIZE - 1, "bitOffset");
 

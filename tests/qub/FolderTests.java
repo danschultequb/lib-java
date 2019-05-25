@@ -1,8 +1,8 @@
 package qub;
 
-public class FolderTests
+public interface FolderTests
 {
-    public static void test(final TestRunner runner)
+    static void test(final TestRunner runner)
     {
         runner.testGroup(Folder.class, () ->
         {
@@ -465,14 +465,14 @@ public class FolderTests
         });
     }
 
-    private static Folder getFolder(Test test)
+    static Folder getFolder(Test test)
     {
         return getFolder(test, "/test/folder");
     }
 
-    private static Folder getFolder(Test test, String folderPath)
+    static Folder getFolder(Test test, String folderPath)
     {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock(), test::getParallelAsyncRunner);
+        final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
         fileSystem.createRoot("/").await();
 
         return fileSystem.getFolder(folderPath).await();

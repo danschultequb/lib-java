@@ -26,7 +26,7 @@ public class LongsTests
 
                 runner.test("with negative long number", (Test test) ->
                 {
-                    test.assertEqual(Longs.minimumValue, Longs.parse(Longs.toString(Longs.minimumValue)).await());
+                    test.assertEqual(Longs.minimum, Longs.parse(Longs.toString(Longs.minimum)).await());
                 });
 
                 runner.test("with negative integer number", (Test test) ->
@@ -51,7 +51,7 @@ public class LongsTests
 
                 runner.test("with positive long number", (Test test) ->
                 {
-                    test.assertEqual(Longs.maximumValue, Longs.parse(Longs.toString(Longs.maximumValue)).await());
+                    test.assertEqual(Longs.maximum, Longs.parse(Longs.toString(Longs.maximum)).await());
                 });
             });
         });

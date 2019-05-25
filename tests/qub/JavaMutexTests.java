@@ -1,8 +1,8 @@
 package qub;
 
-public class JavaMutexTests
+public interface JavaMutexTests
 {
-    public static void test(TestRunner runner)
+    static void test(TestRunner runner)
     {
         runner.testGroup(JavaMutex.class, () ->
         {
@@ -11,7 +11,7 @@ public class JavaMutexTests
             runner.test("constructor()", (Test test) ->
             {
                 final JavaMutex mutex = new JavaMutex();
-                test.assertNull(mutex.getClock());
+                test.assertFalse(mutex.isAcquired());
             });
         });
     }

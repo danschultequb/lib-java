@@ -1,21 +1,15 @@
 package qub;
 
-import java.math.RoundingMode;
-
 /**
  * A collection of math related functions and function objects.
  */
-public class Math {
-    Math()
-    {
-    }
-
+public interface Math {
     /**
      * Get the absolute (positive) value of the provided value.
      * @param value The value to get the absolute (positive) value for.
      * @return The absolute (positive) value of the provided value.
      */
-    public static double absoluteValue(double value)
+    static double absoluteValue(double value)
     {
         return value < 0 ? -value : value;
     }
@@ -26,7 +20,7 @@ public class Math {
      * @param rhs The second value.
      * @return The minimum value between the two provided integers.
      */
-    public static int minimum(int lhs, int rhs)
+    static int minimum(int lhs, int rhs)
     {
         return lhs < rhs ? lhs : rhs;
     }
@@ -37,7 +31,7 @@ public class Math {
      * @param rhs The second value.
      * @return The minimum value between the two provided long integers.
      */
-    public static long minimum(long lhs, long rhs)
+    static long minimum(long lhs, long rhs)
     {
         return lhs < rhs ? lhs : rhs;
     }
@@ -48,7 +42,7 @@ public class Math {
      * @param rhs The second value.
      * @return The minimum value between the two provided integers.
      */
-    public static int maximum(int lhs, int rhs)
+    static int maximum(int lhs, int rhs)
     {
         return lhs > rhs ? lhs : rhs;
     }
@@ -60,7 +54,7 @@ public class Math {
      * @param upperBound The upper bound that value cannot be above.
      * @return The clipped value.
      */
-    public static int clip(int lowerBound, int value, int upperBound)
+    static int clip(int lowerBound, int value, int upperBound)
     {
         int result;
         if (value < lowerBound)
@@ -83,7 +77,7 @@ public class Math {
      * @param value The value to check.
      * @return Whether or not the provided value is odd.
      */
-    public static boolean isOdd(int value)
+    static boolean isOdd(int value)
     {
         return value % 2 != 0;
     }
@@ -93,7 +87,7 @@ public class Math {
      * @param value The value to check.
      * @return Whether or not the provided value is even.
      */
-    public static boolean isEven(int value)
+    static boolean isEven(int value)
     {
         return value % 2 == 0;
     }
@@ -104,7 +98,7 @@ public class Math {
      * @param value The value.
      * @return The ceiling of the value.
      */
-    public static double ceiling(double value)
+    static double ceiling(double value)
     {
         return java.lang.Math.ceil(value);
     }
@@ -115,7 +109,7 @@ public class Math {
      * @param value The value.
      * @return The floor of the value.
      */
-    public static double floor(double value)
+    static double floor(double value)
     {
         return java.lang.Math.floor(value);
     }
@@ -125,7 +119,7 @@ public class Math {
      * @param value The value to round.
      * @return The rounded value.
      */
-    public static double round(double value)
+    static double round(double value)
     {
         return java.lang.Math.round(value);
     }
@@ -136,7 +130,7 @@ public class Math {
      * @param scale The scale value to round the value to.
      * @return The rounded value.
      */
-    public static double round(double value, double scale)
+    static double round(double value, double scale)
     {
         return round(value / scale) * scale;
     }
@@ -147,7 +141,7 @@ public class Math {
      * @param scale The divisor value.
      * @return The remainder value.
      */
-    public static int modulo(int value, int scale)
+    static int modulo(int value, int scale)
     {
         PreCondition.assertNotEqual(0, scale, "scale");
 
@@ -172,7 +166,7 @@ public class Math {
      * @param scale The divisor value.
      * @return The remainder value.
      */
-    public static long modulo(long value, long scale)
+    static long modulo(long value, long scale)
     {
         PreCondition.assertNotEqual(0, scale, "scale");
 
@@ -189,5 +183,33 @@ public class Math {
         PostCondition.assertBetween(0, result, scale, "result");
 
         return result;
+    }
+
+    /**
+     * Get the summation of all of the numbers from 1 to the provided upperBound. The upperBound
+     * must be between 0 and 46340 (floor of the square root of 2147483647, which is the maximum
+     * positive value for a 32-bit integer).
+     * @param upperBound The upperBound of the summation.
+     * @return The summation of all of the numbers from 1 to the provided upperBound.
+     */
+    static int summation(int upperBound)
+    {
+        PreCondition.assertBetween(0, upperBound, 46340, "upperBound");
+
+        return (upperBound * (upperBound + 1)) / 2;
+    }
+
+    /**
+     * Get the summation of all of the numbers from 1 to the provided upperBound. The upperBound
+     * must be between 0 and 3037000499 (floor of the square root of 9223372036854775807, which is
+     * the maximum positive value for a 64-bit integer).
+     * @param upperBound The upperBound of the summation.
+     * @return The summation of all of the numbers from 1 to the provided upperBound.
+     */
+    static long summation(long upperBound)
+    {
+        PreCondition.assertBetween(0, upperBound, 3037000499L, "upperBound");
+
+        return (upperBound * (upperBound + 1)) / 2;
     }
 }

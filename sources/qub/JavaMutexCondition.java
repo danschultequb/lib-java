@@ -3,18 +3,17 @@ package qub;
 public class JavaMutexCondition implements MutexCondition
 {
     private final JavaMutex mutex;
+    private final Clock clock;
     private final java.util.concurrent.locks.Condition condition;
 
-    public JavaMutexCondition(JavaMutex mutex, java.util.concurrent.locks.Condition condition)
+    public JavaMutexCondition(JavaMutex mutex, Clock clock, java.util.concurrent.locks.Condition condition)
     {
-        this.mutex = mutex;
-        this.condition = condition;
-    }
+        PreCondition.assertNotNull(mutex, "mutex");
+        PreCondition.assertNotNull(condition, "condition");
 
-    @Override
-    public Clock getClock()
-    {
-        return mutex.getClock();
+        this.mutex = mutex;
+        this.clock = clock;
+        this.condition = condition;
     }
 
     @Override
@@ -41,9 +40,10 @@ public class JavaMutexCondition implements MutexCondition
         PreCondition.assertNotNull(timeout, "timeout");
         PreCondition.assertGreaterThan(timeout, Duration.zero, "timeout");
         PreCondition.assertTrue(mutex.isAcquiredByCurrentThread(), "mutex.isAcquiredByCurrentThread()");
-        PreCondition.assertNotNull(getClock(), "getClock()");
+        PreCondition.assertNotNull(clock, "clock");
 
-        return await(getClock().getCurrentDateTime().plus(timeout));
+        final DateTime dateTimeTimeout = clock.getCurrentDateTime().plus(timeout);
+        return await(dateTimeTimeout);
     }
 
     @Override
@@ -51,9 +51,7 @@ public class JavaMutexCondition implements MutexCondition
     {
         PreCondition.assertNotNull(timeout, "timeout");
         PreCondition.assertTrue(mutex.isAcquiredByCurrentThread(), "mutex.isAcquiredByCurrentThread()");
-        PreCondition.assertNotNull(getClock(), "getClock()");
-
-        final Clock clock = getClock();
+        PreCondition.assertNotNull(clock, "clock");
 
         Result<Void> result = null;
         while (result == null)

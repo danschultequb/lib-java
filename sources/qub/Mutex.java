@@ -7,12 +7,6 @@ package qub;
 public interface Mutex
 {
     /**
-     * The Clock that will be utilized for operations with timeouts.
-     * @return The Clock that will be utilized for operations with timeouts.
-     */
-    Clock getClock();
-
-    /**
      * Get whether or not this Mutex is currently acquired.
      * @return Whether or not this Mutex is currently acquired.
      */
@@ -34,51 +28,13 @@ public interface Mutex
      * Acquire this mutex. If the mutex is already acquired, this thread will block until the owning
      * thread releases this mutex and this thread acquires the mutex.
      */
-    default Result<Void> acquire(Duration durationTimeout)
-    {
-        PreCondition.assertNotNull(durationTimeout, "durationTimeout");
-        PreCondition.assertGreaterThan(durationTimeout, Duration.zero, "durationTimeout");
-        PreCondition.assertNotNull(getClock(), "getClock()");
-
-        final DateTime dateTimeTimeout = getClock().getCurrentDateTime().plus(durationTimeout);
-        return acquire(dateTimeTimeout);
-    }
+    Result<Void> acquire(Duration durationTimeout);
 
     /**
      * Acquire this mutex. If the mutex is already acquired, this thread will block until the owning
      * thread releases this mutex and this thread acquires the mutex.
      */
-    default Result<Void> acquire(DateTime dateTimeTimeout)
-    {
-        PreCondition.assertNotNull(dateTimeTimeout, "dateTimeTimeout");
-        PreCondition.assertNotNull(getClock(), "getClock()");
-
-        final Clock clock = getClock();
-
-        Result<Void> result;
-        try
-        {
-            while (true)
-            {
-                if (clock.getCurrentDateTime().greaterThanOrEqualTo(dateTimeTimeout))
-                {
-                    result = Result.error(new TimeoutException());
-                    break;
-                }
-                else if (tryAcquire().await())
-                {
-                    result = Result.success();
-                    break;
-                }
-            }
-        }
-        catch (Throwable error)
-        {
-            result = Result.error(error);
-        }
-
-        return result;
-    }
+    Result<Void> acquire(DateTime dateTimeTimeout);
 
     /**
      * Attempt to acquire this SpinMutex and return whether or not it was acquired.
@@ -120,16 +76,7 @@ public interface Mutex
      * Mutex when the action completes.
      * @param action The action to run after acquiring this Mutex.
      */
-    default Result<Void> criticalSection(Duration durationTimeout, Action0 action)
-    {
-        PreCondition.assertNotNull(durationTimeout, "durationTimeout");
-        PreCondition.assertGreaterThan(durationTimeout, Duration.zero, "durationTimeout");
-        PreCondition.assertNotNull(action, "action");
-        PreCondition.assertNotNull(getClock(), "getClock()");
-
-        final DateTime dateTimeTimeout = getClock().getCurrentDateTime().plus(durationTimeout);
-        return criticalSection(dateTimeTimeout, action);
-    }
+    Result<Void> criticalSection(Duration durationTimeout, Action0 action);
 
     /**
      * Run the provided action after this Mutex has been acquired and automatically release the
@@ -140,7 +87,6 @@ public interface Mutex
     {
         PreCondition.assertNotNull(dateTimeTimeout, "dateTimeTimeout");
         PreCondition.assertNotNull(action, "action");
-        PreCondition.assertNotNull(getClock(), "getClock()");
 
         return Result.create(() ->
         {
@@ -188,15 +134,7 @@ public interface Mutex
      * @param durationTimeout The maximum amount of time to wait for this criticalSection.
      * @param function The function to run after acquiring this Mutex.
      */
-    default <T> Result<T> criticalSection(Duration durationTimeout, Function0<T> function)
-    {
-        PreCondition.assertGreaterThan(durationTimeout, Duration.zero, "durationTimeout");
-        PreCondition.assertNotNull(function, "function");
-        PreCondition.assertNotNull(getClock(), "getClock()");
-
-        final DateTime dateTimeTimeout = getClock().getCurrentDateTime().plus(durationTimeout);
-        return criticalSection(dateTimeTimeout, function);
-    }
+    <T> Result<T> criticalSection(Duration durationTimeout, Function0<T> function);
 
     /**
      * Run the provided action after this Mutex has been acquired and automatically release the
@@ -208,7 +146,6 @@ public interface Mutex
     {
         PreCondition.assertNotNull(dateTimeTimeout, "dateTimeTimeout");
         PreCondition.assertNotNull(function, "function");
-        PreCondition.assertNotNull(getClock(), "getClock()");
 
         return criticalSectionResult(dateTimeTimeout, () -> Result.success(function.run()));
     }
@@ -219,16 +156,7 @@ public interface Mutex
      * @param durationTimeout The maximum amount of time to wait for this criticalSection.
      * @param function The function to run after acquiring this Mutex.
      */
-    default <T> Result<T> criticalSectionResult(Duration durationTimeout, Function0<Result<T>> function)
-    {
-        PreCondition.assertNotNull(durationTimeout, "durationTimeout");
-        PreCondition.assertGreaterThan(durationTimeout, Duration.zero, "durationTimeout");
-        PreCondition.assertNotNull(function, "function");
-        PreCondition.assertNotNull(getClock(), "getClock()");
-
-        final DateTime dateTimeTimeout = getClock().getCurrentDateTime().plus(durationTimeout);
-        return criticalSectionResult(dateTimeTimeout, function);
-    }
+    <T> Result<T> criticalSectionResult(Duration durationTimeout, Function0<Result<T>> function);
 
     /**
      * Run the provided action after this Mutex has been acquired and automatically release the
@@ -240,7 +168,6 @@ public interface Mutex
     {
         PreCondition.assertNotNull(dateTimeTimeout, "dateTimeTimeout");
         PreCondition.assertNotNull(function, "function");
-        PreCondition.assertNotNull(getClock(), "getClock()");
 
         return acquire(dateTimeTimeout)
             .thenResult(() ->

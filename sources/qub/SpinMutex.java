@@ -1,7 +1,5 @@
 package qub;
 
-import java.util.concurrent.atomic.AtomicLong;
-
 /**
  * A mutex/lock that can be used to synchronize access to shared resources between multiple threads.
  * This lock uses an atomic variable to synchronize access to shared resources, and as such doesn't
@@ -9,8 +7,8 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class SpinMutex implements Mutex
 {
-    private final AtomicLong acquiredByThreadId;
-    private final AtomicLong acquiredCount;
+    private final java.util.concurrent.atomic.AtomicLong acquiredByThreadId;
+    private final java.util.concurrent.atomic.AtomicLong acquiredCount;
     private final Clock clock;
 
     public SpinMutex()
@@ -23,21 +21,11 @@ public class SpinMutex implements Mutex
      */
     public SpinMutex(Clock clock)
     {
-        acquiredByThreadId = new AtomicLong(-1);
-        acquiredCount = new AtomicLong(0);
+        acquiredByThreadId = new java.util.concurrent.atomic.AtomicLong(-1);
+        acquiredCount = new java.util.concurrent.atomic.AtomicLong(0);
         this.clock = clock;
     }
 
-    @Override
-    public Clock getClock()
-    {
-        return clock;
-    }
-
-    /**
-     * Get whether or not this SpinMutex is currently acquired.
-     * @return Whether or not this SpinMutex is currently acquired.
-     */
     @Override
     public boolean isAcquired()
     {
@@ -50,10 +38,6 @@ public class SpinMutex implements Mutex
         return acquiredByThreadId.get() == Thread.currentThread().getId();
     }
 
-    /**
-     * Acquire this mutex. If the mutex is already acquired, this thread will block until the owning
-     * thread releases this mutex and this thread acquires the mutex.
-     */
     @Override
     public Result<Void> acquire()
     {
@@ -72,10 +56,43 @@ public class SpinMutex implements Mutex
         return Result.success();
     }
 
-    /**
-     * Attempt to acquire this SpinMutex and return whether or not it was acquired.
-     * @return Whether or not the SpinMutex was acquired.
-     */
+    @Override
+    public Result<Void> acquire(Duration durationTimeout)
+    {
+        PreCondition.assertNotNull(durationTimeout, "durationTimeout");
+        PreCondition.assertGreaterThan(durationTimeout, Duration.zero, "durationTimeout");
+        PreCondition.assertNotNull(clock, "clock");
+
+        final DateTime dateTimeTimeout = clock.getCurrentDateTime().plus(durationTimeout);
+        return acquire(dateTimeTimeout);
+    }
+
+    @Override
+    public Result<Void> acquire(DateTime dateTimeTimeout)
+    {
+        PreCondition.assertNotNull(dateTimeTimeout, "dateTimeTimeout");
+        PreCondition.assertNotNull(clock, "clock");
+
+        Result<Void> result;
+        while (true)
+        {
+            if (clock.getCurrentDateTime().greaterThanOrEqualTo(dateTimeTimeout))
+            {
+                result = Result.error(new TimeoutException());
+                break;
+            }
+            else if (tryAcquire().await())
+            {
+                result = Result.success();
+                break;
+            }
+        }
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
     @Override
     public Result<Boolean> tryAcquire()
     {
@@ -88,10 +105,6 @@ public class SpinMutex implements Mutex
         return Result.success(acquired);
     }
 
-    /**
-     * Release this SpinMutex so that other threads can acquire it.
-     * @return Whether or not this SpinMutex was released.
-     */
     @Override
     public Result<Void> release()
     {
@@ -107,8 +120,43 @@ public class SpinMutex implements Mutex
     }
 
     @Override
+    public Result<Void> criticalSection(Duration durationTimeout, Action0 action)
+    {
+        PreCondition.assertNotNull(durationTimeout, "durationTimeout");
+        PreCondition.assertGreaterThan(durationTimeout, Duration.zero, "durationTimeout");
+        PreCondition.assertNotNull(action, "action");
+        PreCondition.assertNotNull(clock, "clock");
+
+        final DateTime dateTimeTimeout = clock.getCurrentDateTime().plus(durationTimeout);
+        return criticalSection(dateTimeTimeout, action);
+    }
+
+    @Override
+    public <T> Result<T> criticalSection(Duration durationTimeout, Function0<T> function)
+    {
+        PreCondition.assertGreaterThan(durationTimeout, Duration.zero, "durationTimeout");
+        PreCondition.assertNotNull(function, "function");
+        PreCondition.assertNotNull(clock, "clock");
+
+        final DateTime dateTimeTimeout = clock.getCurrentDateTime().plus(durationTimeout);
+        return criticalSection(dateTimeTimeout, function);
+    }
+
+    @Override
+    public <T> Result<T> criticalSectionResult(Duration durationTimeout, Function0<Result<T>> function)
+    {
+        PreCondition.assertNotNull(durationTimeout, "durationTimeout");
+        PreCondition.assertGreaterThan(durationTimeout, Duration.zero, "durationTimeout");
+        PreCondition.assertNotNull(function, "function");
+        PreCondition.assertNotNull(clock, "clock");
+
+        final DateTime dateTimeTimeout = clock.getCurrentDateTime().plus(durationTimeout);
+        return criticalSectionResult(dateTimeTimeout, function);
+    }
+
+    @Override
     public MutexCondition createCondition()
     {
-        return new SpinMutexCondition(this);
+        return new SpinMutexCondition(this, clock);
     }
 }

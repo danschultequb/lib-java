@@ -183,7 +183,7 @@ public class FileTests
 
     private static FileSystem getFileSystem(Test test)
     {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock(), test::getParallelAsyncRunner);
+        final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
         fileSystem.createRoot("/").await();
         return fileSystem;
     }

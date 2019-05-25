@@ -246,7 +246,7 @@ public class ProcessTests
                 runner.test("with non-null", (Test test) ->
                 {
                     final Process process = creator.run();
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock(), test::getParallelAsyncRunner);
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     process.setFileSystem(fileSystem);
                     test.assertSame(fileSystem, process.getFileSystem());
                 });

@@ -1,42 +1,38 @@
 package qub;
 
-public class Longs
+public interface Longs
 {
-    Longs()
-    {
-    }
-
     /**
      * The smallest number that a long can hold.
      */
-    public static final long minimumValue = Long.MIN_VALUE;
+    long minimum = java.lang.Long.MIN_VALUE;
 
     /**
      * The largest number that a long can hold.
      */
-    public static final long maximumValue = Long.MAX_VALUE;
+    long maximum = java.lang.Long.MAX_VALUE;
 
     /**
      * The number of bits in a short.
      */
-    public static final int bitCount = 64;
+    int bitCount = 64;
 
     /**
      * The number of bytes in a short.
      */
-    public static final int byteCount = 8;
+    int byteCount = 8;
 
     /**
      * The number of hex characters in a short.
      */
-    public static final int hexCharCount = 16;
+    int hexCharCount = 16;
 
     /**
      * Get the string representation of the provided long.
      * @param value The value to convert to a String.
      * @return The string representation of the provided long.
      */
-    public static String toString(long value)
+    static String toString(long value)
     {
         return java.lang.Long.toString(value);
     }
@@ -46,7 +42,7 @@ public class Longs
      * @param value The value to convert to a String.
      * @return The string representation of the provided long.
      */
-    public static String toString(java.lang.Long value)
+    static String toString(java.lang.Long value)
     {
         PreCondition.assertNotNull(value, "value");
 
@@ -58,7 +54,7 @@ public class Longs
      * @param value The value to convert to a hex string.
      * @return The hex string for the provided long.
      */
-    public static String toHexString(long value)
+    static String toHexString(long value)
     {
         return toHexString(value, false);
     }
@@ -69,7 +65,7 @@ public class Longs
      * @param trimLeadingZeros Whether or not leading zeros will be trimmed away.
      * @return The hex string for the provided long.
      */
-    public static String toHexString(long value, boolean trimLeadingZeros)
+    static String toHexString(long value, boolean trimLeadingZeros)
     {
         final StringBuilder builder = new StringBuilder(hexCharCount);
         if (trimLeadingZeros)
@@ -92,7 +88,7 @@ public class Longs
         return builder.toString();
     }
 
-    public static Result<Long> parse(String value)
+    static Result<Long> parse(String value)
     {
         PreCondition.assertNotNullAndNotEmpty(value, "value");
 

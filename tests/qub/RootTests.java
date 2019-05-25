@@ -1,8 +1,8 @@
 package qub;
 
-public class RootTests
+public interface RootTests
 {
-    public static void test(final TestRunner runner)
+    static void test(final TestRunner runner)
     {
         runner.testGroup(Root.class, () ->
         {
@@ -570,30 +570,30 @@ public class RootTests
         });
     }
 
-    private static InMemoryFileSystem getFileSystem(Test test)
+    static InMemoryFileSystem getFileSystem(Test test)
     {
-        final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock(), test::getParallelAsyncRunner);
+        final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
         fileSystem.createRoot("/").await();
         return fileSystem;
     }
 
-    private static Root getRoot(Test test)
+    static Root getRoot(Test test)
     {
         return getRoot(test, "/");
     }
 
-    private static Root getRoot(Test test, String rootPath)
+    static Root getRoot(Test test, String rootPath)
     {
         final InMemoryFileSystem fileSystem = getFileSystem(test);
         return getRoot(fileSystem, rootPath);
     }
 
-    private static Root getRoot(FileSystem fileSystem)
+    static Root getRoot(FileSystem fileSystem)
     {
         return getRoot(fileSystem, "/");
     }
 
-    private static Root getRoot(FileSystem fileSystem, String rootPath)
+    static Root getRoot(FileSystem fileSystem, String rootPath)
     {
         return fileSystem.getRoot(rootPath).await();
     }

@@ -3,12 +3,6 @@ package qub;
 public interface MutexCondition
 {
     /**
-     * Get the Clock that this object will use for time-based operations.
-     * @return The Clock that this object will use for time-based operations.
-     */
-    Clock getClock();
-
-    /**
      * Release this condition's mutex and wait to be signaled that this condition is satisfied.
      * @return The result of awaiting for this condition.
      */

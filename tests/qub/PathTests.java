@@ -1,8 +1,8 @@
 package qub;
 
-public class PathTests
+public interface PathTests
 {
-    public static void test(TestRunner runner)
+    static void test(TestRunner runner)
     {
         runner.testGroup(Path.class, () ->
         {
@@ -401,7 +401,7 @@ public class PathTests
                     {
                         final Path path = Path.parse(pathString);
 
-                        final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock(), test::getParallelAsyncRunner);
+                        final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                         final Folder folder = fileSystem.getFolder(basePathString).await();
                         test.assertEqual(Path.parse(expectedPathString), path.relativeTo(folder));
                     });

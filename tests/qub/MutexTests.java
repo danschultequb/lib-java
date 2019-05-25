@@ -1,8 +1,8 @@
 package qub;
 
-public class MutexTests
+public interface MutexTests
 {
-    public static void test(TestRunner runner, Function1<Clock,Mutex> creator)
+    static void test(TestRunner runner, Function1<Clock,Mutex> creator)
     {
         runner.testGroup(Mutex.class, () ->
         {
@@ -10,6 +10,79 @@ public class MutexTests
             {
                 final Mutex mutex = create(creator);
                 test.assertFalse(mutex.isAcquired());
+                test.assertFalse(mutex.isAcquiredByCurrentThread());
+            });
+
+            runner.testGroup("isAcquired()", () ->
+            {
+                runner.test("when not acquired", (Test test) ->
+                {
+                    final Mutex mutex = create(creator);
+                    test.assertFalse(mutex.isAcquired());
+                });
+
+                runner.test("when acquired by current thread", (Test test) ->
+                {
+                    final Mutex mutex = create(creator);
+                    mutex.acquire().await();
+                    test.assertTrue(mutex.isAcquired());
+                });
+
+                runner.test("when acquired by non-current thread", (Test test) ->
+                {
+                    final Mutex mutex = create(creator);
+
+                    final Gate mutexAcquired = new SpinGate(false);
+                    final Gate isAcquiredChecked = new SpinGate(false);
+
+                    final Result<Void> task = test.getParallelAsyncRunner().schedule(() ->
+                    {
+                        mutex.acquire().await();
+                        mutexAcquired.open();
+                        isAcquiredChecked.passThrough();
+                    });
+
+                    mutexAcquired.passThrough();
+                    test.assertTrue(mutex.isAcquired());
+                    isAcquiredChecked.open();
+                    task.await();
+                });
+            });
+
+            runner.testGroup("isAcquiredByCurrentThread()", () ->
+            {
+                runner.test("when not acquired", (Test test) ->
+                {
+                    final Mutex mutex = create(creator);
+                    test.assertFalse(mutex.isAcquiredByCurrentThread());
+                });
+
+                runner.test("when acquired by current thread", (Test test) ->
+                {
+                    final Mutex mutex = create(creator);
+                    mutex.acquire().await();
+                    test.assertTrue(mutex.isAcquiredByCurrentThread());
+                });
+
+                runner.test("when acquired by non-current thread", (Test test) ->
+                {
+                    final Mutex mutex = create(creator);
+
+                    final Gate mutexAcquired = new SpinGate(false);
+                    final Gate isAcquiredChecked = new SpinGate(false);
+
+                    final Result<Void> task = test.getParallelAsyncRunner().schedule(() ->
+                    {
+                        mutex.acquire().await();
+                        mutexAcquired.open();
+                        isAcquiredChecked.passThrough();
+                    });
+
+                    mutexAcquired.passThrough();
+                    test.assertFalse(mutex.isAcquiredByCurrentThread());
+                    isAcquiredChecked.open();
+                    task.await();
+                });
             });
 
             runner.testGroup("acquire()", () ->
@@ -17,18 +90,48 @@ public class MutexTests
                 runner.test("when not locked", (Test test) ->
                 {
                     final Mutex mutex = create(creator);
-                    mutex.acquire();
+                    mutex.acquire().await();
                     test.assertTrue(mutex.isAcquired());
+                    test.assertTrue(mutex.isAcquiredByCurrentThread());
                 });
 
                 runner.test("when locked by this thread", (Test test) ->
                 {
                     final Mutex mutex = create(creator);
-                    mutex.acquire();
+                    mutex.acquire().await();
                     test.assertTrue(mutex.isAcquired());
+                    test.assertTrue(mutex.isAcquiredByCurrentThread());
 
-                    mutex.acquire();
+                    mutex.acquire().await();
                     test.assertTrue(mutex.isAcquired());
+                    test.assertTrue(mutex.isAcquiredByCurrentThread());
+                });
+
+                runner.test("with multiple threads", (Test test) ->
+                {
+                    final Mutex mutex = create(creator);
+                    test.assertFalse(mutex.isAcquired());
+
+                    final IntegerValue value = IntegerValue.create(0);
+                    final int taskCount = 100;
+                    final List<Result<Void>> tasks = List.create();
+                    for (int i = 0; i < taskCount; ++i)
+                    {
+                        tasks.add(test.getParallelAsyncRunner().schedule(() ->
+                        {
+                            mutex.acquire().await();
+                            try
+                            {
+                                value.increment();
+                            }
+                            finally
+                            {
+                                mutex.release().await();
+                            }
+                        }));
+                    }
+                    Result.await(tasks);
+                    test.assertEqual(taskCount, value.get());
                 });
             });
 
@@ -54,7 +157,7 @@ public class MutexTests
                 {
                     final Mutex mutex = create(creator);
                     test.assertThrows(() -> mutex.acquire(Duration.minutes(5)),
-                        new PreConditionFailure("getClock() cannot be null."));
+                        new PreConditionFailure("clock cannot be null."));
                     test.assertFalse(mutex.isAcquired());
                 });
 
@@ -75,10 +178,11 @@ public class MutexTests
 
                 runner.test("with positive duration when Mutex is already acquired by a different thread", (Test test) ->
                 {
-                    final Mutex mutex = create(creator, test);
-                    final Clock clock = mutex.getClock();
-                    test.getParallelAsyncRunner().schedule(() -> mutex.acquire()).await();
+                    final Clock clock = test.getClock();
+                    final Mutex mutex = create(creator, clock);
+                    test.getParallelAsyncRunner().schedule(() -> mutex.acquire().await()).await();
                     test.assertTrue(mutex.isAcquired());
+                    test.assertFalse(mutex.isAcquiredByCurrentThread());
 
                     final Duration timeout = Duration.seconds(1);
 
@@ -106,14 +210,14 @@ public class MutexTests
                 {
                     final Mutex mutex = create(creator);
                     test.assertThrows(() -> mutex.acquire(DateTime.date(2018, 1, 1)),
-                        new PreConditionFailure("getClock() cannot be null."));
+                        new PreConditionFailure("clock cannot be null."));
                     test.assertFalse(mutex.isAcquired());
                 });
 
                 runner.test("with timeout before current time", (Test test) ->
                 {
-                    final Mutex mutex = create(creator, test);
-                    final Clock clock = mutex.getClock();
+                    final Clock clock = test.getClock();
+                    final Mutex mutex = create(creator, clock);
                     final DateTime timeout = clock.getCurrentDateTime().minus(Duration.milliseconds(10));
                     test.assertThrows(() -> mutex.acquire(timeout).await(),
                         new TimeoutException());
@@ -122,8 +226,8 @@ public class MutexTests
 
                 runner.test("with timeout at current time", (Test test) ->
                 {
-                    final Mutex mutex = create(creator, test);
-                    final Clock clock = mutex.getClock();
+                    final Clock clock = test.getClock();
+                    final Mutex mutex = create(creator, clock);
                     final DateTime timeout = clock.getCurrentDateTime();
                     test.assertThrows(() -> mutex.acquire(timeout).await(),
                         new TimeoutException());
@@ -132,8 +236,8 @@ public class MutexTests
 
                 runner.test("with timeout after current time when mutex is not acquired", (Test test) ->
                 {
-                    final Mutex mutex = create(creator, test);
-                    final Clock clock = mutex.getClock();
+                    final Clock clock = test.getClock();
+                    final Mutex mutex = create(creator, clock);
                     final DateTime timeout = clock.getCurrentDateTime().plus(Duration.seconds(1));
                     test.assertNull(mutex.acquire(timeout).await());
                     test.assertTrue(mutex.isAcquired());
@@ -141,10 +245,11 @@ public class MutexTests
 
                 runner.test("with timeout after current time when Mutex is already acquired by a different thread", (Test test) ->
                 {
+                    final Clock clock = test.getClock();
                     final Mutex mutex = create(creator, test);
-                    final Clock clock = mutex.getClock();
-                    test.getParallelAsyncRunner().schedule(() -> mutex.acquire()).await();
+                    test.getParallelAsyncRunner().schedule(() -> mutex.acquire().await()).await();
                     test.assertTrue(mutex.isAcquired());
+                    test.assertFalse(mutex.isAcquiredByCurrentThread());
 
                     final DateTime timeout = clock.getCurrentDateTime().plus(Duration.seconds(1));
                     test.assertThrows(() -> mutex.acquire(timeout).await(),
@@ -283,9 +388,9 @@ public class MutexTests
 
                 runner.test("with positive duration when Mutex is already acquired by a different thread", (Test test) ->
                 {
-                    final Mutex mutex = create(creator, test);
-                    final Clock clock = mutex.getClock();
-                    test.getParallelAsyncRunner().schedule(() -> mutex.acquire()).await();
+                    final Clock clock = test.getClock();
+                    final Mutex mutex = create(creator, clock);
+                    test.getParallelAsyncRunner().schedule(() -> mutex.acquire().await()).await();
                     test.assertTrue(mutex.isAcquired());
 
                     final Duration timeout = Duration.seconds(1);
@@ -358,10 +463,11 @@ public class MutexTests
 
                 runner.test("with DateTime in the future when Mutex is already acquired by a different thread", (Test test) ->
                 {
+                    final Clock clock = test.getClock();
                     final Mutex mutex = create(creator, test);
-                    final Clock clock = mutex.getClock();
-                    test.getParallelAsyncRunner().schedule(() -> mutex.acquire()).await();
+                    test.getParallelAsyncRunner().schedule(() -> mutex.acquire().await()).await();
                     test.assertTrue(mutex.isAcquired());
+                    test.assertFalse(mutex.isAcquiredByCurrentThread());
 
                     final Duration timeoutDuration = Duration.seconds(0.1);
 
@@ -382,7 +488,8 @@ public class MutexTests
                 runner.test("with null function", (Test test) ->
                 {
                     final Mutex mutex = create(creator);
-                    test.assertThrows(() -> mutex.criticalSection((Function0<Integer>)null), new PreConditionFailure("function cannot be null."));
+                    test.assertThrows(new PreConditionFailure("function cannot be null."),
+                        () -> mutex.criticalSection((Function0<Integer>)null));
                     test.assertFalse(mutex.isAcquired());
                 });
 
@@ -580,10 +687,11 @@ public class MutexTests
 
                 runner.test("with DateTime in the future when Mutex is already acquired by a different thread", (Test test) ->
                 {
-                    final Mutex mutex = create(creator, test);
-                    final Clock clock = mutex.getClock();
-                    test.getParallelAsyncRunner().schedule(() -> mutex.acquire()).await();
+                    final Clock clock = test.getClock();
+                    final Mutex mutex = create(creator, clock);
+                    test.getParallelAsyncRunner().schedule(() -> mutex.acquire().await()).await();
                     test.assertTrue(mutex.isAcquired());
+                    test.assertFalse(mutex.isAcquiredByCurrentThread());
 
                     final Duration timeoutDuration = Duration.seconds(0.1);
 
@@ -605,6 +713,81 @@ public class MutexTests
 
             runner.testGroup(MutexCondition.class, () ->
             {
+                runner.testGroup("await()", () ->
+                {
+                    runner.test("when Mutex is not acquired", (Test test) ->
+                    {
+                        final Mutex mutex = create(creator, test);
+                        final MutexCondition condition = mutex.createCondition();
+
+                        test.assertThrows(new PreConditionFailure("mutex.isAcquiredByCurrentThread() cannot be false."),
+                            () -> condition.await());
+                    });
+
+                    runner.test("when Mutex is not acquired by current thread", (Test test) ->
+                    {
+                        final Mutex mutex = create(creator, test);
+                        final MutexCondition condition = mutex.createCondition();
+
+                        test.getParallelAsyncRunner().schedule(() -> mutex.acquire().await()).await();
+                        test.assertTrue(mutex.isAcquired());
+                        test.assertFalse(mutex.isAcquiredByCurrentThread());
+
+                        test.assertThrows(new PreConditionFailure("mutex.isAcquiredByCurrentThread() cannot be false."),
+                            () -> condition.await());
+                    });
+
+                    runner.test("with one producer and one consumer", (Test test) ->
+                    {
+                        final Mutex mutex = create(creator);
+                        final MutexCondition listHasValues = mutex.createCondition();
+                        final List<Integer> values = List.create();
+                        final IntegerValue sum = IntegerValue.create(0);
+                        final int valueCount = 1000;
+
+                        final List<AsyncTask<Void>> tasks = List.create();
+                        tasks.add(test.getParallelAsyncRunner().schedule(() ->
+                        {
+                            for (int i = 1; i <= valueCount; ++i)
+                            {
+                                mutex.acquire().await();
+                                try
+                                {
+                                    values.add(i);
+                                    listHasValues.signalAll();
+                                }
+                                finally
+                                {
+                                    mutex.release().await();
+                                }
+                            }
+                        }));
+
+                        tasks.add(test.getParallelAsyncRunner().schedule(() ->
+                        {
+                            for (int i = 1; i <= valueCount; ++i)
+                            {
+                                mutex.acquire().await();
+                                try
+                                {
+                                    while (!values.any())
+                                    {
+                                        listHasValues.await().await();
+                                    }
+                                    sum.plusAssign(values.removeFirst());
+                                }
+                                finally
+                                {
+                                    mutex.release().await();
+                                }
+                            }
+                        }));
+
+                        Result.await(tasks);
+                        test.assertEqual(Math.summation(valueCount), sum.get());
+                    });
+                });
+
                 runner.testGroup("await(Duration)", () ->
                 {
                     runner.test("with null", (Test test) ->
@@ -612,67 +795,147 @@ public class MutexTests
                         final Mutex mutex = create(creator, test);
                         final MutexCondition condition = mutex.createCondition();
 
-                        test.assertThrows(() -> condition.await((Duration)null), new PreConditionFailure("timeout cannot be null."));
+                        test.assertThrows(new PreConditionFailure("timeout cannot be null."),
+                            () -> condition.await((Duration)null));
+                    });
+
+                    runner.test("with zero", (Test test) ->
+                    {
+                        final Mutex mutex = create(creator, test);
+                        final MutexCondition condition = mutex.createCondition();
+
+                        test.assertThrows(new PreConditionFailure("timeout (0.0 Seconds) must be greater than 0.0 Seconds."),
+                            () -> condition.await(Duration.zero));
+                    });
+
+                    runner.test("when Mutex is not acquired", (Test test) ->
+                    {
+                        final Mutex mutex = create(creator, test);
+                        final MutexCondition condition = mutex.createCondition();
+
+                        test.assertThrows(new PreConditionFailure("mutex.isAcquiredByCurrentThread() cannot be false."),
+                            () -> condition.await(Duration.seconds(1)));
+                    });
+
+                    runner.test("when Mutex is not acquired by current thread", (Test test) ->
+                    {
+                        final Mutex mutex = create(creator, test);
+                        final MutexCondition condition = mutex.createCondition();
+
+                        test.getParallelAsyncRunner().schedule(() -> mutex.acquire().await()).await();
+                        test.assertTrue(mutex.isAcquired());
+                        test.assertFalse(mutex.isAcquiredByCurrentThread());
+
+                        test.assertThrows(new PreConditionFailure("mutex.isAcquiredByCurrentThread() cannot be false."),
+                            () -> condition.await(Duration.seconds(1)));
+                    });
+
+                    runner.test("when Mutex doesn't have a Clock", (Test test) ->
+                    {
+                        final Mutex mutex = create(creator);
+                        final MutexCondition condition = mutex.createCondition();
+
+                        mutex.acquire().await();
+                        test.assertThrows(new PreConditionFailure("clock cannot be null."),
+                            () -> condition.await(Duration.seconds(1)));
+                    });
+
+                    runner.test("when timeout expires", (Test test) ->
+                    {
+                        final Mutex mutex = create(creator, test.getClock());
+                        final MutexCondition condition = mutex.createCondition();
+
+                        mutex.acquire().await();
+                        test.assertThrows(new TimeoutException(),
+                            () -> condition.await(Duration.seconds(0.01)).await());
                     });
                 });
 
-                runner.test("await() and signalAll()", (Test test) ->
+                runner.testGroup("await(DateTime)", () ->
                 {
-                    final Mutex mutex = create(creator);
-                    final MutexCondition condition = mutex.createCondition();
-                    final List<Integer> valueList = new ArrayList<>();
-                    final int count = 10;
-
-                    final AsyncRunner parallelAsyncRunner = test.getParallelAsyncRunner();
-
-                    final List<Result<Void>> producers = List.create();
-                    for (int i = 0; i < count; ++i)
+                    runner.test("with null", (Test test) ->
                     {
-                        final int currentValue = i;
-                        producers.add(parallelAsyncRunner.schedule(() ->
-                        {
-                            mutex.criticalSection(() ->
-                            {
-                                valueList.add(currentValue);
-                                condition.signalAll();
-                            });
-                        }));
-                    }
+                        final Mutex mutex = create(creator, test);
+                        final MutexCondition condition = mutex.createCondition();
 
-                    final List<Integer> resultList = List.create();
-                    mutex.criticalSection(() ->
-                    {
-                        while (resultList.getCount() < count)
-                        {
-                            while (!valueList.any())
-                            {
-                                condition.await();
-                            }
-
-                            resultList.add(valueList.removeFirst());
-                        }
+                        test.assertThrows(new PreConditionFailure("timeout cannot be null."),
+                            () -> condition.await((DateTime)null));
                     });
 
-                    for (int i = 0; i < count; ++i)
+                    runner.test("when Mutex is not acquired", (Test test) ->
                     {
-                        test.assertTrue(resultList.contains(i), "Result list " + resultList + " does not contain " + i + ".");
-                    }
-                    test.assertEqual(count, resultList.getCount());
+                        final Clock clock = test.getClock();
+                        final Mutex mutex = create(creator, clock);
+                        final MutexCondition condition = mutex.createCondition();
 
-                    Result.await(producers);
+                        test.assertThrows(new PreConditionFailure("mutex.isAcquiredByCurrentThread() cannot be false."),
+                            () -> condition.await(clock.getCurrentDateTime()));
+                    });
+
+                    runner.test("when Mutex is not acquired by current thread", (Test test) ->
+                    {
+                        final Clock clock = test.getClock();
+                        final Mutex mutex = create(creator, clock);
+                        final MutexCondition condition = mutex.createCondition();
+
+                        test.getParallelAsyncRunner().schedule(() -> mutex.acquire().await()).await();
+                        test.assertTrue(mutex.isAcquired());
+                        test.assertFalse(mutex.isAcquiredByCurrentThread());
+
+                        test.assertThrows(new PreConditionFailure("mutex.isAcquiredByCurrentThread() cannot be false."),
+                            () -> condition.await(clock.getCurrentDateTime()));
+                    });
+
+                    runner.test("when Mutex doesn't have a Clock", (Test test) ->
+                    {
+                        final Clock clock = test.getClock();
+                        final Mutex mutex = create(creator);
+                        final MutexCondition condition = mutex.createCondition();
+
+                        mutex.acquire().await();
+                        test.assertThrows(new PreConditionFailure("clock cannot be null."),
+                            () -> condition.await(clock.getCurrentDateTime()));
+                    });
+                });
+
+                runner.testGroup("signalAll()", () ->
+                {
+                    runner.test("when Mutex is not acquired", (Test test) ->
+                    {
+                        final Clock clock = test.getClock();
+                        final Mutex mutex = create(creator, clock);
+                        final MutexCondition condition = mutex.createCondition();
+
+                        test.assertThrows(new PreConditionFailure("mutex.isAcquiredByCurrentThread() cannot be false."),
+                            () -> condition.signalAll());
+                    });
+
+                    runner.test("when Mutex is not acquired by current thread", (Test test) ->
+                    {
+                        final Clock clock = test.getClock();
+                        final Mutex mutex = create(creator, clock);
+                        final MutexCondition condition = mutex.createCondition();
+
+                        test.getParallelAsyncRunner().schedule(() -> mutex.acquire().await()).await();
+                        test.assertTrue(mutex.isAcquired());
+                        test.assertFalse(mutex.isAcquiredByCurrentThread());
+
+                        test.assertThrows(new PreConditionFailure("mutex.isAcquiredByCurrentThread() cannot be false."),
+                            () -> condition.signalAll());
+                    });
                 });
             });
         });
     }
 
-    private static Mutex create(Function1<Clock,Mutex> creator)
+    static Mutex create(Function1<Clock,Mutex> creator)
     {
         PreCondition.assertNotNull(creator, "creator");
 
         return create(creator, (Clock)null);
     }
 
-    private static Mutex create(Function1<Clock,Mutex> creator, Test test)
+    static Mutex create(Function1<Clock,Mutex> creator, Test test)
     {
         PreCondition.assertNotNull(creator, "creator");
         PreCondition.assertNotNull(test, "test");
@@ -680,7 +943,7 @@ public class MutexTests
         return create(creator, test.getClock());
     }
 
-    private static Mutex create(Function1<Clock,Mutex> creator, Clock clock)
+    static Mutex create(Function1<Clock,Mutex> creator, Clock clock)
     {
         PreCondition.assertNotNull(creator, "creator");
 

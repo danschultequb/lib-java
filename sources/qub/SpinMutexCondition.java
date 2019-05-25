@@ -3,20 +3,16 @@ package qub;
 public class SpinMutexCondition implements MutexCondition
 {
     private final SpinMutex mutex;
+    private final Clock clock;
     private final SpinGate condition;
 
-    public SpinMutexCondition(SpinMutex mutex)
+    public SpinMutexCondition(SpinMutex mutex, Clock clock)
     {
         PreCondition.assertNotNull(mutex, "mutex");
 
         this.mutex = mutex;
-        this.condition = new SpinGate(mutex.getClock(), false);
-    }
-
-    @Override
-    public Clock getClock()
-    {
-        return mutex.getClock();
+        this.clock = clock;
+        this.condition = new SpinGate(clock, false);
     }
 
     @Override
@@ -26,11 +22,11 @@ public class SpinMutexCondition implements MutexCondition
 
         condition.close();
 
-        mutex.release();
+        mutex.release().await();
 
         condition.passThrough();
 
-        mutex.acquire();
+        mutex.acquire().await();
 
         return Result.success();
     }
@@ -41,9 +37,10 @@ public class SpinMutexCondition implements MutexCondition
         PreCondition.assertNotNull(timeout, "timeout");
         PreCondition.assertGreaterThan(timeout, Duration.zero, "timeout");
         PreCondition.assertTrue(mutex.isAcquiredByCurrentThread(), "mutex.isAcquiredByCurrentThread()");
-        PreCondition.assertNotNull(getClock(), "getClock()");
+        PreCondition.assertNotNull(clock, "clock");
 
-        return await(mutex.getClock().getCurrentDateTime().plus(timeout));
+        final DateTime dateTimeTimeout = clock.getCurrentDateTime().plus(timeout);
+        return await(dateTimeTimeout);
     }
 
     @Override
@@ -51,20 +48,19 @@ public class SpinMutexCondition implements MutexCondition
     {
         PreCondition.assertNotNull(timeout, "timeout");
         PreCondition.assertTrue(mutex.isAcquiredByCurrentThread(), "mutex.isAcquiredByCurrentThread()");
-        PreCondition.assertNotNull(getClock(), "getClock()");
+        PreCondition.assertNotNull(clock, "clock");
 
-        condition.close();
+        return Result.create(() ->
+        {
+            condition.close();
 
-        mutex.release();
+            mutex.release().await();
 
-        return condition.passThrough(timeout)
-            .then((Boolean passedThrough) ->
+            if (condition.passThrough(timeout).await())
             {
-                if (Booleans.isTrue(passedThrough))
-                {
-                    mutex.acquire();
-                }
-            });
+                mutex.acquire().await();
+            }
+        });
     }
 
     @Override

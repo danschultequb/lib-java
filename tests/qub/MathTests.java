@@ -1,16 +1,11 @@
 package qub;
 
-public class MathTests
+public interface MathTests
 {
-    public static void test(TestRunner runner)
+    static void test(TestRunner runner)
     {
         runner.testGroup(Math.class, () ->
         {
-            runner.test("constructor", (Test test) ->
-            {
-                test.assertNotNull(new Math());
-            });
-            
             runner.test("minimum()", (Test test) ->
             {
                 test.assertEqual(-10, Math.minimum(-10, -5));
@@ -308,6 +303,105 @@ public class MathTests
                 moduloTest.run(2L, 3L, 2L);
                 moduloTest.run(3L, 3L, 0L);
                 moduloTest.run(4L, 3L, 1L);
+            });
+
+            runner.testGroup("summation(int)", () ->
+            {
+                final Action2<Integer,Integer> summationTest = (Integer upperBound, Integer expectedValue) ->
+                {
+                    runner.test("with " + upperBound, (Test test) ->
+                    {
+                        test.assertEqual(expectedValue, Math.summation(upperBound));
+                    });
+                };
+
+                summationTest.run(0, 0);
+                summationTest.run(1, 1);
+                summationTest.run(2, 3);
+                summationTest.run(3, 6);
+                summationTest.run(4, 10);
+                summationTest.run(5, 15);
+                summationTest.run(10, 55);
+                summationTest.run(100, 5050);
+                summationTest.run(1000, 500500);
+                summationTest.run(10000, 50005000);
+                summationTest.run(25000, 312512500);
+                summationTest.run(37500, 703143750);
+                summationTest.run(43750, 957053125);
+                summationTest.run(46339, 1073674630);
+                summationTest.run(46340, 1073720970);
+
+                final Action1<Integer> summationTestFailures = (Integer upperBound) ->
+                {
+                    runner.test("with " + upperBound, (Test test) ->
+                    {
+                        test.assertThrows(new PreConditionFailure("upperBound (" + upperBound + ") must be between 0 and 46340."),
+                            () -> Math.summation(upperBound));
+                    });
+                };
+
+                summationTestFailures.run(Integers.minimum);
+                summationTestFailures.run(Integers.minimum + 1);
+                summationTestFailures.run(-2);
+                summationTestFailures.run(-1);
+                summationTestFailures.run(46341);
+                summationTestFailures.run(46342);
+                summationTestFailures.run(Integers.maximum - 1);
+                summationTestFailures.run(Integers.maximum);
+            });
+
+            runner.testGroup("summation(long)", () ->
+            {
+                final Action2<Long,Long> summationTest = (Long upperBound, Long expectedValue) ->
+                {
+                    runner.test("with " + upperBound, (Test test) ->
+                    {
+                        test.assertEqual(expectedValue, Math.summation(upperBound));
+                    });
+                };
+
+                summationTest.run(0L, 0L);
+                summationTest.run(1L, 1L);
+                summationTest.run(2L, 3L);
+                summationTest.run(3L, 6L);
+                summationTest.run(4L, 10L);
+                summationTest.run(5L, 15L);
+                summationTest.run(10L, 55L);
+                summationTest.run(100L, 5050L);
+                summationTest.run(1000L, 500500L);
+                summationTest.run(10000L, 50005000L);
+                summationTest.run(25000L, 312512500L);
+                summationTest.run(37500L, 703143750L);
+                summationTest.run(43750L, 957053125L);
+                summationTest.run(46339L, 1073674630L);
+                summationTest.run(46340L, 1073720970L);
+                summationTest.run(100000L, 5000050000L);
+                summationTest.run(1000000L, 500000500000L);
+                summationTest.run(10000000L, 50000005000000L);
+                summationTest.run(100000000L, 5000000050000000L);
+                summationTest.run(1000000000L, 500000000500000000L);
+                summationTest.run(2500000000L, 3125000001250000000L);
+                summationTest.run(2812500000L, 3955078126406250000L);
+                summationTest.run(3037000498L, 4611686013944624251L);
+                summationTest.run(3037000499L, 4611686016981624750L);
+
+                final Action1<Long> summationTestFailures = (Long upperBound) ->
+                {
+                    runner.test("with " + upperBound, (Test test) ->
+                    {
+                        test.assertThrows(new PreConditionFailure("upperBound (" + upperBound + ") must be between 0 and 3037000499."),
+                            () -> Math.summation(upperBound));
+                    });
+                };
+
+                summationTestFailures.run(Longs.minimum);
+                summationTestFailures.run(Longs.minimum + 1);
+                summationTestFailures.run(-2L);
+                summationTestFailures.run(-1L);
+                summationTestFailures.run(3037000500L);
+                summationTestFailures.run(3037000501L);
+                summationTestFailures.run(Longs.maximum - 1);
+                summationTestFailures.run(Longs.maximum);
             });
         });
     }
