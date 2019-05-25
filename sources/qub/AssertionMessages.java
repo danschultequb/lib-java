@@ -10,14 +10,14 @@ public interface AssertionMessages
         return expressionName + " must be null.";
     }
 
-    static String notNull(String variableName)
+    static String notNull(String expressionName)
     {
-        return variableName + " cannot be null.";
+        return expressionName + " cannot be null.";
     }
 
-    static String notEmpty(String variableName)
+    static String notEmpty(String expressionName)
     {
-        return variableName + " cannot be empty.";
+        return expressionName + " cannot be empty.";
     }
 
     static <T> String same(T expectedValue, T value, String expressionName)
@@ -25,24 +25,24 @@ public interface AssertionMessages
         return expressionName + " (" + value + ") must be the same object as " + expectedValue + ".";
     }
 
-    static <T> String equal(T expectedValue, T value, String variableName)
+    static <T> String equal(T expectedValue, T value, String expressionName)
     {
-        return variableName + " (" + value + ") must be " + expectedValue + ".";
+        return expressionName + " (" + value + ") must be " + expectedValue + ".";
     }
 
-    static <T> String notEqual(T expectedValue, T value, String variableName)
+    static <T> String notEqual(T expectedValue, T value, String expressionName)
     {
-        return variableName + " (" + value + ") must not be " + expectedValue + ".";
+        return expressionName + " (" + value + ") must not be " + expectedValue + ".";
     }
 
-    static <T> String lessThan(T value, T upperBound, String variableName)
+    static <T> String lessThan(T value, T upperBound, String expressionName)
     {
-        return variableName + " (" + value + ") must be less than " + upperBound + ".";
+        return expressionName + " (" + value + ") must be less than " + upperBound + ".";
     }
 
-    static <T> String lessThanOrEqualTo(T value, T upperBound, String variableName)
+    static <T> String lessThanOrEqualTo(T value, T upperBound, String expressionName)
     {
-        return variableName + " (" + value + ") must be less than or equal to " + upperBound + ".";
+        return expressionName + " (" + value + ") must be less than or equal to " + upperBound + ".";
     }
 
     static <T> String nullOrGreaterThanOrEqualTo(T value, T lowerBound, String expressionName)
@@ -55,37 +55,37 @@ public interface AssertionMessages
         return expressionName + " (" + value + ") must be null or greater than " + lowerBound + ".";
     }
 
-    static <T> String greaterThanOrEqualTo(T value, T lowerBound, String variableName)
+    static <T> String greaterThanOrEqualTo(T value, T lowerBound, String expressionName)
     {
-        return variableName + " (" + value + ") must be greater than or equal to " + lowerBound + ".";
+        return expressionName + " (" + value + ") must be greater than or equal to " + lowerBound + ".";
     }
 
-    static <T> String greaterThan(T value, T lowerBound, String variableName)
+    static <T> String greaterThan(T value, T lowerBound, String expressionName)
     {
-        return variableName + " (" + value + ") must be greater than " + lowerBound + ".";
+        return expressionName + " (" + value + ") must be greater than " + lowerBound + ".";
     }
 
-    static <T> String between(T lowerBound, T value, T upperBound, String variableName)
+    static <T> String between(T lowerBound, T value, T upperBound, String expressionName)
     {
         return Comparer.equal(lowerBound, upperBound)
-            ? variableName + " (" + value + ") must be equal to " + lowerBound + "."
-            : variableName + " (" + value + ") must be between " + lowerBound + " and " + upperBound + ".";
+            ? expressionName + " (" + value + ") must be equal to " + lowerBound + "."
+            : expressionName + " (" + value + ") must be between " + lowerBound + " and " + upperBound + ".";
     }
 
-    static String containsOnly(String value, char[] characters, String variableName)
+    static String containsOnly(String value, char[] characters, String expressionName)
     {
-        return variableName + " (" + value + ") must contain only " + Array.toString(characters) + ".";
+        return expressionName + " (" + value + ") must contain only " + Array.toString(characters) + ".";
     }
 
-    static String instanceOf(Object value, Class<?> type, String variableName)
+    static String instanceOf(Object value, Class<?> type, String expressionName)
     {
-        return variableName + " (" + Types.getFullTypeName(value) + ") must be of type " + Types.getFullTypeName(type) + ".";
+        return expressionName + " (" + Types.getFullTypeName(value) + ") must be of type " + Types.getFullTypeName(type) + ".";
     }
 
-    static String oneOf(char value, char[] values, String variableName)
+    static String oneOf(char value, char[] values, String expressionName)
     {
         final StringBuilder builder = new StringBuilder();
-        builder.append(variableName + " (" + value + ") must be either");
+        builder.append(expressionName + " (" + value + ") must be either");
         for (int i = 0; i < values.length - 1; ++i)
         {
             builder.append(" " + values[i]);
@@ -98,10 +98,10 @@ public interface AssertionMessages
         return builder.toString();
     }
 
-    static String oneOf(int value, int[] values, String variableName)
+    static String oneOf(int value, int[] values, String expressionName)
     {
         final StringBuilder builder = new StringBuilder();
-        builder.append(variableName + " (" + value + ") must be either");
+        builder.append(expressionName + " (" + value + ") must be either");
         for (int i = 0; i < values.length - 1; ++i)
         {
             builder.append(" " + values[i]);
@@ -114,10 +114,10 @@ public interface AssertionMessages
         return builder.toString();
     }
 
-    static String oneOf(long value, long[] values, String variableName)
+    static String oneOf(long value, long[] values, String expressionName)
     {
         final StringBuilder builder = new StringBuilder();
-        builder.append(variableName + " (" + value + ") must be either");
+        builder.append(expressionName + " (" + value + ") must be either");
         for (int i = 0; i < values.length - 1; ++i)
         {
             builder.append(" " + values[i]);
@@ -130,10 +130,10 @@ public interface AssertionMessages
         return builder.toString();
     }
 
-    static <T> String oneOf(T value, T[] values, String variableName)
+    static <T> String oneOf(T value, T[] values, String expressionName)
     {
         final StringBuilder builder = new StringBuilder();
-        builder.append(variableName + " (" + value + ") must be either");
+        builder.append(expressionName + " (" + value + ") must be either");
         for (int i = 0; i < values.length - 1; ++i)
         {
             builder.append(" " + values[i]);
@@ -146,10 +146,10 @@ public interface AssertionMessages
         return builder.toString();
     }
 
-    static <T> String oneOf(T value, Iterable<T> values, String variableName)
+    static <T> String oneOf(T value, Iterable<T> values, String expressionName)
     {
         final StringBuilder builder = new StringBuilder();
-        builder.append(variableName + " (" + value + ") must be either");
+        builder.append(expressionName + " (" + value + ") must be either");
         for (final T acceptableValue : values.skipLast())
         {
             builder.append(" " + acceptableValue);

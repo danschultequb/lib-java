@@ -1005,6 +1005,17 @@ public class Test
     /**
      * Assert that when the provided action is run it throws an exception that is equal to the
      * provided exception.
+     * @param expectedException The expected exception.
+     * @param action The action to run.
+     */
+    public void assertThrows(Throwable expectedException, Action0 action)
+    {
+        assertThrows(action, expectedException);
+    }
+
+    /**
+     * Assert that when the provided action is run it throws an exception that is equal to the
+     * provided exception.
      * @param action The action to run.
      * @param expectedException The expected exception.
      */

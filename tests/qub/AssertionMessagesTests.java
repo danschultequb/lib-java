@@ -393,12 +393,14 @@ public interface AssertionMessagesTests
 
                 runner.test("with empty expressionName", (Test test) ->
                 {
-                    test.assertEqual(" (7) must be greater than 5.", AssertionMessages.greaterThan(7, 5, ""));
+                    test.assertEqual(" (7) must be greater than 5.",
+                        AssertionMessages.greaterThan(7, 5, ""));
                 });
 
                 runner.test("with non-empty expressionName", (Test test) ->
                 {
-                    test.assertEqual("abc (7) must be greater than 5.", AssertionMessages.greaterThan(7, 5, "abc"));
+                    test.assertEqual("abc (7) must be greater than 5.",
+                        AssertionMessages.greaterThan(7, 5, "abc"));
                 });
             });
 
@@ -485,6 +487,270 @@ public interface AssertionMessagesTests
                 runner.test("with non-empty expressionName", (Test test) ->
                 {
                     test.assertEqual("blah (hello) must contain only ['a','b'].", AssertionMessages.containsOnly("hello", new char[] { 'a', 'b' }, "blah"));
+                });
+            });
+
+            runner.testGroup("instanceOf(Object,Class<?>,String)", () ->
+            {
+                runner.test("with null value", (Test test) ->
+                {
+                    test.assertThrows(() -> AssertionMessages.instanceOf(null, String.class, "blah"),
+                        new PreConditionFailure("value cannot be null."));
+                });
+
+                runner.test("with empty value", (Test test) ->
+                {
+                    test.assertEqual("blah (java.lang.String) must be of type qub.IntegerValue.",
+                        AssertionMessages.instanceOf("", IntegerValue.class, "blah"));
+                });
+
+                runner.test("with null type", (Test test) ->
+                {
+                    test.assertThrows(() -> AssertionMessages.instanceOf(20, null, "blah"),
+                        new PreConditionFailure("type cannot be null."));
+                });
+
+                runner.test("with null expressionName", (Test test) ->
+                {
+                    test.assertEqual("null (java.lang.String) must be of type qub.IntegerValue.",
+                        AssertionMessages.instanceOf("abc", IntegerValue.class, null));
+                });
+
+                runner.test("with empty expressionName", (Test test) ->
+                {
+                    test.assertEqual(" (java.lang.String) must be of type qub.IntegerValue.",
+                        AssertionMessages.instanceOf("abc", IntegerValue.class, ""));
+                });
+
+                runner.test("with non-empty expressionName", (Test test) ->
+                {
+                    test.assertEqual("blah (java.lang.String) must be of type qub.IntegerValue.",
+                        AssertionMessages.instanceOf("abc", IntegerValue.class, "blah"));
+                });
+            });
+
+            runner.testGroup("oneOf(char,char[],String)", () ->
+            {
+                runner.test("with null values", (Test test) ->
+                {
+                    test.assertThrows(new java.lang.NullPointerException(),
+                        () -> AssertionMessages.oneOf('a', (char[])null, "blah"));
+                });
+
+                runner.test("with empty values", (Test test) ->
+                {
+                    test.assertThrows(new java.lang.ArrayIndexOutOfBoundsException("-1"),
+                        () -> AssertionMessages.oneOf('a', new char[0], "blah"));
+                });
+
+                runner.test("with one-element values", (Test test) ->
+                {
+                    test.assertEqual("blah (a) must be either or z.",
+                        AssertionMessages.oneOf('a', new char[] { 'z' }, "blah"));
+                });
+
+                runner.test("with two-element values", (Test test) ->
+                {
+                    test.assertEqual("blah (a) must be either y or z.",
+                        AssertionMessages.oneOf('a', new char[] { 'y', 'z' }, "blah"));
+                });
+
+                runner.test("with null expressionName", (Test test) ->
+                {
+                    test.assertEqual("null (a) must be either x, y, or z.",
+                        AssertionMessages.oneOf('a', new char[] { 'x', 'y', 'z' }, null));
+                });
+
+                runner.test("with empty expressionName", (Test test) ->
+                {
+                    test.assertEqual(" (a) must be either x, y, or z.",
+                        AssertionMessages.oneOf('a', new char[] { 'x', 'y', 'z' }, ""));
+                });
+
+                runner.test("with non-empty expressionName", (Test test) ->
+                {
+                    test.assertEqual("blah (a) must be either x, y, or z.",
+                        AssertionMessages.oneOf('a', new char[] { 'x', 'y', 'z' }, "blah"));
+                });
+            });
+
+            runner.testGroup("oneOf(int,int[],String)", () ->
+            {
+                runner.test("with null values", (Test test) ->
+                {
+                    test.assertThrows(new java.lang.NullPointerException(),
+                        () -> AssertionMessages.oneOf(5, (int[])null, "blah"));
+                });
+
+                runner.test("with empty values", (Test test) ->
+                {
+                    test.assertThrows(new java.lang.ArrayIndexOutOfBoundsException("-1"),
+                        () -> AssertionMessages.oneOf(5, new int[0], "blah"));
+                });
+
+                runner.test("with one-element values", (Test test) ->
+                {
+                    test.assertEqual("blah (5) must be either or 6.",
+                        AssertionMessages.oneOf(5, new int[] { 6 }, "blah"));
+                });
+
+                runner.test("with two-element values", (Test test) ->
+                {
+                    test.assertEqual("blah (5) must be either 6 or 7.",
+                        AssertionMessages.oneOf(5, new int[] { 6, 7 }, "blah"));
+                });
+
+                runner.test("with null expressionName", (Test test) ->
+                {
+                    test.assertEqual("null (5) must be either 6, 7, or 8.",
+                        AssertionMessages.oneOf(5, new int[] { 6, 7, 8 }, null));
+                });
+
+                runner.test("with empty expressionName", (Test test) ->
+                {
+                    test.assertEqual(" (5) must be either 6, 7, or 8.",
+                        AssertionMessages.oneOf(5, new int[] { 6, 7, 8 }, ""));
+                });
+
+                runner.test("with non-empty expressionName", (Test test) ->
+                {
+                    test.assertEqual("blah (5) must be either 6, 7, or 8.",
+                        AssertionMessages.oneOf(5, new int[] { 6, 7, 8 }, "blah"));
+                });
+            });
+
+            runner.testGroup("oneOf(long,long[],String)", () ->
+            {
+                runner.test("with null values", (Test test) ->
+                {
+                    test.assertThrows(new java.lang.NullPointerException(),
+                        () -> AssertionMessages.oneOf(5, (long[])null, "blah"));
+                });
+
+                runner.test("with empty values", (Test test) ->
+                {
+                    test.assertThrows(new java.lang.ArrayIndexOutOfBoundsException("-1"),
+                        () -> AssertionMessages.oneOf(5, new long[0], "blah"));
+                });
+
+                runner.test("with one-element values", (Test test) ->
+                {
+                    test.assertEqual("blah (5) must be either or 6.",
+                        AssertionMessages.oneOf(5, new long[] { 6 }, "blah"));
+                });
+
+                runner.test("with two-element values", (Test test) ->
+                {
+                    test.assertEqual("blah (5) must be either 6 or 7.",
+                        AssertionMessages.oneOf(5, new long[] { 6, 7 }, "blah"));
+                });
+
+                runner.test("with null expressionName", (Test test) ->
+                {
+                    test.assertEqual("null (5) must be either 6, 7, or 8.",
+                        AssertionMessages.oneOf(5, new long[] { 6, 7, 8 }, null));
+                });
+
+                runner.test("with empty expressionName", (Test test) ->
+                {
+                    test.assertEqual(" (5) must be either 6, 7, or 8.",
+                        AssertionMessages.oneOf(5, new long[] { 6, 7, 8 }, ""));
+                });
+
+                runner.test("with non-empty expressionName", (Test test) ->
+                {
+                    test.assertEqual("blah (5) must be either 6, 7, or 8.",
+                        AssertionMessages.oneOf(5, new long[] { 6, 7, 8 }, "blah"));
+                });
+            });
+
+            runner.testGroup("oneOf(T,T[],String)", () ->
+            {
+                runner.test("with null values", (Test test) ->
+                {
+                    test.assertThrows(new java.lang.NullPointerException(),
+                        () -> AssertionMessages.oneOf("a", (String[])null, "blah"));
+                });
+
+                runner.test("with empty values", (Test test) ->
+                {
+                    test.assertThrows(new java.lang.ArrayIndexOutOfBoundsException("-1"),
+                        () -> AssertionMessages.oneOf("a", new String[0], "blah"));
+                });
+
+                runner.test("with one-element values", (Test test) ->
+                {
+                    test.assertEqual("blah (a) must be either or b.",
+                        AssertionMessages.oneOf("a", new String[] { "b" }, "blah"));
+                });
+
+                runner.test("with two-element values", (Test test) ->
+                {
+                    test.assertEqual("blah (a) must be either b or c.",
+                        AssertionMessages.oneOf("a", new String[] { "b", "c" }, "blah"));
+                });
+
+                runner.test("with null expressionName", (Test test) ->
+                {
+                    test.assertEqual("null (a) must be either b, c, or d.",
+                        AssertionMessages.oneOf("a", new String[] { "b", "c", "d" }, null));
+                });
+
+                runner.test("with empty expressionName", (Test test) ->
+                {
+                    test.assertEqual(" (a) must be either b, c, or d.",
+                        AssertionMessages.oneOf("a", new String[] { "b", "c", "d" }, ""));
+                });
+
+                runner.test("with non-empty expressionName", (Test test) ->
+                {
+                    test.assertEqual("blah (a) must be either b, c, or d.",
+                        AssertionMessages.oneOf("a", new String[] { "b", "c", "d" }, "blah"));
+                });
+            });
+
+            runner.testGroup("oneOf(T,Iterable<T>,String)", () ->
+            {
+                runner.test("with null values", (Test test) ->
+                {
+                    test.assertThrows(new java.lang.NullPointerException(),
+                        () -> AssertionMessages.oneOf("a", (Iterable<String>)null, "blah"));
+                });
+
+                runner.test("with empty values", (Test test) ->
+                {
+                    test.assertThrows(new java.lang.ArrayIndexOutOfBoundsException("-1"),
+                        () -> AssertionMessages.oneOf("a", Iterable.create(), "blah"));
+                });
+
+                runner.test("with one-element values", (Test test) ->
+                {
+                    test.assertEqual("blah (a) must be either or b.",
+                        AssertionMessages.oneOf("a", Iterable.create("b"), "blah"));
+                });
+
+                runner.test("with two-element values", (Test test) ->
+                {
+                    test.assertEqual("blah (a) must be either b or c.",
+                        AssertionMessages.oneOf("a", Iterable.create("b", "c"), "blah"));
+                });
+
+                runner.test("with null expressionName", (Test test) ->
+                {
+                    test.assertEqual("null (a) must be either b, c, or d.",
+                        AssertionMessages.oneOf("a", Iterable.create("b", "c", "d"), null));
+                });
+
+                runner.test("with empty expressionName", (Test test) ->
+                {
+                    test.assertEqual(" (a) must be either b, c, or d.",
+                        AssertionMessages.oneOf("a", Iterable.create("b", "c", "d"), ""));
+                });
+
+                runner.test("with non-empty expressionName", (Test test) ->
+                {
+                    test.assertEqual("blah (a) must be either b, c, or d.",
+                        AssertionMessages.oneOf("a", Iterable.create("b", "c", "d"), "blah"));
                 });
             });
         });
