@@ -29,7 +29,7 @@ public abstract class ListTests
                     list.removeFirst(Math::isEven);
 
                     list.add(70);
-                    test.assertEqual(new int[] { 70 }, Array.toIntArray(list));
+                    test.assertEqual(Iterable.create(70), list);
                 });
             });
 
@@ -271,7 +271,7 @@ public abstract class ListTests
                 {
                     final List<Integer> list = createList.run(4);
                     test.assertEqual(1, list.removeFirst(Math::isOdd));
-                    test.assertEqual(new int[] { 0, 2, 3 }, Array.toIntArray(list));
+                    test.assertEqual(Iterable.create(0, 2, 3), list);
                 });
 
                 runner.test("with matching condition and single-value List", (Test test) ->

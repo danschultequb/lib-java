@@ -156,7 +156,19 @@ public final class Integers
      */
     public static String toString(int value)
     {
-        return Integer.toString(value);
+        return java.lang.Integer.toString(value);
+    }
+
+    /**
+     * Get the String representation of the provided value.
+     * @param value The value.
+     * @return The String representation of the provided value.
+     */
+    public static String toString(java.lang.Integer value)
+    {
+        PreCondition.assertNotNull(value, "value");
+
+        return java.lang.Integer.toString(value);
     }
 
     public static String toHexString(int value)

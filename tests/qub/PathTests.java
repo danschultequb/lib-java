@@ -180,14 +180,14 @@ public class PathTests
                     test.assertTrue(path.equals((Object)path));
                     final Indexable<String> pathSegments = path.getSegments();
                     test.assertNotNull(pathSegments);
-                    test.assertEqual(new String[] { "/", "hello", "there.txt" }, Array.toStringArray(pathSegments));
+                    test.assertEqual(Iterable.create("/", "hello", "there.txt"), pathSegments);
 
                     final Path normalizedPath = path.normalize();
                     test.assertEqual("/hello/there.txt", normalizedPath.toString());
                     test.assertSame(normalizedPath, normalizedPath.normalize());
                     final Indexable<String> normalizedPathSegments = normalizedPath.getSegments();
                     test.assertNotNull(normalizedPathSegments);
-                    test.assertEqual(new String[] { "/", "hello", "there.txt" }, Array.toStringArray(normalizedPathSegments));
+                    test.assertEqual(Iterable.create("/", "hello", "there.txt"), normalizedPathSegments);
                 });
 
                 runner.test("with " + Strings.escapeAndQuote("/\\/test1//"), (Test test) ->
@@ -199,13 +199,13 @@ public class PathTests
                     test.assertEqual(Path.parse("/"), path.getRoot().await());
                     final Indexable<String> pathSegments = path.getSegments();
                     test.assertNotNull(pathSegments);
-                    test.assertEqual(new String[] { "/", "test1" }, Array.toStringArray(pathSegments));
+                    test.assertEqual(Iterable.create("/", "test1"), pathSegments);
 
                     final Path normalizedPath = path.normalize();
                     test.assertEqual("/test1", normalizedPath.toString());
                     final Indexable<String> normalizedPathSegments = normalizedPath.getSegments();
                     test.assertNotNull(normalizedPathSegments);
-                    test.assertEqual(new String[] { "/", "test1" }, Array.toStringArray(normalizedPathSegments));
+                    test.assertEqual(Iterable.create("/", "test1"), normalizedPathSegments);
                 });
 
                 runner.test("with " + Strings.escapeAndQuote("C:\\Windows\\System32\\cmd.exe"), (Test test) ->
@@ -217,13 +217,13 @@ public class PathTests
                     test.assertEqual(Path.parse("C:"), path.getRoot().await());
                     final Indexable<String> pathSegments = path.getSegments();
                     test.assertNotNull(pathSegments);
-                    test.assertEqual(new String[] { "C:", "Windows", "System32", "cmd.exe" }, Array.toStringArray(pathSegments));
+                    test.assertEqual(Iterable.create("C:", "Windows", "System32", "cmd.exe"), pathSegments);
 
                     final Path normalizedPath = path.normalize();
                     test.assertEqual("C:/Windows/System32/cmd.exe", normalizedPath.toString());
                     final Indexable<String> normalizedPathSegments = normalizedPath.getSegments();
                     test.assertNotNull(normalizedPathSegments);
-                    test.assertEqual(new String[] { "C:", "Windows", "System32", "cmd.exe" }, Array.toStringArray(normalizedPathSegments));
+                    test.assertEqual(Iterable.create("C:", "Windows", "System32", "cmd.exe"), normalizedPathSegments);
                 });
             });
 

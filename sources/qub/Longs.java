@@ -38,7 +38,19 @@ public class Longs
      */
     public static String toString(long value)
     {
-        return Long.toString(value);
+        return java.lang.Long.toString(value);
+    }
+
+    /**
+     * Get the string representation of the provided long.
+     * @param value The value to convert to a String.
+     * @return The string representation of the provided long.
+     */
+    public static String toString(java.lang.Long value)
+    {
+        PreCondition.assertNotNull(value, "value");
+
+        return java.lang.Long.toString(value);
     }
 
     /**

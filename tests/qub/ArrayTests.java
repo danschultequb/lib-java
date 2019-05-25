@@ -1025,9 +1025,19 @@ public class ArrayTests
                     test.assertEqual(new byte[0], Array.toByteArray(Iterable.create()).await());
                 });
 
-                runner.test("with non-empty", (Test test) ->
+                runner.test("with non-empty Array", (Test test) ->
                 {
                     test.assertEqual(new byte[] { 0, 1, 2 }, Array.toByteArray(Iterable.create((byte)0, (byte)1, (byte)2)).await());
+                });
+
+                runner.test("with non-empty ByteArray", (Test test) ->
+                {
+                    test.assertEqual(new byte[] { 0, 1, 2 }, Array.toByteArray(Array.createByte((byte)0, (byte)1, (byte)2)).await());
+                });
+
+                runner.test("with non-empty ByteList", (Test test) ->
+                {
+                    test.assertEqual(new byte[] { 0, 1, 2 }, Array.toByteArray(ByteList.createFromBytes((byte)0, (byte)1, (byte)2)).await());
                 });
 
                 runner.test("with null value", (Test test) ->
@@ -1037,59 +1047,118 @@ public class ArrayTests
                 });
             });
 
-            runner.testGroup("toIntArray()", () ->
+            runner.testGroup("toCharArray(Iterator<Character>)", () ->
             {
-                runner.test("with null Iterator", (Test test) ->
+                runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> Array.toIntArray((Iterator<Integer>)null), new PreConditionFailure("values cannot be null."));
+                    test.assertThrows(() -> Array.toCharArray((Iterator<Character>)null),
+                        new PreConditionFailure("values cannot be null."));
                 });
 
-                runner.test("with empty Iterator", (Test test) ->
+                runner.test("with empty", (Test test) ->
                 {
-                    test.assertEqual(new int[0], Array.toIntArray(Iterator.create()));
+                    test.assertEqual(new char[0], Array.toCharArray(Iterator.create()).await());
                 });
 
-                runner.test("with non-empty Iterator", (Test test) ->
+                runner.test("with non-empty", (Test test) ->
                 {
-                    test.assertEqual(new int[] { 0, 1, 2 }, Array.toIntArray(Iterator.create(0, 1, 2)));
+                    test.assertEqual(new char[] { 'a', 'b', 'c' }, Array.toCharArray(Iterator.create('a', 'b', 'c')).await());
                 });
 
-                runner.test("with null Iterable", (Test test) ->
+                runner.test("with null value", (Test test) ->
                 {
-                    test.assertThrows(() -> Array.toIntArray((Iterable<Integer>)null), new PreConditionFailure("values cannot be null."));
-                });
-
-                runner.test("with empty Iterable", (Test test) ->
-                {
-                    test.assertEqual(new int[0], Array.toIntArray(Iterable.create()));
+                    test.assertThrows(() -> Array.toCharArray(Iterator.create('a', 'b', null)).await(),
+                        new NullPointerException("The 2 element cannot be null."));
                 });
             });
 
-            runner.testGroup("toStringArray()", () ->
+            runner.testGroup("toCharArray(Iterable<Character>)", () ->
             {
-                runner.test("with null Iterator", (Test test) ->
+                runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> Array.toStringArray((Iterator<String>)null), new PreConditionFailure("values cannot be null."));
+                    test.assertThrows(() -> Array.toCharArray((Iterable<Character>)null),
+                        new PreConditionFailure("values cannot be null."));
                 });
 
-                runner.test("with empty Iterator", (Test test) ->
+                runner.test("with empty", (Test test) ->
                 {
-                    test.assertEqual(new String[0], Array.toStringArray(Iterator.create()));
+                    test.assertEqual(new char[0], Array.toCharArray(Iterable.create()).await());
                 });
 
-                runner.test("with non-empty Iterator", (Test test) ->
+                runner.test("with non-empty Array", (Test test) ->
                 {
-                    test.assertEqual(new String[] { "0", "1", "2" }, Array.toStringArray(Iterator.create("0", "1", "2")));
+                    test.assertEqual(new char[] { 'a', 'b', 'c' }, Array.toCharArray(Iterable.create('a', 'b', 'c')).await());
                 });
 
-                runner.test("with null Iterable", (Test test) ->
+                runner.test("with non-empty CharArray", (Test test) ->
                 {
-                    test.assertThrows(() -> Array.toStringArray((Iterable<String>)null), new PreConditionFailure("values cannot be null."));
+                    test.assertEqual(new char[] { 'a', 'b', 'c' }, Array.toCharArray(Array.createCharacter('a', 'b', 'c')).await());
                 });
 
-                runner.test("with empty Iterable", (Test test) ->
+                runner.test("with non-empty CharList", (Test test) ->
                 {
-                    test.assertEqual(new String[0], Array.toStringArray(Iterable.create()));
+                    test.assertEqual(new char[] { 'a', 'b', 'c' }, Array.toCharArray(CharacterList.createFromCharacters('a', 'b', 'c')).await());
+                });
+
+                runner.test("with null value", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.toCharArray(Iterable.create('a', 'b', null)).await(),
+                        new NullPointerException("The 2 element cannot be null."));
+                });
+            });
+
+            runner.testGroup("toIntArray(Iterator<Integer>)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.toIntArray((Iterator<Integer>)null),
+                        new PreConditionFailure("values cannot be null."));
+                });
+
+                runner.test("with empty", (Test test) ->
+                {
+                    test.assertEqual(new int[0], Array.toIntArray(Iterator.create()).await());
+                });
+
+                runner.test("with non-empty", (Test test) ->
+                {
+                    test.assertEqual(new int[] { 0, 1, 2 }, Array.toIntArray(Iterator.create(0, 1, 2)).await());
+                });
+
+                runner.test("with null value", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.toIntArray(Iterator.create(0, 1, null)).await(),
+                        new NullPointerException("The 2 element cannot be null."));
+                });
+            });
+
+            runner.testGroup("toIntArray(Iterable<Integer>)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.toIntArray((Iterable<Integer>)null),
+                        new PreConditionFailure("values cannot be null."));
+                });
+
+                runner.test("with empty", (Test test) ->
+                {
+                    test.assertEqual(new int[0], Array.toIntArray(Iterable.create()).await());
+                });
+
+                runner.test("with non-empty Array", (Test test) ->
+                {
+                    test.assertEqual(new int[] { 0, 1, 2 }, Array.toIntArray(Iterable.create(0, 1, 2)).await());
+                });
+
+                runner.test("with non-empty IntegerArray", (Test test) ->
+                {
+                    test.assertEqual(new int[] { 0, 1, 2 }, Array.toIntArray(Array.createInteger(0, 1, 2)).await());
+                });
+
+                runner.test("with null value", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.toIntArray(Iterable.create(0, 1, null)).await(),
+                        new NullPointerException("The 2 element cannot be null."));
                 });
             });
 
@@ -1669,7 +1738,7 @@ public class ArrayTests
             {
                 final Action2<byte[][],byte[]> mergeTest = (byte[][] bytes, byte[] expected) ->
                 {
-                    runner.test("with " + (bytes == null ? "null" : Iterable.create(bytes).map(Array::createByte)), (Test test) ->
+                    runner.test("with " + (bytes == null ? "null" : Iterable.create(bytes).map(Iterable::create)), (Test test) ->
                     {
                         final Iterable<Byte> expectedArray = Array.createByte(expected);
                         final byte[] mergedBytes = Array.mergeBytes(Iterable.create(bytes));
@@ -1683,7 +1752,30 @@ public class ArrayTests
                 mergeTest.run(new byte[][] { new byte[0] }, new byte[0]);
                 mergeTest.run(new byte[][] { new byte[] { 1, 2, 3 } }, new byte[] { 1, 2, 3 });
                 mergeTest.run(new byte[][] { new byte[] { 1, 2, 3 }, new byte[] { 4 } }, new byte[] { 1, 2, 3, 4 });
+                mergeTest.run(new byte[][] { null, new byte[] { 1, 2, 3 }, null, new byte[] { 4 }, null }, new byte[] { 1, 2, 3, 4 });
                 mergeTest.run(new byte[][] { new byte[] { 1, 2, 3 }, new byte[] { 4 }, new byte[] { 5, 6, 7, 8} }, new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 });
+            });
+
+            runner.testGroup("mergeCharacters(Iterable<char[]>)", () ->
+            {
+                final Action2<char[][],char[]> mergeTest = (char[][] characters, char[] expected) ->
+                {
+                    runner.test("with " + (characters == null ? "null" : Iterable.create(characters).map(Iterable::create)), (Test test) ->
+                    {
+                        final Iterable<Character> expectedArray = Array.createCharacter(expected);
+                        final char[] mergedCharacters = Array.mergeCharacters(Iterable.create(characters));
+                        final Iterable<Character> actualArray = Array.createCharacter(mergedCharacters);
+
+                        test.assertEqual(expectedArray, actualArray);
+                    });
+                };
+
+                mergeTest.run(new char[][] { }, new char[0]);
+                mergeTest.run(new char[][] { new char[0] }, new char[0]);
+                mergeTest.run(new char[][] { new char[] { 'a', 'b', 'c' } }, new char[] { 'a', 'b', 'c' });
+                mergeTest.run(new char[][] { new char[] { 'a', 'b', 'c' }, new char[] { 'd' } }, new char[] { 'a', 'b', 'c', 'd' });
+                mergeTest.run(new char[][] { null, new char[] { 'a', 'b', 'c' }, null, new char[] { 'd' }, null }, new char[] { 'a', 'b', 'c', 'd' });
+                mergeTest.run(new char[][] { new char[] { 'a', 'b', 'c' }, new char[] { 'd' }, new char[] { 'e', 'f', 'g', 'h' } }, new char[] { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h' });
             });
 
             runner.testGroup("toString(byte[])", () ->
@@ -1718,6 +1810,361 @@ public class ArrayTests
                 toStringTest.run(new char[] { 'a' }, "['a']");
                 toStringTest.run(new char[] { 'b', 'c' }, "['b','c']");
                 toStringTest.run(new char[] { 'd', 'e', 'f' }, "['d','e','f']");
+            });
+
+            runner.testGroup("toString(char[],Function1<Character,String>)", () ->
+            {
+                runner.test("with null transform", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.toString(new char[] { 'a' }, null),
+                        new PreConditionFailure("characterTransform cannot be null."));
+                });
+
+                final Action2<char[],String> toStringTest = (char[] array, String expected) ->
+                {
+                    runner.test("with " + Array.toString(array), (Test test) ->
+                    {
+                        test.assertEqual(expected, Array.toString(array, (Character c) -> Characters.toString(Character.toUpperCase(c))));
+                    });
+                };
+
+                toStringTest.run(null, "null");
+                toStringTest.run(new char[0], "[]");
+                toStringTest.run(new char[] { 'a' }, "[A]");
+                toStringTest.run(new char[] { 'A' }, "[A]");
+                toStringTest.run(new char[] { 'b', 'c' }, "[B,C]");
+                toStringTest.run(new char[] { 'd', 'e', 'f' }, "[D,E,F]");
+            });
+
+            runner.testGroup("toString(short[])", () ->
+            {
+                final Action2<short[],String> toStringTest = (short[] array, String expected) ->
+                {
+                    runner.test("with " + Array.toString(array), (Test test) ->
+                    {
+                        test.assertEqual(expected, Array.toString(array));
+                    });
+                };
+
+                toStringTest.run(null, "null");
+                toStringTest.run(new short[0], "[]");
+                toStringTest.run(new short[] { 1 }, "[1]");
+                toStringTest.run(new short[] { 2, 3 }, "[2,3]");
+                toStringTest.run(new short[] { 4, 5, 6 }, "[4,5,6]");
+            });
+
+            runner.testGroup("toString(short[],Function1<Short,String>)", () ->
+            {
+                runner.test("with null transform", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.toString(new short[] { 1 }, null),
+                        new PreConditionFailure("transform cannot be null."));
+                });
+
+                final Action2<short[],String> toStringTest = (short[] array, String expected) ->
+                {
+                    runner.test("with " + Array.toString(array), (Test test) ->
+                    {
+                        test.assertEqual(expected, Array.toString(array, (Short value) -> Integers.toString(value + 1)));
+                    });
+                };
+
+                toStringTest.run(null, "null");
+                toStringTest.run(new short[0], "[]");
+                toStringTest.run(new short[] { 1 }, "[2]");
+                toStringTest.run(new short[] { 2, 3 }, "[3,4]");
+                toStringTest.run(new short[] { 4, 5, 6 }, "[5,6,7]");
+            });
+
+            runner.testGroup("toString(int[])", () ->
+            {
+                final Action2<int[],String> toStringTest = (int[] array, String expected) ->
+                {
+                    runner.test("with " + Array.toString(array), (Test test) ->
+                    {
+                        test.assertEqual(expected, Array.toString(array));
+                    });
+                };
+
+                toStringTest.run(null, "null");
+                toStringTest.run(new int[0], "[]");
+                toStringTest.run(new int[] { 1 }, "[1]");
+                toStringTest.run(new int[] { 2, 3 }, "[2,3]");
+                toStringTest.run(new int[] { 4, 5, 6 }, "[4,5,6]");
+            });
+
+            runner.testGroup("toString(int[],Function1<Integer,String>)", () ->
+            {
+                runner.test("with null transform", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.toString(new int[] { 1 }, null),
+                        new PreConditionFailure("transform cannot be null."));
+                });
+
+                final Action2<int[],String> toStringTest = (int[] array, String expected) ->
+                {
+                    runner.test("with " + Array.toString(array), (Test test) ->
+                    {
+                        test.assertEqual(expected, Array.toString(array, (Integer value) -> Integers.toString(value + 1)));
+                    });
+                };
+
+                toStringTest.run(null, "null");
+                toStringTest.run(new int[0], "[]");
+                toStringTest.run(new int[] { 1 }, "[2]");
+                toStringTest.run(new int[] { 2, 3 }, "[3,4]");
+                toStringTest.run(new int[] { 4, 5, 6 }, "[5,6,7]");
+            });
+
+            runner.testGroup("toString(long[])", () ->
+            {
+                final Action2<long[],String> toStringTest = (long[] array, String expected) ->
+                {
+                    runner.test("with " + Array.toString(array), (Test test) ->
+                    {
+                        test.assertEqual(expected, Array.toString(array));
+                    });
+                };
+
+                toStringTest.run(null, "null");
+                toStringTest.run(new long[0], "[]");
+                toStringTest.run(new long[] { 1 }, "[1]");
+                toStringTest.run(new long[] { 2, 3 }, "[2,3]");
+                toStringTest.run(new long[] { 4, 5, 6 }, "[4,5,6]");
+            });
+
+            runner.testGroup("toString(long[],Function1<Long,String>)", () ->
+            {
+                runner.test("with null transform", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.toString(new long[] { 1 }, null),
+                        new PreConditionFailure("transform cannot be null."));
+                });
+
+                final Action2<long[],String> toStringTest = (long[] array, String expected) ->
+                {
+                    runner.test("with " + Array.toString(array), (Test test) ->
+                    {
+                        test.assertEqual(expected, Array.toString(array, (Long value) -> Longs.toString(value + 1)));
+                    });
+                };
+
+                toStringTest.run(null, "null");
+                toStringTest.run(new long[0], "[]");
+                toStringTest.run(new long[] { 1 }, "[2]");
+                toStringTest.run(new long[] { 2, 3 }, "[3,4]");
+                toStringTest.run(new long[] { 4, 5, 6 }, "[5,6,7]");
+            });
+
+            runner.testGroup("toString(float[])", () ->
+            {
+                final Action2<float[],String> toStringTest = (float[] array, String expected) ->
+                {
+                    runner.test("with " + Array.toString(array), (Test test) ->
+                    {
+                        test.assertEqual(expected, Array.toString(array));
+                    });
+                };
+
+                toStringTest.run(null, "null");
+                toStringTest.run(new float[0], "[]");
+                toStringTest.run(new float[] { 1 }, "[1.0]");
+                toStringTest.run(new float[] { 2, 3 }, "[2.0,3.0]");
+                toStringTest.run(new float[] { 4, 5, 6 }, "[4.0,5.0,6.0]");
+            });
+
+            runner.testGroup("toString(float[],Function1<Float,String>)", () ->
+            {
+                runner.test("with null transform", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.toString(new float[] { 1 }, null),
+                        new PreConditionFailure("transform cannot be null."));
+                });
+
+                final Action2<float[],String> toStringTest = (float[] array, String expected) ->
+                {
+                    runner.test("with " + Array.toString(array), (Test test) ->
+                    {
+                        test.assertEqual(expected, Array.toString(array, (Float value) -> Floats.toString(value + 1)));
+                    });
+                };
+
+                toStringTest.run(null, "null");
+                toStringTest.run(new float[0], "[]");
+                toStringTest.run(new float[] { 1 }, "[2.0]");
+                toStringTest.run(new float[] { 2, 3 }, "[3.0,4.0]");
+                toStringTest.run(new float[] { 4, 5, 6 }, "[5.0,6.0,7.0]");
+            });
+
+            runner.testGroup("toString(double[])", () ->
+            {
+                final Action2<double[],String> toStringTest = (double[] array, String expected) ->
+                {
+                    runner.test("with " + Array.toString(array), (Test test) ->
+                    {
+                        test.assertEqual(expected, Array.toString(array));
+                    });
+                };
+
+                toStringTest.run(null, "null");
+                toStringTest.run(new double[0], "[]");
+                toStringTest.run(new double[] { 1 }, "[1.0]");
+                toStringTest.run(new double[] { 2, 3 }, "[2.0,3.0]");
+                toStringTest.run(new double[] { 4, 5, 6 }, "[4.0,5.0,6.0]");
+            });
+
+            runner.testGroup("toString(double[],Function1<Double,String>)", () ->
+            {
+                runner.test("with null transform", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.toString(new double[] { 1 }, null),
+                        new PreConditionFailure("transform cannot be null."));
+                });
+
+                final Action2<double[],String> toStringTest = (double[] array, String expected) ->
+                {
+                    runner.test("with " + Array.toString(array), (Test test) ->
+                    {
+                        test.assertEqual(expected, Array.toString(array, (Double value) -> Doubles.toString(value + 1)));
+                    });
+                };
+
+                toStringTest.run(null, "null");
+                toStringTest.run(new double[0], "[]");
+                toStringTest.run(new double[] { 1 }, "[2.0]");
+                toStringTest.run(new double[] { 2, 3 }, "[3.0,4.0]");
+                toStringTest.run(new double[] { 4, 5, 6 }, "[5.0,6.0,7.0]");
+            });
+
+            runner.testGroup("toString(T[])", () ->
+            {
+                final Action2<String[],String> toStringTest = (String[] array, String expected) ->
+                {
+                    runner.test("with " + Array.toString(array), (Test test) ->
+                    {
+                        test.assertEqual(expected, Array.toString(array));
+                    });
+                };
+
+                toStringTest.run(null, "null");
+                toStringTest.run(new String[0], "[]");
+                toStringTest.run(new String[] { "apples" }, "[apples]");
+                toStringTest.run(new String[] { "apples", "oranges" }, "[apples,oranges]");
+                toStringTest.run(new String[] { "apples", "oranges", "bananas" }, "[apples,oranges,bananas]");
+            });
+
+            runner.testGroup("toString(T[],Function1<T,String>)", () ->
+            {
+                runner.test("with null transform", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.toString(new String[] { "apples" }, null),
+                        new PreConditionFailure("transform cannot be null."));
+                });
+
+                final Action2<String[],String> toStringTest = (String[] array, String expected) ->
+                {
+                    runner.test("with " + Array.toString(array), (Test test) ->
+                    {
+                        test.assertEqual(expected, Array.toString(array, (String value) -> Characters.toString(value.charAt(0))));
+                    });
+                };
+
+                toStringTest.run(null, "null");
+                toStringTest.run(new String[0], "[]");
+                toStringTest.run(new String[] { "apples" }, "[a]");
+                toStringTest.run(new String[] { "apples", "oranges" }, "[a,o]");
+                toStringTest.run(new String[] { "apples", "oranges", "bananas" }, "[a,o,b]");
+            });
+
+            runner.testGroup("indexOf(char[],char)", () ->
+            {
+                runner.test("with null characters", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.indexOf(null, 'a'),
+                        new PreConditionFailure("characters cannot be null."));
+                });
+
+                runner.test("with empty characters", (Test test) ->
+                {
+                    test.assertEqual(-1, Array.indexOf(new char[0], 'a'));
+                });
+
+                runner.test("with non-empty characters and not-found character", (Test test) ->
+                {
+                    test.assertEqual(-1, Array.indexOf(new char[] { 'x', 'y', 'z' }, 'a'));
+                });
+
+                runner.test("with non-empty characters and found character", (Test test) ->
+                {
+                    test.assertEqual(2, Array.indexOf(new char[] { 'x', 'y', 'z' }, 'z'));
+                });
+            });
+
+            runner.testGroup("indexOf(char[],int,int,char)", () ->
+            {
+                runner.test("with null characters", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.indexOf(null, 0, 0, 'a'),
+                        new PreConditionFailure("characters cannot be null."));
+                });
+
+                runner.test("with negative startIndex", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.indexOf(new char[] { 'x', 'y', 'z' }, -1, 0, 'a'),
+                        new PreConditionFailure("startIndex (-1) must be between 0 and 2."));
+                });
+
+                runner.test("with startIndex equal to values length", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.indexOf(new char[] { 'x', 'y', 'z' }, 3, 0, 'a'),
+                        new PreConditionFailure("startIndex (3) must be between 0 and 2."));
+                });
+
+                runner.test("with startIndex greater than values length", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.indexOf(new char[] { 'x', 'y', 'z' }, 4, 0, 'a'),
+                        new PreConditionFailure("startIndex (4) must be between 0 and 2."));
+                });
+
+                runner.test("with negative length", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.indexOf(new char[] { 'x', 'y', 'z' }, 1, -1, 'a'),
+                        new PreConditionFailure("length (-1) must be between 1 and 2."));
+                });
+
+                runner.test("with zero length", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.indexOf(new char[] { 'x', 'y', 'z' }, 1, 0, 'a'),
+                        new PreConditionFailure("length (0) must be between 1 and 2."));
+                });
+
+                runner.test("with length greater than values length", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.indexOf(new char[] { 'x', 'y', 'z' }, 0, 4, 'a'),
+                        new PreConditionFailure("length (4) must be between 1 and 3."));
+                });
+
+                runner.test("with length greater than values length - startIndex", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.indexOf(new char[] { 'x', 'y', 'z' }, 1, 3, 'a'),
+                        new PreConditionFailure("length (3) must be between 1 and 2."));
+                });
+
+                runner.test("with empty characters", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.indexOf(new char[0], 0, 0, 'a'),
+                        new PreConditionFailure("length (0) must be between 1 and 0."));
+                });
+
+                runner.test("with non-empty characters and not-found character", (Test test) ->
+                {
+                    test.assertEqual(-1, Array.indexOf(new char[] { 'x', 'y', 'z' }, 1, 2, 'a'));
+                });
+
+                runner.test("with non-empty characters and found character", (Test test) ->
+                {
+                    test.assertEqual(1, Array.indexOf(new char[] { 'x', 'y', 'z' }, 1, 2, 'z'));
+                });
             });
 
             runner.testGroup("shiftLeft(byte[],int,int)", () ->

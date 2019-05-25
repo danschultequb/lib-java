@@ -5,30 +5,18 @@ package qub;
  */
 public class JavaFileSystem implements FileSystem
 {
-    private final Function0<AsyncRunner> asyncRunnerGetter;
-
-    public JavaFileSystem(Function0<AsyncRunner> asyncRunnerGetter)
-    {
-        PreCondition.assertNotNull(asyncRunnerGetter, "asyncRunnerGetter");
-
-        this.asyncRunnerGetter = asyncRunnerGetter;
-    }
-
-    private AsyncRunner getAsyncRunner()
-    {
-        return asyncRunnerGetter.run();
-    }
-
     @Override
     public Result<Iterable<Root>> getRoots()
     {
-        return getAsyncRunner().schedule(() ->
+        return Result.create(() ->
         {
             return Iterable.create(java.io.File.listRoots())
                 .map((java.io.File root) ->
                 {
                     final String rootPathString = root.getAbsolutePath();
-                    final String trimmedRootPathString = rootPathString.equals("/") ? rootPathString : rootPathString.substring(0, rootPathString.length() - 1);
+                    final String trimmedRootPathString = rootPathString.equals("/")
+                        ? rootPathString
+                        : rootPathString.substring(0, rootPathString.length() - 1);
                     return getRoot(trimmedRootPathString).await();
                 });
         });
@@ -39,7 +27,7 @@ public class JavaFileSystem implements FileSystem
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        return getAsyncRunner().scheduleResult(() ->
+        return Result.createResult(() ->
         {
             Result<Iterable<FileSystemEntry>> result;
             Array<FileSystemEntry> filesAndFolders;
@@ -90,7 +78,7 @@ public class JavaFileSystem implements FileSystem
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        return getAsyncRunner().schedule(() ->
+        return Result.create(() ->
         {
             final String folderPathString = rootedFolderPath.toString();
             final java.io.File folderFile = new java.io.File(folderPathString);
@@ -103,7 +91,7 @@ public class JavaFileSystem implements FileSystem
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        return getAsyncRunner().scheduleResult(() ->
+        return Result.createResult(() ->
         {
             Result<Folder> result;
             try
@@ -133,25 +121,29 @@ public class JavaFileSystem implements FileSystem
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        return getFilesAndFolders(rootedFolderPath)
-            .then((Iterable<FileSystemEntry> entries) ->
+        return Result.create(() ->
+        {
+            final Iterable<FileSystemEntry> entries = getFilesAndFolders(rootedFolderPath).await();
+            for (final FileSystemEntry entry : entries)
             {
-                Result.await(entries.map(FileSystemEntry::delete).toList());
-                try
-                {
-                    final String rootedFolderPathString = rootedFolderPath.toString();
-                    final java.nio.file.Path folderPath = java.nio.file.Paths.get(rootedFolderPathString);
-                    java.nio.file.Files.delete(folderPath);
-                }
-                catch (java.io.FileNotFoundException e)
-                {
-                    throw new FolderNotFoundException(rootedFolderPath);
-                }
-                catch (Throwable error)
-                {
-                    throw Exceptions.asRuntime(error);
-                }
-            });
+                entry.delete().await();
+            }
+
+            try
+            {
+                final String rootedFolderPathString = rootedFolderPath.toString();
+                final java.nio.file.Path folderPath = java.nio.file.Paths.get(rootedFolderPathString);
+                java.nio.file.Files.delete(folderPath);
+            }
+            catch (java.io.FileNotFoundException e)
+            {
+                throw new FolderNotFoundException(rootedFolderPath);
+            }
+            catch (Throwable error)
+            {
+                throw Exceptions.asRuntime(error);
+            }
+        });
     }
 
     @Override
@@ -159,7 +151,7 @@ public class JavaFileSystem implements FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        return getAsyncRunner().schedule(() ->
+        return Result.create(() ->
         {
             final String rootedFilePathString = rootedFilePath.toString();
             final java.nio.file.Path path = java.nio.file.Paths.get(rootedFilePathString);
@@ -172,26 +164,28 @@ public class JavaFileSystem implements FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        return createFolder(rootedFilePath.getParent())
-            .catchError(FolderAlreadyExistsException.class)
-            .thenResult(() ->
+        return Result.createResult(() ->
+        {
+            createFolder(rootedFilePath.getParent())
+                .catchError(FolderAlreadyExistsException.class)
+                .await();
+
+            Result<File> createFileResult;
+            try
             {
-                Result<File> createFileResult;
-                try
-                {
-                    java.nio.file.Files.createFile(java.nio.file.Paths.get(rootedFilePath.toString()));
-                    createFileResult = getFile(rootedFilePath);
-                }
-                catch (java.nio.file.FileAlreadyExistsException e)
-                {
-                    createFileResult = Result.error(new FileAlreadyExistsException(rootedFilePath));
-                }
-                catch (Throwable e)
-                {
-                    createFileResult = Result.error(e);
-                }
-                return createFileResult;
-            });
+                java.nio.file.Files.createFile(java.nio.file.Paths.get(rootedFilePath.toString()));
+                createFileResult = getFile(rootedFilePath);
+            }
+            catch (java.nio.file.FileAlreadyExistsException e)
+            {
+                createFileResult = Result.error(new FileAlreadyExistsException(rootedFilePath));
+            }
+            catch (Throwable e)
+            {
+                createFileResult = Result.error(e);
+            }
+            return createFileResult;
+        });
     }
 
     @Override
@@ -199,7 +193,7 @@ public class JavaFileSystem implements FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        return getAsyncRunner().scheduleResult(() ->
+        return Result.createResult(() ->
         {
             Result<Void> result;
             try
@@ -226,7 +220,7 @@ public class JavaFileSystem implements FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        return getAsyncRunner().scheduleResult(() ->
+        return Result.createResult(() ->
         {
             Result<DateTime> result;
             try
@@ -253,7 +247,7 @@ public class JavaFileSystem implements FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        return getAsyncRunner().scheduleResult(() ->
+        return Result.createResult(() ->
         {
             Result<ByteReadStream> result;
             try
@@ -280,7 +274,7 @@ public class JavaFileSystem implements FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        return getAsyncRunner().scheduleResult(() ->
+        return Result.createResult(() ->
         {
             Result<ByteWriteStream> result;
             try

@@ -581,7 +581,7 @@ public class PreCondition
      */
     public static void assertLength(long length, long startIndex, long arrayLength, String expressionName)
     {
-        assertBetween(0, length, arrayLength - startIndex, expressionName);
+        assertBetween(1, length, arrayLength - startIndex, expressionName);
     }
 
     /**

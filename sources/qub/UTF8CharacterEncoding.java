@@ -55,7 +55,7 @@ public class UTF8CharacterEncoding implements CharacterEncoding
         PreCondition.assertStartIndex(startIndex, bytes.length);
         PreCondition.assertLength(length, startIndex, bytes.length);
 
-        return Result.create(() ->
+        return Result.createResult(() ->
         {
             final List<Character> characters = List.create();
             final Iterator<Byte> byteIterator = Iterator.create(bytes, startIndex, length);

@@ -374,6 +374,30 @@ public interface Result<T>
     }
 
     /**
+     * Create a new Result by synchronously running the provided Function and returning the result.
+     * @param function The function to run.
+     * @param <U> The type of value the function will return.
+     */
+    public static <U> Result<U> createResult(Function0<Result<U>> function)
+    {
+        PreCondition.assertNotNull(function, "function");
+
+        Result<U> result;
+        try
+        {
+            result = function.run();
+        }
+        catch (Throwable error)
+        {
+            result = Result.error(error);
+        }
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    /**
      * Create a new Result that contains the provided error.
      * @param error The error that the Result should contain.
      * @param <U> The type of value the Result can contain.

@@ -6,12 +6,6 @@ public class DoublesTests
     {
         runner.testGroup(Doubles.class, () ->
         {
-            runner.test("constructor", (Test test) ->
-            {
-                final Doubles value = new Doubles();
-                test.assertNotNull(value);
-            });
-
             runner.test("bitCount", (Test test) ->
             {
                 test.assertEqual(64, Doubles.bitCount);

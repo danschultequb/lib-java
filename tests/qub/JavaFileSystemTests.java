@@ -24,7 +24,7 @@ public class JavaFileSystemTests
             FileSystemTests.test(runner, (Test test) ->
             {
                 final Path testFolderPath = tempFolderPath.concatenateSegment(testNumber.increment().toString());
-                folderFileSystem.set(FolderFileSystem.get(new JavaFileSystem(test::getParallelAsyncRunner), testFolderPath));
+                folderFileSystem.set(FolderFileSystem.get(new JavaFileSystem(), testFolderPath));
                 if (folderFileSystem.get().exists().await())
                 {
                     folderFileSystem.get().delete().await();
@@ -35,7 +35,7 @@ public class JavaFileSystemTests
 
             runner.test("getRoots()", (Test test) ->
             {
-                final JavaFileSystem fileSystem = new JavaFileSystem(test::getParallelAsyncRunner);
+                final JavaFileSystem fileSystem = new JavaFileSystem();
                 final Iterable<Root> roots = fileSystem.getRoots().await();
                 test.assertNotNullAndNotEmpty(roots);
 

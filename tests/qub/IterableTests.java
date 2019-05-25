@@ -545,7 +545,7 @@ public class IterableTests
                     // an Iterable with 0 elements is requested.
                     if (iterable != null)
                     {
-                        test.assertEqual(new int[0], Array.toIntArray(iterable));
+                        test.assertEqual(Iterable.create(), iterable);
 
                         test.assertFalse(iterable.contains(3));
                     }
@@ -554,7 +554,7 @@ public class IterableTests
                 runner.test("with non-empty Iterable and not found value", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(2);
-                    test.assertEqual(new int[] { 0, 1 }, Array.toIntArray(iterable));
+                    test.assertEqual(Iterable.create(0, 1), iterable);
 
                     test.assertFalse(iterable.contains(3));
                 });
@@ -562,7 +562,7 @@ public class IterableTests
                 runner.test("with non-empty Iterable and found value", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(5);
-                    test.assertEqual(new int[] { 0, 1, 2, 3, 4 }, Array.toIntArray(iterable));
+                    test.assertEqual(Iterable.create(0, 1, 2, 3, 4), iterable);
 
                     test.assertTrue(iterable.contains(3));
                 });
