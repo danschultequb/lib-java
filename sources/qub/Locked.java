@@ -32,6 +32,25 @@ public class Locked<T>
     }
 
     /**
+     * Create a new Locked wrapper around the provided value.
+     * @param value The value to lock.
+     */
+    public static <T> Locked<T> create(T value)
+    {
+        return new Locked<>(value);
+    }
+
+    /**
+     * Create a new Locked wrapper around the provided value.
+     * @param value The value to lock.
+     * @param mutex The mutex that will be used to lock access to the value.
+     */
+    public static <T> Locked<T> create(T value, Mutex mutex)
+    {
+        return new Locked<>(value, mutex);
+    }
+
+    /**
      * Perform the provided action with this Locked object's value within a critical section.
      * @param action The action to perform with this Locked object's value within a critical
      *               section.

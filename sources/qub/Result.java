@@ -424,7 +424,7 @@ public interface Result<T>
      * @param resultsToAwait The Result objects to await.
      */
     @SafeVarargs
-    static <T> Iterable<T> await(Result<T>... resultsToAwait)
+    static <T,RT extends Result<T>> Iterable<T> await(RT... resultsToAwait)
     {
         PreCondition.assertNotNull(resultsToAwait, "resultsToAwait");
 
@@ -435,7 +435,7 @@ public interface Result<T>
      * Await all of the Result objects in the provided Iterable.
      * @param resultsToAwait The Result objects to await.
      */
-    static <T> Iterable<T> await(Iterable<Result<T>> resultsToAwait)
+    static <T,RT extends Result<T>> Iterable<T> await(Iterable<RT> resultsToAwait)
     {
         PreCondition.assertNotNull(resultsToAwait, "resultsToAwait");
 

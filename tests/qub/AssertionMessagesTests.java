@@ -719,8 +719,8 @@ public interface AssertionMessagesTests
 
                 runner.test("with empty values", (Test test) ->
                 {
-                    test.assertThrows(new java.lang.ArrayIndexOutOfBoundsException("-1"),
-                        () -> AssertionMessages.oneOf("a", Iterable.create(), "blah"));
+                    test.assertEqual("blah (a) must be either or null.",
+                        AssertionMessages.oneOf("a", Iterable.create(), "blah"));
                 });
 
                 runner.test("with one-element values", (Test test) ->
