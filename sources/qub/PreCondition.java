@@ -208,6 +208,20 @@ public class PreCondition
      * @param value The value that should not equal expectedValue.
      * @param variableName The name of the variable that contains the value.
      */
+    public static void assertNotEqual(boolean expectedValue, boolean value, String variableName)
+    {
+        if (expectedValue == value)
+        {
+            throw new PreConditionFailure(AssertionMessages.notEqual(expectedValue, value, variableName));
+        }
+    }
+
+    /**
+     * Assert that value is not equal to the provided expectedValue.
+     * @param expectedValue The expected value that value should not be equal to.
+     * @param value The value that should not equal expectedValue.
+     * @param variableName The name of the variable that contains the value.
+     */
     public static void assertNotEqual(int expectedValue, int value, String variableName)
     {
         if (expectedValue == value)

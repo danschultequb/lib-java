@@ -6,7 +6,7 @@ package qub;
 public class SpinGate implements Gate
 {
     private final Clock clock;
-    private final java.util.concurrent.atomic.AtomicBoolean open;
+    private final BooleanValue open;
 
     /**
      * Create a new SpinGate with the provided initial state.
@@ -24,7 +24,7 @@ public class SpinGate implements Gate
     public SpinGate(Clock clock, boolean open)
     {
         this.clock = clock;
-        this.open = new java.util.concurrent.atomic.AtomicBoolean(open);
+        this.open = BooleanValue.create(open);
     }
 
     @Override

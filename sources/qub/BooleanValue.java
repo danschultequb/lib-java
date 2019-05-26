@@ -70,18 +70,50 @@ public class BooleanValue implements Value<java.lang.Boolean>
     }
 
     @Override
-    public void clear()
-    {
-        value.set(false);
-        hasValue = false;
-    }
-
-    @Override
     public void set(java.lang.Boolean value)
     {
         PreCondition.assertNotNull(value, "value");
 
         set(value.booleanValue());
+    }
+
+    public boolean compareAndSet(boolean expectedValue, boolean newValue)
+    {
+        PreCondition.assertNotEqual(expectedValue, newValue, "newValue");
+
+        return this.value.compareAndSet(expectedValue, newValue);
+    }
+
+    public boolean compareAndSet(boolean expectedValue, java.lang.Boolean newValue)
+    {
+        PreCondition.assertNotNull(newValue, "newValue");
+        PreCondition.assertNotEqual(expectedValue, newValue, "newValue");
+
+        return compareAndSet(expectedValue, newValue.booleanValue());
+    }
+
+    public boolean compareAndSet(java.lang.Boolean expectedValue, boolean newValue)
+    {
+        PreCondition.assertNotNull(expectedValue, "expectedValue");
+        PreCondition.assertNotEqual(expectedValue, newValue, "newValue");
+
+        return compareAndSet(expectedValue.booleanValue(), newValue);
+    }
+
+    public boolean compareAndSet(java.lang.Boolean expectedValue, java.lang.Boolean newValue)
+    {
+        PreCondition.assertNotNull(expectedValue, "expectedValue");
+        PreCondition.assertNotNull(newValue, "newValue");
+        PreCondition.assertNotEqual(expectedValue, newValue, "newValue");
+
+        return compareAndSet(expectedValue.booleanValue(), newValue.booleanValue());
+    }
+
+    @Override
+    public void clear()
+    {
+        value.set(false);
+        hasValue = false;
     }
 
     @Override

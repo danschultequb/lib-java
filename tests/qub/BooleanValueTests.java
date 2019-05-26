@@ -1,8 +1,8 @@
 package qub;
 
-public class BooleanValueTests
+public interface BooleanValueTests
 {
-    public static void test(TestRunner runner)
+    static void test(TestRunner runner)
     {
         runner.testGroup(BooleanValue.class, () ->
         {
@@ -193,6 +193,194 @@ public class BooleanValueTests
                     value.set(Boolean.valueOf(true));
                     test.assertTrue(value.hasValue());
                     test.assertTrue(value.get());
+                });
+            });
+
+            runner.testGroup("compareAndSet(boolean,boolean)", () ->
+            {
+                runner.test("when false with false and false", (Test test) ->
+                {
+                    final BooleanValue value = BooleanValue.create(false);
+                    test.assertThrows(new PreConditionFailure("newValue (false) must not be false."),
+                        () -> value.compareAndSet(false, false));
+                    test.assertFalse(value.get());
+                });
+
+                runner.test("when false with false and true", (Test test) ->
+                {
+                    final BooleanValue value = BooleanValue.create(false);
+                    test.assertTrue(value.compareAndSet(false, true));
+                    test.assertTrue(value.get());
+                });
+
+                runner.test("when false with true and false", (Test test) ->
+                {
+                    final BooleanValue value = BooleanValue.create(false);
+                    test.assertFalse(value.compareAndSet(true, false));
+                    test.assertFalse(value.get());
+                });
+
+                runner.test("when true with false and true", (Test test) ->
+                {
+                    final BooleanValue value = BooleanValue.create(true);
+                    test.assertFalse(value.compareAndSet(false, true));
+                    test.assertTrue(value.get());
+                });
+
+                runner.test("when true with true and false", (Test test) ->
+                {
+                    final BooleanValue value = BooleanValue.create(true);
+                    test.assertTrue(value.compareAndSet(true, false));
+                    test.assertFalse(value.get());
+                });
+            });
+
+            runner.testGroup("compareAndSet(boolean,java.lang.Boolean)", () ->
+            {
+                runner.test("with null newValue", (Test test) ->
+                {
+                    final BooleanValue value = BooleanValue.create(false);
+                    test.assertThrows(new PreConditionFailure("newValue cannot be null."),
+                        () -> value.compareAndSet(false, null));
+                    test.assertFalse(value.get());
+                });
+
+                runner.test("when false with false and false", (Test test) ->
+                {
+                    final BooleanValue value = BooleanValue.create(false);
+                    test.assertThrows(new PreConditionFailure("newValue (false) must not be false."),
+                        () -> value.compareAndSet(false, java.lang.Boolean.FALSE));
+                    test.assertFalse(value.get());
+                });
+
+                runner.test("when false with false and true", (Test test) ->
+                {
+                    final BooleanValue value = BooleanValue.create(false);
+                    test.assertTrue(value.compareAndSet(false, java.lang.Boolean.TRUE));
+                    test.assertTrue(value.get());
+                });
+
+                runner.test("when false with true and false", (Test test) ->
+                {
+                    final BooleanValue value = BooleanValue.create(false);
+                    test.assertFalse(value.compareAndSet(true, java.lang.Boolean.FALSE));
+                    test.assertFalse(value.get());
+                });
+
+                runner.test("when true with false and true", (Test test) ->
+                {
+                    final BooleanValue value = BooleanValue.create(true);
+                    test.assertFalse(value.compareAndSet(false, java.lang.Boolean.TRUE));
+                    test.assertTrue(value.get());
+                });
+
+                runner.test("when true with true and false", (Test test) ->
+                {
+                    final BooleanValue value = BooleanValue.create(true);
+                    test.assertTrue(value.compareAndSet(true, java.lang.Boolean.FALSE));
+                    test.assertFalse(value.get());
+                });
+            });
+
+            runner.testGroup("compareAndSet(java.lang.Boolean,boolean)", () ->
+            {
+                runner.test("with null expectedValue", (Test test) ->
+                {
+                    final BooleanValue value = BooleanValue.create(false);
+                    test.assertThrows(new PreConditionFailure("expectedValue cannot be null."),
+                        () -> value.compareAndSet(null, false));
+                    test.assertFalse(value.get());
+                });
+
+                runner.test("when false with false and false", (Test test) ->
+                {
+                    final BooleanValue value = BooleanValue.create(false);
+                    test.assertThrows(new PreConditionFailure("newValue (false) must not be false."),
+                        () -> value.compareAndSet(java.lang.Boolean.FALSE, false));
+                    test.assertFalse(value.get());
+                });
+
+                runner.test("when false with false and true", (Test test) ->
+                {
+                    final BooleanValue value = BooleanValue.create(false);
+                    test.assertTrue(value.compareAndSet(java.lang.Boolean.FALSE, true));
+                    test.assertTrue(value.get());
+                });
+
+                runner.test("when false with true and false", (Test test) ->
+                {
+                    final BooleanValue value = BooleanValue.create(false);
+                    test.assertFalse(value.compareAndSet(java.lang.Boolean.TRUE, false));
+                    test.assertFalse(value.get());
+                });
+
+                runner.test("when true with false and true", (Test test) ->
+                {
+                    final BooleanValue value = BooleanValue.create(true);
+                    test.assertFalse(value.compareAndSet(java.lang.Boolean.FALSE, true));
+                    test.assertTrue(value.get());
+                });
+
+                runner.test("when true with true and false", (Test test) ->
+                {
+                    final BooleanValue value = BooleanValue.create(true);
+                    test.assertTrue(value.compareAndSet(java.lang.Boolean.TRUE, false));
+                    test.assertFalse(value.get());
+                });
+            });
+
+            runner.testGroup("compareAndSet(java.lang.Boolean,java.lang.Boolean)", () ->
+            {
+                runner.test("with null expectedValue", (Test test) ->
+                {
+                    final BooleanValue value = BooleanValue.create(false);
+                    test.assertThrows(new PreConditionFailure("expectedValue cannot be null."),
+                        () -> value.compareAndSet(null, java.lang.Boolean.FALSE));
+                    test.assertFalse(value.get());
+                });
+
+                runner.test("with null newValue", (Test test) ->
+                {
+                    final BooleanValue value = BooleanValue.create(false);
+                    test.assertThrows(new PreConditionFailure("newValue cannot be null."),
+                        () -> value.compareAndSet(java.lang.Boolean.FALSE, null));
+                    test.assertFalse(value.get());
+                });
+
+                runner.test("when false with false and false", (Test test) ->
+                {
+                    final BooleanValue value = BooleanValue.create(false);
+                    test.assertThrows(new PreConditionFailure("newValue (false) must not be false."),
+                        () -> value.compareAndSet(java.lang.Boolean.FALSE, java.lang.Boolean.FALSE));
+                    test.assertFalse(value.get());
+                });
+
+                runner.test("when false with false and true", (Test test) ->
+                {
+                    final BooleanValue value = BooleanValue.create(false);
+                    test.assertTrue(value.compareAndSet(java.lang.Boolean.FALSE, java.lang.Boolean.TRUE));
+                    test.assertTrue(value.get());
+                });
+
+                runner.test("when false with true and false", (Test test) ->
+                {
+                    final BooleanValue value = BooleanValue.create(false);
+                    test.assertFalse(value.compareAndSet(java.lang.Boolean.TRUE, java.lang.Boolean.FALSE));
+                    test.assertFalse(value.get());
+                });
+
+                runner.test("when true with false and true", (Test test) ->
+                {
+                    final BooleanValue value = BooleanValue.create(true);
+                    test.assertFalse(value.compareAndSet(java.lang.Boolean.FALSE, java.lang.Boolean.TRUE));
+                    test.assertTrue(value.get());
+                });
+
+                runner.test("when true with true and false", (Test test) ->
+                {
+                    final BooleanValue value = BooleanValue.create(true);
+                    test.assertTrue(value.compareAndSet(java.lang.Boolean.TRUE, java.lang.Boolean.FALSE));
+                    test.assertFalse(value.get());
                 });
             });
 
