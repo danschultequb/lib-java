@@ -2,7 +2,6 @@ package qub;
 
 public class FakeNetwork implements Network
 {
-    private final AsyncRunner asyncRunner;
     private final Clock clock;
     private final Mutex mutex;
     private final MutexCondition boundTCPServerAvailable;
@@ -12,12 +11,10 @@ public class FakeNetwork implements Network
     private final FakeDNS dns;
     private final HttpClient httpClient;
 
-    public FakeNetwork(AsyncRunner asyncRunner, Clock clock)
+    public FakeNetwork(Clock clock)
     {
-        PreCondition.assertNotNull(asyncRunner, "asyncRunner");
         PreCondition.assertNotNull(clock, "clock");
 
-        this.asyncRunner = asyncRunner;
         this.clock = clock;
         mutex = new SpinMutex(clock);
         boundTCPServerAvailable = mutex.createCondition();
@@ -73,21 +70,42 @@ public class FakeNetwork implements Network
             }
             else
             {
-                result = asyncRunner.schedule(() ->
+                result = Result.create(() ->
                 {
                     FakeTCPServer remoteTCPServer = null;
 
                     while (remoteTCPServer == null)
                     {
-                        remoteTCPServer = boundTCPServers.get(remoteIPAddress)
-                            .thenResult((MutableMap<Integer,FakeTCPServer> remoteTCPServers) -> remoteTCPServers.get(remotePort))
-                            .catchErrorResult(NotFoundException.class, () ->
+                        if (dateTimeTimeout == null)
+                        {
+                            mutex.acquire().await();
+                        }
+                        else
+                        {
+                            mutex.acquire(dateTimeTimeout).await();
+                        }
+                        try
+                        {
+                            remoteTCPServer = boundTCPServers.get(remoteIPAddress)
+                                .thenResult((MutableMap<Integer,FakeTCPServer> remoteTCPServers) -> remoteTCPServers.get(remotePort))
+                                .catchError(NotFoundException.class)
+                                .await();
+                            if (remoteTCPServer == null)
                             {
-                                return dateTimeTimeout == null
-                                    ? Result.error(new java.net.ConnectException("Connection refused: connect"))
-                                    : boundTCPServerAvailable.await(dateTimeTimeout).then(() -> null);
-                            })
-                            .await();
+                                if (dateTimeTimeout == null)
+                                {
+                                    throw Exceptions.asRuntime(new java.net.ConnectException("Connection refused: connect"));
+                                }
+                                else
+                                {
+                                    boundTCPServerAvailable.watch(dateTimeTimeout).then(() -> null).await();
+                                }
+                            }
+                        }
+                        finally
+                        {
+                            mutex.release().await();
+                        }
                     }
 
                     final IPv4Address clientLocalIPAddress = IPv4Address.localhost;
@@ -165,11 +183,12 @@ public class FakeNetwork implements Network
     {
         PreCondition.assertNotNull(tcpClient, "tcpClient");
 
-        boundTCPClients.getOrSet(tcpClient.getLocalIPAddress(), Map::create)
-            .then((MutableMap<Integer,FakeTCPClient> localClients) ->
-            {
-                localClients.set(tcpClient.getLocalPort(), tcpClient);
-            });
+        mutex.criticalSection(() ->
+        {
+            boundTCPClients.getOrSet(tcpClient.getLocalIPAddress(), Map::create)
+                .await()
+                .set(tcpClient.getLocalPort(), tcpClient);
+        }).await();
     }
 
     @Override
@@ -198,15 +217,11 @@ public class FakeNetwork implements Network
                 final FakeTCPServer tcpServer = new FakeTCPServer(localIPAddress, localPort, this, clock);
 
                 boundTCPServers.getOrSet(localIPAddress, Map::create)
-                    .then((MutableMap<Integer,FakeTCPServer> localTCPServers) ->
-                    {
-                        localTCPServers.set(localPort, tcpServer);
-                    });
-
+                    .await()
+                    .set(localPort, tcpServer);
+                boundTCPServerAvailable.signalAll();
 
                 result = Result.success(tcpServer);
-
-                boundTCPServerAvailable.signalAll();
             }
             return result;
         });
@@ -239,7 +254,8 @@ public class FakeNetwork implements Network
         mutex.criticalSection(() ->
         {
             boundTCPServers.get(ipAddress)
-                .then((MutableMap<Integer,FakeTCPServer> tcpServers) -> tcpServers.remove(port));
+                .await()
+                .remove(port);
         });
     }
 
@@ -252,11 +268,9 @@ public class FakeNetwork implements Network
             decrementNetworkStream((InMemoryByteStream)tcpClient.getReadStream());
             decrementNetworkStream((InMemoryByteStream)tcpClient.getWriteStream());
             boundTCPClients.get(tcpClient.getLocalIPAddress())
-                .then((MutableMap<Integer,FakeTCPClient> portToClientMap) ->
-                {
-                    portToClientMap.remove(tcpClient.getLocalPort());
-                });
-        });
+                .await()
+                .remove(tcpClient.getLocalPort());
+        }).await();
     }
 
     public boolean isAvailable(IPv4Address ipAddress, int port)

@@ -556,7 +556,32 @@ public interface MutexTests
                 });
             });
 
-            runner.testGroup("criticalSectionResult(Duration,Function0<T>)", () ->
+            runner.testGroup("criticalSectionResult(Function0<Result<T>>)", () ->
+            {
+                runner.test("with null function", (Test test) ->
+                {
+                    final Mutex mutex = create(creator);
+                    test.assertThrows(new PreConditionFailure("function cannot be null."),
+                        () -> mutex.criticalSectionResult((Function0<Result<Integer>>)null));
+                    test.assertFalse(mutex.isAcquired());
+                });
+
+                runner.test("with non-null function", (Test test) ->
+                {
+                    final Mutex mutex = create(creator);
+                    final Value<Integer> value = Value.create();
+                    test.assertTrue(mutex.criticalSectionResult(() ->
+                    {
+                        test.assertTrue(mutex.isAcquired());
+                        value.set(20);
+                        return Result.success(true);
+                    }).await());
+                    test.assertFalse(mutex.isAcquired());
+                    test.assertEqual(20, value.get());
+                });
+            });
+
+            runner.testGroup("criticalSectionResult(Duration,Function0<Result<T>>)", () ->
             {
                 runner.test("with null function", (Test test) ->
                 {
@@ -721,7 +746,7 @@ public interface MutexTests
                         final MutexCondition condition = mutex.createCondition();
 
                         test.assertThrows(new PreConditionFailure("mutex.isAcquiredByCurrentThread() cannot be false."),
-                            () -> condition.await());
+                            () -> condition.watch());
                     });
 
                     runner.test("when Mutex is not acquired by current thread", (Test test) ->
@@ -734,58 +759,85 @@ public interface MutexTests
                         test.assertFalse(mutex.isAcquiredByCurrentThread());
 
                         test.assertThrows(new PreConditionFailure("mutex.isAcquiredByCurrentThread() cannot be false."),
-                            () -> condition.await());
+                            () -> condition.watch());
                     });
 
-                    runner.test("with one producer and one consumer", (Test test) ->
+                    final Action3<Integer,Integer,Integer> awaitTest = (Integer producerCount, Integer consumerCount, Integer valueCount) ->
                     {
-                        final Mutex mutex = create(creator);
-                        final MutexCondition listHasValues = mutex.createCondition();
-                        final List<Integer> values = List.create();
-                        final IntegerValue sum = IntegerValue.create(0);
-                        final int valueCount = 1000;
-
-                        final List<AsyncTask<Void>> tasks = List.create();
-                        tasks.add(test.getParallelAsyncRunner().schedule(() ->
+                        runner.test("with " + producerCount + " producer" + (producerCount == 1 ? "" : "s") + " and " + consumerCount + " consumer" + (consumerCount == 1 ? "" : "s"), (Test test) ->
                         {
-                            for (int i = 1; i <= valueCount; ++i)
-                            {
-                                mutex.acquire().await();
-                                try
-                                {
-                                    values.add(i);
-                                    listHasValues.signalAll();
-                                }
-                                finally
-                                {
-                                    mutex.release().await();
-                                }
-                            }
-                        }));
+                            final Mutex mutex = create(creator);
+                            final MutexCondition listHasValues = mutex.createCondition();
+                            final List<Integer> values = List.create();
+                            final IntegerValue sum = IntegerValue.create(0);
 
-                        tasks.add(test.getParallelAsyncRunner().schedule(() ->
-                        {
-                            for (int i = 1; i <= valueCount; ++i)
+                            final List<AsyncTask<Void>> tasks = List.create();
+                            for (int i = 0; i < producerCount; ++i)
                             {
-                                mutex.acquire().await();
-                                try
+                                tasks.add(test.getParallelAsyncRunner().schedule(() ->
                                 {
-                                    while (!values.any())
+                                    for (int j = 1; j <= valueCount; ++j)
                                     {
-                                        listHasValues.await().await();
+                                        mutex.acquire().await();
+                                        try
+                                        {
+                                            values.add(j);
+                                            listHasValues.signalAll();
+                                        }
+                                        finally
+                                        {
+                                            mutex.release().await();
+                                        }
                                     }
-                                    sum.plusAssign(values.removeFirst());
-                                }
-                                finally
-                                {
-                                    mutex.release().await();
-                                }
+                                }));
                             }
-                        }));
 
-                        Result.await(tasks);
-                        test.assertEqual(Math.summation(valueCount), sum.get());
-                    });
+                            final IntegerValue removedValueCount = IntegerValue.create(0);
+                            for (int i = 0; i < consumerCount; ++i)
+                            {
+                                tasks.add(test.getParallelAsyncRunner().schedule(() ->
+                                {
+                                    while (true)
+                                    {
+                                        mutex.acquire().await();
+                                        try
+                                        {
+                                            while (!values.any() && removedValueCount.get() != producerCount * valueCount)
+                                            {
+                                                listHasValues.watch().await();
+                                            }
+
+                                            if (removedValueCount.get() == producerCount * valueCount)
+                                            {
+                                                break;
+                                            }
+                                            else
+                                            {
+                                                final int value = values.removeFirst();
+                                                removedValueCount.increment();
+                                                sum.plusAssign(value);
+                                            }
+                                        }
+                                        finally
+                                        {
+                                            mutex.release().await();
+                                        }
+                                    }
+                                }));
+                            }
+
+                            Result.await(tasks);
+                            test.assertEqual(producerCount * Math.summation(valueCount), sum.get());
+                        });
+                    };
+
+                    awaitTest.run(1, 1, 1000);
+                    awaitTest.run(2, 1, 1000);
+                    awaitTest.run(5, 1, 1000);
+                    awaitTest.run(1, 2, 1000);
+                    awaitTest.run(1, 5, 1000);
+                    awaitTest.run(2, 2, 1000);
+                    awaitTest.run(5, 5, 1000);
                 });
 
                 runner.testGroup("await(Duration)", () ->
@@ -796,7 +848,7 @@ public interface MutexTests
                         final MutexCondition condition = mutex.createCondition();
 
                         test.assertThrows(new PreConditionFailure("timeout cannot be null."),
-                            () -> condition.await((Duration)null));
+                            () -> condition.watch((Duration)null));
                     });
 
                     runner.test("with zero", (Test test) ->
@@ -805,7 +857,7 @@ public interface MutexTests
                         final MutexCondition condition = mutex.createCondition();
 
                         test.assertThrows(new PreConditionFailure("timeout (0.0 Seconds) must be greater than 0.0 Seconds."),
-                            () -> condition.await(Duration.zero));
+                            () -> condition.watch(Duration.zero));
                     });
 
                     runner.test("when Mutex is not acquired", (Test test) ->
@@ -814,7 +866,7 @@ public interface MutexTests
                         final MutexCondition condition = mutex.createCondition();
 
                         test.assertThrows(new PreConditionFailure("mutex.isAcquiredByCurrentThread() cannot be false."),
-                            () -> condition.await(Duration.seconds(1)));
+                            () -> condition.watch(Duration.seconds(1)));
                     });
 
                     runner.test("when Mutex is not acquired by current thread", (Test test) ->
@@ -827,7 +879,7 @@ public interface MutexTests
                         test.assertFalse(mutex.isAcquiredByCurrentThread());
 
                         test.assertThrows(new PreConditionFailure("mutex.isAcquiredByCurrentThread() cannot be false."),
-                            () -> condition.await(Duration.seconds(1)));
+                            () -> condition.watch(Duration.seconds(1)));
                     });
 
                     runner.test("when Mutex doesn't have a Clock", (Test test) ->
@@ -837,7 +889,7 @@ public interface MutexTests
 
                         mutex.acquire().await();
                         test.assertThrows(new PreConditionFailure("clock cannot be null."),
-                            () -> condition.await(Duration.seconds(1)));
+                            () -> condition.watch(Duration.seconds(1)));
                     });
 
                     runner.test("when timeout expires", (Test test) ->
@@ -847,8 +899,85 @@ public interface MutexTests
 
                         mutex.acquire().await();
                         test.assertThrows(new TimeoutException(),
-                            () -> condition.await(Duration.seconds(0.01)).await());
+                            () -> condition.watch(Duration.seconds(0.01)).await());
                     });
+
+                    final Action3<Integer,Integer,Integer> awaitTest = (Integer producerCount, Integer consumerCount, Integer valueCount) ->
+                    {
+                        runner.test("with " + producerCount + " producer" + (producerCount == 1 ? "" : "s") + " and " + consumerCount + " consumer" + (consumerCount == 1 ? "" : "s"), (Test test) ->
+                        {
+                            final Mutex mutex = create(creator, test.getClock());
+                            final MutexCondition listHasValues = mutex.createCondition();
+                            final List<Integer> values = List.create();
+                            final IntegerValue sum = IntegerValue.create(0);
+
+                            final List<AsyncTask<Void>> tasks = List.create();
+                            for (int i = 0; i < producerCount; ++i)
+                            {
+                                tasks.add(test.getParallelAsyncRunner().schedule(() ->
+                                {
+                                    for (int j = 1; j <= valueCount; ++j)
+                                    {
+                                        mutex.acquire().await();
+                                        try
+                                        {
+                                            values.add(j);
+                                            listHasValues.signalAll();
+                                        }
+                                        finally
+                                        {
+                                            mutex.release().await();
+                                        }
+                                    }
+                                }));
+                            }
+
+                            final IntegerValue removedValueCount = IntegerValue.create(0);
+                            for (int i = 0; i < consumerCount; ++i)
+                            {
+                                tasks.add(test.getParallelAsyncRunner().schedule(() ->
+                                {
+                                    while (true)
+                                    {
+                                        mutex.acquire().await();
+                                        try
+                                        {
+                                            while (!values.any() && removedValueCount.get() != producerCount * valueCount)
+                                            {
+                                                listHasValues.watch(Duration.seconds(0.1)).await();
+                                            }
+
+                                            if (removedValueCount.get() == producerCount * valueCount)
+                                            {
+                                                break;
+                                            }
+                                            else
+                                            {
+                                                final int value = values.removeFirst();
+                                                removedValueCount.increment();
+                                                sum.plusAssign(value);
+                                            }
+                                        }
+                                        finally
+                                        {
+                                            mutex.release().await();
+                                        }
+                                    }
+                                }));
+                            }
+
+                            Result.await(tasks);
+                            test.assertEqual(producerCount * Math.summation(valueCount), sum.get());
+                        });
+                    };
+
+                    awaitTest.run(1, 1, 1000);
+                    awaitTest.run(2, 1, 1000);
+                    awaitTest.run(5, 1, 1000);
+                    awaitTest.run(1, 2, 1000);
+                    awaitTest.run(1, 5, 1000);
+                    awaitTest.run(2, 2, 1000);
+                    awaitTest.run(5, 5, 1000);
                 });
 
                 runner.testGroup("await(DateTime)", () ->
@@ -859,7 +988,7 @@ public interface MutexTests
                         final MutexCondition condition = mutex.createCondition();
 
                         test.assertThrows(new PreConditionFailure("timeout cannot be null."),
-                            () -> condition.await((DateTime)null));
+                            () -> condition.watch((DateTime)null));
                     });
 
                     runner.test("when Mutex is not acquired", (Test test) ->
@@ -869,7 +998,7 @@ public interface MutexTests
                         final MutexCondition condition = mutex.createCondition();
 
                         test.assertThrows(new PreConditionFailure("mutex.isAcquiredByCurrentThread() cannot be false."),
-                            () -> condition.await(clock.getCurrentDateTime()));
+                            () -> condition.watch(clock.getCurrentDateTime()));
                     });
 
                     runner.test("when Mutex is not acquired by current thread", (Test test) ->
@@ -883,7 +1012,7 @@ public interface MutexTests
                         test.assertFalse(mutex.isAcquiredByCurrentThread());
 
                         test.assertThrows(new PreConditionFailure("mutex.isAcquiredByCurrentThread() cannot be false."),
-                            () -> condition.await(clock.getCurrentDateTime()));
+                            () -> condition.watch(clock.getCurrentDateTime()));
                     });
 
                     runner.test("when Mutex doesn't have a Clock", (Test test) ->
@@ -894,8 +1023,87 @@ public interface MutexTests
 
                         mutex.acquire().await();
                         test.assertThrows(new PreConditionFailure("clock cannot be null."),
-                            () -> condition.await(clock.getCurrentDateTime()));
+                            () -> condition.watch(clock.getCurrentDateTime()));
                     });
+
+                    final Action3<Integer,Integer,Integer> awaitTest = (Integer producerCount, Integer consumerCount, Integer valueCount) ->
+                    {
+                        runner.test("with " + producerCount + " producer" + (producerCount == 1 ? "" : "s") + " and " + consumerCount + " consumer" + (consumerCount == 1 ? "" : "s"), (Test test) ->
+                        {
+                            final Clock clock = test.getClock();
+                            final Mutex mutex = create(creator, clock);
+                            final MutexCondition listHasValues = mutex.createCondition();
+                            final List<Integer> values = List.create();
+                            final IntegerValue sum = IntegerValue.create(0);
+
+                            final List<AsyncTask<Void>> tasks = List.create();
+                            for (int i = 0; i < producerCount; ++i)
+                            {
+                                tasks.add(test.getParallelAsyncRunner().schedule(() ->
+                                {
+                                    for (int j = 1; j <= valueCount; ++j)
+                                    {
+                                        mutex.acquire().await();
+                                        try
+                                        {
+                                            values.add(j);
+                                            listHasValues.signalAll();
+                                        }
+                                        finally
+                                        {
+                                            mutex.release().await();
+                                        }
+                                    }
+                                }));
+                            }
+
+                            final IntegerValue removedValueCount = IntegerValue.create(0);
+                            for (int i = 0; i < consumerCount; ++i)
+                            {
+                                tasks.add(test.getParallelAsyncRunner().schedule(() ->
+                                {
+                                    while (true)
+                                    {
+                                        mutex.acquire().await();
+                                        try
+                                        {
+                                            while (!values.any() && removedValueCount.get() != producerCount * valueCount)
+                                            {
+                                                final DateTime timeout = clock.getCurrentDateTime().plus(Duration.seconds(0.1));
+                                                listHasValues.watch(timeout).await();
+                                            }
+
+                                            if (removedValueCount.get() == producerCount * valueCount)
+                                            {
+                                                break;
+                                            }
+                                            else
+                                            {
+                                                final int value = values.removeFirst();
+                                                removedValueCount.increment();
+                                                sum.plusAssign(value);
+                                            }
+                                        }
+                                        finally
+                                        {
+                                            mutex.release().await();
+                                        }
+                                    }
+                                }));
+                            }
+
+                            Result.await(tasks);
+                            test.assertEqual(producerCount * Math.summation(valueCount), sum.get());
+                        });
+                    };
+
+                    awaitTest.run(1, 1, 1000);
+                    awaitTest.run(2, 1, 1000);
+                    awaitTest.run(5, 1, 1000);
+                    awaitTest.run(1, 2, 1000);
+                    awaitTest.run(1, 5, 1000);
+                    awaitTest.run(2, 2, 1000);
+                    awaitTest.run(5, 5, 1000);
                 });
 
                 runner.testGroup("signalAll()", () ->

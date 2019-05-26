@@ -6,64 +6,53 @@ class JavaTCPServer implements TCPServer
 
     private final java.net.ServerSocket serverSocket;
     private final Clock clock;
-    private final AsyncRunner asyncRunner;
 
-    private JavaTCPServer(java.net.ServerSocket serverSocket, Clock clock, AsyncRunner asyncRunner)
+    private JavaTCPServer(java.net.ServerSocket serverSocket, Clock clock)
     {
         PreCondition.assertNotNull(serverSocket, "serverSocket");
         PreCondition.assertNotNull(clock, "clock");
-        PreCondition.assertNotNull(asyncRunner, "asyncRunner");
 
         this.serverSocket = serverSocket;
         this.clock = clock;
-        this.asyncRunner = asyncRunner;
     }
 
-    static Result<TCPServer> create(int localPort, Clock clock, AsyncRunner asyncRunner)
+    static Result<TCPServer> create(int localPort, Clock clock)
     {
         Network.validateLocalPort(localPort);
         PreCondition.assertNotNull(clock, "clock");
-        PreCondition.assertNotNull(asyncRunner, "asyncRunner");
 
-        return asyncRunner.scheduleResult(() ->
+        Result<TCPServer> result;
+        try
         {
-            Result<TCPServer> result;
-            try
-            {
-                final java.net.ServerSocket serverSocket = new java.net.ServerSocket(localPort, tcpClientBacklog);
-                result = Result.success(new JavaTCPServer(serverSocket, clock, asyncRunner));
-            }
-            catch (Throwable error)
-            {
-                result = Result.error(error);
-            }
-            return result;
-        });
+            final java.net.ServerSocket serverSocket = new java.net.ServerSocket(localPort, tcpClientBacklog);
+            result = Result.success(new JavaTCPServer(serverSocket, clock));
+        }
+        catch (Throwable error)
+        {
+            result = Result.error(error);
+        }
+        return result;
     }
 
-    static Result<TCPServer> create(IPv4Address localIPAddress, int localPort, Clock clock, AsyncRunner asyncRunner)
+    static Result<TCPServer> create(IPv4Address localIPAddress, int localPort, Clock clock)
     {
         Network.validateLocalIPAddress(localIPAddress);
         Network.validateLocalPort(localPort);
         PreCondition.assertNotNull(clock, "clock");
-        PreCondition.assertNotNull(asyncRunner, "asyncRunner");
 
-        return asyncRunner.scheduleResult(() ->
+        Result<TCPServer> result;
+        try
         {
-            Result<TCPServer> result;
-            try
-            {
-                final byte[] localIPAddressBytes = localIPAddress.toBytes();
-                final java.net.InetAddress localInetAddress = java.net.InetAddress.getByAddress(localIPAddressBytes);
-                final java.net.ServerSocket serverSocket = new java.net.ServerSocket(localPort, tcpClientBacklog, localInetAddress);
-                result = Result.success(new JavaTCPServer(serverSocket, clock, asyncRunner));
-            }
-            catch (Throwable error)
-            {
-                result = Result.error(error);
-            }
-            return result;
-        });
+            final byte[] localIPAddressBytes = localIPAddress.toBytes();
+            final java.net.InetAddress localInetAddress = java.net.InetAddress.getByAddress(localIPAddressBytes);
+            final java.net.ServerSocket serverSocket = new java.net.ServerSocket(localPort, tcpClientBacklog, localInetAddress);
+            result = Result.success(new JavaTCPServer(serverSocket, clock));
+        }
+        catch (Throwable error)
+        {
+            result = Result.error(error);
+        }
+        return result;
     }
 
     @Override
@@ -85,20 +74,17 @@ class JavaTCPServer implements TCPServer
     @Override
     public Result<TCPClient> accept()
     {
-        return asyncRunner.scheduleResult(() ->
+        Result<TCPClient> result;
+        try
         {
-            Result<TCPClient> result;
-            try
-            {
-                final java.net.Socket socket = serverSocket.accept();
-                result = JavaTCPClient.create(socket);
-            }
-            catch (java.io.IOException e)
-            {
-                result = Result.error(e);
-            }
-            return result;
-        });
+            final java.net.Socket socket = serverSocket.accept();
+            result = JavaTCPClient.create(socket);
+        }
+        catch (java.io.IOException e)
+        {
+            result = Result.error(e);
+        }
+        return result;
     }
 
     @Override
@@ -117,20 +103,17 @@ class JavaTCPServer implements TCPServer
     {
         PreCondition.assertNotNull(timeout, "timeout");
 
-        return asyncRunner.scheduleResult(() ->
+        Result<TCPClient> result;
+        try
         {
-            Result<TCPClient> result;
-            try
-            {
-                final java.net.Socket socket = serverSocket.accept();
-                result = JavaTCPClient.create(socket);
-            }
-            catch (java.io.IOException e)
-            {
-                result = Result.error(e);
-            }
-            return result;
-        });
+            final java.net.Socket socket = serverSocket.accept();
+            result = JavaTCPClient.create(socket);
+        }
+        catch (java.io.IOException e)
+        {
+            result = Result.error(e);
+        }
+        return result;
     }
 
     @Override
@@ -142,26 +125,23 @@ class JavaTCPServer implements TCPServer
     @Override
     public Result<Boolean> dispose()
     {
-        return asyncRunner.scheduleResult(() ->
+        Result<Boolean> result;
+        if (isDisposed())
         {
-            Result<Boolean> result;
-            if (isDisposed())
+            result = Result.successFalse();
+        }
+        else
+        {
+            try
             {
-                result = Result.successFalse();
+                serverSocket.close();
+                result = Result.successTrue();
             }
-            else
+            catch (java.io.IOException e)
             {
-                try
-                {
-                    serverSocket.close();
-                    result = Result.successTrue();
-                }
-                catch (java.io.IOException e)
-                {
-                    result = Result.error(e);
-                }
+                result = Result.error(e);
             }
-            return result;
-        });
+        }
+        return result;
     }
 }

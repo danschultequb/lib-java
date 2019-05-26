@@ -6,7 +6,7 @@ public class JavaNetworkTests
     {
         runner.testGroup(JavaNetwork.class, () ->
         {
-            NetworkTests.test(runner, (Test test) -> new JavaNetwork(test.getClock(), test.getParallelAsyncRunner()));
+            NetworkTests.test(runner, (Test test) -> new JavaNetwork(test.getClock()));
         });
     }
 }

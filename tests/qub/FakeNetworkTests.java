@@ -6,7 +6,7 @@ public class FakeNetworkTests
     {
         runner.testGroup(FakeNetwork.class, () ->
         {
-            NetworkTests.test(runner, (Test test) -> new FakeNetwork(test.getMainAsyncRunner(), test.getClock()));
+            NetworkTests.test(runner, (Test test) -> new FakeNetwork(test.getClock()));
         });
     }
 }

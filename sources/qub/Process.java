@@ -381,7 +381,7 @@ public class Process implements Disposable
     {
         if (!network.hasValue())
         {
-            setNetwork(new JavaNetwork(getClock(), getParallelAsyncRunner()));
+            setNetwork(new JavaNetwork(getClock()));
         }
         return network.get();
     }

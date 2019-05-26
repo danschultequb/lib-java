@@ -36,7 +36,7 @@ public interface Gate
      * Attempt to go through this Gate. If the Gate is closed, then any thread that attempts to go
      * through it will block.
      */
-    void passThrough();
+    Result<Void> passThrough();
 
     /**
      * Attempt to go through this Gate for the provided timeout duration. If the Gate is closed,
@@ -45,13 +45,14 @@ public interface Gate
      *                to open.
      * @return Whether or not this thread successfully passed through this Gate.
      */
-    default Result<Boolean> passThrough(Duration timeout)
+    default Result<Void> passThrough(Duration timeout)
     {
         PreCondition.assertNotNull(timeout, "timeout");
         PreCondition.assertGreaterThan(timeout, Duration.zero, "timeout");
         PreCondition.assertNotNull(getClock(), "getClock()");
 
-        return passThrough(getClock().getCurrentDateTime().plus(timeout));
+        final DateTime dateTimeTimeout = getClock().getCurrentDateTime().plus(timeout);
+        return passThrough(dateTimeTimeout);
     }
 
     /**
@@ -60,5 +61,5 @@ public interface Gate
      * @param timeout The DateTime at which this thread will abort waiting for this Gate to open.
      * @return Whether or not this thread successfully passed through this Gate.
      */
-    Result<Boolean> passThrough(DateTime timeout);
+    Result<Void> passThrough(DateTime timeout);
 }

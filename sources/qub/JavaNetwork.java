@@ -3,17 +3,14 @@ package qub;
 class JavaNetwork implements Network
 {
     private final Clock clock;
-    private final AsyncRunner asyncRunner;
     private final JavaHttpClient httpClient;
     private final DNS dns;
 
-    JavaNetwork(Clock clock, AsyncRunner asyncRunner)
+    JavaNetwork(Clock clock)
     {
         PreCondition.assertNotNull(clock, "clock");
-        PreCondition.assertNotNull(asyncRunner, "asyncRunner");
 
         this.clock = clock;
-        this.asyncRunner = asyncRunner;
         httpClient = new JavaHttpClient(this);
         dns = new JavaDNS();
     }
@@ -80,7 +77,7 @@ class JavaNetwork implements Network
     {
         Network.validateLocalPort(localPort);
 
-        return JavaTCPServer.create(localPort, clock, asyncRunner);
+        return JavaTCPServer.create(localPort, clock);
     }
 
     @Override
@@ -89,7 +86,7 @@ class JavaNetwork implements Network
         Network.validateLocalIPAddress(localIPAddress);
         Network.validateLocalPort(localPort);
 
-        return JavaTCPServer.create(localIPAddress, localPort, clock, asyncRunner);
+        return JavaTCPServer.create(localIPAddress, localPort, clock);
     }
 
     @Override

@@ -7,8 +7,8 @@ package qub;
  */
 public class SpinMutex implements Mutex
 {
-    private final java.util.concurrent.atomic.AtomicLong acquiredByThreadId;
-    private final java.util.concurrent.atomic.AtomicLong acquiredCount;
+    private final LongValue acquiredByThreadId;
+    private final LongValue acquiredCount;
     private final Clock clock;
 
     public SpinMutex()
@@ -21,8 +21,8 @@ public class SpinMutex implements Mutex
      */
     public SpinMutex(Clock clock)
     {
-        acquiredByThreadId = new java.util.concurrent.atomic.AtomicLong(-1);
-        acquiredCount = new java.util.concurrent.atomic.AtomicLong(0);
+        acquiredByThreadId = LongValue.create(-1);
+        acquiredCount = LongValue.create(0);
         this.clock = clock;
     }
 
@@ -51,7 +51,7 @@ public class SpinMutex implements Mutex
                 }
             }
         }
-        acquiredCount.incrementAndGet();
+        acquiredCount.increment();
 
         return Result.success();
     }
@@ -100,7 +100,7 @@ public class SpinMutex implements Mutex
         final boolean acquired = acquiredByThreadId.get() == threadId || acquiredByThreadId.compareAndSet(-1, threadId);
         if (acquired)
         {
-            acquiredCount.incrementAndGet();
+            acquiredCount.increment();
         }
         return Result.success(acquired);
     }
@@ -111,9 +111,9 @@ public class SpinMutex implements Mutex
         final long threadId = Thread.currentThread().getId();
         if (acquiredByThreadId.get() == threadId)
         {
-            if (acquiredCount.decrementAndGet() == 0)
+            if (acquiredCount.decrement().get() == 0)
             {
-                acquiredByThreadId.compareAndSet(threadId, -1);
+                acquiredByThreadId.set(-1);
             }
         }
         return Result.success();

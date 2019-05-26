@@ -52,21 +52,24 @@ public class SpinGate implements Gate
     }
 
     @Override
-    public void passThrough()
+    public Result<Void> passThrough()
     {
-        while (!open.get())
+        return Result.create(() ->
         {
-        }
+            while (!open.get())
+            {
+            }
+        });
     }
 
     @Override
-    public Result<Boolean> passThrough(DateTime timeout)
+    public Result<Void> passThrough(DateTime timeout)
     {
         PreCondition.assertNotNull(timeout, "timeout");
         PreCondition.assertNotNull(getClock(), "getClock()");
 
         final Clock clock = getClock();
-        Result<Boolean> result = null;
+        Result<Void> result = null;
         while (result == null)
         {
             if (timeout.lessThanOrEqualTo(clock.getCurrentDateTime()))
@@ -75,7 +78,7 @@ public class SpinGate implements Gate
             }
             else if (open.get())
             {
-                result = Result.successTrue();
+                result = Result.success();
             }
         }
 

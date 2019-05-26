@@ -1,8 +1,8 @@
 package qub;
 
-public class TCPEchoServerTests
+public interface TCPEchoServerTests
 {
-    public static void test(TestRunner runner)
+    static void test(TestRunner runner)
     {
         final IntegerValue port = new IntegerValue(14000);
 
@@ -10,10 +10,10 @@ public class TCPEchoServerTests
         {
             runner.test("echo()", (Test test) ->
             {
-                final Network network = new JavaNetwork(test.getClock(), test.getParallelAsyncRunner());
+                final Network network = new JavaNetwork(test.getClock());
                 try (final TCPEchoServer echoServer = TCPEchoServer.create(network, port.increment().getAsInt()).await())
                 {
-                    final Result<Void> serverTask = echoServer.echo();
+                    final Result<Void> serverTask = test.getParallelAsyncRunner().scheduleResult(echoServer::echo);
 
                     final Result<Void> clientTask = test.getParallelAsyncRunner().schedule(() ->
                     {

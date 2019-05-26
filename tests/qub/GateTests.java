@@ -1,8 +1,8 @@
 package qub;
 
-public class GateTests
+public interface GateTests
 {
-    public static void test(TestRunner runner, Function2<Clock,Boolean,Gate> creator)
+    static void test(TestRunner runner, Function2<Clock,Boolean,Gate> creator)
     {
         runner.testGroup(Gate.class, () ->
         {
@@ -112,7 +112,7 @@ public class GateTests
                 runner.test("with positive Duration when open", (Test test) ->
                 {
                     final Gate gate = create(creator, true, test);
-                    test.assertTrue(gate.passThrough(Duration.seconds(1)).await());
+                    test.assertNull(gate.passThrough(Duration.seconds(1)).await());
                 });
 
                 runner.test("with positive Duration when closed", (Test test) ->
@@ -158,7 +158,7 @@ public class GateTests
                 {
                     final Gate gate = create(creator, true, test);
                     final DateTime timeout = test.getClock().getCurrentDateTime().plus(Duration.seconds(1));
-                    test.assertTrue(gate.passThrough(timeout).await());
+                    test.assertNull(gate.passThrough(timeout).await());
                 });
 
                 runner.test("with positive Duration when not open", (Test test) ->
@@ -171,12 +171,12 @@ public class GateTests
         });
     }
 
-    private static Gate create(Function2<Clock,Boolean,Gate> creator, boolean open)
+    static Gate create(Function2<Clock,Boolean,Gate> creator, boolean open)
     {
         return creator.run(null, open);
     }
 
-    private static Gate create(Function2<Clock,Boolean,Gate> creator, boolean open, Test test)
+    static Gate create(Function2<Clock,Boolean,Gate> creator, boolean open, Test test)
     {
         return creator.run(test.getClock(), open);
     }

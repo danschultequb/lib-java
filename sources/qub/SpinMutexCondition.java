@@ -16,23 +16,24 @@ public class SpinMutexCondition implements MutexCondition
     }
 
     @Override
-    public Result<Void> await()
+    public Result<Void> watch()
     {
         PreCondition.assertTrue(mutex.isAcquiredByCurrentThread(), "mutex.isAcquiredByCurrentThread()");
 
-        condition.close();
+        return Result.create(() ->
+        {
+            condition.close();
 
-        mutex.release().await();
+            mutex.release().await();
 
-        condition.passThrough();
+            condition.passThrough().await();
 
-        mutex.acquire().await();
-
-        return Result.success();
+            mutex.acquire().await();
+        });
     }
 
     @Override
-    public Result<Void> await(Duration timeout)
+    public Result<Void> watch(Duration timeout)
     {
         PreCondition.assertNotNull(timeout, "timeout");
         PreCondition.assertGreaterThan(timeout, Duration.zero, "timeout");
@@ -40,11 +41,11 @@ public class SpinMutexCondition implements MutexCondition
         PreCondition.assertNotNull(clock, "clock");
 
         final DateTime dateTimeTimeout = clock.getCurrentDateTime().plus(timeout);
-        return await(dateTimeTimeout);
+        return watch(dateTimeTimeout);
     }
 
     @Override
-    public Result<Void> await(DateTime timeout)
+    public Result<Void> watch(DateTime timeout)
     {
         PreCondition.assertNotNull(timeout, "timeout");
         PreCondition.assertTrue(mutex.isAcquiredByCurrentThread(), "mutex.isAcquiredByCurrentThread()");
@@ -56,10 +57,9 @@ public class SpinMutexCondition implements MutexCondition
 
             mutex.release().await();
 
-            if (condition.passThrough(timeout).await())
-            {
-                mutex.acquire().await();
-            }
+            condition.passThrough(timeout).await();
+
+            mutex.acquire(timeout).await();
         });
     }
 

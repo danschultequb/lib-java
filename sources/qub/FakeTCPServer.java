@@ -22,9 +22,9 @@ public class FakeTCPServer implements TCPServer
         this.localIPAddress = localIPAddress;
         this.localPort = localPort;
         this.network = network;
+        clientsToAccept = List.create();
         mutex = new SpinMutex(clock);
         hasClientsToAccept = mutex.createCondition();
-        clientsToAccept = new ArrayList<>();
     }
 
     @Override
@@ -48,7 +48,7 @@ public class FakeTCPServer implements TCPServer
         {
             while (!disposed && !clientsToAccept.any())
             {
-                hasClientsToAccept.await();
+                hasClientsToAccept.watch().await();
             }
 
             return isDisposed()
@@ -74,19 +74,16 @@ public class FakeTCPServer implements TCPServer
         PreCondition.assertNotNull(timeout, "timeout");
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
-        return mutex.criticalSection(timeout, () ->
+        return mutex.criticalSectionResult(timeout, () ->
         {
             while (!isDisposed() && !clientsToAccept.any())
             {
-                hasClientsToAccept.await(timeout).await();
+                hasClientsToAccept.watch(timeout).await();
             }
 
-            if (isDisposed())
-            {
-                throw new IllegalStateException("isDisposed() cannot be true.");
-            }
-
-            return clientsToAccept.removeFirst();
+            return isDisposed()
+                ? Result.error(new IllegalStateException("isDisposed() cannot be true."))
+                : Result.success(clientsToAccept.removeFirst());
         });
     }
 
@@ -119,6 +116,6 @@ public class FakeTCPServer implements TCPServer
         {
             clientsToAccept.add(incomingClient);
             hasClientsToAccept.signalAll();
-        });
+        }).await();
     }
 }

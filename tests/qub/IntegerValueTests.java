@@ -1,8 +1,8 @@
 package qub;
 
-public class IntegerValueTests
+public interface IntegerValueTests
 {
-    public static void test(TestRunner runner)
+    static void test(TestRunner runner)
     {
         runner.testGroup(IntegerValue.class, () ->
         {

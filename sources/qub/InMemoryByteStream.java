@@ -102,7 +102,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
 
             while (!isDisposed() && !endOfStream && !bytes.any())
             {
-                bytesAvailable.await();
+                bytesAvailable.watch().await();
             }
 
             Result<Byte> result;
@@ -136,7 +136,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
 
             while (!disposed && !endOfStream && !bytes.any())
             {
-                bytesAvailable.await();
+                bytesAvailable.watch().await();
             }
 
             Result<Integer> result;

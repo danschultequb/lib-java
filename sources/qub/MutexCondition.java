@@ -6,14 +6,14 @@ public interface MutexCondition
      * Release this condition's mutex and wait to be signaled that this condition is satisfied.
      * @return The result of awaiting for this condition.
      */
-    Result<Void> await();
+    Result<Void> watch();
 
     /**
      * Release this condition's mutex and wait to be signaled that this condition is satisfied.
      * @param timeout The maximum amount of time to wait for the condition to be signaled.
      * @return The result of awaiting for this condition.
      */
-    Result<Void> await(Duration timeout);
+    Result<Void> watch(Duration timeout);
 
     /**
      * Release this condition's mutex and wait to be signaled that this condition is satisfied.
@@ -21,7 +21,7 @@ public interface MutexCondition
      *                signaled.
      * @return The result of awaiting for this condition.
      */
-    Result<Void> await(DateTime timeout);
+    Result<Void> watch(DateTime timeout);
 
     /**
      * Signal any awaiting threads that this condition is now satisfied.
