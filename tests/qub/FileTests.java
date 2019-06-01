@@ -178,6 +178,198 @@ public class FileTests
                         new FileNotFoundException("/A"));
                 });
             });
+
+            runner.testGroup("copyTo(Path)", () ->
+            {
+                runner.test("with null destinationFilePath", (Test test) ->
+                {
+                    final File file = getFile(test);
+                    test.assertThrows(new PreConditionFailure("destinationFilePath cannot be null."),
+                        () -> file.copyTo((Path)null));
+                });
+
+                runner.test("with non-existing source file", (Test test) ->
+                {
+                    final FileSystem fileSystem = getFileSystem(test);
+                    final File sourceFile = getFile(fileSystem, "/A");
+                    final Path destinationFilePath = Path.parse("/B");
+                    test.assertThrows(new FileNotFoundException("/A"),
+                        () -> sourceFile.copyTo(destinationFilePath).await());
+                });
+
+                runner.test("with non-existing destination file", (Test test) ->
+                {
+                    final FileSystem fileSystem = getFileSystem(test);
+                    final File sourceFile = getFile(fileSystem, "/A");
+                    sourceFile.setContentsAsString("hello").await();
+                    final Path destinationFilePath = Path.parse("/B");
+                    sourceFile.copyTo(destinationFilePath).await();
+                    test.assertTrue(fileSystem.fileExists(destinationFilePath).await());
+                    test.assertEqual(fileSystem.getFileContentAsString(destinationFilePath).await(), "hello");
+                });
+
+                runner.test("with existing destination file", (Test test) ->
+                {
+                    final FileSystem fileSystem = getFileSystem(test);
+                    final File sourceFile = getFile(fileSystem, "/A");
+                    sourceFile.setContentsAsString("hello").await();
+                    final Path destinationFilePath = Path.parse("/B");
+                    fileSystem.setFileContentAsString(destinationFilePath, "there").await();
+                    sourceFile.copyTo(destinationFilePath).await();
+                    test.assertTrue(fileSystem.fileExists(destinationFilePath).await());
+                    test.assertEqual(fileSystem.getFileContentAsString(destinationFilePath).await(), "hello");
+                });
+            });
+
+            runner.testGroup("copyTo(File)", () ->
+            {
+                runner.test("with null destinationFile", (Test test) ->
+                {
+                    final File file = getFile(test);
+                    test.assertThrows(new PreConditionFailure("destinationFile cannot be null."),
+                        () -> file.copyTo((File)null));
+                });
+
+                runner.test("with non-existing source file", (Test test) ->
+                {
+                    final FileSystem fileSystem = getFileSystem(test);
+                    final File sourceFile = getFile(fileSystem, "/A");
+                    final File destinationFile = getFile(fileSystem, "/B");
+                    test.assertThrows(new FileNotFoundException("/A"),
+                        () -> sourceFile.copyTo(destinationFile).await());
+                });
+
+                runner.test("with non-existing destination file", (Test test) ->
+                {
+                    final FileSystem fileSystem = getFileSystem(test);
+                    final File sourceFile = getFile(fileSystem, "/A");
+                    sourceFile.setContentsAsString("hello").await();
+                    final File destinationFile = getFile(fileSystem, "/B");
+                    sourceFile.copyTo(destinationFile).await();
+                    test.assertTrue(destinationFile.exists().await());
+                    test.assertEqual(destinationFile.getContentsAsString().await(), "hello");
+                });
+
+                runner.test("with existing destination file", (Test test) ->
+                {
+                    final FileSystem fileSystem = getFileSystem(test);
+                    final File sourceFile = getFile(fileSystem, "/A");
+                    sourceFile.setContentsAsString("hello").await();
+                    final File destinationFile = getFile(fileSystem, "/B");
+                    destinationFile.setContentsAsString("there").await();
+                    sourceFile.copyTo(destinationFile).await();
+                    test.assertTrue(destinationFile.exists().await());
+                    test.assertEqual(destinationFile.getContentsAsString().await(), "hello");
+                });
+            });
+
+            runner.testGroup("copyToFolder(Path)", () ->
+            {
+                runner.test("with null destinationFolderPath", (Test test) ->
+                {
+                    final File file = getFile(test);
+                    test.assertThrows(new PreConditionFailure("destinationFolderPath cannot be null."),
+                        () -> file.copyToFolder((Path)null));
+                });
+
+                runner.test("with non-existing source file", (Test test) ->
+                {
+                    final FileSystem fileSystem = getFileSystem(test);
+                    final File sourceFile = getFile(fileSystem, "/A");
+                    final Path destinationFolderPath = Path.parse("/B/");
+                    test.assertThrows(new FileNotFoundException("/A"),
+                        () -> sourceFile.copyToFolder(destinationFolderPath).await());
+                });
+
+                runner.test("with non-existing destination folder", (Test test) ->
+                {
+                    final FileSystem fileSystem = getFileSystem(test);
+                    final File sourceFile = getFile(fileSystem, "/A");
+                    sourceFile.setContentsAsString("hello").await();
+                    final Path destinationFolderPath = Path.parse("/B/");
+                    sourceFile.copyToFolder(destinationFolderPath).await();
+                    test.assertTrue(fileSystem.fileExists("/B/A").await());
+                    test.assertEqual(fileSystem.getFileContentAsString("/B/A").await(), "hello");
+                });
+
+                runner.test("with non-existing destination file", (Test test) ->
+                {
+                    final FileSystem fileSystem = getFileSystem(test);
+                    final File sourceFile = getFile(fileSystem, "/A");
+                    sourceFile.setContentsAsString("hello").await();
+                    final Path destinationFolderPath = Path.parse("/B");
+                    fileSystem.createFolder(destinationFolderPath).await();
+                    sourceFile.copyToFolder(destinationFolderPath).await();
+                    test.assertTrue(fileSystem.fileExists("/B/A").await());
+                    test.assertEqual(fileSystem.getFileContentAsString("/B/A").await(), "hello");
+                });
+
+                runner.test("with existing destination file", (Test test) ->
+                {
+                    final FileSystem fileSystem = getFileSystem(test);
+                    final File sourceFile = getFile(fileSystem, "/A");
+                    sourceFile.setContentsAsString("hello").await();
+                    fileSystem.setFileContentAsString("/B", "there").await();
+                    sourceFile.copyToFolder(Path.parse("/B")).await();
+                    test.assertTrue(fileSystem.fileExists("/B/A").await());
+                    test.assertEqual(fileSystem.getFileContentAsString("/B/A").await(), "hello");
+                });
+            });
+
+            runner.testGroup("copyToFolder(Folder)", () ->
+            {
+                runner.test("with null destinationFolder", (Test test) ->
+                {
+                    final File file = getFile(test);
+                    test.assertThrows(new PreConditionFailure("destinationFolder cannot be null."),
+                        () -> file.copyToFolder((Folder)null));
+                });
+
+                runner.test("with non-existing source file", (Test test) ->
+                {
+                    final FileSystem fileSystem = getFileSystem(test);
+                    final File sourceFile = getFile(fileSystem, "/A");
+                    final Folder destinationFolder = fileSystem.getFolder("/B").await();
+                    test.assertThrows(new FileNotFoundException("/A"),
+                        () -> sourceFile.copyToFolder(destinationFolder).await());
+                });
+
+                runner.test("with non-existing destination folder", (Test test) ->
+                {
+                    final FileSystem fileSystem = getFileSystem(test);
+                    final File sourceFile = getFile(fileSystem, "/A");
+                    sourceFile.setContentsAsString("hello").await();
+                    final Folder destinationFolder = fileSystem.getFolder("/B/").await();
+                    sourceFile.copyToFolder(destinationFolder).await();
+                    test.assertTrue(destinationFolder.fileExists("A").await());
+                    test.assertEqual(destinationFolder.getFileContentsAsString("A").await(), "hello");
+                });
+
+                runner.test("with non-existing destination file", (Test test) ->
+                {
+                    final FileSystem fileSystem = getFileSystem(test);
+                    final File sourceFile = getFile(fileSystem, "/A");
+                    sourceFile.setContentsAsString("hello").await();
+                    final Folder destinationFolder = fileSystem.getFolder("/B").await();
+                    destinationFolder.create().await();
+                    sourceFile.copyToFolder(destinationFolder).await();
+                    test.assertTrue(destinationFolder.fileExists("A").await());
+                    test.assertEqual(destinationFolder.getFileContentsAsString("A").await(), "hello");
+                });
+
+                runner.test("with existing destination file", (Test test) ->
+                {
+                    final FileSystem fileSystem = getFileSystem(test);
+                    final File sourceFile = getFile(fileSystem, "/A");
+                    sourceFile.setContentsAsString("hello").await();
+                    final Folder destinationFolder = fileSystem.getFolder("/B").await();
+                    destinationFolder.create().await();
+                    destinationFolder.setFileContentsAsString("A", "there").await();
+                    sourceFile.copyToFolder(destinationFolder).await();
+                    test.assertTrue(destinationFolder.fileExists("A").await());
+                    test.assertEqual(destinationFolder.getFileContentsAsString("A").await(), "hello");
+                });
+            });
         });
     }
 

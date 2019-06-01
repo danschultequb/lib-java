@@ -192,6 +192,63 @@ public class Folder extends FileSystemEntry
     }
 
     /**
+     * Get the contents of the file at the provided relativeFilePath.
+     * @param relativeFilePath The relative file path to the file.
+     * @return The String contents of the file at the provided relativeFilePath.
+     */
+    public Result<String> getFileContentsAsString(String relativeFilePath)
+    {
+        PreCondition.assertNotNullAndNotEmpty(relativeFilePath, "relativeFilePath");
+
+        return getFileContentsAsString(Path.parse(relativeFilePath));
+    }
+
+    /**
+     * Get the contents of the file at the provided relativeFilePath.
+     * @param relativeFilePath The relative file path to the file.
+     * @return The String contents of the file at the provided relativeFilePath.
+     */
+    public Result<String> getFileContentsAsString(Path relativeFilePath)
+    {
+        PreCondition.assertNotNull(relativeFilePath, "relativeFilePath");
+        PreCondition.assertFalse(relativeFilePath.isRooted(), "relativeFilePath.isRooted()");
+
+        final Path childFilePath = getChildPath(relativeFilePath);
+        final FileSystem fileSystem = getFileSystem();
+        return fileSystem.getFileContentAsString(childFilePath);
+    }
+
+    /**
+     * Set the contents of the file at the provided relativeFilePath.
+     * @param relativeFilePath The relative path to the file.
+     * @param content The String contents to set.
+     * @return The result of setting the file's contents.
+     */
+    public Result<Void> setFileContentsAsString(String relativeFilePath, String content)
+    {
+        PreCondition.assertNotNullAndNotEmpty(relativeFilePath, "relativeFilePath");
+
+        return setFileContentsAsString(Path.parse(relativeFilePath), content);
+    }
+
+    /**
+     * Set the contents of the file at the provided relativeFilePath.
+     * @param relativeFilePath The relative path to the file.
+     * @param content The String contents to set.
+     * @return The result of setting the file's contents.
+     */
+    public Result<Void> setFileContentsAsString(Path relativeFilePath, String content)
+    {
+        PreCondition.assertNotNull(relativeFilePath, "relativeFilePath");
+        PreCondition.assertFalse(relativeFilePath.isRooted(), "relativeFilePath.isRooted()");
+        PreCondition.assertNotNull(content, "content");
+
+        final Path childFilePath = getChildPath(relativeFilePath);
+        final FileSystem fileSystem = getFileSystem();
+        return fileSystem.setFileContentAsString(childFilePath, content);
+    }
+
+    /**
      * Create a child folder of this folder with the provided relative path.
      * @param folderRelativePath The relative path create this folder to the child folder to create.
      * @return Whether or not this function created the child folder.

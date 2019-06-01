@@ -109,29 +109,21 @@ public interface FileSystem
             .thenResult(this::getFolder)
             .then((Folder folder) ->
             {
-                List<FileSystemEntry> result = null;
+                final List<FileSystemEntry> result = List.create();
 
-                final Iterable<FileSystemEntry> folderEntries = folder.getFilesAndFolders()
-                    .await();
+                final Queue<Folder> foldersToVisit = Queue.create();
+                foldersToVisit.enqueue(folder);
 
-                if (folderEntries != null)
+                while (foldersToVisit.any())
                 {
-                    result = List.create();
-
-                    final Queue<Folder> foldersToVisit = new ArrayListQueue<>();
-                    foldersToVisit.enqueue(folder);
-
-                    while (foldersToVisit.any())
+                    final Folder currentFolder = foldersToVisit.dequeue();
+                    final Iterable<FileSystemEntry> currentFolderEntries = currentFolder.getFilesAndFolders().await();
+                    for (final FileSystemEntry entry : currentFolderEntries)
                     {
-                        final Folder currentFolder = foldersToVisit.dequeue();
-                        final Iterable<FileSystemEntry> currentFolderEntries = currentFolder.getFilesAndFolders().await();
-                        for (final FileSystemEntry entry : currentFolderEntries)
+                        result.add(entry);
+                        if (entry instanceof Folder)
                         {
-                            result.add(entry);
-                            if (entry instanceof Folder)
-                            {
-                                foldersToVisit.enqueue((Folder)entry);
-                            }
+                            foldersToVisit.enqueue((Folder)entry);
                         }
                     }
                 }
@@ -706,6 +698,68 @@ public interface FileSystem
                 }
             }
         });
+    }
+
+    /**
+     * Copy the file at the provided sourceFilePath to a file with the same name in the provided
+     * destinationFolder.
+     * @param sourceFile The file to copy.
+     * @param destinationFolder The folder that the file will be copied to.
+     * @return The result of copying the file.
+     */
+    default Result<Void> copyFileToFolder(File sourceFile, Folder destinationFolder)
+    {
+        PreCondition.assertNotNull(sourceFile, "sourceFile");
+        PreCondition.assertNotNull(destinationFolder, "destinationFolder");
+
+        return copyFileToFolder(sourceFile.getPath(), destinationFolder.getPath());
+    }
+
+    /**
+     * Copy the file at the provided sourceFilePath to a file with the same name in the provided
+     * destinationFolder.
+     * @param sourceFile The file to copy.
+     * @param destinationFolderPath The folder path that the file will be copied to.
+     * @return The result of copying the file.
+     */
+    default Result<Void> copyFileToFolder(File sourceFile, Path destinationFolderPath)
+    {
+        PreCondition.assertNotNull(sourceFile, "sourceFile");
+        PreCondition.assertNotNull(destinationFolderPath, "destinationFolderPath");
+
+        return copyFileToFolder(sourceFile.getPath(), destinationFolderPath);
+    }
+
+    /**
+     * Copy the file at the provided sourceFilePath to a file with the same name in the provided
+     * destinationFolder.
+     * @param sourceFilePath The path to the file to copy.
+     * @param destinationFolder The folder that the file will be copied to.
+     * @return The result of copying the file.
+     */
+    default Result<Void> copyFileToFolder(Path sourceFilePath, Folder destinationFolder)
+    {
+        FileSystem.validateRootedFilePath(sourceFilePath, "sourceFilePath");
+        PreCondition.assertNotNull(destinationFolder, "destinationFolder");
+
+        return copyFileToFolder(sourceFilePath, destinationFolder.getPath());
+    }
+
+    /**
+     * Copy the file at the provided sourceFilePath to a file with the same name in the provided
+     * destinationFolderPath.
+     * @param sourceFilePath The path to the file to copy.
+     * @param destinationFolderPath The folder that the file will be copied to.
+     * @return The result of copying the file.
+     */
+    default Result<Void> copyFileToFolder(Path sourceFilePath, Path destinationFolderPath)
+    {
+        FileSystem.validateRootedFilePath(sourceFilePath, "sourceFilePath");
+        FileSystem.validateRootedFolderPath(destinationFolderPath, "destinationFolderPath");
+
+        final String fileName = sourceFilePath.getSegments().last();
+        final Path destinationFilePath = destinationFolderPath.concatenateSegment(fileName);
+        return copyFileTo(sourceFilePath, destinationFilePath);
     }
 
     static void validateRootedFolderPath(String rootedFolderPath)

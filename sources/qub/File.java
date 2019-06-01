@@ -151,11 +151,21 @@ public class File extends FileSystemEntry
 
     public Result<Void> copyTo(Path destinationPath)
     {
-        return getFileSystem().copyFileTo(getPath(), destinationPath);
+        return getFileSystem().copyFileTo(this, destinationPath);
     }
 
     public Result<Void> copyTo(File destinationFile)
     {
-        return getFileSystem().copyFileTo(getPath(), destinationFile.getPath());
+        return getFileSystem().copyFileTo(this, destinationFile);
+    }
+
+    public Result<Void> copyToFolder(Path destinationFolderPath)
+    {
+        return getFileSystem().copyFileToFolder(this, destinationFolderPath);
+    }
+
+    public Result<Void> copyToFolder(Folder destinationFolder)
+    {
+        return getFileSystem().copyFileToFolder(this, destinationFolder);
     }
 }
