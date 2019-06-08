@@ -108,10 +108,9 @@ public class InMemoryFolder
      * Create a folder within this folder with the provided name. Return whether or not this
      * function created the folder.
      * @param folderName The name of the child folder to create.
-     * @param outputFolder The output argument where the folder will be set.
      * @return Whether or not the child folder was created by this function.
      */
-    public boolean createFolder(String folderName, Value<InMemoryFolder> outputFolder)
+    public boolean createFolder(String folderName)
     {
         InMemoryFolder inMemoryFolder = getFolder(folderName);
         final boolean result = (inMemoryFolder == null);
@@ -119,11 +118,6 @@ public class InMemoryFolder
         {
             inMemoryFolder = new InMemoryFolder(folderName, clock);
             folders.add(inMemoryFolder);
-        }
-
-        if (outputFolder != null)
-        {
-            outputFolder.set(inMemoryFolder);
         }
 
         return result;

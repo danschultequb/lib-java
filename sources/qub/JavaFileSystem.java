@@ -96,7 +96,7 @@ public class JavaFileSystem implements FileSystem
             Result<Folder> result;
             try
             {
-                final Path parentFolderPath = rootedFolderPath.getParent();
+                final Path parentFolderPath = rootedFolderPath.getParent().await();
                 if (parentFolderPath != null)
                 {
                     java.nio.file.Files.createDirectories(java.nio.file.Paths.get(parentFolderPath.toString()));
@@ -166,7 +166,7 @@ public class JavaFileSystem implements FileSystem
 
         return Result.createResult(() ->
         {
-            createFolder(rootedFilePath.getParent())
+            createFolder(rootedFilePath.getParent().await())
                 .catchError(FolderAlreadyExistsException.class)
                 .await();
 
@@ -291,7 +291,7 @@ public class JavaFileSystem implements FileSystem
             {
                 try
                 {
-                    createFolder(rootedFilePath.getParent()).await();
+                    createFolder(rootedFilePath.getParent().await()).await();
                     result = Result.success(
                         new BufferedByteWriteStream(
                             new OutputStreamToByteWriteStream(

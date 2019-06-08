@@ -173,6 +173,8 @@ public class Path
      */
     public Path concatenate(String toConcatenate)
     {
+        PreCondition.assertNotNullAndNotEmpty(toConcatenate, "toConcatenate");
+
         return concatenate(Path.parse(toConcatenate));
     }
 
@@ -185,20 +187,10 @@ public class Path
      */
     public Path concatenate(Path toConcatenate)
     {
-        Path result;
-        if (toConcatenate == null)
-        {
-            result = this;
-        }
-        else if (toConcatenate.isRooted())
-        {
-            result = null;
-        }
-        else
-        {
-            result = new Path(value + toConcatenate.toString(), false);
-        }
-        return result;
+        PreCondition.assertNotNull(toConcatenate, "toConcatenate");
+        PreCondition.assertFalse(toConcatenate.isRooted(), "toConcatenate.isRooted()");
+
+        return new Path(value + toConcatenate.toString(), false);
     }
 
     /**
@@ -210,6 +202,8 @@ public class Path
      */
     public Path concatenateSegment(String segmentToConcatenate)
     {
+        PreCondition.assertNotNullAndNotEmpty(segmentToConcatenate, "segmentToConcatenate");
+
         return concatenateSegment(Path.parse(segmentToConcatenate));
     }
 
@@ -222,26 +216,16 @@ public class Path
      */
     public Path concatenateSegment(Path segmentToConcatenate)
     {
-        Path result;
-        if (segmentToConcatenate == null)
+        PreCondition.assertNotNull(segmentToConcatenate, "segmentToConcatenate");
+        PreCondition.assertFalse(segmentToConcatenate.isRooted(), "segmentToConcatenate.isRooted()");
+
+        String resultPathString = value;
+        if (!resultPathString.endsWith("/") && !resultPathString.endsWith("\\"))
         {
-            result = this;
+            resultPathString += "/";
         }
-        else if (segmentToConcatenate.isRooted())
-        {
-            result = null;
-        }
-        else
-        {
-            String resultPathString = value;
-            if (!resultPathString.endsWith("/") && !resultPathString.endsWith("\\"))
-            {
-                resultPathString += "/";
-            }
-            resultPathString += segmentToConcatenate;
-            result = new Path(resultPathString, false);
-        }
-        return result;
+        resultPathString += segmentToConcatenate;
+        return new Path(resultPathString, false);
     }
 
     /**
@@ -302,32 +286,42 @@ public class Path
            Result.error(new NotFoundException("Could not find a root on the path " + Strings.escapeAndQuote(this) + "."));
     }
 
-    public Path getParent()
+    public Result<Path> getParent()
     {
-        Path result = null;
-
-        final Iterable<String> segments = getSegments();
-        final int segmentCount = segments.getCount();
-        if (segmentCount >= 2)
+        return Result.createResult(() ->
         {
-            final Iterator<String> segmentIterator = segments.skipLast().iterate();
-            final StringBuilder builder = new StringBuilder();
-            if (segmentIterator.first().equals("/"))
+            Result<Path> result;
+
+            final Path resolvedPath = this.resolve().await();
+            final Iterable<String> segments = resolvedPath.getSegments();
+            final int segmentCount = segments.getCount();
+            if (segmentCount <= 1)
             {
-                builder.append(segmentIterator.first());
-                segmentIterator.next();
+                result = Result.error(new NotFoundException("The path " + Strings.escapeAndQuote(value) + " doesn't have a parent folder."));
+            }
+            else
+            {
+                final Iterator<String> segmentIterator = segments.skipLast().iterate();
+                final StringBuilder builder = new StringBuilder();
+                if (segmentIterator.first().equals("/"))
+                {
+                    builder.append(segmentIterator.first());
+                    segmentIterator.next();
+                }
+
+                for (final String segment : segmentIterator)
+                {
+                    builder.append(segment);
+                    builder.append('/');
+                }
+
+                result = Result.success(Path.parse(builder.toString()));
             }
 
-            for (final String segment : segmentIterator)
-            {
-                builder.append(segment);
-                builder.append('/');
-            }
+            PostCondition.assertNotNull(result, "result");
 
-            result = Path.parse(builder.toString());
-        }
-
-        return result;
+            return result;
+        });
     }
 
     /**
@@ -486,7 +480,13 @@ public class Path
     @Override
     public boolean equals(Object rhs)
     {
-        return rhs instanceof Path && equals((Path)rhs);
+        return (rhs instanceof Path && equals((Path)rhs)) ||
+            (rhs instanceof String && equals((String)rhs));
+    }
+
+    public boolean equals(String rhs)
+    {
+        return !Strings.isNullOrEmpty(rhs) && equals(Path.parse(rhs));
     }
 
     public boolean equals(Path rhs)
@@ -495,9 +495,9 @@ public class Path
 
         if (rhs != null)
         {
-            final Path normalizedLhs = this.normalize();
-            final Path normalizedRhs = rhs.normalize();
-            result = normalizedLhs.value.equals(normalizedRhs.value);
+            final Path resolvedLhs = this.resolve().await();
+            final Path resolvedRhs = rhs.resolve().await();
+            result = resolvedLhs.value.equals(resolvedRhs.value);
         }
 
         return result;

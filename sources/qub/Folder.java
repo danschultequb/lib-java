@@ -30,10 +30,8 @@ public class Folder extends FileSystemEntry
      */
     public Result<Folder> getParentFolder()
     {
-        final Path parentFolderPath = getPath().getParent();
-        return parentFolderPath == null
-            ? Result.error(new NotFoundException("The path " + Strings.escapeAndQuote(this.toString()) + " has no parent folder."))
-            : getFileSystem().getFolder(parentFolderPath);
+        return getPath().getParent()
+            .thenResult((Path parentFolderPath) -> getFileSystem().getFolder(parentFolderPath));
     }
 
     /**

@@ -6,8 +6,21 @@ public interface PathTests
     {
         runner.testGroup(Path.class, () ->
         {
-            runner.testGroup("concatenate()", () ->
+            runner.testGroup("concatenate(String)", () ->
             {
+                final Action2<String,Throwable> concatenateErrorTest = (String rhs, Throwable expectedError) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(rhs), (Test test) ->
+                    {
+                        final Path path = Path.parse("thing");
+                        test.assertThrows(expectedError, () -> path.concatenate(rhs));
+                    });
+                };
+
+                concatenateErrorTest.run(null, new PreConditionFailure("toConcatenate cannot be null."));
+                concatenateErrorTest.run("", new PreConditionFailure("toConcatenate cannot be empty."));
+                concatenateErrorTest.run("/", new PreConditionFailure("toConcatenate.isRooted() cannot be true."));
+
                 final Action3<String,String,String> concatenateTest = (String basePath, String argumentPath, String expectedResultPath) ->
                 {
                     runner.test("with " + Strings.escapeAndQuote(basePath) + " and " + Strings.escapeAndQuote(argumentPath), (Test test) ->
@@ -15,28 +28,77 @@ public interface PathTests
                         final Path path = Path.parse(basePath);
                         final Path result = path.concatenate(argumentPath);
                         test.assertEqual(basePath, path.toString());
-                        test.assertEqual(expectedResultPath, result == null ? null : result.toString());
+                        test.assertEqual(expectedResultPath, result.toString());
+                    });
+                };
+
+                concatenateTest.run("thing", "segment", "thingsegment");
+                concatenateTest.run("thing", "a/b/c", "thinga/b/c");
+                concatenateTest.run("thing", "a\\b\\c", "thinga\\b\\c");
+
+                concatenateTest.run("z/y", "segment", "z/ysegment");
+                concatenateTest.run("z/y", "a/b/c", "z/ya/b/c");
+                concatenateTest.run("z/y", "a\\b\\c", "z/ya\\b\\c");
+
+                concatenateTest.run("z\\y", "segment", "z\\ysegment");
+                concatenateTest.run("z\\y", "a/b/c", "z\\ya/b/c");
+                concatenateTest.run("z\\y", "a\\b\\c", "z\\ya\\b\\c");
+            });
+
+            runner.testGroup("concatenate(Path)", () ->
+            {
+                final Action2<Path,Throwable> concatenateErrorTest = (Path rhs, Throwable expectedError) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(rhs), (Test test) ->
+                    {
+                        final Path path = Path.parse("thing");
+                        test.assertThrows(expectedError, () -> path.concatenate(rhs));
+                    });
+                };
+
+                concatenateErrorTest.run(null, new PreConditionFailure("toConcatenate cannot be null."));
+                concatenateErrorTest.run(Path.parse("/"), new PreConditionFailure("toConcatenate.isRooted() cannot be true."));
+
+
+                final Action3<String,String,String> concatenateTest = (String basePath, String argumentPath, String expectedResultPath) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(basePath) + " and " + Strings.escapeAndQuote(argumentPath), (Test test) ->
+                    {
+                        final Path path = Path.parse(basePath);
+                        final Path result = path.concatenate(Path.parse(argumentPath));
+                        test.assertEqual(basePath, path.toString());
+                        test.assertEqual(expectedResultPath, result.toString());
                     });
                 };
                 
                 concatenateTest.run("thing", "segment", "thingsegment");
                 concatenateTest.run("thing", "a/b/c", "thinga/b/c");
                 concatenateTest.run("thing", "a\\b\\c", "thinga\\b\\c");
-                concatenateTest.run("thing", "C:/test/", null);
                 
                 concatenateTest.run("z/y", "segment", "z/ysegment");
                 concatenateTest.run("z/y", "a/b/c", "z/ya/b/c");
                 concatenateTest.run("z/y", "a\\b\\c", "z/ya\\b\\c");
-                concatenateTest.run("z/y", "C:/test/", null);
                 
                 concatenateTest.run("z\\y", "segment", "z\\ysegment");
                 concatenateTest.run("z\\y", "a/b/c", "z\\ya/b/c");
                 concatenateTest.run("z\\y", "a\\b\\c", "z\\ya\\b\\c");
-                concatenateTest.run("z\\y", "C:/test/", null);
             });
             
-            runner.testGroup("concatenateSegment()", () ->
+            runner.testGroup("concatenateSegment(String)", () ->
             {
+                final Action2<String,Throwable> concatenateSegmentErrorTest = (String rhs, Throwable expectedError) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(rhs), (Test test) ->
+                    {
+                        final Path path = Path.parse("thing");
+                        test.assertThrows(expectedError, () -> path.concatenateSegment(rhs));
+                    });
+                };
+
+                concatenateSegmentErrorTest.run(null, new PreConditionFailure("segmentToConcatenate cannot be null."));
+                concatenateSegmentErrorTest.run("", new PreConditionFailure("segmentToConcatenate cannot be empty."));
+                concatenateSegmentErrorTest.run("/", new PreConditionFailure("segmentToConcatenate.isRooted() cannot be true."));
+
                 final Action3<String,String,String> concatenateSegmentTest = (String basePath, String argumentPath, String expectedResultPath) ->
                 {
                     runner.test("with " + Strings.escapeAndQuote(basePath) + " and " + Strings.escapeAndQuote(argumentPath), (Test test) ->
@@ -51,27 +113,22 @@ public interface PathTests
                 concatenateSegmentTest.run("thing", "segment", "thing/segment");
                 concatenateSegmentTest.run("thing", "a/b/c", "thing/a/b/c");
                 concatenateSegmentTest.run("thing", "a\\b\\c", "thing/a\\b\\c");
-                concatenateSegmentTest.run("thing", "C:/test/", null);
                 
                 concatenateSegmentTest.run("z/y", "segment", "z/y/segment");
                 concatenateSegmentTest.run("z/y", "a/b/c", "z/y/a/b/c");
                 concatenateSegmentTest.run("z/y", "a\\b\\c", "z/y/a\\b\\c");
-                concatenateSegmentTest.run("z/y", "C:/test/", null);
                 
                 concatenateSegmentTest.run("z\\y", "segment", "z\\y/segment");
                 concatenateSegmentTest.run("z\\y", "a/b/c", "z\\y/a/b/c");
                 concatenateSegmentTest.run("z\\y", "a\\b\\c", "z\\y/a\\b\\c");
-                concatenateSegmentTest.run("z\\y", "C:/test/", null);
 
                 concatenateSegmentTest.run("y/", "segment", "y/segment");
                 concatenateSegmentTest.run("y/", "a/b/c", "y/a/b/c");
                 concatenateSegmentTest.run("y/", "a\\b\\c", "y/a\\b\\c");
-                concatenateSegmentTest.run("y/", "C:/test/", null);
 
                 concatenateSegmentTest.run("y\\", "segment", "y\\segment");
                 concatenateSegmentTest.run("y\\", "a/b/c", "y\\a/b/c");
                 concatenateSegmentTest.run("y\\", "a\\b\\c", "y\\a\\b\\c");
-                concatenateSegmentTest.run("y\\", "C:/test/", null);
             });
 
             runner.testGroup("endsWith(char)", () ->
@@ -155,6 +212,24 @@ public interface PathTests
                 getRootTest.run("C:/", "C:");
                 getRootTest.run("/folder/file.txt", "/");
                 getRootTest.run("\\folder\\file.txt", "/");
+            });
+
+            runner.testGroup("getParent()", () ->
+            {
+                final Action2<String,Throwable> getParentFailureTest = (String pathString, Throwable expectedError) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(pathString), (Test test) ->
+                    {
+                        final Path path = Path.parse(pathString);
+                        test.assertThrows(expectedError, () -> path.getParent().await());
+                    });
+                };
+
+                getParentFailureTest.run("/", new NotFoundException("The path \"/\" doesn't have a parent folder."));
+                getParentFailureTest.run("\\", new NotFoundException("The path \"\\\" doesn't have a parent folder."));
+                getParentFailureTest.run("C:/", new NotFoundException("The path \"C:/\" doesn't have a parent folder."));
+                getParentFailureTest.run("D:", new NotFoundException("The path \"D:\" doesn't have a parent folder."));
+                getParentFailureTest.run("/a/../", new NotFoundException("The path \"/a/../\" doesn't have a parent folder."));
             });
             
             runner.testGroup("parse()", () ->
@@ -289,6 +364,8 @@ public interface PathTests
                     });
                 };
 
+                changeFileExtensionTest.run("\\a.txt", ".txt", "\\a.txt");
+                changeFileExtensionTest.run("/a.txt", ".txt", "/a.txt");
                 changeFileExtensionTest.run("/a.txt", ".gif", "/a.gif");
                 changeFileExtensionTest.run("/a.txt", "gif", "/a.gif");
                 changeFileExtensionTest.run("/a.txt", "", "/a");
@@ -496,6 +573,28 @@ public interface PathTests
                 resolveTest.run("/a/b/c", "..", "/a/b", null);
                 resolveTest.run("C:\\a\\b\\..\\c", "../../test.txt", "C:/test.txt", null);
                 resolveTest.run("C:\\a\\b\\..\\c", "../../../test.txt", null, new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+            });
+
+            runner.testGroup("equals(Object)", () ->
+            {
+                final Action3<String,Object,Boolean> equalsTest = (String lhs, Object rhs, Boolean expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(lhs) + " and " + Strings.escapeAndQuote(Objects.toString(rhs)), (Test test) ->
+                    {
+                        final Path lhsPath = Path.parse(lhs);
+                        test.assertEqual(lhsPath.equals(rhs), expected);
+                    });
+                };
+
+                equalsTest.run("/", null, false);
+                equalsTest.run("/", "", false);
+                equalsTest.run("/", "/", true);
+                equalsTest.run("/", Path.parse("/"), true);
+                equalsTest.run("/", "/a/..", true);
+                equalsTest.run("/", "/a/b/../../", true);
+                equalsTest.run("/a", "/a/", true);
+                equalsTest.run("/a", "/b", false);
+                equalsTest.run("/a", "\\a", true);
             });
         });
     }

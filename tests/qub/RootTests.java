@@ -298,7 +298,7 @@ public interface RootTests
                 {
                     final Root root = getRoot(test, "C:/");
                     test.assertThrows(() -> root.getFolders().await(),
-                        new FolderNotFoundException("C:"));
+                        new RootNotFoundException("C:"));
                 });
 
                 runner.test("when root is empty", (Test test) ->
@@ -328,7 +328,7 @@ public interface RootTests
                 {
                     final Root root = getRoot(test, "C:/");
                     test.assertThrows(() -> root.getFiles().await(),
-                        new FolderNotFoundException("C:"));
+                        new RootNotFoundException("C:"));
                 });
 
                 runner.test("when root is empty", (Test test) ->
@@ -364,7 +364,7 @@ public interface RootTests
                 {
                     final Root root = getRoot(test, "C:/");
                     final Result<Iterable<FileSystemEntry>> result = root.getFilesAndFolders();
-                    test.assertThrows(result::await, new FolderNotFoundException("C:"));
+                    test.assertThrows(result::await, new RootNotFoundException("C:"));
                 });
 
                 runner.test("when root is empty", (Test test) ->
@@ -401,7 +401,7 @@ public interface RootTests
                 {
                     final Root root = getRoot(test, "C:/");
                     final Result<Iterable<FileSystemEntry>> result = root.getFilesAndFoldersRecursively();
-                    test.assertThrows(result::await, new FolderNotFoundException("C:/"));
+                    test.assertThrows(result::await, new RootNotFoundException("C:"));
                 });
 
                 runner.test("when root is empty", (Test test) ->
@@ -462,7 +462,7 @@ public interface RootTests
                 {
                     final Root root = getRoot(test, "C:/");
                     test.assertThrows(() -> root.getFilesRecursively().await(),
-                        new FolderNotFoundException("C:/"));
+                        new RootNotFoundException("C:"));
                 });
 
                 runner.test("when root is empty", (Test test) ->
@@ -519,7 +519,7 @@ public interface RootTests
                 {
                     final Root root = getRoot(test, "C:/");
                     test.assertThrows(() -> root.getFoldersRecursively().await(),
-                        new FolderNotFoundException("C:/"));
+                        new RootNotFoundException("C:"));
                 });
 
                 runner.test("when root is empty", (Test test) ->

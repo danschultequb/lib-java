@@ -19,7 +19,7 @@ public interface InMemoryFileSystemTests
                 {
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     test.assertThrows(() -> fileSystem.setFileCanDelete("C:\\folder\\file.bmp", true).await(),
-                        new FileNotFoundException("C:\\folder\\file.bmp"));
+                        new RootNotFoundException("C:"));
                 });
                 
                 runner.test("when parent folder doesn't exist", (Test test) ->
@@ -69,7 +69,7 @@ public interface InMemoryFileSystemTests
                 {
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     test.assertThrows(() -> fileSystem.setFolderCanDelete("C:\\folder\\file.bmp", true).await(),
-                        new FolderNotFoundException("C:\\folder\\file.bmp"));
+                        new RootNotFoundException("C:"));
                 });
 
                 runner.test("when parent folder doesn't exist", (Test test) ->

@@ -12,35 +12,35 @@ public interface FolderTests
                 {
                     final Folder folder = getFolder(test, "/");
                     test.assertThrows(() -> folder.getParentFolder().await(),
-                        new NotFoundException("The path \"/\" has no parent folder."));
+                        new NotFoundException("The path \"/\" doesn't have a parent folder."));
                 });
 
                 runner.test("with " + Strings.escapeAndQuote("\\"), (Test test) ->
                 {
                     final Folder folder = getFolder(test, "\\");
                     test.assertThrows(() -> folder.getParentFolder().await(),
-                        new NotFoundException("The path \"/\" has no parent folder."));
+                        new NotFoundException("The path \"/\" doesn't have a parent folder."));
                 });
 
                 runner.test("with " + Strings.escapeAndQuote("D:"), (Test test) ->
                 {
                     final Folder folder = getFolder(test, "D:");
                     test.assertThrows(() -> folder.getParentFolder().await(),
-                        new NotFoundException("The path \"D:/\" has no parent folder."));
+                        new NotFoundException("The path \"D:/\" doesn't have a parent folder."));
                 });
 
                 runner.test("with " + Strings.escapeAndQuote("E:/"), (Test test) ->
                 {
                     final Folder folder = getFolder(test, "E:/");
                     test.assertThrows(() -> folder.getParentFolder().await(),
-                        new NotFoundException("The path \"E:/\" has no parent folder."));
+                        new NotFoundException("The path \"E:/\" doesn't have a parent folder."));
                 });
 
                 runner.test("with " + Strings.escapeAndQuote("F:\\"), (Test test) ->
                 {
                     final Folder folder = getFolder(test, "F:\\");
                     test.assertThrows(() -> folder.getParentFolder().await(),
-                        new NotFoundException("The path \"F:/\" has no parent folder."));
+                        new NotFoundException("The path \"F:/\" doesn't have a parent folder."));
                 });
 
                 runner.test("with " + Strings.escapeAndQuote("/apples"), (Test test) ->

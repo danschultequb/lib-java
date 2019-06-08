@@ -642,7 +642,7 @@ public class Process implements Disposable
         {
             final Path executablePathWithoutExtension = executableFilePath.withoutFileExtension();
 
-            final Path folderPath = executableFilePath.getParent();
+            final Path folderPath = executableFilePath.getParent().await();
             result = fileSystem.getFolder(folderPath)
                 .thenResult(Folder::getFiles)
                 .thenResult((Iterable<File> files) ->

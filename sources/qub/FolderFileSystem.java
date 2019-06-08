@@ -14,13 +14,7 @@ public class FolderFileSystem implements FileSystem
 
         this.innerFileSystem = innerFileSystem;
 
-        Path normalizedBaseFolderPath = baseFolderPath.normalize();
-        if (normalizedBaseFolderPath.endsWith("/"))
-        {
-            final String normalizedBaseFolderPathString = normalizedBaseFolderPath.toString();
-            normalizedBaseFolderPath = Path.parse(normalizedBaseFolderPathString.substring(0, normalizedBaseFolderPathString.length() - 1));
-        }
-        this.baseFolderPath = normalizedBaseFolderPath;
+        this.baseFolderPath = baseFolderPath.normalize();
     }
 
     public static FolderFileSystem get(FileSystem innerFileSystem, String baseFolderPath)
@@ -61,33 +55,29 @@ public class FolderFileSystem implements FileSystem
     {
         FileSystem.validateRootedFolderPath(outerPath, "outerPath");
 
-        return outerPath.resolve()
-            .thenResult((Path resolvedOuterPath) ->
+        return Result.create(() ->
+        {
+            Path result;
+            final Path resolvedOuterPath = outerPath.resolve().await();
+            if (resolvedOuterPath.equals("/"))
             {
-                return resolvedOuterPath.getRoot()
-                    .thenResult((Path outerRootPath) ->
-                    {
-                        Result<Path> innerResult;
-                        if (!outerRootPath.equals(Path.parse("/")))
-                        {
-                            if (isFolderPath)
-                            {
-                                innerResult = Result.error(new FolderNotFoundException(outerPath));
-                            }
-                            else
-                            {
-                                innerResult = Result.error(new FileNotFoundException(outerPath));
-                            }
-                        }
-                        else
-                        {
-                            innerResult = resolvedOuterPath.withoutRoot()
-                                .thenResult((Function1<Path,Result<Path>>)baseFolderPath::resolve)
-                                .catchError(NotFoundException.class, () -> baseFolderPath);
-                        }
-                        return innerResult;
-                    });
-            });
+                result = baseFolderPath;
+            }
+            else
+            {
+                final Path outerRootPath = resolvedOuterPath.getRoot().await();
+                if (!outerRootPath.equals("/"))
+                {
+                    throw new RootNotFoundException(outerRootPath);
+                }
+                else
+                {
+                    final Path relativeOuterPath = resolvedOuterPath.withoutRoot().await();
+                    result = baseFolderPath.resolve(relativeOuterPath).await();
+                }
+            }
+            return result;
+        });
     }
 
     private Path getOuterPath(Path innerPath)
@@ -147,17 +137,14 @@ public class FolderFileSystem implements FileSystem
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
         return getInnerPath(rootedFolderPath, true)
-            .thenResult((Path innerPath) ->
+            .thenResult(innerFileSystem::createFolder)
+            .thenResult((Folder createdInnerFolder) ->
             {
-                return innerFileSystem.createFolder(innerPath)
-                    .then((Folder createdInnerFolder) ->
-                    {
-                        return new Folder(this, getOuterPath(createdInnerFolder.getPath()));
-                    })
-                    .convertError(FolderAlreadyExistsException.class, (FolderAlreadyExistsException error) ->
-                    {
-                        return new FolderAlreadyExistsException(getOuterPath(error.getFolderPath()));
-                    });
+                return getFolder(getOuterPath(createdInnerFolder.getPath()));
+            })
+            .convertError(FolderAlreadyExistsException.class, (FolderAlreadyExistsException error) ->
+            {
+                return new FolderAlreadyExistsException(getOuterPath(error.getFolderPath()));
             });
     }
 
