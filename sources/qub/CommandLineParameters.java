@@ -177,6 +177,75 @@ public class CommandLineParameters
     }
 
     /**
+     * Add an optional Folder-valued command line parameter.
+     * @param parameterName The name of the parameter.
+     * @return The new command line parameter.
+     */
+    public CommandLineParameter<Folder> addFolder(String parameterName, Process process)
+    {
+        PreCondition.assertNotNullAndNotEmpty(parameterName, "parameterName");
+        PreCondition.assertNotNull(process, "process");
+
+        final CommandLineParameter<Folder> result = add(parameterName, (String value) ->
+        {
+            return Result.create(() ->
+            {
+                Folder folder;
+                if (Strings.isNullOrEmpty(value))
+                {
+                    folder = process.getCurrentFolder().await();
+                }
+                else
+                {
+                    final FileSystem fileSystem = process.getFileSystem();
+                    final Path path = Path.parse(value);
+                    if (path.isRooted())
+                    {
+                        folder = fileSystem.getFolder(path).await();
+                    }
+                    else
+                    {
+                        final Path rootedPath = process.getCurrentFolderPath().resolve(path).await();
+                        folder = fileSystem.getFolder(rootedPath).await();
+                    }
+                }
+                return folder;
+            });
+        });
+        result.setValueRequired(true);
+        return result;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends Enum<T>> CommandLineParameter<T> addEnum(String parameterName, T defaultValue)
+    {
+        PreCondition.assertNotNullAndNotEmpty(parameterName, "parameterName");
+        PreCondition.assertNotNull(defaultValue, "defaultValue");
+
+        final CommandLineParameter<T> result = add(parameterName, (String value) ->
+        {
+            return Result.create(() ->
+            {
+                T enumResult = defaultValue;
+                if (!Strings.isNullOrEmpty(value))
+                {
+                    for (final T possibleEnumValue : (T[])defaultValue.getClass().getEnumConstants())
+                    {
+                        if (possibleEnumValue.toString().equalsIgnoreCase(value))
+                        {
+                            enumResult = possibleEnumValue;
+                            break;
+                        }
+                    }
+                }
+                return enumResult;
+            });
+        });
+        result.setValueRequired(true);
+        return result;
+    }
+
+    /**
      * Add an optional boolean-valued command line parameter. If this parameter is not specified on
      * the command line, then it will default to the provided unspecifiedValue. If it is specified
      * but isn't provided a value, then it will default to true.

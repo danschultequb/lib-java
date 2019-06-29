@@ -132,7 +132,7 @@ public interface CommandLineParametersTests
                 {
                     final CommandLineArguments arguments = CommandLineArguments.create();
                     final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
-                    final CommandLineParameter<Boolean> parameter = parameters.addBoolean("a");
+                    final CommandLineParameterBoolean parameter = parameters.addBoolean("a");
                     test.assertFalse(parameter.getValue().await());
                 });
 
@@ -140,7 +140,7 @@ public interface CommandLineParametersTests
                 {
                     final CommandLineArguments arguments = CommandLineArguments.create("--a");
                     final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
-                    final CommandLineParameter<Boolean> parameter = parameters.addBoolean("a");
+                    final CommandLineParameterBoolean parameter = parameters.addBoolean("a");
                     test.assertTrue(parameter.getValue().await());
                 });
 
@@ -148,7 +148,7 @@ public interface CommandLineParametersTests
                 {
                     final CommandLineArguments arguments = CommandLineArguments.create("--a=");
                     final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
-                    final CommandLineParameter<Boolean> parameter = parameters.addBoolean("a");
+                    final CommandLineParameterBoolean parameter = parameters.addBoolean("a");
                     test.assertTrue(parameter.getValue().await());
                 });
 
@@ -156,7 +156,7 @@ public interface CommandLineParametersTests
                 {
                     final CommandLineArguments arguments = CommandLineArguments.create("--a=false");
                     final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
-                    final CommandLineParameter<Boolean> parameter = parameters.addBoolean("a");
+                    final CommandLineParameterBoolean parameter = parameters.addBoolean("a");
                     test.assertFalse(parameter.getValue().await());
                 });
 
@@ -164,7 +164,7 @@ public interface CommandLineParametersTests
                 {
                     final CommandLineArguments arguments = CommandLineArguments.create("--a=FALSE");
                     final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
-                    final CommandLineParameter<Boolean> parameter = parameters.addBoolean("a");
+                    final CommandLineParameterBoolean parameter = parameters.addBoolean("a");
                     test.assertThrows(() -> parameter.getValue().await(),
                         new ParseException("Expected the value (\"FALSE\") to be either \"true\" or \"false\"."));
                 });
@@ -173,7 +173,7 @@ public interface CommandLineParametersTests
                 {
                     final CommandLineArguments arguments = CommandLineArguments.create("--a=true");
                     final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
-                    final CommandLineParameter<Boolean> parameter = parameters.addBoolean("a");
+                    final CommandLineParameterBoolean parameter = parameters.addBoolean("a");
                     test.assertTrue(parameter.getValue().await());
                 });
 
@@ -181,7 +181,7 @@ public interface CommandLineParametersTests
                 {
                     final CommandLineArguments arguments = CommandLineArguments.create("--a=TRUE");
                     final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
-                    final CommandLineParameter<Boolean> parameter = parameters.addBoolean("a");
+                    final CommandLineParameterBoolean parameter = parameters.addBoolean("a");
                     test.assertThrows(() -> parameter.getValue().await(),
                         new ParseException("Expected the value (\"TRUE\") to be either \"true\" or \"false\"."));
                 });
@@ -190,7 +190,7 @@ public interface CommandLineParametersTests
                 {
                     final CommandLineArguments arguments = CommandLineArguments.create("--a=10");
                     final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
-                    final CommandLineParameter<Boolean> parameter = parameters.addBoolean("a");
+                    final CommandLineParameterBoolean parameter = parameters.addBoolean("a");
                     test.assertThrows(() -> parameter.getValue().await(),
                         new ParseException("Expected the value (\"10\") to be either \"true\" or \"false\"."));
                 });
@@ -216,7 +216,7 @@ public interface CommandLineParametersTests
                 {
                     final CommandLineArguments arguments = CommandLineArguments.create();
                     final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
-                    final CommandLineParameter<Boolean> parameter = parameters.addBoolean("a", false);
+                    final CommandLineParameterBoolean parameter = parameters.addBoolean("a", false);
                     test.assertFalse(parameter.getValue().await());
                 });
 
@@ -224,7 +224,7 @@ public interface CommandLineParametersTests
                 {
                     final CommandLineArguments arguments = CommandLineArguments.create();
                     final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
-                    final CommandLineParameter<Boolean> parameter = parameters.addBoolean("a", true);
+                    final CommandLineParameterBoolean parameter = parameters.addBoolean("a", true);
                     test.assertTrue(parameter.getValue().await());
                 });
 
@@ -232,7 +232,7 @@ public interface CommandLineParametersTests
                 {
                     final CommandLineArguments arguments = CommandLineArguments.create("--a");
                     final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
-                    final CommandLineParameter<Boolean> parameter = parameters.addBoolean("a", false);
+                    final CommandLineParameterBoolean parameter = parameters.addBoolean("a", false);
                     test.assertTrue(parameter.getValue().await());
                 });
 
@@ -240,7 +240,7 @@ public interface CommandLineParametersTests
                 {
                     final CommandLineArguments arguments = CommandLineArguments.create("--a=");
                     final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
-                    final CommandLineParameter<Boolean> parameter = parameters.addBoolean("a", false);
+                    final CommandLineParameterBoolean parameter = parameters.addBoolean("a", false);
                     test.assertTrue(parameter.getValue().await());
                 });
 
@@ -248,7 +248,7 @@ public interface CommandLineParametersTests
                 {
                     final CommandLineArguments arguments = CommandLineArguments.create("--a=false");
                     final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
-                    final CommandLineParameter<Boolean> parameter = parameters.addBoolean("a", true);
+                    final CommandLineParameterBoolean parameter = parameters.addBoolean("a", true);
                     test.assertFalse(parameter.getValue().await());
                 });
 
@@ -256,7 +256,7 @@ public interface CommandLineParametersTests
                 {
                     final CommandLineArguments arguments = CommandLineArguments.create("--a=FALSE");
                     final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
-                    final CommandLineParameter<Boolean> parameter = parameters.addBoolean("a", true);
+                    final CommandLineParameterBoolean parameter = parameters.addBoolean("a", true);
                     test.assertThrows(() -> parameter.getValue().await(),
                         new ParseException("Expected the value (\"FALSE\") to be either \"true\" or \"false\"."));
                 });
@@ -265,7 +265,7 @@ public interface CommandLineParametersTests
                 {
                     final CommandLineArguments arguments = CommandLineArguments.create("--a=true");
                     final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
-                    final CommandLineParameter<Boolean> parameter = parameters.addBoolean("a", false);
+                    final CommandLineParameterBoolean parameter = parameters.addBoolean("a", false);
                     test.assertTrue(parameter.getValue().await());
                 });
 
@@ -273,7 +273,7 @@ public interface CommandLineParametersTests
                 {
                     final CommandLineArguments arguments = CommandLineArguments.create("--a=TRUE");
                     final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
-                    final CommandLineParameter<Boolean> parameter = parameters.addBoolean("a", false);
+                    final CommandLineParameterBoolean parameter = parameters.addBoolean("a", false);
                     test.assertThrows(() -> parameter.getValue().await(),
                         new ParseException("Expected the value (\"TRUE\") to be either \"true\" or \"false\"."));
                 });
@@ -282,9 +282,166 @@ public interface CommandLineParametersTests
                 {
                     final CommandLineArguments arguments = CommandLineArguments.create("--a=10");
                     final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
-                    final CommandLineParameter<Boolean> parameter = parameters.addBoolean("a", true);
+                    final CommandLineParameterBoolean parameter = parameters.addBoolean("a", true);
                     test.assertThrows(() -> parameter.getValue().await(),
                         new ParseException("Expected the value (\"10\") to be either \"true\" or \"false\"."));
+                });
+            });
+
+            runner.testGroup("addFolder(String,Process)", () ->
+            {
+                runner.test("with null Process", (Test test) ->
+                {
+                    final CommandLineParameters parameters = new CommandLineParameters();
+                        test.assertThrows(() -> parameters.addFolder("hello", null),
+                            new PreConditionFailure("process cannot be null."));
+                });
+
+                runner.test("with null", (Test test) ->
+                {
+                    try (final Process process = new Process())
+                    {
+                        final CommandLineParameters parameters = new CommandLineParameters();
+                        test.assertThrows(() -> parameters.addFolder(null, process),
+                            new PreConditionFailure("parameterName cannot be null."));
+                    }
+                });
+
+                runner.test("with empty", (Test test) ->
+                {
+                    try (final Process process = new Process())
+                    {
+                        final CommandLineParameters parameters = new CommandLineParameters();
+                        test.assertThrows(() -> parameters.addFolder("", process),
+                            new PreConditionFailure("parameterName cannot be empty."));
+                    }
+                });
+
+                runner.test("with non-empty name that doesn't exist in arguments", (Test test) ->
+                {
+                    try (final Process process = new Process())
+                    {
+                        final CommandLineArguments arguments = CommandLineArguments.create();
+                        final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
+                        final CommandLineParameter<Folder> parameter = parameters.addFolder("a", process);
+                        test.assertEqual(process.getCurrentFolder().await(), parameter.getValue().await());
+                    }
+                });
+
+                runner.test("with non-empty name that doesn't have a value", (Test test) ->
+                {
+                    try (final Process process = new Process())
+                    {
+                        final CommandLineArguments arguments = CommandLineArguments.create("--a");
+                        final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
+                        final CommandLineParameter<Folder> parameter = parameters.addFolder("a", process);
+                        test.assertEqual(process.getCurrentFolder().await(), parameter.getValue().await());
+                    }
+                });
+
+                runner.test("with non-empty name that has an empty value", (Test test) ->
+                {
+                    try (final Process process = new Process())
+                    {
+                        final CommandLineArguments arguments = CommandLineArguments.create("--a=");
+                        final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
+                        final CommandLineParameter<Folder> parameter = parameters.addFolder("a", process);
+                        test.assertEqual(process.getCurrentFolder().await(), parameter.getValue().await());
+                    }
+                });
+
+                runner.test("with non-empty name that has a relative file path value", (Test test) ->
+                {
+                    try (final Process process = new Process())
+                    {
+                        final CommandLineArguments arguments = CommandLineArguments.create("--a=folder/subfolder/");
+                        final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
+                        final CommandLineParameter<Folder> parameter = parameters.addFolder("a", process);
+                        test.assertEqual(process.getCurrentFolder().await().getFolder("folder/subfolder").await(), parameter.getValue().await());
+                    }
+                });
+
+                runner.test("with non-empty name that has a rooted folder path value", (Test test) ->
+                {
+                    try (final Process process = new Process())
+                    {
+                        final CommandLineArguments arguments = CommandLineArguments.create("--a=/folder/");
+                        final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
+                        final CommandLineParameter<Folder> parameter = parameters.addFolder("a", process);
+                        test.assertEqual(process.getFileSystem().getFolder("/folder/").await(), parameter.getValue().await());
+                    }
+                });
+            });
+
+            runner.testGroup("addEnum(String,T)", () ->
+            {
+                runner.test("with null defaultValue", (Test test) ->
+                {
+                    final CommandLineParameters parameters = new CommandLineParameters();
+                        test.assertThrows(() -> parameters.addEnum("hello", null),
+                            new PreConditionFailure("defaultValue cannot be null."));
+                });
+
+                runner.test("with null", (Test test) ->
+                {
+                    final CommandLineParameters parameters = new CommandLineParameters();
+                    test.assertThrows(() -> parameters.addEnum(null, Comparison.Equal),
+                        new PreConditionFailure("parameterName cannot be null."));
+                });
+
+                runner.test("with empty", (Test test) ->
+                {
+                    final CommandLineParameters parameters = new CommandLineParameters();
+                    test.assertThrows(() -> parameters.addEnum("", Comparison.Equal),
+                        new PreConditionFailure("parameterName cannot be empty."));
+                });
+
+                runner.test("with non-empty name that doesn't exist in arguments", (Test test) ->
+                {
+                    final CommandLineArguments arguments = CommandLineArguments.create();
+                    final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
+                    final CommandLineParameter<Comparison> parameter = parameters.addEnum("a", Comparison.Equal);
+                    test.assertEqual(Comparison.Equal, parameter.getValue().await());
+                });
+
+                runner.test("with non-empty name that doesn't have a value", (Test test) ->
+                {
+                    final CommandLineArguments arguments = CommandLineArguments.create("--a");
+                    final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
+                    final CommandLineParameter<Comparison> parameter = parameters.addEnum("a", Comparison.LessThan);
+                    test.assertEqual(Comparison.LessThan, parameter.getValue().await());
+                });
+
+                runner.test("with non-empty name that has an empty value", (Test test) ->
+                {
+                    final CommandLineArguments arguments = CommandLineArguments.create("--a=");
+                    final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
+                    final CommandLineParameter<Comparison> parameter = parameters.addEnum("a", Comparison.GreaterThan);
+                    test.assertEqual(Comparison.GreaterThan, parameter.getValue().await());
+                });
+
+                runner.test("with non-empty name that has an unrecognized value", (Test test) ->
+                {
+                    final CommandLineArguments arguments = CommandLineArguments.create("--a=blah");
+                    final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
+                    final CommandLineParameter<Comparison> parameter = parameters.addEnum("a", Comparison.Equal);
+                    test.assertEqual(Comparison.Equal, parameter.getValue().await());
+                });
+
+                runner.test("with non-empty name that has a recognized value", (Test test) ->
+                {
+                    final CommandLineArguments arguments = CommandLineArguments.create("--a=LessThan");
+                    final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
+                    final CommandLineParameter<Comparison> parameter = parameters.addEnum("a", Comparison.Equal);
+                    test.assertEqual(Comparison.LessThan, parameter.getValue().await());
+                });
+
+                runner.test("with non-empty name that has a recognized value with different casing", (Test test) ->
+                {
+                    final CommandLineArguments arguments = CommandLineArguments.create("--a=greaterTHAN");
+                    final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
+                    final CommandLineParameter<Comparison> parameter = parameters.addEnum("a", Comparison.Equal);
+                    test.assertEqual(Comparison.GreaterThan, parameter.getValue().await());
                 });
             });
 
@@ -293,7 +450,7 @@ public interface CommandLineParametersTests
                 try (final Process process = new Process())
                 {
                     final CommandLineParameters parameters = new CommandLineParameters();
-                    final CommandLineParameter<Boolean> parameter = parameters.addVerbose(process);
+                    final CommandLineParameterVerbose parameter = parameters.addVerbose(process);
                     test.assertEqual("verbose", parameter.getName());
                     test.assertEqual(Iterable.create(), parameter.getAliases());
                     test.assertEqual("Whether or not to show verbose logs.", parameter.getDescription());
@@ -304,7 +461,7 @@ public interface CommandLineParametersTests
             runner.test("addDebug()", (Test test) ->
             {
                 final CommandLineParameters parameters = new CommandLineParameters();
-                final CommandLineParameter<Boolean> parameter = parameters.addDebug();
+                final CommandLineParameterBoolean parameter = parameters.addDebug();
                 test.assertEqual("debug", parameter.getName());
                 test.assertEqual(Iterable.create(), parameter.getAliases());
                 test.assertEqual("Whether or not to run this application in debug mode.", parameter.getDescription());
@@ -316,7 +473,7 @@ public interface CommandLineParametersTests
                 try (final Process process = new Process())
                 {
                     final CommandLineParameters parameters = new CommandLineParameters();
-                    final CommandLineParameter<Boolean> parameter = parameters.addProfiler(process, CommandLineParameterTests.class);
+                    final CommandLineParameterProfiler parameter = parameters.addProfiler(process, CommandLineParameterTests.class);
                     test.assertEqual("profiler", parameter.getName());
                     test.assertEqual(Iterable.create(), parameter.getAliases());
                     test.assertEqual("Whether or not this application should pause before it is run to allow a profiler to be attached.", parameter.getDescription());
@@ -327,7 +484,7 @@ public interface CommandLineParametersTests
             runner.test("addHelp()", (Test test) ->
             {
                 final CommandLineParameters parameters = new CommandLineParameters();
-                final CommandLineParameter<Boolean> parameter = parameters.addHelp();
+                final CommandLineParameterBoolean parameter = parameters.addHelp();
                 test.assertEqual("help", parameter.getName());
                 test.assertEqual(Iterable.create("?"), parameter.getAliases());
                 test.assertEqual("Show the help message for this application.", parameter.getDescription());
