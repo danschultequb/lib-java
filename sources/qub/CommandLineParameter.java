@@ -94,6 +94,19 @@ public class CommandLineParameter<T> extends CommandLineParameterBase<T>
         String argumentStringValue = arguments.getNamedValue(getName())
             .catchError(NotFoundException.class)
             .await();
+        if (argumentStringValue == null && !Iterable.isNullOrEmpty(aliases))
+        {
+            for (final String alias : aliases)
+            {
+                argumentStringValue = arguments.getNamedValue(alias)
+                    .catchError(NotFoundException.class)
+                    .await();
+                if (argumentStringValue != null)
+                {
+                    break;
+                }
+            }
+        }
         if (argumentStringValue == null && index != null)
         {
             argumentStringValue = arguments.getAnonymousValue(index)
@@ -119,6 +132,19 @@ public class CommandLineParameter<T> extends CommandLineParameterBase<T>
         String argumentStringValue = arguments.removeNamedValue(getName())
             .catchError(NotFoundException.class)
             .await();
+        if (argumentStringValue == null && !Iterable.isNullOrEmpty(aliases))
+        {
+            for (final String alias : aliases)
+            {
+                argumentStringValue = arguments.removeNamedValue(alias)
+                    .catchError(NotFoundException.class)
+                    .await();
+                if (argumentStringValue != null)
+                {
+                    break;
+                }
+            }
+        }
         if (argumentStringValue == null && index != null)
         {
             argumentStringValue = arguments.removeAnonymousValue(index)

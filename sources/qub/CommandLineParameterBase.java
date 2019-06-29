@@ -11,7 +11,7 @@ public abstract class CommandLineParameterBase<T>
     private String description;
     protected final Integer index;
     protected final Function1<String,Result<T>> parseArgumentValue;
-    private List<String> aliases;
+    protected List<String> aliases;
     private String valueName;
     private boolean required;
     private boolean valueRequired;

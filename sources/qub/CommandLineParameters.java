@@ -239,7 +239,7 @@ public class CommandLineParameters
      * @return The help command line parameter.
      * @return
      */
-    public CommandLineParameter<Boolean> addHelp()
+    public CommandLineParameterBoolean addHelp()
     {
         return addBoolean("help")
             .setDescription("Show the help message for this application.")

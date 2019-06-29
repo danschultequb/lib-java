@@ -422,6 +422,24 @@ public interface CommandLineParameterTests
                         .addNamedArgument("fakeName", "abc"));
                     test.assertEqual("abc", parameter.getValue().await());
                 });
+
+                runner.test("with matching alias and empty value", (Test test) ->
+                {
+                    final CommandLineArguments arguments = CommandLineArguments.create("--b");
+                    final CommandLineParameter<String> parameter = new CommandLineParameter<>("fakeName", 0, Result::success)
+                        .setArguments(arguments)
+                        .addAlias("b");
+                    test.assertEqual("", parameter.getValue().await());
+                });
+
+                runner.test("with matching alias and non-empty value", (Test test) ->
+                {
+                    final CommandLineArguments arguments = CommandLineArguments.create("--b=c");
+                    final CommandLineParameter<String> parameter = new CommandLineParameter<>("fakeName", 0, Result::success)
+                        .setArguments(arguments)
+                        .addAlias("b");
+                    test.assertEqual("c", parameter.getValue().await());
+                });
             });
 
             runner.testGroup("removeValue()", () ->
@@ -505,6 +523,30 @@ public interface CommandLineParameterTests
                     final CommandLineParameter<String> parameter = new CommandLineParameter<>("fakeName", 0, Result::success)
                         .setArguments(arguments);
                     test.assertEqual("abc", parameter.removeValue().await());
+                    test.assertEqual("[]", arguments.toString());
+                    test.assertNull(parameter.removeValue().await());
+                    test.assertEqual("[]", arguments.toString());
+                });
+
+                runner.test("with matching alias and empty value", (Test test) ->
+                {
+                    final CommandLineArguments arguments = CommandLineArguments.create("--b");
+                    final CommandLineParameter<String> parameter = new CommandLineParameter<>("fakeName", 0, Result::success)
+                        .setArguments(arguments)
+                        .addAlias("b");
+                    test.assertEqual("", parameter.removeValue().await());
+                    test.assertEqual("[]", arguments.toString());
+                    test.assertNull(parameter.removeValue().await());
+                    test.assertEqual("[]", arguments.toString());
+                });
+
+                runner.test("with matching alias and non-empty value", (Test test) ->
+                {
+                    final CommandLineArguments arguments = CommandLineArguments.create("--b=c");
+                    final CommandLineParameter<String> parameter = new CommandLineParameter<>("fakeName", 0, Result::success)
+                        .setArguments(arguments)
+                        .addAlias("b");
+                    test.assertEqual("c", parameter.removeValue().await());
                     test.assertEqual("[]", arguments.toString());
                     test.assertNull(parameter.removeValue().await());
                     test.assertEqual("[]", arguments.toString());
