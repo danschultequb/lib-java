@@ -186,7 +186,27 @@ public class CommandLineParameters
         PreCondition.assertNotNullAndNotEmpty(parameterName, "parameterName");
         PreCondition.assertNotNull(process, "process");
 
-        final CommandLineParameter<Folder> result = add(parameterName, (String value) ->
+        return add(parameterName, getFolderParser(process))
+            .setValueRequired(true);
+    }
+
+    /**
+     * Add an optional Folder-valued command line parameter.
+     * @param parameterName The name of the parameter.
+     * @return The new command line parameter.
+     */
+    public CommandLineParameter<Folder> addPositionalFolder(String parameterName, Process process)
+    {
+        PreCondition.assertNotNullAndNotEmpty(parameterName, "parameterName");
+        PreCondition.assertNotNull(process, "process");
+
+        return addPositional(parameterName, getFolderParser(process))
+            .setValueRequired(true);
+    }
+
+    private static Function1<String,Result<Folder>> getFolderParser(Process process)
+    {
+        return (String value) ->
         {
             return Result.create(() ->
             {
@@ -211,9 +231,7 @@ public class CommandLineParameters
                 }
                 return folder;
             });
-        });
-        result.setValueRequired(true);
-        return result;
+        };
     }
 
     @SuppressWarnings("unchecked")
