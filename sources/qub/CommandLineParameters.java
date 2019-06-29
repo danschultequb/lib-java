@@ -180,12 +180,12 @@ public class CommandLineParameters
 
     /**
      * Add an optional boolean-valued command line parameter. If this parameter is not specified on
-     * the command line, then it will default to false. If it is specified but isn't provided a
-     * value, then it will default to true.
+     * the command line, then it will default to the provided unspecifiedValue. If it is specified
+     * but isn't provided a value, then it will default to true.
      * @param parameterName The name of the parameter.
      * @return The new command line parameter.
      */
-    public CommandLineParameter<Boolean> addBoolean(String parameterName)
+    public CommandLineParameter<Boolean> addBoolean(String parameterName, boolean unspecifiedValue)
     {
         PreCondition.assertNotNullAndNotEmpty(parameterName, "parameterName");
 
@@ -194,7 +194,7 @@ public class CommandLineParameters
             Result<Boolean> argumentValue;
             if (rawArgumentValue == null)
             {
-                argumentValue = Result.successFalse();
+                argumentValue = unspecifiedValue ? Result.successTrue() : Result.successFalse();
             }
             else if (rawArgumentValue.equals(""))
             {
@@ -206,6 +206,18 @@ public class CommandLineParameters
             }
             return argumentValue;
         });
+    }
+
+    /**
+     * Add an optional boolean-valued command line parameter. If this parameter is not specified on
+     * the command line, then it will default to false. If it is specified but isn't provided a
+     * value, then it will default to true.
+     * @param parameterName The name of the parameter.
+     * @return The new command line parameter.
+     */
+    public CommandLineParameter<Boolean> addBoolean(String parameterName)
+    {
+        return addBoolean(parameterName, false);
     }
 
     /**

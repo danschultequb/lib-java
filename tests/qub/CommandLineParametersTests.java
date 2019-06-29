@@ -196,6 +196,98 @@ public interface CommandLineParametersTests
                 });
             });
 
+            runner.testGroup("addBoolean(String,boolean)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final CommandLineParameters parameters = new CommandLineParameters();
+                    test.assertThrows(() -> parameters.addBoolean(null, false),
+                        new PreConditionFailure("parameterName cannot be null."));
+                });
+
+                runner.test("with empty", (Test test) ->
+                {
+                    final CommandLineParameters parameters = new CommandLineParameters();
+                    test.assertThrows(() -> parameters.addBoolean("", true),
+                        new PreConditionFailure("parameterName cannot be empty."));
+                });
+
+                runner.test("with non-empty name that doesn't exist in arguments and false unspecifiedValue", (Test test) ->
+                {
+                    final CommandLineArguments arguments = CommandLineArguments.create();
+                    final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
+                    final CommandLineParameter<Boolean> parameter = parameters.addBoolean("a", false);
+                    test.assertFalse(parameter.getValue().await());
+                });
+
+                runner.test("with non-empty name that doesn't exist in arguments and true unspecifiedValue", (Test test) ->
+                {
+                    final CommandLineArguments arguments = CommandLineArguments.create();
+                    final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
+                    final CommandLineParameter<Boolean> parameter = parameters.addBoolean("a", true);
+                    test.assertTrue(parameter.getValue().await());
+                });
+
+                runner.test("with non-empty name that doesn't have a value and false unspecifiedValue", (Test test) ->
+                {
+                    final CommandLineArguments arguments = CommandLineArguments.create("--a");
+                    final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
+                    final CommandLineParameter<Boolean> parameter = parameters.addBoolean("a", false);
+                    test.assertTrue(parameter.getValue().await());
+                });
+
+                runner.test("with non-empty name that has an empty value and false unspecifiedValue", (Test test) ->
+                {
+                    final CommandLineArguments arguments = CommandLineArguments.create("--a=");
+                    final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
+                    final CommandLineParameter<Boolean> parameter = parameters.addBoolean("a", false);
+                    test.assertTrue(parameter.getValue().await());
+                });
+
+                runner.test("with non-empty name that has a \"false\" value", (Test test) ->
+                {
+                    final CommandLineArguments arguments = CommandLineArguments.create("--a=false");
+                    final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
+                    final CommandLineParameter<Boolean> parameter = parameters.addBoolean("a", true);
+                    test.assertFalse(parameter.getValue().await());
+                });
+
+                runner.test("with non-empty name that has a \"FALSE\" value", (Test test) ->
+                {
+                    final CommandLineArguments arguments = CommandLineArguments.create("--a=FALSE");
+                    final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
+                    final CommandLineParameter<Boolean> parameter = parameters.addBoolean("a", true);
+                    test.assertThrows(() -> parameter.getValue().await(),
+                        new ParseException("Expected the value (\"FALSE\") to be either \"true\" or \"false\"."));
+                });
+
+                runner.test("with non-empty name that has a \"true\" value", (Test test) ->
+                {
+                    final CommandLineArguments arguments = CommandLineArguments.create("--a=true");
+                    final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
+                    final CommandLineParameter<Boolean> parameter = parameters.addBoolean("a", false);
+                    test.assertTrue(parameter.getValue().await());
+                });
+
+                runner.test("with non-empty name that has a \"TRUE\" value", (Test test) ->
+                {
+                    final CommandLineArguments arguments = CommandLineArguments.create("--a=TRUE");
+                    final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
+                    final CommandLineParameter<Boolean> parameter = parameters.addBoolean("a", false);
+                    test.assertThrows(() -> parameter.getValue().await(),
+                        new ParseException("Expected the value (\"TRUE\") to be either \"true\" or \"false\"."));
+                });
+
+                runner.test("with non-empty name that has a \"10\" value", (Test test) ->
+                {
+                    final CommandLineArguments arguments = CommandLineArguments.create("--a=10");
+                    final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
+                    final CommandLineParameter<Boolean> parameter = parameters.addBoolean("a", true);
+                    test.assertThrows(() -> parameter.getValue().await(),
+                        new ParseException("Expected the value (\"10\") to be either \"true\" or \"false\"."));
+                });
+            });
+
             runner.test("addVerbose()", (Test test) ->
             {
                 final CommandLineParameters parameters = new CommandLineParameters();
