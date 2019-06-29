@@ -78,7 +78,14 @@ public class CommandLineParameters
         return result;
     }
 
-    private void addParameter(CommandLineParameterBase<?> parameter)
+    /**
+     * Add the provided parameter.
+     * @param parameter The parameter to add to this CommandLineParameters object.
+     * @param <T> The type of value that the parameter will return.
+     * @param <TParameter> The Type of the parameter that will be added and returned.
+     * @return The parameter that was provided.
+     */
+    public <T,TParameter extends CommandLineParameterBase<T>> TParameter add(TParameter parameter)
     {
         PreCondition.assertNotNull(parameter, "parameter");
 
@@ -87,6 +94,8 @@ public class CommandLineParameters
         {
             parameter.setArguments(arguments);
         }
+
+        return parameter;
     }
 
     /**
@@ -99,12 +108,7 @@ public class CommandLineParameters
         PreCondition.assertNotNullAndNotEmpty(parameterName, "parameterName");
         PreCondition.assertNotNull(parseArgumentValue, "parseArgumentValue");
 
-        final CommandLineParameter<T> result = new CommandLineParameter<>(parameterName, null, parseArgumentValue);
-        addParameter(result);
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+        return add(new CommandLineParameter<>(parameterName, null, parseArgumentValue));
     }
 
     /**
@@ -117,12 +121,7 @@ public class CommandLineParameters
         PreCondition.assertNotNullAndNotEmpty(parameterName, "parameterName");
         PreCondition.assertNotNull(parseArgumentValue, "parseArgumentValue");
 
-        final CommandLineParameter<T> result = new CommandLineParameter<>(parameterName, nextParameterPosition++, parseArgumentValue);
-        addParameter(result);
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+        return add(new CommandLineParameter<>(parameterName, nextParameterPosition++, parseArgumentValue));
     }
 
     /**
@@ -145,9 +144,8 @@ public class CommandLineParameters
         PreCondition.assertNotNull(parseArgumentValue, "parseArgumentValue");
         PreCondition.assertNull(anonymousParameterList, "anonymousParameterList");
 
-        final CommandLineParameterList<T> result = new CommandLineParameterList<>(parameterName, nextParameterPosition++, parseArgumentValue);
+        final CommandLineParameterList<T> result = add(new CommandLineParameterList<>(parameterName, nextParameterPosition++, parseArgumentValue));
         anonymousParameterList = result;
-        addParameter(result);
 
         PostCondition.assertNotNull(result, "result");
 
@@ -185,27 +183,11 @@ public class CommandLineParameters
      * @param parameterName The name of the parameter.
      * @return The new command line parameter.
      */
-    public CommandLineParameter<Boolean> addBoolean(String parameterName, boolean unspecifiedValue)
+    public CommandLineParameterBoolean addBoolean(String parameterName, boolean unspecifiedValue)
     {
         PreCondition.assertNotNullAndNotEmpty(parameterName, "parameterName");
 
-        return add(parameterName, (String rawArgumentValue) ->
-        {
-            Result<Boolean> argumentValue;
-            if (rawArgumentValue == null)
-            {
-                argumentValue = unspecifiedValue ? Result.successTrue() : Result.successFalse();
-            }
-            else if (rawArgumentValue.equals(""))
-            {
-                argumentValue = Result.successTrue();
-            }
-            else
-            {
-                argumentValue = Booleans.parse(rawArgumentValue);
-            }
-            return argumentValue;
-        });
+        return add(new CommandLineParameterBoolean(parameterName, unspecifiedValue));
     }
 
     /**
@@ -215,8 +197,10 @@ public class CommandLineParameters
      * @param parameterName The name of the parameter.
      * @return The new command line parameter.
      */
-    public CommandLineParameter<Boolean> addBoolean(String parameterName)
+    public CommandLineParameterBoolean addBoolean(String parameterName)
     {
+        PreCondition.assertNotNullAndNotEmpty(parameterName, "parameterName");
+
         return addBoolean(parameterName, false);
     }
 
@@ -224,17 +208,18 @@ public class CommandLineParameters
      * Add a verbose command line parameter.
      * @return The verbose command line parameter.
      */
-    public CommandLineParameter<Boolean> addVerbose()
+    public CommandLineParameterVerbose addVerbose(Process process)
     {
-        return addBoolean("verbose")
-            .setDescription("Whether or not to show verbose logs.");
+        PreCondition.assertNotNull(process, "process");
+
+        return add(new CommandLineParameterVerbose(process.getOutputCharacterWriteStream(), process.getClock()));
     }
 
     /**
      * Add a debug command line parameter.
      * @return The debug command line parameter.
      */
-    public CommandLineParameter<Boolean> addDebug()
+    public CommandLineParameterBoolean addDebug()
     {
         return addBoolean("debug")
             .setDescription("Whether or not to run this application in debug mode.");
@@ -244,10 +229,9 @@ public class CommandLineParameters
      * Add a profiler command line parameter.
      * @return The profiler command line parameter.
      */
-    public CommandLineParameter<Boolean> addProfiler()
+    public CommandLineParameterProfiler addProfiler(Process process, Class<?> classToAttachTo)
     {
-        return addBoolean("profiler")
-            .setDescription("Whether or not this application should pause before it is run to allow a profiler to be attached.");
+        return add(new CommandLineParameterProfiler(process, classToAttachTo));
     }
 
     /**
@@ -303,5 +287,27 @@ public class CommandLineParameters
         PostCondition.assertNotNullAndNotEmpty(result, "result");
 
         return result;
+    }
+
+    /**
+     * Write the help lines that explain how to run this application from the command line.
+     * @param process The process that contains a CharacterWriteStream that the help lines will be
+     *                written to.
+     * @return The result of writing the help lines.
+     */
+    public Result<Void> writeHelpLines(Process process, String commandName, String commandDescription)
+    {
+        PreCondition.assertNotNull(process, "process");
+        PreCondition.assertNotNullAndNotEmpty(commandName, "commandName");
+        PreCondition.assertNotNullAndNotEmpty(commandDescription, "commandDescription");
+
+        return Result.create(() ->
+        {
+            final CharacterWriteStream writeStream = process.getOutputCharacterWriteStream();
+            for (final String helpLine : getHelpLines(commandName, commandDescription))
+            {
+                writeStream.writeLine(helpLine).await();
+            }
+        });
     }
 }

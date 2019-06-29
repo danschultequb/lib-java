@@ -306,11 +306,7 @@ public class CommandLineArguments implements Indexable<CommandLineArgument>
             if (characters.next())
             {
                 boolean isValueArgument = true;
-                if (characters.getCurrent() == '/')
-                {
-                    isValueArgument = !characters.next();
-                }
-                else if (characters.getCurrent() == '-')
+                if (characters.getCurrent() == '-')
                 {
                     isValueArgument = !characters.next() || (characters.getCurrent() == '-' && !characters.next());
                 }

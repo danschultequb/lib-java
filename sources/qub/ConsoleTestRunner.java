@@ -389,17 +389,14 @@ public class ConsoleTestRunner implements TestRunner
                 ? null
                 : PathPattern.parse(argumentValue));
         });
-        final CommandLineParameter<Boolean> debugParameter = parameters.addBoolean("debug");
-        final CommandLineParameter<Boolean> profilerParameter = parameters.addBoolean("profiler");
+        final CommandLineParameterBoolean debugParameter = parameters.addDebug();
+        final CommandLineParameterProfiler profilerParameter = parameters.addProfiler(console, ConsoleTestRunner.class);
         final CommandLineParameterList<String> testClassNamesParameter = parameters.addPositionStringList("test-class");
 
         final PathPattern pattern = patternParameter.getValue().await();
         final boolean debug = debugParameter.getValue().await();
 
-        if (profilerParameter.getValue().await())
-        {
-            Profiler.waitForProfiler(console, ConsoleTestRunner.class);
-        }
+        profilerParameter.await();
 
         if (debug)
         {

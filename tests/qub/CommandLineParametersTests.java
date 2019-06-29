@@ -290,12 +290,15 @@ public interface CommandLineParametersTests
 
             runner.test("addVerbose()", (Test test) ->
             {
-                final CommandLineParameters parameters = new CommandLineParameters();
-                final CommandLineParameter<Boolean> parameter = parameters.addVerbose();
-                test.assertEqual("verbose", parameter.getName());
-                test.assertEqual(Iterable.create(), parameter.getAliases());
-                test.assertEqual("Whether or not to show verbose logs.", parameter.getDescription());
-                test.assertNull(parameter.getValueName());
+                try (final Process process = new Process())
+                {
+                    final CommandLineParameters parameters = new CommandLineParameters();
+                    final CommandLineParameter<Boolean> parameter = parameters.addVerbose(process);
+                    test.assertEqual("verbose", parameter.getName());
+                    test.assertEqual(Iterable.create(), parameter.getAliases());
+                    test.assertEqual("Whether or not to show verbose logs.", parameter.getDescription());
+                    test.assertNull(parameter.getValueName());
+                }
             });
 
             runner.test("addDebug()", (Test test) ->
@@ -310,12 +313,15 @@ public interface CommandLineParametersTests
 
             runner.test("addProfiler()", (Test test) ->
             {
-                final CommandLineParameters parameters = new CommandLineParameters();
-                final CommandLineParameter<Boolean> parameter = parameters.addProfiler();
-                test.assertEqual("profiler", parameter.getName());
-                test.assertEqual(Iterable.create(), parameter.getAliases());
-                test.assertEqual("Whether or not this application should pause before it is run to allow a profiler to be attached.", parameter.getDescription());
-                test.assertNull(parameter.getValueName());
+                try (final Process process = new Process())
+                {
+                    final CommandLineParameters parameters = new CommandLineParameters();
+                    final CommandLineParameter<Boolean> parameter = parameters.addProfiler(process, CommandLineParameterTests.class);
+                    test.assertEqual("profiler", parameter.getName());
+                    test.assertEqual(Iterable.create(), parameter.getAliases());
+                    test.assertEqual("Whether or not this application should pause before it is run to allow a profiler to be attached.", parameter.getDescription());
+                    test.assertNull(parameter.getValueName());
+                }
             });
 
             runner.test("addHelp()", (Test test) ->
@@ -382,28 +388,34 @@ public interface CommandLineParametersTests
 
                 runner.test("with qub-clean parameters", (Test test) ->
                 {
-                    final CommandLineParameters parameters = new CommandLineParameters();
-                    parameters.addPositionString("folder")
-                        .setValueName("<folder-path-to-clean>")
-                        .setDescription("The folder to clean. The current folder will be used if this isn't defined.");
-                    parameters.addVerbose();
-                    parameters.addHelp();
-                    test.assertEqual(
-                        "qub-clean [[--folder=]<folder-path-to-clean>] [--verbose] [--help]",
-                        parameters.getUsageString("qub-clean"));
+                    try (final Process process = new Process())
+                    {
+                        final CommandLineParameters parameters = new CommandLineParameters();
+                        parameters.addPositionString("folder")
+                            .setValueName("<folder-path-to-clean>")
+                            .setDescription("The folder to clean. The current folder will be used if this isn't defined.");
+                        parameters.addVerbose(process);
+                        parameters.addHelp();
+                        test.assertEqual(
+                            "qub-clean [[--folder=]<folder-path-to-clean>] [--verbose] [--help]",
+                            parameters.getUsageString("qub-clean"));
+                    }
                 });
 
                 runner.test("with qub-build parameters", (Test test) ->
                 {
-                    final CommandLineParameters parameters = new CommandLineParameters();
-                    parameters.addPositionString("folder")
-                        .setValueName("<folder-path-to-build>")
-                        .setDescription("The folder to build. The current folder will be used if this isn't defined.");
-                    parameters.addVerbose();
-                    parameters.addHelp();
-                    test.assertEqual(
-                        "qub-build [[--folder=]<folder-path-to-build>] [--verbose] [--help]",
-                        parameters.getUsageString("qub-build"));
+                    try (final Process process = new Process())
+                    {
+                        final CommandLineParameters parameters = new CommandLineParameters();
+                        parameters.addPositionString("folder")
+                            .setValueName("<folder-path-to-build>")
+                            .setDescription("The folder to build. The current folder will be used if this isn't defined.");
+                        parameters.addVerbose(process);
+                        parameters.addHelp();
+                        test.assertEqual(
+                            "qub-build [[--folder=]<folder-path-to-build>] [--verbose] [--help]",
+                            parameters.getUsageString("qub-build"));
+                    }
                 });
             });
 

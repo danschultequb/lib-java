@@ -606,7 +606,7 @@ public interface CommandLineArgumentsTests
                     final CommandLineArguments arguments = CommandLineArguments.create(new String[] { "/hello=there" });
                     test.assertNotNull(arguments);
                     test.assertEqual(1, arguments.getCount());
-                    test.assertEqual("there", arguments.getNamedValue("hello").await());
+                    test.assertEqual("/hello=there", arguments.getAnonymousValue(0).await());
                 });
 
                 runner.test("with one named argument with forward slash and no value", (Test test) ->
@@ -614,7 +614,7 @@ public interface CommandLineArgumentsTests
                     final CommandLineArguments arguments = CommandLineArguments.create(new String[] { "/hello" });
                     test.assertNotNull(arguments);
                     test.assertEqual(1, arguments.getCount());
-                    test.assertEqual("", arguments.getNamedValue("hello").await());
+                    test.assertEqual("/hello", arguments.getAnonymousValue(0).await());
                 });
 
                 runner.test("with one named argument with two dashes", (Test test) ->
