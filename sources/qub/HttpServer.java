@@ -185,7 +185,7 @@ public class HttpServer implements Disposable
                             {
                                 final Match firstMatch = pathMatches.first();
                                 final Iterable<Iterable<Character>> trackedCharacters = firstMatch.getTrackedValues();
-                                final Iterable<String> trackedStrings = trackedCharacters.map(Strings::join);
+                                final Iterable<String> trackedStrings = trackedCharacters.map(Characters::join);
                                 pathTrackedValues = List.create(trackedStrings);
                                 pathAction = entry.getValue();
                                 break;

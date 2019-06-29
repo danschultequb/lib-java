@@ -1,33 +1,29 @@
 package qub;
 
+/**
+ * An interface that helps in interacting with a Profiler.
+ */
 public interface Profiler
 {
-    String parameterName = "profiler";
-
-    static boolean takeProfilerArgument(Console console)
+    /**
+     * Pause the application so that a Profiler can be attached.
+     * @param process The process to pause.
+     * @param classToAttachTo The class to indicate that the profiler should be attached to.
+     * @return The result of pausing.
+     */
+    static Result<Void> waitForProfiler(Process process, Class<?> classToAttachTo)
     {
-        PreCondition.assertNotNull(console, "console");
+        PreCondition.assertNotNull(process, "process");
+        PreCondition.assertNotNull(classToAttachTo, "classToAttachTo");
 
-        final CommandLine commandLine = console.getCommandLine();
-
-        boolean result = false;
-        final CommandLineArgument profileArgument = commandLine.remove(parameterName);
-        if (profileArgument != null)
-        {
-            final String profileArgumentValue = profileArgument.getValue();
-            result = Strings.isNullOrEmpty(profileArgumentValue) || profileArgumentValue.equalsIgnoreCase("true");
-        }
-
-        return result;
-    }
-
-    static Result<Void> waitForProfiler(Console console, Class<?> classToAttachTo)
-    {
         return Result.create(() ->
         {
-            console.writeLine("Attach a profiler now to " + Types.getTypeName(classToAttachTo) + ". Press enter to continue...").await();
-            console.readLine().await();
+            process.getOutputCharacterWriteStream()
+                .writeLine("Attach a profiler now to " + Types.getTypeName(classToAttachTo) + ". Press enter to continue...")
+                .await();
+            process.getInputCharacterReadStream()
+                .readLine()
+                .await();
         });
-
     }
 }

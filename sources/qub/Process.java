@@ -5,7 +5,8 @@ package qub;
  */
 public class Process implements Disposable
 {
-    private final CommandLine commandLine;
+    private final CommandLineArguments commandLineArguments;
+    private final CommandLineParameters commandLineParameters;
     private volatile int exitCode;
 
     private final Value<ByteWriteStream> outputByteWriteStream;
@@ -39,28 +40,30 @@ public class Process implements Disposable
      */
     public Process(String... commandLineArgumentStrings)
     {
-        this(CommandLine.create(commandLineArgumentStrings));
+        this(CommandLineArguments.create(commandLineArgumentStrings));
     }
 
     public Process(Iterable<String> commandLineArgumentStrings)
     {
-        this(CommandLine.create(commandLineArgumentStrings));
+        this(CommandLineArguments.create(commandLineArgumentStrings));
     }
 
     /**
      * Create a new Process that Console applications can be written with.
      */
-    public Process(CommandLine commandLine)
+    public Process(CommandLineArguments commandLineArguments)
     {
-        this(commandLine, new ManualAsyncRunner());
+        this(commandLineArguments, new ManualAsyncRunner());
     }
 
-    Process(CommandLine commandLine, AsyncScheduler mainAsyncRunner)
+    Process(CommandLineArguments commandLineArguments, AsyncScheduler mainAsyncRunner)
     {
-        PreCondition.assertNotNull(commandLine, "commandLine");
+        PreCondition.assertNotNull(commandLineArguments, "commandLineArguments");
         PreCondition.assertNotNull(mainAsyncRunner, "mainAsyncRunner");
 
-        this.commandLine = commandLine;
+        this.commandLineArguments = commandLineArguments;
+        this.commandLineParameters = new CommandLineParameters()
+            .setArguments(commandLineArguments);
 
         outputByteWriteStream = Value.create();
         errorByteWriteStream = Value.create();
@@ -128,14 +131,14 @@ public class Process implements Disposable
         return parallelAsyncRunner;
     }
 
-    public Indexable<String> getCommandLineArgumentStrings()
+    public CommandLineArguments getCommandLineArguments()
     {
-        return commandLine.getArgumentStrings();
+        return commandLineArguments;
     }
 
-    public CommandLine getCommandLine()
+    public CommandLineParameters getCommandLineParameters()
     {
-        return commandLine;
+        return commandLineParameters;
     }
 
     /**

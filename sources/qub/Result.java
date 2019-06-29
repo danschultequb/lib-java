@@ -428,7 +428,7 @@ public interface Result<T>
     {
         PreCondition.assertNotNull(resultsToAwait, "resultsToAwait");
 
-        return Result.await(Array.create(resultsToAwait));
+        return Result.await(Iterable.create(resultsToAwait));
     }
 
     /**
@@ -439,7 +439,27 @@ public interface Result<T>
     {
         PreCondition.assertNotNull(resultsToAwait, "resultsToAwait");
 
-        List<T> result = List.create();
+        final List<T> result = List.create();
+        for (final Result<T> resultToAwait : resultsToAwait)
+        {
+            result.add(resultToAwait.await());
+        }
+
+        PostCondition.assertNotNull(result, "result");
+        PostCondition.assertEqual(resultsToAwait.getCount(), result.getCount(), "result.getCount()");
+
+        return result;
+    }
+
+    /**
+     * Await all of the Result objects in the provided Indexable.
+     * @param resultsToAwait The Result objects to await.
+     */
+    static <T,RT extends Result<T>> Indexable<T> await(Indexable<RT> resultsToAwait)
+    {
+        PreCondition.assertNotNull(resultsToAwait, "resultsToAwait");
+
+        final List<T> result = List.create();
         for (final Result<T> resultToAwait : resultsToAwait)
         {
             result.add(resultToAwait.await());

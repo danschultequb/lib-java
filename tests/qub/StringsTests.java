@@ -1,14 +1,55 @@
 package qub;
 
-public class StringsTests
+public interface StringsTests
 {
-    public static void test(TestRunner runner)
+    static void test(TestRunner runner)
     {
         runner.testGroup(Strings.class, () ->
         {
-            runner.test("constructor()", (Test test) ->
+            runner.testGroup("iterable(String)", () ->
             {
-                test.assertNotNull(new Strings());
+                runner.test("with null", (Test test) ->
+                {
+                    test.assertEqual(Iterable.create(), Strings.iterable((String)null));
+                });
+
+                runner.test("with empty", (Test test) ->
+                {
+                    test.assertEqual(Iterable.create(), Strings.iterable(""));
+                });
+
+                runner.test("with one character", (Test test) ->
+                {
+                    test.assertEqual(Iterable.create('a'), Strings.iterable("a"));
+                });
+
+                runner.test("with two characters", (Test test) ->
+                {
+                    test.assertEqual(Iterable.create('a', 'b'), Strings.iterable("ab"));
+                });
+            });
+
+            runner.testGroup("iterable(StringBuilder)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    test.assertEqual(Iterable.create(), Strings.iterable((StringBuilder)null));
+                });
+
+                runner.test("with empty", (Test test) ->
+                {
+                    test.assertEqual(Iterable.create(), Strings.iterable(new StringBuilder()));
+                });
+
+                runner.test("with one character", (Test test) ->
+                {
+                    test.assertEqual(Iterable.create('a'), Strings.iterable(new StringBuilder("a")));
+                });
+
+                runner.test("with two characters", (Test test) ->
+                {
+                    test.assertEqual(Iterable.create('a', 'b'), Strings.iterable(new StringBuilder("ab")));
+                });
             });
 
             runner.testGroup("containsAny(String,char[])", () ->
@@ -131,21 +172,66 @@ public class StringsTests
                 });
             });
 
-            runner.testGroup("join(java.lang.Iterable<Character>)", () ->
+            runner.testGroup("join(java.lang.Iterable<String>)", () ->
             {
-                runner.test("with null", (Test test) ->
+                runner.test("with null values", (Test test) ->
                 {
-                    test.assertThrows(() -> Strings.join((java.lang.Iterable<Character>)null), new PreConditionFailure("characters cannot be null."));
+                    test.assertThrows(() -> Strings.join(null),
+                        new PreConditionFailure("values cannot be null."));
                 });
 
-                runner.test("with empty", (Test test) ->
+                runner.test("with empty values", (Test test) ->
                 {
                     test.assertEqual("", Strings.join(Iterable.create()));
                 });
 
-                runner.test("with non-empty", (Test test) ->
+                runner.test("with non-empty values", (Test test) ->
                 {
-                    test.assertEqual("abc", Strings.join(CharacterArray.create('a', 'b', 'c')));
+                    test.assertEqual("abc", Strings.join(Iterable.create("a", "b", "c")));
+                });
+            });
+
+            runner.testGroup("join(char,java.lang.Iterable<String>)", () ->
+            {
+                runner.test("with null values", (Test test) ->
+                {
+                    test.assertThrows(() -> Strings.join('+', null),
+                        new PreConditionFailure("values cannot be null."));
+                });
+
+                runner.test("with empty values", (Test test) ->
+                {
+                    test.assertEqual("", Strings.join('-', Iterable.create()));
+                });
+
+                runner.test("with non-empty values", (Test test) ->
+                {
+                    test.assertEqual("a+b+c", Strings.join('+', Iterable.create("a", "b", "c")));
+                });
+            });
+
+            runner.testGroup("join(String,java.lang.Iterable<String>)", () ->
+            {
+                runner.test("with null separator", (Test test) ->
+                {
+                    test.assertThrows(() -> Strings.join(null, Iterable.create()),
+                        new PreConditionFailure("separator cannot be null."));
+                });
+
+                runner.test("with null values", (Test test) ->
+                {
+                    test.assertThrows(() -> Strings.join("test", null),
+                        new PreConditionFailure("values cannot be null."));
+                });
+
+                runner.test("with empty values", (Test test) ->
+                {
+                    test.assertEqual("", Strings.join(" - ", Iterable.create()));
+                });
+
+                runner.test("with non-empty values", (Test test) ->
+                {
+                    test.assertEqual("a and b and c", Strings.join(" and ", Iterable.create("a", "b", "c")));
                 });
             });
 

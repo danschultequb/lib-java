@@ -98,7 +98,7 @@ public class FakeNetwork implements Network
                                 }
                                 else
                                 {
-                                    boundTCPServerAvailable.watch(dateTimeTimeout).then(() -> null).await();
+                                    boundTCPServerAvailable.watch(dateTimeTimeout).await();
                                 }
                             }
                         }

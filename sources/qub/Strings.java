@@ -1,13 +1,16 @@
 package qub;
 
-public class Strings
+/**
+ * A collection of functions that help when interacting with Strings.
+ */
+public interface Strings
 {
     /**
      * Get an Iterable for the characters in the provided text.
      * @param text The text to create an Iterable for.
      * @return The Iterable over the characters in the provided text.
      */
-    public static Iterable<Character> iterable(String text)
+    static Iterable<Character> iterable(String text)
     {
         return Strings.isNullOrEmpty(text) ? Iterable.create() : Array.createCharacter(text.toCharArray());
     }
@@ -17,7 +20,7 @@ public class Strings
      * @param text The text to create an Iterable for.
      * @return The Iterable over the characters in the provided text.
      */
-    public static Iterable<Character> iterable(StringBuilder text)
+    static Iterable<Character> iterable(StringBuilder text)
     {
         return Strings.isNullOrEmpty(text) ? Iterable.create() : iterable(text.toString());
     }
@@ -27,7 +30,7 @@ public class Strings
      * @param text The text to iterate.
      * @return The Iterator over the characters in the provided text.
      */
-    public static Iterator<Character> iterate(String text)
+    static Iterator<Character> iterate(String text)
     {
         return new StringIterator(text);
     }
@@ -37,17 +40,17 @@ public class Strings
      * @param value The value.
      * @return The number of characters.
      */
-    public static int getLength(String value)
+    static int getLength(String value)
     {
         return value == null ? 0 : value.length();
     }
 
-    public static boolean startsWith(String text, String prefix)
+    static boolean startsWith(String text, String prefix)
     {
         return !Strings.isNullOrEmpty(text) && !Strings.isNullOrEmpty(prefix) && text.startsWith(prefix);
     }
 
-    public static boolean startsWith(String text, String prefix, CharacterComparer characterComparer)
+    static boolean startsWith(String text, String prefix, CharacterComparer characterComparer)
     {
         boolean result = false;
         if (!Strings.isNullOrEmpty(text) && !Strings.isNullOrEmpty(text))
@@ -70,12 +73,12 @@ public class Strings
         return result;
     }
 
-    public static boolean endsWith(String text, String suffix)
+    static boolean endsWith(String text, String suffix)
     {
         return !Strings.isNullOrEmpty(text) && !Strings.isNullOrEmpty(suffix) && text.endsWith(suffix);
     }
 
-    public static boolean contains(String text, String substring)
+    static boolean contains(String text, String substring)
     {
         return !Strings.isNullOrEmpty(text) && !Strings.isNullOrEmpty(substring) && text.contains(substring);
     }
@@ -86,7 +89,7 @@ public class Strings
      * @param characters The characters to traverse for.
      * @return Whether or not the provided text String contains any of the provided characters.
      */
-    public static boolean containsAny(String text, char[] characters)
+    static boolean containsAny(String text, char[] characters)
     {
         boolean result = false;
         if (text != null && !text.isEmpty() && characters != null && characters.length > 0)
@@ -113,7 +116,7 @@ public class Strings
      * @param text The text to escape.
      * @return The escaped text.
      */
-    public static String escape(String text)
+    static String escape(String text)
     {
         String result;
         if (text == null || text.isEmpty())
@@ -138,7 +141,7 @@ public class Strings
      * @param text The text to quote.
      * @return The quoted text.
      */
-    public static String quote(String text)
+    static String quote(String text)
     {
         return text == null ? null : '\"' + text + '\"';
     }
@@ -149,7 +152,7 @@ public class Strings
      * @param value The object to quote and escape.
      * @return The quoted and escaped String representation of the provided value.
      */
-    public static String escapeAndQuote(Object value)
+    static String escapeAndQuote(Object value)
     {
         return escapeAndQuote(value == null ? null : value.toString());
     }
@@ -159,7 +162,7 @@ public class Strings
      * @param text The text to quote and escape.
      * @return The quoted and escaped text.
      */
-    public static String escapeAndQuote(String text)
+    static String escapeAndQuote(String text)
     {
         return quote(escape(text));
     }
@@ -169,7 +172,7 @@ public class Strings
      * @param text The text to check.
      * @return Whether or not the provided text is null or empty.
      */
-    public static boolean isNullOrEmpty(String text)
+    static boolean isNullOrEmpty(String text)
     {
         return text == null || text.isEmpty();
     }
@@ -179,7 +182,7 @@ public class Strings
      * @param text The text to check.
      * @return Whether or not the provided text is null or empty.
      */
-    public static boolean isNullOrEmpty(StringBuilder text)
+    static boolean isNullOrEmpty(StringBuilder text)
     {
         return text == null || text.length() == 0;
     }
@@ -190,7 +193,7 @@ public class Strings
      * @param repetitions The number of times to repeat the value.
      * @return The repeated string.
      */
-    public static String repeat(String value, int repetitions)
+    static String repeat(String value, int repetitions)
     {
         PreCondition.assertNotNull(value, "value");
         PreCondition.assertGreaterThanOrEqualTo(repetitions, 0, "repetitions");
@@ -217,7 +220,7 @@ public class Strings
      * @param repetitions The number of times to repeat the value.
      * @return The repeated string.
      */
-    public static String repeat(char value, int repetitions)
+    static String repeat(char value, int repetitions)
     {
         PreCondition.assertGreaterThanOrEqualTo(repetitions, 0, "repetitions");
 
@@ -241,7 +244,7 @@ public class Strings
      * @param rhs The second string.
      * @return The concatenated string.
      */
-    public static String concatenate(String lhs, String rhs)
+    static String concatenate(String lhs, String rhs)
     {
         String result = "";
         if (lhs != null)
@@ -260,53 +263,93 @@ public class Strings
 
     /**
      * Join the provided String values with the provided separator character between them.
+     * @param values The String values to join together.
+     * @return The joined string values.
+     */
+    static String join(java.lang.Iterable<String> values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        final StringBuilder builder = new StringBuilder();
+        for (final String value : values)
+        {
+            if (!Strings.isNullOrEmpty(value))
+            {
+                builder.append(value);
+            }
+        }
+        final String result = builder.toString();
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    /**
+     * Join the provided String values with the provided separator character between them.
      * @param separator The character to insert between the string values.
      * @param values The String values to join together.
      * @return The joined string values.
      */
-    public static String join(char separator, java.lang.Iterable<String> values)
+    static String join(char separator, java.lang.Iterable<String> values)
     {
+        PreCondition.assertNotNull(values, "values");
+
         final StringBuilder builder = new StringBuilder();
-        if (values != null)
+        for (final String value : values)
         {
-            for (final String value : values)
+            if (builder.length() > 0)
             {
-                if (builder.length() > 0)
-                {
-                    builder.append(separator);
-                }
-                if (value != null)
-                {
-                    builder.append(value);
-                }
+                builder.append(separator);
+            }
+            if (value != null)
+            {
+                builder.append(value);
             }
         }
-        return builder.toString();
+        final String result = builder.toString();
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
     }
 
     /**
-     * Join the provided characters into a single String.
-     * @param characters The characters to join.
-     * @return The joined characters.
+     * Join the provided String values with the provided separator String between them.
+     * @param separator The String to insert between the string values.
+     * @param values The String values to join together.
+     * @return The joined string values.
      */
-    public static String join(java.lang.Iterable<Character> characters)
+    static String join(String separator, java.lang.Iterable<String> values)
     {
-        PreCondition.assertNotNull(characters, "characters");
+        PreCondition.assertNotNull(separator, "separator");
+        PreCondition.assertNotNull(values, "values");
 
         final StringBuilder builder = new StringBuilder();
-        for (char character : characters)
+        for (final String value : values)
         {
-            builder.append(character);
+            if (builder.length() > 0)
+            {
+                builder.append(separator);
+            }
+            if (value != null)
+            {
+                builder.append(value);
+            }
         }
-        return builder.toString();
+        final String result = builder.toString();
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
     }
 
-    public static boolean equal(String lhs, String rhs)
+    static boolean equal(String lhs, String rhs)
     {
         return Comparer.equal(lhs, rhs);
     }
 
-    public static String format(String formattedString, Object... formattedStringArguments)
+    static String format(String formattedString, Object... formattedStringArguments)
     {
         String result;
         if (formattedString != null && !formattedString.isEmpty() && formattedStringArguments != null && formattedStringArguments.length > 0)
@@ -328,7 +371,7 @@ public class Strings
      * @param padCharacter The character to use to pad the provided value.
      * @return The padded String that is at least the provided minimumLength long.
      */
-    public static String padLeft(Object value, int minimumLength, char padCharacter)
+    static String padLeft(Object value, int minimumLength, char padCharacter)
     {
         String result = Objects.toString(value == null ? "" : value);
         final int charactersToAdd = minimumLength - Strings.getLength(result);
@@ -347,7 +390,7 @@ public class Strings
      * @param padCharacter The character to use to pad the provided value.
      * @return The padded String that is at least the provided minimumLength long.
      */
-    public static String padRight(Object value, int minimumLength, char padCharacter)
+    static String padRight(Object value, int minimumLength, char padCharacter)
     {
         String result = Objects.toString(value == null ? "" : value);
         final int charactersToAdd = minimumLength - Strings.getLength(result);
@@ -358,12 +401,12 @@ public class Strings
         return result;
     }
 
-    public static boolean isOneOf(String value, String... possibilities)
+    static boolean isOneOf(String value, String... possibilities)
     {
         return isOneOf(value, Iterable.create(possibilities));
     }
 
-    public static boolean isOneOf(String value, Iterable<String> possibilities)
+    static boolean isOneOf(String value, Iterable<String> possibilities)
     {
         PreCondition.assertNotNull(possibilities, "possibilities");
 
@@ -375,7 +418,7 @@ public class Strings
      * @param value The String to find words in.
      * @return The set of words that are used in the provided String.
      */
-    public static Set<String> getWords(String value)
+    static Set<String> getWords(String value)
     {
         final Set<String> result = Set.create();
 
@@ -403,7 +446,7 @@ public class Strings
         return result;
     }
 
-    public static Comparison compare(String lhs, String rhs)
+    static Comparison compare(String lhs, String rhs)
     {
         Comparison result;
         if (lhs == rhs)
@@ -425,12 +468,12 @@ public class Strings
         return result;
     }
 
-    public static boolean lessThan(String lhs, String rhs)
+    static boolean lessThan(String lhs, String rhs)
     {
         return Strings.compare(lhs, rhs) == Comparison.LessThan;
     }
 
-    public static boolean greaterThan(String lhs, String rhs)
+    static boolean greaterThan(String lhs, String rhs)
     {
         return Strings.compare(lhs, rhs) == Comparison.GreaterThan;
     }
@@ -440,7 +483,7 @@ public class Strings
      * @param value The value to get the lines create.
      * @return The lines that make up the provided String value.
      */
-    public static Iterable<String> getLines(String value)
+    static Iterable<String> getLines(String value)
     {
         return getLines(value, false);
     }
@@ -451,7 +494,7 @@ public class Strings
      * @param includeNewLineCharacters Whether or not to include new line sequences (\n and \r\n).
      * @return The lines that make up the provided String value.
      */
-    public static Iterable<String> getLines(String value, boolean includeNewLineCharacters)
+    static Iterable<String> getLines(String value, boolean includeNewLineCharacters)
     {
         PreCondition.assertNotNull(value, "value");
 

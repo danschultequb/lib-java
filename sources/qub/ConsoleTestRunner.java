@@ -3,54 +3,20 @@ package qub;
 /**
  * A Console object that is used for running unit tests for other applications.
  */
-public class ConsoleTestRunner extends Console implements TestRunner
+public class ConsoleTestRunner implements TestRunner
 {
+    private final Console console;
     private final BasicTestRunner testRunner;
     private final IndentedCharacterWriteStream indentedCharacterWriteStream;
 
-    /**
-     * Create a new ConsoleTestRunner with no command line arguments.
-     */
-    public ConsoleTestRunner()
+    public ConsoleTestRunner(Console console, PathPattern pattern)
     {
-        this((String[])null);
-    }
+        PreCondition.assertNotNull(console, "console");
 
-    /**
-     * Create a new ConsoleTestRunner with the provided command line arguments.
-     * @param commandLineArgumentStrings The command line arguments for this application.
-     */
-    public ConsoleTestRunner(String[] commandLineArgumentStrings)
-    {
-        this(CommandLine.create(commandLineArgumentStrings));
-    }
-
-    /**
-     * Create a new ConsoleTestRunner with the provided command line arguments.
-     * @param commandLine The command line arguments for this application.
-     */
-    public ConsoleTestRunner(CommandLine commandLine)
-    {
-        super(commandLine);
-
-        final CommandLineArgument debugArgument = commandLine.remove("debug");
-        boolean debug = debugArgument != null && (debugArgument.getValue() == null || debugArgument.getValue().equals("true"));
-
-        final CommandLineArgument testPatternArgument = commandLine.remove("pattern");
-        PathPattern testPattern = null;
-        if (testPatternArgument != null && testPatternArgument.getValue() != null && !testPatternArgument.getValue().isEmpty())
-        {
-            testPattern = PathPattern.parse(testPatternArgument.getValue());
-        }
-
-        if (debug)
-        {
-            writeLine("TestPattern: " + (testPattern == null ? "null" : "\"" + testPattern + "\""));
-        }
-
-        testRunner = new BasicTestRunner(this, testPattern);
-        indentedCharacterWriteStream = new IndentedCharacterWriteStream(getOutputCharacterWriteStream());
-        setOutputCharacterWriteStream(indentedCharacterWriteStream);
+        this.console = console;
+        testRunner = new BasicTestRunner(console, pattern);
+        indentedCharacterWriteStream = new IndentedCharacterWriteStream(console.getOutputCharacterWriteStream());
+        console.setOutputCharacterWriteStream(indentedCharacterWriteStream);
 
         final List<TestGroup> testGroupsWrittenToConsole = new ArrayList<>();
         testRunner.afterTestGroup((TestGroup testGroup) ->
@@ -76,27 +42,27 @@ public class ConsoleTestRunner extends Console implements TestRunner
 
                 final String skipMessage = testGroupToWrite.getSkipMessage();
                 final String testGroupMessage = testGroupToWrite.getName() + (!testGroupToWrite.shouldSkip() ? "" : " - Skipped" + (Strings.isNullOrEmpty(skipMessage) ? "" : ": " + skipMessage));
-                writeLine(testGroupMessage).await();
+                console.writeLine(testGroupMessage).await();
                 testGroupsWrittenToConsole.add(testGroupToWrite);
                 increaseIndent();
             }
 
-            write(test.getName()).await();
+            console.write(test.getName()).await();
             increaseIndent();
         });
         testRunner.afterTestSuccess((Test test) ->
         {
-            writeLine(" - Passed");
+            console.writeLine(" - Passed");
         });
         testRunner.afterTestFailure((Test test, TestError failure) ->
         {
-            writeLine(" - Failed");
+            console.writeLine(" - Failed");
             writeFailure(failure);
         });
         testRunner.afterTestSkipped((Test test) ->
         {
             final String skipMessage = test.getSkipMessage();
-            writeLine(" - Skipped" + (Strings.isNullOrEmpty(skipMessage) ? "" : ": " + skipMessage));
+            console.writeLine(" - Skipped" + (Strings.isNullOrEmpty(skipMessage) ? "" : ": " + skipMessage));
         });
         testRunner.afterTest((Test test) ->
         {
@@ -145,7 +111,7 @@ public class ConsoleTestRunner extends Console implements TestRunner
         {
             if (messageLine != null)
             {
-                writeLine(messageLine);
+                console.writeLine(messageLine);
             }
         }
     }
@@ -158,7 +124,7 @@ public class ConsoleTestRunner extends Console implements TestRunner
         }
         else if (!Strings.isNullOrEmpty(throwable.getMessage()))
         {
-            writeLine("Message: " + throwable.getMessage());
+            console.writeLine("Message: " + throwable.getMessage());
         }
     }
 
@@ -168,12 +134,12 @@ public class ConsoleTestRunner extends Console implements TestRunner
         {
             final ErrorIterable errors = (ErrorIterable)cause;
 
-            writeLine("Caused by:");
+            console.writeLine("Caused by:");
             int causeNumber = 0;
             for (final Throwable innerCause : errors)
             {
                 ++causeNumber;
-                write(causeNumber + ") " + innerCause.getClass().getName());
+                console.write(causeNumber + ") " + innerCause.getClass().getName());
 
                 increaseIndent();
                 writeMessage(innerCause);
@@ -191,7 +157,7 @@ public class ConsoleTestRunner extends Console implements TestRunner
         }
         else
         {
-            writeLine("Caused by: " + cause.getClass().getName());
+            console.writeLine("Caused by: " + cause.getClass().getName());
 
             increaseIndent();
             writeMessage(cause);
@@ -343,11 +309,11 @@ public class ConsoleTestRunner extends Console implements TestRunner
         final StackTraceElement[] stackTraceElements = t.getStackTrace();
         if (stackTraceElements != null && stackTraceElements.length > 0)
         {
-            writeLine("Stack Trace:");
+            console.writeLine("Stack Trace:");
             increaseIndent();
             for (StackTraceElement stackTraceElement : stackTraceElements)
             {
-                writeLine("at " + stackTraceElement.toString());
+                console.writeLine("at " + stackTraceElement.toString());
             }
             decreaseIndent();
         }
@@ -361,179 +327,164 @@ public class ConsoleTestRunner extends Console implements TestRunner
         final Iterable<Test> skippedTests = testRunner.getSkippedTests();
         if (skippedTests.any())
         {
-            writeLine("Skipped Tests:");
+            console.writeLine("Skipped Tests:");
             increaseIndent();
             int testSkippedNumber = 1;
             for (final Test skippedTest : skippedTests)
             {
                 final String skipMessage = skippedTest.getSkipMessage();
-                writeLine(testSkippedNumber + ") " + skippedTest.getFullName() + (Strings.isNullOrEmpty(skipMessage) ? "" : ": " + skipMessage));
+                console.writeLine(testSkippedNumber + ") " + skippedTest.getFullName() + (Strings.isNullOrEmpty(skipMessage) ? "" : ": " + skipMessage));
                 ++testSkippedNumber;
             }
             decreaseIndent();
 
-            writeLine();
+            console.writeLine();
         }
 
         final Iterable<TestError> testFailures = testRunner.getTestFailures();
         if (testFailures.any())
         {
-            writeLine("Test failures:");
+            console.writeLine("Test failures:");
             increaseIndent();
 
             int testFailureNumber = 1;
             for (final TestError failure : testFailures)
             {
-                writeLine(testFailureNumber + ") " + failure.getTestScope());
+                console.writeLine(testFailureNumber + ") " + failure.getTestScope());
                 ++testFailureNumber;
                 increaseIndent();
                 writeFailure(failure);
                 decreaseIndent();
 
-                writeLine();
+                console.writeLine();
             }
 
             decreaseIndent();
         }
 
-        writeLine("Tests Run:      " + testRunner.getFinishedTestCount());
+        console.writeLine("Tests Run:      " + testRunner.getFinishedTestCount());
         if (testRunner.getPassedTestCount() > 0)
         {
-            writeLine("Tests Passed:   " + testRunner.getPassedTestCount());
+            console.writeLine("Tests Passed:   " + testRunner.getPassedTestCount());
         }
         if (testRunner.getFailedTestCount() > 0)
         {
-            writeLine("Tests Failed:   " + testRunner.getFailedTestCount());
+            console.writeLine("Tests Failed:   " + testRunner.getFailedTestCount());
         }
         if (testRunner.getSkippedTestCount() > 0)
         {
-            writeLine("Tests Skipped:  " + testRunner.getSkippedTestCount());
+            console.writeLine("Tests Skipped:  " + testRunner.getSkippedTestCount());
         }
     }
 
-    public static boolean getProfile(Console console)
+    public static void run(Console console)
     {
         PreCondition.assertNotNull(console, "console");
 
-        final CommandLine commandLine = console.getCommandLine();
+        final CommandLineParameters parameters = console.getCommandLineParameters();
 
-        boolean result = false;
-        final CommandLineArgument profileArgument = commandLine.get("profile");
-        if (profileArgument != null)
+        final CommandLineParameter<PathPattern> patternParameter = parameters.add("pattern", (String argumentValue) ->
         {
-            final String profileArgumentValue = profileArgument.getValue();
-            result = Strings.isNullOrEmpty(profileArgumentValue) || profileArgumentValue.equalsIgnoreCase("true");
+            return Result.success(Strings.isNullOrEmpty(argumentValue)
+                ? null
+                : PathPattern.parse(argumentValue));
+        });
+        final CommandLineParameter<Boolean> debugParameter = parameters.addBoolean("debug");
+        final CommandLineParameter<Boolean> profilerParameter = parameters.addBoolean("profiler");
+        final CommandLineParameterList<String> testClassNamesParameter = parameters.addPositionStringList("test-class");
+
+        final PathPattern pattern = patternParameter.getValue().await();
+        final boolean debug = debugParameter.getValue().await();
+
+        if (profilerParameter.getValue().await())
+        {
+            Profiler.waitForProfiler(console, ConsoleTestRunner.class);
         }
 
-        return result;
-    }
-
-    public static int run(String[] args)
-    {
-        return ConsoleTestRunner.run(CommandLine.create(args));
-    }
-
-    public static int run(CommandLine args)
-    {
-        int testsFailed;
-
-        try (final ConsoleTestRunner console = new ConsoleTestRunner(args))
+        if (debug)
         {
-            final CommandLine commandLine = console.getCommandLine();
-            final boolean debug = commandLine.remove("debug") != null;
+            console.writeLine("TestPattern: " + (pattern == null ? "null" : "\"" + pattern + "\""));
+        }
 
-            if (Profiler.takeProfilerArgument(console))
+        final Stopwatch stopwatch = console.getStopwatch();
+        stopwatch.start();
+
+        final ConsoleTestRunner runner = new ConsoleTestRunner(console, pattern);
+
+        final Iterable<String> testClassNames = testClassNamesParameter.getValues().await();
+        for (final String testClassName : testClassNames)
+        {
+            if (debug)
             {
-                Profiler.waitForProfiler(console, ConsoleTestRunner.class);
+                console.write("Looking for class " + Strings.escapeAndQuote(testClassName) + "...");
             }
 
-            final Stopwatch stopwatch = console.getStopwatch();
-            stopwatch.start();
-
-            for (final CommandLineArgument argument : commandLine.getArguments())
+            Class<?> testClass = null;
+            try
             {
-                if (argument.getName() == null)
+                testClass = ConsoleTestRunner.class.getClassLoader().loadClass(testClassName);
+                if (debug)
                 {
-                    final String fullClassName = argument.getValue();
-                    if (debug)
-                    {
-                        console.write("Looking for class \"" + fullClassName + "\"...");
-                    }
-
-                    Class<?> testClass = null;
-                    try
-                    {
-                        testClass = ConsoleTestRunner.class.getClassLoader().loadClass(fullClassName);
-                        if (debug)
-                        {
-                            console.writeLine("Found!");
-                        }
-                    }
-                    catch (ClassNotFoundException e)
-                    {
-                        if (debug)
-                        {
-                            console.writeLine("Couldn't find " + fullClassName + ".");
-                        }
-                    }
-
-                    if (testClass != null)
-                    {
-                        if (debug)
-                        {
-                            console.write("Looking for static test(TestRunner) method in \"" + fullClassName + "\"...");
-                        }
-
-                        java.lang.reflect.Method testMethod = null;
-                        try
-                        {
-                            testMethod = testClass.getMethod("test", TestRunner.class);
-                            if (debug)
-                            {
-                                console.writeLine("Found!");
-                            }
-                        }
-                        catch (NoSuchMethodException e)
-                        {
-                            if (debug)
-                            {
-                                console.writeLine("Couldn't find.");
-                            }
-                        }
-
-                        if (testMethod != null)
-                        {
-                            try
-                            {
-                                testMethod.invoke(null, console);
-                            }
-                            catch (IllegalAccessException | java.lang.reflect.InvocationTargetException e)
-                            {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
+                    console.writeLine("Found!");
+                }
+            }
+            catch (ClassNotFoundException e)
+            {
+                if (debug)
+                {
+                    console.writeLine("Couldn't find " + Strings.escapeAndQuote(testClassName) + ".");
                 }
             }
 
-            console.writeLine();
-            console.writeSummary();
+            if (testClass != null)
+            {
+                if (debug)
+                {
+                    console.write("Looking for static test(TestRunner) method in " + Strings.escapeAndQuote(testClassName) + "...");
+                }
 
-            final Duration totalTestsDuration = stopwatch.stop();
-            console.writeLine("Tests Duration: " + totalTestsDuration.toSeconds().toString("0.0"));
+                java.lang.reflect.Method testMethod = null;
+                try
+                {
+                    testMethod = testClass.getMethod("test", TestRunner.class);
+                    if (debug)
+                    {
+                        console.writeLine("Found!");
+                    }
+                }
+                catch (NoSuchMethodException e)
+                {
+                    if (debug)
+                    {
+                        console.writeLine("Couldn't find.");
+                    }
+                }
 
-            testsFailed = console.getFailedTestCount();
+                if (testMethod != null)
+                {
+                    try
+                    {
+                        testMethod.invoke(null, runner);
+                    }
+                    catch (IllegalAccessException | java.lang.reflect.InvocationTargetException e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
+            }
         }
-        catch (Exception ignored)
-        {
-            testsFailed = -1;
-        }
 
-        return testsFailed;
+        console.writeLine();
+        runner.writeSummary();
+
+        final Duration totalTestsDuration = stopwatch.stop();
+        console.writeLine("Tests Duration: " + totalTestsDuration.toSeconds().toString("0.0"));
+
+        console.setExitCode(runner.getFailedTestCount());
     }
 
     public static void main(String[] args)
     {
-        System.exit(ConsoleTestRunner.run(args));
+        Console.run(args, ConsoleTestRunner::run);
     }
 }

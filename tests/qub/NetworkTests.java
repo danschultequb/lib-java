@@ -44,6 +44,7 @@ public class NetworkTests
                     final byte[] bytes = new byte[] { 1, 2, 3, 4, 5 };
 
                     final int port = 8088;
+                    final DateTime timeout = test.getClock().getCurrentDateTime().plus(Duration.seconds(5));
 
                     final Result<Void> serverTask = asyncRunner.schedule(() ->
                     {
@@ -51,8 +52,7 @@ public class NetworkTests
                         {
                             test.assertEqual(IPv4Address.localhost, tcpServer.getLocalIPAddress());
                             test.assertEqual(port, tcpServer.getLocalPort());
-                            final Duration acceptTimeout = Duration.seconds(5);
-                            try (final TCPClient acceptedClient = tcpServer.accept(acceptTimeout).await())
+                            try (final TCPClient acceptedClient = tcpServer.accept(timeout).await())
                             {
                                 test.assertEqual(bytes, acceptedClient.readBytes(bytes.length).await());
                                 test.assertEqual(bytes.length, acceptedClient.writeBytes(bytes).await());
@@ -62,7 +62,7 @@ public class NetworkTests
 
                     final Result<Void> clientTask = asyncRunner.schedule(() ->
                     {
-                        try (final TCPClient tcpClient = network.createTCPClient(IPv4Address.localhost, port, Duration.seconds(5)).await())
+                        try (final TCPClient tcpClient = network.createTCPClient(IPv4Address.localhost, port, timeout).await())
                         {
                             test.assertEqual(IPv4Address.localhost, tcpClient.getLocalIPAddress());
                             test.assertNotEqual(port, tcpClient.getLocalPort());

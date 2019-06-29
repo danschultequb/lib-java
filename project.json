@@ -3,12 +3,6 @@
   "project": "qub-java",
   "version": "75",
   "java": {
-    "version": "1.8",
-    "sources": {
-      "version": "1.8"
-    },
-    "tests": {
-      "version": "1.8"
-    }
+    "version": "1.8"
   }
 }

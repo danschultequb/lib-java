@@ -10,25 +10,15 @@ public class Console extends Process
      */
     public Console()
     {
-        this(CommandLine.create());
+        this(CommandLineArguments.create());
     }
 
     /**
      * Create a new Console platform that Console applications can be written with.
      */
-    public Console(String[] commandLineArgumentStrings)
+    public Console(CommandLineArguments commandLineArguments)
     {
-        this(CommandLine.create(commandLineArgumentStrings));
-    }
-
-    public Console(Iterable<String> commandLineArgumentStrings)
-    {
-        this(CommandLine.create(commandLineArgumentStrings));
-    }
-
-    public Console(CommandLine commandLine)
-    {
-        super(commandLine);
+        super(commandLineArguments);
     }
 
     public Result<String> readLine()
@@ -88,7 +78,7 @@ public class Console extends Process
         PreCondition.assertNotNull(args, "args");
         PreCondition.assertNotNull(main, "main");
 
-        final Console console = new Console(args);
+        final Console console = new Console(CommandLineArguments.create(args));
         try
         {
             main.run(console);

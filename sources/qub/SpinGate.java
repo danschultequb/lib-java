@@ -58,6 +58,7 @@ public class SpinGate implements Gate
         {
             while (!open.get())
             {
+                java.lang.Thread.yield();
             }
         });
     }
@@ -79,6 +80,10 @@ public class SpinGate implements Gate
             else if (open.get())
             {
                 result = Result.success();
+            }
+            else
+            {
+                java.lang.Thread.yield();
             }
         }
 

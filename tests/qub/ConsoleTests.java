@@ -13,28 +13,26 @@ public class ConsoleTests
                 runner.test("with no arguments", (Test test) ->
                 {
                     final Console console = new Console();
-                    test.assertEqual(Iterable.create(), console.getCommandLineArgumentStrings());
+                    test.assertEqual(Iterable.create(), console.getCommandLineArguments());
                 });
                 
-                runner.test("with null String[]", (Test test) ->
+                runner.test("with null CommandLineArguments", (Test test) ->
                 {
-                    test.assertThrows(() -> new Console((String[])null), new PreConditionFailure("rawCommandLineArguments cannot be null."));
+                    test.assertThrows(() -> new Console((CommandLineArguments)null),
+                        new PreConditionFailure("commandLineArguments cannot be null."));
                 });
                 
-                runner.test("with empty String[]", (Test test) ->
+                runner.test("with empty CommandLineArguments", (Test test) ->
                 {
                     final String[] commandLineArgumentStrings = new String[0];
-                    final Console console = new Console(commandLineArgumentStrings);
-                    test.assertEqual(Iterable.create(), console.getCommandLineArgumentStrings());
-                    test.assertNotNull(console.getCommandLine());
+                    final Console console = new Console(CommandLineArguments.create());
+                    test.assertEqual(Iterable.create(), console.getCommandLineArguments());
                 });
                 
-                runner.test("with non-empty String[]", (Test test) ->
+                runner.test("with non-empty CommandLineArguments", (Test test) ->
                 {
-                    final String[] commandLineArgumentStrings = new String[] { "a", "b", "c" };
-                    final Console console = new Console(commandLineArgumentStrings);
-                    test.assertEqual(Iterable.create("a", "b", "c"), console.getCommandLineArgumentStrings());
-                    test.assertNotNull(console.getCommandLine());
+                    final Console console = new Console(CommandLineArguments.create("a", "b", "c"));
+                    test.assertEqual("[a,b,c]", console.getCommandLineArguments().toString());
                 });
             });
 

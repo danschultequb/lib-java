@@ -70,8 +70,7 @@ public class JavaHttpClient implements HttpClient
                     final String headerName = responseHeader.getKey();
                     if (!Strings.isNullOrEmpty(headerName))
                     {
-                        final java.util.List<String> headerValues = responseHeader.getValue();
-                        response.setHeader(headerName, Strings.join(',', headerValues));
+                        response.setHeader(headerName, Strings.join(',', responseHeader.getValue()));
                     }
                 }
             }

@@ -1,16 +1,11 @@
 package qub;
 
-public class BooleansTests
+public interface BooleansTests
 {
-    public static void test(TestRunner runner)
+    static void test(TestRunner runner)
     {
         runner.testGroup(Booleans.class, () ->
         {
-            runner.test("constructor()", (Test test) ->
-            {
-                test.assertNotNull(new Booleans());
-            });
-
             runner.testGroup("isTrue(Boolean)", () ->
             {
                 runner.test("with null", (Test test) ->
@@ -64,7 +59,8 @@ public class BooleansTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> Booleans.toString(null), new PreConditionFailure("value cannot be null."));
+                    test.assertThrows(() -> Booleans.toString(null),
+                        new PreConditionFailure("value cannot be null."));
                 });
 
                 runner.test("with true", (Test test) ->
@@ -75,6 +71,49 @@ public class BooleansTests
                 runner.test("with false", (Test test) ->
                 {
                     test.assertEqual("false", Booleans.toString(Boolean.valueOf(false)));
+                });
+            });
+
+            runner.testGroup("parse(String)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    test.assertThrows(() -> Booleans.parse(null),
+                        new PreConditionFailure("value cannot be null."));
+                });
+
+                runner.test("with empty", (Test test) ->
+                {
+                    test.assertThrows(() -> Booleans.parse(""),
+                        new PreConditionFailure("value cannot be empty."));
+                });
+
+                runner.test("with \"true\"", (Test test) ->
+                {
+                    test.assertTrue(Booleans.parse("true").await());
+                });
+
+                runner.test("with \"false\"", (Test test) ->
+                {
+                    test.assertFalse(Booleans.parse("false").await());
+                });
+
+                runner.test("with \"True\"", (Test test) ->
+                {
+                    test.assertThrows(() -> Booleans.parse("True").await(),
+                        new ParseException("Expected the value (\"True\") to be either \"true\" or \"false\"."));
+                });
+
+                runner.test("with \"falSE\"", (Test test) ->
+                {
+                    test.assertThrows(() -> Booleans.parse("falSE").await(),
+                        new ParseException("Expected the value (\"falSE\") to be either \"true\" or \"false\"."));
+                });
+
+                runner.test("with \"apple\"", (Test test) ->
+                {
+                    test.assertThrows(() -> Booleans.parse("apple").await(),
+                        new ParseException("Expected the value (\"apple\") to be either \"true\" or \"false\"."));
                 });
             });
         });

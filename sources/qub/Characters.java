@@ -38,6 +38,19 @@ public class Characters
     }
 
     /**
+     * Get whether or not the provided character is a whitespace character.
+     * @param character The character to check.
+     * @return Whether or not the provided character is a whitespace character.
+     */
+    public static boolean isWhitespace(char character)
+    {
+        return character == ' ' ||
+            character == '\r' ||
+            character == '\n' ||
+            character == '\t';
+    }
+
+    /**
      * Surround the provided character with single quotes and textualize any escaped characters.
      * @param character The character to quote and escape.
      * @return The quoted and escaped character.
@@ -141,5 +154,91 @@ public class Characters
     public static boolean isLetterOrDigit(char value)
     {
         return java.lang.Character.isLetterOrDigit(value);
+    }
+
+    /**
+     * Join the provided characters into a single String.
+     * @param values The characters to joinStrings.
+     * @return The joined characters.
+     */
+    static String join(java.lang.Iterable<Character> values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        final StringBuilder builder = new StringBuilder();
+        for (char character : values)
+        {
+            builder.append(character);
+        }
+        final String result = builder.toString();
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    /**
+     * Join the provided characters into a single String.
+     * @param separator The separator character that should be put between the values.
+     * @param values The characters to joinStrings.
+     * @return The joined characters.
+     */
+    static String join(char separator, java.lang.Iterable<Character> values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        final StringBuilder builder = new StringBuilder();
+        boolean firstValue = true;
+        for (char character : values)
+        {
+            if (firstValue)
+            {
+                firstValue = false;
+            }
+            else
+            {
+                builder.append(separator);
+            }
+            builder.append(character);
+        }
+        final String result = builder.toString();
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+
+
+    /**
+     * Join the provided characters into a single String.
+     * @param separator The separator character that should be put between the values.
+     * @param values The characters to joinStrings.
+     * @return The joined characters.
+     */
+    static String join(String separator, java.lang.Iterable<Character> values)
+    {
+        PreCondition.assertNotNull(separator, "separator");
+        PreCondition.assertNotNull(values, "values");
+
+        final StringBuilder builder = new StringBuilder();
+        boolean firstValue = true;
+        for (char character : values)
+        {
+            if (firstValue)
+            {
+                firstValue = false;
+            }
+            else
+            {
+                builder.append(separator);
+            }
+            builder.append(character);
+        }
+        final String result = builder.toString();
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
     }
 }
