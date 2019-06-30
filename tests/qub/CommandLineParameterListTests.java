@@ -496,7 +496,7 @@ public interface CommandLineParameterListTests
                         .setArguments(arguments);
                     test.assertEqual(Iterable.create(""), parameter.removeValues().await());
                     test.assertEqual("[]", arguments.toString());
-                    test.assertEqual(Iterable.create(), parameter.removeValues().await());
+                    test.assertEqual(Iterable.create(""), parameter.removeValues().await());
                     test.assertEqual("[]", arguments.toString());
                 });
 
@@ -507,7 +507,7 @@ public interface CommandLineParameterListTests
                         .setArguments(arguments);
                     test.assertEqual(Iterable.create("abc"), parameter.removeValues().await());
                     test.assertEqual("[]", arguments.toString());
-                    test.assertEqual(Iterable.create(), parameter.removeValues().await());
+                    test.assertEqual(Iterable.create("abc"), parameter.removeValues().await());
                     test.assertEqual("[]", arguments.toString());
                 });
 
@@ -529,7 +529,7 @@ public interface CommandLineParameterListTests
                         .setArguments(arguments);
                     test.assertEqual(Iterable.create("spices"), parameter.removeValues().await());
                     test.assertEqual("[]", arguments.toString());
-                    test.assertEqual(Iterable.create(), parameter.removeValues().await());
+                    test.assertEqual(Iterable.create("spices"), parameter.removeValues().await());
                     test.assertEqual("[]", arguments.toString());
                 });
 
@@ -540,7 +540,7 @@ public interface CommandLineParameterListTests
                         .setArguments(arguments);
                     test.assertEqual(Iterable.create(""), parameter.removeValues().await());
                     test.assertEqual("[]", arguments.toString());
-                    test.assertEqual(Iterable.create(), parameter.removeValues().await());
+                    test.assertEqual(Iterable.create(""), parameter.removeValues().await());
                     test.assertEqual("[]", arguments.toString());
                 });
 
@@ -551,7 +551,7 @@ public interface CommandLineParameterListTests
                         .setArguments(arguments);
                     test.assertEqual(Iterable.create("abc"), parameter.removeValues().await());
                     test.assertEqual("[]", arguments.toString());
-                    test.assertEqual(Iterable.create(), parameter.removeValues().await());
+                    test.assertEqual(Iterable.create("abc"), parameter.removeValues().await());
                     test.assertEqual("[]", arguments.toString());
                 });
             });

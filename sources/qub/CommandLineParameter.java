@@ -7,6 +7,9 @@ package qub;
  */
 public class CommandLineParameter<T> extends CommandLineParameterBase<T>
 {
+    private Result<T> valueResult;
+    protected boolean removedValue;
+
     public CommandLineParameter(String name, Integer index, Function1<String,Result<T>> parseArgumentValue)
     {
         super(name, index, parseArgumentValue);
@@ -90,30 +93,34 @@ public class CommandLineParameter<T> extends CommandLineParameterBase<T>
     {
         PreCondition.assertNotNull(getArguments(), "getArguments()");
 
-        final CommandLineArguments arguments = getArguments();
-        String argumentStringValue = arguments.getNamedValue(getName())
-            .catchError(NotFoundException.class)
-            .await();
-        if (argumentStringValue == null && !Iterable.isNullOrEmpty(aliases))
+        if (valueResult == null)
         {
-            for (final String alias : aliases)
-            {
-                argumentStringValue = arguments.getNamedValue(alias)
-                    .catchError(NotFoundException.class)
-                    .await();
-                if (argumentStringValue != null)
-                {
-                    break;
-                }
-            }
-        }
-        if (argumentStringValue == null && index != null)
-        {
-            argumentStringValue = arguments.getAnonymousValue(index)
+            final CommandLineArguments arguments = getArguments();
+            String argumentStringValue = arguments.getNamedValue(getName())
                 .catchError(NotFoundException.class)
                 .await();
+            if (argumentStringValue == null && !Iterable.isNullOrEmpty(aliases))
+            {
+                for (final String alias : aliases)
+                {
+                    argumentStringValue = arguments.getNamedValue(alias)
+                        .catchError(NotFoundException.class)
+                        .await();
+                    if (argumentStringValue != null)
+                    {
+                        break;
+                    }
+                }
+            }
+            if (argumentStringValue == null && index != null)
+            {
+                argumentStringValue = arguments.getAnonymousValue(index)
+                    .catchError(NotFoundException.class)
+                    .await();
+            }
+            valueResult = parseArgumentValue.run(argumentStringValue);
         }
-        final Result<T> result = parseArgumentValue.run(argumentStringValue);
+        final Result<T> result = valueResult;
 
         PostCondition.assertNotNull(result, "result");
 
@@ -128,30 +135,39 @@ public class CommandLineParameter<T> extends CommandLineParameterBase<T>
     {
         PreCondition.assertNotNull(getArguments(), "getArguments()");
 
-        final CommandLineArguments arguments = getArguments();
-        String argumentStringValue = arguments.removeNamedValue(getName())
-            .catchError(NotFoundException.class)
-            .await();
-        if (argumentStringValue == null && !Iterable.isNullOrEmpty(aliases))
+        if (!removedValue)
         {
-            for (final String alias : aliases)
-            {
-                argumentStringValue = arguments.removeNamedValue(alias)
-                    .catchError(NotFoundException.class)
-                    .await();
-                if (argumentStringValue != null)
-                {
-                    break;
-                }
-            }
-        }
-        if (argumentStringValue == null && index != null)
-        {
-            argumentStringValue = arguments.removeAnonymousValue(index)
+            final CommandLineArguments arguments = getArguments();
+            String argumentStringValue = arguments.removeNamedValue(getName())
                 .catchError(NotFoundException.class)
                 .await();
+            if (argumentStringValue == null && !Iterable.isNullOrEmpty(aliases))
+            {
+                for (final String alias : aliases)
+                {
+                    argumentStringValue = arguments.removeNamedValue(alias)
+                        .catchError(NotFoundException.class)
+                        .await();
+                    if (argumentStringValue != null)
+                    {
+                        break;
+                    }
+                }
+            }
+            if (argumentStringValue == null && index != null)
+            {
+                argumentStringValue = arguments.removeAnonymousValue(index)
+                    .catchError(NotFoundException.class)
+                    .await();
+            }
+            removedValue = true;
+
+            if (valueResult == null)
+            {
+                valueResult = parseArgumentValue.run(argumentStringValue);
+            }
         }
-        final Result<T> result = parseArgumentValue.run(argumentStringValue);
+        final Result<T> result = valueResult;
 
         PostCondition.assertNotNull(result, "result");
 

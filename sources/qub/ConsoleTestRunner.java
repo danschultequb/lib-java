@@ -381,7 +381,7 @@ public class ConsoleTestRunner implements TestRunner
     {
         PreCondition.assertNotNull(console, "console");
 
-        final CommandLineParameters parameters = console.getCommandLineParameters();
+        final CommandLineParameters parameters = console.createCommandLineParameters();
 
         final CommandLineParameter<PathPattern> patternParameter = parameters.add("pattern", (String argumentValue) ->
         {

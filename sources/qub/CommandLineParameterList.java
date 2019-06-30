@@ -2,6 +2,9 @@ package qub;
 
 public class CommandLineParameterList<T> extends CommandLineParameterBase<T>
 {
+    private Result<Indexable<T>> valuesResult;
+    protected boolean removedValues;
+
     public CommandLineParameterList(String name, Integer index, Function1<String,Result<T>> parseArgumentValue)
     {
         super(name, index, parseArgumentValue);
@@ -85,27 +88,31 @@ public class CommandLineParameterList<T> extends CommandLineParameterBase<T>
     {
         PreCondition.assertNotNull(getArguments(), "getArguments()");
 
-        return Result.create(() ->
+        if (valuesResult == null)
         {
-            final CommandLineArguments arguments = getArguments();
-            Indexable<String> argumentStringValues = arguments.getNamedValues(getName())
-                .catchError(NotFoundException.class)
-                .await();
-            if (argumentStringValues == null && index != null)
+            valuesResult = Result.create(() ->
             {
-                argumentStringValues = arguments.getAnonymousValues(index)
+                final CommandLineArguments arguments = getArguments();
+                Indexable<String> argumentStringValues = arguments.getNamedValues(getName())
                     .catchError(NotFoundException.class)
                     .await();
-            }
+                if (argumentStringValues == null && index != null)
+                {
+                    argumentStringValues = arguments.getAnonymousValues(index)
+                        .catchError(NotFoundException.class)
+                        .await();
+                }
 
-            final List<T> parsedValues = List.create();
-            if (!Iterable.isNullOrEmpty(argumentStringValues))
-            {
-                parsedValues.addAll(argumentStringValues
-                    .map((String argumentValue) -> parseArgumentValue.run(argumentValue).await()));
-            }
-            return parsedValues;
-        });
+                final List<T> parsedValues = List.create();
+                if (!Iterable.isNullOrEmpty(argumentStringValues))
+                {
+                    parsedValues.addAll(argumentStringValues
+                        .map((String argumentValue) -> parseArgumentValue.run(argumentValue).await()));
+                }
+                return parsedValues;
+            });
+        }
+        return valuesResult;
     }
 
     /**
@@ -116,26 +123,32 @@ public class CommandLineParameterList<T> extends CommandLineParameterBase<T>
     {
         PreCondition.assertNotNull(getArguments(), "getArguments()");
 
-        return Result.create(() ->
+        if (!removedValues)
         {
-            final CommandLineArguments arguments = getArguments();
-            Indexable<String> argumentStringValues = arguments.removeNamedValues(getName())
-                .catchError(NotFoundException.class)
-                .await();
-            if (argumentStringValues == null && index != null)
+            valuesResult = Result.create(() ->
             {
-                argumentStringValues = arguments.removeAnonymousValues(index)
+                final CommandLineArguments arguments = getArguments();
+                Indexable<String> argumentStringValues = arguments.removeNamedValues(getName())
                     .catchError(NotFoundException.class)
                     .await();
-            }
+                if (argumentStringValues == null && index != null)
+                {
+                    argumentStringValues = arguments.removeAnonymousValues(index)
+                        .catchError(NotFoundException.class)
+                        .await();
+                }
 
-            final List<T> parsedValues = List.create();
-            if (!Iterable.isNullOrEmpty(argumentStringValues))
-            {
-                parsedValues.addAll(argumentStringValues
-                    .map((String argumentValue) -> parseArgumentValue.run(argumentValue).await()));
-            }
-            return parsedValues;
-        });
+                final List<T> parsedValues = List.create();
+                if (!Iterable.isNullOrEmpty(argumentStringValues))
+                {
+                    parsedValues.addAll(argumentStringValues
+                        .map((String argumentValue) -> parseArgumentValue.run(argumentValue).await()));
+                }
+                removedValues = true;
+
+                return parsedValues;
+            });
+        }
+        return valuesResult;
     }
 }

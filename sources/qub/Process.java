@@ -6,7 +6,6 @@ package qub;
 public class Process implements Disposable
 {
     private final CommandLineArguments commandLineArguments;
-    private final CommandLineParameters commandLineParameters;
     private volatile int exitCode;
 
     private final Value<ByteWriteStream> outputByteWriteStream;
@@ -62,8 +61,6 @@ public class Process implements Disposable
         PreCondition.assertNotNull(mainAsyncRunner, "mainAsyncRunner");
 
         this.commandLineArguments = commandLineArguments;
-        this.commandLineParameters = new CommandLineParameters()
-            .setArguments(commandLineArguments);
 
         outputByteWriteStream = Value.create();
         errorByteWriteStream = Value.create();
@@ -136,9 +133,10 @@ public class Process implements Disposable
         return commandLineArguments;
     }
 
-    public CommandLineParameters getCommandLineParameters()
+    public CommandLineParameters createCommandLineParameters()
     {
-        return commandLineParameters;
+        return new CommandLineParameters()
+            .setArguments(getCommandLineArguments());
     }
 
     /**

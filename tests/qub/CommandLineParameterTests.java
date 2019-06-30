@@ -469,7 +469,7 @@ public interface CommandLineParameterTests
                         .setArguments(arguments);
                     test.assertEqual("", parameter.removeValue().await());
                     test.assertEqual("[]", arguments.toString());
-                    test.assertNull(parameter.removeValue().await());
+                    test.assertEqual("", parameter.removeValue().await());
                     test.assertEqual("[]", arguments.toString());
                 });
 
@@ -480,7 +480,7 @@ public interface CommandLineParameterTests
                         .setArguments(arguments);
                     test.assertEqual("abc", parameter.removeValue().await());
                     test.assertEqual("[]", arguments.toString());
-                    test.assertNull(parameter.removeValue().await());
+                    test.assertEqual("abc", parameter.removeValue().await());
                     test.assertEqual("[]", arguments.toString());
                 });
 
@@ -502,7 +502,7 @@ public interface CommandLineParameterTests
                         .setArguments(arguments);
                     test.assertEqual("spices", parameter.removeValue().await());
                     test.assertEqual("[]", arguments.toString());
-                    test.assertNull(parameter.removeValue().await());
+                    test.assertEqual("spices", parameter.removeValue().await());
                     test.assertEqual("[]", arguments.toString());
                 });
 
@@ -513,7 +513,7 @@ public interface CommandLineParameterTests
                         .setArguments(arguments);
                     test.assertEqual("", parameter.removeValue().await());
                     test.assertEqual("[]", arguments.toString());
-                    test.assertNull(parameter.removeValue().await());
+                    test.assertEqual("", parameter.removeValue().await());
                     test.assertEqual("[]", arguments.toString());
                 });
 
@@ -524,7 +524,7 @@ public interface CommandLineParameterTests
                         .setArguments(arguments);
                     test.assertEqual("abc", parameter.removeValue().await());
                     test.assertEqual("[]", arguments.toString());
-                    test.assertNull(parameter.removeValue().await());
+                    test.assertEqual("abc", parameter.removeValue().await());
                     test.assertEqual("[]", arguments.toString());
                 });
 
@@ -536,7 +536,7 @@ public interface CommandLineParameterTests
                         .addAlias("b");
                     test.assertEqual("", parameter.removeValue().await());
                     test.assertEqual("[]", arguments.toString());
-                    test.assertNull(parameter.removeValue().await());
+                    test.assertEqual("", parameter.removeValue().await());
                     test.assertEqual("[]", arguments.toString());
                 });
 
@@ -548,7 +548,7 @@ public interface CommandLineParameterTests
                         .addAlias("b");
                     test.assertEqual("c", parameter.removeValue().await());
                     test.assertEqual("[]", arguments.toString());
-                    test.assertNull(parameter.removeValue().await());
+                    test.assertEqual("c", parameter.removeValue().await());
                     test.assertEqual("[]", arguments.toString());
                 });
             });
