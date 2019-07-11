@@ -11,7 +11,6 @@ public class JavaMutexCondition implements MutexCondition
     {
         PreCondition.assertNotNull(mutex, "mutex");
         PreCondition.assertNotNull(conditionVariable, "conditionVariable");
-        PreCondition.assertNotNull(conditionFunction, "conditionFunction");
 
         this.mutex = mutex;
         this.clock = clock;
@@ -29,10 +28,17 @@ public class JavaMutexCondition implements MutexCondition
         {
             try
             {
-                conditionVariable.await();
-                if (conditionFunction.run())
+                if (conditionFunction != null && conditionFunction.run())
                 {
                     result = Result.success();
+                }
+                else
+                {
+                    conditionVariable.await();
+                    if (conditionFunction == null)
+                    {
+                        result = Result.success();
+                    }
                 }
             }
             catch (InterruptedException e)
@@ -72,11 +78,15 @@ public class JavaMutexCondition implements MutexCondition
             {
                 result = Result.error(new TimeoutException());
             }
+            else if (conditionFunction != null && conditionFunction.run())
+            {
+                result = Result.success();
+            }
             else
             {
                 try
                 {
-                    if (conditionVariable.await(1, java.util.concurrent.TimeUnit.MILLISECONDS) && conditionFunction.run())
+                    if (conditionVariable.await(1, java.util.concurrent.TimeUnit.MILLISECONDS) && conditionFunction == null)
                     {
                         result = Result.success();
                     }

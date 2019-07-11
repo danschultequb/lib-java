@@ -132,12 +132,14 @@ public class JavaMutex implements Mutex
     @Override
     public JavaMutexCondition createCondition()
     {
-        return createCondition(() -> true);
+        return new JavaMutexCondition(this, clock, lock.newCondition(), null);
     }
 
     @Override
     public JavaMutexCondition createCondition(Function0<Boolean> condition)
     {
+        PreCondition.assertNotNull(condition, "condition");
+
         return new JavaMutexCondition(this, clock, lock.newCondition(), condition);
     }
 }

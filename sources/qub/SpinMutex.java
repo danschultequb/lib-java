@@ -157,12 +157,14 @@ public class SpinMutex implements Mutex
     @Override
     public SpinMutexCondition createCondition()
     {
-        return createCondition(() -> true);
+        return new SpinMutexCondition(this, clock, null);
     }
 
     @Override
     public SpinMutexCondition createCondition(Function0<Boolean> condition)
     {
+        PreCondition.assertNotNull(condition, "condition");
+
         return new SpinMutexCondition(this, clock, condition);
     }
 }

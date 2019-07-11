@@ -15,7 +15,6 @@ public class SpinMutexCondition implements MutexCondition
     public SpinMutexCondition(SpinMutex mutex, Clock clock, Function0<Boolean> condition)
     {
         PreCondition.assertNotNull(mutex, "mutex");
-        PreCondition.assertNotNull(condition, "condition");
 
         this.mutex = mutex;
         this.clock = clock;
@@ -30,7 +29,8 @@ public class SpinMutexCondition implements MutexCondition
 
         return SyncResult.create(() ->
         {
-            do
+            boolean done = (condition != null && condition.run());
+            while (!done)
             {
                 gate.close();
 
@@ -39,8 +39,9 @@ public class SpinMutexCondition implements MutexCondition
                 gate.passThrough().await();
 
                 mutex.acquire().await();
+
+                done = (condition == null || condition.run());
             }
-            while(!condition.run());
         });
     }
 
@@ -65,7 +66,8 @@ public class SpinMutexCondition implements MutexCondition
 
         return SyncResult.create(() ->
         {
-            do
+            boolean done = (condition != null && condition.run());
+            while (!done)
             {
                 gate.close();
 
@@ -74,8 +76,9 @@ public class SpinMutexCondition implements MutexCondition
                 gate.passThrough(timeout).await();
 
                 mutex.acquire(timeout).await();
+
+                done = (condition == null || condition.run());
             }
-            while(!condition.run());
         });
     }
 

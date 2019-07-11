@@ -767,8 +767,9 @@ public interface MutexTests
                         runner.test("with " + producerCount + " producer" + (producerCount == 1 ? "" : "s") + " and " + consumerCount + " consumer" + (consumerCount == 1 ? "" : "s"), (Test test) ->
                         {
                             final Mutex mutex = create(creator);
-                            final MutexCondition listHasValues = mutex.createCondition();
                             final List<Integer> values = List.create();
+                            final IntegerValue removedValueCount = IntegerValue.create(0);
+                            final MutexCondition listHasValues = mutex.createCondition(); // () -> values.any() || removedValueCount.get() == producerCount * valueCount);
                             final IntegerValue sum = IntegerValue.create(0);
 
                             final List<AsyncTask<Void>> tasks = List.create();
@@ -792,7 +793,6 @@ public interface MutexTests
                                 }));
                             }
 
-                            final IntegerValue removedValueCount = IntegerValue.create(0);
                             for (int i = 0; i < consumerCount; ++i)
                             {
                                 tasks.add(test.getParallelAsyncRunner().schedule(() ->
@@ -838,6 +838,80 @@ public interface MutexTests
                     awaitTest.run(1, 5, 1000);
                     awaitTest.run(2, 2, 1000);
                     awaitTest.run(5, 5, 1000);
+
+                    final Action3<Integer,Integer,Integer> awaitTestWithCondition = (Integer producerCount, Integer consumerCount, Integer valueCount) ->
+                    {
+                        runner.test("with " + producerCount + " producer" + (producerCount == 1 ? "" : "s") + " and " + consumerCount + " consumer" + (consumerCount == 1 ? "" : "s"), (Test test) ->
+                        {
+                            final Mutex mutex = create(creator);
+                            final List<Integer> values = List.create();
+                            final IntegerValue removedValueCount = IntegerValue.create(0);
+                            final MutexCondition listHasValues = mutex.createCondition(() -> values.any() || removedValueCount.get() == producerCount * valueCount);
+                            final IntegerValue sum = IntegerValue.create(0);
+
+                            final List<AsyncTask<Void>> tasks = List.create();
+                            for (int i = 0; i < producerCount; ++i)
+                            {
+                                tasks.add(test.getParallelAsyncRunner().schedule(() ->
+                                {
+                                    for (int j = 1; j <= valueCount; ++j)
+                                    {
+                                        mutex.acquire().await();
+                                        try
+                                        {
+                                            values.add(j);
+                                            listHasValues.signalAll();
+                                        }
+                                        finally
+                                        {
+                                            mutex.release().await();
+                                        }
+                                    }
+                                }));
+                            }
+
+                            for (int i = 0; i < consumerCount; ++i)
+                            {
+                                tasks.add(test.getParallelAsyncRunner().schedule(() ->
+                                {
+                                    while (true)
+                                    {
+                                        mutex.acquire().await();
+                                        try
+                                        {
+                                            listHasValues.watch().await();
+
+                                            if (removedValueCount.get() == producerCount * valueCount)
+                                            {
+                                                break;
+                                            }
+                                            else
+                                            {
+                                                final int value = values.removeFirst();
+                                                removedValueCount.increment();
+                                                sum.plusAssign(value);
+                                            }
+                                        }
+                                        finally
+                                        {
+                                            mutex.release().await();
+                                        }
+                                    }
+                                }));
+                            }
+
+                            Result.await(tasks);
+                            test.assertEqual(producerCount * Math.summation(valueCount), sum.get());
+                        });
+                    };
+
+                    awaitTestWithCondition.run(1, 1, 1000);
+                    awaitTestWithCondition.run(2, 1, 1000);
+                    awaitTestWithCondition.run(5, 1, 1000);
+                    awaitTestWithCondition.run(1, 2, 1000);
+                    awaitTestWithCondition.run(1, 5, 1000);
+                    awaitTestWithCondition.run(2, 2, 1000);
+                    awaitTestWithCondition.run(5, 5, 1000);
                 });
 
                 runner.testGroup("await(Duration)", () ->

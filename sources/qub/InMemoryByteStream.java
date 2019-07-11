@@ -21,7 +21,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
     {
         this.bytes = ByteList.createFromBytes(bytes);
         this.mutex = new SpinMutex();
-        this.bytesAvailable = this.mutex.createCondition();
+        this.bytesAvailable = this.mutex.createCondition(() -> isDisposed() || this.endOfStream || this.bytes.any());
     }
 
     /**
