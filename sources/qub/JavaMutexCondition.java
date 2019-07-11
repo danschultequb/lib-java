@@ -4,16 +4,19 @@ public class JavaMutexCondition implements MutexCondition
 {
     private final JavaMutex mutex;
     private final Clock clock;
-    private final java.util.concurrent.locks.Condition condition;
+    private final java.util.concurrent.locks.Condition conditionVariable;
+    private final Function0<Boolean> conditionFunction;
 
-    public JavaMutexCondition(JavaMutex mutex, Clock clock, java.util.concurrent.locks.Condition condition)
+    public JavaMutexCondition(JavaMutex mutex, Clock clock, java.util.concurrent.locks.Condition conditionVariable, Function0<Boolean> conditionFunction)
     {
         PreCondition.assertNotNull(mutex, "mutex");
-        PreCondition.assertNotNull(condition, "condition");
+        PreCondition.assertNotNull(conditionVariable, "conditionVariable");
+        PreCondition.assertNotNull(conditionFunction, "conditionFunction");
 
         this.mutex = mutex;
         this.clock = clock;
-        this.condition = condition;
+        this.conditionVariable = conditionVariable;
+        this.conditionFunction = conditionFunction;
     }
 
     @Override
@@ -21,16 +24,25 @@ public class JavaMutexCondition implements MutexCondition
     {
         PreCondition.assertTrue(mutex.isAcquiredByCurrentThread(), "mutex.isAcquiredByCurrentThread()");
 
-        Result<Void> result;
-        try
+        Result<Void> result = null;
+        while (result == null)
         {
-            condition.await();
-            result = Result.success();
+            try
+            {
+                conditionVariable.await();
+                if (conditionFunction.run())
+                {
+                    result = Result.success();
+                }
+            }
+            catch (InterruptedException e)
+            {
+                result = Result.error(e);
+            }
         }
-        catch (InterruptedException e)
-        {
-            result = Result.error(e);
-        }
+
+        PostCondition.assertNotNull(result, "result");
+
         return result;
     }
 
@@ -64,7 +76,7 @@ public class JavaMutexCondition implements MutexCondition
             {
                 try
                 {
-                    if (condition.await(1, java.util.concurrent.TimeUnit.MILLISECONDS))
+                    if (conditionVariable.await(1, java.util.concurrent.TimeUnit.MILLISECONDS) && conditionFunction.run())
                     {
                         result = Result.success();
                     }
@@ -83,6 +95,6 @@ public class JavaMutexCondition implements MutexCondition
     {
         PreCondition.assertTrue(mutex.isAcquiredByCurrentThread(), "mutex.isAcquiredByCurrentThread()");
 
-        condition.signalAll();
+        conditionVariable.signalAll();
     }
 }

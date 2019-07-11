@@ -5,21 +5,28 @@ package qub;
  */
 public class ManualClock implements Clock
 {
-    private final AsyncScheduler asyncRunner;
+    private AsyncScheduler asyncRunner;
     private final List<PausedTask> pausedTasks;
     private DateTime currentDateTime;
+
+    public ManualClock(DateTime currentDateTime)
+    {
+        PreCondition.assertNotNull(currentDateTime, "currentDateTime");
+
+        this.pausedTasks = new ArrayList<>();
+        this.currentDateTime = currentDateTime;
+    }
 
     /**
      * Create a new ManualClock object that starts at the provided current date and time.
      */
     public ManualClock(DateTime currentDateTime, AsyncScheduler asyncRunner)
     {
-        PreCondition.assertNotNull(currentDateTime, "currentDateTime");
+        this(currentDateTime);
+
         PreCondition.assertNotNull(asyncRunner, "asyncRunner");
 
         this.asyncRunner = asyncRunner;
-        this.pausedTasks = new ArrayList<>();
-        this.currentDateTime = currentDateTime;
     }
 
     /**
@@ -43,6 +50,7 @@ public class ManualClock implements Clock
     {
         PreCondition.assertNotNull(dateTime, "dateTime");
         PreCondition.assertNotNull(action, "action");
+        PreCondition.assertNotNull(asyncRunner, "asyncRunner");
 
         AsyncTask<Void> result;
         if (dateTime.lessThanOrEqualTo(getCurrentDateTime()))

@@ -9,7 +9,8 @@ public class FakeNetwork implements Network
     private final MutableMap<IPv4Address,MutableMap<Integer,FakeTCPServer>> boundTCPServers;
     private final MutableMap<InMemoryByteStream,Integer> streamReferenceCounts;
     private final FakeDNS dns;
-    private final HttpClient httpClient;
+    private HttpClient httpClient;
+    private HttpServer httpServer;
 
     public FakeNetwork(Clock clock)
     {
@@ -22,11 +23,10 @@ public class FakeNetwork implements Network
         boundTCPServers = Map.create();
         streamReferenceCounts = Map.create();
         dns = new FakeDNS();
-        httpClient = new BasicHttpClient(this);
     }
 
     @Override
-    public Result<TCPClient> createTCPClient(IPv4Address remoteIPAddress, int remotePort)
+    public Result<FakeTCPClient> createTCPClient(IPv4Address remoteIPAddress, int remotePort)
     {
         Network.validateRemoteIPAddress(remoteIPAddress);
         Network.validateRemotePort(remotePort);
@@ -35,7 +35,7 @@ public class FakeNetwork implements Network
     }
 
     @Override
-    public Result<TCPClient> createTCPClient(IPv4Address remoteIPAddress, int remotePort, Duration timeout)
+    public Result<FakeTCPClient> createTCPClient(IPv4Address remoteIPAddress, int remotePort, Duration timeout)
     {
         Network.validateRemoteIPAddress(remoteIPAddress);
         Network.validateRemotePort(remotePort);
@@ -46,7 +46,7 @@ public class FakeNetwork implements Network
     }
 
     @Override
-    public Result<TCPClient> createTCPClient(IPv4Address remoteIPAddress, int remotePort, DateTime timeout)
+    public Result<FakeTCPClient> createTCPClient(IPv4Address remoteIPAddress, int remotePort, DateTime timeout)
     {
         Network.validateRemoteIPAddress(remoteIPAddress);
         Network.validateRemotePort(remotePort);
@@ -55,15 +55,15 @@ public class FakeNetwork implements Network
         return createTCPClientInner(remoteIPAddress, remotePort, timeout);
     }
 
-    private Result<TCPClient> createTCPClientInner(IPv4Address remoteIPAddress, int remotePort, DateTime dateTimeTimeout)
+    private Result<FakeTCPClient> createTCPClientInner(IPv4Address remoteIPAddress, int remotePort, DateTime dateTimeTimeout)
     {
         PreCondition.assertNotNull(remoteIPAddress, "remoteIPAddress");
         Network.validateRemoteIPAddress(remoteIPAddress);
         Network.validateRemotePort(remotePort);
 
-        final Function0<Result<TCPClient>> function = () ->
+        final Function0<Result<FakeTCPClient>> function = () ->
         {
-            Result<TCPClient> result;
+            Result<FakeTCPClient> result;
             if (dateTimeTimeout != null && clock.getCurrentDateTime().greaterThanOrEqualTo(dateTimeTimeout))
             {
                 result = Result.error(new TimeoutException());
@@ -192,7 +192,7 @@ public class FakeNetwork implements Network
     }
 
     @Override
-    public Result<TCPServer> createTCPServer(int localPort)
+    public Result<FakeTCPServer> createTCPServer(int localPort)
     {
         Network.validateLocalPort(localPort);
 
@@ -200,14 +200,14 @@ public class FakeNetwork implements Network
     }
 
     @Override
-    public Result<TCPServer> createTCPServer(IPv4Address localIPAddress, int localPort)
+    public Result<FakeTCPServer> createTCPServer(IPv4Address localIPAddress, int localPort)
     {
         Network.validateLocalIPAddress(localIPAddress);
         Network.validateLocalPort(localPort);
 
         return mutex.criticalSectionResult(() ->
         {
-            Result<TCPServer> result;
+            Result<FakeTCPServer> result;
             if (!isAvailable(localIPAddress, localPort))
             {
                 result = Result.error(new java.io.IOException("IPAddress (" + localIPAddress + ") and port (" + localPort + ") are already bound."));

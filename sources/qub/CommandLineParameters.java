@@ -299,7 +299,8 @@ public class CommandLineParameters
     {
         PreCondition.assertNotNull(process, "process");
 
-        return add(new CommandLineParameterVerbose(process.getOutputCharacterWriteStream(), process.getClock()));
+        return add(new CommandLineParameterVerbose(process.getOutputCharacterWriteStream(), process.getClock()))
+            .addAlias("v");
     }
 
     /**

@@ -2,15 +2,15 @@ package qub;
 
 public interface Network
 {
-    Result<TCPClient> createTCPClient(IPv4Address remoteIPAddress, int remotePort);
+    Result<? extends TCPClient> createTCPClient(IPv4Address remoteIPAddress, int remotePort);
 
-    Result<TCPClient> createTCPClient(IPv4Address remoteIPAddress, int remotePort, Duration timeout);
+    Result<? extends TCPClient> createTCPClient(IPv4Address remoteIPAddress, int remotePort, Duration timeout);
 
-    Result<TCPClient> createTCPClient(IPv4Address remoteIPAddress, int remotePort, DateTime timeout);
+    Result<? extends TCPClient> createTCPClient(IPv4Address remoteIPAddress, int remotePort, DateTime timeout);
 
-    Result<TCPServer> createTCPServer(int localPort);
+    Result<? extends TCPServer> createTCPServer(int localPort);
 
-    Result<TCPServer> createTCPServer(IPv4Address localIPAddress, int localPort);
+    Result<? extends TCPServer> createTCPServer(IPv4Address localIPAddress, int localPort);
 
     HttpClient getHttpClient();
 

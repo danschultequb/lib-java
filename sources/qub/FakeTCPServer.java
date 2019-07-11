@@ -6,8 +6,8 @@ public class FakeTCPServer implements TCPServer
     private final IPv4Address localIPAddress;
     private final int localPort;
     private final FakeNetwork network;
-    private final Mutex mutex;
-    private final MutexCondition hasClientsToAccept;
+    private final SpinMutex mutex;
+    private final SpinMutexCondition hasClientsToAccept;
     private final List<FakeTCPClient> clientsToAccept;
     private volatile boolean disposed;
 
@@ -24,7 +24,7 @@ public class FakeTCPServer implements TCPServer
         this.network = network;
         clientsToAccept = List.create();
         mutex = new SpinMutex(clock);
-        hasClientsToAccept = mutex.createCondition();
+        hasClientsToAccept = mutex.createCondition(() -> isDisposed() || clientsToAccept.any());
     }
 
     @Override
@@ -46,10 +46,7 @@ public class FakeTCPServer implements TCPServer
 
         return mutex.criticalSectionResult(() ->
         {
-            while (!disposed && !clientsToAccept.any())
-            {
-                hasClientsToAccept.watch().await();
-            }
+            hasClientsToAccept.watch().await();
 
             return isDisposed()
                 ? Result.error(new IllegalStateException("isDisposed() cannot be true."))
@@ -76,10 +73,7 @@ public class FakeTCPServer implements TCPServer
 
         return mutex.criticalSectionResult(timeout, () ->
         {
-            while (!isDisposed() && !clientsToAccept.any())
-            {
-                hasClientsToAccept.watch(timeout).await();
-            }
+            hasClientsToAccept.watch(timeout).await();
 
             return isDisposed()
                 ? Result.error(new IllegalStateException("isDisposed() cannot be true."))

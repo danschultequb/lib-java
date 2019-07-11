@@ -211,8 +211,17 @@ public interface Mutex
     }
 
     /**
-     * Create a new condition that can be used to block until certain constraints are true.
+     * Create a new condition that can be used to block until it is signaled.
      * @return A new condition.
      */
     MutexCondition createCondition();
+
+    /**
+     * Create a new MutexCondition that will be watch the provided condition to be true when it is
+     * signaled.
+     * @param condition The condition that must be true in order for the MutexCondition to move
+     *                  forward.
+     * @return The newly created MutexCondition.
+     */
+    MutexCondition createCondition(Function0<Boolean> condition);
 }

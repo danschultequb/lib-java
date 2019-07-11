@@ -452,7 +452,7 @@ public interface CommandLineParametersTests
                     final CommandLineParameters parameters = new CommandLineParameters();
                     final CommandLineParameterVerbose parameter = parameters.addVerbose(process);
                     test.assertEqual("verbose", parameter.getName());
-                    test.assertEqual(Iterable.create(), parameter.getAliases());
+                    test.assertEqual(Iterable.create("v"), parameter.getAliases());
                     test.assertEqual("Whether or not to show verbose logs.", parameter.getDescription());
                     test.assertNull(parameter.getValueName());
                 }
