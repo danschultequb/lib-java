@@ -234,33 +234,58 @@ public class CommandLineParameters
         };
     }
 
+    /**
+     * Add an Enum command line parameter.
+     * @param parameterName The name of the command line parameter.
+     * @param defaultValue The Enum value that will be used if the command line parameter has no
+ *                         argument or if the argument is empty.
+     * @param <T> The type of Enum the parameter will use.
+     * @return The new CommandLineParameter object.
+     */
     @SuppressWarnings("unchecked")
     public <T extends Enum<T>> CommandLineParameter<T> addEnum(String parameterName, T defaultValue)
     {
         PreCondition.assertNotNullAndNotEmpty(parameterName, "parameterName");
         PreCondition.assertNotNull(defaultValue, "defaultValue");
 
-        final CommandLineParameter<T> result = add(parameterName, (String value) ->
+        return this.addEnum(parameterName, defaultValue, defaultValue);
+    }
+
+    /**
+     * Add an Enum command line parameter.
+     * @param parameterName The name of the command line parameter.
+     * @param unspecifiedValue The Enum value that will be used if the command line parameter has no
+     *                         argument.
+     * @param emptyValue The Enum value that will be used if the command line parameter has no
+     *                   argument value.
+     * @param <T> The type of Enum the parameter will use.
+     * @return The new CommandLineParameter object.
+     */
+    @SuppressWarnings("unchecked")
+    public <T extends Enum<T>> CommandLineParameter<T> addEnum(String parameterName, T unspecifiedValue, T emptyValue)
+    {
+        PreCondition.assertNotNullAndNotEmpty(parameterName, "parameterName");
+        PreCondition.assertNotNull(unspecifiedValue, "unspecifiedValue");
+        PreCondition.assertNotNull(emptyValue, "emptyValue");
+
+        return this.add(parameterName, (String value) ->
         {
-            return Result.create(() ->
+            Result<T> enumResult;
+            if (value == null)
             {
-                T enumResult = defaultValue;
-                if (!Strings.isNullOrEmpty(value))
-                {
-                    for (final T possibleEnumValue : (T[])defaultValue.getClass().getEnumConstants())
-                    {
-                        if (possibleEnumValue.toString().equalsIgnoreCase(value))
-                        {
-                            enumResult = possibleEnumValue;
-                            break;
-                        }
-                    }
-                }
-                return enumResult;
-            });
+                enumResult = Result.success(unspecifiedValue);
+            }
+            else if (Comparer.equal(value, ""))
+            {
+                enumResult = Result.success(emptyValue);
+            }
+            else
+            {
+                enumResult = Enums.parse((Class<T>)unspecifiedValue.getClass(), value)
+                    .catchError(NotFoundException.class, () -> unspecifiedValue);
+            }
+            return enumResult;
         });
-        result.setValueRequired(true);
-        return result;
     }
 
     /**
