@@ -268,7 +268,7 @@ public class CommandLineParameters
         PreCondition.assertNotNull(unspecifiedValue, "unspecifiedValue");
         PreCondition.assertNotNull(emptyValue, "emptyValue");
 
-        return this.add(parameterName, (String value) ->
+        final CommandLineParameter<T> result = this.add(parameterName, (String value) ->
         {
             Result<T> enumResult;
             if (value == null)
@@ -286,6 +286,11 @@ public class CommandLineParameters
             }
             return enumResult;
         });
+        result.setValueRequired(true);
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
     }
 
     /**
