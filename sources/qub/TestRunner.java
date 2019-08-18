@@ -39,6 +39,19 @@ public interface TestRunner
      */
     Skip skip(String message);
 
+//    /**
+//     * Attempt to run the tests that are found in the Class associated with the provided
+//     * fullClassName.
+//     * @param fullClassName The full name of the class to run the tests of.
+//     */
+//    void testClass(String fullClassName);
+//
+//    /**
+//     * Attempt to run the tests that are found in the provided testClass.
+//     * @param testClass The class to run the tests of.
+//     */
+//    void testClass(Class<?> testClass);
+
     /**
      * Create a new test group with the provided name and action.
      * @param testGroupName The name of the test group.

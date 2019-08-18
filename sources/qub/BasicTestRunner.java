@@ -63,6 +63,56 @@ public final class BasicTestRunner implements TestRunner
         return new Skip(message);
     }
 
+//    @Override
+//    public void testClass(String fullClassName)
+//    {
+//        PreCondition.assertNotNullAndNotEmpty(fullClassName, "fullClassName");
+//
+//        final Class<?> classWithTests = Types.getClass(fullClassName)
+//            .catchError(NotFoundException.class)
+//            .await();
+//        if (classWithTests != null)
+//        {
+//            testClass(classWithTests);
+//        }
+//    }
+//
+//    @Override
+//    public void testClass(Class<?> testClass)
+//    {
+//        PreCondition.assertNotNull(testClass, "testClass");
+//
+//        java.lang.reflect.Method testMethod = null;
+//        try
+//        {
+//            testMethod = testClass.getMethod("test", TestRunner.class);
+//            if (debug)
+//            {
+//                console.writeLine("Found!");
+//            }
+//        }
+//        catch (NoSuchMethodException e)
+//        {
+//            if (debug)
+//            {
+//                console.writeLine("Couldn't find.").await();
+//            }
+//        }
+//
+//        if (testMethod != null)
+//        {
+//            try
+//            {
+//                testMethod.invoke(null, runner);
+//                invokedTestClassNames.add(testClassName);
+//            }
+//            catch (IllegalAccessException | java.lang.reflect.InvocationTargetException e)
+//            {
+//                e.printStackTrace();
+//            }
+//        }
+//    }
+
     @Override
     public void testGroup(Class<?> testClass, Action0 testGroupAction)
     {

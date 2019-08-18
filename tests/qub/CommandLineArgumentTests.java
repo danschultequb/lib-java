@@ -1,7 +1,5 @@
 package qub;
 
-import sun.tools.jar.CommandLine;
-
 public interface CommandLineArgumentTests
 {
     static void test(TestRunner runner)

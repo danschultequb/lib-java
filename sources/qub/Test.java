@@ -1216,12 +1216,42 @@ public class Test
 
     private static String toString(Object value)
     {
-        String valueString = Strings.escape(Objects.toString(value));
+        final InMemoryCharacterStream stream = new InMemoryCharacterStream();
         if (value instanceof String)
         {
-            valueString = Strings.quote(valueString);
+            stream.write(Strings.escapeAndQuote(Objects.toString(value))).await();
         }
-        return valueString;
+        else
+        {
+            stream.write(Strings.escape(Objects.toString(value))).await();
+
+            final Throwable error = Types.as(value, Throwable.class);
+            if (error != null)
+            {
+                Throwable cause = error.getCause();
+                if (cause != null)
+                {
+                    final IndentedCharacterWriteStream indentedStream = new IndentedCharacterWriteStream(stream);
+                    boolean indented = false;
+                    while (cause != null)
+                    {
+                        indentedStream.writeLine().await();
+                        if (!indented)
+                        {
+                            indented = true;
+                            indentedStream.increaseIndent();
+                        }
+                        indentedStream.write("Caused by: " + Strings.escape(cause.toString())).await();
+                        cause = cause.getCause();
+                    }
+                }
+            }
+        }
+        final String result = stream.getText().await();
+
+        PostCondition.assertNotNullAndNotEmpty(result, "result");
+
+        return result;
     }
 
     private static String addType(Object value, Object otherValue, String valueString, String otherValueString)

@@ -734,7 +734,8 @@ public class TestTests
                         new TestError("abcd", Iterable.create(
                             "Message:  Incorrect exception thrown",
                             "Expected: qub.NotFoundException: blah",
-                            "Actual:   java.lang.RuntimeException: qub.NotFoundException: grapes")));
+                            "Actual:   java.lang.RuntimeException: qub.NotFoundException: grapes",
+                            "  Caused by: qub.NotFoundException: grapes")));
                 });
 
                 runner.test("with action that throws the same error but is wrapped in an AwaitException", (Test test) ->
@@ -759,7 +760,8 @@ public class TestTests
                         new TestError("abcd", Iterable.create(
                             "Message:  Incorrect exception thrown",
                             "Expected: qub.NotFoundException: blah",
-                            "Actual:   qub.AwaitException: qub.NotFoundException: grapes")));
+                            "Actual:   qub.AwaitException: qub.NotFoundException: grapes",
+                            "  Caused by: qub.NotFoundException: grapes")));
                 });
             });
         });

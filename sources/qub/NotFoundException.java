@@ -14,4 +14,14 @@ public class NotFoundException extends RuntimeException
     {
         super(message);
     }
+
+    /**
+     * Create a new NotFoundException with the provided message.
+     * @param message A message explaning the cause of this error.
+     * @param innerException The exception that caused the NotFoundException.
+     */
+    public NotFoundException(String message, Throwable innerException)
+    {
+        super(message, innerException);
+    }
 }

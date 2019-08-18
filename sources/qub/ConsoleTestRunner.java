@@ -327,53 +327,53 @@ public class ConsoleTestRunner implements TestRunner
         final Iterable<Test> skippedTests = testRunner.getSkippedTests();
         if (skippedTests.any())
         {
-            console.writeLine("Skipped Tests:");
+            console.writeLine("Skipped Tests:").await();
             increaseIndent();
             int testSkippedNumber = 1;
             for (final Test skippedTest : skippedTests)
             {
                 final String skipMessage = skippedTest.getSkipMessage();
-                console.writeLine(testSkippedNumber + ") " + skippedTest.getFullName() + (Strings.isNullOrEmpty(skipMessage) ? "" : ": " + skipMessage));
+                console.writeLine(testSkippedNumber + ") " + skippedTest.getFullName() + (Strings.isNullOrEmpty(skipMessage) ? "" : ": " + skipMessage)).await();
                 ++testSkippedNumber;
             }
             decreaseIndent();
 
-            console.writeLine();
+            console.writeLine().await();
         }
 
         final Iterable<TestError> testFailures = testRunner.getTestFailures();
         if (testFailures.any())
         {
-            console.writeLine("Test failures:");
+            console.writeLine("Test failures:").await();
             increaseIndent();
 
             int testFailureNumber = 1;
             for (final TestError failure : testFailures)
             {
-                console.writeLine(testFailureNumber + ") " + failure.getTestScope());
+                console.writeLine(testFailureNumber + ") " + failure.getTestScope()).await();
                 ++testFailureNumber;
                 increaseIndent();
                 writeFailure(failure);
                 decreaseIndent();
 
-                console.writeLine();
+                console.writeLine().await();
             }
 
             decreaseIndent();
         }
 
-        console.writeLine("Tests Run:      " + testRunner.getFinishedTestCount());
+        console.writeLine("Tests Run:      " + testRunner.getFinishedTestCount()).await();
         if (testRunner.getPassedTestCount() > 0)
         {
-            console.writeLine("Tests Passed:   " + testRunner.getPassedTestCount());
+            console.writeLine("Tests Passed:   " + testRunner.getPassedTestCount()).await();
         }
         if (testRunner.getFailedTestCount() > 0)
         {
-            console.writeLine("Tests Failed:   " + testRunner.getFailedTestCount());
+            console.writeLine("Tests Failed:   " + testRunner.getFailedTestCount()).await();
         }
         if (testRunner.getSkippedTestCount() > 0)
         {
-            console.writeLine("Tests Skipped:  " + testRunner.getSkippedTestCount());
+            console.writeLine("Tests Skipped:  " + testRunner.getSkippedTestCount()).await();
         }
     }
 
@@ -400,7 +400,7 @@ public class ConsoleTestRunner implements TestRunner
 
         if (debug)
         {
-            console.writeLine("TestPattern: " + (pattern == null ? "null" : "\"" + pattern + "\""));
+            console.writeLine("TestPattern: " + (pattern == null ? "null" : "\"" + pattern + "\"")).await();
         }
 
         final Stopwatch stopwatch = console.getStopwatch();
@@ -413,69 +413,52 @@ public class ConsoleTestRunner implements TestRunner
         {
             if (debug)
             {
-                console.write("Looking for class " + Strings.escapeAndQuote(testClassName) + "...");
+                console.write("Looking for class " + Strings.escapeAndQuote(testClassName) + "...").await();
             }
 
-            Class<?> testClass = null;
-            try
-            {
-                testClass = ConsoleTestRunner.class.getClassLoader().loadClass(testClassName);
-                if (debug)
+            final Class<?> testClass = Types.getClass(testClassName)
+                .catchError(ClassNotFoundException.class, () ->
                 {
-                    console.writeLine("Found!");
-                }
-            }
-            catch (ClassNotFoundException e)
-            {
-                if (debug)
-                {
-                    console.writeLine("Couldn't find " + Strings.escapeAndQuote(testClassName) + ".");
-                }
-            }
-
+                    if (debug)
+                    {
+                        console.writeLine("Couldn't find " + Strings.escapeAndQuote(testClassName) + ".").await();
+                    }
+                })
+                .await();
             if (testClass != null)
             {
                 if (debug)
                 {
+                    console.writeLine("Found!").await();
                     console.write("Looking for static test(TestRunner) method in " + Strings.escapeAndQuote(testClassName) + "...");
                 }
 
-                java.lang.reflect.Method testMethod = null;
-                try
-                {
-                    testMethod = testClass.getMethod("test", TestRunner.class);
-                    if (debug)
+                final StaticMethod1<?,TestRunner,Void> testMethod = Types.getStaticMethod(testClass, "test", TestRunner.class, void.class)
+                    .catchError(NotFoundException.class, (NotFoundException e) ->
                     {
-                        console.writeLine("Found!");
-                    }
-                }
-                catch (NoSuchMethodException e)
-                {
-                    if (debug)
-                    {
-                        console.writeLine("Couldn't find.");
-                    }
-                }
-
+                        if (debug)
+                        {
+                            console.writeLine(e.getMessage()).await();
+                        }
+                    })
+                    .await();
                 if (testMethod != null)
                 {
-                    try
+                    if (debug)
                     {
-                        testMethod.invoke(null, runner);
+                        console.writeLine("Found!").await();
                     }
-                    catch (IllegalAccessException | java.lang.reflect.InvocationTargetException e)
-                    {
-                        e.printStackTrace();
-                    }
+
+                    testMethod.run(runner);
                 }
             }
         }
 
-        console.writeLine();
+        console.writeLine().await();
         runner.writeSummary();
 
         final Duration totalTestsDuration = stopwatch.stop();
-        console.writeLine("Tests Duration: " + totalTestsDuration.toSeconds().toString("0.0"));
+        console.writeLine("Tests Duration: " + totalTestsDuration.toSeconds().toString("0.0")).await();
 
         console.setExitCode(runner.getFailedTestCount());
     }
