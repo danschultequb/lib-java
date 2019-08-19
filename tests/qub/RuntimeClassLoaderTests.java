@@ -60,67 +60,80 @@ public interface RuntimeClassLoaderTests
                 });
             });
 
-//            runner.testGroup("loadClass()", () ->
-//            {
-//                runner.test("with null", (Test test) ->
-//                {
-//                    final Folder currentFolder = test.getProcess().getCurrentFolder().await();
-//                    final Folder nonExistingFolder = currentFolder.getFolder("idontexist").await();
-//                    try (final DynamicClassLoader classFolder = new DynamicClassLoader(nonExistingFolder))
-//                    {
-//                        test.assertThrows(() -> classFolder.loadClass(null),
-//                            new PreConditionFailure("fullClassName cannot be null."));
-//                    }
-//                });
-//
-//                runner.test("with empty", (Test test) ->
-//                {
-//                    final Folder currentFolder = test.getProcess().getCurrentFolder().await();
-//                    final Folder nonExistingFolder = currentFolder.getFolder("idontexist").await();
-//                    try (final DynamicClassLoader classFolder = new DynamicClassLoader(nonExistingFolder))
-//                    {
-//                        test.assertThrows(() -> classFolder.loadClass(""),
-//                            new PreConditionFailure("fullClassName cannot be empty."));
-//                    }
-//                });
-//
-//                runner.test("when folder doesn't exist", (Test test) ->
-//                {
-//                    final Folder currentFolder = test.getProcess().getCurrentFolder().await();
-//                    final Folder nonExistingFolder = currentFolder.getFolder("idontexist").await();
-//                    try (final DynamicClassLoader classFolder = new DynamicClassLoader(nonExistingFolder))
-//                    {
-//                        test.assertThrows(() -> classFolder.loadClass("not.a.FakeClass").await(),
-//                            new NotFoundException("Could not find a class named \"not.a.FakeClass\" in the class folder " + nonExistingFolder + "."));
-//                    }
-//                });
-//
-//                runner.test("when folder does exist, but the class file doesn't exist", (Test test) ->
-//                {
-//                    final Folder currentFolder = test.getProcess().getCurrentFolder().await();
-//                    try (final DynamicClassLoader classFolder = new DynamicClassLoader(currentFolder))
-//                    {
-//                        test.assertThrows(() -> classFolder.loadClass("not.a.FakeClass").await(),
-//                            new NotFoundException("Could not find a class named \"not.a.FakeClass\" in the class folder " + currentFolder + "."));
-//                    }
-//                });
-//
-//                runner.test("when folder and class file exists", (Test test) ->
-//                {
-//                    final Folder currentFolder = test.getProcess().getCurrentFolder().await();
-//                    final Folder outputFolder = currentFolder.getFolder("outputs").await();
-//                    try (final DynamicClassLoader classFolder = new DynamicClassLoader(outputFolder))
-//                    {
-//                        final Class<?> loadedClass = classFolder.loadClass("qub.ClassFolderTests").await();
-//                        test.assertNotNull(loadedClass);
-//                        test.assertEqual("qub.ClassFolderTests", Types.getFullTypeName(loadedClass));
-//                        test.assertSame()
-//                        test.assertNotSame(ClassFolderTests.class, loadedClass);
-//                        loadedClass.
-//                        test.assertEqual(ClassFolderTests.class, loadedClass);
-//                    }
-//                });
-//            });
+            runner.testGroup("loadClass()", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final Folder currentFolder = test.getProcess().getCurrentFolder().await();
+                    final Folder nonExistingFolder = currentFolder.getFolder("idontexist").await();
+                    try (final RuntimeClassLoader classLoader = new RuntimeClassLoader(nonExistingFolder))
+                    {
+                        test.assertThrows(() -> classLoader.loadClass(null),
+                            new PreConditionFailure("fullClassName cannot be null."));
+                    }
+                });
+
+                runner.test("with empty", (Test test) ->
+                {
+                    final Folder currentFolder = test.getProcess().getCurrentFolder().await();
+                    final Folder nonExistingFolder = currentFolder.getFolder("idontexist").await();
+                    try (final RuntimeClassLoader classLoader = new RuntimeClassLoader(nonExistingFolder))
+                    {
+                        test.assertThrows(() -> classLoader.loadClass(""),
+                            new PreConditionFailure("fullClassName cannot be empty."));
+                    }
+                });
+
+                runner.test("when folder doesn't exist", (Test test) ->
+                {
+                    final Folder currentFolder = test.getProcess().getCurrentFolder().await();
+                    final Folder nonExistingFolder = currentFolder.getFolder("idontexist").await();
+                    try (final RuntimeClassLoader classLoader = new RuntimeClassLoader(nonExistingFolder))
+                    {
+                        test.assertThrows(() -> classLoader.loadClass("not.a.FakeClass"),
+                            new ClassNotFoundException("Could not load a class with the name \"not.a.FakeClass\" from [" + nonExistingFolder + "]."));
+                    }
+                });
+
+                runner.test("when folder does exist, but the class file doesn't exist", (Test test) ->
+                {
+                    final Folder currentFolder = test.getProcess().getCurrentFolder().await();
+                    try (final RuntimeClassLoader classLoader = new RuntimeClassLoader(currentFolder))
+                    {
+                        test.assertThrows(() -> classLoader.loadClass("not.a.FakeClass"),
+                            new ClassNotFoundException("Could not load a class with the name \"not.a.FakeClass\" from [" + currentFolder + "]."));
+                    }
+                });
+
+                runner.test("when folder and class file exists", (Test test) ->
+                {
+                    final Folder currentFolder = test.getProcess().getCurrentFolder().await();
+                    final Folder outputFolder = currentFolder.getFolder("outputs").await();
+                    try (final RuntimeClassLoader classLoader = new RuntimeClassLoader(outputFolder))
+                    {
+                        final Class<?> loadedClass = classLoader.loadClass("qub.RuntimeClassLoaderTests");
+                        test.assertNotNull(loadedClass);
+                        test.assertEqual("qub.RuntimeClassLoaderTests", Types.getFullTypeName(loadedClass));
+                        test.assertSame(classLoader.getParent(), loadedClass.getClassLoader());
+                    }
+                });
+
+                runner.test("when disposed", (Test test) ->
+                {
+                    final Folder currentFolder = test.getProcess().getCurrentFolder().await();
+                    final Folder outputFolder = currentFolder.getFolder("outputs").await();
+                    try (final RuntimeClassLoader classLoader = new RuntimeClassLoader(outputFolder))
+                    {
+                        test.assertTrue(classLoader.dispose().await());
+                        test.assertTrue(classLoader.isDisposed());
+                        test.assertFalse(classLoader.dispose().await());
+                        test.assertTrue(classLoader.isDisposed());
+
+                        test.assertThrows(() -> classLoader.loadClass("qub.RuntimeClassLoaderTests"),
+                            new PreConditionFailure("isDisposed() cannot be true."));
+                    }
+                });
+            });
         });
     }
 }

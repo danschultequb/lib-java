@@ -1,14 +1,11 @@
 package qub;
 
-import java.net.MalformedURLException;
-
 /**
  * A ClassLoader that can have Jar files and class folders added at runtime.
  */
-public class RuntimeClassLoader implements Disposable
+public class RuntimeClassLoader extends java.net.URLClassLoader implements Disposable
 {
     private boolean isDisposed;
-    private final java.net.URLClassLoader urlClassLoader;
     private final Iterable<FileSystemEntry> classSources;
 
     /**
@@ -37,11 +34,11 @@ public class RuntimeClassLoader implements Disposable
      */
     public RuntimeClassLoader(Iterable<FileSystemEntry> classSources, java.lang.ClassLoader parentClassLoader)
     {
+        super(getJavaURLsFromClassSources(classSources), parentClassLoader);
+
         PreCondition.assertNotNull(classSources, "classSources");
         PreCondition.assertNotNull(parentClassLoader, "parentClassLoader");
 
-        final java.net.URL[] classSourceURLs = getJavaURLsFromClassSources(classSources);
-        urlClassLoader = new java.net.URLClassLoader(classSourceURLs, parentClassLoader);
         this.classSources = classSources;
     }
 
@@ -64,7 +61,7 @@ public class RuntimeClassLoader implements Disposable
         {
             result = new java.net.URL(classSourceURLString);
         }
-        catch (MalformedURLException e)
+        catch (java.net.MalformedURLException e)
         {
             throw Exceptions.asRuntime(e);
         }
@@ -110,23 +107,31 @@ public class RuntimeClassLoader implements Disposable
      * @param fullClassName The full name of the class to load.
      * @return The result of loading the class object with the provided full class name.
      */
-    public Result<Class<?>> loadClass(String fullClassName)
+    @Override
+    public Class<?> loadClass(String fullClassName)
     {
         PreCondition.assertNotNullAndNotEmpty(fullClassName, "fullClassName");
+        PreCondition.assertNotDisposed(this);
 
-        Result<Class<?>> result;
+        Class<?> result;
         try
         {
-            result = Result.success(urlClassLoader.loadClass(fullClassName));
+            result = super.loadClass(fullClassName);
         }
         catch (ClassNotFoundException e)
         {
-            result = Result.error(new NotFoundException("Could not load a class with the name " + Strings.escapeAndQuote(fullClassName) + " from " + classSources + "."));
+            throw new RuntimeException(new ClassNotFoundException("Could not load a class with the name " + Strings.escapeAndQuote(fullClassName) + " from " + classSources + "."));
         }
 
         PostCondition.assertNotNull(result, "result");
 
         return result;
+    }
+
+    @Override
+    public void close()
+    {
+        Disposable.close(this);
     }
 
     @Override
@@ -147,7 +152,7 @@ public class RuntimeClassLoader implements Disposable
         {
             try
             {
-                urlClassLoader.close();
+                super.close();
                 isDisposed = true;
                 result = Result.successTrue();
             }
