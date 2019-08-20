@@ -47,14 +47,10 @@ public class JSONTokenTests
                 assertToken(test, JSONToken.comma(5), ",", 5, 1, JSONTokenType.Comma);
             });
 
-            runner.test("trueToken()", (Test test) ->
+            runner.test("booleanToken()", (Test test) ->
             {
-                assertToken(test, JSONToken.trueToken("true", 5), "true", 5, 4, JSONTokenType.True);
-            });
-
-            runner.test("falseToken()", (Test test) ->
-            {
-                assertToken(test, JSONToken.falseToken("false", 6), "false", 6, 5, JSONTokenType.False);
+                assertToken(test, JSONToken.booleanToken("true", 5), "true", 5, 4, JSONTokenType.Boolean);
+                assertToken(test, JSONToken.booleanToken("false", 6), "false", 6, 5, JSONTokenType.Boolean);
             });
 
             runner.test("nullToken()", (Test test) ->
@@ -79,6 +75,13 @@ public class JSONTokenTests
             runner.test("number()", (Test test) ->
             {
                 assertToken(test, JSONToken.number("123", 14), "123", 14, 3, JSONTokenType.Number);
+            });
+
+            runner.test("booleanToken()", (Test test) ->
+            {
+                assertToken(test, JSONToken.booleanToken("true", 1), "true", 1, 4, JSONTokenType.Boolean);
+                assertToken(test, JSONToken.booleanToken("false", 2), "false", 2, 5, JSONTokenType.Boolean);
+                assertToken(test, JSONToken.booleanToken("abc", 5), "abc", 5, 3, JSONTokenType.Boolean);
             });
 
             runner.test("whitespace()", (Test test) ->

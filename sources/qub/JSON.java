@@ -1,25 +1,33 @@
 package qub;
 
-public class JSON
+/**
+ * A collection of methods for interacting with JSON.
+ */
+public interface JSON
 {
-    public static JSONDocument parse(String text)
+    /**
+     * Parse the provided text into a JSON document.
+     * @param text The text to parse.
+     * @return The parsed JSONDocument.
+     */
+    static JSONDocument parse(String text)
     {
         final StringIterator characters = new StringIterator(text);
         return parse(characters);
     }
 
-    public static JSONDocument parse(String text, List<Issue> issues)
+    static JSONDocument parse(String text, List<Issue> issues)
     {
         final StringIterator characters = new StringIterator(text);
         return parse(characters, issues);
     }
 
-    public static JSONDocument parse(Iterator<Character> characters)
+    static JSONDocument parse(Iterator<Character> characters)
     {
         return parse(characters, null);
     }
 
-    public static JSONDocument parse(Iterator<Character> characters, List<Issue> issues)
+    static JSONDocument parse(Iterator<Character> characters, List<Issue> issues)
     {
         final List<JSONSegment> documentSegments = new ArrayList<>();
 
@@ -70,7 +78,7 @@ public class JSON
         return new JSONDocument(documentSegments);
     }
 
-    public static JSONSegment parseSegment(JSONTokenizer tokenizer, List<Issue> issues)
+    static JSONSegment parseSegment(JSONTokenizer tokenizer, List<Issue> issues)
     {
         JSONSegment result;
 
@@ -92,12 +100,12 @@ public class JSON
         return result;
     }
 
-    public static JSONObject parseObject(String text)
+    static JSONObject parseObject(String text)
     {
         return parseObject(text, 0);
     }
 
-    public static JSONObject parseObject(String text, int firstTokenStartIndex)
+    static JSONObject parseObject(String text, int firstTokenStartIndex)
     {
         JSONObject result = null;
 
@@ -110,7 +118,7 @@ public class JSON
         return result;
     }
 
-    public static JSONObject parseObject(JSONTokenizer tokenizer, List<Issue> issues)
+    static JSONObject parseObject(JSONTokenizer tokenizer, List<Issue> issues)
     {
         final JSONToken leftCurlyBracket = tokenizer.takeCurrent();
         final List<JSONSegment> objectSegments = List.create(leftCurlyBracket);
@@ -208,12 +216,12 @@ public class JSON
         return new JSONObject(objectSegments);
     }
 
-    public static JSONProperty parseProperty(String text)
+    static JSONProperty parseProperty(String text)
     {
         return parseProperty(text, 0);
     }
 
-    public static JSONProperty parseProperty(String text, int startIndex)
+    static JSONProperty parseProperty(String text, int startIndex)
     {
         JSONProperty result = null;
 
@@ -226,7 +234,7 @@ public class JSON
         return result;
     }
 
-    public static JSONProperty parseProperty(JSONTokenizer tokenizer, List<Issue> issues)
+    static JSONProperty parseProperty(JSONTokenizer tokenizer, List<Issue> issues)
     {
         final JSONToken propertyName = tokenizer.takeCurrent();
         final List<JSONSegment> propertySegments = List.create(propertyName);
@@ -260,8 +268,7 @@ public class JSON
                     final JSONToken propertyValueFirstToken = tokenizer.getCurrent();
                     switch (propertyValueFirstToken.getType())
                     {
-                        case False:
-                        case True:
+                        case Boolean:
                         case Null:
                         case QuotedString:
                         case Number:
@@ -290,7 +297,7 @@ public class JSON
         return new JSONProperty(propertySegments);
     }
 
-    public static void skipWhitespace(JSONTokenizer tokenizer, List<JSONSegment> segments)
+    static void skipWhitespace(JSONTokenizer tokenizer, List<JSONSegment> segments)
     {
         while (tokenizer.hasCurrent() && tokenizer.getCurrent().getType() == JSONTokenType.Whitespace)
         {
@@ -298,12 +305,12 @@ public class JSON
         }
     }
 
-    public static JSONArray parseArray(String text)
+    static JSONArray parseArray(String text)
     {
         return parseArray(text, 0);
     }
 
-    public static JSONArray parseArray(String text, int startIndex)
+    static JSONArray parseArray(String text, int startIndex)
     {
         JSONArray result = null;
 
@@ -316,7 +323,7 @@ public class JSON
         return result;
     }
 
-    public static JSONArray parseArray(JSONTokenizer tokenizer, List<Issue> issues)
+    static JSONArray parseArray(JSONTokenizer tokenizer, List<Issue> issues)
     {
         final JSONToken leftSquareBracket = tokenizer.takeCurrent();
         final List<JSONSegment> arraySegments = List.create(leftSquareBracket);
@@ -331,8 +338,7 @@ public class JSON
             switch (token.getType())
             {
                 case Null:
-                case True:
-                case False:
+                case Boolean:
                 case QuotedString:
                 case Number:
                     if (!elementAllowed) {
@@ -438,7 +444,7 @@ public class JSON
         return new JSONArray(arraySegments);
     }
 
-    private static void addIssue(List<Issue> issues, Issue issue)
+    static void addIssue(List<Issue> issues, Issue issue)
     {
         if (issues != null)
         {
@@ -446,7 +452,7 @@ public class JSON
         }
     }
 
-    public static JSONObject object(Action1<JSONObjectBuilder> action)
+    static JSONObject object(Action1<JSONObjectBuilder> action)
     {
         PreCondition.assertNotNull(action, "action");
 
@@ -459,7 +465,7 @@ public class JSON
         return result;
     }
 
-    public static void object(CharacterWriteStream writeStream, Action1<JSONObjectBuilder> action)
+    static void object(CharacterWriteStream writeStream, Action1<JSONObjectBuilder> action)
     {
         PreCondition.assertNotNull(writeStream, "writeStream");
         PreCondition.assertFalse(writeStream.isDisposed(), "writeStream.isDisposed()");
@@ -470,7 +476,7 @@ public class JSON
         objectBuilder.dispose();
     }
 
-    public static JSONArray array(Action1<JSONArrayBuilder> action)
+    static JSONArray array(Action1<JSONArrayBuilder> action)
     {
         PreCondition.assertNotNull(action, "action");
 
@@ -483,7 +489,7 @@ public class JSON
         return result;
     }
 
-    public static void array(CharacterWriteStream writeStream, Action1<JSONArrayBuilder> action)
+    static void array(CharacterWriteStream writeStream, Action1<JSONArrayBuilder> action)
     {
         PreCondition.assertNotNull(writeStream, "writeStream");
         PreCondition.assertFalse(writeStream.isDisposed(), "writeStream.isDisposed()");

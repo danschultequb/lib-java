@@ -49,11 +49,10 @@ public class JSONArray extends JSONSegment
                 final JSONToken token = (JSONToken)segment;
                 switch (token.getType())
                 {
-                    case False:
+                    case Boolean:
                     case Null:
                     case Number:
                     case QuotedString:
-                    case True:
                         result.add(token);
                         expectingElement = false;
                         break;

@@ -67,22 +67,22 @@ public class JSONTokenizerTests
 
             tokenizerTest.run(
                 "true",
-                new JSONToken[] { JSONToken.trueToken("true", 0) },
+                new JSONToken[] { JSONToken.booleanToken("true", 0) },
                 new Issue[0]);
 
             tokenizerTest.run(
                 "TRUE",
-                new JSONToken[] { JSONToken.trueToken("TRUE", 0) },
+                new JSONToken[] { JSONToken.booleanToken("TRUE", 0) },
                 new Issue[] { JSONIssues.shouldBeLowercased(0, 4) });
 
             tokenizerTest.run(
                 "falSE",
-                new JSONToken[] { JSONToken.falseToken("falSE", 0) },
+                new JSONToken[] { JSONToken.booleanToken("falSE", 0) },
                 new Issue[] { JSONIssues.shouldBeLowercased(0, 5) });
 
             tokenizerTest.run(
                 "false",
-                new JSONToken[] { JSONToken.falseToken("false", 0) },
+                new JSONToken[] { JSONToken.booleanToken("false", 0) },
                 new Issue[0]);
 
             tokenizerTest.run(

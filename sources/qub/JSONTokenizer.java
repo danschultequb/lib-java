@@ -132,7 +132,7 @@ public class JSONTokenizer implements Iterator<JSONToken>
                             {
                                 addIssue(JSONIssues.shouldBeLowercased(tokenStartIndex, 4));
                             }
-                            current = JSONToken.trueToken(lexer.getCurrent().toString(), tokenStartIndex);
+                            current = JSONToken.booleanToken(lexer.getCurrent().toString(), tokenStartIndex);
                             break;
 
                         case "false":
@@ -140,7 +140,7 @@ public class JSONTokenizer implements Iterator<JSONToken>
                             {
                                 addIssue(JSONIssues.shouldBeLowercased(tokenStartIndex, 5));
                             }
-                            current = JSONToken.falseToken(lexer.getCurrent().toString(), tokenStartIndex);
+                            current = JSONToken.booleanToken(lexer.getCurrent().toString(), tokenStartIndex);
                             break;
 
                         case "null":

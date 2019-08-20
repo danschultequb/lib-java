@@ -1,8 +1,8 @@
 package qub;
 
-public class JSONObjectTests
+public interface JSONObjectTests
 {
-    public static void test(TestRunner runner)
+    static void test(TestRunner runner)
     {
         runner.testGroup(JSONObject.class, () ->
         {
@@ -96,6 +96,7 @@ public class JSONObjectTests
                 getPropertyTest.run("{ \"a\":1, \"b\": 2 }", "a", JSON.parseProperty("\"a\":1", 2), null);
                 getPropertyTest.run("{ \"a\":1, \"b\": 2 }", "\"b\"", null, new NotFoundException("No property was found with the name \"\\\"b\\\"\"."));
                 getPropertyTest.run("{ \"a\":1, \"b\": 2 }", "b", JSON.parseProperty("\"b\": 2", 9), null);
+                getPropertyTest.run("{ \"a\":true }", "a", JSON.parseProperty("\"a\":true", 2), null);
             });
 
             runner.testGroup("getPropertyValue(String)", () ->
@@ -123,6 +124,7 @@ public class JSONObjectTests
                 getPropertyValueTest.run("{ \"a\":1, \"b\": 2 }", "a", JSONToken.number("1", 6), null);
                 getPropertyValueTest.run("{ \"a\":1, \"b\": 2 }", "\"b\"", null, new NotFoundException("No property was found with the name \"\\\"b\\\"\"."));
                 getPropertyValueTest.run("{ \"a\":1, \"b\": 2 }", "b", JSONToken.number("2", 14), null);
+                getPropertyValueTest.run("{ \"a\":true }", "a", JSONToken.booleanToken("true", 6), null);
             });
 
             runner.testGroup("getQuotedStringPropertyValue(String)", () ->
@@ -235,7 +237,7 @@ public class JSONObjectTests
 
             runner.testGroup("getNumberTokenPropertyValue(String)", () ->
             {
-                final Action4<String,String,JSONToken,Throwable> getArrayPropertyValueTest = (String objectText, String propertyName, JSONToken expectedPropertyValue, Throwable expectedError) ->
+                final Action4<String,String,JSONToken,Throwable> getNumberPropertyValueTest = (String objectText, String propertyName, JSONToken expectedPropertyValue, Throwable expectedError) ->
                 {
                     runner.test("with " + Strings.escapeAndQuote(objectText) + " and " + Strings.escapeAndQuote(propertyName), (Test test) ->
                     {
@@ -252,18 +254,18 @@ public class JSONObjectTests
                     });
                 };
 
-                getArrayPropertyValueTest.run("{ \"a\":\"1\", \"b\": 2 }", "c", null, new NotFoundException("No property was found with the name \"c\"."));
-                getArrayPropertyValueTest.run("{ \"a\":\"1\", \"b\": 2 }", "\"c\"", null, new NotFoundException("No property was found with the name \"\\\"c\\\"\"."));
-                getArrayPropertyValueTest.run("{ \"a\":\"1\", \"b\": 2 }", "\"a\"", null, new NotFoundException("No property was found with the name \"\\\"a\\\"\"."));
-                getArrayPropertyValueTest.run("{ \"a\":\"1\", \"b\": 2 }", "a", null, new WrongTypeException("Expected the value of the property named \"a\" to be a number."));
-                getArrayPropertyValueTest.run("{ \"a\":[], \"b\": 2 }", "a", null, new WrongTypeException("Expected the value of the property named \"a\" to be a number."));
-                getArrayPropertyValueTest.run("{ \"a\":\"1\", \"b\": 2 }", "\"b\"", null, new NotFoundException("No property was found with the name \"\\\"b\\\"\"."));
-                getArrayPropertyValueTest.run("{ \"a\":\"1\", \"b\": 2 }", "b", JSONToken.number("2", 16), null);
+                getNumberPropertyValueTest.run("{ \"a\":\"1\", \"b\": 2 }", "c", null, new NotFoundException("No property was found with the name \"c\"."));
+                getNumberPropertyValueTest.run("{ \"a\":\"1\", \"b\": 2 }", "\"c\"", null, new NotFoundException("No property was found with the name \"\\\"c\\\"\"."));
+                getNumberPropertyValueTest.run("{ \"a\":\"1\", \"b\": 2 }", "\"a\"", null, new NotFoundException("No property was found with the name \"\\\"a\\\"\"."));
+                getNumberPropertyValueTest.run("{ \"a\":\"1\", \"b\": 2 }", "a", null, new WrongTypeException("Expected the value of the property named \"a\" to be a number."));
+                getNumberPropertyValueTest.run("{ \"a\":[], \"b\": 2 }", "a", null, new WrongTypeException("Expected the value of the property named \"a\" to be a number."));
+                getNumberPropertyValueTest.run("{ \"a\":\"1\", \"b\": 2 }", "\"b\"", null, new NotFoundException("No property was found with the name \"\\\"b\\\"\"."));
+                getNumberPropertyValueTest.run("{ \"a\":\"1\", \"b\": 2 }", "b", JSONToken.number("2", 16), null);
             });
 
             runner.testGroup("getNumberPropertyValue(String)", () ->
             {
-                final Action4<String,String,Double,Throwable> getArrayPropertyValueTest = (String objectText, String propertyName, Double expectedPropertyValue, Throwable expectedError) ->
+                final Action4<String,String,Double,Throwable> getNumberPropertyValueTest = (String objectText, String propertyName, Double expectedPropertyValue, Throwable expectedError) ->
                 {
                     runner.test("with " + Strings.escapeAndQuote(objectText) + " and " + Strings.escapeAndQuote(propertyName), (Test test) ->
                     {
@@ -280,13 +282,72 @@ public class JSONObjectTests
                     });
                 };
 
-                getArrayPropertyValueTest.run("{ \"a\":\"1\", \"b\": 2 }", "c", null, new NotFoundException("No property was found with the name \"c\"."));
-                getArrayPropertyValueTest.run("{ \"a\":\"1\", \"b\": 2 }", "\"c\"", null, new NotFoundException("No property was found with the name \"\\\"c\\\"\"."));
-                getArrayPropertyValueTest.run("{ \"a\":\"1\", \"b\": 2 }", "\"a\"", null, new NotFoundException("No property was found with the name \"\\\"a\\\"\"."));
-                getArrayPropertyValueTest.run("{ \"a\":\"1\", \"b\": 2 }", "a", null, new WrongTypeException("Expected the value of the property named \"a\" to be a number."));
-                getArrayPropertyValueTest.run("{ \"a\":[], \"b\": 2 }", "a", null, new WrongTypeException("Expected the value of the property named \"a\" to be a number."));
-                getArrayPropertyValueTest.run("{ \"a\":\"1\", \"b\": 2 }", "\"b\"", null, new NotFoundException("No property was found with the name \"\\\"b\\\"\"."));
-                getArrayPropertyValueTest.run("{ \"a\":\"1\", \"b\": 2 }", "b", 2.0, null);
+                getNumberPropertyValueTest.run("{ \"a\":\"1\", \"b\": 2 }", "c", null, new NotFoundException("No property was found with the name \"c\"."));
+                getNumberPropertyValueTest.run("{ \"a\":\"1\", \"b\": 2 }", "\"c\"", null, new NotFoundException("No property was found with the name \"\\\"c\\\"\"."));
+                getNumberPropertyValueTest.run("{ \"a\":\"1\", \"b\": 2 }", "\"a\"", null, new NotFoundException("No property was found with the name \"\\\"a\\\"\"."));
+                getNumberPropertyValueTest.run("{ \"a\":\"1\", \"b\": 2 }", "a", null, new WrongTypeException("Expected the value of the property named \"a\" to be a number."));
+                getNumberPropertyValueTest.run("{ \"a\":[], \"b\": 2 }", "a", null, new WrongTypeException("Expected the value of the property named \"a\" to be a number."));
+                getNumberPropertyValueTest.run("{ \"a\":\"1\", \"b\": 2 }", "\"b\"", null, new NotFoundException("No property was found with the name \"\\\"b\\\"\"."));
+                getNumberPropertyValueTest.run("{ \"a\":\"1\", \"b\": 2 }", "b", 2.0, null);
+            });
+
+            runner.testGroup("getBooleanTokenPropertyValue(String)", () ->
+            {
+                final Action4<String,String,JSONToken,Throwable> getBooleanTokenPropertyValueTest = (String objectText, String propertyName, JSONToken expectedPropertyValue, Throwable expectedError) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(objectText) + " and " + Strings.escapeAndQuote(propertyName), (Test test) ->
+                    {
+                        final JSONObject jsonObject = JSON.parseObject(objectText);
+                        final Result<JSONToken> result = jsonObject.getBooleanTokenPropertyValue(propertyName);
+                        if (expectedError != null)
+                        {
+                            test.assertThrows(result::await, expectedError);
+                        }
+                        else
+                        {
+                            test.assertEqual(expectedPropertyValue, result.await());
+                        }
+                    });
+                };
+
+                getBooleanTokenPropertyValueTest.run("{ \"a\":\"1\", \"b\": true }", "c", null, new NotFoundException("No property was found with the name \"c\"."));
+                getBooleanTokenPropertyValueTest.run("{ \"a\":\"1\", \"b\": true }", "\"c\"", null, new NotFoundException("No property was found with the name \"\\\"c\\\"\"."));
+                getBooleanTokenPropertyValueTest.run("{ \"a\":\"1\", \"b\": true }", "\"a\"", null, new NotFoundException("No property was found with the name \"\\\"a\\\"\"."));
+                getBooleanTokenPropertyValueTest.run("{ \"a\":\"1\", \"b\": true }", "a", null, new WrongTypeException("Expected the value of the property named \"a\" to be a boolean."));
+                getBooleanTokenPropertyValueTest.run("{ \"a\":[], \"b\": true }", "a", null, new WrongTypeException("Expected the value of the property named \"a\" to be a boolean."));
+                getBooleanTokenPropertyValueTest.run("{ \"a\":\"1\", \"b\": true }", "\"b\"", null, new NotFoundException("No property was found with the name \"\\\"b\\\"\"."));
+                getBooleanTokenPropertyValueTest.run("{ \"a\":\"1\", \"b\": true }", "b", JSONToken.booleanToken("true", 16), null);
+            });
+
+            runner.testGroup("getBooleanPropertyValue(String)", () ->
+            {
+                final Action4<String,String,Boolean,Throwable> getBooleanPropertyValueTest = (String objectText, String propertyName, Boolean expectedPropertyValue, Throwable expectedError) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(objectText) + " and " + Strings.escapeAndQuote(propertyName), (Test test) ->
+                    {
+                        final JSONObject jsonObject = JSON.parseObject(objectText);
+                        final Result<Boolean> result = jsonObject.getBooleanPropertyValue(propertyName);
+                        if (expectedError != null)
+                        {
+                            test.assertThrows(result::await, expectedError);
+                        }
+                        else
+                        {
+                            test.assertEqual(expectedPropertyValue, result.await());
+                        }
+                    });
+                };
+
+                getBooleanPropertyValueTest.run("{ \"a\":\"1\", \"b\": true }", "c", null, new NotFoundException("No property was found with the name \"c\"."));
+                getBooleanPropertyValueTest.run("{ \"a\":\"1\", \"b\": true }", "\"c\"", null, new NotFoundException("No property was found with the name \"\\\"c\\\"\"."));
+                getBooleanPropertyValueTest.run("{ \"a\":\"1\", \"b\": true }", "\"a\"", null, new NotFoundException("No property was found with the name \"\\\"a\\\"\"."));
+                getBooleanPropertyValueTest.run("{ \"a\":\"1\", \"b\": true }", "a", null, new WrongTypeException("Expected the value of the property named \"a\" to be a boolean."));
+                getBooleanPropertyValueTest.run("{ \"a\":[], \"b\": true }", "a", null, new WrongTypeException("Expected the value of the property named \"a\" to be a boolean."));
+                getBooleanPropertyValueTest.run("{ \"a\":\"1\", \"b\": true }", "\"b\"", null, new NotFoundException("No property was found with the name \"\\\"b\\\"\"."));
+                getBooleanPropertyValueTest.run("{ \"a\":\"1\", \"b\": true }", "b", true, null);
+                getBooleanPropertyValueTest.run("{ \"a\":\"1\", \"b\": false }", "b", false, null);
+                getBooleanPropertyValueTest.run("{ \"a\":\"1\", \"b\": TRUE }", "b", true, null);
+                getBooleanPropertyValueTest.run("{ \"a\":\"1\", \"b\": FalSE }", "b", false, null);
             });
         });
     }

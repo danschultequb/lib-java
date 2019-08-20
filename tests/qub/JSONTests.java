@@ -1,17 +1,11 @@
 package qub;
 
-public class JSONTests
+public interface JSONTests
 {
-    public static void test(final TestRunner runner)
+    static void test(final TestRunner runner)
     {
-        runner.testGroup("JSON", () ->
+        runner.testGroup(JSON.class, () ->
         {
-            runner.test("constructor()", (Test test) ->
-            {
-                final JSON json = new JSON();
-                test.assertNotNull(json);
-            });
-
             runner.testGroup("parse()", () ->
             {
                 final Action3<String,JSONSegment[],Issue[]> parseTest = (String text, JSONSegment[] expectedDocumentSegments, Issue[] expectedIssues) ->
@@ -57,13 +51,13 @@ public class JSONTests
                 parseTest.run("true",
                     new JSONSegment[]
                         {
-                            JSONToken.trueToken("true", 0)
+                            JSONToken.booleanToken("true", 0)
                         },
                     new Issue[0]);
                 parseTest.run("false",
                     new JSONSegment[]
                         {
-                            JSONToken.falseToken("false", 0)
+                            JSONToken.booleanToken("false", 0)
                         },
                     new Issue[0]);
                 parseTest.run("123.456e-10",

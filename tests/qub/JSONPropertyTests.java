@@ -110,13 +110,13 @@ public class JSONPropertyTests
                     JSONToken.quotedString("\"apples\"", 0, true),
                     "apples",
                     JSONToken.colon(8),
-                    JSONToken.falseToken("false", 9),
+                    JSONToken.booleanToken("false", 9),
                     14);
                 constructorTest.run("\"apples\":true",
                     JSONToken.quotedString("\"apples\"", 0, true),
                     "apples",
                     JSONToken.colon(8),
-                    JSONToken.trueToken("true", 9),
+                    JSONToken.booleanToken("true", 9),
                     13);
                 constructorTest.run("\"apples\":null",
                     JSONToken.quotedString("\"apples\"", 0, true),

@@ -1,7 +1,7 @@
 {
   "publisher": "qub",
   "project": "qub-java",
-  "version": "90",
+  "version": "91",
   "java": {
     "version": "1.8"
   }

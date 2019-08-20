@@ -167,7 +167,35 @@ public class JSONObject extends JSONSegment
     public Result<Double> getNumberPropertyValue(String propertyName)
     {
         return getNumberTokenPropertyValue(propertyName)
-            .then((JSONToken numberToken) -> Double.valueOf(numberToken.toString()));
+            .then((JSONToken numberToken) -> java.lang.Double.valueOf(numberToken.toString()));
+    }
+
+    public Result<JSONToken> getBooleanTokenPropertyValue(String propertyName)
+    {
+        return getPropertyValue(propertyName)
+            .thenResult((JSONSegment propertyValue) ->
+            {
+                Result<JSONToken> result = null;
+                if (propertyValue instanceof JSONToken)
+                {
+                    final JSONToken propertyValueToken = (JSONToken)propertyValue;
+                    if (propertyValueToken.getType() == JSONTokenType.Boolean)
+                    {
+                        result = Result.success(propertyValueToken);
+                    }
+                }
+                if (result == null)
+                {
+                    result = Result.error(new WrongTypeException("Expected the value of the property named " + Strings.escapeAndQuote(propertyName) + " to be a boolean."));
+                }
+                return result;
+            });
+    }
+
+    public Result<Boolean> getBooleanPropertyValue(String propertyName)
+    {
+        return getBooleanTokenPropertyValue(propertyName)
+            .then((JSONToken booleanToken) -> Booleans.parse(booleanToken.toString(), false).await());
     }
 
     @Override

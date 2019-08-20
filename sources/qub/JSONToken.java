@@ -86,16 +86,6 @@ public class JSONToken extends JSONSegment
         return new JSONToken(",", startIndex, JSONTokenType.Comma);
     }
 
-    public static JSONToken trueToken(String text, int startIndex)
-    {
-        return new JSONToken(text, startIndex, JSONTokenType.True);
-    }
-
-    public static JSONToken falseToken(String text, int startIndex)
-    {
-        return new JSONToken(text, startIndex, JSONTokenType.False);
-    }
-
     public static JSONToken nullToken(String text, int startIndex)
     {
         return new JSONToken(text, startIndex, JSONTokenType.Null);
@@ -119,6 +109,16 @@ public class JSONToken extends JSONSegment
     public static JSONToken number(String text, int startIndex)
     {
         return new JSONToken(text, startIndex, JSONTokenType.Number);
+    }
+
+    public static JSONToken booleanToken(String text, int startIndex)
+    {
+        return new JSONToken(text, startIndex, JSONTokenType.Boolean);
+    }
+
+    public static JSONToken booleanToken(String text)
+    {
+        return booleanToken(text, 0);
     }
 
     public static JSONToken whitespace(String text, int startIndex)

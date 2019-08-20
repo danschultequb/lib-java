@@ -23,14 +23,7 @@ public class JSONProperty extends JSONSegment
     {
         return segments
                 .instanceOf(JSONToken.class)
-                .first(new Function1<JSONToken, Boolean>()
-                {
-                    @Override
-                    public Boolean run(JSONToken JSONToken)
-                    {
-                        return JSONToken.getType() == JSONTokenType.Colon;
-                    }
-                });
+                .first((JSONToken jsonToken) -> jsonToken.getType() == JSONTokenType.Colon);
     }
 
     public JSONSegment getValueSegment()
@@ -44,11 +37,10 @@ public class JSONProperty extends JSONSegment
                 final JSONToken lastToken = (JSONToken)lastSegment;
                 switch (lastToken.getType())
                 {
-                    case False:
+                    case Boolean:
                     case Null:
                     case Number:
                     case QuotedString:
-                    case True:
                         result = lastToken;
                         break;
                 }

@@ -49,12 +49,34 @@ public interface Booleans
 
     /**
      * Parse a boolean value from the provided String value in a case-sensitive way.
-     * @param value
-     * @return
+     * @param value The text to parse.
+     * @return The result of parsing the provided text.
      */
     static Result<Boolean> parse(String value)
     {
         PreCondition.assertNotNullAndNotEmpty(value, "value");
+
+        final Result<Boolean> result = Booleans.parse(value, true);
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    /**
+     * Parse a boolean value from the provided String value in a case-sensitive way.
+     * @param value The text to parse.
+     * @param caseSensitive Whether or not to parse the text in a case-sensitive way.
+     * @return The result of parsing the provided text.
+     */
+    static Result<Boolean> parse(String value, boolean caseSensitive)
+    {
+        PreCondition.assertNotNullAndNotEmpty(value, "value");
+
+        if (!caseSensitive)
+        {
+            value = value.toLowerCase();
+        }
 
         Result<Boolean> result;
         if ("true".equals(value))

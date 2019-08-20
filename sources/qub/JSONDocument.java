@@ -28,11 +28,10 @@ public class JSONDocument
                     final JSONToken token = (JSONToken)segment;
                     switch (token.getType())
                     {
-                        case False:
+                        case Boolean:
                         case Null:
                         case Number:
                         case QuotedString:
-                        case True:
                             result = true;
                             break;
                     }
