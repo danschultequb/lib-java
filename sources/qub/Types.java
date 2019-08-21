@@ -310,7 +310,7 @@ public interface Types
      * @param <TType> The type to get the static method from.
      * @return The matching StaticMethod0 object.
      */
-    static <TType> Result<StaticMethod0<TType,?>> getStaticMethod(Class<TType> type, String methodName)
+    static <TType> Result<StaticMethod0<TType,?>> getStaticMethod0(Class<TType> type, String methodName)
     {
         PreCondition.assertNotNull(type, "type");
         PreCondition.assertNotNullAndNotEmpty(methodName, "methodName");
@@ -339,7 +339,7 @@ public interface Types
      * @param <TReturn> The return type of the static method.
      * @return The matching StaticMethod0 object.
      */
-    static <TType,TReturn> Result<StaticMethod0<TType,TReturn>> getStaticMethod(Class<TType> type, String methodName, Class<TReturn> returnType)
+    static <TType,TReturn> Result<StaticMethod0<TType,TReturn>> getStaticMethod0(Class<TType> type, String methodName, Class<TReturn> returnType)
     {
         PreCondition.assertNotNull(type, "type");
         PreCondition.assertNotNullAndNotEmpty(methodName, "methodName");
@@ -361,6 +361,36 @@ public interface Types
     }
 
     /**
+     * Get the static method on the provided type with the provided name, parameter type, and
+     * unknown return type.
+     * @param type The type to get the static method from.
+     * @param methodName The name of the static method.
+     * @param arg1Type The type of the parameter.
+     * @param <TType> The type to get the static method from.
+     * @param <T1> The type of the parameter.
+     * @return The matching StaticMethod1 object.
+     */
+    static <TType,T1> Result<StaticMethod1<TType,T1,?>> getStaticMethod1(Class<TType> type, String methodName, Class<T1> arg1Type)
+    {
+        PreCondition.assertNotNull(type, "type");
+        PreCondition.assertNotNullAndNotEmpty(methodName, "methodName");
+
+        final java.lang.reflect.Method rawMethod = Types.getRawMethod(type, methodName, arg1Type)
+            .catchError(NotFoundException.class)
+            .await();
+        final StaticMethod1<TType,T1,?> staticMethod = rawMethod != null && Types.isStaticMethod(rawMethod)
+            ? StaticMethod1.get(type, rawMethod)
+            : null;
+        final Result<StaticMethod1<TType,T1,?>> result = staticMethod != null
+            ? Result.success(staticMethod)
+            : Result.error(new NotFoundException("No static method with the signature " + Types.getMethodSignature(type, methodName, Iterable.create(arg1Type)) + " could be found."));
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    /**
      * Get the static method on the provided type with the provided name, parameter type, and return type.
      * @param type The type to get the static method from.
      * @param methodName The name of the static method.
@@ -371,7 +401,7 @@ public interface Types
      * @param <TReturn> The return type of the static method.
      * @return The matching StaticMethod1 object.
      */
-    static <TType,T1,TReturn> Result<StaticMethod1<TType,T1,TReturn>> getStaticMethod(Class<TType> type, String methodName, Class<T1> arg1Type, Class<TReturn> returnType)
+    static <TType,T1,TReturn> Result<StaticMethod1<TType,T1,TReturn>> getStaticMethod1(Class<TType> type, String methodName, Class<T1> arg1Type, Class<TReturn> returnType)
     {
         PreCondition.assertNotNull(type, "type");
         PreCondition.assertNotNullAndNotEmpty(methodName, "methodName");

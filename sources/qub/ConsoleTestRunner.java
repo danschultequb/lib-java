@@ -389,19 +389,15 @@ public class ConsoleTestRunner implements TestRunner
                 ? null
                 : PathPattern.parse(argumentValue));
         });
-        final CommandLineParameterBoolean debugParameter = parameters.addDebug();
+        final CommandLineParameterVerbose verbose = parameters.addVerbose(console);
         final CommandLineParameterProfiler profilerParameter = parameters.addProfiler(console, ConsoleTestRunner.class);
         final CommandLineParameterList<String> testClassNamesParameter = parameters.addPositionStringList("test-class");
 
         final PathPattern pattern = patternParameter.getValue().await();
-        final boolean debug = debugParameter.getValue().await();
 
         profilerParameter.await();
 
-        if (debug)
-        {
-            console.writeLine("TestPattern: " + (pattern == null ? "null" : "\"" + pattern + "\"")).await();
-        }
+        verbose.writeLine("TestPattern: " + (pattern == null ? "null" : "\"" + pattern + "\"")).await();
 
         final Stopwatch stopwatch = console.getStopwatch();
         stopwatch.start();
@@ -411,43 +407,28 @@ public class ConsoleTestRunner implements TestRunner
         final Iterable<String> testClassNames = testClassNamesParameter.getValues().await();
         for (final String testClassName : testClassNames)
         {
-            if (debug)
-            {
-                console.write("Looking for class " + Strings.escapeAndQuote(testClassName) + "...").await();
-            }
+            verbose.writeLine("Looking for class " + Strings.escapeAndQuote(testClassName) + "...").await();
 
             final Class<?> testClass = Types.getClass(testClassName)
                 .catchError(ClassNotFoundException.class, () ->
                 {
-                    if (debug)
-                    {
-                        console.writeLine("Couldn't find " + Strings.escapeAndQuote(testClassName) + ".").await();
-                    }
+                    verbose.writeLine("Couldn't find " + Strings.escapeAndQuote(testClassName) + ".").await();
                 })
                 .await();
             if (testClass != null)
             {
-                if (debug)
-                {
-                    console.writeLine("Found!").await();
-                    console.write("Looking for static test(TestRunner) method in " + Strings.escapeAndQuote(testClassName) + "...");
-                }
+                verbose.writeLine("Found!").await();
+                verbose.writeLine("Looking for static test(TestRunner) method in " + Strings.escapeAndQuote(testClassName) + "...").await();
 
-                final StaticMethod1<?,TestRunner,Void> testMethod = Types.getStaticMethod(testClass, "test", TestRunner.class, void.class)
+                final StaticMethod1<?,TestRunner,?> testMethod = Types.getStaticMethod1(testClass, "test", TestRunner.class)
                     .catchError(NotFoundException.class, (NotFoundException e) ->
                     {
-                        if (debug)
-                        {
-                            console.writeLine(e.getMessage()).await();
-                        }
+                        verbose.writeLine(e.getMessage()).await();
                     })
                     .await();
                 if (testMethod != null)
                 {
-                    if (debug)
-                    {
-                        console.writeLine("Found!").await();
-                    }
+                    verbose.writeLine("Found!").await();
 
                     testMethod.run(runner);
                 }
