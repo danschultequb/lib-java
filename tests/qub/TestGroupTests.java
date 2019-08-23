@@ -22,7 +22,7 @@ public class TestGroupTests
                 {
                     final TestGroup tg = new TestGroup("ab", null, null);
                     test.assertEqual("ab", tg.getName());
-                    test.assertNull(tg.getParentTestGroup());
+                    test.assertNull(tg.getParent());
                 });
             });
 

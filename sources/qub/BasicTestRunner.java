@@ -13,6 +13,8 @@ public final class BasicTestRunner implements TestRunner
     private final List<TestError> testFailures = List.create();
     private final List<Test> skippedTests = List.create();
 
+    private Action1<TestClass> beforeTestClassAction;
+    private Action1<TestClass> afterTestClassAction;
     private Action1<TestGroup> beforeTestGroupAction;
     private Action2<TestGroup,TestError> afterTestGroupFailureAction;
     private Action1<TestGroup> afterTestGroupSkippedAction;
@@ -22,11 +24,17 @@ public final class BasicTestRunner implements TestRunner
     private Action2<Test,TestError> afterTestFailureAction;
     private Action1<Test> afterTestSkippedAction;
     private Action1<Test> afterTestAction;
-    
+
+    private TestClass currentTestClass;
     private TestGroup currentTestGroup;
 
     private final PathPattern testPattern;
 
+    /**
+     * Create a new BasicTestRunner object.
+     * @param process The Process that is running the tests.
+     * @param testPattern The pattern that tests must match in order to be run.
+     */
     public BasicTestRunner(Process process, PathPattern testPattern)
     {
         PreCondition.assertNotNull(process, "process");
@@ -63,55 +71,42 @@ public final class BasicTestRunner implements TestRunner
         return new Skip(message);
     }
 
-//    @Override
-//    public void testClass(String fullClassName)
-//    {
-//        PreCondition.assertNotNullAndNotEmpty(fullClassName, "fullClassName");
-//
-//        final Class<?> classWithTests = Types.getClass(fullClassName)
-//            .catchError(NotFoundException.class)
-//            .await();
-//        if (classWithTests != null)
-//        {
-//            testClass(classWithTests);
-//        }
-//    }
-//
-//    @Override
-//    public void testClass(Class<?> testClass)
-//    {
-//        PreCondition.assertNotNull(testClass, "testClass");
-//
-//        java.lang.reflect.Method testMethod = null;
-//        try
-//        {
-//            testMethod = testClass.getMethod("test", TestRunner.class);
-//            if (debug)
-//            {
-//                console.writeLine("Found!");
-//            }
-//        }
-//        catch (NoSuchMethodException e)
-//        {
-//            if (debug)
-//            {
-//                console.writeLine("Couldn't find.").await();
-//            }
-//        }
-//
-//        if (testMethod != null)
-//        {
-//            try
-//            {
-//                testMethod.invoke(null, runner);
-//                invokedTestClassNames.add(testClassName);
-//            }
-//            catch (IllegalAccessException | java.lang.reflect.InvocationTargetException e)
-//            {
-//                e.printStackTrace();
-//            }
-//        }
-//    }
+    @Override
+    public Result<Void> testClass(String fullClassName)
+    {
+        PreCondition.assertNotNullAndNotEmpty(fullClassName, "fullClassName");
+
+        return Types.getClass(fullClassName)
+            .then((Class<?> classWithTests) -> testClass(classWithTests).await());
+    }
+
+    @Override
+    public Result<Void> testClass(Class<?> testClass)
+    {
+        PreCondition.assertNotNull(testClass, "testClass");
+
+        return Result.create(() ->
+        {
+            final StaticMethod1<?,TestRunner,?> testMethod = Types.getStaticMethod1(testClass, "test", TestRunner.class).await();
+            currentTestClass = new TestClass(testClass);
+            try
+            {
+                if (beforeTestClassAction != null)
+                {
+                    beforeTestClassAction.run(currentTestClass);
+                }
+                testMethod.run(this);
+                if (afterTestClassAction != null)
+                {
+                    afterTestClassAction.run(currentTestClass);
+                }
+            }
+            finally
+            {
+                currentTestClass = null;
+            }
+        });
+    }
 
     @Override
     public void testGroup(Class<?> testClass, Action0 testGroupAction)
@@ -150,7 +145,8 @@ public final class BasicTestRunner implements TestRunner
         final Action1<Test> afterTestActionBackup = afterTestAction;
         try
         {
-            currentTestGroup = new TestGroup(testGroupName, currentTestGroup, skip);
+            final TestParent parent = currentTestGroup == null ? currentTestClass : currentTestGroup;
+            currentTestGroup = new TestGroup(testGroupName, parent, skip);
 
             if (beforeTestGroupAction != null)
             {
@@ -187,7 +183,7 @@ public final class BasicTestRunner implements TestRunner
 
         beforeTestAction = beforeTestActionBackup;
         afterTestAction = afterTestActionBackup;
-        currentTestGroup = currentTestGroup.getParentTestGroup();
+        currentTestGroup = Types.as(currentTestGroup.getParent(), TestGroup.class);
     }
 
     @Override
@@ -214,9 +210,7 @@ public final class BasicTestRunner implements TestRunner
 
                 if (test.shouldSkip())
                 {
-                    skippedTests.add(test);
-                    ++skippedTestCount;
-
+                    addSkippedTest(test);
                     if (afterTestSkippedAction != null)
                     {
                         afterTestSkippedAction.run(test);
@@ -228,7 +222,7 @@ public final class BasicTestRunner implements TestRunner
                     {
                         testAction.run(test);
 
-                        ++passedTestCount;
+                        incrementPassedTestCount();
                         if (afterTestSuccessAction != null)
                         {
                             afterTestSuccessAction.run(test);
@@ -298,6 +292,22 @@ public final class BasicTestRunner implements TestRunner
                 test.fail("Expected test to complete in less than " + maximumDuration + ", but ran in " + failedDurations.toString() + ".");
             }
         });
+    }
+
+    @Override
+    public void beforeTestClass(Action1<TestClass> beforeTestClassAction)
+    {
+        PreCondition.assertNotNull(beforeTestClassAction, "beforeTestClassAction");
+
+        this.beforeTestClassAction = Action1.sequence(this.beforeTestClassAction, beforeTestClassAction);
+    }
+
+    @Override
+    public void afterTestClass(Action1<TestClass> afterTestClassAction)
+    {
+        PreCondition.assertNotNull(afterTestClassAction, "afterTestClassAction");
+
+        this.afterTestClassAction = Action1.sequence(this.afterTestClassAction, afterTestClassAction);
     }
 
     @Override
@@ -391,6 +401,15 @@ public final class BasicTestRunner implements TestRunner
         return getPassedTestCount() + getFailedTestCount() + getSkippedTestCount();
     }
 
+    private void incrementPassedTestCount()
+    {
+        ++passedTestCount;
+        if (currentTestClass != null)
+        {
+            currentTestClass.incrementPassedTestCount();
+        }
+    }
+
     /**
      * Get the number of tests that have passed.
      * @return The number of tests that have passed.
@@ -398,6 +417,17 @@ public final class BasicTestRunner implements TestRunner
     public int getPassedTestCount()
     {
         return passedTestCount;
+    }
+
+    private void addFailedTest(TestError error)
+    {
+        PreCondition.assertNotNull(error, "error");
+
+        testFailures.add(error);
+        if (currentTestClass != null)
+        {
+            currentTestClass.incrementFailedTestCount();
+        }
     }
 
     /**
@@ -416,6 +446,18 @@ public final class BasicTestRunner implements TestRunner
     public Iterable<TestError> getTestFailures()
     {
         return testFailures;
+    }
+
+    private void addSkippedTest(Test test)
+    {
+        PreCondition.assertNotNull(test, "test");
+
+        skippedTests.add(test);
+        ++skippedTestCount;
+        if (currentTestClass != null)
+        {
+            currentTestClass.incrementSkippedTestCount();
+        }
     }
 
     /**

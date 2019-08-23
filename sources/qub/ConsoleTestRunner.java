@@ -3,66 +3,70 @@ package qub;
 /**
  * A Console object that is used for running unit tests for other applications.
  */
-public class ConsoleTestRunner implements TestRunner
+public class ConsoleTestRunner implements TestRunner, Disposable
 {
-    private final Console console;
     private final BasicTestRunner testRunner;
-    private final IndentedCharacterWriteStream indentedCharacterWriteStream;
+    private final IndentedCharacterWriteStream writeStream;
+    private final CharacterWriteStream consoleBackupWriteStream;
+    private final Console console;
+    private boolean isDisposed;
 
     public ConsoleTestRunner(Console console, PathPattern pattern)
     {
         PreCondition.assertNotNull(console, "console");
 
-        this.console = console;
         testRunner = new BasicTestRunner(console, pattern);
-        indentedCharacterWriteStream = new IndentedCharacterWriteStream(console.getOutputCharacterWriteStream());
-        console.setOutputCharacterWriteStream(indentedCharacterWriteStream);
 
-        final List<TestGroup> testGroupsWrittenToConsole = new ArrayList<>();
+        this.console = console;
+        consoleBackupWriteStream = console.getOutputCharacterWriteStream();
+        writeStream = new IndentedCharacterWriteStream(consoleBackupWriteStream);
+        console.setOutputCharacterWriteStream(writeStream);
+
+        final List<TestParent> testParentsWrittenToConsole = new ArrayList<>();
         testRunner.afterTestGroup((TestGroup testGroup) ->
         {
-            if (testGroupsWrittenToConsole.remove(testGroup))
+            if (testParentsWrittenToConsole.remove(testGroup))
             {
                 decreaseIndent();
             }
         });
         testRunner.beforeTest((Test test) ->
         {
-            final Stack<TestGroup> testGroupsToWrite = Stack.create();
-            TestGroup currentTestGroup = test.getParentTestGroup();
-            while (currentTestGroup != null && !testGroupsWrittenToConsole.contains(currentTestGroup))
+            final Stack<TestParent> testParentsToWrite = Stack.create();
+            TestParent currentTestParent = test.getParent();
+            while (currentTestParent != null && !testParentsWrittenToConsole.contains(currentTestParent))
             {
-                testGroupsToWrite.push(currentTestGroup);
-                currentTestGroup = currentTestGroup.getParentTestGroup();
+                testParentsToWrite.push(currentTestParent);
+                currentTestParent = currentTestParent.getParent();
             }
 
-            while (testGroupsToWrite.any())
+            while (testParentsToWrite.any())
             {
-                final TestGroup testGroupToWrite = testGroupsToWrite.pop().await();
+                final TestParent testParentToWrite = testParentsToWrite.pop().await();
 
-                final String skipMessage = testGroupToWrite.getSkipMessage();
-                final String testGroupMessage = testGroupToWrite.getName() + (!testGroupToWrite.shouldSkip() ? "" : " - Skipped" + (Strings.isNullOrEmpty(skipMessage) ? "" : ": " + skipMessage));
-                console.writeLine(testGroupMessage).await();
-                testGroupsWrittenToConsole.add(testGroupToWrite);
+                final String skipMessage = testParentToWrite.getSkipMessage();
+                final String testGroupMessage = testParentToWrite.getName() + (!testParentToWrite.shouldSkip() ? "" : " - Skipped" + (Strings.isNullOrEmpty(skipMessage) ? "" : ": " + skipMessage));
+                writeStream.writeLine(testGroupMessage).await();
+                testParentsWrittenToConsole.add(testParentToWrite);
                 increaseIndent();
             }
 
-            console.write(test.getName()).await();
+            writeStream.write(test.getName()).await();
             increaseIndent();
         });
         testRunner.afterTestSuccess((Test test) ->
         {
-            console.writeLine(" - Passed");
+            writeStream.writeLine(" - Passed");
         });
         testRunner.afterTestFailure((Test test, TestError failure) ->
         {
-            console.writeLine(" - Failed");
+            writeStream.writeLine(" - Failed");
             writeFailure(failure);
         });
         testRunner.afterTestSkipped((Test test) ->
         {
             final String skipMessage = test.getSkipMessage();
-            console.writeLine(" - Skipped" + (Strings.isNullOrEmpty(skipMessage) ? "" : ": " + skipMessage));
+            writeStream.writeLine(" - Skipped" + (Strings.isNullOrEmpty(skipMessage) ? "" : ": " + skipMessage));
         });
         testRunner.afterTest((Test test) ->
         {
@@ -70,12 +74,38 @@ public class ConsoleTestRunner implements TestRunner
         });
     }
 
+    @Override
+    public Result<Boolean> dispose()
+    {
+        Result<Boolean> result;
+        if (isDisposed())
+        {
+            result = Result.successFalse();
+        }
+        else
+        {
+            console.setOutputCharacterWriteStream(consoleBackupWriteStream);
+            isDisposed = true;
+            result = Result.successTrue();
+        }
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    @Override
+    public boolean isDisposed()
+    {
+        return isDisposed;
+    }
+
     /**
      * Increase the indent of the Console output.
      */
     private void increaseIndent()
     {
-        indentedCharacterWriteStream.increaseIndent();
+        writeStream.increaseIndent();
     }
 
     /**
@@ -83,7 +113,7 @@ public class ConsoleTestRunner implements TestRunner
      */
     private void decreaseIndent()
     {
-        indentedCharacterWriteStream.decreaseIndent();
+        writeStream.decreaseIndent();
     }
 
     public int getFailedTestCount()
@@ -91,8 +121,10 @@ public class ConsoleTestRunner implements TestRunner
         return testRunner.getFailedTestCount();
     }
 
-    private void writeFailure(TestError failure)
+    public void writeFailure(TestError failure)
     {
+        PreCondition.assertNotNull(failure, "failure");
+
         increaseIndent();
         writeMessageLines(failure);
         writeStackTrace(failure);
@@ -105,13 +137,15 @@ public class ConsoleTestRunner implements TestRunner
         }
     }
 
-    private void writeMessageLines(TestError failure)
+    public void writeMessageLines(TestError failure)
     {
+        PreCondition.assertNotNull(failure, "failure");
+
         for (final String messageLine : failure.getMessageLines())
         {
             if (messageLine != null)
             {
-                console.writeLine(messageLine);
+                writeStream.writeLine(messageLine);
             }
         }
     }
@@ -124,7 +158,7 @@ public class ConsoleTestRunner implements TestRunner
         }
         else if (!Strings.isNullOrEmpty(throwable.getMessage()))
         {
-            console.writeLine("Message: " + throwable.getMessage());
+            writeStream.writeLine("Message: " + throwable.getMessage());
         }
     }
 
@@ -134,12 +168,12 @@ public class ConsoleTestRunner implements TestRunner
         {
             final ErrorIterable errors = (ErrorIterable)cause;
 
-            console.writeLine("Caused by:");
+            writeStream.writeLine("Caused by:");
             int causeNumber = 0;
             for (final Throwable innerCause : errors)
             {
                 ++causeNumber;
-                console.write(causeNumber + ") " + innerCause.getClass().getName());
+                writeStream.write(causeNumber + ") " + innerCause.getClass().getName());
 
                 increaseIndent();
                 writeMessage(innerCause);
@@ -157,7 +191,7 @@ public class ConsoleTestRunner implements TestRunner
         }
         else
         {
-            console.writeLine("Caused by: " + cause.getClass().getName());
+            writeStream.writeLine("Caused by: " + cause.getClass().getName());
 
             increaseIndent();
             writeMessage(cause);
@@ -196,6 +230,18 @@ public class ConsoleTestRunner implements TestRunner
     public Skip skip(String message)
     {
         return testRunner.skip(message);
+    }
+
+    @Override
+    public Result<Void> testClass(String fullClassName)
+    {
+        return testRunner.testClass(fullClassName);
+    }
+
+    @Override
+    public Result<Void> testClass(Class<?> testClass)
+    {
+        return testRunner.testClass(testClass);
     }
 
     @Override
@@ -238,6 +284,18 @@ public class ConsoleTestRunner implements TestRunner
     public void speedTest(String testName, Duration maximumDuration, Action1<Test> testAction)
     {
         testRunner.speedTest(testName, maximumDuration, testAction);
+    }
+
+    @Override
+    public void beforeTestClass(Action1<TestClass> beforeTestClassAction)
+    {
+        testRunner.beforeTestClass(beforeTestClassAction);
+    }
+
+    @Override
+    public void afterTestClass(Action1<TestClass> afterTestClassAction)
+    {
+        testRunner.afterTestClass(afterTestClassAction);
     }
 
     @Override
@@ -309,11 +367,11 @@ public class ConsoleTestRunner implements TestRunner
         final StackTraceElement[] stackTraceElements = t.getStackTrace();
         if (stackTraceElements != null && stackTraceElements.length > 0)
         {
-            console.writeLine("Stack Trace:");
+            writeStream.writeLine("Stack Trace:");
             increaseIndent();
             for (StackTraceElement stackTraceElement : stackTraceElements)
             {
-                console.writeLine("at " + stackTraceElement.toString());
+                writeStream.writeLine("at " + stackTraceElement.toString());
             }
             decreaseIndent();
         }
@@ -327,53 +385,53 @@ public class ConsoleTestRunner implements TestRunner
         final Iterable<Test> skippedTests = testRunner.getSkippedTests();
         if (skippedTests.any())
         {
-            console.writeLine("Skipped Tests:").await();
+            writeStream.writeLine("Skipped Tests:");
             increaseIndent();
             int testSkippedNumber = 1;
             for (final Test skippedTest : skippedTests)
             {
                 final String skipMessage = skippedTest.getSkipMessage();
-                console.writeLine(testSkippedNumber + ") " + skippedTest.getFullName() + (Strings.isNullOrEmpty(skipMessage) ? "" : ": " + skipMessage)).await();
+                writeStream.writeLine(testSkippedNumber + ") " + skippedTest.getFullName() + (Strings.isNullOrEmpty(skipMessage) ? "" : ": " + skipMessage));
                 ++testSkippedNumber;
             }
             decreaseIndent();
 
-            console.writeLine().await();
+            writeStream.writeLine();
         }
 
         final Iterable<TestError> testFailures = testRunner.getTestFailures();
         if (testFailures.any())
         {
-            console.writeLine("Test failures:").await();
+            writeStream.writeLine("Test failures:");
             increaseIndent();
 
             int testFailureNumber = 1;
             for (final TestError failure : testFailures)
             {
-                console.writeLine(testFailureNumber + ") " + failure.getTestScope()).await();
+                writeStream.writeLine(testFailureNumber + ") " + failure.getTestScope());
                 ++testFailureNumber;
                 increaseIndent();
                 writeFailure(failure);
                 decreaseIndent();
 
-                console.writeLine().await();
+                writeStream.writeLine();
             }
 
             decreaseIndent();
         }
 
-        console.writeLine("Tests Run:      " + testRunner.getFinishedTestCount()).await();
+        writeStream.writeLine("Tests Run:      " + testRunner.getFinishedTestCount());
         if (testRunner.getPassedTestCount() > 0)
         {
-            console.writeLine("Tests Passed:   " + testRunner.getPassedTestCount()).await();
+            writeStream.writeLine("Tests Passed:   " + testRunner.getPassedTestCount());
         }
         if (testRunner.getFailedTestCount() > 0)
         {
-            console.writeLine("Tests Failed:   " + testRunner.getFailedTestCount()).await();
+            writeStream.writeLine("Tests Failed:   " + testRunner.getFailedTestCount());
         }
         if (testRunner.getSkippedTestCount() > 0)
         {
-            console.writeLine("Tests Skipped:  " + testRunner.getSkippedTestCount()).await();
+            writeStream.writeLine("Tests Skipped:  " + testRunner.getSkippedTestCount());
         }
     }
 
@@ -382,7 +440,6 @@ public class ConsoleTestRunner implements TestRunner
         PreCondition.assertNotNull(console, "console");
 
         final CommandLineParameters parameters = console.createCommandLineParameters();
-
         final CommandLineParameter<PathPattern> patternParameter = parameters.add("pattern", (String argumentValue) ->
         {
             return Result.success(Strings.isNullOrEmpty(argumentValue)
@@ -391,46 +448,50 @@ public class ConsoleTestRunner implements TestRunner
         });
         final CommandLineParameterVerbose verbose = parameters.addVerbose(console);
         final CommandLineParameterProfiler profilerParameter = parameters.addProfiler(console, ConsoleTestRunner.class);
+        final CommandLineParameterBoolean testJsonParameter = parameters.addBoolean("testjson");
         final CommandLineParameterList<String> testClassNamesParameter = parameters.addPositionStringList("test-class");
 
         final PathPattern pattern = patternParameter.getValue().await();
 
         profilerParameter.await();
 
-        verbose.writeLine("TestPattern: " + (pattern == null ? "null" : "\"" + pattern + "\"")).await();
+        verbose.writeLine("TestPattern: " + Strings.escapeAndQuote(pattern)).await();
 
         final Stopwatch stopwatch = console.getStopwatch();
         stopwatch.start();
 
+        final boolean useTestJson = testJsonParameter.getValue().await();
+
         final ConsoleTestRunner runner = new ConsoleTestRunner(console, pattern);
 
         final Iterable<String> testClassNames = testClassNamesParameter.getValues().await();
+        final List<String> invokedTestClassNames = List.create();
         for (final String testClassName : testClassNames)
         {
             verbose.writeLine("Looking for class " + Strings.escapeAndQuote(testClassName) + "...").await();
 
             final Class<?> testClass = Types.getClass(testClassName)
-                .catchError(ClassNotFoundException.class, () ->
-                {
-                    verbose.writeLine("Couldn't find " + Strings.escapeAndQuote(testClassName) + ".").await();
-                })
+                .onValue(() -> verbose.writeLine("  Found!").await())
+                .catchError(NotFoundException.class, () -> verbose.writeLine("Couldn't find " + Strings.escapeAndQuote(testClassName) + ".").await())
                 .await();
             if (testClass != null)
             {
-                verbose.writeLine("Found!").await();
-                verbose.writeLine("Looking for static test(TestRunner) method in " + Strings.escapeAndQuote(testClassName) + "...").await();
-
+                verbose.writeLine("Looking for static " + Types.getMethodSignature(testClass, "test", TestRunner.class, Void.class) + "...").await();
                 final StaticMethod1<?,TestRunner,?> testMethod = Types.getStaticMethod1(testClass, "test", TestRunner.class)
-                    .catchError(NotFoundException.class, (NotFoundException e) ->
-                    {
-                        verbose.writeLine(e.getMessage()).await();
-                    })
+                    .onValue(() -> verbose.writeLine("Found!").await())
+                    .catchError(NotFoundException.class, () -> verbose.writeLine("Couldn't find.").await())
                     .await();
                 if (testMethod != null)
                 {
-                    verbose.writeLine("Found!").await();
-
-                    testMethod.run(runner);
+                    try
+                    {
+                        testMethod.run(runner);
+                        invokedTestClassNames.add(testClassName);
+                    }
+                    catch (Throwable e)
+                    {
+                        e.printStackTrace();
+                    }
                 }
             }
         }

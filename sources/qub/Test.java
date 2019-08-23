@@ -6,17 +6,17 @@ package qub;
 public class Test
 {
     private final String name;
-    private final TestGroup parentTestGroup;
+    private final TestParent parent;
     private final Skip skip;
     private final Process process;
 
-    public Test(String name, TestGroup parentTestGroup, Skip skip, Process process)
+    public Test(String name, TestParent parent, Skip skip, Process process)
     {
         PreCondition.assertNotNullAndNotEmpty(name, "name");
         PreCondition.assertNotNull(process, "process");
 
         this.name = name;
-        this.parentTestGroup = parentTestGroup;
+        this.parent = parent;
         this.skip = skip;
         this.process = process;
     }
@@ -28,12 +28,26 @@ public class Test
 
     public String getFullName()
     {
-        return parentTestGroup == null ? name : parentTestGroup.getFullName() + ' ' + name;
+        return parent == null ? name : parent.getFullName() + ' ' + name;
     }
 
-    public TestGroup getParentTestGroup()
+    public TestParent getParent()
     {
-        return parentTestGroup;
+        return parent;
+    }
+
+    /**
+     * Get the TestClass that contains this Test object.
+     * @return The TestClass that contains this Test object.
+     */
+    public TestClass getTestClass()
+    {
+        TestParent parent = getParent();
+        while (parent != null && !Types.instanceOf(parent, TestClass.class))
+        {
+            parent = parent.getParent();
+        }
+        return Types.as(parent, TestClass.class);
     }
 
     public boolean matches(PathPattern testPattern)
@@ -41,12 +55,12 @@ public class Test
         return testPattern == null ||
             testPattern.isMatch(getName()) ||
             testPattern.isMatch(getFullName()) ||
-            (parentTestGroup != null && parentTestGroup.matches(testPattern));
+            (parent != null && parent.matches(testPattern));
     }
 
     public boolean shouldSkip()
     {
-        return skip != null || (parentTestGroup != null && parentTestGroup.shouldSkip());
+        return skip != null || (parent != null && parent.shouldSkip());
     }
 
     public String getSkipMessage()

@@ -28,7 +28,7 @@ public class TestTests
                     final Test t = new Test("my fake test", null, null, test.getProcess());
                     test.assertEqual("my fake test", t.getName());
                     test.assertEqual("my fake test", t.getFullName());
-                    test.assertNull(t.getParentTestGroup());
+                    test.assertNull(t.getParent());
                     test.assertFalse(t.shouldSkip());
                     test.assertNull(t.getSkipMessage());
                     test.assertNotNull(t.getMainAsyncRunner());
@@ -45,7 +45,7 @@ public class TestTests
                     final Test t = new Test("my fake test", tg, null, test.getProcess());
                     test.assertEqual("my fake test", t.getName());
                     test.assertEqual("my fake test group my fake test", t.getFullName());
-                    test.assertSame(tg, t.getParentTestGroup());
+                    test.assertSame(tg, t.getParent());
                     test.assertFalse(t.shouldSkip());
                     test.assertNull(t.getSkipMessage());
                     test.assertNotNull(t.getMainAsyncRunner());
@@ -59,7 +59,7 @@ public class TestTests
                     final Test t = new Test("my fake test", tg2, null, test.getProcess());
                     test.assertEqual("my fake test", t.getName());
                     test.assertEqual("apples my fake test group my fake test", t.getFullName());
-                    test.assertSame(tg2, t.getParentTestGroup());
+                    test.assertSame(tg2, t.getParent());
                     test.assertFalse(t.shouldSkip());
                     test.assertNull(t.getSkipMessage());
                     test.assertNotNull(t.getMainAsyncRunner());

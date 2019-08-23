@@ -39,18 +39,18 @@ public interface TestRunner
      */
     Skip skip(String message);
 
-//    /**
-//     * Attempt to run the tests that are found in the Class associated with the provided
-//     * fullClassName.
-//     * @param fullClassName The full name of the class to run the tests of.
-//     */
-//    void testClass(String fullClassName);
-//
-//    /**
-//     * Attempt to run the tests that are found in the provided testClass.
-//     * @param testClass The class to run the tests of.
-//     */
-//    void testClass(Class<?> testClass);
+    /**
+     * Attempt to run the tests that are found in the Class associated with the provided
+     * fullClassName.
+     * @param fullClassName The full name of the class to run the tests of.
+     */
+    Result<Void> testClass(String fullClassName);
+
+    /**
+     * Attempt to run the tests that are found in the provided testClass.
+     * @param testClass The class to run the tests of.
+     */
+    Result<Void> testClass(Class<?> testClass);
 
     /**
      * Create a new test group with the provided name and action.
@@ -104,6 +104,18 @@ public interface TestRunner
      * @param testAction The action for the test.
      */
     void speedTest(String testName, Duration maximumDuration, Action1<Test> testAction);
+
+    /**
+     * Set an action that will be run before each test class.
+     * @param beforeTestClassAction The action that will be run before each test class.
+     */
+    void beforeTestClass(Action1<TestClass> beforeTestClassAction);
+
+    /**
+     * Set an action that will be run after each test class.
+     * @param afterTestClassAction The action that will be run after each test class.
+     */
+    void afterTestClass(Action1<TestClass> afterTestClassAction);
 
     /**
      * Set an action that will be run before each test group.
