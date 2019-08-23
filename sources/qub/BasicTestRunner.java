@@ -87,7 +87,6 @@ public final class BasicTestRunner implements TestRunner
 
         return Result.create(() ->
         {
-            final StaticMethod1<?,TestRunner,?> testMethod = Types.getStaticMethod1(testClass, "test", TestRunner.class).await();
             currentTestClass = new TestClass(testClass);
             try
             {
@@ -95,10 +94,18 @@ public final class BasicTestRunner implements TestRunner
                 {
                     beforeTestClassAction.run(currentTestClass);
                 }
-                testMethod.run(this);
-                if (afterTestClassAction != null)
+
+                try
                 {
-                    afterTestClassAction.run(currentTestClass);
+                    final StaticMethod1<?,TestRunner,?> testMethod = Types.getStaticMethod1(testClass, "test", TestRunner.class).await();
+                    testMethod.run(this);
+                }
+                finally
+                {
+                    if (afterTestClassAction != null)
+                    {
+                        afterTestClassAction.run(currentTestClass);
+                    }
                 }
             }
             finally
