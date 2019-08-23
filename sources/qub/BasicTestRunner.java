@@ -172,10 +172,9 @@ public final class BasicTestRunner implements TestRunner
         }
         catch (Throwable error)
         {
-            ++failedTestCount;
             final String testGroupFullName = currentTestGroup.getFullName();
             final TestError testError = new TestError(testGroupFullName, "An unexpected error occurred during " + Strings.escapeAndQuote(testGroupFullName) + ".", error);
-            testFailures.add(testError);
+            addFailedTest(testError);
 
             if (afterTestGroupFailureAction != null)
             {
@@ -237,9 +236,7 @@ public final class BasicTestRunner implements TestRunner
                     }
                     catch (TestError failure)
                     {
-                        testFailures.add(failure);
-
-                        ++failedTestCount;
+                        addFailedTest(failure);
                         if (afterTestFailureAction != null)
                         {
                             afterTestFailureAction.run(test, failure);
@@ -249,10 +246,9 @@ public final class BasicTestRunner implements TestRunner
             }
             catch (Throwable error)
             {
-                ++failedTestCount;
                 final String testFullName = test.getFullName();
                 final TestError testError = new TestError(testFullName, "An unexpected error occurred during " + Strings.escapeAndQuote(testFullName) + ".", error);
-                testFailures.add(testError);
+                addFailedTest(testError);
 
                 if (afterTestFailureAction != null)
                 {
@@ -431,6 +427,7 @@ public final class BasicTestRunner implements TestRunner
         PreCondition.assertNotNull(error, "error");
 
         testFailures.add(error);
+        ++failedTestCount;
         if (currentTestClass != null)
         {
             currentTestClass.incrementFailedTestCount();
