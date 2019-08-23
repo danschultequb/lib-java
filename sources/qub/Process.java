@@ -27,8 +27,6 @@ public class Process implements Disposable
     private final Value<Clock> clock;
     private final Value<Iterable<Display>> displays;
 
-    private final List<Window> windows;
-
     private final AsyncScheduler mainAsyncRunner;
     private final AsyncScheduler parallelAsyncRunner;
 
@@ -80,8 +78,6 @@ public class Process implements Disposable
         stopwatchCreator = Value.create();
         clock = Value.create();
         displays = Value.create();
-
-        windows = List.create();
 
         this.mainAsyncRunner = mainAsyncRunner;
         CurrentThread.setAsyncRunner(mainAsyncRunner);
@@ -596,21 +592,6 @@ public class Process implements Disposable
     }
 
     /**
-     * Create a new Window for this application. The Window will not be visible until
-     * setVisible() is called.
-     * @return The created Window.
-     */
-    public Window createWindow()
-    {
-        final Window result = new JavaWindow(mainAsyncRunner, getDisplays());
-        windows.add(result);
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
-
-    /**
      * Get a ProcessBuilder that references the provided executablePath.
      * @param executablePath The path to the executable to run create the returned ProcessBuilder.
      * @return The ProcessBuilder.
@@ -774,15 +755,7 @@ public class Process implements Disposable
         else
         {
             disposed = true;
-            result = Result.create(() ->
-            {
-                for (final Window window : windows)
-                {
-                    window.dispose().await();
-                }
-
-                return true;
-            });
+            result = Result.successTrue();
         }
 
         PostCondition.assertNotNull(result, "result");
