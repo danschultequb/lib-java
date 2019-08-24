@@ -665,18 +665,6 @@ public class ProcessTests
                     }
                 });
             });
-
-            runner.test("createWindow()", (Test test) ->
-            {
-                Window window;
-                try (final Process process = creator.run())
-                {
-                    window = process.createWindow();
-                    test.assertNotNull(window);
-                    test.assertFalse(window.isDisposed());
-                }
-                test.assertTrue(window.isDisposed());
-            });
         });
     }
 }
