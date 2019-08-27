@@ -1,8 +1,8 @@
 package qub;
 
-public class JSONDocumentTests
+public interface JSONDocumentTests
 {
-    public static void test(TestRunner runner)
+    static void test(TestRunner runner)
     {
         runner.testGroup(JSONDocument.class, () ->
         {
@@ -49,8 +49,8 @@ public class JSONDocumentTests
                 getRootTest.run("", null, new NotFoundException("No root was found in the JSON document."));
                 getRootTest.run("// hello", null, new NotFoundException("No root was found in the JSON document."));
                 getRootTest.run("/* there */", null, new NotFoundException("No root was found in the JSON document."));
-                getRootTest.run("\"fever\"", JSONToken.quotedString("\"fever\"", 0, true), null);
-                getRootTest.run("20", JSONToken.number("20", 0), null);
+                getRootTest.run("\"fever\"", null, new NotFoundException("No root was found in the JSON document."));
+                getRootTest.run("20", null, new NotFoundException("No root was found in the JSON document."));
                 getRootTest.run("[0, 1, 2, 3, 4]", JSON.parseArray("[0, 1, 2, 3, 4]"), null);
                 getRootTest.run("{}", JSON.parseObject("{}"), null);
             });
@@ -77,8 +77,8 @@ public class JSONDocumentTests
                 getRootArrayTest.run("", null, new NotFoundException("No root was found in the JSON document."));
                 getRootArrayTest.run("// hello", null, new NotFoundException("No root was found in the JSON document."));
                 getRootArrayTest.run("/* there */", null, new NotFoundException("No root was found in the JSON document."));
-                getRootArrayTest.run("\"fever\"", null, new WrongTypeException("Expected the root of the JSON document to be an array."));
-                getRootArrayTest.run("20", null, new WrongTypeException("Expected the root of the JSON document to be an array."));
+                getRootArrayTest.run("\"fever\"", null, new NotFoundException("No root was found in the JSON document."));
+                getRootArrayTest.run("20", null, new NotFoundException("No root was found in the JSON document."));
                 getRootArrayTest.run("[0, 1, 2, 3, 4]", JSON.parseArray("[0, 1, 2, 3, 4]"), null);
                 getRootArrayTest.run("{}", null, new WrongTypeException("Expected the root of the JSON document to be an array."));
             });
@@ -105,8 +105,8 @@ public class JSONDocumentTests
                 getRootObjectTest.run("", null, new NotFoundException("No root was found in the JSON document."));
                 getRootObjectTest.run("// hello", null, new NotFoundException("No root was found in the JSON document."));
                 getRootObjectTest.run("/* there */", null, new NotFoundException("No root was found in the JSON document."));
-                getRootObjectTest.run("\"fever\"", null, new WrongTypeException("Expected the root of the JSON document to be an object."));
-                getRootObjectTest.run("20", null, new WrongTypeException("Expected the root of the JSON document to be an object."));
+                getRootObjectTest.run("\"fever\"", null, new NotFoundException("No root was found in the JSON document."));
+                getRootObjectTest.run("20", null, new NotFoundException("No root was found in the JSON document."));
                 getRootObjectTest.run("[0, 1, 2, 3, 4]", null, new WrongTypeException("Expected the root of the JSON document to be an object."));
                 getRootObjectTest.run("{}", JSON.parseObject("{}"), null);
             });

@@ -1,8 +1,8 @@
 package qub;
 
-public abstract class IteratorTests
+public interface IteratorTests
 {
-    public static void test(final TestRunner runner, final Function2<Integer,Boolean,Iterator<Integer>> createIterator)
+    static void test(final TestRunner runner, final Function2<Integer,Boolean,Iterator<Integer>> createIterator)
     {
         runner.testGroup(Iterator.class, () ->
         {
@@ -1274,7 +1274,7 @@ public abstract class IteratorTests
         });
     }
 
-    private static <T> void assertIterator(Test test, Iterator<T> iterator, boolean expectedHasStarted, T expectedCurrent)
+    static <T> void assertIterator(Test test, Iterator<T> iterator, boolean expectedHasStarted, T expectedCurrent)
     {
         test.assertEqual(expectedHasStarted, iterator.hasStarted(), "Wrong hasStarted()");
         test.assertEqual(expectedCurrent != null, iterator.hasCurrent(), "Wrong hasCurrent()");

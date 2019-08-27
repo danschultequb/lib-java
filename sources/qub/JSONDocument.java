@@ -1,14 +1,26 @@
 package qub;
 
+/**
+ * The parsed segements of a JSON document. This object includes all of the textual details of the
+ * original document, such as where each segment was located (character offset).
+ */
 public class JSONDocument
 {
     private final Iterable<JSONSegment> segments;
 
+    /**
+     * Create a new JSONDocument from the provided JSONSegments.
+     * @param segments The parsed JSONSegments of the original document.
+     */
     public JSONDocument(Iterable<JSONSegment> segments)
     {
         this.segments = segments;
     }
 
+    /**
+     * Get the parsed JSONSegments from the original document.
+     * @return The parsed JSONSegments from the original document.
+     */
     public Iterable<JSONSegment> getSegments()
     {
         return segments;
@@ -21,24 +33,12 @@ public class JSONDocument
     public Result<JSONSegment> getRoot()
     {
         final JSONSegment rootSegment = segments.first((JSONSegment segment) ->
-            {
-                boolean result = segment instanceof JSONObject || segment instanceof JSONArray;
-                if (!result && segment instanceof JSONToken)
-                {
-                    final JSONToken token = (JSONToken)segment;
-                    switch (token.getType())
-                    {
-                        case Boolean:
-                        case Null:
-                        case Number:
-                        case QuotedString:
-                            result = true;
-                            break;
-                    }
-                }
-                return result;
-            });
-        return rootSegment != null ? Result.success(rootSegment) : Result.error(new NotFoundException("No root was found in the JSON document."));
+        {
+            return segment instanceof JSONObject || segment instanceof JSONArray;
+        });
+        return rootSegment != null
+            ? Result.success(rootSegment)
+            : Result.error(new NotFoundException("No root was found in the JSON document."));
     }
 
     /**
@@ -48,11 +48,13 @@ public class JSONDocument
     public Result<JSONArray> getRootArray()
     {
         return getRoot()
-            .thenResult((JSONSegment root) ->
+            .then((JSONSegment root) ->
             {
-                return root instanceof JSONArray
-                   ? Result.success((JSONArray)root)
-                   : Result.error(new WrongTypeException("Expected the root of the JSON document to be an array."));
+                if (!(root instanceof JSONArray))
+                {
+                    throw new WrongTypeException("Expected the root of the JSON document to be an array.");
+                }
+                return (JSONArray)root;
             });
     }
 
@@ -77,6 +79,10 @@ public class JSONDocument
         return JSONSegment.getCombinedText(segments);
     }
 
+    /**
+     * Get the number of characters that made up the original document.
+     * @return The number of characters that made up the original document.
+     */
     public int getLength()
     {
         return JSONSegment.getAfterEndIndex(segments);

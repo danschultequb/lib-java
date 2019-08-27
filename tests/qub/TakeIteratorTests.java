@@ -1,8 +1,8 @@
 package qub;
 
-public class TakeIteratorTests
+public interface TakeIteratorTests
 {
-    public static void test(TestRunner runner)
+    static void test(TestRunner runner)
     {
         runner.testGroup(TakeIterator.class, () ->
         {
@@ -24,6 +24,81 @@ public class TakeIteratorTests
                 }
 
                 return iterator;
+            });
+
+            runner.testGroup("constructor()", () ->
+            {
+                runner.test("with null innerIterator", (Test test) ->
+                {
+                    test.assertThrows(() -> new TakeIterator<Integer>(null, 5),
+                        new PreConditionFailure("innerIterator cannot be null."));
+                });
+
+                runner.test("with negative toTake", (Test test) ->
+                {
+                    test.assertThrows(() -> new TakeIterator<>(Iterator.create(1, 2, 3), -1),
+                        new PreConditionFailure("toTake (-1) must be greater than or equal to 0."));
+                });
+
+                runner.test("with empty, non-started innerIterator and 0 toTake", (Test test) ->
+                {
+                    final Iterator<Integer> innerIterator = Iterator.create();
+                    final TakeIterator<Integer> iterator = new TakeIterator<>(innerIterator, 0);
+                    IteratorTests.assertIterator(test, iterator, false, null);
+                });
+
+                runner.test("with empty, non-started innerIterator and 10 toTake", (Test test) ->
+                {
+                    final Iterator<Integer> innerIterator = Iterator.create();
+                    final TakeIterator<Integer> iterator = new TakeIterator<>(innerIterator, 10);
+                    IteratorTests.assertIterator(test, iterator, false, null);
+                });
+
+                runner.test("with empty, started innerIterator and 0 toTake", (Test test) ->
+                {
+                    final Iterator<Integer> innerIterator = Iterator.create();
+                    innerIterator.next();
+                    final TakeIterator<Integer> iterator = new TakeIterator<>(innerIterator, 0);
+                    IteratorTests.assertIterator(test, iterator, true, null);
+                });
+
+                runner.test("with empty, started innerIterator and 10 toTake", (Test test) ->
+                {
+                    final Iterator<Integer> innerIterator = Iterator.create();
+                    innerIterator.next();
+                    final TakeIterator<Integer> iterator = new TakeIterator<>(innerIterator, 10);
+                    IteratorTests.assertIterator(test, iterator, true, null);
+                });
+
+                runner.test("with non-empty, non-started innerIterator and 0 toTake", (Test test) ->
+                {
+                    final Iterator<Integer> innerIterator = Iterator.create(1, 2, 3);
+                    final TakeIterator<Integer> iterator = new TakeIterator<>(innerIterator, 0);
+                    IteratorTests.assertIterator(test, iterator, false, null);
+                });
+
+                runner.test("with non-empty, non-started innerIterator and 10 toTake", (Test test) ->
+                {
+                    final Iterator<Integer> innerIterator = Iterator.create(1, 2, 3);
+                    final TakeIterator<Integer> iterator = new TakeIterator<>(innerIterator, 10);
+                    IteratorTests.assertIterator(test, iterator, false, null);
+                });
+
+                runner.test("with non-empty, started innerIterator and 0 toTake", (Test test) ->
+                {
+                    final Iterator<Integer> innerIterator = Iterator.create(1, 2, 3);
+                    innerIterator.next();
+                    final TakeIterator<Integer> iterator = new TakeIterator<>(innerIterator, 0);
+                    IteratorTests.assertIterator(test, iterator, true, null);
+                });
+
+                runner.test("with non-empty, non-started innerIterator and 10 toTake", (Test test) ->
+                {
+                    final Iterator<Integer> innerIterator = Iterator.create(1, 2, 3);
+                    innerIterator.next();
+                    final TakeIterator<Integer> iterator = new TakeIterator<>(innerIterator, 10);
+                    IteratorTests.assertIterator(test, iterator, true, 1);
+                });
             });
         });
     }
