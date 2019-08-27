@@ -1,8 +1,8 @@
 package qub;
 
-public class DateTimeTests
+public interface DateTimeTests
 {
-    public static void test(TestRunner runner)
+    static void test(TestRunner runner)
     {
         runner.testGroup(DateTime.class, () ->
         {

@@ -62,7 +62,7 @@ public class JavaList<T> implements List<T>
     @Override
     public Iterator<T> iterate()
     {
-        return JavaIteratorToIteratorAdapter.wrap(list.iterator());
+        return JavaIteratorToIteratorAdapter.create(list.iterator());
     }
 
     @Override

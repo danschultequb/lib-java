@@ -1,8 +1,8 @@
 package qub;
 
-public class VersionNumberTests
+public interface VersionNumberTests
 {
-    public static void test(TestRunner runner)
+    static void test(TestRunner runner)
     {
         runner.testGroup(VersionNumber.class, () ->
         {

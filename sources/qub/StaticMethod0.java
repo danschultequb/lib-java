@@ -52,13 +52,9 @@ public class StaticMethod0<TType,TReturn> implements Function0<TReturn>
         {
             return (TReturn)staticMethod.invoke(null);
         }
-        catch (java.lang.reflect.InvocationTargetException e)
+        catch (java.lang.reflect.InvocationTargetException | java.lang.IllegalAccessException e)
         {
             throw Exceptions.asRuntime(e.getCause());
-        }
-        catch (Throwable e)
-        {
-            throw Exceptions.asRuntime(e);
         }
     }
 }

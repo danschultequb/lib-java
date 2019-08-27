@@ -1,5 +1,9 @@
 package qub;
 
+/**
+ * An adapter class that converts a java.util.Iterator object into a qub.Iterator.
+ * @param <T> The type of values that the iterator returns.
+ */
 public class JavaIteratorToIteratorAdapter<T> implements Iterator<T>
 {
     private final java.util.Iterator<T> javaIterator;
@@ -9,7 +13,26 @@ public class JavaIteratorToIteratorAdapter<T> implements Iterator<T>
 
     private JavaIteratorToIteratorAdapter(java.util.Iterator<T> javaIterator)
     {
+        PreCondition.assertNotNull(javaIterator, "javaIterator");
+
         this.javaIterator = javaIterator;
+    }
+
+    /**
+     * Create a new JavaIteratorToIteratorAdapter from the provided java.util.Iterator object.
+     * @param javaIterator The java.util.Iterator object to adapt.
+     * @param <U> The type of values that are returned by the new iterator.
+     * @return The new iterator adapter.
+     */
+    public static <U> JavaIteratorToIteratorAdapter<U> create(java.util.Iterator<U> javaIterator)
+    {
+        PreCondition.assertNotNull(javaIterator, "javaIterator");
+
+        final JavaIteratorToIteratorAdapter<U> result = new JavaIteratorToIteratorAdapter<>(javaIterator);
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
     }
 
     @Override
@@ -41,10 +64,5 @@ public class JavaIteratorToIteratorAdapter<T> implements Iterator<T>
         current = !hasCurrent ? null : javaIterator.next();
 
         return hasCurrent;
-    }
-
-    public static <T> Iterator<T> wrap(java.util.Iterator<T> javaIterator)
-    {
-        return javaIterator == null ? null : new JavaIteratorToIteratorAdapter<>(javaIterator);
     }
 }

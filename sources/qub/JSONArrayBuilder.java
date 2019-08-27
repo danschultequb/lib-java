@@ -12,8 +12,8 @@ public class JSONArrayBuilder implements Disposable
         PreCondition.assertFalse(stream.isDisposed(), "stream.isDisposed()");
 
         this.stream = stream;
-        stream.write('[');
-        disposable = new BasicDisposable(() -> stream.write(']'));
+        stream.write('[').await();
+        disposable = BasicDisposable.create(() -> stream.write(']').await());
     }
 
     private void element(Action0 writeElementValue)
@@ -26,7 +26,7 @@ public class JSONArrayBuilder implements Disposable
         }
         else
         {
-            stream.write(',');
+            stream.write(',').await();
         }
 
         writeElementValue.run();
@@ -36,7 +36,7 @@ public class JSONArrayBuilder implements Disposable
     {
         PreCondition.assertNotNullAndNotEmpty(elementValue, "elementValue");
 
-        element(() -> stream.write(elementValue));
+        element(() -> stream.write(elementValue).await());
     }
 
     public void booleanElement(boolean elementValue)

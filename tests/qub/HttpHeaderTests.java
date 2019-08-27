@@ -1,8 +1,8 @@
 package qub;
 
-public class HttpHeaderTests
+public interface HttpHeaderTests
 {
-    public static void test(TestRunner runner)
+    static void test(TestRunner runner)
     {
         runner.testGroup(HttpHeader.class, () ->
         {
@@ -53,13 +53,13 @@ public class HttpHeaderTests
                 runner.test("with different header name", (Test test) ->
                 {
                     final HttpHeader header = new HttpHeader("apples", "fruit");
-                    test.assertFalse(header.equals((Object)new HttpHeader("oranges", "fruit").getValue()));
+                    test.assertFalse(header.equals((Object)new HttpHeader("oranges", "fruit")));
                 });
 
                 runner.test("with different header value", (Test test) ->
                 {
                     final HttpHeader header = new HttpHeader("apples", "fruit");
-                    test.assertFalse(header.equals((Object)new HttpHeader("apples", "yummy").getValue()));
+                    test.assertFalse(header.equals((Object)new HttpHeader("apples", "yummy")));
                 });
 
                 runner.test("with same header", (Test test) ->

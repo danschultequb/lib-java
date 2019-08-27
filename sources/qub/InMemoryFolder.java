@@ -7,8 +7,8 @@ public class InMemoryFolder
 {
     private final String name;
     private final Clock clock;
-    private final ArrayList<InMemoryFolder> folders;
-    private final ArrayList<InMemoryFile> files;
+    private final List<InMemoryFolder> folders;
+    private final List<InMemoryFile> files;
 
     private boolean canDelete;
 
@@ -23,8 +23,8 @@ public class InMemoryFolder
 
         this.name = name;
         this.clock = clock;
-        this.folders = new ArrayList<>();
-        this.files = new ArrayList<>();
+        this.folders = List.create();
+        this.files = List.create();
         this.canDelete = true;
     }
 

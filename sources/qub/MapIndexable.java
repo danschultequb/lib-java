@@ -23,13 +23,13 @@ class MapIndexable<TInner,TOuter> implements Indexable<TOuter>
     @Override
     public boolean any()
     {
-        return conversion != null && innerIndexable.any();
+        return innerIndexable.any();
     }
 
     @Override
     public int getCount()
     {
-        return conversion == null ? 0 : innerIndexable.getCount();
+        return innerIndexable.getCount();
     }
 
     @Override

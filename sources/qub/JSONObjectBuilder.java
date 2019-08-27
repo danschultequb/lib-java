@@ -12,8 +12,8 @@ public class JSONObjectBuilder implements Disposable
         PreCondition.assertFalse(stream.isDisposed(), "stream.isDisposed()");
 
         this.stream = stream;
-        stream.write('{');
-        disposable = new BasicDisposable(() -> stream.write('}'));
+        stream.write('{').await();
+        disposable = BasicDisposable.create(() -> stream.write('}').await());
     }
 
     private void property(String propertyName, Action0 writePropertyValue)
@@ -27,11 +27,11 @@ public class JSONObjectBuilder implements Disposable
         }
         else
         {
-            stream.write(',');
+            stream.write(',').await();
         }
 
-        stream.write(Strings.escapeAndQuote(propertyName));
-        stream.write(':');
+        stream.write(Strings.escapeAndQuote(propertyName)).await();
+        stream.write(':').await();
         writePropertyValue.run();
     }
 
@@ -40,7 +40,7 @@ public class JSONObjectBuilder implements Disposable
         PreCondition.assertNotNullAndNotEmpty(propertyName, "propertyName");
         PreCondition.assertNotNullAndNotEmpty(propertyValue, "propertyValue");
 
-        property(propertyName, () -> stream.write(propertyValue));
+        property(propertyName, () -> stream.write(propertyValue).await());
     }
 
     public void booleanProperty(String propertyName, boolean propertyValue)

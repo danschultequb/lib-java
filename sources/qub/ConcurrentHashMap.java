@@ -65,7 +65,7 @@ public class ConcurrentHashMap<TKey,TValue> implements MutableMap<TKey,TValue>
     @Override
     public Iterator<MapEntry<TKey, TValue>> iterate()
     {
-        return JavaIteratorToIteratorAdapter.wrap(javaMap.entrySet().iterator())
+        return JavaIteratorToIteratorAdapter.create(javaMap.entrySet().iterator())
             .map((java.util.Map.Entry<TKey, TValue> javaMapEntry) ->
                 new MutableMapEntry<>(javaMapEntry.getKey(), javaMapEntry.getValue()));
     }

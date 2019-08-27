@@ -23,13 +23,13 @@ class MapIterable<TInner,TOuter> implements Iterable<TOuter>
     @Override
     public boolean any()
     {
-        return conversion != null && innerIterable.any();
+        return innerIterable.any();
     }
 
     @Override
     public int getCount()
     {
-        return conversion == null ? 0 : innerIterable.getCount();
+        return innerIterable.getCount();
     }
 
     @Override

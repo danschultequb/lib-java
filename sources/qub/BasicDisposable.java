@@ -9,20 +9,29 @@ public class BasicDisposable implements Disposable
     private final Action0 onDisposed;
 
     /**
-     * Create a new BasicDisposable with no onDisposed action.
+     * Create a new BasicDisposable that will run the provided action when it is disposed.
+     * @param onDisposed The action to run when the BasicDisposable is disposed.
      */
-    public BasicDisposable()
+    private BasicDisposable(Action0 onDisposed)
     {
-        this(null);
+        PreCondition.assertNotNull(onDisposed, "onDisposed");
+
+        this.onDisposed = onDisposed;
     }
 
     /**
      * Create a new BasicDisposable that will run the provided action when it is disposed.
      * @param onDisposed The action to run when the BasicDisposable is disposed.
      */
-    public BasicDisposable(Action0 onDisposed)
+    public static BasicDisposable create(Action0 onDisposed)
     {
-        this.onDisposed = onDisposed;
+        PreCondition.assertNotNull(onDisposed, "onDisposed");
+
+        final BasicDisposable result = new BasicDisposable(onDisposed);
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
     }
 
     @Override
@@ -41,19 +50,11 @@ public class BasicDisposable implements Disposable
         }
         else
         {
-            onDispose();
+            onDisposed.run();
 
             disposed = true;
             result = Result.successTrue();
         }
         return result;
-    }
-
-    protected void onDispose()
-    {
-        if (onDisposed != null)
-        {
-            onDisposed.run();
-        }
     }
 }

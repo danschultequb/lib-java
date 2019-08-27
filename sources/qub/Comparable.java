@@ -62,6 +62,8 @@ public interface Comparable<T>
      */
     static <T> boolean equals(Comparable<T> lhs, T rhs)
     {
-        return lhs == rhs || (lhs != null && lhs.compareTo(rhs) == Comparison.Equal);
+        PreCondition.assertNotNull(lhs, "lhs");
+
+        return lhs.compareTo(rhs) == Comparison.Equal;
     }
 }
