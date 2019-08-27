@@ -1,27 +1,28 @@
 package qub;
 
-public abstract class CharacterComparer
+/**
+ * An interface that defines how to compare two characters.
+ */
+public interface CharacterComparer
 {
-    public static final CharacterComparer Exact = new CharacterComparer()
+    /**
+     * A CharacterComparer that returns whether or not the provided characters are exactly the same.
+     */
+    CharacterComparer Exact = (char lhs, char rhs) ->
     {
-        @Override
-        public Comparison compare(char lhs, char rhs)
-        {
-            return lhs == rhs ? Comparison.Equal :
-                       lhs < rhs ? Comparison.LessThan :
-                           Comparison.GreaterThan;
-        }
+        return lhs == rhs ? Comparison.Equal :
+                   lhs < rhs ? Comparison.LessThan :
+                       Comparison.GreaterThan;
     };
 
-    public static final CharacterComparer CaseInsensitive = new CharacterComparer()
+    /**
+     * A CharacterComparer that does a case-insensitive comparison between the provided characters.
+     */
+    CharacterComparer CaseInsensitive = (char lhs, char rhs) ->
     {
-        @Override
-        public Comparison compare(char lhs, char rhs)
-        {
-            final char lhsLower = Characters.toLowerCase(lhs);
-            final char rhsLower = Characters.toLowerCase(rhs);
-            return Exact.compare(lhsLower, rhsLower);
-        }
+        final char lhsLower = Characters.toLowerCase(lhs);
+        final char rhsLower = Characters.toLowerCase(rhs);
+        return Exact.compare(lhsLower, rhsLower);
     };
 
     /**
@@ -30,7 +31,7 @@ public abstract class CharacterComparer
      * @param rhs The second character.
      * @return The comparison of the first character to the second character.
      */
-    public abstract Comparison compare(char lhs, char rhs);
+    Comparison compare(char lhs, char rhs);
 
     /**
      * Get whether or not the provided characters are equal.
@@ -38,7 +39,7 @@ public abstract class CharacterComparer
      * @param rhs The second character.
      * @return Whether or not the provided characters are equal.
      */
-    public boolean equal(char lhs, char rhs)
+    default boolean equal(char lhs, char rhs)
     {
         return compare(lhs, rhs) == Comparison.Equal;
     }
