@@ -36,7 +36,7 @@ public class NetworkTests
                         new java.net.ConnectException("Connection refused: connect"));
                 });
 
-                runner.test("with valid arguments and server listening", (Test test) ->
+                runner.test("with valid arguments and server listening", runner.skip("flaky test for FakeNetwork"), (Test test) ->
                 {
                     final AsyncRunner asyncRunner = test.getParallelAsyncRunner();
                     final Network network = creator.run(test);

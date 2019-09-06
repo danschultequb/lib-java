@@ -422,6 +422,12 @@ public interface Types
         return result;
     }
 
+    /**
+     * Get whether or not the provided value is an instance of the provided type.
+     * @param value The value to check.
+     * @param type The type to check.
+     * @return Whether or not the provided value is an instance of the provided type.
+     */
     static boolean instanceOf(Object value, Class<?> type)
     {
         PreCondition.assertNotNull(type, "type");
@@ -429,13 +435,27 @@ public interface Types
         return value != null && instanceOf(value.getClass(), type);
     }
 
-    static boolean instanceOf(Class<?> valueType, Class<?> type)
+    /**
+     * Get whether or not the provided subType is an instance of the provided type.
+     * @param subType The subType to check.
+     * @param type The type to check.
+     * @return Whether or not the provided
+     */
+    static boolean instanceOf(Class<?> subType, Class<?> type)
     {
         PreCondition.assertNotNull(type, "type");
 
-        return valueType != null && type.isAssignableFrom(valueType);
+        return subType != null && type.isAssignableFrom(subType);
     }
 
+    /**
+     * Get the provided value cast as type T if it is an instance of T, or null if it is not an
+     * instance of T.
+     * @param value The value to cast.
+     * @param type The type to cast the value to.
+     * @param <T> The type to cast the value to.
+     * @return The cast value or null if the value was not an instance of T.
+     */
     @SuppressWarnings("unchecked")
     static <T> T as(Object value, Class<T> type)
     {
@@ -477,6 +497,11 @@ public interface Types
         return result;
     }
 
+    /**
+     * Get the simple name (without the package path) of the provided type.
+     * @param type The type to get the simple name of.
+     * @return The simple name (without the package path) of the provided type.
+     */
     static String getTypeName(Class<?> type)
     {
         PreCondition.assertNotNull(type, "type");
@@ -484,6 +509,11 @@ public interface Types
         return type.getSimpleName();
     }
 
+    /**
+     * Get the simple name (without the package path) of the runtime type of the provided value.
+     * @param value The value to get the simple name of the runtime type of.
+     * @return The simple name (without the package path) of the runtime type of the provided value.
+     */
     static String getTypeName(Object value)
     {
         PreCondition.assertNotNull(value, "value");
@@ -491,6 +521,11 @@ public interface Types
         return getTypeName(value.getClass());
     }
 
+    /**
+     * Get the full name of the provided type.
+     * @param type The type to get the full name of.
+     * @return The full name of the provided type.
+     */
     static String getFullTypeName(Class<?> type)
     {
         PreCondition.assertNotNull(type, "type");
@@ -498,6 +533,11 @@ public interface Types
         return type.getCanonicalName();
     }
 
+    /**
+     * Get the full name of the runtime type of the provided value.
+     * @param value The value to get the full name of the runtime type of.
+     * @return The full name of the runtime type of the provided value.
+     */
     static String getFullTypeName(Object value)
     {
         PreCondition.assertNotNull(value, "value");

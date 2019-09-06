@@ -6,10 +6,29 @@ public interface RootTests
     {
         runner.testGroup(Root.class, () ->
         {
-            runner.test("constructor", (Test test) ->
+            runner.testGroup("constructor(FileSystem,Path)", () ->
             {
-                final Root root = new Root(null, Path.parse("/path/to/root/"));
-                test.assertEqual("/path/to/root/", root.toString());
+                runner.test("with null fileSystem", (Test test) ->
+                {
+                    test.assertThrows(() -> new Root(null, Path.parse("/path/to/root/")),
+                        new PreConditionFailure("fileSystem cannot be null."));
+                });
+
+                runner.test("with null path", (Test test) ->
+                {
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    test.assertThrows(() -> new Root(fileSystem, null),
+                        new PreConditionFailure("path cannot be null."));
+                });
+
+                runner.test("with valid arguments", (Test test) ->
+                {
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final Path path = Path.parse("/path/to/root/");
+                    final Root root = new Root(fileSystem, path);
+                    test.assertNotNull(root);
+                    test.assertEqual(path, root.getPath());
+                });
             });
             
             runner.testGroup("equals()", () ->

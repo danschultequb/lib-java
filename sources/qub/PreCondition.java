@@ -206,9 +206,51 @@ public class PreCondition
      * Assert that value is not equal to the provided expectedValue.
      * @param expectedValue The expected value that value should not be equal to.
      * @param value The value that should not equal expectedValue.
+     * @param expressionName The name of the variable that contains the value.
+     */
+    public static <T> void assertNotEqual(T expectedValue, T value, String expressionName)
+    {
+        if (Comparer.equal(expectedValue, value))
+        {
+            throw new PreConditionFailure(AssertionMessages.notEqual(expectedValue, value, expressionName));
+        }
+    }
+
+    /**
+     * Assert that value is not equal to the provided expectedValue.
+     * @param expectedValue The expected value that value should not be equal to.
+     * @param value The value that should not equal expectedValue.
      * @param variableName The name of the variable that contains the value.
      */
     public static void assertNotEqual(boolean expectedValue, boolean value, String variableName)
+    {
+        if (expectedValue == value)
+        {
+            throw new PreConditionFailure(AssertionMessages.notEqual(expectedValue, value, variableName));
+        }
+    }
+
+    /**
+     * Assert that value is not equal to the provided expectedValue.
+     * @param expectedValue The expected value that value should not be equal to.
+     * @param value The value that should not equal expectedValue.
+     * @param variableName The name of the variable that contains the value.
+     */
+    public static void assertNotEqual(boolean expectedValue, java.lang.Boolean value, String variableName)
+    {
+        if (expectedValue == value)
+        {
+            throw new PreConditionFailure(AssertionMessages.notEqual(expectedValue, value, variableName));
+        }
+    }
+
+    /**
+     * Assert that value is not equal to the provided expectedValue.
+     * @param expectedValue The expected value that value should not be equal to.
+     * @param value The value that should not equal expectedValue.
+     * @param variableName The name of the variable that contains the value.
+     */
+    public static void assertNotEqual(java.lang.Boolean expectedValue, boolean value, String variableName)
     {
         if (expectedValue == value)
         {

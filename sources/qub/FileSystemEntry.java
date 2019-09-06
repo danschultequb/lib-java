@@ -15,6 +15,10 @@ public abstract class FileSystemEntry
      */
     FileSystemEntry(FileSystem fileSystem, Path path)
     {
+        PreCondition.assertNotNull(fileSystem, "fileSystem");
+        PreCondition.assertNotNull(path, "path");
+        PreCondition.assertTrue(path.isRooted(), "path.isRooted()");
+
         this.fileSystem = fileSystem;
         this.path = path;
     }

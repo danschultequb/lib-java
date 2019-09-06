@@ -1052,13 +1052,14 @@ public class Test
         {
             throw new TestError(
                 getFullName(),
-                "Expected a " + expectedException.getClass().getCanonicalName() + " to be thrown with " + (Strings.isNullOrEmpty(expectedException.getMessage()) ? "no message" : "the message \"" + expectedException.getMessage() + "\"") + ".");
+                "Expected a " + Types.getFullTypeName(expectedException) + " to be thrown with " + (Strings.isNullOrEmpty(expectedException.getMessage()) ? "no message" : "the message \"" + expectedException.getMessage() + "\"") + ".");
         }
         else if (!Comparer.equal(expectedException, exceptionThrown, Exceptions.defaultErrorTypesToGoPast))
         {
             throw new TestError(
                 getFullName(),
-                getMessageLines("Incorrect exception thrown", expectedException, exceptionThrown));
+                getMessageLines("Incorrect exception thrown", expectedException, exceptionThrown),
+                exceptionThrown);
         }
     }
 

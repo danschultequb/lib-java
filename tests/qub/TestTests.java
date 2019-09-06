@@ -1,8 +1,8 @@
 package qub;
 
-public class TestTests
+public interface TestTests
 {
-    public static void test(TestRunner runner)
+    static void test(TestRunner runner)
     {
         runner.testGroup(Test.class, () ->
         {
@@ -686,10 +686,13 @@ public class TestTests
                 {
                     final Test t = createTest("abcd", test);
                     test.assertThrows(() -> t.assertThrows(() -> { throw new NullPointerException(); }, new NotFoundException("blah")),
-                        new TestError("abcd", Iterable.create(
-                            "Message:  Incorrect exception thrown",
-                            "Expected: qub.NotFoundException: blah",
-                            "Actual:   java.lang.NullPointerException")));
+                        new TestError(
+                            "abcd",
+                            Iterable.create(
+                                "Message:  Incorrect exception thrown",
+                                "Expected: qub.NotFoundException: blah",
+                                "Actual:   java.lang.NullPointerException"),
+                            new NullPointerException()));
                 });
 
                 runner.test("with action that throws the same error", (Test test) ->
@@ -701,20 +704,26 @@ public class TestTests
                 {
                     final Test t = createTest("abcd", test);
                     test.assertThrows(() -> t.assertThrows(() -> { throw new NotFoundException("grapes"); }, new NotFoundException("blah")),
-                        new TestError("abcd", Iterable.create(
-                            "Message:  Incorrect exception thrown",
-                            "Expected: qub.NotFoundException: blah",
-                            "Actual:   qub.NotFoundException: grapes")));
+                        new TestError(
+                            "abcd",
+                            Iterable.create(
+                                "Message:  Incorrect exception thrown",
+                                "Expected: qub.NotFoundException: blah",
+                                "Actual:   qub.NotFoundException: grapes"),
+                            new NotFoundException("grapes")));
                 });
 
                 runner.test("with action that throws an error derived from the expected error", (Test test) ->
                 {
                     final Test t = createTest("abcd", test);
                     test.assertThrows(() -> t.assertThrows(() -> { throw new NotFoundException("blah"); }, new RuntimeException("blah")),
-                        new TestError("abcd", Iterable.create(
-                            "Message:  Incorrect exception thrown",
-                            "Expected: java.lang.RuntimeException: blah",
-                            "Actual:   qub.NotFoundException: blah")));
+                        new TestError(
+                            "abcd",
+                            Iterable.create(
+                                "Message:  Incorrect exception thrown",
+                                "Expected: java.lang.RuntimeException: blah",
+                                "Actual:   qub.NotFoundException: blah"),
+                            new NotFoundException("blah")));
                 });
 
                 runner.test("with action that throws the same error but is wrapped in a RuntimeException", (Test test) ->
@@ -731,11 +740,14 @@ public class TestTests
                 {
                     final Test t = createTest("abcd", test);
                     test.assertThrows(() -> t.assertThrows(() -> { throw new RuntimeException(new NotFoundException("grapes")); }, new NotFoundException("blah")),
-                        new TestError("abcd", Iterable.create(
-                            "Message:  Incorrect exception thrown",
-                            "Expected: qub.NotFoundException: blah",
-                            "Actual:   java.lang.RuntimeException: qub.NotFoundException: grapes",
-                            "  Caused by: qub.NotFoundException: grapes")));
+                        new TestError(
+                            "abcd",
+                            Iterable.create(
+                                "Message:  Incorrect exception thrown",
+                                "Expected: qub.NotFoundException: blah",
+                                "Actual:   java.lang.RuntimeException: qub.NotFoundException: grapes",
+                                "  Caused by: qub.NotFoundException: grapes"),
+                            new RuntimeException(new NotFoundException("grapes"))));
                 });
 
                 runner.test("with action that throws the same error but is wrapped in an AwaitException", (Test test) ->
@@ -757,17 +769,20 @@ public class TestTests
                 {
                     final Test t = createTest("abcd", test);
                     test.assertThrows(() -> t.assertThrows(() -> { throw new AwaitException(new NotFoundException("grapes")); }, new NotFoundException("blah")),
-                        new TestError("abcd", Iterable.create(
-                            "Message:  Incorrect exception thrown",
-                            "Expected: qub.NotFoundException: blah",
-                            "Actual:   qub.AwaitException: qub.NotFoundException: grapes",
-                            "  Caused by: qub.NotFoundException: grapes")));
+                        new TestError(
+                            "abcd",
+                            Iterable.create(
+                                "Message:  Incorrect exception thrown",
+                                "Expected: qub.NotFoundException: blah",
+                                "Actual:   qub.AwaitException: qub.NotFoundException: grapes",
+                                "  Caused by: qub.NotFoundException: grapes"),
+                            new AwaitException(new NotFoundException("grapes"))));
                 });
             });
         });
     }
 
-    private static Test createTest(String testName, Test test)
+    static Test createTest(String testName, Test test)
     {
         return new Test(testName, null, null, test.getProcess());
     }
