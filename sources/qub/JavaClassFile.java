@@ -147,6 +147,13 @@ public class JavaClassFile extends File
         return result;
     }
 
+    public static String getFullTypeName(Path classFilePath, Folder outputFolder)
+    {
+        PreCondition.assertNotNull(outputFolder, "outputFolderPath");
+
+        return JavaClassFile.getFullTypeName(classFilePath, outputFolder.getPath());
+    }
+
     public static String getFullTypeName(Path classFilePath, Path outputFolderPath)
     {
         PreCondition.assertNotNull(classFilePath, "classFilePath");
@@ -156,5 +163,19 @@ public class JavaClassFile extends File
         PreCondition.assertNotNull(outputFolderPath, "outputFolderPath");
 
         return JavaClassFile.getFullTypeName(classFilePath.relativeTo(outputFolderPath));
+    }
+
+    public static boolean isClassFile(String classFilePath)
+    {
+        PreCondition.assertNotNullAndNotEmpty(classFilePath, "classFilePath");
+
+        return JavaClassFile.isClassFile(Path.parse(classFilePath));
+    }
+
+    public static boolean isClassFile(Path classFilePath)
+    {
+        PreCondition.assertNotNull(classFilePath, "classFilePath");
+
+        return classFilePath.endsWith(".class");
     }
 }

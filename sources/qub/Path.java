@@ -378,6 +378,7 @@ public class Path
         PreCondition.assertNotNull(basePath, "basePath");
         PreCondition.assertTrue(basePath.isRooted(), "basePath.isRooted()");
         PreCondition.assertTrue(this.isRooted(), "this.isRooted()");
+        PreCondition.assertEqual(this.getRoot().await(), basePath.getRoot().await(), "basePath.getRoot().await()");
 
         Path result = this;
         if (this.equals(basePath))
@@ -390,9 +391,10 @@ public class Path
             final int thisSegmentsCount = thisSegments.getCount();
             final Indexable<String> basePathSegments = basePath.getSegments();
             final int basePathSegmentsCount = basePathSegments.getCount();
+            final int minimumSegmentCount = Math.minimum(thisSegmentsCount, basePathSegmentsCount);
 
             int segmentIndex = 0;
-            for (; segmentIndex < basePathSegmentsCount; ++segmentIndex)
+            for (; segmentIndex < minimumSegmentCount; ++segmentIndex)
             {
                 if (!thisSegments.get(segmentIndex).equalsIgnoreCase(basePathSegments.get(segmentIndex)))
                 {
@@ -400,30 +402,27 @@ public class Path
                 }
             }
 
-            if (0 < segmentIndex && segmentIndex < thisSegmentsCount)
+            final StringBuilder relativePathStringBuilder = new StringBuilder();
+
+            for (int i = segmentIndex; i < basePathSegmentsCount; ++i)
             {
-                final StringBuilder relativePathStringBuilder = new StringBuilder();
-
-                for (int i = segmentIndex; i < basePathSegmentsCount; ++i)
+                if (relativePathStringBuilder.length() > 0)
                 {
-                    if (relativePathStringBuilder.length() > 0)
-                    {
-                        relativePathStringBuilder.append('/');
-                    }
-                    relativePathStringBuilder.append("..");
+                    relativePathStringBuilder.append('/');
                 }
-
-                final Iterable<String> relativePathSegments = thisSegments.skip(segmentIndex);
-                for (final String segment : relativePathSegments)
-                {
-                    if (relativePathStringBuilder.length() > 0)
-                    {
-                        relativePathStringBuilder.append('/');
-                    }
-                    relativePathStringBuilder.append(segment);
-                }
-                result = parse(relativePathStringBuilder.toString());
+                relativePathStringBuilder.append("..");
             }
+
+            final Iterable<String> relativePathSegments = thisSegments.skip(segmentIndex);
+            for (final String segment : relativePathSegments)
+            {
+                if (relativePathStringBuilder.length() > 0)
+                {
+                    relativePathStringBuilder.append('/');
+                }
+                relativePathStringBuilder.append(segment);
+            }
+            result = parse(relativePathStringBuilder.toString());
         }
         return result;
     }
