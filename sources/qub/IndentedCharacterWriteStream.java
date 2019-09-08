@@ -171,7 +171,7 @@ public class IndentedCharacterWriteStream implements CharacterWriteStream
 
                 lineStartIndex = lineEndIndex;
                 lineLength = endIndex - lineStartIndex;
-                newLineCharacterIndex = Array.indexOf(toWrite, lineStartIndex, lineLength, '\n');
+                newLineCharacterIndex = lineLength > 0 ? Array.indexOf(toWrite, lineStartIndex, lineLength, '\n') : -1;
             }
 
             if (lineStartIndex < endIndex)
@@ -218,7 +218,7 @@ public class IndentedCharacterWriteStream implements CharacterWriteStream
 
                 lineStartIndex = lineEndIndex;
                 lineLength = toWriteLength - lineStartIndex;
-                newLineCharacterIndex = toWrite.indexOf('\n', lineStartIndex);
+                newLineCharacterIndex = lineLength > 0 ? toWrite.indexOf('\n', lineStartIndex) : -1;
             }
 
             if (lineStartIndex < toWriteLength)
@@ -244,12 +244,7 @@ public class IndentedCharacterWriteStream implements CharacterWriteStream
 
         return Result.create(() ->
         {
-            int result = 0;
-            if (indentNextCharacter && !Strings.isNullOrEmpty(currentIndent))
-            {
-                result += innerStream.write(currentIndent).await();
-            }
-            result += innerStream.writeLine().await();
+            final int result = innerStream.writeLine().await();
             indentNextCharacter = true;
             return result;
         });

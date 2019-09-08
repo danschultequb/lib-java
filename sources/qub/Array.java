@@ -1154,9 +1154,10 @@ public abstract class Array<T> implements MutableIndexable<T>
         PreCondition.assertLength(length, startIndex, characters.length);
 
         int result = -1;
-        for (int i = 0; i < length; ++i)
+        final int endIndex = startIndex + length;
+        for (int i = startIndex; i < endIndex; ++i)
         {
-            if (characters[startIndex + i] == value)
+            if (characters[i] == value)
             {
                 result = i;
                 break;

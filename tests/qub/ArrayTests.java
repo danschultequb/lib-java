@@ -2163,7 +2163,7 @@ public class ArrayTests
 
                 runner.test("with non-empty characters and found character", (Test test) ->
                 {
-                    test.assertEqual(1, Array.indexOf(new char[] { 'x', 'y', 'z' }, 1, 2, 'z'));
+                    test.assertEqual(2, Array.indexOf(new char[] { 'x', 'y', 'z' }, 1, 2, 'z'));
                 });
             });
 
