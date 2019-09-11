@@ -168,4 +168,17 @@ public class File extends FileSystemEntry
     {
         return getFileSystem().copyFileToFolder(this, destinationFolder);
     }
+
+    @Override
+    public boolean equals(Object rhs)
+    {
+        return rhs instanceof File && equals((File)rhs);
+    }
+
+    public boolean equals(File rhs)
+    {
+        return rhs != null &&
+            Comparer.equal(getFileSystem(), rhs.getFileSystem()) &&
+            Comparer.equal(getPath(), rhs.getPath());
+    }
 }

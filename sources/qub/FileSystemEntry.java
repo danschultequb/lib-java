@@ -65,12 +65,4 @@ public abstract class FileSystemEntry
     {
         return path.toString();
     }
-
-    @Override
-    public boolean equals(Object rhs)
-    {
-        return rhs != null &&
-                getClass().equals(rhs.getClass()) &&
-                getPath().equals(((FileSystemEntry)rhs).getPath());
-    }
 }

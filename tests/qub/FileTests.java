@@ -1,8 +1,8 @@
 package qub;
 
-public class FileTests
+public interface FileTests
 {
-    public static void test(TestRunner runner)
+    static void test(TestRunner runner)
     {
         runner.testGroup(File.class, () ->
         {
@@ -19,7 +19,7 @@ public class FileTests
                 {
                     final FileSystem fileSystem = getFileSystem(test);
                     final File file = fileSystem.getFile("/folder/file.txt").await();
-                    test.assertEqual("/folder", file.getParentFolder().toString());
+                    test.assertEqual("/folder/", file.getParentFolder().toString());
                 });
             });
 
@@ -373,25 +373,25 @@ public class FileTests
         });
     }
 
-    private static FileSystem getFileSystem(Test test)
+    static FileSystem getFileSystem(Test test)
     {
         final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
         fileSystem.createRoot("/").await();
         return fileSystem;
     }
 
-    private static File getFile(Test test)
+    static File getFile(Test test)
     {
         final FileSystem fileSystem = getFileSystem(test);
         return getFile(fileSystem);
     }
 
-    private static File getFile(FileSystem fileSystem)
+    static File getFile(FileSystem fileSystem)
     {
         return getFile(fileSystem, "/A");
     }
 
-    private static File getFile(FileSystem fileSystem, String filePath)
+    static File getFile(FileSystem fileSystem, String filePath)
     {
         return new File(fileSystem, filePath);
     }

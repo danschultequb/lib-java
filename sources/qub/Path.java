@@ -459,9 +459,9 @@ public class Path
             }
 
             String normalizedPathString = normalizedPathStringBuilder.toString();
-            if (normalizedPathString.endsWith("/") && !normalizedPathString.equals("/") && !normalizedPathString.endsWith(":/"))
+            if (normalizedPathString.endsWith(":") && !normalizedPathString.contains("/"))
             {
-                normalizedPathString = normalizedPathString.substring(0, normalizedPathString.length() - 1);
+                normalizedPathString += "/";
             }
 
             if (normalizedPathString.equals(value))
@@ -490,13 +490,34 @@ public class Path
 
     public boolean equals(Path rhs)
     {
+        return this.equals(rhs, true);
+    }
+
+    public boolean equals(Path rhs, boolean checkTrailingSlash)
+    {
         boolean result = false;
 
         if (rhs != null)
         {
             final Path resolvedLhs = this.resolve().await();
+            String resolvedLhsString = resolvedLhs.toString();
             final Path resolvedRhs = rhs.resolve().await();
-            result = resolvedLhs.value.equals(resolvedRhs.value);
+            String resolvedRhsString = resolvedRhs.toString();
+            result = resolvedLhsString.equals(resolvedRhsString);
+            if (!result && !checkTrailingSlash)
+            {
+                if (resolvedLhs.endsWith('/'))
+                {
+                    resolvedLhsString = resolvedLhsString.substring(0, resolvedLhsString.length() - 1);
+                }
+
+                if (resolvedRhs.endsWith('/'))
+                {
+                    resolvedRhsString = resolvedRhsString.substring(0, resolvedRhsString.length() - 1);
+                }
+
+                result = resolvedLhsString.equals(resolvedRhsString);
+            }
         }
 
         return result;
@@ -600,7 +621,7 @@ public class Path
                 previousResolvedSegment = resolvedSegment;
             }
             String resultPathString = builder.toString();
-            if (!resultPathString.equals("/") && (normalizedPath.endsWith("/") || (resultPathString.endsWith(":") && resolvedSegments.getCount() == 1)))
+            if (!resultPathString.equals("/") && (normalizedPath.endsWith("/") || ((resultPathString.endsWith(":") && resolvedSegments.getCount() == 1))))
             {
                 builder.append('/');
             }

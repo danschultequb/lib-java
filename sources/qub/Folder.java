@@ -334,6 +334,19 @@ public class Folder extends FileSystemEntry
         return getPath().concatenateSegment(relativePath);
     }
 
+    @Override
+    public boolean equals(Object rhs)
+    {
+        return rhs instanceof Folder && equals((Folder)rhs);
+    }
+
+    public boolean equals(Folder rhs)
+    {
+        return rhs != null &&
+            Comparer.equal(getFileSystem(), rhs.getFileSystem()) &&
+            getPath().equals(rhs.getPath(), false);
+    }
+
     private static void validateRelativeFilePath(Path relativeFilePath)
     {
         PreCondition.assertNotNull(relativeFilePath, "relativeFilePath");

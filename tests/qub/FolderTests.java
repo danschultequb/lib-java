@@ -61,14 +61,14 @@ public interface FolderTests
                 {
                     final Folder folder = getFolder(test, "/apples/dates");
                     final Folder parentFolder = folder.getParentFolder().await();
-                    test.assertEqual("/apples", parentFolder.toString());
+                    test.assertEqual("/apples/", parentFolder.toString());
                 });
 
                 runner.test("with " + Strings.escapeAndQuote("/apples/dates/"), (Test test) ->
                 {
                     final Folder folder = getFolder(test, "/apples/dates/");
                     final Folder parentFolder = folder.getParentFolder().await();
-                    test.assertEqual("/apples", parentFolder.toString());
+                    test.assertEqual("/apples/", parentFolder.toString());
                 });
             });
 

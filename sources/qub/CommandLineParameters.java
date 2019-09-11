@@ -217,19 +217,67 @@ public class CommandLineParameters
                 }
                 else
                 {
+                    Path path = Path.parse(value);
+                    if (!path.isRooted())
+                    {
+                        path = process.getCurrentFolderPath().resolve(path).await();
+                    }
+
                     final FileSystem fileSystem = process.getFileSystem();
-                    final Path path = Path.parse(value);
-                    if (path.isRooted())
-                    {
-                        folder = fileSystem.getFolder(path).await();
-                    }
-                    else
-                    {
-                        final Path rootedPath = process.getCurrentFolderPath().resolve(path).await();
-                        folder = fileSystem.getFolder(rootedPath).await();
-                    }
+                    folder = fileSystem.getFolder(path).await();
                 }
                 return folder;
+            });
+        };
+    }
+
+    /**
+     * Add an optional File-valued command line parameter.
+     * @param parameterName The name of the parameter.
+     * @return The new command line parameter.
+     */
+    public CommandLineParameter<File> addFile(String parameterName, Process process)
+    {
+        PreCondition.assertNotNullAndNotEmpty(parameterName, "parameterName");
+        PreCondition.assertNotNull(process, "process");
+
+        return add(parameterName, CommandLineParameters.getFileParser(process))
+            .setValueRequired(true);
+    }
+
+    /**
+     * Add an optional File-valued command line parameter.
+     * @param parameterName The name of the parameter.
+     * @return The new command line parameter.
+     */
+    public CommandLineParameter<File> addPositionalFile(String parameterName, Process process)
+    {
+        PreCondition.assertNotNullAndNotEmpty(parameterName, "parameterName");
+        PreCondition.assertNotNull(process, "process");
+
+        return addPositional(parameterName, CommandLineParameters.getFileParser(process))
+            .setValueRequired(true);
+    }
+
+    private static Function1<String,Result<File>> getFileParser(Process process)
+    {
+        return (String value) ->
+        {
+            return Result.create(() ->
+            {
+                File file = null;
+                if (!Strings.isNullOrEmpty(value))
+                {
+                    Path path = Path.parse(value);
+                    if (!path.isRooted())
+                    {
+                        path = process.getCurrentFolderPath().resolve(path).await();
+                    }
+
+                    final FileSystem fileSystem = process.getFileSystem();
+                    file = fileSystem.getFile(path).await();
+                }
+                return file;
             });
         };
     }

@@ -277,7 +277,7 @@ public interface PathTests
                     test.assertEqual(Iterable.create("/", "test1"), pathSegments);
 
                     final Path normalizedPath = path.normalize();
-                    test.assertEqual("/test1", normalizedPath.toString());
+                    test.assertEqual("/test1/", normalizedPath.toString());
                     final Indexable<String> normalizedPathSegments = normalizedPath.getSegments();
                     test.assertNotNull(normalizedPathSegments);
                     test.assertEqual(Iterable.create("/", "test1"), normalizedPathSegments);
@@ -525,6 +525,33 @@ public interface PathTests
                 relativeToTest.run("/", "/outputs/classes/A.class", "../../..");
             });
 
+            runner.testGroup("normalize()", () ->
+            {
+                final Action2<String,String> normalizeTest = (String pathString, String expectedNormalizedPathString) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(pathString), (Test test) ->
+                    {
+                        final Path path = Path.parse(pathString);
+                        final Path normalizedPath = path.normalize();
+                        test.assertEqual(Path.parse(expectedNormalizedPathString), normalizedPath);
+                        test.assertEqual(expectedNormalizedPathString, normalizedPath.toString());
+                    });
+                };
+
+                normalizeTest.run("C:", "C:/");
+                normalizeTest.run("D:/", "D:/");
+                normalizeTest.run("E:\\", "E:/");
+                normalizeTest.run("/", "/");
+                normalizeTest.run("\\", "/");
+                normalizeTest.run("F:/a", "F:/a");
+                normalizeTest.run("G:\\b", "G:/b");
+                normalizeTest.run("/c", "/c");
+                normalizeTest.run("\\d", "/d");
+                normalizeTest.run("H:/e/", "H:/e/");
+                normalizeTest.run("I:\\f\\", "I:/f/");
+                normalizeTest.run("J:/g\\", "J:/g/");
+            });
+
             runner.testGroup("resolve()", () ->
             {
                 final Action3<String,String,Throwable> resolveTest = (String pathString, String expectedResolvedPathString, Throwable expectedError) ->
@@ -538,7 +565,9 @@ public interface PathTests
                         }
                         else
                         {
-                            test.assertEqual(Path.parse(expectedResolvedPathString), path.resolve().await());
+                            final Path resolvedPath = path.resolve().await();
+                            test.assertEqual(Path.parse(expectedResolvedPathString), resolvedPath);
+                            test.assertEqual(expectedResolvedPathString, resolvedPath.toString());
                         }
                     });
                 };
@@ -597,6 +626,7 @@ public interface PathTests
                         else
                         {
                             test.assertEqual(expectedResolvedPath, result.await());
+                            test.assertEqual(expectedPathString, result.await().toString());
                         }
                     });
                 };
@@ -625,7 +655,7 @@ public interface PathTests
                 equalsTest.run("/", Path.parse("/"), true);
                 equalsTest.run("/", "/a/..", true);
                 equalsTest.run("/", "/a/b/../../", true);
-                equalsTest.run("/a", "/a/", true);
+                equalsTest.run("/a", "/a/", false);
                 equalsTest.run("/a", "/b", false);
                 equalsTest.run("/a", "\\a", true);
             });

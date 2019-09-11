@@ -293,8 +293,8 @@ public interface CommandLineParametersTests
                 runner.test("with null Process", (Test test) ->
                 {
                     final CommandLineParameters parameters = new CommandLineParameters();
-                        test.assertThrows(() -> parameters.addFolder("hello", null),
-                            new PreConditionFailure("process cannot be null."));
+                    test.assertThrows(() -> parameters.addFolder("hello", null),
+                        new PreConditionFailure("process cannot be null."));
                 });
 
                 runner.test("with null", (Test test) ->
@@ -373,13 +373,338 @@ public interface CommandLineParametersTests
                 });
             });
 
+            runner.testGroup("addPositionalFolder(String,Process)", () ->
+            {
+                runner.test("with null parameter name", (Test test) ->
+                {
+                    try (final Process process = new Process())
+                    {
+                        final CommandLineParameters parameters = new CommandLineParameters();
+                        test.assertThrows(() -> parameters.addPositionalFolder(null, process),
+                            new PreConditionFailure("parameterName cannot be null."));
+                    }
+                });
+
+                runner.test("with empty parameter name", (Test test) ->
+                {
+                    try (final Process process = new Process())
+                    {
+                        final CommandLineParameters parameters = new CommandLineParameters();
+                        test.assertThrows(() -> parameters.addPositionalFolder("", process),
+                            new PreConditionFailure("parameterName cannot be empty."));
+                    }
+                });
+
+                runner.test("with null process", (Test test) ->
+                {
+                    final CommandLineParameters parameters = new CommandLineParameters();
+                    test.assertThrows(() -> parameters.addPositionalFolder("hello", null),
+                        new PreConditionFailure("process cannot be null."));
+                });
+
+                runner.test("with non-empty name that doesn't exist in arguments", (Test test) ->
+                {
+                    try (final Process process = new Process())
+                    {
+                        final CommandLineArguments arguments = CommandLineArguments.create();
+                        final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
+                        final CommandLineParameter<Folder> parameter = parameters.addPositionalFolder("a", process);
+                        test.assertEqual(process.getCurrentFolder().await(), parameter.getValue().await());
+                    }
+                });
+
+                runner.test("with non-empty name that has a positional non-empty value", (Test test) ->
+                {
+                    try (final Process process = new Process())
+                    {
+                        final CommandLineArguments arguments = CommandLineArguments.create("testing");
+                        final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
+                        final CommandLineParameter<Folder> parameter = parameters.addPositionalFolder("a", process);
+                        test.assertEqual(process.getCurrentFolder().await().getFolder("testing").await(), parameter.getValue().await());
+                    }
+                });
+
+                runner.test("with non-empty name that doesn't have a value", (Test test) ->
+                {
+                    try (final Process process = new Process())
+                    {
+                        final CommandLineArguments arguments = CommandLineArguments.create("--a");
+                        final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
+                        final CommandLineParameter<Folder> parameter = parameters.addPositionalFolder("a", process);
+                        test.assertEqual(process.getCurrentFolder().await(), parameter.getValue().await());
+                    }
+                });
+
+                runner.test("with non-empty name that has an empty value", (Test test) ->
+                {
+                    try (final Process process = new Process())
+                    {
+                        final CommandLineArguments arguments = CommandLineArguments.create("--a=");
+                        final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
+                        final CommandLineParameter<Folder> parameter = parameters.addPositionalFolder("a", process);
+                        test.assertEqual(process.getCurrentFolder().await(), parameter.getValue().await());
+                    }
+                });
+
+                runner.test("with non-empty name that has a relative file path value", (Test test) ->
+                {
+                    try (final Process process = new Process())
+                    {
+                        final CommandLineArguments arguments = CommandLineArguments.create("--a=folder/subfolder/");
+                        final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
+                        final CommandLineParameter<Folder> parameter = parameters.addPositionalFolder("a", process);
+                        test.assertEqual(process.getCurrentFolder().await().getFolder("folder/subfolder").await(), parameter.getValue().await());
+                    }
+                });
+
+                runner.test("with non-empty name that has a rooted folder path value", (Test test) ->
+                {
+                    try (final Process process = new Process())
+                    {
+                        final CommandLineArguments arguments = CommandLineArguments.create("--a=/folder/");
+                        final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
+                        final CommandLineParameter<Folder> parameter = parameters.addPositionalFolder("a", process);
+                        test.assertEqual(process.getFileSystem().getFolder("/folder/").await(), parameter.getValue().await());
+                    }
+                });
+            });
+
+            runner.testGroup("addFile(String,Process)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    try (final Process process = new Process())
+                    {
+                        final CommandLineParameters parameters = new CommandLineParameters();
+                        test.assertThrows(() -> parameters.addFile(null, process),
+                            new PreConditionFailure("parameterName cannot be null."));
+                    }
+                });
+
+                runner.test("with empty", (Test test) ->
+                {
+                    try (final Process process = new Process())
+                    {
+                        final CommandLineParameters parameters = new CommandLineParameters();
+                        test.assertThrows(() -> parameters.addFile("", process),
+                            new PreConditionFailure("parameterName cannot be empty."));
+                    }
+                });
+
+                runner.test("with null process", (Test test) ->
+                {
+                    final CommandLineParameters parameters = new CommandLineParameters();
+                    test.assertThrows(() -> parameters.addFile("a", null),
+                        new PreConditionFailure("process cannot be null."));
+                });
+
+                runner.test("with non-empty name that doesn't exist in arguments", (Test test) ->
+                {
+                    try (final Process process = new Process())
+                    {
+                        final CommandLineArguments arguments = CommandLineArguments.create();
+                        final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
+                        final CommandLineParameter<File> parameter = parameters.addFile("a", process);
+                        test.assertNull(parameter.getValue().await());
+                    }
+                });
+
+                runner.test("with non-empty name that doesn't have a value", (Test test) ->
+                {
+                    try (final Process process = new Process())
+                    {
+                        final CommandLineArguments arguments = CommandLineArguments.create("--a");
+                        final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
+                        final CommandLineParameter<File> parameter = parameters.addFile("a", process);
+                        test.assertNull(parameter.getValue().await());
+                    }
+                });
+
+                runner.test("with non-empty name that has an empty value", (Test test) ->
+                {
+                    try (final Process process = new Process())
+                    {
+                        final CommandLineArguments arguments = CommandLineArguments.create("--a=");
+                        final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
+                        final CommandLineParameter<File> parameter = parameters.addFile("a", process);
+                        test.assertNull(parameter.getValue().await());
+                    }
+                });
+
+                runner.test("with non-empty name that has a relative folder path value", (Test test) ->
+                {
+                    try (final Process process = new Process())
+                    {
+                        final CommandLineArguments arguments = CommandLineArguments.create("--a=folder/subfolder/");
+                        final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
+                        final CommandLineParameter<File> parameter = parameters.addFile("a", process);
+                        test.assertThrows(() -> parameter.getValue().await(),
+                            new PreConditionFailure("rootedFilePath.endsWith(\"/\") cannot be true."));
+                    }
+                });
+
+                runner.test("with non-empty name that has a relative file path value", (Test test) ->
+                {
+                    try (final Process process = new Process())
+                    {
+                        final CommandLineArguments arguments = CommandLineArguments.create("--a=folder/subfolder/file");
+                        final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
+                        final CommandLineParameter<File> parameter = parameters.addFile("a", process);
+                        test.assertEqual(process.getCurrentFolder().await().getFile("folder/subfolder/file").await(), parameter.getValue().await());
+                    }
+                });
+
+                runner.test("with non-empty name that has a rooted file path value", (Test test) ->
+                {
+                    try (final Process process = new Process())
+                    {
+                        final CommandLineArguments arguments = CommandLineArguments.create("--a=/folder/file");
+                        final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
+                        final CommandLineParameter<File> parameter = parameters.addFile("a", process);
+                        test.assertEqual(process.getFileSystem().getFile("/folder/file").await(), parameter.getValue().await());
+                    }
+                });
+
+                runner.test("with non-empty name that has a rooted folder path value", (Test test) ->
+                {
+                    try (final Process process = new Process())
+                    {
+                        final CommandLineArguments arguments = CommandLineArguments.create("--a=/folder/");
+                        final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
+                        final CommandLineParameter<File> parameter = parameters.addFile("a", process);
+                        test.assertThrows(() -> parameter.getValue().await(),
+                            new PreConditionFailure("rootedFilePath.endsWith(\"/\") cannot be true."));
+                    }
+                });
+            });
+
+            runner.testGroup("addPositionalFile(String,Process)", () ->
+            {
+                runner.test("with null parameter name", (Test test) ->
+                {
+                    try (final Process process = new Process())
+                    {
+                        final CommandLineParameters parameters = new CommandLineParameters();
+                        test.assertThrows(() -> parameters.addPositionalFile(null, process),
+                            new PreConditionFailure("parameterName cannot be null."));
+                    }
+                });
+
+                runner.test("with empty parameter name", (Test test) ->
+                {
+                    try (final Process process = new Process())
+                    {
+                        final CommandLineParameters parameters = new CommandLineParameters();
+                        test.assertThrows(() -> parameters.addPositionalFile("", process),
+                            new PreConditionFailure("parameterName cannot be empty."));
+                    }
+                });
+
+                runner.test("with null process", (Test test) ->
+                {
+                    final CommandLineParameters parameters = new CommandLineParameters();
+                    test.assertThrows(() -> parameters.addPositionalFile("hello", null),
+                        new PreConditionFailure("process cannot be null."));
+                });
+
+                runner.test("with non-empty name that doesn't exist in arguments", (Test test) ->
+                {
+                    try (final Process process = new Process())
+                    {
+                        final CommandLineArguments arguments = CommandLineArguments.create();
+                        final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
+                        final CommandLineParameter<File> parameter = parameters.addPositionalFile("a", process);
+                        test.assertNull(parameter.getValue().await());
+                    }
+                });
+
+                runner.test("with non-empty name that has a positional non-empty value", (Test test) ->
+                {
+                    try (final Process process = new Process())
+                    {
+                        final CommandLineArguments arguments = CommandLineArguments.create("testing");
+                        final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
+                        final CommandLineParameter<File> parameter = parameters.addPositionalFile("a", process);
+                        test.assertEqual(process.getCurrentFolder().await().getFile("testing").await(), parameter.getValue().await());
+                    }
+                });
+
+                runner.test("with non-empty name that doesn't have a value", (Test test) ->
+                {
+                    try (final Process process = new Process())
+                    {
+                        final CommandLineArguments arguments = CommandLineArguments.create("--a");
+                        final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
+                        final CommandLineParameter<File> parameter = parameters.addPositionalFile("a", process);
+                        test.assertNull(parameter.getValue().await());
+                    }
+                });
+
+                runner.test("with non-empty name that has an empty value", (Test test) ->
+                {
+                    try (final Process process = new Process())
+                    {
+                        final CommandLineArguments arguments = CommandLineArguments.create("--a=");
+                        final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
+                        final CommandLineParameter<File> parameter = parameters.addPositionalFile("a", process);
+                        test.assertNull(parameter.getValue().await());
+                    }
+                });
+
+                runner.test("with non-empty name that has a relative folder path value", (Test test) ->
+                {
+                    try (final Process process = new Process())
+                    {
+                        final CommandLineArguments arguments = CommandLineArguments.create("--a=folder/subfolder/");
+                        final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
+                        final CommandLineParameter<File> parameter = parameters.addPositionalFile("a", process);
+                        test.assertThrows(() -> parameter.getValue().await(),
+                            new PreConditionFailure("rootedFilePath.endsWith(\"/\") cannot be true."));
+                    }
+                });
+
+                runner.test("with non-empty name that has a relative file path value", (Test test) ->
+                {
+                    try (final Process process = new Process())
+                    {
+                        final CommandLineArguments arguments = CommandLineArguments.create("--a=folder/subfolder/file");
+                        final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
+                        final CommandLineParameter<File> parameter = parameters.addPositionalFile("a", process);
+                        test.assertEqual(process.getCurrentFolder().await().getFile("folder/subfolder/file").await(), parameter.getValue().await());
+                    }
+                });
+
+                runner.test("with non-empty name that has a rooted folder path value", (Test test) ->
+                {
+                    try (final Process process = new Process())
+                    {
+                        final CommandLineArguments arguments = CommandLineArguments.create("--a=/folder/");
+                        final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
+                        final CommandLineParameter<File> parameter = parameters.addPositionalFile("a", process);
+                        test.assertThrows(() -> parameter.getValue().await(),
+                            new PreConditionFailure("rootedFilePath.endsWith(\"/\") cannot be true."));
+                    }
+                });
+
+                runner.test("with non-empty name that has a rooted file path value", (Test test) ->
+                {
+                    try (final Process process = new Process())
+                    {
+                        final CommandLineArguments arguments = CommandLineArguments.create("--a=/folder/file");
+                        final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
+                        final CommandLineParameter<File> parameter = parameters.addPositionalFile("a", process);
+                        test.assertEqual(process.getFileSystem().getFile("/folder/file").await(), parameter.getValue().await());
+                    }
+                });
+            });
+
             runner.testGroup("addEnum(String,T)", () ->
             {
                 runner.test("with null defaultValue", (Test test) ->
                 {
                     final CommandLineParameters parameters = new CommandLineParameters();
-                        test.assertThrows(() -> parameters.addEnum("hello", null),
-                            new PreConditionFailure("defaultValue cannot be null."));
+                    test.assertThrows(() -> parameters.addEnum("hello", null),
+                        new PreConditionFailure("defaultValue cannot be null."));
                 });
 
                 runner.test("with null", (Test test) ->
