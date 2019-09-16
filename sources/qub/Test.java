@@ -115,14 +115,6 @@ public class Test
         return process.getDisplays();
     }
 
-    public void writeLine(String formattedText, Object... formattedTextArguments)
-    {
-        PreCondition.assertNotNullAndNotEmpty(formattedText, "formattedText");
-        PreCondition.assertNotNull(process.getOutputByteWriteStream(), "process.getOutputByteWriteStream()");
-
-        process.getOutputCharacterWriteStream().writeLine(formattedText, formattedTextArguments);
-    }
-
     /**
      * Assert that the provided value is true. If it is not true, then a TestError will
      * be thrown.
@@ -255,12 +247,41 @@ public class Test
      * @preCondition variableName != null && variableName.length() > 0
      * @postCondition value != null && value.length() != 0
      */
+    public void assertNotNullAndNotEmpty(String value, String message)
+    {
+        if (Strings.isNullOrEmpty(value))
+        {
+            throw new TestError(getFullName(), getMessageLines(message, "not null and not empty", value));
+        }
+    }
+
+    /**
+     * Assert that the provided value is not null and not empty.
+     * @param value The value to check.
+     * @preCondition variableName != null && variableName.length() > 0
+     * @postCondition value != null && value.length() != 0
+     */
     public void assertNotNullAndNotEmpty(Iterable<?> value)
     {
         assertNotNull(value);
         if (!value.any())
         {
             throw new TestError(getFullName(), getMessageLines((String)null, "not null and not empty", value));
+        }
+    }
+
+    /**
+     * Assert that the provided value is not null and not empty.
+     * @param value The value to check.
+     * @preCondition variableName != null && variableName.length() > 0
+     * @postCondition value != null && value.length() != 0
+     */
+    public void assertNotNullAndNotEmpty(Iterable<?> value, String message)
+    {
+        assertNotNull(value, message);
+        if (!value.any())
+        {
+            throw new TestError(getFullName(), getMessageLines(message, "not null and not empty", value));
         }
     }
 

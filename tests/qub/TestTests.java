@@ -10,17 +10,20 @@ public interface TestTests
             {
                 runner.test("with null name", (Test test) ->
                 {
-                    test.assertThrows(() -> new Test(null, null, null, test.getProcess()), new PreConditionFailure("name cannot be null."));
+                    test.assertThrows(() -> new Test(null, null, null, test.getProcess()),
+                        new PreConditionFailure("name cannot be null."));
                 });
 
                 runner.test("with empty name", (Test test) ->
                 {
-                    test.assertThrows(() -> new Test("", null, null, test.getProcess()), new PreConditionFailure("name cannot be empty."));
+                    test.assertThrows(() -> new Test("", null, null, test.getProcess()),
+                        new PreConditionFailure("name cannot be empty."));
                 });
 
                 runner.test("with null process", (Test test) ->
                 {
-                    test.assertThrows(() -> new Test("my fake test", null, null, null), new PreConditionFailure("process cannot be null."));
+                    test.assertThrows(() -> new Test("my fake test", null, null, null),
+                        new PreConditionFailure("process cannot be null."));
                 });
 
                 runner.test("with non-empty name and non-null process", (Test test) ->
@@ -67,7 +70,70 @@ public interface TestTests
                 });
             });
 
-            runner.testGroup("isMatch()", () ->
+            runner.testGroup("getFullName()", () ->
+            {
+                runner.test("with null parent", (Test test) ->
+                {
+                    final Test t = new Test("apples", null, null, test.getProcess());
+                    test.assertEqual("apples", t.getFullName());
+                });
+
+                runner.test("with TestClassParent parent", (Test test) ->
+                {
+                    final TestClass parent = new TestClass(TestTests.class);
+                    final Test t = new Test("apples", parent, null, test.getProcess());
+                    test.assertEqual("qub.TestTests apples", t.getFullName());
+                });
+
+                runner.test("with TestGroup parent with no grandparent", (Test test) ->
+                {
+                    final TestGroup parent = new TestGroup("bananas", null, null);
+                    final Test t = new Test("apples", parent, null, test.getProcess());
+                    test.assertEqual("bananas apples", t.getFullName());
+                });
+
+                runner.test("with TestGroup parent with TestClass grandparent", (Test test) ->
+                {
+                    final TestClass grandparent = new TestClass(TestTests.class);
+                    final TestGroup parent = new TestGroup("bananas", grandparent, null);
+                    final Test t = new Test("apples", parent, null, test.getProcess());
+                    test.assertEqual("qub.TestTests bananas apples", t.getFullName());
+                });
+            });
+
+            runner.testGroup("getTestClass()", () ->
+            {
+                runner.test("with no parent", (Test test) ->
+                {
+                    final Test t = new Test("apples", null, null, test.getProcess());
+                    test.assertNull(t.getTestClass());
+                });
+
+                runner.test("with no TestClass ancestor", (Test test) ->
+                {
+                    final TestGroup grandparent = new TestGroup("grandparent", null, null);
+                    final TestGroup parent = new TestGroup("parent", grandparent, null);
+                    final Test t = new Test("apples", parent, null, test.getProcess());
+                    test.assertNull(t.getTestClass());
+                });
+
+                runner.test("with TestClass parent", (Test test) ->
+                {
+                    final TestClass parent = new TestClass(TestTests.class);
+                    final Test t = new Test("apples", parent, null, test.getProcess());
+                    test.assertSame(parent, t.getTestClass());
+                });
+
+                runner.test("with TestClass grandparent", (Test test) ->
+                {
+                    final TestClass grandparent = new TestClass(TestTests.class);
+                    final TestGroup parent = new TestGroup("parent", grandparent, null);
+                    final Test t = new Test("apples", parent, null, test.getProcess());
+                    test.assertSame(grandparent, t.getTestClass());
+                });
+            });
+
+            runner.testGroup("matches()", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
@@ -80,17 +146,40 @@ public interface TestTests
                     test.assertFalse(t.matches(PathPattern.parse("bananas")));
                 });
 
-                runner.test("with pattern that isMatch test name", (Test test) ->
+                runner.test("with pattern that matches test name", (Test test) ->
                 {
                     final Test t = new Test("apples", null, null, test.getProcess());
                     test.assertTrue(t.matches(PathPattern.parse("apples")));
                 });
 
-                runner.test("with pattern that isMatch test full name", (Test test) ->
+                runner.test("with pattern that matches test full name", (Test test) ->
                 {
                     final TestGroup tg = new TestGroup("apples and", null, null);
                     final Test t = new Test("bananas", tg, null, test.getProcess());
                     test.assertTrue(t.matches(PathPattern.parse("apples*bananas")));
+                });
+
+                runner.test("with pattern that matches parent name", (Test test) ->
+                {
+                    final TestGroup tg = new TestGroup("apples and", null, null);
+                    final Test t = new Test("bananas", tg, null, test.getProcess());
+                    test.assertTrue(t.matches(PathPattern.parse("apples*d")));
+                });
+
+                runner.test("with pattern that matches parent full name", (Test test) ->
+                {
+                    final TestGroup tg2 = new TestGroup("oranges and ", null, null);
+                    final TestGroup tg = new TestGroup("apples and", tg2, null);
+                    final Test t = new Test("bananas", tg, null, test.getProcess());
+                    test.assertTrue(t.matches(PathPattern.parse("oranges*apples*d")));
+                });
+
+                runner.test("with pattern that doesn't match parent", (Test test) ->
+                {
+                    final TestGroup tg2 = new TestGroup("oranges and ", null, null);
+                    final TestGroup tg = new TestGroup("apples and", tg2, null);
+                    final Test t = new Test("bananas", tg, null, test.getProcess());
+                    test.assertFalse(t.matches(PathPattern.parse("spando")));
                 });
             });
 
@@ -221,52 +310,60 @@ public interface TestTests
                 });
             });
 
-            runner.testGroup("writeLine()", () ->
+            runner.test("getProcess()", (Test test) ->
             {
-                runner.test("with null process.getOutputByteWriteStream()", (Test test) ->
-                {
-                    try (final Process p = new Process())
-                    {
-                        p.setOutputByteWriteStream((ByteWriteStream)null);
-                        final Test t = new Test("abc", null, null, p);
-                        test.assertThrows(() -> t.writeLine("Hello"),
-                            new PreConditionFailure("process.getOutputByteWriteStream() cannot be null."));
-                    }
-                });
+                final Process process = test.getProcess();
+                final Test t = createTest("abc", test);
+                test.assertSame(process, t.getProcess());
+                test.assertSame(process, t.getProcess());
+            });
 
-                runner.test("with null formattedText", (Test test) ->
-                {
-                    try (final Process p = new Process())
-                    {
-                        final InMemoryCharacterStream stdout = new InMemoryCharacterStream();
-                        p.setOutputCharacterWriteStream(stdout);
-                        final Test t = new Test("abc", null, null, p);
-                        test.assertThrows(() -> t.writeLine(null), new PreConditionFailure("formattedText cannot be null."));
-                    }
-                });
+            runner.test("getMainAsyncRunner()", (Test test) ->
+            {
+                final AsyncScheduler asyncRunner = test.getMainAsyncRunner();
+                final Test t = createTest("abc", test);
+                test.assertSame(asyncRunner, t.getMainAsyncRunner());
+                test.assertSame(asyncRunner, t.getMainAsyncRunner());
+            });
 
-                runner.test("with empty formattedText", (Test test) ->
-                {
-                    try (final Process p = new Process())
-                    {
-                        final InMemoryCharacterStream stdout = new InMemoryCharacterStream();
-                        p.setOutputCharacterWriteStream(stdout);
-                        final Test t = new Test("abc", null, null, p);
-                        test.assertThrows(() -> t.writeLine(""), new PreConditionFailure("formattedText cannot be empty."));
-                    }
-                });
+            runner.test("getParallelAsyncRunner()", (Test test) ->
+            {
+                final AsyncScheduler asyncRunner = test.getParallelAsyncRunner();
+                final Test t = createTest("abc", test);
+                test.assertSame(asyncRunner, t.getParallelAsyncRunner());
+                test.assertSame(asyncRunner, t.getParallelAsyncRunner());
+            });
 
-                runner.test("with non-empty formattedText", (Test test) ->
-                {
-                    try (final Process p = new Process())
-                    {
-                        final InMemoryCharacterStream stdout = new InMemoryCharacterStream();
-                        p.setOutputCharacterWriteStream(stdout);
-                        final Test t = new Test("abc", null, null, p);
-                        t.writeLine("hello");
-                        test.assertEqual("hello\n", stdout.getText().await());
-                    }
-                });
+            runner.test("getNetwork()", (Test test) ->
+            {
+                final Network network = test.getNetwork();
+                final Test t = createTest("abc", test);
+                test.assertSame(network, t.getNetwork());
+                test.assertSame(network, t.getNetwork());
+            });
+
+            runner.test("getFileSystem()", (Test test) ->
+            {
+                final FileSystem fileSystem = test.getFileSystem();
+                final Test t = createTest("abc", test);
+                test.assertSame(fileSystem, t.getFileSystem());
+                test.assertSame(fileSystem, t.getFileSystem());
+            });
+
+            runner.test("getClock()", (Test test) ->
+            {
+                final Clock clock = test.getClock();
+                final Test t = createTest("abc", test);
+                test.assertSame(clock, t.getClock());
+                test.assertSame(clock, t.getClock());
+            });
+
+            runner.test("getDisplays()", (Test test) ->
+            {
+                final Iterable<Display> displays = test.getDisplays();
+                final Test t = createTest("abc", test);
+                test.assertSame(displays, t.getDisplays());
+                test.assertSame(displays, t.getDisplays());
             });
 
             runner.testGroup("assertTrue(boolean)", () ->
@@ -600,13 +697,149 @@ public interface TestTests
                 {
                     final Test t = createTest("abc", test);
                     test.assertThrows(() -> t.assertNotNullAndNotEmpty(""),
-                        new TestError("abc", Iterable.create("Expected: \"not null and not empty\"", "Actual:   \"\"")));
+                        new TestError("abc", Iterable.create(
+                            "Expected: \"not null and not empty\"",
+                            "Actual:   \"\"")));
                 });
 
                 runner.test("with non-empty", (Test test) ->
                 {
                     final Test t = createTest("abc", test);
                     t.assertNotNullAndNotEmpty("Hello");
+                });
+            });
+
+            runner.testGroup("assertNotNullAndNotEmpty(String,String)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final Test t = createTest("abc", test);
+                    test.assertThrows(() -> t.assertNotNullAndNotEmpty((String)null, "hello"),
+                        new TestError("abc", Iterable.create(
+                            "Message:  hello",
+                            "Expected: \"not null and not empty\"",
+                            "Actual:   null")));
+                });
+
+                runner.test("with empty", (Test test) ->
+                {
+                    final Test t = createTest("abc", test);
+                    test.assertThrows(() -> t.assertNotNullAndNotEmpty("", "hello"),
+                        new TestError("abc", Iterable.create(
+                            "Message:  hello",
+                            "Expected: \"not null and not empty\"",
+                            "Actual:   \"\"")));
+                });
+
+                runner.test("with non-empty", (Test test) ->
+                {
+                    final Test t = createTest("abc", test);
+                    t.assertNotNullAndNotEmpty("Hello", "there");
+                });
+            });
+
+            runner.testGroup("assertNotNullAndNotEmpty(Iterable<T>)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final Test t = createTest("abc", test);
+                    test.assertThrows(() -> t.assertNotNullAndNotEmpty((Iterable<Integer>)null),
+                        new TestError("abc", Iterable.create(
+                            "Expected: \"not null\"",
+                            "Actual:   null")));
+                });
+
+                runner.test("with empty", (Test test) ->
+                {
+                    final Test t = createTest("abc", test);
+                    test.assertThrows(() -> t.assertNotNullAndNotEmpty(Iterable.create()),
+                        new TestError("abc", Iterable.create(
+                            "Expected: \"not null and not empty\"",
+                            "Actual:   []")));
+                });
+
+                runner.test("with non-empty", (Test test) ->
+                {
+                    final Test t = createTest("abc", test);
+                    t.assertNotNullAndNotEmpty(Iterable.create(1, 2, 3));
+                });
+            });
+
+            runner.testGroup("assertNotNullAndNotEmpty(Iterable<T>,String)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final Test t = createTest("abc", test);
+                    test.assertThrows(() -> t.assertNotNullAndNotEmpty((Iterable<Integer>)null, "hello"),
+                        new TestError("abc", Iterable.create(
+                            "Message:  hello",
+                            "Expected: \"not null\"",
+                            "Actual:   null")));
+                });
+
+                runner.test("with empty", (Test test) ->
+                {
+                    final Test t = createTest("abc", test);
+                    test.assertThrows(() -> t.assertNotNullAndNotEmpty(Iterable.create(), "hello"),
+                        new TestError("abc", Iterable.create(
+                            "Message:  hello",
+                            "Expected: \"not null and not empty\"",
+                            "Actual:   []")));
+                });
+
+                runner.test("with non-empty", (Test test) ->
+                {
+                    final Test t = createTest("abc", test);
+                    t.assertNotNullAndNotEmpty(Iterable.create("Hello"), "there");
+                });
+            });
+
+            runner.testGroup("assertEqual(T,T)", () ->
+            {
+                runner.test("with null and null", (Test test) ->
+                {
+                    final Test t = createTest("abc", test);
+                    t.assertEqual((Integer)null, (Integer)null);
+                });
+
+                runner.test("with null and not-null", (Test test) ->
+                {
+                    final Test t = createTest("abc", test);
+                    test.assertThrows(() -> t.assertEqual(null, "hello"),
+                        new TestError("abc", Iterable.create(
+                            "Expected: null",
+                            "Actual:   \"hello\"")));
+                });
+
+                runner.test("with not-null and null", (Test test) ->
+                {
+                    final Test t = createTest("abc", test);
+                    test.assertThrows(() -> t.assertEqual("there", null),
+                        new TestError("abc", Iterable.create(
+                            "Expected: \"there\"",
+                            "Actual:   null")));
+                });
+
+                runner.test("with same object", (Test test) ->
+                {
+                    final Test t = createTest("abc", test);
+                    final String value = "fifty";
+                    t.assertEqual(value, value);
+                });
+
+                runner.test("with equal objects", (Test test) ->
+                {
+                    final Test t = createTest("abc", test);
+                    t.assertEqual(Distance.meters(1), Distance.centimeters(100));
+                });
+
+                runner.test("with not equal objects", (Test test) ->
+                {
+                    final Test t = createTest("abc", test);
+                    test.assertThrows(() -> t.assertEqual(Distance.meters(10), Distance.centimeters(100)),
+                        new TestError("abc", Iterable.create(
+                            "Expected: 10.0 Meters",
+                            "Actual:   100.0 Centimeters")));
                 });
             });
 
