@@ -518,12 +518,48 @@ public interface ProcessTests
                     }
                 });
 
+                runner.test("with rooted path to executable with fake process runner", (Test test) ->
+                {
+                    try (final Process process = creator.run())
+                    {
+                        if (process.onWindows())
+                        {
+                            final FileSystem fileSystem = process.getFileSystem();
+                            final File executableFile = fileSystem.getFile("C:/Program Files/Java/jdk1.8.0_192/bin/javac.exe").await();
+                            process.setProcessRunner(new FakeProcessRunner()
+                                .add(new FakeProcessRun(executableFile)
+                                    .setExitCode(2)));
+                            final ProcessBuilder builder = process.getProcessBuilder(executableFile.getPath()).await();
+                            test.assertEqual("javac.exe", builder.getExecutableFile().getPath().getSegments().last());
+                            test.assertEqual(0, builder.getArgumentCount());
+                            test.assertEqual(2, builder.run().await());
+                        }
+                    }
+                });
+
                 runner.test("with path with file extension relative to PATH environment variable", (Test test) ->
                 {
                     try (final Process process = creator.run())
                     {
                         if (process.onWindows())
                         {
+                            final ProcessBuilder builder = process.getProcessBuilder("javac.exe").await();
+                            test.assertEqual("javac.exe", builder.getExecutableFile().getPath().getSegments().last());
+                            test.assertEqual(0, builder.getArgumentCount());
+                            test.assertEqual(2, builder.run().await());
+                        }
+                    }
+                });
+
+                runner.test("with path with file extension relative to PATH environment variable with fake process runner", (Test test) ->
+                {
+                    try (final Process process = creator.run())
+                    {
+                        if (process.onWindows())
+                        {
+                            process.setProcessRunner(new FakeProcessRunner()
+                                .add(new FakeProcessRun(process.findExecutableFile(Path.parse("javac.exe"), true).await())
+                                    .setExitCode(2)));
                             final ProcessBuilder builder = process.getProcessBuilder("javac.exe").await();
                             test.assertEqual("javac.exe", builder.getExecutableFile().getPath().getSegments().last());
                             test.assertEqual(0, builder.getArgumentCount());
