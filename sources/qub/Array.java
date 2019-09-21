@@ -1246,9 +1246,9 @@ public abstract class Array<T> implements MutableIndexable<T>
         boolean result = false;
         if (array != null)
         {
-            for (int i = 0; i < array.length; ++i)
+            for (final T arrayValue : array)
             {
-                if (Comparer.equal(array[i], value))
+                if (Comparer.equal(arrayValue, value))
                 {
                     result = true;
                     break;

@@ -15,7 +15,7 @@ public interface Map<TKey,TValue> extends Iterable<MapEntry<TKey,TValue>>
      */
     static <TKey,TValue> MutableMap<TKey,TValue> create()
     {
-        return new ListMap<>();
+        return ListMap.create();
     }
 
     /**

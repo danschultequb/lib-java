@@ -298,6 +298,22 @@ public class Test
     }
 
     /**
+     * Assert that the provided values are equal. If they are not equal, then a TestError
+     * will be thrown with the provided message.
+     * @param expected The first value to compare.
+     * @param actual The second value to compare.
+     * @param message The message to show if the values are not equal
+     * @param <T> The type of values to compare.
+     */
+    public <T> void assertEqual(T expected, T actual, String message)
+    {
+        if (!Comparer.equal(expected, actual))
+        {
+            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
+        }
+    }
+
+    /**
      * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestError
      * will be thrown.
      * @param expected The first value to compare.
@@ -309,6 +325,21 @@ public class Test
     }
 
     /**
+     * Assert that the provided values are equal. If they are not equal, then a TestError
+     * will be thrown with the provided message.
+     * @param expected The first value to compare.
+     * @param actual The second value to compare.
+     * @param message The message to show if the values are not equal.
+     */
+    public void assertEqual(byte expected, Byte actual, String message)
+    {
+        if (!Comparer.equal(expected, actual))
+        {
+            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
+        }
+    }
+
+    /**
      * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestError
      * will be thrown.
      * @param expected The first value to compare.
@@ -316,7 +347,22 @@ public class Test
      */
     public void assertEqual(int expected, Byte actual)
     {
-        assertEqual(expected, actual.intValue());
+        assertEqual(expected, actual == null ? null : actual.byteValue(), null);
+    }
+
+    /**
+     * Assert that the provided values are equal. If they are not equal, then a TestError
+     * will be thrown with the provided message.
+     * @param expected The first value to compare.
+     * @param actual The second value to compare.
+     * @param message The message to show if the values are not equal.
+     */
+    public void assertEqual(int expected, Byte actual, String message)
+    {
+        if (actual == null || !Comparer.equal(expected, actual.intValue()))
+        {
+            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
+        }
     }
 
     /**
@@ -331,6 +377,21 @@ public class Test
     }
 
     /**
+     * Assert that the provided values are equal. If they are not equal, then a TestError
+     * will be thrown with the provided message.
+     * @param expected The first value to compare.
+     * @param actual The second value to compare.
+     * @param message The message to show if the values are not equal.
+     */
+    public void assertEqual(char expected, Character actual, String message)
+    {
+        if (!Comparer.equal(expected, actual))
+        {
+            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
+        }
+    }
+
+    /**
      * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestError
      * will be thrown.
      * @param expected The first value to compare.
@@ -339,6 +400,21 @@ public class Test
     public <T> void assertEqual(Character expected, char actual)
     {
         assertEqual(expected, actual, null);
+    }
+
+    /**
+     * Assert that the provided values are equal. If they are not equal, then a TestError
+     * will be thrown with the provided message.
+     * @param expected The first value to compare.
+     * @param actual The second value to compare.
+     * @param message The message to show if the values are not equal.
+     */
+    public void assertEqual(Character expected, char actual, String message)
+    {
+        if (!Comparer.equal(expected, actual))
+        {
+            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
+        }
     }
 
     /**
@@ -353,6 +429,21 @@ public class Test
     }
 
     /**
+     * Assert that the provided values are equal. If they are not equal, then a TestError
+     * will be thrown with the provided message.
+     * @param expected The first value to compare.
+     * @param actual The second value to compare.
+     * @param message The message to show if the values are not equal.
+     */
+    public void assertEqual(short expected, short actual, String message)
+    {
+        if (!Comparer.equal(expected, actual))
+        {
+            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
+        }
+    }
+
+    /**
      * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestError
      * will be thrown.
      * @param expected The first value to compare.
@@ -361,6 +452,21 @@ public class Test
     public <T> void assertEqual(short expected, Short actual)
     {
         assertEqual(expected, actual, null);
+    }
+
+    /**
+     * Assert that the provided values are equal. If they are not equal, then a TestError
+     * will be thrown with the provided message.
+     * @param expected The first value to compare.
+     * @param actual The second value to compare.
+     * @param message The message to show if the values are not equal.
+     */
+    public void assertEqual(short expected, Short actual, String message)
+    {
+        if (!Comparer.equal(expected, actual))
+        {
+            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
+        }
     }
 
     /**
@@ -375,6 +481,21 @@ public class Test
     }
 
     /**
+     * Assert that the provided values are equal. If they are not equal, then a TestError
+     * will be thrown with the provided message.
+     * @param expected The first value to compare.
+     * @param actual The second value to compare.
+     * @param message The message to show if the values are not equal.
+     */
+    public void assertEqual(Short expected, short actual, String message)
+    {
+        if (!Comparer.equal(expected, actual))
+        {
+            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
+        }
+    }
+
+    /**
      * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestError
      * will be thrown.
      * @param expected The first value to compare.
@@ -383,6 +504,21 @@ public class Test
     public <T> void assertEqual(int expected, int actual)
     {
         assertEqual(expected, actual, null);
+    }
+
+    /**
+     * Assert that the provided values are equal. If they are not equal, then a TestError
+     * will be thrown with the provided message.
+     * @param expected The first value to compare.
+     * @param actual The second value to compare.
+     * @param message The message to show if the values are not equal.
+     */
+    public void assertEqual(int expected, int actual, String message)
+    {
+        if (!Comparer.equal(expected, actual))
+        {
+            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
+        }
     }
 
     /**
@@ -397,6 +533,21 @@ public class Test
     }
 
     /**
+     * Assert that the provided values are equal. If they are not equal, then a TestError
+     * will be thrown with the provided message.
+     * @param expected The first value to compare.
+     * @param actual The second value to compare.
+     * @param message The message to show if the values are not equal.
+     */
+    public void assertEqual(int expected, Integer actual, String message)
+    {
+        if (!Comparer.equal(expected, actual))
+        {
+            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
+        }
+    }
+
+    /**
      * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestError
      * will be thrown.
      * @param expected The first value to compare.
@@ -405,6 +556,21 @@ public class Test
     public <T> void assertEqual(Integer expected, int actual)
     {
         assertEqual(expected, actual, null);
+    }
+
+    /**
+     * Assert that the provided values are equal. If they are not equal, then a TestError
+     * will be thrown with the provided message.
+     * @param expected The first value to compare.
+     * @param actual The second value to compare.
+     * @param message The message to show if the values are not equal.
+     */
+    public void assertEqual(Integer expected, int actual, String message)
+    {
+        if (!Comparer.equal(expected, actual))
+        {
+            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
+        }
     }
 
     /**
@@ -419,6 +585,21 @@ public class Test
     }
 
     /**
+     * Assert that the provided values are equal. If they are not equal, then a TestError
+     * will be thrown with the provided message.
+     * @param expected The first value to compare.
+     * @param actual The second value to compare.
+     * @param message The message to show if the values are not equal.
+     */
+    public void assertEqual(long expected, long actual, String message)
+    {
+        if (!Comparer.equal(expected, actual))
+        {
+            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
+        }
+    }
+
+    /**
      * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestError
      * will be thrown.
      * @param expected The first value to compare.
@@ -430,6 +611,21 @@ public class Test
     }
 
     /**
+     * Assert that the provided values are equal. If they are not equal, then a TestError
+     * will be thrown with the provided message.
+     * @param expected The first value to compare.
+     * @param actual The second value to compare.
+     * @param message The message to show if the values are not equal.
+     */
+    public void assertEqual(Long expected, long actual, String message)
+    {
+        if (!Comparer.equal(expected, actual))
+        {
+            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
+        }
+    }
+
+    /**
      * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestError
      * will be thrown.
      * @param expected The first value to compare.
@@ -438,6 +634,21 @@ public class Test
     public <T> void assertEqual(long expected, Long actual)
     {
         assertEqual(expected, actual, null);
+    }
+
+    /**
+     * Assert that the provided values are equal. If they are not equal, then a TestError
+     * will be thrown with the provided message.
+     * @param expected The first value to compare.
+     * @param actual The second value to compare.
+     * @param message The message to show if the values are not equal.
+     */
+    public void assertEqual(long expected, Long actual, String message)
+    {
+        if (!Comparer.equal(expected, actual))
+        {
+            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
+        }
     }
 
     /**
@@ -484,7 +695,7 @@ public class Test
      */
     public void assertEqual(float expected, Float actual, String message)
     {
-        if (expected != actual)
+        if (!Comparer.equal(expected, actual))
         {
             throw new TestError(getFullName(), getMessageLines(message, expected, actual));
         }
@@ -509,7 +720,7 @@ public class Test
      */
     public void assertEqual(Float expected, float actual, String message)
     {
-        if (expected != actual)
+        if (!Comparer.equal(expected, actual))
         {
             throw new TestError(getFullName(), getMessageLines(message, expected, actual));
         }
@@ -559,7 +770,7 @@ public class Test
      */
     public void assertEqual(double expected, Double actual, String message)
     {
-        if (expected != actual)
+        if (!Comparer.equal(expected, actual))
         {
             throw new TestError(getFullName(), getMessageLines(message, expected, actual));
         }
@@ -584,19 +795,6 @@ public class Test
      */
     public void assertEqual(Double expected, double actual, String message)
     {
-        if (expected != actual)
-        {
-            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
-        }
-    }
-
-    public void assertEqual(Throwable expected, Throwable actual)
-    {
-        assertEqual(expected, actual, null);
-    }
-
-    public void assertEqual(Throwable expected, Throwable actual, String message)
-    {
         if (!Comparer.equal(expected, actual))
         {
             throw new TestError(getFullName(), getMessageLines(message, expected, actual));
@@ -613,202 +811,6 @@ public class Test
     public void assertEqual(double expected, double actual, double marginOfError)
     {
         assertEqual(expected, actual, marginOfError, null);
-    }
-
-    /**
-     * Assert that the provided values are equal. If they are not equal, then a TestError
-     * will be thrown with the provided message.
-     * @param expected The first value to compare.
-     * @param actual The second value to compare.
-     * @param message The message to show if the values are not equal
-     * @param <T> The type of values to compare.
-     */
-    public <T> void assertEqual(T expected, T actual, String message)
-    {
-        if (!Comparer.equal(expected, actual))
-        {
-            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
-        }
-    }
-
-    /**
-     * Assert that the provided values are equal. If they are not equal, then a TestError
-     * will be thrown with the provided message.
-     * @param expected The first value to compare.
-     * @param actual The second value to compare.
-     * @param message The message to show if the values are not equal.
-     */
-    public void assertEqual(byte expected, Byte actual, String message)
-    {
-        if (!Comparer.equal(expected, actual))
-        {
-            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
-        }
-    }
-
-    /**
-     * Assert that the provided values are equal. If they are not equal, then a TestError
-     * will be thrown with the provided message.
-     * @param expected The first value to compare.
-     * @param actual The second value to compare.
-     * @param message The message to show if the values are not equal.
-     */
-    public void assertEqual(char expected, Character actual, String message)
-    {
-        if (!Comparer.equal(expected, actual))
-        {
-            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
-        }
-    }
-
-    /**
-     * Assert that the provided values are equal. If they are not equal, then a TestError
-     * will be thrown with the provided message.
-     * @param expected The first value to compare.
-     * @param actual The second value to compare.
-     * @param message The message to show if the values are not equal.
-     */
-    public void assertEqual(Character expected, char actual, String message)
-    {
-        if (!Comparer.equal(expected, actual))
-        {
-            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
-        }
-    }
-
-    /**
-     * Assert that the provided values are equal. If they are not equal, then a TestError
-     * will be thrown with the provided message.
-     * @param expected The first value to compare.
-     * @param actual The second value to compare.
-     * @param message The message to show if the values are not equal.
-     */
-    public void assertEqual(short expected, short actual, String message)
-    {
-        if (!Comparer.equal(expected, actual))
-        {
-            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
-        }
-    }
-
-    /**
-     * Assert that the provided values are equal. If they are not equal, then a TestError
-     * will be thrown with the provided message.
-     * @param expected The first value to compare.
-     * @param actual The second value to compare.
-     * @param message The message to show if the values are not equal.
-     */
-    public void assertEqual(short expected, Short actual, String message)
-    {
-        if (!Comparer.equal(expected, actual))
-        {
-            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
-        }
-    }
-
-    /**
-     * Assert that the provided values are equal. If they are not equal, then a TestError
-     * will be thrown with the provided message.
-     * @param expected The first value to compare.
-     * @param actual The second value to compare.
-     * @param message The message to show if the values are not equal.
-     */
-    public void assertEqual(Short expected, short actual, String message)
-    {
-        if (!Comparer.equal(expected, actual))
-        {
-            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
-        }
-    }
-
-    /**
-     * Assert that the provided values are equal. If they are not equal, then a TestError
-     * will be thrown with the provided message.
-     * @param expected The first value to compare.
-     * @param actual The second value to compare.
-     * @param message The message to show if the values are not equal.
-     */
-    public void assertEqual(int expected, int actual, String message)
-    {
-        if (!Comparer.equal(expected, actual))
-        {
-            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
-        }
-    }
-
-    /**
-     * Assert that the provided values are equal. If they are not equal, then a TestError
-     * will be thrown with the provided message.
-     * @param expected The first value to compare.
-     * @param actual The second value to compare.
-     * @param message The message to show if the values are not equal.
-     */
-    public void assertEqual(int expected, Integer actual, String message)
-    {
-        if (!Comparer.equal(expected, actual))
-        {
-            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
-        }
-    }
-
-    /**
-     * Assert that the provided values are equal. If they are not equal, then a TestError
-     * will be thrown with the provided message.
-     * @param expected The first value to compare.
-     * @param actual The second value to compare.
-     * @param message The message to show if the values are not equal.
-     */
-    public void assertEqual(Integer expected, int actual, String message)
-    {
-        if (!Comparer.equal(expected, actual))
-        {
-            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
-        }
-    }
-
-    /**
-     * Assert that the provided values are equal. If they are not equal, then a TestError
-     * will be thrown with the provided message.
-     * @param expected The first value to compare.
-     * @param actual The second value to compare.
-     * @param message The message to show if the values are not equal.
-     */
-    public void assertEqual(long expected, long actual, String message)
-    {
-        if (!Comparer.equal(expected, actual))
-        {
-            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
-        }
-    }
-
-    /**
-     * Assert that the provided values are equal. If they are not equal, then a TestError
-     * will be thrown with the provided message.
-     * @param expected The first value to compare.
-     * @param actual The second value to compare.
-     * @param message The message to show if the values are not equal.
-     */
-    public void assertEqual(Long expected, long actual, String message)
-    {
-        if (!Comparer.equal(expected, actual))
-        {
-            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
-        }
-    }
-
-    /**
-     * Assert that the provided values are equal. If they are not equal, then a TestError
-     * will be thrown with the provided message.
-     * @param expected The first value to compare.
-     * @param actual The second value to compare.
-     * @param message The message to show if the values are not equal.
-     */
-    public void assertEqual(long expected, Long actual, String message)
-    {
-        if (!Comparer.equal(expected, actual))
-        {
-            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
-        }
     }
 
     /**
@@ -829,14 +831,29 @@ public class Test
     }
 
     /**
-     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestError
+     * Assert that the provided values are equal. If they are not equal, then a TestError
      * will be thrown.
      * @param expected The first value to compare.
      * @param actual The second value to compare.
      */
-    public void assertEqual(byte[] expected, Iterable<Byte> actual)
+    public void assertEqual(Throwable expected, Throwable actual)
     {
         assertEqual(expected, actual, null);
+    }
+
+    /**
+     * Assert that the provided values are equal. If they are not equal, then a TestError
+     * will be thrown with the provided message.
+     * @param expected The first value to compare.
+     * @param actual The second value to compare.
+     * @param message The message to show if the values are not equal.
+     */
+    public void assertEqual(Throwable expected, Throwable actual, String message)
+    {
+        if (!Comparer.equal(expected, actual))
+        {
+            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
+        }
     }
 
     /**
@@ -919,29 +936,7 @@ public class Test
     {
         if (Comparer.same(lhs, rhs))
         {
-            throw new TestError(getFullName(), getMessageLines(message, lhs, rhs));
-        }
-    }
-
-    /**
-     * Assert that the provided Iterable is empty.
-     * @param values The Iterable to check.
-     */
-    public void assertEmpty(Iterable<?> values)
-    {
-        assertEmpty(values, null);
-    }
-
-    /**
-     * Assert that the provided Iterable is empty.
-     * @param values The Iterable to check.
-     * @param message The message to show if the Iterable is not empty.
-     */
-    public <T> void assertEmpty(Iterable<T> values, String message)
-    {
-        if (values.any())
-        {
-            throw new TestError(getFullName(), getMessageLines(message, Iterable.create(), values));
+            throw new TestError(getFullName(), getMessageLines(message, "not " + lhs, rhs));
         }
     }
 
@@ -991,7 +986,7 @@ public class Test
 
     public <T extends Comparable<T>> void assertGreaterThanOrEqualTo(double value, double lowerBound, String message)
     {
-        if (!(value >= lowerBound))
+        if (value < lowerBound)
         {
             throw new TestError(getFullName(), getMessageLines(message, "greater than or equal to " + Objects.toString(lowerBound), value));
         }
@@ -1115,23 +1110,6 @@ public class Test
     }
 
     /**
-     * Assert that the provided value starts with the provided prefix.
-     * @param value The value to check.
-     * @param prefix The prefix to look for at the beginning of the provided value.
-     */
-    public void assertStartsWith(String value, String prefix, String message)
-    {
-        if (!Strings.startsWith(value, prefix))
-        {
-            throw new TestError(
-                getFullName(),
-                Iterable.create(
-                    message,
-                    "Expected " + Strings.escapeAndQuote(value) + " to start with " + Strings.escapeAndQuote(prefix) + "."));
-        }
-    }
-
-    /**
      * Assert that the provided value ends with the provided suffix.
      * @param value The value to check.
      * @param suffix The suffix to look for at the end of the provided value.
@@ -1187,6 +1165,8 @@ public class Test
 
     public <T> void assertOneOf(T[] possibleValues, T value)
     {
+        PreCondition.assertNotNull(possibleValues, "possibleValues");
+
         if (!Array.contains(possibleValues, value))
         {
             throw new TestError(
@@ -1196,19 +1176,13 @@ public class Test
     }
 
     /**
-     * Cause the test to fail instantly.
-     */
-    public void fail()
-    {
-        fail("Unexplained test failure.");
-    }
-
-    /**
      * Cause the test to fail instantly with the provided message.
      * @param message The message to display that should explain the failure.
      */
     public void fail(String message)
     {
+        PreCondition.assertNotNullAndNotEmpty(message, "message");
+
         throw new TestError(getFullName(), message);
     }
 
@@ -1218,13 +1192,15 @@ public class Test
      */
     public void fail(Throwable e)
     {
+        PreCondition.assertNotNull(e, "e");
+
         String failMessage = e.getClass().getSimpleName();
         final String eMessage = e.getMessage();
-        if (eMessage != null && !eMessage.isEmpty())
+        if (!Strings.isNullOrEmpty(eMessage))
         {
             failMessage += ": " + eMessage;
         }
-        fail(failMessage);
+        throw new TestError(getFullName(), failMessage);
     }
 
     private static Iterable<String> getMessageLines(Function0<String> message, Object expected, Object actual)

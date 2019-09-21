@@ -1,8 +1,8 @@
 package qub;
 
-public class ProcessTests
+public interface ProcessTests
 {
-    public static void test(TestRunner runner, Function0<Process> creator)
+    static void test(TestRunner runner, Function0<Process> creator)
     {
         runner.testGroup(Process.class, () ->
         {
@@ -341,26 +341,28 @@ public class ProcessTests
                 runner.test("with null", (Test test) ->
                 {
                     final Process process = creator.run();
-                    test.assertNull(process.getEnvironmentVariable(null));
-                    test.assertNull(process.getEnvironmentVariable(null));
+                    test.assertThrows(() -> process.getEnvironmentVariable(null),
+                        new PreConditionFailure("variableName cannot be null."));
                 });
 
                 runner.test("with empty string", (Test test) ->
                 {
                     final Process process = creator.run();
-                    test.assertNull(process.getEnvironmentVariable(""));
+                    test.assertThrows(() -> process.getEnvironmentVariable(""),
+                        new PreConditionFailure("variableName cannot be empty."));
                 });
 
                 runner.test("with non-existing variable name", (Test test) ->
                 {
                     final Process process = creator.run();
-                    test.assertNull(process.getEnvironmentVariable("Can't find me"));
+                    test.assertThrows(() -> process.getEnvironmentVariable("Can't find me").await(),
+                        new NotFoundException("Could not find the provided key (Can't find me) in this Map."));
                 });
 
                 runner.test("with existing variable name", (Test test) ->
                 {
                     final Process process = creator.run();
-                    final String path = process.getEnvironmentVariable("path");
+                    final String path = process.getEnvironmentVariable("path").await();
                     test.assertNotNull(path);
                     test.assertFalse(path.isEmpty());
                 });
@@ -369,7 +371,7 @@ public class ProcessTests
             runner.test("setEnvironmentVariables()", (Test test) ->
             {
                 final Process process = creator.run();
-                final Map<String,String> envVars = new ListMap<>();
+                final EnvironmentVariables envVars = new EnvironmentVariables();
                 test.assertSame(process, process.setEnvironmentVariables(envVars));
                 test.assertSame(envVars, process.getEnvironmentVariables());
             });

@@ -668,19 +668,19 @@ public interface AssertionMessagesTests
             {
                 runner.test("with null values", (Test test) ->
                 {
-                    test.assertThrows(new java.lang.NullPointerException(),
+                    test.assertThrows(new PreConditionFailure("possibleValues cannot be null."),
                         () -> AssertionMessages.oneOf("a", (String[])null, "blah"));
                 });
 
                 runner.test("with empty values", (Test test) ->
                 {
-                    test.assertThrows(new java.lang.ArrayIndexOutOfBoundsException("-1"),
+                    test.assertThrows(new PreConditionFailure("possibleValues cannot be empty."),
                         () -> AssertionMessages.oneOf("a", new String[0], "blah"));
                 });
 
                 runner.test("with one-element values", (Test test) ->
                 {
-                    test.assertEqual("blah (a) must be either or b.",
+                    test.assertEqual("blah (a) must be b.",
                         AssertionMessages.oneOf("a", new String[] { "b" }, "blah"));
                 });
 

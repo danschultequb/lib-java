@@ -168,6 +168,8 @@ public interface Comparer<T> extends Function2<T,T,Comparison>
      */
     static boolean equal(double arg1, double arg2, double marginOfError)
     {
+        PreCondition.assertGreaterThanOrEqualTo(marginOfError, 0, "marginOfError");
+
         return Math.absoluteValue(arg1 - arg2) <= marginOfError;
     }
 
@@ -619,7 +621,7 @@ public interface Comparer<T> extends Function2<T,T,Comparison>
      */
     static <T extends Comparable<T>> boolean greaterThanOrEqualTo(T value, T lowerBound)
     {
-        return value == lowerBound || value.greaterThanOrEqualTo(lowerBound);
+        return value == lowerBound || (value != null && value.greaterThanOrEqualTo(lowerBound));
     }
 
     /**

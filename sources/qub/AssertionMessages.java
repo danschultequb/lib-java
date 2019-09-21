@@ -130,19 +130,30 @@ public interface AssertionMessages
         return builder.toString();
     }
 
-    static <T> String oneOf(T value, T[] values, String expressionName)
+    static <T> String oneOf(T value, T[] possibleValues, String expressionName)
     {
+        PreCondition.assertNotNullAndNotEmpty(possibleValues, "possibleValues");
+
         final StringBuilder builder = new StringBuilder();
-        builder.append(expressionName + " (" + value + ") must be either");
-        for (int i = 0; i < values.length - 1; ++i)
+        builder.append(expressionName + " (" + Objects.toString(value) + ") must be ");
+        if (possibleValues.length == 1)
         {
-            builder.append(" " + values[i]);
-            if (values.length > 2)
-            {
-                builder.append(",");
-            }
+            builder.append(possibleValues[0]);
         }
-        builder.append(" or " + values[values.length - 1] + ".");
+        else
+        {
+            builder.append("either");
+            for (int i = 0; i < possibleValues.length - 1; ++i)
+            {
+                builder.append(" " + possibleValues[i]);
+                if (possibleValues.length > 2)
+                {
+                    builder.append(",");
+                }
+            }
+            builder.append(" or " + possibleValues[possibleValues.length - 1]);
+        }
+        builder.append(".");
         return builder.toString();
     }
 

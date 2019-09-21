@@ -843,6 +843,543 @@ public interface TestTests
                 });
             });
 
+            runner.testGroup("assertEqual(byte,Byte)", () ->
+            {
+                final Action3<Byte,Byte,TestError> assertEqualTest = (Byte lhs, Byte rhs, TestError expectedError) ->
+                {
+                    runner.test("with " + lhs + " and " + Objects.toString(rhs), (Test test) ->
+                    {
+                        final Test t = createTest("abc", test);
+                        if (expectedError == null)
+                        {
+                            t.assertEqual(lhs.byteValue(), rhs);
+                        }
+                        else
+                        {
+                            test.assertThrows(() -> t.assertEqual(lhs.byteValue(), rhs), expectedError);
+                        }
+                    });
+                };
+
+                assertEqualTest.run((byte)1, null, new TestError("abc", Iterable.create(
+                    "Expected: 1",
+                    "Actual:   null")));
+                assertEqualTest.run((byte)1, (byte)2, new TestError("abc", Iterable.create(
+                    "Expected: 1",
+                    "Actual:   2")));
+                assertEqualTest.run((byte)1, (byte)1, null);
+            });
+
+            runner.testGroup("assertEqual(int,Byte)", () ->
+            {
+                final Action3<Integer,Byte,TestError> assertEqualTest = (Integer lhs, Byte rhs, TestError expectedError) ->
+                {
+                    runner.test("with " + lhs + " and " + Objects.toString(rhs), (Test test) ->
+                    {
+                        final Test t = createTest("abc", test);
+                        if (expectedError == null)
+                        {
+                            t.assertEqual(lhs.intValue(), rhs);
+                        }
+                        else
+                        {
+                            test.assertThrows(() -> t.assertEqual(lhs.intValue(), rhs), expectedError);
+                        }
+                    });
+                };
+
+                assertEqualTest.run(1, null, new TestError("abc", Iterable.create(
+                    "Expected: 1",
+                    "Actual:   null")));
+                assertEqualTest.run(1, (byte)2, new TestError("abc", Iterable.create(
+                    "Expected: 1",
+                    "Actual:   2")));
+                assertEqualTest.run(1, (byte)1, null);
+            });
+
+            runner.testGroup("assertEqual(char,Character)", () ->
+            {
+                final Action3<Character,Character,TestError> assertEqualTest = (Character lhs, Character rhs, TestError expectedError) ->
+                {
+                    runner.test("with " + lhs + " and " + Objects.toString(rhs), (Test test) ->
+                    {
+                        final Test t = createTest("abc", test);
+                        if (expectedError == null)
+                        {
+                            t.assertEqual(lhs.charValue(), rhs);
+                        }
+                        else
+                        {
+                            test.assertThrows(() -> t.assertEqual(lhs.charValue(), rhs), expectedError);
+                        }
+                    });
+                };
+
+                assertEqualTest.run('a', null, new TestError("abc", Iterable.create(
+                    "Expected: a",
+                    "Actual:   null")));
+                assertEqualTest.run('a', 'b', new TestError("abc", Iterable.create(
+                    "Expected: a",
+                    "Actual:   b")));
+                assertEqualTest.run('a', 'a', null);
+            });
+
+            runner.testGroup("assertEqual(Character,char)", () ->
+            {
+                final Action3<Character,Character,TestError> assertEqualTest = (Character lhs, Character rhs, TestError expectedError) ->
+                {
+                    runner.test("with " + lhs + " and " + Objects.toString(rhs), (Test test) ->
+                    {
+                        final Test t = createTest("abc", test);
+                        if (expectedError == null)
+                        {
+                            t.assertEqual(lhs, rhs.charValue());
+                        }
+                        else
+                        {
+                            test.assertThrows(() -> t.assertEqual(lhs, rhs.charValue()), expectedError);
+                        }
+                    });
+                };
+
+                assertEqualTest.run(null, 'a', new TestError("abc", Iterable.create(
+                    "Expected: null",
+                    "Actual:   a")));
+                assertEqualTest.run('a', 'b', new TestError("abc", Iterable.create(
+                    "Expected: a",
+                    "Actual:   b")));
+                assertEqualTest.run('a', 'a', null);
+            });
+
+            runner.testGroup("assertEqual(short,short)", () ->
+            {
+                final Action3<Short,Short,TestError> assertEqualTest = (Short lhs, Short rhs, TestError expectedError) ->
+                {
+                    runner.test("with " + lhs + " and " + Objects.toString(rhs), (Test test) ->
+                    {
+                        final Test t = createTest("abc", test);
+                        if (expectedError == null)
+                        {
+                            t.assertEqual(lhs.shortValue(), rhs.shortValue());
+                        }
+                        else
+                        {
+                            test.assertThrows(() -> t.assertEqual(lhs.shortValue(), rhs.shortValue()), expectedError);
+                        }
+                    });
+                };
+
+                assertEqualTest.run((short)1, (short)2, new TestError("abc", Iterable.create(
+                    "Expected: 1",
+                    "Actual:   2")));
+                assertEqualTest.run((short)1, (short)1, null);
+            });
+
+            runner.testGroup("assertEqual(short,Short)", () ->
+            {
+                final Action3<Short,Short,TestError> assertEqualTest = (Short lhs, Short rhs, TestError expectedError) ->
+                {
+                    runner.test("with " + lhs + " and " + Objects.toString(rhs), (Test test) ->
+                    {
+                        final Test t = createTest("abc", test);
+                        if (expectedError == null)
+                        {
+                            t.assertEqual(lhs.shortValue(), rhs);
+                        }
+                        else
+                        {
+                            test.assertThrows(() -> t.assertEqual(lhs.shortValue(), rhs), expectedError);
+                        }
+                    });
+                };
+
+                assertEqualTest.run((short)1, null, new TestError("abc", Iterable.create(
+                    "Expected: 1",
+                    "Actual:   null")));
+                assertEqualTest.run((short)1, (short)2, new TestError("abc", Iterable.create(
+                    "Expected: 1",
+                    "Actual:   2")));
+                assertEqualTest.run((short)1, (short)1, null);
+            });
+
+            runner.testGroup("assertEqual(Short,short)", () ->
+            {
+                final Action3<Short,Short,TestError> assertEqualTest = (Short lhs, Short rhs, TestError expectedError) ->
+                {
+                    runner.test("with " + lhs + " and " + Objects.toString(rhs), (Test test) ->
+                    {
+                        final Test t = createTest("abc", test);
+                        if (expectedError == null)
+                        {
+                            t.assertEqual(lhs, rhs.shortValue());
+                        }
+                        else
+                        {
+                            test.assertThrows(() -> t.assertEqual(lhs, rhs.shortValue()), expectedError);
+                        }
+                    });
+                };
+
+                assertEqualTest.run(null, (short)2, new TestError("abc", Iterable.create(
+                    "Expected: null",
+                    "Actual:   2")));
+                assertEqualTest.run((short)1, (short)2, new TestError("abc", Iterable.create(
+                    "Expected: 1",
+                    "Actual:   2")));
+                assertEqualTest.run((short)1, (short)1, null);
+            });
+
+            runner.testGroup("assertEqual(int,int)", () ->
+            {
+                final Action3<Integer,Integer,TestError> assertEqualTest = (Integer lhs, Integer rhs, TestError expectedError) ->
+                {
+                    runner.test("with " + lhs + " and " + rhs, (Test test) ->
+                    {
+                        final Test t = createTest("abc", test);
+                        if (expectedError == null)
+                        {
+                            t.assertEqual(lhs.intValue(), rhs.intValue());
+                        }
+                        else
+                        {
+                            test.assertThrows(() -> t.assertEqual(lhs.intValue(), rhs.intValue()), expectedError);
+                        }
+                    });
+                };
+
+                assertEqualTest.run(1, 2, new TestError("abc", Iterable.create(
+                    "Expected: 1",
+                    "Actual:   2")));
+                assertEqualTest.run(1, 1, null);
+            });
+
+            runner.testGroup("assertEqual(int,Integer)", () ->
+            {
+                final Action3<Integer,Integer,TestError> assertEqualTest = (Integer lhs, Integer rhs, TestError expectedError) ->
+                {
+                    runner.test("with " + lhs + " and " + Objects.toString(rhs), (Test test) ->
+                    {
+                        final Test t = createTest("abc", test);
+                        if (expectedError == null)
+                        {
+                            t.assertEqual(lhs.intValue(), rhs);
+                        }
+                        else
+                        {
+                            test.assertThrows(() -> t.assertEqual(lhs.intValue(), rhs), expectedError);
+                        }
+                    });
+                };
+
+                assertEqualTest.run(1, null, new TestError("abc", Iterable.create(
+                    "Expected: 1",
+                    "Actual:   null")));
+                assertEqualTest.run(1, 2, new TestError("abc", Iterable.create(
+                    "Expected: 1",
+                    "Actual:   2")));
+                assertEqualTest.run(1, 1, null);
+            });
+
+            runner.testGroup("assertEqual(Integer,int)", () ->
+            {
+                final Action3<Integer,Integer,TestError> assertEqualTest = (Integer lhs, Integer rhs, TestError expectedError) ->
+                {
+                    runner.test("with " + Objects.toString(lhs) + " and " + rhs, (Test test) ->
+                    {
+                        final Test t = createTest("abc", test);
+                        if (expectedError == null)
+                        {
+                            t.assertEqual(lhs, rhs.intValue());
+                        }
+                        else
+                        {
+                            test.assertThrows(() -> t.assertEqual(lhs, rhs.intValue()), expectedError);
+                        }
+                    });
+                };
+
+                assertEqualTest.run(null, 2, new TestError("abc", Iterable.create(
+                    "Expected: null",
+                    "Actual:   2")));
+                assertEqualTest.run(1, 2, new TestError("abc", Iterable.create(
+                    "Expected: 1",
+                    "Actual:   2")));
+                assertEqualTest.run(1, 1, null);
+            });
+
+            runner.testGroup("assertEqual(long,long)", () ->
+            {
+                final Action3<Long,Long,TestError> assertEqualTest = (Long lhs, Long rhs, TestError expectedError) ->
+                {
+                    runner.test("with " + lhs + " and " + rhs, (Test test) ->
+                    {
+                        final Test t = createTest("abc", test);
+                        if (expectedError == null)
+                        {
+                            t.assertEqual(lhs.longValue(), rhs.longValue());
+                        }
+                        else
+                        {
+                            test.assertThrows(() -> t.assertEqual(lhs.longValue(), rhs.longValue()), expectedError);
+                        }
+                    });
+                };
+
+                assertEqualTest.run((long)1, (long)2, new TestError("abc", Iterable.create(
+                    "Expected: 1",
+                    "Actual:   2")));
+                assertEqualTest.run((long)1, (long)1, null);
+            });
+
+            runner.testGroup("assertEqual(long,Long)", () ->
+            {
+                final Action3<Long,Long,TestError> assertEqualTest = (Long lhs, Long rhs, TestError expectedError) ->
+                {
+                    runner.test("with " + lhs + " and " + Objects.toString(rhs), (Test test) ->
+                    {
+                        final Test t = createTest("abc", test);
+                        if (expectedError == null)
+                        {
+                            t.assertEqual(lhs.longValue(), rhs);
+                        }
+                        else
+                        {
+                            test.assertThrows(() -> t.assertEqual(lhs.longValue(), rhs), expectedError);
+                        }
+                    });
+                };
+
+                assertEqualTest.run((long)1, null, new TestError("abc", Iterable.create(
+                    "Expected: 1",
+                    "Actual:   null")));
+                assertEqualTest.run((long)1, (long)2, new TestError("abc", Iterable.create(
+                    "Expected: 1",
+                    "Actual:   2")));
+                assertEqualTest.run((long)1, (long)1, null);
+            });
+
+            runner.testGroup("assertEqual(Long,long)", () ->
+            {
+                final Action3<Long,Long,TestError> assertEqualTest = (Long lhs, Long rhs, TestError expectedError) ->
+                {
+                    runner.test("with " + Objects.toString(lhs) + " and " + rhs, (Test test) ->
+                    {
+                        final Test t = createTest("abc", test);
+                        if (expectedError == null)
+                        {
+                            t.assertEqual(lhs, rhs.longValue());
+                        }
+                        else
+                        {
+                            test.assertThrows(() -> t.assertEqual(lhs, rhs.longValue()), expectedError);
+                        }
+                    });
+                };
+
+                assertEqualTest.run(null, (long)2, new TestError("abc", Iterable.create(
+                    "Expected: null",
+                    "Actual:   2")));
+                assertEqualTest.run((long)1, (long)2, new TestError("abc", Iterable.create(
+                    "Expected: 1",
+                    "Actual:   2")));
+                assertEqualTest.run((long)1, (long)1, null);
+            });
+
+            runner.testGroup("assertEqual(float,float)", () ->
+            {
+                final Action3<Float,Float,TestError> assertEqualTest = (Float lhs, Float rhs, TestError expectedError) ->
+                {
+                    runner.test("with " + lhs + " and " + rhs, (Test test) ->
+                    {
+                        final Test t = createTest("abc", test);
+                        if (expectedError == null)
+                        {
+                            t.assertEqual(lhs.floatValue(), rhs.floatValue());
+                        }
+                        else
+                        {
+                            test.assertThrows(() -> t.assertEqual(lhs.floatValue(), rhs.floatValue()), expectedError);
+                        }
+                    });
+                };
+
+                assertEqualTest.run((float)1, (float)2, new TestError("abc", Iterable.create(
+                    "Expected: 1.0",
+                    "Actual:   2.0")));
+                assertEqualTest.run((float)1, (float)1, null);
+            });
+
+            runner.testGroup("assertEqual(float,Float)", () ->
+            {
+                final Action3<Float,Float,TestError> assertEqualTest = (Float lhs, Float rhs, TestError expectedError) ->
+                {
+                    runner.test("with " + lhs + " and " + Objects.toString(rhs), (Test test) ->
+                    {
+                        final Test t = createTest("abc", test);
+                        if (expectedError == null)
+                        {
+                            t.assertEqual(lhs.floatValue(), rhs);
+                        }
+                        else
+                        {
+                            test.assertThrows(() -> t.assertEqual(lhs.floatValue(), rhs), expectedError);
+                        }
+                    });
+                };
+
+                assertEqualTest.run((float)1, null, new TestError("abc", Iterable.create(
+                    "Expected: 1.0",
+                    "Actual:   null")));
+                assertEqualTest.run((float)1, (float)2, new TestError("abc", Iterable.create(
+                    "Expected: 1.0",
+                    "Actual:   2.0")));
+                assertEqualTest.run((float)1, (float)1, null);
+            });
+
+            runner.testGroup("assertEqual(Float,float)", () ->
+            {
+                final Action3<Float,Float,TestError> assertEqualTest = (Float lhs, Float rhs, TestError expectedError) ->
+                {
+                    runner.test("with " + Objects.toString(lhs) + " and " + rhs, (Test test) ->
+                    {
+                        final Test t = createTest("abc", test);
+                        if (expectedError == null)
+                        {
+                            t.assertEqual(lhs, rhs.floatValue());
+                        }
+                        else
+                        {
+                            test.assertThrows(() -> t.assertEqual(lhs, rhs.floatValue()), expectedError);
+                        }
+                    });
+                };
+
+                assertEqualTest.run(null, (float)2, new TestError("abc", Iterable.create(
+                    "Expected: null",
+                    "Actual:   2.0")));
+                assertEqualTest.run((float)1, (float)2, new TestError("abc", Iterable.create(
+                    "Expected: 1.0",
+                    "Actual:   2.0")));
+                assertEqualTest.run((float)1, (float)1, null);
+            });
+
+            runner.testGroup("assertEqual(double,double)", () ->
+            {
+                final Action3<Double,Double,TestError> assertEqualTest = (Double lhs, Double rhs, TestError expectedError) ->
+                {
+                    runner.test("with " + lhs + " and " + rhs, (Test test) ->
+                    {
+                        final Test t = createTest("abc", test);
+                        if (expectedError == null)
+                        {
+                            t.assertEqual(lhs.doubleValue(), rhs.doubleValue());
+                        }
+                        else
+                        {
+                            test.assertThrows(() -> t.assertEqual(lhs.doubleValue(), rhs.doubleValue()), expectedError);
+                        }
+                    });
+                };
+
+                assertEqualTest.run((double)1, (double)2, new TestError("abc", Iterable.create(
+                    "Expected: 1.0",
+                    "Actual:   2.0")));
+                assertEqualTest.run((double)1, (double)1, null);
+            });
+
+            runner.testGroup("assertEqual(double,double,double)", () ->
+            {
+                final Action4<Double,Double,Double,Throwable> assertEqualTest = (Double lhs, Double rhs, Double marginOfError, Throwable expectedError) ->
+                {
+                    runner.test("with " + lhs + " and " + rhs + " (+-" + marginOfError + ")", (Test test) ->
+                    {
+                        final Test t = createTest("abc", test);
+                        if (expectedError == null)
+                        {
+                            t.assertEqual(lhs.doubleValue(), rhs.doubleValue(), marginOfError.doubleValue());
+                        }
+                        else
+                        {
+                            test.assertThrows(() -> t.assertEqual(lhs.doubleValue(), rhs.doubleValue(), marginOfError.doubleValue()), expectedError);
+                        }
+                    });
+                };
+
+                assertEqualTest.run((double)1, (double)2, (double)-1.0001,
+                    new PreConditionFailure("marginOfError (-1.0001) must be greater than or equal to 0.0."));
+                assertEqualTest.run((double)1, (double)2, (double)-1.0,
+                    new PreConditionFailure("marginOfError (-1.0) must be greater than or equal to 0.0."));
+                assertEqualTest.run((double)1, (double)2, (double)-0.99999,
+                    new PreConditionFailure("marginOfError (-0.99999) must be greater than or equal to 0.0."));
+                assertEqualTest.run((double)1, (double)2, (double)-0.5,
+                    new PreConditionFailure("marginOfError (-0.5) must be greater than or equal to 0.0."));
+                assertEqualTest.run((double)1, (double)2, (double)0, new TestError("abc", Iterable.create(
+                    "Expected: 1.0",
+                    "Actual:   2.0")));
+                assertEqualTest.run((double)1, (double)2, (double)0.5, new TestError("abc", Iterable.create(
+                    "Expected: 1.0",
+                    "Actual:   2.0")));
+                assertEqualTest.run((double)1, (double)2, (double)0.99999, new TestError("abc", Iterable.create(
+                    "Expected: 1.0",
+                    "Actual:   2.0")));
+                assertEqualTest.run((double)1, (double)2, (double)1.0, null);
+                assertEqualTest.run((double)1, (double)2, (double)1.0001, null);
+            });
+
+            runner.testGroup("assertEqual(double,Double)", () ->
+            {
+                final Action3<Double,Double,TestError> assertEqualTest = (Double lhs, Double rhs, TestError expectedError) ->
+                {
+                    runner.test("with " + lhs + " and " + Objects.toString(rhs), (Test test) ->
+                    {
+                        final Test t = createTest("abc", test);
+                        if (expectedError == null)
+                        {
+                            t.assertEqual(lhs.doubleValue(), rhs);
+                        }
+                        else
+                        {
+                            test.assertThrows(() -> t.assertEqual(lhs.doubleValue(), rhs), expectedError);
+                        }
+                    });
+                };
+
+                assertEqualTest.run((double)1, null, new TestError("abc", Iterable.create(
+                    "Expected: 1.0",
+                    "Actual:   null")));
+                assertEqualTest.run((double)1, (double)2, new TestError("abc", Iterable.create(
+                    "Expected: 1.0",
+                    "Actual:   2.0")));
+                assertEqualTest.run((double)1, (double)1, null);
+            });
+
+            runner.testGroup("assertEqual(Double,double)", () ->
+            {
+                final Action3<Double,Double,TestError> assertEqualTest = (Double lhs, Double rhs, TestError expectedError) ->
+                {
+                    runner.test("with " + Objects.toString(lhs) + " and " + rhs, (Test test) ->
+                    {
+                        final Test t = createTest("abc", test);
+                        if (expectedError == null)
+                        {
+                            t.assertEqual(lhs, rhs.doubleValue());
+                        }
+                        else
+                        {
+                            test.assertThrows(() -> t.assertEqual(lhs, rhs.doubleValue()), expectedError);
+                        }
+                    });
+                };
+
+                assertEqualTest.run(null, (double)2, new TestError("abc", Iterable.create(
+                    "Expected: null",
+                    "Actual:   2.0")));
+                assertEqualTest.run((double)1, (double)2, new TestError("abc", Iterable.create(
+                    "Expected: 1.0",
+                    "Actual:   2.0")));
+                assertEqualTest.run((double)1, (double)1, null);
+            });
+
             runner.testGroup("assertEqual(Throwable,Throwable)", () ->
             {
                 runner.test("with null and null", (Test test) ->
@@ -885,6 +1422,303 @@ public interface TestTests
                 });
             });
 
+            runner.testGroup("assertNotEqual(T,T)", () ->
+            {
+                Action3<String,String,Throwable> assertNotEqualTest = (String expected, String actual, Throwable expectedError) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(expected) + " and " + Strings.escapeAndQuote(actual), (Test test) ->
+                    {
+                        final Test t = createTest("abc", test);
+                        if (expectedError != null)
+                        {
+                            test.assertThrows(() -> t.assertNotEqual(expected, actual), expectedError);
+                        }
+                        else
+                        {
+                            t.assertNotEqual(expected, actual);
+                        }
+                    });
+                };
+
+                assertNotEqualTest.run(null, null, new TestError("abc", Iterable.create(
+                    "Expected: \"not null\"",
+                    "Actual:   null")));
+                assertNotEqualTest.run("hello", null, null);
+                assertNotEqualTest.run(null, "there", null);
+                assertNotEqualTest.run("hello", "there", null);
+                assertNotEqualTest.run("hello", "hello", new TestError("abc", Iterable.create(
+                    "Expected: \"not hello\"",
+                    "Actual:   \"hello\"")));
+            });
+
+            runner.testGroup("assertSame(T,T)", () ->
+            {
+                Action3<String,String,Throwable> assertSameTest = (String expected, String actual, Throwable expectedError) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(expected) + " and " + Strings.escapeAndQuote(actual), (Test test) ->
+                    {
+                        final Test t = createTest("abc", test);
+                        if (expectedError != null)
+                        {
+                            test.assertThrows(() -> t.assertSame(expected, actual), expectedError);
+                        }
+                        else
+                        {
+                            t.assertSame(expected, actual);
+                        }
+                    });
+                };
+
+                assertSameTest.run(null, null, null);
+                assertSameTest.run("hello", null, new TestError("abc", Iterable.create(
+                    "Expected: \"hello\"",
+                    "Actual:   null")));
+                assertSameTest.run(null, "there", new TestError("abc", Iterable.create(
+                    "Expected: null",
+                    "Actual:   \"there\"")));
+                assertSameTest.run("hello", "there", new TestError("abc", Iterable.create(
+                    "Expected: \"hello\"",
+                    "Actual:   \"there\"")));
+                assertSameTest.run("hello", "hello", null);
+                assertSameTest.run(new String("hello"), new String("hello"), new TestError("abc", Iterable.create(
+                    "Expected: \"hello\" (java.lang.String)",
+                    "Actual:   \"hello\" (java.lang.String)")));
+            });
+
+            runner.testGroup("assertNotSame(T,T)", () ->
+            {
+                Action3<String,String,Throwable> assertNotSameTest = (String expected, String actual, Throwable expectedError) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(expected) + " and " + Strings.escapeAndQuote(actual), (Test test) ->
+                    {
+                        final Test t = createTest("abc", test);
+                        if (expectedError != null)
+                        {
+                            test.assertThrows(() -> t.assertNotSame(expected, actual), expectedError);
+                        }
+                        else
+                        {
+                            t.assertNotSame(expected, actual);
+                        }
+                    });
+                };
+
+                assertNotSameTest.run(null, null, new TestError("abc", Iterable.create(
+                    "Expected: \"not null\"",
+                    "Actual:   null")));
+                assertNotSameTest.run("hello", null, null);
+                assertNotSameTest.run(null, "there", null);
+                assertNotSameTest.run("hello", "there", null);
+                assertNotSameTest.run("hello", "hello", new TestError("abc", Iterable.create(
+                    "Expected: \"not hello\"",
+                    "Actual:   \"hello\"")));
+                assertNotSameTest.run(new String("hello"), new String("hello"), null);
+            });
+
+            runner.testGroup("assertLessThan(T,T)", () ->
+            {
+                Action3<Distance,Distance,Throwable> assertLessThanTest = (Distance value, Distance upperBound, Throwable expectedError) ->
+                {
+                    runner.test("with " + Objects.toString(value) + " and " + Objects.toString(upperBound), (Test test) ->
+                    {
+                        final Test t = createTest("abc", test);
+                        if (expectedError != null)
+                        {
+                            test.assertThrows(() -> t.assertLessThan(value, upperBound), expectedError);
+                        }
+                        else
+                        {
+                            t.assertLessThan(value, upperBound);
+                        }
+                    });
+                };
+
+                assertLessThanTest.run(null, null, new TestError("abc", Iterable.create(
+                    "Expected: \"less than null\"",
+                    "Actual:   null")));
+                assertLessThanTest.run(Distance.inches(1), null, new TestError("abc", Iterable.create(
+                    "Expected: \"less than null\"",
+                    "Actual:   1.0 Inches")));
+                assertLessThanTest.run(null, Distance.miles(5), null);
+                assertLessThanTest.run(Distance.inches(5), Distance.miles(3), null);
+                assertLessThanTest.run(Distance.miles(1), Distance.miles(1), new TestError("abc", Iterable.create(
+                    "Expected: \"less than 1.0 Miles\"",
+                    "Actual:   1.0 Miles")));
+                assertLessThanTest.run(Distance.miles(4), Distance.inches(1), new TestError("abc", Iterable.create(
+                    "Expected: \"less than 1.0 Inches\"",
+                    "Actual:   4.0 Miles")));
+            });
+
+            runner.testGroup("assertLessThanOrEqualTo(T,T)", () ->
+            {
+                Action3<Distance,Distance,Throwable> assertLessThanOrEqualToTest = (Distance value, Distance upperBound, Throwable expectedError) ->
+                {
+                    runner.test("with " + Objects.toString(value) + " and " + Objects.toString(upperBound), (Test test) ->
+                    {
+                        final Test t = createTest("abc", test);
+                        if (expectedError != null)
+                        {
+                            test.assertThrows(() -> t.assertLessThanOrEqualTo(value, upperBound), expectedError);
+                        }
+                        else
+                        {
+                            t.assertLessThanOrEqualTo(value, upperBound);
+                        }
+                    });
+                };
+
+                assertLessThanOrEqualToTest.run(null, null, null);
+                assertLessThanOrEqualToTest.run(Distance.inches(1), null, new TestError("abc", Iterable.create(
+                    "Expected: \"less than or equal to null\"",
+                    "Actual:   1.0 Inches")));
+                assertLessThanOrEqualToTest.run(null, Distance.miles(5), null);
+                assertLessThanOrEqualToTest.run(Distance.inches(5), Distance.miles(3), null);
+                assertLessThanOrEqualToTest.run(Distance.miles(1), Distance.miles(1), null);
+                assertLessThanOrEqualToTest.run(Distance.miles(4), Distance.inches(1), new TestError("abc", Iterable.create(
+                    "Expected: \"less than or equal to 1.0 Inches\"",
+                    "Actual:   4.0 Miles")));
+            });
+
+            runner.testGroup("assertGreaterThanOrEqualTo(T,T)", () ->
+            {
+                Action3<Distance,Distance,Throwable> assertGreaterThanOrEqualToTest = (Distance value, Distance upperBound, Throwable expectedError) ->
+                {
+                    runner.test("with " + Objects.toString(value) + " and " + Objects.toString(upperBound), (Test test) ->
+                    {
+                        final Test t = createTest("abc", test);
+                        if (expectedError != null)
+                        {
+                            test.assertThrows(() -> t.assertGreaterThanOrEqualTo(value, upperBound), expectedError);
+                        }
+                        else
+                        {
+                            t.assertGreaterThanOrEqualTo(value, upperBound);
+                        }
+                    });
+                };
+
+                assertGreaterThanOrEqualToTest.run(null, null, null);
+                assertGreaterThanOrEqualToTest.run(Distance.inches(1), null, null);
+                assertGreaterThanOrEqualToTest.run(null, Distance.miles(5), new TestError("abc", Iterable.create(
+                    "Expected: \"greater than or equal to 5.0 Miles\"",
+                    "Actual:   null")));
+                assertGreaterThanOrEqualToTest.run(Distance.inches(5), Distance.miles(3), new TestError("abc", Iterable.create(
+                    "Expected: \"greater than or equal to 3.0 Miles\"",
+                    "Actual:   5.0 Inches")));
+                assertGreaterThanOrEqualToTest.run(Distance.miles(1), Distance.miles(1), null);
+                assertGreaterThanOrEqualToTest.run(Distance.miles(4), Distance.inches(1), null);
+            });
+
+            runner.testGroup("assertGreaterThanOrEqualTo(double,double)", () ->
+            {
+                Action3<Double,Double,Throwable> assertGreaterThanOrEqualToTest = (Double value, Double upperBound, Throwable expectedError) ->
+                {
+                    runner.test("with " + Objects.toString(value) + " and " + Objects.toString(upperBound), (Test test) ->
+                    {
+                        final Test t = createTest("abc", test);
+                        if (expectedError != null)
+                        {
+                            test.assertThrows(() -> t.assertGreaterThanOrEqualTo(value.doubleValue(), upperBound.doubleValue()), expectedError);
+                        }
+                        else
+                        {
+                            t.assertGreaterThanOrEqualTo(value.doubleValue(), upperBound.doubleValue());
+                        }
+                    });
+                };
+
+                assertGreaterThanOrEqualToTest.run(5.0, 6.0, new TestError("abc", Iterable.create(
+                    "Expected: \"greater than or equal to 6.0\"",
+                    "Actual:   5.0")));
+                assertGreaterThanOrEqualToTest.run(5.0, 5.0, null);
+                assertGreaterThanOrEqualToTest.run(5.0, 4.0, null);
+            });
+
+            runner.testGroup("assertGreaterThan(T,T)", () ->
+            {
+                Action3<Distance,Distance,Throwable> assertGreaterThanTest = (Distance value, Distance upperBound, Throwable expectedError) ->
+                {
+                    runner.test("with " + Objects.toString(value) + " and " + Objects.toString(upperBound), (Test test) ->
+                    {
+                        final Test t = createTest("abc", test);
+                        if (expectedError != null)
+                        {
+                            test.assertThrows(() -> t.assertGreaterThan(value, upperBound), expectedError);
+                        }
+                        else
+                        {
+                            t.assertGreaterThan(value, upperBound);
+                        }
+                    });
+                };
+
+                assertGreaterThanTest.run(null, null, new TestError("abc", Iterable.create(
+                    "Expected: \"greater than null\"",
+                    "Actual:   null")));
+                assertGreaterThanTest.run(Distance.inches(1), null, null);
+                assertGreaterThanTest.run(null, Distance.miles(5), new TestError("abc", Iterable.create(
+                    "Expected: \"greater than 5.0 Miles\"",
+                    "Actual:   null")));
+                assertGreaterThanTest.run(Distance.inches(5), Distance.miles(3), new TestError("abc", Iterable.create(
+                    "Expected: \"greater than 3.0 Miles\"",
+                    "Actual:   5.0 Inches")));
+                assertGreaterThanTest.run(Distance.miles(1), Distance.miles(1), new TestError("abc", Iterable.create(
+                    "Expected: \"greater than 1.0 Miles\"",
+                    "Actual:   1.0 Miles")));
+                assertGreaterThanTest.run(Distance.miles(4), Distance.inches(1), null);
+            });
+
+            runner.testGroup("assertBetween(T,T,T)", () ->
+            {
+                final Action4<Distance,Distance,Distance,Throwable> assertBetweenTest = (Distance lowerBound, Distance value, Distance upperBound, Throwable expectedError) ->
+                {
+                    runner.test("with " + Objects.toString(lowerBound) + ", " + Objects.toString(value) + ", and " + Objects.toString(upperBound), (Test test) ->
+                    {
+                        final Test t = createTest("abc", test);
+                        if (expectedError != null)
+                        {
+                            test.assertThrows(() -> t.assertBetween(lowerBound, value, upperBound), expectedError);
+                        }
+                        else
+                        {
+                            t.assertBetween(lowerBound, value, upperBound);
+                        }
+                    });
+                };
+
+                assertBetweenTest.run(null, null, null, null);
+                assertBetweenTest.run(null, null, Distance.miles(0.6), null);
+                assertBetweenTest.run(null, Distance.miles(0.5), null, new TestError("abc", Iterable.create(
+                    "Expected: \"between null and null\"",
+                    "Actual:   0.5 Miles")));
+                assertBetweenTest.run(null, Distance.miles(0.5), Distance.miles(0.4), new TestError("abc", Iterable.create(
+                    "Expected: \"between null and 0.4 Miles\"",
+                    "Actual:   0.5 Miles")));
+                assertBetweenTest.run(null, Distance.miles(0.5), Distance.miles(0.5), null);
+                assertBetweenTest.run(null, Distance.miles(0.5), Distance.miles(0.6), null);
+                assertBetweenTest.run(Distance.miles(1), null, null, new TestError("abc", Iterable.create(
+                    "Expected: \"between 1.0 Miles and null\"",
+                    "Actual:   null")));
+                assertBetweenTest.run(Distance.miles(1), Distance.miles(0.5), null, new TestError("abc", Iterable.create(
+                    "Expected: \"between 1.0 Miles and null\"",
+                    "Actual:   0.5 Miles")));
+                assertBetweenTest.run(Distance.miles(1), Distance.miles(1.0), null, new TestError("abc", Iterable.create(
+                    "Expected: \"between 1.0 Miles and null\"",
+                    "Actual:   1.0 Miles")));
+                assertBetweenTest.run(Distance.miles(1), Distance.miles(1.2), null, new TestError("abc", Iterable.create(
+                    "Expected: \"between 1.0 Miles and null\"",
+                    "Actual:   1.2 Miles")));
+                assertBetweenTest.run(Distance.miles(1), null, Distance.miles(0.6), new TestError("abc", Iterable.create(
+                    "Expected: \"between 1.0 Miles and 0.6 Miles\"",
+                    "Actual:   null")));
+                assertBetweenTest.run(Distance.miles(1), null, Distance.miles(1), new TestError("abc", Iterable.create(
+                    "Expected: \"between 1.0 Miles and 1.0 Miles\"",
+                    "Actual:   null")));
+                assertBetweenTest.run(Distance.miles(1), null, Distance.miles(2), new TestError("abc", Iterable.create(
+                    "Expected: \"between 1.0 Miles and 2.0 Miles\"",
+                    "Actual:   null")));
+            });
+
             runner.testGroup("assertThrows(Action0,Throwable)", () ->
             {
                 runner.test("with null action", (Test test) ->
@@ -908,7 +1742,7 @@ public interface TestTests
                         new TestError("abc", "Expected a qub.EndOfStreamException to be thrown with no message."));
                 });
 
-                runner.test("with action that doesn't throw and expected error with no message", (Test test) ->
+                runner.test("with action that doesn't throw and expected error with message", (Test test) ->
                 {
                     final Test t = createTest("abcd", test);
                     test.assertThrows(() -> t.assertThrows(() -> {}, new NotFoundException("blah")),
@@ -955,6 +1789,19 @@ public interface TestTests
                             Iterable.create(
                                 "Message:  Incorrect exception thrown",
                                 "Expected: java.lang.RuntimeException: blah",
+                                "Actual:   qub.NotFoundException: blah"),
+                            new NotFoundException("blah")));
+                });
+
+                runner.test("with action that throws an error derived from the expected error with a different message", (Test test) ->
+                {
+                    final Test t = createTest("abcd", test);
+                    test.assertThrows(() -> t.assertThrows(() -> { throw new NotFoundException("blah"); }, new RuntimeException("blah2")),
+                        new TestError(
+                            "abcd",
+                            Iterable.create(
+                                "Message:  Incorrect exception thrown",
+                                "Expected: java.lang.RuntimeException: blah2",
                                 "Actual:   qub.NotFoundException: blah"),
                             new NotFoundException("blah")));
                 });
@@ -1010,6 +1857,374 @@ public interface TestTests
                                 "Actual:   qub.AwaitException: qub.NotFoundException: grapes",
                                 "  Caused by: qub.NotFoundException: grapes"),
                             new AwaitException(new NotFoundException("grapes"))));
+                });
+            });
+
+            runner.testGroup("assertStartsWith(String,String)", () ->
+            {
+                final Action3<String,String,Throwable> assertStartsWithTest = (String value, String prefix, Throwable expectedError) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(value) + " and " + Strings.escapeAndQuote(prefix), (Test test) ->
+                    {
+                        final Test t = createTest("abc", test);
+                        if (expectedError != null)
+                        {
+                            test.assertThrows(() -> t.assertStartsWith(value, prefix), expectedError);
+                        }
+                        else
+                        {
+                            t.assertStartsWith(value, prefix);
+                        }
+                    });
+                };
+
+                assertStartsWithTest.run(null, null, new TestError("abc", Iterable.create(
+                    "Expected null to start with null.")));
+                assertStartsWithTest.run(null, "", new TestError("abc", Iterable.create(
+                    "Expected null to start with \"\".")));
+                assertStartsWithTest.run(null, "ba", new TestError("abc", Iterable.create(
+                    "Expected null to start with \"ba\".")));
+                assertStartsWithTest.run("", null, new TestError("abc", Iterable.create(
+                    "Expected \"\" to start with null.")));
+                assertStartsWithTest.run("", "", new TestError("abc", Iterable.create(
+                    "Expected \"\" to start with \"\".")));
+                assertStartsWithTest.run("", "ba", new TestError("abc", Iterable.create(
+                    "Expected \"\" to start with \"ba\".")));
+                assertStartsWithTest.run("apples", null, new TestError("abc", Iterable.create(
+                    "Expected \"apples\" to start with null.")));
+                assertStartsWithTest.run("apples", "", new TestError("abc", Iterable.create(
+                    "Expected \"apples\" to start with \"\".")));
+                assertStartsWithTest.run("apples", "ba", new TestError("abc", Iterable.create(
+                    "Expected \"apples\" to start with \"ba\".")));
+                assertStartsWithTest.run("apples", "Ap", new TestError("abc", Iterable.create(
+                    "Expected \"apples\" to start with \"Ap\".")));
+                assertStartsWithTest.run("apples", "ap", null);
+            });
+
+            runner.testGroup("assertStartsWith(String,String,CharacterComparer)", () ->
+            {
+                final Action4<String,String,CharacterComparer,Throwable> assertStartsWithTest = (String value, String prefix, CharacterComparer comparer, Throwable expectedError) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(value) + " and " + Strings.escapeAndQuote(prefix), (Test test) ->
+                    {
+                        final Test t = createTest("abc", test);
+                        if (expectedError != null)
+                        {
+                            test.assertThrows(() -> t.assertStartsWith(value, prefix, comparer), expectedError);
+                        }
+                        else
+                        {
+                            t.assertStartsWith(value, prefix, comparer);
+                        }
+                    });
+                };
+
+                assertStartsWithTest.run(null, null, null, new TestError("abc", Iterable.create(
+                    "Expected null to start with null.")));
+                assertStartsWithTest.run(null, null, CharacterComparer.Exact, new TestError("abc", Iterable.create(
+                    "Expected null to start with null.")));
+                assertStartsWithTest.run(null, null, CharacterComparer.CaseInsensitive, new TestError("abc", Iterable.create(
+                    "Expected null to start with null.")));
+                assertStartsWithTest.run(null, "", CharacterComparer.Exact, new TestError("abc", Iterable.create(
+                    "Expected null to start with \"\".")));
+                assertStartsWithTest.run(null, "ba", CharacterComparer.Exact, new TestError("abc", Iterable.create(
+                    "Expected null to start with \"ba\".")));
+                assertStartsWithTest.run("", null, CharacterComparer.Exact, new TestError("abc", Iterable.create(
+                    "Expected \"\" to start with null.")));
+                assertStartsWithTest.run("", "", CharacterComparer.Exact, new TestError("abc", Iterable.create(
+                    "Expected \"\" to start with \"\".")));
+                assertStartsWithTest.run("", "ba", CharacterComparer.Exact, new TestError("abc", Iterable.create(
+                    "Expected \"\" to start with \"ba\".")));
+                assertStartsWithTest.run("apples", null, CharacterComparer.Exact, new TestError("abc", Iterable.create(
+                    "Expected \"apples\" to start with null.")));
+                assertStartsWithTest.run("apples", "", CharacterComparer.Exact, new TestError("abc", Iterable.create(
+                    "Expected \"apples\" to start with \"\".")));
+                assertStartsWithTest.run("apples", "ba", CharacterComparer.Exact, new TestError("abc", Iterable.create(
+                    "Expected \"apples\" to start with \"ba\".")));
+                assertStartsWithTest.run("apples", "Ap", CharacterComparer.Exact, new TestError("abc", Iterable.create(
+                    "Expected \"apples\" to start with \"Ap\".")));
+                assertStartsWithTest.run("apples", "Ap", CharacterComparer.CaseInsensitive, null);
+                assertStartsWithTest.run("apples", "ap", CharacterComparer.Exact, null);
+                assertStartsWithTest.run("apples", "ap", CharacterComparer.CaseInsensitive, null);
+            });
+
+            runner.testGroup("assertEndsWith(String,String)", () ->
+            {
+                final Action3<String,String,Throwable> assertEndsWithTest = (String value, String prefix, Throwable expectedError) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(value) + " and " + Strings.escapeAndQuote(prefix), (Test test) ->
+                    {
+                        final Test t = createTest("abc", test);
+                        if (expectedError != null)
+                        {
+                            test.assertThrows(() -> t.assertEndsWith(value, prefix), expectedError);
+                        }
+                        else
+                        {
+                            t.assertEndsWith(value, prefix);
+                        }
+                    });
+                };
+
+                assertEndsWithTest.run(null, null, new TestError("abc", Iterable.create(
+                    "Expected null to end with null.")));
+                assertEndsWithTest.run(null, "", new TestError("abc", Iterable.create(
+                    "Expected null to end with \"\".")));
+                assertEndsWithTest.run(null, "ba", new TestError("abc", Iterable.create(
+                    "Expected null to end with \"ba\".")));
+                assertEndsWithTest.run("", null, new TestError("abc", Iterable.create(
+                    "Expected \"\" to end with null.")));
+                assertEndsWithTest.run("", "", new TestError("abc", Iterable.create(
+                    "Expected \"\" to end with \"\".")));
+                assertEndsWithTest.run("", "ba", new TestError("abc", Iterable.create(
+                    "Expected \"\" to end with \"ba\".")));
+                assertEndsWithTest.run("apples", null, new TestError("abc", Iterable.create(
+                    "Expected \"apples\" to end with null.")));
+                assertEndsWithTest.run("apples", "", new TestError("abc", Iterable.create(
+                    "Expected \"apples\" to end with \"\".")));
+                assertEndsWithTest.run("apples", "ba", new TestError("abc", Iterable.create(
+                    "Expected \"apples\" to end with \"ba\".")));
+                assertEndsWithTest.run("apples", "LES", new TestError("abc", Iterable.create(
+                    "Expected \"apples\" to end with \"LES\".")));
+                assertEndsWithTest.run("apples", "les", null);
+            });
+
+            runner.testGroup("assertEndsWith(String,String,String)", () ->
+            {
+                final Action3<String,String,Throwable> assertEndsWithTest = (String value, String prefix, Throwable expectedError) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(value) + " and " + Strings.escapeAndQuote(prefix), (Test test) ->
+                    {
+                        final Test t = createTest("abc", test);
+                        if (expectedError != null)
+                        {
+                            test.assertThrows(() -> t.assertEndsWith(value, prefix, "hello"), expectedError);
+                        }
+                        else
+                        {
+                            t.assertEndsWith(value, prefix, "hello");
+                        }
+                    });
+                };
+
+                assertEndsWithTest.run(null, null, new TestError("abc", Iterable.create(
+                    "hello",
+                    "Expected null to end with null.")));
+                assertEndsWithTest.run(null, "", new TestError("abc", Iterable.create(
+                    "hello",
+                    "Expected null to end with \"\".")));
+                assertEndsWithTest.run(null, "ba", new TestError("abc", Iterable.create(
+                    "hello",
+                    "Expected null to end with \"ba\".")));
+                assertEndsWithTest.run("", null, new TestError("abc", Iterable.create(
+                    "hello",
+                    "Expected \"\" to end with null.")));
+                assertEndsWithTest.run("", "", new TestError("abc", Iterable.create(
+                    "hello",
+                    "Expected \"\" to end with \"\".")));
+                assertEndsWithTest.run("", "ba", new TestError("abc", Iterable.create(
+                    "hello",
+                    "Expected \"\" to end with \"ba\".")));
+                assertEndsWithTest.run("apples", null, new TestError("abc", Iterable.create(
+                    "hello",
+                    "Expected \"apples\" to end with null.")));
+                assertEndsWithTest.run("apples", "", new TestError("abc", Iterable.create(
+                    "hello",
+                    "Expected \"apples\" to end with \"\".")));
+                assertEndsWithTest.run("apples", "ba", new TestError("abc", Iterable.create(
+                    "hello",
+                    "Expected \"apples\" to end with \"ba\".")));
+                assertEndsWithTest.run("apples", "LES", new TestError("abc", Iterable.create(
+                    "hello",
+                    "Expected \"apples\" to end with \"LES\".")));
+                assertEndsWithTest.run("apples", "les", null);
+            });
+
+            runner.testGroup("assertContains(String,String)", () ->
+            {
+                final Action3<String,String,Throwable> assertContainsTest = (String value, String prefix, Throwable expectedError) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(value) + " and " + Strings.escapeAndQuote(prefix), (Test test) ->
+                    {
+                        final Test t = createTest("abc", test);
+                        if (expectedError != null)
+                        {
+                            test.assertThrows(() -> t.assertContains(value, prefix), expectedError);
+                        }
+                        else
+                        {
+                            t.assertContains(value, prefix);
+                        }
+                    });
+                };
+
+                assertContainsTest.run(null, null, new TestError("abc", Iterable.create(
+                    "Expected null to contain null.")));
+                assertContainsTest.run(null, "", new TestError("abc", Iterable.create(
+                    "Expected null to contain \"\".")));
+                assertContainsTest.run(null, "ba", new TestError("abc", Iterable.create(
+                    "Expected null to contain \"ba\".")));
+                assertContainsTest.run("", null, new TestError("abc", Iterable.create(
+                    "Expected \"\" to contain null.")));
+                assertContainsTest.run("", "", new TestError("abc", Iterable.create(
+                    "Expected \"\" to contain \"\".")));
+                assertContainsTest.run("", "ba", new TestError("abc", Iterable.create(
+                    "Expected \"\" to contain \"ba\".")));
+                assertContainsTest.run("apples", null, new TestError("abc", Iterable.create(
+                    "Expected \"apples\" to contain null.")));
+                assertContainsTest.run("apples", "", new TestError("abc", Iterable.create(
+                    "Expected \"apples\" to contain \"\".")));
+                assertContainsTest.run("apples", "ba", new TestError("abc", Iterable.create(
+                    "Expected \"apples\" to contain \"ba\".")));
+                assertContainsTest.run("apples", "LES", new TestError("abc", Iterable.create(
+                    "Expected \"apples\" to contain \"LES\".")));
+                assertContainsTest.run("apples", "les", null);
+            });
+
+            runner.testGroup("assertContains(String,String,String)", () ->
+            {
+                final Action3<String,String,Throwable> assertContainsTest = (String value, String prefix, Throwable expectedError) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(value) + " and " + Strings.escapeAndQuote(prefix), (Test test) ->
+                    {
+                        final Test t = createTest("abc", test);
+                        if (expectedError != null)
+                        {
+                            test.assertThrows(() -> t.assertContains(value, prefix, "hello"), expectedError);
+                        }
+                        else
+                        {
+                            t.assertContains(value, prefix, "hello");
+                        }
+                    });
+                };
+
+                assertContainsTest.run(null, null, new TestError("abc", Iterable.create(
+                    "hello",
+                    "Expected null to contain null.")));
+                assertContainsTest.run(null, "", new TestError("abc", Iterable.create(
+                    "hello",
+                    "Expected null to contain \"\".")));
+                assertContainsTest.run(null, "ba", new TestError("abc", Iterable.create(
+                    "hello",
+                    "Expected null to contain \"ba\".")));
+                assertContainsTest.run("", null, new TestError("abc", Iterable.create(
+                    "hello",
+                    "Expected \"\" to contain null.")));
+                assertContainsTest.run("", "", new TestError("abc", Iterable.create(
+                    "hello",
+                    "Expected \"\" to contain \"\".")));
+                assertContainsTest.run("", "ba", new TestError("abc", Iterable.create(
+                    "hello",
+                    "Expected \"\" to contain \"ba\".")));
+                assertContainsTest.run("apples", null, new TestError("abc", Iterable.create(
+                    "hello",
+                    "Expected \"apples\" to contain null.")));
+                assertContainsTest.run("apples", "", new TestError("abc", Iterable.create(
+                    "hello",
+                    "Expected \"apples\" to contain \"\".")));
+                assertContainsTest.run("apples", "ba", new TestError("abc", Iterable.create(
+                    "hello",
+                    "Expected \"apples\" to contain \"ba\".")));
+                assertContainsTest.run("apples", "LES", new TestError("abc", Iterable.create(
+                    "hello",
+                    "Expected \"apples\" to contain \"LES\".")));
+                assertContainsTest.run("apples", "les", null);
+            });
+
+            runner.testGroup("assertOneOf(T[],T)", () ->
+            {
+                final Action3<String[],String,Throwable> assertOneOfTest = (String[] possibleValues, String value, Throwable expectedError) ->
+                {
+                    runner.test("with " + Objects.toString(possibleValues) + " and " + value, (Test test) ->
+                    {
+                        final Test t = createTest("abc", test);
+                        if (expectedError != null)
+                        {
+                            test.assertThrows(() -> t.assertOneOf(possibleValues, value), expectedError);
+                        }
+                        else
+                        {
+                            t.assertOneOf(possibleValues, value);
+                        }
+                    });
+                };
+
+                assertOneOfTest.run(null, null, new PreConditionFailure("possibleValues cannot be null."));
+                assertOneOfTest.run(new String[0], null, new PreConditionFailure("possibleValues cannot be empty."));
+                assertOneOfTest.run(new String[] { null }, null, null);
+                assertOneOfTest.run(new String[] { "a" }, null, new TestError("abc", Iterable.create(
+                    "Actual value (null) must be a.")));
+                assertOneOfTest.run(new String[] { "a", "b" }, null, new TestError("abc", Iterable.create(
+                    "Actual value (null) must be either a or b.")));
+                assertOneOfTest.run(new String[] { "a", "b", "c" }, null, new TestError("abc", Iterable.create(
+                    "Actual value (null) must be either a, b, or c.")));
+
+                assertOneOfTest.run(new String[] { null }, "a", new TestError("abc", Iterable.create(
+                    "Actual value (a) must be null.")));
+                assertOneOfTest.run(new String[] { "a" }, "a", null);
+                assertOneOfTest.run(new String[] { "a" }, "z", new TestError("abc", Iterable.create(
+                    "Actual value (z) must be a.")));
+                assertOneOfTest.run(new String[] { "a", "b" }, "a", null);
+                assertOneOfTest.run(new String[] { "a", "b" }, "b", null);
+                assertOneOfTest.run(new String[] { "a", "b" }, "z", new TestError("abc", Iterable.create(
+                    "Actual value (z) must be either a or b.")));
+                assertOneOfTest.run(new String[] { "a", "b", "c" }, "a", null);
+                assertOneOfTest.run(new String[] { "a", "b", "c" }, "b", null);
+                assertOneOfTest.run(new String[] { "a", "b", "c" }, "c", null);
+                assertOneOfTest.run(new String[] { "a", "b", "c" }, "z", new TestError("abc", Iterable.create(
+                    "Actual value (z) must be either a, b, or c.")));
+            });
+
+            runner.testGroup("fail(String)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final Test t = createTest("abc", test);
+                    test.assertThrows(() -> t.fail((String)null), new PreConditionFailure("message cannot be null."));
+                });
+
+                runner.test("with empty", (Test test) ->
+                {
+                    final Test t = createTest("abc", test);
+                    test.assertThrows(() -> t.fail(""), new PreConditionFailure("message cannot be empty."));
+                });
+
+                runner.test("with non-empty", (Test test) ->
+                {
+                    final Test t = createTest("abc", test);
+                    test.assertThrows(() -> t.fail("hello"), new TestError("abc", "hello"));
+                });
+            });
+
+            runner.testGroup("fail(Throwable)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final Test t = createTest("abc", test);
+                    test.assertThrows(() -> t.fail((Throwable)null),
+                        new PreConditionFailure("e cannot be null."));
+                });
+
+                runner.test("with null message", (Test test) ->
+                {
+                    final Test t = createTest("abc", test);
+                    test.assertThrows(() -> t.fail(new RuntimeException((String)null)),
+                        new TestError("abc", "RuntimeException"));
+                });
+
+                runner.test("with empty message", (Test test) ->
+                {
+                    final Test t = createTest("abc", test);
+                    test.assertThrows(() -> t.fail(new RuntimeException("")),
+                        new TestError("abc", "RuntimeException"));
+                });
+
+                runner.test("with non-empty message", (Test test) ->
+                {
+                    final Test t = createTest("abc", test);
+                    test.assertThrows(() -> t.fail(new RuntimeException("hello")),
+                        new TestError("abc", "RuntimeException: hello"));
                 });
             });
         });

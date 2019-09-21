@@ -9,7 +9,7 @@ public class URL
     private String host;
     private Integer port;
     private String path;
-    private final ListMap<String,String> query = new ListMap<>();
+    private final MutableMap<String,String> query = Map.create();
     private String fragment;
 
     URL()

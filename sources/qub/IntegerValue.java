@@ -122,6 +122,18 @@ public class IntegerValue implements Value<java.lang.Integer>, Comparable<java.l
         return this;
     }
 
+    public java.lang.Integer incrementAndGet()
+    {
+        return this.incrementAndGetAsInt();
+    }
+
+    public int incrementAndGetAsInt()
+    {
+        PreCondition.assertTrue(hasValue(), "hasValue()");
+
+        return value.incrementAndGet();
+    }
+
     public IntegerValue decrement()
     {
         PreCondition.assertTrue(hasValue(), "hasValue()");

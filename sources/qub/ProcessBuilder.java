@@ -5,7 +5,7 @@ package qub;
  */
 public class ProcessBuilder
 {
-    private final AsyncRunner parallelAsyncRunner;
+    private final ProcessRunner processRunner;
     private final File executableFile;
     private Folder workingFolder;
     private final List<String> arguments;
@@ -15,16 +15,19 @@ public class ProcessBuilder
 
     /**
      * Create a new ProcessBuilder with the provided executable file.
+     * @param processRunner The object that will invoke the executable file and collect its results.
      * @param executableFile The file to execute.
      */
-    ProcessBuilder(AsyncRunner parallelAsyncRunner, File executableFile)
+    ProcessBuilder(ProcessRunner processRunner, File executableFile, Folder workingFolder)
     {
-        PreCondition.assertNotNull(parallelAsyncRunner, "parallelAsyncRunner");
+        PreCondition.assertNotNull(processRunner, "processRunner");
         PreCondition.assertNotNull(executableFile, "executableFile");
+        PreCondition.assertNotNull(workingFolder, "workingFolder");
 
-        this.parallelAsyncRunner = parallelAsyncRunner;
+        this.processRunner = processRunner;
         this.executableFile = executableFile;
-        this.arguments = new ArrayList<>();
+        this.workingFolder = workingFolder;
+        this.arguments = List.create();
     }
 
     /**
@@ -40,7 +43,7 @@ public class ProcessBuilder
      * Get the arguments for this ProcessBuilder.
      * @return The arguments for this ProcessBuilder.
      */
-    public List<String> getArguments()
+    public Iterable<String> getArguments()
     {
         return arguments;
     }
@@ -143,6 +146,8 @@ public class ProcessBuilder
      */
     public ProcessBuilder setWorkingFolder(Folder workingFolder)
     {
+        PreCondition.assertNotNull(workingFolder, "workingFolder");
+
         this.workingFolder = workingFolder;
         return this;
     }
@@ -373,8 +378,6 @@ public class ProcessBuilder
             }
         }
 
-
-
         return builder.toString();
     }
 
@@ -384,77 +387,6 @@ public class ProcessBuilder
      */
     public Result<Integer> run()
     {
-        final java.lang.ProcessBuilder builder = new java.lang.ProcessBuilder(executableFile.getPath().toString());
-
-        if (arguments.any())
-        {
-            for (final String argument : arguments)
-            {
-                builder.command().add(argument);
-            }
-        }
-
-        if (workingFolder != null)
-        {
-            builder.directory(new java.io.File(workingFolder.getPath().toString()));
-        }
-
-        if (redirectedInputStream != null)
-        {
-            builder.redirectInput();
-        }
-
-        if (redirectOutputAction != null)
-        {
-            builder.redirectOutput();
-        }
-
-        if (redirectErrorAction != null)
-        {
-            builder.redirectError();
-        }
-
-        Result<Integer> result;
-        try
-        {
-            final java.lang.Process process = builder.start();
-            Result<Void> outputAction = null;
-            Result<Void> errorAction = null;
-
-            if (redirectedInputStream != null)
-            {
-                parallelAsyncRunner.schedule(() ->
-                {
-                    final OutputStreamToByteWriteStream processInputStream = new OutputStreamToByteWriteStream(process.getOutputStream(), true);
-                    processInputStream.writeAllBytes(redirectedInputStream).catchError().await();
-                });
-            }
-
-            if (redirectOutputAction != null)
-            {
-                outputAction = parallelAsyncRunner.schedule(() -> redirectOutputAction.run(new InputStreamToByteReadStream(process.getInputStream())));
-            }
-
-            if (redirectErrorAction != null)
-            {
-                errorAction = parallelAsyncRunner.schedule(() -> redirectErrorAction.run(new InputStreamToByteReadStream(process.getErrorStream())));
-            }
-
-            result = Result.success(process.waitFor());
-            if (outputAction != null)
-            {
-                outputAction.await();
-            }
-            if (errorAction != null)
-            {
-                errorAction.await();
-            }
-        }
-        catch (Throwable error)
-        {
-            result = Result.error(error);
-        }
-
-        return result;
+        return processRunner.run(getExecutableFile(), getArguments(), workingFolder, redirectedInputStream, redirectOutputAction, redirectErrorAction);
     }
 }

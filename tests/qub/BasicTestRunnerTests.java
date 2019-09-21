@@ -1,10 +1,8 @@
 package qub;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
-public class BasicTestRunnerTests
+public interface BasicTestRunnerTests
 {
-    public static void test(TestRunner runner)
+    static void test(TestRunner runner)
     {
         runner.testGroup(BasicTestRunner.class, () ->
         {
@@ -147,7 +145,7 @@ public class BasicTestRunnerTests
                 runner.test("with event actions", (Test test) ->
                 {
                     final BasicTestRunner btr = create(test);
-                    final AtomicInteger counter = new AtomicInteger(0);
+                    final IntegerValue counter = new IntegerValue(0);
                     final Value<Integer> value = Value.create(0);
                     final MutableMap<Integer,TestGroup> beforeTestGroup = Map.create();
                     final MutableMap<Integer,TestGroup> afterTestGroupSkipped = Map.create();
@@ -155,19 +153,19 @@ public class BasicTestRunnerTests
                     final MutableMap<Integer,TestGroup> afterTestGroup = Map.create();
                     btr.beforeTestGroup((TestGroup tg) ->
                     {
-                        beforeTestGroup.set(counter.incrementAndGet(), tg);
+                        beforeTestGroup.set(counter.incrementAndGetAsInt(), tg);
                     });
                     btr.afterTestGroupSkipped((TestGroup tg) ->
                     {
-                        afterTestGroupSkipped.set(counter.incrementAndGet(), tg);
+                        afterTestGroupSkipped.set(counter.incrementAndGetAsInt(), tg);
                     });
                     btr.afterTestGroupFailure((TestGroup tg, TestError error) ->
                     {
-                        afterTestGroupError.set(counter.incrementAndGet(), new TestError(tg.getFullName(), "blah", error));
+                        afterTestGroupError.set(counter.incrementAndGetAsInt(), new TestError(tg.getFullName(), "blah", error));
                     });
                     btr.afterTestGroup((TestGroup tg) ->
                     {
-                        afterTestGroup.set(counter.incrementAndGet(), tg);
+                        afterTestGroup.set(counter.incrementAndGetAsInt(), tg);
                     });
 
                     btr.testGroup(BasicTestRunnerTests.class, () -> value.set(counter.incrementAndGet()));
@@ -190,8 +188,8 @@ public class BasicTestRunnerTests
                 runner.test("with error during beforeTestGroup actions", (Test test) ->
                 {
                     final BasicTestRunner btr = create(test);
-                    final AtomicInteger counter = new AtomicInteger(0);
-                    final Value<Integer> value = Value.create(0);
+                    final IntegerValue counter = new IntegerValue(0);
+                    final IntegerValue value = IntegerValue.create(0);
                     final MutableMap<Integer,TestGroup> beforeTestGroup = Map.create();
                     final MutableMap<Integer,TestGroup> afterTestGroupSkipped = Map.create();
                     final MutableMap<Integer,TestError> afterTestGroupError = Map.create();
@@ -202,15 +200,15 @@ public class BasicTestRunnerTests
                     });
                     btr.afterTestGroupSkipped((TestGroup tg) ->
                     {
-                        afterTestGroupSkipped.set(counter.incrementAndGet(), tg);
+                        afterTestGroupSkipped.set(counter.incrementAndGetAsInt(), tg);
                     });
                     btr.afterTestGroupFailure((TestGroup tg, TestError error) ->
                     {
-                        afterTestGroupError.set(counter.incrementAndGet(), error);
+                        afterTestGroupError.set(counter.incrementAndGetAsInt(), error);
                     });
                     btr.afterTestGroup((TestGroup tg) ->
                     {
-                        afterTestGroup.set(counter.incrementAndGet(), tg);
+                        afterTestGroup.set(counter.incrementAndGetAsInt(), tg);
                     });
 
                     btr.testGroup(BasicTestRunnerTests.class, () -> value.set(counter.incrementAndGet()));
@@ -261,34 +259,34 @@ public class BasicTestRunnerTests
                 runner.test("with event actions", (Test test) ->
                 {
                     final BasicTestRunner btr = create(test);
-                    final AtomicInteger counter = new AtomicInteger(0);
+                    final IntegerValue counter = new IntegerValue(0);
                     final Value<Integer> value = Value.create(0);
                     final MutableMap<Integer,TestGroup> beforeTestGroup = Map.create();
                     btr.beforeTestGroup((TestGroup tg) ->
                     {
-                        beforeTestGroup.set(counter.incrementAndGet(), tg);
+                        beforeTestGroup.set(counter.incrementAndGetAsInt(), tg);
                     });
-                    final MutableMap<Integer,TestGroup> afterTestGroup = new ListMap<>();
+                    final MutableMap<Integer,TestGroup> afterTestGroup = Map.create();
                     btr.afterTestGroup((TestGroup tg) ->
                     {
-                        afterTestGroup.set(counter.incrementAndGet(), tg);
+                        afterTestGroup.set(counter.incrementAndGetAsInt(), tg);
                     });
 
-                    btr.testGroup("abc", () -> value.set(counter.incrementAndGet()));
+                    btr.testGroup("abc", () -> value.set(counter.incrementAndGetAsInt()));
 
                     test.assertEqual(
-                        Array.create(new MapEntry[] { MapEntry.create(1, new TestGroup("abc", null, null)) }),
+                        Iterable.create(MapEntry.create(1, new TestGroup("abc", null, null))),
                         beforeTestGroup);
                     test.assertEqual(2, value.get());
                     test.assertEqual(
-                        Array.create(new MapEntry[] { MapEntry.create(3, new TestGroup("abc", null, null)) }),
+                        Iterable.create(MapEntry.create(3, new TestGroup("abc", null, null))),
                         afterTestGroup);
                 });
             });
         });
     }
 
-    private static BasicTestRunner create(Test test)
+    static BasicTestRunner create(Test test)
     {
         return new BasicTestRunner(test.getProcess(), null);
     }

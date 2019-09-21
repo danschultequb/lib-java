@@ -53,7 +53,7 @@ public interface Strings
     static boolean startsWith(String text, String prefix, CharacterComparer characterComparer)
     {
         boolean result = false;
-        if (!Strings.isNullOrEmpty(text) && !Strings.isNullOrEmpty(text))
+        if (!Strings.isNullOrEmpty(text) && !Strings.isNullOrEmpty(prefix))
         {
             final int textLength = text.length();
             final int prefixLength = prefix.length();
