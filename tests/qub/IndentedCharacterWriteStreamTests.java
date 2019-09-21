@@ -35,14 +35,14 @@ public interface IndentedCharacterWriteStreamTests
                 });
             });
 
-            runner.testGroup("setCurrentIndent()", () ->
+            runner.testGroup("setCurrentIndent(String)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
                     final InMemoryCharacterStream innerStream = new InMemoryCharacterStream();
                     final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
                     test.assertEqual("", writeStream.getCurrentIndent());
-                    test.assertThrows(() -> writeStream.setCurrentIndent(null),
+                    test.assertThrows(() -> writeStream.setCurrentIndent((String)null),
                         new PreConditionFailure("currentIndent cannot be null."));
                     test.assertEqual("", writeStream.getCurrentIndent());
                 });

@@ -112,6 +112,14 @@ public class CommandLineParameterVerbose extends CommandLineParameterBoolean
         return this;
     }
 
+    public Result<VerboseCharacterWriteStream> getVerboseCharacterWriteStream()
+    {
+        return Result.create(() ->
+        {
+            return new VerboseCharacterWriteStream(this.getValue().await(), this.showTimestamp, this.clock, writeStream);
+        });
+    }
+
     public Result<Void> writeLine(String message)
     {
         PreCondition.assertNotNull(message, "message");

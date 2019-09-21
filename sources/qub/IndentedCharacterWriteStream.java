@@ -5,19 +5,15 @@ package qub;
  */
 public class IndentedCharacterWriteStream implements CharacterWriteStream
 {
-    private final CharacterWriteStream innerStream;
-    private String currentIndent;
+    private final LinePrefixCharacterWriteStream innerStream;
     private String singleIndent;
-    private boolean indentNextCharacter;
 
     public IndentedCharacterWriteStream(CharacterWriteStream innerStream)
     {
         PreCondition.assertNotNull(innerStream, "innerStream");
 
-        this.innerStream = innerStream;
-        this.currentIndent = "";
+        this.innerStream = new LinePrefixCharacterWriteStream(innerStream);
         this.singleIndent = "  ";
-        this.indentNextCharacter = true;
     }
 
     /**
@@ -26,7 +22,25 @@ public class IndentedCharacterWriteStream implements CharacterWriteStream
      */
     public String getCurrentIndent()
     {
-        return currentIndent;
+        final String result = this.innerStream.getLinePrefix();
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    /**
+     * Set the current indentation function.
+     * @param currentIndentFunction The function that will return the current indentation.
+     * @return This object for method chaining.
+     */
+    public IndentedCharacterWriteStream setCurrentIndent(Function0<String> currentIndentFunction)
+    {
+        PreCondition.assertNotNull(currentIndentFunction, "currentIndentFunction");
+
+        this.innerStream.setLinePrefix(currentIndentFunction);
+
+        return this;
     }
 
     /**
@@ -38,7 +52,7 @@ public class IndentedCharacterWriteStream implements CharacterWriteStream
     {
         PreCondition.assertNotNull(currentIndent, "currentIndent");
 
-        this.currentIndent = currentIndent;
+        this.setCurrentIndent(() -> currentIndent);
 
         return this;
     }
@@ -76,7 +90,7 @@ public class IndentedCharacterWriteStream implements CharacterWriteStream
      */
     public IndentedCharacterWriteStream increaseIndent()
     {
-        this.currentIndent += this.singleIndent;
+        this.setCurrentIndent(this.getCurrentIndent() + this.singleIndent);
         return this;
     }
 
@@ -86,18 +100,19 @@ public class IndentedCharacterWriteStream implements CharacterWriteStream
      */
     public IndentedCharacterWriteStream decreaseIndent()
     {
+        final String currentIndent = this.getCurrentIndent();
         final int currentIndentLength = currentIndent.length();
         if (currentIndentLength > 0)
         {
             final int singleIndentLength = singleIndent.length();
             if (currentIndentLength < singleIndentLength)
             {
-                currentIndent = "";
+                this.setCurrentIndent("");
             }
             else
             {
                 final int newCurrentIndentLength = currentIndentLength - singleIndentLength;
-                currentIndent = currentIndent.substring(0, newCurrentIndentLength);
+                this.setCurrentIndent(currentIndent.substring(0, newCurrentIndentLength));
             }
         }
         return this;
@@ -125,129 +140,25 @@ public class IndentedCharacterWriteStream implements CharacterWriteStream
     @Override
     public Result<Integer> write(char toWrite)
     {
-        PreCondition.assertNotDisposed(this);
-
-        return Result.create(() ->
-        {
-            int result = 0;
-            if (indentNextCharacter && !Strings.isNullOrEmpty(currentIndent))
-            {
-                result += innerStream.write(currentIndent).await();
-            }
-            result += innerStream.write(toWrite).await();
-            indentNextCharacter = (toWrite == '\n');
-            return result;
-        });
-
+        return this.innerStream.write(toWrite);
     }
 
     @Override
     public Result<Integer> write(char[] toWrite, int startIndex, int length)
     {
-        PreCondition.assertNotNull(toWrite, "toWrite");
-        PreCondition.assertStartIndex(startIndex, toWrite.length);
-        PreCondition.assertLength(length, startIndex, toWrite.length);
-        PreCondition.assertNotDisposed(this);
-
-        final int endIndex = startIndex + length;
-        return Result.create(() ->
-        {
-            int result = 0;
-
-            int lineStartIndex = startIndex;
-            int lineLength = length;
-            int newLineCharacterIndex = Array.indexOf(toWrite, lineStartIndex, lineLength, '\n');
-            while (newLineCharacterIndex != -1)
-            {
-                final int lineEndIndex = newLineCharacterIndex + 1;
-                lineLength = lineEndIndex - lineStartIndex;
-
-                if (indentNextCharacter && !Strings.isNullOrEmpty(currentIndent) && lineLength != 1 && (lineLength != 2 || toWrite[lineStartIndex] != '\r'))
-                {
-                    result += innerStream.write(currentIndent).await();
-                }
-                result += innerStream.write(toWrite, lineStartIndex, lineLength).await();
-                indentNextCharacter = true;
-
-                lineStartIndex = lineEndIndex;
-                lineLength = endIndex - lineStartIndex;
-                newLineCharacterIndex = lineLength > 0 ? Array.indexOf(toWrite, lineStartIndex, lineLength, '\n') : -1;
-            }
-
-            if (lineStartIndex < endIndex)
-            {
-                if (indentNextCharacter && !Strings.isNullOrEmpty(currentIndent))
-                {
-                    result += innerStream.write(currentIndent).await();
-                }
-                result += innerStream.write(toWrite, lineStartIndex, lineLength).await();
-                indentNextCharacter = false;
-            }
-
-            PostCondition.assertGreaterThanOrEqualTo(result, 0, "result");
-
-            return result;
-        });
+        return this.innerStream.write(toWrite, startIndex, length);
     }
 
     @Override
     public Result<Integer> write(String toWrite, Object... formattedStringArguments)
     {
-        PreCondition.assertNotNull(toWrite, "toWrite");
-        PreCondition.assertNotDisposed(this);
-
-        return Result.create(() ->
-        {
-            int result = 0;
-
-            int toWriteLength = toWrite.length();
-            int lineStartIndex = 0;
-            int lineLength = toWriteLength;
-            int newLineCharacterIndex = toWrite.indexOf('\n', lineStartIndex);
-            while (newLineCharacterIndex != -1)
-            {
-                final int lineEndIndex = newLineCharacterIndex + 1;
-                lineLength = lineEndIndex - lineStartIndex;
-
-                if (indentNextCharacter && !Strings.isNullOrEmpty(currentIndent) && lineLength != 1 && (lineLength != 2 || toWrite.charAt(lineStartIndex) != '\r'))
-                {
-                    result += innerStream.write(currentIndent).await();
-                }
-                result += innerStream.write(toWrite.substring(lineStartIndex, lineEndIndex)).await();
-                indentNextCharacter = true;
-
-                lineStartIndex = lineEndIndex;
-                lineLength = toWriteLength - lineStartIndex;
-                newLineCharacterIndex = lineLength > 0 ? toWrite.indexOf('\n', lineStartIndex) : -1;
-            }
-
-            if (lineStartIndex < toWriteLength)
-            {
-                if (indentNextCharacter && !Strings.isNullOrEmpty(currentIndent))
-                {
-                    result += innerStream.write(currentIndent).await();
-                }
-                result += innerStream.write(toWrite.substring(lineStartIndex, toWriteLength)).await();
-                indentNextCharacter = false;
-            }
-
-            PostCondition.assertGreaterThanOrEqualTo(result, 0, "result");
-
-            return result;
-        });
+        return this.innerStream.write(toWrite, formattedStringArguments);
     }
 
     @Override
     public Result<Integer> writeLine()
     {
-        PreCondition.assertNotDisposed(this);
-
-        return Result.create(() ->
-        {
-            final int result = innerStream.writeLine().await();
-            indentNextCharacter = true;
-            return result;
-        });
+        return this.innerStream.writeLine();
     }
 
     @Override
