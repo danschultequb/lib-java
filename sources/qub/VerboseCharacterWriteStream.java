@@ -8,18 +8,24 @@ public class VerboseCharacterWriteStream implements CharacterWriteStream
     private final boolean isVerbose;
     private final LinePrefixCharacterWriteStream innerStream;
 
-    public VerboseCharacterWriteStream(boolean isVerbose, boolean showTimestamp, Clock clock, CharacterWriteStream innerStream)
+    public VerboseCharacterWriteStream(boolean isVerbose, CharacterWriteStream innerStream)
     {
-        PreCondition.assertNotNull(clock, "clock");
-        PreCondition.assertNotNull(innerStream, "innerStream");
+        PreCondition.assertTrue(!isVerbose || innerStream != null, "!isVerbose || innerStream != null");
 
         this.isVerbose = isVerbose;
+
+        if (innerStream == null)
+        {
+            innerStream = new InMemoryCharacterStream();
+        }
         this.innerStream = new LinePrefixCharacterWriteStream(innerStream)
-            .setLinePrefix(showTimestamp
-                ? () -> "VERBOSE(" + clock.getCurrentDateTime().getMillisecondsSinceEpoch() + "): "
-                : () -> "VERBOSE: ");
+            .setLinePrefix("VERBOSE: ");
     }
 
+    /**
+     * Get whether or not this VerboseCharacterWriteStream is active.
+     * @return Whether or not this VerboseCharacterWriteStream is active.
+     */
     public boolean isVerbose()
     {
         return this.isVerbose;

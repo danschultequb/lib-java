@@ -3,25 +3,22 @@ package qub;
 public class CommandLineParameterVerbose extends CommandLineParameterBoolean
 {
     private CharacterWriteStream writeStream;
-    private Clock clock;
-    private boolean showTimestamp;
 
-    public CommandLineParameterVerbose(CharacterWriteStream writeStream, Clock clock)
+    public CommandLineParameterVerbose(CharacterWriteStream writeStream)
     {
-        this(writeStream, clock, false);
+        this(writeStream, false);
     }
 
-    public CommandLineParameterVerbose(CharacterWriteStream writeStream, Clock clock, boolean unspecifiedValue)
+    public CommandLineParameterVerbose(CharacterWriteStream writeStream, boolean unspecifiedValue)
     {
         super("verbose", unspecifiedValue);
 
         PreCondition.assertNotNull(writeStream, "writeStream");
-        PreCondition.assertNotNull(clock, "clock");
 
         this.writeStream = writeStream;
-        this.clock = clock;
 
         setDescription("Whether or not to show verbose logs.");
+        addAlias("v");
     }
 
     @Override
@@ -100,23 +97,11 @@ public class CommandLineParameterVerbose extends CommandLineParameterBoolean
         return this;
     }
 
-    public CommandLineParameterVerbose setClock(Clock clock)
-    {
-        this.clock = clock;
-        return this;
-    }
-
-    public CommandLineParameterVerbose setShowTimestamp(boolean showTimestamp)
-    {
-        this.showTimestamp = showTimestamp;
-        return this;
-    }
-
     public Result<VerboseCharacterWriteStream> getVerboseCharacterWriteStream()
     {
         return Result.create(() ->
         {
-            return new VerboseCharacterWriteStream(this.getValue().await(), this.showTimestamp, this.clock, writeStream);
+            return new VerboseCharacterWriteStream(this.getValue().await(), writeStream);
         });
     }
 
@@ -125,19 +110,12 @@ public class CommandLineParameterVerbose extends CommandLineParameterBoolean
         PreCondition.assertNotNull(message, "message");
         PreCondition.assertNotNull(writeStream, "writeStream");
         PreCondition.assertNotDisposed(writeStream, "writeStream.isDisposed()");
-        PreCondition.assertTrue(!showTimestamp || clock != null, "!showTimestamp || clock != null");
 
         return Result.create(() ->
         {
             if (getValue().await())
             {
-                String line = "VERBOSE";
-                if (showTimestamp)
-                {
-                    line += "(" + clock.getCurrentDateTime().getMillisecondsSinceEpoch() + ")";
-                }
-                line += ": " + message;
-                writeStream.writeLine(line).await();
+                writeStream.writeLine("VERBOSE: " + message).await();
             }
         });
     }
