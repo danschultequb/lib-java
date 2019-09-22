@@ -5,7 +5,8 @@ package qub;
  */
 public class CommandLineParameters
 {
-    private final String applicationName;
+    private String applicationName;
+    private String applicationDescription;
     private final List<CommandLineParameterBase<?>> parameters;
     private int nextParameterPosition;
     private CommandLineArguments arguments;
@@ -16,16 +17,19 @@ public class CommandLineParameters
      */
     public CommandLineParameters()
     {
-        this(null);
+        this.parameters = List.create();
     }
 
     /**
-     * Create a new CommandLineParameters object.
+     * Set the name of the application that these parameters apply to.
+     * @param applicationName The name of the application that these parameters apply to.
+     * @return This object for method chaining.
      */
-    public CommandLineParameters(String applicationName)
+    public CommandLineParameters setApplicationName(String applicationName)
     {
         this.applicationName = applicationName;
-        this.parameters = List.create();
+
+        return this;
     }
 
     /**
@@ -35,6 +39,28 @@ public class CommandLineParameters
     public String getApplicationName()
     {
         return this.applicationName;
+    }
+
+    /**
+     * Set the description of the application that these parameters apply to.
+     * @param applicationDescription The description of the application that these parameters apply
+     *                               to.
+     * @return This object for method chaining.
+     */
+    public CommandLineParameters setApplicationDescription(String applicationDescription)
+    {
+        this.applicationDescription = applicationDescription;
+
+        return this;
+    }
+
+    /**
+     * Get the description of the application that these parameters apply to.
+     * @return The description of the application that these parameters apply to.
+     */
+    public String getApplicationDescription()
+    {
+        return this.applicationDescription;
     }
 
     /**

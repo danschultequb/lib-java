@@ -3,7 +3,6 @@ package qub;
 public class CommandLineParameterHelp extends CommandLineParameterBoolean
 {
     private final CommandLineParameters parameters;
-    private String applicationDescription;
 
     public CommandLineParameterHelp(CommandLineParameters parameters)
     {
@@ -13,18 +12,6 @@ public class CommandLineParameterHelp extends CommandLineParameterBoolean
 
         this.setDescription("Show the help message for this application.");
         this.addAlias("?");
-    }
-
-    /**
-     * Set the description for the current application.
-     * @param applicationDescription The description for the current application.
-     * @return This object for method chaining.
-     */
-    public CommandLineParameterHelp setApplicationDescription(String applicationDescription)
-    {
-        this.applicationDescription = applicationDescription;
-
-        return this;
     }
 
     /**
@@ -53,28 +40,35 @@ public class CommandLineParameterHelp extends CommandLineParameterBoolean
     public static Iterable<String> getApplicationHelpLines(String applicationName, String applicationDescription, Iterable<CommandLineParameterBase<?>> parameters)
     {
         final List<String> result = List.create();
-        result.add("Usage: " + CommandLineParameterHelp.getApplicationUsageString(applicationName, parameters));
+        if (!Strings.isNullOrEmpty(applicationName))
+        {
+            result.add("Usage: " + CommandLineParameterHelp.getApplicationUsageString(applicationName, parameters));
+        }
         if (!Strings.isNullOrEmpty(applicationDescription))
         {
             result.add("  " + applicationDescription);
         }
-        for (final CommandLineParameterBase<?> parameter : parameters)
+        if (parameters != null)
         {
-            result.add("  " + parameter.getHelpLine());
+            for (final CommandLineParameterBase<?> parameter : parameters)
+            {
+                result.add("  " + parameter.getHelpLine());
+            }
         }
 
-        PostCondition.assertNotNullAndNotEmpty(result, "result");
+        PostCondition.assertNotNull(result, "result");
 
         return result;
     }
 
     /**
-     * Write the help lines that explain how to run this application from the command line.
+     * Show the help lines that explain how to run this application from the command line if a help
+     * command line argument was provided the Process.
      * @param process The process that contains a CharacterWriteStream that the help lines will be
      *                written to.
      * @return The result of writing the help lines.
      */
-    public Result<Boolean> writeApplicationHelpLines(Process process)
+    public Result<Boolean> showApplicationHelpLines(Process process)
     {
         PreCondition.assertNotNull(process, "process");
 
@@ -86,7 +80,7 @@ public class CommandLineParameterHelp extends CommandLineParameterBoolean
                 final CharacterWriteStream writeStream = process.getOutputCharacterWriteStream();
                 final Iterable<String> helpLines = CommandLineParameterHelp.getApplicationHelpLines(
                     this.parameters.getApplicationName(),
-                    this.applicationDescription,
+                    this.parameters.getApplicationDescription(),
                     this.parameters.getOrderedParameters());
                 for (final String helpLine : helpLines)
                 {

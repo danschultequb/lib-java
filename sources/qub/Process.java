@@ -126,19 +126,24 @@ public class Process implements Disposable
         return parallelAsyncRunner;
     }
 
+    /**
+     * Get the CommandLineArguments that were passed on the command line.
+     * @return The CommandLineArguments that were passed on the command line.
+     */
     public CommandLineArguments getCommandLineArguments()
     {
         return commandLineArguments;
     }
 
+    /**
+     * Create a CommandLineParameters object that can be used to create CommandLineParameter
+     * objects. These CommandLineParameter objects can parse the CommandLineArguments that are
+     * passed on the command line.
+     * @return A new CommandLineParameters object.
+     */
     public CommandLineParameters createCommandLineParameters()
     {
-        return this.createCommandLineParameters(null);
-    }
-
-    public CommandLineParameters createCommandLineParameters(String applicationName)
-    {
-        return new CommandLineParameters(applicationName)
+        return new CommandLineParameters()
             .setArguments(getCommandLineArguments());
     }
 
@@ -511,6 +516,45 @@ public class Process implements Disposable
             });
         }
         return stopwatchCreator.get() == null ? null : stopwatchCreator.get().run();
+    }
+
+    /**
+     * Run the provided action and then write to output how long the action took.
+     * @param action The action to run.
+     */
+    public void showDuration(Action0 action)
+    {
+        this.showDuration(true, action);
+    }
+
+    /**
+     * Run the provided action and then write to output how long the action took.
+     * @param shouldShowDuration Whether or not the duration will be written.
+     * @param action The action to run.
+     */
+    public void showDuration(boolean shouldShowDuration, Action0 action)
+    {
+        PreCondition.assertNotNull(action, "action");
+
+        Stopwatch stopwatch = null;
+        if (shouldShowDuration)
+        {
+            stopwatch = this.getStopwatch();
+            stopwatch.start();
+        }
+        try
+        {
+            action.run();
+        }
+        finally
+        {
+            if (shouldShowDuration)
+            {
+                final Duration compilationDuration = stopwatch.stop().toSeconds();
+                final CharacterWriteStream output = this.getOutputCharacterWriteStream();
+                output.writeLine("Done (" + compilationDuration.toString("0.0") + ")").await();
+            }
+        }
     }
 
     /**

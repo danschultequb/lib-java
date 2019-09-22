@@ -18,7 +18,7 @@ public interface CommandLineParameterHelpTests
 
                 runner.test("with one optional String parameter", (Test test) ->
                 {
-                    final CommandLineParameters parameters = new CommandLineParameters("fake-application");
+                    final CommandLineParameters parameters = new CommandLineParameters();
                     parameters.addString("test-param");
                     test.assertEqual("my-app [--test-param=<test-param-value>]",
                         CommandLineParameterHelp.getApplicationUsageString(
@@ -28,7 +28,7 @@ public interface CommandLineParameterHelpTests
 
                 runner.test("with one required boolean parameter", (Test test) ->
                 {
-                    final CommandLineParameters parameters = new CommandLineParameters("fake-application");
+                    final CommandLineParameters parameters = new CommandLineParameters();
                     parameters.addBoolean("verbose").setRequired(true);
                     test.assertEqual("my-app --verbose",
                         CommandLineParameterHelp.getApplicationUsageString(
@@ -38,7 +38,7 @@ public interface CommandLineParameterHelpTests
 
                 runner.test("with multiple parameters", (Test test) ->
                 {
-                    final CommandLineParameters parameters = new CommandLineParameters("fake-application");
+                    final CommandLineParameters parameters = new CommandLineParameters();
                     parameters.addPositionString("folder")
                         .setValueName("<folder-path-to-test>");
                     parameters.addString("pattern")
@@ -55,7 +55,7 @@ public interface CommandLineParameterHelpTests
 
                 runner.test("with position parameter added after non-position parameter", (Test test) ->
                 {
-                    final CommandLineParameters parameters = new CommandLineParameters("fake-application");
+                    final CommandLineParameters parameters = new CommandLineParameters();
                     parameters.addString("pattern")
                         .setValueName("<test-name-pattern>");
                     parameters.addBoolean("coverage");
@@ -74,7 +74,7 @@ public interface CommandLineParameterHelpTests
                 {
                     try (final Process process = new Process())
                     {
-                        final CommandLineParameters parameters = new CommandLineParameters("fake-application");
+                        final CommandLineParameters parameters = new CommandLineParameters();
                         parameters.addPositionString("folder")
                             .setValueName("<folder-path-to-clean>")
                             .setDescription("The folder to clean. The current folder will be used if this isn't defined.");
@@ -92,7 +92,7 @@ public interface CommandLineParameterHelpTests
                 {
                     try (final Process process = new Process())
                     {
-                        final CommandLineParameters parameters = new CommandLineParameters("fake-application");
+                        final CommandLineParameters parameters = new CommandLineParameters();
                         parameters.addPositionString("folder")
                             .setValueName("<folder-path-to-build>")
                             .setDescription("The folder to build. The current folder will be used if this isn't defined.");
@@ -111,7 +111,7 @@ public interface CommandLineParameterHelpTests
             {
                 runner.test("with no parameters", (Test test) ->
                 {
-                    final CommandLineParameters parameters = new CommandLineParameters("fake-application");
+                    final CommandLineParameters parameters = new CommandLineParameters();
                     test.assertEqual(
                         Iterable.create(
                             "Usage: fake-command",
@@ -124,7 +124,7 @@ public interface CommandLineParameterHelpTests
 
                 runner.test("with position parameter added after non-position parameter", (Test test) ->
                 {
-                    final CommandLineParameters parameters = new CommandLineParameters("fake-application");
+                    final CommandLineParameters parameters = new CommandLineParameters();
                     parameters.addString("pattern")
                         .setValueName("<test-name-pattern>")
                         .setDescription("The pattern that test names must match to be run.")
@@ -159,7 +159,7 @@ public interface CommandLineParameterHelpTests
 
                 runner.test("with positional parameter list", (Test test) ->
                 {
-                    final CommandLineParameters parameters = new CommandLineParameters("fake-application");
+                    final CommandLineParameters parameters = new CommandLineParameters();
 
                     parameters.add("pattern", (String text) -> Result.success(PathPattern.parse(text)))
                         .setValueName("<pattern-value>")
