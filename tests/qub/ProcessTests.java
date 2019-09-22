@@ -356,7 +356,7 @@ public interface ProcessTests
                 {
                     final Process process = creator.run();
                     test.assertThrows(() -> process.getEnvironmentVariable("Can't find me").await(),
-                        new NotFoundException("Could not find the provided key (Can't find me) in this Map."));
+                        new NotFoundException("No environment variable named \"Can't find me\" found."));
                 });
 
                 runner.test("with existing variable name", (Test test) ->

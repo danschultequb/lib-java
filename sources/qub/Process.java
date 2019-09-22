@@ -133,7 +133,12 @@ public class Process implements Disposable
 
     public CommandLineParameters createCommandLineParameters()
     {
-        return new CommandLineParameters()
+        return this.createCommandLineParameters(null);
+    }
+
+    public CommandLineParameters createCommandLineParameters(String applicationName)
+    {
+        return new CommandLineParameters(applicationName)
             .setArguments(getCommandLineArguments());
     }
 

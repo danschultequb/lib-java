@@ -5,6 +5,7 @@ package qub;
  */
 public class CommandLineParameters
 {
+    private final String applicationName;
     private final List<CommandLineParameterBase<?>> parameters;
     private int nextParameterPosition;
     private CommandLineArguments arguments;
@@ -15,7 +16,25 @@ public class CommandLineParameters
      */
     public CommandLineParameters()
     {
+        this(null);
+    }
+
+    /**
+     * Create a new CommandLineParameters object.
+     */
+    public CommandLineParameters(String applicationName)
+    {
+        this.applicationName = applicationName;
         this.parameters = List.create();
+    }
+
+    /**
+     * Get the name of the application.
+     * @return The name of the application.
+     */
+    public String getApplicationName()
+    {
+        return this.applicationName;
     }
 
     /**
@@ -42,7 +61,7 @@ public class CommandLineParameters
      * parameters).
      * @return All of the parameters in their assigned order.
      */
-    private Iterable<CommandLineParameterBase<?>> getOrderedParameters()
+    public Iterable<CommandLineParameterBase<?>> getOrderedParameters()
     {
         final List<CommandLineParameterBase<?>> result = List.create(getPositionParameters());
         result.addAll(getNonPositionParameters());
@@ -403,13 +422,10 @@ public class CommandLineParameters
     /**
      * Add a help command line parameter.
      * @return The help command line parameter.
-     * @return
      */
-    public CommandLineParameterBoolean addHelp()
+    public CommandLineParameterHelp addHelp()
     {
-        return addBoolean("help")
-            .setDescription("Show the help message for this application.")
-            .addAlias("?");
+        return add(new CommandLineParameterHelp(this));
     }
 
     /**
