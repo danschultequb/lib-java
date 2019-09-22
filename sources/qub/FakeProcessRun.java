@@ -5,16 +5,21 @@ package qub;
  */
 public class FakeProcessRun
 {
-    private final File executableFile;
+    private final Path executableFilePath;
     private final List<String> arguments;
     private Folder workingFolder;
     private int exitCode;
 
     public FakeProcessRun(File executableFile)
     {
-        PreCondition.assertNotNull(executableFile, "executableFile");
+        this(executableFile.getPath());
+    }
 
-        this.executableFile = executableFile;
+    public FakeProcessRun(Path executableFilePath)
+    {
+        PreCondition.assertNotNull(executableFilePath, "executableFilePath");
+
+        this.executableFilePath = executableFilePath;
         this.arguments = List.create();
     }
 
@@ -64,7 +69,10 @@ public class FakeProcessRun
         PreCondition.assertNotNull(arguments, "arguments");
         PreCondition.assertNotNull(workingFolder, "workingFolder");
 
-        return this.executableFile.equals(executableFile) &&
+        final Path executableFilePath = executableFile.getPath();
+        final boolean executableFilePathMatches = executableFilePath.equals(this.executableFilePath) ||
+            (!this.executableFilePath.isRooted() && executableFilePath.endsWith(this.executableFilePath.toString()));
+        return executableFilePathMatches &&
             this.arguments.equals(arguments) &&
             (this.workingFolder == null || this.workingFolder.equals(workingFolder));
     }

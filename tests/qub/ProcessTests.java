@@ -558,7 +558,7 @@ public interface ProcessTests
                         if (process.onWindows())
                         {
                             process.setProcessRunner(new FakeProcessRunner()
-                                .add(new FakeProcessRun(process.findExecutableFile(Path.parse("javac.exe"), true).await())
+                                .add(new FakeProcessRun(Path.parse("javac.exe"))
                                     .setExitCode(2)));
                             final ProcessBuilder builder = process.getProcessBuilder("javac.exe").await();
                             test.assertEqual("javac.exe", builder.getExecutableFile().getPath().getSegments().last());

@@ -26,6 +26,7 @@ public class Process implements Disposable
     private final Value<Function0<Stopwatch>> stopwatchCreator;
     private final Value<Clock> clock;
     private final Value<Iterable<Display>> displays;
+    private final Value<ProcessBuilderFactory> processBuilderFactory;
     private final Value<ProcessRunner> processRunner;
 
     private final AsyncScheduler mainAsyncRunner;
@@ -79,6 +80,7 @@ public class Process implements Disposable
         stopwatchCreator = Value.create();
         clock = Value.create();
         displays = Value.create();
+        processBuilderFactory = Value.create();
         processRunner = Value.create();
 
         this.mainAsyncRunner = mainAsyncRunner;
@@ -627,6 +629,18 @@ public class Process implements Disposable
         return displays.get();
     }
 
+    public ProcessBuilderFactory getProcessBuilderFactory()
+    {
+        if (!this.processBuilderFactory.hasValue())
+        {
+            final ProcessRunner processRunner = this.getProcessRunner();
+            final EnvironmentVariables environmentVariables = this.getEnvironmentVariables();
+            final Folder currentFolder = this.getCurrentFolder().await();
+            this.processBuilderFactory.set(new ProcessBuilderFactory(processRunner, environmentVariables, currentFolder));
+        }
+        return this.processBuilderFactory.get();
+    }
+
     /**
      * Set the ProcessRunner that will be used to start external processes.
      * @param processRunner The ProcessRunner that will be used to start external processes.
@@ -679,135 +693,7 @@ public class Process implements Disposable
     {
         PreCondition.assertNotNull(executablePath, "executablePath");
 
-        return Result.create(() ->
-        {
-            final File executableFile = findExecutableFile(executablePath, true)
-                .catchError(FileNotFoundException.class, () -> findExecutableFile(executablePath, false).await())
-                .await();
-            return new ProcessBuilder(this.getProcessRunner(), executableFile, getCurrentFolder().await());
-        });
-    }
-
-
-    public Result<File> getExecutableFile(final Path executableFilePath, boolean checkExtensions)
-    {
-        PreCondition.assertNotNull(executableFilePath, "executableFilePath");
-        PreCondition.assertTrue(executableFilePath.isRooted(), "executableFilePath.isRooted()");
-
-        return Result.create(() ->
-        {
-            File result = null;
-            final FileSystem fileSystem = this.getFileSystem();
-            if (checkExtensions)
-            {
-                if (fileSystem.fileExists(executableFilePath).await())
-                {
-                    result = fileSystem.getFile(executableFilePath).await();
-                }
-                else
-                {
-                    throw new FileNotFoundException(executableFilePath);
-                }
-            }
-            else
-            {
-                final Path executablePathWithoutExtension = executableFilePath.withoutFileExtension();
-
-                final Path folderPath = executableFilePath.getParent().await();
-                final Folder folder = fileSystem.getFolder(folderPath).await();
-                final Iterable<File> files = folder.getFiles().await();
-
-                final String[] executableExtensions = new String[] { "", ".exe", ".bat", ".cmd" };
-                for (final String executableExtension : executableExtensions)
-                {
-                    final Path executablePathWithExtension = Strings.isNullOrEmpty(executableExtension)
-                        ? executablePathWithoutExtension
-                        : executablePathWithoutExtension.concatenate(executableExtension);
-                    result = files.first((File file) -> executablePathWithExtension.equals(file.getPath()));
-                    if (result != null)
-                    {
-                        break;
-                    }
-                }
-
-                if (result == null)
-                {
-                    result = files.first((File file) -> executablePathWithoutExtension.equals(file.getPath().withoutFileExtension()));
-                    if (result == null)
-                    {
-                        throw new FileNotFoundException(executablePathWithoutExtension);
-                    }
-                }
-            }
-            return result;
-        });
-    }
-
-    /**
-     * Find the file to execute based on the provided executablePath. If the executablePath is not
-     * rooted, then this function will check if a file exists by resolving the executablePath
-     * against the current folder. If no file exists from that resolved path, then this function
-     * will resolve the executablePath against each of the segments in the PATH environment
-     * variable.
-     * @param executablePath The path to the executable to run.
-     * @param checkExtensions Whether or not file extensions should be considered when comparing
-     *                        files. If this is true, the executablePath "program.exe" would not
-     *                        match "program.cmd", but it would match if checkExtensions is false.
-     * @return The file to execute.
-     */
-    public Result<File> findExecutableFile(Path executablePath, boolean checkExtensions)
-    {
-        PreCondition.assertNotNull(executablePath, "executablePath");
-
-        return Result.create(() ->
-        {
-            File result;
-
-            if (executablePath.isRooted())
-            {
-                result = this.getExecutableFile(executablePath, checkExtensions).await();
-            }
-            else
-            {
-                final Path currentFolderPath = this.getCurrentFolder().await().getPath();
-                final Path currentFolderExecutablePath = currentFolderPath.concatenateSegment(executablePath);
-
-                result = getExecutableFile(currentFolderExecutablePath, checkExtensions)
-                    .catchError(FileNotFoundException.class)
-                    .await();
-
-                if (result == null)
-                {
-                    final String pathEnvironmentVariable = this.getEnvironmentVariable("path").await();
-                    if (!Strings.isNullOrEmpty(pathEnvironmentVariable))
-                    {
-                        final Iterable<String> pathStrings = Iterable.create(pathEnvironmentVariable.split(";"));
-                        for (final String pathString : pathStrings)
-                        {
-                            if (!Strings.isNullOrEmpty(pathString))
-                            {
-                                final Path path = Path.parse(pathString);
-                                final Path resolvedExecutablePath = path.concatenateSegment(executablePath);
-                                result = getExecutableFile(resolvedExecutablePath, checkExtensions).catchError().await();
-                                if (result != null)
-                                {
-                                    break;
-                                }
-                            }
-                        }
-                    }
-
-                    if (result == null)
-                    {
-                        throw new qub.FileNotFoundException(executablePath);
-                    }
-                }
-            }
-
-            PostCondition.assertNotNull(result, "result");
-
-            return result;
-        });
+        return this.getProcessBuilderFactory().getProcessBuilder(executablePath);
     }
 
     /**
