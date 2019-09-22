@@ -683,7 +683,6 @@ public class Process implements Disposable
         {
             final File executableFile = findExecutableFile(executablePath, true)
                 .catchError(FileNotFoundException.class, () -> findExecutableFile(executablePath, false).await())
-                .catchError(FileNotFoundException.class)
                 .await();
             return new ProcessBuilder(this.getProcessRunner(), executableFile, getCurrentFolder().await());
         });
