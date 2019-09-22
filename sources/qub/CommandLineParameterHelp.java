@@ -92,6 +92,7 @@ public class CommandLineParameterHelp extends CommandLineParameterBoolean
                 {
                     writeStream.writeLine(helpLine).await();
                 }
+                process.setExitCode(-1);
             }
             return showHelpLines;
         });
