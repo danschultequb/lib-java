@@ -50,6 +50,15 @@ public class ProcessBuilder
     }
 
     /**
+     * Get the full command string of the process for this builder.
+     * @return The full command string of the process for this builder.
+     */
+    public String getCommand()
+    {
+        return ProcessFactory.getCommand(this.executablePath, this.arguments, this.workingFolderPath);
+    }
+
+    /**
      * Add the provided argument to the list of arguments that will be provided to the executable
      * when this ProcessBuilder is run.
      * @param argument The argument to add.
