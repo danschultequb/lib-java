@@ -26,8 +26,7 @@ public class Process implements Disposable
     private final Value<Function0<Stopwatch>> stopwatchCreator;
     private final Value<Clock> clock;
     private final Value<Iterable<Display>> displays;
-    private final Value<ProcessBuilderFactory> processBuilderFactory;
-    private final Value<ProcessRunner> processRunner;
+    private final Value<ProcessFactory> processFactory;
 
     private final AsyncScheduler mainAsyncRunner;
     private final AsyncScheduler parallelAsyncRunner;
@@ -80,8 +79,7 @@ public class Process implements Disposable
         stopwatchCreator = Value.create();
         clock = Value.create();
         displays = Value.create();
-        processBuilderFactory = Value.create();
-        processRunner = Value.create();
+        processFactory = Value.create();
 
         this.mainAsyncRunner = mainAsyncRunner;
         CurrentThread.setAsyncRunner(mainAsyncRunner);
@@ -629,43 +627,34 @@ public class Process implements Disposable
         return displays.get();
     }
 
-    public ProcessBuilderFactory getProcessBuilderFactory()
+    /**
+     * Get the object that can be used to invoke external processes.
+     * @return The object that can be used to invoke external processes.
+     */
+    public ProcessFactory getProcessFactory()
     {
-        if (!this.processBuilderFactory.hasValue())
+        if (!this.processFactory.hasValue())
         {
-            final ProcessRunner processRunner = this.getProcessRunner();
+            final AsyncRunner parallelAsyncRunner = this.getParallelAsyncRunner();
             final EnvironmentVariables environmentVariables = this.getEnvironmentVariables();
             final Folder currentFolder = this.getCurrentFolder().await();
-            this.processBuilderFactory.set(new ProcessBuilderFactory(processRunner, environmentVariables, currentFolder));
+            this.processFactory.set(new RealProcessFactory(parallelAsyncRunner, environmentVariables, currentFolder));
         }
-        return this.processBuilderFactory.get();
+        return this.processFactory.get();
     }
 
     /**
-     * Set the ProcessRunner that will be used to start external processes.
-     * @param processRunner The ProcessRunner that will be used to start external processes.
+     * Set the object that can be used to invoke external processes.
+     * @param processFactory The object that can be used to invoke external processes.
      * @return This object for method chaining.
      */
-    public Process setProcessRunner(ProcessRunner processRunner)
+    public Process setProcessFactory(ProcessFactory processFactory)
     {
-        PreCondition.assertNotNull(processRunner, "processRunner");
+        PreCondition.assertNotNull(processFactory, "processFactory");
 
-        this.processRunner.set(processRunner);
+        this.processFactory.set(processFactory);
 
         return this;
-    }
-
-    /**
-     * Get the ProcessRunner that can be used to start external processes.
-     * @return The ProcessRunner that can be used to start external processes.
-     */
-    public ProcessRunner getProcessRunner()
-    {
-        if (!processRunner.hasValue())
-        {
-            processRunner.set(new RealProcessRunner(getParallelAsyncRunner()));
-        }
-        return processRunner.get();
     }
 
     /**
@@ -677,11 +666,7 @@ public class Process implements Disposable
     {
         PreCondition.assertNotNullAndNotEmpty(executablePath, "executablePath");
 
-        final Result<ProcessBuilder> result = this.getProcessBuilder(Path.parse(executablePath));
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+        return this.getProcessFactory().getProcessBuilder(executablePath);
     }
 
     /**
@@ -693,7 +678,19 @@ public class Process implements Disposable
     {
         PreCondition.assertNotNull(executablePath, "executablePath");
 
-        return this.getProcessBuilderFactory().getProcessBuilder(executablePath);
+        return this.getProcessFactory().getProcessBuilder(executablePath);
+    }
+
+    /**
+     * Get the ProcessBuilder for the provided executable file.
+     * @param executableFile The file to executable.
+     * @return The ProcessBuilder for the provided executable file.
+     */
+    public Result<ProcessBuilder> getProcessBuilder(File executableFile)
+    {
+        PreCondition.assertNotNull(executableFile, "executableFile");
+
+        return this.getProcessFactory().getProcessBuilder(executableFile);
     }
 
     /**

@@ -73,6 +73,19 @@ public class PreCondition
     }
 
     /**
+     * Assert that the provided value is either null or not empty.
+     * @param value The value to check.
+     * @param expressionName The name of the expression that produced the value.
+     */
+    public static void assertNullOrNotEmpty(String value, String expressionName)
+    {
+        if (value != null && value.length() == 0)
+        {
+            throw new PreConditionFailure(AssertionMessages.nullOrNotEmpty(value, expressionName));
+        }
+    }
+
+    /**
      * Assert that the provided value is not null and not empty.
      * @param value The value to check.
      * @param variableName The name of the variable that contains value.

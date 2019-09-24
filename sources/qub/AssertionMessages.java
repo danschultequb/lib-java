@@ -20,6 +20,11 @@ public interface AssertionMessages
         return expressionName + " cannot be empty.";
     }
 
+    static String nullOrNotEmpty(String value, String expressionName)
+    {
+        return expressionName + " (" + Strings.escapeAndQuote(value) + ") must be either null or not empty.";
+    }
+
     static <T> String same(T expectedValue, T value, String expressionName)
     {
         return expressionName + " (" + value + ") must be the same object as " + expectedValue + ".";

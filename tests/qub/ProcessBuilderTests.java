@@ -4,11 +4,8 @@ public interface ProcessBuilderTests
 {
     static ProcessBuilder createBuilder(Test test)
     {
-        final FileSystem fileSystem = test.getFileSystem();
-        final File fakeFile = fileSystem.getFile("C:/idontexist.exe").await();
-        final Folder fakeFolder = fileSystem.getFolder("C:/fake/folder/").await();
-        final ProcessRunner processRunner = new RealProcessRunner(test.getParallelAsyncRunner());
-        return new ProcessBuilder(processRunner, fakeFile, fakeFolder);
+        final ProcessFactory factory = new FakeProcessFactory(Path.parse("/working/"));
+        return new ProcessBuilder(factory, Path.parse("/files/executable.exe"), Path.parse("/working/"));
     }
 
     static void test(TestRunner runner)
@@ -18,9 +15,9 @@ public interface ProcessBuilderTests
             runner.test("constructor()", (Test test) ->
             {
                 final ProcessBuilder builder = createBuilder(test);
-                test.assertEqual("C:/idontexist.exe", builder.getExecutableFile().toString());
-                test.assertEqual(0, builder.getArgumentCount());
-                test.assertEqual("C:/fake/folder/: C:/idontexist.exe", builder.getCommand());
+                test.assertEqual(Path.parse("/files/executable.exe"), builder.getExecutablePath());
+                test.assertEqual(Iterable.create(), builder.getArguments());
+                test.assertEqual(Path.parse("/working/"), builder.getWorkingFolderPath());
             });
 
             runner.testGroup("addArgument()", () ->
@@ -28,26 +25,24 @@ public interface ProcessBuilderTests
                 runner.test("with null", (Test test) ->
                 {
                     final ProcessBuilder builder = createBuilder(test);
-                    builder.addArgument(null);
-                    test.assertEqual(0, builder.getArgumentCount());
-                    test.assertEqual("C:/fake/folder/: C:/idontexist.exe", builder.getCommand());
+                    test.assertThrows(() -> builder.addArgument(null),
+                        new PreConditionFailure("argument cannot be null."));
+                    test.assertEqual(Iterable.create(), builder.getArguments());
                 });
 
                 runner.test("with empty", (Test test) ->
                 {
                     final ProcessBuilder builder = createBuilder(test);
-                    builder.addArgument("");
-                    test.assertEqual(0, builder.getArgumentCount());
-                    test.assertEqual("C:/fake/folder/: C:/idontexist.exe", builder.getCommand());
+                    test.assertThrows(() -> builder.addArgument(""),
+                        new PreConditionFailure("argument cannot be empty."));
+                    test.assertEqual(Iterable.create(), builder.getArguments());
                 });
 
                 runner.test("with non-empty", (Test test) ->
                 {
                     final ProcessBuilder builder = createBuilder(test);
                     builder.addArgument("test");
-                    test.assertEqual(1, builder.getArgumentCount());
-                    test.assertEqual("test", builder.getArgument(0));
-                    test.assertEqual("C:/fake/folder/: C:/idontexist.exe test", builder.getCommand());
+                    test.assertEqual(Iterable.create("test"), builder.getArguments());
                 });
             });
 
@@ -57,74 +52,16 @@ public interface ProcessBuilderTests
                 {
                     final ProcessBuilder builder = createBuilder(test);
                     builder.addArguments();
-                    test.assertEqual(0, builder.getArgumentCount());
-                    test.assertEqual("C:/fake/folder/: C:/idontexist.exe", builder.getCommand());
+                    test.assertEqual(Iterable.create(), builder.getArguments());
                 });
 
                 runner.test("with one null value", (Test test) ->
                 {
                     final ProcessBuilder builder = createBuilder(test);
-                    builder.addArguments((String)null);
-                    test.assertEqual(0, builder.getArgumentCount());
-                    test.assertEqual("C:/fake/folder/: C:/idontexist.exe", builder.getCommand());
+                    test.assertThrows(() -> builder.addArguments((String)null),
+                        new PreConditionFailure("argument cannot be null."));
+                    test.assertEqual(Iterable.create(), builder.getArguments());
                 });
-            });
-
-            runner.testGroup("setArgument()", () ->
-            {
-                runner.test("with negative index", (Test test) ->
-                {
-                    final ProcessBuilder builder = createBuilder(test);
-                    test.assertThrows(() -> builder.setArgument(-1, "test"), new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
-                    test.assertEqual(0, builder.getArgumentCount());
-                    test.assertEqual("C:/fake/folder/: C:/idontexist.exe", builder.getCommand());
-                });
-
-                runner.test("with null value", (Test test) ->
-                {
-                    final ProcessBuilder builder = createBuilder(test);
-                    builder.addArguments("a", "b", "c");
-                    builder.setArgument(0, null);
-                    test.assertEqual(Iterable.create("b", "c"), builder.getArguments());
-                    test.assertEqual("C:/fake/folder/: C:/idontexist.exe b c", builder.getCommand());
-                });
-
-                runner.test("with emtpy value", (Test test) ->
-                {
-                    final ProcessBuilder builder = createBuilder(test);
-                    builder.addArguments("a", "b", "c");
-                    builder.setArgument(2, "");
-                    test.assertEqual(Iterable.create("a", "b", ""), builder.getArguments());
-                    test.assertEqual("C:/fake/folder/: C:/idontexist.exe a b \"\"", builder.getCommand());
-                });
-
-                runner.test("with non-empty value", (Test test) ->
-                {
-                    final ProcessBuilder builder = createBuilder(test);
-                    builder.addArguments("a", "b", "c");
-                    builder.setArgument(1, "\"d\"");
-                    test.assertEqual(Iterable.create("a", "\"d\"", "c"), builder.getArguments());
-                    test.assertEqual("C:/fake/folder/: C:/idontexist.exe a \"d\" c", builder.getCommand());
-                });
-            });
-
-            runner.test("removeArgumentAt()", (Test test) ->
-            {
-                final ProcessBuilder builder = createBuilder(test);
-                builder.addArguments("a", "b", "c");
-                builder.removeArgument(1);
-                test.assertEqual(Iterable.create("a", "c"), builder.getArguments());
-                test.assertEqual("C:/fake/folder/: C:/idontexist.exe a c", builder.getCommand());
-            });
-
-            runner.test("run() with not found executable file", (Test test) ->
-            {
-                final ProcessBuilder builder = createBuilder(test);
-                builder.addArgument("won't matter");
-                test.assertThrows(() -> builder.run().await(),
-                    new java.io.IOException("Cannot run program \"C:/idontexist.exe\" (in directory \"C:\\fake\\folder\"): CreateProcess error=2, The system cannot find the file specified",
-                        new java.io.IOException("CreateProcess error=2, The system cannot find the file specified")));
-                test.assertEqual("C:/fake/folder/: C:/idontexist.exe \"won't matter\"", builder.getCommand());
             });
         });
     }

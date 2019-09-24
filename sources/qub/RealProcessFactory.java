@@ -1,20 +1,29 @@
 package qub;
 
-public class ProcessBuilderFactory
+/**
+ * A ProcessFactory implementation that invokes external processes.
+ */
+public class RealProcessFactory implements ProcessFactory
 {
-    private final ProcessRunner processRunner;
+    private final AsyncRunner parallelAsyncRunner;
     private final EnvironmentVariables environmentVariables;
     private final Folder currentFolder;
 
-    public ProcessBuilderFactory(ProcessRunner processRunner, EnvironmentVariables environmentVariables, Folder currentFolder)
+    public RealProcessFactory(AsyncRunner parallelAsyncRunner, EnvironmentVariables environmentVariables, Folder currentFolder)
     {
-        PreCondition.assertNotNull(processRunner, "processRunner");
+        PreCondition.assertNotNull(parallelAsyncRunner, "parallelAsyncRunner");
         PreCondition.assertNotNull(environmentVariables, "environmentVariables");
         PreCondition.assertNotNull(currentFolder, "currentFolder");
 
-        this.processRunner = processRunner;
+        this.parallelAsyncRunner = parallelAsyncRunner;
         this.environmentVariables = environmentVariables;
         this.currentFolder = currentFolder;
+    }
+
+    @Override
+    public Path getWorkingFolderPath()
+    {
+        return this.currentFolder.getPath();
     }
 
     /**
@@ -22,6 +31,7 @@ public class ProcessBuilderFactory
      * @param executablePath The path to the executable.
      * @return The ProcessBuilder for the provided executable path.
      */
+    @Override
     public Result<ProcessBuilder> getProcessBuilder(Path executablePath)
     {
         PreCondition.assertNotNull(executablePath, "executablePath");
@@ -31,7 +41,77 @@ public class ProcessBuilderFactory
             final File executableFile = findExecutableFile(executablePath, true)
                 .catchError(FileNotFoundException.class, () -> findExecutableFile(executablePath, false).await())
                 .await();
-            return new ProcessBuilder(this.processRunner, executableFile, this.currentFolder);
+            return new ProcessBuilder(this, executableFile.getPath(), this.currentFolder.getPath());
+        });
+    }
+
+    @Override
+    public Result<Integer> run(Path executablePath, Iterable<String> arguments, Path workingFolderPath, ByteReadStream redirectedInputStream, Action1<ByteReadStream> redirectOutputAction, Action1<ByteReadStream> redirectErrorAction)
+    {
+        PreCondition.assertNotNull(executablePath, "executableFile");
+        PreCondition.assertNotNull(arguments, "arguments");
+        PreCondition.assertNotNull(workingFolderPath, "workingFolderPath");
+
+        return Result.create(() ->
+        {
+            final java.lang.ProcessBuilder builder = new java.lang.ProcessBuilder(executablePath.toString());
+
+            if (arguments.any())
+            {
+                for (final String argument : arguments)
+                {
+                    builder.command().add(argument);
+                }
+            }
+
+            builder.directory(new java.io.File(workingFolderPath.toString()));
+
+            if (redirectedInputStream != null)
+            {
+                builder.redirectInput();
+            }
+
+            if (redirectOutputAction != null)
+            {
+                builder.redirectOutput();
+            }
+
+            if (redirectErrorAction != null)
+            {
+                builder.redirectError();
+            }
+
+            int exitCode;
+            try
+            {
+                final java.lang.Process process = builder.start();
+
+                final Result<Void> inputAction = redirectedInputStream == null
+                    ? Result.success()
+                    : this.parallelAsyncRunner.schedule(() ->
+                        {
+                            final OutputStreamToByteWriteStream processInputStream = new OutputStreamToByteWriteStream(process.getOutputStream(), true);
+                            processInputStream.writeAllBytes(redirectedInputStream).catchError().await();
+                        });
+
+                final Result<Void> outputAction = redirectOutputAction == null
+                    ? Result.success()
+                    : this.parallelAsyncRunner.schedule(() -> redirectOutputAction.run(new InputStreamToByteReadStream(process.getInputStream())));
+
+                final Result<Void> errorAction = redirectErrorAction == null
+                    ? Result.success()
+                    : this.parallelAsyncRunner.schedule(() -> redirectErrorAction.run(new InputStreamToByteReadStream(process.getErrorStream())));
+
+                exitCode = process.waitFor();
+
+                Result.await(inputAction, outputAction, errorAction);
+            }
+            catch (Throwable e)
+            {
+                throw Exceptions.asRuntime(e);
+            }
+
+            return exitCode;
         });
     }
 

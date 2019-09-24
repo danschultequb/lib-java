@@ -1,172 +1,179 @@
 package qub;
 
 /**
- * A builder that can create new Processes.
+ * A ProcessBuilder that builds up a process for invocation.
  */
 public class ProcessBuilder
 {
-    private final ProcessRunner processRunner;
-    private final File executableFile;
-    private Folder workingFolder;
+    private final ProcessFactory factory;
+    private final Path executablePath;
     private final List<String> arguments;
+    private Path workingFolderPath;
     private ByteReadStream redirectedInputStream;
     private Action1<ByteReadStream> redirectOutputAction;
     private Action1<ByteReadStream> redirectErrorAction;
 
-    /**
-     * Create a new ProcessBuilder with the provided executable file.
-     * @param processRunner The object that will invoke the executable file and collect its results.
-     * @param executableFile The file to execute.
-     */
-    ProcessBuilder(ProcessRunner processRunner, File executableFile, Folder workingFolder)
+    public ProcessBuilder(ProcessFactory factory, Path executablePath, Path workingFolderPath)
     {
-        PreCondition.assertNotNull(processRunner, "processRunner");
-        PreCondition.assertNotNull(executableFile, "executableFile");
-        PreCondition.assertNotNull(workingFolder, "workingFolder");
+        PreCondition.assertNotNull(factory, "factory");
+        PreCondition.assertNotNull(executablePath, "executablePath");
+        PreCondition.assertNotNull(workingFolderPath, "workingFolderPath");
 
-        this.processRunner = processRunner;
-        this.executableFile = executableFile;
-        this.workingFolder = workingFolder;
+        this.factory = factory;
+        this.executablePath = executablePath;
         this.arguments = List.create();
+        this.workingFolderPath = workingFolderPath;
     }
 
     /**
-     * Get the file that will be executed by this ProcessBuilder.
-     * @return The file that will be executed by this ProcessBuilder.
+     * Run the executable path with the provided arguments. Return the process's exit code.
+     * @return The exit code from the process's execution.
      */
-    public File getExecutableFile()
+    public Result<Integer> run()
     {
-        return executableFile;
+        return this.factory.run(
+            this.executablePath,
+            this.arguments,
+            this.workingFolderPath,
+            this.redirectedInputStream,
+            this.redirectOutputAction,
+            this.redirectErrorAction);
     }
 
     /**
-     * Get the arguments for this ProcessBuilder.
-     * @return The arguments for this ProcessBuilder.
+     * Get the path to the executable that this ProcessBuilder will invoke.
+     * @return The path to the executable that this ProcessBuilder will invoke.
      */
-    public Iterable<String> getArguments()
+    public Path getExecutablePath()
     {
-        return arguments;
+        return this.executablePath;
     }
 
     /**
-     * Get the number of arguments in this ProcessBuilder.
-     * @return The number of arguments.
-     */
-    public int getArgumentCount()
-    {
-        return arguments.getCount();
-    }
-
-    /**
-     * Get the argument at the provided index.
-     * @param index The argument index.
-     * @return The argument at the provided index.
-     */
-    public String getArgument(int index)
-    {
-        return arguments.get(index);
-    }
-
-    /**
-     * Add the provided argument to the new ProcessBuilder. Null or empty arguments will be ignored.
+     * Add the provided argument to the list of arguments that will be provided to the executable
+     * when this ProcessBuilder is run.
      * @param argument The argument to add.
-     * @return This ProcessBuilder.
+     * @return This object for method chaining.
      */
     public ProcessBuilder addArgument(String argument)
     {
-        if (argument != null && !argument.isEmpty())
-        {
-            arguments.add(argument);
-        }
+        PreCondition.assertNotNullAndNotEmpty(argument, "argument");
+
+        this.arguments.add(argument);
+
         return this;
     }
 
     /**
-     * Add the provided arguments to the new ProcessBuilder. Null or empty arguments will be ignored.
+     * Add the provided arguments to the list of arguments that will be provided to the executable
+     * when this ProcessBuilder is run.
      * @param arguments The arguments to add.
-     * @return This ProcessBuilder.
+     * @return This object for method chaining.
      */
     public ProcessBuilder addArguments(String... arguments)
     {
-        return addArguments(Iterable.create(arguments));
+        PreCondition.assertNotNull(arguments, "arguments");
+
+        for (final String argument : arguments)
+        {
+            this.addArgument(argument);
+        }
+
+        return this;
     }
 
     /**
-     * Add the provided arguments to the new ProcessBuilder. Null or empty arguments will be ignored.
+     * Add the provided arguments to the list of arguments that will be provided to the executable
+     * when this ProcessBuilder is run.
      * @param arguments The arguments to add.
-     * @return This ProcessBuilder.
+     * @return This object for method chaining.
      */
     public ProcessBuilder addArguments(Iterable<String> arguments)
     {
-        if (arguments != null && arguments.any())
+        PreCondition.assertNotNull(arguments, "arguments");
+
+        for (final String argument : arguments)
         {
-            for (final String argument : arguments)
-            {
-                addArgument(argument);
-            }
+            this.addArgument(argument);
         }
+
         return this;
     }
 
     /**
-     * Set the argument at the provided index. If the provided argument is null or empty, then this
-     * will remove the argument at that index.
-     * @param index The index of the argument to change.
-     * @param argument The argument value to set.
-     * @return This ProcessBuilder.
+     * Get the arguments that this ProcessBuilder will provide to the executable.
+     * @return The arguments that this ProcessBuilder will provide to the executable.
      */
-    public ProcessBuilder setArgument(int index, String argument)
+    public Iterable<String> getArguments()
     {
-        if (argument == null)
-        {
-            removeArgument(index);
-        }
-        else
-        {
-            arguments.set(index, argument);
-        }
-        return this;
+        return this.arguments;
     }
 
     /**
-     * Remove the argument at the provided index.
-     * @param index The index of the argument to remove.
-     * @return This ProcessBuilder.
+     * Set the path to the folder that this process will be executed in.
+     * @param workingFolderPath The path to the folder that this process will be executed in.
+     * @return This object for method chaining.
      */
-    public ProcessBuilder removeArgument(int index)
+    public ProcessBuilder setWorkingFolder(String workingFolderPath)
     {
-        arguments.removeAt(index);
+        PreCondition.assertNotNullAndNotEmpty(workingFolderPath, "workingFolderPath");
+
+        return this.setWorkingFolder(Path.parse(workingFolderPath));
+    }
+
+    /**
+     * Set the path to the folder that this process will be executed in.
+     * @param workingFolderPath The path to the folder that this process will be executed in.
+     * @return This object for method chaining.
+     */
+    public ProcessBuilder setWorkingFolder(Path workingFolderPath)
+    {
+        PreCondition.assertNotNull(workingFolderPath, "workingFolderPath");
+
+        this.workingFolderPath = workingFolderPath;
+
         return this;
     }
 
     /**
-     * Set the working folder where the created process will run create.
-     * @param workingFolder The working folder where the created process will run create.
-     * @return This ProcessBuilder.
+     * Set the folder that this process will be executed in.
+     * @param workingFolder The folder that this process will be executed in.
+     * @return This object for method chaining.
      */
     public ProcessBuilder setWorkingFolder(Folder workingFolder)
     {
         PreCondition.assertNotNull(workingFolder, "workingFolder");
 
-        this.workingFolder = workingFolder;
-        return this;
+        return this.setWorkingFolder(workingFolder.getPath());
     }
 
     /**
-     * Get the full command line string that will be executed.
-     * @return The full command line string that will be executed.
+     * Get the path to the folder that this ProcessBuilder will run the executable in.
+     * @return The path to the folder that this ProcessBuilder will run the executable in.
      */
-    public String getCommand()
+    public Path getWorkingFolderPath()
     {
-        return ProcessRunner.getCommand(this.executableFile, this.arguments, this.workingFolder);
+        return this.workingFolderPath;
     }
 
+    /**
+     * Redirect the input stream of the invoked process to use the provided ByteReadStream instead.
+     * @param redirectedInputStream The ByteReadStream the invoked process should use instead of its
+     *                              default input stream.
+     * @return This object for method chaining.
+     */
     public ProcessBuilder redirectInput(ByteReadStream redirectedInputStream)
     {
         this.redirectedInputStream = redirectedInputStream;
         return this;
     }
 
+    /**
+     * Redirect the output stream of the invoked process to the provided action when the process is
+     * started.
+     * @param redirectOutputAction The action that will be invoked when the process is started.
+     * @return This object for method chaining.
+     */
     public ProcessBuilder redirectOutput(Action1<ByteReadStream> redirectOutputAction)
     {
         this.redirectOutputAction = redirectOutputAction;
@@ -180,7 +187,7 @@ public class ProcessBuilder
      */
     public ProcessBuilder redirectOutput(ByteWriteStream redirectedOutputStream)
     {
-        return redirectOutput(redirectedOutputStream::writeAllBytes);
+        return this.redirectOutput(redirectedOutputStream::writeAllBytes);
     }
 
     /**
@@ -190,7 +197,7 @@ public class ProcessBuilder
      */
     public ProcessBuilder redirectOutputLines(Action1<String> onOutputLine)
     {
-        return redirectOutput(byteReadStreamToLineAction(onOutputLine));
+        return this.redirectOutput(ProcessBuilder.byteReadStreamToLineAction(onOutputLine));
     }
 
     /**
@@ -201,7 +208,7 @@ public class ProcessBuilder
      */
     public ProcessBuilder redirectOutputTo(StringBuilder builder)
     {
-        return redirectOutputLines(appendLineToStringBuilder(builder));
+        return this.redirectOutputLines(ProcessBuilder.appendLineToStringBuilder(builder));
     }
 
     /**
@@ -212,10 +219,19 @@ public class ProcessBuilder
     public StringBuilder redirectOutput()
     {
         final StringBuilder result = new StringBuilder();
-        redirectOutputTo(result);
+        this.redirectOutputTo(result);
+
+        PostCondition.assertNotNull(result, "result");
+
         return result;
     }
 
+    /**
+     * Redirect the error stream of the invoked process to the provided action when the process is
+     * started.
+     * @param redirectErrorAction The action that will be invoked when the process is started.
+     * @return This object for method chaining.
+     */
     public ProcessBuilder redirectError(Action1<ByteReadStream> redirectErrorAction)
     {
         this.redirectErrorAction = redirectErrorAction;
@@ -229,7 +245,7 @@ public class ProcessBuilder
      */
     public ProcessBuilder redirectError(ByteWriteStream redirectedErrorStream)
     {
-        return redirectError(redirectedErrorStream::writeAllBytes);
+        return this.redirectError(redirectedErrorStream::writeAllBytes);
     }
 
     /**
@@ -239,7 +255,7 @@ public class ProcessBuilder
      */
     public ProcessBuilder redirectErrorLines(Action1<String> onErrorLine)
     {
-        return redirectError(byteReadStreamToLineAction(onErrorLine));
+        return this.redirectError(ProcessBuilder.byteReadStreamToLineAction(onErrorLine));
     }
 
     /**
@@ -250,7 +266,7 @@ public class ProcessBuilder
      */
     public ProcessBuilder redirectErrorTo(StringBuilder builder)
     {
-        return redirectErrorLines(appendLineToStringBuilder(builder));
+        return this.redirectErrorLines(ProcessBuilder.appendLineToStringBuilder(builder));
     }
 
     /**
@@ -261,10 +277,19 @@ public class ProcessBuilder
     public StringBuilder redirectError()
     {
         final StringBuilder result = new StringBuilder();
-        redirectErrorTo(result);
+        this.redirectErrorTo(result);
+
+        PostCondition.assertNotNull(result, "result");
+
         return result;
     }
 
+    /**
+     * Get a function that will take in a ByteReadStream and will invoked the provided function on
+     * each line.
+     * @param onLineAction The function to invoke for each line of the ByteReadStream.
+     * @return The function.
+     */
     private static Action1<ByteReadStream> byteReadStreamToLineAction(Action1<String> onLineAction)
     {
         PreCondition.assertNotNull(onLineAction, "onLineAction");
@@ -295,14 +320,5 @@ public class ProcessBuilder
                 builder.append(line);
             }
         };
-    }
-
-    /**
-     * Create a process with this ProcessBuilder's properties and wait for the process to complete.
-     * @return The exit code of the Process.
-     */
-    public Result<Integer> run()
-    {
-        return processRunner.run(getExecutableFile(), getArguments(), workingFolder, redirectedInputStream, redirectOutputAction, redirectErrorAction);
     }
 }

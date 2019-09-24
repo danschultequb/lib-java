@@ -60,6 +60,54 @@ public interface AssertionMessagesTests
                 });
             });
 
+            runner.testGroup("nullOrNotEmpty(String,String)", () ->
+            {
+                runner.test("with null value and null expressionName", (Test test) ->
+                {
+                    test.assertEqual("null (null) must be either null or not empty.", AssertionMessages.nullOrNotEmpty(null, null));
+                });
+
+                runner.test("with null value and empty expressionName", (Test test) ->
+                {
+                    test.assertEqual(" (null) must be either null or not empty.", AssertionMessages.nullOrNotEmpty(null, ""));
+                });
+
+                runner.test("with null value and non-empty expressionName", (Test test) ->
+                {
+                    test.assertEqual("hello (null) must be either null or not empty.", AssertionMessages.nullOrNotEmpty(null, "hello"));
+                });
+
+                runner.test("with empty value and null expressionName", (Test test) ->
+                {
+                    test.assertEqual("null (\"\") must be either null or not empty.", AssertionMessages.nullOrNotEmpty("", null));
+                });
+
+                runner.test("with empty value and empty expressionName", (Test test) ->
+                {
+                    test.assertEqual(" (\"\") must be either null or not empty.", AssertionMessages.nullOrNotEmpty("", ""));
+                });
+
+                runner.test("with empty value and non-empty expressionName", (Test test) ->
+                {
+                    test.assertEqual("hello (\"\") must be either null or not empty.", AssertionMessages.nullOrNotEmpty("", "hello"));
+                });
+
+                runner.test("with non-empty value and null expressionName", (Test test) ->
+                {
+                    test.assertEqual("null (\"abc\") must be either null or not empty.", AssertionMessages.nullOrNotEmpty("abc", null));
+                });
+
+                runner.test("with non-empty value and empty expressionName", (Test test) ->
+                {
+                    test.assertEqual(" (\"abc\") must be either null or not empty.", AssertionMessages.nullOrNotEmpty("abc", ""));
+                });
+
+                runner.test("with non-empty value and non-empty expressionName", (Test test) ->
+                {
+                    test.assertEqual("hello (\"abc\") must be either null or not empty.", AssertionMessages.nullOrNotEmpty("abc", "hello"));
+                });
+            });
+
             runner.testGroup("same(T,T,String)", () ->
             {
                 runner.test("with null expectedValue", (Test test) ->

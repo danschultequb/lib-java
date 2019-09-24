@@ -464,8 +464,8 @@ public interface ProcessTests
                     {
                         final ProcessBuilder builder = process.getProcessBuilder("pom.xml").await();
                         test.assertNotNull(builder);
-                        test.assertEqual(process.getCurrentFolder().await().getFile("pom.xml").await(), builder.getExecutableFile());
-                        test.assertEqual(0, builder.getArgumentCount());
+                        test.assertEqual(process.getCurrentFolder().await().getFile("pom.xml").await().getPath(), builder.getExecutablePath());
+                        test.assertEqual(Iterable.create(), builder.getArguments());
                     }
                 });
 
@@ -475,8 +475,8 @@ public interface ProcessTests
                     {
                         final ProcessBuilder builder = process.getProcessBuilder("pom").await();
                         test.assertNotNull(builder, "The builder not have been null.");
-                        test.assertEqual(process.getCurrentFolder().await().getFile("pom.xml").await(), builder.getExecutableFile());
-                        test.assertEqual(0, builder.getArgumentCount());
+                        test.assertEqual(process.getCurrentFolder().await().getFile("pom.xml").await().getPath(), builder.getExecutablePath());
+                        test.assertEqual(Iterable.create(), builder.getArguments());
                     }
                 });
 
@@ -487,8 +487,8 @@ public interface ProcessTests
                         final Path executablePath = process.getCurrentFolder().await().getFile("pom.xml").await().getPath();
                         final ProcessBuilder builder = process.getProcessBuilder(executablePath).await();
                         test.assertNotNull(builder);
-                        test.assertEqual(process.getCurrentFolder().await().getFile("pom.xml").await(), builder.getExecutableFile());
-                        test.assertEqual(0, builder.getArgumentCount());
+                        test.assertEqual(process.getCurrentFolder().await().getFile("pom.xml").await().getPath(), builder.getExecutablePath());
+                        test.assertEqual(Iterable.create(), builder.getArguments());
                     }
                 });
 
@@ -499,8 +499,8 @@ public interface ProcessTests
                         final Path executablePath = process.getCurrentFolder().await().getFile("pom").await().getPath();
                         final ProcessBuilder builder = process.getProcessBuilder(executablePath).await();
                         test.assertNotNull(builder);
-                        test.assertEqual(process.getCurrentFolder().await().getFile("pom.xml").await(), builder.getExecutableFile());
-                        test.assertEqual(0, builder.getArgumentCount());
+                        test.assertEqual(process.getCurrentFolder().await().getFile("pom.xml").await().getPath(), builder.getExecutablePath());
+                        test.assertEqual(Iterable.create(), builder.getArguments());
                     }
                 });
 
@@ -511,14 +511,14 @@ public interface ProcessTests
                         if (process.onWindows())
                         {
                             final ProcessBuilder builder = process.getProcessBuilder("C:/Program Files/Java/jdk1.8.0_192/bin/javac.exe").await();
-                            test.assertEqual("javac.exe", builder.getExecutableFile().getPath().getSegments().last());
-                            test.assertEqual(0, builder.getArgumentCount());
+                            test.assertEqual("javac.exe", builder.getExecutablePath().getSegments().last());
+                            test.assertEqual(Iterable.create(), builder.getArguments());
                             test.assertEqual(2, builder.run().await());
                         }
                     }
                 });
 
-                runner.test("with rooted path to executable with fake process runner", (Test test) ->
+                runner.test("with rooted path to executable with fake process", (Test test) ->
                 {
                     try (final Process process = creator.run())
                     {
@@ -526,13 +526,13 @@ public interface ProcessTests
                         {
                             final FileSystem fileSystem = process.getFileSystem();
                             final File executableFile = fileSystem.getFile("C:/Program Files/Java/jdk1.8.0_192/bin/javac.exe").await();
-                            process.setProcessRunner(new FakeProcessRunner()
+                            process.setProcessFactory(new FakeProcessFactory(process.getCurrentFolderPath())
                                 .add(new FakeProcessRun(executableFile)
-                                    .setExitCode(2)));
+                                    .setExitCode(8)));
                             final ProcessBuilder builder = process.getProcessBuilder(executableFile.getPath()).await();
-                            test.assertEqual("javac.exe", builder.getExecutableFile().getPath().getSegments().last());
-                            test.assertEqual(0, builder.getArgumentCount());
-                            test.assertEqual(2, builder.run().await());
+                            test.assertEqual("javac.exe", builder.getExecutablePath().getSegments().last());
+                            test.assertEqual(Iterable.create(), builder.getArguments());
+                            test.assertEqual(8, builder.run().await());
                         }
                     }
                 });
@@ -544,8 +544,8 @@ public interface ProcessTests
                         if (process.onWindows())
                         {
                             final ProcessBuilder builder = process.getProcessBuilder("javac.exe").await();
-                            test.assertEqual("javac.exe", builder.getExecutableFile().getPath().getSegments().last());
-                            test.assertEqual(0, builder.getArgumentCount());
+                            test.assertEqual("javac.exe", builder.getExecutablePath().getSegments().last());
+                            test.assertEqual(Iterable.create(), builder.getArguments());
                             test.assertEqual(2, builder.run().await());
                         }
                     }
@@ -557,12 +557,12 @@ public interface ProcessTests
                     {
                         if (process.onWindows())
                         {
-                            process.setProcessRunner(new FakeProcessRunner()
+                            process.setProcessFactory(new FakeProcessFactory(process.getCurrentFolderPath())
                                 .add(new FakeProcessRun(Path.parse("javac.exe"))
                                     .setExitCode(2)));
                             final ProcessBuilder builder = process.getProcessBuilder("javac.exe").await();
-                            test.assertEqual("javac.exe", builder.getExecutableFile().getPath().getSegments().last());
-                            test.assertEqual(0, builder.getArgumentCount());
+                            test.assertEqual("javac.exe", builder.getExecutablePath().getSegments().last());
+                            test.assertEqual(Iterable.create(), builder.getArguments());
                             test.assertEqual(2, builder.run().await());
                         }
                     }
@@ -575,8 +575,8 @@ public interface ProcessTests
                         if (process.onWindows())
                         {
                             final ProcessBuilder builder = process.getProcessBuilder("javac").await();
-                            test.assertTrue(builder.getExecutableFile().getPath().getSegments().last().contains("javac"));
-                            test.assertEqual(0, builder.getArgumentCount());
+                            test.assertTrue(builder.getExecutablePath().getSegments().last().startsWith("javac"));
+                            test.assertEqual(Iterable.create(), builder.getArguments());
 
                             final StringBuilder output = new StringBuilder();
                             builder.redirectOutputTo(output);
@@ -668,8 +668,8 @@ public interface ProcessTests
                         if (process.onWindows())
                         {
                             final ProcessBuilder builder = process.getProcessBuilder("qub").await();
-                            test.assertTrue(builder.getExecutableFile().getPath().getSegments().last().contains("qub."));
-                            test.assertEqual(0, builder.getArgumentCount());
+                            test.assertTrue(builder.getExecutablePath().getSegments().last().contains("qub."));
+                            test.assertEqual(Iterable.create(), builder.getArguments());
 
                             final InMemoryByteStream output = new InMemoryByteStream();
                             builder.redirectOutput(output);
