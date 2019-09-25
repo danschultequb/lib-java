@@ -193,6 +193,31 @@ public interface FakeProcessFactoryTests
                         .addArguments("a", "b");
                     test.assertEqual(3, builder.run().await());
                 });
+
+                runner.test("with action that throws", (Test test) ->
+                {
+                    final FakeProcessFactory factory = new FakeProcessFactory("/working/")
+                        .add(new FakeProcessRun("/executable/file")
+                            .setAction(() ->
+                            {
+                                throw new ParseException("blah");
+                            }));
+                    final ProcessBuilder builder = factory.getProcessBuilder("/executable/file").await();
+                    test.assertThrows(() -> builder.run().await(),
+                        new ParseException("blah"));
+                });
+
+                runner.test("with action that doesn't throw", (Test test) ->
+                {
+                    final IntegerValue value = new IntegerValue(10);
+                    final FakeProcessFactory factory = new FakeProcessFactory("/working/")
+                        .add(new FakeProcessRun("/executable/file")
+                            .setAction(() -> value.set(20))
+                            .setExitCode(3));
+                    final ProcessBuilder builder = factory.getProcessBuilder("/executable/file").await();
+                    test.assertEqual(3, builder.run().await());
+                    test.assertEqual(20, value.get());
+                });
             });
         });
     }

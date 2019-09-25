@@ -8,6 +8,7 @@ public class FakeProcessRun
     private final Path executablePath;
     private final List<String> arguments;
     private Path workingFolderPath;
+    private Action0 action;
     private int exitCode;
 
     /**
@@ -151,6 +152,29 @@ public class FakeProcessRun
     public Path getWorkingFolderPath()
     {
         return this.workingFolderPath;
+    }
+
+    /**
+     * Set the action that will be run when this FakeProcessRun is invoked.
+     * @param action The action that will be run when this FakeProcessRun is invoked.
+     * @return This object for method chaining.
+     */
+    public FakeProcessRun setAction(Action0 action)
+    {
+        PreCondition.assertNotNull(action, "action");
+
+        this.action = action;
+
+        return this;
+    }
+
+    /**
+     * The action that will be run when this FakeProcessRun is invoked.
+     * @return The action that will be run when this FakeProcessRun is invoked.
+     */
+    public Action0 getAction()
+    {
+        return this.action;
     }
 
     /**

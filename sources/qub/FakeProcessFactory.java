@@ -101,7 +101,23 @@ public class FakeProcessFactory implements ProcessFactory
         Result<Integer> result;
         if (match != null)
         {
-            result = Result.success(match.getExitCode());
+            final Action0 action = match.getAction();
+            if (action == null)
+            {
+                result = Result.success(match.getExitCode());
+            }
+            else
+            {
+                try
+                {
+                    action.run();
+                    result = Result.success(match.getExitCode());
+                }
+                catch (Throwable error)
+                {
+                    result = Result.error(error);
+                }
+            }
         }
         else
         {
