@@ -8,8 +8,8 @@ public class FakeProcessRun
     private final Path executablePath;
     private final List<String> arguments;
     private Path workingFolderPath;
-    private Action0 action;
-    private int exitCode;
+    private Function3<ByteReadStream,ByteWriteStream,ByteWriteStream,Integer> function;
+    private Integer exitCode;
 
     /**
      * Create a new FakeProcessRun from the provided executablePath.
@@ -128,6 +128,8 @@ public class FakeProcessRun
      */
     public FakeProcessRun setWorkingFolder(Path workingFolderPath)
     {
+        PreCondition.assertTrue(workingFolderPath == null || workingFolderPath.isRooted(), "workingFolderPath == null || workingFolderPath.isRooted()");
+
         this.workingFolderPath = workingFolderPath;
 
         return this;
@@ -155,15 +157,113 @@ public class FakeProcessRun
     }
 
     /**
+     * Set the exit code that will be returned when this FakeProcessRun is invoked.
+     * @param exitCode The exit code that will be returned by the fake process.
+     * @return This object for method chaining.
+     */
+    public FakeProcessRun setFunction(int exitCode)
+    {
+        return this.setFunction((ByteReadStream input, ByteWriteStream output, ByteWriteStream error) -> exitCode);
+    }
+
+    /**
      * Set the action that will be run when this FakeProcessRun is invoked.
      * @param action The action that will be run when this FakeProcessRun is invoked.
      * @return This object for method chaining.
      */
-    public FakeProcessRun setAction(Action0 action)
+    public FakeProcessRun setFunction(Action0 action)
     {
         PreCondition.assertNotNull(action, "action");
 
-        this.action = action;
+        return this.setFunction((ByteReadStream input, ByteWriteStream output, ByteWriteStream error) -> action.run());
+    }
+
+    /**
+     * Set the action that will be run when this FakeProcessRun is invoked.
+     * @param function The action that will be run when this FakeProcessRun is invoked.
+     * @return This object for method chaining.
+     */
+    public FakeProcessRun setFunction(Function0<Integer> function)
+    {
+        PreCondition.assertNotNull(function, "function");
+
+        return this.setFunction((ByteReadStream input, ByteWriteStream output, ByteWriteStream error) -> function.run());
+    }
+
+    /**
+     * Set the action that will be run when this FakeProcessRun is invoked.
+     * @param action The action that will be run when this FakeProcessRun is invoked.
+     * @return This object for method chaining.
+     */
+    public FakeProcessRun setFunction(Action1<ByteWriteStream> action)
+    {
+        PreCondition.assertNotNull(action, "action");
+
+        return this.setFunction((ByteReadStream input, ByteWriteStream output, ByteWriteStream error) -> action.run(output));
+    }
+
+    /**
+     * Set the action that will be run when this FakeProcessRun is invoked.
+     * @param function The action that will be run when this FakeProcessRun is invoked.
+     * @return This object for method chaining.
+     */
+    public FakeProcessRun setFunction(Function1<ByteWriteStream,Integer> function)
+    {
+        PreCondition.assertNotNull(function, "function");
+
+        return this.setFunction((ByteReadStream input, ByteWriteStream output, ByteWriteStream error) -> function.run(output));
+    }
+
+    /**
+     * Set the action that will be run when this FakeProcessRun is invoked.
+     * @param action The action that will be run when this FakeProcessRun is invoked.
+     * @return This object for method chaining.
+     */
+    public FakeProcessRun setFunction(Action2<ByteWriteStream,ByteWriteStream> action)
+    {
+        PreCondition.assertNotNull(action, "action");
+
+        return this.setFunction((ByteReadStream input, ByteWriteStream output, ByteWriteStream error) -> action.run(output, error));
+    }
+
+    /**
+     * Set the action that will be run when this FakeProcessRun is invoked.
+     * @param function The action that will be run when this FakeProcessRun is invoked.
+     * @return This object for method chaining.
+     */
+    public FakeProcessRun setFunction(Function2<ByteWriteStream,ByteWriteStream,Integer> function)
+    {
+        PreCondition.assertNotNull(function, "function");
+
+        return this.setFunction((ByteReadStream input, ByteWriteStream output, ByteWriteStream error) -> function.run(output, error));
+    }
+
+    /**
+     * Set the action that will be run when this FakeProcessRun is invoked.
+     * @param action The action that will be run when this FakeProcessRun is invoked.
+     * @return This object for method chaining.
+     */
+    public FakeProcessRun setFunction(Action3<ByteReadStream,ByteWriteStream,ByteWriteStream> action)
+    {
+        PreCondition.assertNotNull(action, "action");
+
+        return this.setFunction((ByteReadStream input, ByteWriteStream output, ByteWriteStream error) ->
+        {
+            action.run(input, output, error);
+            return 0;
+        });
+    }
+
+    /**
+     * Set the action that will be run when this FakeProcessRun is invoked.
+     * @param function The action that will be run when this FakeProcessRun is invoked.
+     * @return This object for method chaining.
+     */
+    public FakeProcessRun setFunction(Function3<ByteReadStream,ByteWriteStream,ByteWriteStream,Integer> function)
+    {
+        PreCondition.assertNotNull(function, "function");
+
+        this.function = function;
 
         return this;
     }
@@ -172,29 +272,8 @@ public class FakeProcessRun
      * The action that will be run when this FakeProcessRun is invoked.
      * @return The action that will be run when this FakeProcessRun is invoked.
      */
-    public Action0 getAction()
+    public Function3<ByteReadStream,ByteWriteStream,ByteWriteStream,Integer> getFunction()
     {
-        return this.action;
-    }
-
-    /**
-     * Set the exit code that this process will return.
-     * @param exitCode The exit code that this process will return.
-     * @return This object for method chaining.
-     */
-    public FakeProcessRun setExitCode(int exitCode)
-    {
-        this.exitCode = exitCode;
-
-        return this;
-    }
-
-    /**
-     * Get the exit code that this process will return.
-     * @return The exit code that this process will return.
-     */
-    public int getExitCode()
-    {
-        return this.exitCode;
+        return this.function;
     }
 }

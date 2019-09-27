@@ -196,7 +196,7 @@ public class ProcessBuilder
      */
     public ProcessBuilder redirectOutput(ByteWriteStream redirectedOutputStream)
     {
-        return this.redirectOutput(redirectedOutputStream::writeAllBytes);
+        return this.redirectOutput((ByteReadStream output) -> redirectedOutputStream.writeAllBytes(output).await());
     }
 
     /**
@@ -254,7 +254,7 @@ public class ProcessBuilder
      */
     public ProcessBuilder redirectError(ByteWriteStream redirectedErrorStream)
     {
-        return this.redirectError(redirectedErrorStream::writeAllBytes);
+        return this.redirectError((ByteReadStream error) -> redirectedErrorStream.writeAllBytes(error).await());
     }
 
     /**

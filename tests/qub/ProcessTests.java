@@ -526,9 +526,9 @@ public interface ProcessTests
                         {
                             final FileSystem fileSystem = process.getFileSystem();
                             final File executableFile = fileSystem.getFile("C:/Program Files/Java/jdk1.8.0_192/bin/javac.exe").await();
-                            process.setProcessFactory(new FakeProcessFactory(process.getCurrentFolderPath())
+                            process.setProcessFactory(new FakeProcessFactory(test.getParallelAsyncRunner(), process.getCurrentFolderPath())
                                 .add(new FakeProcessRun(executableFile)
-                                    .setExitCode(8)));
+                                    .setFunction(8)));
                             final ProcessBuilder builder = process.getProcessBuilder(executableFile.getPath()).await();
                             test.assertEqual("javac.exe", builder.getExecutablePath().getSegments().last());
                             test.assertEqual(Iterable.create(), builder.getArguments());
@@ -557,9 +557,9 @@ public interface ProcessTests
                     {
                         if (process.onWindows())
                         {
-                            process.setProcessFactory(new FakeProcessFactory(process.getCurrentFolderPath())
+                            process.setProcessFactory(new FakeProcessFactory(test.getParallelAsyncRunner(), process.getCurrentFolderPath())
                                 .add(new FakeProcessRun(Path.parse("javac.exe"))
-                                    .setExitCode(2)));
+                                    .setFunction(2)));
                             final ProcessBuilder builder = process.getProcessBuilder("javac.exe").await();
                             test.assertEqual("javac.exe", builder.getExecutablePath().getSegments().last());
                             test.assertEqual(Iterable.create(), builder.getArguments());

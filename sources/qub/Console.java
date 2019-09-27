@@ -93,4 +93,49 @@ public class Console extends Process
             java.lang.System.exit(console.getExitCode());
         }
     }
+
+    /**
+     * Invoke the provided runAction using the parsed command line parameters that are provided by
+     * the getParametersFunction. If the command line parameters are null, then the runAction will
+     * not be invoked.
+     * @param arguments The command line arguments to the application.
+     * @param getParametersFunction The function that will parse the command line parameters from
+     *                              the Console's command line arguments.
+     * @param runAction The action that implements the application's main logic.
+     * @param <TParameters> The type of the command line parameters object.
+     */
+    public static <TParameters> void run(String[] arguments, Function1<Console,TParameters> getParametersFunction, Action1<TParameters> runAction)
+    {
+        PreCondition.assertNotNull(arguments, "arguments");
+        PreCondition.assertNotNull(getParametersFunction, "getParametersFunction");
+        PreCondition.assertNotNull(runAction, "runAction");
+
+        Console.run(arguments, (Console console) -> Console.run(console, getParametersFunction, runAction));
+    }
+
+    /**
+     * Invoke the provided runAction using the parsed command line parameters that are provided by
+     * the getParametersFunction. If the command line parameters are null, then the runAction will
+     * not be invoked.
+     * @param console The Console object that contains the command line arguments.
+     * @param getParametersFunction The function that will parse the command line parameters from
+     *                              the Console's command line arguments.
+     * @param runAction The action that implements the application's main logic.
+     * @param <TParameters> The type of the command line parameters object.
+     */
+    public static <TParameters> void run(Console console, Function1<Console,TParameters> getParametersFunction, Action1<TParameters> runAction)
+    {
+        PreCondition.assertNotNull(console, "console");
+        PreCondition.assertNotNull(getParametersFunction, "getParametersFunction");
+        PreCondition.assertNotNull(runAction, "runAction");
+
+        final TParameters parameters = getParametersFunction.run(console);
+        if (parameters != null)
+        {
+            console.showDuration(() ->
+            {
+                runAction.run(parameters);
+            });
+        }
+    }
 }

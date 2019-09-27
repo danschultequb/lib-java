@@ -4,7 +4,7 @@ public interface ProcessBuilderTests
 {
     static ProcessBuilder createBuilder(Test test)
     {
-        final ProcessFactory factory = new FakeProcessFactory(Path.parse("/working/"));
+        final ProcessFactory factory = new FakeProcessFactory(test.getParallelAsyncRunner(), Path.parse("/working/"));
         return new ProcessBuilder(factory, Path.parse("/files/executable.exe"), Path.parse("/working/"));
     }
 

@@ -5,25 +5,28 @@ package qub;
  */
 public class FakeProcessFactory implements ProcessFactory
 {
+    private final AsyncRunner asyncRunner;
     private final List<FakeProcessRun> fakeProcessRuns;
     private final Path workingFolderPath;
 
     /**
      * Create a new FakeProcessFactory.
      */
-    public FakeProcessFactory(String workingFolderPath)
+    public FakeProcessFactory(AsyncRunner asyncRunner, String workingFolderPath)
     {
-        this(Path.parse(workingFolderPath));
+        this(asyncRunner, Path.parse(workingFolderPath));
     }
 
     /**
      * Create a new FakeProcessFactory.
      */
-    public FakeProcessFactory(Path workingFolderPath)
+    public FakeProcessFactory(AsyncRunner asyncRunner, Path workingFolderPath)
     {
+        PreCondition.assertNotNull(asyncRunner, "parallelAsyncRunner");
         PreCondition.assertNotNull(workingFolderPath, "workingFolderPath");
         PreCondition.assertTrue(workingFolderPath.isRooted(), "workingFolderPath.isRooted()");
 
+        this.asyncRunner = asyncRunner;
         this.fakeProcessRuns = List.create();
         this.workingFolderPath = workingFolderPath;
     }
@@ -31,9 +34,9 @@ public class FakeProcessFactory implements ProcessFactory
     /**
      * Create a new FakeProcessBuilderFactory.
      */
-    public FakeProcessFactory(Folder workingFolder)
+    public FakeProcessFactory(AsyncRunner asyncRunner, Folder workingFolder)
     {
-        this(workingFolder.getPath());
+        this(asyncRunner, workingFolder.getPath());
     }
 
     /**
@@ -101,17 +104,31 @@ public class FakeProcessFactory implements ProcessFactory
         Result<Integer> result;
         if (match != null)
         {
-            final Action0 action = match.getAction();
-            if (action == null)
+            final Function3<ByteReadStream,ByteWriteStream,ByteWriteStream,Integer> function = match.getFunction();
+            if (function == null)
             {
-                result = Result.success(match.getExitCode());
+                result = Result.successZero();
             }
             else
             {
                 try
                 {
-                    action.run();
-                    result = Result.success(match.getExitCode());
+                    final ByteReadStream input = redirectedInputStream != null
+                        ? redirectedInputStream
+                        : new InMemoryByteStream().endOfStream();
+                    final InMemoryByteStream output = new InMemoryByteStream();
+                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final Result<Void> outputTask = redirectedOutputStream != null
+                        ? this.asyncRunner.schedule(() -> redirectedOutputStream.run(output))
+                        : Result.success();
+                    final Result<Void> errorTask = redirectedErrorStream != null
+                        ? this.asyncRunner.schedule(() -> redirectedErrorStream.run(error))
+                        : Result.success();
+                    final Integer actionExitCode = function.run(input, output, error);
+                    output.endOfStream();
+                    error.endOfStream();
+                    Result.await(outputTask, errorTask);
+                    result = Result.success(actionExitCode);
                 }
                 catch (Throwable error)
                 {
