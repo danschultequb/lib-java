@@ -98,8 +98,7 @@ public interface CharacterReadStream extends Disposable, Iterator<Character>
      * Read all of the characters in this stream. The termination of the stream is marked when
      * readCharacter() returns a null character. This function will not return until all of the
      * characters in the stream have been read.
-     * @return All of the characters in this stream, null if the end of the stream has been reached,
-     * or an error if characters could not be read.
+     * @return All of the remaining characters in this stream.
      */
     default Result<char[]> readAllCharacters()
     {

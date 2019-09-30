@@ -282,26 +282,8 @@ public class Lex
                 ('A' <= character && character <= 'Z');
     }
 
-    public static final Function1<Character,Boolean> isLetter = new Function1<Character, Boolean>()
-    {
-        @Override
-        public Boolean run(Character character)
-        {
-            return isLetter(character);
-        }
-    };
-
     public static boolean isDigit(char character)
     {
         return '0' <= character && character <= '9';
     }
-
-    public static final Function1<Character,Boolean> isDigit = new Function1<Character, Boolean>()
-    {
-        @Override
-        public Boolean run(Character character)
-        {
-            return isDigit(character);
-        }
-    };
 }

@@ -224,11 +224,11 @@ public class Lexer implements Iterator<Lex>
                 default:
                     if(Lex.isLetter(characters.getCurrent()))
                     {
-                        current = Lex.letters(readWhile(characters, Lex.isLetter), lexStartIndex);
+                        current = Lex.letters(readWhile(characters, Lex::isLetter), lexStartIndex);
                     }
                     else if(Lex.isDigit(characters.getCurrent()))
                     {
-                        current = Lex.digits(readWhile(characters, Lex.isDigit), lexStartIndex);
+                        current = Lex.digits(readWhile(characters, Lex::isDigit), lexStartIndex);
                     }
                     else
                     {

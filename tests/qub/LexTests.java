@@ -401,16 +401,6 @@ public class LexTests
                 test.assertTrue(Lex.isLetter('A'));
                 test.assertTrue(Lex.isLetter('N'));
                 test.assertTrue(Lex.isLetter('Z'));
-
-                test.assertFalse(Lex.isLetter.run('0'));
-                test.assertFalse(Lex.isLetter.run('.'));
-
-                test.assertTrue(Lex.isLetter.run('a'));
-                test.assertTrue(Lex.isLetter.run('m'));
-                test.assertTrue(Lex.isLetter.run('z'));
-                test.assertTrue(Lex.isLetter.run('A'));
-                test.assertTrue(Lex.isLetter.run('N'));
-                test.assertTrue(Lex.isLetter.run('Z'));
             });
 
             runner.test("isDigit()", (Test test) ->
@@ -430,22 +420,6 @@ public class LexTests
                 test.assertTrue(Lex.isDigit('7'));
                 test.assertTrue(Lex.isDigit('8'));
                 test.assertTrue(Lex.isDigit('9'));
-
-                test.assertFalse(Lex.isDigit.run('a'));
-                test.assertFalse(Lex.isDigit.run(' '));
-                test.assertFalse(Lex.isDigit.run('-'));
-                test.assertFalse(Lex.isDigit.run('.'));
-
-                test.assertTrue(Lex.isDigit.run('0'));
-                test.assertTrue(Lex.isDigit.run('1'));
-                test.assertTrue(Lex.isDigit.run('2'));
-                test.assertTrue(Lex.isDigit.run('3'));
-                test.assertTrue(Lex.isDigit.run('4'));
-                test.assertTrue(Lex.isDigit.run('5'));
-                test.assertTrue(Lex.isDigit.run('6'));
-                test.assertTrue(Lex.isDigit.run('7'));
-                test.assertTrue(Lex.isDigit.run('8'));
-                test.assertTrue(Lex.isDigit.run('9'));
             });
         });
     }

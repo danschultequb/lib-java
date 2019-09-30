@@ -86,18 +86,21 @@ public class BasicHttpClient implements HttpClient
                         {
                             final InMemoryByteStream responseBodyStream = new InMemoryByteStream();
 
-                            long bytesToRead = contentLength;
-                            while (0 < bytesToRead)
+                            if (request.getMethod() != HttpMethod.HEAD)
                             {
-                                final byte[] bytesRead = bufferedByteReadStream.readBytes((int)Math.minimum(bytesToRead, Integers.maximum)).await();
-                                if (bytesRead == null)
+                                long bytesToRead = contentLength;
+                                while (0 < bytesToRead)
                                 {
-                                    bytesToRead = 0;
-                                }
-                                else
-                                {
-                                    responseBodyStream.writeAllBytes(bytesRead).await();
-                                    bytesToRead -= bytesRead.length;
+                                    final byte[] bytesRead = bufferedByteReadStream.readBytes((int)Math.minimum(bytesToRead, Integers.maximum)).await();
+                                    if (bytesRead == null)
+                                    {
+                                        bytesToRead = 0;
+                                    }
+                                    else
+                                    {
+                                        responseBodyStream.writeAllBytes(bytesRead).await();
+                                        bytesToRead -= bytesRead.length;
+                                    }
                                 }
                             }
                             responseBodyStream.endOfStream();

@@ -9,8 +9,17 @@ public class MutableHttpResponse implements HttpResponse
     private String httpVersion;
     private int statusCode;
     private String reasonPhrase;
-    private final MutableHttpHeaders headers = new MutableHttpHeaders();
+    private final MutableHttpHeaders headers;
     private ByteReadStream body;
+
+    /**
+     * Create a new MutableHttpResponse object.
+     */
+    public MutableHttpResponse()
+    {
+        this.headers = new MutableHttpHeaders();
+        this.body = new InMemoryByteStream().endOfStream();
+    }
 
     /**
      * Set the HTTP version that this response was sent with.
@@ -156,7 +165,11 @@ public class MutableHttpResponse implements HttpResponse
     @Override
     public ByteReadStream getBody()
     {
-        return body;
+        final ByteReadStream result = this.body;
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
     }
 
     /**
@@ -165,6 +178,8 @@ public class MutableHttpResponse implements HttpResponse
      */
     public MutableHttpResponse setBody(ByteReadStream body)
     {
+        PreCondition.assertNotNull(body, "body");
+
         this.body = body;
 
         return this;
@@ -176,6 +191,8 @@ public class MutableHttpResponse implements HttpResponse
      */
     public MutableHttpResponse setBody(String body)
     {
+        PreCondition.assertNotNull(body, "body");
+
         final InMemoryByteStream bodyStream = new InMemoryByteStream();
         if (!Strings.isNullOrEmpty(body))
         {

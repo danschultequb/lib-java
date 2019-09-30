@@ -22,25 +22,49 @@ public class HttpClientTests
                         new RuntimeException(new java.net.UnknownHostException("www.idontexistbecauseimnotagoodurl.com")));
                 });
 
+                runner.test("with HEAD request to www.example.com", runner.skip(!runner.hasNetworkConnection().await()), (Test test) ->
+                {
+                    final HttpClient httpClient = creator.run(test);
+                    final MutableHttpRequest httpRequest = new MutableHttpRequest(HttpMethod.HEAD, URL.parse("http://www.example.com").await());
+
+                    try (final HttpResponse httpResponse = httpClient.send(httpRequest).await())
+                    {
+                        test.assertEqual("HTTP/1.1", httpResponse.getHTTPVersion());
+                        test.assertEqual(200, httpResponse.getStatusCode());
+                        test.assertEqual("OK", httpResponse.getReasonPhrase());
+                        test.assertNotNull(httpResponse.getHeaders());
+                        final String contentLength = httpResponse.getHeaders().getValue("content-length").await();
+                        test.assertEqual("606", contentLength);
+                        try (final ByteReadStream responseBody = httpResponse.getBody())
+                        {
+                            test.assertNotNull(responseBody);
+                            final String bodyString = responseBody.asCharacterReadStream().readEntireString().await();
+                            test.assertEqual("", bodyString);
+                        }
+                    }
+                });
+
                 runner.test("with GET request to www.example.com", runner.skip(!runner.hasNetworkConnection().await()), (Test test) ->
                 {
                     final HttpClient httpClient = creator.run(test);
                     final MutableHttpRequest httpRequest = new MutableHttpRequest(HttpMethod.GET, URL.parse("http://www.example.com").await());
 
-                    final HttpResponse httpResponse = httpClient.send(httpRequest).await();
-                    test.assertEqual("HTTP/1.1", httpResponse.getHTTPVersion());
-                    test.assertEqual(200, httpResponse.getStatusCode());
-                    test.assertEqual("OK", httpResponse.getReasonPhrase());
-                    test.assertNotNull(httpResponse.getHeaders());
-                    final String contentLength = httpResponse.getHeaders().getValue("content-length").await();
-                    test.assertOneOf(new String[] { "1164", "1270" }, contentLength);
-                    test.assertNotNull(httpResponse.getBody());
-                    final String bodyString = httpResponse.getBody().asCharacterReadStream().readEntireString().await();
-                    test.assertNotNull(bodyString);
-                    test.assertStartsWith(bodyString, "<!doctype html>", CharacterComparer.CaseInsensitive);
-                    test.assertContains(bodyString, "<div>");
-                    test.assertContains(bodyString, "<h1>Example Domain</h1>");
-                    test.assertContains(bodyString, "</div>");
+                    try (final HttpResponse httpResponse = httpClient.send(httpRequest).await())
+                    {
+                        test.assertEqual("HTTP/1.1", httpResponse.getHTTPVersion());
+                        test.assertEqual(200, httpResponse.getStatusCode());
+                        test.assertEqual("OK", httpResponse.getReasonPhrase());
+                        test.assertNotNull(httpResponse.getHeaders());
+                        final String contentLength = httpResponse.getHeaders().getValue("content-length").await();
+                        test.assertOneOf(new String[]{"1164", "1270"}, contentLength);
+                        test.assertNotNull(httpResponse.getBody());
+                        final String bodyString = httpResponse.getBody().asCharacterReadStream().readEntireString().await();
+                        test.assertNotNull(bodyString);
+                        test.assertStartsWith(bodyString, "<!doctype html>", CharacterComparer.CaseInsensitive);
+                        test.assertContains(bodyString, "<div>");
+                        test.assertContains(bodyString, "<h1>Example Domain</h1>");
+                        test.assertContains(bodyString, "</div>");
+                    }
                 });
 
                 runner.test("with GET request to http://www.treasurydirect.gov/TA_WS/securities/auctioned?format=json&type=Bill", runner.skip(!runner.hasNetworkConnection().await()), (Test test) ->
@@ -56,7 +80,10 @@ public class HttpClientTests
                     final String locationHeader = httpResponse.getHeaders().getValue("location").await();
                     test.assertEndsWith(locationHeader, "www.treasurydirect.gov/TA_WS/securities/auctioned?format=json&type=Bill", "Incorrect Location header");
                     test.assertEqual("0", httpResponse.getHeaders().getValue("content-length").await());
-                    test.assertNull(httpResponse.getBody());
+                    final ByteReadStream responseBody = httpResponse.getBody();
+                    test.assertNotNull(responseBody);
+                    test.assertThrows(() -> responseBody.readAllBytes().await(),
+                        new EndOfStreamException());
                 });
             });
         });

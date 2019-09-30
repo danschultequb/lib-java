@@ -65,22 +65,23 @@ public interface ByteReadStream extends Disposable, Iterator<Byte>
      * Read all of the bytes in this stream. The termination of the stream is marked when getByte()
      * returns a null Byte. This function will not return until all of the bytes in the stream have
      * been read.
-     * @return All of the bytes in this stream, null if the end of the stream has been reached, or
-     * an error if bytes could not be read.
+     * @return All of the bytes that remain in this stream.
      */
     default Result<byte[]> readAllBytes()
     {
         PreCondition.assertNotDisposed(this);
 
-        final InMemoryByteStream byteStream = new InMemoryByteStream();
-        return byteStream.writeAllBytes(this)
-            .thenResult(() ->
+        return Result.create(() ->
+        {
+            final InMemoryByteStream byteStream = new InMemoryByteStream();
+            byteStream.writeAllBytes(this).await();
+            final byte[] bytes = byteStream.getBytes();
+            if (bytes.length == 0)
             {
-                final byte[] bytes = byteStream.getBytes();
-                return bytes.length == 0
-                    ? Result.endOfStream()
-                    : Result.success(bytes);
-            });
+                throw new EndOfStreamException();
+            }
+            return bytes;
+        });
     }
 
     /**
