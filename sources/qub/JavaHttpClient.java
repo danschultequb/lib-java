@@ -76,7 +76,13 @@ public class JavaHttpClient implements HttpClient
             }
 
             final int statusCode = response.getStatusCode();
-            response.setBody(new InputStreamToByteReadStream((400 <= statusCode && statusCode <= 599) ? urlConnection.getErrorStream() : urlConnection.getInputStream()));
+            final java.io.InputStream javaResponseBody = (400 <= statusCode && statusCode <= 599)
+                ? urlConnection.getErrorStream()
+                : urlConnection.getInputStream();
+            final ByteReadStream responseBody = javaResponseBody != null
+                ? new InputStreamToByteReadStream(javaResponseBody)
+                : new InMemoryByteStream().endOfStream();
+            response.setBody(responseBody);
 
             result = Result.success(response);
         }
