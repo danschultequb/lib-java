@@ -1,10 +1,10 @@
 package qub;
 
-public class ConsoleTests
+public interface ConsoleTests
 {
-    public static void test(final TestRunner runner)
+    static void test(final TestRunner runner)
     {
-        runner.testGroup("Console", () ->
+        runner.testGroup(Console.class, () ->
         {
             ProcessTests.test(runner, Console::new);
 
