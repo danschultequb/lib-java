@@ -152,6 +152,6 @@ public class FakeProcessFactory implements ProcessFactory
     {
         PreCondition.assertNotNull(executablePath, "executablePath");
 
-        return Result.success(new JavaProcessBuilder(this, executablePath, this.workingFolderPath));
+        return Result.success(new BasicProcessBuilder(this, executablePath, this.workingFolderPath));
     }
 }

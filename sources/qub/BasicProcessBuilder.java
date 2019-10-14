@@ -3,7 +3,7 @@ package qub;
 /**
  * A ProcessBuilder that builds up a process for invocation.
  */
-public class JavaProcessBuilder implements ProcessBuilder
+public class BasicProcessBuilder implements ProcessBuilder
 {
     private final ProcessFactory factory;
     private final Path executablePath;
@@ -13,7 +13,7 @@ public class JavaProcessBuilder implements ProcessBuilder
     private Action1<ByteReadStream> redirectOutputAction;
     private Action1<ByteReadStream> redirectErrorAction;
 
-    public JavaProcessBuilder(ProcessFactory factory, Path executablePath, Path workingFolderPath)
+    public BasicProcessBuilder(ProcessFactory factory, Path executablePath, Path workingFolderPath)
     {
         PreCondition.assertNotNull(factory, "factory");
         PreCondition.assertNotNull(executablePath, "executablePath");
@@ -64,7 +64,7 @@ public class JavaProcessBuilder implements ProcessBuilder
      * @param argument The argument to add.
      * @return This object for method chaining.
      */
-    public JavaProcessBuilder addArgument(String argument)
+    public BasicProcessBuilder addArgument(String argument)
     {
         PreCondition.assertNotNullAndNotEmpty(argument, "argument");
 
@@ -79,7 +79,7 @@ public class JavaProcessBuilder implements ProcessBuilder
      * @param arguments The arguments to add.
      * @return This object for method chaining.
      */
-    public JavaProcessBuilder addArguments(String... arguments)
+    public BasicProcessBuilder addArguments(String... arguments)
     {
         PreCondition.assertNotNull(arguments, "arguments");
 
@@ -97,7 +97,7 @@ public class JavaProcessBuilder implements ProcessBuilder
      * @param arguments The arguments to add.
      * @return This object for method chaining.
      */
-    public JavaProcessBuilder addArguments(Iterable<String> arguments)
+    public BasicProcessBuilder addArguments(Iterable<String> arguments)
     {
         PreCondition.assertNotNull(arguments, "arguments");
 
@@ -123,7 +123,7 @@ public class JavaProcessBuilder implements ProcessBuilder
      * @param workingFolderPath The path to the folder that this process will be executed in.
      * @return This object for method chaining.
      */
-    public JavaProcessBuilder setWorkingFolder(String workingFolderPath)
+    public BasicProcessBuilder setWorkingFolder(String workingFolderPath)
     {
         PreCondition.assertNotNullAndNotEmpty(workingFolderPath, "workingFolderPath");
 
@@ -135,7 +135,7 @@ public class JavaProcessBuilder implements ProcessBuilder
      * @param workingFolderPath The path to the folder that this process will be executed in.
      * @return This object for method chaining.
      */
-    public JavaProcessBuilder setWorkingFolder(Path workingFolderPath)
+    public BasicProcessBuilder setWorkingFolder(Path workingFolderPath)
     {
         PreCondition.assertNotNull(workingFolderPath, "workingFolderPath");
 
@@ -149,7 +149,7 @@ public class JavaProcessBuilder implements ProcessBuilder
      * @param workingFolder The folder that this process will be executed in.
      * @return This object for method chaining.
      */
-    public JavaProcessBuilder setWorkingFolder(Folder workingFolder)
+    public BasicProcessBuilder setWorkingFolder(Folder workingFolder)
     {
         PreCondition.assertNotNull(workingFolder, "workingFolder");
 
@@ -171,7 +171,7 @@ public class JavaProcessBuilder implements ProcessBuilder
      *                              default input stream.
      * @return This object for method chaining.
      */
-    public JavaProcessBuilder redirectInput(ByteReadStream redirectedInputStream)
+    public BasicProcessBuilder redirectInput(ByteReadStream redirectedInputStream)
     {
         this.redirectedInputStream = redirectedInputStream;
         return this;
@@ -183,7 +183,7 @@ public class JavaProcessBuilder implements ProcessBuilder
      * @param redirectOutputAction The action that will be invoked when the process is started.
      * @return This object for method chaining.
      */
-    public JavaProcessBuilder redirectOutput(Action1<ByteReadStream> redirectOutputAction)
+    public BasicProcessBuilder redirectOutput(Action1<ByteReadStream> redirectOutputAction)
     {
         this.redirectOutputAction = redirectOutputAction;
         return this;
@@ -194,7 +194,7 @@ public class JavaProcessBuilder implements ProcessBuilder
      * @param redirectedOutputStream The ByteWriteStream to redirect process output to.
      * @return This ProcessBuilder.
      */
-    public JavaProcessBuilder redirectOutput(ByteWriteStream redirectedOutputStream)
+    public BasicProcessBuilder redirectOutput(ByteWriteStream redirectedOutputStream)
     {
         return this.redirectOutput((ByteReadStream output) -> redirectedOutputStream.writeAllBytes(output).await());
     }
@@ -204,9 +204,9 @@ public class JavaProcessBuilder implements ProcessBuilder
      * @param onOutputLine The function to call when a process writes a line to its output stream.
      * @return This ProcessBuilder.
      */
-    public JavaProcessBuilder redirectOutputLines(Action1<String> onOutputLine)
+    public BasicProcessBuilder redirectOutputLines(Action1<String> onOutputLine)
     {
-        return this.redirectOutput(JavaProcessBuilder.byteReadStreamToLineAction(onOutputLine));
+        return this.redirectOutput(BasicProcessBuilder.byteReadStreamToLineAction(onOutputLine));
     }
 
     /**
@@ -215,9 +215,9 @@ public class JavaProcessBuilder implements ProcessBuilder
      * @param builder The StringBuilder to collect process output in.
      * @return This ProcessBuilder.
      */
-    public JavaProcessBuilder redirectOutputTo(StringBuilder builder)
+    public BasicProcessBuilder redirectOutputTo(StringBuilder builder)
     {
-        return this.redirectOutputLines(JavaProcessBuilder.appendLineToStringBuilder(builder));
+        return this.redirectOutputLines(BasicProcessBuilder.appendLineToStringBuilder(builder));
     }
 
     /**
@@ -241,7 +241,7 @@ public class JavaProcessBuilder implements ProcessBuilder
      * @param redirectErrorAction The action that will be invoked when the process is started.
      * @return This object for method chaining.
      */
-    public JavaProcessBuilder redirectError(Action1<ByteReadStream> redirectErrorAction)
+    public BasicProcessBuilder redirectError(Action1<ByteReadStream> redirectErrorAction)
     {
         this.redirectErrorAction = redirectErrorAction;
         return this;
@@ -252,7 +252,7 @@ public class JavaProcessBuilder implements ProcessBuilder
      * @param redirectedErrorStream The ByteWriteStream to redirect process error to.
      * @return This ProcessBuilder.
      */
-    public JavaProcessBuilder redirectError(ByteWriteStream redirectedErrorStream)
+    public BasicProcessBuilder redirectError(ByteWriteStream redirectedErrorStream)
     {
         return this.redirectError((ByteReadStream error) -> redirectedErrorStream.writeAllBytes(error).await());
     }
@@ -262,9 +262,9 @@ public class JavaProcessBuilder implements ProcessBuilder
      * @param onErrorLine The function to call when a process writes a line to its error stream.
      * @return This ProcessBuilder.
      */
-    public JavaProcessBuilder redirectErrorLines(Action1<String> onErrorLine)
+    public BasicProcessBuilder redirectErrorLines(Action1<String> onErrorLine)
     {
-        return this.redirectError(JavaProcessBuilder.byteReadStreamToLineAction(onErrorLine));
+        return this.redirectError(BasicProcessBuilder.byteReadStreamToLineAction(onErrorLine));
     }
 
     /**
@@ -273,9 +273,9 @@ public class JavaProcessBuilder implements ProcessBuilder
      * @param builder The StringBuilder to collect process error in.
      * @return This ProcessBuilder.
      */
-    public JavaProcessBuilder redirectErrorTo(StringBuilder builder)
+    public BasicProcessBuilder redirectErrorTo(StringBuilder builder)
     {
-        return this.redirectErrorLines(JavaProcessBuilder.appendLineToStringBuilder(builder));
+        return this.redirectErrorLines(BasicProcessBuilder.appendLineToStringBuilder(builder));
     }
 
     /**

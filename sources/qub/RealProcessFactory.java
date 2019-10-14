@@ -41,7 +41,7 @@ public class RealProcessFactory implements ProcessFactory
             final File executableFile = findExecutableFile(executablePath, true)
                 .catchError(FileNotFoundException.class, () -> findExecutableFile(executablePath, false).await())
                 .await();
-            return new JavaProcessBuilder(this, executableFile.getPath(), this.currentFolder.getPath());
+            return new BasicProcessBuilder(this, executableFile.getPath(), this.currentFolder.getPath());
         });
     }
 
